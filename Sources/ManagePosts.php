@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains all the screens that control settings for topics and posts.
+ * This file contains all the administration settings for topics and posts.
  *
  * Simple Machines Forum (SMF)
  *

@@ -47,10 +47,6 @@ if (!defined('SMF'))
 		- uses the email template and replacements passed in the parameters.
 		- sends them an email.
 
-	bool updateLastDatabaseError()
-		- attempts to use the backup file first, to store the last database error
-		- and only update Settings.php if the first was successful.
-
 */
 
 function getServerVersions($checkFor)
@@ -477,74 +473,6 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			// Send off the email.
 			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 1);
 		}
-}
-
-function updateLastDatabaseError()
-{
-	global $boarddir;
-
-	// Find out this way if we can even write things on this filesystem.
-	// In addition, store things first in the backup file
-
-	$last_settings_change = @filemtime($boarddir . '/Settings.php');
-
-	// Make sure the backup file is there...
-	$file = $boarddir . '/Settings_bak.php';
-	if ((!file_exists($file) || filesize($file) == 0) && !copy($boarddir . '/Settings.php', $file))
-			return false;
-
-	// ...and writable!
-	if (!is_writable($file))
-	{
-		chmod($file, 0755);
-		if (!is_writable($file))
-		{
-			chmod($file, 0775);
-			if (!is_writable($file))
-			{
-				chmod($file, 0777);
-				if (!is_writable($file))
-						return false;
-			}
-		}
-	}
-
-	// Put the new timestamp.
-	$data = file_get_contents($file);
-	$data = preg_replace('~\$db_last_error = \d+;~', '$db_last_error = ' . time() . ';', $data);
-
-	// Open the backup file for writing
-	if ($fp = @fopen($file, 'w'))
-	{
-		// Reset the file buffer.
-		set_file_buffer($fp, 0);
-
-		// Update the file.
-		$t = flock($fp, LOCK_EX);
-		$bytes = fwrite($fp, $data);
-		flock($fp, LOCK_UN);
-		fclose($fp);
-
-		// Was it a success?
-		// ...only relevant if we're still dealing with the same good ole' settings file.
-		clearstatcache();
-		if (($bytes == strlen($data)) && (filemtime($boarddir . '/Settings.php') === $last_settings_change))
-		{
-			// This is our new Settings file...
-			// At least this one is an atomic operation
-			@copy($file, $boarddir . '/Settings.php');
-			return true;
-		}
-		else
-		{
-			// Oops. Someone might have been faster
-			// or we have no more disk space left, troubles, troubles...
-			// Copy the file back and run for your life!
-			@copy($boarddir . '/Settings.php', $file);
-		}
-	}
-
-	return false;
 }
 
 ?>

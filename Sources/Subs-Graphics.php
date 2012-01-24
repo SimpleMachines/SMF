@@ -2,8 +2,9 @@
 
 /**
  * This file deals with low-level graphics operations performed on images,
- * specially as needed for avatars (uploaded avatars), and attachments.
- * It uses, for gifs at least, Gif Util... for more information on that,
+ * specially as needed for avatars (uploaded avatars), attachments, or
+ * visual verification images.
+ * It uses, for gifs at least, Gif Util. For more information on that,
  * please see its website.
  * TrueType fonts supplied by www.LarabieFonts.com
  *
@@ -20,197 +21,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This whole file deals almost exclusively with handling avatars,
-	specifically uploaded ones.  It uses, for gifs at least, Gif Util... for
-	more information on that, please see its website, shown above.  The other
-	functions are as follows:
-
-	bool downloadAvatar(string url, int id_member, int max_width,
-			int max_height)
-		- downloads file from url and stores it locally for avatar use
-		  by id_member.
-		- supports GIF, JPG, PNG, BMP and WBMP formats.
-		- detects if GD2 is available.
-		- if GIF support isn't present in GD, handles GIFs with gif_loadFile()
-		  and gif_outputAsPng().
-		- uses resizeImageFile() to resize to max_width by max_height,
-		  and saves the result to a file.
-		- updates the database info for the member's avatar.
-		- returns whether the download and resize was successful.
-
-	bool createThumbnail(string source, int max_width, int max_height)
-		- create a thumbnail of the given source.
-		- uses the resizeImageFile function to achieve the resize.
-		- returns whether the thumbnail creation was successful.
-
-	bool reencodeImage(string fileName, int preferred_format = 0)
-		- creates a copy of the file at the same location as fileName.
-		- the file would have the format preferred_format if possible,
-		  otherwise the default format is jpeg.
-		- makes sure that all non-essential image contents are disposed.
-		- returns true on success, false on failure.
-
-	bool checkImageContents(string fileName, bool extensiveCheck = false)
-		- searches through the file to see if there's non-binary content.
-		- if extensiveCheck is true, searches for asp/php short tags as well.
-		- returns true on success, false on failure.
-
-	bool checkGD()
-		- sets a global $gd2 variable needed by some functions to determine
-		  whetehr the GD2 library is present.
-		- returns whether or not GD1 is available.
-
-	void resizeImageFile(string source, string destination,
-			int max_width, int max_height, int preferred_format = 0)
-		- resizes an image from a remote location or a local file.
-		- puts the resized image at the destination location.
-		- the file would have the format preferred_format if possible,
-		  otherwise the default format is jpeg.
-		- returns whether it succeeded.
-
-	void resizeImage(resource src_img, string destination_filename,
-			int src_width, int src_height, int max_width, int max_height,
-			int preferred_format)
-		- resizes src_img proportionally to fit within max_width and
-		  max_height limits if it is too large.
-		- if GD2 is present, it'll use it to achieve better quality.
-		- saves the new image to destination_filename.
-		- saves as preferred_format if possible, default is jpeg.
-
-	void imagecopyresamplebicubic(resource dest_img, resource src_img,
-			int dest_x, int dest_y, int src_x, int src_y, int dest_w,
-			int dest_h, int src_w, int src_h)
-		- used when imagecopyresample() is not available.
-
-	resource gif_loadFile(string filename, int animation_index)
-		- loads a gif file with the Yamasoft GIF utility class.
-		- returns a new GD image.
-
-	bool gif_outputAsPng(resource gif, string destination_filename,
-			int bgColor = -1)
-		- writes a gif file to disk as a png file.
-		- returns whether it was successful or not.
-
-	bool imagecreatefrombmp(string filename)
-		- is set only if it doesn't already exist (for forwards compatiblity.)
-		- only supports uncompressed bitmaps.
-		- returns an image identifier representing the bitmap image obtained
-		  from the given filename.
-
-	bool showCodeImage(string code)
-		- show an image containing the visual verification code for registration.
-		- requires the GD extension.
-		- uses a random font for each letter from default_theme_dir/fonts.
-		- outputs a gif or a png (depending on whether gif ix supported).
-		- returns false if something goes wrong.
-
-	bool showLetterImage(string letter)
-		- show a letter for the visual verification code.
-		- alternative function for showCodeImage() in case GD is missing.
-		- includes an image from a random sub directory of
-		  default_theme_dir/fonts.
-*/
-
-function downloadAvatar($url, $memID, $max_width, $max_height)
-{
-	global $modSettings, $sourcedir, $smcFunc;
-
-	$ext = !empty($modSettings['avatar_download_png']) ? 'png' : 'jpeg';
-	$destName = 'avatar_' . $memID . '_' . time() . '.' . $ext;
-
-	// Just making sure there is a non-zero member.
-	if (empty($memID))
-		return false;
-
-	require_once($sourcedir . '/ManageAttachments.php');
-	removeAttachments(array('id_member' => $memID));
-
-	$id_folder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : 1;
-	$avatar_hash = empty($modSettings['custom_avatar_enabled']) ? getAttachmentFilename($destName, false, null, true) : '';
-	$smcFunc['db_insert']('',
-		'{db_prefix}attachments',
-		array(
-			'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-255', 'fileext' => 'string-8', 'size' => 'int',
-			'id_folder' => 'int',
-		),
-		array(
-			$memID, empty($modSettings['custom_avatar_enabled']) ? 0 : 1, $destName, $avatar_hash, $ext, 1,
-			$id_folder,
-		),
-		array('id_attach')
-	);
-	$attachID = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
-	// Retain this globally in case the script wants it.
-	$modSettings['new_avatar_data'] = array(
-		'id' => $attachID,
-		'filename' => $destName,
-		'type' => empty($modSettings['custom_avatar_enabled']) ? 0 : 1,
-	);
-
-	$destName = (empty($modSettings['custom_avatar_enabled']) ? (is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] : $modSettings['attachmentUploadDir']) : $modSettings['custom_avatar_dir']) . '/' . $destName . '.tmp';
-
-	// Resize it.
-	if (!empty($modSettings['avatar_download_png']))
-		$success = resizeImageFile($url, $destName, $max_width, $max_height, 3);
-	else
-		$success = resizeImageFile($url, $destName, $max_width, $max_height);
-
-	// Remove the .tmp extension.
-	$destName = substr($destName, 0, -4);
-
-	if ($success)
-	{
-		// Walk the right path.
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-			$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$path = $modSettings['attachmentUploadDir'];
-
-		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash))
-		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash;
-			list ($width, $height) = getimagesize($destName);
-			$mime_type = 'image/' . $ext;
-
-			// Write filesize in the database.
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}attachments
-				SET size = {int:filesize}, width = {int:width}, height = {int:height},
-					mime_type = {string:mime_type}
-				WHERE id_attach = {int:current_attachment}',
-				array(
-					'filesize' => filesize($destName),
-					'width' => (int) $width,
-					'height' => (int) $height,
-					'current_attachment' => $attachID,
-					'mime_type' => $mime_type,
-				)
-			);
-			return true;
-		}
-		else
-			return false;
-	}
-	else
-	{
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}attachments
-			WHERE id_attach = {int:current_attachment}',
-			array(
-				'current_attachment' => $attachID,
-			)
-		);
-
-		@unlink($destName . '.tmp');
-		return false;
-	}
-}
-
+/**
+ * Create a thumbnail of the given source.
+ *
+ * @uses resizeImageFile() function to achieve the resize.
+ *
+ * @param string $source
+ * @param int $max_width
+ * @param int $max_height
+ * @return bool, whether the thumbnail creation was successful.
+ */
 function createThumbnail($source, $max_width, $max_height)
 {
 	global $modSettings;
@@ -236,6 +56,16 @@ function createThumbnail($source, $max_width, $max_height)
 	}
 }
 
+/**
+ * Creates a copy of the file at the same location as fileName.
+ * The file would have the format preferred_format if possible,
+ * otherwise the default format is jpeg.
+ * The function makes sure that all non-essential image contents are disposed.
+ *
+ * @param string $fileName
+ * @param int $preferred_format = 0
+ * @return bool, true on success, false on failure.
+ */
 function reencodeImage($fileName, $preferred_format = 0)
 {
 	// There is nothing we can do without GD, sorry!
@@ -259,6 +89,14 @@ function reencodeImage($fileName, $preferred_format = 0)
 	return true;
 }
 
+/**
+ * Searches through the file to see if there's non-binary content.
+ * If extensiveCheck is true, searches for asp/php short tags as well.
+ *
+ * @param string $fileName
+ * @param bool $extensiveCheck = false
+ * @return true on success, false on failure.
+ */
 function checkImageContents($fileName, $extensiveCheck = false)
 {
 	$fp = fopen($fileName, 'rb');
@@ -296,6 +134,12 @@ function checkImageContents($fileName, $extensiveCheck = false)
 	return true;
 }
 
+/**
+ * Sets a global $gd2 variable needed by some functions to determine
+ * whether the GD2 library is present.
+ *
+ * @return whether or not GD1 is available.
+ */
 function checkGD()
 {
 	global $gd2;
@@ -310,6 +154,19 @@ function checkGD()
 	return true;
 }
 
+/**
+ * Resizes an image from a remote location or a local file.
+ * Puts the resized image at the destination location.
+ * The file would have the format preferred_format if possible,
+ * otherwise the default format is jpeg.
+ *
+ * @param string $source
+ * @param string $destination
+ * @param int $max_width
+ * @param int $max_height
+ * @param int $preferred_format = 0
+ * @return whether it succeeded.
+ */
 function resizeImageFile($source, $destination, $max_width, $max_height, $preferred_format = 0)
 {
 	global $sourcedir;
@@ -383,6 +240,23 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	return $success;
 }
 
+/**
+ * Resizes src_img proportionally to fit within max_width and max_height limits
+ * if it is too large.
+ * If GD2 is present, it'll use it to achieve better quality.
+ * It saves the new image to destination_filename, as preferred_format
+ * if possible, default is jpeg.
+ * @uses GD
+ *
+ * @param resource $src_img
+ * @param string $destName
+ * @param int $src_width
+ * @param int $src_height
+ * @param int $max_width
+ * @param int $max_height
+ * @param bool $force_resize = false
+ * @param int $preferred_format = 0
+ */
 function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $max_height, $force_resize = false, $preferred_format = 0)
 {
 	global $gd2, $modSettings;
@@ -454,6 +328,21 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 	return $success;
 }
 
+/**
+ * Copy image.
+ * Used when imagecopyresample() is not available.
+
+ * @param resource $dst_img
+ * @param resource $src_img
+ * @param int $dst_x
+ * @param int $dst_y
+ * @param int $src_x
+ * @param int $src_y
+ * @param int $dst_w
+ * @param int $dst_h
+ * @param int $src_w
+ * @param int $src_h
+ */
 function imagecopyresamplebicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
 {
 	$palsize = imagecolorstotal($src_img);
@@ -503,6 +392,14 @@ function imagecopyresamplebicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $s
 
 if (!function_exists('imagecreatefrombmp'))
 {
+	/**
+	 * It is set only if it doesn't already exist (for forwards compatiblity.)
+	 * It only supports uncompressed bitmaps.
+	 *
+	 * @param string $filename
+	 * @return resource, an image identifier representing the bitmap image
+	 * obtained from the given filename.
+	 */
 	function imagecreatefrombmp($filename)
 	{
 		global $gd2;
@@ -654,6 +551,13 @@ if (!function_exists('imagecreatefrombmp'))
 	}
 }
 
+/**
+ * Loads a gif file with the Yamasoft GIF utility class.
+ *
+ * @param string $lpszFileName
+ * @param int $iIndex
+ * @return resource, a new GD image.
+ */
 function gif_loadFile($lpszFileName, $iIndex = 0)
 {
 	// The classes needed are in this file.
@@ -666,6 +570,14 @@ function gif_loadFile($lpszFileName, $iIndex = 0)
 	return $gif;
 }
 
+/**
+ * Writes a gif file to disk as a png file.
+
+ * @param resource $gif
+ * @param string $lpszFileName
+ * @param int $background_color = -1
+ * @return bool, whether it was successful or not.
+ */
 function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {
 	if (!isset($gif) || @get_class($gif) != 'cgif' || !$gif->loaded || $lpszFileName == '')
@@ -685,7 +597,15 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 	return true;
 }
 
-// Create the image for the visual verification code.
+/**
+ * Show an image containing the visual verification code for registration.
+ * Requires the GD extension.
+ * Uses a random font for each letter from default_theme_dir/fonts.
+ * Outputs a gif or a png (depending on whether gif ix supported).
+ *
+ * @param string $code
+ * @return false if something goes wrong.
+ */
 function showCodeImage($code)
 {
 	global $settings, $user_info, $modSettings;
@@ -1013,7 +933,13 @@ function showCodeImage($code)
 	die();
 }
 
-// Create a letter for the visual verification code.
+/**
+ * Show a letter for the visual verification code.
+ * Alternative function for showCodeImage() in case GD is missing.
+ * Includes an image from a random sub directory of default_theme_dir/fonts.
+ *
+ * @param string $letter
+ */
 function showLetterImage($letter)
 {
 	global $settings;

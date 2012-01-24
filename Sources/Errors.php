@@ -120,6 +120,307 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 }
 
 /**
+ * This function logs an action in the respective log. (database log)
+ * @example logAction('remove', array('starter' => $id_member_started));
+ *
+ * @param string $action
+ * @param array $extra = array()
+ * @param string $log_type, options 'moderate', 'admin', ...etc.
+ */
+function logAction($action, $extra = array(), $log_type = 'moderate')
+{
+	global $modSettings, $user_info, $smcFunc, $sourcedir;
+
+	$log_types = array(
+		'moderate' => 1,
+		'user' => 2,
+		'admin' => 3,
+	);
+
+	if (!is_array($extra))
+		trigger_error('logAction(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
+
+	// Pull out the parts we want to store separately, but also make sure that the data is proper
+	if (isset($extra['topic']))
+	{
+		if (!is_numeric($extra['topic']))
+			trigger_error('logAction(): data\'s topic is not a number', E_USER_NOTICE);
+		$topic_id = empty($extra['topic']) ? '0' : (int)$extra['topic'];
+		unset($extra['topic']);
+	}
+	else
+		$topic_id = '0';
+
+	if (isset($extra['message']))
+	{
+		if (!is_numeric($extra['message']))
+			trigger_error('logAction(): data\'s message is not a number', E_USER_NOTICE);
+		$msg_id = empty($extra['message']) ? '0' : (int)$extra['message'];
+		unset($extra['message']);
+	}
+	else
+		$msg_id = '0';
+
+	// Is there an associated report on this?
+	if (in_array($action, array('move', 'remove', 'split', 'merge')))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_report
+			FROM {db_prefix}log_reported
+			WHERE {raw:column_name} = {int:reported}
+			LIMIT 1',
+			array(
+				'column_name' => !empty($msg_id) ? 'id_msg' : 'id_topic',
+				'reported' => !empty($msg_id) ? $msg_id : $topic_id,
+		));
+
+		// Alright, if we get any result back, update open reports.
+		if ($smcFunc['db_num_rows']($request) > 0)
+		{
+			require_once($sourcedir . '/ModerationCenter.php');
+			updateSettings(array('last_mod_report_action' => time()));
+			recountOpenReports();
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	// No point in doing anything else, if the log isn't even enabled.
+	if (empty($modSettings['modlog_enabled']) || !isset($log_types[$log_type]))
+		return false;
+
+	if (isset($extra['member']) && !is_numeric($extra['member']))
+		trigger_error('logAction(): data\'s member is not a number', E_USER_NOTICE);
+
+	if (isset($extra['board']))
+	{
+		if (!is_numeric($extra['board']))
+			trigger_error('logAction(): data\'s board is not a number', E_USER_NOTICE);
+		$board_id = empty($extra['board']) ? '0' : (int)$extra['board'];
+		unset($extra['board']);
+	}
+	else
+		$board_id = '0';
+
+	if (isset($extra['board_to']))
+	{
+		if (!is_numeric($extra['board_to']))
+			trigger_error('logAction(): data\'s board_to is not a number', E_USER_NOTICE);
+		if (empty($board_id))
+		{
+			$board_id = empty($extra['board_to']) ? '0' : (int)$extra['board_to'];
+			unset($extra['board_to']);
+		}
+	}
+
+	$smcFunc['db_insert']('',
+		'{db_prefix}log_actions',
+		array(
+			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
+			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
+		),
+		array(
+			time(), $log_types[$log_type], $user_info['id'], $user_info['ip'], $action,
+			$board_id, $topic_id, $msg_id, serialize($extra),
+		),
+		array('id_action')
+	);
+
+	return $smcFunc['db_insert_id']('{db_prefix}log_actions', 'id_action');
+}
+
+/**
+ * Debugging.
+ */
+function db_debug_junk()
+{
+	global $context, $scripturl, $boarddir, $modSettings, $boarddir;
+	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $txt;
+
+	// Add to Settings.php if you want to show the debugging information.
+	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery') || WIRELESS)
+		return;
+
+	if (empty($_SESSION['view_queries']))
+		$_SESSION['view_queries'] = 0;
+	if (empty($context['debug']['language_files']))
+		$context['debug']['language_files'] = array();
+	if (empty($context['debug']['sheets']))
+		$context['debug']['sheets'] = array();
+
+	$files = get_included_files();
+	$total_size = 0;
+	for ($i = 0, $n = count($files); $i < $n; $i++)
+	{
+		if (file_exists($files[$i]))
+			$total_size += filesize($files[$i]);
+		$files[$i] = strtr($files[$i], array($boarddir => '.'));
+	}
+
+	$warnings = 0;
+	if (!empty($db_cache))
+	{
+		foreach ($db_cache as $q => $qq)
+		{
+			if (!empty($qq['w']))
+				$warnings += count($qq['w']);
+		}
+
+		$_SESSION['debug'] = &$db_cache;
+	}
+
+	// Gotta have valid HTML ;).
+	$temp = ob_get_contents();
+	if (function_exists('ob_clean'))
+		ob_clean();
+	else
+	{
+		ob_end_clean();
+		ob_start('ob_sessrewrite');
+	}
+
+	echo preg_replace('~</body>\s*</html>~', '', $temp), '
+<div class="smalltext" style="text-align: left; margin: 1ex;">
+	', $txt['debug_templates'], count($context['debug']['templates']), ': <em>', implode('</em>, <em>', $context['debug']['templates']), '</em>.<br />
+	', $txt['debug_subtemplates'], count($context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', $context['debug']['sub_templates']), '</em>.<br />
+	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br />
+	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br />
+	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br />';
+
+	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
+	{
+		$entries = array();
+		$total_t = 0;
+		$total_s = 0;
+		foreach ($cache_hits as $cache_hit)
+		{
+			$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf($txt['debug_cache_seconds_bytes'], comma_format($cache_hit['t'], 5), $cache_hit['s']);
+			$total_t += $cache_hit['t'];
+			$total_s += $cache_hit['s'];
+		}
+
+		echo '
+	', $txt['debug_cache_hits'], $cache_count, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br />';
+	}
+
+	echo '
+	<a href="', $scripturl, '?action=viewquery" target="_blank" class="new_win">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br />
+	<br />';
+
+	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
+		foreach ($db_cache as $q => $qq)
+		{
+			$is_select = substr(trim($qq['q']), 0, 6) == 'SELECT' || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($qq['q'])) != 0;
+			// Temporary tables created in earlier queries are not explainable.
+			if ($is_select)
+			{
+				foreach (array('log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages') as $tmp)
+					if (strpos(trim($qq['q']), $tmp) !== false)
+					{
+						$is_select = false;
+						break;
+					}
+			}
+			// But actual creation of the temporary tables are.
+			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($qq['q'])) != 0)
+				$is_select = true;
+
+			// Make the filenames look a bit better.
+			if (isset($qq['f']))
+				$qq['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $qq['f']);
+
+			echo '
+	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" class="new_win" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', htmlspecialchars(ltrim($qq['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br />
+	&nbsp;&nbsp;&nbsp;';
+			if (!empty($qq['f']) && !empty($qq['l']))
+				echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
+
+			if (isset($qq['s'], $qq['t']) && isset($txt['debug_query_which_took_at']))
+				echo sprintf($txt['debug_query_which_took_at'], round($qq['t'], 8), round($qq['s'], 8)) . '<br />';
+			elseif (isset($qq['t']))
+				echo sprintf($txt['debug_query_which_took'], round($qq['t'], 8)) . '<br />';
+			echo '
+	<br />';
+		}
+
+	echo '
+	<a href="' . $scripturl . '?action=viewquery;sa=hide">', $txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
+</div></body></html>';
+}
+
+/**
+ * Logs the last database error into a file.
+ * Attempts to use the backup file first, to store the last database error
+ * and only update Settings.php if the first was successful.
+ */
+function updateLastDatabaseError()
+{
+	global $boarddir;
+
+	// Find out this way if we can even write things on this filesystem.
+	// In addition, store things first in the backup file
+
+	$last_settings_change = @filemtime($boarddir . '/Settings.php');
+
+	// Make sure the backup file is there...
+	$file = $boarddir . '/Settings_bak.php';
+	if ((!file_exists($file) || filesize($file) == 0) && !copy($boarddir . '/Settings.php', $file))
+			return false;
+
+	// ...and writable!
+	if (!is_writable($file))
+	{
+		chmod($file, 0755);
+		if (!is_writable($file))
+		{
+			chmod($file, 0775);
+			if (!is_writable($file))
+			{
+				chmod($file, 0777);
+				if (!is_writable($file))
+						return false;
+			}
+		}
+	}
+
+	// Put the new timestamp.
+	$data = file_get_contents($file);
+	$data = preg_replace('~\$db_last_error = \d+;~', '$db_last_error = ' . time() . ';', $data);
+
+	// Open the backup file for writing
+	if ($fp = @fopen($file, 'w'))
+	{
+		// Reset the file buffer.
+		set_file_buffer($fp, 0);
+
+		// Update the file.
+		$t = flock($fp, LOCK_EX);
+		$bytes = fwrite($fp, $data);
+		flock($fp, LOCK_UN);
+		fclose($fp);
+
+		// Was it a success?
+		// ...only relevant if we're still dealing with the same good ole' settings file.
+		clearstatcache();
+		if (($bytes == strlen($data)) && (filemtime($boarddir . '/Settings.php') === $last_settings_change))
+		{
+			// This is our new Settings file...
+			// At least this one is an atomic operation
+			@copy($file, $boarddir . '/Settings.php');
+			return true;
+		}
+		else
+		{
+			// Oops. Someone might have been faster
+			// or we have no more disk space left, troubles, troubles...
+			// Copy the file back and run for your life!
+			@copy($boarddir . '/Settings.php', $file);
+		}
+	}
+
+	return false;
+}
+
+/**
  * An irrecoverable error. This function stops execution and displays an error message.
  * It logs the error message if $log is specified.
  * @param string $error
@@ -365,8 +666,6 @@ function show_db_error($loadavg = false)
 
 		if ($db_last_error < time() - 3600 * 24 * 3 && empty($maintenance) && !empty($db_error_send))
 		{
-			require_once($sourcedir . '/Subs-Admin.php');
-
 			// Avoid writing to the Settings.php file if at all possible; use shared memory instead.
 			cache_put_data('db_last_error', time(), 600);
 			if (($temp = cache_get_data('db_last_error', 600)) == null)

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file has all the main functions in it that relate to the database.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,14 +16,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has all the main functions in it that relate to the database.
-
-	smf_db_initiate() maps the implementations in this file (smf_db_function_name)
-	to the $smcFunc['db_function_name'] variable.
-
-*/
-
-// Initialize the database settings
+/**
+ *  Maps the implementations in this file (smf_db_function_name)
+ *  to the $smcFunc['db_function_name'] variable.
+ */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
 	global $smcFunc, $mysql_set_mode;
@@ -80,7 +78,13 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	return $connection;
 }
 
-// Extend the database functionality.
+/**
+ * Extend the database functionality. It calls the respective file's init
+ * to add the implementations in that file to $smcFunc array.
+ *
+ * @param string $type, indicated which additional file to load.
+ * ('extra', 'packages')
+ */
 function db_extend($type = 'extra')
 {
 	global $sourcedir, $db_type;
@@ -90,12 +94,24 @@ function db_extend($type = 'extra')
 	$initFunc();
 }
 
-// Fix up the prefix so it doesn't require the database to be selected.
+/**
+ * Fix up the prefix so it doesn't require the database to be selected.
+ */
 function db_fix_prefix(&$db_prefix, $db_name)
 {
 	$db_prefix = is_numeric(substr($db_prefix, 0, 1)) ? $db_name . '.' . $db_prefix : '`' . $db_name . '`.' . $db_prefix;
 }
 
+/**
+ * Callback for preg_replace_calback on the query.
+ * It allows to replace on the fly a few pre-defined strings, for
+ * convenience ('query_see_board', 'query_wanna_see_board'), with
+ * their current values from $user_info.
+ * In addition, it performs checks and sanitization on the values
+ * sent to the database.
+ *
+ * @param $matches
+ */
 function smf_db_replacement__callback($matches)
 {
 	global $db_callback, $user_info, $db_prefix;
@@ -196,7 +212,10 @@ function smf_db_replacement__callback($matches)
 	}
 }
 
-// Just like the db_query, escape and quote a string, but not executing the query.
+/**
+ * Just like the db_query, escape and quote a string,
+ * but not executing the query.
+ */
 function smf_db_quote($db_string, $db_values, $connection = null)
 {
 	global $db_callback, $db_connection;
@@ -217,7 +236,9 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 	return $db_string;
 }
 
-// Do a query.  Takes care of errors too.
+/**
+ * Do a query.  Takes care of errors too.
+ */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
@@ -361,6 +382,10 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	return $ret;
 }
 
+/**
+ * affected_rows
+ * @param resource $connection
+ */
 function smf_db_affected_rows($connection = null)
 {
 	global $db_connection;
@@ -368,6 +393,13 @@ function smf_db_affected_rows($connection = null)
 	return mysql_affected_rows($connection == null ? $db_connection : $connection);
 }
 
+/**
+ * insert_id
+ *
+ * @param string $table
+ * @param string $field = null
+ * @param resource $connection = null
+ */
 function smf_db_insert_id($table, $field = null, $connection = null)
 {
 	global $db_connection, $db_prefix;
@@ -378,7 +410,12 @@ function smf_db_insert_id($table, $field = null, $connection = null)
 	return mysql_insert_id($connection == null ? $db_connection : $connection);
 }
 
-// Do a transaction.
+/**
+ * Do a transaction.
+ *
+ * @param string $type - the step to perform (i.e. 'begin', 'commit', 'rollback')
+ * @param resource $connection = null
+ */
 function smf_db_transaction($type = 'commit', $connection = null)
 {
 	global $db_connection;
@@ -396,7 +433,13 @@ function smf_db_transaction($type = 'commit', $connection = null)
 	return false;
 }
 
-// Database error!
+/**
+ * Database error!
+ * Backtrace, log, try to fix.
+ *
+ * @param string $db_string
+ * @param resource $connection = null
+ */
 function smf_db_error($db_string, $connection = null)
 {
 	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
@@ -585,7 +628,17 @@ function smf_db_error($db_string, $connection = null)
 	fatal_error($context['error_message'], false);
 }
 
-// Insert some data...
+/**
+ * insert
+ *
+ * @param string $method, options 'replace', 'ignore', 'insert'
+ * @param $table
+ * @param $columns
+ * @param $data
+ * @param $keys
+ * @param bool $disable_trans = false
+ * @param resource $connection = null
+ */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null)
 {
 	global $smcFunc, $db_connection, $db_prefix;
@@ -640,7 +693,15 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 	);
 }
 
-// This function tries to work out additional error information from a back trace.
+/**
+ * This function tries to work out additional error information from a back trace.
+ *
+ * @param $error_message
+ * @param $log_message
+ * @param $error_type
+ * @param $file
+ * @param $line
+ */
 function smf_db_error_backtrace($error_message, $log_message = '', $error_type = false, $file = null, $line = null)
 {
 	if (empty($log_message))
@@ -686,8 +747,12 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
 }
 
-// Escape the LIKE wildcards so that they match the character and not the wildcard.
-// The optional second parameter turns human readable wildcards into SQL wildcards.
+/**
+ * Escape the LIKE wildcards so that they match the character and not the wildcard.
+ *
+ * @param $string
+ * @param bool $translate_human_wildcards = false, if true, turns human readable wildcards into SQL wildcards.
+ */
 function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false)
 {
 	$replacements = array(

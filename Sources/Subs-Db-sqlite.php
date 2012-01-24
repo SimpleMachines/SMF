@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file has all the main functions in it that relate to the database.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,14 +16,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has all the main functions in it that relate to the database.
-
-	smf_db_initiate() maps the implementations in this file (smf_db_function_name)
-	to the $smcFunc['db_function_name'] variable.
-
-*/
-
-// Initialize the database settings
+/**
+ *  Maps the implementations in this file (smf_db_function_name)
+ *  to the $smcFunc['db_function_name'] variable.
+ */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
 	global $smcFunc, $mysql_set_mode, $db_in_transact, $sqlite_error;
@@ -88,7 +86,13 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	return $connection;
 }
 
-// Extend the database functionality.
+/**
+ * Extend the database functionality. It calls the respective file's init
+ * to add the implementations in that file to $smcFunc array.
+ *
+ * @param string $type, indicated which additional file to load.
+ * ('extra', 'packages')
+ */
 function db_extend($type = 'extra')
 {
 	global $sourcedir, $db_type;
@@ -98,12 +102,25 @@ function db_extend($type = 'extra')
 	$initFunc();
 }
 
-// SQLite doesn't actually need this!
+/**
+ * Fix db prefix if necessary.
+ * SQLite doesn't actually need this!
+ */
 function db_fix_prefix(&$db_prefix, $db_name)
 {
 	return false;
 }
 
+/**
+ * Callback for preg_replace_calback on the query.
+ * It allows to replace on the fly a few pre-defined strings, for
+ * convenience ('query_see_board', 'query_wanna_see_board'), with
+ * their current values from $user_info.
+ * In addition, it performs checks and sanitization on the values
+ * sent to the database.
+ *
+ * @param $matches
+ */
 function smf_db_replacement__callback($matches)
 {
 	global $db_callback, $user_info, $db_prefix;
@@ -203,7 +220,10 @@ function smf_db_replacement__callback($matches)
 	}
 }
 
-// Just like the db_query, escape and quote a string, but not executing the query.
+/**
+ * Just like the db_query, escape and quote a string,
+ * but not executing the query.
+ */
 function smf_db_quote($db_string, $db_values, $connection = null)
 {
 	global $db_callback, $db_connection;
@@ -224,7 +244,9 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 	return $db_string;
 }
 
-// Do a query.  Takes care of errors too.
+/**
+ * Do a query.  Takes care of errors too.
+ */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
@@ -368,6 +390,10 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	return $ret;
 }
 
+/**
+ * affected_rows
+ * @param resource $connection
+ */
 function smf_db_affected_rows($connection = null)
 {
 	global $db_connection;
@@ -375,6 +401,13 @@ function smf_db_affected_rows($connection = null)
 	return sqlite_changes($connection == null ? $db_connection : $connection);
 }
 
+/**
+ * insert_id
+ *
+ * @param string $table
+ * @param string $field = null
+ * @param resource $connection = null
+ */
 function smf_db_insert_id($table, $field = null, $connection = null)
 {
 	global $db_connection, $db_prefix;
@@ -385,7 +418,9 @@ function smf_db_insert_id($table, $field = null, $connection = null)
 	return sqlite_last_insert_rowid($connection == null ? $db_connection : $connection);
 }
 
-// Keeps the connection handle.
+/**
+ * Last error on SQLite
+ */
 function smf_db_last_error()
 {
 	global $db_connection, $sqlite_error;
@@ -394,7 +429,12 @@ function smf_db_last_error()
 	return $query_errno || empty($sqlite_error) ? sqlite_error_string($query_errno) : $sqlite_error;
 }
 
-// Do a transaction.
+/**
+ * Do a transaction.
+ *
+ * @param string $type - the step to perform (i.e. 'begin', 'commit', 'rollback')
+ * @param resource $connection = null
+ */
 function smf_db_transaction($type = 'commit', $connection = null)
 {
 	global $db_connection, $db_in_transact;
@@ -421,7 +461,13 @@ function smf_db_transaction($type = 'commit', $connection = null)
 	return false;
 }
 
-// Database error!
+/**
+ * Database error!
+ * Backtrace, log, try to fix.
+ *
+ * @param string $db_string
+ * @param resource $connection = null
+ */
 function smf_db_error($db_string, $connection = null)
 {
 	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
@@ -493,7 +539,17 @@ function smf_db_error($db_string, $connection = null)
 	fatal_error($context['error_message'], false);
 }
 
-// Insert some data...
+/**
+ * insert
+ *
+ * @param string $method, options 'replace', 'ignore', 'insert'
+ * @param $table
+ * @param $columns
+ * @param $data
+ * @param $keys
+ * @param bool $disable_trans = false
+ * @param resource $connection = null
+ */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null)
 {
 	global $db_in_transact, $db_connection, $smcFunc, $db_prefix;
@@ -556,25 +612,46 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		$smcFunc['db_transaction']('commit', $connection);
 }
 
-// Doesn't do anything on sqlite!
+/**
+ * free_result. Doesn't do anything on sqlite!
+ *
+ * @param resource $handle = false
+ */
 function smf_db_free_result($handle = false)
 {
 	return true;
 }
 
-// Make sure we return no string indexes!
+/**
+ * fetch_row
+ * Make sure we return no string indexes!
+ *
+ * @param $handle
+ */
 function smf_db_fetch_row($handle)
 {
 	return sqlite_fetch_array($handle, SQLITE_NUM);
 }
 
-// Unescape an escaped string!
+/**
+ * Unescape an escaped string!
+ *
+ * @param $string
+ */
 function smf_db_unescape_string($string)
 {
 	return strtr($string, array('\'\'' => '\''));
 }
 
-// This function tries to work out additional error information from a back trace.
+/**
+ * This function tries to work out additional error information from a back trace.
+ *
+ * @param $error_message
+ * @param $log_message
+ * @param $error_type
+ * @param $file
+ * @param $line
+ */
 function smf_db_error_backtrace($error_message, $log_message = '', $error_type = false, $file = null, $line = null)
 {
 	if (empty($log_message))
@@ -620,20 +697,30 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
 }
 
-// Emulate UNIX_TIMESTAMP.
+/**
+ * Emulate UNIX_TIMESTAMP.
+ */
 function smf_udf_unix_timestamp()
 {
 	return strftime('%s', 'now');
 }
 
-// Emulate INET_ATON.
+/**
+ * Emulate INET_ATON.
+ *
+ * @param $ip
+ */
 function smf_udf_inet_aton($ip)
 {
 	$chunks = explode('.', $ip);
 	return @$chunks[0] * pow(256, 3) + @$chunks[1] * pow(256, 2) + @$chunks[2] * 256 + @$chunks[3];
 }
 
-// Emulate INET_NTOA.
+/**
+ * Emulate INET_NTOA.
+ *
+ * @param $n
+ */
 function smf_udf_inet_ntoa($n)
 {
 	$t = array(0, 0, 0, 0);
@@ -654,7 +741,12 @@ function smf_udf_inet_ntoa($n)
 	return $a;
 }
 
-// Emulate FIND_IN_SET.
+/**
+ * Emulate FIND_IN_SET.
+ *
+ * @param $find
+ * @param $groups
+ */
 function smf_udf_find_in_set($find, $groups)
 {
 	foreach (explode(',', $groups) as $key => $group)
@@ -666,32 +758,50 @@ function smf_udf_find_in_set($find, $groups)
 	return 0;
 }
 
-// Emulate YEAR.
+/**
+ * Emulate YEAR.
+ *
+ * @param $date
+ */
 function smf_udf_year($date)
 {
 	return substr($date, 0, 4);
 }
 
-// Emulate MONTH.
+/**
+ * Emulate MONTH.
+ *
+ * @param $date
+ */
 function smf_udf_month($date)
 {
 	return substr($date, 5, 2);
 }
 
-// Emulate DAYOFMONTH.
+/**
+ * Emulate DAYOFMONTH.
+ *
+ * @param $date
+ */
 function smf_udf_dayofmonth($date)
 {
 	return substr($date, 8, 2);
 }
 
-// We need this since sqlite_libversion() doesn't take any parameters.
+/**
+ * We need this since sqlite_libversion() doesn't take any parameters.
+ *
+ * @param $void
+ */
 function smf_db_libversion($void = null)
 {
 	return sqlite_libversion();
 }
 
-// This function uses variable argument lists so that it can handle more then two parameters.
-// Emulates the CONCAT function.
+/**
+ * This function uses variable argument lists so that it can handle more then two parameters.
+ * Emulates the CONCAT function.
+ */
 function smf_udf_concat()
 {
 	// Since we didn't specify any arguments we must get them from PHP.
@@ -701,13 +811,23 @@ function smf_udf_concat()
 	return implode('', $args);
 }
 
-// We need to use PHP to locate the position in the string.
+/**
+ * We need to use PHP to locate the position in the string.
+ *
+ * @param string $find
+ * @param string $string
+ */
 function smf_udf_locate($find, $string)
 {
 	return strpos($string, $find);
 }
 
-// This is used to replace RLIKE.
+/**
+ * This is used to replace RLIKE.
+ *
+ * @param string $exp
+ * @param string $search
+ */
 function smf_udf_regexp($exp, $search)
 {
 	if (preg_match($exp, $match))
@@ -715,8 +835,10 @@ function smf_udf_regexp($exp, $search)
 	return 0;
 }
 
-// Escape the LIKE wildcards so that they match the character and not the wildcard.
-// The optional second parameter turns human readable wildcards into SQL wildcards.
+/**
+ * Escape the LIKE wildcards so that they match the character and not the wildcard.
+ * The optional second parameter turns human readable wildcards into SQL wildcards.
+ */
 function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false)
 {
 	$replacements = array(

@@ -976,4 +976,63 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 	return (!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']) ? 'no' : ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum') ? 'yes_permission_override' : ($userProfile_hideEmail ? 'no' : (!empty($modSettings['make_email_viewable']) ? 'yes' : 'no_through_forum')));
 }
 
+/**
+ * This function attempts to protect from spammed messages and the like.
+ * The time taken depends on error_type - generally uses the modSetting.
+ *
+ * @param string $error_type, used also as a $txt index. (not an actual string.)
+ * @return boolean
+ */
+function spamProtection($error_type)
+{
+	global $modSettings, $txt, $user_info, $smcFunc;
+
+	// Certain types take less/more time.
+	$timeOverrides = array(
+		'login' => 2,
+		'register' => 2,
+		'sendtopc' => $modSettings['spamWaitTime'] * 4,
+		'sendmail' => $modSettings['spamWaitTime'] * 5,
+		'reporttm' => $modSettings['spamWaitTime'] * 4,
+		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
+	);
+
+	// Moderators are free...
+	if (!allowedTo('moderate_board'))
+		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
+	else
+		$timeLimit = 2;
+
+	// Delete old entries...
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_floodcontrol
+		WHERE log_time < {int:log_time}
+			AND log_type = {string:log_type}',
+		array(
+			'log_time' => time() - $timeLimit,
+			'log_type' => $error_type,
+		)
+	);
+
+	// Add a new entry, deleting the old if necessary.
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}log_floodcontrol',
+		array('ip' => 'string-16', 'log_time' => 'int', 'log_type' => 'string'),
+		array($user_info['ip'], time(), $error_type),
+		array('ip', 'log_type')
+	);
+
+	// If affected is 0 or 2, it was there already.
+	if ($smcFunc['db_affected_rows']() != 1)
+	{
+		// Spammer!  You only have to wait a *few* seconds!
+		fatal_lang_error($error_type . 'WaitTime_broken', false, array($timeLimit));
+		return true;
+	}
+
+	// They haven't posted within the limit.
+	return false;
+}
+
+
 ?>

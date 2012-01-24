@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file is concerned with anything in the Manage Membergroups screen.
+ * This file is concerned with anything in the Manage Membergroups admin screen.
  *
  * Simple Machines Forum (SMF)
  *
