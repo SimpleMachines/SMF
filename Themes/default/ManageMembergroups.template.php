@@ -544,6 +544,7 @@ function template_group_members()
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['mod-mgm_token_var'], '" value="', $context['mod-mgm_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />';

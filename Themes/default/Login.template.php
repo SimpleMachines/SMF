@@ -205,7 +205,7 @@ function template_admin_login()
 	echo '
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 
-<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin" onsubmit="hashAdminPassword(this, \'', $context['user']['username'], '\', \'', $context['session_id'], '\');">
+<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin" onsubmit="hash', ucfirst($context['sessionCheckType']), 'Password(this, \'', $context['user']['username'], '\', \'', $context['session_id'], '\');">
 	<div class="tborder login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -221,7 +221,7 @@ function template_admin_login()
 
 	echo '
 			<strong>', $txt['password'], ':</strong>
-			<input type="password" name="admin_pass" size="24" class="input_password" />
+			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password" />
 			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" /></a><br />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '" />
@@ -232,7 +232,7 @@ function template_admin_login()
 		</div>
 		<span class="lowerframe"><span></span></span>
 	</div>
-	<input type="hidden" name="admin_hash_pass" value="" />
+	<input type="hidden" name="', $context['sessionCheckType'], '_hash_pass" value="" />
 </form>';
 
 	// Focus on the password box.

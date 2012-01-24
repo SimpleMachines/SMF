@@ -145,9 +145,31 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['mc_settings'],
 					'function' => 'ModerationSettings',
 				),
+				'modlogoff' => array(
+					'label' => $txt['mc_logoff'],
+					'function' => 'ModEndSession',
+				),
 			),
 		),
 	);
+
+	// Any files to include for moderation?
+	if (!empty($modSettings['integrate_moderate_include']))
+	{
+		$moderate_includes = explode(',', $modSettings['integrate_moderate_include']);
+		foreach ($moderate_includes as $include)
+		{
+			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+			if (file_exists($include))
+				require_once($include);
+		}
+	}
+
+	// Let them modify admin areas easily.
+	call_integration_hook('integrate_moderate_areas', array(&$moderation_areas));
+
+	// Make sure the administrator has a valid session...
+	validateSession('moderate');
 
 	// I don't know where we're going - I don't know where we've been...
 	$menuOptions = array(
@@ -1596,9 +1618,13 @@ function ViewWarningLog()
 				),
 			),
 		),
+		'form' => array(
+			'token' => 'mod-wt',
+		),
 	);
 
 	// Create the watched user list.
+	createToken('mod-wt');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
@@ -1681,6 +1707,7 @@ function ViewWarningTemplates()
 	elseif (isset($_POST['delete']) && !empty($_POST['deltpl']))
 	{
 		checkSession('post');
+		validateToken('mod-wt');
 
 		// Log the actions.
 		$request = $smcFunc['db_query']('', '
@@ -1795,6 +1822,7 @@ function ViewWarningTemplates()
 		),
 		'form' => array(
 			'href' => $scripturl . '?action=moderate;area=warnings;sa=templates',
+			'token' => 'mod-wt',
 		),
 		'additional_rows' => array(
 			array(
@@ -1808,6 +1836,7 @@ function ViewWarningTemplates()
 	);
 
 	// Create the watched user list.
+	createToken('mod-wt');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
@@ -1936,6 +1965,7 @@ function ModifyWarningTemplate()
 	if (isset($_POST['save']))
 	{
 		checkSession('post');
+		validateToken('mod-wt');
 
 		// To check the BBC is pretty good...
 		require_once($sourcedir . '/Subs-Post.php');
@@ -2012,6 +2042,8 @@ function ModifyWarningTemplate()
 		// Get out of town...
 		redirectexit('action=moderate;area=warnings;sa=templates');
 	}
+
+	createToken('mod-wt');
 }
 
 /**
@@ -2055,6 +2087,8 @@ function ModerationSettings()
 	if (isset($_POST['save']))
 	{
 		checkSession('post');
+		validateToken('mod-set');
+
 		/* Current format of mod_prefs is:
 			x|ABCD|yyy
 
@@ -2103,6 +2137,24 @@ function ModerationSettings()
 		'notify_approval' => $pref_binary & 4,
 		'user_blocks' => str_split($mod_blocks),
 	);
+
+	createToken('mod-set');
+}
+
+/**
+ * This ends a moderator session, requiring authentication to access the MCP again.
+ */
+function ModEndSession()
+{
+	// This is so easy!
+	unset($_SESSION['moderate_time']);
+
+	// Clean any moderator tokens as well.
+	foreach ($_SESSION['token'] as $key => $token)
+		if (strpos($key, '-mod') !== false)
+			unset($_SESSION['token'][$key]);
+
+	redirectexit('?action=moderate');
 }
 
 ?>

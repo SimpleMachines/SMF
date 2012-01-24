@@ -450,6 +450,7 @@ function MembergroupMembers()
 	if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && $context['group']['assignable'])
 	{
 		checkSession();
+		validateToken('mod-mgm');
 
 		// Make sure we're dealing with integers only.
 		foreach ($_REQUEST['rem'] as $key => $group)
@@ -462,6 +463,7 @@ function MembergroupMembers()
 	elseif (isset($_REQUEST['add']) && (!empty($_REQUEST['toAdd']) || !empty($_REQUEST['member_add'])) && $context['group']['assignable'])
 	{
 		checkSession();
+		validateToken('mod-mgm');
 
 		$member_query = array();
 		$member_parameters = array();
@@ -615,6 +617,7 @@ function MembergroupMembers()
 	// Select the template.
 	$context['sub_template'] = 'group_members';
 	$context['page_title'] = $txt['membergroups_members_title'] . ': ' . $context['group']['name'];
+	createToken('mod-mgm');
 }
 
 /**
@@ -640,6 +643,7 @@ function GroupRequests()
 	if (isset($_POST[$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
 	{
 		checkSession('post');
+		validateToken('mod-gr');
 
 		// Clean the values.
 		foreach ($_POST['groupr'] as $k => $request)
@@ -889,6 +893,7 @@ function GroupRequests()
 			'hidden_fields' => array(
 				$context['session_var'] => $context['session_id'],
 			),
+			'token' => 'mod-gr',
 		),
 		'additional_rows' => array(
 			array(
@@ -908,6 +913,7 @@ function GroupRequests()
 	);
 
 	// Create the request list.
+	createToken('mod-gr');
 	createList($listOptions);
 
 	$context['default_list'] = 'group_request_list';

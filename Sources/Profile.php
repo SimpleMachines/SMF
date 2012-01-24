@@ -160,6 +160,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'account',
 					'enabled' => $context['user']['is_admin'] || ($cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups']))),
 					'sc' => 'post',
+					'token' => 'profile-ac%u',
 					'password' => true,
 					'permission' => array(
 						'own' => array('profile_identity_any', 'profile_identity_own', 'manage_membergroups'),
@@ -171,6 +172,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'forumProfile',
 					'sc' => 'post',
+					'token' => 'profile-fp%u',
 					'permission' => array(
 						'own' => array('profile_extra_any', 'profile_extra_own', 'profile_title_own', 'profile_title_any'),
 						'any' => array('profile_extra_any', 'profile_title_any'),
@@ -181,6 +183,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'theme',
 					'sc' => 'post',
+					'token' => 'profile-th%u',
 					'permission' => array(
 						'own' => array('profile_extra_any', 'profile_extra_own'),
 						'any' => array('profile_extra_any'),
@@ -192,6 +195,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'authentication',
 					'enabled' => !empty($modSettings['enableOpenID']) || !empty($cur_profile['openid_uri']),
 					'sc' => 'post',
+					'token' => 'profile-au%u',
 					'hidden' => empty($modSettings['enableOpenID']) && empty($cur_profile['openid_uri']),
 					'password' => true,
 					'permission' => array(
@@ -204,6 +208,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'notification',
 					'sc' => 'post',
+					'token' => 'profile-nt%u',
 					'permission' => array(
 						'own' => array('profile_extra_any', 'profile_extra_own'),
 						'any' => array('profile_extra_any'),
@@ -216,6 +221,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'pmprefs',
 					'enabled' => allowedTo(array('profile_extra_own', 'profile_extra_any')),
 					'sc' => 'post',
+					'token' => 'profile-pm%u',
 					'permission' => array(
 						'own' => array('pm_read'),
 						'any' => array('profile_extra_any'),
@@ -227,6 +233,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'ignoreboards',
 					'enabled' => !empty($modSettings['allow_ignore_boards']),
 					'sc' => 'post',
+					'token' => 'profile-ib%u',
 					'permission' => array(
 						'own' => array('profile_extra_any', 'profile_extra_own'),
 						'any' => array('profile_extra_any'),
@@ -238,6 +245,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'editBuddyIgnoreLists',
 					'enabled' => !empty($modSettings['enable_buddylist']) && $context['user']['is_owner'],
 					'sc' => 'post',
+					'token' => 'profile-bl%u',
 					'subsections' => array(
 						'buddies' => array($txt['editBuddies']),
 						'ignore' => array($txt['editIgnoreList']),
@@ -253,6 +261,8 @@ function ModifyProfile($post_errors = array())
 					'function' => 'groupMembership',
 					'enabled' => !empty($modSettings['show_group_membership']) && $context['user']['is_owner'],
 					'sc' => 'request',
+					'token' => 'profile-gm%u',
+					'token_type' => 'request',
 					'permission' => array(
 						'own' => array('profile_view_own'),
 						'any' => array('manage_membergroups'),
@@ -276,6 +286,7 @@ function ModifyProfile($post_errors = array())
 					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && (!$context['user']['is_owner'] || $context['user']['is_admin']),
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
+					'token' => 'profile-iw%u',
 					'permission' => array(
 						'own' => array('issue_warning'),
 						'any' => array('issue_warning'),
@@ -305,6 +316,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Actions.php',
 					'function' => 'deleteAccount',
 					'sc' => 'post',
+					'token' => 'profile-da%u',
 					'password' => true,
 					'permission' => array(
 						'own' => array('profile_remove_any', 'profile_remove_own'),
@@ -315,6 +327,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Actions.php',
 					'function' => 'activateAccount',
 					'sc' => 'get',
+					'token' => 'profile-aa%u',
 					'select' => 'summary',
 					'permission' => array(
 						'own' => array(),
@@ -401,6 +414,15 @@ function ModifyProfile($post_errors = array())
 					$context['completed_save'] = true;
 				}
 
+				// Do we need to perform a token check?
+				if (!empty($area['token']))
+				{
+					$security_checks[isset($_REQUEST['save']) ? 'validateToken' : 'needsToken'] = $area['token'];
+					$token_name = $area['token'] !== true ? str_replace('%u', $context['id_member'], $area['token']) : 'profile-u' . $context['id_member'];
+
+					$token_type = isset($area['token_type']) && in_array($area['token_type'], array('request', 'post', 'get')) ? $area['token_type'] : 'post';
+				}
+
 				// Does this require session validating?
 				if (!empty($area['validate']))
 					$security_checks['validate'] = true;
@@ -427,8 +449,17 @@ function ModifyProfile($post_errors = array())
 		checkSession($security_checks['session']);
 	if (isset($security_checks['validate']))
 		validateSession();
+	if (isset($security_checks['validateToken']))
+		validateToken($token_name, $token_type);
 	if (isset($security_checks['permission']))
 		isAllowedTo($security_checks['permission']);
+
+	// Create a token if needed.
+	if (isset($security_checks['needsToken']))
+	{
+		createToken($token_name, $token_type);
+		$context['token_check'] = $token_name;
+	}
 
 	// File to include?
 	if (isset($profile_include_data['file']))

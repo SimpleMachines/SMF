@@ -251,23 +251,28 @@ function InMaintenance()
 	$context['page_title'] = $txt['maintain_mode'];
 }
 
-function adminLogin()
+function adminLogin($type = 'admin')
 {
 	global $context, $scripturl, $txt, $user_info, $user_settings;
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
 
+	// Validate what type of session check this is.
+	$types = array();
+	call_integration_hook('integrate_validateSession', array($types));
+	$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+
 	// They used a wrong password, log it and unset that.
-	if (isset($_POST['admin_hash_pass']) || isset($_POST['admin_pass']))
+	if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass']))
 	{
 		$txt['security_wrong'] = sprintf($txt['security_wrong'], isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $txt['unknown'], $_SERVER['HTTP_USER_AGENT'], $user_info['ip']);
 		log_error($txt['security_wrong'], 'critical');
 
-		if (isset($_POST['admin_hash_pass']))
-			unset($_POST['admin_hash_pass']);
-		if (isset($_POST['admin_pass']))
-			unset($_POST['admin_pass']);
+		if (isset($_POST[$type . '_hash_pass']))
+			unset($_POST[$type . '_hash_pass']);
+		if (isset($_POST[$type . '_pass']))
+			unset($_POST[$type . '_pass']);
 
 		$context['incorrect_password'] = true;
 	}
@@ -289,6 +294,9 @@ function adminLogin()
 	// And title the page something like "Login".
 	if (!isset($context['page_title']))
 		$context['page_title'] = $txt['login'];
+
+	// The type of action.
+	$context['sessionCheckType'] = $type;
 
 	obExit();
 

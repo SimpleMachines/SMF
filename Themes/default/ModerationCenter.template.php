@@ -754,6 +754,7 @@ function template_moderation_settings()
 					</dl>
 					<div class="righttext">
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '" />
 						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					</div>
 				</div>
@@ -852,6 +853,7 @@ function template_warn_template()
 				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />';

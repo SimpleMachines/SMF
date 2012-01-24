@@ -511,6 +511,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
 			array('check', 'securityDisable'),
+			array('check', 'securityDisable_moderate'),
 		'',
 			// Reactive on email, and approve on delete
 			array('check', 'send_validation_onChange'),

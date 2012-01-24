@@ -1338,6 +1338,8 @@ function editBuddies($memID)
 	}
 	elseif (isset($_POST['new_buddy']))
 	{
+		checkSession();
+
 		// Prepare the string for extraction...
 		$_POST['new_buddy'] = strtr($smcFunc['htmlspecialchars']($_POST['new_buddy'], ENT_QUOTES), array('&quot;' => '"'));
 		preg_match_all('~"([^"]+)"~', $_POST['new_buddy'], $matches);
@@ -1449,6 +1451,7 @@ function editIgnoreList($memID)
 	}
 	elseif (isset($_POST['new_ignore']))
 	{
+		checkSession();
 		// Prepare the string for extraction...
 		$_POST['new_ignore'] = strtr($smcFunc['htmlspecialchars']($_POST['new_ignore'], ENT_QUOTES), array('&quot;' => '"'));
 		preg_match_all('~"([^"]+)"~', $_POST['new_ignore'], $matches);
@@ -1866,6 +1869,7 @@ function notification($memID)
 				'sa' => $context['menu_item_selected'],
 				$context['session_var'] => $context['session_id'],
 			),
+			'token' => $context['token_check'],
 		),
 		'additional_rows' => array(
 			array(
@@ -1982,6 +1986,7 @@ function notification($memID)
 				'sa' => $context['menu_item_selected'],
 				$context['session_var'] => $context['session_id'],
 			),
+			'token' => $context['token_check'],
 		),
 		'additional_rows' => array(
 			array(

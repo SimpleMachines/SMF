@@ -101,46 +101,51 @@ if (!defined('SMF'))
 */
 
 // Check if the user is who he/she says he is
-function validateSession()
+function validateSession($type = 'admin')
 {
 	global $modSettings, $sourcedir, $user_info, $sc, $user_settings;
 
 	// We don't care if the option is off, because Guests should NEVER get past here.
 	is_not_guest();
 
+	// Validate what type of session check this is.
+	$types = array();
+	call_integration_hook('integrate_validateSession', array($types));
+	$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
+
 	// If we're using XML give an additional ten minutes grace as an admin can't log on in XML mode.
 	$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
 
 	// Is the security option off?  Or are they already logged in?
-	if (!empty($modSettings['securityDisable']) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
+	if (!empty($modSettings['securityDisable' . $type != 'admin' ? '_' . $type : '']) || (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()))
 		return;
 
 	require_once($sourcedir . '/Subs-Auth.php');
 
 	// Hashed password, ahoy!
-	if (isset($_POST['admin_hash_pass']) && strlen($_POST['admin_hash_pass']) == 40)
+	if (isset($_POST[$type . '_hash_pass']) && strlen($_POST[$type . '_hash_pass']) == 40)
 	{
 		checkSession();
 
-		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST['admin_hash_pass'], true)), true);
+		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_hash_pass'], true)), true);
 
-		if ($good_password || $_POST['admin_hash_pass'] == sha1($user_info['passwd'] . $sc))
+		if ($good_password || $_POST[$type . '_hash_pass'] == sha1($user_info['passwd'] . $sc))
 		{
-			$_SESSION['admin_time'] = time();
+			$_SESSION[$type . '_time'] = time();
 			return;
 		}
 	}
 	// Posting the password... check it.
-	if (isset($_POST['admin_pass']))
+	if (isset($_POST[$type. '_pass']))
 	{
 		checkSession();
 
-		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST['admin_pass'], false)), true);
+		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
 
 		// Password correct?
-		if ($good_password || sha1(strtolower($user_info['username']) . $_POST['admin_pass']) == $user_info['passwd'])
+		if ($good_password || sha1(strtolower($user_info['username']) . $_POST[$type . '_pass']) == $user_info['passwd'])
 		{
-			$_SESSION['admin_time'] = time();
+			$_SESSION[$type . '_time'] = time();
 			return;
 		}
 	}
@@ -150,12 +155,12 @@ function validateSession()
 		require_once($sourcedir . '/Subs-OpenID.php');
 		smf_openID_revalidate();
 
-		$_SESSION['admin_time'] = time();
+		$_SESSION[$type . '_time'] = time();
 		return;
 	}
 
 	// Need to type in a password for that, man.
-	adminLogin();
+	adminLogin($type);
 }
 
 // Require a user who is logged in. (not a guest.)

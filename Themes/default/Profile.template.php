@@ -546,7 +546,15 @@ function template_editBuddies()
 					<label for="new_buddy">
 						<strong>', $txt['who_member'], ':</strong>
 					</label>
-					<input type="text" name="new_buddy" id="new_buddy" size="25" class="input_text" />
+					<input type="text" name="new_buddy" id="new_buddy" size="25" class="input_text" />';
+
+	if (!empty($context['token_check']))
+		echo '
+						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+	echo '
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+
 					<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit" />
 			</div>
 			<span class="lowerframe"><span></span></span>
@@ -632,7 +640,14 @@ function template_editIgnoreList()
 					<label for="new_buddy">
 						<strong>', $txt['who_member'], ':</strong>
 					</label>
-					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text" />
+					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text" />';
+
+	if (!empty($context['token_check']))
+		echo '
+						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+	echo '
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit" />
 			</div>
 			<span class="lowerframe"><span></span></span>
@@ -1323,6 +1338,10 @@ function template_edit_options()
 		echo '
 						<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />';
 
+	if (!empty($context['token_check']))
+		echo '
+						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
 	echo '
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="u" value="', $context['id_member'], '" />
@@ -1634,7 +1653,13 @@ function template_notification()
 						</select><br class="clear" />
 
 						<div>
-							<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit floatright" />
+							<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit floatright" />';
+
+	if (!empty($context['token_check']))
+		echo '
+						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+	echo '
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 							<input type="hidden" name="u" value="', $context['id_member'], '" />
 							<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
@@ -1728,7 +1753,7 @@ function template_groupMembership()
 				// Can they leave their group?
 				if ($group['can_leave'])
 					echo '
-							<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . '">' . $txt['leave_group'] . '</a>';
+							<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
 				echo '
 						</td>
 					</tr>';
@@ -1773,13 +1798,15 @@ function template_groupMembership()
 
 				if ($group['type'] == 3)
 					echo '
-							<a href="', $scripturl, '?action=profile;save;u=', $context['id_member'], ';area=groupmembership;', $context['session_var'], '=', $context['session_id'], ';gid=', $group['id'], '">', $txt['join_group'], '</a>';
+							<a href="', $scripturl, '?action=profile;save;u=', $context['id_member'], ';area=groupmembership;', $context['session_var'], '=', $context['session_id'], ';gid=', $group['id'], ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">', $txt['join_group'], '</a>';
 				elseif ($group['type'] == 2 && $group['pending'])
 					echo '
 							', $txt['approval_pending'];
 				elseif ($group['type'] == 2)
 					echo '
 							<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=groupmembership;request=', $group['id'], '">', $txt['request_group'], '</a>';
+
+//				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 				echo '
 						</td>
@@ -1813,6 +1840,10 @@ function template_groupMembership()
 		echo '
 	// ]]></script>';
 	}
+
+	if (!empty($context['token_check']))
+		echo '
+				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -2231,7 +2262,13 @@ function template_issueWarning()
 	}
 	echo '
 				</dl>
-				<div class="righttext">
+				<div class="righttext">';
+
+	if (!empty($context['token_check']))
+		echo '
+				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button_submit" />
 				</div>
@@ -2345,7 +2382,13 @@ function template_deleteAccount()
 					<div>
 						<strong', (isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : ''), '>', $txt['current_password'], ': </strong>
 						<input type="password" name="oldpasswrd" size="20" class="input_password" />&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type="submit" value="', $txt['yes'], '" class="button_submit" />
+						<input type="submit" value="', $txt['yes'], '" class="button_submit" />';
+
+		if (!empty($context['token_check']))
+			echo '
+				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+		echo '
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="u" value="', $context['id_member'], '" />
 						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
@@ -2374,7 +2417,13 @@ function template_deleteAccount()
 						<label for="deleteAccount"><input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" class="input_check" onclick="if (this.checked) return confirm(\'', $txt['deleteAccount_confirm'], '\');" /> ', $txt['deleteAccount_member'], '.</label>
 					</div>
 					<div>
-						<input type="submit" value="', $txt['delete'], '" class="button_submit" />
+						<input type="submit" value="', $txt['delete'], '" class="button_submit" />';
+
+		if (!empty($context['token_check']))
+			echo '
+				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+		echo '
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="u" value="', $context['id_member'], '" />
 						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
@@ -2916,8 +2965,14 @@ function template_authentication_method()
 						</dd>
 					</dl>';
 
-echo '
-					<div class="righttext">
+	echo '
+					<div class="righttext">';
+
+	if (!empty($context['token_check']))
+		echo '
+						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+
+	echo '
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="u" value="', $context['id_member'], '" />
 						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />

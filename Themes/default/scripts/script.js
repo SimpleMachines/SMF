@@ -656,6 +656,15 @@ function hashAdminPassword(doForm, username, cur_session_id)
 	doForm.admin_pass.value = doForm.admin_pass.value.replace(/./g, '*');
 }
 
+function hashModeratePassword(doForm, username, cur_session_id)
+{
+	if (typeof(hex_sha1) == 'undefined')
+		return;
+
+	doForm.moderate_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.moderate_pass.value.php_to8bit()) + cur_session_id);
+	doForm.moderate_pass.value = doForm.moderate_pass.value.replace(/./g, '*');
+}
+
 // Shows the page numbers by clicking the dots (in compact view).
 function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 {

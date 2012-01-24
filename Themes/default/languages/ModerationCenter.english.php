@@ -137,6 +137,7 @@ $txt['mc_prefs_notify_report_never'] = 'Never';
 $txt['mc_prefs_notify_report_moderator'] = 'Only if it\'s a board I moderate';
 $txt['mc_prefs_notify_report_always'] = 'Always';
 $txt['mc_prefs_notify_approval'] = 'Notify of items awaiting approval';
+$txt['mc_logoff'] = 'Moderator End Session';
 
 // Use entities in the below string.
 $txt['mc_click_add_note'] = 'Add a new note';
