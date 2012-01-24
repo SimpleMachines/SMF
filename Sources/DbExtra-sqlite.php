@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains rarely used extended database functionality.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,41 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains rarely used extended database functionality.
-
-	void db_extra_init()
-		- add this file's functions to the $smcFunc array.
-
-	resource smf_db_backup_table($table, $backup_table)
-		- backup $table to $backup_table.
-		- returns the request handle to the table creation query
-
-	string function smf_db_get_version()
-		- get the version number.
-
-	string db_insert_sql(string table_name)
-		- gets all the necessary INSERTs for the table named table_name.
-		- goes in 250 row segments.
-		- returns the query to insert the data back in.
-		- returns an empty string if the table was empty.
-
-	array smf_db_list_tables($db = false, $filter = false)
-		- lists all tables in the database
-		- could be filtered according to $filter
-		- returns an array of table names. (strings)
-
-	float smf_db_optimize_table($table)
-		- optimize a table
-		- $table - the table to be optimized
-		- returns how much it was gained
-
-	string db_table_sql(string table_name)
-		- dumps the CREATE for the specified table. (by table_name.)
-		- returns the CREATE statement.
-
-*/
-
-// Add the file functions to the $smcFunc array.
+/**
+ * Add the functions implemented in this file to the $smcFunc array.
+ */
 function db_extra_init()
 {
 	global $smcFunc;
@@ -65,7 +35,12 @@ function db_extra_init()
 		);
 }
 
-// Backup $table to $backup_table.
+/**
+ * Backup $table to $backup_table.
+ * @param $table string
+ * @param $backup_table string
+ * @return resource -the request handle to the table creation query
+ */
 function smf_db_backup_table($table, $backup_table)
 {
 	global $smcFunc, $db_prefix;
@@ -153,7 +128,11 @@ function smf_db_backup_table($table, $backup_table)
 	return $request;
 }
 
-// Optimize a table - return data freed!
+/**
+ * This function optimizes a table.
+ * @param $table string - the table to be optimized
+ * @return how much it was gained
+ */
 function smf_db_optimize_table($table)
 {
 	global $smcFunc, $db_prefix;
@@ -176,7 +155,13 @@ function smf_db_optimize_table($table)
 	return 0;
 }
 
-// List all the tables in the database.
+/**
+ * This function lists all tables in the database.
+ * The listing could be filtered according to $filter.
+ * @param $db mixed, string holding the table name, or false, default false
+ * @param $filter mixed, string to filter by, or false, default false
+ * @return array, an array of table names. (strings)
+ */
 function smf_db_list_tables($db = false, $filter = false)
 {
 	global $smcFunc;
@@ -202,7 +187,13 @@ function smf_db_list_tables($db = false, $filter = false)
 	return $tables;
 }
 
-// Get the content (INSERTs) for a table.
+/**
+ * Gets all the necessary INSERTs for the table named table_name.
+ * It goes in 250 row segments.
+ * @param $tableName string - the table to create the inserts for.
+ * @return string, the query to insert the data back in, or an empty
+ *  string if the table was empty.
+ */
 function smf_db_insert_sql($tableName)
 {
 	global $smcFunc, $db_prefix;
@@ -262,7 +253,12 @@ function smf_db_insert_sql($tableName)
 	return $num_rows == 0 ? '' : $data . 'COMMIT;' . $crlf;
 }
 
-// Get the schema (CREATE) for a table.
+/**
+ * Dumps the schema (CREATE) for a table.
+ * @todo why is this needed for?
+ * @param $tableName string - the table
+ * @return string - the CREATE statement as string
+ */
 function smf_db_table_sql($tableName)
 {
 	global $smcFunc, $db_prefix;
@@ -313,13 +309,19 @@ function smf_db_table_sql($tableName)
 	return $schema_create . $index_create;
 }
 
-// Get the version number.
+/**
+ *  Get the version number.
+ *  @return string - the version
+ */
 function smf_db_get_version()
 {
 	return sqlite_libversion();
 }
 
-// Simple return the database - and die!
+/** 
+ * Simply return the database - and die!
+ * Used by DumpDatabase.php.
+ */
 function smf_db_get_backup()
 {
 	global $db_name;

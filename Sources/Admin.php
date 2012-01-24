@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file, unpredictable as this might be, handles basic administration.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -15,37 +17,12 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file, unpredictable as this might be, handles basic administration.
-
-	void AdminMain()
-		- initialises all the basic context required for the admin center.
-		- passes execution onto the relevant admin section.
-		- if the passed section is not found it shows the admin home page.
-
-	void AdminHome()
-		- prepares all the data necessary for the administration front page.
-		- uses the Admin template along with the admin sub template.
-		- requires the moderate_forum, manage_membergroups, manage_bans,
-		  admin_forum, manage_permissions, manage_attachments, manage_smileys,
-		  manage_boards, edit_news, or send_mail permission.
-		- uses the index administrative area.
-		- can be found by going to ?action=admin.
-
-	void AdminSearch()
-		- allocates out all the search stuff.
-
-	void AdminSearchInternal()
-		- a complicated but relatively quick internal search.
-
-	void AdminSearchMember()
-		- pass through to manage members.
-
-	void DisplayAdminFile()
-		- get one of the admin information files from Simple Machines.
-
-*/
-
-// The main admin handling function.
+/**
+ * The main admin handling function.
+ * It initialises all the basic context required for the admin center.
+ * It passes execution onto the relevant admin section.
+ * If the passed section is not found it shows the admin home page.
+ */
 function AdminMain()
 {
 	global $txt, $context, $scripturl, $sc, $modSettings, $user_info, $settings, $sourcedir, $options, $smcFunc, $boarddir;
@@ -505,7 +482,16 @@ function AdminMain()
 	$admin_include_data['function']();
 }
 
-// The main administration section.
+/**
+ * The main administration section.
+ * It prepares all the data necessary for the administration front page.
+ * It uses the Admin template along with the admin sub template.
+ * It requires the moderate_forum, manage_membergroups, manage_bans,
+ *  admin_forum, manage_permissions, manage_attachments, manage_smileys,
+ *  manage_boards, edit_news, or send_mail permission.
+ *  It uses the index administrative area.
+ *  It can be found by going to ?action=admin.
+*/
 function AdminHome()
 {
 	global $sourcedir, $forum_version, $txt, $scripturl, $context, $user_info, $boardurl, $modSettings, $smcFunc;
@@ -618,7 +604,9 @@ function AdminHome()
 	);
 }
 
-// Get one of the admin information files from Simple Machines.
+/**
+ * Get one of the admin information files from Simple Machines.
+ */
 function DisplayAdminFile()
 {
 	global $context, $modSettings, $smcFunc;
@@ -666,7 +654,9 @@ if (!(\'smfForum_sessionvar\' in window))
 	obExit(false);
 }
 
-// This allocates out all the search stuff.
+/**
+ * This function allocates out all the search stuff.
+ */
 function AdminSearch()
 {
 	global $txt, $context, $smcFunc, $sourcedir;
@@ -702,7 +692,9 @@ function AdminSearch()
 		$subactions[$context['search_type']]();
 }
 
-// A complicated but relatively quick internal search.
+/**
+ * A complicated but relatively quick internal search.
+ */
 function AdminSearchInternal()
 {
 	global $context, $txt, $helptxt, $scripturl, $sourcedir;
@@ -840,7 +832,9 @@ function AdminSearchInternal()
 	}
 }
 
-// All this does is pass through to manage members.
+/**
+ * All this does is pass through to manage members.
+ */
 function AdminSearchMember()
 {
 	global $context, $sourcedir;
@@ -853,7 +847,9 @@ function AdminSearchMember()
 	ViewMembers();
 }
 
-// This file allows the user to search the SM online manual for a little of help.
+/**
+ * This file allows the user to search the SM online manual for a little of help.
+ */
 function AdminSearchOM()
 {
 	global $context, $sourcedir;
@@ -940,7 +936,9 @@ function AdminSearchOM()
 	}
 }
 
-// This function decides which log to load.
+/**
+ * This function decides which log to load.
+ */
 function AdminLogs()
 {
 	global $sourcedir, $context, $txt, $scripturl;

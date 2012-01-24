@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * This file provides compatibility functions and code for older versions of
+ * PHP, such as the sha1() function, missing extensions, or 64-bit vs 32-bit
+ * systems. It is only included for those older versions or when the respective
+ * extension or function cannot be found.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,11 +18,6 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	This file provides compatibility functions and code for older versions of
-	PHP, such as the sha1() function.  It is only included for those older
-	versions.
-*/
 
 if (!function_exists('stripos'))
 {
@@ -36,9 +36,13 @@ if (!function_exists('md5_file'))
 	}
 }
 
-// Split a string into an array.
 if (!function_exists('str_split'))
 {
+	/**
+	 * Split a string into an array.
+	 * @param $str the string to split
+	 * @param $str_length 
+	 */
 	function str_split($str, $str_length = 1)
 	{
 		if ($str_length < 1)
@@ -86,7 +90,10 @@ if (!function_exists('file_get_contents'))
 	}
 }
 
-// Define the old SMF sha1 function.
+/**
+ * Define the old SMF sha1 function.
+ * @param $str the string
+ */
 function sha1_smf($str)
 {
 	// If we have mhash loaded in, use it instead!
@@ -104,7 +111,9 @@ function sha1_smf($str)
 	return sha1_core($blks, strlen($str) * 8);
 }
 
-// This is the core SHA-1 calculation routine, used by sha1().
+/**
+ * This is the core SHA-1 calculation routine, used by sha1().
+ */
 function sha1_core($x, $len)
 {
 	@$x[$len >> 5] |= 0x80 << (24 - $len % 32);
@@ -178,7 +187,9 @@ function sha1_rol($num, $cnt)
 	return ($num << $cnt) | $a;
 }
 
-// Still on old PHP - bad boy! (the built in one would be faster.)
+/**
+ * Still on old PHP - bad boy! (the built in one would be faster.)
+ */
 if (!function_exists('sha1'))
 {
 	function sha1($str)
@@ -237,6 +248,29 @@ if (!function_exists('mysql_real_escape_string'))
 	function mysql_real_escape_string($string, $connection = null)
 	{
 		return mysql_escape_string($string);
+	}
+}
+
+if (!function_exists('smf_crc32'))
+{
+	/**
+	 * Compatibility function.
+	 * crc32 doesn't work as expected on 64-bit functions - make our own.
+	 * http://www.php.net/crc32#79567
+	 * @param $number
+	 */
+	function smf_crc32($number)
+	{
+		$crc = crc32($number);
+
+		if ($crc & 0x80000000)
+		{
+			$crc ^= 0xffffffff;
+			$crc += 1;
+			$crc = -$crc;
+		}
+
+		return $crc;
 	}
 }
 

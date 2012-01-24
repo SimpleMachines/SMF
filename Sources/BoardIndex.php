@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * The single function this file contains is used to display the main
+ * board index.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,21 +17,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	The single function this file contains is used to display the main
-	board index.  It uses just the following functions:
-
-	void BoardIndex()
-		- shows the board index.
-		- uses the BoardIndex template, and main sub template.
-		- may use the boardindex subtemplate for wireless support.
-		- updates the most online statistics.
-		- is accessed by ?action=boardindex.
-
-	void CollapseCategory()
-		- collapse or expand a category
-*/
-
-// Show the board index!
+/**
+ * This function shows the board index.
+ * It uses the BoardIndex template, and main sub template.
+ * It may use the boardindex subtemplate for wireless support.
+ * It updates the most online statistics.
+ * It is accessed by ?action=boardindex.
+ */
 function BoardIndex()
 {
 	global $txt, $user_info, $sourcedir, $modSettings, $context, $settings, $scripturl;
@@ -115,7 +110,9 @@ function BoardIndex()
 	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);
 }
 
-// Collapse or expand a category
+/**
+ * Collapse or expand a category
+ */
 function CollapseCategory()
 {
 	global $user_info, $sourcedir, $context;

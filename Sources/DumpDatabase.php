@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file has a single job - database backup.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,20 +16,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	This file has a single job - database backup.
-
-	void DumpDatabase2()
-		- writes all of the database to standard output.
-		- uses gzip compression if compress is set in the URL/post data.
-		- may possibly time out in some cases.
-		- the data dumped depends on whether "struct" and "data" are passed.
-		- requires an administrator and the session hash by post.
-		- is called from ManageMaintenance.php.
-
-*/
-
-// Dumps the database to a file.
+/**
+ * Dumps the database.
+ * It writes all of the database to standard output.
+ * It uses gzip compression if compress is set in the URL/post data.
+ * It may possibly time out, and mess up badly if you were relying on it. :P
+ * The data dumped depends on whether "struct" and "data" are passed.
+ * It requires an administrator and the session hash by post.
+ * It is called from ManageMaintenance.php.
+ */
 function DumpDatabase2()
 {
 	global $db_name, $scripturl, $context, $modSettings, $crlf, $smcFunc, $db_prefix;

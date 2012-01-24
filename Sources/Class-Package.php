@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * The xmlArray class is an xml parser.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,20 +16,7 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	The following functions are all within the xmlArray class, which is the xml
-	parser.  There are more functions, but these are the ones that should be
-	used from outside the class:
-
-	class xmlArray(string data, bool auto_trim = false,
-			int error_level = error_reporting(), bool is_clone = false)
-		- creates a new xmlArray, which is an simple xml dom parser.
-		- data should be the xml data or an array of, unless is_clone is true.
-		- auto_trim can be used to automatically trim textual data.
-		- error_level specifies whether notices should be generated for
-		  missing elements and attributes.
-		- if is_clone is true, the xmlArray is cloned from another - used
-		  internally only.
-
+/*
 	string xmlArray::name()
 		- retrieves the name of the current element, usually ''.
 
@@ -63,9 +52,17 @@ class xmlArray
 	// The array and debugging output level.
 	public $array, $debug_level, $trim;
 
-	// Create an xml array.
-	//	the xml data, trim elements?, debugging output level, reserved.
-	//ie. $xml = new xmlArray(file('data.xml'));
+	/**
+	 * Constructor for the xml parser.
+	 * Example use:
+	 *  $xml = new xmlArray(file('data.xml'));
+	 * @param $data string the xml data or an array of, unless is_clone is true.
+	 * @param $auto_trim bool, default false, used to automatically trim textual data.
+	 * @param $level int, default null, the debug level, specifies whether notices
+	 *  should be generated for missing elements and attributes.
+	 * @param $is_clone bool, default false. If is_clone is true, the
+	 *  xmlArray is cloned from another - used internally only.
+	 */
 	public function __construct($data, $auto_trim = false, $level = null, $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
@@ -93,16 +90,23 @@ class xmlArray
 		$this->array = $this->_parse($data);
 	}
 
-	// Get the root element's name.
-	//ie. echo $element->name();
+	/**
+	 * Get the root element's name.
+	 * Example use:
+	 *  echo $element->name();
+	 */
 	public function name()
 	{
 		return isset($this->array['name']) ? $this->array['name'] : '';
 	}
 
-	// Get a specified element's value or attribute by path.
-	//	the path to the element to fetch, whether to include elements?
-	//ie. $data = $xml->fetch('html/head/title');
+	/**
+	 * Get a specified element's value or attribute by path.
+	 * Example use:
+	 *  $data = $xml->fetch('html/head/title');
+	 * @param $path string - the path to the element to fetch
+	 * @param $get_elements - whether to include elements
+	 */
 	public function fetch($path, $get_elements = false)
 	{
 		// Get the element, in array form.
@@ -132,9 +136,12 @@ class xmlArray
 		return is_string($array) ? $array : $this->_fetch($array->array);
 	}
 
-	// Get an element, returns a new xmlArray.
-	//	the path to the element to get, always return full result set? (ie. don't contract a single item.)
-	//ie. $element = $xml->path('html/body');
+	/** Get an element, returns a new xmlArray.
+	 * Example use:
+	 *  $element = $xml->path('html/body');
+	 * @param $path string - the path to the element to get
+	 * @param $return_full bool - always return full result set
+	 */
 	public function path($path, $return_full = false)
 	{
 		// Split up the path.
@@ -195,9 +202,12 @@ class xmlArray
 		return $array === false ? false : new $newClass($array, $this->trim, $this->debug_level, true);
 	}
 
-	// Check if an element exists.
-	//	the path to the element to get.
-	//ie. echo $xml->exists('html/body') ? 'y' : 'n';
+	/**
+	 * Check if an element exists.
+	 * Example use,
+	 *  echo $xml->exists('html/body') ? 'y' : 'n';
+	 * @param $path string - the path to the element to get.
+	 */
 	public function exists($path)
 	{
 		// Split up the path.
@@ -228,9 +238,12 @@ class xmlArray
 		return $array !== false;
 	}
 
-	// Count the number of occurances of a path.
-	//	the path to search for.
-	//ie. echo $xml->count('html/head/meta');
+	/**
+	 * Count the number of occurances of a path.
+	 * Example use:
+	 *  echo $xml->count('html/head/meta');
+	 * @param $path string - the path to search for.
+	 */
 	public function count($path)
 	{
 		// Get the element, always returning a full set.
@@ -247,9 +260,12 @@ class xmlArray
 		return $i;
 	}
 
-	// Get an array of xmlArray's for use with foreach.
-	//	the path to search for.
-	//ie. foreach ($xml->set('html/body/p') as $p)
+	/**
+	 * Get an array of xmlArray's for use with foreach.
+	 * Example use:
+	 *  foreach ($xml->set('html/body/p') as $p)
+	 * @param $path string - the path to search for.
+	 */
 	public function set($path)
 	{
 		// None as yet, just get the path.
@@ -272,9 +288,12 @@ class xmlArray
 		return $array;
 	}
 
-	// Create an xml file from an xml array.
-	//	the path to the element. (optional)
-	//ie. echo $this->create_xml()
+	/**
+	 * Create an xml file from an xml array.
+	 * Example use:
+	 *  echo $this->create_xml();
+	 * @param $path string - the path to the element. (optional)
+	 */
 	public function create_xml($path = null)
 	{
 		// Was a path specified?  If so, use that array.
@@ -296,9 +315,12 @@ class xmlArray
 		return '<?xml version="1.0"?' . '>' . $this->_xml($path, 0);
 	}
 
-	// Output the xml in an array form.
-	//	the path to output.
-	//ie. print_r($xml->to_array());
+	/**
+	 * Output the xml in an array form.
+	 * Example use:
+	 *  print_r($xml->to_array());
+	 * @param $path string, the path to output.
+	 */
 	public function to_array($path = null)
 	{
 		// Are we doing a specific path?
@@ -319,7 +341,10 @@ class xmlArray
 		return $this->_array($path);
 	}
 
-	// Parse data into an array. (privately used...)
+	/**
+	 * Parse data into an array. (privately used...)
+	 * @param $data string to parse
+	 */
 	protected function _parse($data)
 	{
 		// Start with an 'empty' array with no data.
@@ -463,7 +488,11 @@ class xmlArray
 		return $current;
 	}
 
-	// Get a specific element's xml. (privately used...)
+	/**
+	 * Get a specific element's xml. (privately used...)
+	 * @param $array
+	 * @param $indent
+	 */
 	protected function _xml($array, $indent)
 	{
 		$indentation = $indent !== null ? '
@@ -533,7 +562,10 @@ class xmlArray
 			return $return;
 	}
 
-	// Parse out CDATA tags. (htmlspecialchars them...)
+	/**
+	 * Parse out CDATA tags. (htmlspecialchars them...)
+	 * @param $data
+	 */
 	function _to_cdata($data)
 	{
 		$inCdata = $inComment = false;
@@ -566,7 +598,10 @@ class xmlArray
 		return $output;
 	}
 
-	// Turn the CDATAs back to normal text.
+	/**
+	 * Turn the CDATAs back to normal text.
+	 * @param $data
+	 */
 	protected function _from_cdata($data)
 	{
 		// Get the HTML translation table and reverse it.
@@ -604,7 +639,13 @@ class xmlArray
 		return $temp;
 	}
 
-	// Get a specific array by path, one level down. (privately used...)
+	/**
+	 * Get a specific array by path, one level down. (privately used...)
+	 * @param $array
+	 * @param $path
+	 * @param $level
+	 * @param $no_error
+	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{
 		// Is $array even an array?  It might be false!
@@ -665,354 +706,354 @@ class xmlArray
 	}
 }
 
-// http://www.faqs.org/rfcs/rfc959.html
-if (!class_exists('ftp_connection'))
+/**
+ * Simple FTP protocol implementation.
+ * http://www.faqs.org/rfcs/rfc959.html
+ */
+class ftp_connection
 {
-	class ftp_connection
+	public $connection, $error, $last_message, $pasv;
+
+	// Create a new FTP connection...
+	public function __construct($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
-		public $connection, $error, $last_message, $pasv;
+		// Initialize variables.
+		$this->connection = 'no_connection';
+		$this->error = false;
+		$this->pasv = array();
 
-		// Create a new FTP connection...
-		public function __construct($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
+		if ($ftp_server !== null)
+			$this->connect($ftp_server, $ftp_port, $ftp_user, $ftp_pass);
+	}
+
+	public function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
+	{
+		if (substr($ftp_server, 0, 6) == 'ftp://')
+			$ftp_server = substr($ftp_server, 6);
+		elseif (substr($ftp_server, 0, 7) == 'ftps://')
+			$ftp_server = 'ssl://' . substr($ftp_server, 7);
+		if (substr($ftp_server, 0, 7) == 'http://')
+			$ftp_server = substr($ftp_server, 7);
+		$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
+
+		// Connect to the FTP server.
+		$this->connection = @fsockopen($ftp_server, $ftp_port, $err, $err, 5);
+		if (!$this->connection)
 		{
-			// Initialize variables.
-			$this->connection = 'no_connection';
-			$this->error = false;
-			$this->pasv = array();
-
-			if ($ftp_server !== null)
-				$this->connect($ftp_server, $ftp_port, $ftp_user, $ftp_pass);
+			$this->error = 'bad_server';
+			return;
 		}
 
-		public function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
+		// Get the welcome message...
+		if (!$this->check_response(220))
 		{
-			if (substr($ftp_server, 0, 6) == 'ftp://')
-				$ftp_server = substr($ftp_server, 6);
-			elseif (substr($ftp_server, 0, 7) == 'ftps://')
-				$ftp_server = 'ssl://' . substr($ftp_server, 7);
-			if (substr($ftp_server, 0, 7) == 'http://')
-				$ftp_server = substr($ftp_server, 7);
-			$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
-
-			// Connect to the FTP server.
-			$this->connection = @fsockopen($ftp_server, $ftp_port, $err, $err, 5);
-			if (!$this->connection)
-			{
-				$this->error = 'bad_server';
-				return;
-			}
-
-			// Get the welcome message...
-			if (!$this->check_response(220))
-			{
-				$this->error = 'bad_response';
-				return;
-			}
-
-			// Send the username, it should ask for a password.
-			fwrite($this->connection, 'USER ' . $ftp_user . "\r\n");
-			if (!$this->check_response(331))
-			{
-				$this->error = 'bad_username';
-				return;
-			}
-
-			// Now send the password... and hope it goes okay.
-			fwrite($this->connection, 'PASS ' . $ftp_pass . "\r\n");
-			if (!$this->check_response(230))
-			{
-				$this->error = 'bad_password';
-				return;
-			}
+			$this->error = 'bad_response';
+			return;
 		}
 
-		public function chdir($ftp_path)
+		// Send the username, it should ask for a password.
+		fwrite($this->connection, 'USER ' . $ftp_user . "\r\n");
+		if (!$this->check_response(331))
 		{
-			if (!is_resource($this->connection))
-				return false;
-
-			// No slash on the end, please...
-			if ($ftp_path !== '/' && substr($ftp_path, -1) === '/')
-				$ftp_path = substr($ftp_path, 0, -1);
-
-			fwrite($this->connection, 'CWD ' . $ftp_path . "\r\n");
-			if (!$this->check_response(250))
-			{
-				$this->error = 'bad_path';
-				return false;
-			}
-
-			return true;
+			$this->error = 'bad_username';
+			return;
 		}
 
-		public function chmod($ftp_file, $chmod)
+		// Now send the password... and hope it goes okay.
+		fwrite($this->connection, 'PASS ' . $ftp_pass . "\r\n");
+		if (!$this->check_response(230))
 		{
-			if (!is_resource($this->connection))
-				return false;
-
-			if ($ftp_file == '')
-				$ftp_file = '.';
-
-			// Convert the chmod value from octal (0777) to text ("777").
-			fwrite($this->connection, 'SITE CHMOD ' . decoct($chmod) . ' ' . $ftp_file . "\r\n");
-			if (!$this->check_response(200))
-			{
-				$this->error = 'bad_file';
-				return false;
-			}
-
-			return true;
+			$this->error = 'bad_password';
+			return;
 		}
+	}
 
-		public function unlink($ftp_file)
+	public function chdir($ftp_path)
+	{
+		if (!is_resource($this->connection))
+			return false;
+
+		// No slash on the end, please...
+		if ($ftp_path !== '/' && substr($ftp_path, -1) === '/')
+			$ftp_path = substr($ftp_path, 0, -1);
+
+		fwrite($this->connection, 'CWD ' . $ftp_path . "\r\n");
+		if (!$this->check_response(250))
 		{
-			// We are actually connected, right?
-			if (!is_resource($this->connection))
-				return false;
-
-			// Delete file X.
-			fwrite($this->connection, 'DELE ' . $ftp_file . "\r\n");
-			if (!$this->check_response(250))
-			{
-				fwrite($this->connection, 'RMD ' . $ftp_file . "\r\n");
-
-				// Still no love?
-				if (!$this->check_response(250))
-				{
-					$this->error = 'bad_file';
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		public function check_response($desired)
-		{
-			// Wait for a response that isn't continued with -, but don't wait too long.
-			$time = time();
-			do
-				$this->last_message = fgets($this->connection, 1024);
-			while ((strlen($this->last_message) < 4 || substr($this->last_message, 0, 1) == ' ' || substr($this->last_message, 3, 1) != ' ') && time() - $time < 5);
-
-			// Was the desired response returned?
-			return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
-		}
-
-		public function passive()
-		{
-			// We can't create a passive data connection without a primary one first being there.
-			if (!is_resource($this->connection))
-				return false;
-
-			// Request a passive connection - this means, we'll talk to you, you don't talk to us.
-			@fwrite($this->connection, 'PASV' . "\r\n");
-			$time = time();
-			do
-				$response = fgets($this->connection, 1024);
-			while (substr($response, 3, 1) != ' ' && time() - $time < 5);
-
-			// If it's not 227, we weren't given an IP and port, which means it failed.
-			if (substr($response, 0, 4) != '227 ')
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			// Snatch the IP and port information, or die horribly trying...
-			if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0)
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			// This is pretty simple - store it for later use ;).
-			$this->pasv = array('ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]);
-
-			return true;
-		}
-
-		public function create_file($ftp_file)
-		{
-			// First, we have to be connected... very important.
-			if (!is_resource($this->connection))
-				return false;
-
-			// I'd like one passive mode, please!
-			if (!$this->passive())
-				return false;
-
-			// Seems logical enough, so far...
-			fwrite($this->connection, 'STOR ' . $ftp_file . "\r\n");
-
-			// Okay, now we connect to the data port.  If it doesn't work out, it's probably "file already exists", etc.
-			$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-			if (!$fp || !$this->check_response(150))
-			{
-				$this->error = 'bad_file';
-				@fclose($fp);
-				return false;
-			}
-
-			// This may look strange, but we're just closing it to indicate a zero-byte upload.
-			fclose($fp);
-			if (!$this->check_response(226))
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			return true;
-		}
-
-		public function list_dir($ftp_path = '', $search = false)
-		{
-			// Are we even connected...?
-			if (!is_resource($this->connection))
-				return false;
-
-			// Passive... non-agressive...
-			if (!$this->passive())
-				return false;
-
-			// Get the listing!
-			fwrite($this->connection, 'LIST -1' . ($search ? 'R' : '') . ($ftp_path == '' ? '' : ' ' . $ftp_path) . "\r\n");
-
-			// Connect, assuming we've got a connection.
-			$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-			if (!$fp || !$this->check_response(array(150, 125)))
-			{
-				$this->error = 'bad_response';
-				@fclose($fp);
-				return false;
-			}
-
-			// Read in the file listing.
-			$data = '';
-			while (!feof($fp))
-				$data .= fread($fp, 4096);
-			fclose($fp);
-
-			// Everything go okay?
-			if (!$this->check_response(226))
-			{
-				$this->error = 'bad_response';
-				return false;
-			}
-
-			return $data;
-		}
-
-		public function locate($file, $listing = null)
-		{
-			if ($listing === null)
-				$listing = $this->list_dir('', true);
-			$listing = explode("\n", $listing);
-
-			@fwrite($this->connection, 'PWD' . "\r\n");
-			$time = time();
-			do
-				$response = fgets($this->connection, 1024);
-			while ($response[3] != ' ' && time() - $time < 5);
-
-			// Check for 257!
-			if (preg_match('~^257 "(.+?)" ~', $response, $match) != 0)
-				$current_dir = strtr($match[1], array('""' => '"'));
-			else
-				$current_dir = '';
-
-			for ($i = 0, $n = count($listing); $i < $n; $i++)
-			{
-				if (trim($listing[$i]) == '' && isset($listing[$i + 1]))
-				{
-					$current_dir = substr(trim($listing[++$i]), 0, -1);
-					$i++;
-				}
-
-				// Okay, this file's name is:
-				$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
-
-				if ($file[0] == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1))
-					return $listing[$i];
-				if (substr($file, -1) == '*' && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1))
-					return $listing[$i];
-				if (basename($listing[$i]) == $file || $listing[$i] == $file)
-					return $listing[$i];
-			}
-
+			$this->error = 'bad_path';
 			return false;
 		}
 
-		public function create_dir($ftp_dir)
-		{
-			// We must be connected to the server to do something.
-			if (!is_resource($this->connection))
-				return false;
+		return true;
+	}
 
-			// Make this new beautiful directory!
-			fwrite($this->connection, 'MKD ' . $ftp_dir . "\r\n");
-			if (!$this->check_response(257))
+	public function chmod($ftp_file, $chmod)
+	{
+		if (!is_resource($this->connection))
+			return false;
+
+		if ($ftp_file == '')
+			$ftp_file = '.';
+
+		// Convert the chmod value from octal (0777) to text ("777").
+		fwrite($this->connection, 'SITE CHMOD ' . decoct($chmod) . ' ' . $ftp_file . "\r\n");
+		if (!$this->check_response(200))
+		{
+			$this->error = 'bad_file';
+			return false;
+		}
+
+		return true;
+	}
+
+	public function unlink($ftp_file)
+	{
+		// We are actually connected, right?
+		if (!is_resource($this->connection))
+			return false;
+
+		// Delete file X.
+		fwrite($this->connection, 'DELE ' . $ftp_file . "\r\n");
+		if (!$this->check_response(250))
+		{
+			fwrite($this->connection, 'RMD ' . $ftp_file . "\r\n");
+
+			// Still no love?
+			if (!$this->check_response(250))
 			{
 				$this->error = 'bad_file';
 				return false;
 			}
-
-			return true;
 		}
 
-		public function detect_path($filesystem_path, $lookup_file = null)
+		return true;
+	}
+
+	public function check_response($desired)
+	{
+		// Wait for a response that isn't continued with -, but don't wait too long.
+		$time = time();
+		do
+			$this->last_message = fgets($this->connection, 1024);
+		while ((strlen($this->last_message) < 4 || substr($this->last_message, 0, 1) == ' ' || substr($this->last_message, 3, 1) != ' ') && time() - $time < 5);
+
+		// Was the desired response returned?
+		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
+	}
+
+	public function passive()
+	{
+		// We can't create a passive data connection without a primary one first being there.
+		if (!is_resource($this->connection))
+			return false;
+
+		// Request a passive connection - this means, we'll talk to you, you don't talk to us.
+		@fwrite($this->connection, 'PASV' . "\r\n");
+		$time = time();
+		do
+			$response = fgets($this->connection, 1024);
+		while (substr($response, 3, 1) != ' ' && time() - $time < 5);
+
+		// If it's not 227, we weren't given an IP and port, which means it failed.
+		if (substr($response, 0, 4) != '227 ')
 		{
-			$username = '';
+			$this->error = 'bad_response';
+			return false;
+		}
 
-			if (isset($_SERVER['DOCUMENT_ROOT']))
+		// Snatch the IP and port information, or die horribly trying...
+		if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0)
+		{
+			$this->error = 'bad_response';
+			return false;
+		}
+
+		// This is pretty simple - store it for later use ;).
+		$this->pasv = array('ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]);
+
+		return true;
+	}
+
+	public function create_file($ftp_file)
+	{
+		// First, we have to be connected... very important.
+		if (!is_resource($this->connection))
+			return false;
+
+		// I'd like one passive mode, please!
+		if (!$this->passive())
+			return false;
+
+		// Seems logical enough, so far...
+		fwrite($this->connection, 'STOR ' . $ftp_file . "\r\n");
+
+		// Okay, now we connect to the data port.  If it doesn't work out, it's probably "file already exists", etc.
+		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
+		if (!$fp || !$this->check_response(150))
+		{
+			$this->error = 'bad_file';
+			@fclose($fp);
+			return false;
+		}
+
+		// This may look strange, but we're just closing it to indicate a zero-byte upload.
+		fclose($fp);
+		if (!$this->check_response(226))
+		{
+			$this->error = 'bad_response';
+			return false;
+		}
+
+		return true;
+	}
+
+	public function list_dir($ftp_path = '', $search = false)
+	{
+		// Are we even connected...?
+		if (!is_resource($this->connection))
+			return false;
+
+		// Passive... non-agressive...
+		if (!$this->passive())
+			return false;
+
+		// Get the listing!
+		fwrite($this->connection, 'LIST -1' . ($search ? 'R' : '') . ($ftp_path == '' ? '' : ' ' . $ftp_path) . "\r\n");
+
+		// Connect, assuming we've got a connection.
+		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
+		if (!$fp || !$this->check_response(array(150, 125)))
+		{
+			$this->error = 'bad_response';
+			@fclose($fp);
+			return false;
+		}
+
+		// Read in the file listing.
+		$data = '';
+		while (!feof($fp))
+			$data .= fread($fp, 4096);
+		fclose($fp);
+
+		// Everything go okay?
+		if (!$this->check_response(226))
+		{
+			$this->error = 'bad_response';
+			return false;
+		}
+
+		return $data;
+	}
+
+	public function locate($file, $listing = null)
+	{
+		if ($listing === null)
+			$listing = $this->list_dir('', true);
+		$listing = explode("\n", $listing);
+
+		@fwrite($this->connection, 'PWD' . "\r\n");
+		$time = time();
+		do
+			$response = fgets($this->connection, 1024);
+		while ($response[3] != ' ' && time() - $time < 5);
+
+		// Check for 257!
+		if (preg_match('~^257 "(.+?)" ~', $response, $match) != 0)
+			$current_dir = strtr($match[1], array('""' => '"'));
+		else
+			$current_dir = '';
+
+		for ($i = 0, $n = count($listing); $i < $n; $i++)
+		{
+			if (trim($listing[$i]) == '' && isset($listing[$i + 1]))
 			{
-				if (preg_match('~^/home[2]?/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
-				{
-					$username = $match[1];
-
-					$path = strtr($_SERVER['DOCUMENT_ROOT'], array('/home/' . $match[1] . '/' => '', '/home2/' . $match[1] . '/' => ''));
-
-					if (substr($path, -1) == '/')
-						$path = substr($path, 0, -1);
-
-					if (strlen(dirname($_SERVER['PHP_SELF'])) > 1)
-						$path .= dirname($_SERVER['PHP_SELF']);
-				}
-				elseif (substr($filesystem_path, 0, 9) == '/var/www/')
-					$path = substr($filesystem_path, 8);
-				else
-					$path = strtr(strtr($filesystem_path, array('\\' => '/')), array($_SERVER['DOCUMENT_ROOT'] => ''));
+				$current_dir = substr(trim($listing[++$i]), 0, -1);
+				$i++;
 			}
+
+			// Okay, this file's name is:
+			$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
+
+			if ($file[0] == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1))
+				return $listing[$i];
+			if (substr($file, -1) == '*' && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1))
+				return $listing[$i];
+			if (basename($listing[$i]) == $file || $listing[$i] == $file)
+				return $listing[$i];
+		}
+
+		return false;
+	}
+
+	public function create_dir($ftp_dir)
+	{
+		// We must be connected to the server to do something.
+		if (!is_resource($this->connection))
+			return false;
+
+		// Make this new beautiful directory!
+		fwrite($this->connection, 'MKD ' . $ftp_dir . "\r\n");
+		if (!$this->check_response(257))
+		{
+			$this->error = 'bad_file';
+			return false;
+		}
+
+		return true;
+	}
+
+	public function detect_path($filesystem_path, $lookup_file = null)
+	{
+		$username = '';
+
+		if (isset($_SERVER['DOCUMENT_ROOT']))
+		{
+			if (preg_match('~^/home[2]?/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
+			{
+				$username = $match[1];
+
+				$path = strtr($_SERVER['DOCUMENT_ROOT'], array('/home/' . $match[1] . '/' => '', '/home2/' . $match[1] . '/' => ''));
+
+				if (substr($path, -1) == '/')
+					$path = substr($path, 0, -1);
+
+				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1)
+					$path .= dirname($_SERVER['PHP_SELF']);
+			}
+			elseif (substr($filesystem_path, 0, 9) == '/var/www/')
+				$path = substr($filesystem_path, 8);
 			else
-				$path = '';
-
-			if (is_resource($this->connection) && $this->list_dir($path) == '')
-			{
-				$data = $this->list_dir('', true);
-
-				if ($lookup_file === null)
-					$lookup_file = $_SERVER['PHP_SELF'];
-
-				$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
-				if ($found_path == false)
-					$found_path = dirname($this->locate(basename($lookup_file)));
-				if ($found_path != false)
-					$path = $found_path;
-			}
-			elseif (is_resource($this->connection))
-				$found_path = true;
-
-			return array($username, $path, isset($found_path));
+				$path = strtr(strtr($filesystem_path, array('\\' => '/')), array($_SERVER['DOCUMENT_ROOT'] => ''));
 		}
+		else
+			$path = '';
 
-		public function close()
+		if (is_resource($this->connection) && $this->list_dir($path) == '')
 		{
-			// Goodbye!
-			fwrite($this->connection, 'QUIT' . "\r\n");
-			fclose($this->connection);
+			$data = $this->list_dir('', true);
 
-			return true;
+			if ($lookup_file === null)
+				$lookup_file = $_SERVER['PHP_SELF'];
+
+			$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
+			if ($found_path == false)
+				$found_path = dirname($this->locate(basename($lookup_file)));
+			if ($found_path != false)
+				$path = $found_path;
 		}
+		elseif (is_resource($this->connection))
+			$found_path = true;
+
+		return array($username, $path, isset($found_path));
+	}
+
+	public function close()
+	{
+		// Goodbye!
+		fwrite($this->connection, 'QUIT' . "\r\n");
+		fclose($this->connection);
+
+		return true;
 	}
 }
 

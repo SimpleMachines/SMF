@@ -1,6 +1,14 @@
 <?php
 
 /**
+ * Classes used for reading gif files (in case PHP's GD doesn't provide the
+ * proper gif-functions).
+ *
+ * Gif Util copyright 2003 by Yamasoft (S/C). All rights reserved.
+ * Do not remove this portion of the header, or use these functions except
+ * from the original author. To get it, please navigate to:
+ * http://www.yamasoft.com/php-gif.zip
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -11,18 +19,8 @@
  * @version 2.0
  */
 
-/*	Gif Util copyright 2003 by Yamasoft (S/C). All rights reserved.
-	Do not remove this portion of the header, or use these functions except
-	from the original author. To get it, please navigate to:
-	http://www.yamasoft.com/php-gif.zip
-*/
-
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	Classes used for reading gif files (in case PHP's GD doesn't provide the
-	proper gif-functions).
-*/
 
 class gif_lzw_compression
 {
@@ -693,23 +691,10 @@ class gif_file
 	}
 }
 
-// crc32 doesn't work as expected on 64-bit functions - make our own.
-// http://www.php.net/crc32#79567
+// 64-bit only functions?
 if (!function_exists('smf_crc32'))
 {
-	function smf_crc32($number)
-	{
-		$crc = crc32($number);
-
-		if ($crc & 0x80000000)
-		{
-			$crc ^= 0xffffffff;
-			$crc += 1;
-			$crc = -$crc;
-		}
-
-		return $crc;
-	}
+	include $sourcedir . '/Subs-Compat.php';
 }
 
 ?>
