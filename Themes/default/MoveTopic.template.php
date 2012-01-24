@@ -10,7 +10,9 @@
  * @version 2.0
  */
 
-// Show an interface for selecting which board to move a post to.
+/**
+ * Show an interface for selecting which board to move a post to.
+ */
 function template_main()
 {
 	global $context, $settings, $options, $txt, $scripturl;

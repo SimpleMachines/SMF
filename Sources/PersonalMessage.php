@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * This file is mainly meant for controlling the actions related to personal
+ * messages. It allows viewing, sending, deleting, and marking personal
+ * messages. For compatibility reasons, they are often called "instant messages".
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,89 +18,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is mainly meant for viewing personal messages.  It also sends,
-	deletes, and marks personal messages.  For compatibility reasons, they are
-	often called "instant messages".  The following functions are used:
-
-	void MessageMain()
-		// !!! ?action=pm
-
-	void messageIndexBar(string area)
-		// !!!
-
-	void MessageFolder()
-		// !!! ?action=pm;sa=folder
-
-	void prepareMessageContext(type reset = 'subject', bool reset = false)
-		// !!!
-
-	void MessageSearch()
-		// !!!
-
-	void MessageSearch2()
-		// !!!
-
-	void MessagePost()
-		// !!! ?action=pm;sa=post
-
-	void messagePostError(array error_types, array named_recipients, array recipient_ids)
-		// !!!
-
-	void MessagePost2()
-		// !!! ?action=pm;sa=post2
-
-	void WirelessAddBuddy()
-		// !!!
-
-	void MessageActionsApply()
-		// !!! ?action=pm;sa=pmactions
-
-	void MessageKillAllQuery()
-		// !!! ?action=pm;sa=killall
-
-	void MessageKillAll()
-		// !!! ?action=pm;sa=killall2
-
-	void MessagePrune()
-		// !!! ?action=pm;sa=prune
-
-	void deleteMessages(array personal_messages, string folder,
-			int owner = user)
-		// !!!
-
-	void markMessages(array personal_messages = all, int label = all,
-			int owner = user)
-		- marks the specified personal_messages read.
-		- if label is set, only marks messages with that label.
-		- if owner is set, marks messages owned by that member id.
-
-	void ManageLabels()
-		// !!!
-
-	void MessageSettings()
-		// !!!
-
-	void ReportMessage()
-		- allows the user to report a personal message to an administrator.
-		- in the first instance requires that the ID of the message to report
-		  is passed through $_GET.
-		- allows the user to report to either a particular administrator - or
-		  the whole admin team.
-		- will forward on a copy of the original message without allowing the
-		  reporter to make changes.
-		- uses the report_message sub-template.
-
-	void ManageRules()
-		// !!!
-
-	void LoadRules()
-		// !!!
-
-	void ApplyRules()
-		// !!!
-*/
-
-// This helps organize things...
+/**
+ * This helps organize things...
+ * @todo this should be a simple dispatcher....
+ */
 function MessageMain()
 {
 	global $txt, $scripturl, $sourcedir, $context, $user_info, $user_settings, $smcFunc, $modSettings;
@@ -283,7 +208,11 @@ function MessageMain()
 	}
 }
 
-// A sidebar to easily access different areas of the section
+/**
+ * A sidebar to easily access different areas of the section
+ *
+ * @param string $area
+ */
 function messageIndexBar($area)
 {
 	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $settings, $user_info, $options;
@@ -422,7 +351,9 @@ function messageIndexBar($area)
 		$context['template_layers'][] = 'pm';
 }
 
-// A folder, ie. inbox/sent etc.
+/**
+ * A folder, ie. inbox/sent etc.
+ */
 function MessageFolder()
 {
 	global $txt, $scripturl, $modSettings, $context, $subjects_request;
@@ -915,7 +846,12 @@ function MessageFolder()
 	}
 }
 
-// Get a personal message for the theme.  (used to save memory.)
+/**
+ * Get a personal message for the theme.  (used to save memory.)
+ *
+ * @param $type
+ * @param $reset
+ */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
 	global $txt, $scripturl, $modSettings, $context, $messages_request, $memberContext, $recipients, $smcFunc;
@@ -1038,6 +974,9 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	return $output;
 }
 
+/**
+ * Allows to search through personal messages.
+ */
 function MessageSearch()
 {
 	global $context, $txt, $scripturl, $modSettings, $smcFunc;
@@ -1110,6 +1049,9 @@ function MessageSearch()
 	);
 }
 
+/**
+ * Actually do the search of personal messages.
+ */
 function MessageSearch2()
 {
 	global $scripturl, $modSettings, $user_info, $context, $txt;
@@ -1565,7 +1507,9 @@ function MessageSearch2()
 	);
 }
 
-// Send a new message?
+/**
+ * Send a new message?
+ */
 function MessagePost()
 {
 	global $txt, $sourcedir, $scripturl, $modSettings;
@@ -1843,7 +1787,13 @@ function MessagePost()
 	checkSubmitOnce('register');
 }
 
-// An error in the message...
+/**
+ * An error in the message...
+ *
+ * @param $error_types
+ * @param $named_recipients
+ * @param $recipient_ids
+ */
 function messagePostError($error_types, $named_recipients, $recipient_ids = array())
 {
 	global $txt, $context, $scripturl, $modSettings;
@@ -1998,7 +1948,9 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	checkSubmitOnce('register');
 }
 
-// Send it!
+/**
+ * Send it!
+ */
 function MessagePost2()
 {
 	global $txt, $context, $sourcedir;
@@ -2280,7 +2232,9 @@ function MessagePost2()
 	redirectexit($context['current_label_redirect']);
 }
 
-// This function lists all buddies for wireless protocols.
+/**
+ * This function lists all buddies for wireless protocols.
+ */
 function WirelessAddBuddy()
 {
 	global $scripturl, $txt, $user_info, $context, $smcFunc;
@@ -2319,7 +2273,9 @@ function WirelessAddBuddy()
 	}
 }
 
-// This function performs all additional stuff...
+/**
+ * This function performs all additional stuff...
+ */
 function MessageActionsApply()
 {
 	global $txt, $context, $user_info, $options, $smcFunc;
@@ -2475,7 +2431,9 @@ function MessageActionsApply()
 	redirectexit($context['current_label_redirect'] . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && $context['browser']['is_ie']);
 }
 
-// Are you sure you want to PERMANENTLY (mostly) delete ALL your messages?
+/**
+ * Are you sure you want to PERMANENTLY (mostly) delete ALL your messages?
+ */
 function MessageKillAllQuery()
 {
 	global $txt, $context;
@@ -2489,7 +2447,9 @@ function MessageKillAllQuery()
 	$txt['delete_all'] = str_replace('PMBOX', $context['folder'] != 'sent' ? $txt['inbox'] : $txt['sent_items'], $txt['delete_all']);
 }
 
-// Delete ALL the messages!
+/**
+ * Delete ALL the messages!
+ */
 function MessageKillAll()
 {
 	global $context;
@@ -2507,7 +2467,9 @@ function MessageKillAll()
 	redirectexit($context['current_label_redirect']);
 }
 
-// This function allows the user to delete all messages older than so many days.
+/**
+ * This function allows the user to delete all messages older than so many days.
+ */
 function MessagePrune()
 {
 	global $txt, $context, $user_info, $scripturl, $smcFunc;
@@ -2575,7 +2537,9 @@ function MessagePrune()
 	$context['page_title'] = $txt['pm_prune'];
 }
 
-// Delete the specified personal messages.
+/**
+ * Delete the specified personal messages.
+ */
 function deleteMessages($personal_messages, $folder = null, $owner = null)
 {
 	global $user_info, $smcFunc;
@@ -2774,7 +2738,9 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 	}
 }
 
-// This function handles adding, deleting and editing labels on messages.
+/**
+ * This function handles adding, deleting and editing labels on messages.
+ */
 function ManageLabels()
 {
 	global $txt, $context, $user_info, $scripturl, $smcFunc;
@@ -2982,7 +2948,14 @@ function ManageLabels()
 	}
 }
 
-// Edit Personal Message Settings
+/**
+ * Allows to edit Personal Message Settings.
+ *
+ * @uses Profile.php
+ * @uses Profile-Modify.php
+ * @uses Profile template.
+ * @uses Profile language file.
+ */
 function MessageSettings()
 {
 	global $txt, $user_settings, $user_info, $context, $sourcedir, $smcFunc;
@@ -3035,7 +3008,17 @@ function MessageSettings()
 	pmprefs($user_info['id']);
 }
 
-// Allows a user to report a personal message they receive to the administrator.
+/**
+ * Allows the user to report a personal message to an administrator.
+ * In the first instance requires that the ID of the message to report
+ * is passed through $_GET.
+ * It allows the user to report to either a particular administrator - or
+ * the whole admin team.
+ * It will forward on a copy of the original message without allowing the
+ * reporter to make changes.
+ *
+ * @uses report_message sub-template.
+ */
 function ReportMessage()
 {
 	global $txt, $context, $scripturl, $sourcedir;
@@ -3202,7 +3185,9 @@ function ReportMessage()
 	}
 }
 
-// List all rules, and allow adding/entering etc....
+/**
+ * List all rules, and allow adding/entering etc...
+ */
 function ManageRules()
 {
 	global $txt, $context, $user_info, $scripturl, $smcFunc;
@@ -3427,7 +3412,11 @@ function ManageRules()
 	}
 }
 
-// This will apply rules to all unread messages. If all_messages is set will, clearly, do it to all!
+/**
+ * This will apply rules to all unread messages. If all_messages is set will, clearly, do it to all!
+ *
+ * @param bool $all_messages = false
+ */
 function ApplyRules($all_messages = false)
 {
 	global $user_info, $smcFunc, $context, $options;
@@ -3530,7 +3519,11 @@ function ApplyRules($all_messages = false)
 	}
 }
 
-// Load up all the rules for the current user.
+/**
+ * Load up all the rules for the current user.
+ *
+ * @param bool $reload = false
+ */
 function LoadRules($reload = false)
 {
 	global $user_info, $context, $smcFunc;

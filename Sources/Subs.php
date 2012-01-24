@@ -2671,7 +2671,10 @@ function writeLog($force = false)
 	}
 }
 
-// Make sure the browser doesn't come back and repost the form data.  Should be used whenever anything is posted.
+/**
+ * Make sure the browser doesn't come back and repost the form data.
+ * Should be used whenever anything is posted.
+ */
 function redirectexit($setLocation = '', $refresh = false)
 {
 	global $scripturl, $context, $modSettings, $db_show_debug, $db_cache;
@@ -2816,7 +2819,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	if (strpos($_SERVER['REQUEST_URL'], 'action=dlattach') === false && strpos($_SERVER['REQUEST_URL'], 'action=viewsmfile') === false)
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
-	// For session check verfication.... don't switch browsers...
+	// For session check verification.... don't switch browsers...
 	$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
 
 	if (!empty($settings['strict_doctype']))

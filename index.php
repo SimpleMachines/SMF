@@ -63,7 +63,7 @@ if (!empty($maintenance) && $maintenance == 2)
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
-// Initate the database connection and define some database functions to use.
+// Initiate the database connection and define some database functions to use.
 loadDatabase();
 
 // Load the settings from the settings table, and perform operations like optimizing.

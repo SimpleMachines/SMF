@@ -124,7 +124,7 @@ function AdminMain()
 				),
 				'languages' => array(
 					'label' => $txt['language_configuration'],
-					'file' => 'ManageServer.php',
+					'file' => 'ManageLanguages.php',
 					'function' => 'ManageLanguages',
 					'icon' => 'languages.gif',
 					'subsections' => array(
