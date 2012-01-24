@@ -822,7 +822,9 @@ function ModifyLanguage()
 			if (preg_match('~^([A-Za-z]+)\.' . $context['lang_id'] . '\.php$~', $entry, $matches) == 0)
 				continue;
 
-			//!!! Temp!
+			/**
+			 * @todo Temp!
+			 */
 			if ($matches[1] == 'EmailTemplates')
 				continue;
 
@@ -847,7 +849,9 @@ function ModifyLanguage()
 	{
 		checkSession();
 
-		// @todo: FTP Controls?
+		/**
+		 * @todo FTP Controls?
+		 */
 		require_once($sourcedir . '/Subs-Package.php');
 
 		// First, Make a backup?
@@ -1087,7 +1091,9 @@ function ModifyLanguage()
 				// Saving?
 				if (isset($save_strings[$entryKey]) && $save_strings[$entryKey] != $entryValue['entry'])
 				{
-					// !!! Fix this properly.
+					/**
+					 * @todo Fix this properly.
+					 */
 					if ($save_strings[$entryKey] == '')
 						$save_strings[$entryKey] = '\'\'';
 
@@ -1217,7 +1223,9 @@ function cleanLangString($string, $to_display = true)
 				if (!empty($matches[1]))
 				{
 					// Come up with some pseudo thing to indicate this is a var.
-					//!!! Do better than this, please!
+					/**
+					 * @todo Do better than this, please!
+					 */
 					$new_string .= '{%' . $matches[1] . '%}';
 
 					// We're not going to reparse this.

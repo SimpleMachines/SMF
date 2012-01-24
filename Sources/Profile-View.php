@@ -65,7 +65,10 @@ if (!defined('SMF'))
 		// !!!
 */
 
-// View a summary.
+/**
+ * View a summary.
+ * @param int $memID id_member
+ */
 function summary($memID)
 {
 	global $context, $memberContext, $txt, $modSettings, $user_info, $user_profile, $sourcedir, $scripturl, $smcFunc;
@@ -243,8 +246,13 @@ function summary($memID)
 	loadCustomFields($memID);
 }
 
-// !!! This function needs to be split up properly.
-// Show all posts by the current user
+
+/**
+ * Show all posts by the current user
+ * @todo This function needs to be split up properly.
+ * 
+ * @param int $memID id_member
+ */
 function showPosts($memID)
 {
 	global $txt, $user_info, $scripturl, $modSettings;
@@ -566,7 +574,11 @@ function showPosts($memID)
 	}
 }
 
-// Show all the attachments of a user.
+/**
+ * Show all the attachments of a user.
+ * 
+ * @param int $memID id_member
+ */
 function showAttachments($memID)
 {
 	global $txt, $user_info, $scripturl, $modSettings, $board;
@@ -667,6 +679,11 @@ function showAttachments($memID)
 	$smcFunc['db_free_result']($request);
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function statPanel($memID)
 {
 	global $txt, $scripturl, $context, $user_profile, $user_info, $modSettings, $smcFunc;
@@ -847,6 +864,11 @@ function statPanel($memID)
 	ksort($context['posts_by_time']);
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function tracking($memID)
 {
 	global $sourcedir, $context, $txt, $scripturl, $modSettings, $user_profile;
@@ -886,6 +908,11 @@ function tracking($memID)
 	$subActions[$context['tracking_area']][0]($memID);
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function trackActivity($memID)
 {
 	global $scripturl, $txt, $modSettings, $sourcedir;
@@ -1100,6 +1127,13 @@ function trackActivity($memID)
 	}
 }
 
+/**
+ * Get the number of user errors
+ * 
+ * @param string $where
+ * @param array $where_vars = array()
+ * @return string number of user errors
+ */
 function list_getUserErrorCount($where, $where_vars = array())
 {
 	global $smcFunc;
@@ -1113,9 +1147,20 @@ function list_getUserErrorCount($where, $where_vars = array())
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
+	// @todo cast this to an integer
 	return $count;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $where
+ * @param array $where_vars
+ * @return array error messages
+ */
 function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars = array())
 {
 	global $smcFunc, $txt, $scripturl;
@@ -1149,6 +1194,13 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 	return $error_messages;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param string $where
+ * @param array $where_vars
+ * @return string count of messages matching the IP
+ */
 function list_getIPMessageCount($where, $where_vars = array())
 {
 	global $smcFunc;
@@ -1163,15 +1215,26 @@ function list_getIPMessageCount($where, $where_vars = array())
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
+	// @todo cast to integer
 	return $count;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $where
+ * @param array $where_vars
+ * @return array an array of messages
+ */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
 	global $smcFunc, $txt, $scripturl;
 
 	// Get all the messages fitting this where clause.
-	// !!!SLOW This query is using a filesort.
+	// @todo SLOW This query is using a filesort.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.id_msg, m.poster_ip, IFNULL(mem.real_name, m.poster_name) AS display_name, mem.id_member,
@@ -1205,6 +1268,11 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 	return $messages;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID = 0 id_member
+ */
 function TrackIP($memID = 0)
 {
 	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
@@ -1483,6 +1551,11 @@ function TrackIP($memID = 0)
 	}
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function trackEdits($memID)
 {
 	global $scripturl, $txt, $modSettings, $sourcedir, $context, $smcFunc;
@@ -1579,7 +1652,11 @@ function trackEdits($memID)
 	$context['default_list'] = 'edit_list';
 }
 
-// How many edits?
+/**
+ * How many edits?
+ * 
+ * @param int $memID id_member
+ */
 function list_getProfileEditCount($memID)
 {
 	global $smcFunc;
@@ -1600,6 +1677,15 @@ function list_getProfileEditCount($memID)
 	return $edit_count;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $memID
+ * @return array
+ */
 function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 {
 	global $smcFunc, $txt, $scripturl, $context;
@@ -1679,6 +1765,11 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 	return $edits;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function showPermissions($memID)
 {
 	global $scripturl, $txt, $board, $modSettings;
@@ -1856,7 +1947,11 @@ function showPermissions($memID)
 	$smcFunc['db_free_result']($request);
 }
 
-// View a members warnings?
+/**
+ * View a members warnings?
+ * 
+ * @param int $memID id_member
+ */
 function viewWarning($memID)
 {
 	global $modSettings, $context, $sourcedir, $txt, $scripturl;

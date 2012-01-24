@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Find and	retrieve information about recently posted topics, messages, and the like.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,23 +16,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file had one very clear purpose.  It is here expressly to find and
-	retrieve information about recently posted topics, messages, and the like.
-
-	array getLastPost()
-		// !!!
-
-	array getLastPosts(int number_of_posts)
-		// !!!
-
-	void RecentPosts()
-		// !!!
-
-	void UnreadTopics()
-		// !!!
-*/
-
-// Get the latest post.
+/**
+ * Get the latest post.
+ * @return array
+ */
 function getLastPost()
 {
 	global $user_info, $scripturl, $modSettings, $smcFunc;
@@ -77,7 +66,9 @@ function getLastPost()
 	);
 }
 
-// Find the ten most recent posts.
+/**
+ * Find the ten most recent posts.
+ */
 function RecentPosts()
 {
 	global $txt, $scripturl, $user_info, $context, $modSettings, $sourcedir, $board, $smcFunc;
@@ -419,7 +410,9 @@ function RecentPosts()
 	}
 }
 
-// Find unread topics and replies.
+/**
+ * Find unread topics and replies.
+ */
 function UnreadTopics()
 {
 	global $board, $txt, $scripturl, $sourcedir;

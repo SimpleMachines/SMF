@@ -14,65 +14,9 @@
  *
  * @version 2.0
  */
-profilevalid
+
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	
-	void editBuddies(int id_member)
-
-	void editIgnoreList(int id_member)
-
-	void account(int id_member)
-
-	void forumProfile(int id_member)
-
-	void pmprefs(int id_member)
-
-	void theme(int id_member)
-
-	void authentication(int id_member, bool saving = false)
-
-	void notification(int id_member)
-
-	int list_getTopicNotificationCount(int memID)
-
-	array list_getTopicNotifications(int start, int items_per_page, string sort, int memID)
-
-	array list_getBoardNotifications(int start, int items_per_page, string sort, int memID)
-
-	void loadThemeOptions(int id_member)
-
-	void ignoreboards(int id_member)
-
-	bool profileLoadLanguages()
-
-	bool profileLoadGroups()
-
-	bool profileLoadSignatureData()
-
-	bool profileLoadAvatarData()
-
-	bool profileSaveGroups(mixed &value)
-
-	mixed profileSaveAvatarData(array &value)
-
-	mixed profileValidateSignature(mixed &value)
-
-	bool profileValidateEmail(string email, int id_member = none)
-
-	void profileReloadUser()
-
-	void profileSendActivation()
-
-	void groupMembership(int id_member)
-
-	mixed groupMembership2(array profile_vars, array post_erros, int id_member)
-
-	Adding new fields to the profile:
-	---------------------------------------------------------------------------
-		// !!!
-*/
 
 /**
  * This defines every profile field known to man.
@@ -2066,6 +2010,7 @@ function notification($memID)
  * @todo needs a description
  * 
  * @param int $memID id_member
+ * @return string $totalNotifications
  */
 function list_getTopicNotificationCount($memID)
 {
@@ -2087,6 +2032,7 @@ function list_getTopicNotificationCount($memID)
 	list ($totalNotifications) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
+	// @todo make this an integer before it gets returned
 	return $totalNotifications;
 }
 
@@ -2156,6 +2102,15 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	return $notification_topics;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $memID id_member
+ * @return array $notification_boards
+ */
 function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 {
 	global $smcFunc, $txt, $scripturl, $user_info;
@@ -2347,6 +2302,8 @@ function profileLoadLanguages()
 }
 
 /**
+ * @todo needs description
+ * 
  * @return true
  */
 function profileLoadGroups()
@@ -2441,7 +2398,11 @@ function profileLoadSignatureData()
 	return true;
 }
 
-// Load avatar context data.
+/**
+ * Load avatar context data.
+ * 
+ * @return true
+ */
 function profileLoadAvatarData()
 {
 	global $context, $cur_profile, $modSettings, $scripturl;
@@ -2501,7 +2462,12 @@ function profileLoadAvatarData()
 	return true;
 }
 
-// Save a members group.
+/**
+ * Save a members group.
+ * 
+ * @param int &$value
+ * @return true
+ */
 function profileSaveGroups(&$value)
 {
 	global $profile_vars, $old_profile, $context, $smcFunc, $cur_profile;
@@ -2599,6 +2565,10 @@ function profileSaveGroups(&$value)
 
 /**
  * The avatar is incredibly complicated, what with the options... and what not.
+ * @todo argh, the avatar here. Take this out of here!
+ * 
+ * @param array &$value
+ * @return mixed
  */
 function profileSaveAvatarData(&$value)
 {
@@ -2840,7 +2810,12 @@ function profileSaveAvatarData(&$value)
 	return false;
 }
 
-// Validate the signature!
+/**
+ * Validate the signature
+ * 
+ * @param mixed &$value
+ * @return bool|string
+ */
 function profileValidateSignature(&$value)
 {
 	global $sourcedir, $modSettings, $smcFunc, $txt;
@@ -3014,7 +2989,8 @@ function profileValidateSignature(&$value)
  * Validate an email address.
  * 
  * @param string $email
- * @param int $memID=0
+ * @param int $memID = 0
+ * @return bool|string
  */
 function profileValidateEmail($email, $memID = 0)
 {
@@ -3047,7 +3023,9 @@ function profileValidateEmail($email, $memID = 0)
 	return true;
 }
 
-// Reload a users settings.
+/**
+ * Reload a users settings.
+ */
 function profileReloadUser()
 {
 	global $sourcedir, $modSettings, $context, $cur_profile, $smcFunc, $profile_vars;
@@ -3063,7 +3041,9 @@ function profileReloadUser()
 	writeLog();
 }
 
-// Send the user a new activation email if they need to reactivate!
+/**
+ * Send the user a new activation email if they need to reactivate!
+ */
 function profileSendActivation()
 {
 	global $sourcedir, $profile_vars, $txt, $context, $scripturl, $smcFunc, $cookiename, $cur_profile, $language, $modSettings;
@@ -3216,6 +3196,9 @@ function groupMembership($memID)
 /**
  * This function actually makes all the group changes
  * 
+ * @param array $profile_vars
+ * @param array $post_errors
+ * @param int $memID id_member
  * 
  */
 function groupMembership2($profile_vars, $post_errors, $memID)

@@ -430,7 +430,9 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 	// Try get more time...
 	@set_time_limit(600);
 
-	// @todo Add a way to delete pms as well?
+	/**
+	 * @todo Add a way to delete pms as well?
+	 */
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');

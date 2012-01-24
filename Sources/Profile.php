@@ -645,7 +645,7 @@ function ModifyProfile($post_errors = array())
  * Load any custom fields for this area... no area means load all, 'summary' loads all public ones.
  *
  * @param int $memID
- * @param string $area
+ * @param string $area = 'summary'
  */
 function loadCustomFields($memID, $area = 'summary')
 {
