@@ -170,7 +170,9 @@ function ShowXmlFeed()
 	// Show in rss or proprietary format?
 	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf', 'webslice')) ? $_GET['type'] : 'smf';
 
-	// !!! Birthdays?
+	/**
+	 * @todo Birthdays? 
+	 */
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -182,7 +184,9 @@ function ShowXmlFeed()
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
 
-	//!!! Temp - webslices doesn't do everything yet.
+	/**
+	 * @todo Temp - webslices doesn't do everything yet.
+	 */
 	if ($xml_format == 'webslice' && $_GET['sa'] != 'recent')
 		$xml_format = 'rss2';
 	// If this is webslices we kinda cheat - we allow a template that we call direct for the HTML, and we override the CDATA.
@@ -412,7 +416,6 @@ function cdata_parse($data, $ns = '')
 				$cdata .= ']]>' . $smcFunc['substr']($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
 			elseif (in_array($ent, array('amp', 'lt', 'gt', 'quot')))
 				$cdata .= ']]>' . $smcFunc['substr']($data, $pos, $pos2 - $pos + 1) . '<![CDATA[';
-			// !!! ??
 
 			$pos = $pos2 + 1;
 		}

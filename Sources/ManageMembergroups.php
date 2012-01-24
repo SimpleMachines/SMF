@@ -329,7 +329,9 @@ function AddMembergroup()
 		$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
-		// !!! Check for members with same name too?
+		/**
+		 * @todo Check for members with same name too?
+		 */
 
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX(id_group)
@@ -673,7 +675,9 @@ function EditMembergroup()
 		$_POST['group_hidden'] = empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $_REQUEST['group'] == 3 ? 0 : (int) $_POST['group_hidden'];
 		$_POST['group_inherit'] = $_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && (empty($inherit_type) || $inherit_type != 1) ? (int) $_POST['group_inherit'] : -2;
 
-		// !!! Don't set online_color for the Moderators group?
+		/**
+		 * @todo Don't set online_color for the Moderators group?
+		 */
 
 		// Do the update of the membergroup settings.
 		$smcFunc['db_query']('', '

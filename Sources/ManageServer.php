@@ -479,6 +479,7 @@ function prepareServerSettingsContext(&$config_vars)
 
 /**
  * Helper function, it sets up the context for database settings.
+ * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars
  */
@@ -567,7 +568,9 @@ function prepareDBSettingContext(&$config_vars)
 			}
 
 			// Set the subtext in case it's part of the label.
-			// !!! Temporary. Preventing divs inside label tags.
+			/**
+			 * @todo Temporary. Preventing divs inside label tags.
+			 */
 			$divPos = strpos($context['config_vars'][$config_var[1]]['label'], '<div');
 			if ($divPos !== false)
 			{
@@ -611,7 +614,9 @@ function prepareDBSettingContext(&$config_vars)
 
 			$context['bbc_columns'][$col][] = array(
 				'tag' => $tag,
-				// !!! 'tag_' . ?
+				/**
+				 * @todo  'tag_' . ?
+				 */
 				'show_help' => isset($helptxt[$tag]),
 			);
 
@@ -731,6 +736,7 @@ function saveSettings(&$config_vars)
 
 /**
  * Helper function for saving database settings.
+ * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars
  */

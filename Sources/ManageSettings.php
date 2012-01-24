@@ -1721,7 +1721,9 @@ function EditCustomProfiles()
 				$colname = $initial_colname = 'cust_' . mt_rand(1, 999);
 
 			// Make sure this is unique.
-			// !!! This may not be the most efficient way to do this.
+			/**
+			 * @todo This may not be the most efficient way to do this.
+			 */
 			$unique = false;
 			for ($i = 0; !$unique && $i < 9; $i ++)
 			{
@@ -1801,7 +1803,9 @@ function EditCustomProfiles()
 						);
 				}
 			}
-			//!!! Maybe we should adjust based on new text length limits?
+			/**
+			 * @todo Maybe we should adjust based on new text length limits?
+			 */
 		}
 
 		// Do the insertion/updates.

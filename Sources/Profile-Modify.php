@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * This file has the primary job of showing and editing people's profiles.
+ * 	It also allows the user to change some of their or another's preferences,
+ * 	and such things
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -10,119 +14,71 @@
  *
  * @version 2.0
  */
-
+profilevalid
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has the primary job of showing and editing people's profiles.
-	It also allows the user to change some of their or another's preferences,
-	and such things.  It uses the following functions:
-
-	void loadProfileFields(bool force_reload = false)
-		// !!!
-
-	void setupProfileContext(array fields)
-		// !!!
-
-	void saveProfileFields()
-		// !!!
-
-	void saveProfileChanges(array &profile_variables, array &errors, int id_member)
-		// !!!
-
-	void makeThemeChanges(int id_member, int id_theme)
-		// !!!
-
-	void makeNotificationChanges(int id_member)
-		// !!!
-
-	void makeCustomFieldChanges(int id_member, string area, bool sanitize = true)
-		// !!!
-
+/*	
 	void editBuddies(int id_member)
-		// !!!
 
 	void editIgnoreList(int id_member)
-		// !!!
 
 	void account(int id_member)
-		// !!!
 
 	void forumProfile(int id_member)
-		// !!!
 
 	void pmprefs(int id_member)
-		// !!!
-
-	array getAvatars(string directory, int level)
-		// !!!
 
 	void theme(int id_member)
-		// !!!
 
 	void authentication(int id_member, bool saving = false)
-		// !!!
 
 	void notification(int id_member)
-		// !!!
 
 	int list_getTopicNotificationCount(int memID)
-		// !!!
 
 	array list_getTopicNotifications(int start, int items_per_page, string sort, int memID)
-		// !!!
 
 	array list_getBoardNotifications(int start, int items_per_page, string sort, int memID)
-		// !!!
 
 	void loadThemeOptions(int id_member)
-		// !!!
 
 	void ignoreboards(int id_member)
-		// !!!
 
 	bool profileLoadLanguages()
-		// !!!
 
 	bool profileLoadGroups()
-		// !!!
 
 	bool profileLoadSignatureData()
-		// !!!
 
 	bool profileLoadAvatarData()
-		// !!!
 
 	bool profileSaveGroups(mixed &value)
-		// !!!
 
 	mixed profileSaveAvatarData(array &value)
-		// !!!
 
 	mixed profileValidateSignature(mixed &value)
-		// !!!
 
 	bool profileValidateEmail(string email, int id_member = none)
-		// !!!
 
 	void profileReloadUser()
-		// !!!
 
 	void profileSendActivation()
-		// !!!
 
 	void groupMembership(int id_member)
-		// !!!
 
 	mixed groupMembership2(array profile_vars, array post_erros, int id_member)
-		// !!!
 
 	Adding new fields to the profile:
 	---------------------------------------------------------------------------
 		// !!!
 */
 
-// This defines every profile field known to man.
+/**
+ * This defines every profile field known to man.
+ * 
+ * @param bool $force_reload = false
+ */
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $old_profile, $smcFunc, $cur_profile, $language;
@@ -778,7 +734,11 @@ function loadProfileFields($force_reload = false)
 	}
 }
 
-// Setup the context for a page load!
+/**
+ * Setup the context for a page load!
+ * 
+ * @param array $fields
+ */
 function setupProfileContext($fields)
 {
 	global $profile_fields, $context, $cur_profile, $smcFunc, $txt;
@@ -861,7 +821,9 @@ function setupProfileContext($fields)
 	unset($profile_fields);
 }
 
-// Save the profile changes.
+/**
+ * Save the profile changes.
+ */
 function saveProfileFields()
 {
 	global $profile_fields, $profile_vars, $context, $old_profile, $post_errors, $sourcedir, $modSettings, $cur_profile, $smcFunc;
@@ -994,7 +956,13 @@ function saveProfileFields()
 	unset($profile_fields);
 }
 
-// Save the profile changes....
+/**
+ * Save the profile changes
+ * 
+ * @param array &$profile_variables
+ * @param array &$post_errors
+ * @param int $memID id_member
+ */
 function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 {
 	global $user_info, $txt, $modSettings, $user_profile;
@@ -1077,7 +1045,12 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	}
 }
 
-// Make any theme changes that are sent with the profile..
+/**
+ * Make any theme changes that are sent with the profile.
+ * 
+ * @param int $memID
+ * @param int $id_theme
+ */
 function makeThemeChanges($memID, $id_theme)
 {
 	global $modSettings, $smcFunc, $context;
@@ -1185,7 +1158,11 @@ function makeThemeChanges($memID, $id_theme)
 	}
 }
 
-// Make any notification changes that need to be made.
+/**
+ * Make any notification changes that need to be made.
+ * 
+ * @param int $memID id_member
+ */
 function makeNotificationChanges($memID)
 {
 	global $smcFunc;
@@ -1232,7 +1209,13 @@ function makeNotificationChanges($memID)
 	}
 }
 
-// Save any changes to the custom profile fields...
+/**
+ * Save any changes to the custom profile fields
+ * 
+ * @param int $memID
+ * @param string $area
+ * @param bool $sanitize = true
+ */
 function makeCustomFieldChanges($memID, $area, $sanitize = true)
 {
 	global $context, $smcFunc, $user_profile, $user_info, $modSettings;
@@ -1337,7 +1320,11 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 	}
 }
 
-// Show all the users buddies, as well as a add/delete interface.
+/**
+ * Show all the users buddies, as well as a add/delete interface.
+ * 
+ * @param int $memID id_member
+ */
 function editBuddyIgnoreLists($memID)
 {
 	global $sourcedir, $context, $txt, $scripturl, $modSettings, $user_profile;
@@ -1372,7 +1359,11 @@ function editBuddyIgnoreLists($memID)
 	$subActions[$context['list_area']][0]($memID);
 }
 
-// Show all the users buddies, as well as a add/delete interface.
+/**
+ * Show all the users buddies, as well as a add/delete interface.
+ * 
+ * @param int $memID id_member
+ */
 function editBuddies($memID)
 {
 	global $txt, $scripturl, $modSettings;
@@ -1479,7 +1470,11 @@ function editBuddies($memID)
 	}
 }
 
-// Allows the user to view their ignore list, as well as the option to manage members on it.
+/**
+ * Allows the user to view their ignore list, as well as the option to manage members on it.
+ * 
+ * @param int $memID id_member
+ */
 function editIgnoreList($memID)
 {
 	global $txt, $scripturl, $modSettings;
@@ -1586,6 +1581,11 @@ function editIgnoreList($memID)
 	}
 }
 
+/**
+ * @todo Needs a description
+ * 
+ * @param int $memID id_member
+ */
 function account($memID)
 {
 	global $context, $txt;
@@ -1608,6 +1608,11 @@ function account($memID)
 	);
 }
 
+/**
+ * @todo Needs a description
+ * 
+ * @param int $memID id_member
+ */
 function forumProfile($memID)
 {
 	global $context, $user_profile, $user_info, $txt, $modSettings;
@@ -1631,7 +1636,11 @@ function forumProfile($memID)
 	);
 }
 
-// Allow the edit of *someone elses* personal message settings.
+/**
+ * Allow the edit of *someone elses* personal message settings.
+ * 
+ * @param int $memID id_member
+ */
 function pmprefs($memID)
 {
 	global $sourcedir, $context, $txt, $scripturl;
@@ -1649,7 +1658,13 @@ function pmprefs($memID)
 	);
 }
 
-// Recursive function to retrieve avatar files
+/**
+ * Recursive function to retrieve avatar files
+ * 
+ * @param string $directory
+ * @param int $level
+ * @return array
+ */
 function getAvatars($directory, $level)
 {
 	global $context, $txt, $modSettings;
@@ -1726,6 +1741,11 @@ function getAvatars($directory, $level)
 	return $result;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function theme($memID)
 {
 	global $txt, $context, $user_profile, $modSettings, $settings, $user_info, $smcFunc;
@@ -1746,7 +1766,12 @@ function theme($memID)
 	);
 }
 
-// Changing authentication method? Only appropriate for people using OpenID.
+/**
+ * Changing authentication method? Only appropriate for people using OpenID.
+ * 
+ * @param int $memID id_member
+ * @param bool $saving = false
+ */
 function authentication($memID, $saving = false)
 {
 	global $context, $cur_profile, $sourcedir, $txt, $post_errors, $modSettings;
@@ -1823,7 +1848,11 @@ function authentication($memID, $saving = false)
 	$context['sub_template'] = 'authentication_method';
 }
 
-// Display the notifications and settings for changes.
+/**
+ * Display the notifications and settings for changes.
+ * 
+ * @param int $memID id_member
+ */
 function notification($memID)
 {
 	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
@@ -2033,6 +2062,11 @@ function notification($memID)
 	loadThemeOptions($memID);
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function list_getTopicNotificationCount($memID)
 {
 	global $smcFunc, $user_info, $context, $modSettings;
@@ -2056,6 +2090,15 @@ function list_getTopicNotificationCount($memID)
 	return $totalNotifications;
 }
 
+/**
+ * @todo Needs a description
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $memID id_member
+ * @return array $notification_topics
+ */
 function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 {
 	global $smcFunc, $txt, $scripturl, $user_info, $context, $modSettings;
@@ -2144,6 +2187,11 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 	return $notification_boards;
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function loadThemeOptions($memID)
 {
 	global $context, $options, $cur_profile, $smcFunc;
@@ -2194,6 +2242,11 @@ function loadThemeOptions($memID)
 	}
 }
 
+/**
+ * @todo needs a description
+ * 
+ * @param int $memID id_member
+ */
 function ignoreboards($memID)
 {
 	global $txt, $user_info, $context, $modSettings, $smcFunc, $cur_profile;
@@ -2269,7 +2322,10 @@ function ignoreboards($memID)
 	loadThemeOptions($memID);
 }
 
-// Load all the languages for the profile.
+/**
+ * Load all the languages for the profile.
+ * @return bool
+ */
 function profileLoadLanguages()
 {
 	global $context, $modSettings, $settings, $cur_profile, $language, $smcFunc;
@@ -2290,7 +2346,9 @@ function profileLoadLanguages()
 	return count($context['profile_languages']) > 1 ? true : false;
 }
 
-// Load all the group info for the profile.
+/**
+ * @return true
+ */
 function profileLoadGroups()
 {
 	global $cur_profile, $txt, $context, $smcFunc, $user_settings;
@@ -2343,7 +2401,11 @@ function profileLoadGroups()
 	return true;
 }
 
-// Load key signature context data.
+/**
+ * Load key signature context data.
+ * 
+ * @return true
+ */
 function profileLoadSignatureData()
 {
 	global $modSettings, $context, $txt, $cur_profile, $smcFunc;
@@ -2948,7 +3010,12 @@ function profileValidateSignature(&$value)
 	return true;
 }
 
-// Validate an email address.
+/**
+ * Validate an email address.
+ * 
+ * @param string $email
+ * @param int $memID=0
+ */
 function profileValidateEmail($email, $memID = 0)
 {
 	global $smcFunc, $context;
@@ -3048,7 +3115,11 @@ function profileSendActivation()
 	obExit();
 }
 
-// Function to allow the user to choose group membership etc...
+/**
+ * Function to allow the user to choose group membership etc...
+ * 
+ * @param int $memID id_member
+ */
 function groupMembership($memID)
 {
 	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc;
@@ -3142,7 +3213,11 @@ function groupMembership($memID)
 		$context['group_request'] = $context['groups']['available'][(int) $_REQUEST['request']];
 }
 
-// This function actually makes all the group changes...
+/**
+ * This function actually makes all the group changes
+ * 
+ * 
+ */
 function groupMembership2($profile_vars, $post_errors, $memID)
 {
 	global $user_info, $sourcedir, $context, $user_profile, $modSettings, $txt, $smcFunc, $scripturl, $language;

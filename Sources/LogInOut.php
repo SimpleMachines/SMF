@@ -207,7 +207,7 @@ function Login2()
 		)
 	);
 	// Probably mistyped or their email, try it as an email address. (member_name first, though!)
-	if ($smcFunc['db_num_rows']($request) == 0)
+	if ($smcFunc['db_num_rows']($request) == 0 && strpos($_POST['user'], '@') !== false)
 	{
 		$smcFunc['db_free_result']($request);
 
@@ -221,12 +221,13 @@ function Login2()
 				'user_name' => $_POST['user'],
 			)
 		);
-		// Let them try again, it didn't match anything...
-		if ($smcFunc['db_num_rows']($request) == 0)
-		{
-			$context['login_errors'] = array($txt['username_no_exist']);
-			return;
-		}
+	}
+
+	// Let them try again, it didn't match anything...
+	if ($smcFunc['db_num_rows']($request) == 0)
+	{
+		$context['login_errors'] = array($txt['username_no_exist']);
+		return;
 	}
 
 	$user_settings = $smcFunc['db_fetch_assoc']($request);

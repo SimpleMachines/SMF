@@ -23,7 +23,9 @@ function PostModerationMain()
 {
 	global $sourcedir;
 
-	//!!! We'll shift these later bud.
+	/**
+	 * @todo We'll shift these later bud.
+	 */
 	loadLanguage('ModerationCenter');
 	loadTemplate('ModerationCenter');
 
@@ -59,7 +61,9 @@ function UnapprovedPosts()
 	$approve_boards = boardsAllowedTo('approve_posts');
 
 	// If we filtered by board remove ones outside of this board.
-	//!!! Put a message saying we're filtered?
+	/**
+	 * @todo Put a message saying we're filtered?
+	 */
 	if (isset($_REQUEST['brd']))
 	{
 		$filter_board = array((int) $_REQUEST['brd']);

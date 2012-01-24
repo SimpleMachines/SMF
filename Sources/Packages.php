@@ -66,7 +66,9 @@ function Packages()
 	// Set up some tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['package_manager'],
-		// !!! 'help' => 'registrations',
+		/**
+		 * @todo 'help' => 'registrations',
+		 */
 		'description' => $txt['package_manager_desc'],
 		'tabs' => array(
 			'browse' => array(
@@ -571,7 +573,9 @@ function PackageInstallTest()
 		if (empty($thisAction))
 			continue;
 
-		// !!! None given?
+		/**
+		 * @todo None given?
+		 */
 		$thisAction['description'] = isset($action['description']) ? $action['description'] : '';
 		$context['actions'][] = $thisAction;
 	}
@@ -682,7 +686,9 @@ function PackageInstall()
 
 	require_once($sourcedir . '/Subs-Package.php');
 
-	// !!! TODO: Perhaps do it in steps, if necessary?
+	/**
+	 * @todo Perhaps do it in steps, if necessary?
+	 */
 
 	$context['uninstalling'] = $_REQUEST['sa'] == 'uninstall2';
 
@@ -794,7 +800,9 @@ function PackageInstall()
 	if (!empty($modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $context['filename'] . ($context['uninstalling'] ? '$$' : '$')))
 	{
 		$_SESSION['last_backup_for'] = $context['filename'] . ($context['uninstalling'] ? '$$' : '$');
-		// !!! Internationalize this?
+		/**
+		 * @todo Internationalize this?
+		 */
 		package_create_backup(($context['uninstalling'] ? 'backup_' : 'before_') . strtok($context['filename'], '.'));
 	}
 
@@ -823,7 +831,9 @@ function PackageInstall()
 	$smcFunc['db_free_result']($request);
 
 	// Wait, it's not installed yet!
-	// !!! TODO: Replace with a better error message!
+	/**
+	 * @todo Replace with a better error message!
+	 */
 	if (!isset($old_version) && $context['uninstalling'])
 	{
 		deltree($boarddir . '/Packages/temp');
@@ -867,7 +877,9 @@ function PackageInstall()
 
 	$context['install_finished'] = false;
 
-	// !!! TODO: Make a log of any errors that occurred and output them?
+	/**
+	 * @todo Make a log of any errors that occurred and output them?
+	 */
 
 	if (!empty($install_log))
 	{
@@ -1671,7 +1683,9 @@ function PackagePermissions()
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
 
-		// !!! Should we suggest non-current directories be read only?
+		/**
+		 * @todo Should we suggest non-current directories be read only?
+		 */
 		foreach ($modSettings['attachmentUploadDir'] as $dir)
 			$context['file_tree'][strtr($dir, array('\\' => '/'))] = array(
 			'type' => 'dir',
@@ -1849,7 +1863,9 @@ function fetchPerms__recursive($path, &$data, $level)
 	// Are we actually interested in saving this data?
 	$save_data = empty($context['only_find']) || $context['only_find'] == $path;
 
-	//!!! Shouldn't happen - but better error message?
+	/**
+	 * @todo Shouldn't happen - but better error message?
+	 */
 	if (!is_dir($path))
 		fatal_lang_error('no_access', false);
 

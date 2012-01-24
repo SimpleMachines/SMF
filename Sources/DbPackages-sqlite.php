@@ -358,7 +358,9 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 	// If we're here we know we don't have the index - so just add it.
 	if (!empty($index_info['type']) && $index_info['type'] == 'primary')
 	{
-		//!!! Doesn't work with PRIMARY KEY yet.
+		/**
+		 * @todo Doesn't work with PRIMARY KEY yet.
+		 */
 	}
 	else
 	{
@@ -389,7 +391,9 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
 
 	foreach ($indexes as $index)
 	{
-		//!!! Doesn't do primary key at the moment!
+		/**
+		 * @todo Doesn't do primary key at the moment!
+		 */
 		if ($index['type'] != 'primary' && $index['name'] == $index_name)
 		{
 			// Drop the bugger...

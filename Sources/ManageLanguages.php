@@ -847,7 +847,7 @@ function ModifyLanguage()
 	{
 		checkSession();
 
-		// !!! Todo: FTP Controls?
+		// @todo: FTP Controls?
 		require_once($sourcedir . '/Subs-Package.php');
 
 		// First, Make a backup?

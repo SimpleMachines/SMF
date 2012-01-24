@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file handles actions made on a user's profile.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,25 +16,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains profile action functions.
-
-	void activateAccount(int id_member)
-		// !!!
-
-	void issueWarning(int id_member)
-		// !!!
-
-	void deleteAccount(int id_member)
-		// !!!
-
-	void deleteAccount2(array profile_variables, array &errors, int id_member)
-		// !!!
-
-	void subscriptions(int id_member)
-		// !!!
-*/
-
-// Activate an account.
+/**
+ * Activate an account.
+ *
+ * @param int $memID, the member ID
+ */
 function activateAccount($memID)
 {
 	global $sourcedir, $context, $user_profile, $modSettings;
@@ -67,7 +55,11 @@ function activateAccount($memID)
 	redirectexit('action=profile;u=' . $memID . ';area=summary');
 }
 
-// Issue/manage a users warning status.
+/**
+ * Issue/manage an user's warning status.
+ *
+ * @param int $memID
+ */
 function issueWarning($memID)
 {
 	global $txt, $scripturl, $modSettings, $user_info, $mbname;
@@ -332,7 +324,11 @@ function issueWarning($memID)
 		$context['notification_templates'][$k]['body'] = strtr($name['body'], array('{MEMBER}' => un_htmlspecialchars($context['member']['name']), '{MESSAGE}' => '[url=' . $scripturl . '?msg=' . $context['warning_for_message'] . ']' . un_htmlspecialchars($context['warned_message_subject']) . '[/url]', '{SCRIPTURL}' => $scripturl, '{FORUMNAME}' => $mbname, '{REGARDS}' => $txt['regards_team']));
 }
 
-// Get the number of warnings a user has.
+/**
+ * Get the number of warnings a user has.
+ *
+ * @param int $memID
+ */
 function list_getUserWarningCount($memID)
 {
 	global $smcFunc;
@@ -353,7 +349,14 @@ function list_getUserWarningCount($memID)
 	return $total_warnings;
 }
 
-// Get the data about a users warnings.
+/**
+ * Get the data about a users warnings.
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $memID, the member ID
+ */
 function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 {
 	global $smcFunc, $scripturl;
@@ -391,7 +394,11 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 	return $previous_warnings;
 }
 
-// Present a screen to make sure the user wants to be deleted
+/**
+ * Present a screen to make sure the user wants to be deleted
+ *
+ * @param int $memID, the member ID
+ */
 function deleteAccount($memID)
 {
 	global $txt, $context, $user_info, $modSettings, $cur_profile, $smcFunc;
@@ -409,6 +416,13 @@ function deleteAccount($memID)
 	$context['page_title'] = $txt['deleteAccount'] . ': ' . $cur_profile['real_name'];
 }
 
+/**
+ * Actually delete an account.
+ *
+ * @param $profile_vars
+ * @param $post_errors
+ * @param int $memID, the member ID
+ */
 function deleteAccount2($profile_vars, $post_errors, $memID)
 {
 	global $user_info, $sourcedir, $context, $cur_profile, $modSettings, $smcFunc;
@@ -416,7 +430,7 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 	// Try get more time...
 	@set_time_limit(600);
 
-	// !!! Add a way to delete pms as well?
+	// @todo Add a way to delete pms as well?
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
@@ -484,7 +498,7 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 				$smcFunc['db_free_result']($request);
 
 				// Actually remove the topics.
-				// !!! This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
+				// @todo This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
 				removeTopics($topicIDs);
 			}
 
@@ -534,7 +548,11 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 	}
 }
 
-// Function for doing all the paid subscription stuff - kinda.
+/**
+ * Function for doing all the paid subscription stuff - kinda.
+ *
+ * @param int $memID
+ */
 function subscriptions($memID)
 {
 	global $context, $txt, $sourcedir, $modSettings, $smcFunc, $scripturl;

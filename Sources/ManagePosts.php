@@ -220,7 +220,9 @@ function ModifyPostSettings($return_config = false)
 
 			if (isset($body_type) && $_POST['max_messageLength'] > 65535 && $body_type == 'text')
 			{
-				// !!! Show an error message?!
+				/**
+				 * @todo Show an error message?!
+				 */
 				// MySQL only likes fulltext indexes on text columns... for now?
 				if (!empty($fulltext))
 					$_POST['max_messageLength'] = 65535;

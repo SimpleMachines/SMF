@@ -49,7 +49,9 @@ function MessageMain()
 		$context['message_limit'] = 0;
 	elseif (($context['message_limit'] = cache_get_data('msgLimit:' . $user_info['id'], 360)) === null)
 	{
-		// !!! Why do we do this?  It seems like if they have any limit we should use it.
+		/**
+		 * @todo Why do we do this?  It seems like if they have any limit we should use it.
+		 */
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
 			FROM {db_prefix}membergroups
@@ -633,7 +635,9 @@ function MessageFolder()
 	// This is kinda simple!
 	else
 	{
-		// !!!SLOW This query uses a filesort. (inbox only.)
+		/**
+		 * @todo SLOW This query uses a filesort. (inbox only.)
+		 */
 		$request = $smcFunc['db_query']('', '
 			SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '' . ($context['sort_by'] == 'name' ? '
@@ -1060,7 +1064,10 @@ function MessageSearch2()
 	if (!empty($context['load_average']) && !empty($modSettings['loadavg_search']) && $context['load_average'] >= $modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
 
-	// !!! For the moment force the folder to the inbox.
+	/**
+	 * @todo For the moment force the folder to the inbox.
+	 * @todo Maybe set the inbox based on a cookie or theme setting?
+	 */
 	$context['folder'] = 'inbox';
 
 	// Some useful general permissions.
@@ -1129,7 +1136,9 @@ function MessageSearch2()
 		}
 
 		// Who matches those criteria?
-		// !!! This doesn't support sent item searching.
+		/**
+		 * @todo This doesn't support sent item searching.
+		 */
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member
 			FROM {db_prefix}members
@@ -1159,7 +1168,9 @@ function MessageSearch2()
 	}
 
 	// Setup the sorting variables...
-	// !!! Add more in here!
+	/**
+	 * @todo Add more in here!
+	 */
 	$sort_columns = array(
 		'pm.id_pm',
 	);
@@ -1338,7 +1349,9 @@ function MessageSearch2()
 	$smcFunc['db_free_result']($request);
 
 	// Get all the matching messages... using standard search only (No caching and the like!)
-	// !!! This doesn't support sent item searching yet.
+	/**
+	 * @todo This doesn't support sent item searching yet.
+	 */
 	$request = $smcFunc['db_query']('', '
 		SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from
 		FROM {db_prefix}pm_recipients AS pmr
@@ -2421,7 +2434,9 @@ function MessageActionsApply()
 		$smcFunc['db_free_result']($request);
 
 		// Any errors?
-		// !!! Separate the sprintf?
+		/**
+		 * @todo Separate the sprintf?
+		 */
 		if (!empty($updateErrors))
 			fatal_lang_error('labels_too_many', true, array($updateErrors));
 	}
@@ -3041,7 +3056,9 @@ function ReportMessage()
 	{
 		$context['sub_template'] = 'report_message';
 
-		// !!! I don't like being able to pick who to send it to.  Favoritism, etc. sucks.
+		/**
+		 * @todo I don't like being able to pick who to send it to.  Favoritism, etc. sucks.
+		 */
 		// Now, get all the administrators.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, real_name
@@ -3431,7 +3448,9 @@ function ApplyRules($all_messages = false)
 	// Just unread ones?
 	$ruleQuery = $all_messages ? '' : ' AND pmr.is_new = 1';
 
-	//!!! Apply all should have timeout protection!
+	/**
+	 * @todo Apply all should have timeout protection!
+	 */
 	// Get all the messages that match this.
 	$request = $smcFunc['db_query']('', '
 		SELECT

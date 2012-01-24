@@ -280,7 +280,9 @@ function ViewMemberlist()
 			'++' => '>'
 		);
 
-		// !!! Validate a little more.
+		/**
+		 * @todo Validate a little more.
+		 */
 
 		// Loop through every field of the form.
 		$query_parts = array();

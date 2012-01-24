@@ -677,8 +677,10 @@ function QuickModeration()
 	}
 	else
 	{
-		// !!! Ugly.  There's no getting around this, is there?
-		// !!! Maybe just do this on the actions people want to use?
+		/**
+		 * @todo Ugly. There's no getting around this, is there?
+		 * @todo Maybe just do this on the actions people want to use?
+		 */
 		$boards_can = array(
 			'make_sticky' => boardsAllowedTo('make_sticky'),
 			'move_any' => boardsAllowedTo('move_any'),

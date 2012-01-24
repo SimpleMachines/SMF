@@ -1428,7 +1428,9 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 			'current_member' => $id_member,
 		)
 	);
-	//!!! Don't really need to do this twice...
+	/**
+	 * @todo Don't really need to do this twice...
+	 */
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		list ($id_sublog, $endtime, $starttime) = $smcFunc['db_fetch_row']($request);

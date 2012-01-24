@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * This file has the primary job of showing and editing people's profiles.
+ * It also allows the user to change some of their or another's preferences,
+ * and such things.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,19 +18,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has the primary job of showing and editing people's profiles.
-	It also allows the user to change some of their or another's preferences,
-	and such things.  It uses the following functions:
-
-	void ModifyProfile(array errors = none)
-		// !!!
-
-	void loadCustomFields(int id_member, string area)
-		// !!!
-
-*/
-
-// Allow the change or view of profiles...
+/**
+ * Allow the change or view of profiles...
+ *
+ * @param array $post_errors = array()
+ */
 function ModifyProfile($post_errors = array())
 {
 	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
@@ -645,7 +641,12 @@ function ModifyProfile($post_errors = array())
 		$context['page_title'] = $txt['profile'] . (isset($txt[$current_area]) ? ' - ' . $txt[$current_area] : '');
 }
 
-// Load any custom fields for this area... no area means load all, 'summary' loads all public ones.
+/**
+ * Load any custom fields for this area... no area means load all, 'summary' loads all public ones.
+ *
+ * @param int $memID
+ * @param string $area
+ */
 function loadCustomFields($memID, $area = 'summary')
 {
 	global $context, $txt, $user_profile, $smcFunc, $user_info, $settings, $scripturl;

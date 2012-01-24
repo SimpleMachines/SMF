@@ -77,7 +77,6 @@ if (!defined('SMF'))
 		- accessed with ?action=quotefast.
 
 	void JavaScriptModify()
-		// !!!
 */
 
 function Post()
@@ -197,7 +196,9 @@ function Post()
 		}
 
 		$locked = 0;
-		// !!! These won't work if you're making an event.
+		/**
+		 * @todo These won't work if you're making an event.
+		 */
 		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'));
 		$context['can_sticky'] = allowedTo('make_sticky') && !empty($modSettings['enableStickyTopics']);
 
@@ -205,7 +206,9 @@ function Post()
 		$context['sticky'] = !empty($_REQUEST['sticky']);
 	}
 
-	// !!! These won't work if you're posting an event!
+	/**
+	 * @todo These won't work if you're posting an event!
+	 */
 	$context['can_notify'] = allowedTo('mark_any_notify');
 	$context['can_move'] = allowedTo('move_any');
 	$context['move'] = !empty($_REQUEST['move']);
@@ -628,7 +631,9 @@ function Post()
 				)
 			);
 			// The message they were trying to edit was most likely deleted.
-			// !!! Change this error message?
+			/**
+			 * @todo Change this error message?
+			 */
 			if ($smcFunc['db_num_rows']($request) == 0)
 				fatal_lang_error('no_board', false);
 			$row = $smcFunc['db_fetch_assoc']($request);
@@ -731,7 +736,9 @@ function Post()
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
-		// !!! Change this error message?
+		/**
+		 * @todo Change this error message?
+		 */
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_board', false);
 		$row = $smcFunc['db_fetch_assoc']($request);
@@ -886,7 +893,9 @@ function Post()
 		}
 	}
 
-	// !!! This won't work if you're posting an event.
+	/**
+	 * This won't work if you're posting an event.
+	 */
 	if (allowedTo('post_attachment') || allowedTo('post_unapproved_attachments'))
 	{
 		if (empty($_SESSION['temp_attachments']))
@@ -1096,7 +1105,9 @@ function Post()
 		$context['linktree'][count($context['linktree']) - 1]['url'] = $scripturl . '?action=post;' . (!empty($topic) ? 'topic=' . $topic : 'board=' . $board) . '.' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . (int) $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '');
 
 	// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-	// !!! This won't work if you're posting an event.
+	/**
+	 * @todo This won't work if you're posting an event.
+	 */
 	$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? 50 : min($modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments']) + (isset($deleted_attachments) ? $deleted_attachments : 0), $modSettings['attachmentNumPerPostLimit']);
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments'))) && $context['num_allowed_attachments'] > 0;
 	$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
@@ -2208,7 +2219,9 @@ function AnnouncementSend()
 
 	checkSession();
 
-	// !!! Might need an interface?
+	/**
+	 * @todo Might need an interface?
+	 */
 	$chunkSize = empty($modSettings['mail_queue']) ? 50 : 500;
 
 	$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
@@ -2419,7 +2432,9 @@ function notifyMembersBoard(&$topicData)
 		foreach ($boards[$rowmember['id_board']] as $key)
 		{
 			// Don't notify the guy who started the topic!
-			//!!! In this case actually send them a "it's approved hooray" email
+			/**
+			 * @todo In this case actually send them a "it's approved hooray" email
+			 */
 			if ($topicData[$key]['poster'] == $rowmember['id_member'])
 				continue;
 
@@ -2614,7 +2629,9 @@ function QuoteFast()
 
 		$context['quote']['mozilla'] = strtr($smcFunc['htmlspecialchars']($context['quote']['text']), array('&quot;' => '"'));
 	}
-	// !!! Needs a nicer interface.
+	/**
+	 * @todo Needs a nicer interface.
+	 */
 	// In case our message has been removed in the meantime.
 	elseif (isset($_REQUEST['modify']))
 	{

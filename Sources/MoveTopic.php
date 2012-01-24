@@ -17,35 +17,17 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains the functions required to move topics from one board to
-	another board.
-
-	void MoveTopic()
-		- is called to allow moderator to give reason for topic move.
-		- must be called with a topic specified.
-		- uses the MoveTopic template and main sub template.
-		- if the member is the topic starter requires the move_own permission,
-		  otherwise the move_any permission.
-		- is accessed via ?action=movetopic.
-
-	void MoveTopic2()
-		- is called on the submit of MoveTopic.
-		- requires the use of the Subs-Post.php file.
-		- logs that topics have been moved in the moderation log.
-		- if the member is the topic starter requires the move_own permission,
-		  otherwise requires the move_any permission.
-		- upon successful completion redirects to message index.
-		- is accessed via ?action=movetopic2.
-
-	void moveTopics(array topics, int destination_board)
-		- performs the changes needed to move topics to new boards.
-		- topics is an array of the topics to move, and destination_board is
-		  where they should be moved to.
-		- updates message, topic and calendar statistics.
-		- does not check permissions. (assumes they have been checked!)
-*/
-
-// Move a topic.  Give the moderator a chance to post a reason.
+/**
+ * This function allows to move a topic, making sure to ask the moderator
+ * to give reason for topic move.
+ * It must be called with a topic specified. (that is, global $topic must
+ * be set... @todo fix this thing.)
+ * If the member is the topic starter requires the move_own permission,
+ * otherwise the move_any permission.
+ * Accessed via ?action=movetopic.
+ *
+ * @uses the MoveTopic template, main sub-template.
+ */
 function MoveTopic()
 {
 	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $settings, $smcFunc, $modSettings;
@@ -297,7 +279,9 @@ function MoveTopic2()
 	}
 
 	// Create a link to this in the old board.
-	//!!! Does this make sense if the topic was unapproved before? I'd just about say so.
+	/**
+	 * @todo Does this make sense if the topic was unapproved before? I'd just about say so.
+	 */
 	if (isset($_POST['postRedirect']))
 	{
 		// Should be in the boardwide language.
