@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains the files necessary to display news as an XML feed.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,51 +16,21 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains the files necessary to display news as an XML feed.
-
-	void ShowXmlFeed()
-		- is called to output xml information.
-		- can be passed four subactions which decide what is output: 'recent'
-		  for recent posts, 'news' for news topics, 'members' for recently
-		  registered members, and 'profile' for a member's profile.
-		- To display a member's profile, a user id has to be given. (;u=1)
-		- uses the Stats language file.
-		- outputs an rss feed instead of a proprietary one if the 'type' get
-		  parameter is 'rss' or 'rss2'.
-		- does not use any templates, sub templates, or template layers.
-		- is accessed via ?action=.xml.
-
-	void dumpTags(array data, int indentation, string tag = use_array,
-			string format)
-		- formats data retrieved in other functions into xml format.
-		- additionally formats data based on the specific format passed.
-		- the data parameter is the array to output as xml data.
-		- indentation is the amount of indentation to use.
-		- if a tag is specified, it will be used instead of the keys of data.
-		- this function is recursively called to handle sub arrays of data.
-
-	array getXmlMembers(string format)
-		- is called to retrieve list of members from database.
-		- the array will be generated to match the format.
-		- returns array of data.
-
-	array getXmlNews(string format)
-		- is called to retrieve news topics from database.
-		- the array will be generated to match the format.
-		- returns array of topics.
-
-	array getXmlRecent(string format)
-		- is called to retrieve list of recent topics.
-		- the array will be generated to match the format.
-		- returns an array of recent posts.
-
-	array getXmlProfile(string format)
-		- is called to retrieve profile information for member into array.
-		- the array will be generated to match the format.
-		- returns an array of data.
-*/
-
-// Show an xml file representing recent information or a profile.
+/**
+ * Outputs xml data representing recent information or a profile.
+ * Can be passed 4 subactions which decide what is output:
+ *  'recent' for recent posts,
+ *  'news' for news topics,
+ *  'members' for recently registered members,
+ *  'profile' for a member's profile.
+ * To display a member's profile, a user id has to be given. (;u=1)
+ * Outputs an rss feed instead of a proprietary one if the 'type' $_GET
+ * parameter is 'rss' or 'rss2'.
+ * Accessed via ?action=.xml.
+ * Does not use any templates, sub templates, or template layers.
+ *
+ * @uses Stats language file.
+ */
 function ShowXmlFeed()
 {
 	global $board, $board_info, $context, $scripturl, $txt, $modSettings, $user_info;
@@ -451,6 +423,16 @@ function cdata_parse($data, $ns = '')
 	return strtr($cdata, array('<![CDATA[]]>' => ''));
 }
 
+/**
+ * Formats data retrieved in other functions into xml format.
+ * Additionally formats data based on the specific format passed.
+ * This function is recursively called to handle sub arrays of data.
+
+ * @param array $data, the array to output as xml data
+ * @param int $i, the amount of indentation to use.
+ * @param string $tag, if specified, it will be used instead of the keys of data.
+ * @param string $xml_format
+ */
 function dumpTags($data, $i, $tag = null, $xml_format = '')
 {
 	global $modSettings, $context, $scripturl;
@@ -508,6 +490,14 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 	}
 }
 
+/**
+ * Retrieve the list of members from database.
+ * The array will be generated to match the format.
+ * @todo get the list of members from Subs-Members.
+ *
+ * @param string $xml_format
+ * @return array
+ */
 function getXmlMembers($xml_format)
 {
 	global $scripturl, $smcFunc;
@@ -564,6 +554,15 @@ function getXmlMembers($xml_format)
 	return $data;
 }
 
+/**
+ * Get the latest topics information from a specific board,
+ * to display later.
+ * The returned array will be generated to match the xmf_format.
+ * @todo does not belong here
+ *
+ * @param $xml_format
+ * @return array, array of topics
+ */
 function getXmlNews($xml_format)
 {
 	global $user_info, $scripturl, $modSettings, $board;
@@ -691,6 +690,14 @@ function getXmlNews($xml_format)
 	return $data;
 }
 
+/**
+ * Get the recent topics to display.
+ * The returned array will be generated to match the xml_format.
+ * @todo does not belong here.
+ *
+ * @param $xml_format
+ * @return array, of recent posts
+ */
 function getXmlRecent($xml_format)
 {
 	global $user_info, $scripturl, $modSettings, $board;
@@ -848,6 +855,14 @@ function getXmlRecent($xml_format)
 	return $data;
 }
 
+/**
+ * Get the profile information for member into an array,
+ * which will be generated to match the xml_format.
+ * @todo refactor.
+ *
+ * @param $xml_format
+ * @return array, of profile data.
+ */
 function getXmlProfile($xml_format)
 {
 	global $scripturl, $memberContext, $user_profile, $modSettings, $user_info;

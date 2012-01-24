@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains the functions for displaying and searching in the
+ * members list.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,37 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains the functions for displaying and searching in the
-	members list.  It does so with these functions:
-
-	void MemberList()
-		- shows a list of registered members.
-		- if a subaction is not specified, lists all registered members.
-		- allows searching for members with the 'search' sub action.
-		- calls MLAll or MLSearch depending on the sub action.
-		- uses the Memberlist template with the main sub template.
-		- requires the view_mlist permission.
-		- is accessed via ?action=mlist.
-
-	void MLAll()
-		- used to display all members on a page by page basis with sorting.
-		- called from MemberList().
-		- can be passed a sort parameter, to order the display of members.
-		- calls printMemberListRows to retrieve the results of the query.
-
-	void MLSearch()
-		- used to search for members or display search results.
-		- called by MemberList().
-		- if variable 'search' is empty displays search dialog box, using the
-		  search sub template.
-		- calls printMemberListRows to retrieve the results of the query.
-
-	void printMemberListRows(resource request)
-		- retrieves results of the request passed to it
-		- puts results of request into the context for the sub template.
-*/
-
-// Show a listing of the registered members.
+/**
+ * Shows a listing of registered members.
+ * If a subaction is not specified, lists all registered members.
+ * It allows searching for members with the 'search' sub action.
+ * It calls MLAll or MLSearch depending on the sub action.
+ * Requires the view_mlist permission.
+ * Accessed via ?action=mlist.
+ *
+ * @uses Memberlist template, main sub template.
+ */
 function Memberlist()
 {
 	global $scripturl, $txt, $modSettings, $context, $settings, $modSettings;
@@ -154,7 +136,12 @@ function Memberlist()
 		$subActions['all'][1]();
 }
 
-// List all members, page by page.
+/**
+ * List all members, page by page, with sorting.
+ * Called from MemberList().
+ * Can be passed a sort parameter, to order the display of members.
+ * Calls printMemberListRows to retrieve the results of the query.
+ */
 function MLAll()
 {
 	global $txt, $scripturl, $user_info;
@@ -400,7 +387,13 @@ function MLAll()
 	}
 }
 
-// Search for members...
+/**
+ * Search for members, or display search results.
+ * Called by MemberList().
+ * If variable 'search' is empty displays search dialog box, using the
+ * search sub template.
+ * Calls printMemberListRows to retrieve the results of the query.
+ */
 function MLSearch()
 {
 	global $txt, $scripturl, $context, $user_info, $modSettings, $smcFunc;
@@ -551,6 +544,12 @@ function MLSearch()
 	);
 }
 
+/**
+ * Retrieves results of the request passed to it
+ * Puts results of request into the context for the sub template.
+ *
+ * @param resource $request
+ */
 function printMemberListRows($request)
 {
 	global $scripturl, $txt, $user_info, $modSettings;

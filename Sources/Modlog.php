@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * The moderation log is this file's only job.
+ * It views it, and that's about all it does.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,26 +17,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	The moderation log is this file's only job.  It views it, and that's about
-	all it does.
-
-	void ViewModlog()
-		- prepares the information from the moderation log for viewing.
-		- disallows the deletion of events within twenty-four hours of now.
-		- requires the admin_forum permission.
-		- uses the Modlog template, main sub template.
-		- is accessed via ?action=moderate;area=modlog.
-
-	int list_getModLogEntries()
-		//!!!
-
-	array list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1)
-		- Gets the moderation log entries that match the specified paramaters
-		- limit can be an array with two values
-		- search_param and order should be proper SQL strings or blank.  If blank they are not used.
-*/
-
-// Show the moderation log
+/**
+ * Prepares the information from the moderation log for viewing.
+ * Show the moderation log.
+ * Disallows the deletion of events within twenty-four hours of now.
+ * Requires the admin_forum permission.
+ * Accessed via ?action=moderate;area=modlog.
+ *
+ * @uses Modlog template, main sub-template.
+ */
 function ViewModlog()
 {
 	global $txt, $modSettings, $context, $scripturl, $sourcedir, $user_info, $smcFunc, $settings;
@@ -302,7 +294,14 @@ function ViewModlog()
 	$context['default_list'] = 'moderation_log_list';
 }
 
-// Get the number of mod log entries.
+/**
+ * Get the number of mod log entries.
+ * Callback for createList() in ViewModlog().
+ *
+ * @param $query_string
+ * @param $query_params
+ * @param $log_type
+ */
 function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1)
 {
 	global $smcFunc, $user_info;
@@ -332,6 +331,17 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
 	return $entry_count;
 }
 
+/**
+ * Gets the moderation log entries that match the specified parameters.
+ * Callback for createList() in ViewModlog().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ * @param $query_string
+ * @param $query_params
+ * @param $log_type
+ */
 function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1)
 {
 	global $context, $scripturl, $txt, $smcFunc, $user_info;

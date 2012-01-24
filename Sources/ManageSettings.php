@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file is here to make it easier for installed mods to have
+ * settings and options.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,60 +17,12 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is here to make it easier for installed mods to have settings
-	and options.  It uses the following functions:
-
-	void ModifyFeatureSettings()
-		// !!!
-
-	void ModifySecuritySettings()
-		// !!!
-
-	void ModifyModSettings()
-		// !!!
-
-	void ModifyCoreFeatures()
-		// !!!
-
-	void ModifyBasicSettings()
-		// !!!
-
-	void ModifyGeneralSecuritySettings()
-		// !!!
-
-	void ModifyLayoutSettings()
-		// !!!
-
-	void ModifyKarmaSettings()
-		// !!!
-
-	void ModifyModerationSettings()
-		// !!!
-
-	void ModifySpamSettings()
-		// !!!
-
-	void ModifySignatureSettings()
-		// !!!
-
-	void pauseSignatureApplySettings()
-		// !!!
-
-	void ShowCustomProfiles()
-		// !!!
-
-	void EditCustomProfiles()
-		// !!!
-
-	void ModifyPruningSettings()
-		// !!!
-
-	void disablePostModeration()
-		// !!!
-// !!!
-*/
-
-// This just avoids some repetition.
+/**
+ * This just avoids some repetition.
+ *
+ * @param $subActions
+ * @param $defaultAction
+ */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
 {
 	global $context, $txt, $sourcedir;
@@ -88,7 +43,9 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
 	$context['sub_action'] = $_REQUEST['sa'];
 }
 
-// This function passes control through to the relevant tab.
+/**
+ * This function passes control through to the relevant tab.
+ */
 function ModifyFeatureSettings()
 {
 	global $context, $txt, $scripturl, $modSettings, $settings;
@@ -131,7 +88,9 @@ function ModifyFeatureSettings()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// This function passes control through to the relevant security tab.
+/**
+ * This function passes control through to the relevant security tab.
+ */
 function ModifySecuritySettings()
 {
 	global $context, $txt, $scripturl, $modSettings, $settings;
@@ -166,7 +125,9 @@ function ModifySecuritySettings()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// This my friend, is for all the mod authors out there. They're like builders without the ass crack - with the possible exception of... /cut short
+/**
+ * This my friend, is for all the mod authors out there.
+ */
 function ModifyModSettings()
 {
 	global $context, $txt, $scripturl, $modSettings, $settings;
@@ -198,7 +159,11 @@ function ModifyModSettings()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// This is an overall control panel enabling/disabling lots of SMF's key feature components.
+/**
+ * This is an overall control panel enabling/disabling lots of SMF's key feature components.
+ *
+ * @param $return_config
+ */
 function ModifyCoreFeatures($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
@@ -446,6 +411,10 @@ function ModifyCoreFeatures($return_config = false)
 	$context['page_title'] = $txt['core_settings_title'];
 }
 
+/**
+ *
+ * @param $return_config
+ */
 function ModifyBasicSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
@@ -520,7 +489,11 @@ function ModifyBasicSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Settings really associated with general security aspects.
+/**
+ * Settings really associated with general security aspects.
+ *
+ * @param $return_config
+ */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
@@ -566,6 +539,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
+/**
+ *
+ * @param $return_config
+ */
 function ModifyLayoutSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc;
@@ -610,6 +587,10 @@ function ModifyLayoutSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
+/**
+ *
+ * @param $return_config
+ */
 function ModifyKarmaSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc;
@@ -647,7 +628,11 @@ function ModifyKarmaSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Moderation type settings - although there are fewer than we have you believe ;)
+/**
+ * Moderation type settings - although there are fewer than we have you believe ;)
+ *
+ * @param $return_config
+ */
 function ModifyModerationSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
@@ -707,7 +692,10 @@ function ModifyModerationSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Let's try keep the spam to a minimum ah Thantos?
+/**
+ * Let's try keep the spam to a minimum ah Thantos?
+ * @param $return_config
+ */
 function ModifySpamSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc;
@@ -895,7 +883,11 @@ function ModifySpamSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// You'll never guess what this function does...
+/**
+ * You'll never guess what this function does...
+ *
+ * @param $return_config
+ */
 function ModifySignatureSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $sig_start, $smcFunc, $helptxt, $scripturl;
@@ -1227,7 +1219,9 @@ function ModifySignatureSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Just pause the signature applying thing.
+/**
+ * Just pause the signature applying thing.
+ */
 function pauseSignatureApplySettings()
 {
 	global $context, $txt, $sig_start;
@@ -1259,7 +1253,9 @@ function pauseSignatureApplySettings()
 	obExit();
 }
 
-// Show all the custom profile fields available to the user.
+/**
+ * Show all the custom profile fields available to the user.
+ */
 function ShowCustomProfiles()
 {
 	global $txt, $scripturl, $context, $settings, $sc, $smcFunc;
@@ -1486,6 +1482,14 @@ function ShowCustomProfiles()
 	createList($listOptions);
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ * @param $standardFields
+ */
 function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 {
 	global $txt, $modSettings, $smcFunc;
@@ -1530,6 +1534,9 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 	return $list;
 }
 
+/**
+ * Callback for createList().
+ */
 function list_getProfileFieldSize()
 {
 	global $smcFunc;
@@ -1547,7 +1554,9 @@ function list_getProfileFieldSize()
 	return $numProfileFields;
 }
 
-// Edit some profile fields?
+/**
+ * Edit some profile fields?
+ */
 function EditCustomProfiles()
 {
 	global $txt, $scripturl, $context, $settings, $sc, $smcFunc;
@@ -1939,6 +1948,10 @@ function EditCustomProfiles()
 	}
 }
 
+/**
+ * Allow to edit the settings on the pruning screen.
+ * @param $return_config
+ */
 function ModifyPruningSettings($return_config = false)
 {
 	global $txt, $scripturl, $sourcedir, $context, $settings, $sc, $modSettings;
@@ -2011,7 +2024,11 @@ function ModifyPruningSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// If you have a general mod setting to add stick it here.
+/**
+ * If you have a general mod setting to add stick it here.
+ *
+ * @param $return_config
+ */
 function ModifyGeneralModSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;

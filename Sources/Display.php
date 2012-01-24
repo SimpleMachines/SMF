@@ -1229,7 +1229,7 @@ function Download()
 		isAllowedTo('view_attachments');
 
 		// Make sure this attachment is on this board.
-		// NOTE: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
 		$request = $smcFunc['db_query']('', '
 			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
 			FROM {db_prefix}attachments AS a
@@ -1429,6 +1429,7 @@ function Download()
  * This loads an attachment's contextual data including, most importantly, its size
  *  if it is an image.
  *  Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
+ *  (@todo change this pre-condition, too fragile and error-prone.)
  *  It requires the view_attachments permission to calculate image size.
  *  It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
  *  the max_image_width and max_image_height settings.

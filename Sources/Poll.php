@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains the functions for voting, locking, removing and
+ * editing polls. Note that that posting polls is done in Post.php.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,61 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains the functions for voting, locking, removing and editing
-	polls. Note that that posting polls is done in Post.php.
-
-	void Vote()
-		- is called to register a vote in a poll.
-		- must be called with a topic and option specified.
-		- uses the Post language file.
-		- requires the poll_vote permission.
-		- upon successful completion of action will direct user back to topic.
-		- is accessed via ?action=vote.
-
-	void LockVoting()
-		- is called to lock or unlock voting on a poll.
-		- must be called with a topic specified in the URL.
-		- an admin always has over riding permission to lock a poll.
-		- if not an admin must have poll_lock_any permission.
-		- otherwise must be poll starter with poll_lock_own permission.
-		- upon successful completion of action will direct user back to topic.
-		- is accessed via ?action=lockvoting.
-
-	void EditPoll()
-		- is called to display screen for editing or adding a poll.
-		- must be called with a topic specified in the URL.
-		- if the user is adding a poll to a topic, must contain the variable
-		  'add' in the url.
-		- uses the Post language file.
-		- uses the Poll template (main sub template.).
-		- user must have poll_edit_any/poll_add_any permission for the relevant
-		  action.
-		- otherwise must be poll starter with poll_edit_own permission for
-		  editing, or be topic starter with poll_add_any permission for adding.
-		- is accessed via ?action=editpoll.
-
-	void EditPoll2()
-		- is called to update the settings for a poll, or add a new one.
-		- must be called with a topic specified in the URL.
-		- user must have poll_edit_any/poll_add_any permission for the relevant
-		  action.
-		- otherwise must be poll starter with poll_edit_own permission for
-		  editing, or be topic starter with poll_add_any permission for adding.
-		- in the case of an error will redirect back to EditPoll and display
-		  the relevant error message.
-		- upon successful completion of action will direct user back to topic.
-		- is accessed via ?action=editpoll2.
-
-	void RemovePoll()
-		- is called to remove a poll from a topic.
-		- must be called with a topic specified in the URL.
-		- user must have poll_remove_any permission.
-		- otherwise must be poll starter with poll_remove_own permission.
-		- upon successful completion of action will direct user back to topic.
-		- is accessed via ?action=removepoll.
-*/
-
-// Allow the user to vote.
+/**
+ * Allow the user to vote.
+ * It is called to register a vote in a poll.
+ * Must be called with a topic and option specified.
+ * Requires the poll_vote permission.
+ * Upon successful completion of action will direct user back to topic.
+ * Accessed via ?action=vote.
+ *
+ * @uses Post language file.
+ */
 function Vote()
 {
 	global $topic, $txt, $user_info, $smcFunc, $sourcedir, $modSettings;
@@ -260,7 +218,16 @@ function Vote()
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
-// Lock the voting for a poll.
+//
+/**
+ * Lock the voting for a poll.
+ * Must be called with a topic specified in the URL.
+ * An admin always has over riding permission to lock a poll.
+ * If not an admin must have poll_lock_any permission, otherwise must
+ * be poll starter with poll_lock_own permission.
+ * Upon successful completion of action will direct user back to topic.
+ * Accessed via ?action=lockvoting.
+ */
 function LockVoting()
 {
 	global $topic, $user_info, $smcFunc;
@@ -314,7 +281,19 @@ function LockVoting()
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
-// Ask what to change in a poll.
+/**
+ * Display screen for editing or adding a poll.
+ * Must be called with a topic specified in the URL.
+ * If the user is adding a poll to a topic, must contain the variable
+ * 'add' in the url.
+ * User must have poll_edit_any/poll_add_any permission for the
+ * relevant action, otherwise must be poll starter with poll_edit_own
+ * permission for editing, or be topic starter with poll_add_any permission for adding.
+ * Accessed via ?action=editpoll.
+ *
+ * @uses Post language file.
+ * @uses Poll template, main sub-template.
+ */
 function EditPoll()
 {
 	global $txt, $user_info, $context, $topic, $board, $smcFunc, $sourcedir, $scripturl;
@@ -591,7 +570,18 @@ function EditPoll()
 	checkSubmitOnce('register');
 }
 
-// Change a poll...
+/**
+ * Update the settings for a poll, or add a new one.
+ * Must be called with a topic specified in the URL.
+ * The user must have poll_edit_any/poll_add_any permission
+ * for the relevant action. Otherwise they must be poll starter
+ * with poll_edit_own permission for editing, or be topic starter
+ * with poll_add_any permission for adding.
+ * In the case of an error, this function will redirect back to
+ * EditPoll and display the relevant error message.
+ * Upon successful completion of action will direct user back to topic.
+ * Accessed via ?action=editpoll2.
+ */
 function EditPoll2()
 {
 	global $txt, $topic, $board, $context;
@@ -885,7 +875,14 @@ function EditPoll2()
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
-// Remove a poll from a topic without removing the topic.
+/**
+ * Remove a poll from a topic without removing the topic.
+ * Must be called with a topic specified in the URL.
+ * Requires poll_remove_any permission, unless it's the poll starter
+ * with poll_remove_own permission.
+ * Upon successful completion of action will direct user back to topic.
+ * Accessed via ?action=removepoll.
+ */
 function RemovePoll()
 {
 	global $topic, $user_info, $smcFunc;

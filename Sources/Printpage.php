@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains just one function that formats a topic to be printer
+ * friendly.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,16 +17,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains just one function that formats a topic to be printer
-	friendly.
-
-	void PrintTopic()
-		- is called to format a topic to be printer friendly.
-		- must be called with a topic specified.
-		- uses the Printpage (main sub template.) template.
-		- uses the print_above/print_below later without the main layer.
-		- is accessed via ?action=printpage.
-*/
+/**
+ * Format a topic to be printer friendly.
+ * Must be called with a topic specified.
+ * Accessed via ?action=printpage.
+ *
+ * @uses Printpage template, main sub-template.
+ * @uses print_above/print_below later without the main layer.
+ */
 
 function PrintTopic()
 {

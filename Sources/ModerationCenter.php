@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Moderation Center.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,11 +16,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	//!!!
-*/
-
-// Entry point for the moderation center.
+/**
+ * Entry point for the moderation center.
+ *
+ * @param bool $dont_call = false
+ */
 function ModerationMain($dont_call = false)
 {
 	global $txt, $context, $scripturl, $sc, $modSettings, $user_info, $settings, $sourcedir, $options, $smcFunc;
@@ -191,7 +193,9 @@ function ModerationMain($dont_call = false)
 	}
 }
 
-// This function basically is the home page of the moderation center.
+/**
+ * This function basically is the home page of the moderation center.
+ */
 function ModerationHome()
 {
 	global $txt, $context, $scripturl, $modSettings, $user_info, $user_settings;
@@ -233,7 +237,9 @@ function ModerationHome()
 	}
 }
 
-// Just prepares the time stuff for the simple machines latest news.
+/**
+ * Just prepares the time stuff for the simple machines latest news.
+ */
 function ModBlockLatestNews()
 {
 	global $context, $user_info;
@@ -244,7 +250,9 @@ function ModBlockLatestNews()
 	return 'latest_news';
 }
 
-// Show a list of the most active watched users.
+/**
+ * Show a list of the most active watched users.
+ */
 function ModBlockWatchedUsers()
 {
 	global $context, $smcFunc, $scripturl, $modSettings;
@@ -285,7 +293,9 @@ function ModBlockWatchedUsers()
 	return 'watched_users';
 }
 
-// Show an area for the moderator to type into.
+/**
+ * Show an area for the moderator to type into.
+ */
 function ModBlockNotes()
 {
 	global $context, $smcFunc, $scripturl, $txt, $user_info;
@@ -409,7 +419,9 @@ function ModBlockNotes()
 	return 'notes';
 }
 
-// Show a list of the most recent reported posts.
+/**
+ * Show a list of the most recent reported posts.
+ */
 function ModBlockReportedPosts()
 {
 	global $context, $user_info, $scripturl, $smcFunc;
@@ -471,7 +483,9 @@ function ModBlockReportedPosts()
 	return 'reported_posts_block';
 }
 
-// Show a list of all the group requests they can see.
+/**
+ * Show a list of all the group requests they can see.
+ */
 function ModBlockGroupRequests()
 {
 	global $context, $user_info, $scripturl, $smcFunc;
@@ -517,8 +531,10 @@ function ModBlockGroupRequests()
 	return 'group_requests_block';
 }
 
-//!!! This needs to be given its own file.
-// Browse all the reported posts...
+/**
+ * Browse all the reported posts...
+ * @todo this needs to be given its own file?
+ */
 function ReportedPosts()
 {
 	global $txt, $context, $scripturl, $modSettings, $user_info, $smcFunc;
@@ -689,8 +705,10 @@ function ReportedPosts()
 	}
 }
 
-// Act as an entrace for all group related activity.
-//!!! As for most things in this file, this needs to be moved somewhere appropriate.
+/**
+ * Act as an entrace for all group related activity.
+ * @todo As for most things in this file, this needs to be moved somewhere appropriate?
+ */
 function ModerateGroups()
 {
 	global $txt, $context, $scripturl, $modSettings, $user_info;
@@ -716,7 +734,9 @@ function ModerateGroups()
 	$subactions[$context['sub_action']]();
 }
 
-// How many open reports do we have?
+/**
+ * How many open reports do we have?
+ */
 function recountOpenReports()
 {
 	global $user_info, $context, $smcFunc;
@@ -744,6 +764,10 @@ function recountOpenReports()
 	$context['open_mod_reports'] = $open_reports;
 }
 
+/**
+ * Get details about the moderation report... specified in
+ * $_REQUEST['report'].
+ */
 function ModReport()
 {
 	global $user_info, $context, $sourcedir, $scripturl, $txt, $smcFunc;
@@ -1000,7 +1024,9 @@ function ModReport()
 	$context['sub_template'] = 'viewmodreport';
 }
 
-// Show a notice sent to a user.
+/**
+ * Show a notice sent to a user.
+ */
 function ShowNotice()
 {
 	global $smcFunc, $txt, $context;
@@ -1029,7 +1055,9 @@ function ShowNotice()
 	$context['notice_body'] = parse_bbc($context['notice_body'], false);
 }
 
-// View watched users.
+/**
+ * View watched users.
+ */
 function ViewWatchedUsers()
 {
 	global $smcFunc, $modSettings, $context, $txt, $scripturl, $user_info, $sourcedir;
@@ -1239,6 +1267,10 @@ function ViewWatchedUsers()
 	$context['default_list'] = 'watch_user_list';
 }
 
+/**
+ * Callback for createList().
+ * @param $approve_query
+ */
 function list_getWatchedUserCount($approve_query)
 {
 	global $smcFunc, $modSettings;
@@ -1257,6 +1289,15 @@ function list_getWatchedUserCount($approve_query)
 	return $totalMembers;
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ * @param $approve_query
+ * @param $dummy
+ */
 function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy)
 {
 	global $smcFunc, $txt, $scripturl, $modSettings, $user_info, $context;
@@ -1351,6 +1392,11 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 	return $watched_users;
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $approve_query
+ */
 function list_getWatchedUserPostsCount($approve_query)
 {
 	global $smcFunc, $modSettings, $user_info;
@@ -1373,6 +1419,15 @@ function list_getWatchedUserPostsCount($approve_query)
 	return $totalMemberPosts;
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ * @param $approve_query
+ * @param $delete_boards
+ */
 function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query, $delete_boards)
 {
 	global $smcFunc, $txt, $scripturl, $modSettings, $user_info;
@@ -1414,7 +1469,9 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 	return $member_posts;
 }
 
-// Entry point for viewing warning related stuff.
+/**
+ * Entry point for viewing warning related stuff.
+ */
 function ViewWarnings()
 {
 	global $context, $txt;
@@ -1441,7 +1498,9 @@ function ViewWarnings()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// Simply put, look at the warning log!
+/**
+ * Simply put, look at the warning log!
+ */
 function ViewWarningLog()
 {
 	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir;
@@ -1544,6 +1603,9 @@ function ViewWarningLog()
 	$context['default_list'] = 'warning_list';
 }
 
+/**
+ * Callback for createList().
+ */
 function list_getWarningCount()
 {
 	global $smcFunc, $modSettings;
@@ -1562,6 +1624,13 @@ function list_getWarningCount()
 	return $totalWarns;
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ */
 function list_getWarnings($start, $items_per_page, $sort)
 {
 	global $smcFunc, $txt, $scripturl, $modSettings, $user_info;
@@ -1597,7 +1666,9 @@ function list_getWarnings($start, $items_per_page, $sort)
 	return $warnings;
 }
 
-// Load all the warning templates.
+/**
+ * Load all the warning templates.
+ */
 function ViewWarningTemplates()
 {
 	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir, $user_info;
@@ -1741,6 +1812,9 @@ function ViewWarningTemplates()
 	$context['default_list'] = 'warning_template_list';
 }
 
+/**
+  * Callback for createList().
+  */
 function list_getWarningTemplateCount()
 {
 	global $smcFunc, $modSettings, $user_info;
@@ -1762,6 +1836,13 @@ function list_getWarningTemplateCount()
 	return $totalWarns;
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
 	global $smcFunc, $txt, $scripturl, $modSettings, $user_info;
@@ -1798,7 +1879,9 @@ function list_getWarningTemplates($start, $items_per_page, $sort)
 	return $templates;
 }
 
-// Edit a warning template.
+/**
+ * Edit a warning template.
+ */
 function ModifyWarningTemplate()
 {
 	global $smcFunc, $context, $txt, $user_info, $sourcedir;
@@ -1929,7 +2012,9 @@ function ModifyWarningTemplate()
 	}
 }
 
-// Change moderation preferences.
+/**
+ * Change moderation preferences.
+ */
 function ModerationSettings()
 {
 	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $user_settings, $user_info;

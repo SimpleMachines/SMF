@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file's job is to handle things related to post moderation.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,11 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	//!!!
-*/
-
-// This is a handling function for all things post moderation...
+/**
+ * This is a handling function for all things post moderation...
+ */
 function PostModerationMain()
 {
 	global $sourcedir;
@@ -45,7 +45,9 @@ function PostModerationMain()
 	$subactions[$_REQUEST['sa']]();
 }
 
-// View all unapproved posts.
+/**
+ * View all unapproved posts.
+ */
 function UnapprovedPosts()
 {
 	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc;
@@ -300,7 +302,9 @@ function UnapprovedPosts()
 	$context['sub_template'] = 'unapproved_posts';
 }
 
-// View all unapproved attachments.
+/**
+ * View all unapproved attachments.
+ */
 function UnapprovedAttachments()
 {
 	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc;
@@ -455,7 +459,9 @@ function UnapprovedAttachments()
 	$context['sub_template'] = 'unapproved_attachments';
 }
 
-// Approve a post, just the one.
+/**
+ * Approve a post, just the one.
+ */
 function ApproveMessage()
 {
 	global $user_info, $topic, $board, $sourcedir, $smcFunc;
@@ -502,7 +508,13 @@ function ApproveMessage()
 	redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg']. '#msg' . $_REQUEST['msg']);
 }
 
-// Approve a batch of posts (or topics in their own right)
+/**
+ * Approve a batch of posts (or topics in their own right)
+ *
+ * @param $messages
+ * @param $messageDetails
+ * @param $current_view
+ */
 function approveMessages($messages, $messageDetails, $current_view = 'replies')
 {
 	global $sourcedir;
@@ -528,7 +540,9 @@ function approveMessages($messages, $messageDetails, $current_view = 'replies')
 	}
 }
 
-// This is a helper function - basically approve everything!
+/**
+ * This is a helper function - basically approve everything!
+ */
 function approveAllData()
 {
 	global $smcFunc, $sourcedir;
@@ -574,7 +588,13 @@ function approveAllData()
 	}
 }
 
-// remove a batch of messages (or topics)
+/**
+ * Remove a batch of messages (or topics)
+ *
+ * @param array $messages
+ * @param array $messageDetails
+ * @param string $current_view
+ */
 function removeMessages($messages, $messageDetails, $current_view = 'replies')
 {
 	global $sourcedir, $modSettings;

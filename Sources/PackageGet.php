@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file handles the package servers and packages download from Package Manager.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,28 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* // !!!
-
-	void PackageGet()
-		// !!!
-
-	void PackageGBrowse()
-		// !!!
-
-	void PackageDownload()
-		// !!!
-
-	void PackageUpload()
-		// !!!
-
-	void PackageServerAdd()
-		// !!!
-
-	void PackageServerRemove()
-		// !!!
-*/
-
-// Browse the list of package servers, add servers...
+/**
+ * Browse the list of package servers, add servers...
+ */
 function PackageGet()
 {
 	global $txt, $scripturl, $context, $boarddir, $sourcedir, $modSettings;
@@ -97,6 +80,9 @@ function PackageGet()
 	$subActions[$context['sub_action']]();
 }
 
+/**
+ * Load a list of package servers.
+ */
 function PackageServers()
 {
 	global $txt, $scripturl, $context, $boarddir, $sourcedir, $modSettings, $smcFunc;
@@ -189,7 +175,9 @@ function PackageServers()
 	}
 }
 
-// Browse a server's list of packages.
+/**
+ * Browse a server's list of packages.
+ */
 function PackageGBrowse()
 {
 	global $txt, $boardurl, $context, $scripturl, $boarddir, $sourcedir, $forum_version, $context, $smcFunc;
@@ -519,7 +507,9 @@ function PackageGBrowse()
 	}
 }
 
-// Download a package.
+/**
+ * Download a package.
+ */
 function PackageDownload()
 {
 	global $txt, $scripturl, $boarddir, $context, $sourcedir, $smcFunc;
@@ -626,7 +616,9 @@ function PackageDownload()
 	$context['page_title'] = $txt['download_success'];
 }
 
-// Upload a new package to the directory.
+/**
+ * Upload a new package to the directory.
+ */
 function PackageUpload()
 {
 	global $txt, $scripturl, $boarddir, $context, $sourcedir;
@@ -710,7 +702,9 @@ function PackageUpload()
 	$context['page_title'] = $txt['package_uploaded_success'];
 }
 
-// Add a package server to the list.
+/**
+ * Add a package server to the list.
+ */
 function PackageServerAdd()
 {
 	global $smcFunc;
@@ -744,7 +738,9 @@ function PackageServerAdd()
 	redirectexit('action=admin;area=packages;get');
 }
 
-// Remove a server from the list.
+/**
+ * Remove a server from the list.
+ */
 function PackageServerRemove()
 {
 	global $smcFunc;

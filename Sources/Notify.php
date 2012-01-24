@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains just the functions that turn on and off notifications
+ * to topics or boards.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,29 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains just the functions that turn on and off notifications to
-	topics or boards. The following two functions are included:
-
-	void Notify()
-		- is called to turn off/on notification for a particular topic.
-		- must be called with a topic specified in the URL.
-		- uses the Notify template (main sub template.) when called with no sa.
-		- the sub action can be 'on', 'off', or nothing for what to do.
-		- requires the mark_any_notify permission.
-		- upon successful completion of action will direct user back to topic.
-		- is accessed via ?action=notify.
-
-	void BoardNotify()
-		- is called to turn off/on notification for a particular board.
-		- must be called with a board specified in the URL.
-		- uses the Notify template. (notify_board sub template.)
-		- only uses the template if no sub action is used. (on/off)
-		- requires the mark_notify permission.
-		- redirects the user back to the board after it is done.
-		- is accessed via ?action=notifyboard.
-*/
-
-// Turn on/off notifications...
+/**
+ * Turn off/on notification for a particular topic.
+ * Must be called with a topic specified in the URL.
+ * The sub-action can be 'on', 'off', or nothing for what to do.
+ * Requires the mark_any_notify permission.
+ * Upon successful completion of action will direct user back to topic.
+ * Accessed via ?action=notify.
+ *
+ * @uses Notify template, main sub-template
+ */
 function Notify()
 {
 	global $scripturl, $txt, $topic, $user_info, $context, $smcFunc;
@@ -109,6 +99,16 @@ function Notify()
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
+/**
+ * Turn off/on notification for a particular board.
+ * Must be called with a board specified in the URL.
+ * Only uses the template if no sub action is used. (on/off)
+ * Requires the mark_notify permission.
+ * Redirects the user back to the board after it is done.
+ * Accessed via ?action=notifyboard.
+ *
+ * @uses Notify template, notify_board sub-template.
+ */
 function BoardNotify()
 {
 	global $scripturl, $txt, $board, $user_info, $context, $smcFunc;

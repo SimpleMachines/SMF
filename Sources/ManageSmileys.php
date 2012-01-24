@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file takes care of all administration of smileys.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,36 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* // !!!
-
-	void ManageSmileys()
-		// !!!
-
-	void EditSmileySettings()
-		// !!!
-
-	void EditSmileySets()
-		// !!!
-
-	void AddSmiley()
-		// !!!
-
-	void EditSmileys()
-		// !!!
-
-	void EditSmileyOrder()
-		// !!!
-
-	void InstallSmileySet()
-		// !!!
-
-	void ImportSmileys($smileyPath)
-		// !!!
-
-	void sortSmileyTable()
-		// !!!
-*/
-
+/**
+ * This is the dispatcher of smileys administration.
+ */
 function ManageSmileys()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -115,6 +90,11 @@ function ManageSmileys()
 	$subActions[$_REQUEST['sa']]();
 }
 
+/**
+ * Allows to modify smileys settings.
+ *
+ * @param bool $return_config = false
+ */
 function EditSmileySettings($return_config = false)
 {
 	global $modSettings, $context, $settings, $txt, $boarddir, $sourcedir, $scripturl;
@@ -181,6 +161,9 @@ function EditSmileySettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
+/**
+ * List, add, remove, modify smileys sets.
+ */
 function EditSmileySets()
 {
 	global $modSettings, $context, $settings, $txt, $boarddir;
@@ -452,7 +435,14 @@ function EditSmileySets()
 	createList($listOptions);
 }
 
-// !!! to be moved to Subs-Smileys.
+/**
+ * Callback function for createList().
+ * @todo to be moved to Subs-Smileys?
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ */
 function list_getSmileySets($start, $items_per_page, $sort)
 {
 	global $modSettings;
@@ -492,7 +482,10 @@ function list_getSmileySets($start, $items_per_page, $sort)
 	return $smiley_sets;
 }
 
-// !!! to be moved to Subs-Smileys.
+/**
+ * Callback function for createList().
+ * @todo to be moved to Subs-Smileys?
+ */
 function list_getNumSmileySets()
 {
 	global $modSettings;
@@ -500,6 +493,9 @@ function list_getNumSmileySets()
 	return count(explode(',', $modSettings['smiley_sets_known']));
 }
 
+/**
+ * Add a smiley, that's right.
+ */
 function AddSmiley()
 {
 	global $modSettings, $context, $settings, $txt, $boarddir, $smcFunc;
@@ -745,6 +741,9 @@ function AddSmiley()
 	);
 }
 
+/**
+ * Add, remove, edit smileys.
+ */
 function EditSmileys()
 {
 	global $modSettings, $context, $settings, $txt, $boarddir;
@@ -1156,6 +1155,13 @@ function EditSmileys()
 	}
 }
 
+/**
+ * Callback function for createList().
+ *
+ * @param unknown_type $start
+ * @param unknown_type $items_per_page
+ * @param unknown_type $sort
+ */
 function list_getSmileys($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -1175,6 +1181,9 @@ function list_getSmileys($start, $items_per_page, $sort)
 	return $smileys;
 }
 
+/**
+ * Callback function for createList().
+ */
 function list_getNumSmileys()
 {
 	global $smcFunc;
@@ -1191,6 +1200,9 @@ function list_getNumSmileys()
 	return $numSmileys;
 }
 
+/**
+ * Allows to edit smileys order.
+ */
 function EditSmileyOrder()
 {
 	global $modSettings, $context, $settings, $txt, $boarddir, $smcFunc;
@@ -1349,6 +1361,9 @@ function EditSmileyOrder()
 	cache_put_data('posting_smileys', null, 480);
 }
 
+/**
+ * Install a smiley set.
+ */
 function InstallSmileySet()
 {
 	global $sourcedir, $boarddir, $modSettings, $smcFunc;
@@ -1387,7 +1402,11 @@ function InstallSmileySet()
 	redirectexit('action=admin;area=smileys');
 }
 
-// A function to import new smileys from an existing directory into the database.
+/**
+ * A function to import new smileys from an existing directory into the database.
+ *
+ * @param string $smileyPath
+ */
 function ImportSmileys($smileyPath)
 {
 	global $modSettings, $smcFunc;
@@ -1455,6 +1474,9 @@ function ImportSmileys($smileyPath)
 	}
 }
 
+/**
+ * Allows to edit the message icons.
+ */
 function EditMessageIcons()
 {
 	global $user_info, $modSettings, $context, $settings, $txt;
@@ -1721,6 +1743,13 @@ function EditMessageIcons()
 	}
 }
 
+/**
+ * Callback function for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ */
 function list_getMessageIcons($start, $items_per_page, $sort)
 {
 	global $smcFunc, $user_info;
@@ -1742,7 +1771,11 @@ function list_getMessageIcons($start, $items_per_page, $sort)
 	return $message_icons;
 }
 
-// This function sorts the smiley table by code length, it is needed as MySQL withdrew support for functions in order by.
+/**
+ * This function sorts the smiley table by code length,
+ * it is needed as MySQL withdrew support for functions in order by.
+ * @todo is this ordering itself needed?
+ */
 function sortSmileyTable()
 {
 	global $smcFunc;

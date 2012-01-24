@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file is what shows the listing of topics in a board.
+ * It's just one or two functions, but don't under estimate it ;).
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,18 +17,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is what shows the listing of topics in a board.  It's just one
-	function, but don't under estimate it ;).
-
-	void MessageIndex()
-		// !!!
-
-	void QuickModeration()
-		// !!!
-
-*/
-
-// Show the list of topics in this board, along with any child boards.
+/**
+ * Show the list of topics in this board, along with any child boards.
+ */
 function MessageIndex()
 {
 	global $txt, $scripturl, $board, $modSettings, $context;
@@ -637,7 +631,10 @@ function MessageIndex()
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
 }
 
-// Allows for moderation from the message index.
+/**
+ * Allows for moderation from the message index.
+ * @todo refactor this...
+ */
 function QuickModeration()
 {
 	global $sourcedir, $board, $user_info, $modSettings, $sourcedir, $smcFunc, $context;

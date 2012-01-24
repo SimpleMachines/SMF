@@ -1833,8 +1833,13 @@ function PlushSearch2()
 	);
 }
 
-// Callback to return messages - saves memory.
-// !!! Fix this, update it, whatever... from Display.php mainly.
+/**
+ * Callback to return messages - saves memory.
+ * @todo Fix this, update it, whatever... from Display.php mainly.
+ * Note that the call to loadAttachmentContext() doesn't work:
+ * this function doesn't fulfill the pre-condition to fill $attachments global...
+ * So all it does is to fallback and return.
+ */
 function prepareSearchContext($reset = false)
 {
 	global $txt, $modSettings, $scripturl, $user_info, $sourcedir;

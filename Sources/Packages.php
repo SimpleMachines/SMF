@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file is the main Package Manager.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,48 +16,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* // !!!
-
-	void Packages()
-		// !!!
-
-	void PackageInstallTest()
-		// !!!
-
-	void PackageInstall()
-		// !!!
-
-	void PackageList()
-		// !!!
-
-	void ExamineFile()
-		// !!!
-
-	void InstalledList()
-		// !!!
-
-	void FlushInstall()
-		// !!!
-
-	void PackageRemove()
-		// !!!
-
-	void PackageBrowse()
-		// !!!
-
-	void PackageOptions()
-		// !!!
-
-	void ViewOperations()
-		// !!!
-*/
-
-// This is the notoriously defunct package manager..... :/.
+/**
+ * This is the notoriously defunct package manager..... :/.
+ */
 function Packages()
 {
 	global $txt, $scripturl, $sourcedir, $context;
 
-	//!!! Remove this!
+	//@todo Remove this!
 	if (isset($_GET['get']) || isset($_GET['pgdownload']))
 	{
 		require_once($sourcedir . '/PackageGet.php');
@@ -122,7 +90,9 @@ function Packages()
 	$subActions[$context['sub_action']]();
 }
 
-// Test install a package.
+/**
+ * Test install a package.
+ */
 function PackageInstallTest()
 {
 	global $boarddir, $txt, $context, $scripturl, $sourcedir, $modSettings, $smcFunc, $settings;
@@ -690,7 +660,9 @@ function PackageInstallTest()
 	checkSubmitOnce('register');
 }
 
-// Apply another type of (avatar, language, etc.) package.
+/**
+ * Apply another type of (avatar, language, etc.) package.
+ */
 function PackageInstall()
 {
 	global $boarddir, $txt, $context, $boardurl, $scripturl, $sourcedir, $modSettings;
@@ -1108,7 +1080,9 @@ function PackageInstall()
 	create_chmod_control(array(), array(), true);
 }
 
-// List the files in a package.
+/**
+ * List the files in a package.
+ */
 function PackageList()
 {
 	global $txt, $scripturl, $boarddir, $context, $sourcedir;
@@ -1136,7 +1110,9 @@ function PackageList()
 		$context['files'] = listtree($boarddir . '/Packages/' . $context['filename']);
 }
 
-// List the files in a package.
+/**
+ * Display one of the files in a package.
+ */
 function ExamineFile()
 {
 	global $txt, $scripturl, $boarddir, $context, $sourcedir;
@@ -1190,7 +1166,9 @@ function ExamineFile()
 	}
 }
 
-// List the installed packages.
+/**
+ * List the installed packages.
+ */
 function InstalledList()
 {
 	global $txt, $scripturl, $context;
@@ -1202,7 +1180,9 @@ function InstalledList()
 	$context['installed_mods'] = loadInstalledPackages();
 }
 
-// Empty out the installed list.
+/**
+ * Empty out the installed list.
+ */
 function FlushInstall()
 {
 	global $boarddir, $sourcedir, $smcFunc;
@@ -1227,7 +1207,9 @@ function FlushInstall()
 	redirectexit('action=admin;area=packages;sa=installed');
 }
 
-// Delete a package.
+/**
+ * Delete a package.
+ */
 function PackageRemove()
 {
 	global $scripturl, $boarddir;
@@ -1257,7 +1239,9 @@ function PackageRemove()
 	redirectexit('action=admin;area=packages;sa=browse');
 }
 
-// Browse a list of installed packages.
+/**
+ * Browse a list of installed packages.
+ */
 function PackageBrowse()
 {
 	global $txt, $boarddir, $scripturl, $context, $forum_version;
@@ -1447,6 +1431,9 @@ function PackageOptions()
 	$context['package_make_backups'] = !empty($modSettings['package_make_backups']);
 }
 
+/**
+ * List operations
+ */
 function ViewOperations()
 {
 	global $context, $txt, $boarddir, $sourcedir, $smcFunc, $modSettings;
@@ -1531,7 +1518,9 @@ function ViewOperations()
 	$context['sub_template'] = 'view_operations';
 }
 
-// Allow the admin to reset permissions on files.
+/**
+ * Allow the admin to reset permissions on files.
+ */
 function PackagePermissions()
 {
 	global $context, $txt, $modSettings, $boarddir, $sourcedir, $cachedir, $smcFunc, $package_ftp;
@@ -2005,7 +1994,9 @@ function fetchPerms__recursive($path, &$data, $level)
 	}
 }
 
-// Actually action the permission changes they want.
+/**
+ * Actually action the permission changes they want.
+ */
 function PackagePermissionsAction()
 {
 	global $context, $txt, $time_start, $package_ftp;
@@ -2228,7 +2219,9 @@ function PackagePermissionsAction()
 	redirectexit('action=admin;area=packages;sa=perms' . (!empty($context['back_look_data']) ? ';back_look=' . base64_encode(serialize($context['back_look_data'])) : '') . ';' . $context['session_var'] . '=' . $context['session_id']);
 }
 
-// Test an FTP connection.
+/**
+ * Test an FTP connection.
+ */
 function PackageFTPTest()
 {
 	global $context, $txt, $package_ftp;
