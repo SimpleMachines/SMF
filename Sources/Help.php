@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file has the important job of taking care of help messages and the help center.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,25 +16,19 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has the important job of taking care of help messages and the
-	help center.  It does this with two simple functions:
+/*
 
-	void ShowHelp()
-		- loads information needed for the help section.
-		- accesed by ?action=help.
-		- uses the Help template and Manual language file.
 
 	void ShowAdminHelp()
-		- shows a popup for administrative or user help.
-		- uses the help parameter to decide what string to display and where
-		  to get the string from. ($helptxt or $txt?)
-		- loads the ManagePermissions language file if the help starts with
-		  permissionhelp.
-		- uses the Help template, popup sub template, no layers.
-		- accessed via ?action=helpadmin;help=??.
+
 */
 
-// Redirect to the user help ;).
+/**
+ * Redirect to the user help ;).
+ * It loads information needed for the help section.
+ * It is accessed by ?action=help.
+ * @uses Help template and Manual language file.
+ */
 function ShowHelp()
 {
 	global $scripturl, $context, $txt;
@@ -69,6 +65,15 @@ function ShowHelp()
 }
 
 // Show some of the more detailed help to give the admin an idea...
+/**
+ * Show some of the more detailed help to give the admin an idea...
+ * It shows a popup for administrative or user help.
+ * It uses the help parameter to decide what string to display and where to get
+ * the string from. ($helptxt or $txt?)
+ * It is accessed via ?action=helpadmin;help=?.
+ * @uses ManagePermissions language file, if the help starts with permissionhelp.
+ * @uses Help template, popup sub template, no layers.
+ */
 function ShowAdminHelp()
 {
 	global $txt, $helptxt, $context, $scripturl;

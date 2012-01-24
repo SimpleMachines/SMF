@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * The purpose of this file is... errors. (hard to guess, I guess?)  It takes
+ * care of logging, error messages, error handling, database errors, and
+ * error log administration.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,57 +18,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	The purpose of this file is... errors. (hard to guess, huh?)  It takes
-	care of logging, error messages, error handling, database errors, and
-	error log administration.  It does this with:
-
-	bool db_fatal_error(bool loadavg = false)
-		- calls show_db_error().
-		- this is used for database connection error handling.
-		- loadavg means this is a load average problem, not a database error.
-
-	string log_error(string error_message, string error_type = general,
-			string filename = none, int line = none)
-		- logs an error, if error logging is enabled.
-		- depends on the enableErrorLogging setting.
-		- filename and line should be __FILE__ and __LINE__, respectively.
-		- returns the error message. (ie. die(log_error($msg));)
-
-	void fatal_error(string error_message, mixed (bool or string) log = general)
-		- stops execution and displays an error message.
-		- logs the error message if log is missing or true.
-
-	void fatal_lang_error(string error_message_key, mixed (bool or string) log = general,
-			array sprintf = array())
-		- stops execution and displays an error message by key.
-		- uses the string with the error_message_key key.
-		- loads the Errors language file.
-		- applies the sprintf information if specified.
-		- the information is logged if log is true or missing.
-		- logs the error in the forum's default language while displaying the error
-		  message in the user's language
-
-	void error_handler(int error_level, string error_string, string filename,
-			int line)
-		- this is a standard PHP error handler replacement.
-		- dies with fatal_error() if the error_level matches with
-		  error_reporting.
-
-	void setup_fatal_error_context(string error_message)
-		- uses the fatal_error sub template of the Errors template - or the
-		  error sub template in the Wireless template.
-		- used by fatal_error() and fatal_lang_error()
-
-	void show_db_error(bool loadavg = false)
-		- called by db_fatal_error() function
-		- shows a complete page independent of language files or themes.
-		- used only if there's no way to connect to the database or the
-		  load averages are too high to do so.
-		- loadavg means this is a load average problem, not a database error.
-		- stops further execution of the script.
-*/
-
-// Handle fatal errors - like connection errors or load average problems
+/**
+ * Handle fatal errors - like connection errors or load average problems.
+ * This calls show_db_error(), which is used for database connection error handling.
+ * @todo when awake: clean up this terrible terrible ugliness.
+ *
+ * @param bool $loadavg - whether it's a load average problem...
+ */
 function db_fatal_error($loadavg = false)
 {
 	global $sourcedir;
@@ -75,7 +35,17 @@ function db_fatal_error($loadavg = false)
 	return false;
 }
 
-// Log an error, if the option is on.
+/**
+ * Log an error, if the error logging is enabled.
+ * filename and line should be __FILE__ and __LINE__, respectively.
+ * Example use:
+ *  die(log_error($msg));
+ * @param string $error_message
+ * @param string $error_type = 'general'
+ * @param string $file = null
+ * @param int $line = null
+ * @return string, the error message
+ */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
 	global $txt, $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error;
@@ -149,7 +119,12 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	return $error_message;
 }
 
-// An irrecoverable error.
+/**
+ * An irrecoverable error. This function stops execution and displays an error message.
+ * It logs the error message if $log is specified.
+ * @param string $error
+ * @param string $log = 'general'
+ */
 function fatal_error($error, $log = 'general')
 {
 	global $txt, $context, $modSettings;
@@ -161,7 +136,18 @@ function fatal_error($error, $log = 'general')
 	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error);
 }
 
-// A fatal error with a message stored in the language file.
+/**
+ * A fatal error with a message stored in the language file.
+ * This function stops executing and displays an error message by key.
+ * It uses the string with the error_message_key key.
+ * It logs the error in the forum's default language while displaying the error
+ * message in the user's language.
+ * @uses Errors language file and applies the $sprintf information if specified.
+ * the information is logged if log is specified.
+ * @param $error
+ * @param $log
+ * @param $sprintf
+ */
 function fatal_lang_error($error, $log = 'general', $sprintf = array())
 {
 	global $txt, $language, $modSettings, $user_info, $context;
@@ -198,7 +184,14 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 	setup_fatal_error_context($error_message);
 }
 
-// Handler for standard error messages.
+/**
+ * Handler for standard error messages, standard PHP error handler replacement.
+ * It dies with fatal_error() if the error_level matches with error_reporting.
+ * @param int $error_level
+ * @param string $error_string
+ * @param string $file
+ * @param int $line
+ */
 function error_handler($error_level, $error_string, $file, $line)
 {
 	global $settings, $modSettings, $db_show_debug;
@@ -273,6 +266,12 @@ function error_handler($error_level, $error_string, $file, $line)
 		die('Hacking attempt...');
 }
 
+/**
+ * It is called by fatal_error() and fatal_lang_error().
+ * @uses Errors template, fatal_error sub template, or Wireless template,
+ * error sub template.
+ * @param string $error_message
+ */
 function setup_fatal_error_context($error_message)
 {
 	global $context, $txt, $ssi_on_error_method;
@@ -332,7 +331,15 @@ function setup_fatal_error_context($error_message)
 	trigger_error('Hacking attempt...', E_USER_ERROR);
 }
 
-// Show an error message for the connection problems.
+/**
+ * Show an error message for the connection problems... or load average.
+ * It is called by db_fatal_error() function.
+ * It shows a complete page independent of language files or themes.
+ * It is used only if there's no way to connect to the database or the load averages
+ * are too high to do so.
+ * It stops further execution of the script.
+ * @param bool $loadavg - whether it's a load average problem...
+ */
 function show_db_error($loadavg = false)
 {
 	global $sourcedir, $mbname, $maintenance, $mtitle, $mmessage, $modSettings;

@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This is perhaps the most important and probably most accessed file in all
+ * of SMF.  This file controls topic, message, and attachment display.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,52 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This is perhaps the most important and probably most accessed files in all
-	of SMF.  This file controls topic, message, and attachment display.  It
-	does so with the following functions:
-
-	void Display()
-		- loads the posts in a topic up so they can be displayed.
-		- supports wireless, using wap/wap2/imode and the Wireless templates.
-		- uses the main sub template of the Display template.
-		- requires a topic, and can go to the previous or next topic from it.
-		- jumps to the correct post depending on a number/time/IS_MSG passed.
-		- depends on the messages_per_page, defaultMaxMessages and enableAllMessages settings.
-		- is accessed by ?topic=id_topic.START.
-
-	array prepareDisplayContext(bool reset = false)
-		- actually gets and prepares the message context.
-		- starts over from the beginning if reset is set to true, which is
-		  useful for showing an index before or after the posts.
-
-	void Download()
-		- downloads an attachment or avatar, and increments the downloads.
-		- requires the view_attachments permission. (not for avatars!)
-		- disables the session parser, and clears any previous output.
-		- depends on the attachmentUploadDir setting being correct.
-		- is accessed via the query string ?action=dlattach.
-		- views to attachments and avatars do not increase hits and are not
-		  logged in the "Who's Online" log.
-
-	array loadAttachmentContext(int id_msg)
-		- loads an attachment's contextual data including, most importantly,
-		  its size if it is an image.
-		- expects the $attachments array to have been filled with the proper
-		  attachment data, as Display() does.
-		- requires the view_attachments permission to calculate image size.
-		- attempts to keep the "aspect ratio" of the posted image in line,
-		  even if it has to be resized by the max_image_width and
-		  max_image_height settings.
-
-	int approved_attach_sort(array a, array b)
-		- a sort function for putting unapproved attachments first.
-
-	void QuickInTopicModeration()
-		- in-topic quick moderation.
-
-*/
-
-// The central part of the board - topic display.
+/**
+ * The central part of the board - topic display.
+ * This function loads the posts in a topic up so they can be displayed.
+ * It supports wireless, using wap/wap2/imode and the Wireless templates.
+ * It uses the main sub template of the Display template.
+ * It requires a topic, and can go to the previous or next topic from it.
+ * It jumps to the correct post depending on a number/time/IS_MSG passed.
+ * It depends on the messages_per_page, defaultMaxMessages and enableAllMessages settings.
+ * It is accessed by ?topic=id_topic.START.
+ */
 function Display()
 {
 	global $scripturl, $txt, $modSettings, $context, $settings;
@@ -1088,7 +1055,13 @@ function Display()
 	}
 }
 
-// Callback for the message display.
+/**
+ * Callback for the message display.
+ * It actually gets and prepares the message context.
+ * This functionb will start over from the beginning if reset is set to true, which is
+ * useful for showing an index before or after the posts.
+ * @param bool $reset, default false.
+ */
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $txt, $modSettings, $scripturl, $options, $user_info, $smcFunc;
@@ -1211,7 +1184,14 @@ function prepareDisplayContext($reset = false)
 	return $output;
 }
 
-// Download an attachment.
+/**
+ * This downloads an attachment or avatar, and increments the downloads.
+ * It requires the view_attachments permission. (not for avatars!)
+ * It disables the session parser, and clears any previous output.
+ * It depends on the attachmentUploadDir setting being correct.
+ * It is accessed via the query string ?action=dlattach.
+ * Views to attachments and avatars do not increase hits and are not logged in the "Who's Online" log.
+ */
 function Download()
 {
 	global $txt, $modSettings, $user_info, $scripturl, $context, $sourcedir, $topic, $smcFunc;
@@ -1445,7 +1425,14 @@ function Download()
 
 	obExit(false);
 }
-
+/**
+ * This loads an attachment's contextual data including, most importantly, its size
+ *  if it is an image.
+ *  Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
+ *  It requires the view_attachments permission to calculate image size.
+ *  It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
+ *  the max_image_width and max_image_height settings.
+ */
 function loadAttachmentContext($id_msg)
 {
 	global $attachments, $modSettings, $txt, $scripturl, $topic, $sourcedir, $smcFunc;
@@ -1610,7 +1597,12 @@ function loadAttachmentContext($id_msg)
 	return $attachmentData;
 }
 
-// A sort function for putting unapproved attachments first.
+/**
+ * A sort function for putting unapproved attachments first.
+ * @param $a
+ * @param $b
+ * @return int, -1, 0, 1
+ */
 function approved_attach_sort($a, $b)
 {
 	if ($a['is_approved'] == $b['is_approved'])
@@ -1619,7 +1611,9 @@ function approved_attach_sort($a, $b)
 	return $a['is_approved'] > $b['is_approved'] ? -1 : 1;
 }
 
-// In-topic quick moderation.
+/**
+ * In-topic quick moderation.
+ */
 function QuickInTopicModeration()
 {
 	global $sourcedir, $topic, $board, $user_info, $smcFunc, $modSettings, $context;

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file currently just shows group info, and allows certain priviledged members to add/remove members.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,39 +16,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* This file currently just shows group info, and allows certain privaledged members to add/remove members.
-
-	void Groups()
-		- allows moderators and users to access the group showing functions.
-		- handles permission checks, and puts the moderation bar on as required.
-
-	void MembergroupMembers()
-		- can be called from ManageMembergroups if it needs templating within the admin environment.
-		- show a list of members that are part of a given membergroup.
-		- called by ?action=moderate;area=viewgroups;sa=members;group=x
-		- requires the manage_membergroups permission.
-		- uses the group_members sub template of ManageMembergroups.
-		- allows to add and remove members from the selected membergroup.
-		- allows sorting on several columns.
-		- redirects to itself.
-
-	int list_getGroupRequestCount(string where)
-		- callback function for createList()
-		- returns the count of group requests
-
-	array list_getGroupRequests(int start, int items_per_page, string sort, string where)
-		- callback function for createList()
-		- returns an array of group requests
-		- each group request has:
-			'id'
-			'member_link'
-			'group_link'
-			'reason'
-			'time_submitted'
-
-*/
-
-// Entry point, permission checks, admin bars, etc.
+/**
+ * Entry point function, permission checks, admin bars, etc.
+ * It allows moderators and users to access the group showing functions.
+ * It handles permission checks, and puts the moderation bar on as required.
+ */
 function Groups()
 {
 	global $context, $txt, $scripturl, $sourcedir, $user_info;
@@ -88,7 +62,9 @@ function Groups()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// This very simply lists the groups, nothing snazy.
+/**
+ * This very simply lists the groups, nothing snazy.
+ */
 function GroupList()
 {
 	global $txt, $scripturl, $user_profile, $user_info, $context, $settings, $modSettings, $smcFunc, $sourcedir;
@@ -246,7 +222,12 @@ function GroupList()
 	$context['default_list'] = 'group_lists';
 }
 
-// Get the group information for the list.
+/**
+ * Get the group information for the list.
+ * @param int $start
+ * @param int $items_per_page
+ * @param int $sort
+ */
 function list_getGroups($start, $items_per_page, $sort)
 {
 	global $smcFunc, $txt, $scripturl, $user_info, $settings;
@@ -355,7 +336,11 @@ function list_getGroups($start, $items_per_page, $sort)
 	return $groups;
 }
 
-// How many groups are there that are visible?
+/**
+ * How many groups are there that are visible?
+ *
+ * @return int, the groups count.
+ */
 function list_getGroupCount()
 {
 	global $smcFunc;
@@ -378,7 +363,17 @@ function list_getGroupCount()
 	return $group_count;
 }
 
-// Display members of a group, and allow adding of members to a group. Silly function name though ;)
+/**
+ * Display members of a group, and allow adding of members to a group. Silly function name though ;)
+ * It can be called from ManageMembergroups if it needs templating within the admin environment.
+ * It shows a list of members that are part of a given membergroup.
+ * It is called by ?action=moderate;area=viewgroups;sa=members;group=x
+ * It requires the manage_membergroups permission.
+ * It allows to add and remove members from the selected membergroup.
+ * It allows sorting on several columns.
+ * It redirects to itself.
+ * @uses ManageMembergroups template, group_members sub template.
+ */
 function MembergroupMembers()
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir, $user_info, $settings, $smcFunc;
@@ -620,7 +615,9 @@ function MembergroupMembers()
 	$context['page_title'] = $txt['membergroups_members_title'] . ': ' . $context['group']['name'];
 }
 
-// Show and manage all group requests.
+/**
+ * Show and manage all group requests.
+ */
 function GroupRequests()
 {
 	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings, $language;
@@ -914,6 +911,13 @@ function GroupRequests()
 	$context['default_list'] = 'group_request_list';
 }
 
+/**
+ * Callback function for createList().
+ *
+ * @param $where
+ * @param $where_parameters
+ * @return int, the count of group requests
+ */
 function list_getGroupRequestCount($where, $where_parameters)
 {
 	global $smcFunc;
@@ -931,6 +935,22 @@ function list_getGroupRequestCount($where, $where_parameters)
 	return $totalRequests;
 }
 
+/**
+ * Callback function for createList()
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $where
+ * @param string $where_parameters
+ * @return array, an array of group requests
+ * Each group request has:
+ * 		'id'
+ * 		'member_link'
+ * 		'group_link'
+ * 		'reason'
+ * 		'time_submitted'
+ */
 function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_parameters)
 {
 	global $smcFunc, $txt, $scripturl;

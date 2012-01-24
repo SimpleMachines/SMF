@@ -16,37 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	string xmlArray::name()
-		- retrieves the name of the current element, usually ''.
-
-	string xmlArray::fetch(string path, bool get_elements = false)
-		- retrieves the textual value of the specified path.
-		- children are parsed for text, but only textual data is returned
-		  unless get_elements is true.
-
-	xmlArray xmlArray::path(string path, bool return_set = false)
-		- finds any elements that match the path specified.
-		- will always return a set if there is more than one of the element
-		  or return_set is true.
-		- returns in the form of a new xmlArray.
-
-	bool xmlArray::exists(string path)
-		- returns whether the specified path matches at least one element.
-
-	int xmlArray::count(string path)
-		- returns the number of elements the path matches.
-
-	array xmlArray::set(string path)
-		- returns an array of xmlArray's matching the specified path.
-		- this differs from ->path(path, true) in that instead of an xmlArray
-		  of elements, an array of xmlArray's is returned for use with foreach.
-
-	string xmlArray::create_xml(string path = '.')
-		- returns the specified path as an xml file.
-*/
-
-// An xml array.  Reads in xml, allows you to access it simply.  Version 1.1.
+/**
+ * Class representing an xml array.  Reads in xml, allows you to access it simply.  Version 1.1.
+ */
 class xmlArray
 {
 	// The array and debugging output level.
@@ -56,11 +28,11 @@ class xmlArray
 	 * Constructor for the xml parser.
 	 * Example use:
 	 *  $xml = new xmlArray(file('data.xml'));
-	 * @param $data string the xml data or an array of, unless is_clone is true.
-	 * @param $auto_trim bool, default false, used to automatically trim textual data.
-	 * @param $level int, default null, the debug level, specifies whether notices
+	 * @param string $data the xml data or an array of, unless is_clone is true.
+	 * @param bool $auto_trim, default false, used to automatically trim textual data.
+	 * @param int $level, default null, the debug level, specifies whether notices
 	 *  should be generated for missing elements and attributes.
-	 * @param $is_clone bool, default false. If is_clone is true, the
+	 * @param bool $is_clone, default false. If is_clone is true, the
 	 *  xmlArray is cloned from another - used internally only.
 	 */
 	public function __construct($data, $auto_trim = false, $level = null, $is_clone = false)
@@ -102,10 +74,12 @@ class xmlArray
 
 	/**
 	 * Get a specified element's value or attribute by path.
+	 * Children are parsed for text, but only textual data is returned
+	 * unless get_elements is true.
 	 * Example use:
 	 *  $data = $xml->fetch('html/head/title');
-	 * @param $path string - the path to the element to fetch
-	 * @param $get_elements - whether to include elements
+	 * @param string $path - the path to the element to fetch
+	 * @param bool $get_elements - whether to include elements
 	 */
 	public function fetch($path, $get_elements = false)
 	{
@@ -137,10 +111,14 @@ class xmlArray
 	}
 
 	/** Get an element, returns a new xmlArray.
+	 * It finds any elements that match the path specified.
+	 * It will always return a set if there is more than one of the element
+	 * or return_set is true.
 	 * Example use:
 	 *  $element = $xml->path('html/body');
 	 * @param $path string - the path to the element to get
 	 * @param $return_full bool - always return full result set
+	 * @return xmlArray, a new xmlArray.
 	 */
 	public function path($path, $return_full = false)
 	{
@@ -206,7 +184,8 @@ class xmlArray
 	 * Check if an element exists.
 	 * Example use,
 	 *  echo $xml->exists('html/body') ? 'y' : 'n';
-	 * @param $path string - the path to the element to get.
+	 * @param string $path - the path to the element to get.
+	 * @return bool
 	 */
 	public function exists($path)
 	{
@@ -239,10 +218,11 @@ class xmlArray
 	}
 
 	/**
-	 * Count the number of occurances of a path.
+	 * Count the number of occurences of a path.
 	 * Example use:
 	 *  echo $xml->count('html/head/meta');
-	 * @param $path string - the path to search for.
+	 * @param string $path - the path to search for.
+	 * @return int, the number of elements the path matches.
 	 */
 	public function count($path)
 	{
@@ -261,10 +241,13 @@ class xmlArray
 	}
 
 	/**
-	 * Get an array of xmlArray's for use with foreach.
+	 * Get an array of xmlArray's matching the specified path.
+	 * This differs from ->path(path, true) in that instead of an xmlArray
+	 * of elements, an array of xmlArray's is returned for use with foreach.
 	 * Example use:
 	 *  foreach ($xml->set('html/body/p') as $p)
 	 * @param $path string - the path to search for.
+	 * @return array, an array of xmlArray objects
 	 */
 	public function set($path)
 	{
@@ -289,10 +272,11 @@ class xmlArray
 	}
 
 	/**
-	 * Create an xml file from an xml array.
+	 * Create an xml file from an xmlArray, the specified path if any.
 	 * Example use:
 	 *  echo $this->create_xml();
-	 * @param $path string - the path to the element. (optional)
+	 * @param string $path - the path to the element. (optional)
+	 * @return string, xml-formatted string.
 	 */
 	public function create_xml($path = null)
 	{
@@ -319,7 +303,7 @@ class xmlArray
 	 * Output the xml in an array form.
 	 * Example use:
 	 *  print_r($xml->to_array());
-	 * @param $path string, the path to output.
+	 * @param string $path, the path to output.
 	 */
 	public function to_array($path = null)
 	{
@@ -343,7 +327,7 @@ class xmlArray
 
 	/**
 	 * Parse data into an array. (privately used...)
-	 * @param $data string to parse
+	 * @param string $data to parse
 	 */
 	protected function _parse($data)
 	{
@@ -613,7 +597,11 @@ class xmlArray
 		return $this->trim ? trim($data) : $data;
 	}
 
-	// Given an array, return the text from that array. (recursive and privately used.)
+	/**
+	 * Given an array, return the text from that array. (recursive and privately used.)
+	 *
+	 * @param array $array
+	 */
 	protected function _fetch($array)
 	{
 		// Don't return anything if this is just a string.
@@ -641,10 +629,10 @@ class xmlArray
 
 	/**
 	 * Get a specific array by path, one level down. (privately used...)
-	 * @param $array
-	 * @param $path
-	 * @param $level
-	 * @param $no_error
+	 * @param array $array
+	 * @param string $path
+	 * @param int $level
+	 * @param bool $no_error
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains one humble function, which applauds or smites a user.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,19 +16,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains one humble function, which applauds or smites a user.
-
-	void ModifyKarma()
-		- gives or takes karma from a user.
-		- redirects back to the referrer afterward, whether by javascript or
-		  the passed parameters.
-		- requires the karma_edit permission, and that the user isn't a guest.
-		- depends on the karmaMode, karmaWaitTime, and karmaTimeRestrictAdmins
-		  settings.
-		- is accessed via ?action=modifykarma.
-*/
-
-// Modify a user's karma.
+/**
+ * Modify a user's karma.
+ * It redirects back to the referrer afterward, whether by javascript or the passed parameters.
+ * Requires the karma_edit permission, and that the user isn't a guest.
+ * It depends on the karmaMode, karmaWaitTime, and karmaTimeRestrictAdmins settings.
+ * It is accessed via ?action=modifykarma.
+ */
 function ModifyKarma()
 {
 	global $modSettings, $txt, $user_info, $topic, $smcFunc, $context;
@@ -154,7 +150,9 @@ function ModifyKarma()
 	}
 }
 
-// What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No siree.
+/**
+ *  What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
+ */
 function BookOfUnknown()
 {
 	global $context;

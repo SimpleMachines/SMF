@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains database functions specific to search related activity.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,20 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains database functions specific to search related activity.
-
-	void db_search_init()
-		- adds the functions in this file to the $smcFunc array
-
-	boolean smf_db_search_support($search_type)
-		- whether this database type support the search type $search_type
-
-	void smf_db_create_word_search($size)
- 		- create the custom word index table
-
-*/
-
-// Add the file functions to the $smcFunc array.
+/**
+ *  Add the file functions to the $smcFunc array.
+ */
 function db_search_init()
 {
 	global $smcFunc;
@@ -41,7 +32,11 @@ function db_search_init()
 		);
 }
 
-// Does this database type support this search type?
+/**
+ * This function will tell you whether this database type supports this search type.
+ *
+ * @param string $search_type
+ */
 function smf_db_search_support($search_type)
 {
 	$supported_types = array('fulltext');
@@ -49,7 +44,11 @@ function smf_db_search_support($search_type)
 	return in_array($search_type, $supported_types);
 }
 
-// Highly specific - create the custom word index table!
+/**
+ * Highly specific function, to create the custom word index table.
+ *
+ * @param $size
+ */
 function smf_db_create_word_search($size)
 {
 	global $smcFunc;
