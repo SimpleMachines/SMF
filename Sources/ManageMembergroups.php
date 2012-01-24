@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file is concerned with anything in the Manage Membergroups screen.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,59 +16,17 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* This file is concerned with anything in the Manage Membergroups screen.
 
-	void ModifyMembergroups()
-		- entrance point of the 'Manage Membergroups' center.
-		- called by ?action=admin;area=membergroups.
-		- loads the ManageMembergroups template.
-		- loads the MangeMembers language file.
-		- requires the manage_membergroups or the admin_forum permission.
-		- calls a function based on the given subaction.
-		- defaults to sub action 'index' or without manage_membergroup
-		  permissions to 'settings'.
-
-	void MembergroupIndex()
-		- shows an overview of the current membergroups.
-		- called by ?action=admin;area=membergroups.
-		- requires the manage_membergroups permission.
-		- uses the main ManageMembergroups template.
-		- splits the membergroups in regular ones and post count based groups.
-		- also counts the number of members part of each membergroup.
-
-	void AddMembergroup()
-		- allows to add a membergroup and set some initial properties.
-		- called by ?action=admin;area=membergroups;sa=add.
-		- requires the manage_membergroups permission.
-		- uses the new_group sub template of ManageMembergroups.
-		- allows to use a predefined permission profile or copy one from
-		  another group.
-		- redirects to action=admin;area=membergroups;sa=edit;group=x.
-
-	void DeleteMembergroup()
-		- deletes a membergroup by URL.
-		- called by ?action=admin;area=membergroups;sa=delete;group=x;session_var=y.
-		- requires the manage_membergroups permission.
-		- redirects to ?action=admin;area=membergroups.
-
-	void EditMembergroup()
-		- screen to edit a specific membergroup.
-		- called by ?action=admin;area=membergroups;sa=edit;group=x.
-		- requires the manage_membergroups permission.
-		- uses the edit_group sub template of ManageMembergroups.
-		- also handles the delete button of the edit form.
-		- redirects to ?action=admin;area=membergroups.
-
-	void ModifyMembergroupsettings()
-		- set some general membergroup settings and permissions.
-		- called by ?action=admin;area=membergroups;sa=settings
-		- requires the admin_forum permission (and manage_permissions for
-		  changing permissions)
-		- uses membergroup_settings sub template of ManageMembergroups.
-		- redirects to itself.
+/**
+ * Main dispatcher, the entrance point for all 'Manage Membergroup' actions.
+ * It forwards to a function based on the given subaction, default being subaction 'index', or, without manage_membergroup
+ * permissions, then 'settings'.
+ * Called by ?action=admin;area=membergroups.
+ * Requires the manage_membergroups or the admin_forum permission.
+ *
+ * @uses ManageMembergroups template.
+ * @uses ManageMembers language file.
 */
-
-// The entrance point for all 'Manage Membergroup' actions.
 function ModifyMembergroups()
 {
 	global $context, $txt, $scripturl, $sourcedir;
@@ -105,7 +65,15 @@ function ModifyMembergroups()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// An overview of the current membergroups.
+/**
+ * Shows an overview of the current membergroups.
+ * Called by ?action=admin;area=membergroups.
+ * Requires the manage_membergroups permission.
+ * Splits the membergroups in regular ones and post count based groups.
+ * It also counts the number of members part of each membergroup.
+ *
+ * @uses ManageMembergroups template, main.
+ */
 function MembergroupIndex()
 {
 	global $txt, $scripturl, $context, $settings, $smcFunc, $sourcedir;
@@ -340,7 +308,15 @@ function MembergroupIndex()
 	createList($listOptions);
 }
 
-// Add a membergroup.
+/**
+ * This function handles adding a membergroup and setting some initial properties.
+ * Called by ?action=admin;area=membergroups;sa=add.
+ * It requires the manage_membergroups permission.
+ * Allows to use a predefined permission profile or copy one from another group.
+ * Redirects to action=admin;area=membergroups;sa=edit;group=x.
+ *
+ * @uses the new_group sub template of ManageMembergroups.
+ */
 function AddMembergroup()
 {
 	global $context, $txt, $sourcedir, $modSettings, $smcFunc;
@@ -595,7 +571,14 @@ function AddMembergroup()
 	$smcFunc['db_free_result']($result);
 }
 
-// Deleting a membergroup by URL (not implemented).
+/**
+ * Deleting a membergroup by URL (not implemented).
+ * Called by ?action=admin;area=membergroups;sa=delete;group=x;session_var=y.
+ * Requires the manage_membergroups permission.
+ * Redirects to ?action=admin;area=membergroups.
+ *
+ * @todo look at this
+ */
 function DeleteMembergroup()
 {
 	global $sourcedir;
@@ -609,7 +592,16 @@ function DeleteMembergroup()
 	redirectexit('action=admin;area=membergroups;');
 }
 
-// Editing a membergroup.
+/**
+ * Editing a membergroup.
+ * Screen to edit a specific membergroup.
+ * Called by ?action=admin;area=membergroups;sa=edit;group=x.
+ * It requires the manage_membergroups permission.
+ * Also handles the delete button of the edit form.
+ * Redirects to ?action=admin;area=membergroups.
+ *
+ * @uses the edit_group sub template of ManageMembergroups.
+ */
 function EditMembergroup()
 {
 	global $context, $txt, $sourcedir, $modSettings, $smcFunc;
@@ -924,7 +916,7 @@ function EditMembergroup()
 
 		// There might have been some post group changes.
 		updateStats('postgroups');
-		// We've definetely changed some group stuff.
+		// We've definitely changed some group stuff.
 		updateSettings(array(
 			'settings_updated' => time(),
 		));
@@ -1039,7 +1031,14 @@ function EditMembergroup()
 	$context['page_title'] = $txt['membergroups_edit_group'];
 }
 
-// Set general membergroup settings.
+/**
+ * Set some general membergroup settings and permissions.
+ * Called by ?action=admin;area=membergroups;sa=settings
+ * Requires the admin_forum permission (and manage_permissions for changing permissions)
+ * Redirects to itself.
+ *
+ * @uses membergroup_settings sub template of ManageMembergroups.
+ */
 function ModifyMembergroupsettings()
 {
 	global $context, $sourcedir, $scripturl, $modSettings, $txt;

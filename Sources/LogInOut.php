@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file is concerned pretty entirely, as you see from its name, with
+ * logging in and out members, and the validation of that.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,47 +17,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is concerned pretty entirely, as you see from its name, with
-	logging in and out members, and the validation of that.  It contains:
-
-	void Login()
-		- shows a page for the user to type in their username and password.
-		- caches the referring URL in $_SESSION['login_url'].
-		- uses the Login template and language file with the login sub
-		  template.
-		- if you are using a wireless device, uses the protocol_login sub
-		  template in the Wireless template.
-		- accessed from ?action=login.
-
-	void Login2()
-		- actually logs you in and checks that login was successful.
-		- employs protection against a specific IP or user trying to brute
-		  force a login to an account.
-		- on error, uses the same templates Login() uses.
-		- upgrades password encryption on login, if necessary.
-		- after successful login, redirects you to $_SESSION['login_url'].
-		- accessed from ?action=login2, by forms.
-
-	void Logout(bool internal = false)
-		- logs the current user out of their account.
-		- requires that the session hash is sent as well, to prevent automatic
-		  logouts by images or javascript.
-		- doesn't check the session if internal is true.
-		- redirects back to $_SESSION['logout_url'], if it exists.
-		- accessed via ?action=logout;session_var=...
-
-	string md5_hmac(string data, string key)
-		- old style SMF 1.0.x/YaBB SE 1.5.x hashing.
-		- returns the HMAC MD5 of data with key.
-
-	string phpBB3_password_check(string passwd, string passwd_hash)
-		- custom encryption for phpBB3 based passwords.
-
-	void validatePasswordFlood(id_member, password_flood_value = false, was_correct = false)
-		- this function helps protect against brute force attacks on a member's password.
-*/
-
-// Ask them for their login information.
+/**
+ * Ask them for their login information. (shows a page for the user to type
+ *  in their username and password.)
+ *  It caches the referring URL in $_SESSION['login_url'].
+ *  It is accessed from ?action=login.
+ *  @uses Login template and language file with the login sub-template.
+ *  @uses the protocol_login sub-template in the Wireless template,
+ *   if you are using a wireless device
+ */
 function Login()
 {
 	global $txt, $context, $scripturl;
@@ -89,7 +60,17 @@ function Login()
 		unset($_SESSION['login_url']);
 }
 
-// Perform the actual logging-in.
+/**
+ * Actually logs you in.
+ * What it does:
+ * - checks credentials and checks that login was successful.
+ * - it employs protection against a specific IP or user trying to brute force
+ *  a login to an account.
+ * - upgrades password encryption on login, if necessary.
+ * - after successful login, redirects you to $_SESSION['login_url'].
+ * - accessed from ?action=login2, by forms.
+ * On error, uses the same templates Login() uses.
+ */
 function Login2()
 {
 	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
@@ -416,6 +397,9 @@ function Login2()
 	DoLogin();
 }
 
+/**
+ * Check activation status of the current user.
+ */
 function checkActivation()
 {
 	global $context, $txt, $scripturl, $user_settings, $modSettings;
@@ -462,6 +446,9 @@ function checkActivation()
 	return true;
 }
 
+/**
+ * Perform the logging in. (set cookie, call hooks, etc)
+ */
 function DoLogin()
 {
 	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
@@ -537,7 +524,16 @@ function DoLogin()
 		redirectexit('action=logout;' . $context['session_var'] . '=' . $context['session_id'], $context['server']['needs_login_fix']);
 }
 
-// Log the user out.
+/**
+ * Logs the current user out of their account.
+ * It requires that the session hash is sent as well, to prevent automatic logouts
+ *  by images or javascript.
+ * It redirects back to $_SESSION['logout_url'], if it exists.
+ * It is accessed via ?action=logout;session_var=...
+ *
+ * @param bool $internal, if true, it doesn't check the session
+ * @param $redirect
+ */
 function Logout($internal = false, $redirect = true)
 {
 	global $sourcedir, $user_info, $user_settings, $context, $modSettings, $smcFunc;
@@ -594,7 +590,13 @@ function Logout($internal = false, $redirect = true)
 	}
 }
 
-// MD5 Encryption used for older passwords.
+/**
+ * MD5 Encryption used for older passwords. (SMF 1.0.x/YaBB SE 1.5.x hashing)
+ *
+ * @param string $data
+ * @param string $key
+ * @return string, the HMAC MD5 of data with key
+ */
 function md5_hmac($data, $key)
 {
 	$key = str_pad(strlen($key) <= 64 ? $key : pack('H*', md5($key)), 64, chr(0x00));
@@ -602,6 +604,13 @@ function md5_hmac($data, $key)
 }
 
 // Special encryption used by phpBB3.
+/**
+ * Custom encryption for phpBB3 based passwords.
+ *
+ * @param string $passwd
+ * @param string $passwd_hash
+ * @return string
+ */
 function phpBB3_password_check($passwd, $passwd_hash)
 {
 	// Too long or too short?
@@ -661,7 +670,14 @@ function phpBB3_password_check($passwd, $passwd_hash)
 	return $output;
 }
 
-// This protects against brute force attacks on a member's password. Importantly even if the password was right we DON'T TELL THEM!
+/**
+ * This protects against brute force attacks on a member's password.
+ * Importantly, even if the password was right we DON'T TELL THEM!
+ *
+ * @param $id_member
+ * @param $password_flood_value = false
+ * @param $was_correct = false
+ */
 function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false)
 {
 	global $smcFunc, $cookiename, $sourcedir;

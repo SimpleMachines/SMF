@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains all the functions used for the ban center.
+ * @todo refactor as controller-model
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,74 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* This file contains all the functions used for the ban center.
-
-	void Ban()
-		- the main entrance point for all ban center functions.
-		- is accesssed by ?action=admin;area=ban.
-		- choses a function based on the 'sa' parameter.
-		- defaults to BanList().
-		- requires the ban_members permission.
-		- initializes the admin tabs.
-		- load the ManageBans template.
-
-	void BanList()
-		- shows a list of bans currently set.
-		- is accesssed by ?action=admin;area=ban;sa=list.
-		- uses the main ManageBans template.
-		- removes expired bans.
-		- allows sorting on different criteria.
-		- also handles removal of selected ban items.
-
-	void BanEdit()
-		- the screen for adding new bans and modifying existing ones.
-		- adding new bans:
-			- is accesssed by ?action=admin;area=ban;sa=add.
-			- uses the ban_edit sub template of the ManageBans template.
-		- modifying existing bans:
-			- is accesssed by ?action=admin;area=ban;sa=edit;bg=x
-			- uses the ban_edit sub template of the ManageBans template.
-			- shows a list of ban triggers for the specified ban.
-		- handles submitted forms that add, modify or remove ban triggers.
-
-	void BanEditTrigger()
-		- the screen for adding new ban triggers or modifying existing ones.
-		- adding new ban triggers:
-			- is accessed by ?action=admin;area=ban;sa=edittrigger;bg=x
-			- uses the ban_edit_trigger sub template of ManageBans.
-		- editing existing ban triggers:
-			- is accessed by ?action=admin;area=ban;sa=edittrigger;bg=x;bi=y
-			- uses the ban_edit_trigger sub template of ManageBans.
-
-	void BanBrowseTriggers()
-		- screen for showing the banned enities
-		- is accessed by ?action=admin;area=ban;sa=browse
-		- uses the browse_triggers sub template of the ManageBans template.
-		- uses sub-tabs for browsing by IP, hostname, email or username.
-
-	array BanLog()
-		- show a list of logged access attempts by banned users.
-		- is accessed by ?action=admin;area=ban;sa=log.
-		- allows sorting of several columns.
-		- also handles deletion of (a selection of) log entries.
-
-	string range2ip(array $low, array $high)
-		- reverse function of ip2range().
-		- converts a given array of IP numbers to a single string
-		- range2ip(array(10, 10, 10, 0), array(10, 10, 20, 255)) returns
-		   '10.10.10-20.*
-
-	array checkExistingTriggerIP(array $ip_array, string $fullip)
-		- checks whether a given IP range already exists in the trigger list.
-		- if yes, it returns an error message. Otherwise, it returns
-		  an array optimized for the database.
-
-	void updateBanMembers()
-		- updates the members table to match the new bans.
-		- is_activated >= 10: a member is banned.
-*/
-
-// Ban center.
+/**
+ * Ban center. The main entrance point for all ban center functions.
+ * It is accesssed by ?action=admin;area=ban.
+ * It choses a function based on the 'sa' parameter, like many others.
+ * The default sub-action is BanList().
+ * It requires the ban_members permission.
+ * It initializes the admin tabs.
+ *
+ * @uses ManageBans template.
+ */
 function Ban()
 {
 	global $context, $txt, $scripturl;
@@ -139,7 +84,15 @@ function Ban()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// List all the bans.
+/**
+ * Shows a list of bans currently set.
+ * It is accesssed by ?action=admin;area=ban;sa=list.
+ * It removes expired bans.
+ * It allows sorting on different criteria.
+ * It also handles removal of selected ban items.
+ *
+ * @uses the main ManageBans template.
+ */
 function BanList()
 {
 	global $txt, $context, $ban_request, $ban_counts, $scripturl;
@@ -338,6 +291,14 @@ function BanList()
 	$context['default_list'] = 'ban_list';
 }
 
+/**
+ * Get bans, what else? For the given options.
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @return array
+ */
 function list_getBans($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -380,6 +341,19 @@ function list_getNumBans()
 	return $numBans;
 }
 
+/**
+ * This function is behind the screen for adding new bans and modifying existing ones.
+ * Adding new bans:
+ * 	- is accesssed by ?action=admin;area=ban;sa=add.
+ * 	- uses the ban_edit sub template of the ManageBans template.
+ * Modifying existing bans:
+ *  - is accesssed by ?action=admin;area=ban;sa=edit;bg=x
+ *  - uses the ban_edit sub template of the ManageBans template.
+ *  - shows a list of ban triggers for the specified ban.
+ *  - handles submitted forms that add, modify or remove ban triggers.
+ *
+ *  @todo insane number of writing to superglobals here...
+ */
 function BanEdit()
 {
 	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc;
@@ -1013,6 +987,16 @@ function BanEdit()
 		$context['sub_template'] = 'ban_edit';
 }
 
+/**
+ * This function handles the ins and outs of the screen for adding new ban
+ * triggers or modifying existing ones.
+ * Adding new ban triggers:
+ * 	- is accessed by ?action=admin;area=ban;sa=edittrigger;bg=x
+ * 	- uses the ban_edit_trigger sub template of ManageBans.
+ * Editing existing ban triggers:
+ *  - is accessed by ?action=admin;area=ban;sa=edittrigger;bg=x;bi=y
+ *  - uses the ban_edit_trigger sub template of ManageBans.
+ */
 function BanEditTrigger()
 {
 	global $context, $smcFunc;
@@ -1092,6 +1076,13 @@ function BanEditTrigger()
 	}
 }
 
+/**
+ * This handles the screen for showing the banned entities
+ * It is accessed by ?action=admin;area=ban;sa=browse
+ * It uses sub-tabs for browsing by IP, hostname, email or username.
+ *
+ * @uses ManageBans template, browse_triggers sub template.
+ */
 function BanBrowseTriggers()
 {
 	global $modSettings, $context, $scripturl, $smcFunc, $txt;
@@ -1287,6 +1278,15 @@ function BanBrowseTriggers()
 	$context['default_list'] = 'ban_trigger_list';
 }
 
+/**
+ * Get ban triggers for the given parameters.
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $trigger_type
+ * @return array
+ */
 function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 {
 	global $smcFunc;
@@ -1320,6 +1320,12 @@ function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 	return $ban_triggers;
 }
 
+/**
+ * This returns the total number of ban triggers of the given type.
+ *
+ * @param string $trigger_type
+ * @return int
+ */
 function list_getNumBanTriggers($trigger_type)
 {
 	global $smcFunc;
@@ -1345,6 +1351,14 @@ function list_getNumBanTriggers($trigger_type)
 	return $num_triggers;
 }
 
+/**
+ * This handles the listing of ban log entries, and allows their deletion.
+ * Shows a list of logged access attempts by banned users.
+ * It is accessed by ?action=admin;area=ban;sa=log.
+ * How it works:
+ *  - allows sorting of several columns.
+ *  - also handles deletion of (a selection of) log entries.
+ */
 function BanLog()
 {
 	global $scripturl, $context, $smcFunc, $sourcedir, $txt;
@@ -1363,7 +1377,7 @@ function BanLog()
 				)
 			);
 
-		// 'Delte selection' button was pressed.
+		// 'Delete selection' button was pressed.
 		else
 		{
 			// Make sure every entry is integer.
@@ -1493,6 +1507,14 @@ function BanLog()
 	$context['default_list'] = 'ban_log';
 }
 
+/**
+ * Load a list of ban log entries from the database.
+ * (no permissions check)
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ */
 function list_getBanLogEntries($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -1516,6 +1538,9 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 	return $log_entries;
 }
 
+/**
+ * This returns the total count of ban log entries.
+ */
 function list_getNumBanLogEntries()
 {
 	global $smcFunc;
@@ -1532,6 +1557,17 @@ function list_getNumBanLogEntries()
 	return $num_entries;
 }
 
+/**
+ * Convert a range of given IP number into a single string.
+ * It's practically the reverse function of ip2range().
+ *
+ * @example
+ * range2ip(array(10, 10, 10, 0), array(10, 10, 20, 255)) returns '10.10.10-20.*
+ *
+ * @param array $low, IPv4 format
+ * @param array $high, IPv4 format
+ * @return string
+ */
 function range2ip($low, $high)
 {
 	if (count($low) != 4 || count($high) != 4)
@@ -1555,6 +1591,15 @@ function range2ip($low, $high)
 	return implode('.', $ip);
 }
 
+/**
+ * Checks whether a given IP range already exists in the trigger list.
+ * If yes, it returns an error message. Otherwise, it returns an array
+ *  optimized for the database.
+ *
+ * @param array $ip_array
+ * @param string $fullip
+ * @return bool
+ */
 function checkExistingTriggerIP($ip_array, $fullip = '')
 {
 	global $smcFunc, $scripturl;
@@ -1598,6 +1643,10 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 	return $values;
 }
 
+/**
+ * As it says... this tries to review the list of banned members, to match new bans.
+ * Note: is_activated >= 10: a member is banned.
+ */
 function updateBanMembers()
 {
 	global $smcFunc;

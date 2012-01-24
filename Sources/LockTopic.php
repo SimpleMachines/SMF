@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file only takes care of two things - locking and sticky-ing.
+ * @todo and it's called after one of those. :P
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,25 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file only takes care of two things - locking and stickying.
-
-	void LockTopic()
-		- locks a topic, toggles between locked/unlocked/admin locked.
-		- only admins can unlock topics locked by other admins.
-		- requires the lock_own or lock_any permission.
-		- logs the action to the moderator log.
-		- returns to the topic after it is done.
-		- accessed via ?action=lock.
-
-	void Sticky()
-		- stickies a topic - toggles between sticky and normal.
-		- requires the make_sticky permission.
-		- adds an entry to the moderator log.
-		- when done, sends the user back to the topic.
-		- accessed via ?action=sticky.
+/**
+ * Locks a topic... either by way of a moderator or the topic starter.
+ * What this does:
+ *  - locks a topic, toggles between locked/unlocked/admin locked.
+ *  - only admins can unlock topics locked by other admins.
+ *  - requires the lock_own or lock_any permission.
+ *  - logs the action to the moderator log.
+ *  - returns to the topic after it is done.
+ *  - it is accessed via ?action=lock.
 */
-
-// Locks a topic... either by way of a moderator or the topic starter.
 function LockTopic()
 {
 	global $topic, $user_info, $sourcedir, $board, $smcFunc;
@@ -100,7 +94,16 @@ function LockTopic()
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start'] . (WIRELESS ? ';moderate' : ''));
 }
 
-// Sticky a topic.  Can't be done by topic starters - that would be annoying!
+/**
+ * Sticky a topic.
+ * Can't be done by topic starters - that would be annoying!
+ * What this does:
+ *  - stickies a topic - toggles between sticky and normal.
+ *  - requires the make_sticky permission.
+ *  - adds an entry to the moderator log.
+ *  - when done, sends the user back to the topic.
+ *  - accessed via ?action=sticky.
+ */
 function Sticky()
 {
 	global $modSettings, $topic, $board, $sourcedir, $smcFunc;

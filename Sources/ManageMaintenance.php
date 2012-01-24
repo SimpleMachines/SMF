@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Forum maintenance. Important stuff.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,100 +16,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* /!!!
-
-	void ManageMaintenance()
-		// !!!
-
-	void MaintainDatabase()
-		// !!!
-
-	void MaintainMembers()
-		// !!!
-
-	void MaintainTopics()
-		// !!!
-
-	void MaintainCleanCache()
-		// !!!
-
-	void MaintainFindFixErrors()
-		// !!!
-
-	void MaintainEmptyUnimportantLogs()
-		// !!!
-
-	void ConvertUtf8()
-		- converts the data and database tables to UTF-8 character set.
-		- requires the admin_forum permission.
-		- uses the convert_utf8 sub template of the Admin template.
-		- only works if UTF-8 is not the global character set.
-		- supports all character sets used by SMF's language files.
-		- redirects to ?action=admin;area=maintain after finishing.
-		- is linked from the maintenance screen (if applicable).
-		- accessed by ?action=admin;area=maintain;sa=database;activity=convertutf8.
-
-	void ConvertEntities()
-		- converts HTML-entities to UTF-8 characters.
-		- requires the admin_forum permission.
-		- uses the convert_entities sub template of the Admin template.
-		- only works if UTF-8 has been set as database and global character set.
-		- is divided in steps of 10 seconds.
-		- is linked from the maintenance screen (if applicable).
-		- accessed by ?action=admin;area=maintain;sa=database;activity=convertentities.
-
-	void OptimizeTables()
-		- optimizes all tables in the database and lists how much was saved.
-		- requires the admin_forum permission.
-		- uses the rawdata sub template (built in.)
-		- shows as the maintain_forum admin area.
-		- updates the optimize scheduled task such that the tables are not
-		  automatically optimized again too soon.
-		- accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
-
-	void AdminBoardRecount()
-		- recounts many forum totals that can be recounted automatically
-		  without harm.
-		- requires the admin_forum permission.
-		- shows the maintain_forum admin area.
-		- fixes topics with wrong num_replies.
-		- updates the num_posts and num_topics of all boards.
-		- recounts instant_messages but not unread_messages.
-		- repairs messages pointing to boards with topics pointing to
-		  other boards.
-		- updates the last message posted in boards and children.
-		- updates member count, latest member, topic count, and message count.
-		- redirects back to ?action=admin;area=maintain when complete.
-		- accessed via ?action=admin;area=maintain;sa=database;activity=recount.
-
-	void VersionDetail()
-		- parses the comment headers in all files for their version information
-		  and outputs that for some javascript to check with simplemacines.org.
-		- does not connect directly with simplemachines.org, but rather
-		  expects the client to.
-		- requires the admin_forum permission.
-		- uses the view_versions admin area.
-		- loads the view_versions sub template (in the Admin template.)
-		- accessed through ?action=admin;area=maintain;sa=routine;activity=version.
-
-	void MaintainReattributePosts()
-		// !!!
-
-	void MaintainDownloadBackup()
-		// !!!
-
-	void MaintainPurgeInactiveMembers()
-		// !!!
-
-	void MaintainRemoveOldPosts(bool do_action = true)
-		// !!!
-
-	mixed MaintainMassMoveTopics()
-		- Moves topics from one board to another.
-		- User the not_done template to pause the process.
-*/
-
-// The maintenance access point.
+/**
+ * Main dispatcher, the maintenance access point.
+ * This, as usual, checks permissions, loads language files, and forwards to the actual workers.
+ */
 function ManageMaintenance()
 {
 	global $txt, $modSettings, $scripturl, $context, $options;
@@ -203,7 +115,9 @@ function ManageMaintenance()
 		$context['maintenance_finished'] = $txt['utf8_title'];
 }
 
-// Supporting function for the database maintenance area.
+/**
+ * Supporting function for the database maintenance area.
+ */
 function MaintainDatabase()
 {
 	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
@@ -218,7 +132,9 @@ function MaintainDatabase()
 		$context['maintenance_finished'] = $txt['entity_convert_title'];
 }
 
-// Supporting function for the routine maintenance area.
+/**
+ * Supporting function for the routine maintenance area.
+ */
 function MaintainRoutine()
 {
 	global $context, $txt;
@@ -227,7 +143,9 @@ function MaintainRoutine()
 		$context['maintenance_finished'] = $txt['maintain_recount'];
 }
 
-// Supporting function for the members maintenance area.
+/**
+ * Supporting function for the members maintenance area.
+ */
 function MaintainMembers()
 {
 	global $context, $smcFunc, $txt;
@@ -255,7 +173,9 @@ function MaintainMembers()
 	$smcFunc['db_free_result']($result);
 }
 
-// Supporting function for the topics maintenance area.
+/**
+ * Supporting function for the topics maintenance area.
+ */
 function MaintainTopics()
 {
 	global $context, $smcFunc, $txt;
@@ -294,7 +214,9 @@ function MaintainTopics()
 		$context['maintenance_finished'] = $txt['move_topics_maintenance'];
 }
 
-// Find and fix all errors.
+/**
+ * Find and fix all errors on the forum.
+ */
 function MaintainFindFixErrors()
 {
 	global $sourcedir;
@@ -303,7 +225,10 @@ function MaintainFindFixErrors()
 	RepairBoards();
 }
 
-// Wipes the whole cache directory.
+/**
+ * Wipes the whole cache directory.
+ * This only applies to SMF's own cache directory, though.
+ */
 function MaintainCleanCache()
 {
 	global $context, $txt;
@@ -314,7 +239,9 @@ function MaintainCleanCache()
 	$context['maintenance_finished'] = $txt['maintain_cache'];
 }
 
-// Empties all uninmportant logs
+/**
+ * Empties all uninmportant logs
+ */
 function MaintainEmptyUnimportantLogs()
 {
 	global $context, $smcFunc, $txt;
@@ -370,7 +297,17 @@ function Destroy()
 	obExit(false);
 }
 
-// Convert both data and database tables to UTF-8 character set.
+/**
+ * Convert both data and database tables to UTF-8 character set.
+ * It requires the admin_forum permission.
+ * This only works if UTF-8 is not the global character set.
+ * It supports all character sets used by SMF's language files.
+ * It redirects to ?action=admin;area=maintain after finishing.
+ * This action is linked from the maintenance screen (if it's applicable).
+ * Accessed by ?action=admin;area=maintain;sa=database;activity=convertutf8.
+ *
+ * @uses the convert_utf8 sub template of the Admin template.
+ */
 function ConvertUtf8()
 {
 	global $scripturl, $context, $txt, $language, $db_character_set;
@@ -720,7 +657,17 @@ function ConvertUtf8()
 	redirectexit('action=admin;area=maintain;done=convertutf8');
 }
 
-// Convert HTML-entities to their UTF-8 character equivalents.
+/**
+ * Converts HTML-entities to their UTF-8 character equivalents.
+ * This requires the admin_forum permission.
+ * Pre-condition: UTF-8 has been set as database and global character set.
+ *
+ * It is divided in steps of 10 seconds.
+ * This action is linked from the maintenance screen (if applicable).
+ * It is accessed by ?action=admin;area=maintain;sa=database;activity=convertentities.
+ *
+ * @uses Admin template, convert_entities sub-template.
+ */
 function ConvertEntities()
 {
 	global $db_character_set, $modSettings, $context, $sourcedir, $smcFunc;
@@ -916,7 +863,15 @@ function ConvertEntities()
 	$context['continue_countdown'] = -1;
 }
 
-// Optimize the database's tables.
+/**
+ * Optimizes all tables in the database and lists how much was saved.
+ * It requires the admin_forum permission.
+ * It shows as the maintain_forum admin area.
+ * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
+ * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
+
+ * @uses the rawdata sub template (built in.)
+ */
 function OptimizeTables()
 {
 	global $db_type, $db_name, $db_prefix, $txt, $context, $scripturl, $sourcedir, $smcFunc;
@@ -975,7 +930,21 @@ function OptimizeTables()
 	CalculateNextTrigger('auto_optimize', true);
 }
 
-// Recount all the important board totals.
+/**
+ * Recount many forum totals that can be recounted automatically without harm.
+ * it requires the admin_forum permission.
+ * It shows the maintain_forum admin area.
+ * Totals recounted:
+ * - fixes for topics with wrong num_replies.
+ * - updates for num_posts and num_topics of all boards.
+ * - recounts instant_messages but not unread_messages.
+ * - repairs messages pointing to boards with topics pointing to other boards.
+ * - updates the last message posted in boards and children.
+ * - updates member count, latest member, topic count, and message count.
+ *
+ * The function redirects back to ?action=admin;area=maintain when complete.
+ * It is accessed via ?action=admin;area=maintain;sa=database;activity=recount.
+ */
 function AdminBoardRecount()
 {
 	global $txt, $context, $scripturl, $modSettings, $sourcedir;
@@ -1462,7 +1431,17 @@ function AdminBoardRecount()
 	redirectexit('action=admin;area=maintain;sa=routine;done=recount');
 }
 
-// Perform a detailed version check.  A very good thing ;).
+/**
+ * Perform a detailed version check.  A very good thing ;).
+ * The function parses the comment headers in all files for their version information,
+ * and outputs that for some javascript to check with simplemachines.org.
+ * It does not connect directly with simplemachines.org, but rather expects the client to.
+ *
+ * It requires the admin_forum permission.
+ * Uses the view_versions admin area.
+ * Accessed through ?action=admin;area=maintain;sa=routine;activity=version.
+ * @uses Admin template, view_versions sub-template.
+ */
 function VersionDetail()
 {
 	global $forum_version, $txt, $sourcedir, $context;
@@ -1494,7 +1473,9 @@ function VersionDetail()
 	$context['page_title'] = $txt['admin_version_check'];
 }
 
-// Removing old posts doesn't take much as we really pass through.
+/**
+ * Re-attribute posts.
+ */
 function MaintainReattributePosts()
 {
 	global $sourcedir, $context, $txt;
@@ -1521,7 +1502,9 @@ function MaintainReattributePosts()
 	$context['maintenance_finished'] = $txt['maintain_reattribute_posts'];
 }
 
-// Handling function for the backup stuff.
+/**
+ * Handling function for the backup stuff.
+ */
 function MaintainDownloadBackup()
 {
 	global $sourcedir;
@@ -1530,7 +1513,10 @@ function MaintainDownloadBackup()
 	DumpDatabase2();
 }
 
-// Removing old members?
+/**
+ * Removing old members. Done and out!
+ * @todo refactor
+ */
 function MaintainPurgeInactiveMembers()
 {
 	global $sourcedir, $context, $smcFunc, $txt;
@@ -1612,7 +1598,9 @@ function MaintainPurgeInactiveMembers()
 	$context['maintenance_finished'] = $txt['maintain_members'];
 }
 
-// Removing old posts doesn't take much as we really pass through.
+/**
+ * Removing old posts doesn't take much as we really pass through.
+ */
 function MaintainRemoveOldPosts()
 {
 	global $sourcedir, $context, $txt;
@@ -1622,6 +1610,11 @@ function MaintainRemoveOldPosts()
 	RemoveOldTopics2();
 }
 
+/**
+ * Moves topics from one board to another.
+ *
+ * @uses not_done template to pause the process.
+ */
 function MaintainMassMoveTopics()
 {
 	global $smcFunc, $sourcedir, $context, $txt;

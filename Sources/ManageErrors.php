@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * The main purpose of this file is to show a list of all errors that were
+ * logged on the forum, and allow filtering and deleting them.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,32 +17,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* Show a list of all errors that were logged on the forum.
-
-	void ViewErrorLog()
-		- sets all the context up to show the error log for maintenance.
-		- uses the Errors template and error_log sub template.
-		- requires the maintain_forum permission.
-		- uses the 'view_errors' administration area.
-		- accessed from ?action=admin;area=logs;sa=errorlog.
-
-	void deleteErrors()
-		- deletes all or some of the errors in the error log.
-		- applies any necessary filters to deletion.
-		- should only be called by ViewErrorLog().
-		- attempts to TRUNCATE the table to reset the auto_increment.
-		- redirects back to the error log when done.
-
-	void ViewFile()
-		- will do php highlighting on the file specified in $_REQUEST['file']
-		- file must be readable
-		- full file path must be base64 encoded
-		- user must have admin_forum permission
-		- the line number number is specified by $_REQUEST['line']
-		- Will try to get the 20 lines before and after the specified line
-*/
-
-// View the forum's error log.
+/**
+ * View the forum's error log.
+ * This function sets all the context up to show the error log for maintenance.
+ * It requires the maintain_forum permission.
+ * It is accessed from ?action=admin;area=logs;sa=errorlog.
+ *
+ * @uses the Errors template and error_log sub template.
+ */
 function ViewErrorLog()
 {
 	global $scripturl, $txt, $context, $modSettings, $user_profile, $filter, $boarddir, $sourcedir, $themedir, $smcFunc;
@@ -284,7 +269,13 @@ function ViewErrorLog()
 	$context['sub_template'] = 'error_log';
 }
 
-// Delete errors from the database.
+/**
+ * Delete all or some of the errors in the error log.
+ * It applies any necessary filters to deletion.
+ * This should only be called by ViewErrorLog().
+ * It attempts to TRUNCATE the table to reset the auto_increment.
+ * Redirects back to the error log when done.
+ */
 function deleteErrors()
 {
 	global $filter, $smcFunc;
@@ -327,6 +318,15 @@ function deleteErrors()
 	redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
 }
 
+/**
+ * View a file specified in $_REQUEST['file'], with php highlighting on it
+ * Preconditions:
+ * file must be readable,
+ * full file path must be base64 encoded,
+ * user must have admin_forum permission.
+ * The line number number is specified by $_REQUEST['line']...
+ * The function will try to get the 20 lines before and after the specified line.
+ */
 function ViewFile()
 {
 	global $context, $txt, $boarddir, $sourcedir;

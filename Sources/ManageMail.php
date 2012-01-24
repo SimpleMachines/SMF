@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * This file is all about mail, how we love it so. In particular it handles the admin side of
+ * mail configuration, as well as reviewing the mail queue - if enabled.
+ * @todo refactor as controller-model.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,24 +18,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is all about mail, how we love it so. In particular it handles the admin side of
-	mail configuration, as well as reviewing the mail queue - if enabled.
-
-	void ManageMail()
-		// !!
-
-	void BrowseMailQueue()
-		// !!
-
-	void ModifyMailSettings()
-		// !!
-
-	void ClearMailQueue()
-		// !!
-
-*/
-
-// This function passes control through to the relevant section
+/**
+ * Main dispatcher. This function checks permissions and passes control through to the relevant section.
+ */
 function ManageMail()
 {
 	global $context, $txt, $scripturl, $modSettings, $sourcedir;
@@ -69,7 +58,9 @@ function ManageMail()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// Display the mail queue...
+/**
+ * Display the mail queue...
+ */
 function BrowseMailQueue()
 {
 	global $scripturl, $context, $modSettings, $txt, $smcFunc;
@@ -218,6 +209,13 @@ function BrowseMailQueue()
 	$context['sub_template'] = 'browse';
 }
 
+/**
+ * This function grabs the mail queue items from the database, according to the params given.
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ */
 function list_getMailQueue($start, $items_per_page, $sort)
 {
 	global $smcFunc, $txt;
@@ -248,6 +246,9 @@ function list_getMailQueue($start, $items_per_page, $sort)
 	return $mails;
 }
 
+/**
+ * Returns the total count of items in the mail queue.
+ */
 function list_getMailQueueSize()
 {
 	global $smcFunc;
@@ -265,6 +266,11 @@ function list_getMailQueueSize()
 	return $mailQueueSize;
 }
 
+/**
+ * Allows to view and modify the mail settings.
+ *
+ * @param bool $return_config
+ */
 function ModifyMailSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $birthdayEmails, $modSettings;
@@ -347,7 +353,9 @@ function ModifyMailSettings($return_config = false)
 	// ]]></script>';
 }
 
-// This function clears the mail queue of all emails, and at the end redirects to browse.
+/**
+ * This function clears the mail queue of all emails, and at the end redirects to browse.
+ */
 function ClearMailQueue()
 {
 	global $sourcedir, $smcFunc;
@@ -386,7 +394,9 @@ function ClearMailQueue()
 	return BrowseMailQueue();
 }
 
-// Used for pausing the mail queue.
+/**
+ * Used for pausing the mail queue.
+ */
 function pauseMailQueueClear()
 {
 	global $context, $txt, $time_start;
@@ -418,7 +428,11 @@ function pauseMailQueueClear()
 	obExit();
 }
 
-// Little function to calculate how long ago a time was.
+/**
+ * Little utility function to calculate how long ago a time was.
+ *
+ * @param long $time_diff
+ */
 function time_since($time_diff)
 {
 	global $txt;

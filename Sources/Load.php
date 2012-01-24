@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file has the hefty job of loading information for the forum.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,116 +16,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has the hefty job of loading information for the forum.  It uses
-	the following functions:
-
-	void reloadSettings()
-		- loads or reloads the $modSettings array.
-		- loads any integration settings, SMF_INTEGRATION_SETTINGS, etc.
-
-	void loadUserSettings()
-		- sets up the $user_info array
-		- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
-		- first checks for cookie or intergration validation.
-		- uses the current session if no integration function or cookie is found.
-		- checks password length, if member is activated and the login span isn't over.
-		- if validation fails for the user, $id_member is set to 0.
-		- updates the last visit time when needed.
-
-	void loadBoard()
-		- sets up the $board_info array for current board information.
-		- if cache is enabled, the $board_info array is stored in cache.
-		- redirects to appropriate post if only message id is requested.
-		- is only used when inside a topic or board.
-		- determines the local moderators for the board.
-		- adds group id 3 if the user is a local moderator for the board they are in.
-		- prevents access if user is not in proper group nor a local moderator of the board.
-
-	void loadPermissions()
-		// !!!
-
-	array loadMemberData(array members, bool is_name = false, string set = 'normal')
-		// !!!
-
-	bool loadMemberContext(int id_member)
-		// !!!
-
-	void loadTheme(int id_theme = auto_detect)
-		// !!!
-
-	void loadTemplate(string template_name, array style_sheets = array(), bool fatal = true)
-		- loads a template file with the name template_name from the current,
-		  default, or base theme.
-		- uses the template_include() function to include the file.
-		- detects a wrong default theme directory and tries to work around it.
-		- if fatal is true, dies with an error message if the template cannot
-		  be found.
-
-	void loadSubTemplate(string sub_template_name, bool fatal = false)
-		- loads the sub template specified by sub_template_name, which must be
-		  in an already-loaded template.
-		- if ?debug is in the query string, shows administrators a marker after
-		  every sub template for debugging purposes.
-
-	string loadLanguage(string template_name, string language = default, bool fatal = true, bool force_reload = false)
-		// !!!
-
-	array getBoardParents(int id_parent)
-		- finds all the parents of id_parent, and that board itself.
-		- additionally detects the moderators of said boards.
-		- returns an array of information about the boards found.
-
-	string &censorText(string &text, bool force = false)
-		- censors the passed string.
-		- if the theme setting allow_no_censored is on, and the theme option
-		  show_no_censored is enabled, does not censor - unless force is set.
-		- caches the list of censored words to reduce parsing.
-
-	void template_include(string filename, bool only_once = false)
-		- loads the template or language file specified by filename.
-		- if once is true, only includes the file once (like include_once.)
-		- uses eval unless disableTemplateEval is enabled.
-		- outputs a parse error if the file did not exist or contained errors.
-		- attempts to detect the error and line, and show detailed information.
-
-	void loadSession()
-		// !!!
-
-	void loadDatabase()
-		- takes care of mysql_set_mode, if set.
-		// !!!
-
-	bool sessionOpen(string session_save_path, string session_name)
-	bool sessionClose()
-	bool sessionRead(string session_id)
-	bool sessionWrite(string session_id, string data)
-	bool sessionDestroy(string session_id)
-	bool sessionGC(int max_lifetime)
-		- implementations of PHP's session API.
-		- handle the session data in the database (more scalable.)
-		- use the databaseSession_lifetime setting for garbage collection.
-		- set by loadSession().
-
-	void cache_put_data(string key, mixed value, int ttl = 120)
-		- puts value in the cache under key for ttl seconds.
-		- may "miss" so shouldn't be depended on, and may go to any of many
-		  various caching servers.
-		- supports eAccelerator, Turck MMCache, ZPS, and memcached.
-
-	mixed cache_get_data(string key, int ttl = 120)
-		- gets the value from the cache specified by key, so long as it is not
-		  older than ttl seconds.
-		- may often "miss", so shouldn't be depended on.
-		- supports the same as cache_put_data().
-
-	void get_memcached_server(int recursion_level = 3)
-		- used by cache_get_data() and cache_put_data().
-		- attempts to connect to a random server in the cache_memcached
-		  setting.
-		- recursively calls itself up to recursion_level times.
-*/
-
-// Load the $modSettings array.
+/**
+ * Load the $modSettings array.
+ * @todo okay question of the day: why a function loading settings is called
+ * reloadSettings()
+ */
 function reloadSettings()
 {
 	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $context, $sourcedir;
@@ -296,7 +193,18 @@ function reloadSettings()
 	call_integration_hook('integrate_pre_load');
 }
 
-// Load all the important user information...
+
+/**
+ * Load all the important user information.
+ * What it does:
+ * 	- sets up the $user_info array
+	- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
+	- first checks for cookie or integration validation.
+	- uses the current session if no integration function or cookie is found.
+	- checks password length, if member is activated and the login span isn't over.
+		- if validation fails for the user, $id_member is set to 0.
+		- updates the last visit time when needed.
+ */
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
@@ -545,7 +453,17 @@ function loadUserSettings()
 		$user_info['query_wanna_see_board'] = '(' . $user_info['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $user_info['ignoreboards']) . '))';
 }
 
-// Check for moderators and see if they have access to the board.
+/**
+ * Check for moderators and see if they have access to the board.
+ * What it does:
+ * - sets up the $board_info array for current board information.
+ * - if cache is enabled, the $board_info array is stored in cache.
+ * - redirects to appropriate post if only message id is requested.
+ * - is only used when inside a topic or board.
+ * - determines the local moderators for the board.
+ * - adds group id 3 if the user is a local moderator for the board they are in.
+ * - prevents access if user is not in proper group nor a local moderator of the board.
+ */
 function loadBoard()
 {
 	global $txt, $scripturl, $context, $modSettings;
@@ -802,7 +720,9 @@ function loadBoard()
 		$user_info['groups'][] = 3;
 }
 
-// Load this user's permissions.
+/**
+ * Load this user's permissions.
+ */
 function loadPermissions()
 {
 	global $user_info, $board, $board_info, $modSettings, $smcFunc, $sourcedir;
@@ -915,7 +835,13 @@ function loadPermissions()
 	}
 }
 
-// Loads an array of users' data by ID or member_name.
+/**
+ * Loads an array of users' data by ID or member_name.
+ *
+ * @param $users
+ * @param $is_name
+ * @param string $set = 'normal'
+ */
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc;
@@ -1072,7 +998,12 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	return empty($loaded_ids) ? false : $loaded_ids;
 }
 
-// Loads the user's basic values... meant for template/theme usage.
+/**
+ * Loads the user's basic values... meant for template/theme usage.
+ *
+ * @param $user
+ * @param bool $display_custom_fields
+ */
 function loadMemberContext($user, $display_custom_fields = false)
 {
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
@@ -1271,6 +1202,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 	return true;
 }
 
+/**
+ * This function is... detecting the browser, right.
+ */
 function detectBrowser()
 {
 	global $context, $user_info;
@@ -1321,7 +1255,12 @@ function detectBrowser()
 		$context['browser']['possibly_robot'] = false;
 }
 
-// Load a theme, by ID.
+/**
+ * Load a theme, by ID.
+ *
+ * @param int $id_theme = 0
+ * @parambool $initialize = true
+ */
 function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $sc, $boarddir;
@@ -1768,7 +1707,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['theme_loaded'] = true;
 }
 
-// Load a template - if the theme doesn't include it, use the default.
+/**
+ * Load a template - if the theme doesn't include it, use the default.
+ * What this function does:
+ * - loads a template file with the name template_name from the current, default,
+ *  or base theme.
+ *  - uses the template_include() function to include the file.
+ *  - detects a wrong default theme directory and tries to work around it.
+ *  - if fatal is true, dies with an error message if the template cannot be found.
+ * @param string $template_name
+ * @param array $style_sheets = array()
+ * @param bool $fatal = true
+ */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
 	global $context, $settings, $txt, $scripturl, $boarddir, $db_show_debug;
@@ -1849,7 +1799,18 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 		return false;
 }
 
-// Load a sub template... fatal is for templates that shouldn't get a 'pretty' error screen.
+
+/**
+ * Load a sub-template.
+ * What it does:
+ * 	- loads the sub template specified by sub_template_name, which must be in an already-loaded
+ *  template.
+ *  - if ?debug is in the query string, shows administrators a marker after every sub template
+ *   for debugging purposes.
+ *   @todo get rid of reading $_REQUEST directly
+ * @param string $sub_template_name
+ * @param bool $fatal = false, $fatal = true is for templates that shouldn't get a 'pretty' error screen.
+ */
 function loadSubTemplate($sub_template_name, $fatal = false)
 {
 	global $context, $settings, $options, $txt, $db_show_debug;
@@ -1874,7 +1835,14 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 	}
 }
 
-// Load a language file.  Tries the current and default themes as well as the user and global languages.
+/**
+ *  Load a language file.  Tries the current and default themes as well as the user and global languages.
+ *
+ * @param string $template_name
+ * @param string $lang
+ * @param bool $fatal = true
+ * @param bool $force_reload = false
+ */
 function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
 {
 	global $user_info, $language, $settings, $context, $modSettings;
@@ -1966,7 +1934,14 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 	return $lang;
 }
 
-// Get all parent boards (requires first parent as parameter)
+/**
+ * Get all parent boards (requires first parent as parameter)
+ * It finds all the parents of id_parent, and that board itself.
+ * Additionally, it detects the moderators of said boards.
+ *
+ * @param int $id_parent
+ * @return an array of information about the boards found.
+ */
 function getBoardParents($id_parent)
 {
 	global $scripturl, $smcFunc;
@@ -2028,7 +2003,13 @@ function getBoardParents($id_parent)
 	return $boards;
 }
 
-// Attempt to reload our languages.
+/**
+ * Attempt to reload our known languages.
+ * It will try to choose only utf8 or non-utf8 languages.
+ *
+ * @param bool $use_cache = true
+ * @param bool $favor_utf8 = true
+ */
 function getLanguages($use_cache = true, $favor_utf8 = true)
 {
 	global $context, $smcFunc, $settings, $modSettings;
@@ -2093,7 +2074,17 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 	return $context['languages'];
 }
 
-// Replace all vulgar words with respective proper words. (substring or whole words..)
+/**
+ * Replace all vulgar words with respective proper words. (substring or whole words..)
+ * What this function does:
+ *  - it censors the passed string.
+ *  - if the theme setting allow_no_censored is on, and the theme option
+ *  	  show_no_censored is enabled, does not censor - unless force is set.
+ *  - it caches the list of censored words to reduce parsing.
+ * @todo what is this function doing here?
+ * @param $text
+ * @param $force
+ */
 function &censorText(&$text, $force = false)
 {
 	global $modSettings, $options, $settings, $txt;
@@ -2127,7 +2118,16 @@ function &censorText(&$text, $force = false)
 	return $text;
 }
 
-// Load the template/language file using eval or require? (with eval we can show an error message!)
+/**
+ * Load the template/language file using eval or require? (with eval we can show an error message!)
+ * 	- loads the template or language file specified by filename.
+ * 	- uses eval unless disableTemplateEval is enabled.
+ * 	- outputs a parse error if the file did not exist or contained errors.
+ * 	- attempts to detect the error and line, and show detailed information.
+ *
+ * @param string $filename
+ * @param bool $once = false, if true only includes the file once (like include_once)
+ */
 function template_include($filename, $once = false)
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -2320,181 +2320,9 @@ function template_include($filename, $once = false)
 	}
 }
 
-// Attempt to start the session, unless it already has been.
-function loadSession()
-{
-	global $HTTP_SESSION_VARS, $modSettings, $boardurl, $sc;
-
-	// Attempt to change a few PHP settings.
-	@ini_set('session.use_cookies', true);
-	@ini_set('session.use_only_cookies', false);
-	@ini_set('url_rewriter.tags', '');
-	@ini_set('session.use_trans_sid', false);
-	@ini_set('arg_separator.output', '&amp;');
-
-	if (!empty($modSettings['globalCookies']))
-	{
-		$parsed_url = parse_url($boardurl);
-
-		if (preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
-			@ini_set('session.cookie_domain', '.' . $parts[1]);
-	}
-	// !!! Set the session cookie path?
-
-	// If it's already been started... probably best to skip this.
-	if ((@ini_get('session.auto_start') == 1 && !empty($modSettings['databaseSession_enable'])) || session_id() == '')
-	{
-		// Attempt to end the already-started session.
-		if (@ini_get('session.auto_start') == 1)
-			@session_write_close();
-
-		// This is here to stop people from using bad junky PHPSESSIDs.
-		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9]{16,32}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
-		{
-			$session_id = md5(md5('smf_sess_' . time()) . mt_rand());
-			$_REQUEST[session_name()] = $session_id;
-			$_GET[session_name()] = $session_id;
-			$_POST[session_name()] = $session_id;
-		}
-
-		// Use database sessions? (they don't work in 4.1.x!)
-		if (!empty($modSettings['databaseSession_enable']) && @version_compare(PHP_VERSION, '4.2.0') != -1)
-		{
-			session_set_save_handler('sessionOpen', 'sessionClose', 'sessionRead', 'sessionWrite', 'sessionDestroy', 'sessionGC');
-			@ini_set('session.gc_probability', '1');
-		}
-		elseif (@ini_get('session.gc_maxlifetime') <= 1440 && !empty($modSettings['databaseSession_lifetime']))
-			@ini_set('session.gc_maxlifetime', max($modSettings['databaseSession_lifetime'], 60));
-
-		// Use cache setting sessions?
-		if (empty($modSettings['databaseSession_enable']) && !empty($modSettings['cache_enable']) && php_sapi_name() != 'cli')
-		{
-			if (function_exists('mmcache_set_session_handlers'))
-				mmcache_set_session_handlers();
-			elseif (function_exists('eaccelerator_set_session_handlers'))
-				eaccelerator_set_session_handlers();
-		}
-
-		session_start();
-
-		// Change it so the cache settings are a little looser than default.
-		if (!empty($modSettings['databaseSession_loose']))
-			header('Cache-Control: private');
-	}
-
-	// While PHP 4.1.x should use $_SESSION, it seems to need this to do it right.
-	if (@version_compare(PHP_VERSION, '4.2.0') == -1)
-		$HTTP_SESSION_VARS['php_412_bugfix'] = true;
-
-	// Set the randomly generated code.
-	if (!isset($_SESSION['session_var']))
-	{
-		$_SESSION['session_value'] = md5(session_id() . mt_rand());
-		$_SESSION['session_var'] = substr(preg_replace('~^\d+~', '', sha1(mt_rand() . session_id() . mt_rand())), 0, rand(7, 12));
-	}
-	$sc = $_SESSION['session_value'];
-}
-
-function sessionOpen($save_path, $session_name)
-{
-	return true;
-}
-
-function sessionClose()
-{
-	return true;
-}
-
-function sessionRead($session_id)
-{
-	global $smcFunc;
-
-	if (preg_match('~^[A-Za-z0-9]{16,32}$~', $session_id) == 0)
-		return false;
-
-	// Look for it in the database.
-	$result = $smcFunc['db_query']('', '
-		SELECT data
-		FROM {db_prefix}sessions
-		WHERE session_id = {string:session_id}
-		LIMIT 1',
-		array(
-			'session_id' => $session_id,
-		)
-	);
-	list ($sess_data) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
-
-	return $sess_data;
-}
-
-function sessionWrite($session_id, $data)
-{
-	global $smcFunc;
-
-	if (preg_match('~^[A-Za-z0-9]{16,32}$~', $session_id) == 0)
-		return false;
-
-	// First try to update an existing row...
-	$result = $smcFunc['db_query']('', '
-		UPDATE {db_prefix}sessions
-		SET data = {string:data}, last_update = {int:last_update}
-		WHERE session_id = {string:session_id}',
-		array(
-			'last_update' => time(),
-			'data' => $data,
-			'session_id' => $session_id,
-		)
-	);
-
-	// If that didn't work, try inserting a new one.
-	if ($smcFunc['db_affected_rows']() == 0)
-		$result = $smcFunc['db_insert']('ignore',
-			'{db_prefix}sessions',
-			array('session_id' => 'string', 'data' => 'string', 'last_update' => 'int'),
-			array($session_id, $data, time()),
-			array('session_id')
-		);
-
-	return $result;
-}
-
-function sessionDestroy($session_id)
-{
-	global $smcFunc;
-
-	if (preg_match('~^[A-Za-z0-9]{16,32}$~', $session_id) == 0)
-		return false;
-
-	// Just delete the row...
-	return $smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}sessions
-		WHERE session_id = {string:session_id}',
-		array(
-			'session_id' => $session_id,
-		)
-	);
-}
-
-function sessionGC($max_lifetime)
-{
-	global $modSettings, $smcFunc;
-
-	// Just set to the default or lower?  Ignore it for a higher value. (hopefully)
-	if (!empty($modSettings['databaseSession_lifetime']) && ($max_lifetime <= 1440 || $modSettings['databaseSession_lifetime'] > $max_lifetime))
-		$max_lifetime = max($modSettings['databaseSession_lifetime'], 60);
-
-	// Clean up ;).
-	return $smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}sessions
-		WHERE last_update < {int:last_update}',
-		array(
-			'last_update' => time() - $max_lifetime,
-		)
-	);
-}
-
-// Load up a database connection.
+/**
+ * Initialize a database connection.
+ */
 function loadDatabase()
 {
 	global $db_persist, $db_connection, $db_server, $db_user, $db_passwd;
@@ -2524,7 +2352,16 @@ function loadDatabase()
 		db_fix_prefix($db_prefix, $db_name);
 }
 
-// Try to retrieve a cache entry. On failure, call the appropriate function.
+/**
+ * Try to retrieve a cache entry. On failure, call the appropriate function.
+ * @todo find a better place for cache implementation
+ *
+ * @param $key
+ * @param $file
+ * @param $function
+ * @param $params
+ * @param int $level = 1
+ */
 function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
 	global $modSettings, $sourcedir;
@@ -2551,6 +2388,16 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 	return $cache_block['data'];
 }
 
+/**
+ * Puts value in the cache under key for ttl seconds.
+ * It may "miss" so shouldn't be depended on, and may go to any of many
+ * various caching servers.
+ * It supports eAccelerator, Turck MMCache, APC, ZPS, and memcached.
+ *
+ * @param string $key
+ * @param mixed $value
+ * @param int $ttl = 120
+ */
 function cache_put_data($key, $value, $ttl = 120)
 {
 	global $boardurl, $sourcedir, $modSettings, $memcached;
@@ -2651,6 +2498,16 @@ function cache_put_data($key, $value, $ttl = 120)
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
 }
 
+/**
+ * Gets the value from the cache specified by key, so long as it is not older
+ * than ttl seconds.
+ * It may often "miss", so shouldn't be depended on.
+ * It supports the same as cache_put_data().
+ *
+ * @param string $key
+ * @param int $ttl = 120
+ * @return string
+ */
 function cache_get_data($key, $ttl = 120)
 {
 	global $boardurl, $sourcedir, $modSettings, $memcached;
@@ -2717,6 +2574,14 @@ function cache_get_data($key, $ttl = 120)
 		return @unserialize($value);
 }
 
+/**
+ * Get memcache servers.
+ * This function is used by cache_get_data() and cache_put_data().
+ * It attempts to connect to a random server in the cache_memcached setting.
+ * It recursively calls itself up to recursion_level times.
+ *
+ * @param int $level = 3
+ */
 function get_memcached_server($level = 3)
 {
 	global $modSettings, $memcached, $db_persist;

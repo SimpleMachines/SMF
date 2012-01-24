@@ -102,7 +102,7 @@ if (!defined('SMF'))
 // Actually set the login cookie...
 function setLoginCookie($cookie_length, $id, $password = '')
 {
-	global $cookiename, $boardurl, $modSettings;
+	global $cookiename, $boardurl, $modSettings, $sourcedir;
 
 	// If changing state force them to re-address some permission caching.
 	$_SESSION['mc']['time'] = 0;
@@ -160,6 +160,9 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	// Make sure the user logs in with a new session ID.
 	if (!isset($_SESSION['login_' . $cookiename]) || $_SESSION['login_' . $cookiename] !== $data)
 	{
+		// We need to meddle with the session.
+		require_once($sourcedir . '/Session.php');
+
 		// Backup and remove the old session.
 		$oldSessionData = $_SESSION;
 		$_SESSION = array();
@@ -184,16 +187,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 // PHP < 4.3.2 doesn't have this function
 if (!function_exists('session_regenerate_id'))
 {
-	function session_regenerate_id()
-	{
-		// Too late to change the session now.
-		if (headers_sent())
-			return false;
-
-		session_id(strtolower(md5(uniqid(mt_rand(), true))));
-		return true;
-	}
-
+	require_once $sourcedir . 'Subs-Compat.php';
 }
 
 // Get the domain and path for the cookie...

@@ -694,7 +694,7 @@ class gif_file
 // 64-bit only functions?
 if (!function_exists('smf_crc32'))
 {
-	include $sourcedir . '/Subs-Compat.php';
+	require_once $sourcedir . '/Subs-Compat.php';
 }
 
 ?>

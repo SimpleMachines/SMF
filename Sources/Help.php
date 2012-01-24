@@ -64,7 +64,6 @@ function ShowHelp()
 	$context['sub_template'] = 'manual';
 }
 
-// Show some of the more detailed help to give the admin an idea...
 /**
  * Show some of the more detailed help to give the admin an idea...
  * It shows a popup for administrative or user help.

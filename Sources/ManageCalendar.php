@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file allows you to manage the calendar.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,7 +16,12 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-// The main controlling function doesn't have much to do... yet.
+/**
+ * The main controlling function doesn't have much to do... yet.
+ * Just check permissions and delegate to the rest.
+ *
+ * @uses ManageCalendar language file.
+ */
 function ManageCalendar()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -54,7 +61,9 @@ function ManageCalendar()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// The function that handles adding, and deleting holiday data
+/**
+ * The function that handles adding, and deleting holiday data
+ */
 function ModifyHolidays()
 {
 	global $sourcedir, $scripturl, $txt, $context;
@@ -167,7 +176,9 @@ function ModifyHolidays()
 	$context['sub_template'] = 'show_list';
 }
 
-// This function is used for adding/editing a specific holiday
+/**
+ * This function is used for adding/editing a specific holiday
+ */
 function EditHoliday()
 {
 	global $txt, $context, $scripturl, $smcFunc;
@@ -269,6 +280,11 @@ function EditHoliday()
 	$context['holiday']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['holiday']['month'] == 12 ? 1 : $context['holiday']['month'] + 1, 0, $context['holiday']['month'] == 12 ? $context['holiday']['year'] + 1 : $context['holiday']['year']));
 }
 
+/**
+ * Show and allow to modify calendar settings. Obviously.
+ *
+ * @param bool $return_config = false
+ */
 function ModifyCalendarSettings($return_config = false)
 {
 	global $modSettings, $context, $settings, $txt, $boarddir, $sourcedir, $scripturl, $smcFunc;

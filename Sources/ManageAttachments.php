@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file doing the job of attachments and avatars maintenance and management.
+ * @todo refactor as controller-model
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,95 +17,17 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* /!!!
-
-	void ManageAttachments()
-		- main 'Attachments and Avatars' center function.
-		- entry point for index.php?action=admin;area=manageattachments.
-		- requires the manage_attachments permission.
-		- load the ManageAttachments template.
-		- uses the Admin language file.
-		- uses the template layer 'manage_files' for showing the tab bar.
-		- calls a function based on the sub-action.
-
-	void ManageAttachmentSettings()
-		- show/change attachment settings.
-		- default sub action for the 'Attachments and Avatars' center.
-		- uses the 'attachments' sub template.
-		- called by index.php?action=admin;area=manageattachments;sa=attachements.
-
-	void ManageAvatarSettings()
-		- show/change avatar settings.
-		- called by index.php?action=admin;area=manageattachments;sa=avatars.
-		- uses the 'avatars' sub template.
-		- show/set permissions for permissions: 'profile_server_avatar',
-		  'profile_upload_avatar' and 'profile_remote_avatar'.
-
-	void BrowseFiles()
-		- show a list of attachment or avatar files.
-		- called by ?action=admin;area=manageattachments;sa=browse for attachments and
-		  ?action=admin;area=manageattachments;sa=browse;avatars for avatars.
-		- uses the 'browse' sub template
-		- allows sorting by name, date, size and member.
-		- paginates results.
-
-	void MaintainFiles()
-		- show several file maintenance options.
-		- called by ?action=admin;area=manageattachments;sa=maintain.
-		- uses the 'maintain' sub template.
-		- calculates file statistics (total file size, number of attachments,
-		  number of avatars, attachment space available).
-
-	void MoveAvatars()
-		- move avatars from or to the attachment directory.
-		- called from the maintenance screen by
-		  ?action=admin;area=manageattachments;sa=moveAvatars.
-
-	void RemoveAttachmentByAge()
-		- remove attachments older than a given age.
-		- called from the maintenance screen by
-		  ?action=admin;area=manageattachments;sa=byAge.
-		- optionally adds a certain text to the messages the attachments were
-		  removed from.
-
-	void RemoveAttachmentBySize()
-		- remove attachments larger than a given size.
-		- called from the maintenance screen by
-		  ?action=admin;area=manageattachments;sa=bySize.
-		- optionally adds a certain text to the messages the attachments were
-		  removed from.
-
-	void RemoveAttachment()
-		- remove a selection of attachments or avatars.
-		- called from the browse screen as submitted form by
-		  ?action=admin;area=manageattachments;sa=remove
-
-	void RemoveAllAttachments()
-		- removes all attachments in a single click
-		- called from the maintenance screen by
-		  ?action=admin;area=manageattachments;sa=removeall.
-
-	array removeAttachments(array condition, string query_type = '', bool return_affected_messages = false, bool autoThumbRemoval = true)
-		- removes attachments or avatars based on a given query condition.
-		- called by several remove avatar/attachment functions in this file.
-		- removes attachments based that match the $condition.
-		- allows query_types 'messages' and 'members', whichever is need by the
-		  $condition parameter.
-
-	void RepairAttachments()
-		// !!!
-
-	void PauseAttachmentMaintenance()
-		// !!!
-
-	void ApproveAttach()
-		// !!!
-
-	void ApproveAttachments()
-		// !!!
-*/
-
-// The main attachment management function.
+/**
+ * The main 'Attachments and Avatars' management function.
+ * This function is the entry point for index.php?action=admin;area=manageattachments
+ * and it calls a function based on the sub-action.
+ * It requires the manage_attachments permission.
+ *
+ * @uses ManageAttachments template.
+ * @uses Admin language file.
+ * @uses template layer 'manage_files' for showing the tab bar.
+ *
+ */
 function ManageAttachments()
 {
 	global $txt, $modSettings, $scripturl, $context, $options;
@@ -147,6 +72,15 @@ function ManageAttachments()
 	// Finally fall through to what we are doing.
 	$subActions[$context['sub_action']]();
 }
+
+/**
+ * Allows to show/change attachment settings.
+ * This is the default sub-action of the 'Attachments and Avatars' center.
+ * Called by index.php?action=admin;area=manageattachments;sa=attachements.
+ *
+ * @param bool $return_config = false
+ * @uses 'attachments' sub template.
+ */
 
 function ManageAttachmentSettings($return_config = false)
 {
@@ -211,6 +145,15 @@ function ManageAttachmentSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 }
 
+/**
+ * This allows to show/change avatar settings.
+ * Called by index.php?action=admin;area=manageattachments;sa=avatars.
+ * Show/set permissions for permissions: 'profile_server_avatar',
+ * 	'profile_upload_avatar' and 'profile_remote_avatar'.
+ *
+ * @param $return_config
+ * @uses 'avatars' sub template.
+ */
 function ManageAvatarSettings($return_config = false)
 {
 	global $txt, $context, $modSettings, $sourcedir, $scripturl;
@@ -291,6 +234,15 @@ function ManageAvatarSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 }
 
+/**
+ * Show a list of attachment or avatar files.
+ * Called by ?action=admin;area=manageattachments;sa=browse for attachments
+ *  and ?action=admin;area=manageattachments;sa=browse;avatars for avatars.
+ * Allows sorting by name, date, size and member.
+ * Paginates results.
+ *
+ *  @uses the 'browse' sub template
+ */
 function BrowseFiles()
 {
 	global $context, $txt, $scripturl, $options, $modSettings;
@@ -481,6 +433,13 @@ function BrowseFiles()
 	createList($listOptions);
 }
 
+/**
+ * @todo this doesn't belong here.
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ * @param $browse_type
+ */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
 	global $smcFunc, $txt;
@@ -534,6 +493,10 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 	return $files;
 }
 
+/**
+ * @todo refactor these model functions.
+ * @param $browse_type
+ */
 function list_getNumFiles($browse_type)
 {
 	global $smcFunc;
@@ -569,6 +532,14 @@ function list_getNumFiles($browse_type)
 	return $num_files;
 }
 
+/**
+ * Show several file maintenance options.
+ * Called by ?action=admin;area=manageattachments;sa=maintain.
+ * Calculates file statistics (total file size, number of attachments,
+ * number of avatars, attachment space available).
+ *
+ * @uses the 'maintain' sub template.
+ */
 function MaintainFiles()
 {
 	global $context, $modSettings, $txt, $smcFunc;
@@ -641,7 +612,10 @@ function MaintainFiles()
 	$context['attach_multiple_dirs'] = !empty($modSettings['currentAttachmentUploadDir']);
 }
 
-// !!! Not implemented yet.
+/**
+ * Move avatars from their current location, to the custom_avatar_dir folder.
+ * Called from the maintenance screen by ?action=admin;area=manageattachments;sa=moveAvatars.
+ */
 function MoveAvatars()
 {
 	global $modSettings, $smcFunc;
@@ -691,6 +665,14 @@ function MoveAvatars()
 	redirectexit('action=admin;area=manageattachments;sa=maintenance');
 }
 
+/**
+ * Remove attachments older than a given age.
+ * Called from the maintenance screen by
+ *   ?action=admin;area=manageattachments;sa=byAge.
+ * It optionally adds a certain text to the messages the attachments
+ *  were removed from.
+ *  @todo refactor this silly superglobals use...
+ */
 function RemoveAttachmentByAge()
 {
 	global $modSettings, $smcFunc;
@@ -725,6 +707,13 @@ function RemoveAttachmentByAge()
 	redirectexit('action=admin;area=manageattachments' . (empty($_REQUEST['avatars']) ? ';sa=maintenance' : ';avatars'));
 }
 
+/**
+ * Remove attachments larger than a given size.
+ * Called from the maintenance screen by
+ *  ?action=admin;area=manageattachments;sa=bySize.
+ * Optionally adds a certain text to the messages the attachments were
+ * 	removed from.
+ */
 function RemoveAttachmentBySize()
 {
 	global $modSettings, $smcFunc;
@@ -749,6 +738,11 @@ function RemoveAttachmentBySize()
 	redirectexit('action=admin;area=manageattachments;sa=maintenance');
 }
 
+/**
+ * Remove a selection of attachments or avatars.
+ * Called from the browse screen as submitted form by
+ *  ?action=admin;area=manageattachments;sa=remove
+ */
 function RemoveAttachment()
 {
 	global $modSettings, $txt, $smcFunc;
@@ -786,7 +780,11 @@ function RemoveAttachment()
 	redirectexit('action=admin;area=manageattachments;sa=browse;' . $_REQUEST['type'] . ';sort=' . $_GET['sort'] . (isset($_GET['desc']) ? ';desc' : '') . ';start=' . $_REQUEST['start']);
 }
 
-// !!! Not implemented (yet?)
+/**
+ * Removes all attachments in a single click
+ * Called from the maintenance screen by
+ *  ?action=admin;area=manageattachments;sa=removeall.
+ */
 function RemoveAllAttachments()
 {
 	global $txt, $smcFunc;
@@ -813,7 +811,19 @@ function RemoveAllAttachments()
 	redirectexit('action=admin;area=manageattachments;sa=maintenance');
 }
 
-// Removes attachments - allowed query_types: '', 'messages', 'members'
+/**
+ * Removes attachments or avatars based on a given query condition.
+ * Called by several remove avatar/attachment functions in this file.
+ * It removes attachments based that match the $condition.
+ * It allows query_types 'messages' and 'members', whichever is need by the
+ * $condition parameter.
+ * It does no permissions check.
+ *
+ * @param array $condition
+ * @param string $query_type
+ * @param bool $return_affected_messages = false
+ * @param bool $autoThumbRemoval = true
+ */
 function removeAttachments($condition, $query_type = '', $return_affected_messages = false, $autoThumbRemoval = true)
 {
 	global $modSettings, $smcFunc;
@@ -925,7 +935,9 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		return array_unique($msgs);
 }
 
-// This function should find attachments in the database that no longer exist and clear them, and fix filesize issues.
+/**
+ * This function should find attachments in the database that no longer exist and clear them, and fix filesize issues.
+ */
 function RepairAttachments()
 {
 	global $modSettings, $context, $txt, $smcFunc;
@@ -1400,6 +1412,14 @@ function RepairAttachments()
 
 }
 
+/**
+ * Function called in-between each round of attachments and avatar repairs.
+ * Called by repairAttachments().
+ * If repairAttachments() has more steps added, this function needs updated!
+ *
+ * @param array $to_fix attachments to fix
+ * @param int $max_substep = 0
+ */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
 	global $context, $txt, $time_start;
@@ -1437,7 +1457,9 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 	obExit();
 }
 
-// Called from a mouse click, works out what we want to do with attachments and actions it.
+/**
+ * Called from a mouse click, works out what we want to do with attachments and actions it.
+ */
 function ApproveAttach()
 {
 	global $smcFunc;
@@ -1520,7 +1542,11 @@ function ApproveAttach()
 	redirectexit($redirect);
 }
 
-// Approve an attachment, or maybe even more - no permission check!
+/**
+ * Approve an attachment, or maybe even more - no permission check!
+ *
+ * @param $attachments
+ */
 function ApproveAttachments($attachments)
 {
 	global $smcFunc;
@@ -1573,6 +1599,9 @@ function ApproveAttachments($attachments)
 	);
 }
 
+/**
+ * This function lists and allows updating of multiple attachments paths.
+ */
 function ManageAttachmentPaths()
 {
 	global $modSettings, $scripturl, $context, $txt, $sourcedir, $smcFunc;
@@ -1739,7 +1768,9 @@ function ManageAttachmentPaths()
 	$context['sub_template'] = 'attachment_paths';
 }
 
-// Prepare the actual attachment directories to be displayed in the list.
+/**
+ * Prepare the actual attachment directories to be displayed in the list.
+ */
 function list_getAttachDirs()
 {
 	global $smcFunc, $modSettings, $context, $txt;
@@ -1797,7 +1828,14 @@ function list_getAttachDirs()
 	return $attachdirs;
 }
 
-// Checks the status of an attachment directory and returns an array of the status key, if that status key signifies an error, and the folder size.
+/**
+ * Checks the status of an attachment directory and returns an array
+ *  of the status key, if that status key signifies an error, and
+ *  the folder size.
+ *
+ * @param string $dir
+ * @param int $expected_files
+ */
 function attachDirStatus($dir, $expected_files)
 {
 	if (!is_dir($dir))

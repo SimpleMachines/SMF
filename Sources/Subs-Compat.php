@@ -5,7 +5,7 @@
  * PHP, such as the sha1() function, missing extensions, or 64-bit vs 32-bit
  * systems. It is only included for those older versions or when the respective
  * extension or function cannot be found.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -41,7 +41,7 @@ if (!function_exists('str_split'))
 	/**
 	 * Split a string into an array.
 	 * @param $str the string to split
-	 * @param $str_length 
+	 * @param $str_length
 	 */
 	function str_split($str, $str_length = 1)
 	{
@@ -274,4 +274,17 @@ if (!function_exists('smf_crc32'))
 	}
 }
 
+// PHP < 4.3.2 doesn't have this function
+if (!function_exists('session_regenerate_id'))
+{
+	function session_regenerate_id()
+	{
+		// Too late to change the session now.
+		if (headers_sent())
+			return false;
+
+		session_id(strtolower(md5(uniqid(mt_rand(), true))));
+		return true;
+	}
+}
 ?>

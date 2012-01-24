@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * This, as you have probably guessed, is the crux on which SMF functions.
+ * Everything should start here, so all the setup and security is done
+ * properly.  The most interesting part of this file is the action array in
+ * the smf_main() function.  It is formatted as so:
+ * 	'action-in-url' => array('Source-File.php', 'FunctionToCall'),
+ *
+ * Then, you can access the FunctionToCall() function from Source-File.php
+ * with the URL index.php?action=action-in-url.  Relatively simple, no?
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -10,17 +19,6 @@
  *
  * @version 2.0
  */
-
-/*	This, as you have probably guessed, is the crux on which SMF functions.
-	Everything should start here, so all the setup and security is done
-	properly.  The most interesting part of this file is the action array in
-	the smf_main() function.  It is formatted as so:
-
-		'action-in-url' => array('Source-File.php', 'FunctionToCall'),
-
-	Then, you can access the FunctionToCall() function from Source-File.php
-	with the URL index.php?action=action-in-url.  Relatively simple, no?
-*/
 
 $forum_version = 'SMF 2.0';
 
@@ -48,6 +46,7 @@ if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/c
 
 // And important includes.
 require_once($sourcedir . '/QueryString.php');
+require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
@@ -153,7 +152,10 @@ call_user_func(smf_main());
 // Call obExit specially; we're coming from the main area ;).
 obExit(null, null, true);
 
-// The main controlling function.
+/**
+ * The main dispatcher.
+ * This delegates to each area.
+ */
 function smf_main()
 {
 	global $modSettings, $settings, $user_info, $board, $topic, $board_info, $maintenance, $sourcedir;

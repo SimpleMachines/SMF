@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Manage and maintain the boards and categories of the forum.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,58 +16,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* Manage and maintain the boards and categories of the forum.
-
-	void ManageBoards()
-		- main entry point for all the manageboards admin screens.
-		- called by ?action=admin;area=manageboards.
-		- checks the permissions, based on the sub-action.
-		- loads the ManageBoards language file.
-		- calls a function based on the sub-action.
-
-	void ManageBoardsMain()
-		- main screen showing all boards and categories.
-		- called by ?action=admin;area=manageboards or ?action=admin;area=manageboards;sa=move.
-		- uses the main template of the ManageBoards template.
-		- requires manage_boards permission.
-		- also handles the interface for moving boards.
-
-	void EditCategory()
-		- screen for editing and repositioning a category.
-		- called by ?action=admin;area=manageboards;sa=cat
-		- uses the modify_category sub-template of the ManageBoards template.
-		- requires manage_boards permission.
-		- also used to show the confirm deletion of category screen
-		  (sub-template confirm_category_delete).
-
-	void EditCategory2()
-		- function for handling a submitted form saving the category.
-		- called by ?action=admin;area=manageboards;sa=cat2
-		- requires manage_boards permission.
-		- also handles deletion of a category.
-		- redirects to ?action=admin;area=manageboards.
-
-	void EditBoard()
-		- screen for editing and repositioning a board.
-		- called by ?action=admin;area=manageboards;sa=board
-		- uses the modify_board sub-template of the ManageBoards template.
-		- requires manage_boards permission.
-		- also used to show the confirm deletion of category screen
-		  (sub-template confirm_board_delete).
-
-	void EditBoard2()
-		- function for handling a submitted form saving the board.
-		- called by ?action=admin;area=manageboards;sa=board2
-		- requires manage_boards permission.
-		- also handles deletion of a board.
-		- redirects to ?action=admin;area=manageboards.
-
-	void EditBoardSettings()
-		- a screen to set a few general board and category settings.
-		- uses the modify_general_settings sub template.
-*/
-
-// The controller; doesn't do anything, just delegates.
+/**
+ * The main dispatcher; doesn't do anything, just delegates.
+ * This is the main entry point for all the manageboards admin screens.
+ * Called by ?action=admin;area=manageboards.
+ * It checks the permissions, based on the sub-action, and calls a function
+ *  based on the sub-action.
+ *
+ *  @uses ManageBoards language file.
+ */
 function ManageBoards()
 {
 	global $context, $txt, $scripturl;
@@ -111,7 +70,14 @@ function ManageBoards()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// The main control panel thing.
+/**
+ * The main control panel thing, the screen showing all boards and categories.
+ * Called by ?action=admin;area=manageboards or ?action=admin;area=manageboards;sa=move.
+ * Requires manage_boards permission.
+ * It also handles the interface for moving boards.
+ *
+ * @uses ManageBoards template, main sub-template.
+ */
 function ManageBoardsMain()
 {
 	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $txt;
@@ -229,7 +195,16 @@ function ManageBoardsMain()
 	$context['can_manage_permissions'] = allowedTo('manage_permissions');
 }
 
-// Modify a specific category.
+/**
+ * Modify a specific category.
+ * (screen for editing and repositioning a category.)
+ * Also used to show the confirm deletion of category screen
+ * (sub-template confirm_category_delete).
+ * Called by ?action=admin;area=manageboards;sa=cat
+ * Requires manage_boards permission.
+ *
+ * @uses ManageBoards template, modify_category sub-template.
+ */
 function EditCategory()
 {
 	global $txt, $context, $cat_tree, $boardList, $boards, $sourcedir;
@@ -307,7 +282,14 @@ function EditCategory()
 	}
 }
 
-// Complete the modifications to a specific category.
+/**
+ * Function for handling a submitted form saving the category.
+ * (complete the modifications to a specific category.)
+ * It also handles deletion of a category.
+ * It requires manage_boards permission.
+ * Called by ?action=admin;area=manageboards;sa=cat2
+ * Redirects to ?action=admin;area=manageboards.
+ */
 function EditCategory2()
 {
 	global $sourcedir;
@@ -360,7 +342,17 @@ function EditCategory2()
 	redirectexit('action=admin;area=manageboards');
 }
 
-// Modify a specific board...
+/**
+ * Modify a specific board...
+ * 	void EditBoard()
+		- screen for editing and repositioning a board.
+		- called by ?action=admin;area=manageboards;sa=board
+		- uses the modify_board sub-template of the ManageBoards template.
+		- requires manage_boards permission.
+		- also used to show the confirm deletion of category screen
+		  (sub-template confirm_board_delete).
+
+ */
 function EditBoard()
 {
 	global $txt, $context, $cat_tree, $boards, $boardList, $sourcedir, $smcFunc, $modSettings;
@@ -560,7 +552,14 @@ function EditBoard()
 	}
 }
 
-// Make changes to/delete a board.
+/**
+ * Make changes to/delete a board.
+ * (function for handling a submitted form saving the board.)
+ * It also handles deletion of a board.
+ * Called by ?action=admin;area=manageboards;sa=board2
+ * Redirects to ?action=admin;area=manageboards.
+ * It requires manage_boards permission.
+ */
 function EditBoard2()
 {
 	global $txt, $sourcedir, $modSettings, $smcFunc, $context;
@@ -728,6 +727,12 @@ function ModifyCat()
 	redirectexit();
 }
 
+/**
+ * A screen to set a few general board and category settings.
+ *
+ * @uses modify_general_settings sub-template.
+ * @param $return_config
+ */
 function EditBoardSettings($return_config = false)
 {
 	global $context, $txt, $sourcedir, $modSettings, $scripturl, $smcFunc;
