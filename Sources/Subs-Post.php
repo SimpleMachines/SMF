@@ -23,9 +23,6 @@ if (!defined('SMF'))
 		- cleans up links (javascript, etc.) and code/quote sections.
 		- won't convert \n's and a few other things if previewing is true.
 
-	string un_preparsecode(string message)
-		// !!!
-
 	void fixTags(string &message)
 		- used by preparsecode, fixes links in message and returns nothing.
 

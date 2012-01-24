@@ -2535,7 +2535,9 @@ function profileSaveGroups(&$value)
 	return true;
 }
 
-// The avatar is incredibly complicated, what with the options... and what not.
+/**
+ * The avatar is incredibly complicated, what with the options... and what not.
+ */
 function profileSaveAvatarData(&$value)
 {
 	global $modSettings, $sourcedir, $smcFunc, $profile_vars, $cur_profile, $context;

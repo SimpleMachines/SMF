@@ -434,11 +434,13 @@ function BrowseFiles()
 }
 
 /**
- * @todo this doesn't belong here.
- * @param $start
- * @param $items_per_page
- * @param $sort
- * @param $browse_type
+ * Returns the list of attachments files (avatars or not), recorded
+ * in the database, per the parameters received.
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $browse_type, can be 'avatars' or ... not. :P
  */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
@@ -494,8 +496,11 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 }
 
 /**
- * @todo refactor these model functions.
- * @param $browse_type
+ * Return the number of files of the specified type recorded in the database.
+ * (the specified type being attachments or avatars).
+ *
+ * @param string $browse_type, can be 'avatars' or not. (in which case they're
+ * attachments)
  */
 function list_getNumFiles($browse_type)
 {
@@ -679,12 +684,12 @@ function RemoveAttachmentByAge()
 
 	checkSession('post', 'admin');
 
-	// !!! Ignore messages in topics that are stickied?
+	// @todo Ignore messages in topics that are stickied?
 
 	// Deleting an attachment?
 	if ($_REQUEST['type'] != 'avatars')
 	{
-		// Get all the old attachments.
+		// Get rid of all the old attachments.
 		$messages = removeAttachments(array('attachment_type' => 0, 'poster_time' => (time() - 24 * 60 * 60 * $_POST['age'])), 'messages', true);
 
 		// Update the messages to reflect the change.
@@ -1534,7 +1539,10 @@ function ApproveAttach()
 
 	// Finally, we are there. Follow through!
 	if ($is_approve)
+	{
+		// Checked and deemed worthy.
 		ApproveAttachments($attachments);
+	}
 	else
 		removeAttachments(array('id_attach' => $attachments));
 
