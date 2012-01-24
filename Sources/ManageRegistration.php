@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file helps the administrator setting registration settings and policy
+ * as well as allow the administrator to register new members themselves.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,45 +17,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file helps the administrator setting registration settings and policy
-	as well as allow the administrator to register new members themselves.
-
-	void RegCenter()
-		- entrance point for the registration center.
-		- accessed by ?action=admin;area=regcenter.
-		- requires either the moderate_forum or the admin_forum permission.
-		- loads the Login language file and the Register template.
-		- calls the right function based on the subaction.
-
-	void AdminRegister()
-		- a function to register a new member from the admin center.
-		- accessed by ?action=admin;area=regcenter;sa=register
-		- requires the moderate_forum permission.
-		- uses the admin_register sub template of the Register template.
-		- allows assigning a primary group to the member being registered.
-
-	void EditAgreement()
-		- allows the administrator to edit the registration agreement, and
-		  choose whether it should be shown or not.
-		- accessed by ?action=admin;area=regcenter;sa=agreement.
-		- uses the Admin template and the edit_agreement sub template.
-		- requires the admin_forum permission.
-		- uses the edit_agreement administration area.
-		- writes and saves the agreement to the agreement.txt file.
-
-	void SetReserve()
-		- set the names under which users are not allowed to register.
-		- accessed by ?action=admin;area=regcenter;sa=reservednames.
-		- requires the admin_forum permission.
-		- uses the reserved_words sub template of the Register template.
-
-	void ModifyRegistrationSettings()
-		- set general registration settings and Coppa compliance settings.
-		- accessed by ?action=admin;area=regcenter;sa=settings.
-		- requires the admin_forum permission.
-*/
-
-// Main handling function for the admin approval center
+/**
+ * Entrance point for the registration center, it checks permisions and forwards
+ * to the right function based on the subaction.
+ * Accessed by ?action=admin;area=regcenter.
+ * Requires either the moderate_forum or the admin_forum permission.
+ *
+ * @uses Login language file
+ * @uses Register template.
+ */
 function RegCenter()
 {
 	global $modSettings, $context, $txt, $scripturl;
@@ -64,7 +37,7 @@ function RegCenter()
 	$subActions = array(
 		'register' => array('AdminRegister', 'moderate_forum'),
 		'agreement' => array('EditAgreement', 'admin_forum'),
-		'reservednames' => array('SetReserve', 'admin_forum'),
+		'reservednames' => array('SetReserved', 'admin_forum'),
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
 
@@ -103,7 +76,14 @@ function RegCenter()
 	$subActions[$context['sub_action']][0]();
 }
 
-// This function allows the admin to register a new member by hand.
+/**
+ * This function allows the admin to register a new member by hand.
+ * It also allows assigning a primary group to the member being registered.
+ * Accessed by ?action=admin;area=regcenter;sa=register
+ * Requires the moderate_forum permission.
+ *
+ * @uses Register template, admin_register sub-template.
+ */
 function AdminRegister()
 {
 	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
@@ -178,9 +158,18 @@ function AdminRegister()
 		$context['member_groups'] = array();
 }
 
-// I hereby agree not to be a lazy bum.
+/**
+ * Allows the administrator to edit the registration agreement, and choose whether
+ * it should be shown or not. It writes and saves the agreement to the agreement.txt
+ * file.
+ * Accessed by ?action=admin;area=regcenter;sa=agreement.
+ * Requires the admin_forum permission.
+ *
+ * @uses Admin template and the edit_agreement sub template.
+ */
 function EditAgreement()
 {
+	// I hereby agree not to be a lazy bum.
 	global $txt, $boarddir, $context, $modSettings, $smcFunc, $settings;
 
 	// By default we look at agreement.txt.
@@ -226,8 +215,14 @@ function EditAgreement()
 	$context['page_title'] = $txt['registration_agreement'];
 }
 
-// Set reserved names/words....
-function SetReserve()
+/**
+ * Set the names under which users are not allowed to register.
+ * Accessed by ?action=admin;area=regcenter;sa=reservednames.
+ * Requires the admin_forum permission.
+ *
+ * @uses Register template, reserved_words sub-template.
+ */
+function SetReserved()
 {
 	global $txt, $context, $modSettings;
 
@@ -260,7 +255,14 @@ function SetReserve()
 	$context['page_title'] = $txt['admin_reserved_set'];
 }
 
-// This function handles registration settings, and provides a few pretty stats too while it's at it.
+/**
+ * This function handles registration settings, and provides a few pretty stats too while it's at it.
+ * General registration settings and Coppa compliance settings.
+ * Accessed by ?action=admin;area=regcenter;sa=settings.
+ * Requires the admin_forum permission.
+ *
+ * @param $return_config
+ */
 function ModifyRegistrationSettings($return_config = false)
 {
 	global $txt, $context, $scripturl, $modSettings, $sourcedir;

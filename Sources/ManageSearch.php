@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * The admin screen to change the search settings.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,54 +16,17 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* The admin screen to change the search settings.
-
-	void ManageSearch()
-		- main entry point for the admin search settings screen.
-		- called by ?action=admin;area=managesearch.
-		- requires the admin_forum permission.
-		- loads the ManageSearch template.
-		- loads the Search language file.
-		- calls a function based on the given sub-action.
-		- defaults to sub-action 'settings'.
-
-	void EditSearchSettings()
-		- edit some general settings related to the search function.
-		- called by ?action=admin;area=managesearch;sa=settings.
-		- requires the admin_forum permission.
-		- uses the 'modify_settings' sub template of the ManageSearch template.
-
-	void EditWeights()
-		- edit the relative weight of the search factors.
-		- called by ?action=admin;area=managesearch;sa=weights.
-		- requires the admin_forum permission.
-		- uses the 'modify_weights' sub template of the ManageSearch template.
-
-	void EditSearchMethod()
-		- edit the search method and search index used.
-		- called by ?action=admin;area=managesearch;sa=method.
-		- requires the admin_forum permission.
-		- uses the 'select_search_method' sub template of the ManageSearch
-		  template.
-		- allows to create and delete a fulltext index on the messages table.
-		- allows to delete a custom index (that CreateMessageIndex() created).
-		- calculates the size of the current search indexes in use.
-
-	void CreateMessageIndex()
-		- create a custom search index for the messages table.
-		- called by ?action=admin;area=managesearch;sa=createmsgindex.
-		- linked from the EditSearchMethod screen.
-		- requires the admin_forum permission.
-		- uses the 'create_index', 'create_index_progress', and
-		  'create_index_done' sub templates of the ManageSearch template.
-		- depending on the size of the message table, the process is divided
-		  in steps.
-
-	array loadSearchAPIs()
-		- get the installed APIs.
-
-*/
-
+/**
+ * Main entry point for the admin search settings screen.
+ * It checks permissions, and it forwards to the appropriate function based on
+ * the given sub-action.
+ * Defaults to sub-action 'settings'.
+ * Called by ?action=admin;area=managesearch.
+ * Requires the admin_forum permission.
+ *
+ * @uses ManageSearch template.
+ * @uses Search language file.
+ */
 function ManageSearch()
 {
 	global $context, $txt, $scripturl;
@@ -110,6 +75,14 @@ function ManageSearch()
 	$subActions[$_REQUEST['sa']]();
 }
 
+/**
+ * Edit some general settings related to the search function.
+ * Called by ?action=admin;area=managesearch;sa=settings.
+ * Requires the admin_forum permission.
+ *
+ * @param $return_config
+ * @uses ManageSearch template, 'modify_settings' sub-template.
+ */
 function EditSearchSettings($return_config = false)
 {
 	global $txt, $context, $scripturl, $sourcedir, $modSettings;
@@ -163,6 +136,13 @@ function EditSearchSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
+/**
+ * Edit the relative weight of the search factors.
+ * Called by ?action=admin;area=managesearch;sa=weights.
+ * Requires the admin_forum permission.
+ *
+ * @uses ManageSearch template, 'modify_weights' sub-template.
+ */
 function EditWeights()
 {
 	global $txt, $context, $modSettings;
@@ -198,6 +178,16 @@ function EditWeights()
 		$context['relative_weights'][$factor] = round(100 * (isset($modSettings[$factor]) ? $modSettings[$factor] : 0) / $context['relative_weights']['total'], 1);
 }
 
+/**
+ * Edit the search method and search index used.
+ * Calculates the size of the current search indexes in use.
+ * Allows to create and delete a fulltext index on the messages table.
+ * Allows to delete a custom index (that CreateMessageIndex() created).
+ * Called by ?action=admin;area=managesearch;sa=method.
+ * Requires the admin_forum permission.
+ *
+ * @uses ManageSearch template, 'select_search_method' sub-template.
+ */
 function EditSearchMethod()
 {
 	global $txt, $context, $modSettings, $smcFunc, $db_type, $db_prefix;
@@ -489,6 +479,16 @@ function EditSearchMethod()
 	$context['double_index'] = !empty($context['fulltext_index']) && $context['custom_index'];
 }
 
+/**
+ * Create a custom search index for the messages table.
+ * Called by ?action=admin;area=managesearch;sa=createmsgindex.
+ * Linked from the EditSearchMethod screen.
+ * Requires the admin_forum permission.
+ * Depending on the size of the message table, the process is divided in steps.
+ *
+ * @uses ManageSearch template, 'create_index', 'create_index_progress', and 'create_index_done'
+ *  sub-templates.
+ */
 function CreateMessageIndex()
 {
 	global $modSettings, $context, $smcFunc, $db_prefix, $txt;
@@ -727,7 +727,13 @@ function CreateMessageIndex()
 	}
 }
 
-// Get the installed APIs.
+/**
+ * Get the installed Search API implementations.
+ * This function checks for patterns in comments on top of the Search-API files!
+ * In addition to filenames pattern.
+ * It loads the search API classes if identified.
+ * This function is used by EditSearchMethod to list all installed API implementations.
+ */
 function loadSearchAPIs()
 {
 	global $sourcedir, $txt;

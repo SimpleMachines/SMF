@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains all the screens that relate to search engines.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,12 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains all the screens that relate to search engines.
-
-	// !!!
-*/
-
-// Entry point for this section.
+/**
+ * Entry point for this section.
+ */
 function SearchEngines()
 {
 	global $context, $txt, $scripturl;
@@ -52,7 +51,11 @@ function SearchEngines()
 	$subActions[$context['sub_action']]();
 }
 
-// This is really just the settings page.
+/**
+ * This is really just the settings page.
+ *
+ * @param bool $return_config = false
+ */
 function ManageSearchEngineSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc;
@@ -134,7 +137,9 @@ function ManageSearchEngineSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// View a list of all the spiders we know about.
+/**
+ * View a list of all the spiders we know about.
+ */
 function ViewSpiders()
 {
 	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
@@ -301,6 +306,9 @@ function ViewSpiders()
 	$context['default_list'] = 'spider_list';
 }
 
+/**
+ * Callback function for createList()
+ */
 function list_getSpiders($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -321,6 +329,9 @@ function list_getSpiders($start, $items_per_page, $sort)
 	return $spiders;
 }
 
+/**
+ * Callback function for createList()
+ */
 function list_getNumSpiders()
 {
 	global $smcFunc;
@@ -337,7 +348,9 @@ function list_getNumSpiders()
 	return $numSpiders;
 }
 
-// Here we can add, and edit, spider info!
+/**
+ * Here we can add, and edit, spider info!
+ */
 function EditSpider()
 {
 	global $context, $smcFunc, $txt;
@@ -429,8 +442,10 @@ function EditSpider()
 
 }
 
-//!!! Should this not be... you know... in a different file?
-// Do we think the current user is a spider?
+/**
+ * Do we think the current user is a spider?
+ * @todo Should this not be... you know... in a different file?
+ */
 function SpiderCheck()
 {
 	global $modSettings, $smcFunc;
@@ -503,8 +518,10 @@ function SpiderCheck()
 	return !empty($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
 }
 
-// Log the spider presence online.
-//!!! Different file?
+/**
+ * Log the spider presence online.
+ * @todo Different file?
+ */
 function logSpider()
 {
 	global $smcFunc, $modSettings, $context;
@@ -564,7 +581,9 @@ function logSpider()
 	}
 }
 
-// This function takes any unprocessed hits and turns them into stats.
+/**
+ * This function takes any unprocessed hits and turns them into stats.
+ */
 function consolidateSpiderStats()
 {
 	global $smcFunc;
@@ -629,7 +648,9 @@ function consolidateSpiderStats()
 	);
 }
 
-// See what spiders have been up to.
+/**
+ * See what spiders have been up to.
+ */
 function SpiderLogs()
 {
 	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
@@ -744,6 +765,9 @@ function SpiderLogs()
 	$context['default_list'] = 'spider_logs';
 }
 
+/**
+ * Callback function for createList()
+ */
 function list_getSpiderLogs($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -765,6 +789,9 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 	return $spider_logs;
 }
 
+/**
+ * Callback function for createList()
+ */
 function list_getNumSpiderLogs()
 {
 	global $smcFunc;
@@ -781,7 +808,9 @@ function list_getNumSpiderLogs()
 	return $numLogs;
 }
 
-// Show the spider statistics.
+/**
+ * Show the spider statistics.
+ */
 function SpiderStats()
 {
 	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
@@ -932,6 +961,9 @@ function SpiderStats()
 	$context['default_list'] = 'spider_stat_list';
 }
 
+/**
+ * Callback function for createList()
+ */
 function list_getSpiderStats($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -953,6 +985,9 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 	return $spider_stats;
 }
 
+/**
+ * Callback function for createList()
+ */
 function list_getNumSpiderStats()
 {
 	global $smcFunc;
@@ -969,7 +1004,9 @@ function list_getNumSpiderStats()
 	return $numStats;
 }
 
-// Recache spider names?
+/**
+ * Recache spider names?
+ */
 function recacheSpiderNames()
 {
 	global $smcFunc;
@@ -988,7 +1025,9 @@ function recacheSpiderNames()
 	updateSettings(array('spider_name_cache' => serialize($spiders)));
 }
 
-// Sort the search engine table by user agent name to avoid misidentification of engine.
+/**
+ * Sort the search engine table by user agent name to avoid misidentification of engine.
+ */
 function sortSpiderTable()
 {
 	global $smcFunc;

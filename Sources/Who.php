@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file is mainly concerned with the Who's Online list.
+ * Although, it also handles credits. :P
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,44 +17,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is mainly concerned, or that is to say only concerned, with the
-	Who's Online list.  It contains only the following functions:
-
-	void Who()
-		- prepares the who's online data for the Who template.
-		- uses the Who template (main sub template.) and language file.
-		- requires the who_view permission.
-		- is enabled with the who_enabled setting.
-		- is accessed via ?action=who.
-
-	array determineActions(array urls, string preferred_prefix = false)
-		- determine the actions of the members passed in urls.
-		- urls should be a single url (string) or an array of arrays, each
-		  inner array being (serialized request data, id_member).
-		- returns an array of descriptions if you passed an array, otherwise
-		  the string describing their current location.
-
-	void Credits(bool in_admin)
-		- prepares credit and copyright information for the credits page or the admin page
-		- if parameter is true the it will not load the sub template nor the template file
-
-	Adding actions to the Who's Online list:
-	---------------------------------------------------------------------------
-		Adding actions to this list is actually relatively easy....
-		- for actions anyone should be able to see, just add a string named
-		   whoall_ACTION.  (where ACTION is the action used in index.php.)
-		- for actions that have a subaction which should be represented
-		   differently, use whoall_ACTION_SUBACTION.
-		- for actions that include a topic, and should be restricted, use
-		   whotopic_ACTION.
-		- for actions that use a message, by msg or quote, use whopost_ACTION.
-		- for administrator-only actions, use whoadmin_ACTION.
-		- for actions that should be viewable only with certain permissions,
-		   use whoallow_ACTION and add a list of possible permissions to the
-		   $allowedActions array, using ACTION as the key.
-*/
-
-// Who's online, and what are they doing?
+/**
+ * Who's online, and what are they doing?
+ * This function prepares the who's online data for the Who template.
+ * It requires the who_view permission.
+ * It is enabled with the who_enabled setting.
+ * It is accessed via ?action=who.
+ *
+ * @uses Who template, main sub-template
+ * @uses Who language file.
+ */
 function Who()
 {
 	global $context, $scripturl, $user_info, $txt, $modSettings, $memberContext, $smcFunc;
@@ -266,6 +241,29 @@ function Who()
 
 }
 
+/**
+ * This function determines the actions of the members passed in urls.
+ *
+ * Adding actions to the Who's Online list:
+ * Adding actions to this list is actually relatively easy...
+ *  - for actions anyone should be able to see, just add a string named
+ *   whoall_ACTION.  (where ACTION is the action used in index.php.)
+ *  - for actions that have a subaction which should be represented
+ *   differently, use whoall_ACTION_SUBACTION.
+ *  - for actions that include a topic, and should be restricted, use
+ *   whotopic_ACTION.
+ *  - for actions that use a message, by msg or quote, use whopost_ACTION.
+ *  - for administrator-only actions, use whoadmin_ACTION.
+ *  - for actions that should be viewable only with certain permissions,
+ *   use whoallow_ACTION and add a list of possible permissions to the
+ *   $allowedActions array, using ACTION as the key.
+ *
+ * @param mixed $urls, a single url (string) or an array of arrays, each
+ * inner array being (serialized request data, id_member)
+ * @param string $preferred_prefix = false
+ * @return array, an array of descriptions if you passed an array, otherwise
+ * the string describing their current location.
+ */
 function determineActions($urls, $preferred_prefix = false)
 {
 	global $txt, $user_info, $modSettings, $smcFunc, $context;
@@ -275,6 +273,7 @@ function determineActions($urls, $preferred_prefix = false)
 	loadLanguage('Who');
 
 	// Actions that require a specific permission level.
+	// @todo are these actions still available
 	$allowedActions = array(
 		'admin' => array('moderate_forum', 'manage_membergroups', 'manage_bans', 'admin_forum', 'manage_permissions', 'send_mail', 'manage_attachments', 'manage_smileys', 'manage_boards', 'edit_news'),
 		'ban' => array('manage_bans'),
@@ -513,6 +512,11 @@ function determineActions($urls, $preferred_prefix = false)
 		return $data;
 }
 
+/**
+ * It prepares credit and copyright information for the credits page or the admin page
+ *
+ * @param $in_admin = false, if parameter is true the it will not load the sub-template nor the template file
+ */
 function Credits($in_admin = false)
 {
 	global $context, $modSettings, $forum_copyright, $forum_version, $boardurl, $txt, $user_info;

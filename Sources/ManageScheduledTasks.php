@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file concerns itself with scheduled tasks management.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,31 +16,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* /!!!
-
-	void ManageScheduledTasks()
-		// !!!
-
-	void ScheduledTasks()
-		// !!!
-
-	array list_getScheduledTasks()
-		// !!!
-
-	void EditTask()
-		// !!!
-
-	void TaskLog()
-		// !!!
-
-	array list_getTaskLogEntries()
-		// !!!
-
-	array list_getNumTaskLog()
-		// !!!
-*/
-
-// !!!
+/**
+ * Scheduled tasks management dispatcher. This function checks permissions and delegates
+ * to the appropriate function based on the sub-action.
+ * Everything here requires adin_forum permission.
+ *
+ * @uses ManageScheduledTasks template file
+ * @uses ManageScheduledTasks language file
+ */
 function ManageScheduledTasks()
 {
 	global $context, $txt, $modSettings;
@@ -79,7 +64,11 @@ function ManageScheduledTasks()
 	$subActions[$context['sub_action']]();
 }
 
-// List all the scheduled task in place on the forum.
+/**
+ * List all the scheduled task in place on the forum.
+ *
+ * @uses ManageScheduledTasks template, view_scheduled_tasks sub-template
+ */
 function ScheduledTasks()
 {
 	global $context, $txt, $sourcedir, $smcFunc, $user_info, $modSettings, $scripturl;
@@ -275,6 +264,13 @@ function ScheduledTasks()
 	$context['tasks_were_run'] = isset($_GET['done']);
 }
 
+/**
+ * Callback function for createList() in ScheduledTasks().
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
 	global $smcFunc, $txt, $scripturl;
@@ -308,7 +304,11 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 	return $known_tasks;
 }
 
-// Function for editing a task.
+/**
+ * Function for editing a task.
+ *
+ * @uses ManageScheduledTasks template, edit_scheduled_tasks sub-template
+ */
 function EditTask()
 {
 	global $context, $txt, $sourcedir, $smcFunc, $user_info, $modSettings;
@@ -409,7 +409,11 @@ function EditTask()
 	$smcFunc['db_free_result']($request);
 }
 
-// Show the log of all tasks that have taken place.
+/**
+ * Show the log of all tasks that have taken place.
+ *
+ * @uses ManageScheduledTasks language file
+ */
 function TaskLog()
 {
 	global $scripturl, $context, $txt, $smcFunc, $sourcedir;
@@ -513,6 +517,13 @@ function TaskLog()
 	$context['page_title'] = $txt['scheduled_log'];
 }
 
+/**
+ * Callback function for createList() in TaskLog().
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ */
 function list_getTaskLogEntries($start, $items_per_page, $sort)
 {
 	global $smcFunc, $txt;
@@ -539,6 +550,9 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 	return $log_entries;
 }
 
+/**
+ * Callback function for createList() in TaskLog().
+ */
 function list_getNumTaskLogEntries()
 {
 	global $smcFunc;
