@@ -85,6 +85,7 @@ function SetCensor()
 	{
 		// Make sure censoring is something they can do.
 		checkSession();
+		validateToken('admin-censor');
 
 		$censored_vulgar = array();
 		$censored_proper = array();
@@ -153,6 +154,8 @@ function SetCensor()
 
 	$context['sub_template'] = 'edit_censored';
 	$context['page_title'] = $txt['admin_censored_words'];
+
+	createToken('admin-censor');
 }
 
 /**

@@ -34,6 +34,7 @@ function template_maintain_database()
 					<p>', $txt['maintain_optimize_info'], '</p>
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -63,6 +64,7 @@ function template_maintain_database()
 
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -83,6 +85,7 @@ function template_maintain_database()
 					', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<p class="error">' . $txt['utf8_cannot_convert_fulltext'] . '</p>' : '', '
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled="disabled"' : '', '/></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -103,6 +106,7 @@ function template_maintain_database()
 					<p>', $txt['entity_convert_introduction'], '</p>
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -153,6 +157,7 @@ function template_maintain_routine()
 					<p>', $txt['maintain_errors_info'], '</p>
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -167,6 +172,7 @@ function template_maintain_routine()
 					<p>', $txt['maintain_recount_info'], '</p>
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -181,6 +187,7 @@ function template_maintain_routine()
 					<p>', $txt['maintain_logs_info'], '</p>
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -195,6 +202,7 @@ function template_maintain_routine()
 					<p>', $txt['maintain_cache_info'], '</p>
 					<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -303,6 +311,7 @@ function template_maintain_members()
 					</p>
 					<span><input type="submit" id="do_attribute" value="', $txt['reattribute'], '" onclick="if (!checkAttributeValidity()) return false; return confirm(warningMessage);" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -336,6 +345,7 @@ function template_maintain_members()
 					</div>
 					<span><input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_members_confirm'], '\');" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -462,6 +472,7 @@ function template_maintain_topics()
 					</div>
 					<span><input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_old_confirm'], '\');" class="button_submit" /></span>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -587,6 +598,7 @@ function template_convert_utf8()
 					</dl>
 					<input type="submit" value="', $txt['utf8_proceed'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 					<input type="hidden" name="proceed" value="1" />
 				</form>
 			</div>

@@ -157,6 +157,7 @@ function ViewSpiders()
 	elseif (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove']))
 	{
 		checkSession();
+		validateToken('admin-ser');
 
 		// Make sure every entry is a proper integer.
 		foreach ($_POST['remove'] as $index => $spider_id)
@@ -203,6 +204,7 @@ function ViewSpiders()
 		$context['spider_last_seen'][$row['id_spider']] = $row['last_seen_time'];
 	$smcFunc['db_free_result']($request);
 
+	createToken('admin-ser');
 	$listOptions = array(
 		'id' => 'spider_list',
 		'items_per_page' => 20,
@@ -286,6 +288,7 @@ function ViewSpiders()
 		),
 		'form' => array(
 			'href' => $scripturl . '?action=admin;area=sengines;sa=spiders',
+			'token' => 'admin-ser',
 		),
 		'additional_rows' => array(
 			array(
@@ -364,6 +367,7 @@ function EditSpider()
 	if (!empty($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-ses');
 
 		$ips = array();
 		// Check the IP range is valid.
@@ -440,6 +444,7 @@ function EditSpider()
 		$smcFunc['db_free_result']($request);
 	}
 
+	createToken('admin-ses');
 }
 
 /**
@@ -663,6 +668,7 @@ function SpiderLogs()
 	if (!empty($_POST['delete_entries']) && isset($_POST['older']))
 	{
 		checkSession();
+		validateToken('admin-sl');
 
 		$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
@@ -725,6 +731,9 @@ function SpiderLogs()
 				),
 			),
 		),
+		'form' => array(
+			'token' => 'admin-sl',
+		),
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
@@ -733,6 +742,8 @@ function SpiderLogs()
 			),
 		),
 	);
+
+	createToken('admin-sl');
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);

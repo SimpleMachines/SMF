@@ -475,6 +475,9 @@ function prepareServerSettingsContext(&$config_vars)
 			);
 		}
 	}
+
+	createToken('admin-ssc');
+	createToken('admin-dbsc');
 }
 
 /**
@@ -634,6 +637,8 @@ function prepareDBSettingContext(&$config_vars)
 			);
 		}
 	}
+
+	createToken('admin-dbsc');
 }
 
 /**
@@ -648,6 +653,8 @@ function saveSettings(&$config_vars)
 {
 	global $boarddir, $sc, $cookiename, $modSettings, $user_settings;
 	global $sourcedir, $context, $cachedir;
+
+	validateToken('admin-ssc');
 
 	// Fix the darn stupid cookiename! (more may not be allowed, but these for sure!)
 	if (isset($_POST['cookiename']))
@@ -743,6 +750,8 @@ function saveSettings(&$config_vars)
 function saveDBSettings(&$config_vars)
 {
 	global $sourcedir, $context;
+
+	validateToken('admin-dbsc');
 
 	$inlinePermissions = array();
 	foreach ($config_vars as $var)

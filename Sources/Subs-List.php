@@ -183,6 +183,10 @@ function createList($listOptions)
 		// Always add a session check field.
 		$list_context['form']['hidden_fields'][$context['session_var']] = $context['session_id'];
 
+		// Will this do a token check?
+		if (isset($listOptions['form']['token']))
+			$list_context['form']['hidden_fields'][$context[$listOptions['form']['token'] . '_token_var']] = $context[$listOptions['form']['token'] . '_token'];
+
 		// Include the starting page as hidden field?
 		if (!empty($list_context['form']['include_start']) && !empty($list_context['start']))
 			$list_context['form']['hidden_fields'][$list_context['start_var_name']] = $list_context['start'];

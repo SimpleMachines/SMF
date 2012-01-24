@@ -91,6 +91,7 @@ function AdminRegister()
 	if (!empty($_POST['regSubmit']))
 	{
 		checkSession();
+		validateToken('admin-regc');
 
 		foreach ($_POST as $key => $value)
 			if (!is_array($_POST[$key]))
@@ -124,9 +125,6 @@ function AdminRegister()
 		}
 	}
 
-	// Basic stuff.
-	$context['sub_template'] = 'admin_register';
-	$context['page_title'] = $txt['registration_center'];
 
 	// Load the assignable member groups.
 	if (allowedTo('manage_membergroups'))
@@ -156,6 +154,10 @@ function AdminRegister()
 	}
 	else
 		$context['member_groups'] = array();
+	// Basic stuff.
+	$context['sub_template'] = 'admin_register';
+	$context['page_title'] = $txt['registration_center'];
+	createToken('admin-regc');
 }
 
 /**
@@ -198,6 +200,7 @@ function EditAgreement()
 	if (isset($_POST['agreement']))
 	{
 		checkSession();
+		validateToken('admin-rega');
 
 		// Off it goes to the agreement file.
 		$fp = fopen($boarddir . '/agreement' . $context['current_agreement'] . '.txt', 'w');
@@ -213,6 +216,7 @@ function EditAgreement()
 
 	$context['sub_template'] = 'edit_agreement';
 	$context['page_title'] = $txt['registration_agreement'];
+	createToken('admin-rega');
 }
 
 /**
@@ -230,6 +234,7 @@ function SetReserved()
 	if (!empty($_POST['save_reserved_names']))
 	{
 		checkSession();
+		validateToken('admin-regr');
 
 		// Set all the options....
 		updateSettings(array(
@@ -253,6 +258,7 @@ function SetReserved()
 	// Ready the template......
 	$context['sub_template'] = 'edit_reserved_words';
 	$context['page_title'] = $txt['admin_reserved_set'];
+	createToken('admin-regr');
 }
 
 /**

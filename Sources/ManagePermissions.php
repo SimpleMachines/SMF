@@ -334,6 +334,7 @@ function PermissionIndex()
 
 	// Load the proper template.
 	$context['sub_template'] = 'permission_index';
+	createToken('admin-mpq');
 }
 
 /**
@@ -350,6 +351,7 @@ function PermissionByBoard()
 	if (!empty($_POST['save_changes']) && !empty($_POST['boardprofile']))
 	{
 		checkSession('request');
+		validateToken('admin-mpb');
 
 		$changes = array();
 		foreach ($_POST['boardprofile'] as $board => $profile)
@@ -408,6 +410,7 @@ function PermissionByBoard()
 	}
 
 	$context['sub_template'] = 'by_board';
+	createToken('admin-mpb');
 }
 
 /**
@@ -419,6 +422,7 @@ function SetQuickGroups()
 	global $context, $smcFunc;
 
 	checkSession();
+	validateToken('admin-mpq', 'quick');
 
 	loadIllegalPermissions();
 	loadIllegalGuestPermissions();
@@ -820,6 +824,8 @@ function ModifyMembergroup()
 	}
 	$context['sub_template'] = 'modify_group';
 	$context['page_title'] = $txt['permissions_modify_group'];
+
+	createToken('admin-mp');
 }
 
 /**
@@ -830,6 +836,7 @@ function ModifyMembergroup2()
 	global $modSettings, $smcFunc, $context;
 
 	checkSession();
+	validateToken('admin-mp');
 
 	loadIllegalPermissions();
 
@@ -1806,6 +1813,7 @@ function save_inline_permissions($permissions)
 
 	// Almighty session check, verify our ways.
 	checkSession();
+	validateToken('admin-mp');
 
 	// Check they can't do certain things.
 	loadIllegalPermissions();
@@ -1898,6 +1906,7 @@ function EditPermissionProfiles()
 	if (isset($_POST['create']) && trim($_POST['profile_name']) != '')
 	{
 		checkSession();
+		validateToken('admin-mpp');
 
 		$_POST['copy_from'] = (int) $_POST['copy_from'];
 		$_POST['profile_name'] = $smcFunc['htmlspecialchars']($_POST['profile_name']);
@@ -1941,6 +1950,7 @@ function EditPermissionProfiles()
 	elseif (isset($_POST['rename']))
 	{
 		checkSession();
+		validateToken('admin-mpp');
 
 		// Just showing the boxes?
 		if (!isset($_POST['rename_profile']))
@@ -1968,6 +1978,7 @@ function EditPermissionProfiles()
 	elseif (isset($_POST['delete']) && !empty($_POST['delete_profile']))
 	{
 		checkSession('post');
+		validateToken('admin-mpp');
 
 		$profiles = array();
 		foreach ($_POST['delete_profile'] as $profile)
@@ -2030,6 +2041,8 @@ function EditPermissionProfiles()
 		// You can only delete it if you can edit it AND it's not in use.
 		$context['profiles'][$id]['can_delete'] = $context['profiles'][$id]['can_edit'] && empty($profile['in_use']) ? true : false;
 	}
+
+	createToken('admin-mpp');
 }
 
 /**
@@ -2304,6 +2317,8 @@ function ModifyPostModeration()
 	// If we're saving the changes then do just that - save them.
 	if (!empty($_POST['save_changes']) && ($context['current_profile'] == 1 || $context['current_profile'] > 4))
 	{
+		validateToken('admin-mppm');
+
 		// Start by deleting all the permissions relevant.
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}board_permissions
@@ -2383,6 +2398,9 @@ function ModifyPostModeration()
 		}
 	}
 	$smcFunc['db_free_result']($request);
+
+	createToken('admin-mppm');
+
 }
 
 ?>

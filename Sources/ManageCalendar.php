@@ -72,6 +72,7 @@ function ModifyHolidays()
 	if (isset($_REQUEST['delete']) && !empty($_REQUEST['holiday']))
 	{
 		checkSession();
+		validateToken('admin-mc');
 
 		foreach ($_REQUEST['holiday'] as $id => $value)
 			$_REQUEST['holiday'][$id] = (int) $id;
@@ -81,6 +82,7 @@ function ModifyHolidays()
 		removeHolidays($_REQUEST['holiday']);
 	}
 
+	createToken('admin-mc');
 	$listOptions = array(
 		'id' => 'holiday_list',
 		'title' => $txt['current_holidays'],
@@ -153,6 +155,7 @@ function ModifyHolidays()
 		),
 		'form' => array(
 			'href' => $scripturl . '?action=admin;area=managecalendar;sa=holidays',
+			'token' => 'admin-mc',
 		),
 		'additional_rows' => array(
 			array(

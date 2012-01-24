@@ -89,6 +89,8 @@ function ManageBoardsMain()
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'move' && in_array($_REQUEST['move_to'], array('child', 'before', 'after', 'top')))
 	{
 		checkSession('get');
+		validateToken('admin-bm-' . (int) $_REQUEST['src_board'], 'request');
+
 		if ($_REQUEST['move_to'] === 'top')
 			$boardOptions = array(
 				'move_to' => $_REQUEST['move_to'],
@@ -132,6 +134,8 @@ function ManageBoardsMain()
 
 	if (!empty($context['move_board']))
 	{
+		createToken('admin-bm-' . $context['move_board'], 'request');
+
 		$context['move_title'] = sprintf($txt['mboards_select_destination'], htmlspecialchars($boards[$context['move_board']]['name']));
 		foreach ($cat_tree as $catid => $tree)
 		{
@@ -144,7 +148,7 @@ function ManageBoardsMain()
 					$context['categories'][$catid]['move_link'] = array(
 						'child_level' => 0,
 						'label' => $txt['mboards_order_before'] . ' \'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $context['session_var'] . '=' . $context['session_id'],
+						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['admin-bm-' . $context['move_board'] . '_token_var'] . '=' . $context['admin-bm-' . $context['move_board'] . '_token'],
 					);
 
 				if (!$context['categories'][$catid]['boards'][$boardid]['move'])
@@ -280,6 +284,9 @@ function EditCategory()
 		$context['sub_template'] = 'confirm_category_delete';
 		$context['page_title'] = $txt['mboards_delete_cat'];
 	}
+
+	// Create a special token.
+	createToken('admin-bc-' . $_REQUEST['cat']);
 }
 
 /**
@@ -295,6 +302,7 @@ function EditCategory2()
 	global $sourcedir;
 
 	checkSession();
+	validateToken('admin-bc-' . $_REQUEST['cat']);
 
 	require_once($sourcedir . '/Subs-Categories.php');
 
@@ -321,6 +329,9 @@ function EditCategory2()
 	// If they want to delete - first give them confirmation.
 	elseif (isset($_POST['delete']) && !isset($_POST['confirmation']) && !isset($_POST['empty']))
 	{
+		// We need a new token.
+		validateToken('admin-bc-' . $_REQUEST['cat']);
+
 		EditCategory();
 		return;
 	}
@@ -550,6 +561,9 @@ function EditBoard()
 		$context['sub_template'] = 'confirm_board_delete';
 		$context['page_title'] = $txt['mboards_delete_board'];
 	}
+
+	// Create a special token.
+	createToken('admin-be-' . $_REQUEST['boardid']);
 }
 
 /**
@@ -564,11 +578,12 @@ function EditBoard2()
 {
 	global $txt, $sourcedir, $modSettings, $smcFunc, $context;
 
+	$_POST['boardid'] = (int) $_POST['boardid'];
 	checkSession();
+	validateToken('admin-be-' . $_REQUEST['boardid']);
 
 	require_once($sourcedir . '/Subs-Boards.php');
 
-	$_POST['boardid'] = (int) $_POST['boardid'];
 
 	// Mode: modify aka. don't delete.
 	if (isset($_POST['edit']) || isset($_POST['add']))

@@ -163,6 +163,7 @@ function EditWeights()
 	if (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-msw');
 
 		$changes = array();
 		foreach ($factors as $factor)
@@ -176,6 +177,8 @@ function EditWeights()
 
 	foreach ($factors as $factor)
 		$context['relative_weights'][$factor] = round(100 * (isset($modSettings[$factor]) ? $modSettings[$factor] : 0) / $context['relative_weights']['total'], 1);
+
+	createToken('admin-msw');
 }
 
 /**
@@ -266,6 +269,7 @@ function EditSearchMethod()
 	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext')
 	{
 		checkSession('get');
+		validateToken('admin-msm');
 
 		// Make sure it's gone before creating it.
 		$smcFunc['db_query']('', '
@@ -288,6 +292,7 @@ function EditSearchMethod()
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty($context['fulltext_index']))
 	{
 		checkSession('get');
+		validateToken('admin-msm');
 
 		$smcFunc['db_query']('', '
 			ALTER TABLE {db_prefix}messages
@@ -309,6 +314,7 @@ function EditSearchMethod()
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removecustom')
 	{
 		checkSession('get');
+		validateToken('admin-msm');
 
 		db_extend();
 		$tables = $smcFunc['db_list_tables'](false, $db_prefix . 'log_search_words');
@@ -335,6 +341,8 @@ function EditSearchMethod()
 	elseif (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-msm');
+
 		updateSettings(array(
 			'search_index' => empty($_POST['search_index']) || (!in_array($_POST['search_index'], array('fulltext', 'custom')) && !isset($context['search_apis'][$_POST['search_index']])) ? '' : $_POST['search_index'],
 			'search_force_index' => isset($_POST['search_force_index']) ? '1' : '0',
@@ -477,6 +485,8 @@ function EditSearchMethod()
 	$context['custom_index'] = !empty($modSettings['search_custom_index_config']);
 	$context['partial_custom_index'] = !empty($modSettings['search_custom_index_resume']) && empty($modSettings['search_custom_index_config']);
 	$context['double_index'] = !empty($context['fulltext_index']) && $context['custom_index'];
+
+	createToken('admin-msm');
 }
 
 /**

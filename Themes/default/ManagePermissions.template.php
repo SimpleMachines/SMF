@@ -245,7 +245,8 @@ function template_permission_index()
 			<input type="hidden" name="pid" value="', $context['profile']['id'], '" />';
 
 		echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-mpq_token_var'], '" value="', $context['admin-mpq_token'], '" />';
 	}
 	else
 		echo '
@@ -350,6 +351,7 @@ function template_by_board()
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '" />
 		</div>
 	</form>
 	<br class="clear" />';
@@ -406,7 +408,8 @@ function template_edit_profiles()
 				</tbody>
 			</table>
 			<div class="righttext padding">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />';
 
 	if ($context['can_edit_something'])
 		echo '
@@ -447,6 +450,7 @@ function template_edit_profiles()
 					</dl>
 					<div class="righttext">
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />
 						<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit" />
 					</div>
 				</div>
@@ -554,6 +558,7 @@ function template_modify_group()
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-mp_token_var'], '" value="', $context['admin-mp_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />';
@@ -1177,6 +1182,7 @@ function template_postmod_permissions()
 			</table>
 			<div class="righttext padding">
 				<input type="submit" name="save_changes" value="', $txt['permissions_commit'], '" class="button_submit" />
+				<input type="hidden" name="', $context['admin-mppm_token_var'], '" value="', $context['admin-mppm_token'], '" />
 			</div>
 		</form>
 		<p class="smalltext" style="padding-left: 10px;">

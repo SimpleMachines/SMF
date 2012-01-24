@@ -142,6 +142,7 @@ function DownloadLanguage()
 	if (!empty($_POST['do_install']) && !empty($_POST['copy_file']))
 	{
 		checkSession('get');
+		validateToken('admin-dlang');
 
 		$chmod_files = array();
 		$install_files = array();
@@ -481,6 +482,7 @@ function DownloadLanguage()
 	createList($listOptions);
 
 	$context['default_list'] = 'lang_main_files_list';
+	createToken('admin-dlang');
 }
 
 /**
@@ -495,6 +497,7 @@ function ModifyLanguages()
 	if (!empty($_POST['set_default']) && !empty($_POST['def_language']))
 	{
 		checkSession();
+		validateToken('admin-lang');
 
 		if ($_POST['def_language'] != $language)
 		{
@@ -503,6 +506,9 @@ function ModifyLanguages()
 			$language = $_POST['def_language'];
 		}
 	}
+
+	// Create another one time token here.
+	createToken('admin-lang');
 
 	$listOptions = array(
 		'id' => 'language_list',
@@ -567,6 +573,7 @@ function ModifyLanguages()
 		),
 		'form' => array(
 			'href' => $scripturl . '?action=admin;area=languages',
+			'token' => 'admin-lang',
 		),
 		'additional_rows' => array(
 			array(
@@ -917,6 +924,7 @@ function ModifyLanguage()
 	if (!empty($_POST['save_main']) && !$current_file)
 	{
 		checkSession();
+		validateToken('admin-mlang');
 
 		// Read in the current file.
 		$current_data = implode('', file($settings['default_theme_dir'] . '/languages/index.' . $context['lang_id'] . '.php'));
@@ -958,6 +966,7 @@ function ModifyLanguage()
 	if (isset($_POST['save_entries']) && !empty($_POST['entry']))
 	{
 		checkSession();
+		validateToken('admin-mlang');
 
 		// Clean each entry!
 		foreach ($_POST['entry'] as $k => $v)
@@ -1139,6 +1148,8 @@ function ModifyLanguage()
 	// If we saved, redirect.
 	if ($madeSave)
 		redirectexit('action=admin;area=languages;sa=editlang;lid=' . $context['lang_id']);
+
+	createToken('admin-mlang');
 }
 
 /**

@@ -86,6 +86,12 @@ function AdminMain()
 					'permission' => array('admin_forum'),
 					'select' => 'index'
 				),
+				'adminlogoff' => array(
+					'label' => $txt['admin_logoff'],
+					'function' => 'AdminEndSession',
+//					'icon' => 'administration.gif',
+				),
+
 			),
 		),
 		'config' => array(
@@ -994,6 +1000,22 @@ function AdminLogs()
 
 	require_once($sourcedir . '/' . $log_functions[$sub_action][0]);
 	$log_functions[$sub_action][1]();
+}
+
+/**
+ * This ends a admin session, requiring authentication to access the ACP again.
+ */
+function AdminEndSession()
+{
+	// This is so easy!
+	unset($_SESSION['admin_time']);
+
+	// Clean any admin tokens as well.
+	foreach ($_SESSION['token'] as $key => $token)
+		if (strpos($key, '-admin') !== false)
+			unset($_SESSION['token'][$key]);
+
+	redirectexit('?action=admin');
 }
 
 ?>

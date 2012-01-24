@@ -58,6 +58,9 @@ function Login()
 		$_SESSION['login_url'] = $_SESSION['old_url'];
 	else
 		unset($_SESSION['login_url']);
+
+	// Create a one time token.
+	createToken('login');
 }
 
 /**
@@ -120,6 +123,8 @@ function Login2()
 		redirectexit();
 
 	// Are you guessing with a script?
+	checkSession('post');
+	validateToken('login');
 	spamProtection('login');
 
 	// Set the login_url if it's not already set (but careful not to send us to an attachment).

@@ -272,6 +272,8 @@ function adminLogin()
 		$context['incorrect_password'] = true;
 	}
 
+	createToken('admin-login');
+
 	// Figure out the get data and post data.
 	$context['get_data'] = '?' . construct_query_string($_GET);
 	$context['post_data'] = '';
@@ -729,6 +731,9 @@ function rebuildModCache()
 	);
 
 	$user_info['mod_cache'] = $_SESSION['mc'];
+
+	// Might as well clean up some tokens while we are at it.
+	cleanTokens();
 }
 
 ?>

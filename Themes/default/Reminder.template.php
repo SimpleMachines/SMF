@@ -33,6 +33,7 @@ function template_main()
 			<span class="lowerframe"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+		<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '" />
 	</form>';
 }
 
@@ -64,6 +65,7 @@ function template_reminder_pick()
 		</div>
 		<input type="hidden" name="uid" value="', $context['current_member']['id'], '" />
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+		<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '" />
 	</form>';
 }
 
@@ -118,6 +120,7 @@ function template_set_password()
 		<input type="hidden" name="code" value="', $context['code'], '" />
 		<input type="hidden" name="u" value="', $context['memID'], '" />
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+		<input type="hidden" name="', $context['remind-sp_token_var'], '" value="', $context['remind-sp_token'], '" />
 	</form>
 	<script type="text/javascript"><!-- // --><![CDATA[
 	var regTextStrings = {
@@ -177,6 +180,7 @@ function template_ask()
 		</div>
 		<input type="hidden" name="uid" value="', $context['remind_user'], '" />
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+		<input type="hidden" name="', $context['remind-sai_token_var'], '" value="', $context['remind-sai_token'], '" />
 	</form>';
 
 	if ($context['account_type'] == 'password')

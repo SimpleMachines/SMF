@@ -267,6 +267,8 @@ function ViewErrorLog()
 	$context['page_title'] = $txt['errlog'];
 	$context['has_filter'] = isset($filter);
 	$context['sub_template'] = 'error_log';
+
+	createToken('admin-el');
 }
 
 /**
@@ -282,6 +284,7 @@ function deleteErrors()
 
 	// Make sure the session exists and is correct; otherwise, might be a hacker.
 	checkSession();
+	validateToken('admin-el');
 
 	// Delete all or just some?
 	if (isset($_POST['delall']) && !isset($filter))

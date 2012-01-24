@@ -667,6 +667,7 @@ function template_edit_censored()
 			</div>
 
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />';
@@ -979,6 +980,16 @@ function template_show_settings()
 				<span class="botslice"><span></span></span>
 			</div>';
 
+
+	// At least one token has to be used!
+	if (isset($context['admin-ssc_token']))
+		echo '
+		<input type="hidden" name="', $context['admin-ssc_token_var'], '" value="', $context['admin-ssc_token'], '" />';
+
+	if (isset($context['admin-dbsc_token']))
+		echo '
+		<input type="hidden" name="', $context['admin-dbsc_token_var'], '" value="', $context['admin-dbsc_token'], '" />';
+
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
@@ -1257,6 +1268,7 @@ function template_edit_profile_field()
 				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />';
@@ -1415,6 +1427,7 @@ function template_core_features()
 	echo '
 			<div class="righttext">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
 				<input type="hidden" value="0" name="js_worked" id="js_worked" />
 				<input type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
 			</div>

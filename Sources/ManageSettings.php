@@ -338,6 +338,7 @@ function ModifyCoreFeatures($return_config = false)
 	if (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-core');
 
 		$setting_changes = array('admin_features' => array());
 
@@ -409,6 +410,9 @@ function ModifyCoreFeatures($return_config = false)
 
 	$context['sub_template'] = 'core_features';
 	$context['page_title'] = $txt['core_settings_title'];
+
+	// We love our tokens.
+	createToken('admin-core');
 }
 
 /**
@@ -1273,6 +1277,7 @@ function ShowCustomProfiles()
 	if (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-scp');
 
 		// Do the active ones first.
 		$disable_fields = array_flip($standard_fields);
@@ -1299,6 +1304,8 @@ function ShowCustomProfiles()
 		if (!empty($changes))
 			updateSettings($changes);
 	}
+
+	createToken('admin-scp');
 
 	require_once($sourcedir . '/Subs-List.php');
 
@@ -1353,6 +1360,7 @@ function ShowCustomProfiles()
 		'form' => array(
 			'href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
 			'name' => 'standardProfileFields',
+			'token' => 'admin-scp',
 		),
 		'additional_rows' => array(
 			array(
@@ -1651,6 +1659,7 @@ function EditCustomProfiles()
 	if (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-ecp');
 
 		// Everyone needs a name - even the (bracket) unknown...
 		if (trim($_POST['field_name']) == '')
@@ -1892,6 +1901,7 @@ function EditCustomProfiles()
 	elseif (isset($_POST['delete']) && $context['field']['colname'])
 	{
 		checkSession();
+		validateToken('admin-ecp');
 
 		// Delete the user data first.
 		$smcFunc['db_query']('', '
@@ -1950,6 +1960,8 @@ function EditCustomProfiles()
 		updateSettings(array('displayFields' => serialize($fields)));
 		redirectexit('action=admin;area=featuresettings;sa=profile');
 	}
+
+	createToken('admin-ecp');
 }
 
 /**

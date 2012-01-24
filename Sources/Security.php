@@ -759,6 +759,80 @@ function checkConfirm($action)
 	}
 }
 
+// Lets give you a token of our appreciation.
+function createToken($action, $type = 'post')
+{
+	global $modSettings, $context;
+
+	$token = md5(mt_rand() . session_id() . (string) microtime() . $modSettings['rand_seed'] . $type);
+	$token_var = substr(preg_replace('~^\d+~', '', md5(mt_rand() . (string) microtime() . mt_rand())), 0, rand(7, 12));
+
+	$_SESSION['token'][$type . '-' . $action] = array($token_var, md5($token . $_SERVER['HTTP_USER_AGENT']), time(), $token);
+
+	$context[$action . '_token'] = $token;
+	$context[$action . '_token_var'] = $token_var;
+
+	return array($token_var, $token);
+}
+
+// Only patrons with valid tokens can ride this ride.
+function validateToken($action, $type = 'post', $reset = true)
+{
+	global $modSettings;
+
+	$type = $type == 'get' || $type == 'request' ? $type : 'post';
+
+	// This nasty piece of code validates a token.
+	/*
+		1. The token exists in session.
+		2. The {$type} variable should exist.
+		3. We concat the variable we received with the user agent
+		4. Match that result against what is in the session.
+		5. If it matchs, success, otherwise we fallout.
+	*/
+	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['token'][$type . '-' . $action][1])
+	{
+		// Invalidate this token now.
+		unset($_SESSION['token'][$type . '-' . $action]);
+
+		return true;
+	}
+
+	// Patrons with invalid tokens get the boot.
+	if ($reset)
+	{
+		// Might as well do some cleanup on this.
+		cleanTokens();
+
+		// I'm back baby.
+		createToken($action, $type);
+
+		fatal_lang_error('token_verify_fail', false);
+	}
+	// Remove this token as its useless
+	else
+		unset($_SESSION['token'][$type . '-' . $action]);
+
+	// Randomly check if we should remove some older tokens.
+	if (mt_rand(0, 138) == 23)
+		cleanTokens();
+
+	return false;
+}
+
+// Clean up a little.
+function cleanTokens($complete = false)
+{
+	// We appreciate cleaning up after yourselves.
+	if (!isset($_SESSION['token']))
+		return;
+
+	// Clean up tokens, trying to give enough time still.
+	foreach ($_SESSION['token'] as $key => $data)
+		if ($data[2] + 10800 < time() || $complete)
+			unset($_SESSION['token'][$key]);
+}
+
 // Check whether a form has been submitted twice.
 function checkSubmitOnce($action, $is_fatal = true)
 {

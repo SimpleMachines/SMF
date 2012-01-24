@@ -169,6 +169,7 @@ function template_ban_edit()
 							<input type="hidden" name="old_expire" value="', $context['ban']['expiration']['days'], '" />
 							<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+							<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
 						</div>
 					</form>
 				</div>
@@ -233,6 +234,7 @@ function template_ban_edit()
 				<br class="clear" />
 				<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
 			</form>';
 
 	}
@@ -337,6 +339,7 @@ function template_ban_edit_trigger()
 			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '" />
 			<input type="hidden" name="bg" value="' . $context['ban_trigger']['group'] . '" />
 			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+			<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />

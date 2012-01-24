@@ -71,6 +71,8 @@ function template_login()
 				<p><input type="submit" value="', $txt['login'], '" class="button_submit" /></p>
 				<p class="smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 				<input type="hidden" name="hash_passwrd" value="" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 			</div>
 			<span class="lowerframe"><span></span></span>
 		</div></form>';
@@ -139,6 +141,8 @@ function template_kick_guest()
 				<p class="centertext smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 			</div>
 			<span class="lowerframe"><span></span></span>
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 			<input type="hidden" name="hash_passwrd" value="" />
 		</div>
 	</form>';
@@ -186,6 +190,8 @@ function template_maintenance()
 		</div>
 		<span class="lowerframe"><span></span></span>
 		<input type="hidden" name="hash_passwrd" value="" />
+		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+		<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 	</div>
 </form>';
 }
@@ -217,6 +223,8 @@ function template_admin_login()
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="admin_pass" size="24" class="input_password" />
 			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" /></a><br />
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '" />
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit" />';
 
 	// Make sure to output all the old post data.

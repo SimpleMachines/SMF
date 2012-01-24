@@ -325,6 +325,7 @@ function AddMembergroup()
 	if (!empty($_POST['group_name']))
 	{
 		checkSession();
+		validateToken('admin-mmg');
 
 		$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
@@ -571,6 +572,8 @@ function AddMembergroup()
 			'selected' => false
 		);
 	$smcFunc['db_free_result']($result);
+
+	createToken('admin-mmg');
 }
 
 /**
@@ -637,6 +640,7 @@ function EditMembergroup()
 	if (isset($_POST['delete']))
 	{
 		checkSession();
+		validateToken('admin-mmg');
 
 		require_once($sourcedir . '/Subs-Membergroups.php');
 		deleteMembergroups($_REQUEST['group']);
@@ -648,6 +652,7 @@ function EditMembergroup()
 	{
 		// Validate the session.
 		checkSession();
+		validateToken('admin-mmg');
 
 		// Can they really inherit from this group?
 		if ($_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
@@ -1033,6 +1038,8 @@ function EditMembergroup()
 
 	$context['sub_template'] = 'edit_group';
 	$context['page_title'] = $txt['membergroups_edit_group'];
+
+	createToken('admin-mmg');
 }
 
 /**

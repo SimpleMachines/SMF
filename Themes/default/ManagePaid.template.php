@@ -206,6 +206,7 @@ function template_modify_subscription()
 					<div class="righttext">
 						<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button_submit" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '" />
 					</div>
 				</div>
 				<span class="botslice"><span></span></span>
@@ -233,6 +234,7 @@ function template_delete_subscription()
 
 					<input type="submit" name="delete_confirm" value="', $txt['paid_delete_subscription'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-pmsd_token_var'], '" value="', $context['admin-pmsd_token'], '" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

@@ -487,7 +487,8 @@ function template_modify_board()
 
 	echo '
 					<input type="hidden" name="rid" value="', $context['redirect_location'], '" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '" />';
 
 	// If this board has no children don't bother with the next confirmation screen.
 	if ($context['board']['no_children'])

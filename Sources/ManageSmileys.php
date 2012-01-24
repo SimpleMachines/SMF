@@ -176,6 +176,7 @@ function EditSmileySets()
 	if (isset($_POST[$context['session_var']]))
 	{
 		checkSession();
+		validateToken('admin-mss', 'request');
 
 		// Delete selected smiley sets.
 		if (!empty($_POST['delete']) && !empty($_POST['smiley_set']))
@@ -260,6 +261,8 @@ function EditSmileySets()
 	if ($context['sub_action'] == 'import')
 	{
 		checkSession('get');
+		validateToken('admin-mss', 'request');
+
 		$_GET['set'] = (int) $_GET['set'];
 
 		// Sanity check - then import.
@@ -337,6 +340,9 @@ function EditSmileySets()
 			$dir->close();
 		}
 	}
+
+	// This is our save haven.
+	createToken('admin-mss', 'request');
 
 	$listOptions = array(
 		'id' => 'smiley_set_list',
@@ -422,6 +428,7 @@ function EditSmileySets()
 		),
 		'form' => array(
 			'href' => $scripturl . '?action=admin;area=smileys;sa=editsets',
+			'token' => 'admin-mss',
 		),
 		'additional_rows' => array(
 			array(

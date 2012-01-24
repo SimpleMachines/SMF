@@ -113,6 +113,9 @@ function ManageMaintenance()
 	//converted to UTF-8? show a small maintenance info
 	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
 		$context['maintenance_finished'] = $txt['utf8_title'];
+
+	// Create a maintenance token.  Kinda hard to do it any other way.
+	createToken('admin-maint');
 }
 
 /**
@@ -221,6 +224,9 @@ function MaintainFindFixErrors()
 {
 	global $sourcedir;
 
+	// Honestly, this should be done in the sub function.
+	validateToken('admin-maint');
+
 	require_once($sourcedir . '/RepairBoards.php');
 	RepairBoards();
 }
@@ -232,6 +238,9 @@ function MaintainFindFixErrors()
 function MaintainCleanCache()
 {
 	global $context, $txt;
+
+	checkSession();
+	validateToken('admin-maint');
 
 	// Just wipe the whole cache directory!
 	clean_cache();
@@ -247,6 +256,7 @@ function MaintainEmptyUnimportantLogs()
 	global $context, $smcFunc, $txt;
 
 	checkSession();
+	validateToken('admin-maint');
 
 	// No one's online now.... MUHAHAHAHA :P.
 	$smcFunc['db_query']('', '
@@ -362,6 +372,8 @@ function ConvertUtf8()
 	// This is for the first screen telling backups is good.
 	if (!isset($_POST['proceed']))
 	{
+		validateToken('admin-maint');
+
 		// Character set conversions are only supported as of MySQL 4.1.2.
 		if (version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']())) > 0)
 			fatal_lang_error('utf8_db_version_too_low');
@@ -411,11 +423,15 @@ function ConvertUtf8()
 
 		$context['page_title'] = $txt['utf8_title'];
 		$context['sub_template'] = 'convert_utf8';
+
+		createToken('admin-maint');
 		return;
 	}
 
 	// After this point we're starting the conversion. But first: session check.
 	checkSession();
+	validateToken('admin-maint');
+	createToken('admin-maint');
 
 	// Translation table for the character sets not native for MySQL.
 	$translation_tables = array(
@@ -690,6 +706,9 @@ function ConvertEntities()
 	// The first step is just a text screen with some explanation.
 	if ($context['first_step'])
 	{
+		validateToken('admin-maint');
+		createToken('admin-maint');
+
 		$context['sub_template'] = 'convert_entities';
 		return;
 	}
@@ -700,6 +719,8 @@ function ConvertEntities()
 
 	// Now we're actually going to convert...
 	checkSession('request');
+	validateToken('admin-maint');
+	createToken('admin-maint');
 
 	// A list of tables ready for conversion.
 	$tables = array(
@@ -879,6 +900,7 @@ function OptimizeTables()
 	isAllowedTo('admin_forum');
 
 	checkSession('post');
+	validateToken('admin-maint');
 
 	ignore_user_abort(true);
 	db_extend();
@@ -953,6 +975,7 @@ function AdminBoardRecount()
 	isAllowedTo('admin_forum');
 
 	checkSession('request');
+	validateToken('admin-maint');
 
 	$context['page_title'] = $txt['not_done_title'];
 	$context['continue_post_data'] = '';
@@ -1509,6 +1532,8 @@ function MaintainDownloadBackup()
 {
 	global $sourcedir;
 
+	validateToken('admin-maint');
+
 	require_once($sourcedir . '/DumpDatabase.php');
 	DumpDatabase2();
 }
@@ -1525,6 +1550,7 @@ function MaintainPurgeInactiveMembers()
 	if (!empty($_POST['groups']) && $_POST['maxdays'])
 	{
 		checkSession();
+		validateToken('admin-maint');
 
 		$groups = array();
 		foreach ($_POST['groups'] as $id => $dummy)
@@ -1596,6 +1622,7 @@ function MaintainPurgeInactiveMembers()
 	}
 
 	$context['maintenance_finished'] = $txt['maintain_members'];
+	createToken('admin-maint');
 }
 
 /**
@@ -1604,6 +1631,8 @@ function MaintainPurgeInactiveMembers()
 function MaintainRemoveOldPosts()
 {
 	global $sourcedir, $context, $txt;
+
+	validateToken('admin-maint');
 
 	// Actually do what we're told!
 	require_once($sourcedir . '/RemoveTopic.php');
@@ -1623,6 +1652,7 @@ function MaintainMassMoveTopics()
 	isAllowedTo('admin_forum');
 
 	checkSession('request');
+	validateToken('admin-maint');
 
 	// Set up to the context.
 	$context['page_title'] = $txt['not_done_title'];

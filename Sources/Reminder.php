@@ -59,6 +59,9 @@ function RemindMe()
 	// Any subaction?  If none, fall through to the main template, which will ask for one.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$subActions[$_REQUEST['sa']]();
+	// Creating a one time token.
+	else
+		createToken('remind');
 }
 
 // Pick a reminder type.
@@ -67,6 +70,8 @@ function RemindPick()
 	global $context, $txt, $scripturl, $sourcedir, $user_info, $webmaster_email, $smcFunc, $language, $modSettings;
 
 	checkSession();
+	validateToken('remind');
+	createToken('remind');
 
 	// Coming with a known ID?
 	if (!empty($_REQUEST['uid']))
@@ -151,7 +156,7 @@ function RemindPick()
 		$context['description'] = $txt['reminder_' . (!empty($row['openid_uri']) ? 'openid_' : '') . 'sent'];
 
 		// If they were using OpenID simply email them their OpenID identity.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 1);
 		if (empty($row['openid_uri']))
 			// Set the password in the database.
 			updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
@@ -194,6 +199,9 @@ function setPassword()
 		'code' => $_REQUEST['code'],
 		'memID' => (int) $_REQUEST['u']
 	);
+
+	// Tokens!
+	createToken('remind-sp');
 }
 
 function setPassword2()
@@ -201,6 +209,7 @@ function setPassword2()
 	global $context, $txt, $modSettings, $smcFunc, $sourcedir;
 
 	checkSession();
+	validateToken('remind-sp');
 
 	if (empty($_POST['u']) || !isset($_POST['passwrd1']) || !isset($_POST['passwrd2']))
 		fatal_lang_error('no_access', false);
@@ -273,6 +282,7 @@ function setPassword2()
 		'never_expire' => false,
 		'description' => $txt['reminder_password_set']
 	);
+	createToken('login');
 }
 
 // Get the secret answer.
@@ -317,6 +327,7 @@ function SecretAnswerInput()
 	$context['secret_question'] = $row['secret_question'];
 
 	$context['sub_template'] = 'ask';
+	createToken('remind-sai');
 }
 
 function SecretAnswer2()
@@ -324,6 +335,7 @@ function SecretAnswer2()
 	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
 
 	checkSession();
+	validateToken('remind-sai');
 
 	// Hacker?  How did you get this far without an email or username?
 	if (empty($_REQUEST['uid']))
@@ -393,6 +405,8 @@ function SecretAnswer2()
 		'never_expire' => false,
 		'description' => $txt['reminder_password_set']
 	);
+
+	createToken('login');
 }
 
 ?>

@@ -344,6 +344,7 @@ function ModifySubscription()
 	if (isset($_POST['delete_confirm']) && isset($_REQUEST['delete']))
 	{
 		checkSession();
+		validateToken('admin-pmsd');
 
 		$smcFunc['db_query']('delete_subscription', '
 			DELETE FROM {db_prefix}subscriptions
@@ -360,6 +361,7 @@ function ModifySubscription()
 	if (isset($_POST['save']))
 	{
 		checkSession();
+		validateToken('admin-pms');
 
 		// Some cleaning...
 		$isActive = isset($_POST['active']) ? 1 : 0;
@@ -573,6 +575,9 @@ function ModifySubscription()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$context['groups'][$row['id_group']] = $row['group_name'];
 	$smcFunc['db_free_result']($request);
+
+	// This always happens.
+	createToken($context['action_type'] == 'delete' ? 'admin-pmsd' : 'admin-pms');
 }
 
 /**

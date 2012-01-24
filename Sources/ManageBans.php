@@ -364,6 +364,7 @@ function BanEdit()
 	if (!empty($_POST['add_new_trigger']) || !empty($_POST['edit_trigger']))
 	{
 		checkSession();
+		validateToken('admin-bet');
 
 		$newBan = !empty($_POST['add_new_trigger']);
 		$values = array(
@@ -520,6 +521,7 @@ function BanEdit()
 	elseif (!empty($_POST['remove_selection']) && !empty($_POST['ban_items']) && is_array($_POST['ban_items']))
 	{
 		checkSession();
+		validateToken('admin-bet');
 
 		// Making sure every deleted ban item is an integer.
 		foreach ($_POST['ban_items'] as $key => $value)
@@ -544,6 +546,7 @@ function BanEdit()
 	elseif (!empty($_POST['modify_ban']) || !empty($_POST['add_ban']))
 	{
 		checkSession();
+		validateToken('admin-bet');
 
 		$addBan = !empty($_POST['add_ban']);
 		if (empty($_POST['ban_name']))
@@ -985,6 +988,8 @@ function BanEdit()
 	}
 	else
 		$context['sub_template'] = 'ban_edit';
+
+	createToken('admin-bet');
 }
 
 /**
@@ -1074,6 +1079,8 @@ function BanEditTrigger()
 			'is_new' => false,
 		);
 	}
+
+	createToken('admin-bet');
 }
 
 /**
@@ -1368,6 +1375,7 @@ function BanLog()
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
 	{
 		checkSession();
+		validateToken('admin-bl');
 
 		// 'Delete all entries' button was pressed.
 		if (!empty($_POST['removeAll']))
@@ -1487,6 +1495,7 @@ function BanLog()
 			'href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
 			'include_start' => true,
 			'include_sort' => true,
+			'token' => 'admin-bl',
 		),
 		'additional_rows' => array(
 			array(
@@ -1498,6 +1507,8 @@ function BanLog()
 			),
 		),
 	);
+
+	createToken('admin-bl');
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);

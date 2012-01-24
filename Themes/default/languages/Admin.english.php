@@ -38,6 +38,7 @@ $txt['admin_config'] = 'Configuration';
 $txt['admin_version_check'] = 'Detailed Version Check';
 $txt['admin_smffile'] = 'SMF File';
 $txt['admin_smfpackage'] = 'SMF Package';
+$txt['admin_logoff'] = 'Admin End Session';
 $txt['admin_maintenance'] = 'Maintenance';
 $txt['admin_image_text'] = 'Show buttons as images instead of text';
 $txt['admin_credits'] = 'Credits';

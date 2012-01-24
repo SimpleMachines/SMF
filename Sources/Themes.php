@@ -217,10 +217,13 @@ function ThemeAdmin()
 		while (file_exists($theme_dir . $i))
 			$i++;
 		$context['new_theme_name'] = 'theme' . $i;
+
+		createToken('admin-tm');
 	}
 	else
 	{
 		checkSession();
+		validateToken('admin-tm');
 
 		if (isset($_POST['options']['known_themes']))
 			foreach ($_POST['options']['known_themes'] as $key => $id)
@@ -254,6 +257,7 @@ function ThemeList()
 	if (isset($_POST['submit']))
 	{
 		checkSession();
+		validateToken('admin-tl');
 
 		$request = $smcFunc['db_query']('', '
 			SELECT id_theme, variable, value
@@ -357,6 +361,8 @@ function ThemeList()
 	$context['reset_url'] = $boardurl . '/Themes';
 
 	$context['sub_template'] = 'list_themes';
+	createToken('admin-tl');
+	createToken('admin-tr', 'request');
 }
 
 // Administrative global settings.
@@ -443,6 +449,7 @@ function SetThemeOptions()
 		loadTemplate('Themes');
 		$context['sub_template'] = 'reset_list';
 
+		createToken('admin-stor', 'request');
 		return;
 	}
 
@@ -450,6 +457,7 @@ function SetThemeOptions()
 	if (isset($_POST['submit']) && empty($_POST['who']))
 	{
 		checkSession();
+		validateToken('admin-sto');
 
 		if (empty($_POST['options']))
 			$_POST['options'] = array();
@@ -503,6 +511,7 @@ function SetThemeOptions()
 	elseif (isset($_POST['submit']) && $_POST['who'] == 1)
 	{
 		checkSession();
+		validateToken('admin-sto');
 
 		$_POST['options'] = empty($_POST['options']) ? array() : $_POST['options'];
 		$_POST['options_master'] = empty($_POST['options_master']) ? array() : $_POST['options_master'];
@@ -620,6 +629,7 @@ function SetThemeOptions()
 	elseif (!empty($_GET['who']) && $_GET['who'] == 2)
 	{
 		checkSession('get');
+		validateToken('admin-stor', 'request');
 
 		// Don't delete custom fields!!
 		if ($_GET['th'] == 1)
@@ -728,6 +738,7 @@ function SetThemeOptions()
 	$settings = $old_settings;
 
 	loadTemplate('Themes');
+	createToken('admin-sto');
 }
 
 // Administrative global settings.
@@ -789,6 +800,7 @@ function SetThemeSettings()
 	if (isset($_POST['submit']))
 	{
 		checkSession();
+		validateToken('admin-sts');
 
 		if (empty($_POST['options']))
 			$_POST['options'] = array();
@@ -896,6 +908,9 @@ function SetThemeSettings()
 	$settings = $old_settings;
 
 	loadTemplate('Themes');
+
+	// We like Kenny better than Token.
+	createToken('admin-sts');
 }
 
 // Remove a theme from the database.
@@ -906,6 +921,7 @@ function RemoveTheme()
 	checkSession('get');
 
 	isAllowedTo('admin_forum');
+	validateToken('admin-tr', 'request');
 
 	// The theme's ID must be an integer.
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
@@ -1683,11 +1699,9 @@ function EditTheme()
 {
 	global $context, $settings, $scripturl, $boarddir, $smcFunc;
 
+	// !!! Should this be removed?
 	if (isset($_REQUEST['preview']))
-	{
-		// !!! Should this be removed?
-		die;
-	}
+		die('die() with fire');
 
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
@@ -1835,7 +1849,7 @@ function EditTheme()
 
 	if (isset($_POST['submit']))
 	{
-		if (checkSession('post', '', false) == '')
+		if (checkSession('post', '', false) == '' && validateToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true)
 		{
 			if (is_array($_POST['entire_file']))
 				$_POST['entire_file'] = implode("\n", $_POST['entire_file']);
@@ -1888,7 +1902,12 @@ function EditTheme()
 			$context['sub_template'] = 'edit_file';
 
 			// Recycle the submitted data.
-			$context['entire_file'] = htmlspecialchars($_POST['entire_file']);
+			if (is_array($_POST['entire_file']))
+				$context['entire_file'] = htmlspecialchars(implode("\n", $_POST['entire_file']));
+			else
+				$context['entire_file'] = htmlspecialchars($_POST['entire_file']);
+
+			$context['edit_filename'] = htmlspecialchars($_POST['filename']);
 
 			// You were able to submit it, so it's reasonable to assume you are allowed to save.
 			$context['allow_save'] = true;
@@ -1947,6 +1966,9 @@ function EditTheme()
 
 		$context['entire_file'] = htmlspecialchars(strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
+
+	// Create a special token to allow editing of multiple files.
+	createToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
 }
 
 function get_file_listing($path, $relative)

@@ -328,6 +328,7 @@ function EditTask()
 	if (isset($_GET['save']))
 	{
 		checkSession();
+		validateToken('admin-st');
 
 		// We'll need this for calculating the next event.
 		require_once($sourcedir . '/ScheduledTasks.php');
@@ -407,6 +408,8 @@ function EditTask()
 		);
 	}
 	$smcFunc['db_free_result']($request);
+
+	createToken('admin-st');
 }
 
 /**
@@ -425,6 +428,7 @@ function TaskLog()
 	if (!empty($_POST['removeAll']))
 	{
 		checkSession();
+		validateToken('admin-tl');
 
 		$smcFunc['db_query']('truncate_table', '
 			TRUNCATE {db_prefix}log_scheduled_tasks',
@@ -490,6 +494,7 @@ function TaskLog()
 		),
 		'form' => array(
 			'href' => $context['admin_area'] == 'scheduledtasks' ? $scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : $scripturl . '?action=admin;area=logs;sa=tasklog',
+			'token' => 'admin-tl',
 		),
 		'additional_rows' => array(
 			array(
@@ -505,6 +510,8 @@ function TaskLog()
 			),
 		),
 	);
+
+	createToken('admin-tl');
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);

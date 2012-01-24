@@ -37,6 +37,8 @@ function template_registration_agreement()
 				<input type="submit" name="accept_agreement" value="', $txt['agreement_agree'], '" class="button_submit" />';
 
 	echo '
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '" />
 			</div>
 			<input type="hidden" name="step" value="1" />
 		</form>';
@@ -349,6 +351,8 @@ function template_registration_form()
 			<div id="confirm_buttons">
 				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
 			</div>
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '" />
 			<input type="hidden" name="step" value="2" />
 		</form>
 		<script type="text/javascript"><!-- // --><![CDATA[
@@ -606,6 +610,7 @@ function template_admin_register()
 			</div>
 			<span class="botslice"><span></span></span>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />';
@@ -672,6 +677,7 @@ function template_edit_agreement()
 						<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '" />
 						<input type="hidden" name="sa" value="agreement" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '" />
 					</div>
 				</form>
 			</div>
@@ -708,6 +714,7 @@ function template_edit_reserved_words()
 			<span class="botslice"><span></span></span>
 			<input type="hidden" name="sa" value="reservednames" />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '" />
 		</form>
 		<br class="clear" />';
 }

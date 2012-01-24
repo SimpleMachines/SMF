@@ -208,7 +208,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language;
+	global $cookiename, $user_info, $language, $context;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -369,6 +369,12 @@ function loadUserSettings()
 
 		if (isset($_COOKIE[$cookiename]))
 			$_COOKIE[$cookiename] = '';
+
+		// Create a login token if it doesn't exist yet.
+		if (!isset($_SESSION['token']['post-login']))
+			createToken('login');
+		else
+			list ($context['login_token_var'],,, $context['login_token']) = $_SESSION['token']['post-login'];
 
 		// Do we perhaps think this is a search robot? Check every five minutes just in case...
 		if ((!empty($modSettings['spider_mode']) || !empty($modSettings['spider_group'])) && (!isset($_SESSION['robot_check']) || $_SESSION['robot_check'] < time() - 300))

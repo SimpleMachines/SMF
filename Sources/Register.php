@@ -191,6 +191,8 @@ function Register($reg_errors = array())
 	if (!empty($reg_errors))
 		foreach ($reg_errors as $error)
 			$context['registration_errors'][] = $error;
+
+	createToken('register');
 }
 
 /**
@@ -202,6 +204,9 @@ function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
 	global $user_info, $options, $settings, $smcFunc;
+
+	checkSession();
+	validateToken('register');
 
 	// Start collecting together any errors.
 	$reg_errors = array();

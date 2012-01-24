@@ -81,7 +81,8 @@ function template_modify_weights()
 						</dd>
 					</dl>
 					<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button_submit floatright" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" /><br class="clear" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '" /><br class="clear" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -225,6 +226,7 @@ function template_select_search_method()
 					<div class="clear">
 						<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit floatright" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-msm_token_var'], '" value="', $context['admin-msm_token'], '" />
 					</div>
 				</div>
 				<span class="botslice clear"><span></span></span>
@@ -381,6 +383,7 @@ function template_spider_edit()
 						</dd>
 					</dl>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '" />
 					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit" />
 				</div>
 				<span class="botslice"><span></span></span>

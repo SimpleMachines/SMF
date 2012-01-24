@@ -56,6 +56,7 @@ function ViewModlog()
 	if (isset($_POST['removeall']) && $context['can_delete'])
 	{
 		checkSession();
+		validateToken('mod-ml');
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
@@ -70,6 +71,8 @@ function ViewModlog()
 	elseif (!empty($_POST['remove']) && isset($_POST['delete']) && $context['can_delete'])
 	{
 		checkSession();
+		validateToken('mod-ml');
+
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
@@ -267,6 +270,7 @@ function ViewModlog()
 				$context['session_var'] => $context['session_id'],
 				'params' => $context['search_params']
 			),
+			'token' => 'mod-ml',
 		),
 		'additional_rows' => array(
 			array(
@@ -286,6 +290,8 @@ function ViewModlog()
 			),
 		),
 	);
+
+	createToken('mod-ml');
 
 	// Create the watched user list.
 	createList($listOptions);
