@@ -2,7 +2,7 @@
 
 /**
  * This file takes care of actions on topics:
- * locking and sticky-ing.
+ * lock/unlock a topic, sticky/unsticky it,
  *
  * Simple Machines Forum (SMF)
  *

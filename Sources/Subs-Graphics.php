@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * This file deals with low-level graphics operations performed on images,
+ * specially as needed for avatars (uploaded avatars), and attachments.
+ * It uses, for gifs at least, Gif Util... for more information on that,
+ * please see its website.
+ * TrueType fonts supplied by www.LarabieFonts.com
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -10,8 +16,6 @@
  *
  * @version 2.0
  */
-
-// TrueType fonts supplied by www.LarabieFonts.com
 
 if (!defined('SMF'))
 	die('Hacking attempt...');

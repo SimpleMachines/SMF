@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains the functions required to move topics from one board to
+ * another board.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -68,7 +71,7 @@ function MoveTopic()
 		isAllowedTo('approve_posts');
 
 	// Permission check!
-	// !!!
+	// @todo
 	if (!allowedTo('move_any'))
 	{
 		if ($id_member_started == $user_info['id'])
@@ -146,7 +149,17 @@ function MoveTopic()
 	checkSubmitOnce('register');
 }
 
-// Execute the move.
+/**
+ * Execute the move of a topic.
+ * It is called on the submit of MoveTopic.
+ * This function logs that topics have been moved in the moderation log.
+ * If the member is the topic starter requires the move_own permission,
+ * otherwise requires the move_any permission.
+ * Upon successful completion redirects to message index.
+ * Accessed via ?action=movetopic2.
+ *
+ * @uses Subs-Post.php.
+ */
 function MoveTopic2()
 {
 	global $txt, $board, $topic, $scripturl, $sourcedir, $modSettings, $context;
