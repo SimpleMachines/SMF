@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains those functions specific to the editing box and is
+ * generally used for WYSIWYG type functionality.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,19 +17,7 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains those functions specific to the editing box and is
-	generally used for WYSIWYG type functionality. Doing all this is the
-	following:
-
-	void EditorMain()
-		// !!
-
-	void bbc_to_html()
-		// !!
-
-	void html_to_bbc()
-		// !!
-
+/*
 	void theme_postbox(string message)
 		- for compatibility - passes right through to the template_control_richedit function.
 
@@ -54,7 +45,9 @@ if (!defined('SMF'))
 		// !!!
 */
 
-// At the moment this is only used for returning WYSIWYG data...
+/**
+ * At the moment this is only used for returning WYSIWYG data.
+ */
 function EditorMain()
 {
 	global $context, $smcFunc;
@@ -85,7 +78,10 @@ function EditorMain()
 	$context['message'] = $smcFunc['htmlspecialchars']($context['message']);
 }
 
-// Convert only the BBC that can be edited in HTML mode for the editor.
+/**
+ * Convert only the BBC that can be edited in HTML mode for the editor.
+ * @param string $text
+ */
 function bbc_to_html($text)
 {
 	global $modSettings, $smcFunc;
@@ -138,7 +134,12 @@ function bbc_to_html($text)
 	return $text;
 }
 
-// The harder one - wysiwyg to BBC!
+/**
+ * The harder one - wysiwyg to BBC!
+ * 
+ * @param string $text
+ * @return string
+ */
 function html_to_bbc($text)
 {
 	global $modSettings, $smcFunc, $sourcedir, $scripturl, $context;
@@ -888,7 +889,12 @@ function html_to_bbc($text)
 	return $text;
 }
 
-// Returns an array of attributes associated with a tag.
+/**
+ * Returns an array of attributes associated with a tag.
+ * 
+ * @param string $text
+ * @return string
+ */
 function fetchTagAttributes($text)
 {
 	$attribs = array();
@@ -943,6 +949,16 @@ function fetchTagAttributes($text)
 	return $attribs;
 }
 
+/**
+ * Retrieves a list of message icons.
+ * Based on the settings, the array will either contain a list of default
+ * message icons or a list of custom message icons retrieved from the database.
+ * The board_id is needed for the custom message icons (which can be set for
+ * each board individually).
+ * 
+ * @param int $board_id
+ * @return array
+ */
 function getMessageIcons($board_id)
 {
 	global $modSettings, $context, $txt, $settings, $smcFunc;
@@ -2126,7 +2142,11 @@ function AutoSuggestHandler($checkRegistered = null)
 	}
 }
 
-// Search for a member - by real_name or member_name by default.
+/**
+ * Search for a member - by real_name or member_name by default.
+ * 
+ * @return string
+ */
 function AutoSuggest_Search_Member()
 {
 	global $user_info, $txt, $smcFunc, $context;

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Find and	retrieve information about recently posted topics, messages, and the like.
- * 
+ * Find and retrieve information about recently posted topics, messages, and the like.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF

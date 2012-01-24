@@ -14,57 +14,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-
-	void summary(int id_member)
-		// !!!
-
-	void showPosts(int id_member)
-		// !!!
-
-	void showAttachments(int id_member)
-		// !!!
-
-	void statPanel(int id_member)
-		// !!!
-
-	void tracking(int id_member)
-		// !!!
-
-	void trackUser(int id_member)
-		// !!!
-
-	int list_getUserErrorCount(string where)
-		// !!!
-
-	array list_getUserErrors(int start, int items_per_page, string sort, string where, array where_vars)
-		// !!!
-
-	int list_getIPMessageCount(string where)
-		// !!!
-
-	array list_getIPMessages(int start, int items_per_page, string sort, string where, array where_vars)
-		// !!!
-
-	void TrackIP(int id_member = none)
-		// !!!
-
-	void trackEdits(int id_member)
-		// !!!
-
-	int list_getProfileEditCount(int id_member)
-		// !!!
-
-	array list_getProfileEdits(int start, int items_per_page, string sort, int id_member)
-		// !!!
-
-	void showPermissions(int id_member)
-		// !!!
-
-	void viewWarning(int id_member)
-		// !!!
-*/
-
 /**
  * View a summary.
  * @param int $memID id_member
@@ -1656,6 +1605,7 @@ function trackEdits($memID)
  * How many edits?
  * 
  * @param int $memID id_member
+ * @return string number of profile edits
  */
 function list_getProfileEditCount($memID)
 {
@@ -1674,6 +1624,7 @@ function list_getProfileEditCount($memID)
 	list ($edit_count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
+	// @todo cast to integer
 	return $edit_count;
 }
 

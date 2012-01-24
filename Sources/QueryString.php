@@ -2,7 +2,7 @@
 
 /**
  * This file does a lot of important stuff.  Mainly, this means it handles
-	the query string, request variables, and session management.
+ * the query string, request variables, and session management.
  *
  * Simple Machines Forum (SMF)
  *
@@ -19,14 +19,14 @@ if (!defined('SMF'))
 
 /**
  * Clean the request variables - add html entities to GET and slashes if magic_quotes_gpc is Off.
- * 
+ *
  * What it does:
  * - cleans the request variables (ENV, GET, POST, COOKIE, SERVER) and
-		  makes sure the query string was parsed correctly.
-		- handles the URLs passed by the queryless URLs option.
-		- makes sure, regardless of php.ini, everything has slashes.
-		- sets up $board, $topic, and $scripturl and $_REQUEST['start'].
-		- determines, or rather tries to determine, the client's IP.
+ * makes sure the query string was parsed correctly.
+ * - handles the URLs passed by the queryless URLs option.
+ * - makes sure, regardless of php.ini, everything has slashes.
+ * - sets up $board, $topic, and $scripturl and $_REQUEST['start'].
+ * - determines, or rather tries to determine, the client's IP.
  */
 
 function cleanRequest()
@@ -287,8 +287,8 @@ function cleanRequest()
  * Adds slashes to the array/variable.
  * What it does:
  * - returns the var, as an array or string, with escapes as required.
-		- importantly escapes all keys and values!
-		- calls itself recursively if necessary.
+ * - importantly escapes all keys and values!
+ * - calls itself recursively if necessary.
  *
  * @param array|string $var
  * @return array|string
@@ -313,9 +313,10 @@ function escapestring__recursive($var)
 /**
  * Adds html entities to the array/variable.  Uses two underscores to guard against overloading.
  * What it does:
- * 		- adds entities (&quot;, &lt;, &gt;) to the array or string var.
-		- importantly, does not effect keys, only values.
-		- calls itself recursively if necessary.
+ * - adds entities (&quot;, &lt;, &gt;) to the array or string var.
+ * - importantly, does not effect keys, only values.
+ * - calls itself recursively if necessary.
+ *
  * @param array|string $var
  * @param int $level = 0
  * @return array|string
@@ -338,8 +339,8 @@ function htmlspecialchars__recursive($var, $level = 0)
  * Removes url stuff from the array/variable.  Uses two underscores to guard against overloading.
  * What it does:
  * - takes off url encoding (%20, etc.) from the array or string var.
-		- importantly, does it to keys too!
-		- calls itself recursively if there are any sub arrays.
+ * - importantly, does it to keys too!
+ * - calls itself recursively if there are any sub arrays.
  *
  * @param array|string $var
  * @param int $level = 0
@@ -362,9 +363,9 @@ function urldecode__recursive($var, $level = 0)
 /**
  * Unescapes any array or variable.  Uses two underscores to guard against overloading.
  * What it does:
- * 		- unescapes, recursively, from the array or string var.
-		- effects both keys and values of arrays.
-		- calls itself recursively to handle arrays of arrays.
+ * - unescapes, recursively, from the array or string var.
+ * - effects both keys and values of arrays.
+ * - calls itself recursively to handle arrays of arrays.
  *
  * @param array|string $var
  * @return array|string
@@ -389,10 +390,10 @@ function unescapestring__recursive($var)
 /**
  * Remove slashes recursively.  Uses two underscores to guard against overloading.
  * What it does:
- * 		- removes slashes, recursively, from the array or string var.
-		- effects both keys and values of arrays.
-		- calls itself recursively to handle arrays of arrays.
- * 
+ * - removes slashes, recursively, from the array or string var.
+ * - effects both keys and values of arrays.
+ * - calls itself recursively to handle arrays of arrays.
+ *
  * @param array|string $var
  * @param int $level = 0
  * @return array|string
@@ -415,10 +416,10 @@ function stripslashes__recursive($var, $level = 0)
 /**
  * Trim a string including the HTML space, character 160.  Uses two underscores to guard against overloading.
  * What it does:
- * 		- trims a string or an the var array using html characters as well.
-		- does not effect keys, only values.
-		- may call itself recursively if needed.
- * 
+ * - trims a string or an the var array using html characters as well.
+ * - does not effect keys, only values.
+ * - may call itself recursively if needed.
+ *
  * @param array|string $var
  * @param int $level = 0
  * @return array|string
@@ -441,9 +442,9 @@ function htmltrim__recursive($var, $level = 0)
 /**
  * Clean up the XML to make sure it doesn't contain invalid characters.
  * What it does:
- * 		- removes invalid XML characters to assure the input string being
-		  parsed properly.
- * 
+ * - removes invalid XML characters to assure the input string being
+ * - parsed properly.
+ *
  * @param string $string
  * @return string
  */
@@ -481,14 +482,14 @@ function JavaScriptEscape($string)
 /**
  * Rewrite URLs to include the session ID.
  * What it does:
- * 		- rewrites the URLs outputted to have the session ID, if the user
-		  is not accepting cookies and is using a standard web browser.
-		- handles rewriting URLs for the queryless URLs option.
-		- can be turned off entirely by setting $scripturl to an empty
-		  string, ''. (it wouldn't work well like that anyway.)
-		- because of bugs in certain builds of PHP, does not function in
-		  versions lower than 4.3.0 - please upgrade if this hurts you.
- * 
+ * - rewrites the URLs outputted to have the session ID, if the user
+ * is not accepting cookies and is using a standard web browser.
+ * - handles rewriting URLs for the queryless URLs option.
+ * - can be turned off entirely by setting $scripturl to an empty
+ * string, ''. (it wouldn't work well like that anyway.)
+ * - because of bugs in certain builds of PHP, does not function in
+ * versions lower than 4.3.0 - please upgrade if this hurts you.
+ *
  * @param string $buffer
  * @return string
  */

@@ -20,7 +20,7 @@ if (!defined('SMF'))
 
 /**
  * This defines every profile field known to man.
- * 
+ *
  * @param bool $force_reload = false
  */
 function loadProfileFields($force_reload = false)
@@ -135,7 +135,7 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 			'input_validate' => create_function('&$value', '
 				global $cur_profile;
-				// !!! Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
+				// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 				if (preg_match(\'/(\d{4})[\-\., ](\d{2})[\-\., ](\d{2})/\', $value, $dates) === 1)
 				{
 					$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf(\'%04d-%02d-%02d\', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : \'0001-01-01\';
@@ -680,7 +680,7 @@ function loadProfileFields($force_reload = false)
 
 /**
  * Setup the context for a page load!
- * 
+ *
  * @param array $fields
  */
 function setupProfileContext($fields)
@@ -884,7 +884,7 @@ function saveProfileFields()
 		}
 	}
 
-	//!!! Temporary
+	// @todo Temporary
 	if ($context['user']['is_owner'])
 		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own'));
 	else
@@ -902,7 +902,7 @@ function saveProfileFields()
 
 /**
  * Save the profile changes
- * 
+ *
  * @param array &$profile_variables
  * @param array &$post_errors
  * @param int $memID id_member
@@ -991,7 +991,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 
 /**
  * Make any theme changes that are sent with the profile.
- * 
+ *
  * @param int $memID
  * @param int $id_theme
  */
@@ -1104,7 +1104,7 @@ function makeThemeChanges($memID, $id_theme)
 
 /**
  * Make any notification changes that need to be made.
- * 
+ *
  * @param int $memID id_member
  */
 function makeNotificationChanges($memID)
@@ -1155,7 +1155,7 @@ function makeNotificationChanges($memID)
 
 /**
  * Save any changes to the custom profile fields
- * 
+ *
  * @param int $memID
  * @param string $area
  * @param bool $sanitize = true
@@ -1211,12 +1211,12 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 				$value = $smcFunc['substr']($value, 0, $row['field_length']);
 
 			// Any masks?
-			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
+			if ($row['field_type'] === 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				//!!! We never error on this - just ignore it at the moment...
-				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
+				// @todo We never error on this - just ignore it at the moment...
+				if ($row['mask'] === 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
 					$value = '';
-				elseif ($row['mask'] == 'number')
+				elseif ($row['mask'] === 'number')
 				{
 					$value = (int) $value;
 				}
@@ -1266,7 +1266,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 
 /**
  * Show all the users buddies, as well as a add/delete interface.
- * 
+ *
  * @param int $memID id_member
  */
 function editBuddyIgnoreLists($memID)
@@ -1305,7 +1305,7 @@ function editBuddyIgnoreLists($memID)
 
 /**
  * Show all the users buddies, as well as a add/delete interface.
- * 
+ *
  * @param int $memID id_member
  */
 function editBuddies($memID)
@@ -1416,7 +1416,7 @@ function editBuddies($memID)
 
 /**
  * Allows the user to view their ignore list, as well as the option to manage members on it.
- * 
+ *
  * @param int $memID id_member
  */
 function editIgnoreList($memID)
@@ -1527,7 +1527,7 @@ function editIgnoreList($memID)
 
 /**
  * @todo Needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function account($memID)
@@ -1554,7 +1554,7 @@ function account($memID)
 
 /**
  * @todo Needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function forumProfile($memID)
@@ -1582,7 +1582,7 @@ function forumProfile($memID)
 
 /**
  * Allow the edit of *someone elses* personal message settings.
- * 
+ *
  * @param int $memID id_member
  */
 function pmprefs($memID)
@@ -1604,7 +1604,7 @@ function pmprefs($memID)
 
 /**
  * Recursive function to retrieve avatar files
- * 
+ *
  * @param string $directory
  * @param int $level
  * @return array
@@ -1687,7 +1687,7 @@ function getAvatars($directory, $level)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function theme($memID)
@@ -1712,7 +1712,7 @@ function theme($memID)
 
 /**
  * Changing authentication method? Only appropriate for people using OpenID.
- * 
+ *
  * @param int $memID id_member
  * @param bool $saving = false
  */
@@ -1794,7 +1794,7 @@ function authentication($memID, $saving = false)
 
 /**
  * Display the notifications and settings for changes.
- * 
+ *
  * @param int $memID id_member
  */
 function notification($memID)
@@ -2008,9 +2008,9 @@ function notification($memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
- * @return string $totalNotifications
+ * @return string
  */
 function list_getTopicNotificationCount($memID)
 {
@@ -2038,7 +2038,7 @@ function list_getTopicNotificationCount($memID)
 
 /**
  * @todo Needs a description
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -2104,12 +2104,12 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
  * @param int $memID id_member
- * @return array $notification_boards
+ * @return array
  */
 function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 {
@@ -2144,7 +2144,7 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function loadThemeOptions($memID)
@@ -2199,7 +2199,7 @@ function loadThemeOptions($memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function ignoreboards($memID)
@@ -2303,7 +2303,7 @@ function profileLoadLanguages()
 
 /**
  * @todo needs description
- * 
+ *
  * @return true
  */
 function profileLoadGroups()
@@ -2360,7 +2360,7 @@ function profileLoadGroups()
 
 /**
  * Load key signature context data.
- * 
+ *
  * @return true
  */
 function profileLoadSignatureData()
@@ -2400,7 +2400,7 @@ function profileLoadSignatureData()
 
 /**
  * Load avatar context data.
- * 
+ *
  * @return true
  */
 function profileLoadAvatarData()
@@ -2464,7 +2464,7 @@ function profileLoadAvatarData()
 
 /**
  * Save a members group.
- * 
+ *
  * @param int &$value
  * @return true
  */
@@ -2566,7 +2566,7 @@ function profileSaveGroups(&$value)
 /**
  * The avatar is incredibly complicated, what with the options... and what not.
  * @todo argh, the avatar here. Take this out of here!
- * 
+ *
  * @param array &$value
  * @return mixed
  */
@@ -2812,7 +2812,7 @@ function profileSaveAvatarData(&$value)
 
 /**
  * Validate the signature
- * 
+ *
  * @param mixed &$value
  * @return bool|string
  */
@@ -2987,7 +2987,7 @@ function profileValidateSignature(&$value)
 
 /**
  * Validate an email address.
- * 
+ *
  * @param string $email
  * @param int $memID = 0
  * @return bool|string
@@ -3097,7 +3097,7 @@ function profileSendActivation()
 
 /**
  * Function to allow the user to choose group membership etc...
- * 
+ *
  * @param int $memID id_member
  */
 function groupMembership($memID)
@@ -3195,11 +3195,11 @@ function groupMembership($memID)
 
 /**
  * This function actually makes all the group changes
- * 
+ *
  * @param array $profile_vars
  * @param array $post_errors
  * @param int $memID id_member
- * 
+ * @return mixed
  */
 function groupMembership2($profile_vars, $post_errors, $memID)
 {

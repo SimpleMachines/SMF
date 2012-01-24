@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Provide a display for forum statistics
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,28 +16,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This function has only one job: providing a display for forum statistics.
-	As such, it has only one function:
-
-	void DisplayStats()
-		- gets all the statistics in order and puts them in.
-		- uses the Stats template and language file. (and main sub template.)
-		- requires the view_stats permission.
-		- accessed from ?action=stats.
-
-	void getDailyStats(string $condition)
-		- called by DisplayStats().
-		- loads the statistics on a daily basis in $context.
-
-	void SMStats()
-		- called by simplemachines.org.
-		- only returns anything if stats was enabled during installation.
-		- can also be accessed by the admin, to show what stats sm.org collects.
-		- does not return any data directly to sm.org, instead starts a new request for security.
-
-*/
-
-// Display some useful/interesting board statistics.
+/**
+ * Display some useful/interesting board statistics.
+ * 
+ * gets all the statistics in order and puts them in.
+ * uses the Stats template and language file. (and main sub template.)
+ * requires the view_stats permission.
+ * accessed from ?action=stats.
+ */
 function DisplayStats()
 {
 	global $txt, $scripturl, $modSettings, $user_info, $context, $smcFunc;
@@ -638,6 +626,10 @@ function DisplayStats()
 	getDailyStats(implode(' OR ', $condition_text), $condition_params);
 }
 
+/**
+ * Loads the statistics on a daily basis in $context.
+ * called by DisplayStats().
+ */
 function getDailyStats($condition_string, $condition_parameters = array())
 {
 	global $context, $smcFunc;
@@ -664,8 +656,15 @@ function getDailyStats($condition_string, $condition_parameters = array())
 	$smcFunc['db_free_result']($days_result);
 }
 
-// This is the function which returns stats to simplemachines.org IF enabled!
-// See http://www.simplemachines.org/about/stats.php for more info.
+/**
+ * This is the function which returns stats to simplemachines.org IF enabled!
+ * called by simplemachines.org.
+ * only returns anything if stats was enabled during installation.
+ * can also be accessed by the admin, to show what stats sm.org collects.
+ * does not return any data directly to sm.org, instead starts a new request for security.
+ * 
+ * @link http://www.simplemachines.org/about/stats.php for more info.
+ */
 function SMStats()
 {
 	global $modSettings, $user_info, $forum_version, $sourcedir;

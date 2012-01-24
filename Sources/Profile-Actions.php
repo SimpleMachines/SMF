@@ -476,7 +476,7 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 		isAllowedTo('profile_remove_any');
 
 		// Now, have you been naughty and need your posts deleting?
-		// !!! Should this check board permissions?
+		// @todo Should this check board permissions?
 		if ($_POST['remove_type'] != 'none' && allowedTo('moderate_forum'))
 		{
 			// Include RemoveTopics - essential for this type of work!

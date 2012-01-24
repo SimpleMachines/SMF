@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * This file is exclusively for generating reports to help assist forum
+ * administrators keep track of their forum configuration and state. The
+ * core report generation is done in two areas. Firstly, a report "generator"
+ * will fill context with relevant data. Secondly, the choice of sub-template
+ * will determine how this data is shown to the user
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,100 +20,66 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is exclusively for generating reports to help assist forum
-	administrators keep track of their forum configuration and state. The
-	core report generation is done in two areas. Firstly, a report "generator"
-	will fill context with relevant data. Secondly, the choice of sub-template
-	will determine how this data is shown to the user. It has the following
+/*	. It has the following
 	functions:
 
-	void ReportsMain()
-		- requires the admin_forum permission.
-		- loads the Reports template and language files.
-		- decides which type of report to generate, if this isn't passed
-		  through the querystring it will set the report_type sub-template to
-		  force the user to choose which type.
-		- when generating a report chooses which sub_template to use.
-		- depends on the cal_enabled setting, and many of the other cal_
-		  settings.
-		- will call the relevant report generation function.
-		- if generating report will call finishTables before returning.
-		- accessed through ?action=admin;area=reports.
-
 	void xxxxxxReport()
-		- functions ending with "Report" are responsible for generating data
-		  for reporting.
-		- they are all called from ReportsMain.
-		- never access the context directly, but use the data handling
-		  functions to do so.
+ * functions ending with "Report" are responsible for generating data
+ * for reporting.
+ * they are all called from ReportsMain.
+ * never access the context directly, but use the data handling
+ * functions to do so.
 
-	void newTable(string title = '', string default_value = '',
-			string shading = 'all', string width_normal = 'auto',
-			string align_normal = 'center', string width_shaded = 'auto',
-			string align_shaded = 'auto')
-		- the core of this file, it creates a new, but empty, table of data in
-		  context, ready for filling using addData().
-		- takes a lot of possible attributes, these have the following effect:
-			+ title = Title to be displayed with this data table.
-			+ default_value = Value to be displayed if a key is missing from a
-			  row.
-			+ shading = Should the left, top or both (all) parts of the table
-			  beshaded?
-			+ width_normal = width of an unshaded column (auto means not
-			  defined).
-			+ align_normal = alignment of data in an unshaded column.
-			+ width_shaded = width of a shaded column (auto means not
-			  defined).
-			+ align_shaded = alignment of data in a shaded column.
-		- fills the context variable current_table with the ID of the table
-		  created.
-		- keeps track of the current table count using context variable
-		  table_count.
+void addData(array inc_data, int custom_table = null)
+ * adds an array of data into an existing table.
+ * if there are no existing tables, will create one with default
+ * attributes.
+ * if custom_table isn't specified, it will use the last table created,
+ * if it is specified and doesn't exist the function will return false.
+ * if a set of keys have been specified, the function will check each
+ * required key is present in the incoming data. If this data is missing
+ * the current tables default value will be used.
+ * if any key in the incoming data begins with '#sep#', the function
+ * will add a separator accross the table at this point.
+ * once the incoming data has been sanitized, it is added to the table.
 
-	void addData(array inc_data, int custom_table = null)
-		- adds an array of data into an existing table.
-		- if there are no existing tables, will create one with default
-		  attributes.
-		- if custom_table isn't specified, it will use the last table created,
-		  if it is specified and doesn't exist the function will return false.
-		- if a set of keys have been specified, the function will check each
-		  required key is present in the incoming data. If this data is missing
-		  the current tables default value will be used.
-		- if any key in the incoming data begins with '#sep#', the function
-		  will add a separator accross the table at this point.
-		- once the incoming data has been sanitized, it is added to the table.
+void addSeparator(string title = '', int custom_table = null)
+	 * adds a separator with title given by attribute "title" after the
+	 * current row in the table.
+	 * if there are no existing tables, will create one with default
+	 * attributes.
+	 * if custom_table isn't specified, it will use the last table created,
+	 * if it is specified and doesn't exist the function will return false.
+	 * if the table is currently having data added by column this may have
+	 * unpredictable visual results.
 
-	void addSeparator(string title = '', int custom_table = null)
-		- adds a separator with title given by attribute "title" after the
-		  current row in the table.
-		- if there are no existing tables, will create one with default
-		  attributes.
-		- if custom_table isn't specified, it will use the last table created,
-		  if it is specified and doesn't exist the function will return false.
-		- if the table is currently having data added by column this may have
-		  unpredictable visual results.
+void finishTables()
+ * is (unfortunately) required to create some useful variables for
+ * templates.
+ * foreach data table created, it will count the number of rows and
+ * columns in the table.
+ * will also create a max_width variable for the table, to give an
+ * estimate width for the whole table * * if it can.
 
-	void finishTables()
-		- is (unfortunately) required to create some useful variables for
-		  templates.
-		- foreach data table created, it will count the number of rows and
-		  columns in the table.
-		- will also create a max_width variable for the table, to give an
-		  estimate width for the whole table - if it can.
-
-	void setKeys(string method = 'rows', array keys = array(),
-			bool reverse = false)
-		- sets the current set of "keys" expected in each data array passed to
-		  addData. It also sets the way we are adding data to the data table.
-		- method specifies whether the data passed to addData represents a new
-		  column, or a new row.
-		- keys is an array whose keys are the keys for data being passed to
-		  addData().
-		- if reverse is set to true, then the values of the variable "keys"
-		  are used as oppossed to the keys(!)
+void setKeys(string method = 'rows', array keys = array(),
+	bool reverse = false)
+)
 */
 
-// Handling function for generating reports.
+/**
+ * Handling function for generating reports.
+ * Requires the admin_forum permission.
+ * Loads the Reports template and language files.
+ * Decides which type of report to generate, if this isn't passed
+ * through the querystring it will set the report_type sub-template to
+ * force the user to choose which type.
+ * When generating a report chooses which sub_template to use.
+ * Depends on the cal_enabled setting, and many of the other cal_
+ * settings.
+ * Will call the relevant report generation function.
+ * If generating report will call finishTables before returning.
+ * Accessed through ?action=admin;area=reports.
+ */
 function ReportsMain()
 {
 	global $txt, $modSettings, $context, $scripturl;
@@ -177,7 +149,14 @@ function ReportsMain()
 	finishTables();
 }
 
-// Standard report about what settings the boards have.
+/**
+ * Standard report about what settings the boards have.
+ * functions ending with "Report" are responsible for generating data
+ * for reporting.
+ * they are all called from ReportsMain.
+ * never access the context directly, but use the data handling
+ * functions to do so.
+ */
 function BoardReport()
 {
 	global $context, $txt, $sourcedir, $smcFunc;
@@ -284,7 +263,14 @@ function BoardReport()
 	$smcFunc['db_free_result']($request);
 }
 
-// Generate a report on the current permissions by board and membergroup.
+/**
+ * Generate a report on the current permissions by board and membergroup.
+ * functions ending with "Report" are responsible for generating data
+ * for reporting.
+ * they are all called from ReportsMain.
+ * never access the context directly, but use the data handling
+ * functions to do so.
+ */
 function BoardPermissionsReport()
 {
 	global $context, $txt, $modSettings, $smcFunc;
@@ -457,7 +443,14 @@ function BoardPermissionsReport()
 	}
 }
 
-// Show what the membergroups are made of.
+/**
+ * Show what the membergroups are made of.
+ * functions ending with "Report" are responsible for generating data
+ * for reporting.
+ * they are all called from ReportsMain.
+ * never access the context directly, but use the data handling
+ * functions to do so.
+ */
 function MemberGroupsReport()
 {
 	global $context, $txt, $settings, $modSettings, $smcFunc;
@@ -567,7 +560,14 @@ function MemberGroupsReport()
 	}
 }
 
-// Show the large variety of group permissions assigned to each membergroup.
+/**
+ * Show the large variety of group permissions assigned to each membergroup.
+ * functions ending with "Report" are responsible for generating data
+ * for reporting.
+ * they are all called from ReportsMain.
+ * never access the context directly, but use the data handling
+ * functions to do so.
+ */
 function GroupPermissionsReport()
 {
 	global $context, $txt, $modSettings, $smcFunc;
@@ -662,7 +662,14 @@ function GroupPermissionsReport()
 	addData($curData);
 }
 
-// Report for showing all the forum staff members - quite a feat!
+/**
+ * Report for showing all the forum staff members - quite a feat!
+ * functions ending with "Report" are responsible for generating data
+ * for reporting.
+ * they are all called from ReportsMain.
+ * never access the context directly, but use the data handling
+ * functions to do so.
+ */
 function StaffReport()
 {
 	global $sourcedir, $context, $txt, $smcFunc;
@@ -780,7 +787,21 @@ function StaffReport()
 	$smcFunc['db_free_result']($request);
 }
 
-// This function creates a new table of data, most functions will only use it once.
+/**
+ * This function creates a new table of data, most functions will only use it once.
+ * The core of this file, it creates a new, but empty, table of data in
+ * context, ready for filling using addData().
+ * Fills the context variable current_table with the ID of the table created.
+ * Keeps track of the current table count using context variable table_count.
+ * 
+ * @param string $title = '' Title to be displayed with this data table.
+ * @param string $default_value = '' Value to be displayed if a key is missing from a row.
+ * @param string $shading = 'all' Should the left, top or both (all) parts of the table beshaded?
+ * @param string $width_normal = 'auto' width of an unshaded column (auto means not defined).
+ * @param string $align_normal = 'center' alignment of data in an unshaded column.
+ * @param string $width_shaded = 'auto' width of a shaded column (auto means not defined).
+ * @param string $align_shaded = 'auto' alignment of data in a shaded column.
+ */
 function newTable($title = '', $default_value = '', $shading = 'all', $width_normal = 'auto', $align_normal = 'center', $width_shaded = 'auto', $align_shaded = 'auto')
 {
 	global $context;
@@ -814,7 +835,22 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
 	$context['table_count']++;
 }
 
-// Add an extra slice of data to the table
+/**
+ * Adds an array of data into an existing table.
+ * if there are no existing tables, will create one with default
+ * attributes.
+ * if custom_table isn't specified, it will use the last table created,
+ * if it is specified and doesn't exist the function will return false.
+ * if a set of keys have been specified, the function will check each
+ * required key is present in the incoming data. If this data is missing
+ * the current tables default value will be used.
+ * if any key in the incoming data begins with '#sep#', the function
+ * will add a separator accross the table at this point.
+ * once the incoming data has been sanitized, it is added to the table.
+ * 
+ * @param array $inc_data
+ * @param int $custom_table = null
+ */
 function addData($inc_data, $custom_table = null)
 {
 	global $context;
@@ -872,7 +908,14 @@ function addData($inc_data, $custom_table = null)
 	}
 }
 
-// Add a separator row, only really used when adding data by rows.
+/**
+ * Add a separator row, only really used when adding data by rows.
+ * 
+ * @param string $title = ''
+ * @param string $custom_table = null
+ * 
+ * @return bool returns false if there are no tables
+ */
 function addSeparator($title = '', $custom_table = null)
 {
 	global $context;
@@ -896,7 +939,15 @@ function addSeparator($title = '', $custom_table = null)
 	));
 }
 
-// This does the necessary count of table data before displaying them.
+/**
+ * This does the necessary count of table data before displaying them.
+ * is (unfortunately) required to create some useful variables for
+ * templates.
+ * foreach data table created, it will count the number of rows and
+ * columns in the table.
+ * will also create a max_width variable for the table, to give an
+ * estimate width for the whole table * * if it can.
+ */
 function finishTables()
 {
 	global $context;
@@ -922,7 +973,22 @@ function finishTables()
 	}
 }
 
-// Set the keys in use by the tables - these ensure entries MUST exist if the data isn't sent.
+/**
+ * Set the keys in use by the tables - these ensure entries MUST exist if the data isn't sent.
+ * 
+ * sets the current set of "keys" expected in each data array passed to
+ * addData. It also sets the way we are adding data to the data table.
+ * method specifies whether the data passed to addData represents a new
+ * column, or a new row.
+ * keys is an array whose keys are the keys for data being passed to
+ * addData().
+ * if reverse is set to true, then the values of the variable "keys"
+ * are used as oppossed to the keys(!
+ * 
+ * @param string $rows = 'rows' rows or cols
+ * @param array $keys = array()
+ * @param bool $reverse = false
+ */
 function setKeys($method = 'rows', $keys = array(), $reverse = false)
 {
 	global $context;

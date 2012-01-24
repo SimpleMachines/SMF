@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains functions that are specifically done by administrators.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,41 +16,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains functions that are specifically done by administrators.
-	The most important function in this file for mod makers happens to be the
-	updateSettingsFile() function, but it shouldn't be used often anyway.
-
-	void getServerVersions(array checkFor)
-		- get a list of versions that are currently installed on the server.
-
-	void getFileVersions(array versionOptions)
-		- get detailed version information about the physical SMF files on the
-		  server.
-		- the input parameter allows to set whether to include SSI.php and
-		  whether the results should be sorted.
-		- returns an array containing information on source files, templates
-		  and language files found in the default theme directory (grouped by
-		  language).
-
-	void updateSettingsFile(array config_vars)
-		- updates the Settings.php file with the changes in config_vars.
-		- expects config_vars to be an associative array, with the keys as the
-		  variable names in Settings.php, and the values the varaible values.
-		- does not escape or quote values.
-		- preserves case, formatting, and additional options in file.
-		- writes nothing if the resulting file would be less than 10 lines
-		  in length (sanity check for read lock.)
-
-	void updateAdminPreferences()
-		- saves the admins current preferences to the database.
-
-	void emailAdmins(string $template, array $replacements = array(), additional_recipients = array())
-		- loads all users who are admins or have the admin forum permission.
-		- uses the email template and replacements passed in the parameters.
-		- sends them an email.
-
-*/
-
+/**
+ * Get a list of versions that are currently installed on the server.
+ * @param array $checkFor
+ */
 function getServerVersions($checkFor)
 {
 	global $txt, $db_connection, $_PHPA, $smcFunc, $memcached, $modSettings;
@@ -103,7 +74,17 @@ function getServerVersions($checkFor)
 	return $versions;
 }
 
-// Search through source, theme and language files to determine their version.
+/**
+ * Search through source, theme and language files to determine their version.
+ * Get detailed version information about the physical SMF files on the
+ * server.
+ * the input parameter allows to set whether to include SSI.php and
+ * whether the results should be sorted.
+ * returns an array containing information on source files, templates
+ * and language files found in the default theme directory (grouped by
+ * language).
+ * @param array &$versionOptions
+ */
 function getFileVersions(&$versionOptions)
 {
 	global $boarddir, $sourcedir, $settings;
@@ -236,7 +217,21 @@ function getFileVersions(&$versionOptions)
 	return $version_info;
 }
 
-// Update the Settings.php file.
+/**
+ * Update the Settings.php file.
+ * 
+ * The most important function in this file for mod makers happens to be the
+ * updateSettingsFile() function, but it shouldn't be used often anyway.
+ * updates the Settings.php file with the changes in config_vars.
+ * expects config_vars to be an associative array, with the keys as the
+ * variable names in Settings.php, and the values the varaible values.
+ * does not escape or quote values.
+ * preserves case, formatting, and additional options in file.
+ * writes nothing if the resulting file would be less than 10 lines
+ * in length (sanity check for read lock.)
+ * 
+ * @param array $config_vars
+ */
 function updateSettingsFile($config_vars)
 {
 	global $boarddir, $cachedir;
@@ -365,6 +360,9 @@ function updateSettingsFile($config_vars)
 	}
 }
 
+/**
+ * Saves the admins current preferences to the database.
+ */
 function updateAdminPreferences()
 {
 	global $options, $context, $smcFunc, $settings, $user_info;
@@ -399,7 +397,12 @@ function updateAdminPreferences()
 	cache_put_data('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 0);
 }
 
-// Send all the administrators a lovely email.
+/**
+ * Send all the administrators a lovely email.
+ * loads all users who are admins or have the admin forum permission.
+ * uses the email template and replacements passed in the parameters.
+ * sends them an email.
+ */
 function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 {
 	global $smcFunc, $sourcedir, $language, $modSettings;

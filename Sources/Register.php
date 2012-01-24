@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * This file has two main jobs, but they really are one.  It registers new
+ * members, and it helps the administrator moderate member registrations.
+ * Similarly, it handles account activation as well.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,41 +18,22 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has two main jobs, but they really are one.  It registers new
-	members, and it helps the administrator moderate member registrations.
-	Similarly, it handles account activation as well.
-
-	void Register()
-		// !!!
-
-	void Register2()
-		// !!!
-
-	void Activate()
-		// !!!
-
-	void CoppaForm()
-		// !!!
-
-	void VerificationCode()
-		// Show the verification code or let it hear.
-
-	void RegisterCheckUsername()
-		// !!!
-*/
-
-// Begin the registration process.
+/**
+ * Begin the registration process.
+ * 
+ * @param array $reg_errors = array()
+ */
 function Register($reg_errors = array())
 {
 	global $txt, $boarddir, $context, $settings, $modSettings, $user_info;
 	global $language, $scripturl, $smcFunc, $sourcedir, $smcFunc, $cur_profile;
 
 	// Is this an incoming AJAX check?
-	if (isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck')
+	if (isset($_GET['sa']) && $_GET['sa'] === 'usernamecheck')
 		return RegisterCheckUsername();
 
 	// Check if the administrator has it disabled.
-	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 3)
+	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == '3')
 		fatal_lang_error('registration_disabled', false);
 
 	// If this user is an admin - redirect them to the admin registration page.
@@ -200,7 +185,7 @@ function Register($reg_errors = array())
 		);
 	}
 
-	// !!! Why isn't this a simple set operation?
+	// @todo Why isn't this a simple set operation?
 	// Were there any errors?
 	$context['registration_errors'] = array();
 	if (!empty($reg_errors))
@@ -208,7 +193,11 @@ function Register($reg_errors = array())
 			$context['registration_errors'][] = $error;
 }
 
-// Actually register the member.
+/**
+ * Actually register the member.
+ * 
+ * @param bool $verifiedOpenID = false
+ */
 function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
@@ -242,7 +231,7 @@ function Register2($verifiedOpenID = false)
 		// Are they under age, and under age users are banned?
 		if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 		{
-			// !!! This should be put in Errors, imho.
+			// @todo This should be put in Errors, imho.
 			loadLanguage('Login');
 			fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
 		}
@@ -419,7 +408,7 @@ function Register2($verifiedOpenID = false)
 			// Any masks to apply?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				//!!! We never error on this - just ignore it at the moment...
+				// @todo We never error on this - just ignore it at the moment...
 				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
 					$custom_field_errors[] = array('custom_field_invalid_email', array($row['field_name']));
 				elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value))
@@ -516,6 +505,9 @@ function Register2($verifiedOpenID = false)
 	}
 }
 
+/**
+ * @todo needs description
+ */
 function Activate()
 {
 	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $language;
@@ -525,13 +517,13 @@ function Activate()
 
 	if (empty($_REQUEST['u']) && empty($_POST['user']))
 	{
-		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
+		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == '3')
 			fatal_lang_error('no_access', false);
 
 		$context['member_id'] = 0;
 		$context['sub_template'] = 'resend';
 		$context['page_title'] = $txt['invalid_activation_resend'];
-		$context['can_activate'] = empty($modSettings['registration_method']) || $modSettings['registration_method'] == 1;
+		$context['can_activate'] = empty($modSettings['registration_method']) || $modSettings['registration_method'] == '1';
 		$context['default_username'] = isset($_GET['user']) ? $_GET['user'] : '';
 
 		return;
@@ -569,7 +561,7 @@ function Activate()
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
 
-		// !!! Separate the sprintf?
+		// @todo Separate the sprintf?
 		if (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_POST['new_email']) == 0)
 			fatal_error(sprintf($txt['valid_email_needed'], htmlspecialchars($_POST['new_email'])), false);
 
@@ -586,7 +578,7 @@ function Activate()
 				'email_address' => $_POST['new_email'],
 			)
 		);
-		// !!! Separate the sprintf?
+		// @todo Separate the sprintf?
 		if ($smcFunc['db_num_rows']($request) != 0)
 			fatal_lang_error('email_in_use', false, array(htmlspecialchars($_POST['new_email'])));
 		$smcFunc['db_free_result']($request);
@@ -667,7 +659,9 @@ function Activate()
 	);
 }
 
-// This function will display the contact information for the forum, as well a form to fill in.
+/**
+ * This function will display the contact information for the forum, as well a form to fill in.
+ */
 function CoppaForm()
 {
 	global $context, $modSettings, $txt, $smcFunc;
@@ -748,7 +742,9 @@ function CoppaForm()
 	}
 }
 
-// Show the verification code or let it hear.
+/**
+ * Show the verification code or let it hear.
+ */
 function VerificationCode()
 {
 	global $sourcedir, $modSettings, $context, $scripturl;
@@ -814,7 +810,9 @@ function VerificationCode()
 	die();
 }
 
-// See if a username already exists.
+/**
+ * See if a username already exists.
+ */
 function RegisterCheckUsername()
 {
 	global $sourcedir, $smcFunc, $context, $txt;
