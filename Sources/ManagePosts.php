@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains all the screens that control settings for topics and posts.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,45 +16,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains all the screens that control settings for topics and
-	posts.
-
-	void ManagePostSettings()
-		- the main entrance point for the 'Posts and topics' screen.
-		- accessed from ?action=admin;area=postsettings.
-		- calls the right function based on the given sub-action.
-		- defaults to sub-action 'posts'.
-		- requires (and checks for) the admin_forum permission.
-
-	void SetCensor()
-		- shows an interface to set and test word censoring.
-		- requires the admin_forum permission.
-		- uses the Admin template and the edit_censored sub template.
-		- tests the censored word if one was posted.
-		- uses the censor_vulgar, censor_proper, censorWholeWord, and
-		  censorIgnoreCase settings.
-		- accessed from ?action=admin;area=postsettings;sa=censor.
-
-	void ModifyPostSettings()
-		- set any setting related to posts and posting.
-		- requires the admin_forum permission
-		- uses the edit_post_settings sub template of the Admin template.
-		- accessed from ?action=admin;area=postsettings;sa=posts.
-
-	void ModifyBBCSettings()
-		- set a few Bulletin Board Code settings.
-		- requires the admin_forum permission
-		- uses the edit_bbc_settings sub template of the Admin template.
-		- accessed from ?action=admin;area=postsettings;sa=bbc.
-		- loads a list of Bulletin Board Code tags to allow disabling tags.
-
-	void ModifyTopicSettings()
-		- set any setting related to topics.
-		- requires the admin_forum permission
-		- uses the edit_topic_settings sub template of the Admin template.
-		- accessed from ?action=admin;area=postsettings;sa=topics.
-*/
-
+/**
+ * The main entrance point for the 'Posts and topics' screen.
+ * Like all others, it checks permissions, then forwards to the right function
+ * based on the given sub-action.
+ * Defaults to sub-action 'posts'.
+ * Accessed from ?action=admin;area=postsettings.
+ * Requires (and checks for) the admin_forum permission.
+ */
 function ManagePostSettings()
 {
 	global $context, $txt, $scripturl;
@@ -97,7 +68,15 @@ function ManagePostSettings()
 	$subActions[$_REQUEST['sa']]();
 }
 
-// Set the censored words.
+/**
+ * Shows an interface to set and test censored words.
+ * It uses the censor_vulgar, censor_proper, censorWholeWord, and censorIgnoreCase
+ * settings.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=postsettings;sa=censor.
+ *
+ * @uses the Admin template and the edit_censored sub template.
+ */
 function SetCensor()
 {
 	global $txt, $modSettings, $context, $smcFunc;
@@ -176,7 +155,14 @@ function SetCensor()
 	$context['page_title'] = $txt['admin_censored_words'];
 }
 
-// Modify all settings related to posts and posting.
+/**
+ * Modify any setting related to posts and posting.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=postsettings;sa=posts.
+ *
+ * @param $return_config
+ * @uses Admin template, edit_post_settings sub-template.
+ */
 function ModifyPostSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $db_prefix;
@@ -263,7 +249,14 @@ function ModifyPostSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Bulletin Board Code...a lot of Bulletin Board Code.
+/**
+ * Set a few Bulletin Board Code settings. It loads a list of Bulletin Board Code tags to allow disabling tags.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=postsettings;sa=bbc.
+ *
+ * @param bool $return_config = false
+ * @uses Admin template, edit_bbc_settings sub-template.
+ */
 function ModifyBBCSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $helptxt, $scripturl, $sourcedir;
@@ -315,7 +308,14 @@ function ModifyBBCSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Function for modifying topic settings. Not very exciting.
+/**
+ * Modify any setting related to topics.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=postsettings;sa=topics.
+
+ * @param $return_config
+ * @uses Admin template, edit_topic_settings sub-template.
+ */
 function ModifyTopicSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $sourcedir, $scripturl;

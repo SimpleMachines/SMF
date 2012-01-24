@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * ManagePermissions handles all possible permission stuff.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,77 +16,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	ManagePermissions handles all possible permission stuff. The following
-	functions are used:
-
-	void ModifyPermissions()
-		- calls the right function based on the given subaction.
-		- checks the permissions, based on the sub-action.
-		- called by ?action=managepermissions.
-		- loads the ManagePermissions language file.
-
-	void PermissionIndex()
-		- sets up the permissions by membergroup index page.
-		- called by ?action=managepermissions
-		- uses the permission_index template of the ManageBoards template.
-		- loads the ManagePermissions language and template.
-		- creates an array of all the groups with the number of members and permissions.
-
-	void SetQuickGroups()
-		- handles permission modification actions from the upper part of the
-		  permission manager index.
-		// !!!
-
-	void ModifyMembergroup()
-		// !!!
-
-	void ModifyMembergroup2()
-		// !!!
-
-	void GeneralPermissionSettings()
-		- a screen to set some general settings for permissions.
-
-	void setPermissionLevel(string level, int group, int profile = 'null')
-		- internal function to modify permissions to a pre-defined profile.
-		// !!!
-
-	void loadAllPermissions()
-		- internal function to load permissions into $context['permissions'].
-		// !!!
-
-	void loadPermissionProfiles()
-		// !!!
-
-	void EditPermissionProfiles()
-		// !!!
-
-	void init_inline_permissions(array permissions)
-		- internal function to initialise the inline permission settings.
-		- loads the ManagePermissions language and template.
-		- loads a context variables for each permission.
-		- used by several settings screens to set specific permissions.
-
-	void theme_inline_permissions(string permission)
-		- function called by templates to show a list of permissions settings.
-		- calls the template function template_inline_permissions().
-
-	save_inline_permissions(array permissions)
-		- general function to save the inline permissions sent by a form.
-		- does no session check.
-
-	void updateChildPermissions(array parent, int profile = null)
-		// !!!
-
-	void loadIllegalPermissions()
-		// !!!
-
-	void loadIllegalGuestPermissions()
-		- loads the permissions that can not be given to guests.
-		- stores the permissions in $context['non_guest_permissions'].
-
-	void ModifyPostModeration()
-		// !!!
-*/
+/**
+ * Dispaches to the right function based on the given subaction.
+ * Checks the permissions, based on the sub-action.
+ * Called by ?action=managepermissions.
+ *
+ * @uses ManagePermissions language file.
+ */
 
 function ModifyPermissions()
 {
@@ -136,6 +74,15 @@ function ModifyPermissions()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
+/**
+ * Sets up the permissions by membergroup index page.
+ * Called by ?action=managepermissions
+ * Creates an array of all the groups with the number of members and permissions.
+ *
+ * @uses ManagePermissions language file.
+ * @uses ManagePermissions template file.
+ * @uses ManageBoards template, permission_index sub-template.
+ */
 function PermissionIndex()
 {
 	global $txt, $scripturl, $context, $settings, $modSettings, $smcFunc;
@@ -389,6 +336,9 @@ function PermissionIndex()
 	$context['sub_template'] = 'permission_index';
 }
 
+/**
+ * Handle permissions by board... more or less. :P
+ */
 function PermissionByBoard()
 {
 	global $context, $modSettings, $txt, $smcFunc, $sourcedir, $cat_tree, $boardList, $boards;
@@ -460,6 +410,10 @@ function PermissionByBoard()
 	$context['sub_template'] = 'by_board';
 }
 
+/**
+ * Handles permission modification actions from the upper part of the
+ * permission manager index.
+ */
 function SetQuickGroups()
 {
 	global $context, $smcFunc;
@@ -717,6 +671,9 @@ function SetQuickGroups()
 	redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 }
 
+/**
+ * Initializes the necessary to modify a membergroup's permissions.
+ */
 function ModifyMembergroup()
 {
 	global $context, $txt, $modSettings, $smcFunc, $sourcedir;
@@ -865,6 +822,9 @@ function ModifyMembergroup()
 	$context['page_title'] = $txt['permissions_modify_group'];
 }
 
+/**
+ * This function actually saves modifications to a membergroup's board permissions.
+ */
 function ModifyMembergroup2()
 {
 	global $modSettings, $smcFunc, $context;
@@ -986,7 +946,11 @@ function ModifyMembergroup2()
 	redirectexit('action=admin;area=permissions;pid=' . $_GET['pid']);
 }
 
-// Screen for modifying general permission settings.
+/**
+ * A screen to set some general settings for permissions.
+ *
+ * @param bool $return_config = false
+ */
 function GeneralPermissionSettings($return_config = false)
 {
 	global $context, $modSettings, $sourcedir, $txt, $scripturl, $smcFunc;
@@ -1089,7 +1053,14 @@ function GeneralPermissionSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Set the permission level for a specific profile, group, or group for a profile.
+/**
+ * Set the permission level for a specific profile, group, or group for a profile.
+ * @internal
+ *
+ * @param string $level
+ * @param int $group
+ * @param mixed $profile = null, int expected
+ */
 function setPermissionLevel($level, $group, $profile = 'null')
 {
 	global $smcFunc, $context;
@@ -1402,6 +1373,12 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		fatal_lang_error('no_access', false);
 }
 
+/**
+ * Load permissions into $context['permissions'].
+ * @internal
+ *
+ * @param string $loadType, options: 'classic' or 'simple'
+ */
 function loadAllPermissions($loadType = 'classic')
 {
 	global $context, $txt, $modSettings;
@@ -1696,7 +1673,19 @@ function loadAllPermissions($loadType = 'classic')
 		}
 }
 
-// Initialize a form with inline permissions.
+//
+/**
+ * Initialize a form with inline permissions settings.
+ * It loads a context variables for each permission.
+ * This function is used by several settings screens to set specific permissions.
+ * @internal
+ *
+ * @param array $permissions
+ * @param array $excluded_groups = array()
+ *
+ * @uses ManagePermissions language
+ * @uses ManagePermissions template.
+ */
 function init_inline_permissions($permissions, $excluded_groups = array())
 {
 	global $context, $txt, $modSettings, $smcFunc;
@@ -1784,7 +1773,13 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 	}
 }
 
-// Show a collapsible box to set a specific permission.
+/**
+ * Show a collapsible box to set a specific permission.
+ * The function is called by templates to show a list of permissions settings.
+ * Calls the template function template_inline_permissions().
+ *
+ * @param string $permission
+ */
 function theme_inline_permissions($permission)
 {
 	global $context;
@@ -1795,7 +1790,12 @@ function theme_inline_permissions($permission)
 	template_inline_permissions();
 }
 
-// Save the permissions of a form containing inline permissions.
+/**
+ * Save the permissions of a form containing inline permissions.
+ * @internal
+ *
+ * @param array $permissions
+ */
 function save_inline_permissions($permissions)
 {
 	global $context, $smcFunc;
@@ -1850,6 +1850,9 @@ function save_inline_permissions($permissions)
 	updateSettings(array('settings_updated' => time()));
 }
 
+/**
+ * Load permissions profiles.
+ */
 function loadPermissionProfiles()
 {
 	global $context, $txt, $smcFunc;
@@ -1880,7 +1883,9 @@ function loadPermissionProfiles()
 	$smcFunc['db_free_result']($request);
 }
 
-// Add/Edit/Delete profiles.
+/**
+ * Add/Edit/Delete profiles.
+ */
 function EditPermissionProfiles()
 {
 	global $context, $txt, $smcFunc;
@@ -2027,7 +2032,12 @@ function EditPermissionProfiles()
 	}
 }
 
-// This function updates the permissions of any groups based off this group.
+/**
+ * This function updates the permissions of any groups based off this group.
+ *
+ * @param mixed $parents (array or int)
+ * @param mixed $profile = null, int expected
+ */
 function updateChildPermissions($parents, $profile = null)
 {
 	global $smcFunc;
@@ -2147,7 +2157,9 @@ function updateChildPermissions($parents, $profile = null)
 	}
 }
 
-// Load permissions someone cannot grant.
+/**
+ * Load permissions someone cannot grant.
+ */
 function loadIllegalPermissions()
 {
 	global $context;
@@ -2161,7 +2173,10 @@ function loadIllegalPermissions()
 		$context['illegal_permissions'][] = 'manage_permissions';
 }
 
-// Load all the permissions that can not be given to guests.
+/**
+ * Loads the permissions that can not be given to guests.
+ * Stores the permissions in $context['non_guest_permissions'].
+*/
 function loadIllegalGuestPermissions()
 {
 	global $context;
@@ -2200,7 +2215,9 @@ function loadIllegalGuestPermissions()
 	);
 }
 
-// Present a nice way of applying post moderation.
+/**
+ * Present a nice way of applying post moderation.
+ */
 function ModifyPostModeration()
 {
 	global $context, $txt, $smcFunc, $modSettings;

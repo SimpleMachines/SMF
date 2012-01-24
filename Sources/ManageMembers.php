@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Show a list of members or a selection of members.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,55 +16,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	Show a list of members or a selection of members.
-
-	void ViewMembers()
-		- the main entrance point for the Manage Members screen.
-		- called by ?action=admin;area=viewmembers.
-		- requires the moderate_forum permission.
-		- loads the ManageMembers template and ManageMembers language file.
-		- calls a function based on the given sub-action.
-
-	void ViewMemberlist()
-		- shows a list of members.
-		- called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
-		- requires the moderate_forum permission.
-		- uses the view_members sub template of the ManageMembers template.
-		- allows sorting on several columns.
-		- handles deletion of selected members.
-		- handles the search query sent by ?action=admin;area=viewmembers;sa=search.
-
-	void SearchMembers()
-		- search the member list, using one or more criteria.
-		- called by ?action=admin;area=viewmembers;sa=search.
-		- requires the moderate_forum permission.
-		- uses the search_members sub template of the ManageMembers template.
-		- form is submitted to action=admin;area=viewmembers;sa=query.
-
-	void MembersAwaitingActivation()
-		- show a list of members awaiting approval or activation.
-		- called by ?action=admin;area=viewmembers;sa=browse;type=approve or
-		  ?action=admin;area=viewmembers;sa=browse;type=activate.
-		- requires the moderate_forum permission.
-		- uses the admin_browse sub template of the ManageMembers template.
-		- allows instant approval or activation of (a selection of) members.
-		- list can be sorted on different columns.
-		- form submits to ?action=admin;area=viewmembers;sa=approve.
-
-	void AdminApprove()
-		- handles the approval, rejection, activation or deletion of members.
-		- called by ?action=admin;area=viewmembers;sa=approve.
-		- requires the moderate_forum permission.
-		- redirects to ?action=admin;area=viewmembers;sa=browse with the same parameters
-		  as the calling page.
-
-	int jeffsdatediff(int old)
-		- nifty function to calculate the number of days ago a given date was.
-		- requires a unix timestamp as input, returns an integer.
-		- in honour of Jeff Lewis, the original creator of...this function.
-		- the returned number of days is based on the forum time.
-*/
-
+/**
+ * The main entrance point for the Manage Members screen.
+ * As everyone else, it calls a function based on the given sub-action.
+ * Called by ?action=admin;area=viewmembers.
+ * Requires the moderate_forum permission.
+ *
+ * @uses ManageMembers template
+ * @uses ManageMembers language file.
+ */
 function ViewMembers()
 {
 	global $txt, $scripturl, $context, $modSettings, $smcFunc;
@@ -168,7 +130,15 @@ function ViewMembers()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// View all members.
+/**
+ * View all members list. It allows sorting on several columns, and deletion of
+ * selected members. It also handles the search query sent by
+ * ?action=admin;area=viewmembers;sa=search.
+ * Called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
+ * Requires the moderate_forum permission.
+ *
+ * @uses the view_members sub template of the ManageMembers template.
+ */
 function ViewMemberlist()
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir, $smcFunc, $user_info;
@@ -634,7 +604,14 @@ function ViewMemberlist()
 	$context['default_list'] = 'member_list';
 }
 
-// Search the member list, using one or more criteria.
+/**
+ * Search the member list, using one or more criteria.
+ * Called by ?action=admin;area=viewmembers;sa=search.
+ * Requires the moderate_forum permission.
+ * form is submitted to action=admin;area=viewmembers;sa=query.
+ *
+ * @uses the search_members sub template of the ManageMembers template.
+ */
 function SearchMembers()
 {
 	global $context, $txt, $smcFunc;
@@ -679,7 +656,16 @@ function SearchMembers()
 	$context['sub_template'] = 'search_members';
 }
 
-// List all members who are awaiting approval / activation
+/**
+ * List all members who are awaiting approval / activation, sortable on different columns.
+ * It allows instant approval or activation of (a selection of) members.
+ * Called by ?action=admin;area=viewmembers;sa=browse;type=approve
+ *  or ?action=admin;area=viewmembers;sa=browse;type=activate.
+ * The form submits to ?action=admin;area=viewmembers;sa=approve.
+ * Requires the moderate_forum permission.
+ *
+ * @uses the admin_browse sub template of the ManageMembers template.
+ */
 function MembersAwaitingActivation()
 {
 	global $txt, $context, $scripturl, $modSettings, $smcFunc;
@@ -1024,7 +1010,13 @@ function MembersAwaitingActivation()
 	createList($listOptions);
 }
 
-// Do the approve/activate/delete stuff
+/**
+ * This function handles the approval, rejection, activation or deletion of members.
+ * Called by ?action=admin;area=viewmembers;sa=approve.
+ * Requires the moderate_forum permission.
+ * Redirects to ?action=admin;area=viewmembers;sa=browse
+ * with the same parameters as the calling page.
+ */
 function AdminApprove()
 {
 	global $txt, $context, $scripturl, $modSettings, $sourcedir, $language, $user_info, $smcFunc;
@@ -1283,6 +1275,14 @@ function AdminApprove()
 	redirectexit('action=admin;area=viewmembers;sa=browse;type=' . $_REQUEST['type'] . ';sort=' . $_REQUEST['sort'] . ';filter=' . $current_filter . ';start=' . $_REQUEST['start']);
 }
 
+/**
+ * Nifty function to calculate the number of days ago a given date was.
+ * Requires a unix timestamp as input, returns an integer.
+ * Named in honour of Jeff Lewis, the original creator of...this function.
+ *
+ * @param $old
+ * @return int, the returned number of days, based on the forum time.
+ */
 function jeffsdatediff($old)
 {
 	// Get the current time as the user would see it...

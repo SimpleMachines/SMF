@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file manages... the news. :P
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,53 +16,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	void ManageNews()
-		- the entrance point for all News and Newsletter screens.
-		- called by ?action=admin;area=news.
-		- does the permission checks.
-		- calls the appropriate function based on the requested sub-action.
-
-	void EditNews()
-		- changes the current news items for the forum.
-		- uses the ManageNews template and edit_news sub template.
-		- called by ?action=admin;area=news.
-		- requires the edit_news permission.
-		- writes an entry into the moderation log.
-		- uses the edit_news administration area.
-		- can be accessed with ?action=admin;sa=editnews.
-
-	void SelectMailingMembers()
-		- allows a user to select the membergroups to send their mailing to.
-		- uses the ManageNews template and email_members sub template.
-		- called by ?action=admin;area=news;sa=mailingmembers.
-		- requires the send_mail permission.
-		- form is submitted to ?action=admin;area=news;mailingcompose.
-
-	void ComposeMailing()
-		- shows a form to edit a forum mailing and its recipients.
-		- uses the ManageNews template and email_members_compose sub template.
-		- called by ?action=admin;area=news;sa=mailingcompose.
-		- requires the send_mail permission.
-		- form is submitted to ?action=admin;area=news;sa=mailingsend.
-
-	void SendMailing(bool clean_only = false)
-		- handles the sending of the forum mailing in batches.
-		- uses the ManageNews template and email_members_send sub template.
-		- called by ?action=admin;area=news;sa=mailingsend
-		- requires the send_mail permission.
-		- redirects to itself when more batches need to be sent.
-		- redirects to ?action=admin after everything has been sent.
-		- if clean_only is set will only clean the variables, put them in context, then return.
-
-	void NewsSettings()
-		- set general news and newsletter settings and permissions.
-		- uses the ManageNews template and news_settings sub template.
-		- called by ?action=admin;area=news;sa=settings.
-		- requires the forum_admin permission.
-*/
-
-// The controller; doesn't do anything, just delegates.
+/**
+ * The news dispatcher; doesn't do anything, just delegates.
+ * This is the entrance point for all News and Newsletter screens.
+ * Called by ?action=admin;area=news.
+ * It does the permission checks, and calls the appropriate function
+ * based on the requested sub-action.
+ */
 function ManageNews()
 {
 	global $context, $txt, $scripturl;
@@ -109,7 +71,17 @@ function ManageNews()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// Let the administrator(s) edit the news.
+//
+/**
+ * Let the administrator(s) edit the news items for the forum.
+ * It writes an entry into the moderation log.
+ * This function uses the edit_news administration area.
+ * Called by ?action=admin;area=news.
+ * Requires the edit_news permission.
+ * Can be accessed with ?action=admin;sa=editnews.
+ *
+ * @uses ManageNews template, edit_news sub template.
+ */
 function EditNews()
 {
 	global $txt, $modSettings, $context, $sourcedir, $user_info;
@@ -170,6 +142,15 @@ function EditNews()
 	$context['page_title'] = $txt['admin_edit_news'];
 }
 
+/**
+ * This function allows a user to select the membergroups to send their
+ * mailing to.
+ * Called by ?action=admin;area=news;sa=mailingmembers.
+ * Requires the send_mail permission.
+ * Form is submitted to ?action=admin;area=news;mailingcompose.
+ *
+ * @uses the ManageNews template and email_members sub template.
+ */
 function SelectMailingMembers()
 {
 	global $txt, $context, $modSettings, $smcFunc;
@@ -286,7 +267,14 @@ function SelectMailingMembers()
 	$context['can_send_pm'] = allowedTo('pm_send');
 }
 
-// Email your members...
+/**
+ * Shows a form to edit a forum mailing and its recipients.
+ * Called by ?action=admin;area=news;sa=mailingcompose.
+ * Requires the send_mail permission.
+ * Form is submitted to ?action=admin;area=news;sa=mailingsend.
+ *
+ * @uses ManageNews template, email_members_compose sub-template.
+ */
 function ComposeMailing()
 {
 	global $txt, $sourcedir, $context, $smcFunc;
@@ -439,7 +427,16 @@ function ComposeMailing()
 	$context['default_message'] = htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
 }
 
-// Send out the mailing!
+/**
+ * Handles the sending of the forum mailing in batches.
+ * Called by ?action=admin;area=news;sa=mailingsend
+ * Requires the send_mail permission.
+ * Redirects to itself when more batches need to be sent.
+ * Redirects to ?action=admin after everything has been sent.
+ *
+ * @param bool $clean_only = false; if set, it will only clean the variables, put them in context, then return.
+ * @uses the ManageNews template and email_members_send sub template.
+ */
 function SendMailing($clean_only = false)
 {
 	global $txt, $sourcedir, $context, $smcFunc;
@@ -766,6 +763,14 @@ function SendMailing($clean_only = false)
 	$context['sub_template'] = 'email_members_send';
 }
 
+/**
+ * Set general news and newsletter settings and permissions.
+ * Called by ?action=admin;area=news;sa=settings.
+ * Requires the forum_admin permission.
+ *
+ * @uses ManageNews template, news_settings sub-template.
+ * @param $return_config
+ */
 function ModifyNewsSettings($return_config = false)
 {
 	global $context, $sourcedir, $modSettings, $txt, $scripturl;

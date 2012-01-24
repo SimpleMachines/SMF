@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains all the administration functions for subscriptions.
+ * (and some more than that :P)
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,61 +17,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains all the screens that control settings for topics and
-	posts.
-
-	void ManagePaidSubscriptions()
-		- the main entrance point for the 'Paid Subscription' screen.
-		- accessed from ?action=admin;area=paidsubscribe.
-		- calls the right function based on the given sub-action.
-		- defaults to sub-action 'view'.
-		- requires admin_forum permission for admin based actions.
-
-	void ModifySubscriptionSettings()
-		- set any setting related to paid subscriptions.
-		- requires the moderate_forum permission
-		- accessed from ?action=admin;area=paidsubscribe;sa=settings.
-
-	void ViewSubscriptions()
-		- view a list of all the current subscriptions
-		- requires the admin_forum permission
-		- accessed from ?action=admin;area=paidsubscribe;sa=view.
-
-	void ModifySubscription()
-		- edit a subscription.
-		- accessed from ?action=admin;area=paidsubscribe;sa=modify.
-
-	void ViewSubscribedUsers()
-		- view a list of all the users who currently have a subscription.
-		- requires the admin_forum permission.
-		- subscription ID is required, in the form of $_GET['sid'].
-		- accessed from ?action=admin;area=paidsubscribe;sa=viewsub.
-
-	int list_getSubscribedUserCount()
-		// !!
-
-	array list_getSubscribedUsers()
-		// !!
-
-	void ModifyUserSubscription()
-		- edit a users subscription.
-		- accessed from ?action=admin;area=paidsubscribe;sa=modifyuser.
-
-	void reapplySubscriptions(array users)
-		- reapplies all subscription rules for each of the users.
-
-	void addSubscription(int id_subscribe, int id_member)
-		- add/extend a subscription for a member.
-
-	void removeSubscription(int id_subscribe, int id_member)
-		- remove a subscription from a user.
-
-	array loadPaymentGateways()
-		- checks the Sources directory for any files fitting the format of a payment gateway.
-		- loads each file to check it's valid.
-		- includes each file and returns the function name and whether it should work with this version of SMF.
-*/
-
+/**
+ * The main entrance point for the 'Paid Subscription' screen, calling
+ * the right function based on the given sub-action.
+ * It defaults to sub-action 'view'.
+ * Accessed from ?action=admin;area=paidsubscribe.
+ * It requires admin_forum permission for admin based actions.
+ */
 function ManagePaidSubscriptions()
 {
 	global $context, $txt, $scripturl, $sourcedir, $smcFunc, $modSettings;
@@ -112,7 +67,14 @@ function ManagePaidSubscriptions()
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-// Modify which payment methods are to be used.
+/**
+ * Set any setting related to paid subscriptions, i.e.
+ * modify which payment methods are to be used.
+ * It requires the moderate_forum permission
+ * Accessed from ?action=admin;area=paidsubscribe;sa=settings.
+ *
+ * @param bool $return_config = false
+ */
 function ModifySubscriptionSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl;
@@ -219,7 +181,11 @@ function ModifySubscriptionSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-// Are we looking at viewing the subscriptions?
+/**
+ * View a list of all the current subscriptions
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=paidsubscribe;sa=view.
+ */
 function ViewSubscriptions()
 {
 	global $context, $txt, $modSettings, $smcFunc, $sourcedir, $scripturl;
@@ -359,7 +325,10 @@ function ViewSubscriptions()
 	$context['default_list'] = 'subscription_list';
 }
 
-// Adding, editing and deleting subscriptions.
+/**
+ * Adding, editing and deleting subscriptions.
+ * Accessed from ?action=admin;area=paidsubscribe;sa=modify.
+ */
 function ModifySubscription()
 {
 	global $context, $txt, $modSettings, $smcFunc;
@@ -606,7 +575,13 @@ function ModifySubscription()
 	$smcFunc['db_free_result']($request);
 }
 
-// View all the users subscribed to a particular subscription!
+/**
+ * View all the users subscribed to a particular subscription.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=paidsubscribe;sa=viewsub.
+ *
+ * Subscription ID is required, in the form of $_GET['sid'].
+ */
 function ViewSubscribedUsers()
 {
 	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc, $sourcedir;
@@ -802,7 +777,14 @@ function ViewSubscribedUsers()
 	$context['default_list'] = 'subscribed_users_list';
 }
 
-// Returns how many people are subscribed to a paid subscription.
+/**
+ * Returns how many people are subscribed to a paid subscription.
+ * @todo refactor away
+ *
+ * @param int $id_sub
+ * @param string $search_string
+ * @param array $search_vars = array()
+ */
 function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = array())
 {
 	global $smcFunc;
@@ -826,6 +808,17 @@ function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = arr
 	return $memberCount;
 }
 
+/**
+ * Return the subscribed users list, for the given parameters.
+ * @todo refactor outta here
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $id_sub
+ * @param string $search_string
+ * @param string $search_vars
+ */
 function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $search_string, $search_vars = array())
 {
 	global $smcFunc, $txt;
@@ -863,7 +856,10 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
 	return $subscribers;
 }
 
-// Edit or add a user subscription.
+/**
+ * Edit or add a user subscription.
+ * Accessed from ?action=admin;area=paidsubscribe;sa=modifyuser.
+ */
 function ModifyUserSubscription()
 {
 	global $context, $txt, $modSettings, $smcFunc;
@@ -1193,7 +1189,11 @@ function ModifyUserSubscription()
 	}
 }
 
-// Re-apply subscription rules.
+/**
+ * Reapplies all subscription rules for each of the users.
+ *
+ * @param array $users
+ */
 function reapplySubscriptions($users)
 {
 	global $smcFunc;
@@ -1272,7 +1272,15 @@ function reapplySubscriptions($users)
 	}
 }
 
-// Add or extend a subscription of a user.
+/**
+ * Add or extend a subscription of a user.
+ *
+ * @param int $id_subscribe
+ * @param int $id_member
+ * @param string $renewal = 0, options 'D', 'W', 'M', 'Y'
+ * @param int $forceStartTime = 0
+ * @param int $forceEndTime = 0
+ */
 function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTime = 0, $forceEndTime = 0)
 {
 	global $context, $smcFunc;
@@ -1481,7 +1489,13 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 	);
 }
 
-// Removes a subscription from a user, as in removes the groups.
+/**
+ * Removes a subscription from a user, as in removes the groups.
+ *
+ * @param $id_subscribe
+ * @param $id_member
+ * @param $delete
+ */
 function removeSubscription($id_subscribe, $id_member, $delete = false)
 {
 	global $context, $smcFunc;
@@ -1626,7 +1640,9 @@ function removeSubscription($id_subscribe, $id_member, $delete = false)
 		);
 }
 
-// This just kind of caches all the subscription data.
+/**
+ * This just kind of caches all the subscription data.
+ */
 function loadSubscriptions()
 {
 	global $context, $txt, $modSettings, $smcFunc;
@@ -1737,7 +1753,14 @@ function loadSubscriptions()
 	$smcFunc['db_free_result']($request);
 }
 
-// Load all the payment gateways.
+/**
+ * Load all the payment gateways.
+ * Checks the Sources directory for any files fitting the format of a payment gateway,
+ * loads each file to check it's valid, includes each file and returns the
+ * function name and whether it should work with this version of SMF.
+ *
+ * @return array
+ */
 function loadPaymentGateways()
 {
 	global $sourcedir;
