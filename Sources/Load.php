@@ -241,7 +241,9 @@ function loadUserSettings()
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
-		// !!! Perhaps we can do some more checking on this, such as on the first octet of the IP?
+		/*
+		 * @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
+		 */
 		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
 		$id_member = !empty($id_member) && strlen($password) == 40 && $login_span > time() ? (int) $id_member : 0;
 	}
@@ -525,7 +527,9 @@ function loadBoard()
 
 	if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
 	{
-		// !!! SLOW?
+		/**
+		 * @todo SLOW?
+		 */
 		if (!empty($topic))
 			$temp = cache_get_data('topic_board-' . $topic, 120);
 		else
@@ -632,7 +636,9 @@ function loadBoard()
 
 			if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
 			{
-				// !!! SLOW?
+				/**
+				 * @todo SLOW?
+				 */
 				if (!empty($topic))
 					cache_put_data('topic_board-' . $topic, $board_info, 120);
 				cache_put_data('board-' . $board, $board_info, 120);
@@ -1662,7 +1668,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 	{
 		if ($context['browser']['possibly_robot'])
 		{
-			//!!! Maybe move this somewhere better?!
+			/**
+			 * @todo Maybe move this somewhere better?!
+			 */
 			require_once($sourcedir . '/ScheduledTasks.php');
 
 			// What to do, what to do?!

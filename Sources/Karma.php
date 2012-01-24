@@ -38,7 +38,9 @@ function ModifyKarma()
 	checkSession('get');
 
 	// If you don't have enough posts, tough luck.
-	// !!! Should this be dropped in favor of post group permissions?  Should this apply to the member you are smiting/applauding?
+	/**
+	 * @todo Should this be dropped in favor of post group permissions?  Should this apply to the member you are smiting/applauding?
+	 */
 	if (!$user_info['is_admin'] && $user_info['posts'] < $modSettings['karmaMinPosts'])
 		fatal_lang_error('not_enough_posts_karma', true, array($modSettings['karmaMinPosts']));
 

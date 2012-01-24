@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Handle all of the searching from here.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,35 +16,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	These functions are here for searching, and they are:
-
-	void PlushSearch1()
-		- shows the screen to search forum posts (action=search), and uses the
-		  simple version if the simpleSearch setting is enabled.
-		- uses the main sub template of the Search template.
-		- uses the Search language file.
-		- requires the search_posts permission.
-		- decodes and loads search parameters given in the URL (if any).
-		- the form redirects to index.php?action=search2.
-
-	void PlushSearch2()
-		- checks user input and searches the messages table for messages
-		  matching the query.
-		- requires the search_posts permission.
-		- uses the results sub template of the Search template.
-		- uses the Search language file.
-		- stores the results into the search cache.
-		- show the results of the search query.
-
-	array prepareSearchContext(bool reset = false)
-		- callback function for the results sub template.
-		- loads the necessary contextual data to show a search result.
-
-	int searchSort(string $wordA, string $wordB)
-		- callback function for usort used to sort the fulltext results.
-		- passes sorting duty to the current API.
-*/
-
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
@@ -51,7 +24,17 @@ $GLOBALS['search_versions'] = array(
 	'search_version' => strtr('SMF 2+0=Beta=2', array('+' => '.', '=' => ' ')),
 );
 
-// Ask the user what they want to search for.
+/**
+ * Ask the user what they want to search for.
+ * What it does:
+		- shows the screen to search forum posts (action=search), and uses the
+		  simple version if the simpleSearch setting is enabled.
+		- uses the main sub template of the Search template.
+		- uses the Search language file.
+		- requires the search_posts permission.
+		- decodes and loads search parameters given in the URL (if any).
+		- the form redirects to index.php?action=search2.
+ */
 function PlushSearch1()
 {
 	global $txt, $scripturl, $modSettings, $user_info, $context, $smcFunc, $sourcedir;
@@ -248,7 +231,17 @@ function PlushSearch1()
 	$context['page_title'] = $txt['set_parameters'];
 }
 
-// Gather the results and show them.
+/**
+ * Gather the results and show them.
+ * What it does:
+		- checks user input and searches the messages table for messages
+		  matching the query.
+		- requires the search_posts permission.
+		- uses the results sub template of the Search template.
+		- uses the Search language file.
+		- stores the results into the search cache.
+		- show the results of the search query.
+ */
 function PlushSearch2()
 {
 	global $scripturl, $modSettings, $sourcedir, $txt, $db_connection;
@@ -596,8 +589,10 @@ function PlushSearch2()
 	// *** Parse the search query
 
 	// Unfortunately, searching for words like this is going to be slow, so we're blacklisting them.
-	// !!! Setting to add more here?
-	// !!! Maybe only blacklist if they are the only word, or "any" is used?
+	/**
+	 * @todo Setting to add more here?
+	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
+	 */ 
 	$blacklisted_words = array('img', 'url', 'quote', 'www', 'http', 'the', 'is', 'it', 'are', 'if');
 
 	// What are we searching for?
@@ -797,7 +792,6 @@ function PlushSearch2()
 			if (empty($pspell_link))
 				continue;
 
-			$word = $word;
 			// Don't check phrases.
 			if (preg_match('~^\w+$~', $word) === 0)
 			{
@@ -851,8 +845,6 @@ function PlushSearch2()
 			$temp_excluded = array('search' => array(), 'display' => array());
 			foreach ($excludedWords as $word)
 			{
-				$word = $word;
-
 				if (preg_match('~^\w+$~', $word) == 0)
 				{
 					$temp_excluded['search'][] = '-"' . $word . '"';
@@ -1839,6 +1831,13 @@ function PlushSearch2()
  * Note that the call to loadAttachmentContext() doesn't work:
  * this function doesn't fulfill the pre-condition to fill $attachments global...
  * So all it does is to fallback and return.
+ * 
+ * What it does:
+ * - callback function for the results sub template.
+		- loads the necessary contextual data to show a search result.
+ * 
+ * @param $reset = false
+ * @return array
  */
 function prepareSearchContext($reset = false)
 {
@@ -2099,7 +2098,16 @@ function prepareSearchContext($reset = false)
 	return $output;
 }
 
-// This function compares the length of two strings plus a little.
+/**
+ * This function compares the length of two strings plus a little.
+ * What it does:
+		- callback function for usort used to sort the fulltext results.
+		- passes sorting duty to the current API.
+ *
+ * @param string $a
+ * @param string $b
+ * @return int
+ */
 function searchSort($a, $b)
 {
 	global $searchAPI;
