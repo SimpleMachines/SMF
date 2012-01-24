@@ -1,0 +1,63 @@
+/* special styles for IE6 */
+
+.main_menu li.active a
+{
+	background: none;
+	padding-right: 0;
+}
+.main_menu li.active
+{
+	background: url(../images/maintab_active_last.gif) no-repeat bottom right;
+	padding-right: 8px;
+}
+
+* html #poll_options ul.horizlist dl.options dd, * html #poll_options ul.horizlist dl.options dt
+{
+	margin: 0;
+	padding: 0;
+}
+/* the tabled definition lists */
+dl.settings dd, #creator dd, dl.stats dd, dl.register_form dd, #poll_options dl.options dd
+{
+	float: none;
+	width: auto;
+}
+
+.modbuttons .buttonlist_bottom ul, .modbuttons .buttonlist ul, .floatright .buttonlist ul, .floatright .buttonlist_bottom ul, .readbuttons .buttonlist ul, .readbuttons .buttonlist_bottom ul
+{
+	float: right;
+}
+
+/* Profile template */
+#detailedinfo div.content dl
+{
+	height: 0.1%;
+}
+.infocenter_section div.sectionbody
+{
+	height: 30px;
+}
+
+#forumposts .postarea
+{
+	margin-left: 0;
+	margin-right: 0;
+	float: right;
+}
+.signature
+{
+	padding: 0 0 0.8em 0;
+}
+#quickReplyOptions form textarea
+{
+	width: 98%;
+}
+code.bbc_code
+{
+	white-space: normal;
+}
+
+#ip_list li.header
+{
+	height: .1%;
+}

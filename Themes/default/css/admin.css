@@ -1,0 +1,627 @@
+/* Styles for the admin quick search.
+------------------------------------------------------- */
+
+#quick_search form, h3.catbg #quick_search form
+{
+	padding: 7px;
+	line-height: 0.9em;
+	font-size: 0.8em !important;
+}
+
+ol.search_results
+{
+	margin-top: 0;
+	padding-top: 0;
+}
+ol.search_results li
+{
+	padding-top: 1em;
+	border-bottom: 1px solid #ccc;
+}
+
+/* Styles for the core features screen.
+------------------------------------------------------- */
+.features
+{
+	padding: 0 1em !important;
+	overflow: auto;
+}
+.features_image
+{
+	float: left;
+	margin: 0 2em 0.5em 1em;
+}
+.features_switch
+{
+	margin: 0.2em 1em 1em 1em;
+	float: right;
+}
+.features h4
+{
+	padding: 1em 0 0.5em 0.5em;
+	margin: 0;
+	font-size: 1.1em;
+}
+.features p
+{
+	padding: 0 1em;
+	margin: 0;
+}
+
+/* Styles for the admin home screen bar.
+------------------------------------------------------- */
+#admin_main_section
+{
+	overflow: hidden;
+	margin: 1em 0;
+}
+#admincenter .content
+{
+	padding: 1em;
+}
+
+#live_news
+{
+	width: 64%;
+	font-size: 0.85em;
+}
+#live_news div.content
+{
+	padding: 0;
+}
+#live_news div.content dl
+{
+	padding: 0.5em 0 0 0.5em;
+}
+
+#supportVersionsTable
+{
+	width: 34%;
+}
+#version_details
+{
+	overflow: auto;
+	height: 9.5em;
+}
+#smfAnnouncements
+{
+	height: 13.5em;
+	padding: 0 0.5em;
+	overflow: auto;
+}
+#smfAnnouncements dt
+{
+	border-bottom: 1px dashed #000;
+}
+#smfAnnouncements dd
+{
+	padding: 0;
+	margin: 0 0 1em 1.5em;
+}
+#update_section
+{
+	margin: 0.5em 0 0;
+}
+
+#quick_tasks, #quick_tasks ul
+{
+	margin: 0;
+	padding: 0;
+}
+#quick_tasks li
+{
+	float: left;
+	list-style-type: none;
+	margin: 0;
+	padding: 0.5em 0;
+	width: 49.5%;
+	height: 4.5em;
+}
+.quick_task
+{
+	display: block;
+	width: 100%;
+	margin: 0 1em;
+	padding: 0;
+}
+.home_image
+{
+	float: left;
+	margin: 0 1em 1em 1em;
+}
+
+/* Common admin center classes.
+------------------------------------------------------- */
+hr.hrcolor
+{
+	margin: 10px 0;
+}
+h3.titlebg form
+{
+	font-size: 80%;
+}
+.windowbg.nopadding
+{
+	margin: 0.3em 0 0 0;
+	padding: 0;
+}
+.windowbg ol
+{
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.table_caption, tr.table_caption td
+{
+	color: #000;
+	font-size: 10px;
+	font-weight: bold;
+}
+.additional_row div.floatleft
+{
+	padding: 0 0.8em;
+}
+fieldset
+{
+	margin-bottom: 0.5em;
+	border: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+fieldset dl
+{
+	margin: 0;
+}
+legend
+{
+	font-weight: bold;
+	color: #000;
+}
+.information a
+{
+	font-weight: bold;
+}
+
+/* Styles for the package manager.
+------------------------------------------------- */
+#package_list .tborder
+{
+	margin: .25em 0 .25em 26px;
+}
+#package_list ol, #package_list ol li
+{
+	list-style: decimal;
+	margin-left: 50px;
+	border: none;
+}
+#package_list ol ul, #package_list ol ul li
+{
+	margin-left: 0;
+	list-style: none;
+}
+#package_list
+{
+	list-style-type: none;
+}
+#package_list li
+{
+	border: 1px solid #cacdd3;
+	padding: 0.2em;
+	margin: 1px;
+}
+.description
+{
+	max-height: 15em;
+	overflow: auto;
+	padding-bottom: .5em;
+}
+.information
+{
+	max-height: 15em;
+	overflow: auto;
+	padding-bottom: .5em;
+}
+.package_section
+{
+	border: 1px solid #cacdd3;
+}
+ul.packages li
+{
+	border: none !important;
+	list-style-type: none;
+}
+code#find_code, code#replace_code
+{
+	display: block;
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+	font-size: x-small;
+	background: #eef;
+	line-height: 1.5em;
+	padding: 3px 1em;
+	overflow: auto;
+	white-space: pre;
+	/* Show a scrollbar after about 24 lines. */
+	max-height: 24em;
+}
+span.package_server
+{
+	padding: 0 3em;
+}
+ul.package_servers
+{
+	margin: 0;
+	padding: 0;
+}
+ul.package_servers li
+{
+	list-style-type: none;
+}
+pre.file_content
+{
+	overflow: auto;
+	width: 100%;
+	padding-bottom: 1em;
+}
+.operation
+{
+	padding: 0 1em;
+}
+
+/* Styles for the file permissions section.
+------------------------------------------------- */
+.filepermissions
+{
+	font-size: 0.8em;
+	white-space: nowrap;
+}
+.fperm
+{
+	display: block;
+	width: 35%;
+	text-align: center;
+}
+.perm_read
+{
+	background-color: #d1f7bf;
+}
+.perm_write
+{
+	background-color: #ffbbbb;
+}
+.perm_execute
+{
+	background-color: #fdd7af;
+}
+.perm_custom
+{
+	background-color: #c2c6c0;
+}
+.perm_nochange
+{
+	background-color: #eee;
+}
+
+/* Styles for the BBC permissions
+------------------------------------------------- */
+.list_bbc
+{
+	width: 33%;
+}
+
+/* Styles for the manage boards section.
+------------------------------------------------- */
+#manage_boards ul
+{
+	padding: 0;
+	margin: 0 0 0.6em 0;
+	max-height: 30em;
+	overflow: auto;
+}
+#manage_boards li
+{
+	list-style-type: none;
+	border: 1px solid #cacdd3;
+	padding: 0.2em;
+	margin: 1px;
+	clear: right;
+}
+#manage_boards li img
+{
+	vertical-align: middle;
+	padding-bottom: 3px;
+}
+#manage_boards li#recycle_board
+{
+	background-color: #dee;
+}
+.move_links
+{
+	padding: 0 13px 0 0;
+}
+.modify_boards
+{
+	padding: 0 0.5em;
+}
+#manage_boards span.post_group, #manage_boards span.regular_members
+{
+	border-bottom: 1px dotted #000;
+	cursor: help;
+}
+
+/* Styles for the manage members section.
+------------------------------------------------- */
+.msearch_details
+{
+	display: block;
+	width: 49%;
+}
+dl.right dt
+{
+	padding-right: 10px;
+}
+
+/* Styles for the manage maintenance section.
+------------------------------------------------- */
+.maintenance_finished, #task_completed
+{
+	margin: 1ex;
+	padding: 1ex 2ex;
+	border: 1px dashed green;
+	color: green;
+	background: #efe;
+}
+/* Styles for the manage calendar section.
+------------------------------------------------- */
+dl.settings dt.small_caption
+{
+	width: 20%;
+}
+dl.settings dd.small_caption
+{
+	width: 79%;
+}
+/* Styles for the manage permissions section.
+------------------------------------------------- */
+dl.admin_permissions dt
+{
+	width: 35%;
+}
+dl.admin_permissions dd
+{
+	width: 64%;
+}
+
+/* Styles for the manage search section.
+------------------------------------------------- */
+dl.settings dt.large_caption
+{
+	width: 70%;
+}
+dl.settings dd.large_caption
+{
+	width: 29%;
+}
+span.search_weight
+{
+	width: 40px;
+	padding: 0 0.5em;
+	text-align: right;
+	display: inline-block;
+}
+.search_settings
+{
+	width: 47%;
+}
+
+/* Styles for the manage bans section.
+------------------------------------------------- */
+.ban_restriction
+{
+	margin: 0.2em 0 0.2em 2.2em;
+}
+.ban_settings
+{
+	width: 46%;
+}
+#manage_bans dl
+{
+	margin-bottom: 1em;
+}
+#manage_bans fieldset dl.settings
+{
+	margin-bottom: 0;
+}
+
+/* Styles for the manage subscriptions section.
+------------------------------------------------- */
+#fixed_area
+{
+	width: 97%;
+}
+ul.pending_payments
+{
+	margin: 0;
+	padding: 0;
+}
+ul.pending_payments li
+{
+	list-style-type: none;
+}
+
+/* Styles for the manage permissions section.
+------------------------------------------------- */
+.perm_name, .perm_profile, .perm_board
+{
+	display: block;
+	width: 40%;
+}
+.perm_boards
+{
+	padding: 0;
+	margin: 0 0 0.6em 0;
+}
+.perm_boards li
+{
+	list-style-type: none;
+	border: 1px solid #cacdd3;
+	padding: 0.2em;
+	margin: 1px;
+}
+.perm_groups
+{
+	background-color: #fff;
+}
+.perm_classic
+{
+	margin: 0.2em;
+}
+.permission_groups
+{
+	padding: 0;
+	margin: 0;
+}
+.permission_groups li
+{
+	list-style-type: none;
+	padding: 0.2em;
+	margin: 1px;
+}
+.perms
+{
+	width: 20px;
+	display: inline-block;
+	text-align: center;
+}
+
+/* Styles for the themes section.
+------------------------------------------------- */
+ul.theme_options
+{
+	padding: 0;
+	margin: 0;
+}
+ul.theme_options li
+{
+	list-style: none;
+	padding: 0.4em;
+}
+.is_directory
+{
+	padding-left: 18px;
+	background: url(../images/admin/boards.gif) no-repeat;
+}
+.edit_file
+{
+	width: 96%;
+	font-family: monospace;
+	margin-top: 1ex;
+	white-space: pre;
+}
+
+dl.themes_list
+{
+	margin: 0;
+}
+dl.themes_list dt
+{
+	margin-bottom: 3px;
+}
+dl.themes_list dd
+{
+	font-style: italic;
+	white-space: nowrap;
+}
+
+/* Styles for the registration center.
+------------------------------------------------- */
+.agreement, .reserved_names
+{
+	padding: 0;
+}
+#agreement, #reserved
+{
+	width: 99%;
+}
+
+/* Styles for the moderation center.
+------------------------------------------------- */
+#modcenter
+{
+	display: block;
+	width: 100%;
+}
+.modblock_left
+{
+	width: 49%;
+	float: left;
+	clear: right;
+	margin: 0 0 1em 0;
+}
+.modblock_right
+{
+	width: 49%;
+	float: right;
+	margin: 0 0 1em 0;
+}
+
+.modbox
+{
+	height: 150px;
+	overflow: auto;
+}
+/* Moderation Notes */
+ul.moderation_notes
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow: auto;
+	height: 8.5em;
+}
+ul.moderation_notes li
+{
+	padding: 4px 0 4px 4px;
+	border-bottom: 1px solid #cccccc;
+}
+.notes
+{
+	margin: 0.5em 0;
+}
+.post_note
+{
+	width: 85%;
+}
+
+/* Styles for the error log.
+------------------------------------------------- */
+
+h3.grid_header
+{
+	height: 25px;
+}
+#error_log
+{
+	width: 100%;
+}
+#error_log tr.windowbg td, #error_log tr.windowbg2 td
+{
+	padding: 8px;
+	line-height: 160%;
+}
+#error_log td.half_width
+{
+	width: 50%;
+}
+#error_log td.checkbox_column
+{
+	width: 15px;
+	vertical-align: top;
+	text-align: center;
+}
+#error_log td div.marginleft
+{
+	margin: 0 0 0 1ex;
+}
+#manage_boards span.botslice, #manage_maintenance span.botslice, #manage_mail span.botslice
+{
+	margin-bottom: 4px;
+}

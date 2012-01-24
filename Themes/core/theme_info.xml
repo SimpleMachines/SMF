@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
+	<!-- Theme name, used purely for aesthetics. -->
+	<name>Core Theme</name>
+	<!-- Author: your email address or contact information.  The name attribute is optional. -->
+	<author name="Simple Machines">info@simplemachines.org</author>
+	<!-- Website... where to get updates and more information. -->
+	<website>http://www.simplemachines.org/</website>
+	<!-- Template layers to use, defaults to "html,body". -->
+	<layers>html,body</layers>
+	<!-- Templates to load on startup.  Default is "index". -->
+	<templates>index</templates>
+	<!-- Base this theme off another?  Default is blank, or no.  It could be "default". -->
+	<based-on></based-on>
+</theme-info>

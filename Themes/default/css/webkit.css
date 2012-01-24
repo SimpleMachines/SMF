@@ -1,0 +1,10 @@
+/*
+	Special styles for Safari (and other Webkit-based browsers like Chrome)
+	Webkit needs this otherwise the post goes off to the right.
+	Causes issues in IE browsers, and breaks cached search engines pages.
+*/
+
+table.table_list tbody.header td div.cat_bar
+{
+	margin-bottom: -1px;
+}

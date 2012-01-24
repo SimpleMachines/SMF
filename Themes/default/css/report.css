@@ -1,0 +1,59 @@
+body
+{
+	color: #000;
+	background-color: #fff;
+	zoom: 1;
+}
+body, td, .normaltext
+{
+	font-family: Verdana, arial, helvetica, serif;
+	font-size: small;
+}
+*, a:link, a:visited, a:hover, a:active
+{
+	color: #000 !important;
+}
+.smalltext, .quoteheader, .codeheader
+{
+	font-size: x-small;
+}
+.largetext
+{
+	font-size: large;
+}
+hr
+{
+	height: 1px;
+	border: 0;
+	color: #000;
+	background-color: #000;
+}
+.catbg
+{
+	background-color: #d6d6d6;
+	font-weight: bold;
+}
+.titlebg, tr.titlebg td, .titlebg a:link, .titlebg a:visited
+{
+	font-style: normal;
+	background-color: #f0f4f7;
+}
+.bordercolor
+{
+	background-color: #333;
+}
+.windowbg
+{
+	color: #000;
+	background-color: #fff;
+}
+.windowbg2
+{
+	color: #000;
+	background-color: #f1f1f1;
+}
+.copyright
+{
+	font-size: x-small;
+	text-align: center;
+}

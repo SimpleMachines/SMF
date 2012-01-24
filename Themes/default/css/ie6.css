@@ -1,0 +1,208 @@
+.codeheader, code.bbc_code
+{
+	width: 96%;
+	margin: 0 auto;
+}
+code.bbc_code
+{
+	white-space: normal;
+}
+h3.catbg input.input_check
+{
+	margin: 0 4px;
+}
+h3.catbg img.icon, h4.titlebg img.icon
+{
+	margin: 1px 3px 0 0;
+}
+h3.catbg span.ie6_header, h4.catbg span.ie6_header, h3.titlebg span.ie6_header, h4.titlebg span.ie6_header
+{
+	padding: 6px 0;
+}
+#statistics h4.titlebg span.ie6_header
+{
+	padding: 0;
+}
+#statistics h4.titlebg span.ie6_header img.icon
+{
+	padding: 5px 0;
+}
+/* The dropdown menus
+------------------------------------------------------- */
+
+.dropmenu li
+{
+	width: 1px;
+}
+.dropmenu li a span
+{
+	white-space: nowrap;
+}
+.dropmenu li a:hover
+{
+	text-decoration: none;
+}
+.dropmenu li.iehover
+{
+	z-index: 120;
+}
+
+/* the page section */
+.pagesection
+{
+	overflow: auto;
+}
+/* the user section needs some attention */
+#main_menu
+{
+	width: 98%;
+}
+#top_section
+{
+	height: 65px;
+}
+
+/* the tabled definition lists */
+/* I commented the following out. Not sure why it was there. 
+/* Changing float: left; to float: right; sorts the settings dd class in index.css*/
+/* All the others seem fine too.*/
+/*dl.settings dd, #creator dd, dl.stats dd, dl.register_form dd, #poll_options dl.options dd, .login dd
+{
+	float: none !important;
+	width: auto;
+}*/
+/* generic lists header */
+/* Side paddings must NOT be defined here.*/
+.table_grid thead th
+{
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+/* overflow: hidden doesn't help in IE6. */
+h3.titlebg a, h3.titlebg, h4.titlebg, h4.titlebg a
+{
+	display: inline-block;
+}
+
+#upper_section
+{
+	display: inline-block;
+}
+
+/* Overrides for the message index template
+------------------------------------------------------- */
+#messageindex table
+{
+	margin-top: 5px;
+}
+#messageindex table th
+{
+	border-bottom: 1px solid #fff;
+}
+#topic_icons .description
+{
+	padding: 2em 1em 1em 1em;
+	overflow: auto;
+}
+
+/* Overrides for the display template
+------------------------------------------------------- */
+#forumposts .postarea
+{
+	margin-left: 0;
+	margin-right: 0;
+	float: right;
+}
+.keyinfo
+{
+	padding-bottom: 6px;
+}
+.inner
+{
+	clear: both;
+}
+.post
+{
+	word-wrap: break-word;
+}
+.buttonlist ul li
+{
+	width: 1%;
+	white-space: nowrap;
+}
+#forumposts h3.catbg
+{
+	clear: both;
+}
+#quickReplyOptions form textarea
+{
+	width: 98%;
+}
+
+/* Styles for the statistics center.
+------------------------------------------------- */
+#statistics div.content
+{
+	height: 210px;
+	overflow: hidden;
+}
+#statistics div.top_row
+{
+	height: 150px;
+}
+
+/* Overrides for the admin template
+------------------------------------------------------- */
+#main_admsection
+{
+	height: 100%;
+}
+#main_admsection table
+{
+	width: 99%;
+}
+
+/* Overrides for the profile template
+------------------------------------------------------- */
+#basicinfo h4
+{
+	word-wrap: break-word;
+}
+.ignoreboards
+{
+	margin: 0 1%;
+	padding: 0;
+	width: 45%;
+}
+
+/* Overrides for the personal messages template
+------------------------------------------------------- */
+#personal_messages .postarea
+{
+	margin-left: 0;
+	margin-right: 0;
+	float: right;
+}
+
+/* Overrides for the admin section of the register template
+------------------------------------------------------- */
+#registration_agreement
+{
+	width: 99.5%;
+	margin: 0 auto;
+}
+
+#edit_poll ul.poll_main li
+{
+	padding-left: 0;
+	margin: 0 -2em;
+}
+#postmodify div.roundframe { margin-right: 0;}
+
+/* Overrides for the recent posts template
+------------------------------------------------------- */
+.list_posts
+{
+	word-wrap: break-word;
+}

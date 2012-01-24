@@ -1,0 +1,103 @@
+code.bbc_code
+{
+	white-space: normal;
+}
+h3.catbg input.input_check
+{
+	margin: 0 4px;
+}
+
+/* The dropdown menus
+------------------------------------------------------- */
+/* the dropmenu - RTL tweak */
+.dropmenu li ul
+{
+	margin: 0 -50px 0 0;
+}
+/* the hover effects */
+.dropmenu li.iehover
+{
+	z-index: 120;
+}
+/* the tabled definition lists
+/* I commented the following out. Not sure why it was there. 
+/* Changing float: left; to float: right; sorts the settings dd class in index.css*/
+/* All the others seem fine too.*/
+/*dl.settings dd, #creator dd, dl.stats dd, dl.register_form dd, #poll_options dl.options dd, .login dd
+{
+	float: none !important;
+	width: auto;
+}*/
+/* generic lists header */
+/* Side paddings must NOT be defined here.*/
+.table_grid thead th
+{
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+/* Overrides for the messageindex template
+------------------------------------------------------- */
+#messageindex table
+{
+	margin-top: 5px;
+}
+#messageindex table th
+{
+	border-bottom: 1px solid #fff;
+}
+#topic_icons .description
+{
+	padding: 2em 1em 1em 1em;
+	overflow: auto;
+}
+
+/* Overrides for the display template
+------------------------------------------------------- */
+.post
+{
+	padding-top: 1em;
+	float: none;
+	word-wrap: break-word;
+}
+#content_section #forumposts div.cat_bar
+{
+	margin-top: 8px;
+	clear: both;
+}
+#content_section .pagesection
+{
+	height: 1%;
+}
+#quickReplyOptions form textarea
+{
+	width: 98%;
+}
+
+/* Overrides for the profile template
+------------------------------------------------------- */
+#basicinfo h4
+{
+	word-wrap: break-word;
+}
+
+/* Overrides for the calendar template
+------------------------------------------------- */
+#main_grid table.weeklist h4.titlebg
+{
+	margin: 2px 0 -4px 0;
+}
+
+/* Overrides for the personal messages template
+------------------------------------------------------- */
+#postmodify dl #pm_to, #postmodify dl #bcc_div2, #postmodify dl #pm_subject
+{
+	clear:both !important;
+}
+
+/* Overrides for the recent posts template
+------------------------------------------------------- */
+.list_posts
+{
+	word-wrap: break-word;
+}

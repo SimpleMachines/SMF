@@ -1,0 +1,22 @@
+/* special styles for IE7 */
+/* the tabled definition lists */
+dl.settings dd, dl.stats dd, dl.register_form dd, #poll_options dl.options dd
+{
+	float: none;
+	width: auto;
+}
+
+.signature
+{
+	padding: 0 0 0.8em 0;
+}
+
+#quickReplyOptions form textarea
+{
+	width: 98%;
+}
+
+code.bbc_code
+{
+	white-space: normal;
+}

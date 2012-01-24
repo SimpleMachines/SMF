@@ -1,0 +1,3620 @@
+/* Styles for the general looks for the Curve theme.
+------------------------------------------------------- */
+
+/* Normal, standard links. */
+a:link, a:visited
+{
+	color: #346;
+	text-decoration: none;
+}
+a:hover
+{
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Links that open in a new window. */
+a.new_win:link, a.new_win:visited
+{
+	color: #346;
+	text-decoration: none;
+}
+a.new_win:hover
+{
+	text-decoration: underline;
+}
+
+/* Tables should show empty cells. */
+table
+{
+	empty-cells: show;
+}
+
+/* Set a fontsize that will look the same in all browsers. */
+body
+{
+	background: #E9EEF2 url(../images/theme/backdrop.png) repeat-x;
+	font: 78%/130% "Verdana", "Arial", "Helvetica", sans-serif;
+	margin: 0 auto;
+	padding: 15px 0;
+}
+
+/* Help popups require a different styling of the body element. */
+body#help_popup
+{
+	padding: 1em;
+}
+
+/* use dark grey for the text, leaving #000 for headers etc */
+body, td, th, tr
+{
+	color: #444;
+}
+
+/* This division wraps the entire forum when a forum width is set. */
+div#wrapper
+{
+	margin: 0 auto;
+	min-width: 764px;
+	max-width: 2300px;
+}
+
+/* lets give all forms zero padding/margins */
+form
+{
+	padding: 0;
+	margin: 0;
+}
+
+/* We can style the different types of input buttons to be uniform throughout different browsers and their color themes.
+	.button_submit - covers input[type=submit], input[type=button], button[type=submit] and button[type=button] in all browsers
+	.button_reset  - covers input[type=reset] and button[type=reset] throughout all browsers
+	.input_check   - covers input[type=checkbox] throughout all browsers
+	.input_radio   - covers input[type=radio] throughout all browsers
+	.input_text    - covers input[type=text] throughout all browsers
+	.input_file    - covers input[type=file] throughout all browsers
+*/
+
+input, button, select, textarea
+{
+	font: 95%/115% verdana, Helvetica, sans-serif;
+	color: #000;
+	background: #fff;
+	border: 1px solid #7f9db9;
+	padding: 2px;
+}
+
+/* Select elements look horrible with the extra padding, so leave them unpadded. */
+select
+{
+	padding: 0;
+}
+
+/* Add some padding to the options instead. */
+select option
+{
+	padding: 1px;
+}
+
+/* The font size of textareas should be just a little bit larger. */
+textarea
+{
+	font: 100%/130% verdana, Helvetica, sans-serif;
+}
+
+/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
+.button_submit, .button_reset
+{
+	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
+	border: 1px solid #aaa;
+	cursor: pointer;
+	font-weight: normal;
+}
+input:hover, textarea:hover, button:hover, select:hover
+{
+	border: 1px solid #454545;
+}
+.button_submit:hover, .button_reset:hover
+{
+	border: 1px solid #aaa;
+	background: url(../images/theme/submit_bg.png) no-repeat 0 -140px #cde7ff;
+}
+input:focus, textarea:focus, button:focus, select:focus
+{
+	border: 1px solid #454545;
+}
+
+/* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
+input.input_check, input.input_radio
+{
+	border: none;
+	background: none;
+}
+h3.catbg input.input_check
+{
+	margin: 9px 7px 0 7px;
+}
+
+/* Give disabled text input elements a different background color. */
+input[disabled].input_text
+{
+	background-color: #eee;
+}
+
+/* Standard horizontal rule.. ([hr], etc.) */
+hr, .hrcolor
+{
+	height: 1px;
+	border: 0;
+	color: #ccc;
+	background-color: #ccc;
+}
+
+/* By default set the color on these tags as #000. */
+h1, h2, h3, h4, h5, h6
+{
+	color: #000;
+	font-size: 1em;
+	margin: 0;
+	padding: 0;
+}
+
+/* Fieldsets are used to group elements. */
+fieldset
+{
+	border: 1px solid #c4c4c4;
+	padding: 1em;
+	margin: 0 0 0.5em 0;
+}
+fieldset legend
+{
+	font-weight: bold;
+	color: #444;
+}
+/* No image should have a border when linked. */
+a img
+{
+	border: 0;
+}
+
+/* Define strong as bold, and em as italics */
+strong
+{
+	font-weight: bold;
+}
+
+em
+{
+	font-style: italic;
+}
+/* Alternative for u tag */
+.underline
+{
+	text-decoration: underline;
+}
+
+/* Common classes to easy styling.
+------------------------------------------------------- */
+
+.floatright
+{
+	float: right;
+}
+.floatleft
+{
+	float: left;
+}
+
+.flow_auto
+{
+	overflow: auto;
+}
+.flow_hidden
+{
+	overflow: hidden;
+}
+.flow_hidden .windowbg, .flow_hidden .windowbg2
+{
+	margin-top: 2px;
+}
+.clear
+{
+	clear: both;
+}
+.clear_left
+{
+	clear: left;
+}
+.clear_right
+{
+	clear: right;
+}
+
+/* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
+.smalltext, tr.smalltext th
+{
+	font-size: 0.85em;
+	font-family: verdana, sans-serif;
+}
+.middletext
+{
+	font-size: 0.9em;
+	line-height: 1em;
+	font-family: verdana, sans-serif;
+}
+.normaltext
+{
+	font-size: 1em;
+	line-height: 1.2em;
+}
+.largetext
+{
+	font-size: 1.4em;
+}
+.centertext
+{
+	margin: 0 auto;
+	text-align: center;
+}
+.righttext
+{
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+.lefttext
+{
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+.double_height
+{
+	line-height: 2em;
+}
+/* some common padding styles */
+.padding
+{
+	padding: 0.7em;
+}
+.main_section, .lower_padding
+{
+	padding-bottom: 0.5em;
+}
+/* a quick reset list class. */
+ul.reset, ul.reset li
+{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+/* Some BBC related styles.
+------------------------------------------------------- */
+
+/* A quote, perhaps from another post. */
+blockquote.bbc_standard_quote, blockquote.bbc_alternate_quote
+{
+	font-size: x-small;
+	color: #000;
+	line-height: 1.4em;
+	background: url(../images/theme/quote.png) 0.1em 0.1em no-repeat;
+	border-top: 2px solid #99A;
+	border-bottom: 2px solid #99A;
+	padding: 1.1em 1.4em;
+	margin: 0.1em 0 0.3em 0;
+	overflow: auto;
+}
+
+/* Alterate blockquote stylings */
+blockquote.bbc_standard_quote
+{
+	background-color: #d7daec;
+}
+blockquote.bbc_alternate_quote
+{
+	background-color: #e7eafc;
+}
+
+/* A code block - maybe PHP ;). */
+code.bbc_code
+{
+	display: block;
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+	font-size: x-small;
+	background: #eef;
+	border-top: 2px solid #999;
+	border-bottom: 2px solid #999;
+	line-height: 1.5em;
+	padding: 3px 1em;
+	overflow: auto;
+	white-space: nowrap;
+	/* Show a scrollbar after about 24 lines. */
+	max-height: 24em;
+}
+
+/* The "Quote:" and "Code:" header parts... */
+.codeheader, .quoteheader
+{
+	color: #666;
+	font-size: x-small;
+	font-weight: bold;
+	padding: 0 0.3em;
+}
+
+/* For links to change the code stuff... */
+.codeoperation
+{
+	font-weight: normal;
+}
+
+/* Styling for BBC tags */
+.bbc_link:link, .bbc_link:visited
+{
+	border-bottom: 1px solid #A8B6CF;
+}
+.bbc_link:hover
+{
+	text-decoration: none;
+	border-bottom: 1px solid #346;
+}
+.bbc_size
+{
+	line-height: 1.4em;
+}
+.bbc_color a
+{
+	color: inherit;
+}
+.bbc_img
+{
+	border: 0;
+}
+.bbc_table
+{
+	font: inherit;
+	color: inherit;
+}
+.bbc_table td
+{
+	font: inherit;
+	color: inherit;
+	vertical-align: top;
+}
+.bbc_u
+{
+	text-decoration: underline;
+}
+.bbc_list
+{
+	text-align: left;
+}
+.bbc_tt
+{
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+}
+
+/* Generally, those [?] icons.  This makes your cursor a help icon. */
+.help
+{
+	cursor: help;
+}
+
+/* /me uses this a lot. (emote, try typing /me in a post.) */
+.meaction
+{
+	color: red;
+}
+
+/* Highlighted text - such as search results. */
+.highlight
+{
+	font-weight: bold;
+	color: #ff7200 !important;
+	font-size: 1.1em;
+}
+
+/* A more discreet highlight color, for selected membergroups etc. */
+.highlight2
+{
+	background-color: #D1E1EF;
+	color: #000 !important;
+}
+
+/* Generic, mostly color-related, classes.
+------------------------------------------------------- */
+
+.titlebg, .titlebg2, tr.titlebg th, tr.titlebg td, tr.titlebg2 td
+{
+	color: #222;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 1.1em;
+	font-weight: bold;
+	background: #e3e9ef url(../images/theme/main_block.png) no-repeat -10px -380px;
+}
+.catbg, .catbg2, tr.catbg td, tr.catbg2 td, tr.catbg th, tr.catbg2 th
+{
+	color: #fff;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 1.1em;
+	font-weight: bold;
+	background: #a7b9cd url(../images/theme/main_block.png) no-repeat -10px -280px;
+}
+
+/* adjust the table versions of headers */
+tr.titlebg th, tr.titlebg2 th, td.titlebg, td.titlebg2, tr.catbg th, tr.catbg2 th, td.catbg, td.catbg2
+{
+	padding: 0 6px;
+}
+tr.titlebg th a:link, tr.titlebg th a:visited, tr.titlebg2 td a:link, tr.titlebg2 td a:visited
+{
+	color: #222;
+}
+tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:visited
+{
+	color: #fff;
+}
+.catbg select
+{
+	height: 1.5em;
+	font-size: 0.85em;
+}
+
+/* Alternating backgrounds for posts, and several other sections of the forum. */
+.windowbg, #preview_body
+{
+	color: #000;
+	background-color: #e7eaef;
+}
+.windowbg2
+{
+	color: #000;
+	background-color: #f0f4f7;
+}
+.windowbg3
+{
+	color: #000;
+	background-color: #cacdd3;
+}
+
+/* the page navigation area */
+.pagesection
+{
+	font-size: 0.9em;
+	padding: 0.2em;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.pagesection div.floatright input
+{
+	margin-top: 3px;
+}
+
+.pagelinks
+{
+	padding: 0.6em 0 0.4em 0;
+}
+
+/* Colors for background of posts requiring approval */
+.approvebg
+{
+	color: #000;
+	background-color: #ffeaea;
+}
+.approvebg2
+{
+	color: #000;
+	background-color: #fff2f2;
+}
+
+/* Color for background of *topics* requiring approval */
+.approvetbg
+{
+	color: #000;
+	background-color: #e4a17c;
+}
+.approvetbg2
+{
+	color: #000;
+	background-color: #f3bd9f;
+}
+
+/* Sticky topics get a different background */
+.stickybg
+{
+	background: #e8d8cf;
+}
+.stickybg2
+{
+	background: #f2e3d9;
+}
+
+/* Locked posts get a different shade, too! */
+.lockedbg
+{
+	background: #d4dce2;
+	font-style: italic;
+}
+.lockedbg2
+{
+	background: #d8e1e7;
+	font-style: italic;
+}
+
+/* Posts and personal messages displayed throughout the forum. */
+.post, .personalmessage
+{
+	overflow: auto;
+	line-height: 1.4em;
+	padding: 0.1em 0;
+}
+
+/* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
+.signature, .attachments
+{
+	width: 98%;
+	overflow: auto;
+	clear: right;
+	padding: 1em 0 3px 0;
+	border-top: 1px solid #aaa;
+	line-height: 1.4em;
+	font-size: 0.85em;
+}
+.custom_fields_above_signature
+{
+	width: 98%;
+	clear: right;
+	padding: 1em 0 3px 0;
+	border-top: 1px solid #aaa;
+	line-height: 1.4em;
+	font-size: 0.85em;
+}
+
+/* Sometimes there will be an error when you post */
+.error
+{
+	color: red;
+}
+
+/* Messages that somehow need to attract the attention. */
+.alert
+{
+	color: red;
+}
+
+/* Calendar colors for birthdays, events and holidays */
+.birthday
+{
+	color: #920ac4;
+}
+
+.event
+{
+	color: #078907;
+}
+
+.holiday
+{
+	color: #000080;
+}
+
+/* Colors for warnings */
+.warn_mute
+{
+	color: red;
+}
+
+.warn_moderate
+{
+	color: #ffa500;
+}
+
+.warn_watch, .success
+{
+	color: green;
+}
+
+a.moderation_link, a.moderation_link:visited
+{
+	color: red;
+	font-weight: bold;
+}
+
+.openid_login
+{
+	background: white url(../images/openid.gif) no-repeat;
+	padding-left: 18px;
+}
+
+/* a descriptive style */
+.description, .description_board, .plainbox
+{
+	padding: 0.5em 1em;
+	font-size: 0.9em;
+	line-height: 1.4em;
+	border: 1px solid #bbb;
+	background: #f5f5f0;
+	margin: 0.2em 1px 1em 1px;
+}
+.description_board
+{
+	margin: 1em 1px 0 1px;
+}
+
+/* an informative style */
+.information
+{
+	padding: 0.5em 1em;
+	font-size: 0.9em;
+	line-height: 1.3em;
+	border: 1px solid #bbb;
+	background: #f0f6f0;
+	margin: 0.2em 1px 1em 1px;
+}
+.information p
+{
+	padding: 1em;
+	margin: 0;
+}
+p.para2
+{
+	padding: 1em 0 3.5em 0;
+	margin: 0;
+}
+/* AJAX notification bar
+------------------------------------------------------- */
+#ajax_in_progress
+{
+	background: url(../images/theme/loadingbar.png) repeat-x;
+	color: #f96f00;
+	text-align: center;
+	font-size: 16pt;
+	padding: 8px;
+	width: 100%;
+	height: 66px;
+	line-height: 25px;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#ajax_in_progress a
+{
+	color: orange;
+	text-decoration: underline;
+	font-size: smaller;
+	float: right;
+	margin-right: 20px;
+}
+
+/* Lists with settings use these a lot.
+------------------------------------------------------- */
+dl.settings
+{
+	clear: right;
+	overflow: auto;
+	margin: 0 0 10px 0;
+	padding: 0;
+}
+dl.settings dt
+{
+	width: 40%;
+	float: left;
+	margin: 0 0 10px 0;
+	padding: 0;
+	clear: both;
+}
+dl.settings dt.settings_title
+{
+	width: 100%;
+	float: none;
+	margin: 0 0 10px 0;
+	padding: 5px 0 0 0;
+	font-weight: bold;
+	clear: both;
+}
+dl.settings dt.windowbg
+{
+	width: 98%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0 0 5px 0;
+	clear: both;
+}
+dl.settings dd
+{
+	width: 56%;
+	float: right;
+	overflow: auto;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+dl.settings img
+{
+	margin: 0 10px 0 0;
+}
+/* help icons */
+dl.settings dt a img
+{
+	position: relative;
+	top: 2px;
+}
+
+/* Styles for rounded headers.
+------------------------------------------------------- */
+h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg
+{
+	overflow: hidden;
+	height: 31px;
+	line-height: 31px;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a
+{
+	color: #fff;
+}
+h3.catbg2 a, h3.catbg2
+{
+	color: #feb;
+}
+h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover
+{
+	color: #fd9;
+	text-decoration: none;
+}
+h3.catbg2 a:hover
+{
+	color: #fff;
+	text-decoration: none;
+}
+h3.titlebg a, h3.titlebg, h4.titlebg, h4.titlebg a
+{
+	color: #222;
+}
+h3.titlebg a:hover, h4.titlebg a:hover
+{
+	color: #53616f;
+	text-decoration: none;
+}
+h3.catbg img.icon, h4.titlebg img.icon
+{
+	vertical-align: middle;
+	margin: -2px 5px 0 0;
+}
+h4.catbg a.toggle img
+{
+	vertical-align: middle;
+	margin: -2px 5px 0 5px;
+}
+h4.catbg, h4.catbg2 , h3.catbg , h3.catbg2 , .table_list tbody.header td.catbg
+{
+	background: url(../images/theme/main_block.png) no-repeat 100% -160px;
+	padding-right: 9px;
+}
+h4.titlebg, h3.titlebg
+{
+	background: url(../images/theme/main_block.png) no-repeat 100% -200px;
+	padding-right: 9px;
+}
+h4.titlebg img.icon
+{
+	float: left;
+	margin: 5px 8px 0 0;
+}
+div.cat_bar
+{
+	background: #99abbf url(../images/theme/main_block.png) no-repeat 0 -160px;
+	padding-left: 9px;
+	height: 31px;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.title_bar
+{
+	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -200px;
+	padding-left: 9px;
+	height: 31px;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+
+/* rounded bars needs a different background here */
+
+div.roundframe div.cat_bar
+{
+	background: #99abbf url(../images/theme/main_block.png) no-repeat 0 -240px;
+	margin-bottom: 0;
+}
+div.roundframe div.cat_bar h3.catbg
+{
+	background: url(../images/theme/main_block.png) no-repeat 100% -240px;
+}
+div.title_barIC
+{
+	background: #dadfe6 url(../images/theme/main_block.png) no-repeat 0 -120px;
+	padding-left: 9px;
+	height: 31px;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.title_barIC h4.titlebg
+{
+	background: url(../images/theme/main_block.png) no-repeat 100% -120px;
+}
+#upshrinkHeaderIC p.pminfo
+{
+	margin: 0;
+	padding: 0.5em;
+}
+img#upshrink_ic, img#newsupshrink
+{
+	float: right;
+	margin: 10px 5px 0 0;
+}
+table.table_list a.unreadlink, table.table_list a.collapse
+{
+	float: right;
+}
+table.table_list a.collapse
+{
+	margin: 10px 5px 0 1em;
+	height: 31px;
+	line-height: 31px;
+}
+
+/* The half-round header bars for some tables. */
+.table_grid tr.catbg, .table_grid tr.titlebg
+{
+	font-size: 0.95em;
+	border-bottom: 1px solid #fff;
+}
+.table_grid tr.catbg th, .table_grid tr.titlebg th
+{
+	height: 28px;
+	line-height: 28px;
+}
+tr.catbg th.first_th
+{
+	background: #a7b9cd url(../images/theme/main_block.png) no-repeat 0 -280px;
+}
+tr.catbg th.last_th
+{
+	background: #a7b9cd url(../images/theme/main_block.png) no-repeat 100% -280px;
+}
+tr.titlebg th.first_th
+{
+	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -380px;
+}
+tr.titlebg th.last_th
+{
+	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 100% -380px;
+}
+.table_grid th.last_th input
+{
+	margin: 0 2px;
+}
+.table_grid th.lefttext
+{
+	padding: 0 0.7em;
+}
+
+/* a general table class */
+table.table_grid
+{
+	border-collapse: collapse;
+	margin-top: 0.1em;
+}
+table.table_grid td
+{
+	padding: 3px;
+	border-bottom: 1px solid #fff;
+	border-right: 1px solid #fff;
+}
+
+/* GenericList */
+.additional_row
+{
+	padding: 0.5em 0 0.5em 0;
+}
+table.table_grid thead tr.catbg th
+{
+	white-space: nowrap;
+}
+
+/* table_grid styles for Profile > Show Permissions. */
+#permissions table.table_grid  td
+{
+	padding: 0.4em 0.8em;
+	cursor: default;
+} 
+
+/* Common styles used to add corners to divisions.
+------------------------------------------------------- */
+.windowbg span.topslice
+{
+	display: block;
+	padding-left: 20px;
+	background: url(../images/theme/main_block.png) 0 -30px no-repeat;
+}
+.windowbg span.topslice span
+{
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -30px no-repeat;
+	height: 11px;
+}
+.windowbg span.botslice
+{
+	display: block;
+	padding-left: 20px;
+	background: url(../images/theme/main_block.png) 0 -40px no-repeat;
+	font-size: 5px;
+	line-height: 5px;
+	margin-bottom: 0.2em;
+}
+.windowbg span.botslice span
+{
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -40px no-repeat;
+	height: 11px;
+}
+
+.windowbg2 span.topslice
+{
+	display: block;
+	padding-left: 20px;
+	background: url(../images/theme/main_block.png) 0 -60px no-repeat;
+}
+.windowbg2 span.topslice span
+{
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -60px no-repeat;
+	height: 11px;
+}
+.windowbg2 span.botslice
+{
+	display: block;
+	padding-left: 20px;
+	background: url(../images/theme/main_block.png) 0 -71px no-repeat;
+	font-size: 5px;
+	line-height: 5px;
+	margin-bottom: 0.2em;
+}
+.windowbg2 span.botslice span
+{
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -71px no-repeat;
+	height: 11px;
+}
+.approvebg span.topslice
+{
+	display: block;
+	padding-left: 20px;
+	background: url(../images/theme/main_block.png) 0 0 no-repeat;
+}
+.approvebg span.topslice span
+{
+	display: block;
+	background: url(../images/theme/main_block.png) 100% 0 no-repeat;
+	height: 11px;
+}
+.approvebg span.botslice
+{
+	display: block;
+	padding-left: 20px;
+	background: url(../images/theme/main_block.png) 0 -11px no-repeat;
+	margin-bottom: 0.2em;
+}
+.approvebg span.botslice span
+{
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -11px no-repeat;
+	height: 11px;
+}
+.postbg
+{
+	border-left: 1px solid #7f7f7f;
+	border-right: 1px solid #7f7f7f;
+}
+
+/* Used for sections that need somewhat larger corners.
+----------------------------------------------------------- */
+.roundframe
+{
+	padding: 0 10px;
+	background: #f5f5f5;
+	border-left: 1px solid #c5c5c5;
+	border-right: 1px solid #c5c5c5;
+}
+.roundframe dl, .roundframe dt, .roundframe p
+{
+	margin: 0;
+}
+.roundframe p
+{
+	padding: 0.5em;
+}
+span.upperframe
+{
+	padding: 0;
+	display: block;
+	background: url(../images/theme/main_block.png) 0 -90px no-repeat;
+	padding-left: 20px;
+}
+span.upperframe span
+{
+	padding: 0;
+	height: 12px;
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -90px no-repeat;
+}
+span.lowerframe
+{
+	padding: 0;
+	display: block;
+	background: url(../images/theme/main_block.png) 0 -102px no-repeat;
+	padding-left: 20px;
+}
+span.lowerframe span
+{
+	padding: 0;
+	height: 12px;
+	display: block;
+	background: url(../images/theme/main_block.png) 100% -102px no-repeat;
+}
+
+/* The main content area.
+------------------------------------------------------- */
+.content
+{
+	padding: 0.5em 1.2em;
+	margin: 0;
+	border: none;
+}
+.content p
+{
+	margin: 0 0 0.5em 0;
+}
+
+/* Styles used by the auto suggest control.
+------------------------------------------------------- */
+.auto_suggest_div
+{
+	border: 1px solid #000;
+	position: absolute;
+	visibility: hidden;
+}
+.auto_suggest_item
+{
+	background-color: #ddd;
+}
+.auto_suggest_item_hover
+{
+	background-color: #888;
+	cursor: pointer;
+	color: #eee;
+}
+
+/* Styles for the standard dropdown menus.
+------------------------------------------------------- */
+#main_menu
+{
+	padding: 0 0.5em;
+	float: left;
+	margin: 0;
+	width: 98%;
+}
+
+.dropmenu, .dropmenu ul
+{
+	list-style: none;
+	line-height: 1em;
+	padding: 0;
+	margin: 0;
+}
+.dropmenu
+{
+	padding: 0 0.5em;
+}
+.dropmenu a
+{
+	display: block;
+	color: #000;
+	text-decoration: none;
+}
+.dropmenu a span
+{
+	display: block;
+	padding: 0 0 0 5px;
+	font-size: 0.9em;
+}
+/* the background's first level only */
+.dropmenu li a.firstlevel
+{
+	margin-right: 8px;
+}
+.dropmenu li a.firstlevel span.firstlevel
+{
+	display: block;
+	position: relative;
+	left: -5px;
+	padding-left: 5px;
+	height: 22px;
+	line-height: 19px;
+	white-space: pre;
+}
+.dropmenu li
+{
+	float: left;
+	padding: 0;
+	margin: 0;
+	position: relative;
+}
+.dropmenu li ul
+{
+	z-index: 90;
+	display: none;
+	position: absolute;
+	width: 19.2em;
+	font-weight: normal;
+	border-bottom: 1px solid #999;
+	background: url(../images/theme/menu_gfx.png) 0 -130px no-repeat;
+	padding: 7px 0 0 0;
+}
+.dropmenu li li
+{
+	width: 19em;
+	margin: 0;
+	border-left: 1px solid #999;
+	border-right: 1px solid #999;
+}
+.dropmenu li li a span
+{
+	display: block;
+	padding: 8px;
+}
+.dropmenu li ul ul
+{
+	margin: -1.8em 0 0 13em;
+}
+
+/* the active button */
+.dropmenu li a.active
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 100% 0;
+	color: #fff;
+	font-weight: bold;
+}
+.dropmenu li a.active span.firstlevel
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 0 0;
+}
+/* the hover effects */
+.dropmenu li a.firstlevel:hover, .dropmenu li:hover a.firstlevel
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 100% -30px;
+	color: #fff;
+	cursor: pointer;
+	text-decoration: none;
+}
+.dropmenu li a.firstlevel:hover span.firstlevel, .dropmenu li:hover a.firstlevel span.firstlevel
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 0 -30px;
+}
+/* the hover effects on level2 and 3 */
+.dropmenu li li a:hover, .dropmenu li li:hover>a
+{
+	background: #d4dbe4;
+	color: #000;
+	text-decoration: none;
+}
+.dropmenu li:hover ul ul, .dropmenu li:hover ul ul ul
+{
+	top: -999em;
+}
+.dropmenu li li:hover ul
+{
+	top: auto;
+}
+.dropmenu li:hover ul
+{
+	display: block;
+}
+.dropmenu li li.additional_items
+{
+	background-color: #fff;
+}
+
+/* The dropdown menu toggle image */
+#menu_toggle
+{
+	float: right;
+	margin-right: 10px;
+	padding-top: 3px;
+}
+#menu_toggle span
+{
+	position: relative;
+	right: 5000px;
+}
+
+/* Styles for the standard button lists.
+------------------------------------------------------- */
+
+.buttonlist ul
+{
+	z-index: 100;
+	padding: 5px;
+	margin: 0 0.2em 5px 0;
+}
+.buttonlist ul li
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	float: left;
+}
+.buttonlist ul li a
+{
+	display: block;
+	font-size: 0.8em;
+	color: #000;
+	background: #e8e8e8 url(../images/theme/menu_gfx.png) no-repeat 0 -60px;
+	padding: 0 0 0 8px;
+	margin-left: 12px;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+.buttonlist ul li a:hover
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 0 0;
+	color: #fff;
+	text-decoration: none;
+}
+.buttonlist ul li a span
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 100% -60px;
+	display: block;
+	height: 19px;
+	line-height: 19px;
+	padding: 0 8px 0 0;
+}
+.buttonlist ul li a:hover span
+{
+	background: #fff url(../images/theme/menu_gfx.png) no-repeat 100% 0;
+}
+/* the active one */
+.buttonlist ul li a.active
+{
+	background: #5a6c85 url(../images/theme/menu_gfx.png) no-repeat 0 -90px;
+	color: #fff;
+	font-weight: bold;
+}
+.buttonlist ul li a.active span
+{
+	background: url(../images/theme/menu_gfx.png) no-repeat 100% -90px;
+}
+.buttonlist ul li a.active
+{
+	font-weight: bold;
+}
+.buttonlist ul li a.active:hover
+{
+	color: #ddf;
+}
+.align_top ul li a, .align_bottom ul li a
+{
+	margin: 0 12px 0 0;
+}
+
+/* the navigation list */
+ul#navigation
+{
+	margin: 0;
+	font-size: 0.9em;
+	padding: 1em 0.4em;
+}
+ul#navigation li
+{
+	float: none;
+	font-size: 0.95em;
+	display: inline;
+}
+
+#adm_submenus
+{
+	padding-left: 2em;
+	overflow: hidden;
+}
+
+/* Styles for the general looks for the Curve theme.
+------------------------------------------------------- */
+
+/* the framing graphics */
+#header
+{
+	background: url(../images/theme/main_block.png) #fefefe no-repeat 0 -480px;
+	padding-left: 20px;
+}
+#header div.frame
+{
+	background: url(../images/theme/main_block.png) no-repeat 100% -480px;
+	display: block;
+	padding: 5px 20px 1em 0;
+}
+/* the content section */
+#content_section
+{
+	background: #FFFFFF url(../images/theme/frame_repeat.png) repeat-y top left;
+	padding-left: 20px;
+}
+#content_section div.frame
+{
+	background: url(../images/theme/frame_repeat.png) repeat-y top right;
+	display: block;
+	padding: 0 20px 0 0;
+}
+#main_content_section
+{
+	width: 100%;
+	min-height: 200px;
+}
+
+/* the main title, always stay at 45 pixels in height! */
+h1.forumtitle
+{
+	line-height: 45px;
+	font-size: 1.8em;
+	font-family: Geneva, verdana, sans-serif;
+	margin: 0;
+	padding: 0;
+	float: left;
+}
+/* float these items to the right */
+#siteslogan, img#smflogo
+{
+	margin: 0;
+	padding: 0;
+	float: right;
+	line-height: 3em;
+}
+h3, h4
+{
+	padding-bottom: 3px;
+}
+/* the upshrink image needs some tweaking */
+img#upshrink
+{
+	float: right;
+	margin: 1em;
+}
+/* ..so does the SMF logo */
+img#smflogo
+{
+	margin-left: 1em;
+}
+/* the upper_section, float the two each way */
+#upper_section
+{
+	padding: 5px;
+	margin-bottom: 1.5em;
+}
+#upper_section ul li.greeting
+{
+	font-size: 1.3em;
+	font-weight: bold;
+	line-height: 1.5em;
+}
+#upper_section div.news
+{
+	width: 50%;
+	float: right;
+	text-align: right;
+}
+#guest_form
+{
+	overflow: hidden;
+}
+#guest_form .info
+{
+	padding: 4px 0 ;
+	line-height: 1.3em;
+}
+div#upper_section div.user
+{
+	width: 50%;
+	float: left;
+	overflow: auto;
+}
+div#upper_section div.user p
+{
+	float: left;
+	margin: 0 1em 1em 0;
+	padding: 0;
+}
+div#upper_section div.user ul
+{
+	margin: 0;
+	padding-left: 10px;
+}
+div#upper_section div.user ul li
+{
+	margin-bottom: 2px;
+}
+div#upper_section div.news p
+{
+	display: inline;
+}
+div#upper_section div.news form
+{
+	padding-bottom: 10px;
+}
+/* clearing the floats */
+#top_section
+{
+	min-height: 65px;
+	overflow: hidden;
+	margin-bottom: 3px;
+}
+#upper_section
+{
+	overflow: hidden;
+}
+
+/* The navigation list (i.e. linktree) */
+.navigate_section
+{
+	padding: 0.5em;
+	margin: 0 0 0 0;
+}
+.navigate_section ul
+{
+	display: block;
+	margin: 0;
+	font-size: 0.9em;
+	padding: 1em 0 0.5em 0;
+	border-top: 1px solid #ccc;
+	overflow: hidden;
+	list-style: none;
+	clear: both;
+	width: 100%;
+}
+.navigate_section ul li
+{
+	float: left;
+	padding: 0 0.5em 0 0;
+	font-size: 0.95em;
+}
+.navigate_section ul li a
+{
+	white-space: pre;
+}
+
+/* The footer wih copyright links etc. */
+#footer_section
+{
+	text-align: center;
+	background: url(../images/theme/main_block.png) no-repeat 0 -820px;
+	padding-left: 20px;
+}
+#footer_section span.smalltext
+{
+	font-size: 100%;
+}
+#footer_section div.frame
+{
+	background: url(../images/theme/main_block.png) no-repeat 100% -820px;
+	display: block;
+	padding: 60px 0 0 0;
+}
+#footer_section ul li, #footer_section p
+{
+	font-size: 0.8em;
+}
+#footer_section ul li
+{
+	display: inline;
+	padding-right: 5px;
+}
+#footer_section ul li.copyright
+{
+	display: block;
+}
+select.qaction, input.qaction
+{
+	font-size: 0.85em;
+	padding: 0;
+}
+#mlist table tbody td.windowbg2
+{
+	text-align: center;
+}
+
+/* Styles for a typical table.
+------------------------------------------------------- */
+table.table_list
+{
+	width: 100%;
+}
+table.table_list p
+{
+	padding: 0;
+	margin: 0;
+}
+table.table_list td, table.table_list th
+{
+	padding: 5px;
+}
+table.table_list tbody.header td
+{
+	padding: 0;
+}
+table.table_list tbody.content td.stats
+{
+	font-size: 90%;
+	width: 15%;
+	text-align: center;
+}
+table.table_list tbody.content td.lastpost
+{
+	line-height: 1.3em;
+	font-size: 85%;
+	width: 24%;
+}
+table.table_list tbody.content td.icon
+{
+	text-align: center;
+	width: 6%;
+}
+
+/* Styles for the board index.
+------------------------------------------------- */
+
+/* the board title! */
+.table_list tbody.content td.info a.subject
+{
+	font-weight: bold;
+	font-size: 110%;
+	color: #d97b33;
+}
+.table_list tbody.content td.children
+{
+	color: #555;
+	font-size: 85%;
+}
+p.moderators
+{
+	font-size: 0.8em;
+	font-family: verdana, sans-serif;
+}
+/* hide the table header/footer parts - but its here for those needing to style it */
+#boardindex_table .table_list thead, #boardindex_table .table_list tfoot
+{
+	display: none;
+}
+
+/* the posting icons */
+#posting_icons
+{
+	padding: 0 1em 0.5em 1em;
+	margin: 0 0 1em 0;
+	line-height: 1em;
+}
+#posting_icons ul
+{
+	font-size: 0.8em;
+}
+#posting_icons img
+{
+	vertical-align: middle;
+	margin: 0 0 0 4ex;
+}
+#postbuttons_upper ul li a span
+{
+	line-height: 19px;
+	padding: 0 0 0 6px;
+}
+.nextlinks
+{
+	text-align: right;
+	margin-top: -1px;
+}
+.nextlinks_bottom
+{
+	clear: right;
+	text-align: right;
+}
+.mark_read
+{
+	padding: 0 0.5em;
+}
+
+/* the newsfader */
+#newsfader
+{
+	margin: 0 2px;
+}
+#smfFadeScroller
+{
+	text-align: center;
+	padding: 0 2em;
+	overflow: auto;
+	margin: 1em 0;
+	color: #575757; /* shouldn't be shorthand style due to a JS bug in IE! */
+}
+
+/* Styles for the info center on the board index.
+---------------------------------------------------- */
+
+#upshrinkHeaderIC
+{
+	margin-top: 4px;
+}
+dl#ic_recentposts
+{
+	margin: 0 0 0.5em 0;
+	padding: 0.5em;
+	line-height: 1.3em;
+}
+dl#ic_recentposts dt
+{
+	float: left;
+}
+dl#ic_recentposts dd
+{
+	text-align: right;
+}
+#upshrinkHeaderIC p
+{
+	margin: 0 0 0.5em 0;
+	padding: 0.5em;
+}
+#upshrinkHeaderIC p.last
+{
+	margin: 0;
+	padding: 0.5em;
+	border-top: 2px dotted #bbb;
+}
+#upshrinkHeaderIC p.inline
+{
+	border: none;
+	margin: 0;
+	padding: 0.2em 0.5em 0.2em 0.5em;
+}
+#upshrinkHeaderIC p.stats
+{
+	font-size: 1.1em;
+	padding-top: 8px;
+}
+form#ic_login
+{
+	padding: 0.5em;
+	height: 2em;
+}
+form#ic_login ul li
+{
+	margin: 0;
+	padding: 0;
+	float: left;
+	width: 20%;
+	text-align: center;
+}
+form#ic_login ul li label
+{
+	display: block;
+}
+
+/* the small stats */
+#index_common_stats
+{
+	display: block;
+	margin: 0 0 0.5em 0;
+	text-align: right;
+	font-size: 0.9em;
+	position: relative;
+	top: -20px;
+	line-height: 1px;
+}
+
+img.new_posts
+{
+	padding: 0 0.1em;
+}
+/* Styles for the message (topic) index.
+---------------------------------------------------- */
+div.table_frame .table_list
+{
+	border-collapse: collapse;
+	margin: 2px 0;
+}
+.table_frame .table_list td.icon, .table_frame .table_list td.info, .table_frame .table_list td.stats
+{
+	border-right: 2px solid white;
+}
+#messageindex
+{
+	clear: both;
+}
+/* the page navigation area */
+.childboards
+{
+	margin-bottom: 0.2em;
+}
+#childboards h3
+{
+	padding-bottom: 0;
+}
+#childboards .table_list thead
+{
+	display: none;
+}
+#childboards .table_list
+{
+	margin-bottom: 1em;
+}
+.lastpost img
+{
+	float: right;
+	padding: 4px;
+}
+
+/* Styles for the display template (topic view).
+---------------------------------------------------- */
+
+#postbuttons div.buttons
+{
+	padding: 0.5em;
+	width: 40%;
+	float: right;
+}
+#postbuttons div.middletext
+{
+	width: 60%;
+}
+#postbuttons span
+{
+	display: block;
+	text-align: right;
+}
+#postbuttons span.lower
+{
+	clear: right;
+}
+#postbuttons .buttonlist
+{
+	float: right;
+}
+#postbuttons #pagelinks
+{
+	padding-top: 1em;
+}
+#moderationbuttons
+{
+	overflow: hidden;
+}
+/* Events */
+.linked_events
+{
+	padding: 1em 0;
+}
+.edit_event
+{
+	margin: 0 1em;
+	vertical-align: middle;
+}
+/* Poll question */
+#poll
+{
+	overflow: hidden;
+}
+#poll .content
+{
+	padding: 0 1em;
+}
+h4#pollquestion
+{
+	padding: 0 0 0.5em 2em;
+}
+
+/* Poll vote options */
+#poll_options ul.options
+{
+	border-top: 1px solid #9999aa;
+	padding: 1em 2.5em 0 2em;
+	margin: 0 0 1em 0;
+}
+#poll_options div.submitbutton
+{
+	border-bottom: 1px solid #9999aa;
+	clear: both;
+	padding: 0 0 1em 2em;
+	margin: 0 0 1em 0;
+}
+
+/* Poll results */
+#poll_options dl.options
+{
+	border: solid #9999aa;
+	border-width: 1px 0;
+	padding: 1em 2.5em 1em 2em;
+	margin: 0 1em 1em 0;
+	line-height: 1.1em !important;
+}
+
+#poll_options dl.options dt
+{
+	padding: 0.3em 0;
+	width: 30%;
+	float: left;
+	margin: 0;
+	clear: left;
+}
+
+#poll_options dl.options .voted
+{
+	font-weight: bold;
+}
+
+#poll_options dl.options dd
+{
+	margin: 0 0 0 2em;
+	padding: 0.1em 0 0 0;
+	width: 60%;
+	max-width: 450px;
+	float: left;
+}
+
+#poll_options dl.options .percentage
+{
+	display: block;
+	float: right;
+	padding: 0.2em 0 0.3em 0;
+}
+
+/* Poll notices */
+#poll_options p
+{
+	margin: 0 1.5em 0.2em 1.5em;
+	padding: 0 0.5em 0.5em 0.5em;
+}
+
+div#pollmoderation
+{
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+
+/* onto the posts */
+#forumposts
+{
+	clear: both;
+}
+#forumposts .cat_bar
+{
+	margin: 0 0 2px 0;
+}
+/* author and topic information */
+#forumposts h3 span#author
+{
+	margin: 0 7.7em 0 0;
+}
+#forumposts h3 img
+{
+	float: left;
+	margin: 4px 0.5em 0 0;
+}
+#forumposts h3.catbg
+{
+	margin-bottom: 3px;
+}
+p#whoisviewing
+{
+	margin: 0;
+	padding: 0.5em;
+}
+/* poster and postarea + moderation area underneath */
+.post_wrapper
+{
+	float:left;
+	width:100%;
+}
+.poster
+{
+	float: left;
+	width: 15em;
+}
+.postarea, .moderatorbar
+{
+	margin: 0 0 0 16em;
+}
+.postarea div.flow_hidden
+{
+	width: 100%;
+}
+
+.moderatorbar
+{
+	clear: right;
+}
+/* poster details and list of items */
+.poster h4, .poster ul
+{
+	padding: 0;
+	margin: 0 1em 0 1.5em;
+}
+.poster h4
+{
+	margin: 0.2em 0 0.4em 1.1em;
+	font-size: 120%;
+}
+.poster h4, .poster h4 a
+{
+	color: #c06002;
+}
+.poster ul ul
+{
+	margin: 0.3em 1em 0 0;
+	padding: 0;
+}
+.poster ul ul li
+{
+	display: inline;
+}
+.poster li.stars, .poster li.avatar, .poster li.blurb, li.postcount, li.im_icons ul
+{
+	margin-top: 0.5em;
+}
+.poster li.avatar
+{
+	overflow: hidden;
+}
+.poster li.warning
+{
+	line-height: 1.2em;
+	padding-top: 1em;
+}
+.poster li.warning a img
+{
+	vertical-align: bottom;
+	padding: 0 0.2em;
+}
+.messageicon
+{
+	float: left;
+	margin: 0 0.5em 0 0;
+}
+.messageicon img
+{
+	padding: 6px 3px;
+}
+.keyinfo
+{
+	float: left;
+	width: 50%;
+}
+.modifybutton
+{
+	clear: right;
+	float: right;
+	margin: 6px 20px 10px 0;
+	text-align: right;
+	font: bold 0.85em arial, sans-serif;
+	color: #334466;	
+}
+
+/* The quick buttons */
+div.quickbuttons_wrap
+{
+	padding: 0.2em 0;
+	width: 100%;
+	float: left;
+}
+
+ul.quickbuttons
+{
+	margin: 0.9em 11px 0 0;
+	clear: right;
+	float: right;
+	text-align: right;
+	font: bold 0.85em arial, sans-serif;
+}
+ul.quickbuttons li
+{
+	float: left;
+	display: inline;
+	margin: 0 0 0 11px;
+}
+ul.quickbuttons li a
+{
+	padding: 0 0 0 20px;
+	display: block;
+	height: 20px;
+	line-height: 18px;
+	float: left;
+}
+ul.quickbuttons a:hover
+{
+	color: #a70;
+}
+ul.quickbuttons li.quote_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 0;
+}
+ul.quickbuttons li.remove_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -30px;
+}
+ul.quickbuttons li.modify_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -60px;
+}
+ul.quickbuttons li.approve_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -90px;
+}
+ul.quickbuttons li.restore_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
+}
+ul.quickbuttons li.split_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -150px;
+}
+ul.quickbuttons li.reply_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+}
+ul.quickbuttons li.reply_all_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+}
+ul.quickbuttons li.notify_button
+{
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
+}
+ul.quickbuttons li.inline_mod_check
+{
+	margin: 0 0 0 5px;
+}
+
+.post
+{
+	margin-top: 0.5em;
+	clear: right;
+}
+.inner
+{
+	padding: 1em 1em 2px 0;
+	margin: 0 1em 0 0;
+	border-top: 1px solid #99a;
+}
+img.smiley
+{
+	vertical-align: bottom;
+}
+#forumposts .modified
+{
+	float: left;
+}
+#forumposts .reportlinks
+{
+	margin-right: 1.5em;
+	text-align: right;
+	clear: right;
+}
+#forumposts .signature, .post .signature
+{
+	margin: 1em 0 0 0;
+}
+#forumposts span.botslice
+{
+	clear: both;
+}
+.attachments hr
+{
+	clear: both;
+	margin: 1em 0 1em 0;
+}
+.attachments
+{
+	padding: 1em 0 2em 0;
+}
+.attachments div
+{
+	padding: 0 0.5em;
+}
+
+/* Styles for the quick reply area.
+---------------------------------------------------- */
+
+#quickreplybox
+{
+	padding-bottom: 1px;
+}
+#quickReplyOptions .roundframe
+{
+	padding: 0 10%;
+}
+#quickReplyOptions form textarea
+{
+	height: 100px;
+	width: 635px;
+	max-width: 100%;
+	min-width: 100%;
+	margin: 0.25em 0 1em 0;
+}
+/* The jump to box */
+#display_jump_to
+{
+	clear: both;
+	padding: 5px;
+	margin-top: 6px;
+	text-align: right;
+}
+
+/* Separator of posts. More useful in the print stylesheet. */
+#forumposts .post_separator
+{
+	display: none;
+}
+
+/* Styles for edit post section
+---------------------------------------------------- */
+form#postmodify .roundframe
+{
+	padding: 0 12%;
+}
+#post_header, .postbox
+{
+	padding: 0.5em;
+	overflow: hidden;
+}
+#post_header dt, .postbox dt
+{
+	float: left;
+	padding: 0;
+	width: 15%;
+	margin: .5em 0 0 0;
+	font-weight: bold;
+}
+#post_header dd, .postbox dd
+{
+	float: left;
+	padding: 0;
+	width: 83%;
+	margin: .3em 0;
+}
+#post_header img
+{
+	vertical-align: middle;
+}
+ul.post_options
+{
+	margin: 0 0 0 1em;
+	padding: 0;
+	list-style: none;
+	overflow: hidden;
+}
+ul.post_options li
+{
+	margin: 0.2em 0;
+	width: 49%;
+	float: left;
+}
+#postAdditionalOptionsHeader
+{
+	margin-top: 1em;
+}
+#postMoreOptions
+{
+	border-bottom: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+#postAttachment, #postAttachment2
+{
+	overflow: hidden;
+	margin: .5em 0;
+	padding: 0;
+	border-bottom: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+#postAttachment dd, #postAttachment2 dd
+{
+	margin: .3em 0 .3em 1em;
+}
+#postAttachment dt, #postAttachment2 dt
+{
+	font-weight: bold;
+}
+#postAttachment3
+{
+	margin-left: 1em;
+}
+#post_confirm_strip, #shortcuts
+{
+	padding: 1em 0 0 0;
+}
+.post_verification
+{
+	margin-top: .5em;
+}
+.post_verification #verification_control
+{
+	margin: .3em 0 .3em 1em;
+}
+/* The BBC buttons */
+#bbcBox_message
+{
+	margin: 0.75em 0.5em;
+}
+#bbcBox_message div
+{
+	margin: 0.2em 0;
+	vertical-align: top;
+}
+#bbcBox_message div img
+{
+	margin: 0 1px 0 0;
+	vertical-align: top;
+}
+#bbcBox_message select
+{
+	margin: 0 2px;
+}
+/* The smiley strip */
+#smileyBox_message
+{
+	margin: 0.5em;
+}
+
+/* Styles for edit event section
+---------------------------------------------------- */
+#post_event .roundframe
+{
+	padding: 0 12%;
+}
+#post_event fieldset
+{
+	padding: 0.5em;
+	clear: both;
+}
+#post_event #event_main input
+{
+	margin: 0 0 1em 0;
+	float: left;
+}
+#post_event #event_main div.smalltext
+{
+	width: 33em;
+	float: right;
+}
+#post_event div.event_options
+{
+	float: right;
+}
+#post_event ul.event_main, ul.event_options
+{
+	padding: 0;
+	overflow: hidden;
+}
+#post_event ul.event_main li
+{
+	list-style-type: none;
+	margin: 0.2em 0;
+	width: 49%;
+	float: left;
+}
+#post_event ul.event_options
+{
+	margin: 0;
+	padding: 0 0 .7em .7em;
+}
+#post_event ul.event_options li
+{
+	list-style-type: none;
+	margin: 0;
+	float: left;
+}
+#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check
+{
+	margin: 0 1em 0 0;
+}
+
+/* Styles for edit poll section.
+---------------------------------------------------- */
+
+#edit_poll
+{
+	overflow: hidden;
+}
+#edit_poll fieldset
+{
+	padding: 0.5em;
+	clear: both;
+	overflow: hidden;
+}
+#edit_poll fieldset input
+{
+	margin-left: 8.1em;
+}
+#edit_poll ul.poll_main li
+{
+	padding-left: 1em;
+}
+#edit_poll ul.poll_main input
+{
+	margin-left: 1em;
+}
+#edit_poll ul.poll_main, dl.poll_options
+{
+	overflow: hidden;
+	padding: 0 0 .7em .7em;
+	list-style: none;
+}
+#edit_poll ul.poll_main li
+{
+	margin: 0.2em 0;
+}
+#edit_poll dl.poll_options dt
+{
+	width: 33%;
+	padding: 0 0 0 1em;
+}
+#edit_poll dl.poll_options dd
+{
+	width: 65%;
+}
+#edit_poll dl.poll_options dd input
+{
+	margin-left: 0; 
+}
+
+/* Styles for the recent messages section.
+---------------------------------------------------- */
+
+#readbuttons_top .pagelinks, #readbuttons .pagelinks
+{
+	padding-bottom: 1em;
+	width: 60%;
+}
+#readbuttons .pagelinks
+{
+	padding-top: 1em;
+}
+#recent
+{
+	clear: both;
+}
+
+/* Styles for the move topic section.
+---------------------------------------------------- */
+
+#move_topic dl
+{
+	margin-bottom: 0;
+}
+#move_topic dl.settings dt
+{
+	width: 40%;
+}
+#move_topic dl.settings dd
+{
+	width: 59%;
+}
+.move_topic
+{
+	width: 710px;
+	margin: auto;
+	text-align: left;
+}
+div.move_topic fieldset
+{
+	padding: 0.5em;
+}
+
+/* Styles for the send topic section.
+---------------------------------------------------- */
+
+fieldset.send_topic
+{
+	border: none;
+	padding: 0.5em;
+}
+dl.send_topic
+{
+	margin-bottom: 0;
+}
+dl.send_mail dt
+{
+	width: 35%;
+}
+dl.send_mail dd
+{
+	width: 64%;
+}
+
+/* Styles for the report topic section.
+---------------------------------------------------- */
+
+#report_topic dl
+{
+	margin-bottom: 0;
+}
+#report_topic dl.settings dt
+{
+	width: 20%;
+}
+#report_topic dl.settings dd
+{
+	width: 79%;
+}
+
+/* Styles for the split topic section.
+---------------------------------------------------- */
+
+div#selected, div#not_selected
+{
+	width: 49%;
+}
+ul.split_messages li.windowbg, ul.split_messages li.windowbg2
+{
+	margin: 1px;
+}
+ul.split_messages li a.split_icon
+{
+	padding: 0 0.5em;
+}
+ul.split_messages div.post
+{
+	padding: 1em 0 0 0;
+	border-top: 1px solid #fff;
+}
+
+/* Styles for the merge topic section.
+---------------------------------------------------- */
+ul.merge_topics li
+{
+	list-style-type: none;
+}
+dl.merge_topic dt
+{
+	width: 25%;
+}
+dl.merge_topic dd
+{
+	width: 74%;
+}
+fieldset.merge_options
+{
+	clear: both;
+}
+.custom_subject
+{
+	margin: 0.5em 0;
+}
+
+/* Styles for the login areas.
+------------------------------------------------------- */
+.login
+{
+	width: 540px;
+	margin: 0 auto;
+}
+.login dl
+{
+	overflow: auto;
+	clear: right;
+}
+.login dt, .login dd
+{
+	margin: 0 0 0.4em 0;
+	width: 44%;
+	padding: 0.1em;
+}
+.login dt
+{
+	float: left;
+	clear: both;
+	text-align: right;
+	font-weight: bold;
+}
+.login dd
+{
+	width: 54%;
+	float: right;
+	text-align: left;
+}
+.login p
+{
+	text-align: center;
+}
+
+/* Styles for the registration section.
+------------------------------------------------------- */
+.register_error
+{
+	border: 1px dashed red;
+	padding: 5px;
+	margin: 0 1ex 1ex 1ex;
+}
+.register_error span
+{
+	text-decoration: underline;
+}
+
+/* Additional profile fields */
+dl.register_form
+{
+	margin: 0;
+	clear: right;
+}
+
+dl.register_form dt
+{
+	font-weight: normal;
+	float: left;
+	clear: both;
+	width: 50%;
+	margin: 0.5em 0 0 0;
+}
+
+dl.register_form dt strong
+{
+	font-weight: bold;
+}
+
+dl.register_form dt span
+{
+	display: block;
+}
+
+dl.register_form dd
+{
+	float: left;
+	width: 49%;
+	margin: 0.5em 0 0 0;
+}
+
+#confirm_buttons
+{
+	text-align: center;
+	padding: 1em 0;
+}
+
+.coppa_contact
+{
+	padding: 4px;
+	width: 32ex;
+	background-color: #fff;
+	color: #000;
+	margin-left: 5ex;
+	border: 1px solid #000;
+}
+
+.valid_input
+{
+	background-color: #f5fff0;
+}
+.invalid_input
+{
+	background-color: #fff0f0;
+}
+
+/* Styles for maintenance mode.
+------------------------------------------------------- */
+#maintenance_mode
+{
+	width: 75%;
+	min-width: 520px;
+	text-align: left;
+}
+#maintenance_mode img.floatleft
+{
+	margin-right: 1em;
+}
+
+/* common for all admin sections */
+h3.titlebg img
+{
+	vertical-align: middle;
+	margin-right: 0.5em;
+	margin-top: -1px;
+}
+tr.titlebg td
+{
+	padding-left: 0.7em;
+}
+#admin_menu
+{
+	min-height: 2em;
+	padding-left: 0;
+}
+#admin_content
+{
+	clear: left;
+	padding-top: 0.5em;
+}
+/* Custom profile fields like to play with us some times. */
+#admin_content .custom_field
+{
+	margin-bottom: 15px;
+}
+#admin_login .centertext
+{
+	padding: 1em;
+}
+#admin_login .centertext .error
+{
+	padding: 0 0 1em 0;
+}
+
+/* Styles for sidebar menus.
+------------------------------------------------------- */
+.left_admmenu, .left_admmenu ul, .left_admmenu li
+{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+#left_admsection
+{
+	width: 160px;
+	float: left;
+	padding-right: 10px;
+}
+.adm_section h4.titlebg
+{
+	font-size: 95%;
+	margin-bottom: 5px;
+}
+#main_container
+{
+	position: relative;
+}
+.left_admmenu li
+{
+	padding: 0 0 0 0.5em;
+}
+.left_admmenu
+{
+	margin-bottom: 0.5em;
+}
+#main_admsection
+{
+	position: relative;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+}
+
+tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
+{
+	padding: 0.3em 0.7em;
+}
+#credits p
+{
+	padding: 0;
+	font-style: italic;
+	margin: 0;
+}
+
+/* Styles for generic tables.
+------------------------------------------------------- */
+.topic_table table
+{
+	width: 100%;
+}
+.topic_table .icon1, .topic_table .icon2, .topic_table .stats
+{
+	text-align: center;
+}
+#topic_icons
+{
+	margin: 1em 0 0 0;
+}
+#topic_icons .description
+{
+	margin: 0;
+}
+.topic_table table thead
+{
+	border-bottom: 1px solid #fff;
+}
+/* the subject column */
+.topic_table td
+{
+	font-size: 1em;
+}
+.topic_table td.subject p, .topic_table td.stats
+{
+	font-size: 0.85em;
+	padding: 0;
+	margin: 0;
+}
+.topic_table td.lastpost
+{
+	font-size: 0.85em;
+	line-height: 1.3em;
+	padding: 4px;
+}
+.topic_table td.stickybg2
+{
+	background-image: url(../images/icons/quick_sticky.gif);
+	background-repeat: no-repeat;
+	background-position: 98% 4px;
+}
+.topic_table td.lockedbg2
+{
+	background-image: url(../images/icons/quick_lock.gif);
+	background-repeat: no-repeat;
+	background-position: 98% 4px;
+}
+.topic_table td.locked_sticky2
+{
+	background-image: url(../images/icons/quick_sticky_lock.gif);
+	background-repeat: no-repeat;
+	background-position: 98% 4px;
+}
+.topic_table td.lastpost
+{
+	background-image: none;
+}
+
+/* Styles for (fatal) errors.
+------------------------------------------------- */
+
+#fatal_error
+{
+	width: 80%;
+	margin: auto;
+}
+
+.errorbox
+{
+	padding: 1em;
+	border: 1px solid #cc3344;
+	color: #000;
+	background-color: #ffe4e9;
+	margin-bottom: 1em;
+}
+.errorbox h3
+{
+	padding: 0;
+	margin: 0;
+	font-size: 1.1em;
+	text-decoration: underline;
+}
+.errorbox p
+{
+	margin: 1em 0 0 0;
+}
+.errorbox p.alert
+{
+	padding: 0;
+	margin: 0;
+	float: left;
+	width: 1em;
+	font-size: 1.5em;
+}
+
+/* Styles for the profile section.
+------------------------------------------------- */
+
+dl
+{
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+/* The basic user info on the left */
+#basicinfo
+{
+	width: 20%;
+	float: left;
+}
+#basicinfo .windowbg .content
+{
+	padding-left: 20px;
+}
+#detailedinfo
+{
+	width: 79.5%;
+	float: right;
+}
+#basicinfo h4
+{
+	font-size: 135%;
+	font-weight: 100;
+	line-height: 105%;
+	white-space: pre-wrap;
+	overflow: hidden;
+}
+#basicinfo h4 span.position
+{
+	font-size: 80%;
+	font-weight: 100;
+	display: block;
+}
+#basicinfo img.avatar
+{
+	display: block;
+	margin: 10px 0 0 0;
+}
+#basicinfo ul
+{
+	list-style-type: none;
+	margin: 10px 0 0 0;
+}
+#basicinfo ul li
+{
+	display: block;
+	float: left;
+	margin-right: 5px;
+	height: 20px;
+}
+#basicinfo span#userstatus
+{
+	display: block;
+	clear: both;
+}
+#basicinfo span#userstatus img
+{
+	vertical-align: middle;
+}
+#detailedinfo div.content dl, #tracking div.content dl
+{
+	clear: right;
+	overflow: auto;
+	margin: 0 0 18px 0;
+	padding: 0 0 15px 0;
+	border-bottom: 1px #ccc solid;
+}
+#detailedinfo div.content dt, #tracking div.content dt
+{
+	width: 35%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#detailedinfo div.content dd, #tracking div.content dd
+{
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+#detailedinfo div.content dl.noborder
+{
+	border-bottom: 0;
+}
+#detailedinfo div.content dt.clear
+{
+	width: 100%;
+}
+.signature, .custom_fields_above_signature
+{
+	border-top: 1px #ccc solid;
+}
+.signature h5
+{
+	font-size: 0.85em;
+	margin-bottom: 10px;
+}
+#personal_picture
+{
+	display: block;
+	margin-bottom: 0.3em;
+}
+#avatar_server_stored div
+{
+	float: left;
+}
+#avatar_upload
+{
+	overflow: auto;
+}
+#main_admsection #basicinfo, #main_admsection #detailedinfo
+{
+	width: 100%;
+}
+#main_admsection #basicinfo h4
+{
+	float: left;
+	width: 35%;
+}
+#main_admsection #basicinfo img.avatar
+{
+	float: right;
+	vertical-align: top;
+}
+#main_admsection #basicinfo ul
+{
+	clear: left;
+}
+#main_admsection #basicinfo span#userstatus
+{
+	clear: left;
+}
+#main_admsection #basicinfo p#infolinks
+{
+	display: none;
+	clear: both;
+}
+#main_admsection #basicinfo .botslice
+{
+	clear: both;
+}
+
+/* Simple feedback messages */
+div#profile_error, div#profile_success
+{
+	margin: 0 0 1em 0;
+	padding: 1em 2em;
+	border: 1px solid;
+}
+div#profile_error
+{
+	border-color: red;
+	color: red;
+	background: #fee;
+}
+
+div#profile_error span
+{
+	text-decoration: underline;
+}
+
+div#profile_success
+{
+	border-color: green;
+	color: green;
+	background: #efe;
+}
+
+/* Profile statistics */
+#generalstats div.content dt
+{
+	width: 50%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#generalstats div.content dd
+{
+	width: 50%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+
+/* Activity by time */
+#activitytime
+{
+	margin: 6px 0;
+}
+.activity_stats
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.activity_stats li
+{
+	margin: 0;
+	padding: 0;
+	width: 4.16%;
+	float: left;
+}
+.activity_stats li span
+{
+	display: block;
+	border: solid #000;
+	border-width: 1px 1px 0 0;
+	text-align: center;
+}
+.activity_stats li.last span
+{
+	border-right: none;
+}
+.activity_stats li div.bar
+{
+	margin: 0 auto;
+	width: 15px;
+}
+.activity_stats li div.bar div
+{
+	background: #6294CE;
+}
+.activity_stats li div.bar span
+{
+	position: absolute;
+	top: -1000em;
+	left: -1000em;
+}
+
+/* Most popular boards by posts and activity */
+#popularposts
+{
+	width: 49.5%;
+	float: left;
+}
+#popularactivity
+{
+	width: 49.5%;
+	float: right;
+}
+
+#popularposts div.content dt, #popularactivity div.content dt
+{
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#popularposts div.content dd, #popularactivity div.content dd
+{
+	width: 35%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+
+.profile_pie
+{
+	background-image: url(../images/stats_pie.png);
+	float: left;
+	height: 20px;
+	width: 20px;
+	margin: 0 1em 0 0;
+	padding: 0;
+	text-indent: -1000em;
+}
+
+/* View posts */
+.topic .time
+{
+	float: right;
+}
+
+.counter
+{
+	margin: 0 0 0 0;
+	padding: 0.2em 0.5em 0.1em 0.2em;
+	font-size: 2.2em;
+	font-weight: bold;
+	color: #3f3f3f;
+	float: left;
+}
+.list_posts
+{
+	border-top: 2px solid #b3b3bf;
+	padding-top: 12px;
+	margin-top: 6px;
+	overflow: auto;
+}
+
+.core_posts
+{
+	margin-bottom: 3px;
+}
+
+.topic h4
+{
+	margin: 3px 0;
+}
+
+.topic .post
+{
+	margin: 0 1em;
+	min-height: 80px;
+	height: auto !important;
+	height: 80px;
+}
+
+.topic .mod_icons
+{
+	text-align: right;
+	margin-right: 1em;
+}
+
+#tracking div.content dl
+{
+	border-bottom: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#creator dl
+{
+	margin: 0;
+}
+#creator dt
+{
+	width: 40%;
+	float: left;
+	clear: both;
+	margin: 0 0 10px 0;
+}
+#creator dd
+{
+	float: right;
+	width: 55%;
+	margin: 0 0 10px 2px;
+	overflow: auto;
+}
+
+.ignoreboards
+{
+	margin: 0 2%;
+	padding: 0;
+	width: 45%;
+}
+.ignoreboards a
+{
+	font-weight: bold;
+	border-bottom: 1px solid #c4c4c4;
+	padding: 0.1em 0;
+}
+.ignoreboards a:hover
+{
+	text-decoration: none;
+	border-bottom: 1px solid #334466;
+}
+.ignoreboards ul
+{
+	margin: 0;
+	padding: 0;
+}
+.ignoreboards li
+{
+	list-style: none;
+	float: left;
+	clear: both;
+}
+.ignoreboards li.category
+{
+	margin: 0.7em 0 0 0;
+	width: 100%;
+}
+.ignoreboards li ul
+{
+	margin: 0.2em 0 0 0;
+}
+.ignoreboards li.category ul li.board
+{
+	width: 93%;
+}
+
+#theme_settings
+{
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+#theme_settings li
+{
+	list-style: none;
+	margin: 10px 0;
+	padding: 0;
+}
+/* Paid Subscriptions */
+#paid_subscription
+{
+	width: 100%;
+}
+#paid_subscription dl.settings
+{
+	margin-bottom: 0;
+}
+#paid_subscription dl.settings dd, #paid_subscription dl.settings dt
+{
+	margin-bottom: 4px;
+}
+/* Pick theme */
+#pick_theme
+{
+	width: 100%;
+	float: left;
+}
+/*Issue a warning*/
+#warn_body{
+	width: 80%;
+	font-size: 0.9em;
+}
+
+/* Styles for the statistics center.
+------------------------------------------------- */
+#statistics
+{
+	padding: 0.5em 0;
+}
+#statistics div.title_bar
+{
+	margin: 4px 0 -2px 0;
+}
+#statistics h3.catbg
+{
+	text-align: center;
+}
+#statistics div.content
+{
+	min-height: 210px;
+}
+#statistics div.top_row
+{
+	min-height: 150px;
+}
+#stats_left, #top_posters, #top_topics_replies, #top_topics_starter
+{
+	float: left;
+	width: 49.5%;
+}
+#stats_right, #top_boards, #top_topics_views, #most_online
+{
+	float: right;
+	width: 49.5%;
+}
+dl.stats
+{
+	clear: both;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+dl.stats dt
+{
+	width: 49%;
+	float: left;
+	margin: 0 0 4px 0;
+	line-height: 16px;
+	padding: 0;
+	clear: both;
+	font-size: 1em;
+}
+dl.stats dd
+{
+	text-align: right;
+	width: 50%;
+	font-size: 1em;
+	float: right;
+	margin: 0 0 4px 0;
+	line-height: 16px;
+	padding: 0;
+}
+.statsbar div.bar
+{
+	float: left;
+	background: url(../images/bar_stats.png) no-repeat;
+	display: block;
+	margin: 0 4px;
+	height: 16px;
+}
+.statsbar div.bar div
+{
+	position: relative;
+	right: -4px;
+	padding: 0 4px 0 0;
+	background: url(../images/bar_stats.png) no-repeat 100%;
+	height: 16px;
+}
+tr.windowbg2 th.stats_month
+{
+	width: 25%;
+	padding: 0 2em;
+	text-align: left;
+}
+tr.windowbg2 td.stats_day
+{
+	padding: 0 3.5em;
+	text-align: left;
+}
+
+/* Styles for the personal messages section.
+------------------------------------------------- */
+
+#personal_messages h3 span#author, #personal_messages h3 span#topic_title
+{
+	float: left;
+}
+#personal_messages h3 span#author
+{
+	margin: 0 0 0 0.5em;
+}
+#personal_messages h3 span#topic_title
+{
+	margin: 0 0 0 9em;
+}
+#personal_messages div.labels
+{
+	padding: 0 1em 0 0;
+}
+#personal_messages .capacity_bar
+{
+	background: #f0f4f7;
+	display: block;
+	margin: 0.5em 0 0 1em;
+	height: 1em;
+	border: 1px solid #adadad;
+	width: 10em;
+}
+#personal_messages .capacity_bar span
+{
+	border-right: 1px solid #adadad;
+	display: block;
+	height: 1em;
+}
+#personal_messages .capacity_bar span.empty
+{
+	background: #a6d69d;
+}
+#personal_messages .capacity_bar span.filled
+{
+	background: #eea800;
+}
+#personal_messages .capacity_bar span.full
+{
+	background: #f10909;
+}
+#personal_messages .reportlinks
+{
+	padding: 0.5em 1.3em;
+}
+#searchLabelsExpand li
+{
+	padding: 0.3em 0.5em;
+}
+#manrules div.righttext
+{
+	padding: 0.3em 0.1em;
+}
+dl.addrules dt.floatleft
+{
+	width: 15em;
+	color: #333;
+	padding: 0 1.25em 0.5em 1.25em;
+}
+#addrule fieldset
+{
+	clear: both;
+}
+
+/* Styles for the calendar section.
+------------------------------------------------- */
+.calendar_table
+{
+	margin-bottom: 0.7em;
+}
+
+/* Used to indicate the current day in the grid. */
+.calendar_today
+{
+	background-color: #fff;
+}
+
+#month_grid
+{
+	width: 200px;
+	text-align: center;
+	float: left;
+}
+#month_grid div.cat_bar
+{
+	height: 25px;
+}
+#month_grid h3.catbg
+{
+	height: 25px;
+	line-height: 27px;
+}
+#month_grid table
+{
+	width: 200px;
+}
+#main_grid table
+{
+	width: 100%;
+	padding-bottom: 4px;
+}
+#main_grid table h3.catbg
+{
+	text-align: center;
+	height: 29px;
+	border-top: 2px solid #fff;
+	border-bottom: none;
+}
+#main_grid table.weeklist td.windowbg
+{
+	text-align: center;
+	height: 49px;
+	width: 25px;
+	font-size: large;
+	padding: 0 7px;
+	border-bottom: 2px solid #fff;
+}
+#main_grid table.weeklist td.weekdays
+{
+	height: 49px;
+	width: 100%;
+	padding: 4px;
+	text-align: left;
+	vertical-align: middle;
+	border-bottom: 2px solid #fff;
+}
+#main_grid h3.weekly
+{
+	text-align: center;
+	padding-left: 0;
+	font-size: large;
+	height: 29px;
+}
+#main_grid h3 span.floatleft, #main_grid h3 span.floatright
+{
+	display: block;
+	font-weight: bold;
+}
+#main_grid table th.days
+{
+	width: 14%;
+	padding: 4px 0;
+}
+#main_grid table.weeklist h4.titlebg
+{
+	margin: 0 0 0 0;
+	height: 23px;
+	line-height: 27px;
+}
+#main_grid table td.weeks
+{
+	vertical-align: middle;
+	text-align: center;
+	font-weight: bold;
+	font-size: large;
+}
+#main_grid table td.days
+{
+	vertical-align: top;
+	text-align: center;
+}
+
+a.modify_event
+{
+	color: red;
+}
+
+span.hidelink
+{
+	font-style: italic;
+}
+
+#calendar_navigation
+{
+	text-align: center;
+}
+
+/* Styles for the memberlist section.
+------------------------------------------------- */
+#mlist_search
+{
+	margin: auto;
+	width: 500px;
+}
+
+/* Styles for the basic search section.
+------------------------------------------------- */
+#searchform, #simple_search p
+{
+	padding: 0.5em;
+	margin: 0;
+}
+#simple_search, #simple_search p, #advanced_search
+{
+	text-align: center !important;
+	margin: 0;
+}
+#search_error
+{
+	font-style: italic;
+	padding: 0.3em 1em;
+}
+#search_term_input
+{
+	font-size: 115%;
+	margin: 0 0 1em;
+}
+
+/* Styles for the advanced search section.
+------------------------------------------------- */
+#searchform fieldset
+{
+	text-align: left;
+	padding: 0;
+	border: none;
+}
+#advanced_search dl#search_options
+{
+	margin: 0 auto;
+	width: 600px;
+	padding-top: 1em;
+	overflow: hidden;
+}
+#advanced_search dt
+{
+	clear: both;
+	float: left;
+	padding: 0.2em;
+	text-align: right;
+	width: 20%;
+}
+#advanced_search dd
+{
+	width: 75%;
+	float: left;
+	padding: 0.2em;
+	margin: 0 0 0 0.5em;
+	text-align: left;
+}
+#searchform p.clear
+{
+	clear: both;
+}
+
+/* Styles for the search results page.
+------------------------------------------------- */
+.topic_table td blockquote, .topic_table td .quoteheader
+{
+	margin: 0.5em;
+}
+.search_results_posts
+{
+	overflow: hidden;
+}
+.search_results_posts .buttons
+{
+	padding: 5px 1em 0 0;
+}
+
+/* Styles for the help section.
+------------------------------------------------- */
+
+#help_container
+{
+	margin: 4px 0 0 0;
+	padding: 0 0 8px 0;
+}
+#helpmain
+{
+	padding: 0 1em;
+}
+#helpmain p
+{
+	margin: 0 0 1.5em 0;
+	line-height: 1.5em;
+}
+#helpmain ul
+{
+	line-height: 1.5em;
+}
+
+/* Styles for print media.
+------------------------------------------------------- */
+@media print
+{
+	#headerarea
+	{
+		display: none;
+	}
+
+	.tborder
+	{
+		border: none;
+	}
+}

@@ -1,0 +1,91 @@
+body
+{
+	width: 90%;
+}
+#top_section
+{
+	height: 70px;
+	min-height: 65px;
+}
+#upper_section
+{
+	margin-bottom: 0;
+	padding: 0;
+}
+#upper_section .user
+{
+	height: 4em;
+}
+#upper_section .news
+{
+	height: 80px;
+}
+#main_screen
+{
+	padding: 0 40px;
+}
+#main_screen h2
+{
+	font-size: 1.5em;
+	border-bottom: 1px solid #d05800;
+	line-height: 1.5em;
+	margin: 0 0 0.5em 0;
+	color: #d05800;
+}
+#main-steps
+{
+	float: right;
+	width: 50%;
+	margin-top: -60px;
+}
+#main-steps h2
+{
+	font-size: 1.1em;
+	border-bottom: 1px solid #d05800;
+	line-height: 1.1em;
+	margin: 0 0 0.5em 0;
+	color: #d05800;
+	margin-right: 40px;
+}
+#main-steps ul
+{
+	list-style: none;
+	padding-left: 0;
+	margin: 0;
+}
+#main-steps ul li
+{
+	padding: 1px 0;
+	font-size: 0.9em;
+}
+#main-steps ul li.stepdone
+{
+	color: #aaa;
+}
+#main-steps ul li.stepcurrent
+{
+	color: #000;
+	font-weight: bold;
+}
+#main-steps ul li.stepwaiting
+{
+	color: #666;
+}
+.panel
+{
+	font-weight: normal;
+}
+a:link, a:hover, a:visited
+{
+	text-decoration: underline;
+}
+.progress
+{
+	position: relative;
+	margin: -16px 3px 0 3px;
+}
+.overall_progress
+{
+	position: relative;
+	margin: -25px 3px 0 3px;
+}
