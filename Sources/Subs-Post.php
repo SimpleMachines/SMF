@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * This file contains those functions pertaining to posting, and other such
+ * operations, including sending emails, ims, blocking spam, preparsing posts,
+ * spell checking, and the post box.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,144 +18,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains those functions pertaining to posting, and other such
-	operations, including sending emails, ims, blocking spam, preparsing posts,
-	spell checking, and the post box.  This is done with the following:
-
-	void preparsecode(string &message, boolean previewing = false)
-		- takes a message and parses it, returning nothing.
-		- cleans up links (javascript, etc.) and code/quote sections.
-		- won't convert \n's and a few other things if previewing is true.
-
-	void fixTags(string &message)
-		- used by preparsecode, fixes links in message and returns nothing.
-
-	void fixTag(string &message, string myTag, string protocol,
-			bool embeddedUrl = false, bool hasEqualSign = false,
-			bool hasExtra = false)
-		- used by fixTags, fixes a specific tag's links.
-		- myTag is the tag, protocol is http of ftp, embeddedUrl is whether
-		  it *can* be set to something, hasEqualSign is whether it *is*
-		  set to something, and hasExtra is whether it can have extra
-		  cruft after the begin tag.
-
-	bool sendmail(array to, string subject, string message,
-			string message_id = auto, string from = webmaster,
-			bool send_html = false, int priority = 3, bool hotmail_fix = null)
-		- sends an email to the specified recipient.
-		- uses the mail_type setting and the webmaster_email global.
-		- to is he email(s), string or array, to send to.
-		- subject and message are those of the email - expected to have
-		  slashes but not be parsed.
-		- subject is expected to have entities, message is not.
-		- from is a string which masks the address for use with replies.
-		- if message_id is specified, uses that as the local-part of the
-		  Message-ID header.
-		- send_html indicates whether or not the message is HTML vs. plain
-		  text, and does not add any HTML.
-		- returns whether or not the email was sent properly.
-
-	bool AddMailQueue(bool flush = true, array to_array = array(), string subject = '', string message = '',
-		string headers = '', bool send_html = false, int priority = 3)
-		//!!
-
-	array sendpm(array recipients, string subject, string message,
-			bool store_outbox = false, array from = current_member, int pm_head = 0)
-		- sends an personal message from the specified person to the
-		  specified people. (from defaults to the user.)
-		- recipients should be an array containing the arrays 'to' and 'bcc',
-		  both containing id_member's.
-		- subject and message should have no slashes and no html entities.
-		- pm_head is the ID of the chain being replied to - if any.
-		- from is an array, with the id, name, and username of the member.
-		- returns an array with log entries telling how many recipients were
-		  successful and which recipients it failed to send to.
-
-	string mimespecialchars(string text, bool with_charset = true,
-			hotmail_fix = false, string custom_charset = null)
-		- prepare text strings for sending as email.
-		- in case there are higher ASCII characters in the given string, this
-		  function will attempt the transport method 'quoted-printable'.
-		  Otherwise the transport method '7bit' is used.
-		- with hotmail_fix set all higher ASCII characters are converted to
-		  HTML entities to assure proper display of the mail.
-		- uses character set custom_charset if set.
-		- returns an array containing the character set, the converted string
-		  and the transport method.
-
-	bool smtp_mail(array mail_to_array, string subject, string message,
-			string headers)
-		- sends mail, like mail() but over SMTP.  Used internally.
-		- takes email addresses, a subject and message, and any headers.
-		- expects no slashes or entities.
-		- returns whether it sent or not.
-
-	bool server_parse(string message, resource socket, string response)
-		- sends the specified message to the server, and checks for the
-		  expected response. (used internally.)
-		- takes the message to send, socket to send on, and the expected
-		  response code.
-		- returns whether it responded as such.
-
-	void SpellCheck()
-		- spell checks the post for typos ;).
-		- uses the pspell library, which MUST be installed.
-		- has problems with internationalization.
-		- is accessed via ?action=spellcheck.
-
-	void sendNotifications(array topics, string type, array exclude = array(), array members_only = array())
-		- sends a notification to members who have elected to receive emails
-		  when things happen to a topic, such as replies are posted.
-		- uses the Post langauge file.
-		- topics represents the topics the action is happening to.
-		- the type can be any of reply, sticky, lock, unlock, remove, move,
-		  merge, and split.  An appropriate message will be sent for each.
-		- automatically finds the subject and its board, and checks permissions
-		  for each member who is "signed up" for notifications.
-		- will not send 'reply' notifications more than once in a row.
-		- members in the exclude array will not be processed for the topic with the same key.
-		- members_only are the only ones that will be sent the notification if they have it on.
-
-	bool createPost(&array msgOptions, &array topicOptions, &array posterOptions)
-		// !!!
-
-	bool createAttachment(&array attachmentOptions)
-		// !!!
-
-	bool modifyPost(&array msgOptions, &array topicOptions, &array posterOptions)
-		// !!!
-
-	bool approvePosts(array msgs, bool approve)
-		// !!!
-
-	array approveTopics(array topics, bool approve)
-		// !!!
-
-	void sendApprovalNotifications(array topicData)
-		// !!!
-
-	void updateLastMessages(array id_board's, int id_msg)
-		- takes an array of board IDs and updates their last messages.
-		- if the board has a parent, that parent board is also automatically
-		  updated.
-		- columns updated are id_last_msg and lastUpdated.
-		- note that id_last_msg should always be updated using this function,
-		  and is not automatically updated upon other changes.
-
-	void adminNotify(string type, int memberID, string member_name = null)
-		- sends all admins an email to let them know a new member has joined.
-		- types supported are 'approval', 'activation', and 'standard'.
-		- called by registerMember() function in Subs-Members.php.
-		- email is sent to all groups that have the moderate_forum permission.
-		- uses the Login language file.
-		- the language set by each member is being used (if available).
-
-	Sending emails from SMF:
-	---------------------------------------------------------------------------
-		// !!!
-*/
-
-// Parses some bbc before sending into the database...
+/**
+ * Takes a message and parses it, returning nothing.
+ * Cleans up links (javascript, etc.) and code/quote sections.
+ * Won't convert \n's and a few other things if previewing is true.
+ *
+ * @param $message
+ * @param $previewing
+ */
 function preparsecode(&$message, $previewing = false)
 {
 	global $user_info, $modSettings, $smcFunc, $context;
@@ -371,7 +245,11 @@ function preparsecode(&$message, $previewing = false)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
 }
 
-// This is very simple, and just removes things done by preparsecode.
+/**
+ * This is very simple, and just removes things done by preparsecode.
+ *
+ * @param $message
+ */
 function un_preparsecode($message)
 {
 	global $smcFunc;
@@ -396,7 +274,12 @@ function un_preparsecode($message)
 	return preg_replace('~<br( /)?' . '>~', "\n", str_replace('&nbsp;', ' ', implode('', $parts)));
 }
 
-// Fix any URLs posted - ie. remove 'javascript:'.
+/**
+ * Fix any URLs posted - ie. remove 'javascript:'.
+ * Used by preparsecode, fixes links in message and returns nothing.
+ *
+ * @param string $message
+ */
 function fixTags(&$message)
 {
 	global $modSettings;
@@ -534,7 +417,17 @@ function fixTags(&$message)
 	}
 }
 
-// Fix a specific class of tag - ie. url with =.
+/**
+ * Fix a specific class of tag - ie. url with =.
+ * Used by fixTags, fixes a specific tag's links.
+ *
+ * @param string $message
+ * @param string $myTag - the tag
+ * @param string $protocols - http or ftp
+ * @param bool $embeddedUrl = false - whether it *can* be set to something
+ * @param bool $hasEqualSign = false, whether it *is* set to something
+ * @param bool $hasExtra = false - whether it can have extra cruft after the begin tag.
+ */
 function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSign = false, $hasExtra = false)
 {
 	global $boardurl, $scripturl;
@@ -606,7 +499,21 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 		$message = strtr($message, $replaces);
 }
 
-// Send off an email.
+/**
+ * This function sends an email to the specified recipient(s).
+ * It uses the mail_type settings and webmaster_email variable.
+ *
+ * @param array $to - the email(s) to send to
+ * @param string $subject - email subject, expected to have entities, and slashes, but not be parsed
+ * @param string $message - email body, expected to have slashes, no htmlentities
+ * @param string $from = null - the address to use for replies
+ * @param string $message_id = null - if specified, it will be used as local part of the Message-ID header.
+ * @param bool $send_html = false, whether or not the message is HTML vs. plain text
+ * @param int $priority = 3
+ * @param bool $hotmail_fix = null
+ * @param $is_private
+ * @return bool, whether ot not the email was sent properly.
+ */
 function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 {
 	global $webmaster_email, $context, $modSettings, $txt, $scripturl;
@@ -773,7 +680,18 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	return $mail_result;
 }
 
-// Add an email to the mail queue.
+/**
+ * Add an email to the mail queue.
+ *
+ * @param bool $flush = false
+ * @param array $to_array = array()
+ * @param string $subject = ''
+ * @param string $message = ''
+ * @param string $headers = ''
+ * @param bool $send_html = false
+ * @param int $priority = 3
+ * @param $is_private
+ */
 function AddMailQueue($flush = false, $to_array = array(), $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
 {
 	global $context, $modSettings, $smcFunc;
@@ -864,7 +782,20 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 	return true;
 }
 
-// Send off a personal message.
+/**
+ * Sends an personal message from the specified person to the specified people
+ * ($from defaults to the user)
+ *
+ * @param array $recipients - an array containing the arrays 'to' and 'bcc',
+ *  both containing id_member's.
+ * @param string $subject - should have no slashes and no html entities
+ * @param string $message - should have no slashes and no html entities
+ * @param bool $store_outbox
+ * @param array $from - an array with the id, name, and username of the member.
+ * @param int $pm_head - the ID of the chain being replied to - if any.
+ * @return array, an array with log entries telling how many recipients were
+ *  successful and which recipients it failed to send to.
+ */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
 	global $scripturl, $txt, $user_info, $language;
@@ -1203,7 +1134,20 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	return $log;
 }
 
-// Prepare text strings for sending as email body or header.
+/**
+ * Prepare text strings for sending as email body or header.
+ * In case there are higher ASCII characters in the given string, this
+ * function will attempt the transport method 'quoted-printable'.
+ * Otherwise the transport method '7bit' is used.
+ *
+ * @param string $string
+ * @param bool $with_charset = true
+ * @param bool $hotmail_fix = false, with hotmail_fix set all higher ASCII
+ *  characters are converted to HTML entities to assure proper display of the mail
+ * @param $line_break
+ * @param string $custom_charset = null, if set, it uses this character set
+ * @return an array containing the character set, the converted string and the transport method.
+ */
 function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
 {
 	global $context;
@@ -1298,6 +1242,18 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 }
 
 // Send an email via SMTP.
+
+/**
+ * Sends mail, like mail() but over SMTP.
+ * It expects no slashes or entities.
+ * @internal
+ *
+ * @param array $mail_to_array - array of strings (email addresses)
+ * @param string $subject, email subject
+ * @param string $message, email message
+ * @param string  $headers
+ * @return bool, whether it sent or not.
+ */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
 	global $modSettings, $webmaster_email, $txt;
@@ -1415,7 +1371,17 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	return true;
 }
 
-// Parse a message to the SMTP server.
+/**
+ * Parse a message to the SMTP server.
+ * Sends the specified message to the server, and checks for the
+ * expected response.
+ * @internal
+ *
+ * @param string $message - the message to send
+ * @param resource $socket - socket to send on
+ * @param string $response - the expected response code
+ * @return whether it responded as such.
+ */
 function server_parse($message, $socket, $response)
 {
 	global $txt;
@@ -1446,6 +1412,12 @@ function server_parse($message, $socket, $response)
 	return true;
 }
 
+/**
+ * Spell checks the post for typos ;).
+ * It uses the pspell library, which MUST be installed.
+ * It has problems with internationalization.
+ * It is accessed via ?action=spellcheck.
+ */
 function SpellCheck()
 {
 	global $txt, $context, $smcFunc;
@@ -1530,7 +1502,21 @@ function SpellCheck()
 	$context['sub_template'] = 'spellcheck';
 }
 
-// Notify members that something has happened to a topic they marked!
+/**
+ * Sends a notification to members who have elected to receive emails
+ * when things happen to a topic, such as replies are posted.
+ * The function automatically finds the subject and its board, and
+ * checks permissions for each member who is "signed up" for notifications.
+ * It will not send 'reply' notifications more than once in a row.
+ *
+ * @param array $topics - represents the topics the action is happening to.
+ * @param string $type - can be any of reply, sticky, lock, unlock, remove,
+ *  move, merge, and split.  An appropriate message will be sent for each.
+ * @param array $exclude = array() - members in the exclude array will not be
+ *  processed for the topic with the same key.
+ * @param array $members_only = array() - are the only ones that will be sent the notification if they have it on.
+ * @uses Post language file
+ */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
 	global $txt, $scripturl, $language, $user_info;
@@ -1721,11 +1707,17 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 	}
 }
 
-// Create a post, either as new topic (id_topic = 0) or in an existing one.
-// The input parameters of this function assume:
-// - Strings have been escaped.
-// - Integers have been cast to integer.
-// - Mandatory parameters are set.
+/**
+ * Create a post, either as new topic (id_topic = 0) or in an existing one.
+ * The input parameters of this function assume:
+ * - Strings have been escaped.
+ * - Integers have been cast to integer.
+ * - Mandatory parameters are set.
+ *
+ * @param array $msgOptions
+ * @param array $topicOptions
+ * @param array $posterOptions
+ */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
 	global $user_info, $txt, $modSettings, $smcFunc, $context;
@@ -2043,7 +2035,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	return true;
 }
 
-// !!!
+/**
+ * Create an attachment, with the given array of parameters.
+ *
+ * @param array $attachmentOptions
+ */
 function createAttachment(&$attachmentOptions)
 {
 	global $modSettings, $sourcedir, $smcFunc, $context;
@@ -2383,7 +2379,13 @@ function createAttachment(&$attachmentOptions)
 	return true;
 }
 
-// !!!
+/**
+ * Modifying a post...
+ *
+ * @param array $msgOptions
+ * @param array $topicOptions
+ * @param array $posterOptions
+ */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
 	global $user_info, $modSettings, $smcFunc, $context;
@@ -2567,7 +2569,12 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	return true;
 }
 
-// Approve (or not) some posts... without permission checks...
+/**
+ * Approve (or not) some posts... without permission checks...
+ *
+ * @param array $msgs - array of message ids
+ * @param $approve = true
+ */
 function approvePosts($msgs, $approve = true)
 {
 	global $sourcedir, $smcFunc;
@@ -2787,7 +2794,13 @@ function approvePosts($msgs, $approve = true)
 	return true;
 }
 
-// Approve topics?
+/**
+ * Approve topics?
+ * @todo shouldn't this be in topic
+ *
+ * @param array $topics, array of topics ids
+ * @param bool $approve = true
+ */
 function approveTopics($topics, $approve = true)
 {
 	global $smcFunc;
@@ -2819,7 +2832,11 @@ function approveTopics($topics, $approve = true)
 	return approvePosts($msgs, $approve);
 }
 
-// A special function for handling the hell which is sending approval notifications.
+/**
+ * A special function for handling the hell which is sending approval notifications.
+ *
+ * @param $topicData
+ */
 function sendApprovalNotifications(&$topicData)
 {
 	global $txt, $scripturl, $language, $user_info;
@@ -2946,7 +2963,17 @@ function sendApprovalNotifications(&$topicData)
 		);
 }
 
-// Update the last message in a board, and its parents.
+/**
+ * Takes an array of board IDs and updates their last messages.
+ * If the board has a parent, that parent board is also automatically
+ * updated.
+ * The columns updated are id_last_msg and last_updated.
+ * Note that id_last_msg should always be updated using this function,
+ * and is not automatically updated upon other changes.
+ *
+ * @param array $setboards
+ * @param int $id_msg = 0
+ */
 function updateLastMessages($setboards, $id_msg = 0)
 {
 	global $board_info, $board, $modSettings, $smcFunc;
@@ -3073,7 +3100,18 @@ function updateLastMessages($setboards, $id_msg = 0)
 	}
 }
 
-// This simple function gets a list of all administrators and sends them an email to let them know a new member has joined.
+/**
+ * This simple function gets a list of all administrators and sends them an email
+ *  to let them know a new member has joined.
+ * Called by registerMember() function in Subs-Members.php.
+ * Email is sent to all groups that have the moderate_forum permission.
+ * The language set by each member is being used (if available).
+ *
+ * @param string $type, types supported are 'approval', 'activation', and 'standard'.
+ * @param int $memberID
+ * @param string $member_name = null
+ * @uses the Login language file.
+ */
 function adminNotify($type, $memberID, $member_name = null)
 {
 	global $txt, $modSettings, $language, $scripturl, $user_info, $context, $smcFunc;
@@ -3161,6 +3199,14 @@ function adminNotify($type, $memberID, $member_name = null)
 		loadLanguage('Login');
 }
 
+/**
+ * Load a template from EmaulTemplates language file.
+ *
+ * @param string $template
+ * @param array $replacements = array()
+ * @param string $lang = ''
+ * @param bool $loadLang = true
+ */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
 	global $txt, $mbname, $scripturl, $settings, $user_info;
