@@ -36,6 +36,8 @@ function SearchEngines()
 		'stats' => 'SpiderStats',
 	);
 
+	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
+
 	// Ensure we have a valid subaction.
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'stats';
 
@@ -86,6 +88,8 @@ function ManageSearchEngineSettings($return_config = false)
 		}
 		disableFields();';
 
+	call_integration_function('integrate_search_engine_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -120,6 +124,7 @@ function ManageSearchEngineSettings($return_config = false)
 	{
 		checkSession();
 
+		call_integration_function('integrate_save_search_engine_settings');
 		saveDBSettings($config_vars);
 		recacheSpiderNames();
 		redirectexit('action=admin;area=sengines;sa=settings');
@@ -449,6 +454,7 @@ function EditSpider()
 
 /**
  * Do we think the current user is a spider?
+ * 
  * @todo Should this not be... you know... in a different file?
  */
 function SpiderCheck()
@@ -525,6 +531,7 @@ function SpiderCheck()
 
 /**
  * Log the spider presence online.
+ * 
  * @todo Different file?
  */
 function logSpider()

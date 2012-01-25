@@ -1945,7 +1945,7 @@ function prepareSearchContext($reset = false)
 	$message['body'] = preg_replace('~^(?:&nbsp;)+$~', '', $message['body']);
 
 	// Sadly, we need to check the icon ain't broke.
-	if (empty($modSettings['messageIconChecks_disable']))
+	if (!empty($modSettings['messageIconChecks_enable']))
 	{
 		if (!isset($context['icon_sources'][$message['first_icon']]))
 			$context['icon_sources'][$message['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $message['first_icon'] . '.gif') ? 'images_url' : 'default_images_url';

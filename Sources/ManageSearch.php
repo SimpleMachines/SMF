@@ -48,6 +48,8 @@ function ManageSearch()
 		'createmsgindex' => 'CreateMessageIndex',
 	);
 
+	call_integration_hook('integrate_manage_search', array(&$subActions));
+
 	// Default the sub-action to 'edit search settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
 
@@ -100,6 +102,8 @@ function EditSearchSettings($return_config = false)
 			array('int', 'search_floodcontrol_time', 'subtext' => $txt['search_floodcontrol_time_desc']),
 	);
 
+	call_integration_hook('integrate_modify_search_settings', array(&$config_vars));
+
 	// Perhaps the search method wants to add some settings?
 	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
 	if (file_exists($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php'))
@@ -124,6 +128,8 @@ function EditSearchSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_search_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managesearch;sa=settings;' . $context['session_var'] . '=' . $context['session_id']);

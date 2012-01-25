@@ -996,14 +996,7 @@ function GeneralPermissionSettings($return_config = false)
 		if (empty($modSettings['permission_enable_deny']))
 		{
 			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}permissions
-				WHERE add_deny = {int:denied}',
-				array(
-					'denied' => 0,
-				)
-			);
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}board_permissions
+				DELETE FROM {db_prefix}permissions, {db_prefix}board_permissions
 				WHERE add_deny = {int:denied}',
 				array(
 					'denied' => 0,
@@ -1030,14 +1023,7 @@ function GeneralPermissionSettings($return_config = false)
 
 			// Remove'em.
 			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}permissions
-				WHERE id_group IN ({array_int:post_group_list})',
-				array(
-					'post_group_list' => $post_groups,
-				)
-			);
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}board_permissions
+				DELETE FROM {db_prefix}permissions, {db_prefix}board_permissions
 				WHERE id_group IN ({array_int:post_group_list})',
 				array(
 					'post_group_list' => $post_groups,

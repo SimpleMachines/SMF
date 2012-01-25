@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains all the functionality required to be able to edit the
+ * Contains all the functionality required to be able to edit the
  * core server settings. This includes anything from which an error may
  * result in the forum destroying itself in a firey fury.
  *
@@ -105,6 +105,8 @@ function ModifySettings()
 		'loads' => 'ModifyLoadBalancingSettings',
 	);
 
+	call_integration_hook('integrate_server_settings', array(&$subActions));
+
 	// By default we're editing the core settings
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -163,6 +165,8 @@ function ModifyGeneralSettings($return_config = false)
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
 	);
 
+	call_integration_hook('integrate_general_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -173,6 +177,8 @@ function ModifyGeneralSettings($return_config = false)
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
+		call_integration_hook('integrate_save_general_settings');
+
 		saveSettings($config_vars);
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
 	}
@@ -221,6 +227,8 @@ function ModifyDatabaseSettings($return_config = false)
 		array('cachedir', $txt['cachedir'], 'file', 'text', 36),
 	);
 
+	call_integration_hook('integrate_database_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -232,6 +240,8 @@ function ModifyDatabaseSettings($return_config = false)
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
+		call_integration_hook('integrate_save_database_settings');
+
 		saveSettings($config_vars);
 		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id']);
 	}
@@ -264,6 +274,8 @@ function ModifyCookieSettings($return_config = false)
 		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime'),
 	);
 
+	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -273,6 +285,8 @@ function ModifyCookieSettings($return_config = false)
 	// Saving settings?
 	if (isset($_REQUEST['save']))
 	{
+		call_integration_hook('integrate_save_cookie_settings');
+
 		saveSettings($config_vars);
 
 		// If the cookie name was changed, reset the cookie.
@@ -314,12 +328,16 @@ function ModifyCacheSettings($return_config = false)
 		array('text', 'cache_memcached'),
 	);
 
+	call_integration_hook('integrate_cache_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
 	// Saving again?
 	if (isset($_GET['save']))
 	{
+		call_integration_hook('integrate_save_cache_settings');
+
 		saveDBSettings($config_vars);
 
 		// We have to manually force the clearing of the cache otherwise the changed settings might not get noticed.
@@ -410,6 +428,8 @@ function ModifyLoadBalancingSettings($return_config = false)
 		$config_vars[] = array('text', $name, 'value' => $value, 'disabled' => $disabled);
 	}
 
+	call_integration_hook('integrate_loadavg_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -431,6 +451,8 @@ function ModifyLoadBalancingSettings($return_config = false)
 			elseif ($value < 2)
 				$_POST[$key] = '2.0';
 		}
+
+		call_integration_hook('integrate_save_loadavg_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);

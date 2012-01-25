@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * Handles sound processing. In order to make sure the visual
+ * verification is still accessible for all users, a sound clip is being addded
+ * that reads the letters that are being shown.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,16 +18,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file handles sound processing. In order to make sure the visual
-	verification is still accessible for all users, a sound clip is being addded
-	that reads the letters that are being shown.
-
-	void createWaveFile(string word)
-		- creates a wave file that spells the letters of 'word'.
-		- Tries the user's language first, and defaults to english.
-		- Returns false on failure.
-		- used by VerificationCode() (Register.php).
-*/
+/**
+ * Creates a wave file that spells the letters of $word.
+ * Tries the user's language first, and defaults to english.
+ * Used by VerificationCode() (Register.php).
+ * 
+ * @param string $word
+ * @return bool false on failure
+ */
 
 function createWaveFile($word)
 {

@@ -163,7 +163,10 @@ function template_html_above()
 
 	echo '
 </head>
-<body>';
+<body', 
+	// Style per page.
+	!empty($context['body_id']) ? ' id="' . $context['body_id'] . '"' : '', '>';
+
 }
 
 function template_body_above()

@@ -33,6 +33,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 	// The list can be sorted in several ways.
 	$allowed_sort_options = array(
+		'', // No sorting.
 		'log_time',
 		'real_name',
 		'show_online',
@@ -49,6 +50,10 @@ function getMembersOnlineStats($membersOnlineOptions)
 	// Not allowed sort method? Bang! Error!
 	elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options))
 		trigger_error('Sort method for getMembersOnlineStats() function is not allowed', E_USER_NOTICE);
+
+	// Get it from the cache and send it back.
+	if (($temp = cache_get_data('membersOnlineStats-' . $membersOnlineOptions['sort'], 240)) !== null)
+		return $temp;
 
 	// Initialize the array that'll be returned later on.
 	$membersOnlineStats = array(
@@ -145,10 +150,11 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 	// If there are spiders only and we're showing the detail, add them to the online list - at the bottom.
 	if (!empty($spider_finds) && $modSettings['show_spider_online'] > 1)
+	{
+		$sort = $membersOnlineOptions['sort'] === 'log_time' && $membersOnlineOptions['reverse_sort'] ? 0 : 'zzz_';
 		foreach ($spider_finds as $id => $count)
 		{
 			$link = $spiders[$id] . ($count > 1 ? ' (' . $count . ')' : '');
-			$sort = $membersOnlineOptions['sort'] = 'log_time' && $membersOnlineOptions['reverse_sort'] ? 0 : 'zzz_';
 			$membersOnlineStats['users_online'][$sort . $spiders[$id]] = array(
 				'id' => 0,
 				'username' => $spiders[$id],
@@ -162,6 +168,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 			);
 			$membersOnlineStats['list_users_online'][$sort . $spiders[$id]] = $link;
 		}
+	}
 
 	// Time to sort the list a bit.
 	if (!empty($membersOnlineStats['users_online']))
@@ -184,6 +191,8 @@ function getMembersOnlineStats($membersOnlineOptions)
 	// Hidden and non-hidden members make up all online members.
 	$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset($modSettings['show_spider_online']) && $modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
 
+	cache_put_data('membersOnlineStats-' . $membersOnlineOptions['sort'], $membersOnlineStats, 240);
+	
 	return $membersOnlineStats;
 }
 

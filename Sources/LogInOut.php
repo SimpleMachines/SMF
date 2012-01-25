@@ -523,6 +523,21 @@ function DoLogin()
 	);
 	$_SESSION['log_time'] = 0;
 
+	// Log this entry, only if we have it enabled.
+	if (!empty($modSettings['loginHistoryDays']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}member_logins',
+			array(
+				'id_member' => 'int', 'time' => 'int', 'ip' => 'string', 'ip2' => 'string',
+			),
+			array(
+				$user_info['id'], time(), $user_info['ip'], $user_info['ip2']
+			),
+			array(
+				'id_member', 'time'
+			)
+		);
+
 	// Just log you back out if it's in maintenance mode and you AREN'T an admin.
 	if (empty($maintenance) || allowedTo('admin_forum'))
 		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);

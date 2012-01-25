@@ -486,6 +486,8 @@ function modifyBoard($board_id, &$boardOptions)
 	if (!isset($boards[$board_id]) || (isset($boardOptions['target_board']) && !isset($boards[$boardOptions['target_board']])) || (isset($boardOptions['target_category']) && !isset($cat_tree[$boardOptions['target_category']])))
 		fatal_lang_error('no_board');
 
+	call_integration_hook('integrate_modify_board', array($board_id, &$boardOptions));
+
 	// All things that will be updated in the database will be in $boardUpdates.
 	$boardUpdates = array();
 	$boardUpdateParameters = array();
@@ -756,6 +758,8 @@ function createBoard($boardOptions)
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
 		trigger_error('createBoard(): Target board is not set', E_USER_ERROR);
 
+	call_integration_hook('integrate_create_board', array(&$boardOptions));
+
 	// Set every optional value to its default value.
 	$boardOptions += array(
 		'posts_count' => true,
@@ -841,6 +845,8 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 		return;
 
 	getBoardTree();
+
+	call_integration_hook('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
 
 	// If $moveChildrenTo is set to null, include the children in the removal.
 	if ($moveChildrenTo === null)

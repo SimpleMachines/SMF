@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains some useful functions for members and membergroups.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,72 +16,23 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/* This file contains some useful functions for members and membergroups.
-
-	void deleteMembers(array $users, bool check_not_admin = false)
-		- delete of one or more members.
-		- requires profile_remove_own or profile_remove_any permission for
-		  respectively removing your own account or any account.
-		- non-admins cannot delete admins.
-		- changes author of messages, topics and polls to guest authors.
-		- removes all log entries concerning the deleted members, except the
-		  error logs, ban logs and moderation logs.
-		- removes these members' personal messages (only the inbox), avatars,
-		  ban entries, theme settings, moderator positions, poll votes, and
-		  karma votes.
-		- updates member statistics afterwards.
-
-	int registerMember(array options, bool return_errors)
-		- registers a member to the forum.
-		- returns the ID of the newly created member.
-		- allows two types of interface: 'guest' and 'admin'. The first
-		  includes hammering protection, the latter can perform the
-		  registration silently.
-		- the strings used in the options array are assumed to be escaped.
-		- allows to perform several checks on the input, e.g. reserved names.
-		- adjusts member statistics.
-		- if an error is detected will fatal error on all errors unless return_errors is true.
-
-	bool isReservedName(string name, int id_member = 0, bool is_name = true, bool fatal = true)
-		- checks if name is a reserved name or username.
-		- if is_name is false, the name is assumed to be a username.
-		- the id_member variable is used to ignore duplicate matches with the
-		  current member.
-
-	array groupsAllowedTo(string permission, int board_id = null)
-		- retrieves a list of membergroups that are allowed to do the given
-		  permission.
-		- if board_id is not null, a board permission is assumed.
-		- takes different permission settings into account.
-		- returns an array containing an array for the allowed membergroup ID's
-		  and an array for the denied membergroup ID's.
-
-	array membersAllowedTo(string permission, int board_id = null)
-		- retrieves a list of members that are allowed to do the given
-		  permission.
-		- if board_id is not null, a board permission is assumed.
-		- takes different permission settings into account.
-		- takes possible moderators (on board 'board_id') into account.
-		- returns an array containing member ID's.
-
-	int reattributePosts(int id_member, string email = false, string membername = false, bool add_to_post_count = false)
-		- reattribute guest posts to a specified member.
-		- does not check for any permissions.
-		- returns the number of successful reattributed posts.
-		- if add_to_post_count is set, the member's post count is increased.
-
-	void BuddyListToggle()
-		- add a member to your buddy list or remove it.
-		- requires profile_identity_own permission.
-		- called by ?action=buddy;u=x;session_id=y.
-		- redirects to ?action=profile;u=x.
-
-	void populateDuplicateMembers(&array members)
-		// !!!
-
-*/
-
-// Delete a group of/single member.
+/**
+ * Delete one or more members.
+ * Requires profile_remove_own or profile_remove_any permission for
+ * respectively removing your own account or any account.
+ * Non-admins cannot delete admins.
+ * The function:
+ * - changes author of messages, topics and polls to guest authors.
+ * - removes all log entries concerning the deleted members, except the
+ * error logs, ban logs and moderation logs.
+ * - removes these members' personal messages (only the inbox), avatars,
+ * ban entries, theme settings, moderator positions, poll votes, and
+ * karma votes.
+ * - updates member statistics afterwards.
+ *
+ * @param array $users
+ * @param bool $check_not_admin = false
+ */
 function deleteMembers($users, $check_not_admin = false)
 {
 	global $sourcedir, $modSettings, $user_info, $smcFunc;
@@ -456,6 +409,20 @@ function deleteMembers($users, $check_not_admin = false)
 	updateStats('member');
 }
 
+/**
+ * Registers a member to the forum.
+ * Allows two types of interface: 'guest' and 'admin'. The first
+ * includes hammering protection, the latter can perform the
+ * registration silently.
+ * The strings used in the options array are assumed to be escaped.
+ * Allows to perform several checks on the input, e.g. reserved names.
+ * The function will adjust member statistics.
+ * If an error is detected will fatal error on all errors unless return_errors is true.
+ *
+ * @param array $regOptions
+ * @param bool $return_errors - specify whether to return the errors
+ * @return int, the ID of the newly created member
+ */
 function registerMember(&$regOptions, $return_errors = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
@@ -894,7 +861,20 @@ function registerMember(&$regOptions, $return_errors = false)
 	return $memberID;
 }
 
-// Check if a name is in the reserved words list. (name, current member id, name/username?.)
+
+/**
+ * Check if a name is in the reserved words list.
+ * (name, current member id, name/username?.)
+ * - checks if name is a reserved name or username.
+ * - if is_name is false, the name is assumed to be a username.
+ * - the id_member variable is used to ignore duplicate matches with the
+ * current member.
+ *
+ * @param string $name
+ * @param int $current_ID_MEMBER
+ * @param bool $is_name
+ * @param bool $fatal
+ */
 function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal = true)
 {
 	global $user_info, $modSettings, $smcFunc, $context;
@@ -995,6 +975,17 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 }
 
 // Get a list of groups that have a given permission (on a given board).
+/**
+ * Retrieves a list of membergroups that are allowed to do the given
+ * permission. (on the given board)
+ * If board_id is not null, a board permission is assumed.
+ * The function takes different permission settings into account.
+ *
+ * @param string $permission
+ * @param int $board_id = null
+ * @return an array containing an array for the allowed membergroup ID's
+ * and an array for the denied membergroup ID's.
+ */
 function groupsAllowedTo($permission, $board_id = null)
 {
 	global $modSettings, $board_info, $smcFunc;
@@ -1067,7 +1058,17 @@ function groupsAllowedTo($permission, $board_id = null)
 	return $member_groups;
 }
 
-// Get a list of members that have a given permission (on a given board).
+/**
+ * Retrieves a list of members that have a given permission
+ * (on a given board).
+ * If board_id is not null, a board permission is assumed.
+ * Takes different permission settings into account.
+ * Takes possible moderators (on board 'board_id') into account.
+ *
+ * @param string $permission
+ * @param int $board_id = null
+ * @return an array containing member ID's.
+ */
 function membersAllowedTo($permission, $board_id = null)
 {
 	global $smcFunc;
@@ -1102,7 +1103,18 @@ function membersAllowedTo($permission, $board_id = null)
 	return $members;
 }
 
-// This function is used to reassociate members with relevant posts.
+/**
+ * This function is used to reassociate members with relevant posts.
+ * Reattribute guest posts to a specified member.
+ * Does not check for any permissions.
+ * If add_to_post_count is set, the member's post count is increased.
+ *
+ * @param int $memID
+ * @param string $email = false
+ * @param string $membername = false
+ * @param bool $post_count = false
+ * @return the number of successful reattributed posts.
+ */
 function reattributePosts($memID, $email = false, $membername = false, $post_count = false)
 {
 	global $smcFunc;
@@ -1172,7 +1184,12 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 	return $smcFunc['db_affected_rows']();
 }
 
-// This simple function adds/removes the passed user from the current users buddy list.
+/**
+ * This simple function adds/removes the passed user from the current users buddy list.
+ * Requires profile_identity_own permission.
+ * Called by ?action=buddy;u=x;session_id=y.
+ * Redirects to ?action=profile;u=x.
+ */
 function BuddyListToggle()
 {
 	global $user_info;
@@ -1200,6 +1217,16 @@ function BuddyListToggle()
 	redirectexit('action=profile;u=' . $_REQUEST['u']);
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $start
+ * @param $items_per_page
+ * @param $sort
+ * @param $where
+ * @param $where_params
+ * @param $get_duplicates
+ */
 function list_getMembers($start, $items_per_page, $sort, $where, $where_params = array(), $get_duplicates = false)
 {
 	global $smcFunc;
@@ -1232,6 +1259,12 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 	return $members;
 }
 
+/**
+ * Callback for createList().
+ *
+ * @param $where
+ * @param $where_params
+ */
 function list_getNumMembers($where, $where_params = array())
 {
 	global $smcFunc, $modSettings;
@@ -1257,6 +1290,10 @@ function list_getNumMembers($where, $where_params = array())
 	return $num_members;
 }
 
+/**
+ *
+ * @param $members
+ */
 function populateDuplicateMembers(&$members)
 {
 	global $smcFunc;

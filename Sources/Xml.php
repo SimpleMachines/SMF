@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Maintains all XML-based interaction (mainly XMLhttp)
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,11 +16,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file maintains all XML-based interaction (mainly XMLhttp).
-
-	void GetJumpTo()
-
-*/
 
 function XMLhttpMain()
 {
@@ -38,7 +35,9 @@ function XMLhttpMain()
 	$sub_actions[$_REQUEST['sa']]['function']();
 }
 
-// Get a list of boards and categories used for the jumpto dropdown.
+/**
+ * Get a list of boards and categories used for the jumpto dropdown.
+ */
 function GetJumpTo()
 {
 	global $user_info, $context, $smcFunc, $sourcedir;

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This is here for the "repair any errors" feature in the admin center.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,33 +16,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This is here for the "repair any errors" feature in the admin center.  It
-	uses just two simple functions:
-
-	void RepairBoards()
-		- finds or repairs errors in the database to fix possible problems.
-		- requires the admin_forum permission.
-		- uses the raw_data sub template.
-		- calls createSalvageArea() to create a new board, if necesary.
-		- accessed by ?action=admin;area=repairboards.
-
-	void pauseRepairProcess(array to_fix, string current_step_desc, int max_substep = none, force = false)
-		- show the not_done template to avoid CGI timeouts and similar.
-		- called when 3 or more seconds have passed while searching for errors.
-		- if max_substep is set, $_GET['substep'] / $max_substep is the percent
-		  done this step is.
-
-	array findForumErrors()
-		- checks for errors in steps, until 5 seconds have passed.
-		- keeps track of the errors it did find, so that the actual repair
-		  won't have to recheck everything.
-		- returns the array of errors found.
-
-	void createSalvageArea()
-		- creates a salvage board/category if one doesn't already exist.
-		- uses the forum's default language, and checks based on that name.
-*/
-
+/**
+ * Finds or repairs errors in the database to fix possible problems.
+ * Requires the admin_forum permission.
+ * Calls createSalvageArea() to create a new board, if necesary.
+ * Accessed by ?action=admin;area=repairboards.
+ *
+ * @uses raw_data sub-template.
+ */
 function RepairBoards()
 {
 	global $txt, $scripturl, $db_connection, $context, $sourcedir;
@@ -124,6 +107,17 @@ function RepairBoards()
 	}
 }
 
+/**
+ * Show the not_done template to avoid CGI timeouts and similar.
+ * Called when 3 or more seconds have passed while searching for errors.
+ * If max_substep is set, $_GET['substep'] / $max_substep is the percent
+ * done this step is.
+ *
+ * @param array $to_fix
+ * @param string $current_step_description
+ * @param int $max_substep = none
+ * @param force $force = false
+ */
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
 	global $context, $txt, $time_start, $db_temp_cache, $db_cache;
@@ -1331,6 +1325,14 @@ function loadForumTests()
 	);
 }
 
+/**
+ * Checks for errors in steps, until 5 seconds have passed.
+ * It keeps track of the errors it did find, so that the actual repair
+ * won't have to recheck everything.
+ *
+ * @param $do_fix
+ * @return array, the errors found.
+ */
 function findForumErrors($do_fix = false)
 {
 	global $context, $txt, $smcFunc, $errorTests, $db_cache, $db_temp_cache;
@@ -1549,7 +1551,10 @@ function findForumErrors($do_fix = false)
 	return $to_fix;
 }
 
-// Create a salvage area for repair purposes.
+/**
+ * Create a salvage area for repair purposes, if one doesn't already exist.
+ * Uses the forum's default language, and checks based on that name.
+ */
 function createSalvageArea()
 {
 	global $txt, $language, $salvageBoardID, $salvageCatID, $smcFunc;

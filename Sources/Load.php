@@ -18,8 +18,9 @@ if (!defined('SMF'))
 
 /**
  * Load the $modSettings array.
- * @todo okay question of the day: why a function loading settings is called
- * reloadSettings()
+ * @todo okay question of the day: why a function loading settings is called reloadSettings()
+ * 
+ * @global array $modSettings is a giant array of all of the forum-wide settings and statistics.
  */
 function reloadSettings()
 {
@@ -71,6 +72,9 @@ function reloadSettings()
 	// Preg_replace can handle complex characters only for higher PHP versions.
 	$space_chars = $utf8 ? (@version_compare(PHP_VERSION, '4.3.3') != -1 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
 
+	/**
+	 * @global array An array of anonymous helper functions.
+	 */
 	$smcFunc += array(
 		'entity_fix' => create_function('$string', '
 			$num = substr($string, 0, 1) === \'x\' ? hexdec(substr($string, 1)) : (int) $string;
@@ -198,12 +202,12 @@ function reloadSettings()
  * Load all the important user information.
  * What it does:
  * 	- sets up the $user_info array
-	- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
-	- first checks for cookie or integration validation.
-	- uses the current session if no integration function or cookie is found.
-	- checks password length, if member is activated and the login span isn't over.
-		- if validation fails for the user, $id_member is set to 0.
-		- updates the last visit time when needed.
+ *	- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
+ *	- first checks for cookie or integration validation.
+ *	- uses the current session if no integration function or cookie is found.
+ *	- checks password length, if member is activated and the login span isn't over.
+ *		- if validation fails for the user, $id_member is set to 0.
+ *		- updates the last visit time when needed.
  */
 function loadUserSettings()
 {
@@ -622,7 +626,8 @@ function loadBoard()
 			// If that is the case do an additional check to see if they have any topics waiting to be approved.
 			if ($board_info['num_topics'] == 0 && $modSettings['postmod_active'] && !allowedTo('approve_posts'))
 			{
-				$smcFunc['db_free_result']($request); // Free the previous result
+				// Free the previous result
+				$smcFunc['db_free_result']($request);
 
 				$request = $smcFunc['db_query']('', '
 					SELECT COUNT(id_topic)
@@ -850,9 +855,9 @@ function loadPermissions()
 /**
  * Loads an array of users' data by ID or member_name.
  *
- * @param $users
- * @param $is_name
- * @param string $set = 'normal'
+ * @param mixed $users An array of users by id or name
+ * @param bool $is_name = false $users is by name or by id
+ * @param string $set = 'normal' What kind of data to load (normal, profile, minimal)
  */
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
@@ -1013,8 +1018,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 /**
  * Loads the user's basic values... meant for template/theme usage.
  *
- * @param $user
- * @param bool $display_custom_fields
+ * @param int $user
+ * @param bool $display_custom_fields = false
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
@@ -1271,7 +1276,7 @@ function detectBrowser()
  * Load a theme, by ID.
  *
  * @param int $id_theme = 0
- * @parambool $initialize = true
+ * @param bool $initialize = true
  */
 function loadTheme($id_theme = 0, $initialize = true)
 {
@@ -1533,7 +1538,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	$context['server']['needs_login_fix'] = $context['server']['is_cgi'] && $context['server']['is_iis'];
 
-	// Detect the browser. This is separated out because it's also used in attachment downloads
+	// Detect the browser. This is separated out because it's also used in attachment downloads.
 	detectBrowser();
 
 	// Set the top level linktree up.
@@ -1729,9 +1734,11 @@ function loadTheme($id_theme = 0, $initialize = true)
  *  - uses the template_include() function to include the file.
  *  - detects a wrong default theme directory and tries to work around it.
  *  - if fatal is true, dies with an error message if the template cannot be found.
+ * 
  * @param string $template_name
  * @param array $style_sheets = array()
  * @param bool $fatal = true
+ * @return bool
  */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
@@ -1821,7 +1828,9 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  *  template.
  *  - if ?debug is in the query string, shows administrators a marker after every sub template
  *   for debugging purposes.
- *   @todo get rid of reading $_REQUEST directly
+ * 
+ * @todo get rid of reading $_REQUEST directly
+ * 
  * @param string $sub_template_name
  * @param bool $fatal = false, $fatal = true is for templates that shouldn't get a 'pretty' error screen.
  */
@@ -1856,6 +1865,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * @param string $lang
  * @param bool $fatal = true
  * @param bool $force_reload = false
+ * @return string The language actually loaded.
  */
 function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
 {
@@ -2023,6 +2033,7 @@ function getBoardParents($id_parent)
  *
  * @param bool $use_cache = true
  * @param bool $favor_utf8 = true
+ * @return array
  */
 function getLanguages($use_cache = true, $favor_utf8 = true)
 {
@@ -2096,8 +2107,10 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  *  	  show_no_censored is enabled, does not censor - unless force is set.
  *  - it caches the list of censored words to reduce parsing.
  * @todo what is this function doing here?
- * @param $text
- * @param $force
+ * 
+ * @param string &$text
+ * @param bool $force
+ * @return string The censored text
  */
 function &censorText(&$text, $force = false)
 {

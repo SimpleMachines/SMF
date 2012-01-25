@@ -26,6 +26,7 @@ $txt['time_format'] = 'Default time format';
 $txt['setting_time_offset'] = 'Overall time offset<div class="smalltext">(added to the member specific option.)</div>';
 $txt['setting_default_timezone'] = 'Server timezone';
 $txt['failed_login_threshold'] = 'Failed login threshold';
+$txt['loginHistoryDays'] = 'Days to keep login history';
 $txt['lastActive'] = 'User online time threshold';
 $txt['trackStats'] = 'Track daily statistics';
 $txt['hitStats'] = 'Track daily page views (must have stats enabled)';
@@ -48,6 +49,7 @@ $txt['localCookies'] = 'Enable local storage of cookies<div class="smalltext">(S
 $txt['globalCookies'] = 'Use subdomain independent cookies<div class="smalltext">(turn off local cookies first!)</div>';
 $txt['secureCookies'] = 'Force cookies to be secure<div class="smalltext">(This only applies if you are using HTTPS - don\'t use otherwise!)</div>';
 $txt['securityDisable'] = 'Disable administration security';
+$txt['securityDisable_moderate'] = 'Disable moderation security';
 $txt['send_validation_onChange'] = 'Require reactivation after email change';
 $txt['approveAccountDeletion'] = 'Require admin approval when member deletes account';
 $txt['autoOptMaxOnline'] = 'Maximum users online when optimizing<div class="smalltext">(0 for no max.)</div>';

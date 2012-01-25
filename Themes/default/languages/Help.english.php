@@ -363,6 +363,8 @@ $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains.  
 $helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site as it will break cookie handling otherwise!';
 $helptxt['securityDisable'] = 'This <em>disables</em> the additional password check for the administration section. This is not recommended!';
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br /><br />Having to type this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
+$helptxt['securityDisable_moderate'] = 'This <em>disables</em> the additional password check for the moderation section. This is not recommended!';
+$helptxt['securityDisable_moderate_why'] = 'This is your current password. (the same one you use to login.)<br /><br />Having to type this helps ensure that you want to do whatever moderation you are doing, and that it is <strong>you</strong> doing it.';
 $helptxt['emailmembers'] = 'In this message you can use a few &quot;variables&quot;.  These are:<br />
 	{$board_url} - The URL to your forum.<br />
 	{$current_time} - The current time.<br />
@@ -378,6 +380,7 @@ $helptxt['attachmentEncryptFilenames'] = 'Encrypting attachment filenames allows
 	difficult to rebuild your database if something drastic happened.';
 
 $helptxt['failed_login_threshold'] = 'Set the number of failed login attempts before directing the user to the password reminder screen.';
+$helptxt['loginHistoryDays'] = 'The number of days to keep login history under user profile tracking. Default is 30 days.';
 $helptxt['oldTopicDays'] = 'If this option is enabled a warning will be displayed to the user when attempting to reply to a topic which has not had any new replies for the amount of time, in days, specified by this setting. Set this setting to 0 to disable the feature.';
 $helptxt['edit_wait_time'] = 'Number of seconds allowed for a post to be edited before logging the last edit date.';
 $helptxt['edit_disable_time'] = 'Number of minutes allowed to pass before a user can no longer edit a post they have made. Set to 0 disable. <br /><br /><em>Note: This will not affect any user who has permission to edit other people\'s posts.</em>';

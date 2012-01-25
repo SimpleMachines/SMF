@@ -102,6 +102,8 @@ function ReportsMain()
 		'staff' => 'StaffReport',
 	);
 
+	call_integration_hook('integrate_report_types');
+
 	$is_first = 0;
 	foreach ($context['report_types'] as $k => $temp)
 		$context['report_types'][$k] = array(

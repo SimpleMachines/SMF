@@ -22,7 +22,7 @@ if (!defined('SMF'))
  *
  * What it does:
  * - cleans the request variables (ENV, GET, POST, COOKIE, SERVER) and
- * makes sure the query string was parsed correctly.
+ *	 makes sure the query string was parsed correctly.
  * - handles the URLs passed by the queryless URLs option.
  * - makes sure, regardless of php.ini, everything has slashes.
  * - sets up $board, $topic, and $scripturl and $_REQUEST['start'].
@@ -79,7 +79,7 @@ function cleanRequest()
 		$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], 0, 5) === 'url=/' ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
 
 		// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
-		// !!! smflib
+		// @todo smflib
 		parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], array(';?' => '&', ';' => '&', '%00' => '', "\0" => ''))), $_GET);
 
 		// Magic quotes still applies with parse_str - so clean it up.
@@ -125,7 +125,7 @@ function cleanRequest()
 		else
 			$request = $_SERVER['REQUEST_URI'];
 
-		// !!! smflib.
+		// @todo smflib.
 		// Replace 'index.php/a,b,c/d/e,f' with 'a=b,c&d=&e=f' and parse it into $_GET.
 		if (strpos($request, basename($scripturl) . '/') !== false)
 		{
@@ -502,7 +502,7 @@ function ob_sessrewrite($buffer)
 		return $buffer;
 
 	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
-	// !!! smflib
+	// @todo smflib
 	if (empty($_COOKIE) && SID != '' && empty($context['browser']['possibly_robot']) && @version_compare(PHP_VERSION, '4.3.0') != -1)
 		$buffer = preg_replace('/"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);
 	// Debugging templates, are we?
@@ -510,7 +510,7 @@ function ob_sessrewrite($buffer)
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '\\??/', '"' . $scripturl . '?debug;', $buffer);
 
 	// This should work even in 4.2.x, just not CGI without cgi.fix_pathinfo.
-	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || @ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd']))
+	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || @ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
 	{
 		// Let's do something special for session ids!
 		if (defined('SID') && SID != '')

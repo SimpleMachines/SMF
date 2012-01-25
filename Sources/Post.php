@@ -363,6 +363,8 @@ function Post()
 		$context['post_errors'] = array();
 
 	// See if any new replies have come along.
+	// Huh, $_REQUEST['msg'] is set upon submit, so this doesn't get executed at submit
+	// only at preview
 	if (empty($_REQUEST['msg']) && !empty($topic))
 	{
 		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && $context['topic_last_message'] > $_REQUEST['last_msg'])
@@ -419,6 +421,7 @@ function Post()
 	}
 
 	// Previewing, modifying, or posting?
+	// Do we have a body, but an error happened.
 	if (isset($_REQUEST['message']) || !empty($context['post_error']))
 	{
 		// Validate inputs.

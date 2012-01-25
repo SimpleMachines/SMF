@@ -826,6 +826,7 @@ function tracking($memID)
 		'activity' => array('trackActivity', $txt['trackActivity']),
 		'ip' => array('TrackIP', $txt['trackIP']),
 		'edits' => array('trackEdits', $txt['trackEdits']),
+		'logins' => array('TrackLogins', $txt['trackLogins']),
 	);
 
 	$context['tracking_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : 'activity';
@@ -1498,6 +1499,146 @@ function TrackIP($memID = 0)
 				$context['auto_whois_server'] = $whois;
 		}
 	}
+}
+
+/**
+ * Tracks a users logins.
+ * 
+ * @param int $memID = 0 id_member
+ */
+function TrackLogins($memID = 0)
+{
+	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
+	global $context, $smcFunc;
+
+	// Gonna want this for the list.
+	require_once($sourcedir . '/Subs-List.php');
+
+	if ($memID == 0)
+		$context['base_url'] = $scripturl . '?action=trackip';
+	else
+		$context['base_url'] = $scripturl . '?action=profile;area=tracking;sa=ip;u=' . $memID;
+
+	// Start with the user messages.
+	$listOptions = array(
+		'id' => 'track_logins_list',
+		'title' => $txt['trackLogins'],
+		'no_items_label' => $txt['trackLogins_none_found'],
+		'base_href' => $context['base_url'],
+		'get_items' => array(
+			'function' => 'list_getLogins',
+			'params' => array(
+				'id_member = {int:current_member}',
+				array('current_member' => $memID),
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getLoginCount',
+			'params' => array(
+				'id_member = {int:current_member}',
+				array('current_member' => $memID),
+			),
+		),
+		'columns' => array(
+			'time' => array(
+				'header' => array(
+					'value' => $txt['date'],
+				),
+				'data' => array(
+					'db' => 'time',
+				),
+			),
+			'ip' => array(
+				'header' => array(
+					'value' => $txt['ip_address'],
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' => '<a href="' . $context['base_url'] . ';searchip=%1$s">%1$s</a> (<a href="' . $context['base_url'] . ';searchip=%2$s">%2$s</a>) ',
+						'params' => array(
+							'ip' => false,
+							'ip2' => false
+						),
+					),
+				),
+			),
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'after_title',
+				'value' => $txt['trackLogins_desc'],
+				'class' => 'smalltext',
+				'style' => 'padding: 2ex;',
+			),
+		),
+	);
+
+	// Create the messages list.
+	createList($listOptions);
+
+	$context['sub_template'] = 'show_list';
+	$context['default_list'] = 'track_logins_list';
+}
+
+/**
+ * Callback for trackLogins for counting history.
+ * 
+ * @param string $where
+ * @param array $where_vars
+ * @return string count of messages matching the IP
+ */
+function list_getLoginCount($where, $where_vars = array())
+{
+	global $smcFunc;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*) AS message_count
+		FROM {db_prefix}member_logins
+		WHERE id_member = {int:id_member}',
+		array(
+			'id_member' => $where_vars['current_member'],
+		)
+	);
+	list ($count) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	// @todo cast to integer
+	return $count;
+}
+
+/**
+ * Callback for trackLogins data.
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $where
+ * @param array $where_vars
+ * @return array an array of messages
+ */
+function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = array())
+{
+	global $smcFunc, $txt, $scripturl;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT time, ip, ip2
+		FROM {db_prefix}member_logins
+		WHERE {int:id_member}
+		ORDER BY time DESC',
+		array(
+			'id_member' => $where_vars['current_member'],
+		)
+	);
+	$logins = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$logins[] = array(
+			'time' => timeformat($row['time']),
+			'ip' => $row['ip'],
+			'ip2' => $row['ip2'],
+		);
+	$smcFunc['db_free_result']($request);
+
+	return $logins;
 }
 
 /**

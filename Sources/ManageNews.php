@@ -41,6 +41,8 @@ function ManageNews()
 		'settings' => array('ModifyNewsSettings', 'admin_forum'),
 	);
 
+	call_integration_hook('integrate_manage_news', array(&$subActions));
+
 	// Default to sub action 'main' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('edit_news') ? 'editnews' : (allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
 
@@ -786,6 +788,8 @@ function ModifyNewsSettings($return_config = false)
 			array('text', 'xmlnews_maxlen', 10),
 	);
 
+	call_integration_hook('integrate_modify_news_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -793,6 +797,7 @@ function ModifyNewsSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 
 	// Needed for the inline permission functions, and the settings template.
+	// @todo is this really needed?
 	require_once($sourcedir . '/ManagePermissions.php');
 	require_once($sourcedir . '/ManageServer.php');
 
@@ -810,6 +815,8 @@ function ModifyNewsSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_news_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=news;sa=settings');

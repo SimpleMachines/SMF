@@ -475,7 +475,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		censorText($row['subject']);
 		censorText($row['body']);
 
-		if (empty($modSettings['messageIconChecks_disable']) && !isset($icon_sources[$row['icon']]))
+		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 			$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.gif') ? 'images_url' : 'default_images_url';
 
 		// Build the array.
@@ -930,8 +930,6 @@ function ssi_whosOnline($output_method = 'echo')
 	require_once($sourcedir . '/Subs-MembersOnline.php');
 	$membersOnlineOptions = array(
 		'show_hidden' => allowedTo('moderate_forum'),
-		'sort' => 'log_time',
-		'reverse_sort' => true,
 	);
 	$return = getMembersOnlineStats($membersOnlineOptions);
 
@@ -1687,7 +1685,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
 		// Check that this message icon is there...
-		if (empty($modSettings['messageIconChecks_disable']) && !isset($icon_sources[$row['icon']]))
+		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 			$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.gif') ? 'images_url' : 'default_images_url';
 
 		censorText($row['subject']);

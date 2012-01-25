@@ -454,7 +454,7 @@ function MessageIndex()
 				$pages = '';
 
 			// We need to check the topic icons exist...
-			if (empty($modSettings['messageIconChecks_disable']))
+			if (!empty($modSettings['messageIconChecks_enable']))
 			{
 				if (!isset($context['icon_sources'][$row['first_icon']]))
 					$context['icon_sources'][$row['first_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['first_icon'] . '.gif') ? 'images_url' : 'default_images_url';

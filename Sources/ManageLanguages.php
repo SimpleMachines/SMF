@@ -43,6 +43,8 @@ function ManageLanguages()
 		'editlang' => 'ModifyLanguage',
 	);
 
+	call_integration_hook('integrate_manage_languages', array(&$config_vars));
+
 	// By default we're managing languages.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'edit';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -724,6 +726,8 @@ function ModifyLanguageSettings($return_config = false)
 		array('userLanguage', $txt['userLanguage'], 'db', 'check', null, 'userLanguage'),
 	);
 
+	call_integration_hook('integrate_language_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -736,6 +740,9 @@ function ModifyLanguageSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_language_settings');
+
 		saveSettings($config_vars);
 		redirectexit('action=admin;area=languages;sa=settings');
 	}
@@ -855,6 +862,7 @@ function ModifyLanguage()
 	if (!empty($_POST['delete_main']) && $context['lang_id'] != 'english')
 	{
 		checkSession();
+		validateToken('admin-mlang');
 
 		/**
 		 * @todo FTP Controls?

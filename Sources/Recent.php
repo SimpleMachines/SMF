@@ -1208,7 +1208,7 @@ function UnreadTopics()
 			$pages = '';
 
 		// We need to check the topic icons exist... you can never be too sure!
-		if (empty($modSettings['messageIconChecks_disable']))
+		if (!empty($modSettings['messageIconChecks_enable']))
 		{
 			// First icon first... as you'd expect.
 			if (!isset($context['icon_sources'][$row['first_icon']]))

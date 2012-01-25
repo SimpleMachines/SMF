@@ -31,6 +31,8 @@ function modifyCategory($category_id, $catOptions)
 	$catUpdates = array();
 	$catParameters = array();
 
+	call_integration_hook('integrate_modify_category', array($category_id, &$catOptions));
+
 	// Wanna change the categories position?
 	if (isset($catOptions['move_after']))
 	{
@@ -123,8 +125,10 @@ function createCategory($catOptions)
 {
 	global $smcFunc;
 
+	call_integration_hook('integrate_create_category', array(&$catOptions));
+
 	// Check required values.
-	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
+	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) === '')
 		trigger_error('createCategory(): A category name is required', E_USER_ERROR);
 
 	// Set default values.
@@ -177,6 +181,8 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	require_once($sourcedir . '/Subs-Boards.php');
 
 	getBoardTree();
+
+	call_integration_hook('integrate_delete_category', array($categories, &$moveBoardsTo));
 
 	// With no category set to move the boards to, delete them all.
 	if ($moveBoardsTo === null)

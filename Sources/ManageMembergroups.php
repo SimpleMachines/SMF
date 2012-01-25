@@ -40,6 +40,8 @@ function ModifyMembergroups()
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
 	);
 
+	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
+
 	// Default to sub action 'index' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_membergroups') ? 'index' : 'settings');
 
@@ -194,6 +196,8 @@ function MembergroupIndex()
 		),
 	);
 
+	call_integration_hook('integrate_modify_regular_groups', array(&$listOptions));
+
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
@@ -305,6 +309,8 @@ function MembergroupIndex()
 		),
 	);
 
+	call_integration_hook('integrate_modify_post_groups', array(&$listOptions));
+
 	createList($listOptions);
 }
 
@@ -356,6 +362,8 @@ function AddMembergroup()
 			),
 			array('id_group')
 		);
+
+		call_integration_hook('integrate_add_membergroup', array($id_group, $postCountBasedGroup));
 
 		// Update the post groups now, if this is a post group!
 		if (isset($_POST['min_posts']))
@@ -706,6 +714,8 @@ function EditMembergroup()
 			)
 		);
 
+		call_integration_hook('integrate_save_membergroup', array((int) $_REQUEST['group']));
+
 		// Time to update the boards this membergroup has access to.
 		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 		{
@@ -1036,6 +1046,8 @@ function EditMembergroup()
 		$context['inheritable_groups'][$row['id_group']] = $row['group_name'];
 	$smcFunc['db_free_result']($request);
 
+	call_integration_hook('integrate_view_membergroup');
+
 	$context['sub_template'] = 'edit_group';
 	$context['page_title'] = $txt['membergroups_edit_group'];
 
@@ -1068,9 +1080,12 @@ function ModifyMembergroupsettings()
 			array('permissions', 'manage_membergroups'),
 	);
 
+	call_integration_hook('integrate_modify_membergroup_settings', array(&$config_vars));
+
 	if (isset($_REQUEST['save']))
 	{
 		checkSession();
+		call_integration_hook('integrate_save_membergroup_settings');
 
 		// Yeppers, saving this...
 		saveDBSettings($config_vars);
