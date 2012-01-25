@@ -229,7 +229,8 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 	$offset = 10;
 	$octdec = array('mode', 'uid', 'gid', 'size', 'mtime', 'checksum', 'type');
 
-	// "Read" the filename and comment. // !!! Might be mussed.
+	// "Read" the filename and comment.
+	// @todo Might be mussed.
 	if ($flags & 12)
 	{
 		while ($flags & 8 && $data{$offset++} != "\0")
@@ -556,7 +557,7 @@ function getPackageInfo($gzfilename)
 	loadClassFile('Class-Package.php');
 	$packageInfo = new xmlArray($packageInfo);
 
-	// !!! Error message of some sort?
+	// @todo Error message of some sort?
 	if (!$packageInfo->exists('package-info[0]'))
 		return 'package_get_error_packageinfo_corrupt';
 
@@ -1162,7 +1163,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				}
 			}
 
-			// !!! TODO: Make sure the file actually exists?  Might not work when testing?
+			// @todo Make sure the file actually exists?  Might not work when testing?
 			if ($action->exists('@type') && $action->fetch('@type') == 'inline')
 			{
 				$filename = $temp_path . '$auto_' . $temp_auto++ . ($actionType == 'readme' || $actionType == 'redirect' ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));

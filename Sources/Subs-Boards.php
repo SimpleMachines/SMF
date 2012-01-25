@@ -19,10 +19,10 @@ if (!defined('SMF'))
 	the following list of functions:
 
 	void MarkRead()
-		// !!!
+		// @todo
 
 	int getMsgMemberID(int id_msg)
-		// !!!
+		// @todo
 
 	void modifyBoard(int board_id, array boardOptions)
 		- general function to modify the settings and position of a board.
@@ -159,7 +159,7 @@ function markBoardsRead($boards, $unread = false)
 	if (empty($lowest_topic))
 		return;
 
-	// !!!SLOW This query seems to eat it sometimes.
+	// @todoSLOW This query seems to eat it sometimes.
 	$result = $smcFunc['db_query']('', '
 		SELECT lt.id_topic
 		FROM {db_prefix}log_topics AS lt
@@ -865,7 +865,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	{
 		foreach ($boards_to_remove as $id_board)
 		{
-			// !!! Separate category?
+			// @todo Separate category?
 			if ($moveChildrenTo === 0)
 				fixChildren($id_board, 0, 0);
 			else

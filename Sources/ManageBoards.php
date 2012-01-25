@@ -45,6 +45,8 @@ function ManageBoards()
 		'settings' => array('EditBoardSettings', 'admin_forum'),
 	);
 
+	call_integration_hook('integrate_manage_boards', array(&$subActions));
+
 	// Default to sub action 'main' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_boards') ? 'main' : 'settings');
 
@@ -195,6 +197,8 @@ function ManageBoardsMain()
 		}
 	}
 
+	call_integration_hook('integrate_boards_main');
+
 	$context['page_title'] = $txt['boards_and_cats'];
 	$context['can_manage_permissions'] = allowedTo('manage_permissions');
 }
@@ -287,6 +291,8 @@ function EditCategory()
 
 	// Create a special token.
 	createToken('admin-bc-' . $_REQUEST['cat']);
+
+	call_integration_hook('integrate_edit_category');
 }
 
 /**
@@ -564,6 +570,8 @@ function EditBoard()
 
 	// Create a special token.
 	createToken('admin-be-' . $_REQUEST['boardid']);
+
+	call_integration_hook('integrate_edit_board');
 }
 
 /**
@@ -780,10 +788,13 @@ function EditBoardSettings($return_config = false)
 			array('check', 'allow_ignore_boards'),
 	);
 
+	call_integration_hook('integrate_board_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
 	// Needed for the settings template and inline permission functions.
+	// @todo is this file really needed?
 	require_once($sourcedir . '/ManagePermissions.php');
 	require_once($sourcedir . '/ManageServer.php');
 
@@ -809,6 +820,8 @@ function EditBoardSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_board_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=manageboards;sa=settings');

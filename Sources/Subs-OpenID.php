@@ -170,7 +170,7 @@ function smf_openID_makeAssociation($server)
 	$expires = $issued + min((int)$assoc_data['expires_in'], 60);
 	$assoc_type = isset($assoc_data['assoc_type']) ? $assoc_data['assoc_type'] : '';
 
-	// !!! Is this really needed?
+	// @todo Is this really needed?
 	foreach (array('dh_server_public', 'enc_mac_key') as $key)
 		if (isset($assoc_data[$key]))
 			$assoc_data[$key] = str_replace(' ', '+', $assoc_data[$key]);
@@ -226,7 +226,7 @@ function smf_openID_return()
 	if (!isset($_GET['openid_mode']))
 		fatal_lang_error('openid_return_no_mode', false);
 
-	// !!! Check for error status!
+	// @todo Check for error status!
 	if ($_GET['openid_mode'] != 'id_res')
 		fatal_lang_error('openid_not_resolved');
 
@@ -364,7 +364,7 @@ function smf_openID_return()
 
 function smf_openID_canonize($uri)
 {
-	// !!! Add in discovery.
+	// @todo Add in discovery.
 
 	if (strpos($uri, 'http://') !== 0 && strpos($uri, 'https://') !== 0)
 		$uri = 'http://' . $uri;

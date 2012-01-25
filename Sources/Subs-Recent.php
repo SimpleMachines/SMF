@@ -26,7 +26,7 @@ function getLastPosts($latestPostOptions)
 	global $scripturl, $txt, $user_info, $modSettings, $smcFunc, $context;
 
 	// Find all the posts.  Newer ones will have higher IDs.  (assuming the last 20 * number are accessable...)
-	// !!!SLOW This query is now slow, NEEDS to be fixed.  Maybe break into two?
+	// @todo SLOW This query is now slow, NEEDS to be fixed.  Maybe break into two?
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
 			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg,

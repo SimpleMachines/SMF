@@ -125,12 +125,12 @@ input:focus, textarea:focus, button:focus, select:focus
 }
 
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
-input.input_check, input.input_radio
+.input_check, .input_radio
 {
 	border: none;
 	background: none;
 }
-h3.catbg input.input_check
+h3.catbg .input_check
 {
 	margin: 9px 7px 0 7px;
 }
@@ -293,7 +293,7 @@ ul.reset, ul.reset li
 ------------------------------------------------------- */
 
 /* A quote, perhaps from another post. */
-blockquote.bbc_standard_quote, blockquote.bbc_alternate_quote
+.bbc_standard_quote, .bbc_alternate_quote
 {
 	font-size: x-small;
 	color: #000;
@@ -307,17 +307,17 @@ blockquote.bbc_standard_quote, blockquote.bbc_alternate_quote
 }
 
 /* Alterate blockquote stylings */
-blockquote.bbc_standard_quote
+.bbc_standard_quote
 {
 	background-color: #d7daec;
 }
-blockquote.bbc_alternate_quote
+.bbc_alternate_quote
 {
 	background-color: #e7eafc;
 }
 
 /* A code block - maybe PHP ;). */
-code.bbc_code
+.bbc_code
 {
 	display: block;
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
@@ -787,7 +787,7 @@ h4.catbg a.toggle img
 	vertical-align: middle;
 	margin: -2px 5px 0 5px;
 }
-h4.catbg, h4.catbg2 , h3.catbg , h3.catbg2 , .table_list tbody.header td.catbg
+h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg
 {
 	background: url(../images/theme/main_block.png) no-repeat 100% -160px;
 	padding-right: 9px;
@@ -2096,6 +2096,7 @@ img.smiley
 #forumposts .modified
 {
 	float: left;
+	color: #999;
 }
 #forumposts .reportlinks
 {

@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file contains several functions for retrieving and manipulating
+ *  calendar events, birthdays and holidays.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,94 +17,66 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains several functions for retrieving and manipulating
-	calendar events, birthdays and holidays.
+/*	
 
-	array getBirthdayRange(string earliest_date, string latest_date)
-		- finds all the birthdays in the specified range of days.
-		- earliest_date and latest_date are inclusive, and should both be in
-		  the YYYY-MM-DD format.
-		- works with birthdays set for no year, or any other year, and
-		  respects month and year boundaries.
-		- returns an array of days, each of which an array of birthday
-		  information for the context.
+ array getCalendarGrid(int month, int year, array calendarOptions)
+ * returns an array containing all the information needed to show a
+ *  calendar grid for the given month.
+ * also provides information (link, month, year) about the previous and
+ *  next month.
 
-	array getEventRange(string earliest_date, string latest_date,
-			bool use_permissions = true)
-		- finds all the posted calendar events within a date range.
-		- both the earliest_date and latest_date should be in the standard
-		  YYYY-MM-DD format.
-		- censors the posted event titles.
-		- uses the current user's permissions if use_permissions is true,
-		  otherwise it does nothing "permission specific".
-		- returns an array of contextual information if use_permissions is
-		  true, and an array of the data needed to build that otherwise.
+ array getCalendarWeek(int month, int year, int day, array calendarOptions)
+ * as for getCalendarGrid but provides information relating to the week
+ *  within which the passed date sits.
 
-	array getHolidayRange(string earliest_date, string latest_date)
-		- finds all the applicable holidays for the specified date range.
-		- earliest_date and latest_date should be YYYY-MM-DD.
-		- returns an array of days, which are all arrays of holiday names.
+ array cache_getOffsetIndependentEvents(int days_to_index)
+ * cache callback function used to retrieve the birthdays, holidays, and
+ *  events between now and now + days_to_index.
+ * widens the search range by an extra 24 hours to support time offset
+ *  shifts.
+ * used by the cache_getRecentEvents function to get the information
+ *  needed to calculate the events taking the users time offset into
+ *  account.
 
-	void canLinkEvent()
-		- checks if the current user can link the current topic to the
-		  calendar, permissions et al.
-		- this requires the calendar_post permission, a forum moderator, or a
-		  topic starter.
-		- expects the $topic and $board variables to be set.
-		- if the user doesn't have proper permissions, an error will be shown.
+ array cache_getRecentEvents(array eventOptions)
+ * cache callback function used to retrieve the upcoming birthdays,
+ *  holidays, and events within the given period, taking into account
+ *  the users time offset.
+ * used by the board index and SSI to show the upcoming events.
 
-	array getTodayInfo()
-		- returns an array with the current date, day, month, and year.
-		- takes the users time offset into account.
+ void validateEventPost()
+ * checks if the calendar post was valid.
 
-	array getCalendarGrid(int month, int year, array calendarOptions)
-		- returns an array containing all the information needed to show a
-		  calendar grid for the given month.
-		- also provides information (link, month, year) about the previous and
-		  next month.
+ int getEventPoster(int event_id)
+ * gets the member_id of an event identified by event_id.
+ * returns false if the event was not found.
 
-	array getCalendarWeek(int month, int year, int day, array calendarOptions)
-		- as for getCalendarGrid but provides information relating to the week
-		  within which the passed date sits.
+ void insertEvent(array eventOptions)
+ * inserts the passed event information into the calendar table.
+ * allows to either set a time span (in days) or an end_date.
+ * does not check any permissions of any sort.
 
-	array cache_getOffsetIndependentEvents(int days_to_index)
-		- cache callback function used to retrieve the birthdays, holidays, and
-		  events between now and now + days_to_index.
-		- widens the search range by an extra 24 hours to support time offset
-		  shifts.
-		- used by the cache_getRecentEvents function to get the information
-		  needed to calculate the events taking the users time offset into
-		  account.
+ void modifyEvent(int event_id, array eventOptions)
+ * modifies an event.
+ * allows to either set a time span (in days) or an end_date.
+ * does not check any permissions of any sort.
 
-	array cache_getRecentEvents(array eventOptions)
-		- cache callback function used to retrieve the upcoming birthdays,
-		  holidays, and events within the given period, taking into account
-		  the users time offset.
-		- used by the board index and SSI to show the upcoming events.
-
-	void validateEventPost()
-		- checks if the calendar post was valid.
-
-	int getEventPoster(int event_id)
-		- gets the member_id of an event identified by event_id.
-		- returns false if the event was not found.
-
-	void insertEvent(array eventOptions)
-		- inserts the passed event information into the calendar table.
-		- allows to either set a time span (in days) or an end_date.
-		- does not check any permissions of any sort.
-
-	void modifyEvent(int event_id, array eventOptions)
-		- modifies an event.
-		- allows to either set a time span (in days) or an end_date.
-		- does not check any permissions of any sort.
-
-	void removeEvent(int event_id)
-		- removes an event.
-		- does no permission checks.
+ void removeEvent(int event_id)
+ * removes an event.
+ * does no permission checks.
 */
 
-// Get all birthdays within the given time range.
+/** 
+ * Get all birthdays within the given time range.
+ * array getBirthdayRange(string earliest_date, string latest_date)
+ * finds all the birthdays in the specified range of days.
+ * earliest_date and latest_date are inclusive, and should both be in
+ *  the YYYY-MM-DD format.
+ * works with birthdays set for no year, or any other year, and
+ *  respects month and year boundaries.
+ * returns an array of days, each of which an array of birthday
+ *  information for the context.
+ */
 function getBirthdayRange($low_date, $high_date)
 {
 	global $scripturl, $modSettings, $smcFunc;
@@ -159,7 +134,19 @@ function getBirthdayRange($low_date, $high_date)
 	return $bday;
 }
 
-// Get all events within the given time range.
+/**
+ * Get all events within the given time range.
+ * array getEventRange(string earliest_date, string latest_date,
+			bool use_permissions = true)
+		- finds all the posted calendar events within a date range.
+		- both the earliest_date and latest_date should be in the standard
+		  YYYY-MM-DD format.
+		- censors the posted event titles.
+		- uses the current user's permissions if use_permissions is true,
+		  otherwise it does nothing "permission specific".
+		- returns an array of contextual information if use_permissions is
+		  true, and an array of the data needed to build that otherwise.
+ */
 function getEventRange($low_date, $high_date, $use_permissions = true)
 {
 	global $scripturl, $modSettings, $user_info, $smcFunc, $context;
@@ -190,7 +177,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
 		// If the attached topic is not approved then for the moment pretend it doesn't exist
-		//!!! This should be fixed to show them all and then sort by approval state later?
+		// @todo This should be fixed to show them all and then sort by approval state later?
 		if (!empty($row['id_first_msg']) && $modSettings['postmod_active'] && !$row['approved'])
 			continue;
 
@@ -206,7 +193,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		for ($date = $start_date; $date <= $end_date; $date += 86400)
 		{
 			// Attempt to avoid DST problems.
-			//!!! Resolve this properly at some point.
+			// @todo Resolve this properly at some point.
 			if (strftime('%Y-%m-%d', $date) == $lastDate)
 				$date += 3601;
 			$lastDate = strftime('%Y-%m-%d', $date);
@@ -256,7 +243,15 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	return $events;
 }
 
-// Get all holidays within the given time range.
+/**
+ * Get all holidays within the given time range.
+ * 
+ * $low_date and $high_date should be YYYY-MM-DD.
+ * 
+ * @param string $low_date
+ * @param string $high_date
+ * @return array an array of days, which are all arrays of holiday names.
+ */
 function getHolidayRange($low_date, $high_date)
 {
 	global $smcFunc;
@@ -299,6 +294,15 @@ function getHolidayRange($low_date, $high_date)
 }
 
 // Does permission checks to see if an event can be linked to a board/topic.
+/**
+ *  void canLinkEvent()
+ * checks if the current user can link the current topic to the
+ *  calendar, permissions et al.
+ * this requires the calendar_post permission, a forum moderator, or a
+ *  topic starter.
+ * expects the $topic and $board variables to be set.
+ * if the user doesn't have proper permissions, an error will be shown.
+ */
 function canLinkEvent()
 {
 	global $user_info, $topic, $board, $smcFunc;
@@ -339,6 +343,11 @@ function canLinkEvent()
 }
 
 // Returns date information about 'today' relative to the users time offset.
+/**
+ * array getTodayInfo()
+ * returns an array with the current date, day, month, and year.
+ * takes the users time offset into account.
+ */
 function getTodayInfo()
 {
 	return array(
@@ -349,7 +358,13 @@ function getTodayInfo()
 	);
 }
 
-// Returns the information needed to show a calendar grid for the given month.
+/**
+ * Returns the information needed to show a calendar grid for the given month.
+ * 
+ * @param int $month
+ * @param int $year
+ * @param array $calendarOptions
+ */
 function getCalendarGrid($month, $year, $calendarOptions)
 {
 	global $scripturl, $modSettings;
@@ -373,7 +388,7 @@ function getCalendarGrid($month, $year, $calendarOptions)
 			'month' => $month == 12 ? 1 : $month + 1,
 			'disabled' => $modSettings['cal_maxyear'] < ($month == 12 ? $year + 1 : $year),
 		),
-		//!!! Better tweaks?
+		// @todo Better tweaks?
 		'size' => isset($calendarOptions['size']) ? $calendarOptions['size'] : 'large',
 	);
 
@@ -499,7 +514,13 @@ function getCalendarGrid($month, $year, $calendarOptions)
 	return $calendarGrid;
 }
 
-// Returns the information needed to show a calendar for the given week.
+/**
+ * Returns the information needed to show a calendar for the given week.
+ * @param int $month
+ * @param int $year
+ * @param int $day
+ * @param array $calendarOptions
+ */
 function getCalendarWeek($month, $year, $day, $calendarOptions)
 {
 	global $scripturl, $modSettings;
@@ -619,7 +640,12 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 	return $calendarGrid;
 }
 
-// Retrieve all events for the given days, independently of the users offset.
+// 
+/**
+ * Retrieve all events for the given days, independently of the users offset.
+ * 
+ * @param int $days_to_index
+ */
 function cache_getOffsetIndependentEvents($days_to_index)
 {
 	global $sourcedir;
@@ -639,6 +665,11 @@ function cache_getOffsetIndependentEvents($days_to_index)
 }
 
 // Called from the BoardIndex to display the current day's events on the board index.
+/**
+ * 
+ * Enter description here ...
+ * @param array $eventOptions
+ */
 function cache_getRecentEvents($eventOptions)
 {
 	global $modSettings, $user_info, $scripturl;
@@ -755,6 +786,10 @@ function cache_getRecentEvents($eventOptions)
 }
 
 // Makes sure the calendar post is valid.
+/**
+ * 
+ * Enter description here ...
+ */
 function validateEventPost()
 {
 	global $modSettings, $txt, $sourcedir, $smcFunc;
@@ -810,7 +845,11 @@ function validateEventPost()
 	}
 }
 
-// Get the event's poster.
+/**
+ * Get the event's poster.
+ * 
+ * @param int $event_id
+ */
 function getEventPoster($event_id)
 {
 	global $smcFunc;
@@ -836,7 +875,11 @@ function getEventPoster($event_id)
 	return $poster;
 }
 
-// Consolidating the various INSERT statements into this function.
+/**
+ * Consolidating the various INSERT statements into this function.
+ * 
+ * @param array $eventOptions
+ */
 function insertEvent(&$eventOptions)
 {
 	global $modSettings, $smcFunc;
@@ -882,6 +925,11 @@ function insertEvent(&$eventOptions)
 	));
 }
 
+/**
+ * 
+ * @param int $event_id
+ * @param array $eventOptions
+ */
 function modifyEvent($event_id, &$eventOptions)
 {
 	global $smcFunc;
@@ -924,6 +972,10 @@ function modifyEvent($event_id, &$eventOptions)
 	));
 }
 
+/**
+ * 
+ * @param int $event_id
+ */
 function removeEvent($event_id)
 {
 	global $smcFunc;
@@ -941,6 +993,10 @@ function removeEvent($event_id)
 	));
 }
 
+/**
+ * 
+ * @param int $event_id
+ */
 function getEventProperties($event_id)
 {
 	global $smcFunc;
@@ -989,6 +1045,12 @@ function getEventProperties($event_id)
 	return $return_value;
 }
 
+/**
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ */
 function list_getHolidays($start, $items_per_page, $sort)
 {
 	global $smcFunc;
@@ -1010,6 +1072,9 @@ function list_getHolidays($start, $items_per_page, $sort)
 	return $holidays;
 }
 
+/**
+ * 
+ */
 function list_getNumHolidays()
 {
 	global $smcFunc;
@@ -1026,6 +1091,10 @@ function list_getNumHolidays()
 	return $num_items;
 }
 
+/**
+ * 
+ * @param array $holiday_ids
+ */
 function removeHolidays($holiday_ids)
 {
 	global $smcFunc;

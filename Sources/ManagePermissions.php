@@ -44,6 +44,8 @@ function ModifyPermissions()
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
 
+	call_integration_hook('integrate_manage_permissions', array(&$subActions));
+
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
@@ -973,6 +975,8 @@ function GeneralPermissionSettings($return_config = false)
 			array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
 	);
 
+	call_integration_hook('integrate_modify_permission_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -990,6 +994,7 @@ function GeneralPermissionSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession('post');
+		call_integration_hook('integrate_save_permission_settings');
 		saveDBSettings($config_vars);
 
 		// Clear all deny permissions...if we want that.
@@ -2170,6 +2175,8 @@ function loadIllegalPermissions()
 		$context['illegal_permissions'][] = 'manage_membergroups';
 	if (!allowedTo('manage_permissions'))
 		$context['illegal_permissions'][] = 'manage_permissions';
+
+	call_integration_hook('integrate_load_illegal_permissions');
 }
 
 /**
@@ -2212,6 +2219,8 @@ function loadIllegalGuestPermissions()
 		'send_mail',
 		'approve_posts',
 	);
+
+	call_integration_hook('integrate_load_illegal_guest_permissions');
 }
 
 /**
@@ -2238,6 +2247,8 @@ function ModifyPostModeration()
 		'replies_any' => array('post_reply_any', 'post_unapproved_replies_any'),
 		'attachment' => array('post_attachment', 'post_unapproved_attachments'),
 	);
+
+	call_integration_hook('integrate_post_moderation_mapping', array(&$mappings));
 
 	// Start this with the guests/members.
 	$context['profile_groups'] = array(

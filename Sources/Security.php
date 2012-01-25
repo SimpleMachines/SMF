@@ -531,7 +531,7 @@ function banPermissions()
 		$user_info['permissions'] = array_diff($user_info['permissions'], array_keys($permission_change));
 	}
 
-	//!!! Find a better place to call this? Needs to be after permissions loaded!
+	// @todo Find a better place to call this? Needs to be after permissions loaded!
 	// Finally, some bits we cache in the session because it saves queries.
 	if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > $modSettings['settings_updated'] && $_SESSION['mc']['id'] == $user_info['id'])
 		$user_info['mod_cache'] = $_SESSION['mc'];

@@ -120,7 +120,8 @@ $txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$dKB';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$d per post';
 $txt['attach_restrictions'] = 'Restrictions:';
 
-$txt['post_additionalopt'] = 'Attachments and other options';
+$txt['post_additionalopt_attach'] = 'Attachments and other options';
+$txt['post_additionalopt'] = 'Other options';
 $txt['sticky_after'] = 'Sticky this topic.';
 $txt['move_after2'] = 'Move this topic.';
 $txt['back_to_topic'] = 'Return to this topic.';

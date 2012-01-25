@@ -22,19 +22,19 @@ if (!defined('SMF'))
 		- uses the Profile language files and Reminder template.
 
 	void RemindMail()
-		// !!!
+		// @todo
 
 	void setPassword()
-		// !!!
+		// @todo
 
 	void setPassword2()
-		// !!!
+		// @todo
 
 	void SecretAnswerInput()
-		// !!!
+		// @todo
 
 	void SecretAnswer2()
-		// !!!
+		// @todo
 */
 
 // Forgot 'yer password?

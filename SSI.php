@@ -63,6 +63,7 @@ require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/Errors.php');
+require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 
@@ -173,6 +174,9 @@ if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id()
 // Without visiting the forum this session variable might not be set on submit.
 if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['ssi_function'] !== 'pollVote'))
 	$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+
+// Have the ability to easily add functions to SSI.
+call_integration_hook('integrate_SSI');
 
 // Call a function passed by GET.
 if (isset($_GET['ssi_function']) && function_exists('ssi_' . $_GET['ssi_function']) && (!empty($modSettings['allow_guestAccess']) || !$user_info['is_guest']))
@@ -636,7 +640,7 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 
 	if ($modSettings['totalMessages'] > 100000)
 	{
-		// !!! Why don't we use {query(_wanna)_see_board}?
+		// @todo Why don't we use {query(_wanna)_see_board}?
 		$request = $smcFunc['db_query']('', '
 			SELECT id_topic
 			FROM {db_prefix}topics

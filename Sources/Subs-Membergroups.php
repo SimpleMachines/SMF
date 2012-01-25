@@ -105,6 +105,8 @@ function deleteMembergroups($groups)
 		logAction('delete_group', array('group' => $row['group_name']), 'admin');
 	$smcFunc['db_free_result']($request);
 
+	call_integration_hook('integrate_delete_membergroups', array($groups));
+
 	// Remove the membergroups themselves.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}membergroups
@@ -594,6 +596,8 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 			$log_inserts,
 			array('id_action')
 		);
+
+	call_integration_hook('integrate_add_members_to_group', array($log_inserts));	
 
 	return true;
 }

@@ -135,7 +135,7 @@ $txt['edit_subscriber'] = 'Edit Subscriber';
 $txt['delete_selected'] = 'Delete Selected';
 $txt['complete_selected'] = 'Complete Selected';
 
-// !!! These strings are used in conjunction with JavaScript.  Use numeric entities.
+// @todo These strings are used in conjunction with JavaScript.  Use numeric entities.
 $txt['delete_are_sure'] = 'Are you sure you want to delete all records of the selected subscriptions?';
 $txt['complete_are_sure'] = 'Are you sure you want to complete the selected subscriptions?';
 

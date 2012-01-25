@@ -70,7 +70,7 @@ function ThemesMain()
 		'copy' => 'CopyTemplate',
 	);
 
-	// !!! Layout Settings?
+	// @todo Layout Settings?
 	if (!empty($context['admin_menu_name']))
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -614,7 +614,7 @@ function SetThemeOptions()
 	loadTheme($_GET['th'], false);
 
 	loadLanguage('Profile');
-	//!!! Should we just move these options so they are no longer theme dependant?
+	// @todo Should we just move these options so they are no longer theme dependant?
 	loadLanguage('PersonalMessage');
 
 	// Let the theme take care of the settings.
@@ -1519,7 +1519,7 @@ function ThemeInstall()
 				$temp = $smcFunc['db_fetch_assoc']($request);
 				$smcFunc['db_free_result']($request);
 
-				// !!! An error otherwise?
+				// @todo An error otherwise?
 				if (is_array($temp))
 				{
 					$install_info = $temp + $install_info;
@@ -1692,7 +1692,7 @@ function EditTheme()
 {
 	global $context, $settings, $scripturl, $boarddir, $smcFunc;
 
-	// !!! Should this be removed?
+	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
 		die('die() with fire');
 
@@ -1869,7 +1869,7 @@ function EditTheme()
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
 
-				// !!! Use fetch_web_data()?
+				// @todo Use fetch_web_data()?
 				$error = @file_get_contents($theme_url . '/tmp_' . session_id() . '.php');
 				if (preg_match('~ <b>(\d+)</b><br( /)?' . '>$~i', $error) != 0)
 					$error_file = $theme_dir . '/tmp_' . session_id() . '.php';

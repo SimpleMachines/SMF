@@ -53,6 +53,8 @@ function ManageAttachments()
 		'removeall' => 'RemoveAllAttachments'
 	);
 
+	call_integration_hook('integrate_manage_attachments', array(&$subActions));
+
 	// Pick the correct sub-action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$context['sub_action'] = $_REQUEST['sa'];
@@ -123,6 +125,8 @@ function ManageAttachmentSettings($return_config = false)
 			array('text', 'attachmentThumbHeight', 6),
 	);
 
+	call_integration_hook('integrate_modify_attachment_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -134,6 +138,8 @@ function ManageAttachmentSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_attachment_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=manageattachments;sa=attachments');
@@ -202,10 +208,13 @@ function ManageAvatarSettings($return_config = false)
 			array('text', 'custom_avatar_url', 40),
 	);
 
+	call_integration_hook('integrate_modify_avatar_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
 	// We need these files for the inline permission settings, and the settings template.
+	// @todo is this really needed?
 	require_once($sourcedir . '/ManagePermissions.php');
 	require_once($sourcedir . '/ManageServer.php');
 
@@ -217,6 +226,8 @@ function ManageAvatarSettings($return_config = false)
 		// Just incase the admin forgot to set both custom avatar values, we disable it to prevent errors.
 		if (isset($_POST['custom_avatar_enabled']) && $_POST['custom_avatar_enabled'] == 1 && (empty($_POST['custom_avatar_dir']) || empty($_POST['custom_avatar_url'])))
 			$_POST['custom_avatar_enabled'] = 0;
+
+		call_integration_hook('integrate_save_avatar_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=manageattachments;sa=avatars');
@@ -1555,7 +1566,7 @@ function ApproveAttach()
 /**
  * Approve an attachment, or maybe even more - no permission check!
  *
- * @param $attachments
+ * @param array $attachments
  */
 function ApproveAttachments($attachments)
 {
@@ -1607,6 +1618,8 @@ function ApproveAttachments($attachments)
 			'attachments' => $attachments,
 		)
 	);
+
+	call_integration_hook('integrate_approve_attachments', array($attachments));
 }
 
 /**

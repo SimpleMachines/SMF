@@ -40,6 +40,8 @@ function ManagePaidSubscriptions()
 		'viewsub' => array('ViewSubscribedUsers', 'admin_forum'),
 	);
 
+	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
+
 	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) ? 'view' : 'settings');
 
@@ -354,6 +356,8 @@ function ModifySubscription()
 			)
 		);
 
+		call_integration_hook('integrate_delete_subscription', array($context['sub_id']));
+
 		redirectexit('action=admin;area=paidsubscribe;view');
 	}
 
@@ -465,6 +469,7 @@ function ModifySubscription()
 				)
 			);
 		}
+		call_integration_hook('integrate_save_subscription', array(($context['action_type'] == 'add' ? $smcFunc['db_insert_id']('{db_prefix}subscriptions', 'id_subscribe') : $context['sub_id']), $_POST['name'], $_POST['desc'], $isActive, $span, $cost, $_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete, $reminder));
 
 		redirectexit('action=admin;area=paidsubscribe;view');
 	}

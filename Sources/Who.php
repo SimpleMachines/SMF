@@ -515,7 +515,7 @@ function determineActions($urls, $preferred_prefix = false)
 /**
  * It prepares credit and copyright information for the credits page or the admin page
  *
- * @param $in_admin = false, if parameter is true the it will not load the sub-template nor the template file
+ * @param bool $in_admin = false, if parameter is true the it will not load the sub-template nor the template file
  */
 function Credits($in_admin = false)
 {
@@ -740,6 +740,8 @@ function Credits($in_admin = false)
 		$context['robot_no_index'] = true;
 		$context['page_title'] = $txt['credits'];
 	}
+
+	call_integration_hook('integrate_credits');
 }
 
 ?>

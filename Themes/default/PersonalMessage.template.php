@@ -817,7 +817,7 @@ function template_search_results()
 				<h3 class="catbg">', $txt['from'], ': ', $message['member']['link'], ', ', $txt['to'], ': ';
 
 				// Show the recipients.
-				// !!! This doesn't deal with the sent item searching quite right for bcc.
+				// @todo This doesn't deal with the sent item searching quite right for bcc.
 				if (!empty($message['recipients']['to']))
 					echo implode(', ', $message['recipients']['to']);
 				// Otherwise, we're just going to say "some people"...
@@ -857,7 +857,7 @@ function template_search_results()
 		// Otherwise just a simple list!
 		else
 		{
-			// !!! No context at all of the search?
+			// @todo No context at all of the search?
 			echo '
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" valign="top">
 				<td>', $message['time'], '</td>
@@ -1280,7 +1280,7 @@ function template_report_message()
 				<dl class="settings">';
 
 	// If there is more than one admin on the forum, allow the user to choose the one they want to direct to.
-	// !!! Why?
+	// @todo Why?
 	if ($context['admin_count'] > 1)
 	{
 		echo '

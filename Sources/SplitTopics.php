@@ -779,7 +779,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 
 	// Copy log topic entries.
-	// !!! This should really be chunked.
+	// @todo This should really be chunked.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, id_msg
 		FROM {db_prefix}log_topics

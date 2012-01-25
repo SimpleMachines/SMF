@@ -702,7 +702,7 @@ function comma_format($number, $override_decimal_count = false)
 	global $txt;
 	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
 
-	// !!! Should, perhaps, this just be handled in the language files, and not a mod setting?
+	// @todo Should, perhaps, this just be handled in the language files, and not a mod setting?
 	// (French uses 1 234,00 for example... what about a multilingual forum?)
 
 	// Cache these values...
@@ -1061,7 +1061,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'code',
 				'type' => 'unparsed_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '</pre>' : ''),
-				// !!! Maybe this can be simplified?
+				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : create_function('&$tag, &$data, $disabled', '
 					global $context;
 
@@ -1103,7 +1103,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '</pre>' : ''),
-				// !!! Maybe this can be simplified?
+				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : create_function('&$tag, &$data, $disabled', '
 					global $context;
 
@@ -1152,7 +1152,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'email',
 				'type' => 'unparsed_content',
 				'content' => '<a href="mailto:$1" class="bbc_email">$1</a>',
-				// !!! Should this respect guest_hideContacts?
+				// @todo Should this respect guest_hideContacts?
 				'validate' => create_function('&$tag, &$data, $disabled', '$data = strtr($data, array(\'<br />\' => \'\'));'),
 			),
 			array(
@@ -1160,7 +1160,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals',
 				'before' => '<a href="mailto:$1" class="bbc_email">',
 				'after' => '</a>',
-				// !!! Should this respect guest_hideContacts?
+				// @todo Should this respect guest_hideContacts?
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
@@ -1669,11 +1669,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$disabled['email'] = true;
 		$disabled['flash'] = true;
 
-		// !!! Change maybe?
+		// @todo Change maybe?
 		if (!isset($_GET['images']))
 			$disabled['img'] = true;
 
-		// !!! Interface/setting to add more?
+		// @todo Interface/setting to add more?
 	}
 
 	$open_tags = array();
@@ -1792,7 +1792,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				}
 
 				// Don't go backwards.
-				//!!! Don't think is the real solution....
+				// @todo Don't think is the real solution....
 				$lastAutoPos = isset($lastAutoPos) ? $lastAutoPos : 0;
 				if ($pos < $lastAutoPos)
 					$no_autolink_area = true;
@@ -2210,7 +2210,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// No type means 'parsed_content'.
 		if (!isset($tag['type']))
 		{
-			// !!! Check for end tag first, so people can say "I like that [i] tag"?
+			// @todo Check for end tag first, so people can say "I like that [i] tag"?
 			$open_tags[] = $tag;
 			$message = substr($message, 0, $pos) . "\n" . $tag['before'] . "\n" . substr($message, $pos1);
 			$pos += strlen($tag['before']) - 1 + 2;
@@ -2429,7 +2429,7 @@ function parsesmileys(&$message)
 	static $smileyPregSearch = array(), $smileyPregReplacements = array();
 
 	// No smiley set at all?!
-	if ($user_info['smiley_set'] == 'none')
+	if ($user_info['smiley_set'] === 'none' || trim($message) === '')
 		return;
 
 	// If the smiley array hasn't been set, do it now.
@@ -2481,16 +2481,20 @@ function parsesmileys(&$message)
 			$smileyCode = '<img src="' . htmlspecialchars($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/' . $smileysto[$i]) . '" alt="' . strtr(htmlspecialchars($smileysfrom[$i], ENT_QUOTES), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr(htmlspecialchars($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley" />';
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
-			$smileyPregReplacements[htmlspecialchars($smileysfrom[$i], ENT_QUOTES)] = $smileyCode;
+
 			$searchParts[] = preg_quote($smileysfrom[$i], '~');
-			$searchParts[] = preg_quote(htmlspecialchars($smileysfrom[$i], ENT_QUOTES), '~');
+			if ($smileysfrom[$i] != ($specialChars = htmlspecialchars($smileysfrom[$i], ENT_QUOTES)))
+			{
+				$smileyPregReplacements[$specialChars] = $smileyCode;
+				$searchParts[] = preg_quote($specialChars, '~');
+			}
 		}
 
 		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~e' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
-	$message = preg_replace($smileyPregSearch, 'isset($smileyPregReplacements[\'$1\']) ? $smileyPregReplacements[\'$1\'] : \'\'', $message);
+	$message = preg_replace($smileyPregSearch, '$smileyPregReplacements[\'$1\']', $message);
 }
 
 // Highlight any code...
@@ -2560,7 +2564,7 @@ function redirectexit($setLocation = '', $refresh = false)
 	elseif (isset($_GET['debug']))
 		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\\??/', $scripturl . '?debug;', $setLocation);
 
-	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || @ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']] || !empty($context['server']['is_litespeed']))))
+	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || @ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
 			$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$/e', "\$scripturl . '/' . strtr('\$1', '&;=', '//,') . '.html\$2?' . SID", $setLocation);
@@ -2851,7 +2855,7 @@ function setupThemeContext($forceload = false)
 	var window_oldAvatarOnload = window.onload;
 	window.onload = smf_avatarResize;';
 
-		// !!! Move this over to script.js?
+		// @todo Move this over to script.js?
 		$context['html_headers'] .= '
 	// ]]></script>';
 	}

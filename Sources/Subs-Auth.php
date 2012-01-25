@@ -652,7 +652,7 @@ function validatePassword($password, $username, $restrict_in = array())
 	elseif ($smcFunc['strpos']($password, $username) !== false)
 		return 'restricted_words';
 
-	// !!! If pspell is available, use it on the word, and return restricted_words if it doesn't give "bad spelling"?
+	// @todo If pspell is available, use it on the word, and return restricted_words if it doesn't give "bad spelling"?
 
 	// If just medium, we're done.
 	if ($modSettings['password_strength'] == 1)

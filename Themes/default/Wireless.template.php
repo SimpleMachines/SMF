@@ -398,7 +398,7 @@ function template_imode_post()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
-	// !!! $modSettings['guest_post_no_email']
+	// @todo $modSettings['guest_post_no_email']
 	echo '
 		<form action="', $scripturl, '?action=', $context['destination'], ';board=', $context['current_board'], '.0;imode" method="post">
 			<table border="0" cellspacing="0" cellpadding="0">';
@@ -423,7 +423,7 @@ function template_imode_post()
 				<tr><td><input type="text" name="email" value="', $context['email'], '" class="input_text" /></td></tr>';
 	}
 
-	// !!! Needs a more specific imode template.
+	// @todo Needs a more specific imode template.
 	if ($context['require_verification'])
 		echo '
 				<tr><td>', !empty($context['post_error']['need_qr_verification']) ? '<font color="#cc0000">' . $txt['verification'] . '</font>' : $txt['verification'], ':</td></tr>

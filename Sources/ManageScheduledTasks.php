@@ -39,6 +39,8 @@ function ManageScheduledTasks()
 		'tasks' => 'ScheduledTasks',
 	);
 
+	call_integration_hook('integrate_manage_scheduled_tasks', array(&$subActions));
+
 	// We need to find what's the action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$context['sub_action'] = $_REQUEST['sa'];

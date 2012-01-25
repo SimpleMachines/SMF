@@ -1911,7 +1911,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	}
 
 	// Creating is modifying...in a way.
-	//!!! Why not set id_msg_modified on the insert?
+	// @todo Why not set id_msg_modified on the insert?
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}messages
 		SET id_msg_modified = {int:id_msg}
@@ -2573,7 +2573,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
  * Approve (or not) some posts... without permission checks...
  *
  * @param array $msgs - array of message ids
- * @param $approve = true
+ * @param bool $approve = true
  */
 function approvePosts($msgs, $approve = true)
 {
@@ -2850,15 +2850,15 @@ function sendApprovalNotifications(&$topicData)
 	$digest_insert = array();
 	foreach ($topicData as $topic => $msgs)
 		foreach ($msgs as $msgKey => $msg)
-	{
-		censorText($topicData[$topic][$msgKey]['subject']);
-		censorText($topicData[$topic][$msgKey]['body']);
-		$topicData[$topic][$msgKey]['subject'] = un_htmlspecialchars($topicData[$topic][$msgKey]['subject']);
-		$topicData[$topic][$msgKey]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$topic][$msgKey]['body'], false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+		{
+			censorText($topicData[$topic][$msgKey]['subject']);
+			censorText($topicData[$topic][$msgKey]['body']);
+			$topicData[$topic][$msgKey]['subject'] = un_htmlspecialchars($topicData[$topic][$msgKey]['subject']);
+			$topicData[$topic][$msgKey]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$topic][$msgKey]['body'], false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
-		$topics[] = $msg['id'];
-		$digest_insert[] = array($msg['topic'], $msg['id'], 'reply', $user_info['id']);
-	}
+			$topics[] = $msg['id'];
+			$digest_insert[] = array($msg['topic'], $msg['id'], 'reply', $user_info['id']);
+		}
 
 	// These need to go into the digest too...
 	$smcFunc['db_insert']('',
@@ -3030,7 +3030,7 @@ function updateLastMessages($setboards, $id_msg = 0)
 			$parents = getBoardParents($id_board);
 
 		// Ignore any parents on the top child level.
-		//!!! Why?
+		// @todo Why?
 		foreach ($parents as $id => $parent)
 		{
 			if ($parent['level'] != 0)

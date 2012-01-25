@@ -136,7 +136,7 @@ function template_main()
 					<dl class="settings">';
 
 	// Here's a little box for installing a new theme.
-	// !!! Should the value="theme_gz" be there?!
+	// @todo Should the value="theme_gz" be there?!
 	if ($context['can_create_new'])
 		echo '
 						<dt>
@@ -437,7 +437,7 @@ function template_set_settings()
 				</h3>
 			</div>';
 
-	// !!! Why can't I edit the default theme popup.
+	// @todo Why can't I edit the default theme popup.
 	if ($context['theme_settings']['theme_id'] != 1)
 		echo '
 			<div class="cat_bar">

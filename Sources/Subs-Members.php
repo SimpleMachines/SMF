@@ -304,7 +304,7 @@ function deleteMembers($users, $check_not_admin = false)
 	);
 
 	// Make their votes appear as guest votes - at least it keeps the totals right.
-	//!!! Consider adding back in cookie protection.
+	// @todo Consider adding back in cookie protection.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_polls
 		SET id_member = {int:guest_id}
@@ -482,7 +482,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	if ($smcFunc['strtolower']($regOptions['username']) === $smcFunc['strtolower']($txt['guest_title']))
 		$reg_errors[] = array('lang', 'username_reserved', 'general', array($txt['guest_title']));
 
-	// !!! Separate the sprintf?
+	// @todo Separate the sprintf?
 	if (empty($regOptions['email']) || preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $regOptions['email']) === 0 || strlen($regOptions['email']) > 255)
 		$reg_errors[] = array('done', sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($regOptions['username'])));
 
@@ -529,7 +529,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	}
 
 	// If they are using an OpenID that hasn't been verified yet error out.
-	// !!! Change this so they can register without having to attempt a login first
+	// @todo Change this so they can register without having to attempt a login first
 	if ($regOptions['auth_method'] == 'openid' && (empty($_SESSION['openid']['verified']) || $_SESSION['openid']['openid_uri'] != $regOptions['openid']))
 		$reg_errors[] = array('lang', 'openid_not_verified');
 
@@ -549,7 +549,7 @@ function registerMember(&$regOptions, $return_errors = false)
 			'username' => $regOptions['username'],
 		)
 	);
-	// !!! Separate the sprintf?
+	// @todo Separate the sprintf?
 	if ($smcFunc['db_num_rows']($request) != 0)
 		$reg_errors[] = array('lang', 'email_in_use', false, array(htmlspecialchars($regOptions['email'])));
 	$smcFunc['db_free_result']($request);
@@ -647,7 +647,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	if ($regOptions['require'] == 'coppa')
 	{
 		$regOptions['register_vars']['is_activated'] = 5;
-		// !!! This should be changed.  To what should be it be changed??
+		// @todo This should be changed.  To what should be it be changed??
 		$regOptions['register_vars']['validation_code'] = '';
 	}
 	// Maybe it can be activated right away?

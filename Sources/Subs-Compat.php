@@ -287,4 +287,30 @@ if (!function_exists('session_regenerate_id'))
 		return true;
 	}
 }
+
+// @author [Unknown] unknown.w.brackets@simplemachines.org
+// @link http://www.simplemachines.org/community/index.php?msg=2420295
+if (!function_exists('str_ireplace'))
+{
+	function str_ireplace($search, $replace, $subject)
+	{
+		global $context;
+
+		// While preg_replace() has this too, it's also not in PHP 4.
+		if (func_num_args() == 4)
+			trigger_error('str_ireplace(): $count parameter not supported.', E_USER_WARNING);
+
+		// @todo Using preg should give us better Unicode support for case folding.
+		// But technically, this doesn't do the same thing that str_ireplace() does in PHP 5.
+		// Might be better to always omit the u parameter.
+		$endu = '~i' . ($context['utf8'] ? 'u' : '');
+		if (is_array($search))
+			foreach ($search as $k => $pat)
+				$search[$k] = '~' . preg_quote($pat, '~') . $endu;
+		else
+			$search = '~' . preg_quote($search, '~') . $endu;
+
+		return preg_replace($search, $replace, $subject);
+	}
+}
 ?>

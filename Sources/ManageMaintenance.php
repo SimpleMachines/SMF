@@ -88,6 +88,8 @@ function ManageMaintenance()
 		),
 	);
 
+	call_integration_hook('integrate_manage_maintenance', array(&$subActions));
+
 	// Yep, sub-action time!
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$subAction = $_REQUEST['sa'];
@@ -653,6 +655,8 @@ function ConvertUtf8()
 			);
 	}
 	$smcFunc['db_free_result']($queryTables);
+
+	call_integration_hook('integrate_convert_utf8');
 
 	// Let the settings know we have a new character set.
 	updateSettings(array('global_character_set' => 'UTF-8', 'previousCharacterSet' => (empty($translation_tables[$_POST['src_charset']])) ? $charsets[$_POST['src_charset']] : $translation_tables[$_POST['src_charset']]));

@@ -2,7 +2,7 @@
 
 /**
  * This file contains functions that are specifically done by administrators.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -219,7 +219,7 @@ function getFileVersions(&$versionOptions)
 
 /**
  * Update the Settings.php file.
- * 
+ *
  * The most important function in this file for mod makers happens to be the
  * updateSettingsFile() function, but it shouldn't be used often anyway.
  * updates the Settings.php file with the changes in config_vars.
@@ -229,7 +229,7 @@ function getFileVersions(&$versionOptions)
  * preserves case, formatting, and additional options in file.
  * writes nothing if the resulting file would be less than 10 lines
  * in length (sanity check for read lock.)
- * 
+ *
  * @param array $config_vars
  */
 function updateSettingsFile($config_vars)
@@ -254,7 +254,7 @@ function updateSettingsFile($config_vars)
 		$temp = trim(implode("\n", $settingsArray));
 		if (substr($temp, 0, 5) != '<?php' || substr($temp, -2) != '?' . '>')
 			return;
-		if (strpos($temp, 'sourcedir') === false || strpos($temp, 'boarddir') === false || strpos($temp, 'cookiename') === false)
+		if (strpos($temp, 'sourcedir') === false || strpos($temp, 'boarddir') === false)
 			return;
 	}
 

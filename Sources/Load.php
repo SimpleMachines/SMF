@@ -537,9 +537,7 @@ function loadBoard()
 
 	if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
 	{
-		/**
-		 * @todo SLOW?
-		 */
+		// @todo SLOW?
 		if (!empty($topic))
 			$temp = cache_get_data('topic_board-' . $topic, 120);
 		else
@@ -647,9 +645,7 @@ function loadBoard()
 
 			if (!empty($modSettings['cache_enable']) && (empty($topic) || $modSettings['cache_enable'] >= 3))
 			{
-				/**
-				 * @todo SLOW?
-				 */
+				// @todo SLOW?
 				if (!empty($topic))
 					cache_put_data('topic_board-' . $topic, $board_info, 120);
 				cache_put_data('board-' . $board, $board_info, 120);
@@ -2106,42 +2102,47 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  *  - if the theme setting allow_no_censored is on, and the theme option
  *  	  show_no_censored is enabled, does not censor - unless force is set.
  *  - it caches the list of censored words to reduce parsing.
- * @todo what is this function doing here?
  * 
  * @param string &$text
- * @param bool $force
+ * @param bool $force = false
  * @return string The censored text
  */
-function &censorText(&$text, $force = false)
+// Replace all vulgar words with respective proper words. (substring or whole words..)
+function censorText(&$text, $force = false)
 {
 	global $modSettings, $options, $settings, $txt;
 	static $censor_vulgar = null, $censor_proper;
 
-	if ((!empty($options['show_no_censored']) && $settings['allow_no_censored'] && !$force) || empty($modSettings['censor_vulgar']))
+	if ((!empty($options['show_no_censored']) && $settings['allow_no_censored'] && !$force) || empty($modSettings['censor_vulgar']) || trim($text) === '')
 		return $text;
 
 	// If they haven't yet been loaded, load them.
-	if ($censor_vulgar == null)
+	if ($censor_vulgar === null)
 	{
 		$censor_vulgar = explode("\n", $modSettings['censor_vulgar']);
 		$censor_proper = explode("\n", $modSettings['censor_proper']);
 
 		// Quote them for use in regular expressions.
-		for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
+		if (!empty($modSettings['censorWholeWord']))
 		{
-			$censor_vulgar[$i] = strtr(preg_quote($censor_vulgar[$i], '/'), array('\\\\\\*' => '[*]', '\\*' => '[^\s]*?', '&' => '&amp;'));
-			$censor_vulgar[$i] = (empty($modSettings['censorWholeWord']) ? '/' . $censor_vulgar[$i] . '/' : '/(?<=^|\W)' . $censor_vulgar[$i] . '(?=$|\W)/') . (empty($modSettings['censorIgnoreCase']) ? '' : 'i') . ((empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' ? 'u' : '');
-
-			if (strpos($censor_vulgar[$i], '\'') !== false)
+			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++)
 			{
-				$censor_proper[count($censor_vulgar)] = $censor_proper[$i];
-				$censor_vulgar[count($censor_vulgar)] = strtr($censor_vulgar[$i], array('\'' => '&#039;'));
+				$censor_vulgar[$i] = str_replace(array('\\\\\\*', '\\*', '&', '\''), array('[*]', '[^\s]*?', '&amp;', '&#039;'), preg_quote($censor_vulgar[$i], '/'));
+				$censor_vulgar[$i] = '/(?<=^|\W)' . $censor_vulgar[$i] . '(?=$|\W)/' . (empty($modSettings['censorIgnoreCase']) ? '' : 'i') . ((empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' ? 'u' : '');
+
+				// @todo I'm thinking the old way is some kind of bug and this is actually fixing it.
+				//if (strpos($censor_vulgar[$i], '\'') !== false)
+					//$censor_vulgar[$i] = str_replace('\'', '&#039;', $censor_vulgar[$i]);
 			}
 		}
 	}
 
 	// Censoring isn't so very complicated :P.
-	$text = preg_replace($censor_vulgar, $censor_proper, $text);
+	if (empty($modSettings['censorWholeWord']))
+		$text = empty($modSettings['censorIgnoreCase']) ? str_ireplace($censor_vulgar, $censor_proper, $text) : str_replace($censor_vulgar, $censor_proper, $text);
+	else
+		$text = preg_replace($censor_vulgar, $censor_proper, $text);
+
 	return $text;
 }
 

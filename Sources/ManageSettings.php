@@ -61,6 +61,8 @@ function ModifyFeatureSettings()
 		'profileedit' => 'EditCustomProfiles',
 	);
 
+	call_integration_hook('integrate_modify_features', array(&$subActions));
+
 	loadGeneralSettingParameters($subActions, 'basic');
 
 	// Load up all the tabs...
@@ -102,6 +104,8 @@ function ModifySecuritySettings()
 		'spam' => 'ModifySpamSettings',
 		'moderation' => 'ModifyModerationSettings',
 	);
+
+	call_integration_hook('integrate_modify_security', array(&$subActions));
 
 	loadGeneralSettingParameters($subActions, 'general');
 
@@ -469,6 +473,8 @@ function ModifyBasicSettings($return_config = false)
 	else
 		unset($config_vars['default_timezone']);
 
+	call_integration_hook('integrate_basic_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -480,6 +486,8 @@ function ModifyBasicSettings($return_config = false)
 		// Prevent absurd boundaries here - make it a day tops.
 		if (isset($_POST['lastActive']))
 			$_POST['lastActive'] = min((int) $_POST['lastActive'], 1440);
+
+		call_integration_hook('integrate_save_basic_settings');
 
 		saveDBSettings($config_vars);
 
@@ -526,6 +534,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			array('check', 'enableReportPM'),
 	);
 
+	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -535,6 +545,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		checkSession();
 
 		saveDBSettings($config_vars);
+
+		call_integration_hook('integrate_save_general_security_settings');
 
 		writeLog();
 		redirectexit('action=admin;area=securitysettings;sa=general');
@@ -574,6 +586,8 @@ function ModifyLayoutSettings($return_config = false)
 			array('check', 'timeLoadPageEnable'),
 	);
 
+	call_integration_hook('integrate_layout_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -581,6 +595,8 @@ function ModifyLayoutSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_layout_settings');
 
 		saveDBSettings($config_vars);
 		writeLog();
@@ -617,6 +633,8 @@ function ModifyKarmaSettings($return_config = false)
 			array('text', 'karmaSmiteLabel'),
 	);
 
+	call_integration_hook('integrate_karma_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -624,6 +642,8 @@ function ModifyKarmaSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		call_integration_hook('integrate_save_karma_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=featuresettings;sa=karma');
@@ -638,7 +658,7 @@ function ModifyKarmaSettings($return_config = false)
 /**
  * Moderation type settings - although there are fewer than we have you believe ;)
  *
- * @param $return_config
+ * @param bool $return_config = false
  */
 function ModifyModerationSettings($return_config = false)
 {
@@ -653,6 +673,8 @@ function ModifyModerationSettings($return_config = false)
 			'rem2' => array('int', 'warning_decrement'),
 			array('select', 'warning_show', array($txt['setting_warning_show_mods'], $txt['setting_warning_show_user'], $txt['setting_warning_show_all'])),
 	);
+
+	call_integration_hook('integrate_moderation_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -686,6 +708,8 @@ function ModifyModerationSettings($return_config = false)
 		$save_vars[] = array('text', 'warning_settings');
 		unset($save_vars['rem1'], $save_vars['rem2']);
 
+		call_integration_hook('integrate_save_karma_settings', array(&$save_vars));
+
 		saveDBSettings($save_vars);
 		redirectexit('action=admin;area=securitysettings;sa=moderation');
 	}
@@ -701,7 +725,7 @@ function ModifyModerationSettings($return_config = false)
 
 /**
  * Let's try keep the spam to a minimum ah Thantos?
- * @param $return_config
+ * @param bool $return_config = false
  */
 function ModifySpamSettings($return_config = false)
 {
@@ -733,6 +757,8 @@ function ModifySpamSettings($return_config = false)
 			array('desc', 'setup_verification_questions_desc'),
 				array('callback', 'question_answer_list'),
 	);
+
+	call_integration_hook('integrate_spam_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -843,6 +869,8 @@ function ModifySpamSettings($return_config = false)
 		if (empty($count_questions) || $_POST['qa_verification_number'] > $count_questions)
 			$_POST['qa_verification_number'] = $count_questions;
 
+		call_integration_hook('integrate_save_spam_settings', array(&$save_vars));
+
 		// Now save.
 		saveDBSettings($save_vars);
 
@@ -917,6 +945,8 @@ function ModifySignatureSettings($return_config = false)
 		'',
 			array('bbc', 'signature_bbc'),
 	);
+
+	call_integration_hook('integrate_signature_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -1135,6 +1165,7 @@ function ModifySignatureSettings($return_config = false)
 				}
 
 				$sig = strtr($sig, array("\n" => '<br />'));
+				call_integration_hook('integrate_apply_signature_settings', array(&$sig, $sig_limits, $disabledTags));
 				if ($sig != $row['signature'])
 					$changes[$row['id_member']] = $sig;
 			}
@@ -1207,6 +1238,8 @@ function ModifySignatureSettings($return_config = false)
 			else
 				$sig_limits[] = !empty($_POST['signature_' . $key]) ? max(1, (int) $_POST['signature_' . $key]) : 0;
 		}
+
+		call_integration_hook('integrate_save_signature_settings', array(&$sig_limits, &$bbcTags));
 
 		$_POST['signature_settings'] = implode(',', $sig_limits) . ':' . implode(',', array_diff($bbcTags, $_POST['signature_bbc_enabledTags']));
 
@@ -1996,6 +2029,8 @@ function ModifyPruningSettings($return_config = false)
 			// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
 	);
 
+	call_integration_hook('integrate_prune_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -2080,6 +2115,8 @@ function ModifyGeneralModSettings($return_config = false)
 		checkSession();
 
 		$save_vars = $config_vars;
+
+		call_integration_hook('integrate_save_general_mod_settings', array(&$save_vars));
 
 		// This line is to help mod authors do a search/add after if you want to add something here. Keyword: FOOT TAPPING SUCKS!
 		saveDBSettings($save_vars);

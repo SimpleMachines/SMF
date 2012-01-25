@@ -10,7 +10,7 @@
  * @version 2.0
  */
 
-// !!!
+// @todo
 /*	This template file contains only the sub template fatal_error. It is
 	shown when an error occurs, and should show at least a back button and
 	$context['error_message'].

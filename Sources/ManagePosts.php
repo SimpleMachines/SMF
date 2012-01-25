@@ -38,6 +38,8 @@ function ManagePostSettings()
 		'topics' => 'ModifyTopicSettings',
 	);
 
+	call_integration_hook('integrate_manage_posts', array(&$subActions));
+
 	// Default the sub-action to 'posts'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'posts';
 
@@ -126,6 +128,8 @@ function SetCensor()
 			'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
 		);
 
+		call_integration_hook('integrate_save_censors', array(&$updates));
+
 		updateSettings($updates);
 	}
 
@@ -151,6 +155,8 @@ function SetCensor()
 
 		$context['censored_words'][htmlspecialchars(trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? htmlspecialchars($censor_proper[$i]) : '';
 	}
+
+	call_integration_hook('integrate_censors');
 
 	$context['sub_template'] = 'edit_censored';
 	$context['page_title'] = $txt['admin_censored_words'];
@@ -189,6 +195,8 @@ function ModifyPostSettings($return_config = false)
 			array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
 			array('int', 'edit_disable_time', 'subtext' => $txt['edit_disable_time_zero'], 'postinput' => $txt['manageposts_minutes']),
 	);
+
+	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -242,6 +250,8 @@ function ModifyPostSettings($return_config = false)
 			}
 		}
 
+		call_integration_hook('integrate_save_post_settings');
+
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=postsettings;sa=posts');
 	}
@@ -275,6 +285,8 @@ function ModifyBBCSettings($return_config = false)
 			array('bbc', 'disabledBBC'),
 	);
 
+	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -302,6 +314,8 @@ function ModifyBBCSettings($return_config = false)
 			$_POST['disabledBBC_enabledTags'] = array($_POST['disabledBBC_enabledTags']);
 		// Work out what is actually disabled!
 		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
+
+		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=postsettings;sa=bbc');
@@ -347,6 +361,8 @@ function ModifyTopicSettings($return_config = false)
 
 	);
 
+	call_integration_hook('integrate_modify_topic_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -361,6 +377,7 @@ function ModifyTopicSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+		call_integration_hook('integrate_save_topic_settings');
 
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=postsettings;sa=topics');

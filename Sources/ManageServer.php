@@ -253,7 +253,7 @@ function ModifyDatabaseSettings($return_config = false)
 /**
  * This function handles cookies settings modifications.
  *
- * @param $return_config
+ * @param bool $return_config = false
  */
 function ModifyCookieSettings($return_config = false)
 {
@@ -660,6 +660,7 @@ function prepareDBSettingContext(&$config_vars)
 		}
 	}
 
+	call_integration_hook('integrate_prepare_server_settings', array(&$config_vars));
 	createToken('admin-dbsc');
 }
 

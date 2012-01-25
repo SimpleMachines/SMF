@@ -415,7 +415,7 @@ function template_main()
 	if (!empty($settings['additional_options_collapsable']))
 		echo '
 					<div id="postAdditionalOptionsHeader">
-						<img src="', $settings['images_url'], '/collapse.gif" alt="-" id="postMoreExpand" style="display: none;" /> <strong><a href="#" id="postMoreExpandLink">', $txt['post_additionalopt'], '</a></strong>
+						<img src="', $settings['images_url'], '/collapse.gif" alt="-" id="postMoreExpand" style="display: none;" /> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
 					</div>';
 
 	// Display the check boxes for all the standard options - if they are available to the user!
@@ -581,7 +581,7 @@ function template_main()
 						if (!(\'setRequestHeader\' in test))
 							return submitThisOnce(document.forms.postmodify);
 					}
-					// !!! Currently not sending poll options and option checkboxes.
+					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
 					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
 					var numericFields = [
@@ -767,8 +767,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'postMoreExpandLink\',
-						msgExpanded: ', JavaScriptEscape($txt['post_additionalopt']), ',
-						msgCollapsed: ', JavaScriptEscape($txt['post_additionalopt']), '
+						msgExpanded: ', JavaScriptEscape($context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt']), ',
+						msgCollapsed: ', JavaScriptEscape($context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt']), '
 					}
 				]
 			});';

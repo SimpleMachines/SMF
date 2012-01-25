@@ -638,9 +638,7 @@ function DisplayAdminFile()
 	list ($file_data, $filetype) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	/**
-	 * @todo Temp
-	 */
+	// @todo Temp
 	// Figure out if sesc is still being used.
 	if (strpos($file_data, ';sesc=') !== false)
 		$file_data = '

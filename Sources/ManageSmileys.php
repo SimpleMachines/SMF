@@ -42,6 +42,8 @@ function ManageSmileys()
 		'install' => 'InstallSmileySet'
 	);
 
+	call_integration_hook('integrate_manage_smileys', array(&$subActions));
+
 	// Default the sub-action to 'edit smiley settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'editsets';
 
@@ -127,6 +129,8 @@ function EditSmileySettings($return_config = false)
 			array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
 	);
 
+	call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));
+
 	if ($return_config)
 		return $config_vars;
 
@@ -149,6 +153,8 @@ function EditSmileySettings($return_config = false)
 		// Make sure that the smileys are in the right order after enabling them.
 		if (isset($_POST['smiley_enable']))
 			sortSmileyTable();
+
+		call_integration_hook('integrate_save_smiley_settings');
 
 		saveDBSettings($config_vars);
 

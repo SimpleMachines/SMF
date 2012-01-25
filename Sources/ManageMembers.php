@@ -37,6 +37,8 @@ function ViewMembers()
 		'query' => array('ViewMemberlist', 'moderate_forum'),
 	);
 
+	call_integration_hook('integrate_manage_members', array(&$subActions));
+
 	// Default to sub action 'index' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
 
@@ -280,9 +282,9 @@ function ViewMemberlist()
 			'++' => '>'
 		);
 
-		/**
-		 * @todo Validate a little more.
-		 */
+		call_integration_hook('integrate_view_members_params', array(&$params));
+
+		// @todo Validate a little more.
 
 		// Loop through every field of the form.
 		$query_parts = array();
@@ -598,6 +600,8 @@ function ViewMemberlist()
 	// Without not enough permissions, don't show 'delete members' checkboxes.
 	if (!allowedTo('profile_remove_any'))
 		unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
+
+	call_integration_hook('integrate_view_members_list', array(&$listOptions));
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);

@@ -59,7 +59,7 @@ if (@version_compare(PHP_VERSION, '5.1') == -1)
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
 if (!empty($maintenance) && $maintenance == 2)
-	db_fatal_error();
+	display_maintenance_message();
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
@@ -131,7 +131,7 @@ if (WIRELESS)
 
 	// Some cellphones can't handle output compression...
 	$modSettings['enableCompressedOutput'] = '0';
-	// !!! Do we want these hard coded?
+	// @todo Do we want these hard coded?
 	$modSettings['defaultMaxMessages'] = 5;
 	$modSettings['defaultMaxTopics'] = 9;
 

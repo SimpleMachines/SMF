@@ -196,9 +196,8 @@ function Post()
 		}
 
 		$locked = 0;
-		/**
-		 * @todo These won't work if you're making an event.
-		 */
+
+		// @todo These won't work if you're making an event.
 		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'));
 		$context['can_sticky'] = allowedTo('make_sticky') && !empty($modSettings['enableStickyTopics']);
 
@@ -206,9 +205,7 @@ function Post()
 		$context['sticky'] = !empty($_REQUEST['sticky']);
 	}
 
-	/**
-	 * @todo These won't work if you're posting an event!
-	 */
+	// @todo These won't work if you're posting an event!
 	$context['can_notify'] = allowedTo('mark_any_notify');
 	$context['can_move'] = allowedTo('move_any');
 	$context['move'] = !empty($_REQUEST['move']);
@@ -1674,6 +1671,10 @@ function Post2()
 	// Check if they are trying to delete any current attachments....
 	if (isset($_REQUEST['msg'], $_POST['attach_del']) && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments'))))
 	{
+		// @todo check attach_del; this will be executed when:
+		// modify a post with attachments; try to remove one, but receive an error
+		// (i.e. body empty); then check back the attachment
+
 		$del_temp = array();
 		foreach ($_POST['attach_del'] as $i => $dummy)
 			$del_temp[$i] = (int) $dummy;
@@ -2435,9 +2436,7 @@ function notifyMembersBoard(&$topicData)
 		foreach ($boards[$rowmember['id_board']] as $key)
 		{
 			// Don't notify the guy who started the topic!
-			/**
-			 * @todo In this case actually send them a "it's approved hooray" email
-			 */
+			// @todo In this case actually send them a "it's approved hooray" email :P
 			if ($topicData[$key]['poster'] == $rowmember['id_member'])
 				continue;
 

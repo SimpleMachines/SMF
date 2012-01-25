@@ -220,7 +220,7 @@ function RecentPosts()
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
 
-		// !!! This isn't accurate because we ignore the recycle bin.
+		// @todo This isn't accurate because we ignore the recycle bin.
 		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], min(100, $modSettings['totalMessages']), 10, false);
 	}
 
@@ -236,7 +236,7 @@ function RecentPosts()
 		while (!$done)
 		{
 			// Find the 10 most recent messages they can *view*.
-			// !!!SLOW This query is really slow still, probably?
+			// @todoSLOW This query is really slow still, probably?
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_msg
 				FROM {db_prefix}messages AS m
@@ -731,7 +731,7 @@ function UnreadTopics()
 		}
 	}
 
-	// !!! Add modified_time in for log_time check?
+	// @todo Add modified_time in for log_time check?
 
 	if ($modSettings['totalMessages'] > 100000 && $context['showing_all_topics'])
 	{

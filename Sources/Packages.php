@@ -23,7 +23,7 @@ function Packages()
 {
 	global $txt, $scripturl, $sourcedir, $context;
 
-	//@todo Remove this!
+	// @todo Remove this!
 	if (isset($_GET['get']) || isset($_GET['pgdownload']))
 	{
 		require_once($sourcedir . '/PackageGet.php');

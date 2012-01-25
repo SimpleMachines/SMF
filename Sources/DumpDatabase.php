@@ -52,12 +52,12 @@ function DumpDatabase2()
 	{
 		// Make sure we're gzipping output, but then say we're not in the header ^_^.
 		if (empty($modSettings['enableCompressedOutput']))
-			@ob_start('ob_gzhandler');
+			@ob_start('ob_gzhandler', 65536);
 		// Try to clean any data already outputted.
 		elseif (ob_get_length() != 0)
 		{
 			ob_end_clean();
-			@ob_start('ob_gzhandler');
+			@ob_start('ob_gzhandler', 65536);
 		}
 
 		// Send faked headers so it will just save the compressed output as a gzip.
@@ -167,6 +167,8 @@ function DumpDatabase2()
 			$crlf,
 			$get_rows,
 			'-- --------------------------------------------------------', $crlf;
+
+		unset($get_rows);
 	}
 
 	echo

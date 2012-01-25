@@ -836,9 +836,7 @@ function ModifyLanguage()
 			if (preg_match('~^([A-Za-z]+)\.' . $context['lang_id'] . '\.php$~', $entry, $matches) == 0)
 				continue;
 
-			/**
-			 * @todo Temp!
-			 */
+			// @todo Temp!
 			if ($matches[1] == 'EmailTemplates')
 				continue;
 
@@ -864,9 +862,7 @@ function ModifyLanguage()
 		checkSession();
 		validateToken('admin-mlang');
 
-		/**
-		 * @todo FTP Controls?
-		 */
+		// @todo Todo: FTP Controls?
 		require_once($sourcedir . '/Subs-Package.php');
 
 		// First, Make a backup?
@@ -1108,9 +1104,7 @@ function ModifyLanguage()
 				// Saving?
 				if (isset($save_strings[$entryKey]) && $save_strings[$entryKey] != $entryValue['entry'])
 				{
-					/**
-					 * @todo Fix this properly.
-					 */
+					// @todo Fix this properly.
 					if ($save_strings[$entryKey] == '')
 						$save_strings[$entryKey] = '\'\'';
 

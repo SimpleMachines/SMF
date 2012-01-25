@@ -39,10 +39,10 @@ if (!defined('SMF'))
 	  each board individually).
 
 	void AutoSuggestHandler(string checkRegistered = null)
-		// !!!
+		// @todo
 
 	void AutoSuggest_Search_Member()
-		// !!!
+		// @todo
 */
 
 /**
@@ -90,7 +90,7 @@ function bbc_to_html($text)
 	$text = strtr($text, array("\r" => '', "\n" => '<br />'));
 
 	// Prevent conversion of all bbcode inside these bbcodes.
-	// !!! Tie in with bbc permissions ?
+	// @todo Tie in with bbc permissions ?
 	foreach (array('code', 'php', 'nobbc') as $code)
 	{
 		if (strpos($text, '['. $code) !== false)
