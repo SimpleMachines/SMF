@@ -277,7 +277,7 @@ function Post()
 		isAllowedTo('calendar_post');
 
 		// Editing an event?  (but NOT previewing!?)
-		if (!$context['event']['new'] && !isset($_REQUEST['subject']))
+		if (empty($context['event']['new']) && !isset($_REQUEST['subject']))
 		{
 			// If the user doesn't have permission to edit the post in this topic, redirect them.
 			if ((empty($id_member_poster) || $id_member_poster != $user_info['id'] || !allowedTo('modify_own')) && !allowedTo('modify_any'))

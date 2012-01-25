@@ -1708,7 +1708,7 @@ function create_control_richedit($editorOptions)
 		);
 
 		// Allow mods to modify BBC buttons.
-		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags']));
+		call_integration_hook('integrate_bbc_buttons');
 
 		// Show the toggle?
 		if (empty($modSettings['disable_wysiwyg']))

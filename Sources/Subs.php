@@ -202,6 +202,25 @@ if (!defined('SMF'))
 */
 
 // Update some basic statistics...
+/**
+ * Update some basic statistics.
+ * 
+ * The 'member' statistic updates the latest member, the total member
+ *  count, and the number of unapproved members.
+ * 'member' also only counts approved members when approval is on, but
+ *  is much more efficient with it off.
+ * updating 'message' changes the total number of messages, and the
+ *  highest message id by id_msg - which can be parameters 1 and 2,
+ *  respectively.
+ * 'topic' updates the total number of topics, or if parameter1 is true
+ *  simply increments them.
+ * the 'postgroups' case updates those members who match condition's
+ *  post-based membergroups in the database (restricted by parameter1).
+ * 
+ * @param string $type Stat type - can be 'member', 'message', 'topic', or 'postgroups'
+ * @param mixed $parameter1 = null
+ * @param mixed $parameter2 = null
+ */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
 	global $sourcedir, $modSettings, $smcFunc;
@@ -3633,6 +3652,10 @@ function setupMenuContext()
 			{
 				$button['active_button'] = false;
 
+				// This button needs some action.
+				if (isset($button['action_hook']))
+					$needs_action_hook = true;
+
 				// Make sure the last button truely is the last button.
 				if (!empty($button['is_last']))
 				{
@@ -3688,6 +3711,10 @@ function setupMenuContext()
 		$current_action = 'login';
 	elseif ($context['current_action'] == 'groups' && $context['allow_moderation_center'])
 		$current_action = 'moderate';
+
+	// Not all actions are simple.
+	if (!empty($needs_action_hook))
+		call_integration_hook('integrate_current_action', array(&$current_action));
 
 	$context['menu_buttons'][$current_action]['active_button'] = true;
 

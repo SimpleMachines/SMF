@@ -243,6 +243,9 @@ function preparsecode(&$message, $previewing = false)
 
 	// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
+
+	// Remove empty bbc.
+	$message = preg_replace('~\[([^\]]+)\]\[/\1\]~i', '', $message);
 }
 
 /**

@@ -210,6 +210,21 @@ function CalendarPost()
 		// ... or just update it?
 		else
 		{
+			// There could be already a topic you are not allowed to modify
+			if (!allowedTo('post_new') && empty($modSettings['disableNoPostingCalendarEdits']))
+			{
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board, id_topic
+					FROM {db_prefix}calendar
+					WHERE id_event = {int:id_event}
+					LIMIT 1',
+					array(
+						'id_event' => $_REQUEST['eventid'],
+				));
+				list ($id_board, $id_topic) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+			}
+			
 			$eventOptions = array(
 				'title' => substr($_REQUEST['evtitle'], 0, 60),
 				'span' => empty($modSettings['cal_allowspan']) || empty($_POST['span']) || $_POST['span'] == 1 || empty($modSettings['cal_maxspan']) || $_POST['span'] > $modSettings['cal_maxspan'] ? 0 : min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1),
@@ -482,4 +497,5 @@ function clock()
 			}
 	}
 }
+
 ?>
