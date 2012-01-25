@@ -571,7 +571,14 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 			'is_dummy' => true,
 			'preload' => create_function('', '
+				global $context, $user_info;
+
 				loadLanguage(\'Settings\');
+
+				$context[\'allow_no_censored\'] = false;
+				if ($user_info[\'is_admin\'] || $context[\'user\'][\'is_owner\'])
+					$context[\'allow_no_censored\'] = allowedTo(\'disable_censor\');
+
 				return true;
 			'),
 		),
@@ -1048,6 +1055,9 @@ function makeThemeChanges($memID, $id_theme)
 			// These need to be controlled.
 			if ($opt == 'topics_per_page' || $opt == 'messages_per_page')
 				$val = max(0, min($val, 50));
+			// We don't set this per theme anymore.
+			elseif ($opt == 'allow_no_censored')
+				continue;
 
 			$themeSetArray[] = array($memID, $id_theme, $opt, is_array($val) ? implode(',', $val) : $val);
 		}
@@ -1063,6 +1073,9 @@ function makeThemeChanges($memID, $id_theme)
 			// These need to be controlled.
 			if ($opt == 'topics_per_page' || $opt == 'messages_per_page')
 				$val = max(0, min($val, 50));
+			// Only let admins and owners change the censor.
+			elseif ($opt == 'allow_no_censored' && !$user_info['is_admin'] && !$context['user']['is_owner'])
+					continue;
 
 			$themeSetArray[] = array($memID, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 			$erase_options[] = $opt;

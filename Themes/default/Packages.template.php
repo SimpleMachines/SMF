@@ -1952,7 +1952,7 @@ function template_action_permissions()
 					<div style="padding-left: 20%; padding-right: 20%; margin-top: 1ex;">
 						<strong>', $progress_message, '</strong>
 						<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-							<div style="padding-top: ', $context['browser']['is_webkit'] || $context['browser']['is_konqueror'] ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $progress_percent, '%</div>
+							<div style="padding-top: ', isBrowser('is_webkit') || isBrowser('is_konqueror') ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $progress_percent, '%</div>
 							<div style="width: ', $progress_percent, '%; height: 12pt; z-index: 1; background-color: #98b8f4;">&nbsp;</div>
 						</div>
 					</div>';
@@ -1968,7 +1968,7 @@ function template_action_permissions()
 					<div style="padding-left: 20%; padding-right: 20%; margin-top: 1ex;">
 						<strong>', $file_progress_message, '</strong>
 						<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-							<div style="padding-top: ', $context['browser']['is_webkit'] || $context['browser']['is_konqueror'] ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $file_progress_percent, '%</div>
+							<div style="padding-top: ', isBrowser('is_webkit') || isBrowser('is_konqueror') ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $file_progress_percent, '%</div>
 							<div style="width: ', $file_progress_percent, '%; height: 12pt; z-index: 1; background-color: #c1ffc1;">&nbsp;</div>
 						</div>
 					</div>';

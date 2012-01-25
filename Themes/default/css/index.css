@@ -1154,8 +1154,8 @@ span.lowerframe span
 .dropmenu li ul
 {
 	z-index: 90;
-	display: none;
 	position: absolute;
+	left: -9999px;
 	width: 19.2em;
 	font-weight: normal;
 	border-bottom: 1px solid #999;
@@ -1209,21 +1209,36 @@ span.lowerframe span
 	color: #000;
 	text-decoration: none;
 }
-.dropmenu li:hover ul ul, .dropmenu li:hover ul ul ul
+.dropmenu li:hover ul ul, .dropmenu li.sfhover ul ul, .dropmenu li:hover ul ul ul, .dropmenu li.sfhover ul ul ul
 {
 	top: -999em;
 }
-.dropmenu li li:hover ul
+.dropmenu li li:hover ul, .dropmenu li li.sfhover ul
 {
 	top: auto;
 }
-.dropmenu li:hover ul
+.dropmenu li:hover ul, .dropmenu li.sfhover ul, .dropmenu ul ul
 {
 	display: block;
+	top: 21px;
+	left: -5px;
+}
+/* These two declarations are necessary for keyboard access with js disabled. */ 
+.dropmenu ul a:focus {
+	margin-left: 9999px;
+}
+.dropmenu ul a:focus span {
+	width: 19em;
+	white-space: pre;
+	background: #d4dbe4;
+}
+/* This declaration is necessary to reset the margin when js is active. */
+.dropmenu ul li.sfhover a:focus {
+	margin-left: 0;
 }
 .dropmenu li li.additional_items
 {
-	background-color: #fff;
+	background: #fff;
 }
 
 /* The dropdown menu toggle image */

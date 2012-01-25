@@ -492,14 +492,14 @@ function template_main()
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-							<img src="', $settings['images_url'], '/icons/modify_inline.gif" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: ', ($context['browser']['is_ie5'] || $context['browser']['is_ie5.5'] ? 'hand' : 'pointer'), '; display: none;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" />';
+							<img src="', $settings['images_url'], '/icons/modify_inline.gif" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: ', (isBrowser('is_ie5') || isBrowser('is_ie5.5') ? 'hand' : 'pointer'), '; display: none;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" />';
 
 		// Assuming there are attachments...
 		if (!empty($message['attachment']))
 		{
 			echo '
 							<div id="msg_', $message['id'], '_footer" class="attachments smalltext">
-								<div style="overflow: ', $context['browser']['is_firefox'] ? 'visible' : 'auto', ';">';
+								<div style="overflow: ', isBrowser('is_firefox') ? 'visible' : 'auto', ';">';
 
 			$last_approved_state = 1;
 			foreach ($message['attachment'] as $attachment)
@@ -574,7 +574,7 @@ function template_main()
 								<img src="', $settings['images_url'], '/ip.gif" alt="" />';
 
 		// Show the IP to this user for this post - because you can moderate?
-		if ($context['can_moderate_forum'] && !empty($message['member']['ip']))
+		if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
 			echo '
 								<a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a> <a href="', $scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqWin(this.href);" class="help">(?)</a>';
 		// Or, should we show it because this is you?
@@ -754,7 +754,7 @@ function template_main()
 						iTopicId: ', $context['current_topic'], ',
 						iStart: ', $context['start'], ',
 						sScriptUrl: smf_scripturl,
-						sImagesUrl: "', $settings['images_url'], '",
+						sImagesUrl: smf_images_url,
 						sContainerId: "quickReplyOptions",
 						sImageId: "quickReplyExpand",
 						sImageCollapsed: "collapse.gif",
@@ -768,8 +768,8 @@ function template_main()
 						sSelf: \'oInTopicModeration\',
 						sCheckboxContainerMask: \'in_topic_mod_check_\',
 						aMessageIds: [\'', implode('\', \'', $removableMessageIDs), '\'],
-						sSessionId: \'', $context['session_id'], '\',
-						sSessionVar: \'', $context['session_var'], '\',
+						sSessionId: smf_session_id,
+						sSessionVar: smf_session_var,
 						sButtonStrip: \'moderationbuttons\',
 						sButtonStripDisplay: \'moderationbuttons_strip\',
 						bUseImageButton: false,
@@ -794,8 +794,8 @@ function template_main()
 							sTemplateBodyEdit: ', JavaScriptEscape('
 								<div id="quick_edit_body_container" style="width: 90%">
 									<div id="error_box" style="padding: 4px;" class="error"></div>
-									<textarea class="editor" name="message" rows="12" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 100%; min-width: 100%' : 'width: 100%') . '; margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br />
-									<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+									<textarea class="editor" name="message" rows="12" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 100%; min-width: 100%' : 'width: 100%') . '; margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br />
+									<input type="hidden" name="\' + smf_session_var + \'" value="\' + smf_session_id + \'" />
 									<input type="hidden" name="topic" value="' . $context['current_topic'] . '" />
 									<input type="hidden" name="msg" value="%msg_id%" />
 									<div class="righttext">
@@ -829,8 +829,8 @@ function template_main()
 							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
 							iBoardId: ', $context['current_board'], ',
 							iTopicId: ', $context['current_topic'], ',
-							sSessionId: "', $context['session_id'], '",
-							sSessionVar: "', $context['session_var'], '",
+							sSessionId: smf_session_id,
+							sSessionVar: smf_session_var,
 							sLabelIconList: "', $txt['message_icon'], '",
 							sBoxBackground: "transparent",
 							sBoxBackgroundHover: "#ffffff",

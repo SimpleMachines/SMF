@@ -20,12 +20,8 @@ function template_main()
 		<script type="text/javascript"><!-- // --><![CDATA[';
 
 	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
-	if ($context['browser']['is_firefox'])
+	if (isBrowser('is_firefox'))
 		echo '
-			function reActivate()
-			{
-				document.forms.postmodify.message.readOnly = false;
-			}
 			window.addEventListener("pageshow", reActivate, false);';
 
 	// Start with message icons - and any missing from this theme.
@@ -37,30 +33,9 @@ function template_main()
 	echo '
 			};';
 
-	// The actual message icon selector.
-	echo '
-			function showimage()
-			{
-				document.images.icons.src = icon_urls[document.forms.postmodify.icon.options[document.forms.postmodify.icon.selectedIndex].value];
-			}';
-
 	// If this is a poll - use some javascript to ensure the user doesn't create a poll with illegal option combinations.
 	if ($context['make_poll'])
 		echo '
-			function pollOptions()
-			{
-				var expire_time = document.getElementById(\'poll_expire\');
-
-				if (isEmptyText(expire_time) || expire_time.value == 0)
-				{
-					document.forms.postmodify.poll_hide[2].disabled = true;
-					if (document.forms.postmodify.poll_hide[2].checked)
-						document.forms.postmodify.poll_hide[1].checked = true;
-				}
-				else
-					document.forms.postmodify.poll_hide[2].disabled = false;
-			}
-
 			var pollOptionNum = 0, pollTabIndex;
 			function addPollOption()
 			{
@@ -81,25 +56,7 @@ function template_main()
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
 	if ($context['make_event'])
 		echo '
-			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-			function generateDays()
-			{
-				var dayElement = document.getElementById(\'day\'), yearElement = document.getElementById(\'year\'), monthElement = document.getElementById(\'month\');
-				var days, selected = dayElement.selectedIndex;
-
-				monthLength[1] = yearElement.options[yearElement.selectedIndex].value % 4 == 0 ? 29 : 28;
-				days = monthLength[monthElement.value - 1];
-
-				while (dayElement.options.length)
-					dayElement.options[0] = null;
-
-				for (i = 1; i <= days; i++)
-					dayElement.options[dayElement.length] = new Option(i, i);
-
-				if (selected < days)
-					dayElement.selectedIndex = selected;
-			}';
+			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];';
 
 	// End of the javascript, start the form and display the link tree.
 	echo '
@@ -523,7 +480,7 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<p class="smalltext" id="shortcuts">
-						', $context['browser']['is_firefox'] ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
 					</p>
 					<p id="post_confirm_buttons" class="righttext">
 						', template_control_richedit_buttons($context['post_box_name']);
@@ -564,7 +521,7 @@ function template_main()
 			var reply_counter = ', empty($counter) ? 0 : $counter, ';
 			function previewPost()
 			{';
-	if ($context['browser']['is_firefox'])
+	if (isBrowser('is_firefox'))
 		echo '
 				// Firefox doesn\'t render <marquee> that have been put it using javascript
 				if (document.forms.postmodify.elements[', JavaScriptEscape($context['post_box_name']), '].value.indexOf(\'[move]\') != -1)

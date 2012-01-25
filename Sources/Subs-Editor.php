@@ -125,7 +125,7 @@ function html_to_bbc($text)
 	$text = preg_replace('~</p>\s*(?!<)~i', '</p><br />', $text);
 
 	// Safari/webkit wraps lines in Wysiwyg in <div>'s.
-	if ($context['browser']['is_webkit'])
+	if (isBrowser('webkit'))
 		$text = preg_replace(array('~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'), array('<br />', ''), $text);
 
 	// If there's a trailing break get rid of it - Firefox tends to add one.
@@ -1439,7 +1439,7 @@ function create_control_richedit($editorOptions)
 		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
 
 		// This really has some WYSIWYG stuff.
-		loadTemplate('GenericControls', $context['browser']['is_ie'] ? 'editor_ie' : 'editor');
+		loadTemplate('GenericControls', isBrowser('ie') ? 'editor_ie' : 'editor');
 		$context['html_headers'] .= '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var smf_smileys_url = \'' . $settings['smileys_url'] . '\';

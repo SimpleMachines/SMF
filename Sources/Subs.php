@@ -41,22 +41,9 @@ if (!defined('SMF'))
  * returns seconds since the unix epoch.
 
 	array permute(array input)
- * calculates all the possible permutations (orders) of array.
- * should not be called on huge arrays (bigger than like 10 elements.)
- * returns an array containing each permutation.
+ * 
 
-	string parse_bbc(string message, bool smileys = true, string cache_id = '', array parse_tags = null)
- * this very hefty function parses bbc in message.
- * only parses bbc tags which are not disabled in disabledBBC.
- * also handles basic HTML, if enablePostHTML is on.
- * caches the from/to replace regular expressions so as not to reload
- *  them every time a string is parsed.
- * only parses smileys if smileys is true.
- * does nothing if the enableBBC setting is off.
- * applies the fixLongWords magic if the setting is set to on.
- * uses the cache_id as a unique identifier to facilitate any caching
- *  it may do.
- * returns the modified message.
+	
 
 	void parsesmileys(string &message)
  * the smiley parsing function which makes pretty faces appear :).
@@ -1120,7 +1107,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '</pre>' : ''),
+				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : create_function('&$tag, &$data, $disabled', '
 					global $context;
@@ -1162,7 +1149,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . ($context['browser']['is_gecko'] || $context['browser']['is_opera'] ? '</pre>' : ''),
+				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : create_function('&$tag, &$data, $disabled', '
 					global $context;
@@ -1228,7 +1215,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'flash',
 				'type' => 'unparsed_commas_content',
 				'test' => '\d+,\d+\]',
-				'content' => ($context['browser']['is_ie'] && !$context['browser']['is_mac_ie'] ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1" /><param name="play" value="true" /><param name="loop" value="true" /><param name="quality" value="high" /><param name="AllowScriptAccess" value="never" /><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
+				'content' => (isBrowser('ie') && !isBrowser('mac_ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1" /><param name="play" value="true" /><param name="loop" value="true" /><param name="quality" value="high" /><param name="AllowScriptAccess" value="never" /><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
 				'validate' => create_function('&$tag, &$data, $disabled', '
 					if (isset($disabled[\'url\']))
 						$tag[\'content\'] = \'$1\';
@@ -1270,8 +1257,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => $context['browser']['is_ie'] ? '<table border="0" cellpadding="0" cellspacing="0" style="display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
-				'after' => $context['browser']['is_ie'] ? '</td></tr></table> ' : '</span>',
+				'before' => isBrowser('ie') ? '<table border="0" cellpadding="0" cellspacing="0" style="display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
+				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
 			),
 			array(
 				'tag' => 'green',
@@ -1501,9 +1488,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'shadow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
-				'before' => $context['browser']['is_ie'] ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
+				'before' => isBrowser('ie') ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
-				'validate' => $context['browser']['is_ie'] ? create_function('&$tag, &$data, $disabled', '
+				'validate' => isBrowser('ie') ? create_function('&$tag, &$data, $disabled', '
 					if ($data[1] == \'left\')
 						$data[1] = 270;
 					elseif ($data[1] == \'right\')
@@ -1745,10 +1732,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// This saves time by doing our break long words checks here.
 	if (!empty($modSettings['fixLongWords']) && $modSettings['fixLongWords'] > 5)
 	{
-		if ($context['browser']['is_gecko'] || $context['browser']['is_konqueror'])
+		if (isBrowser('gecko') || isBrowser('konqueror'))
 			$breaker = '<span style="margin: 0 -0.5ex 0 0;"> </span>';
 		// Opera...
-		elseif ($context['browser']['is_opera'])
+		elseif (isBrowser('opera'))
 			$breaker = '<span style="margin: 0 -0.65ex 0 -1px;"> </span>';
 		// Internet Explorer...
 		else
@@ -2904,7 +2891,7 @@ function setupThemeContext($forceload = false)
 		// If we've upgraded recently, go easy on the passwords.
 		if (!empty($modSettings['disableHashTime']) && ($modSettings['disableHashTime'] == 1 || time() < $modSettings['disableHashTime']))
 			$context['disable_login_hashing'] = true;
-		elseif ($context['browser']['is_ie5'] || $context['browser']['is_ie5.5'])
+		elseif (isBrowser('ie5') || isBrowser('ie5.5'))
 			$context['disable_login_hashing'] = true;
 	}
 
@@ -2928,7 +2915,7 @@ function setupThemeContext($forceload = false)
 		var smf_avatarMaxWidth = ' . (int) $modSettings['avatar_max_width_external'] . ';
 		var smf_avatarMaxHeight = ' . (int) $modSettings['avatar_max_height_external'] . ';';
 
-		if (!$context['browser']['is_ie'] && !$context['browser']['is_mac_ie'])
+		if (!isBrowser('ie') && !isBrowser('mac_ie'))
 			$context['html_headers'] .= '
 	window.addEventListener("load", smf_avatarResize, false);';
 		else
@@ -2995,7 +2982,7 @@ function template_header()
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 		// Are we debugging the template/html content?
-		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !$context['browser']['is_ie'] && !WIRELESS)
+		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie') && !WIRELESS)
 			header('Content-Type: application/xhtml+xml');
 		elseif (!isset($_REQUEST['xml']) && !WIRELESS)
 			header('Content-Type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
@@ -3653,7 +3640,7 @@ function setupMenuContext()
 			'register' => array(
 				'title' => $txt['register'],
 				'href' => $scripturl . '?action=register',
-				'show' => $user_info['is_guest'],
+				'show' => $user_info['is_guest'] && $context['can_register'],
 				'sub_buttons' => array(
 				),
 				'is_last' => !$context['right_to_left'],

@@ -10,7 +10,9 @@
  * @version 2.1 Alpha 1
  */
 
-// This is the administration center home.
+/**
+ * This is the administration center home.
+ */
 function template_admin()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
@@ -185,13 +187,15 @@ function template_admin()
 						<span class="botslice"><span></span></span>
 					</div>
 				'), ',
-				sUpdateNotificationLink: ', JavaScriptEscape($scripturl . '?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
+				sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
 
 			});
 		// ]]></script>';
 }
 
-// Show some support information and credits to those who helped make this.
+/**
+ * Show some support information and credits to those who helped make this.
+ */
 function template_credits()
 {
 	global $context, $settings, $options, $scripturl, $txt;
@@ -360,7 +364,9 @@ function template_credits()
 		// ]]></script>';
 }
 
-// Displays information about file versions installed, and compares them to current version.
+/**
+ * Displays information about file versions installed, and compares them to current version.
+ */
 function template_view_versions()
 {
 	global $context, $settings, $options, $scripturl, $txt;
@@ -620,11 +626,6 @@ function template_edit_censored()
 					<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link"><a href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a></div>
 					<script type="text/javascript"><!-- // --><![CDATA[
 						document.getElementById("moreCensoredWords_link").style.display = "";
-
-						function addNewWord()
-						{
-							setOuterHTML(document.getElementById("moreCensoredWords"), \'<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="20" class="input_text" /> => <input type="text" name="censor_proper[]" size="20" class="input_text" /><\' + \'/div><div id="moreCensoredWords"><\' + \'/div>\');
-						}
 					// ]]></script>
 					<hr width="100%" size="1" class="hrcolor clear" />
 					<dl class="settings">
@@ -692,7 +693,7 @@ function template_not_done()
 		echo '
 				<div style="padding-left: 20%; padding-right: 20%; margin-top: 1ex;">
 					<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-						<div style="padding-top: ', $context['browser']['is_webkit'] || $context['browser']['is_konqueror'] ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['continue_percent'], '%</div>
+						<div style="padding-top: ', isBrowser('is_webkit') || isBrowser('is_konqueror') ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['continue_percent'], '%</div>
 						<div style="width: ', $context['continue_percent'], '%; height: 12pt; z-index: 1; background-color: red;">&nbsp;</div>
 					</div>
 				</div>';
@@ -702,7 +703,7 @@ function template_not_done()
 				<div style="padding-left: 20%; padding-right: 20%; margin-top: 1ex;">
 					<span class="smalltext">', $context['substep_title'], '</span>
 					<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-						<div style="padding-top: ', $context['browser']['is_webkit'] || $context['browser']['is_konqueror'] ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['substep_continue_percent'], '%</div>
+						<div style="padding-top: ', isBrowser('is_webkit') || isBrowser('is_konqueror') ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['substep_continue_percent'], '%</div>
 						<div style="width: ', $context['substep_continue_percent'], '%; height: 12pt; z-index: 1; background-color: blue;">&nbsp;</div>
 					</div>
 				</div>';
@@ -741,30 +742,9 @@ function template_show_settings()
 {
 	global $context, $txt, $settings, $scripturl;
 
-	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[';
-
 	if (!empty($context['settings_pre_javascript']))
-		echo $context['settings_pre_javascript'];
-
-	// If we have BBC selection we have a bit of JS.
-	if (!empty($context['bbc_sections']))
-	{
 		echo '
-		function toggleBBCDisabled(section, disable)
-		{
-			for (var i = 0; i < document.forms.bbcForm.length; i++)
-			{
-				if (typeof(document.forms.bbcForm[i].name) == "undefined" || (document.forms.bbcForm[i].name.substr(0, 11) != "enabledTags") || (document.forms.bbcForm[i].name.indexOf(section) != 11))
-					continue;
-
-				document.forms.bbcForm[i].disabled = disable;
-			}
-			document.getElementById("bbc_" + section + "_select_all").disabled = disable;
-		}';
-	}
-	echo '
-	// ]]></script>';
+	<script type="text/javascript"><!-- // --><![CDATA[', $context['settings_pre_javascript'], '// ]]></script>';
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
@@ -1032,40 +1012,7 @@ function template_edit_profile_field()
 	// All the javascript for this page - quite a bit!
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
-		function updateInputBoxes()
-		{
-			curType = document.getElementById("field_type").value;
-			privStatus = document.getElementById("private").value;
-			document.getElementById("max_length_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-			document.getElementById("max_length_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-			document.getElementById("dimension_dt").style.display = curType == "textarea" ? "" : "none";
-			document.getElementById("dimension_dd").style.display = curType == "textarea" ? "" : "none";
-			document.getElementById("bbc_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-			document.getElementById("bbc_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-			document.getElementById("options_dt").style.display = curType == "select" || curType == "radio" ? "" : "none";
-			document.getElementById("options_dd").style.display = curType == "select" || curType == "radio" ? "" : "none";
-			document.getElementById("default_dt").style.display = curType == "check" ? "" : "none";
-			document.getElementById("default_dd").style.display = curType == "check" ? "" : "none";
-			document.getElementById("mask_dt").style.display = curType == "text" ? "" : "none";
-			document.getElementById("mask").style.display = curType == "text" ? "" : "none";
-			document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-			document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-			document.getElementById("regex_div").style.display = curType == "text" && document.getElementById("mask").value == "regex" ? "" : "none";
-			document.getElementById("display").disabled = false;
-			// Cannot show this on the topic
-			if (curType == "textarea" || privStatus >= 2)
-			{
-				document.getElementById("display").checked = false;
-				document.getElementById("display").disabled = true;
-			}
-		}
-
 		var startOptID = ', count($context['field']['options']), ';
-		function addOption()
-		{
-			setOuterHTML(document.getElementById("addopt"), \'<br /><input type="radio" name="default_select" value="\' + startOptID + \'" id="\' + startOptID + \'" class="input_radio" /><input type="text" name="select_option[\' + startOptID + \']" value="" class="input_text" /><span id="addopt"></span>\');
-			startOptID++;
-		}
 	// ]]></script>';
 
 	echo '
@@ -1488,57 +1435,7 @@ function template_callback_question_answer_list()
 
 	// The javascript needs to go at the end but we'll put it in this template for looks.
 	$context['settings_post_javascript'] .= '
-		// Create a named element dynamically - thanks to: http://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
-		function createNamedElement(type, name, customFields)
-		{
-			var element = null;
-
-			if (!customFields)
-				customFields = "";
-
-			// Try the IE way; this fails on standards-compliant browsers
-			try
-			{
-				element = document.createElement("<" + type + \' name="\' + name + \'" \' + customFields + ">");
-			}
-			catch (e)
-			{
-			}
-			if (!element || element.nodeName != type.toUpperCase())
-			{
-				// Non-IE browser; use canonical method to create named element
-				element = document.createElement(type);
-				element.name = name;
-			}
-
-			return element;
-		}
-
 		var placeHolder = document.getElementById(\'add_more_question_placeholder\');
-
-		function addAnotherQuestion()
-		{
-			var newDT = document.createElement("dt");
-
-			var newInput = createNamedElement("input", "question[]");
-			newInput.type = "text";
-			newInput.className = "input_text";
-			newInput.size = "50";
-			newInput.setAttribute("class", "verification_question");
-			newDT.appendChild(newInput);
-
-			newDD = document.createElement("dd");
-
-			newInput = createNamedElement("input", "answer[]");
-			newInput.type = "text";
-			newInput.className = "input_text";
-			newInput.size = "50";
-			newInput.setAttribute("class", "verification_answer");
-			newDD.appendChild(newInput);
-
-			placeHolder.parentNode.insertBefore(newDT, placeHolder);
-			placeHolder.parentNode.insertBefore(newDD, placeHolder);
-		}
 		document.getElementById(\'add_more_link_div\').style.display = \'\';
 	';
 }

@@ -233,7 +233,7 @@ function ShowXmlFeed()
 	elseif ($xml_format == 'atom')
 		header('Content-Type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	elseif ($xml_format == 'rdf')
-		header('Content-Type: ' . ($context['browser']['is_ie'] ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+		header('Content-Type: ' . (isBrowser('ie') ? 'text/xml' : 'application/rdf+xml') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 	// First, output the xml header.
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?' . '>';

@@ -41,11 +41,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'show_no_censored',
-			'label' => $txt['show_no_censored'],
-			'default' => true,
-		),
-		array(
 			'id' => 'return_to_post',
 			'label' => $txt['return_to_post'],
 			'default' => true,
@@ -190,10 +185,6 @@ function template_settings()
 		array(
 			'id' => 'show_mark_read',
 			'label' => $txt['enable_mark_as_read'],
-		),
-		array(
-			'id' => 'allow_no_censored',
-			'label' => $txt['allow_no_censored'],
 		),
 		array(
 			'id' => 'enable_news',

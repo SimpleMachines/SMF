@@ -19,7 +19,7 @@ function template_profile_above()
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/profile.js"></script>';
 
 	// Prevent Chrome from auto completing fields when viewing/editing other members profiles
-	if ($context['browser']['is_chrome'] && !$context['user']['is_owner'])
+	if (isBrowser('is_chrome') && !$context['user']['is_owner'])
 		echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		disableAutoComplete();
@@ -1505,7 +1505,7 @@ function template_profile_theme_settings()
 								<label for="show_no_signatures"><input type="checkbox" name="default_options[show_no_signatures]" id="show_no_signatures" value="1"', !empty($context['member']['options']['show_no_signatures']) ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['show_no_signatures'], '</label>
 							</li>';
 
-	if ($settings['allow_no_censored'])
+	if ($context['allow_no_censored'])
 		echo '
 							<li>
 								<input type="hidden" name="default_options[show_no_censored]" value="0" />
@@ -1711,7 +1711,7 @@ function template_groupMembership()
 				<span class="upperframe"><span></span></span>
 				<div class="roundframe"><div class="innerframe">
 					', $txt['request_group_membership_desc'], ':
-					<textarea name="reason" rows="4" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';"></textarea>
+					<textarea name="reason" rows="4" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';"></textarea>
 					<div class="righttext" style="margin: 0.5em 0.5% 0 0.5%;">
 						<input type="hidden" name="gid" value="', $context['group_request']['id'], '" />
 						<input type="submit" name="req" value="', $txt['submit_request'], '" class="button_submit" />

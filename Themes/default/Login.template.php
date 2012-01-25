@@ -101,9 +101,13 @@ function template_kick_guest()
 	// Show the message or default message.
 	echo '
 			<p class="information centertext">
-				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br />
-				', $txt['login_below'], ' <a href="', $scripturl, '?action=register">', $txt['register_an_account'], '</a> ', sprintf($txt['login_with_forum'], $context['forum_name_html_safe']), '
-			</p>';
+				', empty($context['kick_message']) ? $txt['only_members_can_access'] : $context['kick_message'], '<br />';
+
+
+	if ($context['can_register'])
+		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=register', $context['forum_name_html_safe']);
+	else
+		echo $txt['login_below'];
 
 	// And now the login information.
 	echo '
@@ -238,7 +242,7 @@ function template_admin_login()
 	// Focus on the password box.
 	echo '
 <script type="text/javascript"><!-- // --><![CDATA[
-	document.forms.frmLogin.admin_pass.focus();
+	document.forms.frmLogin.', $context['sessionCheckType'], '_pass.focus();
 // ]]></script>';
 }
 

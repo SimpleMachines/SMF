@@ -32,6 +32,7 @@ if (!defined('SMF'))
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
 	global $txt, $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error;
+	static $tried_hook = false;
 
 	// Check if error logging is actually on.
 	if (empty($modSettings['enableErrorLogging']))
@@ -81,6 +82,14 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'debug',
 	);
 
+	// This prevents us from infinite looping if the hook or call produces an error.
+	$other_error_types = array();
+	if (empty($tried_hook))
+	{
+		$tried_hook = true;
+		call_integration_hook('integrate_error_types', array(&$other_error_types));
+		$known_error_types += $other_error_types;
+	}
 	// Make sure the category that was specified is a valid one
 	$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
 

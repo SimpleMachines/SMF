@@ -49,6 +49,7 @@ function DumpDatabase2()
 
 	// Start saving the output... (don't do it otherwise for memory reasons.)
 	if (isset($_REQUEST['compress']) && function_exists('gzencode'))
+	
 	{
 		// Make sure we're gzipping output, but then say we're not in the header ^_^.
 		if (empty($modSettings['enableCompressedOutput']))
@@ -66,7 +67,7 @@ function DumpDatabase2()
 		header('Content-Encoding: none');
 
 		// Gecko browsers... don't like this. (Mozilla, Firefox, etc.)
-		if (!$context['browser']['is_gecko'])
+		if (!isBrowser('gecko'))
 			header('Content-Transfer-Encoding: binary');
 
 		// The file extension will include .gz...
@@ -82,7 +83,7 @@ function DumpDatabase2()
 			ob_clean();
 
 		// Tell the client to save this file, even though it's text.
-		header('Content-Type: ' . ($context['browser']['is_ie'] || $context['browser']['is_opera'] ? 'application/octetstream' : 'application/octet-stream'));
+		header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
 		header('Content-Encoding: none');
 
 		// This time the extension should just be .sql.

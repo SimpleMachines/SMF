@@ -28,9 +28,9 @@ $txt['identification_by_smf'] = 'Used to identify you on the forum.';
 $txt['additional_information'] = 'Additional Information';
 $txt['warning'] = 'Warning!';
 $txt['only_members_can_access'] = 'Only registered members are allowed to access this section.';
-$txt['login_below'] = 'Please login below or';
-$txt['register_an_account'] = 'register an account';
-$txt['login_with_forum'] = 'with %1$s.';
+$txt['login_below'] = 'Please login below.';
+$txt['login_below_or_register'] = 'Please login below or <a href="%1$s">register an account</a> with %2$s';
+
 // Use numeric entities in the below two strings.
 $txt['may_change_in_profile'] = 'You may change it after you login by going to the profile page, or by visiting this page after you login:';
 $txt['your_username_is'] = 'Your username is: ';

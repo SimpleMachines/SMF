@@ -1661,7 +1661,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Fix font size with HTML 4.01, etc.
 	if (isset($settings['doctype']))
-		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && $context['browser']['is_ie6'];
+		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && isBrowser('ie6');
 
 	// Compatibility.
 	if (!isset($settings['theme_version']))
@@ -1673,7 +1673,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
 	{
-		if ($context['browser']['possibly_robot'])
+		if (isBrowser('possibly_robot'))
 		{
 			/**
 			 * @todo Maybe move this somewhere better?!
@@ -1696,7 +1696,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		function smfAutoTask()
 		{
 			var tempImage = new Image();
-			tempImage.src = "' . $scripturl . '?scheduled=' . $type . ';ts=' . $ts . '";
+			tempImage.src = smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '";
 		}
 		window.setTimeout("smfAutoTask();", 1);
 	</script>';
@@ -2269,9 +2269,9 @@ function template_include($filename, $once = false)
 				$data2 = preg_split('~\<br( /)?\>~', $data2);
 
 				// Fix the PHP code stuff...
-				if ($context['browser']['is_ie4'] || $context['browser']['is_ie5'] || $context['browser']['is_ie5.5'])
+				if (isBrowser('ie4') || isBrowser('ie5') || isBrowser('ie5.5'))
 					$data2 = str_replace("\t", '<pre style="display: inline;">' . "\t" . '</pre>', $data2);
-				elseif (!$context['browser']['is_gecko'])
+				elseif (!isBrowser('gecko'))
 					$data2 = str_replace("\t", '<span style="white-space: pre;">' . "\t" . '</span>', $data2);
 				else
 					$data2 = str_replace('<pre style="display: inline;">' . "\t" . '</pre>', "\t", $data2);

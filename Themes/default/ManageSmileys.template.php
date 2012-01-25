@@ -63,7 +63,7 @@ function template_editsets()
 		}';
 
 		// Oh well, could be worse - at least it's only IE4.
-		if ($context['browser']['is_ie4'])
+		if (isBrowser('is_ie4'))
 			echo '
 			addLoadEvent(smfSetLatestSmileys);';
 		else
@@ -263,25 +263,6 @@ function template_addsmiley()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		function switchType()
-		{
-			document.getElementById("ul_settings").style.display = document.getElementById("method-existing").checked ? "none" : "";
-			document.getElementById("ex_settings").style.display = document.getElementById("method-upload").checked ? "none" : "";
-		}
-
-		function swapUploads()
-		{
-			document.getElementById("uploadMore").style.display = document.getElementById("uploadSmiley").disabled ? "none" : "";
-			document.getElementById("uploadSmiley").disabled = !document.getElementById("uploadSmiley").disabled;
-		}
-
-		function selectMethod(element)
-		{
-			document.getElementById("method-existing").checked = element != "upload";
-			document.getElementById("method-upload").checked = element == "upload";
-		}
-	// ]]></script>
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=smileys;sa=addsmiley" method="post" accept-charset="', $context['character_set'], '" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
 			<div class="cat_bar">
@@ -414,15 +395,7 @@ function template_addsmiley()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
 	</div>
-	<br class="clear" />
-	<script type="text/javascript"><!-- // --><![CDATA[
-
-		function updatePreview()
-		{
-			var currentImage = document.getElementById("preview");
-			currentImage.src = "', $modSettings['smileys_url'], '/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
-		}
-	// ]]></script>';
+	<br class="clear" />';
 }
 
 // Ordering smileys.

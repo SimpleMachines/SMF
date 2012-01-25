@@ -329,7 +329,7 @@ function template_modify_board()
 							<span class="smalltext">', $txt['mboards_description_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="desc" rows="3" cols="35" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';">', $context['board']['description'], '</textarea>
+							<textarea name="desc" rows="3" cols="35" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';">', $context['board']['description'], '</textarea>
 						</dd>
 						<dt>
 							<strong>', $txt['permission_profile'], ':</strong><br />
@@ -517,8 +517,8 @@ function template_modify_board()
 <script type="text/javascript"><!-- // --><![CDATA[
 	var oModeratorSuggest = new smc_AutoSuggest({
 		sSelf: \'oModeratorSuggest\',
-		sSessionId: \'', $context['session_id'], '\',
-		sSessionVar: \'', $context['session_var'], '\',
+		sSessionId: smf_session_id,
+		sSessionVar: smf_session_var,
 		sSuggestId: \'moderators\',
 		sControlId: \'moderators\',
 		sSearchType: \'member\',

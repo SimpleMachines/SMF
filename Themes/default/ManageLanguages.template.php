@@ -307,6 +307,7 @@ function template_modify_language_entries()
 					</fieldset>
 					<div class="righttext">
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
 						<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled="disabled"' : '', ' class="button_submit" />';
 
 	// Allow deleting entries.
@@ -388,11 +389,11 @@ function template_modify_language_entries()
 						</dd>
 						<dt>
 							<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '" />
-							<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
+							<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
 						</dt>
 						<dd>
 							<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '" />
-							<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $entry['value'], '</textarea>
+							<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $entry['value'], '</textarea>
 						</dd>';
 			$cached = array();
 		}
@@ -410,7 +411,7 @@ function template_modify_language_entries()
 						</dd>
 						<dt>
 							<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '" />
-							<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
+							<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
 						</dt>
 						<dd>
 						</dd>';
@@ -467,7 +468,7 @@ function template_add_language()
 
 					</fieldset>
 					<div class="righttext">
-						', $context['browser']['is_ie'] ? '<input type="text" name="ie_fix" style="display: none;" class="input_text" /> ' : '', '
+						', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;" class="input_text" /> ' : '', '
 						<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button_submit" />
 					</div>
 				</div>
@@ -516,6 +517,5 @@ function template_add_language()
 	</div>
 	<br class="clear" />';
 }
-
 
 ?>

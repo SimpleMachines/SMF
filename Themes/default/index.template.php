@@ -90,7 +90,7 @@ function template_html_above()
 
 	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
 	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
-		if ($context['browser']['is_' . $cssfix])
+		if (isBrowser('is_' . $cssfix))
 			echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/', $cssfix, '.css" />';
 
@@ -100,7 +100,19 @@ function template_html_above()
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css" />';
 
 	// Here comes the JavaScript bits!
+	// Note that the Superfish function seems to like being called by the full syntax.
+	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
 	echo '
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/jquery-1.6.4.min.js"></script>
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/hoverIntent.js"></script>
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/superfish.js"></script>
+	<script type="text/javascript">
+
+			$(document).ready(function() { 
+				$("ul.dropmenu").superfish(); 
+			});
+
+	</script>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
 	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -231,7 +243,7 @@ function template_body_above()
 		echo '
 				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 				<form id="guest_form" action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
-					<div class="info">', sprintf($txt['welcome_guest'], $txt['guest_title']), '</div>
+					<div class="info">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</div>
 					<input type="text" name="user" size="10" class="input_text" />
 					<input type="password" name="passwrd" size="10" class="input_password" />
 					<select name="cookielength">

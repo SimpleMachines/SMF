@@ -2444,7 +2444,7 @@ function MessageActionsApply()
 
 	// Back to the folder.
 	$_SESSION['pm_selected'] = array_keys($to_label);
-	redirectexit($context['current_label_redirect'] . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && $context['browser']['is_ie']);
+	redirectexit($context['current_label_redirect'] . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && isBrowser('ie'));
 }
 
 /**

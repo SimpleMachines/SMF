@@ -22,7 +22,7 @@ function template_main()
 				', template_show_month_grid('current'), '
 				', template_show_month_grid('next'), '
 			</div>
-			<div id="main_grid" style="', $context['browser']['is_ie'] && !$context['browser']['is_ie8'] ? 'float: ' . ($context['right_to_left'] ? 'right; padding-right' : 'left; padding-left') . ': 20px;' : 'margin-' . ($context['right_to_left'] ? 'right' : 'left') . ': 220px; ', '">
+			<div id="main_grid" style="', isBrowser('is_ie') && !isBrowser('is_ie8') ? 'float: ' . ($context['right_to_left'] ? 'right; padding-right' : 'left; padding-left') . ': 20px;' : 'margin-' . ($context['right_to_left'] ? 'right' : 'left') . ': 220px; ', '">
 				', $context['view_week'] ? template_show_week_grid('main') : template_show_month_grid('main');
 
 	// Build the calendar button array.
@@ -90,11 +90,6 @@ function template_event_post()
 
 				if (selected < days)
 					dayElement.selectedIndex = selected;
-			}
-
-			function toggleLinked(form)
-			{
-				form.board.disabled = !form.link_to_board.checked;
 			}
 		// ]]></script>
 

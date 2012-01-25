@@ -191,26 +191,6 @@ function template_main()
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var tempOldOnload;
-
-			function smfSetLatestThemes()
-			{
-				if (typeof(window.smfLatestThemes) != "undefined")
-					setInnerHTML(document.getElementById("themeLatest"), window.smfLatestThemes);
-
-				if (tempOldOnload)
-					tempOldOnload();
-			}
-		// ]]></script>';
-
-	// Gotta love IE4, and its hatefulness...
-	if ($context['browser']['is_ie4'])
-		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			addLoadEvent(smfSetLatestThemes);
-		// ]]></script>';
-	else
-		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
 			smfSetLatestThemes();
 		// ]]></script>';
 }
@@ -652,11 +632,6 @@ function template_set_settings()
 
 		echo '
 		}
-
-		function changeVariant(sVariant)
-		{
-			document.getElementById(\'variant_preview\').src = oThumbnails[sVariant];
-		}
 		// ]]></script>';
 	}
 }
@@ -993,7 +968,7 @@ function template_edit_style()
 					try
 					{
 					';
-	if ($context['browser']['is_ie'])
+	if (isBrowser('is_ie'))
 		echo '
 						var sheets = frames["css_preview_box"].document.styleSheets;
 						for (var j = 0; j < sheets.length; j++)
@@ -1044,18 +1019,6 @@ function template_edit_style()
 					};
 				}
 			}
-
-			// The idea here is simple: don\'t refresh the preview on every keypress, but do refresh after they type.
-			function setPreviewTimeout()
-			{
-				if (previewTimeout)
-				{
-					window.clearTimeout(previewTimeout);
-					previewTimeout = null;
-				}
-
-				previewTimeout = window.setTimeout("refreshPreview(true); previewTimeout = null;", 500);
-			}
 		// ]]></script>
 		<iframe id="css_preview_box" name="css_preview_box" src="about:blank" width="99%" height="300" frameborder="0" style="display: none; margin-bottom: 2ex; border: 1px solid black;"></iframe>';
 
@@ -1074,7 +1037,7 @@ function template_edit_style()
 					', $txt['theme_edit_no_save'], ': ', $context['allow_save_filename'], '<br />';
 
 	echo '
-					<textarea name="entire_file" cols="80" rows="20" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . '; font-family: monospace; margin-top: 1ex; white-space: pre;" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea><br />
+					<textarea name="entire_file" cols="80" rows="20" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . '; font-family: monospace; margin-top: 1ex; white-space: pre;" onkeyup="setPreviewTimeout();" onchange="refreshPreview(true);">', $context['entire_file'], '</textarea><br />
 					<div class="padding righttext">
 						<input type="submit" name="submit" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled="disabled"', ' style="margin-top: 1ex;" class="button_submit" />
 						<input type="button" value="', $txt['themeadmin_edit_preview'], '" onclick="refreshPreview(false);" class="button_submit" />

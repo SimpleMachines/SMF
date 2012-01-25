@@ -64,10 +64,9 @@ function template_folder()
 			var add, remove, toAdd = {length: 0}, toRemove = {length: 0};
 
 			if (theSelect.childNodes.length == 0)
-				return;';
+				return;
 
-	// This is done this way for internationalization reasons.
-	echo '
+			// This is done this way for internationalization reasons.
 			if (!(\'-1\' in allLabels))
 			{
 				for (var o = 0; o < theSelect.options.length; o++)
@@ -644,15 +643,6 @@ function template_search()
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		function expandCollapseLabels()
-		{
-			var current = document.getElementById("searchLabelsExpand").style.display != "none";
-
-			document.getElementById("searchLabelsExpand").style.display = current ? "none" : "";
-			document.getElementById("expandLabelsIcon").src = smf_images_url + (current ? "/expand.gif" : "/collapse.gif");
-		}
-	// ]]></script>
 	<form action="', $scripturl, '?action=pm;sa=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_search_title'], '</h3>
@@ -696,11 +686,6 @@ function template_search()
 					<strong>', $txt['pm_search_text'], ':</strong>
 					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text" />
 					<script type="text/javascript"><!-- // --><![CDATA[
-						function initSearch()
-						{
-							if (document.forms.searchform.search.value.indexOf("%u") != -1)
-								document.forms.searchform.search.value = unescape(document.forms.searchform.search.value);
-						}
 						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
 					// ]]></script>
@@ -1041,7 +1026,7 @@ function template_send()
 	echo '
 				<p><label for="outbox"><input type="checkbox" name="outbox" id="outbox" value="1" tabindex="', $context['tabindex']++, '"', $context['copy_to_outbox'] ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['pm_save_outbox'], '</label></p>
 				<p id="shortcuts" class="smalltext">
-					', $context['browser']['is_firefox'] ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+					', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
 				</p>
 				<p id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
@@ -1303,7 +1288,7 @@ function template_report_message()
 						<strong>', $txt['pm_report_reason'], ':</strong>
 					</dt>
 					<dd>
-						<textarea name="reason" rows="4" cols="70" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 80%; min-width: 80%' : 'width: 80%') . ';"></textarea>
+						<textarea name="reason" rows="4" cols="70" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 80%; min-width: 80%' : 'width: 80%') . ';"></textarea>
 					</dd>
 				</dl>
 				<div class="righttext">
@@ -1467,37 +1452,6 @@ function template_add_rule()
 			echo '<option value="', ($label['id'] + 1), '">', addslashes($label['name']), '<\' + \'/option>';
 
 	echo '<\' + \'/select><\' + \'/span><span id="actionAddHere"><\' + \'/span>\');
-			}
-
-			function updateRuleDef(optNum)
-			{
-				if (document.getElementById("ruletype" + optNum).value == "gid")
-				{
-					document.getElementById("defdiv" + optNum).style.display = "none";
-					document.getElementById("defseldiv" + optNum).style.display = "";
-				}
-				else if (document.getElementById("ruletype" + optNum).value == "bud" || document.getElementById("ruletype" + optNum).value == "")
-				{
-					document.getElementById("defdiv" + optNum).style.display = "none";
-					document.getElementById("defseldiv" + optNum).style.display = "none";
-				}
-				else
-				{
-					document.getElementById("defdiv" + optNum).style.display = "";
-					document.getElementById("defseldiv" + optNum).style.display = "none";
-				}
-			}
-
-			function updateActionDef(optNum)
-			{
-				if (document.getElementById("acttype" + optNum).value == "lab")
-				{
-					document.getElementById("labdiv" + optNum).style.display = "";
-				}
-				else
-				{
-					document.getElementById("labdiv" + optNum).style.display = "none";
-				}
 			}
 
 			// Rebuild the rule description!

@@ -156,7 +156,7 @@ function BookOfUnknown()
 {
 	global $context;
 
-	if (strpos($_GET['action'], 'mozilla') !== false && !$context['browser']['is_gecko'])
+	if (strpos($_GET['action'], 'mozilla') !== false && !isBrowser('gecko'))
 		redirectexit('http://www.getfirefox.com/');
 	elseif (strpos($_GET['action'], 'mozilla') !== false)
 		redirectexit('about:mozilla');
