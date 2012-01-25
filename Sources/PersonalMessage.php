@@ -1247,8 +1247,7 @@ function MessageSearch2()
 	// Now we look for -test, etc.... normaller.
 	foreach ($tempSearch as $index => $word)
 	{
-		$word = trim($word);
-		if ($word[0] == '.')
+		if (strpos(trim($word), '-') === 0)
 		{
 			$word = substr($smcFunc['strtolower']($word), 1);
 			if (strlen($word) > 0)

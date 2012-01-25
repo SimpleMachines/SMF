@@ -2106,9 +2106,9 @@ function Post2()
 
 	// Return to post if the mod is on.
 	if (isset($_REQUEST['msg']) && !empty($_REQUEST['goback']))
-		redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], $context['browser']['is_ie']);
+		redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], isBrowser('ie'));
 	elseif (!empty($_REQUEST['goback']))
-		redirectexit('topic=' . $topic . '.new#new', $context['browser']['is_ie']);
+		redirectexit('topic=' . $topic . '.new#new', isBrowser('ie'));
 	// Dut-dut-duh-duh-DUH-duh-dut-duh-duh!  *dances to the Final Fantasy Fanfare...*
 	else
 		redirectexit('board=' . $board . '.0');
@@ -2290,7 +2290,7 @@ function AnnouncementSend()
 		if (!empty($_REQUEST['move']) && allowedTo('move_any'))
 			redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		elseif (!empty($_REQUEST['goback']))
-			redirectexit('topic=' . $topic . '.new;boardseen#new', $context['browser']['is_ie']);
+			redirectexit('topic=' . $topic . '.new;boardseen#new', isBrowser('ie'));
 		else
 			redirectexit('board=' . $board . '.0');
 	}
