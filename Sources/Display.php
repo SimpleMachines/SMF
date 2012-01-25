@@ -483,7 +483,7 @@ function Display()
 	$context['is_hot'] = $topicinfo['num_replies'] >= $modSettings['hotTopicPosts'];
 	$context['is_approved'] = $topicinfo['approved'];
 
-	// We don't want to show the poll icon in the topic class here, so pretend it's not one.
+	// @todo Tricks? We don't want to show the poll icon in the topic class here, so pretend it's not one.
 	$context['is_poll'] = false;
 	determineTopicClass($context);
 
@@ -1058,7 +1058,7 @@ function Display()
 /**
  * Callback for the message display.
  * It actually gets and prepares the message context.
- * This functionb will start over from the beginning if reset is set to true, which is
+ * This function will start over from the beginning if reset is set to true, which is
  * useful for showing an index before or after the posts.
  * @param bool $reset, default false.
  */

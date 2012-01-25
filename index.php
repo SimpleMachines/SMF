@@ -49,6 +49,7 @@ require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Subs.php');
 require_once($sourcedir . '/Errors.php');
+require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 

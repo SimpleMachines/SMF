@@ -1,6 +1,26 @@
 <?php
 
 /**
+ * This file concerns itself almost completely with theme administration.
+ * Its tasks include changing theme settings, installing and removing
+ * themes, choosing the current theme, and editing themes.
+ *
+ * @todo Update this for the new package manager?
+ *
+ * Creating and distributing theme packages:
+ * 	There isn't that much required to package and distribute your own themes...
+ * just do the following:
+ * - create a theme_info.xml file, with the root element theme-info.
+ * - its name should go in a name element, just like description.
+ * - your name should go in author. (email in the email attribute.)
+ * - any support website for the theme should be in website.
+ * - layers and templates (non-default) should go in those elements ;).
+ * - if the images dir isn't images, specify in the images element.
+ * - any extra rows for themes should go in extra, serialized.
+ * (as in array(variable => value).)
+ * - tar and gzip the directory - and you're done!
+ * - please include any special license in a license.txt file.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,104 +34,14 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file concerns itself almost completely with theme administration.
-	Its tasks include changing theme settings, installing and removing
-	themes, choosing the current theme, and editing themes.  This is done in:
-
-	void ThemesMain()
-		- manages the action and delegates control to the proper sub action.
-		- loads both the Themes and Settings language files.
-		- checks the session by GET or POST to verify the sent data.
-		- requires the user not be a guest.
-		- is accessed via ?action=admin;area=theme.
-
-	void ThemeAdmin()
-		- administrates themes and their settings, as well as global theme
-		  settings.
-		- sets the settings theme_allow, theme_guests, and knownThemes.
-		- loads the template Themes.
-		- requires the admin_forum permission.
-		- accessed with ?action=admin;area=theme;sa=admin.
-
-	void ThemeList()
-		- lists the available themes.
-		- provides an interface to reset the paths of all the installed themes.
-
-	void SetThemeOptions()
-		// !!!
-
-	void SetThemeSettings()
-		- saves and requests global theme settings. ($settings)
-		- loads the Admin language file.
-		- calls ThemeAdmin() if no theme is specified. (the theme center.)
-		- requires an administrator.
-		- accessed with ?action=admin;area=theme;sa=settings&th=xx.
-
-	void RemoveTheme()
-		- removes an installed theme.
-		- requires an administrator.
-		- accessed with ?action=admin;area=theme;sa=remove.
-
-	void PickTheme()
-		- allows user or administrator to pick a new theme with an interface.
-		- can edit everyone's (u = 0), guests' (u = -1), or a specific user's.
-		- uses the Themes template. (pick sub template.)
-		- accessed with ?action=admin;area=theme;sa=pick.
-
-	void ThemeInstall()
-		- installs new themes, either from a gzip or copy of the default.
-		- requires an administrator.
-		- puts themes in $boardurl/Themes.
-		- assumes the gzip has a root directory in it. (ie default.)
-		- accessed with ?action=admin;area=theme;sa=install.
-
-	void WrapAction()
-		- allows the theme to take care of actions.
-		- happens if $settings['catch_action'] is set and action isn't found
-		  in the action array.
-		- can use a template, layers, sub_template, filename, and/or function.
-
-	void SetJavaScript()
-		- sets a theme option without outputting anything.
-		- can be used with javascript, via a dummy image... (which doesn't
-		  require the page to reload.)
-		- requires someone who is logged in.
-		- accessed via ?action=jsoption;var=variable;val=value;session_var=sess_id.
-		- does not log access to the Who's Online log. (in index.php..)
-
-	void EditTheme()
-		- shows an interface for editing the templates.
-		- uses the Themes template and edit_template/edit_style sub template.
-		- accessed via ?action=admin;area=theme;sa=edit
-
-	function convert_template($output_dir, $old_template = '')
-		// !!!
-
-	function phpcodefix(string string)
-		// !!!
-
-	function makeStyleChanges(&$old_template)
-		// !!!
-
-	// !!! Update this for the new package manager?
-	Creating and distributing theme packages:
-	---------------------------------------------------------------------------
-		There isn't that much required to package and distribute your own
-		themes... just do the following:
-		- create a theme_info.xml file, with the root element theme-info.
-		- its name should go in a name element, just like description.
-		- your name should go in author. (email in the email attribute.)
-		- any support website for the theme should be in website.
-		- layers and templates (non-default) should go in those elements ;).
-		- if the images dir isn't images, specify in the images element.
-		- any extra rows for themes should go in extra, serialized.
-		   (as in array(variable => value).)
-		- tar and gzip the directory - and you're done!
-		- please include any special license in a license.txt file.
-	// !!! Thumbnail?
-*/
-
-// Subaction handler.
+/**
+ * Subaction handler - manages the action and delegates control to the proper
+ * sub-action.
+ * It loads both the Themes and Settings language files.
+ * Checks the session by GET or POST to verify the sent data.
+ * Requires the user not be a guest. (@todo what?)
+ * Accessed via ?action=admin;area=theme.
+ */
 function ThemesMain()
 {
 	global $txt, $context, $scripturl;
@@ -171,6 +101,16 @@ function ThemesMain()
 		$subActions['admin']();
 }
 
+/**
+ * This function allows administration of themes and their settings,
+ * as well as global theme settings.
+ *  - sets the settings theme_allow, theme_guests, and knownThemes.
+ *  - requires the admin_forum permission.
+ *  - accessed with ?action=admin;area=theme;sa=admin.
+ *
+ *  @uses Themes template
+ *  @uses Admin language file
+ */
 function ThemeAdmin()
 {
 	global $context, $boarddir, $modSettings, $smcFunc;
@@ -247,6 +187,10 @@ function ThemeAdmin()
 	}
 }
 
+/**
+ * This function lists the available themes and provides an interface to reset
+ * the paths of all the installed themes.
+ */
 function ThemeList()
 {
 	global $context, $boarddir, $boardurl, $smcFunc;
@@ -365,7 +309,9 @@ function ThemeList()
 	createToken('admin-tr', 'request');
 }
 
-// Administrative global settings.
+/**
+ * Administrative global settings.
+ */
 function SetThemeOptions()
 {
 	global $txt, $context, $settings, $modSettings, $smcFunc;
@@ -741,7 +687,14 @@ function SetThemeOptions()
 	createToken('admin-sto');
 }
 
-// Administrative global settings.
+/**
+ * Administrative global settings.
+ * - saves and requests global theme settings. ($settings)
+ * - loads the Admin language file.
+ * - calls ThemeAdmin() if no theme is specified. (the theme center.)
+ * - requires admin_forum permission.
+ * - accessed with ?action=admin;area=theme;sa=settings&th=xx.
+ */
 function SetThemeSettings()
 {
 	global $txt, $context, $settings, $modSettings, $sourcedir, $smcFunc;
@@ -913,7 +866,12 @@ function SetThemeSettings()
 	createToken('admin-sts');
 }
 
-// Remove a theme from the database.
+/**
+ * Remove a theme from the database.
+ * - removes an installed theme.
+ * - requires an administrator.
+ * - accessed with ?action=admin;area=theme;sa=remove.
+ */
 function RemoveTheme()
 {
 	global $modSettings, $context, $smcFunc;
@@ -976,7 +934,15 @@ function RemoveTheme()
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
 }
 
-// Choose a theme from a list.
+/**
+ * Choose a theme from a list.
+ * allows an user or administrator to pick a new theme with an interface.
+ * - can edit everyone's (u = 0), guests' (u = -1), or a specific user's.
+ * - uses the Themes template. (pick sub template.)
+ * - accessed with ?action=admin;area=theme;sa=pick.
+ * @todo thought so... Might be better to split this file in ManageThemes and Themes,
+ * with centralized admin permissions on ManageThemes.
+ */
 function PickTheme()
 {
 	global $txt, $context, $modSettings, $user_info, $language, $smcFunc, $settings, $scripturl;
@@ -1303,6 +1269,13 @@ function PickTheme()
 	$context['sub_template'] = 'pick';
 }
 
+/**
+ * Installs new themes, either from a gzip or copy of the default.
+ * - puts themes in $boardurl/Themes.
+ * - assumes the gzip has a root directory in it. (ie default.)
+ * Requires admin_forum.
+ * Accessed with ?action=admin;area=theme;sa=install.
+ */
 function ThemeInstall()
 {
 	global $sourcedir, $boarddir, $boardurl, $txt, $context, $settings, $modSettings, $smcFunc;
@@ -1590,7 +1563,14 @@ function ThemeInstall()
 	redirectexit('action=admin;area=theme;sa=install;theme_id=' . $id_theme . ';' . $context['session_var'] . '=' . $context['session_id']);
 }
 
-// Possibly the simplest and best example of how to ues the template system.
+/**
+ * Possibly the simplest and best example of how to use the template system.
+ *  - allows the theme to take care of actions.
+ *  - happens if $settings['catch_action'] is set and action isn't found
+ *   in the action array.
+ *  - can use a template, layers, sub_template, filename, and/or function.
+ * @todo look at this
+ */
 function WrapAction()
 {
 	global $context, $settings, $sourcedir;
@@ -1620,7 +1600,15 @@ function WrapAction()
 		$context['sub_template'] = $settings['catch_action']['sub_template'];
 }
 
-// Set an option via javascript.
+/**
+ * Set an option via javascript.
+ * - sets a theme option without outputting anything.
+ * - can be used with javascript, via a dummy image... (which doesn't require
+ * the page to reload.)
+ * - requires someone who is logged in.
+ * - accessed via ?action=jsoption;var=variable;val=value;session_var=sess_id.
+ * - does not log access to the Who's Online log. (in index.php..)
+ */
 function SetJavaScript()
 {
 	global $settings, $user_info, $smcFunc, $options;
@@ -1695,6 +1683,11 @@ function SetJavaScript()
 	redirectexit($settings['images_url'] . '/blank.gif');
 }
 
+/**
+ * Shows an interface for editing the templates.
+ * - uses the Themes template and edit_template/edit_style sub template.
+ * - accessed via ?action=admin;area=theme;sa=edit
+ */
 function EditTheme()
 {
 	global $context, $settings, $scripturl, $boarddir, $smcFunc;

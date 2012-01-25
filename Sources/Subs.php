@@ -137,23 +137,11 @@ if (!defined('SMF'))
 		- used to parse PHP code from inside [code] and [php] tags.
 		- returns the code with highlighted HTML.
 
-	void writeLog(bool force = false)
-		// !!!
-
 	void redirectexit(string setLocation = '', bool use_refresh = false)
 		// !!!
 
 	void obExit(bool do_header = true, bool do_footer = do_header)
 		// !!!
-
-	int logAction($action, $extra = array())
-		// !!!
-
-	void trackStats($stats = array())
-		- caches statistics changes, and flushes them if you pass nothing.
-		- if '+' is used as a value, it will be incremented.
-		- does not actually commit the changes until the end of the page view.
-		- depends on the trackStats setting.
 
 	array url_image_size(string url)
 		- uses getimagesize() to determine the size of a file.
@@ -176,9 +164,6 @@ if (!defined('SMF'))
 		// !!!
 
 	void template_footer()
-		// !!!
-
-	void db_debug_junk()
 		// !!!
 
 	void getAttachmentFilename(string filename, int id_attach, bool new = true)
@@ -2547,6 +2532,7 @@ function redirectexit($setLocation = '', $refresh = false)
 
 	// In case we have mail to send, better do that - as obExit doesn't always quite make it...
 	if (!empty($context['flush_mail']))
+		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
 	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
@@ -2616,6 +2602,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 
 	// If we have mail to send, send it.
 	if (!empty($context['flush_mail']))
+		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
 	$do_header = $header === null ? !$header_done : $header;
@@ -2677,7 +2664,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 
 			// (since this is just debugging... it's okay that it's after </html>.)
 			if (!isset($_REQUEST['xml']))
-				db_debug_junk();
+				displayDebug();
 		}
 	}
 
@@ -2711,138 +2698,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	// Don't exit if we're coming from index.php; that will pass through normally.
 	if (!$from_index || WIRELESS)
 		exit;
-}
-
-/**
- * Track Statistics.
- *
- * @param array $stats = array()
- */
-function trackStats($stats = array())
-{
-	global $modSettings, $smcFunc;
-	static $cache_stats = array();
-
-	if (empty($modSettings['trackStats']))
-		return false;
-	if (!empty($stats))
-		return $cache_stats = array_merge($cache_stats, $stats);
-	elseif (empty($cache_stats))
-		return false;
-
-	$setStringUpdate = '';
-	$insert_keys = array();
-	$date = strftime('%Y-%m-%d', forum_time(false));
-	$update_parameters = array(
-		'current_date' => $date,
-	);
-	foreach ($cache_stats as $field => $change)
-	{
-		$setStringUpdate .= '
-			' . $field . ' = ' . ($change === '+' ? $field . ' + 1' : '{int:' . $field . '}') . ',';
-
-		if ($change === '+')
-			$cache_stats[$field] = 1;
-		else
-			$update_parameters[$field] = $change;
-		$insert_keys[$field] = 'int';
-	}
-
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}log_activity
-		SET' . substr($setStringUpdate, 0, -1) . '
-		WHERE date = {date:current_date}',
-		$update_parameters
-	);
-	if ($smcFunc['db_affected_rows']() == 0)
-	{
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}log_activity',
-			array_merge($insert_keys, array('date' => 'date')),
-			array_merge($cache_stats, array($date)),
-			array('date')
-		);
-	}
-
-	// Don't do this again.
-	$cache_stats = array();
-
-	return true;
-}
-
-// Get the size of a specified image with better error handling.
-function url_image_size($url)
-{
-	global $sourcedir;
-
-	// Make sure it is a proper URL.
-	$url = str_replace(' ', '%20', $url);
-
-	// Can we pull this from the cache... please please?
-	if (($temp = cache_get_data('url_image_size-' . md5($url), 240)) !== null)
-		return $temp;
-	$t = microtime();
-
-	// Get the host to pester...
-	preg_match('~^\w+://(.+?)/(.*)$~', $url, $match);
-
-	// Can't figure it out, just try the image size.
-	if ($url == '' || $url == 'http://' || $url == 'https://')
-	{
-		return false;
-	}
-	elseif (!isset($match[1]))
-	{
-		$size = @getimagesize($url);
-	}
-	else
-	{
-		// Try to connect to the server... give it half a second.
-		$temp = 0;
-		$fp = @fsockopen($match[1], 80, $temp, $temp, 0.5);
-
-		// Successful?  Continue...
-		if ($fp != false)
-		{
-			// Send the HEAD request (since we don't have to worry about chunked, HTTP/1.1 is fine here.)
-			fwrite($fp, 'HEAD /' . $match[2] . ' HTTP/1.1' . "\r\n" . 'Host: ' . $match[1] . "\r\n" . 'User-Agent: PHP/SMF' . "\r\n" . 'Connection: close' . "\r\n\r\n");
-
-			// Read in the HTTP/1.1 or whatever.
-			$test = substr(fgets($fp, 11), -1);
-			fclose($fp);
-
-			// See if it returned a 404/403 or something.
-			if ($test < 4)
-			{
-				$size = @getimagesize($url);
-
-				// This probably means allow_url_fopen is off, let's try GD.
-				if ($size === false && function_exists('imagecreatefromstring'))
-				{
-					include_once($sourcedir . '/Subs-Package.php');
-
-					// It's going to hate us for doing this, but another request...
-					$image = @imagecreatefromstring(fetch_web_data($url));
-					if ($image !== false)
-					{
-						$size = array(imagesx($image), imagesy($image));
-						imagedestroy($image);
-					}
-				}
-			}
-		}
-	}
-
-	// If we didn't get it, we failed.
-	if (!isset($size))
-		$size = false;
-
-	// If this took a long time, we may never have to do it again, but then again we might...
-	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $t)) > 0.8)
-		cache_put_data('url_image_size-' . md5($url), $size, 240);
-
-	// Didn't work.
-	return $size;
 }
 
 function determineTopicClass(&$topic_context)

@@ -19,23 +19,6 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * Handle fatal errors - like connection errors or load average problems.
- * This calls show_db_error(), which is used for database connection error handling.
- * @todo when awake: clean up this terrible terrible ugliness.
- *
- * @param bool $loadavg - whether it's a load average problem...
- */
-function db_fatal_error($loadavg = false)
-{
-	global $sourcedir;
-
-	show_db_error($loadavg);
-
-	// Since we use "or db_fatal_error();" this is needed...
-	return false;
-}
-
-/**
  * Log an error, if the error logging is enabled.
  * filename and line should be __FILE__ and __LINE__, respectively.
  * Example use:
@@ -117,307 +100,6 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Return the message to make things simpler.
 	return $error_message;
-}
-
-/**
- * This function logs an action in the respective log. (database log)
- * @example logAction('remove', array('starter' => $id_member_started));
- *
- * @param string $action
- * @param array $extra = array()
- * @param string $log_type, options 'moderate', 'admin', ...etc.
- */
-function logAction($action, $extra = array(), $log_type = 'moderate')
-{
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
-
-	$log_types = array(
-		'moderate' => 1,
-		'user' => 2,
-		'admin' => 3,
-	);
-
-	if (!is_array($extra))
-		trigger_error('logAction(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
-
-	// Pull out the parts we want to store separately, but also make sure that the data is proper
-	if (isset($extra['topic']))
-	{
-		if (!is_numeric($extra['topic']))
-			trigger_error('logAction(): data\'s topic is not a number', E_USER_NOTICE);
-		$topic_id = empty($extra['topic']) ? '0' : (int)$extra['topic'];
-		unset($extra['topic']);
-	}
-	else
-		$topic_id = '0';
-
-	if (isset($extra['message']))
-	{
-		if (!is_numeric($extra['message']))
-			trigger_error('logAction(): data\'s message is not a number', E_USER_NOTICE);
-		$msg_id = empty($extra['message']) ? '0' : (int)$extra['message'];
-		unset($extra['message']);
-	}
-	else
-		$msg_id = '0';
-
-	// Is there an associated report on this?
-	if (in_array($action, array('move', 'remove', 'split', 'merge')))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_report
-			FROM {db_prefix}log_reported
-			WHERE {raw:column_name} = {int:reported}
-			LIMIT 1',
-			array(
-				'column_name' => !empty($msg_id) ? 'id_msg' : 'id_topic',
-				'reported' => !empty($msg_id) ? $msg_id : $topic_id,
-		));
-
-		// Alright, if we get any result back, update open reports.
-		if ($smcFunc['db_num_rows']($request) > 0)
-		{
-			require_once($sourcedir . '/ModerationCenter.php');
-			updateSettings(array('last_mod_report_action' => time()));
-			recountOpenReports();
-		}
-		$smcFunc['db_free_result']($request);
-	}
-
-	// No point in doing anything else, if the log isn't even enabled.
-	if (empty($modSettings['modlog_enabled']) || !isset($log_types[$log_type]))
-		return false;
-
-	if (isset($extra['member']) && !is_numeric($extra['member']))
-		trigger_error('logAction(): data\'s member is not a number', E_USER_NOTICE);
-
-	if (isset($extra['board']))
-	{
-		if (!is_numeric($extra['board']))
-			trigger_error('logAction(): data\'s board is not a number', E_USER_NOTICE);
-		$board_id = empty($extra['board']) ? '0' : (int)$extra['board'];
-		unset($extra['board']);
-	}
-	else
-		$board_id = '0';
-
-	if (isset($extra['board_to']))
-	{
-		if (!is_numeric($extra['board_to']))
-			trigger_error('logAction(): data\'s board_to is not a number', E_USER_NOTICE);
-		if (empty($board_id))
-		{
-			$board_id = empty($extra['board_to']) ? '0' : (int)$extra['board_to'];
-			unset($extra['board_to']);
-		}
-	}
-
-	$smcFunc['db_insert']('',
-		'{db_prefix}log_actions',
-		array(
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
-			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
-		),
-		array(
-			time(), $log_types[$log_type], $user_info['id'], $user_info['ip'], $action,
-			$board_id, $topic_id, $msg_id, serialize($extra),
-		),
-		array('id_action')
-	);
-
-	return $smcFunc['db_insert_id']('{db_prefix}log_actions', 'id_action');
-}
-
-/**
- * Debugging.
- */
-function db_debug_junk()
-{
-	global $context, $scripturl, $boarddir, $modSettings, $boarddir;
-	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $txt;
-
-	// Add to Settings.php if you want to show the debugging information.
-	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery') || WIRELESS)
-		return;
-
-	if (empty($_SESSION['view_queries']))
-		$_SESSION['view_queries'] = 0;
-	if (empty($context['debug']['language_files']))
-		$context['debug']['language_files'] = array();
-	if (empty($context['debug']['sheets']))
-		$context['debug']['sheets'] = array();
-
-	$files = get_included_files();
-	$total_size = 0;
-	for ($i = 0, $n = count($files); $i < $n; $i++)
-	{
-		if (file_exists($files[$i]))
-			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array($boarddir => '.'));
-	}
-
-	$warnings = 0;
-	if (!empty($db_cache))
-	{
-		foreach ($db_cache as $q => $qq)
-		{
-			if (!empty($qq['w']))
-				$warnings += count($qq['w']);
-		}
-
-		$_SESSION['debug'] = &$db_cache;
-	}
-
-	// Gotta have valid HTML ;).
-	$temp = ob_get_contents();
-	if (function_exists('ob_clean'))
-		ob_clean();
-	else
-	{
-		ob_end_clean();
-		ob_start('ob_sessrewrite');
-	}
-
-	echo preg_replace('~</body>\s*</html>~', '', $temp), '
-<div class="smalltext" style="text-align: left; margin: 1ex;">
-	', $txt['debug_templates'], count($context['debug']['templates']), ': <em>', implode('</em>, <em>', $context['debug']['templates']), '</em>.<br />
-	', $txt['debug_subtemplates'], count($context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', $context['debug']['sub_templates']), '</em>.<br />
-	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br />
-	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br />
-	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br />';
-
-	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
-	{
-		$entries = array();
-		$total_t = 0;
-		$total_s = 0;
-		foreach ($cache_hits as $cache_hit)
-		{
-			$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf($txt['debug_cache_seconds_bytes'], comma_format($cache_hit['t'], 5), $cache_hit['s']);
-			$total_t += $cache_hit['t'];
-			$total_s += $cache_hit['s'];
-		}
-
-		echo '
-	', $txt['debug_cache_hits'], $cache_count, ': ', sprintf($txt['debug_cache_seconds_bytes_total'], comma_format($total_t, 5), comma_format($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br />';
-	}
-
-	echo '
-	<a href="', $scripturl, '?action=viewquery" target="_blank" class="new_win">', $warnings == 0 ? sprintf($txt['debug_queries_used'], (int) $db_count) : sprintf($txt['debug_queries_used_and_warnings'], (int) $db_count, $warnings), '</a><br />
-	<br />';
-
-	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
-		foreach ($db_cache as $q => $qq)
-		{
-			$is_select = substr(trim($qq['q']), 0, 6) == 'SELECT' || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($qq['q'])) != 0;
-			// Temporary tables created in earlier queries are not explainable.
-			if ($is_select)
-			{
-				foreach (array('log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages') as $tmp)
-					if (strpos(trim($qq['q']), $tmp) !== false)
-					{
-						$is_select = false;
-						break;
-					}
-			}
-			// But actual creation of the temporary tables are.
-			elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($qq['q'])) != 0)
-				$is_select = true;
-
-			// Make the filenames look a bit better.
-			if (isset($qq['f']))
-				$qq['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $qq['f']);
-
-			echo '
-	<strong>', $is_select ? '<a href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" class="new_win" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', htmlspecialchars(ltrim($qq['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br />
-	&nbsp;&nbsp;&nbsp;';
-			if (!empty($qq['f']) && !empty($qq['l']))
-				echo sprintf($txt['debug_query_in_line'], $qq['f'], $qq['l']);
-
-			if (isset($qq['s'], $qq['t']) && isset($txt['debug_query_which_took_at']))
-				echo sprintf($txt['debug_query_which_took_at'], round($qq['t'], 8), round($qq['s'], 8)) . '<br />';
-			elseif (isset($qq['t']))
-				echo sprintf($txt['debug_query_which_took'], round($qq['t'], 8)) . '<br />';
-			echo '
-	<br />';
-		}
-
-	echo '
-	<a href="' . $scripturl . '?action=viewquery;sa=hide">', $txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
-</div></body></html>';
-}
-
-/**
- * Logs the last database error into a file.
- * Attempts to use the backup file first, to store the last database error
- * and only update Settings.php if the first was successful.
- */
-function updateLastDatabaseError()
-{
-	global $boarddir;
-
-	// Find out this way if we can even write things on this filesystem.
-	// In addition, store things first in the backup file
-
-	$last_settings_change = @filemtime($boarddir . '/Settings.php');
-
-	// Make sure the backup file is there...
-	$file = $boarddir . '/Settings_bak.php';
-	if ((!file_exists($file) || filesize($file) == 0) && !copy($boarddir . '/Settings.php', $file))
-			return false;
-
-	// ...and writable!
-	if (!is_writable($file))
-	{
-		chmod($file, 0755);
-		if (!is_writable($file))
-		{
-			chmod($file, 0775);
-			if (!is_writable($file))
-			{
-				chmod($file, 0777);
-				if (!is_writable($file))
-						return false;
-			}
-		}
-	}
-
-	// Put the new timestamp.
-	$data = file_get_contents($file);
-	$data = preg_replace('~\$db_last_error = \d+;~', '$db_last_error = ' . time() . ';', $data);
-
-	// Open the backup file for writing
-	if ($fp = @fopen($file, 'w'))
-	{
-		// Reset the file buffer.
-		set_file_buffer($fp, 0);
-
-		// Update the file.
-		$t = flock($fp, LOCK_EX);
-		$bytes = fwrite($fp, $data);
-		flock($fp, LOCK_UN);
-		fclose($fp);
-
-		// Was it a success?
-		// ...only relevant if we're still dealing with the same good ole' settings file.
-		clearstatcache();
-		if (($bytes == strlen($data)) && (filemtime($boarddir . '/Settings.php') === $last_settings_change))
-		{
-			// This is our new Settings file...
-			// At least this one is an atomic operation
-			@copy($file, $boarddir . '/Settings.php');
-			return true;
-		}
-		else
-		{
-			// Oops. Someone might have been faster
-			// or we have no more disk space left, troubles, troubles...
-			// Copy the file back and run for your life!
-			@copy($boarddir . '/Settings.php', $file);
-		}
-	}
-
-	return false;
 }
 
 /**
@@ -633,49 +315,16 @@ function setup_fatal_error_context($error_message)
 }
 
 /**
- * Show an error message for the connection problems... or load average.
- * It is called by db_fatal_error() function.
+ * Show a message for the (full block) maintenance mode.
  * It shows a complete page independent of language files or themes.
- * It is used only if there's no way to connect to the database or the load averages
- * are too high to do so.
+ * It is used only if $maintenance = 2 in Settings.php.
  * It stops further execution of the script.
- * @param bool $loadavg - whether it's a load average problem...
  */
-function show_db_error($loadavg = false)
+function display_maintenance_message()
 {
-	global $sourcedir, $mbname, $maintenance, $mtitle, $mmessage, $modSettings;
-	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc;
+	global $maintenance, $mtitle, $mmessage;
 
-	// Don't cache this page!
-	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-	header('Cache-Control: no-cache');
-
-	// Send the right error codes.
-	header('HTTP/1.1 503 Service Temporarily Unavailable');
-	header('Status: 503 Service Temporarily Unavailable');
-	header('Retry-After: 3600');
-
-	if ($loadavg == false)
-	{
-		// For our purposes, we're gonna want this on if at all possible.
-		$modSettings['cache_enable'] = '1';
-
-		if (($temp = cache_get_data('db_last_error', 600)) !== null)
-			$db_last_error = max($db_last_error, $temp);
-
-		if ($db_last_error < time() - 3600 * 24 * 3 && empty($maintenance) && !empty($db_error_send))
-		{
-			// Avoid writing to the Settings.php file if at all possible; use shared memory instead.
-			cache_put_data('db_last_error', time(), 600);
-			if (($temp = cache_get_data('db_last_error', 600)) == null)
-				updateLastDatabaseError();
-
-			// Language files aren't loaded yet :(.
-			$db_error = @$smcFunc['db_error']($db_connection);
-			@mail($webmaster_email, $mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . $smcFunc['db_title'] . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
-		}
-	}
+	set_fatal_error_headers();
 
 	if (!empty($maintenance))
 		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -689,22 +338,43 @@ function show_db_error($loadavg = false)
 		', $mmessage, '
 	</body>
 </html>';
-	// If this is a load average problem, display an appropriate message (but we still don't have language files!)
-	elseif ($loadavg)
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta name="robots" content="noindex" />
-		<title>Temporarily Unavailable</title>
-	</head>
-	<body>
-		<h3>Temporarily Unavailable</h3>
-		Due to high stress on the server the forum is temporarily unavailable.  Please try again later.
-	</body>
-</html>';
+
+	die();
+}
+
+/**
+ * Show an error message for the connection problems.
+ * It shows a complete page independent of language files or themes.
+ * It is used only if there's no way to connect to the database.
+ * It stops further execution of the script.
+ */
+function display_db_error()
+{
+	global $sourcedir, $mbname, $modSettings;
+	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc;
+
+	set_fatal_error_headers();
+
+	// For our purposes, we're gonna want this on if at all possible.
+	$modSettings['cache_enable'] = '1';
+
+	if (($temp = cache_get_data('db_last_error', 600)) !== null)
+		$db_last_error = max($db_last_error, $temp);
+
+	if ($db_last_error < time() - 3600 * 24 * 3 && empty($maintenance) && !empty($db_error_send))
+	{
+		// Avoid writing to the Settings.php file if at all possible; use shared memory instead.
+		cache_put_data('db_last_error', time(), 600);
+		if (($temp = cache_get_data('db_last_error', 600)) == null)
+			logLastDatabaseError();
+
+		// Language files aren't loaded yet :(.
+		$db_error = @$smcFunc['db_error']($db_connection);
+		@mail($webmaster_email, $mbname . ': SMF Database Error!', 'There has been a problem with the database!' . ($db_error == '' ? '' : "\n" . $smcFunc['db_title'] . ' reported:' . "\n" . $db_error) . "\n\n" . 'This is a notice email to let you know that SMF could not connect to the database, contact your host if this continues.');
+	}
+
 	// What to do?  Language files haven't and can't be loaded yet...
-	else
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta name="robots" content="noindex" />
@@ -716,145 +386,52 @@ function show_db_error($loadavg = false)
 	</body>
 </html>';
 
-	die;
+	die();
 }
 
 /**
- * Put this user in the online log.
- *
- * @param bool $force = false
+ * Show an error message for load average blocking problems.
+ * It shows a complete page independent of language files or themes.
+ * It is used only if the load averages are too high to continue execution.
+ * It stops further execution of the script.
  */
-function writeLog($force = false)
+function display_loadavg_error()
 {
-	global $user_info, $user_settings, $context, $modSettings, $settings, $topic, $board, $smcFunc, $sourcedir;
+	// If this is a load average problem, display an appropriate message (but we still don't have language files!)
 
-	// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
-	if (!empty($settings['display_who_viewing']) && ($topic || $board))
-	{
-		// Take the opposite approach!
-		$force = true;
-		// Don't update for every page - this isn't wholly accurate but who cares.
-		if ($topic)
-		{
-			if (isset($_SESSION['last_topic_id']) && $_SESSION['last_topic_id'] == $topic)
-				$force = false;
-			$_SESSION['last_topic_id'] = $topic;
-		}
-	}
+	set_fatal_error_headers();
 
-	// Are they a spider we should be tracking? Mode = 1 gets tracked on its spider check...
-	if (!empty($user_info['possibly_robot']) && !empty($modSettings['spider_mode']) && $modSettings['spider_mode'] > 1)
-	{
-		require_once($sourcedir . '/ManageSearchEngines.php');
-		logSpider();
-	}
+	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta name="robots" content="noindex" />
+		<title>Temporarily Unavailable</title>
+	</head>
+	<body>
+		<h3>Temporarily Unavailable</h3>
+		Due to high stress on the server the forum is temporarily unavailable.  Please try again later.
+	</body>
+</html>';
 
-	// Don't mark them as online more than every so often.
-	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= (time() - 8) && !$force)
-		return;
+	die();
+}
 
-	if (!empty($modSettings['who_enabled']))
-	{
-		$serialized = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
+/**
+ * Small utility function for fatal error pages.
+ * Used by display_db_error(), display_loadavg_error(),
+ * display_maintenance_message()
+ */
+function set_fatal_error_headers()
+{
+	// Don't cache this page!
+	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	header('Cache-Control: no-cache');
 
-		// In the case of a dlattach action, session_var may not be set.
-		if (!isset($context['session_var']))
-			$context['session_var'] = $_SESSION['session_var'];
-
-		unset($serialized['sesc'], $serialized[$context['session_var']]);
-		$serialized = serialize($serialized);
-	}
-	else
-		$serialized = '';
-
-	// Guests use 0, members use their session ID.
-	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
-
-	// Grab the last all-of-SMF-specific log_online deletion time.
-	$do_delete = cache_get_data('log_online-update', 30) < time() - 30;
-
-	// If the last click wasn't a long time ago, and there was a last click...
-	if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= time() - $modSettings['lastActive'] * 20)
-	{
-		if ($do_delete)
-		{
-			$smcFunc['db_query']('delete_log_online_interval', '
-				DELETE FROM {db_prefix}log_online
-				WHERE log_time < {int:log_time}
-					AND session != {string:session}',
-				array(
-					'log_time' => time() - $modSettings['lastActive'] * 60,
-					'session' => $session_id,
-				)
-			);
-
-			// Cache when we did it last.
-			cache_put_data('log_online-update', time(), 30);
-		}
-
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}log_online
-			SET log_time = {int:log_time}, ip = IFNULL(INET_ATON({string:ip}), 0), url = {string:url}
-			WHERE session = {string:session}',
-			array(
-				'log_time' => time(),
-				'ip' => $user_info['ip'],
-				'url' => $serialized,
-				'session' => $session_id,
-			)
-		);
-
-		// Guess it got deleted.
-		if ($smcFunc['db_affected_rows']() == 0)
-			$_SESSION['log_time'] = 0;
-	}
-	else
-		$_SESSION['log_time'] = 0;
-
-	// Otherwise, we have to delete and insert.
-	if (empty($_SESSION['log_time']))
-	{
-		if ($do_delete || !empty($user_info['id']))
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}log_online
-				WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty($user_info['id']) ? ' OR ' : '') . (empty($user_info['id']) ? '' : 'id_member = {int:current_member}'),
-				array(
-					'current_member' => $user_info['id'],
-					'log_time' => time() - $modSettings['lastActive'] * 60,
-				)
-			);
-
-		$smcFunc['db_insert']($do_delete ? 'ignore' : 'replace',
-			'{db_prefix}log_online',
-			array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'raw', 'url' => 'string'),
-			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), 'IFNULL(INET_ATON(\'' . $user_info['ip'] . '\'), 0)', $serialized),
-			array('session')
-		);
-	}
-
-	// Mark your session as being logged.
-	$_SESSION['log_time'] = time();
-
-	// Well, they are online now.
-	if (empty($_SESSION['timeOnlineUpdated']))
-		$_SESSION['timeOnlineUpdated'] = time();
-
-	// Set their login time, if not already done within the last minute.
-	if (SMF != 'SSI' && !empty($user_info['last_login']) && $user_info['last_login'] < time() - 60)
-	{
-		// Don't count longer than 15 minutes.
-		if (time() - $_SESSION['timeOnlineUpdated'] > 60 * 15)
-			$_SESSION['timeOnlineUpdated'] = time();
-
-		$user_settings['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
-		updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP'], 'total_time_logged_in' => $user_settings['total_time_logged_in']));
-
-		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
-			cache_put_data('user_settings-' . $user_info['id'], $user_settings, 60);
-
-		$user_info['total_time_logged_in'] += time() - $_SESSION['timeOnlineUpdated'];
-		$_SESSION['timeOnlineUpdated'] = time();
-	}
+	// Send the right error codes.
+	header('HTTP/1.1 503 Service Temporarily Unavailable');
+	header('Status: 503 Service Temporarily Unavailable');
+	header('Retry-After: 3600');
 }
 
 ?>

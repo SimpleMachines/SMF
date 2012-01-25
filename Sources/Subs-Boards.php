@@ -18,9 +18,6 @@ if (!defined('SMF'))
 	marking them read, collapsing categories, or quick moderation.  It defines
 	the following list of functions:
 
-	void markBoardsRead(array boards)
-		// !!!
-
 	void MarkRead()
 		// !!!
 
@@ -77,7 +74,12 @@ if (!defined('SMF'))
 		- the parent might be several levels higher than the child.
 */
 
-// Mark a board or multiple boards read.
+/**
+ * Mark a board or multiple boards read.
+ *
+ * @param array $boards
+ * @param bool $unread
+ */
 function markBoardsRead($boards, $unread = false)
 {
 	global $user_info, $modSettings, $smcFunc;
@@ -140,6 +142,9 @@ function markBoardsRead($boards, $unread = false)
 	}
 
 	// Get rid of useless log_topics data, because log_mark_read is better for it - even if marking unread - I think so...
+	// @todo look at this...
+	// The call to markBoardsRead() in Display() used to be simply
+	// marking log_boards (the previous query only)
 	$result = $smcFunc['db_query']('', '
 		SELECT MIN(id_topic)
 		FROM {db_prefix}log_topics

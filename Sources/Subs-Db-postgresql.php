@@ -65,7 +65,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 		}
 		else
 		{
-			db_fatal_error();
+			display_db_error();
 		}
 	}
 

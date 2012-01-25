@@ -2681,6 +2681,7 @@ function profileSaveAvatarData(&$value)
 					return 'bad_avatar';
 				elseif ($modSettings['avatar_action_too_large'] == 'option_download_and_resize')
 				{
+					// @todo remove this if appropriate
 					require_once($sourcedir . '/Subs-Graphics.php');
 					if (downloadAvatar($profile_vars['avatar'], $memID, $modSettings['avatar_max_width_external'], $modSettings['avatar_max_height_external']))
 					{

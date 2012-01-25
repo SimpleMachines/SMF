@@ -1372,6 +1372,7 @@ function populateDuplicateMembers(&$members)
 }
 
 // Generate a random validation code.
+// @todo Err. Whatcha doin' here.
 function generateValidationCode()
 {
 	global $smcFunc, $modSettings;

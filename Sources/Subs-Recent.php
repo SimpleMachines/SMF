@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains a couple of functions for the latests posts on forum.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,11 +16,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	!!!
-
-*/
-
-// Get the latest posts of a forum.
+/**
+ * Get the latest posts of a forum.
+ *
+ * @param array $latestPostOptions
+ */
 function getLastPosts($latestPostOptions)
 {
 	global $scripturl, $txt, $user_info, $modSettings, $smcFunc, $context;
@@ -89,7 +91,11 @@ function getLastPosts($latestPostOptions)
 	return $posts;
 }
 
-// Callback-function for the cache for getLastPosts().
+/**
+ * Callback-function for the cache for getLastPosts().
+ *
+ * @param array $latestPostOptions
+ */
 function cache_getLastPosts($latestPostOptions)
 {
 	return array(
