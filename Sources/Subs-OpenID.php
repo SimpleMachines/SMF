@@ -15,15 +15,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file handles all of the OpenID interfacing and communications.
-	void smf_openID_validate(string openid_url, bool allow_immediate_validation = true)
-		- openid_uri is the URI given by the user
-		- Validates the URI and changes it to a fully canonicalize URL
-		- Determines the IDP server and delegation
-		- optional array of fields to restore when validation complete.
-		- Redirects the user to the IDP for validation
-*/
-
 /**
  * Openid_uri is the URI given by the user
  * Validates the URI and changes it to a fully canonicalize URL
@@ -152,6 +143,10 @@ function smf_openID_getAssociation($server, $handle = null, $no_delete = false)
 	return $return;
 }
 
+/**
+ * @todo Enter description here ...
+ * @param string $server
+ */
 function smf_openID_makeAssociation($server)
 {
 	global $smcFunc, $modSettings, $p;
@@ -385,6 +380,10 @@ function smf_openID_return()
 	}
 }
 
+/**
+ * @todo Enter description here ...
+ * @param string $uri
+ */
 function smf_openID_canonize($uri)
 {
 	// @todo Add in discovery.
@@ -398,6 +397,10 @@ function smf_openID_canonize($uri)
 	return $uri;
 }
 
+/**
+ * @todo Enter description here ...
+ * @param string $uri
+ */
 function smf_openid_member_exists($url)
 {
 	global $smcFunc;
@@ -419,6 +422,7 @@ function smf_openid_member_exists($url)
 /**
  * Prepare for a Diffie-Hellman key exchange.
  * @param bool $regenerate = false
+ * @return array|false return false on failure or an array() on success
  */
 function smf_openID_setup_DH($regenerate = false)
 {
@@ -438,6 +442,10 @@ function smf_openID_setup_DH($regenerate = false)
 	return smf_openID_get_keys($regenerate);
 }
 
+/**
+ * @todo Enter description here ...
+ * @param bool $regenerate
+ */
 function smf_openID_get_keys($regenerate)
 {
 	global $modSettings, $p, $g;
@@ -467,6 +475,10 @@ function smf_openID_get_keys($regenerate)
 	);
 }
 
+/**
+ * @todo Enter description here ...
+ * @return float
+ */
 function smf_openid_generate_private_key()
 {
 	global $p;
@@ -501,6 +513,12 @@ function smf_openid_generate_private_key()
 	return bcadd(bcmod($num, $p), 1);
 }
 
+/**
+ * 
+ * Enter description here ...
+ * @param string $openid_url
+ * @return bool|array
+ */
 function smf_openID_getServerInfo($openid_url)
 {
 	global $sourcedir;
@@ -539,6 +557,11 @@ function smf_openID_getServerInfo($openid_url)
 	return $response_data;
 }
 
+/**
+ * @param string $data
+ * @param string $key
+ * @return string
+ */
 function sha1_hmac($data, $key)
 {
 
@@ -554,9 +577,12 @@ function sha1_hmac($data, $key)
 	return $hmac;
 }
 
+/**
+ * @todo move to Subs-Compat.php
+ */
 function sha1_raw($text)
 {
-	if (version_compare(PHP_VERSION, '5.0.0', '<='))
+	if (version_compare(PHP_VERSION, '5.0.0', '>='))
 		return sha1($text, true);
 
 	$hex = sha1($text);
@@ -613,6 +639,10 @@ function long_to_binary($value)
 	return $return;
 }
 
+/**
+ * @param int $num1
+ * @param int $num2
+ */
 function binary_xor($num1, $num2)
 {
 	$return = '';

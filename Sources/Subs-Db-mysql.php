@@ -19,6 +19,11 @@ if (!defined('SMF'))
 /**
  *  Maps the implementations in this file (smf_db_function_name)
  *  to the $smcFunc['db_function_name'] variable.
+ *  @param string $db_server
+ *  @param string $db_name
+ *  @param string $db_user
+ *  @param string $db_passwd
+ *  @param array $db_options = array()
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
@@ -96,6 +101,8 @@ function db_extend($type = 'extra')
 
 /**
  * Fix up the prefix so it doesn't require the database to be selected.
+ * @param string &db_prefix
+ * @param string $db_name
  */
 function db_fix_prefix(&$db_prefix, $db_name)
 {
@@ -215,6 +222,9 @@ function smf_db_replacement__callback($matches)
 /**
  * Just like the db_query, escape and quote a string,
  * but not executing the query.
+ * @param string $db_string
+ * @param array $db_values
+ * @param resource $connection = null
  */
 function smf_db_quote($db_string, $db_values, $connection = null)
 {
@@ -238,6 +248,10 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 
 /**
  * Do a query.  Takes care of errors too.
+ * @param string $identifier
+ * @param string $db_string
+ * @param array $db_values = array()
+ * @param resource $connection = null
  */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {

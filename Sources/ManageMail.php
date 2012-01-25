@@ -217,6 +217,7 @@ function BrowseMailQueue()
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
+ * @return array
  */
 function list_getMailQueue($start, $items_per_page, $sort)
 {
@@ -250,6 +251,7 @@ function list_getMailQueue($start, $items_per_page, $sort)
 
 /**
  * Returns the total count of items in the mail queue.
+ * @return int
  */
 function list_getMailQueueSize()
 {
@@ -271,7 +273,8 @@ function list_getMailQueueSize()
 /**
  * Allows to view and modify the mail settings.
  *
- * @param bool $return_config
+ * @param bool $return_config = false
+ * @return array
  */
 function ModifyMailSettings($return_config = false)
 {
@@ -437,6 +440,7 @@ function pauseMailQueueClear()
  * Little utility function to calculate how long ago a time was.
  *
  * @param long $time_diff
+ * @return string
  */
 function time_since($time_diff)
 {

@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file has the very important job of ensuring forum security.
+ * This task includes banning and permissions, namely.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,93 +17,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file has the very important job of insuring forum security.  This
-	task includes banning and permissions, namely.  It does this by providing
-	the following functions:
-
-	void validateSession()
-		- makes sure the user is who they claim to be by requiring a
-		  password to be typed in every hour.
-		- is turned on and off by the securityDisable setting.
-		- uses the adminLogin() function of Subs-Auth.php if they need to
-		  login, which saves all request (post and get) data.
-
-	void is_not_guest(string message = '')
-		- checks if the user is currently a guest, and if so asks them to
-		  login with a message telling them why.
-		- message is what to tell them when asking them to login.
-
-	void is_not_banned(bool force_check = false)
-		- checks if the user is banned, and if so dies with an error.
-		- caches this information for optimization purposes.
-		- forces a recheck if force_check is true.
-
-	void banPermissions()
-		- applies any states of banning by removing permissions the user
-		  cannot have.
-
-	void log_ban(array ban_ids = array(), string email = null)
-		- log the current user in the ban logs.
-		- increment the hit counters for the specified ban ID's (if any.)
-
-	void isBannedEmail(string email, string restriction, string error)
-		- check if a given email is banned.
-		- performs an immediate ban if the turns turns out positive.
-
-	string checkSession(string type = 'post', string from_action = none,
-			is_fatal = true)
-		- checks the current session, verifying that the person is who he or
-		  she should be.
-		- also checks the referrer to make sure they didn't get sent here.
-		- depends on the disableCheckUA setting, which is usually missing.
-		- will check GET, POST, or REQUEST depending on the passed type.
-		- also optionally checks the referring action if passed. (note that
-		  the referring action must be by GET.)
-		- returns the error message if is_fatal is false.
-
-	bool checkSubmitOnce(string action, bool is_fatal = true)
-		- registers a sequence number for a form.
-		- checks whether a submitted sequence number is registered in the
-		  current session.
-		- depending on the value of is_fatal shows an error or returns true or
-		  false.
-		- frees a sequence number from the stack after it's been checked.
-		- frees a sequence number without checking if action == 'free'.
-
-	bool allowedTo(string permission, array boards = current)
-		- checks whether the user is allowed to do permission. (ie. post_new.)
-		- if boards is specified, checks those boards instead of the current
-		  one.
-		- always returns true if the user is an administrator.
-		- returns true if he or she can do it, false otherwise.
-
-	void isAllowedTo(string permission, array boards = current)
-		- uses allowedTo() to check if the user is allowed to do permission.
-		- checks the passed boards or current board for the permission.
-		- if they are not, it loads the Errors language file and shows an
-		  error using $txt['cannot_' . $permission].
-		- if they are a guest and cannot do it, this calls is_not_guest().
-
-	array boardsAllowedTo(string permission, bool check_access = false)
-		- returns a list of boards on which the user is allowed to do the
-		  specified permission.
-		- returns an array with only a 0 in it if the user has permission
-		  to do this on every board.
-		- returns an empty array if he or she cannot do this on any board.
-		- if check_access is true will also make sure the group has proper access to that board.
-
-	string showEmailAddress(string userProfile_hideEmail, int userProfile_id)
-		- returns whether an email address should be shown and how.
-		- possible outcomes are
-			'yes': show the full email address
-			'yes_permission_override': show the full email address, either you
-			  are a moderator or it's your own email address.
-			'no_through_forum': don't show the email address, but do allow
-			  things to be mailed using the built-in forum mailer.
-			'no': keep the email address hidden.
-*/
-
-// Check if the user is who he/she says he is
+/**
+ * Check if the user is who he/she says he is
+ * Makes sure the user is who they claim to be by requiring a password to be typed in every hour.
+ * Is turned on and off by the securityDisable setting.
+ * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
+ * @param string $type = admin
+ */
 function validateSession($type = 'admin')
 {
 	global $modSettings, $sourcedir, $user_info, $sc, $user_settings;
@@ -163,7 +86,12 @@ function validateSession($type = 'admin')
 	adminLogin($type);
 }
 
-// Require a user who is logged in. (not a guest.)
+/**
+ * Require a user who is logged in. (not a guest.)
+ * Checks if the user is currently a guest, and if so asks them to login with a message telling them why.
+ * Message is what to tell them when asking them to login.
+ * @param string $message = ''
+ */
 function is_not_guest($message = '')
 {
 	global $user_info, $txt, $context, $scripturl;
@@ -222,7 +150,13 @@ function is_not_guest($message = '')
 	trigger_error('Hacking attempt...', E_USER_ERROR);
 }
 
-// Do banning related stuff.  (ie. disallow access....)
+/**
+ * Do banning related stuff.  (ie. disallow access....)
+ * Checks if the user is banned, and if so dies with an error.
+ * Caches this information for optimization purposes.
+ * Forces a recheck if force_check is true.
+ * @param bool $forceCheck = false
+ */
 function is_not_banned($forceCheck = false)
 {
 	global $txt, $modSettings, $context, $user_info;
@@ -506,6 +440,7 @@ function is_not_banned($forceCheck = false)
 
 /**
  * Fix permissions according to ban status.
+ * Applies any states of banning by removing permissions the user cannot have.
  */
 function banPermissions()
 {
@@ -585,6 +520,8 @@ function banPermissions()
 
 /**
  * Log a ban in the database.
+ * Log the current user in the ban logs.
+ * Increment the hit counters for the specified ban ID's (if any.)
  * @param array $ban_ids = array()
  * @param string $email = null
  */
@@ -617,6 +554,8 @@ function log_ban($ban_ids = array(), $email = null)
 
 /**
  * Checks if a given email address might be banned.
+ * Check if a given email is banned.
+ * Performs an immediate ban if the turns turns out positive.
  * @param string $email
  * @param string $restriction
  * @param string $error
@@ -680,11 +619,16 @@ function isBannedEmail($email, $restriction, $error)
 }
 
 /**
- * Make sure the user's correct session was passed, and they came from here. (type can be post, get, or request.)
- * @param string $type = 'post'
+ * Make sure the user's correct session was passed, and they came from here.
+ * Checks the current session, verifying that the person is who he or she should be.
+ * Also checks the referrer to make sure they didn't get sent here.
+ * Depends on the disableCheckUA setting, which is usually missing.
+ * Will check GET, POST, or REQUEST depending on the passed type.
+ * Also optionally checks the referring action if passed. (note that the referring action must be by GET.)
+ * @param string $type = 'post' (post, get, request)
  * @param string $from_action = ''
  * @param bool $is_fatal = true
- * @return string
+ * @return string the error message if is_fatal is false.
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
@@ -816,6 +760,7 @@ function checkConfirm($action)
  * Lets give you a token of our appreciation.
  * @param string $action
  * @param string $type = 'post'
+ * @return array
  */
 function createToken($action, $type = 'post')
 {
@@ -837,6 +782,7 @@ function createToken($action, $type = 'post')
  * @param string $action
  * @param string $type = 'post' (get, request, or post)
  * @param bool $reset = true
+ * @return bool
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
@@ -900,8 +846,14 @@ function cleanTokens($complete = false)
 
 /**
  * Check whether a form has been submitted twice.
+ * Registers a sequence number for a form.
+ * Checks whether a submitted sequence number is registered in the current session.
+ * Depending on the value of is_fatal shows an error or returns true or false.
+ * Frees a sequence number from the stack after it's been checked.
+ * Frees a sequence number without checking if action == 'free'.
  * @param string $action
  * @param bool $is_fatal = true
+ * @return bool
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
@@ -941,9 +893,12 @@ function checkSubmitOnce($action, $is_fatal = true)
 
 /**
  * Check the user's permissions.
+ * checks whether the user is allowed to do permission. (ie. post_new.)
+ * If boards is specified, checks those boards instead of the current one.
+ * Always returns true if the user is an administrator.
  * @param string $permission
  * @param array $boards = null
- * @return bool
+ * @return bool if the user can do the permission
  */
 function allowedTo($permission, $boards = null)
 {
@@ -1009,7 +964,15 @@ function allowedTo($permission, $boards = null)
 	return $result;
 }
 
-// Fatal error if they cannot...
+/**
+ * Fatal error if they cannot.
+ * Uses allowedTo() to check if the user is allowed to do permission.
+ * Checks the passed boards or current board for the permission.
+ * If they are not, it loads the Errors language file and shows an error using $txt['cannot_' . $permission].
+ * If they are a guest and cannot do it, this calls is_not_guest().
+ * @param string $permission
+ * @param array $boards = null
+ */
 function isAllowedTo($permission, $boards = null)
 {
 	global $user_info, $txt;
@@ -1060,7 +1023,15 @@ function isAllowedTo($permission, $boards = null)
 		validateSession();
 }
 
-// Return the boards a user has a certain (board) permission on. (array(0) if all.)
+/**
+ * Return the boards a user has a certain (board) permission on. (array(0) if all.)
+ * returns a list of boards on which the user is allowed to do the specified permission.
+ * Returns an array with only a 0 in it if the user has permission to do this on every board.
+ * Returns an empty array if he or she cannot do this on any board.
+ * If check_access is true will also make sure the group has proper access to that board.
+ * @param array $permissions
+ * @param bool $check_access = true
+ */
 function boardsAllowedTo($permissions, $check_access = true)
 {
 	global $user_info, $modSettings, $smcFunc;
@@ -1108,6 +1079,19 @@ function boardsAllowedTo($permissions, $check_access = true)
 	return $boards;
 }
 
+/**
+ * Returns whether an email address should be shown and how.
+ * Possible outcomes are
+ *  'yes': show the full email address
+ *  'yes_permission_override': show the full email address, either you
+ *   are a moderator or it's your own email address.
+ *  'no_through_forum': don't show the email address, but do allow
+ *    things to be mailed using the built-in forum mailer.
+ *  'no': keep the email address hidden.
+ * @param bool $userProfile_hideEmail
+ * @param int $userProfile_id
+ * @return string (yes, yes_permission_override, no_through_forum, no)
+ */
 function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 {
 	global $modSettings, $user_info;
@@ -1121,6 +1105,7 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 	// If the forum is set to show full email addresses: yes.
 	// Otherwise: no_through_forum.
 
+	// @todo this is really hard to understand using the ternary operator. Change to regular if/switch syntax.
 	return (!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']) ? 'no' : ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum') ? 'yes_permission_override' : ($userProfile_hideEmail ? 'no' : (!empty($modSettings['make_email_viewable']) ? 'yes' : 'no_through_forum')));
 }
 

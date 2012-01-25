@@ -125,6 +125,7 @@ function sessionClose()
  * Implementation of sessionRead() replacing the standard read handler.
  *
  * @param string $session_id
+ * @return string
  */
 function sessionRead($session_id)
 {

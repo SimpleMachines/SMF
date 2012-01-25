@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains a standard way of displaying side/drop down menus for SMF.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,10 +16,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains a standard way of displaying side/drop down menus for SMF.
-*/
-
-// Create a menu...
+// ..
+/**
+ * Create a menu.
+ * @param array $menuData
+ * @param array $menuOptions = array()
+ * @return bool|array
+ */
 function createMenu($menuData, $menuOptions = array())
 {
 	global $context, $settings, $options, $txt, $modSettings, $scripturl, $smcFunc, $user_info, $sourcedir, $options;
@@ -281,7 +286,11 @@ function createMenu($menuData, $menuOptions = array())
 	return $include_data;
 }
 
-// Delete a menu.
+/**
+ * Delete a menu.
+ * @param string $menu_id = 'last'
+ * @return bool
+ */
 function destroyMenu($menu_id = 'last')
 {
 	global $context;

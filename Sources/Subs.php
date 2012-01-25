@@ -683,7 +683,6 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	return $pageindex;
 }
 
-// Formats a number to display in the style of the admin's choosing.
 /**
  * formats a number to display in the style of the admins' choosing.
  * uses the format of number_format to decide how to format the number.
@@ -857,7 +856,11 @@ function shorten_subject($subject, $len)
 	return $smcFunc['substr']($subject, 0, $len) . '...';
 }
 
-// The current time with offset.
+/**
+ * The current time with offset.
+ * @param bool $use_user_offset = true
+ * @param int $timestamp = null
+ */
 function forum_time($use_user_offset = true, $timestamp = null)
 {
 	global $user_info, $modSettings;
@@ -2479,7 +2482,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	return $message;
 }
 
-// Parse smileys in the passed message.
+/**
+ * Parse smileys in the passed message.
+ * @param string &$message
+ */
 function parsesmileys(&$message)
 {
 	global $modSettings, $txt, $user_info, $context, $smcFunc;
@@ -2554,7 +2560,10 @@ function parsesmileys(&$message)
 	$message = preg_replace($smileyPregSearch, '$smileyPregReplacements[\'$1\']', $message);
 }
 
-// Highlight any code...
+/**
+ * Highlight any code.
+ * @param string $code
+ */
 function highlight_php_code($code)
 {
 	global $context;
@@ -2586,6 +2595,8 @@ function highlight_php_code($code)
 /**
  * Make sure the browser doesn't come back and repost the form data.
  * Should be used whenever anything is posted.
+ * @param string $setLocation = ''
+ * @param bool $refresh = false
  */
 function redirectexit($setLocation = '', $refresh = false)
 {
@@ -2645,7 +2656,13 @@ function redirectexit($setLocation = '', $refresh = false)
 	obExit(false);
 }
 
-// Ends execution.  Takes care of template loading and remembering the previous URL.
+/**
+ * Ends execution.  Takes care of template loading and remembering the previous URL.
+ * @param bool $header = null
+ * @param bool $do_footer = null
+ * @param bool $from_index = false
+ * @param bool $from_fatal_error = false
+ */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
 	global $context, $settings, $modSettings, $txt, $smcFunc;
@@ -2761,6 +2778,10 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		exit;
 }
 
+/**
+ * 
+ * @param array &$topic_context
+ */
 function determineTopicClass(&$topic_context)
 {
 	// Set topic class depending on locked status and number of replies.
@@ -2948,7 +2969,9 @@ function setupThemeContext($forceload = false)
 	$context['meta_keywords'] = !empty($modSettings['meta_keywords']) ? $smcFunc['htmlspecialchars']($modSettings['meta_keywords']) : '';
 }
 
-// This is the only template included in the sources...
+/**
+ * This is the only template included in the sources.
+ */
 function template_rawdata()
 {
 	global $context;
@@ -2956,6 +2979,9 @@ function template_rawdata()
 	echo $context['raw_data'];
 }
 
+/**
+ * 
+ */
 function template_header()
 {
 	global $txt, $modSettings, $context, $settings, $user_info, $boarddir, $cachedir;
@@ -3053,7 +3079,10 @@ function template_header()
 	}
 }
 
-// Show the copyright...
+/**
+ * Show the copyright.
+ * @param bool $get_it = false
+ */
 function theme_copyright($get_it = false)
 {
 	global $forum_copyright, $context, $boardurl, $forum_version, $txt, $modSettings;
@@ -3070,6 +3099,9 @@ function theme_copyright($get_it = false)
 			</span>';
 }
 
+/**
+ * 
+ */
 function template_footer()
 {
 	global $context, $settings, $modSettings, $time_start, $db_count;
@@ -3181,7 +3213,9 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
 	return $filename;
 }
 
-// Convert a single IP to a ranged IP.
+/**
+ * Convert a single IP to a ranged IP.
+ */
 function ip2range($fullip)
 {
 	// If its IPv6, validate it first.
@@ -3235,7 +3269,9 @@ function ip2range($fullip)
 	return $ip_array;
 }
 
-// Lookup an IP; try shell_exec first because we can do a timeout on it.
+/**
+ * Lookup an IP; try shell_exec first because we can do a timeout on it.
+ */
 function host_from_ip($ip)
 {
 	global $modSettings;
@@ -3288,7 +3324,9 @@ function host_from_ip($ip)
 	return $host;
 }
 
-// Chops a string into words and prepares them to be inserted into (or searched from) the database.
+/**
+ * Chops a string into words and prepares them to be inserted into (or searched from) the database.
+ */
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
 	global $smcFunc, $context;
@@ -3332,7 +3370,16 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 	}
 }
 
-// Creates an image/text button
+/**
+ * Creates an image/text button
+ * 
+ * @param string $filename
+ * @param string $alt
+ * @param string $label = ''
+ * @param bool $custom = ''
+ * @param bool $force_use = false
+ * @return string
+ */
 function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
 {
 	global $settings, $txt, $context;
@@ -3349,7 +3396,9 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . ' />';
 }
 
-// Empty out the cache folder.
+/**
+ * Empty out the cache folder.
+ */
 function clean_cache($type = '')
 {
 	global $cachedir, $sourcedir;
@@ -3373,7 +3422,9 @@ function clean_cache($type = '')
 	clearstatcache();
 }
 
-// Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
+/**
+ * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
+ */
 function loadClassFile($filename)
 {
 	global $sourcedir;
@@ -3415,6 +3466,9 @@ function loadClassFile($filename)
 		require_once($sourcedir . '/' . $filename);
 }
 
+/**
+ * 
+ */
 function setupMenuContext()
 {
 	global $context, $modSettings, $user_info, $txt, $scripturl;
@@ -3697,7 +3751,9 @@ function setupMenuContext()
 	}
 }
 
-// Generate a random seed and ensure it's stored in settings.
+/**
+ * Generate a random seed and ensure it's stored in settings.
+ */
 function smf_seed_generator()
 {
 	global $modSettings;
@@ -3719,7 +3775,12 @@ function smf_seed_generator()
 	updateSettings(array('rand_seed' => mt_rand()));
 }
 
-// Process functions of an integration hook.
+/**
+ * Process functions of an integration hook.
+ * @param string $hook
+ * @param array $paramaters = array()
+ * @return array
+ */
 function call_integration_hook($hook, $parameters = array())
 {
 	global $modSettings;
@@ -3744,7 +3805,12 @@ function call_integration_hook($hook, $parameters = array())
 	return $results;
 }
 
-// Add a function for integration hook.
+/**
+ * Add a function for integration hook.
+ * @param string $hook
+ * @param string $function
+ * @param bool $permanent = true
+ */
 function add_integration_function($hook, $function, $permanent = true)
 {
 	global $smcFunc, $modSettings;
@@ -3788,7 +3854,11 @@ function add_integration_function($hook, $function, $permanent = true)
 	$modSettings[$hook] = implode(',', $functions);
 }
 
-// Remove an integration hook function.
+/**
+ * Remove an integration hook function.
+ * @param string $hook
+ * @param string $function
+ */
 function remove_integration_function($hook, $function)
 {
 	global $smcFunc, $modSettings;

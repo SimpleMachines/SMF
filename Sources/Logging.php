@@ -355,6 +355,7 @@ function displayDebug()
  * It depends on the trackStats setting.
  *
  * @param array $stats = array()
+ * @return bool|array
  */
 function trackStats($stats = array())
 {

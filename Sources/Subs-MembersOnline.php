@@ -26,7 +26,17 @@ if (!defined('SMF'))
 		- (optionally) hides members that chose to hide their online presense.
 */
 
-// Retrieve a list and several other statistics of the users currently online.
+// 
+/**
+ * Retrieve a list and several other statistics of the users currently online.
+ * - retrieve a list and several other statistics of the users currently
+ *   online on the forum.
+ * - used by the board index and SSI.
+ * - also returns the membergroups of the users that are currently online.
+ * - (optionally) hides members that chose to hide their online presense.
+ * @param array $membersOnlineOptions
+ * @return array
+ */
 function getMembersOnlineStats($membersOnlineOptions)
 {
 	global $smcFunc, $context, $scripturl, $user_info, $modSettings, $txt;
@@ -196,7 +206,10 @@ function getMembersOnlineStats($membersOnlineOptions)
 	return $membersOnlineStats;
 }
 
-// Check if the number of users online is a record and store it.
+/**
+ * Check if the number of users online is a record and store it.
+ * @param int $total_users_online
+ */
 function trackStatsUsersOnline($total_users_online)
 {
 	global $modSettings, $smcFunc;

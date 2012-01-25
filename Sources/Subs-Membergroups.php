@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file contains functions regarding manipulation of and information about membergroups.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,44 +16,16 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains functions regarding manipulation of and information
-	about membergroups.
-
-	bool deleteMembergroups(array groups)
-		- delete one of more membergroups.
-		- requires the manage_membergroups permission.
-		- returns true on success or false on failure.
-		- has protection against deletion of protected membergroups.
-		- deletes the permissions linked to the membergroup.
-		- takes members out of the deleted membergroups.
-
-	bool removeMembersFromGroups(array members, array groups = null)
-		- remove one or more members from one or more membergroups.
-		- requires the manage_membergroups permission.
-		- returns true on success or false on failure.
-		- if groups is null, the specified members are stripped from all their
-		  membergroups.
-		- function includes a protection against removing from implicit groups.
-		- non-admins are not able to remove members from the admin group.
-
-	bool addMembersToGroup(array members, group, type = 'auto')
-		- add one or more members to a specified group.
-		- requires the manage_membergroups permission.
-		- returns true on success or false on failure.
-		- the type parameter specifies whether the group is added as primary or
-		  as additional group.
-		- function has protection against adding members to implicit groups.
-		- non-admins are not able to add members to the admin group.
-
-	bool listMembergroupMembers_Href(&array members, int membergroup, int limit = null)
-		- get a list of all members that are part of a membergroup.
-		- if limit is set to null, all members are returned.
-		- returns a list of href-links in $members.
-		- returns true if there are more than limit members.
-
-*/
-
-// Delete one or more membergroups.
+/**
+ * Delete one of more membergroups.
+ * Requires the manage_membergroups permission.
+ * Returns true on success or false on failure.
+ * Has protection against deletion of protected membergroups.
+ * Deletes the permissions linked to the membergroup.
+ * Takes members out of the deleted membergroups.
+ * @param array $groups
+ * @return bool
+ */
 function deleteMembergroups($groups)
 {
 	global $sourcedir, $smcFunc, $modSettings;
@@ -227,7 +201,16 @@ function deleteMembergroups($groups)
 	return true;
 }
 
-// Remove one or more members from one or more membergroups.
+/**
+ * Remove one or more members from one or more membergroups.
+ * Requires the manage_membergroups permission.
+ * Function includes a protection against removing from implicit groups.
+ * Non-admins are not able to remove members from the admin group.
+ * @param array $members
+ * @param array $groups = null if groups is null, the specified members are stripped from all their membergroups.
+ * @param bool $permissionCheckDone = false
+ * @return bool
+ */
 function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false)
 {
 	global $smcFunc, $user_info, $modSettings;
@@ -440,17 +423,29 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 	return true;
 }
 
-// Add one or more members to a membergroup.
-/* Supported types:
-	- only_primary      - Assigns a membergroup as primary membergroup, but only
-						  if a member has not yet a primary membergroup assigned,
-						  unless the member is already part of the membergroup.
-	- only_additional   - Assigns a membergroup to the additional membergroups,
-						  unless the member is already part of the membergroup.
-	- force_primary     - Assigns a membergroup as primary membergroup no matter
-						  what the previous primary membergroup was.
-	- auto              - Assigns a membergroup to the primary group if it's still
-						  available. If not, assign it to the additional group. */
+/**
+ * Add one or more members to a membergroup
+ * 
+ * Requires the manage_membergroups permission.
+ * Function has protection against adding members to implicit groups.
+ * Non-admins are not able to add members to the admin group.
+ * 
+ * @param string|array $members
+ * @param int $group
+ * @param string $type = 'auto' specifies whether the group is added as primary or as additional group.
+ * Supported types:
+ * 	- only_primary      - Assigns a membergroup as primary membergroup, but only
+ * 						  if a member has not yet a primary membergroup assigned,
+ * 						  unless the member is already part of the membergroup.
+ * 	- only_additional   - Assigns a membergroup to the additional membergroups,
+ * 						  unless the member is already part of the membergroup.
+ * 	- force_primary     - Assigns a membergroup as primary membergroup no matter
+ * 						  what the previous primary membergroup was.
+ * 	- auto              - Assigns a membergroup to the primary group if it's still
+ * 						  available. If not, assign it to the additional group.
+ * @param bool $permissionCheckDone
+ * @return bool success or failure
+ */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false)
 {
 	global $smcFunc, $user_info, $modSettings;
@@ -602,6 +597,13 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	return true;
 }
 
+/**
+ * 
+ * @param array &$members
+ * @param int $membergroup
+ * @param int $limit = null
+ * @return bool
+ */
 function listMembergroupMembers_Href(&$members, $membergroup, $limit = null)
 {
 	global $scripturl, $txt, $smcFunc;

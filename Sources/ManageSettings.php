@@ -473,7 +473,7 @@ function ModifyBasicSettings($return_config = false)
 	else
 		unset($config_vars['default_timezone']);
 
-	call_integration_hook('integrate_basic_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_basic_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

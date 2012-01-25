@@ -328,7 +328,7 @@ function ModifyCacheSettings($return_config = false)
 		array('text', 'cache_memcached'),
 	);
 
-	call_integration_hook('integrate_cache_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

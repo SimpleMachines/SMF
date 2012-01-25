@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * The functions in this file deal with sending topics to a friend or moderator
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,38 +15,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	The functions in this file deal with sending topics to a friend or
-	moderator, and those functions are:
-
-	void SendTopic()
-		- sends information about a topic to a friend.
-		- uses the SendTopic template, with the main sub template.
-		- requires the send_topic permission.
-		- redirects back to the first page of the topic when done.
-		- is accessed via ?action=emailuser;sa=sendtopic.
-
-	void CustomEmail()
-		- send an email to the user - allow the sender to write the message.
-		- can either be passed a user ID as uid or a message id as msg.
-		- does not check permissions for a message ID as there is no information disclosed.
-
-	void ReportToModerator()
-		- gathers data from the user to report abuse to the moderator(s).
-		- uses the ReportToModerator template, main sub template.
-		- requires the report_any permission.
-		- uses ReportToModerator2() if post data was sent.
-		- accessed through ?action=reporttm.
-
-	void ReportToModerator2()
-		- sends off emails to all the moderators.
-		- sends to administrators and global moderators. (1 and 2)
-		- called by ReportToModerator(), and thus has the same permission
-		  and setting requirements as it does.
-		- accessed through ?action=reporttm when posting.
-
-*/
-
-// The main handling function for sending specialist (Or otherwise) emails to a user.
+/**
+ * The main handling function for sending specialist (Or otherwise) emails to a user.
+ */
 function EmailUser()
 {
 	global $topic, $txt, $context, $scripturl, $sourcedir, $smcFunc;
@@ -67,7 +39,13 @@ function EmailUser()
 	$sub_actions[$_GET['sa']]();
 }
 
-// Send a topic to a friend.
+/**
+ * Send a topic to a friend.
+ * Uses the SendTopic template, with the main sub template.
+ * Requires the send_topic permission.
+ * Redirects back to the first page of the topic when done.
+ * Is accessed via ?action=emailuser;sa=sendtopic.
+ */
 function SendTopic()
 {
 	global $topic, $txt, $context, $scripturl, $sourcedir, $smcFunc, $modSettings;
@@ -164,7 +142,12 @@ function SendTopic()
 	redirectexit('topic=' . $topic . '.0');
 }
 
-// Allow a user to send an email.
+/**
+ * Allow a user to send an email.
+ * Send an email to the user - allow the sender to write the message.
+ * Can either be passed a user ID as uid or a message id as msg.
+ * Does not check permissions for a message ID as there is no information disclosed.
+ */
 function CustomEmail()
 {
 	global $context, $modSettings, $user_info, $smcFunc, $txt, $scripturl, $sourcedir;
@@ -288,7 +271,14 @@ function CustomEmail()
 	$context['page_title'] = $txt['send_email'];
 }
 
-// Report a post to the moderator... ask for a comment.
+/**
+ * Report a post to the moderator... ask for a comment.
+ * Gathers data from the user to report abuse to the moderator(s).
+ * Uses the ReportToModerator template, main sub template.
+ * Requires the report_any permission.
+ * Uses ReportToModerator2() if post data was sent.
+ * Accessed through ?action=reporttm.
+ */
 function ReportToModerator()
 {
 	global $txt, $topic, $sourcedir, $modSettings, $user_info, $context, $smcFunc;
@@ -354,7 +344,13 @@ function ReportToModerator()
 	$context['sub_template'] = 'report';
 }
 
-// Send the emails.
+/**
+ * Send the emails.
+ * Sends off emails to all the moderators.
+ * Sends to administrators and global moderators. (1 and 2)
+ * Called by ReportToModerator(), and thus has the same permission and setting requirements as it does.
+ * Accessed through ?action=reporttm when posting.
+ */
 function ReportToModerator2()
 {
 	global $txt, $scripturl, $topic, $board, $user_info, $modSettings, $sourcedir, $language, $context, $smcFunc;

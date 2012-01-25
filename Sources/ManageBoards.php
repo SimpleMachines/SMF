@@ -788,7 +788,7 @@ function EditBoardSettings($return_config = false)
 			array('check', 'allow_ignore_boards'),
 	);
 
-	call_integration_hook('integrate_board_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_board_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

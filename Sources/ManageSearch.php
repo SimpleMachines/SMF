@@ -162,11 +162,15 @@ function EditWeights()
 		'search_weight_sticky',
 	);
 
+	call_integration_hook('integrate_modify_search_weights', array(&$factors));
+
 	// A form was submitted.
 	if (isset($_POST['save']))
 	{
 		checkSession();
 		validateToken('admin-msw');
+
+		call_integration_hook('integrate_save_search_weights');
 
 		$changes = array();
 		foreach ($factors as $factor)
