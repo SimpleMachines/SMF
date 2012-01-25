@@ -623,9 +623,6 @@ function ModifyLanguages()
  */
 function list_getNumLanguages()
 {
-	global $settings;
-
-	// Return how many we have.
 	return count(getLanguages(true, false));
 }
 

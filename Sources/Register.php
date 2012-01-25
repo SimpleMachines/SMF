@@ -55,8 +55,8 @@ function Register($reg_errors = array())
 	if ($context['show_coppa'])
 	{
 		$context['skip_coppa'] = false;
-		$context['coppa_agree_above'] = sprintf($txt['agreement_agree_coppa_above'], $modSettings['coppaAge']);
-		$context['coppa_agree_below'] = sprintf($txt['agreement_agree_coppa_below'], $modSettings['coppaAge']);
+		$context['coppa_agree_above'] = sprintf($txt[($context['require_agreement'] ? 'agreement_' : '') . 'agree_coppa_above'], $modSettings['coppaAge']);
+		$context['coppa_agree_below'] = sprintf($txt[($context['require_agreement'] ? 'agreement_' : '') . 'agree_coppa_below'], $modSettings['coppaAge']);
 	}
 
 	// What step are we at?
@@ -233,6 +233,9 @@ function Register2($verifiedOpenID = false)
 		if (!isset($_SESSION['old_url']))
 			redirectexit('action=register');
 
+		// If we don't require an agreement, we need a extra check for coppa.
+		if (empty($modSettings['requireAgreement']) && !empty($modSettings['coppaAge']))
+			$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
 		// Are they under age, and under age users are banned?
 		if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 		{

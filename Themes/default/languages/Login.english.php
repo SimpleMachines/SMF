@@ -8,6 +8,8 @@ $txt['registration_agreement'] = 'Registration Agreement';
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['agreement_agree_coppa_above'] = 'I accept the terms of the agreement and I am at least %1$d years old.';
 $txt['agreement_agree_coppa_below'] = 'I accept the terms of the agreement and I am younger than %1$d years old.';
+$txt['agree_coppa_above'] = 'I am at least %1$d years old.';
+$txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
 
 // Registration form.
 $txt['registration_form'] = 'Registration Form';

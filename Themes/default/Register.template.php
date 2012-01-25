@@ -10,7 +10,9 @@
  * @version 2.1 Alpha 1
  */
 
-// Before showing users a registration form, show them the registration agreement.
+/**
+ * Before showing users a registration form, show them the registration agreement.
+ */
 function template_registration_agreement()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
@@ -65,45 +67,6 @@ function template_registration_form()
 			}
 
 			var currentAuthMethod = \'passwd\';
-			function updateAuthMethod()
-			{
-				// What authentication method is being used?
-				if (!document.getElementById(\'auth_openid\') || !document.getElementById(\'auth_openid\').checked)
-					currentAuthMethod = \'passwd\';
-				else
-					currentAuthMethod = \'openid\';
-
-				// No openID?
-				if (!document.getElementById(\'auth_openid\'))
-					return true;
-
-				document.forms.registration.openid_url.disabled = currentAuthMethod == \'openid\' ? false : true;
-				document.forms.registration.smf_autov_pwmain.disabled = currentAuthMethod == \'passwd\' ? false : true;
-				document.forms.registration.smf_autov_pwverify.disabled = currentAuthMethod == \'passwd\' ? false : true;
-				document.getElementById(\'smf_autov_pwmain_div\').style.display = currentAuthMethod == \'passwd\' ? \'\' : \'none\';
-				document.getElementById(\'smf_autov_pwverify_div\').style.display = currentAuthMethod == \'passwd\' ? \'\' : \'none\';
-
-				if (currentAuthMethod == \'passwd\')
-				{
-					verificationHandle.refreshMainPassword();
-					verificationHandle.refreshVerifyPassword();
-					document.forms.registration.openid_url.style.backgroundColor = \'\';
-					document.getElementById(\'password1_group\').style.display = \'\';
-					document.getElementById(\'password2_group\').style.display = \'\';
-					document.getElementById(\'openid_group\').style.display = \'none\';
-				}
-				else
-				{
-					document.forms.registration.smf_autov_pwmain.style.backgroundColor = \'\';
-					document.forms.registration.smf_autov_pwverify.style.backgroundColor = \'\';
-					document.forms.registration.openid_url.style.backgroundColor = \'#FFF0F0\';
-					document.getElementById(\'password1_group\').style.display = \'none\';
-					document.getElementById(\'password2_group\').style.display = \'none\';
-					document.getElementById(\'openid_group\').style.display = \'\';
-				}
-
-				return true;
-			}
 		// ]]></script>';
 
 	// Any errors?
@@ -348,8 +311,17 @@ function template_registration_form()
 	}
 
 	echo '
-			<div id="confirm_buttons">
-				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
+			<div id="confirm_buttons">';
+
+	// Age restriction in effect?
+	if (!$context['require_agreement'] && $context['show_coppa'])
+		echo '
+				<input type="submit" name="accept_agreement" value="', $context['coppa_agree_above'], '" class="button_submit" /><br /><br />
+				<input type="submit" name="accept_agreement_coppa" value="', $context['coppa_agree_below'], '" class="button_submit" />';
+	else
+		echo '
+				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />';
+	echo '
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '" />
@@ -525,18 +497,6 @@ function template_admin_register()
 		</div>
 		<form class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm" id="postForm">
 			<span class="topslice"><span></span></span>
-			<script type="text/javascript"><!-- // --><![CDATA[
-				function onCheckChange()
-				{
-					if (document.forms.postForm.emailActivate.checked || document.forms.postForm.password.value == \'\')
-					{
-						document.forms.postForm.emailPassword.disabled = true;
-						document.forms.postForm.emailPassword.checked = true;
-					}
-					else
-						document.forms.postForm.emailPassword.disabled = false;
-				}
-			// ]]></script>
 			<div class="content" id="register_screen">';
 
 	if (!empty($context['registration_done']))

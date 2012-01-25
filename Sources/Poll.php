@@ -98,7 +98,7 @@ function Vote()
 	if (!$user_info['is_guest'] && $row['selected'] != -1 && empty($row['change_vote']))
 		fatal_lang_error('poll_error', false);
 	// Otherwise if they can change their vote yet they haven't sent any options... remove their vote and redirect.
-	elseif (!empty($row['change_vote']) && !$user_info['is_guest'])
+	elseif (!empty($row['change_vote']) && !$user_info['is_guest'] && empty($_POST['options']))
 	{
 		checkSession('request');
 		$pollOptions = array();
