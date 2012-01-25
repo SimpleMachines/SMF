@@ -629,6 +629,8 @@ function DisplayStats()
 /**
  * Loads the statistics on a daily basis in $context.
  * called by DisplayStats().
+ * @param string $condition_string
+ * @param array $condition_parameters = array()
  */
 function getDailyStats($condition_string, $condition_parameters = array())
 {

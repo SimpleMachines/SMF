@@ -128,8 +128,8 @@ function Display()
 		$_REQUEST['start'] = 'new';
 	}
 
-	// Add 1 to the number of views of this topic.
-	if (!$user_info['possibly_robot'] && empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != $topic)
+	// Add 1 to the number of views of this topic (except for robots).
+	if (!$user_info['possibly_robot'] && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != $topic))
 	{
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}topics
@@ -980,6 +980,7 @@ function Display()
 	);
 
 	// Set the callback.  (do you REALIZE how much memory all the messages would take?!?)
+	// This will be called from the template.
 	$context['get_message'] = 'prepareDisplayContext';
 
 	// Now set all the wonderful, wonderful permissions... like moderation ones...

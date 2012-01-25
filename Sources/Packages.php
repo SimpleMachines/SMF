@@ -797,7 +797,7 @@ function PackageInstall()
 	$context['extract_type'] = isset($packageInfo['type']) ? $packageInfo['type'] : 'modification';
 
 	// Create a backup file to roll back to! (but if they do this more than once, don't run it a zillion times.)
-	if (!empty($modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $context['filename'] . ($context['uninstalling'] ? '$$' : '$')))
+	if (!empty($modSettings['package_make_full_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $context['filename'] . ($context['uninstalling'] ? '$$' : '$')))
 	{
 		$_SESSION['last_backup_for'] = $context['filename'] . ($context['uninstalling'] ? '$$' : '$');
 		/**
@@ -1423,13 +1423,14 @@ function PackageOptions()
 			'package_server' => $_POST['pack_server'],
 			'package_port' => $_POST['pack_port'],
 			'package_username' => $_POST['pack_user'],
-			'package_make_backups' => !empty($_POST['package_make_backups'])
+			'package_make_backups' => !empty($_POST['package_make_backups']),
+			'package_make_full_backups' => !empty($_POST['package_make_full_backups'])
 		));
 
 		redirectexit('action=admin;area=packages;sa=options');
 	}
 
-	if (preg_match('~^/home/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
+	if (preg_match('~^/home\d*/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match))
 		$default_username = $match[1];
 	else
 		$default_username = '';
@@ -1441,6 +1442,7 @@ function PackageOptions()
 	$context['package_ftp_port'] = isset($modSettings['package_port']) ? $modSettings['package_port'] : '21';
 	$context['package_ftp_username'] = isset($modSettings['package_username']) ? $modSettings['package_username'] : $default_username;
 	$context['package_make_backups'] = !empty($modSettings['package_make_backups']);
+	$context['package_make_full_backups'] = !empty($modSettings['package_make_full_backups']);
 }
 
 /**

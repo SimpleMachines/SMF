@@ -351,12 +351,6 @@ function template_view_package()
 		var database_changes_area = document.getElementById(\'db_changes_div\');
 		var db_vis = false;
 		database_changes_area.style.display = "none";
-		function swap_database_changes()
-		{
-			db_vis = !db_vis;
-			database_changes_area.style.display = db_vis ? "" : "none";
-			return false;
-		}
 	// ]]></script>';
 }
 function template_extract_package()
@@ -590,15 +584,6 @@ function template_browse()
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var tempOldOnload;
-
-			function smfSetLatestPackages()
-			{
-				if (typeof(window.smfLatestPackages) != "undefined")
-					setInnerHTML(document.getElementById("packagesLatest"), window.smfLatestPackages);
-
-				if (tempOldOnload)
-				tempOldOnload();
-			}
 		// ]]></script>';
 
 		echo '
@@ -1319,6 +1304,7 @@ function template_install_options()
 						</dd>
 					</dl>
 					<label for="package_make_backups"><input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_backups'], '</label><br /><br />
+					<label for="package_make_full_backups"><input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_full_backups'], '</label><br /><br />
 					<div class="righttext">
 						<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -1447,26 +1433,6 @@ function template_control_chmod()
 				document.getElementById("test_ftp_placeholder_full").appendChild(ftpTest);
 			}
 		}
-		function testFTP()
-		{
-			ajax_indicator(true);
-
-			// What we need to post.
-			var oPostData = {
-				0: "ftp_server",
-				1: "ftp_port",
-				2: "ftp_username",
-				3: "ftp_password",
-				4: "ftp_path"
-			}
-
-			var sPostData = "";
-			for (i = 0; i < 5; i++)
-				sPostData = sPostData + (sPostData.length == 0 ? "" : "&") + oPostData[i] + "=" + escape(document.getElementById(oPostData[i]).value);
-
-			// Post the data out.
-			sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=admin;area=packages;sa=ftptest;xml;', $context['session_var'], '=', $context['session_id'], '\', sPostData, testFTPResults);
-		}
 		function testFTPResults(oXMLDoc)
 		{
 			ajax_indicator(false);
@@ -1562,82 +1528,13 @@ function template_file_permissions()
 			3: "custom",
 			4: "no_change"
 		}
-		function expandFolder(folderIdent, folderReal)
-		{
-			// See if it already exists.
-			var possibleTags = document.getElementsByTagName("tr");
-			var foundOne = false;
-
-			for (var i = 0; i < possibleTags.length; i++)
-			{
-				if (possibleTags[i].id.indexOf("content_" + folderIdent + ":-:") == 0)
-				{
-					possibleTags[i].style.display = possibleTags[i].style.display == "none" ? "" : "none";
-					foundOne = true;
-				}
-			}
-
-			// Got something then we\'re done.
-			if (foundOne)
-			{
-				return false;
-			}
-			// Otherwise we need to get the wicked thing.
-			else if (window.XMLHttpRequest)
-			{
-				ajax_indicator(true);
-				getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=admin;area=packages;onlyfind=\' + escape(folderReal) + \';sa=perms;xml;', $context['session_var'], '=', $context['session_id'], '\', onNewFolderReceived);
-			}
-			// Otherwise reload.
-			else
-				return true;
-
-			return false;
-		}
-		function dynamicExpandFolder()
-		{
-			expandFolder(this.ident, this.path);
-
-			return false;
-		}
 		function dynamicAddMore()
 		{
 			ajax_indicator(true);
 
 			getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=admin;area=packages;fileoffset=\' + (parseInt(this.offset) + ', $context['file_limit'], ') + \';onlyfind=\' + escape(this.path) + \';sa=perms;xml;', $context['session_var'], '=', $context['session_id'], '\', onNewFolderReceived);
 		}
-		function repeatString(sString, iTime)
-		{
-			if (iTime < 1)
-				return \'\';
-			else
-				return sString + repeatString(sString, iTime - 1);
-		}
-		// Create a named element dynamically - thanks to: http://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
-		function createNamedElement(type, name, customFields)
-		{
-			var element = null;
 
-			if (!customFields)
-				customFields = "";
-
-			// Try the IE way; this fails on standards-compliant browsers
-			try
-			{
-				element = document.createElement("<" + type + \' name="\' + name + \'" \' + customFields + ">");
-			}
-			catch (e)
-			{
-			}
-			if (!element || element.nodeName != type.toUpperCase())
-			{
-				// Non-IE browser; use canonical method to create named element
-				element = document.createElement(type);
-				element.name = name;
-			}
-
-			return element;
-		}
 		// Getting something back?
 		function onNewFolderReceived(oXMLDoc)
 		{

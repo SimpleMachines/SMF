@@ -544,6 +544,12 @@ $helptxt['posts_and_topics'] = '
 			Modify the settings related to topics. The number of topics per page, whether sticky topics are enabled or not, the number of messages needed for a topic to be hot, etc.
 		</li>
 	</ul>';
+
+$helptxt['spider_mode'] = 'Sets the logging level.<br />
+Standard - Logs minimal spider activity.<br />
+Moderate - Provides more accurate statistics.<br />
+Agressive - As for &quot;Moderate&quot; but logs data about each page visited.';
+
 $helptxt['spider_group'] = 'By selecting a restrictive group, when a guest is detected as a search crawler it will automatically be assigned any &quot;deny&quot; deny permissions of this group in addition to the normal permissions of a guest. You can use this to provide lesser access to a search engine than you would a normal guest. You might for example wish to create a new group called &quot;Spiders&quot; and select that here. You could then deny permission for that group to view profiles to stop spiders indexing your members profiles.<br />Note: Spider detection is not perfect and can be simulated by users so this feature is not guaranteed to restrict content only to those search engines you have added.';
 $helptxt['show_spider_online'] = 'This setting allows you to select whether spiders should be listed in the who\'s online list on the board index and &quot;Who\'s Online&quot; page. Options are:
 	<ul class="normallist">

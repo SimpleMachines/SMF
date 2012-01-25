@@ -118,7 +118,6 @@ if (!defined('SMF'))
  * does nothing if the functions is not available.
 */
 
-// 
 /**
  * Update some basic statistics.
  * 
@@ -871,7 +870,14 @@ function forum_time($use_user_offset = true, $timestamp = null)
 	return $timestamp + ($modSettings['time_offset'] + ($use_user_offset ? $user_info['time_offset'] : 0)) * 3600;
 }
 
-// This gets all possible permutations of an array.
+/**
+ * Calculates all the possible permutations (orders) of array.
+ * should not be called on huge arrays (bigger than like 10 elements.)
+ * returns an array containing each permutation.
+ * 
+ * @param array $array
+ * @return array
+ */
 function permute($array)
 {
 	$orders = array($array);
@@ -896,7 +902,25 @@ function permute($array)
 	return $orders;
 }
 
-// Parse bulletin board code in a string, as well as smileys optionally.
+/**
+ * Parse bulletin board code in a string, as well as smileys optionally.
+ * Only parses bbc tags which are not disabled in disabledBBC.
+ * Also handles basic HTML, if enablePostHTML is on.
+ * Caches the from/to replace regular expressions so as not to reload
+ *  them every time a string is parsed.
+ * Only parses smileys if smileys is true.
+ * Does nothing if the enableBBC setting is off.
+ * Applies the fixLongWords magic if the setting is set to on.
+ * Uses the cache_id as a unique identifier to facilitate any caching
+ *  it may do.
+ * Returns the modified message.
+ * 
+ * @param string $message
+ * @param bool $smileys = true
+ * @param string $cache_id = ''
+ * @param array $parse_tags = null
+ * @return string
+ */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
 	global $txt, $scripturl, $context, $modSettings, $user_info, $smcFunc;
@@ -2759,7 +2783,10 @@ function determineTopicClass(&$topic_context)
 	$topic_context['extended_class'] = &$topic_context['class'];
 }
 
-// Sets up the basic theme context stuff.
+/**
+ * Sets up the basic theme context stuff.
+ * @param bool $forceload = false
+ */
 function setupThemeContext($forceload = false)
 {
 	global $modSettings, $user_info, $scripturl, $context, $settings, $options, $txt, $maintenance;
@@ -3157,6 +3184,28 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
 // Convert a single IP to a ranged IP.
 function ip2range($fullip)
 {
+	// If its IPv6, validate it first.
+	if (strpos($fullip, ':') !== false)
+	{
+		$ip_parts = explode(':', smf_ipv6_expand($fullip, false));
+		$ip_array = array();
+
+		if (count($ip_parts) != 8)
+			return array();
+
+		for ($i = 0; $i < 8; $i++)
+		{
+			if ($ip_parts[$i] == '*')
+				$ip_array[$i] = array('low' => '0', 'high' => hexdec('ffff'));
+			elseif (preg_match('/^([0-9A-Fa-f]{1,4})\-([0-9A-Fa-f]{1,4})$/', $ip_parts[$i], $range) == 1)
+				$ip_array[$i] = array('low' => hexdec($range[1]), 'high' => hexdec($range[2]));
+			elseif (is_numeric(hexdec($ip_parts[$i])))
+				$ip_array[$i] = array('low' => hexdec($ip_parts[$i]), 'high' => hexdec($ip_parts[$i]));
+		}
+
+		return $ip_array;
+	}
+
 	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
@@ -3176,6 +3225,12 @@ function ip2range($fullip)
 		elseif (is_numeric($ip_parts[$i]))
 			$ip_array[$i] = array('low' => $ip_parts[$i], 'high' => $ip_parts[$i]);
 	}
+
+	// Makes it simpiler to work with.
+	$ip_array[5] = array('low' => 0, 'high' => 0);
+	$ip_array[6] = array('low' => 0, 'high' => 0);
+	$ip_array[7] = array('low' => 0, 'high' => 0);
+	$ip_array[8] = array('low' => 0, 'high' => 0);
 
 	return $ip_array;
 }

@@ -109,7 +109,10 @@ function template_html_above()
 		var smf_images_url = "', $settings['images_url'], '";
 		var smf_scripturl = "', $scripturl, '";
 		var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
-		var smf_charset = "', $context['character_set'], '";', $context['show_pm_popup'] ? '
+		var smf_charset = "', $context['character_set'], '";
+		var smf_session_id = "', $context['session_id'], '";
+		var smf_session_var = "', $context['session_var'], '";
+		var smf_member_id = "', $context['user']['id'], '";', $context['show_pm_popup'] ? '
 		var fPmPopup = function ()
 		{
 			if (confirm("' . $txt['show_personal_messages'] . '"))
@@ -163,7 +166,9 @@ function template_html_above()
 
 	echo '
 </head>
-<body', 
+<body class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ? 'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')),
+	!empty($context['current_board']) ? ' board_' . htmlspecialchars($context['current_board']) : '',
+	'"',
 	// Style per page.
 	!empty($context['body_id']) ? ' id="' . $context['body_id'] . '"' : '', '>';
 
@@ -299,13 +304,13 @@ function template_body_above()
 					}
 				],
 				oThemeOptions: {
-					bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+					bUseThemeSettings: smf_member_id == 0 ? false : true,
 					sOptionName: \'collapse_header\',
-					sSessionVar: ', JavaScriptEscape($context['session_var']), ',
-					sSessionId: ', JavaScriptEscape($context['session_id']), '
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id
 				},
 				oCookieOptions: {
-					bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
+					bUseCookie: smf_member_id == 0 ? true : false,
 					sCookieName: \'upshrink\'
 				}
 			});

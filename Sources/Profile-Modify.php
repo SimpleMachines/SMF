@@ -315,7 +315,7 @@ function loadProfileFields($force_reload = false)
 
 				if (isset($context[\'profile_languages\'][$value]))
 				{
-					if ($context[\'user\'][\'is_owner\'])
+					if ($context[\'user\'][\'is_owner\'] && empty($context[\'password_auth_failed\']))
 						$_SESSION[\'language\'] = $value;
 					return true;
 				}

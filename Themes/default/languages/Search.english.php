@@ -108,9 +108,9 @@ $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 $txt['search_engines_description'] = 'From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs.';
 $txt['spider_mode'] = 'Search Engine Tracking Level<div class="smalltext">Note higher level tracking increases server resource requirement.</div>';
 $txt['spider_mode_off'] = 'Disabled';
-$txt['spider_mode_standard'] = 'Standard - Logs minimal spider activity.';
-$txt['spider_mode_high'] = 'High - Provides more accurate statistics.';
-$txt['spider_mode_vhigh'] = 'Very High - As for &quot;High&quot; but logs data about each page visited.';
+$txt['spider_mode_standard'] = 'Standard';
+$txt['spider_mode_high'] = 'Moderate';
+$txt['spider_mode_vhigh'] = 'Agressive';
 $txt['spider_settings_desc'] = 'You can change settings for spider tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up <a href="%1$s">here</a>';
 
 $txt['spider_group'] = 'Apply restrictive permissions from group<div class="smalltext">To enable you to stop spiders indexing some pages.</div>';
@@ -149,6 +149,9 @@ $txt['spider_logs_delete'] = 'Delete Entries';
 $txt['spider_logs_delete_older'] = 'Delete all entries older than';
 $txt['spider_logs_delete_day'] = 'days.';
 $txt['spider_logs_delete_submit'] = 'Delete';
+
+$txt['spider_stats_delete_older'] = 'Delete all spider statistics from spiders not seen in %1$s days.';
+
 // Don't use entities in the below string.
 $txt['spider_logs_delete_confirm'] = 'Are you sure you wish to empty out all log entries?';
 

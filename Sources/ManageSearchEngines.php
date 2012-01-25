@@ -88,7 +88,7 @@ function ManageSearchEngineSettings($return_config = false)
 		}
 		disableFields();';
 
-	call_integration_function('integrate_search_engine_settings', array(&$config_vars));
+	call_integration_hook('integrate_search_engine_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -124,7 +124,7 @@ function ManageSearchEngineSettings($return_config = false)
 	{
 		checkSession();
 
-		call_integration_function('integrate_save_search_engine_settings');
+		call_integration_hook('integrate_save_search_engine_settings');
 		saveDBSettings($config_vars);
 		recacheSpiderNames();
 		redirectexit('action=admin;area=sengines;sa=settings');
@@ -493,7 +493,12 @@ function SpiderCheck()
 
 	// Only do these bits once.
 	$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
-	preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $_SERVER['REMOTE_ADDR'], $ip_parts);
+
+	// Always attempt IPv6 first.
+	if (empty($ip_parts) && strpos($_SERVER['REMOTE_ADDR'], ':') !== false)
+		$ip_parts = convertIPv6toInts($_SERVER['REMOTE_ADDR']);
+	else
+		preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $_SERVER['REMOTE_ADDR'], $ip_parts);
 
 	foreach ($spider_data as $spider)
 	{
@@ -848,6 +853,24 @@ function SpiderStats()
 		$_SESSION['spider_stat'] = time();
 	}
 
+	// Are we cleaning up some old stats?
+	if (!empty($_POST['delete_entries']) && isset($_POST['older']))
+	{
+		checkSession();
+		validateToken('admin-ss');
+
+		$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
+
+		// Delete the entires.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}log_spider_stats
+			WHERE last_seen < {int:delete_period}',
+			array(
+				'delete_period' => $deleteTime,
+			)
+		);
+	}
+
 	// Get the earliest and latest dates.
 	$request = $smcFunc['db_query']('', '
 		SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
@@ -980,10 +1003,12 @@ function SpiderStats()
 		),
 	);
 
+	createToken('admin-ss');
+
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
+	$context['sub_template'] = 'show_spider_stats';
 	$context['default_list'] = 'spider_stat_list';
 }
 

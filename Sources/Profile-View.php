@@ -1250,7 +1250,7 @@ function TrackIP($memID = 0)
 	if (isset($_REQUEST['searchip']))
 		$context['ip'] = trim($_REQUEST['searchip']);
 
-	if (preg_match('/^\d{1,3}\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/', $context['ip']) == 0)
+	if (preg_match('/^\d{1,3}\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/', $context['ip']) == 0 && isValidIPv6($context['ip']) === false)
 		fatal_lang_error('invalid_tracking_ip', false);
 
 	$ip_var = str_replace('*', '%', $context['ip']);

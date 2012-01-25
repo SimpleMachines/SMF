@@ -48,7 +48,7 @@ function loadSession()
 	{
 		// Attempt to end the already-started session.
 		if (ini_get('session.auto_start') == 1)
-			@session_write_close();
+			session_write_close();
 
 		// This is here to stop people from using bad junky PHPSESSIDs.
 		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9]{16,32}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
@@ -101,8 +101,8 @@ function loadSession()
  * Implementation of sessionOpen() replacing the standard open handler.
  * It simply returns true.
  *
- * @param $save_path
- * @param $session_name
+ * @param string $save_path
+ * @param string $session_name
  * @return bool
  */
 function sessionOpen($save_path, $session_name)
@@ -124,7 +124,7 @@ function sessionClose()
 /**
  * Implementation of sessionRead() replacing the standard read handler.
  *
- * @param $session_id
+ * @param string $session_id
  */
 function sessionRead($session_id)
 {
@@ -152,8 +152,9 @@ function sessionRead($session_id)
 /**
  * Implementation of sessionWrite() replacing the standard write handler.
  *
- * @param $session_id
- * @param $data
+ * @param string $session_id
+ * @param string $data
+ * @return bool
  */
 function sessionWrite($session_id, $data)
 {
@@ -189,7 +190,8 @@ function sessionWrite($session_id, $data)
 /**
  * Implementation of sessionDestroy() replacing the standard destroy handler.
  *
- * @param $session_id
+ * @param string $session_id
+ * @return bool
  */
 function sessionDestroy($session_id)
 {
@@ -213,6 +215,7 @@ function sessionDestroy($session_id)
  * Callback for garbage collection.
  *
  * @param int $max_lifetime
+ * @return bool
  */
 function sessionGC($max_lifetime)
 {

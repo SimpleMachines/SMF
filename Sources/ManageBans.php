@@ -375,6 +375,14 @@ function BanEdit()
 			'ip_high3' => 0,
 			'ip_low4' => 0,
 			'ip_high4' => 0,
+			'ip_low5' => 0,
+			'ip_high5' => 0,
+			'ip_low6' => 0,
+			'ip_high6' => 0,
+			'ip_low7' => 0,
+			'ip_high7' => 0,
+			'ip_low8' => 0,
+			'ip_high8' => 0,
 		);
 
 		// Preset all values that are required.
@@ -393,6 +401,14 @@ function BanEdit()
 				'ip_high3' => 'int',
 				'ip_low4' => 'int',
 				'ip_high4' => 'int',
+				'ip_low5' => 'int',
+				'ip_high5' => 'int',
+				'ip_low6' => 'int',
+				'ip_high6' => 'int',
+				'ip_low7' => 'int',
+				'ip_high7' => 'int',
+				'ip_low8' => 'int',
+				'ip_high8' => 'int',
 			);
 		}
 		else
@@ -401,7 +417,11 @@ function BanEdit()
 				ip_low1 = {int:ip_low1}, ip_high1 = {int:ip_high1},
 				ip_low2 = {int:ip_low2}, ip_high2 = {int:ip_high2},
 				ip_low3 = {int:ip_low3}, ip_high3 = {int:ip_high3},
-				ip_low4 = {int:ip_low4}, ip_high4 = {int:ip_high4}';
+				ip_low4 = {int:ip_low4}, ip_high4 = {int:ip_high4},
+				ip_low5 = {int:ip_low5}, ip_high5 = {int:ip_high5},
+				ip_low6 = {int:ip_low6}, ip_high6 = {int:ip_high6},
+				ip_low7 = {int:ip_low7}, ip_high7 = {int:ip_high7},
+				ip_low8 = {int:ip_low8}, ip_high8 = {int:ip_high8}';
 
 		if ($_POST['bantype'] == 'ip_ban')
 		{
@@ -598,6 +618,14 @@ function BanEdit()
 						$ip_parts[2]['high'],
 						$ip_parts[3]['low'],
 						$ip_parts[3]['high'],
+						$ip_parts[4]['low'],
+						$ip_parts[4]['high'],
+						$ip_parts[5]['low'],
+						$ip_parts[5]['high'],
+						$ip_parts[6]['low'],
+						$ip_parts[6]['high'],
+						$ip_parts[7]['low'],
+						$ip_parts[7]['high'],
 						'',
 						'',
 						0,
@@ -616,7 +644,7 @@ function BanEdit()
 					$_POST['hostname'] = str_replace('*', '%', $_POST['hostname']);
 
 					$ban_triggers[] = array(
-						0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						substr($_POST['hostname'], 0, 255),
 						'',
 						0,
@@ -632,7 +660,7 @@ function BanEdit()
 					$_POST['email'] = strtolower(str_replace('*', '%', $_POST['email']));
 
 					$ban_triggers[] = array(
-						0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						'',
 						substr($_POST['email'], 0, 255),
 						0,
@@ -668,7 +696,7 @@ function BanEdit()
 					}
 
 					$ban_triggers[] = array(
-						0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						'',
 						'',
 						(int) $_POST['bannedUser'],
@@ -691,7 +719,7 @@ function BanEdit()
 						$ip_parts = ip2range($ip);
 
 						// They should be alright, but just to be sure...
-						if (count($ip_parts) != 4)
+						if (count($ip_parts) != 4 || count($ip_parts) != 8)
 							fatal_lang_error('invalid_ip', false);
 
 						$ban_triggers[] = array(
@@ -703,6 +731,14 @@ function BanEdit()
 							$ip_parts[2]['high'],
 							$ip_parts[3]['low'],
 							$ip_parts[3]['high'],
+							$ip_parts[4]['low'],
+							$ip_parts[4]['high'],
+							$ip_parts[5]['low'],
+							$ip_parts[5]['high'],
+							$ip_parts[6]['low'],
+							$ip_parts[6]['high'],
+							$ip_parts[7]['low'],
+							$ip_parts[7]['high'],
 							'',
 							'',
 							0,
@@ -744,8 +780,9 @@ function BanEdit()
 					'{db_prefix}ban_items',
 					array(
 						'id_ban_group' => 'int', 'ip_low1' => 'int', 'ip_high1' => 'int', 'ip_low2' => 'int', 'ip_high2' => 'int',
-						'ip_low3' => 'int', 'ip_high3' => 'int', 'ip_low4' => 'int', 'ip_high4' => 'int', 'hostname' => 'string-255',
-						'email_address' => 'string-255', 'id_member' => 'int',
+						'ip_low3' => 'int', 'ip_high3' => 'int', 'ip_low4' => 'int', 'ip_high4' => 'int', 'ip_low5' => 'int',
+						'ip_high5' => 'int', 'ip_low6' => 'int', 'ip_high6' => 'int', 'ip_low7' => 'int', 'ip_high7' => 'int',
+						'ip_low8' => 'int', 'ip_high8' => 'int', 'hostname' => 'string-255', 'email_address' => 'string-255', 'id_member' => 'int',
 					),
 					$ban_triggers,
 					array('id_ban')
@@ -791,6 +828,7 @@ function BanEdit()
 			SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
+				bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
 				bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
 				IFNULL(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
 			FROM {db_prefix}ban_groups AS bg
@@ -835,7 +873,7 @@ function BanEdit()
 				if (!empty($row['ip_high1']))
 				{
 					$context['ban_items'][$row['id_ban']]['type'] = 'ip';
-					$context['ban_items'][$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4']));
+					$context['ban_items'][$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
 				}
 				elseif (!empty($row['hostname']))
 				{
@@ -1036,6 +1074,7 @@ function BanEditTrigger()
 			SELECT
 				bi.id_ban, bi.id_ban_group, bi.hostname, bi.email_address, bi.id_member,
 				bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
+				bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8
 				mem.member_name, mem.real_name
 			FROM {db_prefix}ban_items AS bi
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
@@ -1056,7 +1095,7 @@ function BanEditTrigger()
 			'id' => $row['id_ban'],
 			'group' => $row['id_ban_group'],
 			'ip' => array(
-				'value' => empty($row['ip_low1']) ? '' : range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'])),
+				'value' => empty($row['ip_low1']) ? '' : range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'], $row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8'])),
 				'selected' => !empty($row['ip_low1']),
 			),
 			'hostname' => array(
@@ -1576,6 +1615,27 @@ function list_getNumBanLogEntries()
  */
 function range2ip($low, $high)
 {
+	// IPv6 check.
+	if (!empty($low[5]))
+	{
+		if (count($low) != 8 || count($high) != 8)
+			return '';
+
+		$ip = array();
+		for ($i = 0; $i < 8; $i++)
+		{
+			if ($low[$i] == $high[$i])
+				$ip[$i] = dechex($low[$i]);
+			elseif ($low[$i] == '0' && $high[$i] == '255')
+				$ip[$i] = '*';
+			else
+				$ip[$i] = dechex($low[$i]) . '-' . dechex($high[$i]);
+		}
+
+		return implode(':', $ip);
+	}
+
+	// Legacy IPv4 stuff.
 	if (count($low) != 4 || count($high) != 4)
 		return '';
 
@@ -1610,7 +1670,7 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 {
 	global $smcFunc, $scripturl;
 
-	if (count($ip_array) == 4)
+	if (count($ip_array) == 4 || count($ip_array) == 8)
 		$values = array(
 			'ip_low1' => $ip_array[0]['low'],
 			'ip_high1' => $ip_array[0]['high'],
@@ -1620,6 +1680,14 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 			'ip_high3' => $ip_array[2]['high'],
 			'ip_low4' => $ip_array[3]['low'],
 			'ip_high4' => $ip_array[3]['high'],
+			'ip_low5' => $ip_array[4]['low'],
+			'ip_high5' => $ip_array[4]['high'],
+			'ip_low6' => $ip_array[5]['low'],
+			'ip_high6' => $ip_array[5]['high'],
+			'ip_low7' => $ip_array[6]['low'],
+			'ip_high7' => $ip_array[6]['high'],
+			'ip_low8' => $ip_array[7]['low'],
+			'ip_high8' => $ip_array[7]['high'],
 		);
 	else
 		return false;
@@ -1633,6 +1701,10 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 			AND ip_low2 = {int:ip_low2} AND ip_high2 = {int:ip_high2}
 			AND ip_low3 = {int:ip_low3} AND ip_high3 = {int:ip_high3}
 			AND ip_low4 = {int:ip_low4} AND ip_high4 = {int:ip_high4}
+			AND ip_low5 = {int:ip_low5} AND ip_high5 = {int:ip_high5}
+			AND ip_low6 = {int:ip_low6} AND ip_high6 = {int:ip_high6}
+			AND ip_low7 = {int:ip_low7} AND ip_high7 = {int:ip_high7}
+			AND ip_low8 = {int:ip_low8} AND ip_high8 = {int:ip_high8}
 		LIMIT 1',
 		$values
 	);

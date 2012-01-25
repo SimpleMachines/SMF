@@ -251,8 +251,36 @@ function is_not_banned($forceCheck = false)
 		// Check both IP addresses.
 		foreach (array('ip', 'ip2') as $ip_number)
 		{
-			// Check if we have a valid IP address.
-			if (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $user_info[$ip_number], $ip_parts) == 1)
+			// First attempt a IPv6 address.
+			if (strpos($user_info[$ip_number], ':') !== false)
+			{
+				if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
+					continue;
+
+				$ip_parts = array_map('hexdec', explode(':', expandIPv6($user_info[$ip_number])));
+
+				$ban_query[] = '((' . $ip_parts[0] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
+							AND (' . $ip_parts[1] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
+							AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
+							AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low4 AND bi.ip_high4)
+							AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low5 AND bi.ip_high5)
+							AND (' . $ip_parts[5] . ' BETWEEN bi.ip_low6 AND bi.ip_high6)
+							AND (' . $ip_parts[6] . ' BETWEEN bi.ip_low7 AND bi.ip_high7)
+							AND (' . $ip_parts[7] . ' BETWEEN bi.ip_low8 AND bi.ip_high8))';
+
+				// IP was valid, maybe there's also a hostname...
+				if (empty($modSettings['disableHostnameLookup']))
+				{
+					$hostname = host_from_ip($user_info[$ip_number]);
+					if (strlen($hostname) > 0)
+					{
+						$ban_query[] = '({string:hostname} LIKE bi.hostname)';
+						$ban_query_vars['hostname'] = $hostname;
+					}
+				}
+			}
+			// Check if we have a valid IPv4 address.
+			elseif (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $user_info[$ip_number], $ip_parts) == 1)
 			{
 				$ban_query[] = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
 							AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)

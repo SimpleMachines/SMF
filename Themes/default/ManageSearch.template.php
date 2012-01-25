@@ -88,22 +88,7 @@ function template_modify_weights()
 			</div>
 		</form>
 	</div>
-	<br class="clear" />
-	<script type="text/javascript"><!-- // --><![CDATA[
-		function calculateNewValues()
-		{
-			var total = 0;
-			for (var i = 1; i <= 6; i++)
-			{
-				total += parseInt(document.getElementById(\'weight\' + i + \'_val\').value);
-			}
-			setInnerHTML(document.getElementById(\'weighttotal\'), total);
-			for (var i = 1; i <= 6; i++)
-			{
-				setInnerHTML(document.getElementById(\'weight\' + i), (Math.round(1000 * parseInt(document.getElementById(\'weight\' + i + \'_val\').value) / total) / 10) + \'%\');
-			}
-		}
-	// ]]></script>';
+	<br class="clear" />';
 }
 
 function template_select_search_method()
@@ -409,7 +394,7 @@ function template_show_spider_logs()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
 		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=logs;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
@@ -419,6 +404,41 @@ function template_show_spider_logs()
 						', $txt['spider_logs_delete_day'], '
 					</p>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '" />
+					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
+				</div>
+				<span class="botslice"><span></span></span>
+			</div>
+		</form>
+	</div>
+	<br class="clear" />';
+}
+
+// Show... spider... stats...
+function template_show_spider_stats()
+{
+	global $context, $txt, $settings, $scripturl;
+
+	echo '
+	<div id="admincenter">';
+
+	// Standard fields.
+	template_show_list('spider_stat_list');
+
+	echo '
+		<br />
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+		</div>
+		<form action="', $scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', $context['character_set'], '">
+			<div class="windowbg">
+				<span class="topslice"><span></span></span>
+				<div class="content">
+					<p>
+						', sprintf($txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3" class="input_text" />'), '
+					</p>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-ss_token_var'], '" value="', $context['admin-ss_token'], '" />
 					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
 				</div>
 				<span class="botslice"><span></span></span>
