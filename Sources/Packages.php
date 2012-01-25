@@ -507,6 +507,18 @@ function PackageInstallTest()
 				'type' => $txt['package_create'] . ' ' . ($action['type'] == 'create-dir' ? $txt['package_tree'] : $txt['package_file']),
 				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
 			);
+		elseif (in_array($action['type'], array('hook')))
+		{
+			$action['description'] = !isset($action['hook'], $action['function']) ? $txt['package_action_failure'] : $txt['package_action_success'];
+
+			if (!isset($action['hook'], $action['function']))
+				$context['has_failure'] = true;
+
+			$thisAction = array(
+				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
+				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+			);
+		}
 		elseif (in_array($action['type'], array('require-dir', 'require-file')))
 		{
 			// Do this one...
@@ -920,6 +932,13 @@ function PackageInstall()
 
 				// Now include the file and be done with it ;).
 				require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
+			}
+			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['name']))
+			{
+				if ($action['reverse'])
+					remove_integration_function($action['hook'], $action['function']);
+				else
+					add_integration_function($action['hook'], $action['function']);
 			}
 			// Only do the database changes on uninstall if requested.
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))

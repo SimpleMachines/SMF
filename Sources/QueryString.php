@@ -319,10 +319,10 @@ function convertIPv6toInts($ip)
 		return $expanded[$ip];
 
 	// Expand the IP out.
-	$ip = explode(':', expandIPv6($ip));
+	$expanded_ip = explode(':', expandIPv6($ip));
 
 	$new_ip = array();
-	foreach ($ip as $int)
+	foreach ($expanded_ip as $int)
 		$new_ip[] = hexdec($int);
 
 	// Save this incase of repeated use.

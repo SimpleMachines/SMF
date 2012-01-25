@@ -1116,7 +1116,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	{
 		$actionType = $action->name();
 
-		if ($actionType == 'readme' || $actionType == 'code' || $actionType == 'database' || $actionType == 'modification' || $actionType == 'redirect')
+		if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'redirect')))
 		{
 			// Allow for translated readme files.
 			if ($actionType == 'readme')
@@ -1176,6 +1176,17 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'language' => ($actionType == 'readme' && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
 			);
 
+			continue;
+		}
+		elseif ($actionType == 'hook')
+		{
+			$return[] = array(
+				'type' => $actionType,
+				'function' => $action->exists('@function') ? $action->fetch('@function') : '',
+				'hook' => $action->exists('@hook') ? $action->fetch('@hook') : $action->fetch('.'),
+				'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true' ? true : false,
+				'description' => '',
+			);
 			continue;
 		}
 		elseif ($actionType == 'error')

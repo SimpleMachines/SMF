@@ -1702,24 +1702,6 @@ dl#ic_recentposts dd
 	font-size: 1.1em;
 	padding-top: 8px;
 }
-form#ic_login
-{
-	padding: 0.5em;
-	height: 2em;
-}
-form#ic_login ul li
-{
-	margin: 0;
-	padding: 0;
-	float: left;
-	width: 20%;
-	text-align: center;
-}
-form#ic_login ul li label
-{
-	display: block;
-}
-
 /* the small stats */
 #index_common_stats
 {

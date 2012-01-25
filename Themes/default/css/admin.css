@@ -565,7 +565,7 @@ dl.themes_list dd
 
 .modbox
 {
-	height: 150px;
+	height: 14em;
 	overflow: auto;
 }
 /* Moderation Notes */
@@ -575,16 +575,16 @@ ul.moderation_notes
 	padding: 0;
 	list-style: none;
 	overflow: auto;
-	height: 8.5em;
+	height: 10.2em;
 }
 ul.moderation_notes li
 {
-	padding: 4px 0 4px 4px;
+	padding: 0.2em;
 	border-bottom: 1px solid #cccccc;
 }
 .notes
 {
-	margin: 0.5em 0;
+	margin-top: 0.4em;
 }
 .post_note
 {

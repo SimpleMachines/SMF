@@ -1459,8 +1459,11 @@ function pollOptions()
 		document.forms.postmodify.poll_hide[2].disabled = false;
 }
 
-function generateDays(offset = 0)
+function generateDays(offset)
 {
+	// Work around JavaScript's lack of support for default values...
+	offset = typeof(offset) != 'undefined' ? offset : 0;
+
 	var days = 0, selected = 0;
 	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
 

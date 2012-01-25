@@ -94,6 +94,9 @@ $txt['package_tree'] = 'Tree';
 $txt['execute_modification'] = 'Execute Modification';
 $txt['execute_code'] = 'Execute Code';
 $txt['execute_database_changes'] = 'Adapt Database';
+$txt['execute_hook_add'] = 'Add Hook';
+$txt['execute_hook_remove'] = 'Remove Hook';
+$txt['execute_hook_action'] = 'Adapting hook %1$s';
 
 $txt['package_install_actions'] = 'Installations actions for';
 $txt['package_will_fail_title'] = 'Error in Package Installation';
