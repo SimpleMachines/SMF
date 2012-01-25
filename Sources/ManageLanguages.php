@@ -760,7 +760,6 @@ function ModifyLanguageSettings($return_config = false)
 
 /**
  * Edit a particular set of language entries.
- *
  */
 function ModifyLanguage()
 {

@@ -269,7 +269,7 @@ function SetReserved()
  * Accessed by ?action=admin;area=regcenter;sa=settings.
  * Requires the admin_forum permission.
  *
- * @param $return_config
+ * @param bool $return_config = false
  */
 function ModifyRegistrationSettings($return_config = false)
 {

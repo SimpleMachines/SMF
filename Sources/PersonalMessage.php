@@ -635,9 +635,7 @@ function MessageFolder()
 	// This is kinda simple!
 	else
 	{
-		/**
-		 * @todo SLOW This query uses a filesort. (inbox only.)
-		 */
+		// @todo SLOW This query uses a filesort. (inbox only.)
 		$request = $smcFunc['db_query']('', '
 			SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '' . ($context['sort_by'] == 'name' ? '
@@ -1168,9 +1166,7 @@ function MessageSearch2()
 	}
 
 	// Setup the sorting variables...
-	/**
-	 * @todo Add more in here!
-	 */
+	// @todo Add more in here!
 	$sort_columns = array(
 		'pm.id_pm',
 	);
@@ -2434,9 +2430,7 @@ function MessageActionsApply()
 		$smcFunc['db_free_result']($request);
 
 		// Any errors?
-		/**
-		 * @todo Separate the sprintf?
-		 */
+		// @todo Separate the sprintf?
 		if (!empty($updateErrors))
 			fatal_lang_error('labels_too_many', true, array($updateErrors));
 	}
@@ -3056,9 +3050,7 @@ function ReportMessage()
 	{
 		$context['sub_template'] = 'report_message';
 
-		/**
-		 * @todo I don't like being able to pick who to send it to.  Favoritism, etc. sucks.
-		 */
+		// @todo I don't like being able to pick who to send it to.  Favoritism, etc. sucks.
 		// Now, get all the administrators.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, real_name
@@ -3448,9 +3440,7 @@ function ApplyRules($all_messages = false)
 	// Just unread ones?
 	$ruleQuery = $all_messages ? '' : ' AND pmr.is_new = 1';
 
-	/**
-	 * @todo Apply all should have timeout protection!
-	 */
+	// @todo Apply all should have timeout protection!
 	// Get all the messages that match this.
 	$request = $smcFunc['db_query']('', '
 		SELECT

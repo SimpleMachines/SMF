@@ -361,18 +361,17 @@ function EditCategory2()
 
 /**
  * Modify a specific board...
- * 	void EditBoard()
-		- screen for editing and repositioning a board.
-		- called by ?action=admin;area=manageboards;sa=board
-		- uses the modify_board sub-template of the ManageBoards template.
-		- requires manage_boards permission.
-		- also used to show the confirm deletion of category screen
+ * screen for editing and repositioning a board.
+ * called by ?action=admin;area=manageboards;sa=board
+ * uses the modify_board sub-template of the ManageBoards template.
+ * requires manage_boards permission.
+ * also used to show the confirm deletion of category screen (sub-template confirm_board_delete).
 		  (sub-template confirm_board_delete).
 
  */
 function EditBoard()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $context, $cat_tree, $boards, $boardList, $smcFunc, $modSettings;
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');

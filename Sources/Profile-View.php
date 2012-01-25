@@ -957,6 +957,7 @@ function trackActivity($memID)
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
+	// @todo cache this
 	// If this is a big forum, or a large posting user, let's limit the search.
 	if ($modSettings['totalMessages'] > 50000 && $user_profile[$memID]['posts'] > 500)
 	{
@@ -981,6 +982,7 @@ function trackActivity($memID)
 		$user_profile[$memID]['member_ip2'],
 	);
 
+	// @todo cache this
 	// Get all IP addresses this user has used for his messages.
 	$request = $smcFunc['db_query']('', '
 		SELECT poster_ip

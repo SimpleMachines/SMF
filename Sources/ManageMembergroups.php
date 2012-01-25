@@ -336,9 +336,7 @@ function AddMembergroup()
 		$postCountBasedGroup = isset($_POST['min_posts']) && (!isset($_POST['postgroup_based']) || !empty($_POST['postgroup_based']));
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 
-		/**
-		 * @todo Check for members with same name too?
-		 */
+		// @todo Check for members with same name too?
 
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX(id_group)

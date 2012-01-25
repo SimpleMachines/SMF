@@ -550,7 +550,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 
 		// Call this function recursively for the hotmail addresses.
 		if (!empty($hotmail_to))
-			$mail_result = sendmail($hotmail_to, $subject, $message, $from, $message_id, $send_html, $priority, true);
+			$mail_result = sendmail($hotmail_to, $subject, $message, $from, $message_id, $send_html, $priority, true, $is_private);
 
 		// The remaining addresses no longer need the fix.
 		$hotmail_fix = false;

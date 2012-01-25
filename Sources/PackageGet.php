@@ -626,9 +626,7 @@ function PackageUpload()
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';
 
-	/**
-	 * @todo Use FTP if the Packages directory is not writable.
-	 */
+	// @todo Use FTP if the Packages directory is not writable.
 
 	// Check the file was even sent!
 	if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '')
@@ -647,9 +645,7 @@ function PackageUpload()
 
 	// Setup the destination and throw an error if the file is already there!
 	$destination = $boarddir . '/Packages/' . $packageName;
-	/**
-	 * @todo Maybe just roll it like we do for downloads?
-	 */
+	// @todo Maybe just roll it like we do for downloads?
 	if (file_exists($destination))
 		fatal_lang_error('package_upload_error_exists');
 

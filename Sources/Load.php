@@ -202,12 +202,12 @@ function reloadSettings()
  * Load all the important user information.
  * What it does:
  * 	- sets up the $user_info array
- *	- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
- *	- first checks for cookie or integration validation.
- *	- uses the current session if no integration function or cookie is found.
- *	- checks password length, if member is activated and the login span isn't over.
- *		- if validation fails for the user, $id_member is set to 0.
- *		- updates the last visit time when needed.
+ * 	- assigns $user_info['query_wanna_see_board'] for what boards the user can see.
+ * 	- first checks for cookie or integration validation.
+ * 	- uses the current session if no integration function or cookie is found.
+ * 	- checks password length, if member is activated and the login span isn't over.
+ * 		- if validation fails for the user, $id_member is set to 0.
+ * 		- updates the last visit time when needed.
  */
 function loadUserSettings()
 {
@@ -245,9 +245,7 @@ function loadUserSettings()
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
-		/*
-		 * @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		 */
+		 // @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
 		$id_member = !empty($id_member) && strlen($password) == 40 && $login_span > time() ? (int) $id_member : 0;
 	}
@@ -311,6 +309,7 @@ function loadUserSettings()
 		// 4. New session, yet updated < five hours ago? Maybe cache can help.
 		if (SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != '.xml') && empty($_SESSION['id_msg_last_visit']) && (empty($modSettings['cache_enable']) || ($_SESSION['id_msg_last_visit'] = cache_get_data('user_last_visit-' . $id_member, 5 * 3600)) === null))
 		{
+			// @todo can this be cached?
 			// Do a quick query to make sure this isn't a mistake.
 			$result = $smcFunc['db_query']('', '
 				SELECT poster_time
@@ -627,6 +626,8 @@ function loadBoard()
 				// Free the previous result
 				$smcFunc['db_free_result']($request);
 
+				// @todo why is this using id_topic?
+				// @todo Can this get cached?
 				$request = $smcFunc['db_query']('', '
 					SELECT COUNT(id_topic)
 					FROM {db_prefix}topics
@@ -854,6 +855,7 @@ function loadPermissions()
  * @param mixed $users An array of users by id or name
  * @param bool $is_name = false $users is by name or by id
  * @param string $set = 'normal' What kind of data to load (normal, profile, minimal)
+ * @return array|bool The ids of the members loaded or false
  */
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
@@ -1725,15 +1727,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 /**
  * Load a template - if the theme doesn't include it, use the default.
  * What this function does:
- * - loads a template file with the name template_name from the current, default,
- *  or base theme.
- *  - uses the template_include() function to include the file.
- *  - detects a wrong default theme directory and tries to work around it.
- *  - if fatal is true, dies with an error message if the template cannot be found.
- *
+ * * loads a template file with the name template_name from the current, default, or base theme.
+ * * detects a wrong default theme directory and tries to work around it.
+ * 
+ * @uses the template_include() function to include the file.
  * @param string $template_name
  * @param array $style_sheets = array()
- * @param bool $fatal = true
+ * @param bool $fatal = true if fatal is true, dies with an error message if the template cannot be found
  * @return bool
  */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
@@ -1855,7 +1855,37 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 }
 
 /**
- *  Load a language file.  Tries the current and default themes as well as the user and global languages.
+ * Add a CSS file for output later
+ * @param string $filename
+ * @param array $options
+ */
+function loadCSSFile($filename, $options = array())
+{
+	global $settings, $context;
+
+	if (strpos($filename, 'http://') === false || !empty($options['local']))
+		$filename = $settings['theme_url'] . '/' . $filename;
+
+	$context['css_files'][$filename] = $options;
+}
+
+/**
+ * Add a CSS file for output later
+ * @param string $filename
+ * @param array $options
+ */
+function loadJavascriptFile($filename, $options = array())
+{
+	global $settings, $context;
+
+	if (strpos($filename, 'http://') === false || !empty($options['local']))
+		$filename = $settings['theme_url'] . '/' . $filename;
+
+	$context['javascript_files'][$filename] = $options;
+}
+
+/**
+ * Load a language file.  Tries the current and default themes as well as the user and global languages.
  *
  * @param string $template_name
  * @param string $lang

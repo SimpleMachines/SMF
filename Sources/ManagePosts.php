@@ -170,7 +170,7 @@ function SetCensor()
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=posts.
  *
- * @param $return_config
+ * @param bool $return_config = false
  * @uses Admin template, edit_post_settings sub-template.
  */
 function ModifyPostSettings($return_config = false)
@@ -333,7 +333,7 @@ function ModifyBBCSettings($return_config = false)
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=topics.
 
- * @param $return_config
+ * @param bool $return_config = false
  * @uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyTopicSettings($return_config = false)

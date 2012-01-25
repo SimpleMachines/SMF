@@ -20,8 +20,8 @@ if (!defined('SMF'))
 /**
  * This just avoids some repetition.
  *
- * @param $subActions
- * @param $defaultAction
+ * @param array $subActions = array()
+ * @param string $defaultAction = ''
  */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
 {

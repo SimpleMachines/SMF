@@ -451,6 +451,7 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 	else
 		$msg_id = '0';
 
+	// @todo cache this?
 	// Is there an associated report on this?
 	if (in_array($action, array('move', 'remove', 'split', 'merge')))
 	{

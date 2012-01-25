@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Handle online users
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,26 +16,11 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file currently only holds the function for showing a list of online
-	users used by the board index and SSI. In the future it'll also contain
-	functions used by the Who's online page.
-
-	array getMembersOnlineStats(array membersOnlineOptions)
-		- retrieve a list and several other statistics of the users currently
-		  online on the forum.
-		- used by the board index and SSI.
-		- also returns the membergroups of the users that are currently online.
-		- (optionally) hides members that chose to hide their online presense.
-*/
-
-// 
 /**
  * Retrieve a list and several other statistics of the users currently online.
- * - retrieve a list and several other statistics of the users currently
- *   online on the forum.
- * - used by the board index and SSI.
- * - also returns the membergroups of the users that are currently online.
- * - (optionally) hides members that chose to hide their online presense.
+ * Used by the board index and SSI.
+ * Also returns the membergroups of the users that are currently online.
+ * (optionally) hides members that chose to hide their online presense.
  * @param array $membersOnlineOptions
  * @return array
  */

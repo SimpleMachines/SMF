@@ -20,6 +20,7 @@ if (!defined('SMF'))
  * Get the latest posts of a forum.
  *
  * @param array $latestPostOptions
+ * @return array
  */
 function getLastPosts($latestPostOptions)
 {

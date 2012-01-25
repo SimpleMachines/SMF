@@ -1361,8 +1361,8 @@ ul#navigation li
 /* the content section */
 #content_section
 {
-	background: #FFFFFF url(../images/theme/frame_repeat.png) repeat-y top left;
-	padding-left: 20px;
+	background: #fff url(../images/theme/frame_repeat.png) repeat-y top left;
+	padding: 0 0 1px 20px;
 }
 #content_section div.frame
 {

@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file is the file which all subscription gateways should call
+ * when a payment has been received - it sorts out the user status.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -10,14 +13,6 @@
  *
  * @version 2.1 Alpha 1
  */
-
-/*
-	This file is the file which all subscription gateways should call
-	when a payment has been received - it sorts out the user status.
-
-	void generateSubscriptionError()
-	// log the error for posterity
-*/
 
 // Start things rolling by getting SMF alive...
 $ssi_guest_access = true;

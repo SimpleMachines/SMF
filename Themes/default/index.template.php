@@ -35,7 +35,9 @@
 	http://www.simplemachines.org/
 */
 
-// Initialize the template... mainly little settings.
+/**
+ * Initialize the template... mainly little settings.
+ */
 function template_init()
 {
 	global $context, $settings, $options, $txt;
@@ -74,7 +76,9 @@ function template_init()
 	$settings['require_theme_strings'] = false;
 }
 
-// The main sub template above the content.
+/**
+ * The main sub template above the content.
+ */
 function template_html_above()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
@@ -98,6 +102,8 @@ function template_html_above()
 	if ($context['right_to_left'])
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css" />';
+
+	template_css();
 
 	// Here comes the JavaScript bits!
 	// Note that the Superfish function seems to like being called by the full syntax.
@@ -134,6 +140,8 @@ function template_html_above()
 		var ajax_notification_text = "', $txt['ajax_in_progress'], '";
 		var ajax_notification_cancel_text = "', $txt['modify_cancel'], '";
 	// ]]></script>';
+
+	template_javascript();
 
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
@@ -378,11 +386,16 @@ function template_html_below()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
+	template_javascript(true);
+
 	echo '
 </body></html>';
 }
 
-// Show a linktree. This is that thing that shows "My Community | General Category | General Discussion"..
+/**
+ * Show a linktree. This is that thing that shows "My Community | General Category | General Discussion"..
+ * @param bool $force_show = false
+ */
 function theme_linktree($force_show = false)
 {
 	global $context, $settings, $options, $shown_linktree;
@@ -427,7 +440,9 @@ function theme_linktree($force_show = false)
 	$shown_linktree = true;
 }
 
-// Show the menu up top. Something like [home] [help] [profile] [logout]...
+/**
+ * Show the menu up top. Something like [home] [help] [profile] [logout]...
+ */
 function template_menu()
 {
 	global $context, $settings, $options, $scripturl, $txt;
@@ -488,8 +503,13 @@ function template_menu()
 		</div>';
 }
 
-// Generate a strip of buttons.
-function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
+/**
+ * Generate a strip of buttons.
+ * @param array $button_strip
+ * @param string $direction = ''
+ * @param array $strip_options = array()
+ */
+function template_button_strip($button_strip, $direction = '', $strip_options = array())
 {
 	global $settings, $context, $txt, $scripturl;
 
@@ -522,6 +542,51 @@ function template_button_strip($button_strip, $direction = 'top', $strip_options
 				implode('', $buttons), '
 			</ul>
 		</div>';
+}
+
+/**
+ * Output the Javascript files
+ */
+function template_javascript($do_defered = false)
+{
+	global $context;
+
+	// Use this hook to minify/optimize Javascript files
+	call_integration_hook('pre_javascript_output');
+
+	foreach ($context['javascript_files'] as $filename => $options)
+		if ((!$do_defered && empty($options['defer'])) || ($do_defered && !empty($options['defer'])))
+			echo '
+		<script type="text/javascript" src="', $filename, '"></script>';
+}
+
+/**
+ * Output the Javascript vars
+ */
+function template_javascript_vars()
+{
+	global $context;
+
+	call_integration_hook('pre_javascript_vars_output');
+
+	foreach ($context['javascript_vars'] as $key => $value)
+		echo '
+		var ', $key, ' = ', $value;
+}
+
+/**
+ * Output the Javascript files
+ */
+function template_css()
+{
+	global $context;
+
+	// Use this hook to minify/optimize CSS files
+	call_integration_hook('pre_css_output');
+
+	foreach ($context['css_files'] as $filename => $options)
+		echo '
+		<script type="text/javascript" src="', $filename, '"></script>';
 }
 
 ?>

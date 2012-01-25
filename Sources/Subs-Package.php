@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * This file's central purpose of existence is that of making the package 
+ * manager work nicely.  It contains functions for handling tar.gz and zip
+ * files, as well as a simple xml parser to handle the xml package stuff.
+ * Not to mention a few functions to make file handling easier.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,24 +18,6 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	This file's central purpose of existence is that of making the package
-	manager work nicely.  It contains functions for handling tar.gz and zip
-	files, as well as a simple xml parser to handle the xml package stuff.
-	Not to mention a few functions to make file handling easier.
-
-	string package_crypt(
-
-
-	string fetch_web_data(
-
-
-	Creating your own package server:
-	---------------------------------------------------------------------------
-
-	Creating your own package:
-	---------------------------------------------------------------------------
-*/
 
 /**
  * Reads a .tar.gz file, filename, in and extracts file(s) from it.

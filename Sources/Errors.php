@@ -359,7 +359,7 @@ function display_maintenance_message()
  */
 function display_db_error()
 {
-	global $sourcedir, $mbname, $modSettings;
+	global $mbname, $modSettings, $maintenance;
 	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc;
 
 	set_fatal_error_headers();

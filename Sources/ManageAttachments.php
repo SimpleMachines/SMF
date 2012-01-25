@@ -157,7 +157,7 @@ function ManageAttachmentSettings($return_config = false)
  * Show/set permissions for permissions: 'profile_server_avatar',
  * 	'profile_upload_avatar' and 'profile_remote_avatar'.
  *
- * @param $return_config
+ * @param bool $return_config = false
  * @uses 'avatars' sub template.
  */
 function ManageAvatarSettings($return_config = false)

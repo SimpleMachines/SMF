@@ -624,7 +624,6 @@ function md5_hmac($data, $key)
 	return md5(($key ^ str_repeat(chr(0x5c), 64)) . pack('H*', md5(($key ^ str_repeat(chr(0x36), 64)) . $data)));
 }
 
-// Special encryption used by phpBB3.
 /**
  * Custom encryption for phpBB3 based passwords.
  *

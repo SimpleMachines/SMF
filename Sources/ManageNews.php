@@ -771,7 +771,7 @@ function SendMailing($clean_only = false)
  * Requires the forum_admin permission.
  *
  * @uses ManageNews template, news_settings sub-template.
- * @param $return_config
+ * @param bool $return_config = false
  */
 function ModifyNewsSettings($return_config = false)
 {
