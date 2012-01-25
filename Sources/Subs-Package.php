@@ -8,7 +8,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -79,7 +79,6 @@ if (!defined('SMF'))
 		- in the array returned, an xmlArray is available in 'xml'.
 
 	void packageRequireFTP(string destination_url, array files = none, bool return = false)
-		// !!!
 
 	array parsePackageInfo(xmlArray &package, bool testing_only = true,
 			string method = 'install', string previous_version = '')
@@ -126,7 +125,6 @@ if (!defined('SMF'))
 		- requires the destination to be writable.
 
 	void listtree(string path, string sub_path = none)
-		// !!!
 
 	array parseModification(string file, bool testing = true, bool undo = false, array theme_paths = array())
 		- parses a xml-style modification file (file).
@@ -142,8 +140,6 @@ if (!defined('SMF'))
 		  undone.
 		- returns an array of those changes made.
 
-	// !!!
-
 	int package_put_contents(string filename, string data)
 		- writes data to a file, almost exactly like the file_put_contents()
 		  function.
@@ -152,22 +148,17 @@ if (!defined('SMF'))
 		- returns the number of bytes written.
 
 	void package_chmod(string filename)
-		// !!!
 
 	string package_crypt(string password)
-		// !!!
 
 	string fetch_web_data(string url, string post_data = '',
 			bool keep_alive = false)
-		// !!!
 
 	Creating your own package server:
 	---------------------------------------------------------------------------
-		// !!!
 
 	Creating your own package:
 	---------------------------------------------------------------------------
-		// !!!
 */
 
 // Get the data from the file and extract it.

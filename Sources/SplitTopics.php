@@ -8,7 +8,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 // Original module by Mach8 - We'll never forget you.
@@ -813,6 +813,12 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	// Notify people that this topic has been split?
 	sendNotifications($split1_ID_TOPIC, 'split');
 
+	// If there's a search index that needs updating, update it...
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if (is_callable(array($searchAPI, 'topicSplit')))
+		$searchAPI->topicSplit($split2_ID_TOPIC, $splitMessages);
+
 	// Return the ID of the newly created topic.
 	return $split2_ID_TOPIC;
 }
@@ -1290,6 +1296,19 @@ function MergeExecute($topics = array())
 
 	$smcFunc['db_free_result']($request);
 
+	// Obtain all the message ids we are going to affect.
+	$affected_msgs = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_msg
+		FROM {db_prefix}messages
+		WHERE id_topic IN ({array_int:topic_list})',
+		array(
+			'topic_list' => $topics,
+	));
+	while ($row = $smcFunc['db_fetch_row']($request))
+		$affected_msgs[] = $row[0];
+	$smcFunc['db_free_result']($request);
+	
 	// Assign the first topic ID to be the merged topic.
 	$id_topic = min($topics);
 
@@ -1556,6 +1575,11 @@ function MergeExecute($topics = array())
 	// Notify people that these topics have been merged?
 	sendNotifications($id_topic, 'merge');
 
+	// If there's a search index that needs updating, update it...
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if (is_callable(array($searchAPI, 'topicMerge')))
+		$searchAPI->topicMerge($id_topic, $topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : array($context['response_prefix'], $target_subject));
 	// Send them to the all done page.
 	redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
 }

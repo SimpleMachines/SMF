@@ -7,7 +7,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 // This contains the html for the side bar of the admin center, which is used for all admin pages.
@@ -94,7 +94,7 @@ function template_generic_menu_sidebar_above()
 		<div id="main_admsection">';
 
 	// If there are any "tabs" setup, this is the place to shown them.
-	//!!! Clean this up!
+	// @todo Clean this up!
 	if (!empty($context['tabs']) && empty($context['force_disable_tabs']))
 		template_generic_menu_tabs($menu_context);
 }

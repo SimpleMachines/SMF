@@ -4,7 +4,7 @@
  * This file has two main jobs, but they really are one.  It registers new
  * members, and it helps the administrator moderate member registrations.
  * Similarly, it handles account activation as well.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -12,7 +12,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -20,7 +20,7 @@ if (!defined('SMF'))
 
 /**
  * Begin the registration process.
- * 
+ *
  * @param array $reg_errors = array()
  */
 function Register($reg_errors = array())
@@ -197,7 +197,7 @@ function Register($reg_errors = array())
 
 /**
  * Actually register the member.
- * 
+ *
  * @param bool $verifiedOpenID = false
  */
 function Register2($verifiedOpenID = false)

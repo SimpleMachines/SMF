@@ -10,7 +10,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -38,9 +38,8 @@ function ModifyKarma()
 	checkSession('get');
 
 	// If you don't have enough posts, tough luck.
-	/**
-	 * @todo Should this be dropped in favor of post group permissions?  Should this apply to the member you are smiting/applauding?
-	 */
+	// @todo Should this be dropped in favor of post group permissions?
+	// Should this apply to the member you are smiting/applauding?
 	if (!$user_info['is_admin'] && $user_info['posts'] < $modSettings['karmaMinPosts'])
 		fatal_lang_error('not_enough_posts_karma', true, array($modSettings['karmaMinPosts']));
 
@@ -152,9 +151,7 @@ function ModifyKarma()
 	}
 }
 
-/**
- *  What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
- */
+//  What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
 function BookOfUnknown()
 {
 	global $context;

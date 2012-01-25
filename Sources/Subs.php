@@ -8,7 +8,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -406,7 +406,24 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 	}
 }
 
-// Assumes the data has been htmlspecialchar'd.
+/**
+ * Assumes the data has been htmlspecialchar'd.
+ * 
+ * updates the columns in the members table.
+ * id_member is either an int or an array of ints to be updated.
+ * data is an associative array of the columns to be updated and their
+ *  respective values.
+ * any string values updated should be quoted and slashed.
+ * the value of any column can be '+' or '-', which mean 'increment'
+ *  and decrement, respectively.
+ * if the member's post number is updated, updates their post groups.
+ * this function should be used whenever member data needs to be
+ *  updated in place of an UPDATE query.
+ * 
+ * Enter description here ...
+ * @param mixed $members An array of integers
+ * @param array $data
+ */
 function updateMemberData($members, $data)
 {
 	global $modSettings, $user_info, $smcFunc;
@@ -544,7 +561,22 @@ function updateMemberData($members, $data)
 	}
 }
 
-// Updates the settings table as well as $modSettings... only does one at a time if $update is true.
+/**
+ * Updates the settings table as well as $modSettings... only does one at a time if $update is true.
+ * 
+ * updates both the settings table and $modSettings array.
+ * all of changeArray's indexes and values are assumed to have escaped
+ *  apostrophes (')!
+ * if a variable is already set to what you want to change it to, that
+ *  variable will be skipped over; it would be unnecessary to reset.
+ * if use_update is true, UPDATEs will be used instead of REPLACE.
+ * when use_update is true, the value can be true or false to increment
+ *  or decrement it, respectively.
+ * 
+ * @param array $changeArray
+ * @param bool $update = false
+ * @param bool $debug = false
+ */
 function updateSettings($changeArray, $update = false, $debug = false)
 {
 	global $modSettings, $smcFunc;
@@ -604,8 +636,28 @@ function updateSettings($changeArray, $update = false, $debug = false)
 	cache_put_data('modSettings', null, 90);
 }
 
-// Constructs a page list.
-// $pageindex = constructPageIndex($scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
+/**
+ * Constructs a page list.
+ *  int num_per_page, bool compact_start = false)
+ * builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
+ * compact_start caused it to use "url.page" instead of
+ *  "url;start=page".
+ * handles any wireless settings (adding special things to URLs.)
+ * very importantly, cleans up the start value passed, and forces it to
+ *  be a multiple of num_per_page.
+ * also checks that start is not more than max_value.
+ * base_url should be the URL without any start parameter on it.
+ * uses the compactTopicPagesEnable and compactTopicPagesContiguous
+ *  settings to decide how to display the menu.
+ * an example is available near the function definition.
+ * $pageindex = constructPageIndex($scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
+ * 
+ * @param string $base_url
+ * @param int $start
+ * @param int $max_value
+ * @param int $num_per_page
+ * @param bool $flexible_start = false
+ */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false)
 {
 	global $modSettings;
@@ -697,6 +749,15 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 }
 
 // Formats a number to display in the style of the admin's choosing.
+/**
+ * formats a number to display in the style of the admins' choosing.
+ * uses the format of number_format to decide how to format the number.
+ * for example, it might display "1 234,50".
+ * caches the formatting data from the setting for optimization.
+ * 
+ * @param float $number
+ * @param bool $override_decimal_count = false
+ */
 function comma_format($number, $override_decimal_count = false)
 {
 	global $txt;
@@ -722,7 +783,22 @@ function comma_format($number, $override_decimal_count = false)
 	return number_format($number, is_float($number) ? ($override_decimal_count === false ? $decimal_count : $override_decimal_count) : 0, $decimal_separator, $thousands_separator);
 }
 
-// Format a time to make it look purdy.
+/**
+ * Format a time to make it look purdy.
+ * 
+ * returns a pretty formated version of time based on the user's format
+ *  in $user_info['time_format'].
+ * applies all necessary time offsets to the timestamp, unless offset_type
+ *  is set.
+ * if todayMod is set and show_today was not not specified or true, an
+ *  alternate format string is used to show the date with something to
+ *  show it is "today" or "yesterday".
+ * performs localization (more than just strftime would do alone.)
+ * 
+ * @param int $log_time
+ * @param bool $show_today = true
+ * @param string $offset_type = false
+ */
 function timeformat($log_time, $show_today = true, $offset_type = false)
 {
 	global $context, $user_info, $txt, $modSettings, $smcFunc;
@@ -801,7 +877,17 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 	return strftime($str, $time);
 }
 
-// Removes special entities from strings.  Compatibility...
+/**
+ * Removes special entities from strings.  Compatibility...
+ * 
+ * removes the base entities (&lt;, &quot;, etc.) from text.
+ * should be used instead of html_entity_decode for PHP version
+ *  compatibility reasons.
+ * additionally converts &nbsp; and &#039;.
+ * returns the string without entities.
+ * 
+ * @param string $string
+ */
 function un_htmlspecialchars($string)
 {
 	static $translation;
@@ -812,7 +898,18 @@ function un_htmlspecialchars($string)
 	return strtr($string, $translation);
 }
 
-// Shorten a subject + internationalization concerns.
+/**
+ * Shorten a subject + internationalization concerns.
+ * 
+ * shortens a subject so that it is either shorter than length, or that
+ *  length plus an ellipsis.
+ * respects internationalization characters and entities as one character.
+ * avoids trailing entities.
+ * returns the shortened string.
+ * 
+ * @param string $subject
+ * @param int $len
+ */
 function shorten_subject($subject, $len)
 {
 	global $smcFunc;

@@ -2,7 +2,7 @@
 
 /**
  * Handle all of the searching from here.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -10,7 +10,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -19,9 +19,9 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.0',
+	'forum_version' => 'SMF 2.1 Alpha 1',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
-	'search_version' => strtr('SMF 2+0=Beta=2', array('+' => '.', '=' => ' ')),
+	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );
 
 /**
@@ -246,7 +246,7 @@ function PlushSearch2()
 {
 	global $scripturl, $modSettings, $sourcedir, $txt, $db_connection;
 	global $user_info, $context, $options, $messages_request, $boards_can;
-	global $excludedWords, $participants, $smcFunc, $search_versions, $searchAPI;
+	global $excludedWords, $participants, $smcFunc;
 
 	if (!empty($context['load_average']) && !empty($modSettings['loadavg_search']) && $context['load_average'] >= $modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
@@ -311,23 +311,7 @@ function PlushSearch2()
 	db_extend('search');
 
 	// Load up the search API we are going to use.
-	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
-	if (!file_exists($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php'))
-		fatal_lang_error('search_api_missing');
-	loadClassFile('SearchAPI-' . ucwords($modSettings['search_index']) . '.php');
-
-	// Create an instance of the search API and check it is valid for this version of SMF.
-	$search_class_name = $modSettings['search_index'] . '_search';
-	$searchAPI = new $search_class_name();
-	if (!$searchAPI || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
-	{
-		// Log the error.
-		loadLanguage('Errors');
-		log_error(sprintf($txt['search_api_not_compatible'], 'SearchAPI-' . ucwords($modSettings['search_index']) . '.php'), 'critical');
-
-		loadClassFile('SearchAPI-Standard.php');
-		$searchAPI = new standard_search();
-	}
+	$searchAPI = findSearchAPI();
 
 	// $search_params will carry all settings that differ from the default search parameters.
 	// That way, the URLs involved in a search page will be kept as short as possible.
@@ -592,7 +576,7 @@ function PlushSearch2()
 	/**
 	 * @todo Setting to add more here?
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
-	 */ 
+	 */
 	$blacklisted_words = array('img', 'url', 'quote', 'www', 'http', 'the', 'is', 'it', 'are', 'if');
 
 	// What are we searching for?
@@ -1831,11 +1815,11 @@ function PlushSearch2()
  * Note that the call to loadAttachmentContext() doesn't work:
  * this function doesn't fulfill the pre-condition to fill $attachments global...
  * So all it does is to fallback and return.
- * 
+ *
  * What it does:
  * - callback function for the results sub template.
 		- loads the necessary contextual data to show a search result.
- * 
+ *
  * @param $reset = false
  * @return array
  */
@@ -2096,6 +2080,43 @@ function prepareSearchContext($reset = false)
 	$counter++;
 
 	return $output;
+}
+
+/*
+ * Creates a search API and returns the object.
+ *
+*/
+function findSearchAPI()
+{
+	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
+
+	require_once($sourcedir . '/Subs-Package.php');
+
+	// Search has a special database set.
+	db_extend('search');
+
+	// Load up the search API we are going to use.
+	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
+	if (!file_exists($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php'))
+		fatal_lang_error('search_api_missing');
+	loadClassFile('SearchAPI-' . ucwords($modSettings['search_index']) . '.php');
+
+	// Create an instance of the search API and check it is valid for this version of SMF.
+	$search_class_name = $modSettings['search_index'] . '_search';
+	$searchAPI = new $search_class_name();
+
+	// An invalid Search API.
+	if (!$searchAPI || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	{
+		// Log the error.
+		loadLanguage('Errors');
+		log_error(sprintf($txt['search_api_not_compatible'], 'SearchAPI-' . ucwords($modSettings['search_index']) . '.php'), 'critical');
+
+		loadClassFile('SearchAPI-Standard.php');
+		$searchAPI = new standard_search();
+	}
+
+	return $searchAPI;
 }
 
 /**

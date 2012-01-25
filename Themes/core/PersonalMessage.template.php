@@ -7,7 +7,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 // This is the main sidebar for the personal messages section.
@@ -810,7 +810,7 @@ function template_search_results()
 		// We showing it all?
 		if (!empty($context['search_params']['show_complete']))
 		{
-			// !!! This still needs to be made pretty.
+			// @todo This still needs to be made pretty.
 			echo '
 		<br />
 		<table width="100%" align="center" cellpadding="3" cellspacing="1" border="0" class="bordercolor">
@@ -828,7 +828,7 @@ function template_search_results()
 				<td>', $txt['from'], ': ', $message['member']['link'], ', ', $txt['to'], ': ';
 
 			// Show the recipients.
-			// !!! This doesn't deal with the sent item searching quite right for bcc.
+			// @todo This doesn't deal with the sent item searching quite right for bcc.
 			if (!empty($message['recipients']['to']))
 				echo implode(', ', $message['recipients']['to']);
 			// Otherwise, we're just going to say "some people"...
@@ -868,7 +868,7 @@ function template_search_results()
 		// Otherwise just a simple list!
 		else
 		{
-			// !!! No context at all of the search?
+			// @todo No context at all of the search?
 			echo '
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" valign="top">
 				<td>', $message['time'], '</td>
@@ -1299,7 +1299,7 @@ function template_report_message()
 				<dl class="settings">';
 
 	// If there is more than one admin on the forum, allow the user to choose the one they want to direct to.
-	// !!! Why?
+	// @todo Why?
 	if ($context['admin_count'] > 1)
 	{
 		echo '

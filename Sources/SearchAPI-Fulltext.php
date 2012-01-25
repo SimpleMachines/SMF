@@ -8,7 +8,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -24,9 +24,9 @@ if (!defined('SMF'))
 class fulltext_search
 {
 	// This is the last version of SMF that this was tested on, to protect against API changes.
-	public $version_compatible = 'SMF 2.0';
+	public $version_compatible = 'SMF 2.1 Alpha 1';
 	// This won't work with versions of SMF less than this.
-	public $min_smf_version = 'SMF 2.0 Beta 2';
+	public $min_smf_version = 'SMF 2.1 Alpha 1';
 	// Is it supported?
 	public $is_supported = true;
 
@@ -68,6 +68,7 @@ class fulltext_search
 				return true;
 			break;
 
+			// All other methods, too bad dunno you.
 			default:
 				return false;
 			break;

@@ -7,7 +7,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 // The only template in the file.
@@ -224,4 +224,5 @@ function template_credits()
 		</div>
 	</div>';
 }
+
 ?>

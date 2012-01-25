@@ -10,7 +10,7 @@
  * @copyright 2011 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.0
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -105,21 +105,18 @@ function EditSearchSettings($return_config = false)
 	call_integration_hook('integrate_modify_search_settings', array(&$config_vars));
 
 	// Perhaps the search method wants to add some settings?
-	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
-	if (file_exists($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php'))
-	{
-		loadClassFile('SearchAPI-' . ucwords($modSettings['search_index']) . '.php');
-
-		$method_call = array($modSettings['search_index'] . '_search', 'searchSettings');
-		if (is_callable($method_call))
-			call_user_func_array($method_call, array(&$config_vars));
-	}
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if (is_callable(array($searchAPI, 'searchSettings')))
+		call_user_func_array($searchAPI->searchSettings, array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
 
 	$context['page_title'] = $txt['search_settings_title'];
 	$context['sub_template'] = 'show_settings';
+
+	call_integration_hook('integrate_modify_search_weights', array(&$factors));
 
 	// We'll need this for the settings.
 	require_once($sourcedir . '/ManageServer.php');
