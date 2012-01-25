@@ -54,7 +54,7 @@ require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 
 // Using an pre-PHP 5.1 version?
-if (@version_compare(PHP_VERSION, '5.1') == -1)
+if (version_compare(PHP_VERSION, '5.1', '<'))
 	require_once($sourcedir . '/Subs-Compat.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
@@ -88,7 +88,7 @@ if (isset($_GET['scheduled']))
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 {
 	// If zlib is being used, turn off output compression.
-	if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') === 'ob_gzhandler' || @version_compare(PHP_VERSION, '4.2.0') == -1)
+	if (ini_get('zlib.output_compression') == '1' || ini_get('output_handler') === 'ob_gzhandler' || version_compare(PHP_VERSION, '4.2.0', '<'))
 		$modSettings['enableCompressedOutput'] = '0';
 	else
 	{

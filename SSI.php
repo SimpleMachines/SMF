@@ -55,7 +55,7 @@ if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !
 	die($mmessage);
 
 // Fix for using the current directory as a path.
-if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
+if (strpos($sourcedir, '.') === 0 && strpos($sourcedir, '.') !== 1)
 	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
 
 // Load the important includes.
@@ -68,7 +68,7 @@ require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 
 // Using an pre-PHP 5.1 version?
-if (@version_compare(PHP_VERSION, '5.1') == -1)
+if (version_compare(PHP_VERSION, '5.1', '<'))
 	require_once($sourcedir . '/Subs-Compat.php');
 
 // Create a variable to store some SMF specific functions in.
@@ -102,7 +102,7 @@ if (isset($_REQUEST['context']))
 define('WIRELESS', false);
 
 // Gzip output? (because it must be boolean and true, this can't be hacked.)
-if (isset($ssi_gzip) && $ssi_gzip === true && @ini_get('zlib.output_compression') != '1' && @ini_get('output_handler') != 'ob_gzhandler' && @version_compare(PHP_VERSION, '4.2.0') != -1)
+if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
 	ob_start('ob_gzhandler');
 else
 	$modSettings['enableCompressedOutput'] = '0';

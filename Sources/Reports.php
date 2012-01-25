@@ -879,7 +879,7 @@ function addData($inc_data, $custom_table = null)
 				'v' => empty($inc_data[$key]) ? $context['tables'][$table]['default_value'] : $inc_data[$key],
 			);
 			// Special "hack" the adding separators when doing data by column.
-			if (substr($key, 0, 5) == '#sep#')
+			if (strpos($key, '#sep#') === 0)
 				$data[$key]['separator'] = true;
 		}
 	}
@@ -891,7 +891,7 @@ function addData($inc_data, $custom_table = null)
 			$data[$key] = array(
 				'v' => $value,
 			);
-			if (substr($key, 0, 5) == '#sep#')
+			if (strpos($key, '#sep#') === 0)
 				$data[$key]['separator'] = true;
 		}
 	}

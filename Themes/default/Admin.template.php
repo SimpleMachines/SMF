@@ -1218,7 +1218,7 @@ function template_edit_profile_field()
 									<option value="nohtml"', $context['field']['mask'] == 'nohtml' ? ' selected="selected"' : '', '>', $txt['custom_edit_mask_nohtml'], '</option>
 									<option value="email"', $context['field']['mask'] == 'email' ? ' selected="selected"' : '', '>', $txt['custom_edit_mask_email'], '</option>
 									<option value="number"', $context['field']['mask'] == 'number' ? ' selected="selected"' : '', '>', $txt['custom_edit_mask_number'], '</option>
-									<option value="regex"', substr($context['field']['mask'], 0, 5) == 'regex' ? ' selected="selected"' : '', '>', $txt['custom_edit_mask_regex'], '</option>
+									<option value="regex"', strpos($context['field']['mask'], 'regex') === 0 ? ' selected="selected"' : '', '>', $txt['custom_edit_mask_regex'], '</option>
 								</select>
 								<br />
 								<span id="regex_div">

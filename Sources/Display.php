@@ -129,7 +129,7 @@ function Display()
 	}
 
 	// Add 1 to the number of views of this topic.
-	if (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != $topic)
+	if (!$user_info['possibly_robot'] && empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != $topic)
 	{
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}topics
@@ -250,7 +250,7 @@ function Display()
 		}
 
 		// Start from a certain time index, not a message.
-		if (substr($_REQUEST['start'], 0, 4) == 'from')
+		if (strpos($_REQUEST['start'], 'from') === 0)
 		{
 			$timestamp = (int) substr($_REQUEST['start'], 4);
 			if ($timestamp === 0)
@@ -280,7 +280,7 @@ function Display()
 		}
 
 		// Link to a message...
-		elseif (substr($_REQUEST['start'], 0, 3) == 'msg')
+		elseif (strpos($_REQUEST['start'], 'msg') === 0)
 		{
 			$virtual_msg = (int) substr($_REQUEST['start'], 3);
 			if (!$topicinfo['unapproved_posts'] && $virtual_msg >= $topicinfo['id_last_msg'])

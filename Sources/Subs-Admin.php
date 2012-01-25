@@ -252,7 +252,7 @@ function updateSettingsFile($config_vars)
 	if (count($config_vars) == 1 && isset($config_vars['db_last_error']))
 	{
 		$temp = trim(implode("\n", $settingsArray));
-		if (substr($temp, 0, 5) != '<?php' || substr($temp, -2) != '?' . '>')
+		if (strpos($temp, '<' . '?php') !== 0 || substr($temp, -2) != '?' . '>')
 			return;
 		if (strpos($temp, 'sourcedir') === false || strpos($temp, 'boarddir') === false)
 			return;
@@ -268,7 +268,7 @@ function updateSettingsFile($config_vars)
 	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
 	{
 		// Don't trim or bother with it if it's not a variable.
-		if (substr($settingsArray[$i], 0, 1) != '$')
+		if (strpos($settingsArray[$i], '$') !== 0)
 			continue;
 
 		$settingsArray[$i] = trim($settingsArray[$i]) . "\n";
@@ -286,7 +286,7 @@ function updateSettingsFile($config_vars)
 			}
 		}
 
-		if (substr(trim($settingsArray[$i]), 0, 2) == '?' . '>')
+		if (strpos(trim($settingsArray[$i]), '?' . '>'))
 			$end = $i;
 	}
 

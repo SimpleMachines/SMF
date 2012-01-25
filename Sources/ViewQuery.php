@@ -95,7 +95,7 @@ function ViewQuery()
 		if (isset($query_data['f']))
 			$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
 
-		$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT';
+		$is_select_query = strpos(trim($query_data['q']), 'SELECT') === 0;
 		if ($is_select_query)
 			$select = $query_data['q'];
 		elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)

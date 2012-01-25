@@ -2353,12 +2353,12 @@ function MessageActionsApply()
 			$to_delete[] = (int) $pm;
 		else
 		{
-			if (substr($action, 0, 4) == 'add_')
+			if (strpos($action, 'add_') === 0)
 			{
 				$type = 'add';
 				$action = substr($action, 4);
 			}
-			elseif (substr($action, 0, 4) == 'rem_')
+			elseif (strpos($action, 'rem_') === 0)
 			{
 				$type = 'rem';
 				$action = substr($action, 4);

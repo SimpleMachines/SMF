@@ -1657,7 +1657,7 @@ function EditCustomProfiles()
 				'private' => $row['private'],
 				'can_search' => $row['can_search'],
 				'mask' => $row['mask'],
-				'regex' => substr($row['mask'], 0, 5) == 'regex' ? substr($row['mask'], 5) : '',
+				'regex' => strpos($row['mask'], 'regex') === 0 ? substr($row['mask'], 5) : '',
 				'enclose' => $row['enclose'],
 				'placement' => $row['placement'],
 			);

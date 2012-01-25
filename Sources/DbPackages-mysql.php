@@ -534,7 +534,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 		SHOW FIELDS
 		FROM {raw:table_name}',
 		array(
-			'table_name' => substr($table_name, 0, 1) == '`' ? $table_name : '`' . $table_name . '`',
+			'table_name' => strpos($table_name, '`') === 0 ? $table_name : '`' . $table_name . '`',
 		)
 	);
 	$columns = array();
@@ -601,7 +601,7 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 		SHOW KEYS
 		FROM {raw:table_name}',
 		array(
-			'table_name' => substr($table_name, 0, 1) == '`' ? $table_name : '`' . $table_name . '`',
+			'table_name' => strpos($table_name, '`') === 0 ? $table_name : '`' . $table_name . '`',
 		)
 	);
 	$indexes = array();

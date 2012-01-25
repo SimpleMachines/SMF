@@ -1220,7 +1220,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 				{
 					$value = (int) $value;
 				}
-				elseif (substr($row['mask'], 0, 5) == 'regex' && preg_match(substr($row['mask'], 5), $value) === 0)
+				elseif (strpos($row['mask'], 'regex') === 0 && preg_match(substr($row['mask'], 5), $value) === 0)
 					$value = '';
 			}
 		}
@@ -2666,7 +2666,7 @@ function profileSaveAvatarData(&$value)
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
-		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://')
+		elseif (strpos($profile_vars['avatar'], 'http://') !== 0)
 			return 'bad_avatar';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))

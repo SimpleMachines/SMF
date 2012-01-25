@@ -190,7 +190,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 
 	// Get the image file, we have to work with something after all
 	$fp_destination = fopen($destination, 'wb');
-	if ($fp_destination && substr($source, 0, 7) == 'http://')
+	if ($fp_destination && strpos($source, 'http://') === 0)
 	{
 		$fileContents = fetch_web_data($source);
 

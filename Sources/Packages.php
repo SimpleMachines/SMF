@@ -1235,7 +1235,7 @@ function PackageRemove()
 	$_GET['package'] = preg_replace('~[\.]+~', '.', strtr($_GET['package'], array('/' => '_', '\\' => '_')));
 
 	// Can't delete what's not there.
-	if (file_exists($boarddir . '/Packages/' . $_GET['package']) && (substr($_GET['package'], -4) == '.zip' || substr($_GET['package'], -4) == '.tgz' || substr($_GET['package'], -7) == '.tar.gz' || is_dir($boarddir . '/Packages/' . $_GET['package'])) && $_GET['package'] != 'backups' && substr($_GET['package'], 0, 1) != '.')
+	if (file_exists($boarddir . '/Packages/' . $_GET['package']) && (substr($_GET['package'], -4) == '.zip' || substr($_GET['package'], -4) == '.tgz' || substr($_GET['package'], -7) == '.tar.gz' || is_dir($boarddir . '/Packages/' . $_GET['package'])) && $_GET['package'] != 'backups' && strpos($_GET['package'], '.') !== 0)
 	{
 		create_chmod_control(array($boarddir . '/Packages/' . $_GET['package']), array('destination_url' => $scripturl . '?action=admin;area=packages;sa=remove;package=' . $_GET['package'], 'crash_on_error' => true));
 

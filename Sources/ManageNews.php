@@ -67,7 +67,7 @@ function ManageNews()
 	);
 
 	// Force the right area...
-	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
+	if (strpos($_REQUEST['sa'], 'mailing') === 0)
 		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
 	$subActions[$_REQUEST['sa']][0]();

@@ -309,7 +309,7 @@ function displayDebug()
 	if ($_SESSION['view_queries'] == 1 && !empty($db_cache))
 		foreach ($db_cache as $q => $qq)
 		{
-			$is_select = substr(trim($qq['q']), 0, 6) == 'SELECT' || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($qq['q'])) != 0;
+			$is_select = strpos(trim($qq['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($qq['q'])) != 0;
 			// Temporary tables created in earlier queries are not explainable.
 			if ($is_select)
 			{

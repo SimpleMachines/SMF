@@ -350,7 +350,7 @@ function fix_possible_url($val)
 
 	call_integration_hook('integrate_fix_url', array(&$val));
 
-	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && @ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
+	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
 	$val = preg_replace('/^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$/e', '\'\' . $scripturl . \'/\' . strtr(\'$1\', \'&;=\', \'//,\') . \'.html$2\'', $val);
@@ -973,7 +973,7 @@ function getXmlProfile($xml_format)
 		if (in_array($profile['show_email'], array('yes', 'yes_permission_override')))
 			$data['email'] = $profile['email'];
 
-		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')
+		if (!empty($profile['birth_date']) && strpos($profile['birth_date'], '0000') !== 0)
 		{
 			list ($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 			$datearray = getdate(forum_time());

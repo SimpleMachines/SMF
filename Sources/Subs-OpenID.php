@@ -530,7 +530,7 @@ function sha1_hmac($data, $key)
 
 function sha1_raw($text)
 {
-	if (version_compare(PHP_VERSION, '5.0.0') >= 0)
+	if (version_compare(PHP_VERSION, '5.0.0', '<='))
 		return sha1($text, true);
 
 	$hex = sha1($text);

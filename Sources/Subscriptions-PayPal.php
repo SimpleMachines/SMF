@@ -223,7 +223,7 @@ class paypal_payment
 	// Is this a subscription?
 	public function isSubscription()
 	{
-		if (substr($_POST['txn_type'], 0, 14) == 'subscr_payment')
+		if (strpos($_POST['txn_type'], 'subscr_payment') === 0)
 			return true;
 		else
 			return false;

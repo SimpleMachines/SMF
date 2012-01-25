@@ -138,7 +138,7 @@ class xmlArray
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@')
+			elseif (strpos($el, '@') === 0)
 			{
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el]))
@@ -205,7 +205,7 @@ class xmlArray
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@')
+			elseif (strpos($el, '@') === 0)
 				return isset($array[$el]);
 			else
 				$lvl = null;
@@ -506,7 +506,7 @@ class xmlArray
 		// Run through and recurively output all the elements or attrbutes inside this.
 		foreach ($array as $k => $v)
 		{
-			if (substr($k, 0, 1) == '@')
+			if (strpos($k, '@') === 0)
 				$output .= ' ' . substr($k, 1) . '="' . $v . '"';
 			elseif (is_array($v))
 			{
@@ -716,11 +716,11 @@ class ftp_connection
 
 	public function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
-		if (substr($ftp_server, 0, 6) == 'ftp://')
+		if (strpos($ftp_server, 'ftp://') === 0)
 			$ftp_server = substr($ftp_server, 6);
-		elseif (substr($ftp_server, 0, 7) == 'ftps://')
+		elseif (strpos($ftp_server, 'ftps://') === 0)
 			$ftp_server = 'ssl://' . substr($ftp_server, 7);
-		if (substr($ftp_server, 0, 7) == 'http://')
+		if (strpos($ftp_server, 'http://') === 0)
 			$ftp_server = substr($ftp_server, 7);
 		$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
 
@@ -823,7 +823,7 @@ class ftp_connection
 		$time = time();
 		do
 			$this->last_message = fgets($this->connection, 1024);
-		while ((strlen($this->last_message) < 4 || substr($this->last_message, 0, 1) == ' ' || substr($this->last_message, 3, 1) != ' ') && time() - $time < 5);
+		while ((strlen($this->last_message) < 4 || strpos($this->last_message, ' ') === 0 || strpos($this->last_message, ' ') !== 3) && time() - $time < 5);
 
 		// Was the desired response returned?
 		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
@@ -840,10 +840,10 @@ class ftp_connection
 		$time = time();
 		do
 			$response = fgets($this->connection, 1024);
-		while (substr($response, 3, 1) != ' ' && time() - $time < 5);
+		while (strpos($response, ' ') !== 3 && time() - $time < 5);
 
 		// If it's not 227, we weren't given an IP and port, which means it failed.
-		if (substr($response, 0, 4) != '227 ')
+		if (strpos($response, '227 ') !== 0)
 		{
 			$this->error = 'bad_response';
 			return false;
@@ -1008,7 +1008,7 @@ class ftp_connection
 				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1)
 					$path .= dirname($_SERVER['PHP_SELF']);
 			}
-			elseif (substr($filesystem_path, 0, 9) == '/var/www/')
+			elseif (strpos($filesystem_path, '/var/www/') === 0)
 				$path = substr($filesystem_path, 8);
 			else
 				$path = strtr(strtr($filesystem_path, array('\\' => '/')), array($_SERVER['DOCUMENT_ROOT'] => ''));

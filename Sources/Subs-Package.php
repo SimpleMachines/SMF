@@ -164,7 +164,7 @@ if (!defined('SMF'))
 // Get the data from the file and extract it.
 function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
-	if (substr($gzfilename, 0, 7) == 'http://')
+	if (strpos($gzfilename, 'http://') === 0)
 	{
 		$data = fetch_web_data($gzfilename);
 
@@ -204,7 +204,7 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 	if (strtolower($id['a'] . $id['b']) != '1f8b')
 	{
 		// Okay, this ain't no tar.gz, but maybe it's a zip file.
-		if (substr($data, 0, 2) == 'PK')
+		if (strpos($data, 'PK') === 0)
 			return read_zip_data($data, $destination, $single_file, $overwrite, $files_to_extract);
 		else
 			return false;
@@ -342,7 +342,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		mktree($destination, 0777);
 
 	// Look for the PK header...
-	if (substr($data, 0, 2) != 'PK')
+	if (strpos($data, 'PK') !== 0)
 		return false;
 
 	// Find the central whosamawhatsit at the end; if there's a comment it's a pain.
@@ -775,7 +775,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 			if (!in_array($_POST['ftp_path'], array('', '/')))
 			{
 				$ftp_root = strtr($boarddir, array($_POST['ftp_path'] => ''));
-				if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || substr($_POST['ftp_path'], 0, 1) == '/'))
+				if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || strpos($_POST['ftp_path'], '/') === 0))
 					$ftp_root = substr($ftp_root, 0, -1);
 			}
 			else
@@ -1033,7 +1033,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 		if (!in_array($_POST['ftp_path'], array('', '/')))
 		{
 			$ftp_root = strtr($boarddir, array($_POST['ftp_path'] => ''));
-			if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || substr($_POST['ftp_path'], 0, 1) == '/'))
+			if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || strpos($_POST['ftp_path'], '/') === 0))
 				$ftp_root = substr($ftp_root, 0, -1);
 		}
 		else
@@ -1193,7 +1193,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 		);
 
 		// If there is a destination, make sure it makes sense.
-		if (substr($actionType, 0, 6) != 'remove')
+		if (strpos($actionType, 'remove') !== 0)
 		{
 			$this_action['unparsed_destination'] = $action->fetch('@destination');
 			$this_action['destination'] = parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
@@ -1205,7 +1205,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 		}
 
 		// If we're moving or requiring (copying) a file.
-		if (substr($actionType, 0, 4) == 'move' || substr($actionType, 0, 7) == 'require')
+		if (strpos($actionType, 'move') === 0 || strpos($actionType, 'require') === 0)
 		{
 			if ($action->exists('@from'))
 				$this_action['source'] = parse_path($action->fetch('@from'));

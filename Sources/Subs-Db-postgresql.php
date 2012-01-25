@@ -787,7 +787,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		foreach (debug_backtrace() as $step)
 		{
 			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && substr($step['function'], 0, 2) != '__')
+			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
 			{
 				$log_message .= '<br />Function: ' . $step['function'];
 				break;

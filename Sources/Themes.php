@@ -1433,7 +1433,7 @@ function ThemeInstall()
 		$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
 		$theme_dir = $boarddir . '/Themes/' . $theme_name;
 
-		if (isset($_FILES['theme_gz']) && is_uploaded_file($_FILES['theme_gz']['tmp_name']) && (@ini_get('open_basedir') != '' || file_exists($_FILES['theme_gz']['tmp_name'])))
+		if (isset($_FILES['theme_gz']) && is_uploaded_file($_FILES['theme_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['theme_gz']['tmp_name'])))
 			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $boarddir . '/Themes/' . $theme_name, false, true);
 		elseif (isset($_REQUEST['theme_gz']))
 		{
@@ -1788,7 +1788,7 @@ function EditTheme()
 	{
 		if (isset($_GET['directory']))
 		{
-			if (substr($_GET['directory'], 0, 1) == '.')
+			if (strpos($_GET['directory'], '.') === 0)
 				$_GET['directory'] = '';
 			else
 			{
@@ -1825,7 +1825,7 @@ function EditTheme()
 	}
 	else
 	{
-		if (substr($_REQUEST['filename'], 0, 1) == '.')
+		if (strpos($_REQUEST['filename'], '.') === 0)
 			$_REQUEST['filename'] = '';
 		else
 		{
@@ -1849,7 +1849,7 @@ function EditTheme()
 			$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], array("\r" => '', '   ' => "\t")));
 
 			// Check for a parse error!
-			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($theme_dir) && @ini_get('display_errors'))
+			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($theme_dir) && ini_get('display_errors'))
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT value
@@ -1937,7 +1937,7 @@ function EditTheme()
 		$context['file_parts'] = array(array('lines' => 0, 'line' => 1, 'data' => ''));
 		for ($i = 0, $n = count($file_data); $i < $n; $i++)
 		{
-			if (isset($file_data[$i + 1]) && substr($file_data[$i + 1], 0, 9) == 'function ')
+			if (isset($file_data[$i + 1]) && strpos($file_data[$i + 1], 'function ') === 0)
 			{
 				// Try to format the functions a little nicer...
 				$context['file_parts'][$j]['data'] = trim($context['file_parts'][$j]['data']) . "\n";
@@ -1986,7 +1986,7 @@ function get_file_listing($path, $relative)
 	foreach ($entries as $entry)
 	{
 		// Skip all dot files, including .htaccess.
-		if (substr($entry, 0, 1) == '.' || $entry == 'CVS')
+		if (strpos($entry, '.') === 0 || $entry == 'CVS')
 			continue;
 
 		if (is_dir($path . '/' . $entry))

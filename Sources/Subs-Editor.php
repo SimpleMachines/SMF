@@ -837,7 +837,7 @@ function html_to_bbc($text)
 					$tag_type = 'ftp';
 
 				// Or is this a link to an email address?
-				elseif (substr($href, 0, 7) == 'mailto:')
+				elseif (strpos($href, 'mailto:') === 0)
 				{
 					$tag_type = 'email';
 					$href = substr($href, 7);

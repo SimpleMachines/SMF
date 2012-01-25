@@ -45,7 +45,7 @@ function preparsecode(&$message, $previewing = false)
 	// Trim off trailing quotes - these often happen by accident.
 	while (substr($message, -7) == '[quote]')
 		$message = substr($message, 0, -7);
-	while (substr($message, 0, 8) == '[/quote]')
+	while (strpos($message, '[/quote]') === 0)
 		$message = substr($message, 8);
 
 	// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
@@ -461,11 +461,11 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
-			if (substr($replace, 0, 1) == '/')
+			if (strpos($replace, '/') === 0)
 				$replace = $domain_url . $replace;
-			elseif (substr($replace, 0, 1) == '?')
+			elseif (strpos($replace, '?') === 0)
 				$replace = $scripturl . $replace;
-			elseif (substr($replace, 0, 1) == '#' && $embeddedUrl)
+			elseif (strpos($replace, '#') === 0 && $embeddedUrl)
 			{
 				$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 				$this_tag = 'iurl';

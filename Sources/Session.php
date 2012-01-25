@@ -44,10 +44,10 @@ function loadSession()
 	// @todo Set the session cookie path?
 
 	// If it's already been started... probably best to skip this.
-	if ((@ini_get('session.auto_start') == 1 && !empty($modSettings['databaseSession_enable'])) || session_id() == '')
+	if ((ini_get('session.auto_start') == 1 && !empty($modSettings['databaseSession_enable'])) || session_id() == '')
 	{
 		// Attempt to end the already-started session.
-		if (@ini_get('session.auto_start') == 1)
+		if (ini_get('session.auto_start') == 1)
 			@session_write_close();
 
 		// This is here to stop people from using bad junky PHPSESSIDs.
@@ -60,12 +60,12 @@ function loadSession()
 		}
 
 		// Use database sessions? (they don't work in 4.1.x!)
-		if (!empty($modSettings['databaseSession_enable']) && @version_compare(PHP_VERSION, '4.2.0') != -1)
+		if (!empty($modSettings['databaseSession_enable']) && version_compare(PHP_VERSION, '4.2.0', '>='))
 		{
 			session_set_save_handler('sessionOpen', 'sessionClose', 'sessionRead', 'sessionWrite', 'sessionDestroy', 'sessionGC');
 			@ini_set('session.gc_probability', '1');
 		}
-		elseif (@ini_get('session.gc_maxlifetime') <= 1440 && !empty($modSettings['databaseSession_lifetime']))
+		elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty($modSettings['databaseSession_lifetime']))
 			@ini_set('session.gc_maxlifetime', max($modSettings['databaseSession_lifetime'], 60));
 
 		// Use cache setting sessions?
@@ -85,7 +85,7 @@ function loadSession()
 	}
 
 	// While PHP 4.1.x should use $_SESSION, it seems to need this to do it right.
-	if (@version_compare(PHP_VERSION, '4.2.0') == -1)
+	if (version_compare(PHP_VERSION, '4.2.0', '<'))
 		$HTTP_SESSION_VARS['php_412_bugfix'] = true;
 
 	// Set the randomly generated code.

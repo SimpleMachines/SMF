@@ -63,14 +63,14 @@ function reloadSettings()
 	}
 
 	// UTF-8 in regular expressions is unsupported on PHP(win) versions < 4.2.3.
-	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || @version_compare(PHP_VERSION, '4.2.3') != -1);
+	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || version_compare(PHP_VERSION, '4.2.3', '>='));
 
 	// Set a list of common functions.
 	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? array('preg_replace(\'~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e\', \'$smcFunc[\\\'entity_fix\\\'](\\\'\\2\\\')\', ', ')') : array('', '');
 
 	// Preg_replace can handle complex characters only for higher PHP versions.
-	$space_chars = $utf8 ? (@version_compare(PHP_VERSION, '4.3.3') != -1 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
+	$space_chars = $utf8 ? (version_compare(PHP_VERSION, '4.3.3', '>=') ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
 
 	/**
 	 * @global array An array of anonymous helper functions.
@@ -1358,7 +1358,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 			// If this isn't set yet, is a theme option, or is not the default theme..
 			if (!isset($themeData[$row['id_member']][$row['variable']]) || $row['id_theme'] != '1')
-				$themeData[$row['id_member']][$row['variable']] = substr($row['variable'], 0, 5) == 'show_' ? $row['value'] == '1' : $row['value'];
+				$themeData[$row['id_member']][$row['variable']] = strpos($row['variable'], 'show_') === 0 ? $row['value'] == '1' : $row['value'];
 		}
 		$smcFunc['db_free_result']($result);
 
@@ -1654,7 +1654,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Set the character set from the template.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || @version_compare(PHP_VERSION, '4.2.3') != -1);
+	$context['utf8'] = $context['character_set'] === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || version_compare(PHP_VERSION, '4.2.3', '>='));
 	$context['right_to_left'] = !empty($txt['lang_rtl']);
 
 	$context['tabindex'] = 1;
@@ -1780,7 +1780,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 	if ($loaded)
 	{
 		// For compatibility reasons, if this is the index template without new functions, include compatible stuff.
-		if (substr($template_name, 0, 5) == 'index' && !function_exists('template_button_strip'))
+		if (strpos($template_name, 'index') === 0 && !function_exists('template_button_strip'))
 			loadTemplate('Compat');
 
 		if ($db_show_debug === true)
@@ -2318,7 +2318,7 @@ function template_include($filename, $once = false)
 
 					echo '<span style="color: black;">', sprintf('%' . strlen($n) . 's', $line), ':</span> ';
 					if (isset($data2[$line]) && $data2[$line] != '')
-						echo substr($data2[$line], 0, 2) == '</' ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
+						echo strpos($data2[$line], '</') === 0 ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
 
 					if (isset($data2[$line]) && preg_match('~(<[^/>]+>)[^<]*$~', $data2[$line], $color_match) != 0)
 					{

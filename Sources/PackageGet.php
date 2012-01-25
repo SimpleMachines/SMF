@@ -333,7 +333,7 @@ function PackageGBrowse()
 			{
 				$remote_type = $thisPackage->exists('@type') ? $thisPackage->fetch('@type') : 'relative';
 
-				if ($remote_type == 'relative' && substr($thisPackage->fetch('@href'), 0, 7) != 'http://')
+				if ($remote_type == 'relative' && strpos($thisPackage->fetch('@href'), 'http://') !== 0)
 				{
 					if (isset($_GET['absolute']))
 						$current_url = $_GET['absolute'] . '/';
@@ -633,7 +633,7 @@ function PackageUpload()
 	// Check the file was even sent!
 	if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '')
 		fatal_lang_error('package_upload_error_nofile');
-	elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (@ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name'])))
+	elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name'])))
 		fatal_lang_error('package_upload_error_failure');
 
 	// Make sure it has a sane filename.

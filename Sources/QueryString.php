@@ -37,7 +37,7 @@ function cleanRequest()
 	$scripturl = $boardurl . '/index.php';
 
 	// What function to use to reverse magic quotes - if sybase is on we assume that the database sensibly has the right unescape function!
-	$removeMagicQuoteFunction = @ini_get('magic_quotes_sybase') || strtolower(@ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
+	$removeMagicQuoteFunction = ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on' ? 'unescapestring__recursive' : 'stripslashes__recursive';
 
 	// Save some memory.. (since we don't use these anyway.)
 	unset($GLOBALS['HTTP_POST_VARS'], $GLOBALS['HTTP_POST_VARS']);
@@ -69,7 +69,7 @@ function cleanRequest()
 	}
 
 	// Are we going to need to parse the ; out?
-	if ((strpos(@ini_get('arg_separator.input'), ';') === false || @version_compare(PHP_VERSION, '4.2.0') == -1) && !empty($_SERVER['QUERY_STRING']))
+	if ((strpos(ini_get('arg_separator.input'), ';') === false || version_compare(PHP_VERSION, '4.2.0', '<')) && !empty($_SERVER['QUERY_STRING']))
 	{
 		// Get rid of the old one! You don't know where it's been!
 		$_GET = array();
@@ -86,7 +86,7 @@ function cleanRequest()
 		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
 			$_GET = $removeMagicQuoteFunction($_GET);
 	}
-	elseif (strpos(@ini_get('arg_separator.input'), ';') !== false)
+	elseif (strpos(ini_get('arg_separator.input'), ';') !== false)
 	{
 		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc() != 0 && empty($modSettings['integrate_magic_quotes']))
 			$_GET = $removeMagicQuoteFunction($_GET);
@@ -453,7 +453,7 @@ function cleanXml($string)
 	global $context;
 
 	// http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char
-	return preg_replace('~[\x00-\x08\x0B\x0C\x0E-\x19' . ($context['utf8'] ? (@version_compare(PHP_VERSION, '4.3.3') != -1 ? '\x{D800}-\x{DFFF}\x{FFFE}\x{FFFF}' : "\xED\xA0\x80-\xED\xBF\xBF\xEF\xBF\xBE\xEF\xBF\xBF") : '') . ']~' . ($context['utf8'] ? 'u' : ''), '', $string);
+	return preg_replace('~[\x00-\x08\x0B\x0C\x0E-\x19' . ($context['utf8'] ? (version_compare(PHP_VERSION, '4.3.3', '>=') ? '\x{D800}-\x{DFFF}\x{FFFE}\x{FFFF}' : "\xED\xA0\x80-\xED\xBF\xBF\xEF\xBF\xBE\xEF\xBF\xBF") : '') . ']~' . ($context['utf8'] ? 'u' : ''), '', $string);
 }
 
 /**
@@ -503,14 +503,14 @@ function ob_sessrewrite($buffer)
 
 	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
 	// @todo smflib
-	if (empty($_COOKIE) && SID != '' && empty($context['browser']['possibly_robot']) && @version_compare(PHP_VERSION, '4.3.0') != -1)
+	if (empty($_COOKIE) && SID != '' && empty($context['browser']['possibly_robot']) && version_compare(PHP_VERSION, '4.3.0', '>='))
 		$buffer = preg_replace('/"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);
 	// Debugging templates, are we?
 	elseif (isset($_GET['debug']))
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '\\??/', '"' . $scripturl . '?debug;', $buffer);
 
 	// This should work even in 4.2.x, just not CGI without cgi.fix_pathinfo.
-	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || @ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
+	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
 	{
 		// Let's do something special for session ids!
 		if (defined('SID') && SID != '')

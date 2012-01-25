@@ -648,7 +648,7 @@ function phpBB3_password_check($passwd, $passwd_hash)
 	$salt = substr($passwd_hash, 4, 8);
 
 	// Things are done differently for PHP 5.
-	if (@version_compare(PHP_VERSION, '5') >= 0)
+	if (version_compare(PHP_VERSION, '5', '>='))
 	{
 		$hash = md5($salt . $passwd, true);
 		for (; $count != 0; --$count)
