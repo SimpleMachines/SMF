@@ -76,7 +76,7 @@ function cleanRequest()
 
 		// Was this redirected? If so, get the REDIRECT_QUERY_STRING.
 		// Do not urldecode() the querystring, unless you so much wish to break OpenID implementation. :)
-		$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], 0, 5) === 'url=/' ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
+		$_SERVER['QUERY_STRING'] = strpos($_SERVER['QUERY_STRING'], 'url=/') === 0 ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
 
 		// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 		// @todo smflib
@@ -475,7 +475,7 @@ function JavaScriptEscape($string)
 		'</' => '<\' + \'/',
 		'script' => 'scri\'+\'pt',
 		'<a href' => '<a hr\'+\'ef',
-		$scripturl => $scripturl . '\'+\'',
+		$scripturl => 'smf_scripturl\' + \'',
 	)) . '\'';
 }
 
@@ -483,12 +483,12 @@ function JavaScriptEscape($string)
  * Rewrite URLs to include the session ID.
  * What it does:
  * - rewrites the URLs outputted to have the session ID, if the user
- * is not accepting cookies and is using a standard web browser.
+ *   is not accepting cookies and is using a standard web browser.
  * - handles rewriting URLs for the queryless URLs option.
  * - can be turned off entirely by setting $scripturl to an empty
- * string, ''. (it wouldn't work well like that anyway.)
+ *   string, ''. (it wouldn't work well like that anyway.)
  * - because of bugs in certain builds of PHP, does not function in
- * versions lower than 4.3.0 - please upgrade if this hurts you.
+ *   versions lower than 4.3.0 - please upgrade if this hurts you.
  *
  * @param string $buffer
  * @return string

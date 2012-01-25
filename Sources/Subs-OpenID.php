@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * Handle all of the OpenID interfacing and communications.
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -23,6 +24,19 @@ if (!defined('SMF'))
 		- Redirects the user to the IDP for validation
 */
 
+/**
+ * Openid_uri is the URI given by the user
+ * Validates the URI and changes it to a fully canonicalize URL
+ * Determines the IDP server and delegation
+ * Optional array of fields to restore when validation complete.
+ * Redirects the user to the IDP for validation
+ * Enter description here ...
+ * @param string $openid_uri
+ * @param bool $return = false
+ * @param array $save_fields = array()
+ * @param string $return_action = null
+ * @return string
+ */
 function smf_openID_validate($openid_uri, $return = false, $save_fields = array(), $return_action = null)
 {
 	global $sourcedir, $scripturl, $boardurl, $modSettings;
@@ -33,7 +47,7 @@ function smf_openID_validate($openid_uri, $return = false, $save_fields = array(
 	if ($response_data === false)
 		return 'no_data';
 
-	if (($assoc = smf_openID_getAssociation($response_data['server'])) == null)
+	if (($assoc = smf_openID_getAssociation($response_data['server'])) === null)
 		$assoc = smf_openID_makeAssociation($response_data['server']);
 
 	// Before we go wherever it is we are going, store the GET and POST data, because it might be useful when we get back.
@@ -74,7 +88,9 @@ function smf_openID_validate($openid_uri, $return = false, $save_fields = array(
 		redirectexit($redir_url);
 }
 
-// Revalidate a user using OpenID. Note that this function will not return when authentication is required.
+/**
+ * Revalidate a user using OpenID. Note that this function will not return when authentication is required.
+ */
 function smf_openID_revalidate()
 {
 	global $user_settings;
@@ -91,6 +107,13 @@ function smf_openID_revalidate()
 	trigger_error('Hacking attempt...', E_USER_ERROR);
 }
 
+/**
+ * @todo Enter description here ...
+ * @param string $server
+ * @param string $handle = null
+ * @param bool $no_delete = false
+ * @return array
+ */
 function smf_openID_getAssociation($server, $handle = null, $no_delete = false)
 {
 	global $smcFunc;
@@ -369,7 +392,7 @@ function smf_openID_canonize($uri)
 	if (strpos($uri, 'http://') !== 0 && strpos($uri, 'https://') !== 0)
 		$uri = 'http://' . $uri;
 
-	if (strpos(substr($uri, strpos($uri, '://') + 3), '/') === false)
+	if (strpos($uri, '/', strpos($uri, '://') + 3) === false)
 		$uri .= '/';
 
 	return $uri;
@@ -393,7 +416,10 @@ function smf_openid_member_exists($url)
 	return $member;
 }
 
-// Prepare for a Diffie-Hellman key exchange.
+/**
+ * Prepare for a Diffie-Hellman key exchange.
+ * @param bool $regenerate = false
+ */
 function smf_openID_setup_DH($regenerate = false)
 {
 	global $p, $g;

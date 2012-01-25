@@ -18,190 +18,107 @@ if (!defined('SMF'))
 	everything.  It provides all of the following functions:
 
 	void updateStats(string statistic, string condition = '1')
-		- statistic can be 'member', 'message', 'topic', or 'postgroups'.
-		- parameter1 and parameter2 are optional, and are used to update only
-		  those stats that need updating.
-		- the 'member' statistic updates the latest member, the total member
-		  count, and the number of unapproved members.
-		- 'member' also only counts approved members when approval is on, but
-		  is much more efficient with it off.
-		- updating 'message' changes the total number of messages, and the
-		  highest message id by id_msg - which can be parameters 1 and 2,
-		  respectively.
-		- 'topic' updates the total number of topics, or if parameter1 is true
-		  simply increments them.
-		- the 'postgroups' case updates those members who match condition's
-		  post-based membergroups in the database (restricted by parameter1).
+
 
 	void updateMemberData(int id_member, array data)
-		- updates the columns in the members table.
-		- id_member is either an int or an array of ints to be updated.
-		- data is an associative array of the columns to be updated and their
-		  respective values.
-		- any string values updated should be quoted and slashed.
-		- the value of any column can be '+' or '-', which mean 'increment'
-		  and decrement, respectively.
-		- if the member's post number is updated, updates their post groups.
-		- this function should be used whenever member data needs to be
-		  updated in place of an UPDATE query.
 
 	void updateSettings(array changeArray, use_update = false)
-		- updates both the settings table and $modSettings array.
-		- all of changeArray's indexes and values are assumed to have escaped
-		  apostrophes (')!
-		- if a variable is already set to what you want to change it to, that
-		  variable will be skipped over; it would be unnecessary to reset.
-		- if use_update is true, UPDATEs will be used instead of REPLACE.
-		- when use_update is true, the value can be true or false to increment
-		  or decrement it, respectively.
 
 	string constructPageIndex(string base_url, int &start, int max_value,
-			int num_per_page, bool compact_start = false)
-		- builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
-		- compact_start caused it to use "url.page" instead of
-		  "url;start=page".
-		- handles any wireless settings (adding special things to URLs.)
-		- very importantly, cleans up the start value passed, and forces it to
-		  be a multiple of num_per_page.
-		- also checks that start is not more than max_value.
-		- base_url should be the URL without any start parameter on it.
-		- uses the compactTopicPagesEnable and compactTopicPagesContiguous
-		  settings to decide how to display the menu.
-		- an example is available near the function definition.
 
 	string comma_format(float number)
-		- formats a number to display in the style of the admins' choosing.
-		- uses the format of number_format to decide how to format the number.
-		- for example, it might display "1 234,50".
-		- caches the formatting data from the setting for optimization.
 
 	string timeformat(int time, bool show_today = true, string offset_type = false)
-		- returns a pretty formated version of time based on the user's format
-		  in $user_info['time_format'].
-		- applies all necessary time offsets to the timestamp, unless offset_type
-		  is set.
-		- if todayMod is set and show_today was not not specified or true, an
-		  alternate format string is used to show the date with something to
-		  show it is "today" or "yesterday".
-		- performs localization (more than just strftime would do alone.)
 
 	string un_htmlspecialchars(string text)
-		- removes the base entities (&lt;, &quot;, etc.) from text.
-		- should be used instead of html_entity_decode for PHP version
-		  compatibility reasons.
-		- additionally converts &nbsp; and &#039;.
-		- returns the string without entities.
 
 	string shorten_subject(string regular_subject, int length)
-		- shortens a subject so that it is either shorter than length, or that
-		  length plus an ellipsis.
-		- respects internationalization characters and entities as one character.
-		- avoids trailing entities.
-		- returns the shortened string.
 
 	int forum_time(bool use_user_offset = true)
-		- returns the current time with offsets.
-		- always applies the offset in the time_offset setting.
-		- if use_user_offset is true, applies the user's offset as well.
-		- returns seconds since the unix epoch.
+ * returns the current time with offsets.
+ * always applies the offset in the time_offset setting.
+ * if use_user_offset is true, applies the user's offset as well.
+ * returns seconds since the unix epoch.
 
 	array permute(array input)
-		- calculates all the possible permutations (orders) of array.
-		- should not be called on huge arrays (bigger than like 10 elements.)
-		- returns an array containing each permutation.
+ * calculates all the possible permutations (orders) of array.
+ * should not be called on huge arrays (bigger than like 10 elements.)
+ * returns an array containing each permutation.
 
 	string parse_bbc(string message, bool smileys = true, string cache_id = '', array parse_tags = null)
-		- this very hefty function parses bbc in message.
-		- only parses bbc tags which are not disabled in disabledBBC.
-		- also handles basic HTML, if enablePostHTML is on.
-		- caches the from/to replace regular expressions so as not to reload
-		  them every time a string is parsed.
-		- only parses smileys if smileys is true.
-		- does nothing if the enableBBC setting is off.
-		- applies the fixLongWords magic if the setting is set to on.
-		- uses the cache_id as a unique identifier to facilitate any caching
-		  it may do.
-		- returns the modified message.
+ * this very hefty function parses bbc in message.
+ * only parses bbc tags which are not disabled in disabledBBC.
+ * also handles basic HTML, if enablePostHTML is on.
+ * caches the from/to replace regular expressions so as not to reload
+ *  them every time a string is parsed.
+ * only parses smileys if smileys is true.
+ * does nothing if the enableBBC setting is off.
+ * applies the fixLongWords magic if the setting is set to on.
+ * uses the cache_id as a unique identifier to facilitate any caching
+ *  it may do.
+ * returns the modified message.
 
 	void parsesmileys(string &message)
-		- the smiley parsing function which makes pretty faces appear :).
-		- if custom smiley sets are turned off by smiley_enable, the default
-		  set of smileys will be used.
-		- these are specifically not parsed in code tags [url=mailto:Dad@blah.com]
-		- caches the smileys from the database or array in memory.
-		- doesn't return anything, but rather modifies message directly.
+ * the smiley parsing function which makes pretty faces appear :).
+ * if custom smiley sets are turned off by smiley_enable, the default
+ *  set of smileys will be used.
+ * these are specifically not parsed in code tags [url=mailto:Dad@blah.com]
+ * caches the smileys from the database or array in memory.
+ * doesn't return anything, but rather modifies message directly.
 
 	string highlight_php_code(string code)
-		- Uses PHP's highlight_string() to highlight PHP syntax
-		- does special handling to keep the tabs in the code available.
-		- used to parse PHP code from inside [code] and [php] tags.
-		- returns the code with highlighted HTML.
+ * Uses PHP's highlight_string() to highlight PHP syntax
+ * does special handling to keep the tabs in the code available.
+ * used to parse PHP code from inside [code] and [php] tags.
+ * returns the code with highlighted HTML.
 
 	void redirectexit(string setLocation = '', bool use_refresh = false)
-		// !!!
 
 	void obExit(bool do_header = true, bool do_footer = do_header)
-		// !!!
-
-	array url_image_size(string url)
-		- uses getimagesize() to determine the size of a file.
-		- attempts to connect to the server first so it won't time out.
-		- returns false on failure, otherwise the output of getimagesize().
 
 	void determineTopicClass(array &topic_context)
-		// !!!
 
 	void setupThemeContext(bool force_reload = false)
-		// !!!
 
 	void template_rawdata()
-		// !!!
 
 	void template_header()
-		// !!!
 
 	void theme_copyright(bool get_it = false)
-		// !!!
 
 	void template_footer()
-		// !!!
-
-	void getAttachmentFilename(string filename, int id_attach, bool new = true)
-		// !!!
 
 	array ip2range(string $fullip)
-		- converts a given IP string to an array.
-		- internal function used to convert a user-readable format to
-		  a format suitable for the database.
-		- returns 'unknown' if the ip in the input was '255.255.255.255'.
+ * converts a given IP string to an array.
+ * internal function used to convert a user-readable format to
+ *  a format suitable for the database.
+ * returns 'unknown' if the ip in the input was '255.255.255.255'.
 
 	string host_from_ip(string ip_address)
-		// !!!
 
 	string create_button(string filename, string alt, string label, bool custom = '')
-		// !!!
 
 	void clean_cache(type = '')
-		- clean the cache directory ($cachedir, if any and in use)
-		- it may only remove the files of a certain type
-		(if the $type parameter is given)
+ * clean the cache directory ($cachedir, if any and in use)
+ * it may only remove the files of a certain type
+ *  (if the $type parameter is given)
 
 	array call_integration_hook(string hook, array parameters = array())
-		- calls all functions of the given hook.
-		- supports static class method calls.
-		- returns the results of the functions as an array.
+ * calls all functions of the given hook.
+ * supports static class method calls.
+ * returns the results of the functions as an array.
 
 	void add_integration_function(string hook, string function, bool permanent = true)
-		- adds the given function to the given hook.
-		- does nothing if the functions is already added.
-		- if permanent parameter is true, updates the value in settings table.
+ * adds the given function to the given hook.
+ * does nothing if the functions is already added.
+ * if permanent parameter is true, updates the value in settings table.
 
 	void remove_integration_function(string hook, string function)
-		- removes the given function from the given hook.
-		- does nothing if the functions is not available.
+ * removes the given function from the given hook.
+ * does nothing if the functions is not available.
 */
 
-// Update some basic statistics...
+// 
 /**
  * Update some basic statistics.
  * 
@@ -372,7 +289,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		if ($parameter2 !== null && !in_array('posts', $parameter2))
 			return;
 
-		if (($postgroups = cache_get_data('updateStats:postgroups', 360)) == null)
+		if (($postgroups = cache_get_data('updateStats:postgroups', 360)) === null)
 		{
 			// Fetch the postgroups!
 			$request = $smcFunc['db_query']('', '
@@ -2453,7 +2370,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = substr($message, '&quot;') === $pos1;
+				$quoted = strpos($message, '&quot;') === $pos1;
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
@@ -2487,7 +2404,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($tag['block_level']) && substr($message, '<br />') === $pos + 1)
+		if (!empty($tag['block_level']) && strpos($message, '<br />') === $pos + 1)
 			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 7);
 
 		// Are we trimming outside this tag?
@@ -2561,7 +2478,7 @@ function parsesmileys(&$message)
 		else
 		{
 			// Load the smileys in reverse order by length so they don't get parsed wrong.
-			if (($temp = cache_get_data('parsing_smileys', 480)) == null)
+			if (($temp = cache_get_data('parsing_smileys', 480)) === null)
 			{
 				$result = $smcFunc['db_query']('', '
 					SELECT code, filename, description
@@ -2793,7 +2710,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
-	$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+	$_SESSION['USER_AGENT'] = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
 
 	if (!empty($settings['strict_doctype']))
 	{

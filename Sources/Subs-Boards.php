@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file is mainly concerned with minor tasks relating to boards, such as
+ * marking them read, collapsing categories, or quick moderation.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,16 +17,7 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is mainly concerned with minor tasks relating to boards, such as
-	marking them read, collapsing categories, or quick moderation.  It defines
-	the following list of functions:
-
-	void MarkRead()
-		// @todo
-
-	int getMsgMemberID(int id_msg)
-		// @todo
-
+/*
 	void modifyBoard(int board_id, array boardOptions)
 		- general function to modify the settings and position of a board.
 		- used by ManageBoards.php to change the settings of a board.
@@ -58,13 +52,6 @@ if (!defined('SMF'))
 		- determines if child is a child of parent.
 		- recurses down the tree until there are no more parents.
 		- returns true if child is a child of parent.
-
-	void getBoardTree()
-		- load information regarding the boards and categories.
-		- the information retrieved is stored in globals:
-			- $boards		properties of each board.
-			- $boardList	a list of boards grouped by category ID.
-			- $cat_tree		properties of each category.
 
 	void recursiveBoards()
 		- function used by getBoardTree to recursively get a list of boards.
@@ -190,7 +177,9 @@ function markBoardsRead($boards, $unread = false)
 		);
 }
 
-// Mark one or more boards as read.
+/**
+ * Mark one or more boards as read.
+ */
 function MarkRead()
 {
 	global $board, $topic, $user_info, $board_info, $modSettings, $smcFunc;
@@ -448,7 +437,10 @@ function MarkRead()
 	}
 }
 
-// Get the id_member associated with the specified message.
+/**
+ * Get the id_member associated with the specified message.
+ * @param int $messageID
+ */
 function getMsgMemberID($messageID)
 {
 	global $smcFunc;
@@ -474,7 +466,11 @@ function getMsgMemberID($messageID)
 	return (int) $memberID;
 }
 
-// Modify the settings and position of a board.
+/**
+ * Modify the settings and position of a board.
+ * @param int $board_id
+ * @param array &$boardOptions
+ */
 function modifyBoard($board_id, &$boardOptions)
 {
 	global $sourcedir, $cat_tree, $boards, $boardList, $modSettings, $smcFunc;
@@ -746,7 +742,11 @@ function modifyBoard($board_id, &$boardOptions)
 		logAction('edit_board', array('board' => $board_id), 'admin');
 }
 
-// Create a new board and set its properties and position.
+/**
+ * Create a new board and set its properties and position.
+ * @param array $boardOptions
+ * @return int The new board id
+ */
 function createBoard($boardOptions)
 {
 	global $boards, $modSettings, $smcFunc;
@@ -835,7 +835,11 @@ function createBoard($boardOptions)
 	return $board_id;
 }
 
-// Remove one or more boards.
+/**
+ * Remove one or more boards.
+ * @param array $boards_to_remove
+ * @param array $moveChildrenTo = null
+ */
 function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 {
 	global $sourcedir, $boards, $smcFunc;
@@ -969,7 +973,9 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	reorderBoards();
 }
 
-// Put all boards in the right order.
+/**
+ * Put all boards in the right order.
+ */
 function reorderBoards()
 {
 	global $cat_tree, $boardList, $boards, $smcFunc;
@@ -1003,7 +1009,12 @@ function reorderBoards()
 	);
 }
 
-// Fixes the children of a board by setting their child_levels to new values.
+/**
+ * Fixes the children of a board by setting their child_levels to new values.
+ * @param int $parent
+ * @param int $newLevel
+ * @param int $newParent
+ */
 function fixChildren($parent, $newLevel, $newParent)
 {
 	global $smcFunc;
@@ -1039,7 +1050,13 @@ function fixChildren($parent, $newLevel, $newParent)
 		fixChildren($child, $newLevel + 1, $child);
 }
 
-// Load a lot of useful information regarding the boards and categories.
+/**
+ * Load a lot of useful information regarding the boards and categories.
+ * The information retrieved is stored in globals:
+ *  $boards		properties of each board.
+ *  $boardList	a list of boards grouped by category ID.
+ *  $cat_tree	properties of each category.
+ */
 function getBoardTree()
 {
 	global $cat_tree, $boards, $boardList, $txt, $modSettings, $smcFunc;
@@ -1151,7 +1168,11 @@ function getBoardTree()
 	}
 }
 
-// Recursively get a list of boards.
+/**
+ * Recursively get a list of boards.
+ * @param array &$_boardList
+ * @param array &$_tree
+ */
 function recursiveBoards(&$_boardList, &$_tree)
 {
 	if (empty($_tree['children']))
@@ -1164,7 +1185,12 @@ function recursiveBoards(&$_boardList, &$_tree)
 	}
 }
 
-// Returns whether the child board id is actually a child of the parent (recursive).
+/**
+ * Returns whether the child board id is actually a child of the parent (recursive).
+ * @param int $child
+ * @param int $parent
+ * @return bool
+ */
 function isChildOf($child, $parent)
 {
 	global $boards;

@@ -476,7 +476,9 @@ function is_not_banned($forceCheck = false)
 		banPermissions();
 }
 
-// Fix permissions according to ban status.
+/**
+ * Fix permissions according to ban status.
+ */
 function banPermissions()
 {
 	global $user_info, $sourcedir, $modSettings, $context;
@@ -553,7 +555,11 @@ function banPermissions()
 		$context['open_mod_reports'] = 0;
 }
 
-// Log a ban in the database.
+/**
+ * Log a ban in the database.
+ * @param array $ban_ids = array()
+ * @param string $email = null
+ */
 function log_ban($ban_ids = array(), $email = null)
 {
 	global $user_info, $smcFunc;
@@ -581,7 +587,12 @@ function log_ban($ban_ids = array(), $email = null)
 		);
 }
 
-// Checks if a given email address might be banned.
+/**
+ * Checks if a given email address might be banned.
+ * @param string $email
+ * @param string $restriction
+ * @param string $error
+ */
 function isBannedEmail($email, $restriction, $error)
 {
 	global $txt, $smcFunc;
@@ -640,7 +651,13 @@ function isBannedEmail($email, $restriction, $error)
 	}
 }
 
-// Make sure the user's correct session was passed, and they came from here. (type can be post, get, or request.)
+/**
+ * Make sure the user's correct session was passed, and they came from here. (type can be post, get, or request.)
+ * @param string $type = 'post'
+ * @param string $from_action = ''
+ * @param bool $is_fatal = true
+ * @return string
+ */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
 	global $sc, $modSettings, $boardurl;
@@ -747,7 +764,10 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 	trigger_error('Hacking attempt...', E_USER_ERROR);
 }
 
-// Check if a specific confirm parameter was given.
+/**
+ * Check if a specific confirm parameter was given.
+ * @param string $action
+ */
 function checkConfirm($action)
 {
 	global $modSettings;
@@ -764,7 +784,11 @@ function checkConfirm($action)
 	}
 }
 
-// Lets give you a token of our appreciation.
+/**
+ * Lets give you a token of our appreciation.
+ * @param string $action
+ * @param string $type = 'post'
+ */
 function createToken($action, $type = 'post')
 {
 	global $modSettings, $context;
@@ -780,7 +804,12 @@ function createToken($action, $type = 'post')
 	return array($token_var, $token);
 }
 
-// Only patrons with valid tokens can ride this ride.
+/**
+ * Only patrons with valid tokens can ride this ride.
+ * @param string $action
+ * @param string $type = 'post' (get, request, or post)
+ * @param bool $reset = true
+ */
 function validateToken($action, $type = 'post', $reset = true)
 {
 	global $modSettings;
@@ -825,7 +854,10 @@ function validateToken($action, $type = 'post', $reset = true)
 	return false;
 }
 
-// Clean up a little.
+/**
+ * Clean up a little.
+ * @param bool $complete = false
+ */
 function cleanTokens($complete = false)
 {
 	// We appreciate cleaning up after yourselves.
@@ -838,7 +870,11 @@ function cleanTokens($complete = false)
 			unset($_SESSION['token'][$key]);
 }
 
-// Check whether a form has been submitted twice.
+/**
+ * Check whether a form has been submitted twice.
+ * @param string $action
+ * @param bool $is_fatal = true
+ */
 function checkSubmitOnce($action, $is_fatal = true)
 {
 	global $context;
@@ -875,7 +911,12 @@ function checkSubmitOnce($action, $is_fatal = true)
 		trigger_error('checkSubmitOnce(): Invalid action \'' . $action . '\'', E_USER_WARNING);
 }
 
-// Check the user's permissions.
+/**
+ * Check the user's permissions.
+ * @param string $permission
+ * @param array $boards = null
+ * @return bool
+ */
 function allowedTo($permission, $boards = null)
 {
 	global $user_info, $modSettings, $smcFunc;

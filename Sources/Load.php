@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Load the $modSettings array.
  * @todo okay question of the day: why a function loading settings is called reloadSettings()
- * 
+ *
  * @global array $modSettings is a giant array of all of the forum-wide settings and statistics.
  */
 function reloadSettings()
@@ -35,7 +35,7 @@ function reloadSettings()
 		);
 
 	// Try to load it from the cache first; it'll never get cached if the setting is off.
-	if (($modSettings = cache_get_data('modSettings', 90)) == null)
+	if (($modSettings = cache_get_data('modSettings', 90)) === null)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT variable, value
@@ -256,7 +256,7 @@ function loadUserSettings()
 	if ($id_member != 0)
 	{
 		// Is the member data cached?
-		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
+		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) === null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT mem.*, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
@@ -873,7 +873,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		for ($i = 0, $n = count($users); $i < $n; $i++)
 		{
 			$data = cache_get_data('member_data-' . $set . '-' . $users[$i], 240);
-			if ($data == null)
+			if ($data === null)
 				continue;
 
 			$loaded_ids[] = $data['id_member'];
@@ -977,7 +977,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	// Are we loading any moderators?  If so, fix their group data...
 	if (!empty($loaded_ids) && !empty($board_info['moderators']) && $set === 'normal' && count($temp_mods = array_intersect($loaded_ids, array_keys($board_info['moderators']))) !== 0)
 	{
-		if (($row = cache_get_data('moderator_group_info', 480)) == null)
+		if (($row = cache_get_data('moderator_group_info', 480)) === null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT group_name AS member_group, online_color AS member_group_color, stars
@@ -1093,7 +1093,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'title' => $profile['website_title'],
 			'url' => $profile['website_url'],
 		),
-		'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
+		'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (strpos($profile['birthdate'], '0004') === 0 ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 		'signature' => $profile['signature'],
 		'location' => $profile['location'],
 		'icq' => $profile['icq'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
@@ -1730,7 +1730,7 @@ function loadTheme($id_theme = 0, $initialize = true)
  *  - uses the template_include() function to include the file.
  *  - detects a wrong default theme directory and tries to work around it.
  *  - if fatal is true, dies with an error message if the template cannot be found.
- * 
+ *
  * @param string $template_name
  * @param array $style_sheets = array()
  * @param bool $fatal = true
@@ -1824,9 +1824,9 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  *  template.
  *  - if ?debug is in the query string, shows administrators a marker after every sub template
  *   for debugging purposes.
- * 
+ *
  * @todo get rid of reading $_REQUEST directly
- * 
+ *
  * @param string $sub_template_name
  * @param bool $fatal = false, $fatal = true is for templates that shouldn't get a 'pretty' error screen.
  */
@@ -2036,7 +2036,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 	global $context, $smcFunc, $settings, $modSettings;
 
 	// Either we don't use the cache, or its expired.
-	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
+	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) === null)
 	{
 		// If we don't have our theme information yet, lets get it.
 		if (empty($settings['default_theme_dir']))
@@ -2083,7 +2083,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		if ($favor_utf8)
 		{
 			foreach ($context['languages'] as $lang)
-				if (substr($lang['filename'], strlen($lang['filename']) - 5, 5) != '-utf8' && isset($context['languages'][$lang['filename'] . '-utf8']))
+				if (strpos($lang['filename'], '-utf8') !== strlen($lang['filename']) - 5 && isset($context['languages'][$lang['filename'] . '-utf8']))
 					unset($context['languages'][$lang['filename']]);
 		}
 

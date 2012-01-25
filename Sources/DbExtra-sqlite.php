@@ -339,7 +339,7 @@ function smf_db_get_backup()
 	header('Connection: close');
 
 	// Literally dump the contents.  Try reading the file first.
-	if (@readfile($db_file) == null)
+	if (@readfile($db_file) === null)
 		echo file_get_contents($db_file);
 
 	obExit(false);

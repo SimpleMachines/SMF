@@ -881,6 +881,7 @@ tr.catbg th.first_th
 tr.catbg th.last_th
 {
 	background: #a7b9cd url(../images/theme/main_block.png) no-repeat 100% -280px;
+	margin-right: 1px;
 }
 tr.titlebg th.first_th
 {

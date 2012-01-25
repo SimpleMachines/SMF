@@ -216,7 +216,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 	if (strpos($db_string, '{') !== false)
 	{
 		// This is needed by the callback function.
-		$db_callback = array($db_values, $connection == null ? $db_connection : $connection);
+		$db_callback = array($db_values, $connection === null ? $db_connection : $connection);
 
 		// Do the quoting and escaping
 		$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', 'smf_db_replacement__callback', $db_string);
@@ -239,7 +239,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	global $db_unbuffered, $db_callback, $db_last_result, $db_replace_result, $modSettings;
 
 	// Decide which connection to use.
-	$connection = $connection == null ? $db_connection : $connection;
+	$connection = $connection === null ? $db_connection : $connection;
 
 	// Special queries that need processing.
 	$replacements = array(
@@ -465,10 +465,10 @@ function smf_db_affected_rows($result = null)
 
 	if ($db_replace_result)
 		return $db_replace_result;
-	elseif ($result == null && !$db_last_result)
+	elseif ($result === null && !$db_last_result)
 		return 0;
 
-	return pg_affected_rows($result == null ? $db_last_result : $result);
+	return pg_affected_rows($result === null ? $db_last_result : $result);
 }
 
 /**
@@ -511,7 +511,7 @@ function smf_db_transaction($type = 'commit', $connection = null)
 	global $db_connection;
 
 	// Decide which connection to use
-	$connection = $connection == null ? $db_connection : $connection;
+	$connection = $connection === null ? $db_connection : $connection;
 
 	if ($type == 'begin')
 		return @pg_query($connection, 'BEGIN');
@@ -541,7 +541,7 @@ function smf_db_error($db_string, $connection = null)
 	list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
 
 	// Decide which connection to use
-	$connection = $connection == null ? $db_connection : $connection;
+	$connection = $connection === null ? $db_connection : $connection;
 
 	// This is the error message...
 	$query_error = @pg_last_error($connection);

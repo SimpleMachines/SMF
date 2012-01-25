@@ -887,7 +887,7 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 		this.oCookie.set(this.opt.oCookieOptions.sCookieName, this.bCollapsed ? '1' : '0');
 
 	if ('oThemeOptions' in this.opt && this.opt.oThemeOptions.bUseThemeSettings)
-		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed ? '1' : '0', 'sThemeId' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sThemeId : null, this.opt.oThemeOptions.sSessionId, this.opt.oThemeOptions.sSessionVar, 'sAdditionalVars' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sAdditionalVars : null);
+		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed ? '1' : '0', 'sThemeId' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sThemeId : null, smf_session_id, smf_session_var, 'sAdditionalVars' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sAdditionalVars : null);
 }
 
 smc_Toggle.prototype.toggle = function()
@@ -1226,7 +1226,7 @@ IconList.prototype.onItemMouseDown = function (oDiv, sNewIcon)
 	{
 		ajax_indicator(true);
 		this.tmpMethod = getXMLDocument;
-		var oXMLDoc = this.tmpMethod(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' + this.opt.sSessionVar + '=' + this.opt.sSessionId + ';icon=' + sNewIcon + ';xml');
+		var oXMLDoc = this.tmpMethod(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=jsmodify;topic=' + this.opt.iTopicId + ';msg=' + this.iCurMessageId + ';' + smf_session_var + '=' + smf_session_id + ';icon=' + sNewIcon + ';xml');
 		delete this.tmpMethod;
 		ajax_indicator(false);
 
@@ -1417,5 +1417,135 @@ function cleanFileInput(idElement)
 	{
 		document.getElementById(idElement).type = 'input';
 		document.getElementById(idElement).type = 'file';
+	}
+}
+
+function applyWindowClasses(oList)
+{
+	var bAlternate = false;
+	oListItems = oList.getElementsByTagName("LI");
+	for (i = 0; i < oListItems.length; i++)
+	{
+		// Skip dummies.
+		if (oListItems[i].id == "")
+			continue;
+		oListItems[i].className = "windowbg" + (bAlternate ? "2" : "");
+		bAlternate = !bAlternate;
+	}
+}
+
+function reActivate()
+{
+	document.forms.postmodify.message.readOnly = false;
+}
+
+// The actual message icon selector.
+function showimage()
+{
+	document.images.icons.src = icon_urls[document.forms.postmodify.icon.options[document.forms.postmodify.icon.selectedIndex].value];
+}
+
+function pollOptions()
+{
+	var expire_time = document.getElementById('poll_expire');
+
+	if (isEmptyText(expire_time) || expire_time.value == 0)
+	{
+		document.forms.postmodify.poll_hide[2].disabled = true;
+		if (document.forms.postmodify.poll_hide[2].checked)
+			document.forms.postmodify.poll_hide[1].checked = true;
+	}
+	else
+		document.forms.postmodify.poll_hide[2].disabled = false;
+}
+
+function generateDays(offset = 0)
+{
+	var days = 0, selected = 0;
+	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
+
+	monthLength[1] = 28;
+	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
+		monthLength[1] = 29;
+
+	selected = dayElement.selectedIndex;
+	while (dayElement.options.length)
+		dayElement.options[0] = null;
+
+	days = monthLength[monthElement.value - 1];
+
+	for (i = 1; i <= days; i++)
+		dayElement.options[dayElement.length] = new Option(i, i);
+
+	if (selected < days)
+		dayElement.selectedIndex = selected;
+}
+
+function toggleLinked(form)
+{
+	form.board.disabled = !form.link_to_board.checked;
+}
+
+function initSearch()
+{
+	if (document.forms.searchform.search.value.indexOf("%u") != -1)
+		document.forms.searchform.search.value = unescape(document.forms.searchform.search.value);
+}
+
+function selectBoards(ids)
+{
+	var toggle = true;
+
+	for (i = 0; i < ids.length; i++)
+		toggle = toggle & document.forms.searchform["brd" + ids[i]].checked;
+
+	for (i = 0; i < ids.length; i++)
+		document.forms.searchform["brd" + ids[i]].checked = !toggle;
+}
+
+function expandCollapseBoards()
+{
+	var current = document.getElementById("searchBoardsExpand").style.display != "none";
+
+	document.getElementById("searchBoardsExpand").style.display = current ? "none" : "";
+	document.getElementById("expandBoardsIcon").src = smf_images_url + (current ? "/expand.gif" : "/collapse.gif");
+}
+
+function expandCollapseLabels()
+{
+	var current = document.getElementById("searchLabelsExpand").style.display != "none";
+
+	document.getElementById("searchLabelsExpand").style.display = current ? "none" : "";
+	document.getElementById("expandLabelsIcon").src = smf_images_url + (current ? "/expand.gif" : "/collapse.gif");
+}
+
+function updateRuleDef(optNum)
+{
+	if (document.getElementById("ruletype" + optNum).value == "gid")
+	{
+		document.getElementById("defdiv" + optNum).style.display = "none";
+		document.getElementById("defseldiv" + optNum).style.display = "";
+	}
+	else if (document.getElementById("ruletype" + optNum).value == "bud" || document.getElementById("ruletype" + optNum).value == "")
+	{
+		document.getElementById("defdiv" + optNum).style.display = "none";
+		document.getElementById("defseldiv" + optNum).style.display = "none";
+	}
+	else
+	{
+		document.getElementById("defdiv" + optNum).style.display = "";
+		document.getElementById("defseldiv" + optNum).style.display = "none";
+	}
+}
+
+function updateActionDef(optNum)
+{
+	if (document.getElementById("acttype" + optNum).value == "lab")
+	{
+		document.getElementById("labdiv" + optNum).style.display = "";
+	}
+	else
+	{
+		document.getElementById("labdiv" + optNum).style.display = "none";
 	}
 }

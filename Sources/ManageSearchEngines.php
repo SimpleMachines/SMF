@@ -316,6 +316,9 @@ function ViewSpiders()
 
 /**
  * Callback function for createList()
+ * @param int $start
+ * @param int $items_per_page
+ * @param string sort
  */
 function list_getSpiders($start, $items_per_page, $sort)
 {
@@ -339,6 +342,7 @@ function list_getSpiders($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ * @return int
  */
 function list_getNumSpiders()
 {
@@ -456,6 +460,7 @@ function EditSpider()
  * Do we think the current user is a spider?
  * 
  * @todo Should this not be... you know... in a different file?
+ * @return int
  */
 function SpiderCheck()
 {
@@ -466,10 +471,7 @@ function SpiderCheck()
 	$_SESSION['robot_check'] = time();
 
 	// We cache the spider data for five minutes if we can.
-	if (!empty($modSettings['cache_enable']))
-		$spider_data = cache_get_data('spider_search', 300);
-
-	if (!isset($spider_data) || $spider_data === NULL)
+	if (($spider_data = cache_get_data('spider_search', 300)) === null)
 	{
 		$request = $smcFunc['db_query']('spider_check', '
 			SELECT id_spider, user_agent, ip_info
@@ -785,6 +787,11 @@ function SpiderLogs()
 
 /**
  * Callback function for createList()
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @return array
  */
 function list_getSpiderLogs($start, $items_per_page, $sort)
 {
@@ -809,6 +816,7 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ * @return int
  */
 function list_getNumSpiderLogs()
 {
@@ -981,6 +989,7 @@ function SpiderStats()
 
 /**
  * Callback function for createList()
+ * @return array
  */
 function list_getSpiderStats($start, $items_per_page, $sort)
 {
@@ -1005,6 +1014,7 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ * @return int
  */
 function list_getNumSpiderStats()
 {

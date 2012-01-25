@@ -317,7 +317,7 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 
 	// Send in the XMLhttp request and let's hope for the best.
 	ajax_indicator(true);
-	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + sSessionVar + "=" + sSessionId + ";xml", x.join("&"), this.onModifyDone);
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + "action=jsmodify;topic=" + this.opt.iTopicId + ";" + smf_session_var + "=" + smf_session_id + ";xml", x.join("&"), this.onModifyDone);
 
 	return false;
 }
@@ -538,4 +538,36 @@ function expandThumb(thumbID)
 	img.style.width = '';
 	img.style.height = '';
 	return false;
+}
+
+// For templating, shown when an inline edit is made.
+function modify_topic_show_edit(subject)
+{
+	// Just template the subject.
+	setInnerHTML(cur_subject_div, '<input type="text" name="subject" value="' + subject + '" size="60" style="width: 95%;" maxlength="80" onkeypress="modify_topic_keypress(event)" class="input_text" /><input type="hidden" name="topic" value="' + cur_topic_id + '" /><input type="hidden" name="msg" value="' + cur_msg_id.substr(4) + '" />');
+}
+
+function modify_topic_click()
+{
+	if (in_edit_mode == 1 && mouse_on_div == 0)
+		modify_topic_save(smf_sesion_id, smf_session_var);
+}
+
+function modify_topic_keypress(oEvent)
+{
+	if (typeof(oEvent.keyCode) != "undefined" && oEvent.keyCode == 13)
+	{
+		modify_topic_save(smf_sesion_id, smf_session_var);
+		if (typeof(oEvent.preventDefault) == "undefined")
+			oEvent.returnValue = false;
+		else
+			oEvent.preventDefault();
+	}
+}
+
+// And the reverse for hiding it.
+function modify_topic_hide_edit(subject)
+{
+	// Re-template the subject!
+	setInnerHTML(cur_subject_div, '<a href="' + smf_scripturl + '?topic=' + cur_topic_id + '.0">' + subject + '<' +'/a>');
 }

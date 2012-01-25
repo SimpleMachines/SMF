@@ -232,7 +232,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 	if (strpos($db_string, '{') !== false)
 	{
 		// This is needed by the callback function.
-		$db_callback = array($db_values, $connection == null ? $db_connection : $connection);
+		$db_callback = array($db_values, $connection === null ? $db_connection : $connection);
 
 		// Do the quoting and escaping
 		$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', 'smf_db_replacement__callback', $db_string);
@@ -253,7 +253,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	global $db_unbuffered, $db_callback, $modSettings;
 
 	// Decide which connection to use.
-	$connection = $connection == null ? $db_connection : $connection;
+	$connection = $connection === null ? $db_connection : $connection;
 
 	// Special queries that need processing.
 	$replacements = array(
@@ -398,7 +398,7 @@ function smf_db_affected_rows($connection = null)
 {
 	global $db_connection;
 
-	return sqlite_changes($connection == null ? $db_connection : $connection);
+	return sqlite_changes($connection === null ? $db_connection : $connection);
 }
 
 /**
@@ -415,7 +415,7 @@ function smf_db_insert_id($table, $field = null, $connection = null)
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
 	// SQLite doesn't need the table or field information.
-	return sqlite_last_insert_rowid($connection == null ? $db_connection : $connection);
+	return sqlite_last_insert_rowid($connection === null ? $db_connection : $connection);
 }
 
 /**
@@ -440,7 +440,7 @@ function smf_db_transaction($type = 'commit', $connection = null)
 	global $db_connection, $db_in_transact;
 
 	// Decide which connection to use
-	$connection = $connection == null ? $db_connection : $connection;
+	$connection = $connection === null ? $db_connection : $connection;
 
 	if ($type == 'begin')
 	{
@@ -479,7 +479,7 @@ function smf_db_error($db_string, $connection = null)
 	list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
 
 	// Decide which connection to use
-	$connection = $connection == null ? $db_connection : $connection;
+	$connection = $connection === null ? $db_connection : $connection;
 
 	// This is the error message...
 	$query_errno = sqlite_last_error($connection);

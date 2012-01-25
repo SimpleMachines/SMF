@@ -17,34 +17,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	void theme_postbox(string message)
-		- for compatibility - passes right through to the template_control_richedit function.
-
-	void create_control_richedit(&array editorOptions)
-		// !!
-
-	void create_control_verification(&array suggestOptions)
-		// !!
-
-	void fetchTagAttributes()
-		// !!
-
-	array getMessageIcons(int board_id)
-	- retrieves a list of message icons.
-	- based on the settings, the array will either contain a list of default
-	  message icons or a list of custom message icons retrieved from the
-	  database.
-	- the board_id is needed for the custom message icons (which can be set for
-	  each board individually).
-
-	void AutoSuggestHandler(string checkRegistered = null)
-		// @todo
-
-	void AutoSuggest_Search_Member()
-		// @todo
-*/
-
 /**
  * At the moment this is only used for returning WYSIWYG data.
  */
@@ -81,6 +53,7 @@ function EditorMain()
 /**
  * Convert only the BBC that can be edited in HTML mode for the editor.
  * @param string $text
+ * @return string
  */
 function bbc_to_html($text)
 {
@@ -904,7 +877,7 @@ function fetchTagAttributes($text)
 	for ($i = 0; $i < strlen($text); $i++)
 	{
 		// We're either moving from the key to the attribute or we're in a string and this is fine.
-		if ($text{$i} == '=')
+		if ($text[$i] == '=')
 		{
 			if ($tag_state == 0)
 				$tag_state = 1;
@@ -912,7 +885,7 @@ function fetchTagAttributes($text)
 				$value .= '=';
 		}
 		// A space is either moving from an attribute back to a potential key or in a string is fine.
-		elseif ($text{$i} == ' ')
+		elseif ($text[$i] == ' ')
 		{
 			if ($tag_state == 2)
 				$value .= ' ';
@@ -924,7 +897,7 @@ function fetchTagAttributes($text)
 			}
 		}
 		// A quote?
-		elseif ($text{$i} == '"')
+		elseif ($text[$i] == '"')
 		{
 			// Must be either going into or out of a string.
 			if ($tag_state == 1)
@@ -936,9 +909,9 @@ function fetchTagAttributes($text)
 		else
 		{
 			if ($tag_state == 0)
-				$key .= $text{$i};
+				$key .= $text[$i];
 			else
-				$value .= $text{$i};
+				$value .= $text[$i];
 		}
 	}
 
@@ -991,7 +964,7 @@ function getMessageIcons($board_id)
 	// Otherwise load the icons, and check we give the right image too...
 	else
 	{
-		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
+		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) === null)
 		{
 			$request = $smcFunc['db_query']('select_message_icons', '
 				SELECT title, filename
@@ -1026,7 +999,11 @@ function getMessageIcons($board_id)
 	return array_values($icons);
 }
 
-// This is an important yet frustrating function - it attempts to clean up illegal BBC caused by browsers like Opera which don't obey the rules!!!
+/**
+ * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
+ * @param string $text
+ * @return string
+ */
 function legalise_bbc($text)
 {
 	global $modSettings;
@@ -1415,13 +1392,23 @@ function legalise_bbc($text)
 	return $text;
 }
 
-// A help function for legalise_bbc for sorting arrays based on length.
+/**
+ * A help function for legalise_bbc for sorting arrays based on length.
+ * @param string $a
+ * @param string $b
+ * @return int 1 or -1
+ */
 function sort_array_length($a, $b)
 {
 	return strlen($a) < strlen($b) ? 1 : -1;
 }
 
-// Compatibility function - used in 1.1 for showing a post box.
+/**
+ * Compatibility function - used in 1.1 for showing a post box.
+ * 
+ * @param string $msg
+ * @return string
+ */
 function theme_postbox($msg)
 {
 	global $context;
@@ -1429,7 +1416,10 @@ function theme_postbox($msg)
 	return template_control_richedit($context['post_box_name']);
 }
 
-// Creates a box that can be used for richedit stuff like BBC, Smileys etc.
+/**
+ * Creates a box that can be used for richedit stuff like BBC, Smileys etc.
+ * @param array $editorOptions
+ */
 function create_control_richedit($editorOptions)
 {
 	global $txt, $modSettings, $options, $smcFunc;
@@ -1830,7 +1820,7 @@ function create_control_richedit($editorOptions)
 			);
 		elseif ($user_info['smiley_set'] != 'none')
 		{
-			if (($temp = cache_get_data('posting_smileys', 480)) == null)
+			if (($temp = cache_get_data('posting_smileys', 480)) === null)
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT code, filename, description, smiley_row, hidden
@@ -1892,7 +1882,11 @@ function create_control_richedit($editorOptions)
 	}
 }
 
-// Create a anti-bot verification control?
+/**
+ * Create a anti-bot verification control?
+ * @param array &$verificationOptions
+ * @param bool $do_test = false
+ */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
 	global $txt, $modSettings, $options, $smcFunc;
@@ -1948,7 +1942,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// If we want questions do we have a cache of all the IDs?
 	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
 	{
-		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestionIds', 300)) == null)
+		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestionIds', 300)) === null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT id_comment
@@ -2114,7 +2108,10 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	return true;
 }
 
-// This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
+/**
+ * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
+ * @param bool $checkRegistered = null
+ */
 function AutoSuggestHandler($checkRegistered = null)
 {
 	global $context;
@@ -2125,7 +2122,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	);
 
 	// If we're just checking the callback function is registered return true or false.
-	if ($checkRegistered != null)
+	if ($checkRegistered !== null)
 		return isset($searchTypes[$checkRegistered]) && function_exists('AutoSuggest_Search_' . $checkRegistered);
 
 	checkSession('get');

@@ -1246,13 +1246,16 @@ function MessageSearch2()
 
 	// Now we look for -test, etc.... normaller.
 	foreach ($tempSearch as $index => $word)
-		if (strpos(trim($word), '-') === 0)
+	{
+		$word = trim($word);
+		if ($word[0] == '.')
 		{
-			$word = substr($smcFunc['strtolower'](trim($word)), 1);
+			$word = substr($smcFunc['strtolower']($word), 1);
 			if (strlen($word) > 0)
 				$excludedWords[] = $word;
 			unset($tempSearch[$index]);
 		}
+	}
 
 	$searchArray = array_merge($searchArray, $tempSearch);
 
@@ -1349,9 +1352,7 @@ function MessageSearch2()
 	$smcFunc['db_free_result']($request);
 
 	// Get all the matching messages... using standard search only (No caching and the like!)
-	/**
-	 * @todo This doesn't support sent item searching yet.
-	 */
+	// @todo This doesn't support sent item searching yet.
 	$request = $smcFunc['db_query']('', '
 		SELECT pm.id_pm, pm.id_pm_head, pm.id_member_from
 		FROM {db_prefix}pm_recipients AS pmr

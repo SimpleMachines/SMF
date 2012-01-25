@@ -328,3 +328,284 @@ smf_ViewVersions.prototype.determineVersions = function ()
 	if (oLowVersion.Languages)
 		document.getElementById('yourLanguages').style.color = 'red';
 }
+
+function addNewWord()
+{
+	setOuterHTML(document.getElementById('moreCensoredWords'), '<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="20" class="input_text" /> => <input type="text" name="censor_proper[]" size="20" class="input_text" /><' + '/div><div id="moreCensoredWords"><' + '/div>');
+}
+
+function toggleBBCDisabled(section, disable)
+{
+	for (var i = 0; i < document.forms.bbcForm.length; i++)
+	{
+		if (typeof(document.forms.bbcForm[i].name) == "undefined" || (document.forms.bbcForm[i].name.substr(0, 11) != "enabledTags") || (document.forms.bbcForm[i].name.indexOf(section) != 11))
+			continue;
+
+		document.forms.bbcForm[i].disabled = disable;
+	}
+	document.getElementById("bbc_" + section + "_select_all").disabled = disable;
+}
+
+function updateInputBoxes()
+{
+	curType = document.getElementById("field_type").value;
+	privStatus = document.getElementById("private").value;
+	document.getElementById("max_length_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("max_length_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("dimension_dt").style.display = curType == "textarea" ? "" : "none";
+	document.getElementById("dimension_dd").style.display = curType == "textarea" ? "" : "none";
+	document.getElementById("bbc_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("bbc_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("options_dt").style.display = curType == "select" || curType == "radio" ? "" : "none";
+	document.getElementById("options_dd").style.display = curType == "select" || curType == "radio" ? "" : "none";
+	document.getElementById("default_dt").style.display = curType == "check" ? "" : "none";
+	document.getElementById("default_dd").style.display = curType == "check" ? "" : "none";
+	document.getElementById("mask_dt").style.display = curType == "text" ? "" : "none";
+	document.getElementById("mask").style.display = curType == "text" ? "" : "none";
+	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("regex_div").style.display = curType == "text" && document.getElementById("mask").value == "regex" ? "" : "none";
+	document.getElementById("display").disabled = false;
+	// Cannot show this on the topic
+	if (curType == "textarea" || privStatus >= 2)
+	{
+		document.getElementById("display").checked = false;
+		document.getElementById("display").disabled = true;
+	}
+}
+
+function addOption()
+{
+	setOuterHTML(document.getElementById("addopt"), '<br /><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '" class="input_radio" /><input type="text" name="select_option[' + startOptID + ']" value="" class="input_text" /><span id="addopt"></span>');
+	startOptID++;
+}
+
+
+//Create a named element dynamically - thanks to: http://www.thunderguy.com/semicolon/2005/05/23/setting-the-name-attribute-in-internet-explorer/
+function createNamedElement(type, name, customFields)
+{
+	var element = null;
+
+	if (!customFields)
+		customFields = "";
+
+	// Try the IE way; this fails on standards-compliant browsers
+	try
+	{
+		element = document.createElement("<" + type + ' name="' + name + '" ' + customFields + ">");
+	}
+	catch (e)
+	{
+	}
+	if (!element || element.nodeName != type.toUpperCase())
+	{
+		// Non-IE browser; use canonical method to create named element
+		element = document.createElement(type);
+		element.name = name;
+	}
+
+	return element;
+}
+
+function addAnotherQuestion()
+{
+	var newDT = document.createElement("dt");
+
+	var newInput = createNamedElement("input", "question[]");
+	newInput.type = "text";
+	newInput.className = "input_text";
+	newInput.size = "50";
+	newInput.setAttribute("class", "verification_question");
+	newDT.appendChild(newInput);
+
+	newDD = document.createElement("dd");
+
+	newInput = createNamedElement("input", "answer[]");
+	newInput.type = "text";
+	newInput.className = "input_text";
+	newInput.size = "50";
+	newInput.setAttribute("class", "verification_answer");
+	newDD.appendChild(newInput);
+
+	placeHolder.parentNode.insertBefore(newDT, placeHolder);
+	placeHolder.parentNode.insertBefore(newDD, placeHolder);
+}
+
+function smfSetLatestThemes()
+{
+	if (typeof(window.smfLatestThemes) != "undefined")
+		setInnerHTML(document.getElementById("themeLatest"), window.smfLatestThemes);
+
+	if (tempOldOnload)
+		tempOldOnload();
+}
+
+function changeVariant(sVariant)
+{
+	document.getElementById('variant_preview').src = oThumbnails[sVariant];
+}
+
+// The idea here is simple: don't refresh the preview on every keypress, but do refresh after they type.
+function setPreviewTimeout()
+{
+	if (previewTimeout)
+	{
+		window.clearTimeout(previewTimeout);
+		previewTimeout = null;
+	}
+
+	previewTimeout = window.setTimeout("refreshPreview(true); previewTimeout = null;", 500);
+}
+
+function toggleDuration(toChange)
+{
+	if (toChange == 'fixed')
+	{
+		document.getElementById("fixed_area").style.display = "inline";
+		document.getElementById("flexible_area").style.display = "none";
+	}
+	else
+	{
+		document.getElementById("fixed_area").style.display = "none";
+		document.getElementById("flexible_area").style.display = "inline";
+	}
+}
+
+function toggleBreakdown(id_group, forcedisplayType)
+{
+	displayType = document.getElementById("group_hr_div_" + id_group).style.display == "none" ? "" : "none";
+	if (typeof(forcedisplayType) != "undefined")
+		displayType = forcedisplayType;
+
+	for (i = 0; i < groupPermissions[id_group].length; i++)
+	{
+		document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]).style.display = displayType
+	}
+	document.getElementById("group_hr_div_" + id_group).style.display = displayType
+	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "sort_down") + ".gif";
+
+	return false;
+}
+
+function calculateNewValues()
+{
+	var total = 0;
+	for (var i = 1; i <= 6; i++)
+	{
+		total += parseInt(document.getElementById('weight' + i + '_val').value);
+	}
+	setInnerHTML(document.getElementById('weighttotal'), total);
+	for (var i = 1; i <= 6; i++)
+	{
+		setInnerHTML(document.getElementById('weight' + i), (Math.round(1000 * parseInt(document.getElementById('weight' + i + '_val').value) / total) / 10) + '%');
+	}
+}
+
+function switchType()
+{
+	document.getElementById("ul_settings").style.display = document.getElementById("method-existing").checked ? "none" : "";
+	document.getElementById("ex_settings").style.display = document.getElementById("method-upload").checked ? "none" : "";
+}
+
+function swapUploads()
+{
+	document.getElementById("uploadMore").style.display = document.getElementById("uploadSmiley").disabled ? "none" : "";
+	document.getElementById("uploadSmiley").disabled = !document.getElementById("uploadSmiley").disabled;
+}
+
+function selectMethod(element)
+{
+	document.getElementById("method-existing").checked = element != "upload";
+	document.getElementById("method-upload").checked = element == "upload";
+}
+
+function updatePreview()
+{
+	var currentImage = document.getElementById("preview");
+	currentImage.src = smf_images_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
+}
+
+function swap_database_changes()
+{
+	db_vis = !db_vis;
+	database_changes_area.style.display = db_vis ? "" : "none";
+	return false;
+}
+
+function smfSetLatestPackages()
+{
+	if (typeof(window.smfLatestPackages) != "undefined")
+		setInnerHTML(document.getElementById("packagesLatest"), window.smfLatestPackages);
+
+	if (tempOldOnload)
+	tempOldOnload();
+}
+
+function testFTP()
+{
+	ajax_indicator(true);
+
+	// What we need to post.
+	var oPostData = {
+		0: "ftp_server",
+		1: "ftp_port",
+		2: "ftp_username",
+		3: "ftp_password",
+		4: "ftp_path"
+	}
+
+	var sPostData = "";
+	for (i = 0; i < 5; i++)
+		sPostData = sPostData + (sPostData.length == 0 ? "" : "&") + oPostData[i] + "=" + escape(document.getElementById(oPostData[i]).value);
+
+	// Post the data out.
+	sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=admin;area=packages;sa=ftptest;xml;' + smf_session_var + '=' + smf_session_id, sPostData, testFTPResults);
+}
+
+function expandFolder(folderIdent, folderReal)
+{
+	// See if it already exists.
+	var possibleTags = document.getElementsByTagName("tr");
+	var foundOne = false;
+
+	for (var i = 0; i < possibleTags.length; i++)
+	{
+		if (possibleTags[i].id.indexOf("content_" + folderIdent + ":-:") == 0)
+		{
+			possibleTags[i].style.display = possibleTags[i].style.display == "none" ? "" : "none";
+			foundOne = true;
+		}
+	}
+
+	// Got something then we're done.
+	if (foundOne)
+	{
+		return false;
+	}
+	// Otherwise we need to get the wicked thing.
+	else if (window.XMLHttpRequest)
+	{
+		ajax_indicator(true);
+		getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=admin;area=packages;onlyfind=' + escape(folderReal) + ';sa=perms;xml;' + smf_session_var + '=' + smf_session_id, onNewFolderReceived);
+	}
+	// Otherwise reload.
+	else
+		return true;
+
+	return false;
+}
+
+function dynamicExpandFolder()
+{
+	expandFolder(this.ident, this.path);
+
+	return false;
+}
+
+function repeatString(sString, iTime)
+{
+	if (iTime < 1)
+		return '';
+	else
+		return sString + repeatString(sString, iTime - 1);
+}

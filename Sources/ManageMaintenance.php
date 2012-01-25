@@ -1545,8 +1545,8 @@ function MaintainPurgeInactiveMembers()
 {
 	global $sourcedir, $context, $smcFunc, $txt;
 
-	$_POST['maxdays'] = (int) $_POST['maxdays'];
-	if (!empty($_POST['groups']) && $_POST['maxdays'])
+	$_POST['maxdays'] = empty($_POST['maxdays']) ? 0 : (int) $_POST['maxdays'];
+	if (!empty($_POST['groups']) && $_POST['maxdays'] > 0)
 	{
 		checkSession();
 		validateToken('admin-maint');

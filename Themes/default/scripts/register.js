@@ -264,3 +264,54 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 		return true;
 	}
 }
+
+function updateAuthMethod()
+{
+	// What authentication method is being used?
+	if (!document.getElementById('auth_openid') || !document.getElementById('auth_openid').checked)
+		currentAuthMethod = 'passwd';
+	else
+		currentAuthMethod = 'openid';
+
+	// No openID?
+	if (!document.getElementById('auth_openid'))
+		return true;
+
+	document.forms.registration.openid_url.disabled = currentAuthMethod == 'openid' ? false : true;
+	document.forms.registration.smf_autov_pwmain.disabled = currentAuthMethod == 'passwd' ? false : true;
+	document.forms.registration.smf_autov_pwverify.disabled = currentAuthMethod == 'passwd' ? false : true;
+	document.getElementById('smf_autov_pwmain_div').style.display = currentAuthMethod == 'passwd' ? '' : 'none';
+	document.getElementById('smf_autov_pwverify_div').style.display = currentAuthMethod == 'passwd' ? '' : 'none';
+
+	if (currentAuthMethod == 'passwd')
+	{
+		verificationHandle.refreshMainPassword();
+		verificationHandle.refreshVerifyPassword();
+		document.forms.registration.openid_url.style.backgroundColor = '';
+		document.getElementById('password1_group').style.display = '';
+		document.getElementById('password2_group').style.display = '';
+		document.getElementById('openid_group').style.display = 'none';
+	}
+	else
+	{
+		document.forms.registration.smf_autov_pwmain.style.backgroundColor = '';
+		document.forms.registration.smf_autov_pwverify.style.backgroundColor = '';
+		document.forms.registration.openid_url.style.backgroundColor = '#FFF0F0';
+		document.getElementById('password1_group').style.display = 'none';
+		document.getElementById('password2_group').style.display = 'none';
+		document.getElementById('openid_group').style.display = '';
+	}
+
+	return true;
+}
+
+function onCheckChange()
+{
+	if (document.forms.postForm.emailActivate.checked || document.forms.postForm.password.value == '')
+	{
+		document.forms.postForm.emailPassword.disabled = true;
+		document.forms.postForm.emailPassword.checked = true;
+	}
+	else
+		document.forms.postForm.emailPassword.disabled = false;
+}

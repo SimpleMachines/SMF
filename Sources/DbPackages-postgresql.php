@@ -364,7 +364,7 @@ function smf_db_change_column($table_name, $old_column, $column_info, $parameter
 			$old_info = $column;
 
 	// Nothing?
-	if ($old_info == null)
+	if ($old_info === null)
 		return false;
 
 	// Now we check each bit individually and ALTER as required.
