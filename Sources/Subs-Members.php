@@ -142,8 +142,8 @@ function deleteMembers($users, $check_not_admin = false)
 	// Make these peoples' posts guest posts.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}messages
-		SET id_member = {int:guest_id}, ', !empty($modSettings['deleteMembersRemovesEmail']) ? '
-		poster_email = {string:blank_email}' : '', '
+		SET id_member = {int:guest_id}' . (!empty($modSettings['deleteMembersRemovesEmail']) ? ',
+		poster_email = {string:blank_email}' : '') . '
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'guest_id' => 0,

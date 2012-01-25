@@ -3206,9 +3206,9 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
 function ip2range($fullip)
 {
 	// If its IPv6, validate it first.
-	if (strpos($fullip, ':') !== false)
+	if (isValidIPv6($fullip) !== false)
 	{
-		$ip_parts = explode(':', smf_ipv6_expand($fullip, false));
+		$ip_parts = explode(':', expandIPv6($fullip, false));
 		$ip_array = array();
 
 		if (count($ip_parts) != 8)
@@ -3248,10 +3248,10 @@ function ip2range($fullip)
 	}
 
 	// Makes it simpiler to work with.
+	$ip_array[4] = array('low' => 0, 'high' => 0);
 	$ip_array[5] = array('low' => 0, 'high' => 0);
 	$ip_array[6] = array('low' => 0, 'high' => 0);
 	$ip_array[7] = array('low' => 0, 'high' => 0);
-	$ip_array[8] = array('low' => 0, 'high' => 0);
 
 	return $ip_array;
 }

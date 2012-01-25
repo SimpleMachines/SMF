@@ -392,7 +392,7 @@ function ModifyProfile($post_errors = array())
 	$current_area = $profile_include_data['current_area'];
 	$context['menu_item_selected'] = $current_area;
 
-	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we every compromise the menu function in error!
+	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we ever compromise the menu function in error!
 	$context['completed_save'] = false;
 	$security_checks = array();
 	$found_area = false;

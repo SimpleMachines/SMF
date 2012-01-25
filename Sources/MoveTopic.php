@@ -75,14 +75,13 @@ function MoveTopic()
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}
-			AND b.redirect = {string:blank_redirect}
-			AND b.id_board != {int:current_board}',
+			AND b.redirect = {string:blank_redirect}',
 		array(
 			'blank_redirect' => '',
 			'current_board' => $board,
 		)
 	);
-	$context['boards'] = array();
+	$number_of_boards = $smcFunc['db_num_rows']($request);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!isset($context['categories'][$row['id_cat']]))
@@ -101,7 +100,7 @@ function MoveTopic()
 	}
 	$smcFunc['db_free_result']($request);
 
-	if (empty($context['categories']))
+	if (empty($context['categories']) || (!empty($number_of_boards) && $number_of_boards == 1))
 		fatal_lang_error('moveto_noboards', false);
 
 	$context['page_title'] = $txt['move_topic'];
