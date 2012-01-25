@@ -27,13 +27,13 @@ $GLOBALS['search_versions'] = array(
 /**
  * Ask the user what they want to search for.
  * What it does:
-		- shows the screen to search forum posts (action=search), and uses the
-		  simple version if the simpleSearch setting is enabled.
-		- uses the main sub template of the Search template.
-		- uses the Search language file.
-		- requires the search_posts permission.
-		- decodes and loads search parameters given in the URL (if any).
-		- the form redirects to index.php?action=search2.
+ * * shows the screen to search forum posts (action=search), and uses the
+ *   simple version if the simpleSearch setting is enabled.
+ * * uses the main sub template of the Search template.
+ * * uses the Search language file.
+ * * requires the search_posts permission.
+ * * decodes and loads search parameters given in the URL (if any).
+ * * the form redirects to index.php?action=search2.
  */
 function PlushSearch1()
 {
@@ -234,13 +234,13 @@ function PlushSearch1()
 /**
  * Gather the results and show them.
  * What it does:
-		- checks user input and searches the messages table for messages
-		  matching the query.
-		- requires the search_posts permission.
-		- uses the results sub template of the Search template.
-		- uses the Search language file.
-		- stores the results into the search cache.
-		- show the results of the search query.
+ * * checks user input and searches the messages table for messages
+ *   matching the query.
+ * * requires the search_posts permission.
+ * * uses the results sub template of the Search template.
+ * * uses the Search language file.
+ * * stores the results into the search cache.
+ * * show the results of the search query.
  */
 function PlushSearch2()
 {

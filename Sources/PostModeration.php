@@ -17,15 +17,13 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * This is a handling function for all things post moderation...
+ * This is a handling function for all things post moderation.
  */
 function PostModerationMain()
 {
 	global $sourcedir;
 
-	/**
-	 * @todo We'll shift these later bud.
-	 */
+	 // @todo We'll shift these later bud.
 	loadLanguage('ModerationCenter');
 	loadTemplate('ModerationCenter');
 
@@ -515,9 +513,9 @@ function ApproveMessage()
 /**
  * Approve a batch of posts (or topics in their own right)
  *
- * @param $messages
- * @param $messageDetails
- * @param $current_view
+ * @param array $messages
+ * @param array $messageDetails
+ * @param (string) $current_view = replies
  */
 function approveMessages($messages, $messageDetails, $current_view = 'replies')
 {
@@ -597,11 +595,14 @@ function approveAllData()
  *
  * @param array $messages
  * @param array $messageDetails
- * @param string $current_view
+ * @param string $current_view = replies
  */
 function removeMessages($messages, $messageDetails, $current_view = 'replies')
 {
 	global $sourcedir, $modSettings;
+
+	// @todo something's not right, removeMessage() does check permissions,
+	// removeTopics() doesn't
 	require_once($sourcedir . '/RemoveTopic.php');
 	if ($current_view == 'topics')
 	{

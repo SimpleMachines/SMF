@@ -7,6 +7,10 @@
  * will fill context with relevant data. Secondly, the choice of sub-template
  * will determine how this data is shown to the user
  * 
+ * Functions ending with "Report" are responsible for generating data for reporting.
+ * They are all called from ReportsMain.
+ * Never access the context directly, but use the data handling functions to do so.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -19,52 +23,6 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	. It has the following
-	functions:
-
-	void xxxxxxReport()
- * functions ending with "Report" are responsible for generating data
- * for reporting.
- * they are all called from ReportsMain.
- * never access the context directly, but use the data handling
- * functions to do so.
-
-void addData(array inc_data, int custom_table = null)
- * adds an array of data into an existing table.
- * if there are no existing tables, will create one with default
- * attributes.
- * if custom_table isn't specified, it will use the last table created,
- * if it is specified and doesn't exist the function will return false.
- * if a set of keys have been specified, the function will check each
- * required key is present in the incoming data. If this data is missing
- * the current tables default value will be used.
- * if any key in the incoming data begins with '#sep#', the function
- * will add a separator accross the table at this point.
- * once the incoming data has been sanitized, it is added to the table.
-
-void addSeparator(string title = '', int custom_table = null)
-	 * adds a separator with title given by attribute "title" after the
-	 * current row in the table.
-	 * if there are no existing tables, will create one with default
-	 * attributes.
-	 * if custom_table isn't specified, it will use the last table created,
-	 * if it is specified and doesn't exist the function will return false.
-	 * if the table is currently having data added by column this may have
-	 * unpredictable visual results.
-
-void finishTables()
- * is (unfortunately) required to create some useful variables for
- * templates.
- * foreach data table created, it will count the number of rows and
- * columns in the table.
- * will also create a max_width variable for the table, to give an
- * estimate width for the whole table * * if it can.
-
-void setKeys(string method = 'rows', array keys = array(),
-	bool reverse = false)
-)
-*/
 
 /**
  * Handling function for generating reports.
@@ -943,8 +901,7 @@ function addSeparator($title = '', $custom_table = null)
 
 /**
  * This does the necessary count of table data before displaying them.
- * is (unfortunately) required to create some useful variables for
- * templates.
+ * is (unfortunately) required to create some useful variables for templates.
  * foreach data table created, it will count the number of rows and
  * columns in the table.
  * will also create a max_width variable for the table, to give an
@@ -987,7 +944,7 @@ function finishTables()
  * if reverse is set to true, then the values of the variable "keys"
  * are used as oppossed to the keys(!
  * 
- * @param string $rows = 'rows' rows or cols
+ * @param string $method = 'rows' rows or cols
  * @param array $keys = array()
  * @param bool $reverse = false
  */

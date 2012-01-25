@@ -16,13 +16,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-
-
-	void ShowAdminHelp()
-
-*/
-
 /**
  * Redirect to the user help ;).
  * It loads information needed for the help section.

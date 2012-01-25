@@ -16,7 +16,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-// ..
 /**
  * Create a menu.
  * @param array $menuData

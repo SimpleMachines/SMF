@@ -127,7 +127,7 @@ function BoardNotify()
 		// We're gonna need the notify template...
 		loadTemplate('Notify');
 
-		// Find out if they have notification set for this topic already.
+		// Find out if they have notification set for this board already.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member
 			FROM {db_prefix}log_notify

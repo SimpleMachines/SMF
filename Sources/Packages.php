@@ -1439,9 +1439,9 @@ function PackageOptions()
 		checkSession('post');
 
 		updateSettings(array(
-			'package_server' => $_POST['pack_server'],
-			'package_port' => $_POST['pack_port'],
-			'package_username' => $_POST['pack_user'],
+			'package_server' => trim($smcFunc['htmlspecialchars']($_POST['pack_server'])),
+			'package_port' => trim($smcFunc['htmlspecialchars']($_POST['pack_port'])),
+			'package_username' => trim($smcFunc['htmlspecialchars']($_POST['pack_user'])),
 			'package_make_backups' => !empty($_POST['package_make_backups']),
 			'package_make_full_backups' => !empty($_POST['package_make_full_backups'])
 		));

@@ -653,13 +653,4 @@ function binary_xor($num1, $num2)
 	return $return;
 }
 
-// PHP 4 didn't have bcpowmod.
-if (!function_exists('bcpowmod') && function_exists('bcpow'))
-{
-	function bcpowmod($num1, $num2, $num3)
-	{
-		return bcmod(bcpow($num1, $num2), $num3);
-	}
-}
-
 ?>

@@ -218,7 +218,6 @@ function Vote()
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
-//
 /**
  * Lock the voting for a poll.
  * Must be called with a topic specified in the URL.

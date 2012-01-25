@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * Handle sending out reminders, and checking the secret answer and question.  It uses just a few functions to do this, which are:
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,30 +15,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file deals with sending out reminders, and checking the secret answer
-	and question.  It uses just a few functions to do this, which are:
-
-	void RemindMe()
-		- this is just the controlling delegator.
-		- uses the Profile language files and Reminder template.
-
-	void RemindMail()
-		// @todo
-
-	void setPassword()
-		// @todo
-
-	void setPassword2()
-		// @todo
-
-	void SecretAnswerInput()
-		// @todo
-
-	void SecretAnswer2()
-		// @todo
-*/
-
-// Forgot 'yer password?
+/**
+ * This is the controlling delegator
+ * @uses Profile language files and Reminder template
+ */
 function RemindMe()
 {
 	global $txt, $context;

@@ -19,140 +19,11 @@ if (!defined('SMF'))
 	files, as well as a simple xml parser to handle the xml package stuff.
 	Not to mention a few functions to make file handling easier.
 
-	array read_tgz_file(string filename, string destination,
-			bool single_file = false, bool overwrite = false, array files_to_extract = null)
-		- reads a .tar.gz file, filename, in and extracts file(s) from it.
-		- essentially just a shortcut for read_tgz_data().
+	string package_crypt(
 
-	array read_tgz_data(string data, string destination,
-			bool single_file = false, bool overwrite = false, array files_to_extract = null)
-		- extracts a file or files from the .tar.gz contained in data.
-		- detects if the file is really a .zip file, and if so returns the
-		  result of read_zip_data
-		- if destination is null, returns a list of files in the archive.
-		- if single_file is true, returns the contents of the file specified
-		  by destination, if it exists, or false.
-		- if single_file is true, destination can start with * and / to
-		  signify that the file may come from any directory.
-		- destination should not begin with a / if single_file is true.
-		- overwrites existing files with newer modification times if and
-		  only if overwrite is true.
-		- creates the destination directory if it doesn't exist, and is
-		  is specified.
-		- requires zlib support be built into PHP.
-		- returns an array of the files extracted.
-		- if files_to_extract is not equal to null only extracts file within this array.
 
-	array read_zip_data(string data, string destination,
-			bool single_file = false, bool overwrite = false, array files_to_extract = null)
-		- extracts a file or files from the .zip contained in data.
-		- if destination is null, returns a list of files in the archive.
-		- if single_file is true, returns the contents of the file specified
-		  by destination, if it exists, or false.
-		- if single_file is true, destination can start with * and / to
-		  signify that the file may come from any directory.
-		- destination should not begin with a / if single_file is true.
-		- overwrites existing files with newer modification times if and
-		  only if overwrite is true.
-		- creates the destination directory if it doesn't exist, and is
-		  is specified.
-		- requires zlib support be built into PHP.
-		- returns an array of the files extracted.
-		- if files_to_extract is not equal to null only extracts file within this array.
+	string fetch_web_data(
 
-	bool url_exists(string url)
-		- checks to see if url is valid, and returns a 200 status code.
-		- will return false if the file is "moved permanently" or similar.
-		- returns true if the remote url exists.
-
-	array loadInstalledPackages()
-		- loads and returns an array of installed packages.
-		- gets this information from Packages/installed.list.
-		- returns the array of data.
-
-	array getPackageInfo(string filename)
-		- loads a package's information and returns a representative array.
-		- expects the file to be a package in Packages/.
-		- returns a error string if the package-info is invalid.
-		- returns a basic array of id, version, filename, and similar
-		  information.
-		- in the array returned, an xmlArray is available in 'xml'.
-
-	void packageRequireFTP(string destination_url, array files = none, bool return = false)
-
-	array parsePackageInfo(xmlArray &package, bool testing_only = true,
-			string method = 'install', string previous_version = '')
-		- parses the actions in package-info.xml files from packages.
-		- package should be an xmlArray with package-info as its base.
-		- testing_only should be true if the package should not actually be
-		   applied.
-		- method is upgrade, install, or uninstall.  Its default is install.
-		- previous_version should be set to the previous installed version
-		   of this package, if any.
-		- does not handle failure terribly well; testing first is always
-		   better.
-		- returns an array of those changes made.
-
-	bool matchPackageVersion(string version, string versions)
-		- checks if version matches any of the versions in versions.
-		- supports comma separated version numbers, with or without
-		  whitespace.
-		- supports lower and upper bounds. (1.0-1.2)
-		- returns true if the version matched.
-
-	int compareVersions(string version1, string version2)
-		- compares two versions.
-		- returns 0 if version1 is equal to version2.
-		- returns -1 if version1 is lower than version2.
-		- returns 1 if version1 is higher than version2.
-
-	string parse_path(string path)
-		- parses special identifiers out of the specified path.
-		- returns the parsed path.
-
-	void deltree(string path, bool delete_directory = true)
-		- deletes a directory, and all the files and direcories inside it.
-		- requires access to delete these files.
-
-	bool mktree(string path, int mode)
-		- creates the specified tree structure with the mode specified.
-		- creates every directory in path until it finds one that already
-		  exists.
-		- returns true if successful, false otherwise.
-
-	void copytree(string source, string destination)
-		- copies one directory structure over to another.
-		- requires the destination to be writable.
-
-	void listtree(string path, string sub_path = none)
-
-	array parseModification(string file, bool testing = true, bool undo = false, array theme_paths = array())
-		- parses a xml-style modification file (file).
-		- testing tells it the modifications shouldn't actually be saved.
-		- undo specifies that the modifications the file requests should be
-		  undone; this doesn't work with everything (regular expressions.)
-		- returns an array of those changes made.
-
-	array parseBoardMod(string file, bool testing = true, bool undo = false, array theme_paths = array())
-		- parses a boardmod-style modification file (file).
-		- testing tells it the modifications shouldn't actually be saved.
-		- undo specifies that the modifications the file requests should be
-		  undone.
-		- returns an array of those changes made.
-
-	int package_put_contents(string filename, string data)
-		- writes data to a file, almost exactly like the file_put_contents()
-		  function.
-		- uses FTP to create/chmod the file when necessary and available.
-		- uses text mode for text mode file extensions.
-		- returns the number of bytes written.
-
-	void package_chmod(string filename)
-
-	string package_crypt(string password)
-
-	string fetch_web_data(string url, string post_data = '',
-			bool keep_alive = false)
 
 	Creating your own package server:
 	---------------------------------------------------------------------------
@@ -161,7 +32,15 @@ if (!defined('SMF'))
 	---------------------------------------------------------------------------
 */
 
-// Get the data from the file and extract it.
+/**
+ * Reads a .tar.gz file, filename, in and extracts file(s) from it.
+ * essentially just a shortcut for read_tgz_data().
+ * @param string $filename
+ * @param string $destination
+ * @param bool $single_file = false
+ * @param bool $overwrite = false
+ * @param array $files_to_extract = null
+ */
 function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	if (strpos($gzfilename, 'http://') === 0)
@@ -182,7 +61,25 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
 	return read_tgz_data($data, $destination, $single_file, $overwrite, $files_to_extract);
 }
 
-// Extract tar.gz data.  If destination is null, return a listing.
+/**
+ * Extracts a file or files from the .tar.gz contained in data.
+ * detects if the file is really a .zip file, and if so returns the result of read_zip_data
+ * if destination is null, returns a list of files in the archive.
+ * if single_file is true, returns the contents of the file specified by destination, if it exists, or false.
+ * if single_file is true, destination can start with * and / to signify that the file may come from any directory.
+ * destination should not begin with a / if single_file is true.
+ * overwrites existing files with newer modification times if and only if overwrite is true.
+ * creates the destination directory if it doesn't exist, and is is specified.
+ * requires zlib support be built into PHP.
+ * returns an array of the files extracted.
+ * if files_to_extract is not equal to null only extracts file within this array.
+ * @param string data, 
+ * @param string destination, 
+ * @param bool single_file = false, 
+ * @param bool overwrite = false, 
+ * @param array files_to_extract = null
+ * @return array
+ */
 function read_tgz_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
 	// Make sure we have this loaded.
@@ -445,7 +342,12 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		return $return;
 }
 
-// Checks the existence of a remote file since file_exists() does not do remote.
+/**
+ * Checks the existence of a remote file since file_exists() does not do remote.
+ * will return false if the file is "moved permanently" or similar.
+ * @param string url
+ * @return bool true if the remote url exists.
+ */
 function url_exists($url)
 {
 	$a_url = parse_url($url);
@@ -466,7 +368,12 @@ function url_exists($url)
 	return preg_match('~^HTTP/.+\s+(20[01]|30[127])~i', $head) == 1;
 }
 
-// Load the installed packages.
+/**
+ * Loads and returns an array of installed packages.
+ * gets this information from Packages/installed.list.
+ * returns the array of data.
+ * @return array
+ */
 function loadInstalledPackages()
 {
 	global $boarddir, $smcFunc;
@@ -520,6 +427,15 @@ function loadInstalledPackages()
 	return $installed;
 }
 
+/**
+ * Loads a package's information and returns a representative array.
+ * expects the file to be a package in Packages/.
+ * returns a error string if the package-info is invalid.
+ * returns a basic array of id, version, filename, and similar information.
+ * in the array returned, an xmlArray is available in 'xml'.
+ * @param string $filename
+ * @return array
+ */
 function getPackageInfo($gzfilename)
 {
 	global $boarddir;
@@ -868,6 +784,11 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 	return $return_data;
 }
 
+/**
+ * @param string $destination_url
+ * @param array $files = none
+ * @param bool $return = false
+ */
 function packageRequireFTP($destination_url, $files = null, $return = false)
 {
 	global $context, $modSettings, $package_ftp, $boarddir, $txt;
@@ -1057,7 +978,19 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	return $files;
 }
 
-// Parses a package-info.xml file - method can be 'install', 'upgrade', or 'uninstall'.
+/**
+ * Parses the actions in package-info.xml files from packages.
+ * package should be an xmlArray with package-info as its base.
+ * testing_only should be true if the package should not actually be applied.
+ * method is upgrade, install, or uninstall.  Its default is install.
+ * previous_version should be set to the previous installed version of this package, if any.
+ * does not handle failure terribly well; testing first is always better.
+ * @param xmlArray &$package
+ * @param bool $testing_only = true
+ * @param string $method = 'install' ('install', 'upgrade', or 'uninstall')
+ * @param string $previous_version = ''
+ * @return array an array of those changes made.
+ */
 function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 {
 	global $boarddir, $forum_version, $context, $temp_path, $language;
@@ -1440,7 +1373,15 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	return $not_done;
 }
 
-// This function tries to match $version into any of the ranges given in $versions
+/**
+ * Checks if version matches any of the versions in versions.
+ * supports comma separated version numbers, with or without whitespace.
+ * supports lower and upper bounds. (1.0-1.2)
+ * returns true if the version matched.
+ * @param string $version 
+ * @param string $versions
+ * @return bool
+ */
 function matchPackageVersion($version, $versions)
 {
 	// Make sure everything is lowercase and clean of spaces and unpleasant history.
@@ -1475,7 +1416,12 @@ function matchPackageVersion($version, $versions)
 	return false;
 }
 
-// The geek version of versioning checks for dummies, which basically compares two versions.
+/**
+ * Compares two versions.
+ * @param string version1
+ * @param string version2
+ * @return int (-1 if version1 is lower than version2, 0 if version1 is equal to version2; 1 if version1 is higher than version2)
+ */
 function compareVersions($version1, $version2)
 {
 	static $categories;
@@ -1529,6 +1475,11 @@ function compareVersions($version1, $version2)
 	return 0;
 }
 
+/**
+ * Parses special identifiers out of the specified path.
+ * @param string $path
+ * @return string The parsed path
+ */
 function parse_path($path)
 {
 	global $modSettings, $boarddir, $sourcedir, $settings, $temp_path;
@@ -1558,6 +1509,12 @@ function parse_path($path)
 	return strtr($path, $dirs);
 }
 
+/**
+ * Deletes a directory, and all the files and direcories inside it.
+ * requires access to delete these files.
+ * @param string $path
+ * @param bool $delete_directory = true
+ */
 function deltree($dir, $delete_dir = true)
 {
 	global $package_ftp;
@@ -1626,6 +1583,13 @@ function deltree($dir, $delete_dir = true)
 	}
 }
 
+/**
+ * Creates the specified tree structure with the mode specified.
+ * creates every directory in path until it finds one that already exists.
+ * @param string $path
+ * @param int $mode
+ * @return bool true if successful, false otherwise
+ */
 function mktree($strPath, $mode)
 {
 	global $package_ftp;
@@ -1688,6 +1652,12 @@ function mktree($strPath, $mode)
 	}
 }
 
+/**
+ * Copies one directory structure over to another.
+ * requires the destination to be writable.
+ * @param string $source
+ * @param string $destination
+ */
 function copytree($source, $destination)
 {
 	global $package_ftp;
@@ -1730,6 +1700,11 @@ function copytree($source, $destination)
 	closedir($current_dir);
 }
 
+/**
+ * @param string $path
+ * @param string $sub_path = ''
+ * @return array
+ */
 function listtree($path, $sub_path = '')
 {
 	$data = array();
@@ -1756,7 +1731,14 @@ function listtree($path, $sub_path = '')
 	return $data;
 }
 
-// Parse an xml based modification file.
+/**
+ * Parses a xml-style modification file (file).
+ * @param string $file
+ * @param bool $testing = true tells it the modifications shouldn't actually be saved.
+ * @param bool $undo = false specifies that the modifications the file requests should be undone; this doesn't work with everything (regular expressions.)
+ * @param array $theme_paths = array()
+ * @return array an array of those changes made.
+ */
 function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 {
 	global $boarddir, $sourcedir, $settings, $txt, $modSettings, $package_ftp;
@@ -2131,7 +2113,14 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 	return $actions;
 }
 
-// Parses a BoardMod format mod file...
+/**
+ * Parses a boardmod-style modification file (file).
+ * @param string $file
+ * @param bool $testing = true tells it the modifications shouldn't actually be saved.
+ * @param bool $undo = false specifies that the modifications the file requests should be undone.
+ * @param array $theme_paths = array()
+ * @return array an array of those changes made.
+ */
 function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 {
 	global $boarddir, $sourcedir, $settings, $txt, $modSettings;
@@ -2458,6 +2447,15 @@ function package_get_contents($filename)
 		return $package_cache[$filename];
 }
 
+/**
+ * Writes data to a file, almost exactly like the file_put_contents() function.
+ * uses FTP to create/chmod the file when necessary and available.
+ * uses text mode for text mode file extensions.
+ * returns the number of bytes written.
+ * @param string $filename
+ * @param string $data
+ * @return int
+ */
 function package_put_contents($filename, $data, $testing = false)
 {
 	global $package_ftp, $package_cache, $modSettings;
@@ -2556,7 +2554,13 @@ function package_flush_cache($trash = false)
 	$package_cache = array();
 }
 
-// Try to make a file writable. Return true if it worked, false if it didn't.
+/**
+ * Try to make a file writable.
+ * @param string $filename
+ * @param string $perm_state = 'writable'
+ * @param bool $track_change = false
+ * @return bool True if it worked, false if it didn't
+ */
 function package_chmod($filename, $perm_state = 'writable', $track_change = false)
 {
 	global $package_ftp;
@@ -2684,6 +2688,10 @@ function package_chmod($filename, $perm_state = 'writable', $track_change = fals
 	return false;
 }
 
+/**
+ * @param string $pass
+ * @return string The encrypted password
+ */
 function package_crypt($pass)
 {
 	$n = strlen($pass);
@@ -2698,6 +2706,10 @@ function package_crypt($pass)
 	return $pass;
 }
 
+/**
+ * @todo Document this
+ * @param string $id
+ */
 function package_create_backup($id = 'backup')
 {
 	global $sourcedir, $boarddir, $smcFunc;
@@ -2827,7 +2839,14 @@ function package_create_backup($id = 'backup')
 	$fclose($output);
 }
 
-// Get the contents of a URL, irrespective of allow_url_fopen.
+/**
+ * Get the contents of a URL, irrespective of allow_url_fopen.
+ * @param string $url
+ * @param string $post_data = ''
+ * @param bool $keep_alive = false
+ * @param $redirection_level = 0
+ * @return string
+ */
 function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
 {
 	global $webmaster_email;

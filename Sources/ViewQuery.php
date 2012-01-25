@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Functions concerned with viewing queries, and is used for debugging.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,18 +16,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file is concerned with viewing queries, and is used for debugging.
-	It contains only one function:
-
-	void ViewQuery()
-		- toggles the session variable 'view_queries'.
-		- views a list of queries and analyzes them.
-		- requires the admin_forum permission.
-		- is accessed via ?action=viewquery.
-		- strings in this function have not been internationalized.
-*/
-
-// See the queries....
+/**
+ * Show the database queries for debugging
+ * What this does:
+ * * Toggles the session variable 'view_queries'.
+ * * Views a list of queries and analyzes them.
+ * * Requires the admin_forum permission.
+ * * Is accessed via ?action=viewquery.
+ * * Strings in this function have not been internationalized.
+ */
 function ViewQuery()
 {
 	global $scripturl, $user_info, $settings, $context, $db_connection, $modSettings, $boarddir, $smcFunc, $txt, $db_show_debug;

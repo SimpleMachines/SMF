@@ -235,8 +235,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		// Now it's all drawn out we'll actually setup the box.
 		echo '
 				var oEditorHandle_', $editor_id, ' = new smc_Editor({
-					sSessionId: ', JavaScriptEscape($context['session_id']), ',
-					sSessionVar: ', JavaScriptEscape($context['session_var']), ',
+					sSessionId: smf_session_id,
+					sSessionVar: smf_session_var,
 					sFormId: ', JavaScriptEscape($editor_context['form']), ',
 					sUniqueId: ', JavaScriptEscape($editor_id), ',
 					bRTL: ', $txt['lang_rtl'] ? 'true' : 'false', ',

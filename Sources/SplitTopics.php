@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Handle merging and splitting of topics
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -9,104 +11,20 @@
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
+ * 
+ * Original module by Mach8 - We'll never forget you.
  */
-
-// Original module by Mach8 - We'll never forget you.
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file handles merging and splitting topics... it does this with:
-
-	void SplitTopics()
-		- splits a topic into two topics.
-		- delegates to the other functions (based on the URL parameter 'sa').
-		- loads the SplitTopics template.
-		- requires the split_any permission.
-		- is accessed with ?action=splittopics.
-
-	void SplitIndex()
-		- screen shown before the actual split.
-		- is accessed with ?action=splittopics;sa=index.
-		- default sub action for ?action=splittopics.
-		- uses 'ask' sub template of the SplitTopics template.
-		- redirects to SplitSelectTopics if the message given turns out to be
-		  the first message of a topic.
-		- shows the user three ways to split the current topic.
-
-	void SplitExecute()
-		- do the actual split.
-		- is accessed with ?action=splittopics;sa=execute.
-		- uses the main SplitTopics template.
-		- supports three ways of splitting:
-		   (1) only one message is split off.
-		   (2) all messages after and including a given message are split off.
-		   (3) select topics to split (redirects to SplitSelectTopics()).
-		- uses splitTopic function to do the actual splitting.
-
-	void SplitSelectTopics()
-		- allows the user to select the messages to be split.
-		- is accessed with ?action=splittopics;sa=selectTopics.
-		- uses 'select' sub template of the SplitTopics template or (for
-		  XMLhttp) the 'split' sub template of the Xml template.
-		- supports XMLhttp for adding/removing a message to the selection.
-		- uses a session variable to store the selected topics.
-		- shows two independent page indexes for both the selected and
-		  not-selected messages (;topic=1.x;start2=y).
-
-	void SplitSelectionExecute()
-		- do the actual split of a selection of topics.
-		- is accessed with ?action=splittopics;sa=splitSelection.
-		- uses the main SplitTopics template.
-		- uses splitTopic function to do the actual splitting.
-
-	int splitTopic(int topicID, array messagesToBeSplit, string newSubject)
-		- general function to split off a topic.
-		- creates a new topic and moves the messages with the IDs in
-		  array messagesToBeSplit to the new topic.
-		- the subject of the newly created topic is set to 'newSubject'.
-		- marks the newly created message as read for the user splitting it.
-		- updates the statistics to reflect a newly created topic.
-		- logs the action in the moderation log.
-		- a notification is sent to all users monitoring this topic.
-		- returns the topic ID of the new split topic.
-
-	void MergeTopics()
-		- merges two or more topics into one topic.
-		- delegates to the other functions (based on the URL parameter sa).
-		- loads the SplitTopics template.
-		- requires the merge_any permission.
-		- is accessed with ?action=mergetopics.
-
-	void MergeIndex()
-		- allows to pick a topic to merge the current topic with.
-		- is accessed with ?action=mergetopics;sa=index
-		- default sub action for ?action=mergetopics.
-		- uses 'merge' sub template of the SplitTopics template.
-		- allows to set a different target board.
-
-	void MergeExecute(array topics = request)
-		- set merge options and do the actual merge of two or more topics.
-		- the merge options screen:
-			- shows topics to be merged and allows to set some merge options.
-			- is accessed by ?action=mergetopics;sa=options.and can also
-			  internally be called by QuickModeration() (Subs-Boards.php).
-			- uses 'merge_extra_options' sub template of the SplitTopics
-			  template.
-		- the actual merge:
-			- is accessed with ?action=mergetopics;sa=execute.
-			- updates the statistics to reflect the merge.
-			- logs the action in the moderation log.
-			- sends a notification is sent to all users monitoring this topic.
-			- redirects to ?action=mergetopics;sa=done.
-
-	void MergeDone()
-		- shows a 'merge completed' screen.
-		- is accessed with ?action=mergetopics;sa=done.
-		- uses 'merge_done' sub template of the SplitTopics template.
-*/
-
-// Split a topic into two separate topics... in case it got offtopic, etc.
+/**
+ * splits a topic into two topics.
+ * delegates to the other functions (based on the URL parameter 'sa').
+ * loads the SplitTopics template.
+ * requires the split_any permission.
+ * is accessed with ?action=splittopics.
+ */
 function SplitTopics()
 {
 	global $topic, $sourcedir;
@@ -138,7 +56,15 @@ function SplitTopics()
 		$subActions[$_REQUEST['sa']]();
 }
 
-// Part 1: General stuff.
+/**
+ * screen shown before the actual split.
+ * is accessed with ?action=splittopics;sa=index.
+ * default sub action for ?action=splittopics.
+ * uses 'ask' sub template of the SplitTopics template.
+ * redirects to SplitSelectTopics if the message given turns out to be
+ * the first message of a topic.
+ * shows the user three ways to split the current topic.
+ */
 function SplitIndex()
 {
 	global $txt, $topic, $context, $smcFunc, $modSettings;
@@ -192,7 +118,16 @@ function SplitIndex()
 	$context['page_title'] = $txt['split'];
 }
 
-// Alright, you've decided what you want to do with it.... now to do it.
+/**
+ * do the actual split.
+ * is accessed with ?action=splittopics;sa=execute.
+ * uses the main SplitTopics template.
+ * supports three ways of splitting:
+ * (1) only one message is split off.
+ * (2) all messages after and including a given message are split off.
+ * (3) select topics to split (redirects to SplitSelectTopics()).
+ * uses splitTopic function to do the actual splitting.
+ */
 function SplitExecute()
 {
 	global $txt, $board, $topic, $context, $user_info, $smcFunc, $modSettings;
@@ -243,7 +178,16 @@ function SplitExecute()
 	$context['page_title'] = $txt['split'];
 }
 
-// Get a selective list of topics...
+/**
+ * allows the user to select the messages to be split.
+ * is accessed with ?action=splittopics;sa=selectTopics.
+ * uses 'select' sub template of the SplitTopics template or (for 
+ * XMLhttp) the 'split' sub template of the Xml template.
+ * supports XMLhttp for adding/removing a message to the selection.
+ * uses a session variable to store the selected topics.
+ * shows two independent page indexes for both the selected and 
+ * not-selected messages (;topic=1.x;start2=y).
+ */
 function SplitSelectTopics()
 {
 	global $txt, $scripturl, $topic, $context, $modSettings, $original_msgs, $smcFunc, $options;
@@ -507,7 +451,13 @@ function SplitSelectTopics()
 	}
 }
 
-// Actually and selectively split the topics out.
+/**
+ * do the actual split of a selection of topics.
+ * is accessed with ?action=splittopics;sa=splitSelection.
+ * uses the main SplitTopics template.
+ * uses splitTopic function to do the actual splitting.
+
+ */
 function SplitSelectionExecute()
 {
 	global $txt, $board, $topic, $context, $user_info;
@@ -528,7 +478,21 @@ function SplitSelectionExecute()
 	$context['page_title'] = $txt['split'];
 }
 
-// Split a topic in two topics.
+/**
+	int splitTopic(int topicID, array messagesToBeSplit, string newSubject)
+ * general function to split off a topic.
+ * creates a new topic and moves the messages with the IDs in
+ * array messagesToBeSplit to the new topic.
+ * the subject of the newly created topic is set to 'newSubject'.
+ * marks the newly created message as read for the user splitting it.
+ * updates the statistics to reflect a newly created topic.
+ * logs the action in the moderation log.
+ * a notification is sent to all users monitoring this topic.
+ * @param int $split1_ID_TOPIC
+ * @param array $splitMessages
+ * @param string $new_subject
+ * @return int the topic ID of the new split topic.
+ */
 function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 {
 	global $user_info, $topic, $board, $modSettings, $smcFunc, $txt;
@@ -823,7 +787,13 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	return $split2_ID_TOPIC;
 }
 
-// Merge two topics into one topic... useful if they have the same basic subject.
+/**
+ * merges two or more topics into one topic.
+ * delegates to the other functions (based on the URL parameter sa).
+ * loads the SplitTopics template.
+ * requires the merge_any permission.
+ * is accessed with ?action=mergetopics.
+ */
 function MergeTopics()
 {
 	// Load the template....
@@ -843,7 +813,13 @@ function MergeTopics()
 		$subActions[$_REQUEST['sa']]();
 }
 
-// Merge two topics together.
+/**
+ * allows to pick a topic to merge the current topic with.
+ * is accessed with ?action=mergetopics;sa=index
+ * default sub action for ?action=mergetopics.
+ * uses 'merge' sub template of the SplitTopics template.
+ * allows to set a different target board.
+ */
 function MergeIndex()
 {
 	global $txt, $board, $context, $smcFunc;
@@ -979,7 +955,22 @@ function MergeIndex()
 	$context['sub_template'] = 'merge';
 }
 
-// Now that the topic IDs are known, do the proper merging.
+/**
+ * set merge options and do the actual merge of two or more topics.
+ * 
+ * the merge options screen:
+ * * shows topics to be merged and allows to set some merge options.
+ * * is accessed by ?action=mergetopics;sa=options.and can also internally be called by QuickModeration() (Subs-Boards.php).
+ * * uses 'merge_extra_options' sub template of the SplitTopics template.
+ * 
+ * the actual merge:
+ * * is accessed with ?action=mergetopics;sa=execute.
+ * * updates the statistics to reflect the merge.
+ * * logs the action in the moderation log.
+ * * sends a notification is sent to all users monitoring this topic.
+ * * redirects to ?action=mergetopics;sa=done.
+ * @param array $topics = array()
+ */
 function MergeExecute($topics = array())
 {
 	global $user_info, $txt, $context, $scripturl, $sourcedir;
@@ -1584,7 +1575,11 @@ function MergeExecute($topics = array())
 	redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
 }
 
-// Tell the user the move was done properly.
+/**
+ * Shows a 'merge completed' screen.
+ * is accessed with ?action=mergetopics;sa=done.
+ * uses 'merge_done' sub template of the SplitTopics template.
+ */
 function MergeDone()
 {
 	global $txt, $context;

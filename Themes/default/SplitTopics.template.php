@@ -177,19 +177,6 @@ function template_select()
 				else
 					return true;
 			}
-			function applyWindowClasses(oList)
-			{
-				var bAlternate = false;
-				oListItems = oList.getElementsByTagName("LI");
-				for (i = 0; i < oListItems.length; i++)
-				{
-					// Skip dummies.
-					if (oListItems[i].id == "")
-						continue;
-					oListItems[i].className = "windowbg" + (bAlternate ? "2" : "");
-					bAlternate = !bAlternate;
-				}
-			}
 			function onDocReceived(XMLDoc)
 			{
 				var i, j, pageIndex;

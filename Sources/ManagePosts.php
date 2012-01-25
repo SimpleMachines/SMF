@@ -136,6 +136,7 @@ function SetCensor()
 	if (isset($_POST['censortest']))
 	{
 		$censorText = htmlspecialchars($_POST['censortest'], ENT_QUOTES);
+		preparsecode($censorText);
 		$context['censor_test'] = strtr(censorText($censorText), array('"' => '&quot;'));
 	}
 

@@ -14,13 +14,6 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*
-	int searchSort(string $wordA, string $wordB)
-		- callback function for usort used to sort the fulltext results.
-		- the order of sorting is: large words, small words, large words that
-		  are excluded from the search, small words that are excluded.
-*/
-
 class fulltext_search
 {
 	// This is the last version of SMF that this was tested on, to protect against API changes.
@@ -100,7 +93,14 @@ class fulltext_search
 		return $min_word_length;
 	}
 
-	// This function compares the length of two strings plus a little.
+	/**
+	 * callback function for usort used to sort the fulltext results.
+	 * the order of sorting is: large words, small words, large words that
+	 * are excluded from the search, small words that are excluded.
+	 * @param string $a Word A
+	 * @param string $b Word B
+	 * @return int
+	 */
 	public function searchSort($a, $b)
 	{
 		global $modSettings, $excludedWords;

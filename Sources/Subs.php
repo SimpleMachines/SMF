@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file has all the main functions in it that relate to, well, everything.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,97 +15,6 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	This file has all the main functions in it that relate to, well,
-	everything.  It provides all of the following functions:
-
-	void updateStats(string statistic, string condition = '1')
-
-
-	void updateMemberData(int id_member, array data)
-
-	void updateSettings(array changeArray, use_update = false)
-
-	string constructPageIndex(string base_url, int &start, int max_value,
-
-	string comma_format(float number)
-
-	string timeformat(int time, bool show_today = true, string offset_type = false)
-
-	string un_htmlspecialchars(string text)
-
-	string shorten_subject(string regular_subject, int length)
-
-	int forum_time(bool use_user_offset = true)
- * returns the current time with offsets.
- * always applies the offset in the time_offset setting.
- * if use_user_offset is true, applies the user's offset as well.
- * returns seconds since the unix epoch.
-
-	array permute(array input)
- * 
-
-	
-
-	void parsesmileys(string &message)
- * the smiley parsing function which makes pretty faces appear :).
- * if custom smiley sets are turned off by smiley_enable, the default
- *  set of smileys will be used.
- * these are specifically not parsed in code tags [url=mailto:Dad@blah.com]
- * caches the smileys from the database or array in memory.
- * doesn't return anything, but rather modifies message directly.
-
-	string highlight_php_code(string code)
- * Uses PHP's highlight_string() to highlight PHP syntax
- * does special handling to keep the tabs in the code available.
- * used to parse PHP code from inside [code] and [php] tags.
- * returns the code with highlighted HTML.
-
-	void redirectexit(string setLocation = '', bool use_refresh = false)
-
-	void obExit(bool do_header = true, bool do_footer = do_header)
-
-	void determineTopicClass(array &topic_context)
-
-	void setupThemeContext(bool force_reload = false)
-
-	void template_rawdata()
-
-	void template_header()
-
-	void theme_copyright(bool get_it = false)
-
-	void template_footer()
-
-	array ip2range(string $fullip)
- * converts a given IP string to an array.
- * internal function used to convert a user-readable format to
- *  a format suitable for the database.
- * returns 'unknown' if the ip in the input was '255.255.255.255'.
-
-	string host_from_ip(string ip_address)
-
-	string create_button(string filename, string alt, string label, bool custom = '')
-
-	void clean_cache(type = '')
- * clean the cache directory ($cachedir, if any and in use)
- * it may only remove the files of a certain type
- *  (if the $type parameter is given)
-
-	array call_integration_hook(string hook, array parameters = array())
- * calls all functions of the given hook.
- * supports static class method calls.
- * returns the results of the functions as an array.
-
-	void add_integration_function(string hook, string function, bool permanent = true)
- * adds the given function to the given hook.
- * does nothing if the functions is already added.
- * if permanent parameter is true, updates the value in settings table.
-
-	void remove_integration_function(string hook, string function)
- * removes the given function from the given hook.
- * does nothing if the functions is not available.
-*/
 
 /**
  * Update some basic statistics.
@@ -329,9 +240,9 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 }
 
 /**
+ * Updates the columns in the members table.
  * Assumes the data has been htmlspecialchar'd.
  * 
- * updates the columns in the members table.
  * id_member is either an int or an array of ints to be updated.
  * data is an associative array of the columns to be updated and their
  *  respective values.
@@ -342,7 +253,6 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  * this function should be used whenever member data needs to be
  *  updated in place of an UPDATE query.
  * 
- * Enter description here ...
  * @param mixed $members An array of integers
  * @param array $data
  */
@@ -802,12 +712,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  * Removes special entities from strings.  Compatibility...
  * 
  * removes the base entities (&lt;, &quot;, etc.) from text.
- * should be used instead of html_entity_decode for PHP version
- *  compatibility reasons.
+ * Should be used instead of html_entity_decode for PHP version compatibility reasons.
  * additionally converts &nbsp; and &#039;.
- * returns the string without entities.
- * 
+ * returns .
  * @param string $string
+ * @return the string without entities
  */
 function un_htmlspecialchars($string)
 {
@@ -844,9 +753,11 @@ function shorten_subject($subject, $len)
 }
 
 /**
- * The current time with offset.
- * @param bool $use_user_offset = true
+ * Get the current time with offset.
+ * Always applies the offset in the time_offset setting.
+ * @param bool $use_user_offset = true if use_user_offset is true, applies the user's offset as well
  * @param int $timestamp = null
+ * @return int seconds since the unix epoch
  */
 function forum_time($use_user_offset = true, $timestamp = null)
 {
@@ -921,6 +832,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	if ($message === '')
 		return '';
 
+	// If the load average is too high, don't parse the BBC.
+	// I placed this below the empty $message check because it is slower
+	if (!empty($context['load_average']) && !empty($modSettings['bbc']) && $context['load_average'] >= $modSettings['bbc'])
+	{
+		$context['disabled_parse_bbc'] = true;
+		return $message;
+	}
 	// Never show smileys for wireless clients.  More bytes, can't see it anyway :P.
 	if (WIRELESS)
 		$smileys = false;
@@ -2471,6 +2389,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 /**
  * Parse smileys in the passed message.
+ * The smiley parsing function which makes pretty faces appear :).
+ * If custom smiley sets are turned off by smiley_enable, the default
+ *  set of smileys will be used.
+ * These are specifically not parsed in code tags [url=mailto:Dad@blah.com]
+ * Caches the smileys from the database or array in memory.
+ * Doesn't return anything, but rather modifies message directly.
+ * 
  * @param string &$message
  */
 function parsesmileys(&$message)
@@ -2549,7 +2474,11 @@ function parsesmileys(&$message)
 
 /**
  * Highlight any code.
+ * Uses PHP's highlight_string() to highlight PHP syntax
+ * does special handling to keep the tabs in the code available.
+ * used to parse PHP code from inside [code] and [php] tags.
  * @param string $code
+ * @return string the code with highlighted HTML.
  */
 function highlight_php_code($code)
 {
@@ -3202,6 +3131,9 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
 
 /**
  * Convert a single IP to a ranged IP.
+ * internal function used to convert a user-readable format to a format suitable for the database.
+ * @param string $fullip
+ * @return array|string 'unknown' if the ip in the input was '255.255.255.255'
  */
 function ip2range($fullip)
 {
@@ -3258,6 +3190,7 @@ function ip2range($fullip)
 
 /**
  * Lookup an IP; try shell_exec first because we can do a timeout on it.
+ * @param string $ip
  */
 function host_from_ip($ip)
 {
@@ -3313,6 +3246,9 @@ function host_from_ip($ip)
 
 /**
  * Chops a string into words and prepares them to be inserted into (or searched from) the database.
+ * @param string $text
+ * @param int $max_chars = 20
+ * @param bool $encrypt = false
  */
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
@@ -3407,10 +3343,8 @@ function clean_cache($type = '')
 	// ... as long as Load.php can be modified, anyway.
 	@touch($sourcedir . '/' . 'Load.php');
 	clearstatcache();
-}
-
-/**
  * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
+ * @param string $filename
  */
 function loadClassFile($filename)
 {
@@ -3752,6 +3686,7 @@ function smf_seed_generator()
 		updateSettings(array('rand_seed' => $modSettings['rand_seed']));
 	}
 
+	// @todo remove this or move it to Subs-Compat.php
 	if (version_compare(PHP_VERSION, '4.2.0', '<'))
 	{
 		$seed = ($modSettings['rand_seed'] + ((double) microtime() * 1000003)) & 0x7fffffff;
@@ -3764,9 +3699,11 @@ function smf_seed_generator()
 
 /**
  * Process functions of an integration hook.
+ * calls all functions of the given hook.
+ * supports static class method calls.
  * @param string $hook
  * @param array $paramaters = array()
- * @return array
+ * @return array the results of the functions
  */
 function call_integration_hook($hook, $parameters = array())
 {
@@ -3794,9 +3731,10 @@ function call_integration_hook($hook, $parameters = array())
 
 /**
  * Add a function for integration hook.
+ * does nothing if the function is already added.
  * @param string $hook
  * @param string $function
- * @param bool $permanent = true
+ * @param bool $permanent = true if true, updates the value in settings table
  */
 function add_integration_function($hook, $function, $permanent = true)
 {
@@ -3843,6 +3781,8 @@ function add_integration_function($hook, $function, $permanent = true)
 
 /**
  * Remove an integration hook function.
+ * Removes the given function from the given hook.
+ * Does nothing if the function is not available.
  * @param string $hook
  * @param string $function
  */

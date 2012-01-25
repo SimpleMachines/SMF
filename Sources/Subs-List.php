@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * This file contains a standard way of displaying lists for SMF.
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,8 +15,10 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file contains a standard way of displaying lists for SMF.
-*/
+/**
+ * Create a new list
+ * @param array $listOptions
+ */
 
 function createList($listOptions)
 {

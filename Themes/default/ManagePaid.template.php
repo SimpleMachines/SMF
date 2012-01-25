@@ -15,24 +15,6 @@ function template_modify_subscription()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
-	// Javascript for the duration stuff.
-	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			function toggleDuration(toChange)
-			{
-				if (toChange == \'fixed\')
-				{
-					document.getElementById("fixed_area").style.display = "inline";
-					document.getElementById("flexible_area").style.display = "none";
-				}
-				else
-				{
-					document.getElementById("fixed_area").style.display = "none";
-					document.getElementById("flexible_area").style.display = "inline";
-				}
-			}
-		// ]]></script>';
-
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=paidsubscribe;sa=modify;sid=', $context['sub_id'], '" method="post">
@@ -253,28 +235,6 @@ function template_modify_user_subscription()
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-			function generateDays(offset)
-			{
-				var days = 0, selected = 0;
-				var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
-
-				monthLength[1] = 28;
-				if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-					monthLength[1] = 29;
-
-				selected = dayElement.selectedIndex;
-				while (dayElement.options.length)
-					dayElement.options[0] = null;
-
-				days = monthLength[monthElement.value - 1];
-
-				for (i = 1; i <= days; i++)
-					dayElement.options[dayElement.length] = new Option(i, i);
-
-				if (selected < days)
-					dayElement.selectedIndex = selected;
-			}
 		// ]]></script>';
 
 	echo '
@@ -392,8 +352,8 @@ function template_modify_user_subscription()
 		<script type="text/javascript"><!-- // --><![CDATA[
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
-			sSessionId: \'', $context['session_id'], '\',
-			sSessionVar: \'', $context['session_var'], '\',
+			sSessionId: smf_session_id,
+			sSessionVar: smf_session_var,
 			sSuggestId: \'name_subscriber\',
 			sControlId: \'name_control\',
 			sSearchType: \'member\',

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * This file is automatically called and handles all manner of scheduled things.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -13,48 +15,6 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*	This file is automatically called and handles all manner of scheduled things.
-
-	void AutoTask()
-		//!!!
-
-	void scheduled_approval_notification()
-		// !!!
-
-	void scheduled_daily_maintenance()
-		// !!!
-
-	void scheduled_auto_optimize()
-		// !!!
-
-	void scheduled_daily_digest()
-		// !!!
-
-	void scheduled_weekly_digest()
-		// !!!
-
-	void scheduled_paid_subscriptions()
-		// !!!
-
-	void ReduceMailQueue(int number, bool override)
-		// !!!
-
-	void CalculateNextTrigger(array tasks)
-		// !!!
-
-	int next_time(int regularity, char unit, int offset)
-		// !!!
-
-	void loadEssentialThemeData()
-		// !!!
-
-	void scheduled_fetchSMfiles()
-		// !!!
-
-	void scheduled_birthdayemails()
-		// !!!
-*/
 
 // This function works out what to do!
 function AutoTask()

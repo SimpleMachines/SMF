@@ -212,8 +212,8 @@ function template_permission_index()
 			oThemeOptions: {
 				bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
 				sOptionName: \'admin_preferences\',
-				sSessionVar: ', JavaScriptEscape($context['session_var']), ',
-				sSessionId: ', JavaScriptEscape($context['session_id']), ',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
 				sThemeId: \'1\',
 				sAdditionalVars: \';admin_key=app\'
 			}
@@ -698,24 +698,6 @@ function template_modify_group_simple($type)
 	{
 		// Only show this once.
 		$context['simple_javascript_displayed'] = true;
-
-		// Manually toggle the breakdown.
-		echo '
-	function toggleBreakdown(id_group, forcedisplayType)
-	{
-		displayType = document.getElementById("group_hr_div_" + id_group).style.display == "none" ? "" : "none";
-		if (typeof(forcedisplayType) != "undefined")
-			displayType = forcedisplayType;
-
-		for (i = 0; i < groupPermissions[id_group].length; i++)
-		{
-			document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]).style.display = displayType
-		}
-		document.getElementById("group_hr_div_" + id_group).style.display = displayType
-		document.getElementById("group_toggle_img_" + id_group).src = "', $settings['images_url'], '/" + (displayType == "none" ? "selected" : "sort_down") + ".gif";
-
-		return false;
-	}';
 
 		// This function decides what to do when ANYTHING is touched!
 		echo '

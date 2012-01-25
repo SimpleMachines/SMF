@@ -417,6 +417,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		'loadavg_allunread' => '2.0',
 		'loadavg_unreadreplies' => '3.5',
 		'loadavg_show_posts' => '2.0',
+		'loadavg_bbc' => '25.0',
 		'loadavg_forum' => '40.0',
 	);
 

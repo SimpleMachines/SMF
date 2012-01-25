@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Activate an account.
  *
- * @param int $memID, the member ID
+ * @param int $memID the member ID
  */
 function activateAccount($memID)
 {
@@ -328,6 +328,7 @@ function issueWarning($memID)
  * Get the number of warnings a user has.
  *
  * @param int $memID
+ * @return int Total number of warnings for the user
  */
 function list_getUserWarningCount($memID)
 {
@@ -356,6 +357,7 @@ function list_getUserWarningCount($memID)
  * @param int $items_per_page
  * @param string $sort
  * @param int $memID, the member ID
+ * @return array the preview warnings
  */
 function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 {

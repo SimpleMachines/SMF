@@ -71,11 +71,6 @@ function template_main()
 					<strong>', $txt['search_for'], ':</strong>
 					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />
 					<script type="text/javascript"><!-- // --><![CDATA[
-						function initSearch()
-						{
-							if (document.forms.searchform.search.value.indexOf("%u") != -1)
-								document.forms.searchform.search.value = unescape(document.forms.searchform.search.value);
-						}
 						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
 					// ]]></script>
@@ -200,30 +195,7 @@ function template_main()
 	}
 
 	echo '
-	</form>
-
-	<script type="text/javascript"><!-- // --><![CDATA[
-		function selectBoards(ids)
-		{
-			var toggle = true;
-
-			for (i = 0; i < ids.length; i++)
-				toggle = toggle & document.forms.searchform["brd" + ids[i]].checked;
-
-			for (i = 0; i < ids.length; i++)
-				document.forms.searchform["brd" + ids[i]].checked = !toggle;
-		}
-
-		function expandCollapseBoards()
-		{
-			var current = document.getElementById("searchBoardsExpand").style.display != "none";
-
-			document.getElementById("searchBoardsExpand").style.display = current ? "none" : "";
-			document.getElementById("expandBoardsIcon").src = smf_images_url + (current ? "/expand.gif" : "/collapse.gif");
-		}';
-
-	echo '
-	// ]]></script>';
+	</form>';
 }
 
 function template_results()

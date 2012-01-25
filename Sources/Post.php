@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * The job of this file is to handle everything related to posting replies,
+ * new topics, quotes, and modifications to existing posts.  It also handles
+ * quoting posts by way of javascript.
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,71 +17,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	The job of this file is to handle everything related to posting replies,
-	new topics, quotes, and modifications to existing posts.  It also handles
-	quoting posts by way of javascript.
-
-	void Post()
-		- handles showing the post screen, loading the post to be modified, and
-		  loading any post quoted.
-		- additionally handles previews of posts.
-		- uses the Post template and language file, main sub template.
-		- allows wireless access using the protocol_post sub template.
-		- requires different permissions depending on the actions, but most
-		  notably post_new, post_reply_own, and post_reply_any.
-		- shows options for the editing and posting of calendar events and
-		  attachments, as well as the posting of polls.
-		- accessed from ?action=post.
-
-	void Post2()
-		- actually posts or saves the message composed with Post().
-		- requires various permissions depending on the action.
-		- handles attachment, post, and calendar saving.
-		- sends off notifications, and allows for announcements and moderation.
-		- accessed from ?action=post2.
-
-	void AnnounceTopic()
-		- handle the announce topic function (action=announce).
-		- checks the topic announcement permissions and loads the announcement
-		  template.
-		- requires the announce_topic permission.
-		- uses the ManageMembers template and Post language file.
-		- call the right function based on the sub-action.
-
-	void AnnouncementSelectMembergroup()
-		- lets the user select the membergroups that will receive the topic
-		  announcement.
-
-	void AnnouncementSend()
-		- splits the members to be sent a topic announcement into chunks.
-		- composes notification messages in all languages needed.
-		- does the actual sending of the topic announcements in chunks.
-		- calculates a rough estimate of the percentage items sent.
-
-	void notifyMembersBoard(notifyData)
-		- notifies members who have requested notification for new topics
-		  posted on a board of said posts.
-		- receives data on the topics to send out notifications to by the passed in array.
-		- only sends notifications to those who can *currently* see the topic
-		  (it doesn't matter if they could when they requested notification.)
-		- loads the Post language file multiple times for each language if the
-		  userLanguage setting is set.
-
-	void getTopic()
-		- gets a summary of the most recent posts in a topic.
-		- depends on the topicSummaryPosts setting.
-		- if you are editing a post, only shows posts previous to that post.
-
-	void QuoteFast()
-		- loads a post an inserts it into the current editing text box.
-		- uses the Post language file.
-		- uses special (sadly browser dependent) javascript to parse entities
-		  for internationalization reasons.
-		- accessed with ?action=quotefast.
-
-	void JavaScriptModify()
-*/
-
+/**
+ * handles showing the post screen, loading the post to be modified, and loading any post quoted.
+ * additionally handles previews of posts.
+ * @uses the Post template and language file, main sub template.
+ * allows wireless access using the protocol_post sub template.
+ * requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
+ * shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
+ * accessed from ?action=post.
+ */
 function Post()
 {
 	global $txt, $scripturl, $topic, $modSettings, $board;
@@ -1217,6 +1164,13 @@ function Post()
 		loadTemplate('Post');
 }
 
+/**
+ * actually posts or saves the message composed with Post().
+ * requires various permissions depending on the action.
+ * handles attachment, post, and calendar saving.
+ * sends off notifications, and allows for announcements and moderation.
+ * accessed from ?action=post2.
+ */
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
@@ -2115,6 +2069,13 @@ function Post2()
 }
 
 // General function for topic announcements.
+/**
+ * handle the announce topic function (action=announce).
+ * checks the topic announcement permissions and loads the announcement template.
+ * requires the announce_topic permission.
+ * uses the ManageMembers template and Post language file.
+ * call the right function based on the sub-action.
+ */
 function AnnounceTopic()
 {
 	global $context, $txt, $topic;
@@ -2140,7 +2101,10 @@ function AnnounceTopic()
 	$subActions[isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'selectgroup']();
 }
 
-// Allow a user to chose the membergroups to send the announcement to.
+/**
+ * Allow a user to chose the membergroups to send the announcement to.
+ * lets the user select the membergroups that will receive the topic announcement.
+ */
 function AnnouncementSelectMembergroup()
 {
 	global $txt, $context, $topic, $board, $board_info, $smcFunc;
@@ -2216,6 +2180,12 @@ function AnnouncementSelectMembergroup()
 }
 
 // Send the announcement in chunks.
+/**
+ * splits the members to be sent a topic announcement into chunks.
+ * composes notification messages in all languages needed.
+ * does the actual sending of the topic announcements in chunks.
+ * calculates a rough estimate of the percentage items sent.
+ */
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
@@ -2340,6 +2310,15 @@ function AnnouncementSend()
 }
 
 // Notify members of a new post.
+/**
+ * notifies members who have requested notification for new topics
+ * * posted on a board of said posts.
+ * receives data on the topics to send out notifications to by the passed in array.
+ * only sends notifications to those who can *currently* see the topic (it doesn't matter if they could when they requested notification.)
+ * loads the Post language file multiple times for each language if the
+ * * userLanguage setting is set.
+ * @param array &$topicData
+ */
 function notifyMembersBoard(&$topicData)
 {
 	global $txt, $scripturl, $language, $user_info;
@@ -2488,7 +2467,12 @@ function notifyMembersBoard(&$topicData)
 	);
 }
 
-// Get the topic for display purposes.
+/**
+ * Get the topic for display purposes.
+ * gets a summary of the most recent posts in a topic.
+ * depends on the topicSummaryPosts setting.
+ * if you are editing a post, only shows posts previous to that post.
+ */
 function getTopic()
 {
 	global $topic, $modSettings, $context, $smcFunc, $counter, $options;
@@ -2543,6 +2527,12 @@ function getTopic()
 	$smcFunc['db_free_result']($request);
 }
 
+/**
+ * loads a post an inserts it into the current editing text box.
+ * uses the Post language file.
+ * uses special (sadly browser dependent) javascript to parse entities for internationalization reasons.
+ * accessed with ?action=quotefast.
+ */
 function QuoteFast()
 {
 	global $modSettings, $user_info, $txt, $settings, $context;

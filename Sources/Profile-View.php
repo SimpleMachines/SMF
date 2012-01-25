@@ -629,7 +629,7 @@ function showAttachments($memID)
 }
 
 /**
- * @todo needs a description
+ * Gets the user stats for display
  * 
  * @param int $memID id_member
  */
