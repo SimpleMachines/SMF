@@ -1359,8 +1359,8 @@ function Download()
 
 	// Different browsers like different standards...
 	if ($context['browser']['is_firefox'])
-		header('Content-Disposition: ' . $disposition . '; filename*="UTF-8\'\'' . preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name) . '"');
-
+		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)));
+	
 	elseif ($context['browser']['is_opera'])
 		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name) . '"');
 

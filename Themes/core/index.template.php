@@ -89,7 +89,7 @@ function template_html_above()
 
 	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
 	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
-		if ($context['browser']['is_' . $cssfix])
+		if (isBrowser('is_' . $cssfix))
 			echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/', $cssfix, '.css" />';
 
@@ -269,7 +269,7 @@ function template_body_above()
 		echo '
 				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 				<form class="windowbg" id="guest_form" action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
-					', $txt['login_or_register'], '<br />
+					', $context['can_register'] ? $txt['login_or_register'] : $txt['please_login'], '<br />
 					<input type="text" name="user" size="10" class="input_text" />
 					<input type="password" name="passwrd" size="10" class="input_password" />
 					<select name="cookielength">
@@ -464,7 +464,7 @@ function template_menu()
 		if (!empty($button['is_last']))
 			$classes[] = 'last';
 		/* IE6 can't do multiple class selectors */
-		if ($context['browser']['is_ie6'] && !empty($button['active_button']) && !empty($button['is_last']))
+		if (isBrowser('is_ie6') && !empty($button['active_button']) && !empty($button['is_last']))
 			$classes[] = 'lastactive';
 
 		$classes = implode(' ', $classes);

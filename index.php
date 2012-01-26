@@ -130,6 +130,7 @@ if (WIRELESS)
 	define('WIRELESS_PROTOCOL', isset($_REQUEST['wap']) ? 'wap' : (isset($_REQUEST['wap2']) ? 'wap2' : (isset($_REQUEST['imode']) ? 'imode' : '')));
 
 	// Some cellphones can't handle output compression...
+	// @todo shouldn't the phone handle that?
 	$modSettings['enableCompressedOutput'] = '0';
 	// @todo Do we want these hard coded?
 	$modSettings['defaultMaxMessages'] = 5;

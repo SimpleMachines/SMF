@@ -52,11 +52,11 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 	// Set the cookie, $_COOKIE, and session variable.
-	setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
+	smf_setcookie($modSettings['cookie_name'], $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], '', !empty($modSettings['secureCookies']));
+		smf_setcookie($modSettings['cookie_name'], $data, time() + $cookie_length, $cookie_url[1], '');
 
 	// Any alias URLs?  This is mainly for use with frames, etc.
 	if (!empty($modSettings['forum_alias_urls']))
@@ -100,8 +100,10 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		$_SESSION = $oldSessionData;
 
 		// Version 4.3.2 didn't store the cookie of the new session.
-		if (version_compare(PHP_VERSION, '4.3.2', '==') || !isset($_COOKIE[session_name()]) || $_COOKIE[session_name()] != session_id())
+		if (version_compare(PHP_VERSION, '4.3.2', '=='))
 		{
+			// Do not check $_COOKIE here, PHP only updates it at the next page load,
+			// therefore here it will always be unset for the session just created.
 			$sessionCookieLifetime = ini_get('session.cookie_lifetime');
 			smf_setcookie(session_name(), session_id(), time() + (empty($sessionCookieLifetime) ? $cookie_length : $sessionCookieLifetime), $cookie_url[1], $cookie_url[0]);
 		}

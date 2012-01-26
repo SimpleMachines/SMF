@@ -278,6 +278,7 @@ function scheduled_approval_notification()
 	// Need the below for loadLanguage to work!
 	loadEssentialThemeData();
 
+	$current_language = '';
 	// Finally, loop through each member, work out what they can do, and send it.
 	foreach ($members as $id => $member)
 	{
@@ -502,7 +503,7 @@ function scheduled_auto_optimize()
 
 	// Actually do the optimisation.
 	if ($db_type == 'sqlite')
-		$smcFunc['db_optimize_table']($table[0]);
+		$smcFunc['db_optimize_table']($tables[0]);
 	else
 		foreach ($tables as $table)
 			$smcFunc['db_optimize_table']($table);

@@ -53,27 +53,45 @@ function template_init()
 		'html' for an HTML 4.01 document type definition. */
 	$settings['doctype'] = 'xhtml';
 
-	/* The version this template/theme is for.
-		This should probably be the version of SMF it was created for. */
+	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	$settings['theme_version'] = '2.0';
 
-	/* Set a setting that tells the theme that it can render the tabs. */
+	// Set a setting that tells the theme that it can render the tabs.
 	$settings['use_tabs'] = true;
 
-	/* Use plain buttons - as opposed to text buttons? */
+	// Use plain buttons - as opposed to text buttons?
 	$settings['use_buttons'] = true;
 
-	/* Show sticky and lock status separate from topic icons? */
+	// Show sticky and lock status separate from topic icons?
 	$settings['separate_sticky_lock'] = true;
 
-	/* Does this theme use the strict doctype? */
+	// Does this theme use the strict doctype?
 	$settings['strict_doctype'] = false;
 
-	/* Does this theme use post previews on the message index? */
+	// Does this theme use post previews on the message index?
 	$settings['message_index_preview'] = false;
 
-	/* Set the following variable to true if this theme requires the optional theme strings file to be loaded. */
+	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
+
+	// Load the CSS
+	loadCSSFile($settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20');
+
+	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
+	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
+		if (isBrowser('is_' . $cssfix))
+			loadCSSFile($settings['default_theme_url'], '/css/', $cssfix, '.css');
+
+	// RTL languages require an additional stylesheet.
+	if ($context['right_to_left'])
+		loadCSSFile($settings['theme_url'], '/css/rtl.css');
+
+	// Now load the JS
+	loadJavascriptFile($settings['theme_url'], '/scripts/jquery-1.6.4.min.js');
+	loadJavascriptFile($settings['theme_url'], '/scripts/hoverIntent.js');
+	loadJavascriptFile($settings['theme_url'], '/scripts/superfish.js');
+	loadJavascriptFile($settings['default_theme_url'], '/scripts/script.js?fin20');
+	loadJavascriptFile($settings['theme_url'], '/scripts/theme.js?fin20');
 }
 
 /**
@@ -112,6 +130,8 @@ function template_html_above()
 	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/jquery-1.6.4.min.js"></script>
 	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/hoverIntent.js"></script>
 	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/superfish.js"></script>
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?fin20"></script>
 	<script type="text/javascript">
 
 			$(document).ready(function() { 
@@ -119,8 +139,6 @@ function template_html_above()
 			});
 
 	</script>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var smf_theme_url = "', $settings['theme_url'], '";
 		var smf_default_theme_url = "', $settings['default_theme_url'], '";

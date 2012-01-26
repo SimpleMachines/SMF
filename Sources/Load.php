@@ -1560,6 +1560,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'spellcheck',
 	);
 
+	$context['javascript_files'] = array();
+	$context['css_files'] = array();
+
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
 	{

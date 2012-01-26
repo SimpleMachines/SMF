@@ -327,7 +327,7 @@ function template_folder()
 				// Don't show the email address if they want it hidden.
 				if (in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')))
 					echo '
-								<li><a href="', $scripturl, '?action=emailuser;sa=email;msg=', $message['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.gif" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
+								<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.gif" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
 
 				// Since we know this person isn't a guest, you *can* message them.
 				if ($context['can_send_pm'])
@@ -1066,7 +1066,7 @@ function template_send()
 	echo '
 				<p><label for="outbox"><input type="checkbox" name="outbox" id="outbox" value="1" tabindex="', $context['tabindex']++, '"', $context['copy_to_outbox'] ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['pm_save_outbox'], '</label></p>
 				<p id="shortcuts" class="smalltext">
-					', $context['browser']['is_firefox'] ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+					', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
 				</p>
 				<p id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
@@ -1322,7 +1322,7 @@ function template_report_message()
 						<strong>', $txt['pm_report_reason'], ':</strong>
 					</dt>
 					<dd>
-						<textarea name="reason" rows="4" cols="70" style="' . ($context['browser']['is_ie8'] ? 'width: 635px; max-width: 80%; min-width: 80%' : 'width: 80%') . ';"></textarea>
+						<textarea name="reason" rows="4" cols="70" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 80%; min-width: 80%' : 'width: 80%') . ';"></textarea>
 					</dd>
 				</dl>
 				<input type="submit" name="report" value="', $txt['pm_report_message'], '" class="button_submit" />
