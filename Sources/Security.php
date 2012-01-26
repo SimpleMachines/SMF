@@ -335,7 +335,7 @@ function is_not_banned($forceCheck = false)
 		{
 			require_once($sourcedir . '/Subs-Auth.php');
 			$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-			setcookie($cookiename . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], 0);
+			smf_setcookie($modSettings['cookie_name'] . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
 		}
 	}
 
@@ -375,7 +375,7 @@ function is_not_banned($forceCheck = false)
 		// A goodbye present.
 		require_once($sourcedir . '/Subs-Auth.php');
 		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-		setcookie($cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], 0);
+		smf_setcookie($modSettings['cookie_name'] . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
 
 		// Don't scare anyone, now.
 		$_GET['action'] = '';

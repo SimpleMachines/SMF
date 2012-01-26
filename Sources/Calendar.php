@@ -377,11 +377,8 @@ function iCalDownload()
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . 'GMT');
 	header('Accept-Ranges: bytes');
 	header('Connection: close');
-	header('Content-D isposition: attachment; filename=' . $event['title'] . '.ics');
-
-	// How big is it?
-	if (empty($modSettings['enableCompressedOutput']))
-		header('Content-Length: ' . $smcFunc['strlen']($filecontents));
+	header('Content-Disposition: attachment; filename=' . $event['title'] . '.ics');
+	header('Content-Length: ' . $smcFunc['strlen']($filecontents));
 
 	// This is a calendar item!
 	header('Content-Type: text/calendar');

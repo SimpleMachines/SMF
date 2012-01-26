@@ -48,6 +48,7 @@ $txt['cookieTime'] = 'Default login cookies length (in minutes)';
 $txt['localCookies'] = 'Enable local storage of cookies<div class="smalltext">(SSI won\'t work well with this on.)</div>';
 $txt['globalCookies'] = 'Use subdomain independent cookies<div class="smalltext">(turn off local cookies first!)</div>';
 $txt['secureCookies'] = 'Force cookies to be secure<div class="smalltext">(This only applies if you are using HTTPS - don\'t use otherwise!)</div>';
+$txt['httponlyCookies'] = 'Force cookies to be made accessible only through the HTTP protocol. <div class="smalltext">(Cookies won\'t be accessible by scripting languages, such as JavaScript. This setting can help to reduce identity theft through XSS attacks.)</div>';
 $txt['securityDisable'] = 'Disable administration security';
 $txt['securityDisable_moderate'] = 'Disable moderation security';
 $txt['send_validation_onChange'] = 'Require reactivation after email change';

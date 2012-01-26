@@ -2230,7 +2230,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
-			if (!empty($tag['block_level']) && substr($data[0], '<br />') === 0)
+			if (!empty($tag['block_level']) && strpos($data[0], '<br />') === 0)
 				$data[0] = substr($data[0], 6);
 
 			// Validation for my parking, please!
@@ -2839,6 +2839,7 @@ function setupThemeContext($forceload = false)
 	// Resize avatars the fancy, but non-GD requiring way.
 	if ($modSettings['avatar_action_too_large'] == 'option_js_resize' && (!empty($modSettings['avatar_max_width_external']) || !empty($modSettings['avatar_max_height_external'])))
 	{
+		// @todo Move this over to script.js?
 		$context['html_headers'] .= '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var smf_avatarMaxWidth = ' . (int) $modSettings['avatar_max_width_external'] . ';
@@ -2852,7 +2853,6 @@ function setupThemeContext($forceload = false)
 	var window_oldAvatarOnload = window.onload;
 	window.onload = smf_avatarResize;';
 
-		// @todo Move this over to script.js?
 		$context['html_headers'] .= '
 	// ]]></script>';
 	}
@@ -2929,6 +2929,7 @@ function template_header()
 		if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !$user_info['is_guest'] && !$checked_securityFiles)
 		{
 			$checked_securityFiles = true;
+			// @todo add a hook here
 			$securityFiles = array('install.php', 'webinstall.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
 			foreach ($securityFiles as $i => $securityFile)
 			{
@@ -3684,13 +3685,6 @@ function smf_seed_generator()
 	{
 		$modSettings['rand_seed'] = microtime() * 1000000;
 		updateSettings(array('rand_seed' => $modSettings['rand_seed']));
-	}
-
-	// @todo remove this or move it to Subs-Compat.php
-	if (version_compare(PHP_VERSION, '4.2.0', '<'))
-	{
-		$seed = ($modSettings['rand_seed'] + ((double) microtime() * 1000003)) & 0x7fffffff;
-		mt_srand($seed);
 	}
 
 	// Change the seed.

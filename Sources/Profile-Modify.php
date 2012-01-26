@@ -1004,7 +1004,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
  */
 function makeThemeChanges($memID, $id_theme)
 {
-	global $modSettings, $smcFunc, $context;
+	global $modSettings, $smcFunc, $context, $user_info;
 
 	$reservedVars = array(
 		'actual_theme_url',
@@ -2620,7 +2620,7 @@ function profileSaveAvatarData(&$value)
 	}
 
 	$downloadedExternalAvatar = false;
-	if ($value == 'external' && allowedTo('profile_remote_avatar') && strtolower(substr($_POST['userpicpersonal'], 0, 7)) == 'http://' && strlen($_POST['userpicpersonal']) > 7 && !empty($modSettings['avatar_download_external']))
+	if ($value == 'external' && allowedTo('profile_remote_avatar') && stripos($_POST['userpicpersonal'], 'http://') === 0 && strlen($_POST['userpicpersonal']) > 7 && !empty($modSettings['avatar_download_external']))
 	{
 		if (!is_writable($uploadDir))
 			fatal_lang_error('attachments_no_write', 'critical');
@@ -2664,7 +2664,7 @@ function profileSaveAvatarData(&$value)
 		// Get rid of their old avatar. (if uploaded.)
 		removeAttachments(array('id_member' => $memID));
 	}
-	elseif ($value == 'external' && allowedTo('profile_remote_avatar') && strtolower(substr($_POST['userpicpersonal'], 0, 7)) == 'http://' && empty($modSettings['avatar_download_external']))
+	elseif ($value == 'external' && allowedTo('profile_remote_avatar') && stripos($_POST['userpicpersonal'], 'http://') === 0 && empty($modSettings['avatar_download_external']))
 	{
 		// We need these clean...
 		$cur_profile['id_attach'] = 0;
@@ -2674,7 +2674,8 @@ function profileSaveAvatarData(&$value)
 		// Remove any attached avatar...
 		removeAttachments(array('id_member' => $memID));
 
-		$profile_vars['avatar'] = str_replace('%20', '', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
+		// @todo http://www.simplemachines.org/community/index.php?topic=462089.msg3226650#msg3226650
+		$profile_vars['avatar'] = str_replace('%20', ' ', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';

@@ -262,11 +262,11 @@ function ModifyCookieSettings($return_config = false)
 	// Define the variables we want to edit.
 	$config_vars = array(
 		// Cookies...
-		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
 		array('cookieTime', $txt['cookieTime'], 'db', 'int'),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies',  'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
+		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 		'',
 		// Sessions
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),

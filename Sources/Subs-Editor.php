@@ -336,7 +336,7 @@ function html_to_bbc($text)
 				}
 
 				// Preserve some tags stripping the styling.
-				if (in_array($matches[2], array('a', 'font')))
+				if (in_array($matches[2], array('a', 'font', 'td')))
 				{
 					$replacement .= $precedingStyle . $afterStyle;
 					$curCloseTags = '</' . $matches[2] . '>' . $curCloseTags;

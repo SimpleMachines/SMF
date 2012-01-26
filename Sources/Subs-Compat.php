@@ -358,4 +358,13 @@ if (!function_exists('bcpowmod') && function_exists('bcpow'))
 	}
 }
 
+/**
+ * Random seed generator
+ */
+if (version_compare(PHP_VERSION, '4.2.0', '<'))
+{
+	$seed = ($modSettings['rand_seed'] + ((double) microtime() * 1000003)) & 0x7fffffff;
+	mt_srand($seed);
+}
+
 ?>

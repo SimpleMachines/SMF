@@ -43,7 +43,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		if (isset($array[3]) && $array[3] != $cookie_state)
 		{
 			$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
-			setcookie($cookiename, serialize(array(0, '', 0)), time() - 3600, $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
+			smf_setcookie($modSettings['cookie_name'], serialize(array(0, '', 0)), time() - 3600, $cookie_url[1], $cookie_url[0]);
 		}
 	}
 
@@ -75,7 +75,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
 
-			setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
+			smf_setcookie($modSettings['cookie_name'], $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
 		}
 
 		$boardurl = $temp;
@@ -103,7 +103,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		if (version_compare(PHP_VERSION, '4.3.2', '==') || !isset($_COOKIE[session_name()]) || $_COOKIE[session_name()] != session_id())
 		{
 			$sessionCookieLifetime = ini_get('session.cookie_lifetime');
-			setcookie(session_name(), session_id(), time() + (empty($sessionCookieLifetime) ? $cookie_length : $sessionCookieLifetime), $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
+			smf_setcookie(session_name(), session_id(), time() + (empty($sessionCookieLifetime) ? $cookie_length : $sessionCookieLifetime), $cookie_url[1], $cookie_url[0]);
 		}
 
 		$_SESSION['login_' . $cookiename] = $data;
@@ -595,7 +595,7 @@ function resetPassword($memID, $username = null)
 
 /**
  * Checks a username obeys a load of rules
- * @param int $memID, 
+ * @param int $memID,
  * @param string $username
  * @return string Returns null if fine
  */
@@ -743,6 +743,43 @@ function rebuildModCache()
 
 	// Might as well clean up some tokens while we are at it.
 	cleanTokens();
+}
+
+/**
+ * The same thing as setcookie but gives support for HTTP-Only cookies in PHP < 5.2
+ * @param string $name
+ * @param string $value = ''
+ * @param int $expire = 0
+ * @param string $path = ''
+ * @param string $domain = ''
+ * @param bool $secure = false
+ * @param bool $httponly = null
+ */
+function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = null)
+{
+	global $modSettings;
+
+	// In case a customization wants to override the default settings
+	if ($httponly === null)
+		$httponly = !empty($modSettings['httponlyCookies']);
+	if ($secure === null)
+		$secure = !empty($modSettings['secureCookies']);
+		
+	// This function is pointless if we have PHP >= 5.2.
+	if (version_compare(PHP_VERSION, '5.2', '>='))
+		return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+
+	// $httponly is the only reason I made this function. If it's not being used, use setcookie().
+	if (!$httponly)
+		return setcookie($name, $value, $expire, $path, $domain, $secure);
+
+	// Ugh, looks like we have to resort to using a manual process.
+	header('Set-Cookie: '.rawurlencode($name).'='.rawurlencode($value)
+			.(empty($domain) ? '' : '; Domain='.$domain)
+			.(empty($expire) ? '' : '; Max-Age='.$expire)
+			.(empty($path) ? '' : '; Path='.$path)
+			.(!$secure ? '' : '; Secure')
+			.(!$httponly ? '' : '; HttpOnly'), false);
 }
 
 ?>

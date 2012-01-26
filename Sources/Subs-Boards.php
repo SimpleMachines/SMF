@@ -85,7 +85,7 @@ function markBoardsRead($boards, $unread = false)
 	if ($unread)
 	{
 		// Clear out all the places where this lovely info is stored.
-		// !! Maybe not log_mark_read?
+		// @todo Maybe not log_mark_read?
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:board_list})
@@ -146,7 +146,7 @@ function markBoardsRead($boards, $unread = false)
 	if (empty($lowest_topic))
 		return;
 
-	// @todoSLOW This query seems to eat it sometimes.
+	// @todo SLOW This query seems to eat it sometimes.
 	$result = $smcFunc['db_query']('', '
 		SELECT lt.id_topic
 		FROM {db_prefix}log_topics AS lt
@@ -440,6 +440,7 @@ function MarkRead()
 /**
  * Get the id_member associated with the specified message.
  * @param int $messageID
+ * @return int the member id
  */
 function getMsgMemberID($messageID)
 {
