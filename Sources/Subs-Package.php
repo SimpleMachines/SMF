@@ -494,6 +494,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 				if ($do_change && isset($_POST['restore_files']) && in_array($file, $_POST['restore_files']))
 				{
 					// Use FTP if we have it.
+					// @todo where does $package_ftp get set?
 					if (!empty($package_ftp))
 					{
 						$ftp_file = strtr($file, array($_SESSION['pack_ftp']['root'] => ''));
@@ -1515,6 +1516,7 @@ function deltree($dir, $delete_dir = true)
 		if ($delete_dir && isset($package_ftp))
 		{
 			$ftp_file = strtr($dir, array($_SESSION['pack_ftp']['root'] => ''));
+			// @todo $entryname is never set
 			if (!is_writable($dir . '/' . $entryname))
 				$package_ftp->chmod($ftp_file, 0777);
 			$package_ftp->unlink($ftp_file);

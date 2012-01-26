@@ -1620,6 +1620,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 		)
 	);
 	$sent = 0;
+	$current_language = '';
 	while ($row = $smcFunc['db_fetch_assoc']($members))
 	{
 		// Don't do the excluded...
@@ -2385,9 +2386,9 @@ function createAttachment(&$attachmentOptions)
 /**
  * Modifying a post...
  *
- * @param array $msgOptions
- * @param array $topicOptions
- * @param array $posterOptions
+ * @param array &$msgOptions
+ * @param array &$topicOptions
+ * @param array &$posterOptions
  */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
@@ -3203,7 +3204,7 @@ function adminNotify($type, $memberID, $member_name = null)
 }
 
 /**
- * Load a template from EmaulTemplates language file.
+ * Load a template from EmailTemplates language file.
  *
  * @param string $template
  * @param array $replacements = array()

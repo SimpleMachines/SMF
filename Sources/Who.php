@@ -72,8 +72,8 @@ function Who()
 		$show_methods['guests'] = '(lo.id_member = 0 AND lo.id_spider = 0)';
 		$context['show_methods']['spiders'] = $txt['who_show_spiders_only'];
 	}
-	elseif (empty($modSettings['show_spider_online']) && isset($_SESSION['who_online_sort_by']) && $_SESSION['who_online_sort_by'] == 'spiders')
-		unset($_SESSION['who_online_sort_by']);
+	elseif (empty($modSettings['show_spider_online']) && isset($_SESSION['who_online_filter']) && $_SESSION['who_online_filter'] == 'spiders')
+		unset($_SESSION['who_online_filter']);
 
 	// Does the user prefer a different sort direction?
 	if (isset($_REQUEST['sort']) && isset($sort_methods[$_REQUEST['sort']]))
@@ -535,9 +535,6 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_ps'],
 					'members' => array(
 						'Michael &quot;Oldiesmann&quot; Eshom',
-						'Amacythe',
-						'Jeremy &quot;SleePy&quot; Darwood',
-						'Justin &quot;metallica48423&quot; O\'Leary',
 					),
 				),
 				array(
@@ -561,38 +558,18 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
+						'Aleksi &quot;Lex&quot; Kilpinen',
 						'JimM',
 						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
-						'Aleksi &quot;Lex&quot; Kilpinen',
-						'Ben Scott',
 						'Bigguy',
 						'CapadY',
 						'Chas Large',
 						'Duncan85',
-						'Eliana Tamerin',
-						'Fiery',
 						'gbsothere',
-						'Harro',
-						'Huw',
-						'Jan-Olof &quot;Owdy&quot; Eriksson',
-						'Jeremy &quot;jerm&quot; Strike',
 						'Jessica &quot;Miss All Sunday&quot; Gonzales',
-						'K@',
 						'Kevin &quot;greyknight17&quot; Hou',
-						'KGIII',
-						'Kill Em All',
-						'Mattitude',
 						'Mashby',
-						'Mick G.',
 						'Michele &quot;Illori&quot; Davis',
-						'MrPhil',
-						'Nick &quot;Fizzy&quot; Dyer',
-						'Nick &quot;Ha&sup2;&quot;',
-						'Paul_Pauline',
-						'Piro &quot;Sarge&quot; Dhima',
-						'Rumbaar',
-						'Pitti',
-						'RedOne',
 						'S-Ace',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'xenovanis',
@@ -602,28 +579,13 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
 						'Brad &quot;IchBin&trade;&quot; Grow',
-						'&#12487;&#12451;&#12531;1031',
 						'Brannon &quot;B&quot; Hall',
 						'Bryan &quot;Runic&quot; Deakin',
-						'Bulakbol',
-						'Colin &quot;Shadow82x&quot; Blaber',
-						'Daniel15',
-						'Eren Yasarkurt',
 						'Gary M. Gadsdon',
-						'Jason &quot;JBlaze&quot; Clemons',
-						'Jerry',
 						'Jonathan &quot;vbgamer45&quot; Valentin',
 						'Kays',
-						'Killer Possum',
-						'Kirby',
-						'Matt &quot;SlammedDime&quot; Zuba',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
-						'Nibogo',
-						'Niko',
-						'Peter &quot;Arantor&quot; Spicer',
-						'snork13',
 						'Spuds',
-						'Steven &quot;Fustrate&quot; Hoffman',
 						'Joey &quot;Tyrsson&quot; Smith',
 					),
 				),
@@ -632,13 +594,14 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Joshua &quot;groundup&quot; Dickerson',
 						'AngellinaBelle',
-						'Daniel Diehl',
-						'Dannii Willis',
 						'emanuele',
 						'Graeme Spence',
-						'Jack &quot;akabugeyes&quot; Thorsen',
-						'Jade Elizabeth Trainor',
-						'Peter Duggan',
+					),
+				),
+				array(
+					'title' => $txt['credits_groups_internationalizers'],
+					'members' => array(
+						'Relyana',
 					),
 				),
 				array(
@@ -647,16 +610,12 @@ function Credits($in_admin = false)
 						'Kindred',
 						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
 						'Ralph &quot;[n3rve]&quot; Otowo',
-						'rickC',
-						'Tony Reid',
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_internationalizers'],
+					'title' => $txt['credits_groups_site'],
 					'members' => array(
-						'Relyana',
-						'Akyhne',
-						'GravuTrad',
+						'Jeremy &quot;SleePy&quot; Darwood',
 					),
 				),
 				array(

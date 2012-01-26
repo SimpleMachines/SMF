@@ -2,7 +2,7 @@
 
 /**
  * This file has functions in it to do with authentication, user handling, and the like.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -22,8 +22,8 @@ if (!defined('SMF'))
  * logs the user out if id_member is zero.
  * sets the cookie and session to last the number of seconds specified by cookie_length.
  * when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
- * @param int $cookie_length, 
- * @param int $id The id of the member 
+ * @param int $cookie_length,
+ * @param int $id The id of the member
  * @param string $password = ''
  */
 function setLoginCookie($cookie_length, $id, $password = '')
@@ -121,7 +121,7 @@ if (!function_exists('session_regenerate_id'))
  * Get the domain and path for the cookie
  * normally, local and global should be the localCookies and globalCookies settings, respectively.
  * uses boardurl to determine these two things.
- * @param bool $local, 
+ * @param bool $local,
  * @param bool $global
  * @return array an array to set the cookie on with domain and path in it, in that order
  */

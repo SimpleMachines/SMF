@@ -484,8 +484,7 @@ function SpiderCheck()
 			$spider_data[] = $row;
 		$smcFunc['db_free_result']($request);
 
-		if (!empty($modSettings['cache_enable']))
-			cache_put_data('spider_search', $spider_data, 300);
+		cache_put_data('spider_search', $spider_data, 300);
 	}
 
 	if (empty($spider_data))
@@ -495,7 +494,7 @@ function SpiderCheck()
 	$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
 	// Always attempt IPv6 first.
-	if (empty($ip_parts) && strpos($_SERVER['REMOTE_ADDR'], ':') !== false)
+	if (strpos($_SERVER['REMOTE_ADDR'], ':') !== false)
 		$ip_parts = convertIPv6toInts($_SERVER['REMOTE_ADDR']);
 	else
 		preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $_SERVER['REMOTE_ADDR'], $ip_parts);
@@ -518,7 +517,7 @@ function SpiderCheck()
 					{
 						if ($value['low'] > $ip_parts[$key + 1] || $value['high'] < $ip_parts[$key + 1])
 							break;
-						elseif ($key == 3)
+						elseif (($key == 7 && strpos($_SERVER['REMOTE_ADDR'], ':') !== false) || ($key == 3 && strpos($_SERVER['REMOTE_ADDR'], ':') === false))
 							$_SESSION['id_robot'] = $spider['id_spider'];
 					}
 				}

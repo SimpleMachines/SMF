@@ -66,6 +66,7 @@ function ReportsMain()
 	foreach ($context['report_types'] as $k => $temp)
 		$context['report_types'][$k] = array(
 			'id' => $k,
+			// @todo what is $type? It is never set!
 			'title' => isset($txt['gr_type_' . $k]) ? $txt['gr_type_' . $k] : $type['id'],
 			'description' => isset($txt['gr_type_desc_' . $k]) ? $txt['gr_type_desc_' . $k] : null,
 			'function' => $temp,

@@ -624,6 +624,7 @@ function AddSmiley()
 		// What about uploading several files?
 		elseif ($_POST['method'] != 'existing')
 		{
+			$newName = '';
 			foreach ($_FILES as $name => $data)
 			{
 				if ($_FILES[$name]['name'] == '')

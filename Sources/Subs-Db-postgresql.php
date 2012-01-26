@@ -75,6 +75,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 /**
  * Extend the database functionality. It calls the respective file's init
  * to add the implementations in that file to $smcFunc array.
+ * @param string $type = 'extra'
  */
 function db_extend ($type = 'extra')
 {
@@ -88,7 +89,6 @@ function db_extend ($type = 'extra')
 /**
  * Fix the database prefix if necessary.
  * Do nothing on postgreSQL
- *
  */
 function db_fix_prefix (&$db_prefix, $db_name)
 {
@@ -782,22 +782,19 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 	if (empty($log_message))
 		$log_message = $error_message;
 
-	if (function_exists('debug_backtrace'))
+	foreach (debug_backtrace() as $step)
 	{
-		foreach (debug_backtrace() as $step)
+		// Found it?
+		if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
 		{
-			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
-			{
-				$log_message .= '<br />Function: ' . $step['function'];
-				break;
-			}
+			$log_message .= '<br />Function: ' . $step['function'];
+			break;
+		}
 
-			if (isset($step['line']))
-			{
-				$file = $step['file'];
-				$line = $step['line'];
-			}
+		if (isset($step['line']))
+		{
+			$file = $step['file'];
+			$line = $step['line'];
 		}
 	}
 

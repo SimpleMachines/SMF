@@ -511,7 +511,9 @@ function scheduled_auto_optimize()
 	return true;
 }
 
-// Send out a daily email of all subscribed topics.
+/**
+ * Send out a daily email of all subscribed topics.
+ */
 function scheduled_daily_digest()
 {
 	global $is_weekly, $txt, $mbname, $scripturl, $sourcedir, $smcFunc, $context, $modSettings;

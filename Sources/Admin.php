@@ -831,7 +831,7 @@ function AdminSearchInternal()
 					'url' => (strpos($item[1], 'area') === 0 ? $scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . $context['session_var'] . '=' . $context['session_id'] . ((strpos($item[1], 'area') === 0 && $section == 'settings' ? '#' . $item[0][0] : '')),
 					'name' => $name,
 					'type' => $section,
-					'help' => shorten_subject(isset($item[2]) ? strip_tags($helptxt[$item2]) : (isset($helptxt[$found]) ? strip_tags($helptxt[$found]) : ''), 255),
+					'help' => shorten_subject(isset($item[2]) ? strip_tags($helptxt[$item[2]]) : (isset($helptxt[$found]) ? strip_tags($helptxt[$found]) : ''), 255),
 				);
 			}
 		}
@@ -855,6 +855,7 @@ function AdminSearchMember()
 
 /**
  * This file allows the user to search the SM online manual for a little of help.
+ * @todo wiki search
  */
 function AdminSearchOM()
 {

@@ -2,7 +2,7 @@
 
 /**
  * This file contains functions regarding manipulation of and information about membergroups.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -425,11 +425,11 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 
 /**
  * Add one or more members to a membergroup
- * 
+ *
  * Requires the manage_membergroups permission.
  * Function has protection against adding members to implicit groups.
  * Non-admins are not able to add members to the admin group.
- * 
+ *
  * @param string|array $members
  * @param int $group
  * @param string $type = 'auto' specifies whether the group is added as primary or as additional group.
@@ -592,13 +592,13 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 			array('id_action')
 		);
 
-	call_integration_hook('integrate_add_members_to_group', array($log_inserts));	
+	call_integration_hook('integrate_add_members_to_group', array($log_inserts));
 
 	return true;
 }
 
 /**
- * 
+ *
  * @param array &$members
  * @param int $membergroup
  * @param int $limit = null

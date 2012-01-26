@@ -194,25 +194,20 @@ function error_handler($error_level, $error_string, $file, $line)
 
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
 	{
-		if (function_exists('debug_backtrace'))
+		$array = debug_backtrace();
+		for ($i = 0; $i < count($array); $i++)
 		{
-			$array = debug_backtrace();
-			for ($i = 0; $i < count($array); $i++)
-			{
-				if ($array[$i]['function'] != 'loadSubTemplate')
-					continue;
+			if ($array[$i]['function'] != 'loadSubTemplate')
+				continue;
 
-				// This is a bug in PHP, with eval, it seems!
-				if (empty($array[$i]['args']))
-					$i++;
-				break;
-			}
-
-			if (isset($array[$i]) && !empty($array[$i]['args']))
-				$file = realpath($settings['current_include_filename']) . ' (' . $array[$i]['args'][0] . ' sub template - eval?)';
-			else
-				$file = realpath($settings['current_include_filename']) . ' (eval?)';
+			// This is a bug in PHP, with eval, it seems!
+			if (empty($array[$i]['args']))
+				$i++;
+			break;
 		}
+
+		if (isset($array[$i]) && !empty($array[$i]['args']))
+			$file = realpath($settings['current_include_filename']) . ' (' . $array[$i]['args'][0] . ' sub template - eval?)';
 		else
 			$file = realpath($settings['current_include_filename']) . ' (eval?)';
 	}

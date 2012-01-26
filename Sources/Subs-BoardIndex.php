@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * This file currently only contains one function to collect the data needed to
+ * show a list of boards for the board index and the message index.
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -14,18 +17,17 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-/*	This file currently only contains one function to collect the data needed to
-	show a list of boards for the board index and the message index.
-
-	array getBoardIndex(array boardIndexOptions)
-		- Fetches a list of boards and (optional) categories including
-		  statistical information, child boards and moderators.
-		- Used by both the board index (main data) and the message index (child
-		  boards).
-		- Depending on the include_categories setting returns an associative
-		  array with categories->boards->child_boards or an associative array
-		  with boards->child_boards.
-*/
+/**
+ * Fetches a list of boards and (optional) categories including
+ * statistical information, child boards and moderators.
+ * 	- Used by both the board index (main data) and the message index (child
+ * boards).
+ * 	- Depending on the include_categories setting returns an associative
+ * array with categories->boards->child_boards or an associative array
+ * with boards->child_boards.
+ * @param array $boardIndexOptions
+ * @return array
+ */
 
 function getBoardIndex($boardIndexOptions)
 {

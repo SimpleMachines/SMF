@@ -2179,8 +2179,8 @@ function AnnouncementSelectMembergroup()
 	$context['sub_template'] = 'announce';
 }
 
-// Send the announcement in chunks.
 /**
+ * Send the announcement in chunks.
  * splits the members to be sent a topic announcement into chunks.
  * composes notification messages in all languages needed.
  * does the actual sending of the topic announcements in chunks.
@@ -2193,9 +2193,7 @@ function AnnouncementSend()
 
 	checkSession();
 
-	/**
-	 * @todo Might need an interface?
-	 */
+	// @todo Might need an interface?
 	$chunkSize = empty($modSettings['mail_queue']) ? 50 : 500;
 
 	$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
@@ -2265,6 +2263,7 @@ function AnnouncementSend()
 			redirectexit('board=' . $board . '.0');
 	}
 
+	$announcements = array();
 	// Loop through all members that'll receive an announcement in this batch.
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -2309,14 +2308,12 @@ function AnnouncementSend()
 		loadLanguage('Post');
 }
 
-// Notify members of a new post.
 /**
  * notifies members who have requested notification for new topics
  * * posted on a board of said posts.
  * receives data on the topics to send out notifications to by the passed in array.
  * only sends notifications to those who can *currently* see the topic (it doesn't matter if they could when they requested notification.)
- * loads the Post language file multiple times for each language if the
- * * userLanguage setting is set.
+ * loads the Post language file multiple times for each language if the userLanguage setting is set.
  * @param array &$topicData
  */
 function notifyMembersBoard(&$topicData)

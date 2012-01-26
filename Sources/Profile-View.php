@@ -831,6 +831,7 @@ function tracking($memID)
 
 	$context['tracking_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : 'activity';
 
+	// @todo what is $types? it is never set so this will never be true
 	if (isset($types[$context['tracking_area']][1]))
 		require_once($sourcedir . '/' . $types[$context['tracking_area']][1]);
 

@@ -1018,6 +1018,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
  *
  * @param int $user
  * @param bool $display_custom_fields = false
+ * @return bool
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
@@ -1516,6 +1517,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['header_logo_url_html_safe'] = empty($settings['header_logo_url']) ? '' : $smcFunc['htmlspecialchars']($settings['header_logo_url']);
 	$context['current_action'] = isset($_REQUEST['action']) ? $_REQUEST['action'] : null;
 	$context['current_subaction'] = isset($_REQUEST['sa']) ? $_REQUEST['sa'] : null;
+	$context['can_register'] = empty($modSettings['registration_method']) || $modSettings['registration_method'] != 3;
 	if (isset($modSettings['load_average']))
 		$context['load_average'] = $modSettings['load_average'];
 
@@ -1677,9 +1679,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	{
 		if (isBrowser('possibly_robot'))
 		{
-			/**
-			 * @todo Maybe move this somewhere better?!
-			 */
+			// @todo Maybe move this somewhere better?!
 			require_once($sourcedir . '/ScheduledTasks.php');
 
 			// What to do, what to do?!
@@ -2273,7 +2273,7 @@ function template_include($filename, $once = false)
 			require_once($sourcedir . '/Subs-Package.php');
 
 			$error = fetch_web_data($boardurl . strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')));
-			if (empty($error))
+			if (empty($error) && ini_get('track_errors'))
 				$error = $php_errormsg;
 
 			$error = strtr($error, array('<b>' => '<strong>', '</b>' => '</strong>'));

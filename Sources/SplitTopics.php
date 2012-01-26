@@ -533,6 +533,10 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	// You can't select ALL the messages!
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('selected_all_posts', false);
+
+	$split1_first_msg = null;
+	$split1_last_msg = null;
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Get the right first and last message dependant on approved state...
@@ -1024,6 +1028,7 @@ function MergeExecute($topics = array())
 	$boardTotals = array();
 	$boards = array();
 	$polls = array();
+	$firstTopic = 0;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Make a note for the board counts...
@@ -1214,6 +1219,7 @@ function MergeExecute($topics = array())
 		)
 	);
 	$topic_approved = 1;
+	$first_msg = 0;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If this is approved, or is fully unapproved.

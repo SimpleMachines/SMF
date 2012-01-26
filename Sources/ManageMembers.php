@@ -1237,6 +1237,7 @@ function AdminApprove()
 		}
 	}
 
+	// @todo current_language is never set, no idea what this is for. Remove?
 	// Back to the user's language!
 	if (isset($current_language) && $current_language != $user_info['language'])
 	{

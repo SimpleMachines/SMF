@@ -218,15 +218,8 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	else
 		$sizes = array(-1, -1, -1);
 
-	// Gif? That might mean trouble if gif support is not available.
-	if ($sizes[2] == 1 && !function_exists('imagecreatefromgif') && function_exists('imagecreatefrompng'))
-	{
-		// Download it to the temporary file... use the special gif library... and save as png.
-		if ($img = @gif_loadFile($destination) && gif_outputAsPng($img, $destination))
-			$sizes[2] = 3;
-	}
-
 	// A known and supported format?
+	// @todo test PSD and gif.
 	if (isset($default_formats[$sizes[2]]) && function_exists('imagecreatefrom' . $default_formats[$sizes[2]]))
 	{
 		$imagecreatefrom = 'imagecreatefrom' . $default_formats[$sizes[2]];
@@ -549,25 +542,6 @@ if (!function_exists('imagecreatefrombmp'))
 
 		return $dst_img;
 	}
-}
-
-/**
- * Loads a gif file with the Yamasoft GIF utility class.
- *
- * @param string $lpszFileName
- * @param int $iIndex
- * @return resource, a new GD image.
- */
-function gif_loadFile($lpszFileName, $iIndex = 0)
-{
-	// The classes needed are in this file.
-	loadClassFile('Class-Graphics.php');
-	$gif = new gif_file();
-
-	if (!$gif->loadFile($lpszFileName, $iIndex))
-		return false;
-
-	return $gif;
 }
 
 /**

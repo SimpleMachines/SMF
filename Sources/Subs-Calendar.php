@@ -2,7 +2,7 @@
 
 /**
  * This file contains several functions for retrieving and manipulating calendar events, birthdays and holidays.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -36,7 +36,7 @@ if (!defined('SMF'))
  * @param int $event_id
 */
 
-/** 
+/**
  * Get all birthdays within the given time range.
  * finds all the birthdays in the specified range of days.
  * works with birthdays set for no year, or any other year, and respects month and year boundaries.
@@ -807,7 +807,7 @@ function validateEventPost()
 
 /**
  * Get the event's poster.
- * 
+ *
  * @param int $event_id
  * @return int|bool the id of the poster or false if the event was not found
  */
@@ -838,7 +838,7 @@ function getEventPoster($event_id)
 
 /**
  * Consolidating the various INSERT statements into this function.
- * 
+ *
  * @param array $eventOptions
  */
 function insertEvent(&$eventOptions)
@@ -852,10 +852,12 @@ function insertEvent(&$eventOptions)
 	$eventOptions['span'] = isset($eventOptions['span']) && $eventOptions['span'] > 0 ? (int) $eventOptions['span'] : 0;
 
 	// Make sure the start date is in ISO order.
+	// @todo $year, $month, and $day are not set
 	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
 		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
 
 	// Set the end date (if not yet given)
+	// @todo $year, $month, and $day are not set
 	if (!isset($eventOptions['end_date']))
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
@@ -898,6 +900,7 @@ function modifyEvent($event_id, &$eventOptions)
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
 
 	// Scan the start date for validity and get its components.
+	// @todo $year, $month, and $day are not set
 	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
 		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
 
@@ -906,6 +909,7 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// Set the end date to the start date + span (if the end date wasn't already given).
 	if (!isset($eventOptions['end_date']))
+		// @todo $year, $month, and $day are not set
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
 	$smcFunc['db_query']('', '
@@ -1006,7 +1010,7 @@ function getEventProperties($event_id)
 }
 
 /**
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -1053,7 +1057,7 @@ function list_getNumHolidays()
 }
 
 /**
- * @param array $holiday_ids An array of 
+ * @param array $holiday_ids An array of
  */
 function removeHolidays($holiday_ids)
 {

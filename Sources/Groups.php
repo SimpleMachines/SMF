@@ -18,7 +18,7 @@ if (!defined('SMF'))
 
 /**
  * Entry point function, permission checks, admin bars, etc.
- *  It allows moderators and users to access the group showing functions.
+ * It allows moderators and users to access the group showing functions.
  * It handles permission checks, and puts the moderation bar on as required.
  */
 function Groups()

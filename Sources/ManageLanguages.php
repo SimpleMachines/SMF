@@ -43,6 +43,7 @@ function ManageLanguages()
 		'editlang' => 'ModifyLanguage',
 	);
 
+	$config_vars = array();
 	call_integration_hook('integrate_manage_languages', array(&$config_vars));
 
 	// By default we're managing languages.
