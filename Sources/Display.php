@@ -1188,7 +1188,7 @@ function prepareDisplayContext($reset = false)
 }
 
 /**
- * This downloads an attachment or avatar, and increments the downloads.
+ * Downloads an attachment or avatar, and increments the downloads.
  * It requires the view_attachments permission. (not for avatars!)
  * It disables the session parser, and clears any previous output.
  * It depends on the attachmentUploadDir setting being correct.
@@ -1201,7 +1201,7 @@ function Download()
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || @version_compare(PHP_VERSION, '4.2.3') != -1);
+	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['no_last_modified'] = true;
 
 	// Make sure some attachment was requested!
@@ -1230,6 +1230,9 @@ function Download()
 	{
 		// This checks only the current board for $board/$topic's permissions.
 		isAllowedTo('view_attachments');
+
+
+
 
 		// Make sure this attachment is on this board.
 		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
@@ -1268,15 +1271,8 @@ function Download()
 
 	$filename = getAttachmentFilename($real_filename, $_REQUEST['attach'], $id_folder, false, $file_hash);
 
-	// This is done to clear any output that was made before now. (would use ob_clean(), but that's PHP 4.2.0+...)
-	ob_end_clean();
-	if (!empty($modSettings['enableCompressedOutput']) && @version_compare(PHP_VERSION, '4.2.0') >= 0 && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'pdf', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
-		@ob_start('ob_gzhandler');
-	else
-	{
-		ob_start();
-		header('Content-Encoding: none');
-	}
+	// This is done to clear any output that was made before now.
+	ob_clean();
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($filename))
@@ -1316,7 +1312,7 @@ function Download()
 
 	// Send the attachment headers.
 	header('Pragma: ');
-	if (!$context['browser']['is_gecko'])
+	if (!isBrowser('gecko'))
 		header('Content-Transfer-Encoding: binary');
 	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT');
@@ -1325,7 +1321,7 @@ function Download()
 	header('ETag: ' . $eTag);
 
 	// IE 6 just doesn't play nice. As dirty as this seems, it works.
-	if ($context['browser']['is_ie6'] && isset($_REQUEST['image']))
+	if (isBrowser('ie6') && isset($_REQUEST['image']))
 		unset($_REQUEST['image']);
 
 	// Make sure the mime type warrants an inline display.
@@ -1338,7 +1334,7 @@ function Download()
 
 	else
 	{
-		header('Content-Type: ' . ($context['browser']['is_ie'] || $context['browser']['is_opera'] ? 'application/octetstream' : 'application/octet-stream'));
+		header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
 		if (isset($_REQUEST['image']))
 			unset($_REQUEST['image']);
 	}
@@ -1360,15 +1356,15 @@ function Download()
 	$disposition = !isset($_REQUEST['image']) ? 'attachment' : 'inline';
 
 	// Different browsers like different standards...
-	if ($context['browser']['is_firefox'])
+	if (isBrowser('firefox'))
 		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)));
-	
-	elseif ($context['browser']['is_opera'])
+
+	elseif (isBrowser('opera'))
 		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name) . '"');
 
-	elseif ($context['browser']['is_ie'])
+	elseif (isBrowser('ie'))
 		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)) . '"');
-
+	
 	else
 		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');
 
@@ -1378,8 +1374,7 @@ function Download()
 	else
 		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
 
-	if (empty($modSettings['enableCompressedOutput']) || filesize($filename) > 4194304)
-		header('Content-Length: ' . filesize($filename));
+	header('Content-Length: ' . filesize($filename));
 
 	// Try to buy some time...
 	@set_time_limit(600);
@@ -1423,11 +1418,12 @@ function Download()
 		fclose($fp);
 	}
 	// On some of the less-bright hosts, readfile() is disabled.  It's just a faster, more byte safe, version of what's in the if.
-	elseif (isset($callback) || @readfile($filename) == null)
+	elseif (isset($callback) || @readfile($filename) === null)
 		echo isset($callback) ? $callback(file_get_contents($filename)) : file_get_contents($filename);
 
 	obExit(false);
 }
+
 /**
  * This loads an attachment's contextual data including, most importantly, its size
  *  if it is an image.
