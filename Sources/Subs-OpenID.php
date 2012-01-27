@@ -81,6 +81,7 @@ function smf_openID_validate($openid_uri, $return = false, $save_fields = array(
 
 /**
  * Revalidate a user using OpenID. Note that this function will not return when authentication is required.
+ * @return bool
  */
 function smf_openID_revalidate()
 {
@@ -146,6 +147,7 @@ function smf_openID_getAssociation($server, $handle = null, $no_delete = false)
 /**
  * @todo Enter description here ...
  * @param string $server
+ * @return array
  */
 function smf_openID_makeAssociation($server)
 {
@@ -400,6 +402,7 @@ function smf_openID_canonize($uri)
 /**
  * @todo Enter description here ...
  * @param string $uri
+ * @return array
  */
 function smf_openid_member_exists($url)
 {

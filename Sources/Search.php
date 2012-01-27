@@ -601,7 +601,7 @@ function PlushSearch2()
 	}
 
 	// Change non-word characters into spaces.
-	$stripped_query = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+	$stripped_query = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 
 	// Make the query lower case. It's gonna be case insensitive anyway.
 	$stripped_query = un_htmlspecialchars($smcFunc['strtolower']($stripped_query));

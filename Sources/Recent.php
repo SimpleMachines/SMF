@@ -236,7 +236,7 @@ function RecentPosts()
 		while (!$done)
 		{
 			// Find the 10 most recent messages they can *view*.
-			// @todoSLOW This query is really slow still, probably?
+			// @todo SLOW This query is really slow still, probably?
 			$request = $smcFunc['db_query']('', '
 				SELECT m.id_msg
 				FROM {db_prefix}messages AS m

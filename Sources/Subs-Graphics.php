@@ -584,9 +584,7 @@ function showCodeImage($code)
 {
 	global $settings, $user_info, $modSettings;
 
-	/*
-		Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
-	*/
+	// Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
 
 	// What type are we going to be doing?
 	$imageType = $modSettings['visual_verification_type'];

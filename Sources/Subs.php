@@ -214,6 +214,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 		// Set all membergroups from most posts to least posts.
 		$conditions = '';
+		$lastMin = 0;
 		foreach ($postgroups as $id => $min_posts)
 		{
 			$conditions .= '
@@ -720,9 +721,9 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  */
 function un_htmlspecialchars($string)
 {
-	static $translation = '';
+	static $translation = array();
 
-	if (!isset($translation))
+	if (empty($translation))
 		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' ');
 
 	return strtr($string, $translation);
@@ -1645,7 +1646,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$message = strtr($message, array("\n" => '<br />'));
 
 	// The non-breaking-space looks a bit different each time.
-	$non_breaking_space = $context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0';
+	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
 	// This saves time by doing our break long words checks here.
 	if (!empty($modSettings['fixLongWords']) && $modSettings['fixLongWords'] > 5)
@@ -2446,7 +2447,7 @@ function parsesmileys(&$message)
 		}
 
 		// The non-breaking-space is a complex thing...
-		$non_breaking_space = $context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0';
+		$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
 		// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
 		$smileyPregReplacements = array();
@@ -2489,16 +2490,7 @@ function highlight_php_code($code)
 
 	$oldlevel = error_reporting(0);
 
-	// It's easier in 4.2.x+.
-	if (version_compare(PHP_VERSION, '4.2.0', '<'))
-	{
-		ob_start();
-		@highlight_string($code);
-		$buffer = str_replace(array("\n", "\r"), '', ob_get_contents());
-		ob_end_clean();
-	}
-	else
-		$buffer = str_replace(array("\n", "\r"), '', @highlight_string($code, true));
+	$buffer = str_replace(array("\n", "\r"), '', @highlight_string($code, true));
 
 	error_reporting($oldlevel);
 
@@ -3201,10 +3193,6 @@ function host_from_ip($ip)
 		return $host;
 	$t = microtime();
 
-	// If we can't access nslookup/host, PHP 4.1.x might just crash.
-	if (version_compare(PHP_VERSION, '4.2.0', '<'))
-		$host = false;
-
 	// Try the Linux host command, perhaps?
 	if (!isset($host) && (strpos(strtolower(PHP_OS), 'win') === false || strpos(strtolower(PHP_OS), 'darwin') !== false) && mt_rand(0, 1) == 1)
 	{
@@ -3256,7 +3244,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 	global $smcFunc, $context;
 
 	// Step 1: Remove entities/things we don't consider words:
-	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br />' => ' ')));
+	$words = preg_replace('~(?:[\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . ($context['utf8'] ? 'u' : ''), ' ', strtr($text, array('<br />' => ' ')));
 
 	// Step 2: Entities we left to letters, where applicable, lowercase.
 	$words = un_htmlspecialchars($smcFunc['strtolower']($words));

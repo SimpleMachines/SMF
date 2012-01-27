@@ -230,7 +230,7 @@ function GroupList()
  */
 function list_getGroups($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl, $user_info, $settings;
+	global $smcFunc, $txt, $scripturl, $user_info, $settings, $context;
 
 	// Yep, find the groups...
 	$request = $smcFunc['db_query']('', '

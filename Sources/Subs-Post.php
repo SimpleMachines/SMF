@@ -85,7 +85,7 @@ function preparsecode(&$message, $previewing = false)
 	$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 	// The regular expression non breaking space has many versions.
-	$non_breaking_space = $context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0';
+	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
 
 	// Only mess with stuff outside [code] tags.
 	for ($i = 0, $n = count($parts); $i < $n; $i++)
@@ -1220,7 +1220,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 				return "";');
 
 		// Convert all 'special' characters to HTML entities.
-		return array($charset, preg_replace('~([\x80-' . ($context['server']['complex_preg_chars'] ? '\x{10FFFF}' : "\xF7\xBF\xBF\xBF") . '])~eu', '$entityConvert(\'\1\')', $string), '7bit');
+		return array($charset, preg_replace('~([\x80-' . '\x{10FFFF}' . '])~eu', '$entityConvert(\'\1\')', $string), '7bit');
 	}
 
 	// We don't need to mess with the subject line if no special characters were in it..

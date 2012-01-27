@@ -63,14 +63,14 @@ function reloadSettings()
 	}
 
 	// UTF-8 in regular expressions is unsupported on PHP(win) versions < 4.2.3.
-	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || version_compare(PHP_VERSION, '4.2.3', '>='));
+	$utf8 = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
 
 	// Set a list of common functions.
 	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? array('preg_replace(\'~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e\', \'$smcFunc[\\\'entity_fix\\\'](\\\'\\2\\\')\', ', ')') : array('', '');
 
 	// Preg_replace can handle complex characters only for higher PHP versions.
-	$space_chars = $utf8 ? (version_compare(PHP_VERSION, '4.3.3', '>=') ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
+	$space_chars = $utf8 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
 
 	/**
 	 * @global array An array of anonymous helper functions.
@@ -765,7 +765,7 @@ function loadPermissions()
 
 			return;
 		}
-		elseif (($temp = cache_get_data('permissions:' . $cache_groups, 240)) != null && time() - 240 > $modSettings['settings_updated'])
+		elseif (($temp = cache_get_data('permissions:' . $cache_groups, 240)) !== null && time() - 240 > $modSettings['settings_updated'])
 			list ($user_info['permissions'], $removals) = $temp;
 	}
 
@@ -1217,6 +1217,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		}
 	}
 
+	call_integration_hook('integrate_member_context', array(&$user, $display_custom_fields));
 	return true;
 }
 
@@ -1332,7 +1333,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$themeData = $temp;
 		$flag = true;
 	}
-	elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) != null && time() - 60 > $modSettings['settings_updated'])
+	elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) !== null && time() - 60 > $modSettings['settings_updated'])
 		$themeData = $temp + array($member => array());
 	else
 		$themeData = array(-1 => array(), 0 => array(), $member => array());
@@ -1408,7 +1409,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
 	{
-		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https://' : 'http://';
+		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on' ? 'https://' : 'http://';
 		$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 		$temp = preg_replace('~/' . basename($scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
 		if ($temp != '/')
@@ -1535,7 +1536,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'is_cgi' => isset($_SERVER['SERVER_SOFTWARE']) && strpos(php_sapi_name(), 'cgi') !== false,
 		'is_windows' => strpos(PHP_OS, 'WIN') === 0,
 		'iso_case_folding' => ord(strtolower(chr(138))) === 154,
-		'complex_preg_chars' => @version_compare(PHP_VERSION, '4.3.3') != -1,
+		'complex_preg_chars' => version_compare(PHP_VERSION, '4.3.3') != -1,
 	);
 	// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	$context['server']['needs_login_fix'] = $context['server']['is_cgi'] && $context['server']['is_iis'];
@@ -1663,14 +1664,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Set the character set from the template.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8' && (strpos(strtolower(PHP_OS), 'win') === false || version_compare(PHP_VERSION, '4.2.3', '>='));
+	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['right_to_left'] = !empty($txt['lang_rtl']);
 
 	$context['tabindex'] = 1;
 
 	// Fix font size with HTML 4.01, etc.
 	if (isset($settings['doctype']))
-		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && isBrowser('ie6');
+		$context['browser']['needs_size_fix'] |= $settings['doctype'] === 'html' && isBrowser('ie6');
 
 	// Compatibility.
 	if (!isset($settings['theme_version']))
@@ -1806,14 +1807,14 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 			loadLanguage('Errors');
 			echo '
 <div class="alert errorbox">
-	<a href="', $scripturl . '?action=admin;area=theme;sa=settings;th=1;' . $context['session_var'] . '=' . $context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
+	<a href="', $scripturl, '?action=admin;area=theme;sa=settings;th=1;', $context['session_var'], '=' . $context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
 </div>';
 		}
 
 		loadTemplate($template_name);
 	}
 	// Cause an error otherwise.
-	elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal)
+	elseif ($template_name !== 'Errors' && $template_name !== 'index' && $fatal)
 		fatal_lang_error('theme_template_error', 'template', array((string) $template_name));
 	elseif ($fatal)
 		die(log_error(sprintf(isset($txt['theme_template_error']) ? $txt['theme_template_error'] : 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
@@ -1825,10 +1826,9 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 /**
  * Load a sub-template.
  * What it does:
- * 	- loads the sub template specified by sub_template_name, which must be in an already-loaded
- *  template.
+ * 	- loads the sub template specified by sub_template_name, which must be in an already-loaded template.
  *  - if ?debug is in the query string, shows administrators a marker after every sub template
- *   for debugging purposes.
+ *    for debugging purposes.
  *
  * @todo get rid of reading $_REQUEST directly
  *
@@ -1875,7 +1875,7 @@ function loadCSSFile($filename, $options = array())
 }
 
 /**
- * Add a CSS file for output later
+ * Add a Javascript file for output later
  * @param string $filename
  * @param array $options
  */
@@ -1883,7 +1883,7 @@ function loadJavascriptFile($filename, $options = array())
 {
 	global $settings, $context;
 
-	if (strpos($filename, 'http://') === false || !empty($options['local']))
+	if (strpos($filename, 'http') === false || !empty($options['local']))
 		$filename = $settings['theme_url'] . '/' . $filename;
 
 	$context['javascript_files'][$filename] = $options;
@@ -2023,7 +2023,7 @@ function getBoardParents($id_parent)
 				)
 			);
 			// In the EXTREMELY unlikely event this happens, give an error message.
-			if ($smcFunc['db_num_rows']($result) == 0)
+			if ($smcFunc['db_num_rows']($result) === 0)
 				fatal_lang_error('parent_not_found', 'critical');
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
@@ -2411,7 +2411,7 @@ function loadDatabase()
 		display_db_error();
 
 	// If in SSI mode fix up the prefix.
-	if (SMF == 'SSI')
+	if (SMF === 'SSI')
 		db_fix_prefix($db_prefix, $db_name);
 }
 

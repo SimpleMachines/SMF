@@ -832,7 +832,7 @@ function RegisterCheckUsername()
 	$context['valid_username'] = true;
 
 	// Clean it up like mother would.
-	$context['checked_username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $context['checked_username']);
+	$context['checked_username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $context['checked_username']);
 	if ($smcFunc['strlen']($context['checked_username']) > 25)
 		$context['checked_username'] = $smcFunc['htmltrim']($smcFunc['substr']($context['checked_username'], 0, 25));
 

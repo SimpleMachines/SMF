@@ -50,7 +50,7 @@ function PostModerationMain()
  */
 function UnapprovedPosts()
 {
-	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc;
+	global $txt, $scripturl, $context, $user_info, $smcFunc;
 
 	$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
 	$context['page_title'] = $txt['mc_unapproved_posts'];
@@ -59,9 +59,7 @@ function UnapprovedPosts()
 	$approve_boards = boardsAllowedTo('approve_posts');
 
 	// If we filtered by board remove ones outside of this board.
-	/**
-	 * @todo Put a message saying we're filtered?
-	 */
+	// @todo Put a message saying we're filtered?
 	if (isset($_REQUEST['brd']))
 	{
 		$filter_board = array((int) $_REQUEST['brd']);

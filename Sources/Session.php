@@ -60,7 +60,7 @@ function loadSession()
 		}
 
 		// Use database sessions? (they don't work in 4.1.x!)
-		if (!empty($modSettings['databaseSession_enable']) && version_compare(PHP_VERSION, '4.2.0', '>='))
+		if (!empty($modSettings['databaseSession_enable']))
 		{
 			session_set_save_handler('sessionOpen', 'sessionClose', 'sessionRead', 'sessionWrite', 'sessionDestroy', 'sessionGC');
 			@ini_set('session.gc_probability', '1');
@@ -71,6 +71,8 @@ function loadSession()
 		// Use cache setting sessions?
 		if (empty($modSettings['databaseSession_enable']) && !empty($modSettings['cache_enable']) && php_sapi_name() != 'cli')
 		{
+			call_integration_hook('integrate_session_handlers');
+			// @todo move these to a plugin.
 			if (function_exists('mmcache_set_session_handlers'))
 				mmcache_set_session_handlers();
 			elseif (function_exists('eaccelerator_set_session_handlers'))
@@ -83,10 +85,6 @@ function loadSession()
 		if (!empty($modSettings['databaseSession_loose']))
 			header('Cache-Control: private');
 	}
-
-	// While PHP 4.1.x should use $_SESSION, it seems to need this to do it right.
-	if (version_compare(PHP_VERSION, '4.2.0', '<'))
-		$HTTP_SESSION_VARS['php_412_bugfix'] = true;
 
 	// Set the randomly generated code.
 	if (!isset($_SESSION['session_var']))

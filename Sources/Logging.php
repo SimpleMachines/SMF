@@ -270,13 +270,7 @@ function displayDebug()
 
 	// Gotta have valid HTML ;).
 	$temp = ob_get_contents();
-	if (function_exists('ob_clean'))
-		ob_clean();
-	else
-	{
-		ob_end_clean();
-		ob_start('ob_sessrewrite');
-	}
+	ob_clean();
 
 	echo preg_replace('~</body>\s*</html>~', '', $temp), '
 <div class="smalltext" style="text-align: left; margin: 1ex;">

@@ -144,7 +144,7 @@ function Display()
 	}
 
 	// @todo Why isn't this cached?
-	// @todo if we get id_board in this query, we can save a query on posting
+	// @todo if we get id_board in this query and cache it, we can save a query on posting
 	// Get all the important topic info.
 	$request = $smcFunc['db_query']('', '
 		SELECT
@@ -213,7 +213,7 @@ function Display()
 	list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$context['oldTopicError'] = !empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky);
+	$context['oldTopicError'] = !empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($topicinfo['is_sticky']);
 
 	// The start isn't a number; it's information about what to do, where to go.
 	if (!is_numeric($_REQUEST['start']))

@@ -99,15 +99,6 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		session_regenerate_id();
 		$_SESSION = $oldSessionData;
 
-		// Version 4.3.2 didn't store the cookie of the new session.
-		if (version_compare(PHP_VERSION, '4.3.2', '=='))
-		{
-			// Do not check $_COOKIE here, PHP only updates it at the next page load,
-			// therefore here it will always be unset for the session just created.
-			$sessionCookieLifetime = ini_get('session.cookie_lifetime');
-			smf_setcookie(session_name(), session_id(), time() + (empty($sessionCookieLifetime) ? $cookie_length : $sessionCookieLifetime), $cookie_url[1], $cookie_url[0]);
-		}
-
 		$_SESSION['login_' . $cookiename] = $data;
 	}
 }

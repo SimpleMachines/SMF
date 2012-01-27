@@ -470,7 +470,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		$reg_errors[] = array('lang', 'need_username');
 
 	// Spaces and other odd characters are evil...
-	$regOptions['username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}' : "\xC2\xA0") : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']);
+	$regOptions['username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']);
 
 	// Don't use too long a name.
 	if ($smcFunc['strlen']($regOptions['username']) > 25)
