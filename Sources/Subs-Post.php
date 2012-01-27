@@ -694,6 +694,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
  * @param bool $send_html = false
  * @param int $priority = 3
  * @param $is_private
+ * @return bool
  */
 function AddMailQueue($flush = false, $to_array = array(), $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
 {
@@ -1149,7 +1150,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
  *  characters are converted to HTML entities to assure proper display of the mail
  * @param $line_break
  * @param string $custom_charset = null, if set, it uses this character set
- * @return an array containing the character set, the converted string and the transport method.
+ * @return array an array containing the character set, the converted string and the transport method.
  */
 function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
 {
@@ -1220,7 +1221,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 				return "";');
 
 		// Convert all 'special' characters to HTML entities.
-		return array($charset, preg_replace('~([\x80-' . '\x{10FFFF}' . '])~eu', '$entityConvert(\'\1\')', $string), '7bit');
+		return array($charset, preg_replace('~([\x80-\x{10FFFF}])~eu', '$entityConvert(\'\1\')', $string), '7bit');
 	}
 
 	// We don't need to mess with the subject line if no special characters were in it..
@@ -1264,11 +1265,11 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	$modSettings['smtp_host'] = trim($modSettings['smtp_host']);
 
 	// Try POP3 before SMTP?
-	// !!! There's no interface for this yet.
+	// @todo There's no interface for this yet.
 	if ($modSettings['mail_type'] == 2 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		$socket = fsockopen($modSettings['smtp_host'], 110, $errno, $errstr, 2);
-		if (!$socket && (substr($modSettings['smtp_host'], 0, 5) == 'smtp.' || substr($modSettings['smtp_host'], 0, 11) == 'ssl://smtp.'))
+		if (!$socket && (strpos($modSettings['smtp_host'], 'smtp.') === 0 || strpos($modSettings['smtp_host'], 'ssl://smtp.') === 0))
 			$socket = fsockopen(strtr($modSettings['smtp_host'], array('smtp.' => 'pop.')), 110, $errno, $errstr, 2);
 
 		if ($socket)
@@ -1288,7 +1289,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if (!$socket = fsockopen($modSettings['smtp_host'], empty($modSettings['smtp_port']) ? 25 : $modSettings['smtp_port'], $errno, $errstr, 3))
 	{
 		// Maybe we can still save this?  The port might be wrong.
-		if (substr($modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
+		if (strpos($modSettings['smtp_host'], 'ssl:') === 0 && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
 		{
 			if ($socket = fsockopen($modSettings['smtp_host'], 465, $errno, $errstr, 3))
 				log_error($txt['smtp_port_ssl']);
@@ -1308,7 +1309,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 
 	if ($modSettings['mail_type'] == 1 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
-		// !!! These should send the CURRENT server's name, not the mail server's!
+		// @todo These should send the CURRENT server's name, not the mail server's!
 
 		// EHLO could be understood to mean encrypted hello...
 		if (server_parse('EHLO ' . $modSettings['smtp_host'], $socket, null) == '250')
@@ -1395,10 +1396,10 @@ function server_parse($message, $socket, $response)
 	// No response yet.
 	$server_response = '';
 
-	while (substr($server_response, 3, 1) != ' ')
+	while (strpos($server_response, ' ') !== 3)
 		if (!($server_response = fgets($socket, 256)))
 		{
-			// !!! Change this message to reflect that it may mean bad user/password/server issues/etc.
+			// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
 			log_error($txt['smtp_bad_response']);
 			return false;
 		}
