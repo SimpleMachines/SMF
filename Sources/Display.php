@@ -1231,9 +1231,6 @@ function Download()
 		// This checks only the current board for $board/$topic's permissions.
 		isAllowedTo('view_attachments');
 
-
-
-
 		// Make sure this attachment is on this board.
 		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
 		$request = $smcFunc['db_query']('', '

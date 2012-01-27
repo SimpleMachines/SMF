@@ -2074,7 +2074,7 @@ function createAttachment(&$attachmentOptions)
 		$attachmentOptions['approved'] = 1;
 
 	$already_uploaded = preg_match('~^post_tmp_' . $attachmentOptions['poster'] . '_\d+$~', $attachmentOptions['tmp_name']) != 0;
-	$file_restricted = @ini_get('open_basedir') != '' && !$already_uploaded;
+	$file_restricted = ini_get('open_basedir') != '' && !$already_uploaded;
 
 	if ($already_uploaded)
 		$attachmentOptions['tmp_name'] = $attach_dir . '/' . $attachmentOptions['tmp_name'];
@@ -2305,8 +2305,8 @@ function createAttachment(&$attachmentOptions)
 			if (!(empty($size)) && ($size[2] != $old_format))
 			{
 				// Let's update the image information
-				// !!! This is becoming a mess: we keep coming back and update the database,
-				//  instead of getting it right the first time.
+				// @todo This is becoming a mess: we keep coming back and update the database,
+				// instead of getting it right the first time.
 				if (isset($validImageTypes[$size[2]]))
 				{
 					$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];

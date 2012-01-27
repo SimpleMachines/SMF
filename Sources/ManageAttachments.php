@@ -834,6 +834,7 @@ function RemoveAllAttachments()
  * It allows query_types 'messages' and 'members', whichever is need by the
  * $condition parameter.
  * It does no permissions check.
+ * @internal
  *
  * @param array $condition
  * @param string $query_type
@@ -844,7 +845,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 {
 	global $modSettings, $smcFunc;
 
-	//!!! This might need more work!
+	// @todo This might need more work!
 	$new_condition = array();
 	$query_parameter = array(
 		'thumb_attachment_type' => 3,
@@ -855,7 +856,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		foreach ($condition as $real_type => $restriction)
 		{
 			// Doing a NOT?
-			$is_not = substr($real_type, 0, 4) == 'not_';
+			$is_not = strpos($real_type, 'not_') === 0;
 			$type = $is_not ? substr($real_type, 4) : $real_type;
 
 			if (in_array($type, array('id_member', 'id_attach', 'id_msg')))
@@ -899,7 +900,12 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 	{
 		// Figure out the "encrypted" filename and unlink it ;).
 		if ($row['attachment_type'] == 1)
+		{
+			// if attachment_type = 1, it's... an avatar in a custom avatar directory.
+			// wasn't it obvious? :P
+			// @todo look again at this.
 			@unlink($modSettings['custom_avatar_dir'] . '/' . $row['filename']);
+		}
 		else
 		{
 			$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
@@ -946,6 +952,8 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 				'attachment_list' => $attach,
 			)
 		);
+
+	call_integration_hook('integrate_remove_attachments', array($attach));
 
 	if ($return_affected_messages)
 		return array_unique($msgs);

@@ -1619,7 +1619,7 @@ function pmprefs($memID)
 }
 
 /**
- * Recursive function to retrieve avatar files
+ * Recursive function to retrieve server-stored avatar files
  *
  * @param string $directory
  * @param int $level
