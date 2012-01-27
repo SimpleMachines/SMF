@@ -760,7 +760,7 @@ function loadSearchAPIs()
 	{
 		while (($file = readdir($dh)) !== false)
 		{
-			if (is_file($sourcedir . '/' . $file) && preg_match('~SearchAPI-([A-Za-z\d_]+)\.php~', $file, $matches))
+			if (is_file($sourcedir . '/' . $file) && preg_match('~^SearchAPI-([A-Za-z\d_]+)\.php$~', $file, $matches))
 			{
 				// Check this is definitely a valid API!
 				$fp = fopen($sourcedir . '/' . $file, 'rb');

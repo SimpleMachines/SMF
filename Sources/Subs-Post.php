@@ -2422,7 +2422,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 					'id_msg' => $msgOptions['id'],
 				)
 			);
-			list ($old_body) = $smcFunc['db_fetch_row']($request);
+			list ($msgOptions['old_body']) = $smcFunc['db_fetch_row']($request);
 			$smcFunc['db_free_result']($request);
 		}
 	}
@@ -2898,6 +2898,8 @@ function sendApprovalNotifications(&$topicData)
 		)
 	);
 	$sent = 0;
+
+	$current_language = $user_info['language'];
 	while ($row = $smcFunc['db_fetch_assoc']($members))
 	{
 		if ($row['id_group'] != 1)
@@ -3177,6 +3179,8 @@ function adminNotify($type, $memberID, $member_name = null)
 			'group_array_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
 		)
 	);
+
+	$current_language = $user_info['language'];
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$replacements = array(

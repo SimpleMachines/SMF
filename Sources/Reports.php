@@ -596,6 +596,7 @@ function GroupPermissionsReport()
 		)
 	);
 	$lastPermission = null;
+	$curData = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If this is a new permission flush the last row.

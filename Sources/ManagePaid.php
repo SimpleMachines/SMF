@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManagePaidSubscriptions()
 {
-	global $context, $txt, $scripturl, $sourcedir, $smcFunc, $modSettings;
+	global $context, $txt, $scripturl, $smcFunc, $modSettings;
 
 	// Load the required language and template.
 	loadLanguage('ManagePaid');
@@ -79,7 +79,7 @@ function ManagePaidSubscriptions()
  */
 function ModifySubscriptionSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl;
+	global $context, $txt, $modSettings, $smcFunc, $scripturl;
 
 	// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
 	$modSettings['paid_currency'] = !empty($modSettings['paid_currency_code']) ? $modSettings['paid_currency_code'] : '';
@@ -113,9 +113,6 @@ function ModifySubscriptionSettings($return_config = false)
 	// Just searching?
 	if ($return_config)
 		return $config_vars;
-
-	// Get the settings template fired up.
-	require_once($sourcedir . '/ManageServer.php');
 
 	// Some important context stuff
 	$context['page_title'] = $txt['settings'];
@@ -190,7 +187,7 @@ function ModifySubscriptionSettings($return_config = false)
  */
 function ViewSubscriptions()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir, $scripturl;
+	global $context, $txt, $modSettings, $smcFunc, $scripturl;
 
 	// Not made the settings yet?
 	if (empty($modSettings['paid_currency_symbol']))
@@ -320,7 +317,7 @@ function ViewSubscriptions()
 		),
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	loadFile('Subs-List.php');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
@@ -594,7 +591,7 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc, $sourcedir;
+	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc;
 
 	// Setup the template.
 	$context['page_title'] = $txt['viewing_users_subscribed'];
@@ -780,7 +777,7 @@ function ViewSubscribedUsers()
 		),
 	);
 
-	require_once($sourcedir . '/Subs-List.php');
+	loadFile('Subs-List.php');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
@@ -1782,7 +1779,7 @@ function loadPaymentGateways()
 	{
 		while (($file = readdir($dh)) !== false)
 		{
-			if (is_file($sourcedir .'/'. $file) && preg_match('~Subscriptions-([A-Za-z\d]+)\.php~', $file, $matches))
+			if (is_file($sourcedir .'/'. $file) && preg_match('~^Subscriptions-([A-Za-z\d]+)\.php$~', $file, $matches))
 			{
 				// Check this is definitely a valid gateway!
 				$fp = fopen($sourcedir . '/' . $file, 'rb');
@@ -1809,5 +1806,3 @@ function loadPaymentGateways()
 
 	return $gateways;
 }
-
-?>

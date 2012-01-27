@@ -211,9 +211,9 @@ class custom_search
 		return $ignoreRequest;
 	}
 
-	/*
+	/**
 	 * After a post is made, we update the database.
-	*/
+	 */
 	public function postCreated($msgOptions, $topicOptions, $posterOptions)
 	{
 		global $modSettings, $smcFunc;
@@ -233,9 +233,9 @@ class custom_search
 			);
 	}
 
-	/*
+	/**
 	 * After a post is modified, we update the database.
-	*/
+	 */
 	public function postModified($msgOptions, $topicOptions, $posterOptions)
 	{
 		global $modSettings, $smcFunc;
@@ -243,7 +243,7 @@ class custom_search
 		$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
 
 		$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
-		$old_index = text2words($old_body, $customIndexSettings['bytes_per_word'], true);
+		$old_index = text2words($msgOptions['old_body'], $customIndexSettings['bytes_per_word'], true);
 		$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
 
 		// Calculate the words to be added and removed from the index.

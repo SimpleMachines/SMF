@@ -637,7 +637,7 @@ function MessageIndex()
  */
 function QuickModeration()
 {
-	global $sourcedir, $board, $user_info, $modSettings, $sourcedir, $smcFunc, $context;
+	global $sourcedir, $board, $user_info, $modSettings, $smcFunc, $context;
 
 	// Check the session = get or post.
 	checkSession('request');
@@ -779,7 +779,8 @@ function QuickModeration()
 					unset($_REQUEST['actions'][$row['id_topic']]);
 				elseif ($_REQUEST['actions'][$row['id_topic']] == 'remove' && !in_array(0, $boards_can['remove_any']) && !in_array($row['id_board'], $boards_can['remove_any']) && ($row['id_member_started'] != $user_info['id'] || (!in_array(0, $boards_can['remove_own']) && !in_array($row['id_board'], $boards_can['remove_own']))))
 					unset($_REQUEST['actions'][$row['id_topic']]);
-				elseif ($_REQUEST['actions'][$row['id_topic']] == 'lock' && !in_array(0, $boards_can['lock_any']) && !in_array($row['id_board'], $boards_can['lock_any']) && ($row['id_member_started'] != $user_info['id'] || $locked == 1 || (!in_array(0, $boards_can['lock_own']) && !in_array($row['id_board'], $boards_can['lock_own']))))
+				// @todo $locked is not set, what are you trying to do? (taking the change it is supposed to be $row['locked'])
+				elseif ($_REQUEST['actions'][$row['id_topic']] == 'lock' && !in_array(0, $boards_can['lock_any']) && !in_array($row['id_board'], $boards_can['lock_any']) && ($row['id_member_started'] != $user_info['id'] || $row['locked'] == 1 || (!in_array(0, $boards_can['lock_own']) && !in_array($row['id_board'], $boards_can['lock_own']))))
 					unset($_REQUEST['actions'][$row['id_topic']]);
 				// If the topic is approved then you need permission to approve the posts within.
 				elseif ($_REQUEST['actions'][$row['id_topic']] == 'approve' && (!$row['unapproved_posts'] || (!in_array(0, $boards_can['approve_posts']) && !in_array($row['id_board'], $boards_can['approve_posts']))))

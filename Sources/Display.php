@@ -143,6 +143,8 @@ function Display()
 		$_SESSION['last_read_topic'] = $topic;
 	}
 
+	// @todo Why isn't this cached?
+	// @todo if we get id_board in this query, we can save a query on posting
 	// Get all the important topic info.
 	$request = $smcFunc['db_query']('', '
 		SELECT

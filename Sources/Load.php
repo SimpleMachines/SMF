@@ -462,6 +462,8 @@ function loadUserSettings()
 	// Ok I guess they don't want to see all the boards
 	else
 		$user_info['query_wanna_see_board'] = '(' . $user_info['query_see_board'] . ' AND b.id_board NOT IN (' . implode(',', $user_info['ignoreboards']) . '))';
+
+	call_integration_hook('integrate_user_info');
 }
 
 /**

@@ -1583,7 +1583,7 @@ function createSalvageArea()
 		list ($salvageCatID) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
-	if (empty($salveageCatID))
+	if (empty($salvageCatID))
 	{
 		$smcFunc['db_insert']('',
 			'{db_prefix}categories',

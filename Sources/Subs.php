@@ -633,7 +633,7 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false)
 {
 	global $context, $user_info, $txt, $modSettings, $smcFunc;
-	static $non_twelve_hour;
+	static $non_twelve_hour = null;
 
 	// Offset the time.
 	if (!$offset_type)
@@ -720,7 +720,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  */
 function un_htmlspecialchars($string)
 {
-	static $translation;
+	static $translation = '';
 
 	if (!isset($translation))
 		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' ');
@@ -826,7 +826,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 {
 	global $txt, $scripturl, $context, $modSettings, $user_info, $smcFunc;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
-	static $disabled;
+	static $disabled = array();
 
 	// Don't waste cycles
 	if ($message === '')
