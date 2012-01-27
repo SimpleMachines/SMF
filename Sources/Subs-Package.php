@@ -1,11 +1,11 @@
 <?php
 
 /**
- * This file's central purpose of existence is that of making the package 
+ * This file's central purpose of existence is that of making the package
  * manager work nicely.  It contains functions for handling tar.gz and zip
  * files, as well as a simple xml parser to handle the xml package stuff.
  * Not to mention a few functions to make file handling easier.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -60,10 +60,10 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
  * requires zlib support be built into PHP.
  * returns an array of the files extracted.
  * if files_to_extract is not equal to null only extracts file within this array.
- * @param string data, 
- * @param string destination, 
- * @param bool single_file = false, 
- * @param bool overwrite = false, 
+ * @param string data,
+ * @param string destination,
+ * @param bool single_file = false,
+ * @param bool overwrite = false,
  * @param array files_to_extract = null
  * @return array
  */
@@ -225,47 +225,52 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 	if ($destination !== null && !file_exists($destination) && !$single_file)
 		mktree($destination, 0777);
 
-	// Look for the PK header...
-	if (strpos($data, 'PK') !== 0)
+	// Look for the end of directory signature 0x06054b50
+	$data_ecr = explode("\x50\x4b\x05\x06", $data);
+	if (!isset($data_ecr[1]))
 		return false;
 
-	// Find the central whosamawhatsit at the end; if there's a comment it's a pain.
-	if (substr($data, -22, 4) == 'PK' . chr(5) . chr(6))
-		$p = -22;
-	else
-	{
-		// Have to find where the comment begins, ugh.
-		for ($p = -22; $p > -strlen($data); $p--)
-		{
-			if (substr($data, $p, 4) == 'PK' . chr(5) . chr(6))
-				break;
-		}
-	}
 
 	$return = array();
 
-	// Get the basic zip file info.
-	$zip_info = unpack('vfiles/Vsize/Voffset', substr($data, $p + 10, 10));
+	// Get all the basic zip file info since we are here
+	$zip_info = unpack('vdisks/vrecords/vfiles/Vsize/Voffset/vcomment_length/', $data_ecr[1]);
 
-	$p = $zip_info['offset'];
-	for ($i = 0; $i < $zip_info['files']; $i++)
+	// Cut file at the central directory file header signature -- 0x02014b50, use unpack if you want any of the data, we don't
+	$file_sections = explode("\x50\x4b\x01\x02", $data);
+
+	// Cut the result on each local file header -- 0x04034b50 so we have each file in the archive as an element.
+	$file_sections = explode("\x50\x4b\x03\x04", $file_sections[0]);
+	array_shift($file_sections);
+
+	// sections and count from the signature must match or the zip file is bad
+	if (count($file_sections) != $zip_info['files'])
+		return false;
+
+	// go though each file in the archive
+	foreach ($file_sections as $data)
 	{
-		// Make sure this is a file entry...
-		if (substr($data, $p, 4) != 'PK' . chr(1) . chr(2))
-			return false;
-
 		// Get all the important file information.
-		$file_info = unpack('Vcrc/Vcompressed_size/Vsize/vfilename_len/vextra_len/vcomment_len/vdisk/vinternal/Vexternal/Voffset', substr($data, $p + 16, 30));
-		$file_info['filename'] = substr($data, $p + 46, $file_info['filename_len']);
+		$file_info = unpack("vversion/vgeneral_purpose/vcompress_method/vfile_time/vfile_date/Vcrc/Vcompressed_size/Vsize/vfilename_length/vextrafield_length", $data);
+		$file_info['filename'] = substr($data, 26, $file_info['filename_length']);
+		$file_info['dir'] = $destination . '/' . dirname($file_info['filename']);
 
-		// Skip all the information we don't care about anyway.
-		$p += 46 + $file_info['filename_len'] + $file_info['extra_len'] + $file_info['comment_len'];
+		// If bit 3 (0x08) of the general-purpose flag is set, then the CRC and file size were not available when the header was written
+		// In this case the CRC and size are instead appended in a 12-byte structure immediately after the compressed data
+		if ($file_info['general_purpose'] & 0x0008)
+		{
+			$unzipped2 = unpack("Vcrc/Vcompressed_size/Vsize", substr($$data, -12));
+			$unzipped['crc'] = $unzipped2['crc'];
+			$unzipped['compressed_size'] = $unzipped2['compressed_size'];
+			$unzipped['size'] = $unzipped2['size'];
+			unset($unzipped2);
+		}
 
 		// If this is a file, and it doesn't exist.... happy days!
-		if (substr($file_info['filename'], -1, 1) != '/' && !file_exists($destination . '/' . $file_info['filename']))
+		if (substr($file_info['filename'], -1) != '/' && !file_exists($destination . '/' . $file_info['filename']))
 			$write_this = true;
 		// If the file exists, we may not want to overwrite it.
-		elseif (substr($file_info['filename'], -1, 1) != '/')
+		elseif (substr($file_info['filename'], -1) != '/')
 			$write_this = $overwrite;
 		// This is a directory, so we're gonna want to create it. (probably...)
 		elseif ($destination !== null && !$single_file)
@@ -280,22 +285,19 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		else
 			$write_this = false;
 
-		// Check that the data is there and does exist.
-		if (substr($data, $file_info['offset'], 4) != 'PK' . chr(3) . chr(4))
-			return false;
 
 		// Get the actual compressed data.
-		$file_info['data'] = substr($data, $file_info['offset'] + 30 + $file_info['filename_len'], $file_info['compressed_size']);
+		$file_info['data'] = substr($data, 26 + $file_info['filename_length'] + $file_info['extrafield_length']);
 
-		// Only inflate it if we need to ;).
+		// Only inflate it if we need to ;)
 		if ($file_info['compressed_size'] != $file_info['size'])
-			$file_info['data'] = @gzinflate($file_info['data']);
+			$file_info['data'] = gzinflate($file_info['data']);
 
 		// Okay!  We can write this file, looks good from here...
 		if ($write_this && $destination !== null)
 		{
-			if (strpos($file_info['filename'], '/') !== false && !$single_file)
-				mktree($destination . '/' . dirname($file_info['filename']), 0777);
+			if ((strpos($file_info['filename'], '/') !== false && !$single_file) || (!is_dir($file_info['dir'])))
+				mktree($file_info['dir'], 0777);
 
 			// If we're looking for a specific file, and this is it... ka-bam, baby.
 			if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename'])))
@@ -1366,7 +1368,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
  * supports comma separated version numbers, with or without whitespace.
  * supports lower and upper bounds. (1.0-1.2)
  * returns true if the version matched.
- * @param string $version 
+ * @param string $version
  * @param string $versions
  * @return bool
  */
@@ -2898,7 +2900,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		// I want this, from there, and I'm not going to be bothering you for more (probably.)
 		if (empty($post_data))
 		{
-			fwrite($fp, 'GET ' . $match[6] . ' HTTP/1.0' . "\r\n");
+			fwrite($fp, 'GET ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
 			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
 			fwrite($fp, 'User-Agent: PHP/SMF' . "\r\n");
 			if ($keep_alive)
@@ -2908,7 +2910,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		}
 		else
 		{
-			fwrite($fp, 'POST ' . $match[6] . ' HTTP/1.0' . "\r\n");
+			fwrite($fp, 'POST ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
 			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
 			fwrite($fp, 'User-Agent: PHP/SMF' . "\r\n");
 			if ($keep_alive)

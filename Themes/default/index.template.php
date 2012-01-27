@@ -75,23 +75,23 @@ function template_init()
 	$settings['require_theme_strings'] = false;
 
 	// Load the CSS
-	loadCSSFile($settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20');
+	loadCSSFile($settings['theme_url'] . '/css/index' . $context['theme_variant'] . '.css?fin20');
 
 	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
 	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
 		if (isBrowser('is_' . $cssfix))
-			loadCSSFile($settings['default_theme_url'], '/css/', $cssfix, '.css');
+			loadCSSFile($settings['default_theme_url'] . '/css/' . $cssfix . '.css');
 
 	// RTL languages require an additional stylesheet.
-	if ($context['right_to_left'])
-		loadCSSFile($settings['theme_url'], '/css/rtl.css');
+	if (!empty($context['right_to_left']))
+		loadCSSFile($settings['theme_url'] . '/css/rtl.css');
 
 	// Now load the JS
-	loadJavascriptFile($settings['theme_url'], '/scripts/jquery-1.6.4.min.js');
-	loadJavascriptFile($settings['theme_url'], '/scripts/hoverIntent.js');
-	loadJavascriptFile($settings['theme_url'], '/scripts/superfish.js');
-	loadJavascriptFile($settings['default_theme_url'], '/scripts/script.js?fin20');
-	loadJavascriptFile($settings['theme_url'], '/scripts/theme.js?fin20');
+	loadJavascriptFile($settings['theme_url'] . '/scripts/jquery-1.6.4.min.js');
+	loadJavascriptFile($settings['theme_url'] . '/scripts/hoverIntent.js');
+	loadJavascriptFile($settings['theme_url'] . '/scripts/superfish.js');
+	loadJavascriptFile($settings['default_theme_url'] . '/scripts/script.js?fin20');
+	loadJavascriptFile($settings['theme_url'] . '/scripts/theme.js?fin20');
 }
 
 /**
@@ -604,7 +604,7 @@ function template_css()
 
 	foreach ($context['css_files'] as $filename => $options)
 		echo '
-		<script type="text/javascript" src="', $filename, '"></script>';
+	<link rel="stylesheet" type="text/css" href="', $filename, '" />';
 }
 
 ?>
