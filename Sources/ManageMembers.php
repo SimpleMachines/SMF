@@ -156,22 +156,18 @@ function ViewMemberlist()
 		// Clean the input.
 		foreach ($_POST['delete'] as $key => $value)
 		{
-			$_POST['delete'][$key] = (int) $value;
 			// Don't delete yourself, idiot.
-			if ($value == $user_info['id'])
-				unset($_POST['delete'][$key]);
+			if ($value != $user_info['id'])
+				$delete[$key] = (int) $value;
 		}
 
-		if (!empty($_POST['delete']))
+		if (!empty($delete))
 		{
 			// Delete all the selected members.
 			require_once($sourcedir . '/Subs-Members.php');
 			deleteMembers($_POST['delete'], true);
 		}
 	}
-
-	if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST))
-		$_POST += @unserialize(base64_decode($_REQUEST['params']));
 
 	// Check input after a member search has been submitted.
 	if ($context['sub_action'] == 'query')
@@ -284,6 +280,19 @@ function ViewMemberlist()
 
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
+		$search_params = array();
+		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST))
+			$search_params = @unserialize(base64_decode($_REQUEST['params']));
+		elseif (!empty($_POST))
+		{
+			$search_params['types'] = $_POST['types'];
+			foreach ($params as $param_name => $param_info)
+				if (isset($_POST[$param_name]))
+					$search_params[$param_name] = $_POST[$param_name];
+		}
+
+		$search_url_params = isset($search_params) ? base64_encode(serialize($search_params)) : null;
+
 		// @todo Validate a little more.
 
 		// Loop through every field of the form.
@@ -292,45 +301,45 @@ function ViewMemberlist()
 		foreach ($params as $param_name => $param_info)
 		{
 			// Not filled in?
-			if (!isset($_POST[$param_name]) || $_POST[$param_name] === '')
+			if (!isset($search_params[$param_name]) || $search_params[$param_name] === '')
 				continue;
 
 			// Make sure numeric values are really numeric.
 			if (in_array($param_info['type'], array('int', 'age')))
-				$_POST[$param_name] = (int) $_POST[$param_name];
+				$search_params[$param_name] = (int) $search_params[$param_name];
 			// Date values have to match the specified format.
 			elseif ($param_info['type'] == 'date')
 			{
 				// Check if this date format is valid.
-				if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $_POST[$param_name]) == 0)
+				if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $search_params[$param_name]) == 0)
 					continue;
 
-				$_POST[$param_name] = strtotime($_POST[$param_name]);
+				$search_params[$param_name] = strtotime($search_params[$param_name]);
 			}
 
 			// Those values that are in some kind of range (<, <=, =, >=, >).
 			if (!empty($param_info['range']))
 			{
 				// Default to '=', just in case...
-				if (empty($range_trans[$_POST['types'][$param_name]]))
-					$_POST['types'][$param_name] = '=';
+				if (empty($range_trans[$search_params['types'][$param_name]]))
+					$search_params['types'][$param_name] = '=';
 
 				// Handle special case 'age'.
 				if ($param_info['type'] == 'age')
 				{
 					// All people that were born between $lowerlimit and $upperlimit are currently the specified age.
 					$datearray = getdate(forum_time());
-					$upperlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $_POST[$param_name], $datearray['mon'], $datearray['mday']);
-					$lowerlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $_POST[$param_name] - 1, $datearray['mon'], $datearray['mday']);
-					if (in_array($_POST['types'][$param_name], array('-', '--', '=')))
+					$upperlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name], $datearray['mon'], $datearray['mday']);
+					$lowerlimit = sprintf('%04d-%02d-%02d', $datearray['year'] - $search_params[$param_name] - 1, $datearray['mon'], $datearray['mday']);
+					if (in_array($search_params['types'][$param_name], array('-', '--', '=')))
 					{
 						$query_parts[] = ($param_info['db_fields'][0]) . ' > {string:' . $param_name . '_minlimit}';
-						$where_params[$param_name . '_minlimit'] = ($_POST['types'][$param_name] == '--' ? $upperlimit : $lowerlimit);
+						$where_params[$param_name . '_minlimit'] = ($search_params['types'][$param_name] == '--' ? $upperlimit : $lowerlimit);
 					}
-					if (in_array($_POST['types'][$param_name], array('+', '++', '=')))
+					if (in_array($search_params['types'][$param_name], array('+', '++', '=')))
 					{
 						$query_parts[] = ($param_info['db_fields'][0]) . ' <= {string:' . $param_name . '_pluslimit}';
-						$where_params[$param_name . '_pluslimit'] = ($_POST['types'][$param_name] == '++' ? $lowerlimit : $upperlimit);
+						$where_params[$param_name . '_pluslimit'] = ($search_params['types'][$param_name] == '++' ? $lowerlimit : $upperlimit);
 
 						// Make sure that members that didn't set their birth year are not queried.
 						$query_parts[] = ($param_info['db_fields'][0]) . ' > {date:dec_zero_date}';
@@ -338,27 +347,27 @@ function ViewMemberlist()
 					}
 				}
 				// Special case - equals a date.
-				elseif ($param_info['type'] == 'date' && $_POST['types'][$param_name] == '=')
+				elseif ($param_info['type'] == 'date' && $search_params['types'][$param_name] == '=')
 				{
-					$query_parts[] = $param_info['db_fields'][0] . ' > ' . $_POST[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($_POST[$param_name] + 86400);
+					$query_parts[] = $param_info['db_fields'][0] . ' > ' . $search_params[$param_name] . ' AND ' . $param_info['db_fields'][0] . ' < ' . ($search_params[$param_name] + 86400);
 				}
 				else
-					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$_POST['types'][$param_name]] . ' ' . $_POST[$param_name];
+					$query_parts[] = $param_info['db_fields'][0] . ' ' . $range_trans[$search_params['types'][$param_name]] . ' ' . $search_params[$param_name];
 			}
 			// Checkboxes.
 			elseif ($param_info['type'] == 'checkbox')
 			{
 				// Each checkbox or no checkbox at all is checked -> ignore.
-				if (!is_array($_POST[$param_name]) || count($_POST[$param_name]) == 0 || count($_POST[$param_name]) == count($param_info['values']))
+				if (!is_array($search_params[$param_name]) || count($search_params[$param_name]) == 0 || count($search_params[$param_name]) == count($param_info['values']))
 					continue;
 
 				$query_parts[] = ($param_info['db_fields'][0]) . ' IN ({array_string:' . $param_name . '_check})';
-				$where_params[$param_name . '_check'] = $_POST[$param_name];
+				$where_params[$param_name . '_check'] = $search_params[$param_name];
 			}
 			else
 			{
 				// Replace the wildcard characters ('*' and '?') into MySQL ones.
-				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($_POST[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
+				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
 
 				$query_parts[] = '(' . implode( ' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
 				$where_params[$param_name . '_normal'] = '%' . $parameter . '%';
@@ -369,15 +378,15 @@ function ViewMemberlist()
 		$mg_query_parts = array();
 
 		// Primary membergroups, but only if at least was was not selected.
-		if (!empty($_POST['membergroups'][1]) && count($context['membergroups']) != count($_POST['membergroups'][1]))
+		if (!empty($search_params['membergroups'][1]) && count($context['membergroups']) != count($search_params['membergroups'][1]))
 		{
 			$mg_query_parts[] = 'mem.id_group IN ({array_int:group_check})';
-			$where_params['group_check'] = $_POST['membergroups'][1];
+			$where_params['group_check'] = $search_params['membergroups'][1];
 		}
 
 		// Additional membergroups (these are only relevant if not all primary groups where selected!).
-		if (!empty($_POST['membergroups'][2]) && (empty($_POST['membergroups'][1]) || count($context['membergroups']) != count($_POST['membergroups'][1])))
-			foreach ($_POST['membergroups'][2] as $mg)
+		if (!empty($search_params['membergroups'][2]) && (empty($search_params['membergroups'][1]) || count($context['membergroups']) != count($search_params['membergroups'][1])))
+			foreach ($search_params['membergroups'][2] as $mg)
 			{
 				$mg_query_parts[] = 'FIND_IN_SET({int:add_group_' . $mg . '}, mem.additional_groups) != 0';
 				$where_params['add_group_' . $mg] = $mg;
@@ -388,23 +397,21 @@ function ViewMemberlist()
 			$query_parts[] = '(' . implode(' OR ', $mg_query_parts) . ')';
 
 		// Get all selected post count related membergroups.
-		if (!empty($_POST['postgroups']) && count($_POST['postgroups']) != count($context['postgroups']))
+		if (!empty($search_params['postgroups']) && count($search_params['postgroups']) != count($context['postgroups']))
 		{
 			$query_parts[] = 'id_post_group IN ({array_int:post_groups})';
-			$where_params['post_groups'] = $_POST['postgroups'];
+			$where_params['post_groups'] = $search_params['postgroups'];
 		}
 
 		// Construct the where part of the query.
 		$where = empty($query_parts) ? '1' : implode('
 			AND ', $query_parts);
-
-		$search_params = base64_encode(serialize($_POST));
 	}
 	else
-		$search_params = null;
+		$search_url_params = null;
 
 	// Construct the additional URL part with the query info in it.
-	$context['params_url'] = $context['sub_action'] == 'query' ? ';sa=query;params=' . $search_params : '';
+	$context['params_url'] = $context['sub_action'] == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 	// Get the title and sub template ready..
 	$context['page_title'] = $txt['admin_members'];

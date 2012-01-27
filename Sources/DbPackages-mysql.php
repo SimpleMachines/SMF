@@ -121,30 +121,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	// Righty - let's do the damn thing!
 	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
 	foreach ($columns as $column)
-	{
-		// Auto increment is easy here!
-		if (!empty($column['auto']))
-		{
-			$default = 'auto_increment';
-		}
-		elseif (isset($column['default']) && $column['default'] !== null)
-			$default = 'default \'' . $smcFunc['db_escape_string']($column['default']) . '\'';
-		else
-			$default = '';
-
-		// Sort out the size... and stuff...
-		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list ($type, $size) = $smcFunc['db_calculate_type']($column['type'], $column['size']);
-
-		// Allow unsigned integers (mysql only)
-		$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column['unsigned']) ? 'unsigned ' : '';
-
-		if ($size !== null)
-			$type = $type . '(' . $size . ')';
-
-		// Now just put it together!
-		$table_query .= "\n\t`" .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default . ',';
-	}
+		$table_query .= "\n\t" . smf_db_create_query_column($column);
 
 	// Loop through the indexes next...
 	foreach ($indexes as $index)
@@ -259,9 +236,7 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	// Now add the thing!
 	$query = '
 		ALTER TABLE ' . $table_name . '
-		ADD `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (empty($column_info['null']) ? 'NOT NULL' : '') . ' ' .
-			(!isset($column_info['default']) ? '' : 'default \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'') . ' ' .
-			(empty($column_info['auto']) ? '' : 'auto_increment primary key') . ' ';
+		ADD ' . smf_db_create_query_column($column_info);
 	$smcFunc['db_query']('', $query,
 		array(
 			'security_override' => true,
@@ -641,6 +616,32 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 	$smcFunc['db_free_result']($result);
 
 	return $indexes;
+}
+
+function smf_db_create_query_column($column)
+{
+	// Auto increment is easy here!
+	if (!empty($column['auto']))
+	{
+		$default = 'auto_increment';
+	}
+	elseif (isset($column['default']) && $column['default'] !== null)
+		$default = 'default \'' . $smcFunc['db_escape_string']($column['default']) . '\'';
+	else
+		$default = '';
+
+	// Sort out the size... and stuff...
+	$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
+	list ($type, $size) = $smcFunc['db_calculate_type']($column['type'], $column['size']);
+
+	// Allow unsigned integers (mysql only)
+	$unsigned = in_array($type, array('int', 'tinyint', 'smallint', 'mediumint', 'bigint')) && !empty($column['unsigned']) ? 'unsigned ' : '';
+
+	if ($size !== null)
+		$type = $type . '(' . $size . ')';
+
+	// Now just put it together!
+	return '`' .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default . ',';
 }
 
 ?>

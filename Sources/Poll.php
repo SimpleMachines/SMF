@@ -641,6 +641,8 @@ function EditPoll2()
 	}
 	if ($optionCount < 2)
 		$poll_errors[] = 'poll_few';
+	elseif ($optionCount > 256)
+		$poll_errors[] = 'poll_many';
 
 	// Also - ensure they are not removing the question.
 	if (trim($_POST['question']) == '')

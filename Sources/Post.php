@@ -1524,6 +1524,8 @@ function Post2()
 		// What are you going to vote between with one choice?!?
 		if (count($_POST['options']) < 2)
 			$post_errors[] = 'poll_few';
+		elseif (count($_POST['options']) > 256)
+			$post_errors[] = 'poll_many';
 	}
 
 	if ($posterIsGuest)

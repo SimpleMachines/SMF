@@ -260,9 +260,9 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		if ($file_info['general_purpose'] & 0x0008)
 		{
 			$unzipped2 = unpack("Vcrc/Vcompressed_size/Vsize", substr($$data, -12));
-			$unzipped['crc'] = $unzipped2['crc'];
-			$unzipped['compressed_size'] = $unzipped2['compressed_size'];
-			$unzipped['size'] = $unzipped2['size'];
+			$file_info['crc'] = $unzipped2['crc'];
+			$file_info['compressed_size'] = $unzipped2['compressed_size'];
+			$file_info['size'] = $unzipped2['size'];
 			unset($unzipped2);
 		}
 
@@ -290,7 +290,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		$file_info['data'] = substr($data, 26 + $file_info['filename_length'] + $file_info['extrafield_length']);
 
 		// Only inflate it if we need to ;)
-		if ($file_info['compressed_size'] != $file_info['size'])
+		if (!empty($file_info['compress_method']) || ($file_info['compressed_size'] != $file_info['size']))
 			$file_info['data'] = gzinflate($file_info['data']);
 
 		// Okay!  We can write this file, looks good from here...

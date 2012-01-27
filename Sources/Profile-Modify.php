@@ -2675,7 +2675,7 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		// @todo http://www.simplemachines.org/community/index.php?topic=462089.msg3226650#msg3226650
-		$profile_vars['avatar'] = str_replace('%20', ' ', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
+		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
@@ -2993,7 +2993,7 @@ function profileValidateSignature(&$value)
 		$disabledSigBBC = implode('|', $disabledTags);
 		if (!empty($disabledSigBBC))
 		{
-			if (preg_match('~\[(' . $disabledSigBBC . ')~i', $unparsed_signature, $matches) !== false && isset($matches[1]))
+			if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1]))
 			{
 				$disabledTags = array_unique($disabledTags);
 				$txt['profile_error_signature_disabled_bbc'] = sprintf($txt['profile_error_signature_disabled_bbc'], implode(', ', $disabledTags));

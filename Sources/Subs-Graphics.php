@@ -121,7 +121,7 @@ function checkImageContents($fileName, $extensiveCheck = false)
 		else
 		{
 			// Check for potential infection
-			if (preg_match('~(iframe|html|eval|body|script\W|[CF]WS[\x01-\x0C])~i', $prev_chunk . $cur_chunk) === 1)
+			if (preg_match('~(iframe|(?<!cellTextIs)html|eval|body|script\W|[CF]WS[\x01-\x0C])~i', $prev_chunk . $cur_chunk) === 1)
 			{
 				fclose($fp);
 				return false;
