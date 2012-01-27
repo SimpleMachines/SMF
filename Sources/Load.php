@@ -152,7 +152,7 @@ function reloadSettings()
 	// Check the load averages?
 	if (!empty($modSettings['loadavg_enable']))
 	{
-		if (($modSettings['load_average'] = cache_get_data('loadavg', 90)) == null)
+		if (($modSettings['load_average'] = cache_get_data('loadavg', 90)) === null)
 		{
 			$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 			if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) != 0)
@@ -165,6 +165,8 @@ function reloadSettings()
 			if (!empty($modSettings['load_average']))
 				cache_put_data('loadavg', $modSettings['load_average'], 90);
 		}
+		
+		call_integration_hook('integrate_load_average', array($modSettings['load_average']));
 
 		if (!empty($modSettings['loadavg_forum']) && !empty($modSettings['load_average']) && $modSettings['load_average'] >= $modSettings['loadavg_forum'])
 			display_loadavg_error();
@@ -196,7 +198,6 @@ function reloadSettings()
 	// Call pre load integration functions.
 	call_integration_hook('integrate_pre_load');
 }
-
 
 /**
  * Load all the important user information.
@@ -1223,6 +1224,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 /**
  * This function is... detecting the browser, right.
+ * Loads a bunch of browser information in to $context
  */
 function detectBrowser()
 {
@@ -1231,47 +1233,129 @@ function detectBrowser()
 	// The following determines the user agent (browser) as best it can.
 	$context['browser'] = array(
 		'is_opera' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false,
-		'is_opera6' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera 6') !== false,
-		'is_opera7' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera 7') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'Opera/7') !== false,
-		'is_opera8' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera 8') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'Opera/8') !== false,
-		'is_opera9' => preg_match('~Opera[ /]9(?!\\.[89])~', $_SERVER['HTTP_USER_AGENT']) === 1,
-		'is_opera10' => preg_match('~Opera[ /]10\\.~', $_SERVER['HTTP_USER_AGENT']) === 1 || (preg_match('~Opera[ /]9\\.[89]~', $_SERVER['HTTP_USER_AGENT']) === 1 && preg_match('~Version/1[0-9]\\.~', $_SERVER['HTTP_USER_AGENT']) === 1),
-		'is_ie4' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 4') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'WebTV') === false,
 		'is_webkit' => strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false,
-		'is_mac_ie' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false,
+		'is_firefox' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1,
 		'is_web_tv' => strpos($_SERVER['HTTP_USER_AGENT'], 'WebTV') !== false,
 		'is_konqueror' => strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror') !== false,
-		'is_firefox' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat)/~', $_SERVER['HTTP_USER_AGENT']) === 1,
-		'is_firefox1' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat)/1\\.~', $_SERVER['HTTP_USER_AGENT']) === 1,
-		'is_firefox2' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat)/2\\.~', $_SERVER['HTTP_USER_AGENT']) === 1,
-		'is_firefox3' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/3\\.~', $_SERVER['HTTP_USER_AGENT']) === 1,
-		'is_iphone' => strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'iPod') !== false,
-		'is_android' => strpos($_SERVER['HTTP_USER_AGENT'], 'Android') !== false,
 	);
 
-	$context['browser']['is_chrome'] = $context['browser']['is_webkit'] && strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') !== false;
-	$context['browser']['is_safari'] = !$context['browser']['is_chrome'] && strpos($_SERVER['HTTP_USER_AGENT'], 'Safari') !== false;
+	// <Insert corny Geico gecko comment here>.
 	$context['browser']['is_gecko'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Gecko') !== false && !$context['browser']['is_webkit'] && !$context['browser']['is_konqueror'];
 
-	// Internet Explorer 5 and 6 are often "emulated".
-	$context['browser']['is_ie8'] = !$context['browser']['is_opera'] && !$context['browser']['is_gecko'] && !$context['browser']['is_web_tv'] && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 8') !== false;
-	$context['browser']['is_ie7'] = !$context['browser']['is_opera'] && !$context['browser']['is_gecko'] && !$context['browser']['is_web_tv'] && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && !$context['browser']['is_ie8'];
-	$context['browser']['is_ie6'] = !$context['browser']['is_opera'] && !$context['browser']['is_gecko'] && !$context['browser']['is_web_tv'] && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6') !== false && !$context['browser']['is_ie8'] && !$context['browser']['is_ie7'];
-	$context['browser']['is_ie5.5'] = !$context['browser']['is_opera'] && !$context['browser']['is_gecko'] && !$context['browser']['is_web_tv'] && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.5') !== false;
-	$context['browser']['is_ie5'] = !$context['browser']['is_opera'] && !$context['browser']['is_gecko'] && !$context['browser']['is_web_tv'] && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.0') !== false;
+	// I'm IE, Yes I'm the real IE; All you other IEs are just imitating.
+	$context['browser']['is_ie'] = !$context['browser']['is_opera'] && !$context['browser']['is_gecko'] && !$context['browser']['is_web_tv'] && preg_match('~MSIE \d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
 
-	$context['browser']['is_ie'] = $context['browser']['is_ie4'] || $context['browser']['is_ie5'] || $context['browser']['is_ie5.5'] || $context['browser']['is_ie6'] || $context['browser']['is_ie7'] || $context['browser']['is_ie8'];
-	// Before IE8 we need to fix IE... lots!
-	$context['browser']['ie_standards_fix'] = !$context['browser']['is_ie8'];
+	// Detect Safari/Chrome/iP[ao]d/iPhone from webkit.
+	if ($context['browser']['is_webkit'])
+	{
+		$context['browser'] += array(
+			'is_chrome' => $context['browser']['is_webkit'] && strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') !== false,
+			'is_iphone' => strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'iPod') !== false,
+			'is_blackberry' => strpos($_SERVER['HTTP_USER_AGENT'], 'BlackBerry') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'PlayBook') !== false,
+			'is_android' => strpos($_SERVER['HTTP_USER_AGENT'], 'Android') !== false,
+		);
 
-	$context['browser']['needs_size_fix'] = ($context['browser']['is_ie5'] || $context['browser']['is_ie5.5'] || $context['browser']['is_ie4'] || $context['browser']['is_opera6']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') === false;
+		$context['browser']['is_safari'] = !$context['browser']['is_chrome'] && strpos($_SERVER['HTTP_USER_AGENT'], 'Safari') !== false;
+		$context['browser']['is_ipad'] = $context['browser']['is_iphone'] && strpos($_SERVER['HTTP_USER_AGENT'], 'iPad') !== false;
+	}
 
-	// This isn't meant to be reliable, it's just meant to catch most bots to prevent PHPSESSID from showing up.
-	$context['browser']['possibly_robot'] = !empty($user_info['possibly_robot']);
+	// More Opera checks if we are opera.
+	if ($context['browser']['is_opera'])
+		$context['browser'] += array(
+			'is_opera6' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera 6') !== false,
+			'is_opera7' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera 7') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'Opera/7') !== false,
+			'is_opera8' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera 8') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'Opera/8') !== false,
+			'is_opera9' => preg_match('~Opera[ /]9(?!\\.[89])~', $_SERVER['HTTP_USER_AGENT']) === 1,
+			'is_opera10' => preg_match('~Opera[ /]10\\.~', $_SERVER['HTTP_USER_AGENT']) === 1 || (preg_match('~Opera[ /]9\\.[89]~', $_SERVER['HTTP_USER_AGENT']) === 1 && preg_match('~Version/1[0-9]\\.~', $_SERVER['HTTP_USER_AGENT']) === 1),
+			'is_opera_mobi' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera Mobi') !== false,
+		);
 
-	// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
-	if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register'))) || !$user_info['is_guest'])
+	// Additional firefox checks.
+	if ($context['browser']['is_firefox'])
+		$context['browser'] += array(
+			'is_firefox1' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat)/1\\.~', $_SERVER['HTTP_USER_AGENT']) === 1,
+			'is_firefox2' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat)/2\\.~', $_SERVER['HTTP_USER_AGENT']) === 1,
+			'is_firefox3' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/3\\.~', $_SERVER['HTTP_USER_AGENT']) === 1,
+		);
+
+	// Additional IE checks.
+	if ($context['browser']['is_ie'])
+	{
+		$context['browser'] += array(
+			'is_ie8' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 8') !== false,
+			'is_ie_mobi' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'IEMobile/7') !== false,
+			'is_ie5.5' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.5') !== false,
+			'is_ie5' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.0') !== false,
+			'is_ie4' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 4') !== false && !$context['browser']['is_web_tv'],
+			'is_mac_ie' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false,
+		);
+
+		// Detect IE7 and not IE8 in combat mode.
+		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && !$context['browser']['is_ie8'];
+
+		// Before IE8 we need to fix IE... lots!
+		$context['browser']['ie_standards_fix'] = !$context['browser']['is_ie8'];
+
+		$context['browser']['is_ie6'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6') !== false && !$context['browser']['is_ie8'] && !$context['browser']['is_ie7'];
+
+	}
+
+	$context['browser']['needs_size_fix'] = false;
+	if ($context['browser']['is_ie'] || $context['browser']['is_opera'])
+		$context['browser']['needs_size_fix'] = (!empty($context['browser']['is_ie5']) || !empty($context['browser']['is_ie5.5']) || !empty($context['browser']['is_ie4']) || !empty($context['browser']['is_opera6'])) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') === false;
+
+	// Be you robot or human?
+	if ($user_info['possibly_robot'])
+	{
+		// This isn't meant to be reliable, it's just meant to catch most bots to prevent PHPSESSID from showing up.
+		$context['browser']['possibly_robot'] = !empty($user_info['possibly_robot']);
+
+		// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
+		if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register'))) || !$user_info['is_guest'])
+			$context['browser']['possibly_robot'] = false;
+	}
+	else
 		$context['browser']['possibly_robot'] = false;
+
+}
+
+/**
+ * Are we using this browser? 
+ * Wrapper function for detectBrowser
+ * @param $browser: browser we are checking for.
+*/
+function isBrowser($browser)
+{
+	global $context;
+
+	// @todo REMOVE THIS BEFORE BETA 1 RELEASE.
+	if (in_array($browser, array('ie7', 'ie6', 'ie5.5', 'ie5', 'ie5', 'mac_ie', 'firefox1')))
+	{
+		$line = $file = null;
+		foreach (debug_backtrace() as $step)
+		{
+			// Found it?
+			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
+			{
+				$function = '<br />Function: ' . $step['function'];
+				break;
+			}
+
+			if (isset($step['line']))
+			{
+				$file = $step['file'];
+				$line = $step['line'];
+			}
+		}
+
+		log_error('Old browser support' . $function, 'debug', $file, $line);
+	}
+
+	// Don't know any browser!
+	if (empty($context['browser']))
+		detectBrowser();
+
+	return !empty($context['browser'][$browser]) || !empty($context['browser']['is_' . $browser]) ? true : false;
 }
 
 /**
@@ -1531,12 +1615,12 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['server'] = array(
 		'is_iis' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false,
 		'is_apache' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false,
+		'is_litespeed' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false,
 		'is_lighttpd' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false,
 		'is_nginx' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false,
 		'is_cgi' => isset($_SERVER['SERVER_SOFTWARE']) && strpos(php_sapi_name(), 'cgi') !== false,
 		'is_windows' => strpos(PHP_OS, 'WIN') === 0,
 		'iso_case_folding' => ord(strtolower(chr(138))) === 154,
-		'complex_preg_chars' => version_compare(PHP_VERSION, '4.3.3') != -1,
 	);
 	// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	$context['server']['needs_login_fix'] = $context['server']['is_cgi'] && $context['server']['is_iis'];
@@ -1566,7 +1650,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['javascript_files'] = array();
 	$context['css_files'] = array();
 
-	
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
 	$context['theme_variant_url'] = '';
