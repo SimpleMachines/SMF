@@ -2503,22 +2503,29 @@ function loadDatabase()
  * Try to retrieve a cache entry. On failure, call the appropriate function.
  * @todo find a better place for cache implementation
  *
- * @param $key
- * @param $file
- * @param $function
- * @param $params
+ * @param string $key
+ * @param string $file
+ * @param string $function
+ * @param array $params
  * @param int $level = 1
+ * @return string
  */
 function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
 	global $modSettings, $sourcedir;
 
-	// Refresh the cache if either:
-	// 1. Caching is disabled.
-	// 2. The cache level isn't high enough.
-	// 3. The item has not been cached or the cached item expired.
-	// 4. The cached item has a custom expiration condition evaluating to true.
-	// 5. The expire time set in the cache item has passed (needed for Zend).
+	// @todo Why are we doing this if caching is disabled?
+
+	if (function_exists('call_integration_hook'))
+		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
+		
+	/* Refresh the cache if either:
+		1. Caching is disabled.
+		2. The cache level isn't high enough.
+		3. The item has not been cached or the cached item expired.
+		4. The cached item has a custom expiration condition evaluating to true.
+		5. The expire time set in the cache item has passed (needed for Zend).
+	*/	
 	if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < $level || !is_array($cache_block = cache_get_data($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
 	{
 		require_once($sourcedir . '/' . $file);
@@ -2531,6 +2538,9 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 	// Some cached data may need a freshening up after retrieval.
 	if (!empty($cache_block['post_retri_eval']))
 		eval($cache_block['post_retri_eval']);
+
+	if (function_exists('call_integration_hook'))
+		call_integration_hook('post_cache_quick_get', array(&$cache_block));
 
 	return $cache_block['data'];
 }
@@ -2564,7 +2574,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	$value = $value === null ? null : serialize($value);
 
 	// The simple yet efficient memcached.
-	if (function_exists('memcache_set') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+	if (function_exists('memcached_set') || function_exists('memcache_set') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
 	{
 		// Not connected yet?
 		if (empty($memcached))
@@ -2623,23 +2633,18 @@ function cache_put_data($key, $value, $ttl = 120)
 		else
 		{
 			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
-			$fh = @fopen($cachedir . '/data_' . $key . '.php', 'w');
-			if ($fh)
+			
+			if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
 			{
-				// Write the file.
-				set_file_buffer($fh, 0);
-				flock($fh, LOCK_EX);
-				$cache_bytes = fwrite($fh, $cache_data);
-				flock($fh, LOCK_UN);
-				fclose($fh);
-
 				// Check that the cache write was successful; all the data should be written
 				// If it fails due to low diskspace, remove the cache file
-				if ($cache_bytes != strlen($cache_data))
-					@unlink($cachedir . '/data_' . $key . '.php');
+				@unlink($cachedir . '/data_' . $key . '.php');
 			}
 		}
 	}
+	
+	if (function_exists('call_integration_hook'))
+		call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
 
 	if (isset($db_show_debug) && $db_show_debug === true)
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
@@ -2673,15 +2678,15 @@ function cache_get_data($key, $ttl = 120)
 	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':', '-');
 
 	// Okay, let's go for it memcached!
-	if (function_exists('memcache_get') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+	if ((function_exists('memcache_get') || function_exists('memcached_get')) && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
 	{
 		// Not connected yet?
 		if (empty($memcached))
 			get_memcached_server();
 		if (!$memcached)
 			return;
-
-		$value = memcache_get($memcached, $key);
+		
+		$value = (function_exists('memcache_get')) ? memcache_get($cache['connection'], $key) : memcached_get($cache['connection'], $key);
 	}
 	// Again, eAccelerator.
 	elseif (function_exists('eaccelerator_get'))
@@ -2713,12 +2718,11 @@ function cache_get_data($key, $ttl = 120)
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
 		$cache_hits[$cache_count]['s'] = isset($value) ? strlen($value) : 0;
 	}
+	
+	if (function_exists('call_integration_hook'))
+		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	if (empty($value))
-		return null;
-	// If it's broke, it's broke... so give up on it.
-	else
-		return @unserialize($value);
+	return empty($value) ? null : @unserialize($value);
 }
 
 /**
@@ -2735,15 +2739,26 @@ function get_memcached_server($level = 3)
 
 	$servers = explode(',', $modSettings['cache_memcached']);
 	$server = explode(':', trim($servers[array_rand($servers)]));
+	$cache = (function_exists('memcache_get')) ? 'memcache' : ((function_exists('memcached_get') ? 'memcached' : ''));
 
 	// Don't try more times than we have servers!
 	$level = min(count($servers), $level);
 
 	// Don't wait too long: yes, we want the server, but we might be able to run the query faster!
 	if (empty($db_persist))
-		$memcached = memcache_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+	{
+		if ($cache === 'memcached')
+			$memcached = memcached_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+		if ($cache === 'memcache')
+			$memcached = memcache_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+	}
 	else
-		$memcached = memcache_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+	{
+		if ($cache === 'memcached')
+			$memcached = memcached_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+		if ($cache === 'memcache')
+			$memcached = memcache_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+	}
 
 	if (!$memcached && $level > 0)
 		get_memcached_server($level - 1);
