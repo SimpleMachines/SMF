@@ -790,15 +790,13 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
  * Sends an personal message from the specified person to the specified people
  * ($from defaults to the user)
  *
- * @param array $recipients - an array containing the arrays 'to' and 'bcc',
- *  both containing id_member's.
+ * @param array $recipients - an array containing the arrays 'to' and 'bcc', both containing id_member's.
  * @param string $subject - should have no slashes and no html entities
  * @param string $message - should have no slashes and no html entities
  * @param bool $store_outbox
  * @param array $from - an array with the id, name, and username of the member.
  * @param int $pm_head - the ID of the chain being replied to - if any.
- * @return array, an array with log entries telling how many recipients were
- *  successful and which recipients it failed to send to.
+ * @return array, an array with log entries telling how many recipients were successful and which recipients it failed to send to.
  */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
@@ -832,7 +830,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	preparsecode($htmlmessage);
 
 	// Integrated PMs
-	call_integration_hook('integrate_personal_message', array($recipients, $from['username'], $subject, $message));
+	call_integration_hook('integrate_personal_message', array(&$recipients, &$from['username'], &$subject, &$message));
 
 	// Get a list of usernames and convert them to IDs.
 	$usernames = array();
@@ -925,7 +923,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	$smcFunc['db_free_result']($request);
 
 	// Load the membergrounp message limits.
-	//!!! Consider caching this?
+	// @todo Consider caching this?
 	static $message_limit_cache = array();
 	if (!allowedTo('moderate_forum') && empty($message_limit_cache))
 	{
@@ -941,6 +939,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	}
 
 	// Load the groups that are allowed to read PMs.
+	// @todo move into a separate function on $permission.
 	$allowed_groups = array();
 	$disallowed_groups = array();
 	$request = $smcFunc['db_query']('', '

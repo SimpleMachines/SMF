@@ -2548,6 +2548,10 @@ function MessagePrune()
 
 /**
  * Delete the specified personal messages.
+ *
+ * @param array $personal_messages, array of pm ids
+ * @param string $folder = null
+ * @param int $owner = null
  */
 function deleteMessages($personal_messages, $folder = null, $owner = null)
 {
@@ -2680,7 +2684,13 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 	cache_put_data('labelCounts:' . $user_info['id'], null, 720);
 }
 
-// Mark personal messages read.
+/**
+ * Mark the specified personal messages read.
+ *
+ * @param array $personal_messages = null, array of pm ids
+ * @param string $label = null, if label is set, only marks messages with that label
+ * @param int $owner = null, if owner is set, marks messages owned by that member id
+ */
 function markMessages($personal_messages = null, $label = null, $owner = null)
 {
 	global $user_info, $context, $smcFunc;
@@ -3568,7 +3578,13 @@ function LoadRules($reload = false)
 	$smcFunc['db_free_result']($request);
 }
 
-// Check if the PM is available to the current user.
+/**
+ * Check if the PM is available to the current user.
+ *
+ * @param int $pmID
+ * @param $validFor
+ * @return bool
+ */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {
 	global $user_info, $smcFunc;
