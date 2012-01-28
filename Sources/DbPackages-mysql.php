@@ -622,6 +622,8 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 
 function smf_db_create_query_column($column)
 {
+	global $smcFunc;
+	
 	// Auto increment is easy here!
 	if (!empty($column['auto']))
 	{
