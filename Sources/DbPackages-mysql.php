@@ -236,7 +236,9 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	// Now add the thing!
 	$query = '
 		ALTER TABLE ' . $table_name . '
-		ADD ' . smf_db_create_query_column($column_info);
+		ADD `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (empty($column_info['null']) ? 'NOT NULL' : '') . ' ' .
+			(!isset($column_info['default']) ? '' : 'default \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'') . ' ' .
+			(empty($column_info['auto']) ? '' : 'auto_increment primary key') . ' ';
 	$smcFunc['db_query']('', $query,
 		array(
 			'security_override' => true,
