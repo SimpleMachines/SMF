@@ -1329,7 +1329,7 @@ function isBrowser($browser)
 	global $context;
 
 	// @todo REMOVE THIS BEFORE BETA 1 RELEASE.
-	if (in_array($browser, array('ie7', 'ie6', 'ie5.5', 'ie5', 'ie5', 'mac_ie', 'firefox1')))
+	if (in_array($browser, array('ie7', 'ie6', 'ie5.5', 'ie5', 'ie5', 'ie4', 'mac_ie', 'firefox1')))
 	{
 		$line = $file = null;
 		foreach (debug_backtrace() as $step)
@@ -1349,6 +1349,7 @@ function isBrowser($browser)
 		}
 
 		log_error('Old browser support' . $function, 'debug', $file, $line);
+		var_dump($browser);die;
 	}
 
 	// Don't know any browser!

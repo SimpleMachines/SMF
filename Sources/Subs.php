@@ -3414,6 +3414,10 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 
 /**
  * Empty out the cache folder.
+ * clean the cache directory ($cachedir, if any and in use)
+ * it may only remove the files of a certain type
+ *  (if the $type parameter is given)
+ * @param string $type = ''
  */
 function clean_cache($type = '')
 {
@@ -3436,8 +3440,12 @@ function clean_cache($type = '')
 	// ... as long as Load.php can be modified, anyway.
 	@touch($sourcedir . '/' . 'Load.php');
 	clearstatcache();
+}
+
+/**
  * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
  * @param string $filename
+ * @todo remove this function since we are no longer supporting PHP < 5
  */
 function loadClassFile($filename)
 {

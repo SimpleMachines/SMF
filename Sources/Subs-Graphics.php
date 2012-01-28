@@ -22,6 +22,121 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
+ * downloads file from url and stores it locally for avatar use by id_member.
+ * supports GIF, JPG, PNG, BMP and WBMP formats.
+ * detects if GD2 is available.
+ * uses resizeImageFile() to resize to max_width by max_height, and saves the result to a file.
+ * updates the database info for the member's avatar.
+ * returns whether the download and resize was successful.
+ *
+ * @param string $temporary_path, the full path to the temporary file
+ * @param int $memID, member ID
+ * @param int $max_width
+ * @param int $max_height
+ * @return bool, whether the download and resize was successful.
+ *
+ */
+function downloadAvatar($url, $memID, $max_width, $max_height)
+{
+	global $modSettings, $sourcedir, $smcFunc;
+
+	$ext = !empty($modSettings['avatar_download_png']) ? 'png' : 'jpeg';
+	$destName = 'avatar_' . $memID . '_' . time() . '.' . $ext;
+
+	// Just making sure there is a non-zero member.
+	if (empty($memID))
+		return false;
+
+	require_once($sourcedir . '/ManageAttachments.php');
+	removeAttachments(array('id_member' => $memID));
+
+	$id_folder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : 1;
+	$avatar_hash = empty($modSettings['custom_avatar_enabled']) ? getAttachmentFilename($destName, false, null, true) : '';
+	$smcFunc['db_insert']('',
+		'{db_prefix}attachments',
+		array(
+			'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string-255', 'file_hash' => 'string-255', 'fileext' => 'string-8', 'size' => 'int',
+			'id_folder' => 'int',
+		),
+		array(
+			$memID, empty($modSettings['custom_avatar_enabled']) ? 0 : 1, $destName, $avatar_hash, $ext, 1,
+			$id_folder,
+		),
+		array('id_attach')
+	);
+	$attachID = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
+	// Retain this globally in case the script wants it.
+	$modSettings['new_avatar_data'] = array(
+		'id' => $attachID,
+		'filename' => $destName,
+		'type' => empty($modSettings['custom_avatar_enabled']) ? 0 : 1,
+	);
+
+	$destName = (empty($modSettings['custom_avatar_enabled']) ? (is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] : $modSettings['attachmentUploadDir']) : $modSettings['custom_avatar_dir']) . '/' . $destName . '.tmp';
+
+	// Resize it.
+	if (!empty($modSettings['avatar_download_png']))
+		$success = resizeImageFile($url, $destName, $max_width, $max_height, 3);
+	else
+		$success = resizeImageFile($url, $destName, $max_width, $max_height);
+
+	// Remove the .tmp extension.
+	$destName = substr($destName, 0, -4);
+
+	if ($success)
+	{
+		// Walk the right path.
+		if (!empty($modSettings['currentAttachmentUploadDir']))
+		{
+			if (!is_array($modSettings['attachmentUploadDir']))
+				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+			$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
+		}
+		else
+			$path = $modSettings['attachmentUploadDir'];
+
+		// Remove the .tmp extension from the attachment.
+		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash))
+		{
+			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash;
+			list ($width, $height) = getimagesize($destName);
+			$mime_type = 'image/' . $ext;
+
+			// Write filesize in the database.
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}attachments
+				SET size = {int:filesize}, width = {int:width}, height = {int:height},
+					mime_type = {string:mime_type}
+				WHERE id_attach = {int:current_attachment}',
+				array(
+					'filesize' => filesize($destName),
+					'width' => (int) $width,
+					'height' => (int) $height,
+					'current_attachment' => $attachID,
+					'mime_type' => $mime_type,
+				)
+			);
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}attachments
+			WHERE id_attach = {int:current_attachment}',
+			array(
+				'current_attachment' => $attachID,
+			)
+		);
+
+		@unlink($destName . '.tmp');
+		return false;
+	}
+}
+
+/**
  * Create a thumbnail of the given source.
  *
  * @uses resizeImageFile() function to achieve the resize.
