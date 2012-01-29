@@ -29,6 +29,9 @@ function DisplayStats()
 	global $txt, $scripturl, $modSettings, $user_info, $context, $smcFunc;
 
 	isAllowedTo('view_stats');
+	// Page disabled - redirect them out
+	if (empty($modSettings['trackStats']))
+		fatal_lang_error('feature_disabled', true);
 
 	if (!empty($_REQUEST['expand']))
 	{
