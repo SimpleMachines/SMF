@@ -720,6 +720,7 @@ function AdminSearchInternal()
 		'ManageSettings', 'ManageBoards', 'ManageNews', 'ManageAttachments', 'ManageCalendar', 'ManageMail', 'ManagePaid', 'ManagePermissions',
 		'ManagePosts', 'ManageRegistration', 'ManageSearch', 'ManageSearchEngines', 'ManageServer', 'ManageSmileys', 'ManageLanguages',
 	);
+	// @todo add hook to add more include_files here
 	foreach ($include_files as $file)
 		require_once($sourcedir . '/' . $file . '.php');
 
@@ -789,6 +790,7 @@ function AdminSearchInternal()
 		array('ModifyPruningSettings', 'area=logs;sa=pruning'),
 	);
 
+	// @todo add hook to add more $settings search
 	foreach ($settings_search as $setting_area)
 	{
 		// Get a list of their variables.

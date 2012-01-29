@@ -1229,9 +1229,33 @@ function loadMemberContext($user, $display_custom_fields = false)
 function detectBrowser()
 {
 	global $context, $user_info;
+	
+	// Always have these available in $context to support mods that don't use isBrowser
+	$context['browser'] = array(
+		'is_opera6' => false,
+		'is_opera7' => false,
+		'is_opera8' => false,
+		'is_opera9' => false,
+		'is_opera10' => false,
+		'is_ie4' => false,
+		'is_mac_ie' => false,
+		'is_firefox1' => false,
+		'is_firefox2' => false,
+		'is_firefox3' => false,
+		'is_iphone' => false,
+		'is_android' => false,
+		'is_chrome' => false,
+		'is_safari' => false,
+		'is_ie8' => false,
+		'is_ie7' => false,
+		'is_ie6' => false,
+		'is_ie5.5' => false,
+		'is_ie5' => false,
+		'ie_standards_fix' => false,
+	);
 
 	// The following determines the user agent (browser) as best it can.
-	$context['browser'] = array(
+	$context['browser'] += array(
 		'is_opera' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false,
 		'is_webkit' => strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false,
 		'is_firefox' => preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1,
@@ -1297,7 +1321,6 @@ function detectBrowser()
 		$context['browser']['ie_standards_fix'] = !$context['browser']['is_ie8'];
 
 		$context['browser']['is_ie6'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6') !== false && !$context['browser']['is_ie8'] && !$context['browser']['is_ie7'];
-
 	}
 
 	$context['browser']['needs_size_fix'] = false;
@@ -1316,7 +1339,6 @@ function detectBrowser()
 	}
 	else
 		$context['browser']['possibly_robot'] = false;
-
 }
 
 /**
