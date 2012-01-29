@@ -704,14 +704,14 @@ function RemoveAttachmentByAge()
 		$messages = removeAttachments(array('attachment_type' => 0, 'poster_time' => (time() - 24 * 60 * 60 * $_POST['age'])), 'messages', true);
 
 		// Update the messages to reflect the change.
-		if (!empty($messages))
+		if (!empty($messages) && !empty($_POST['notice']))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}messages
-				SET body = CONCAT(body, ' . (!empty($_POST['notice']) ? '{string:notice}' : '') . ')
+				SET body = CONCAT(body, {string:notice})
 				WHERE id_msg IN ({array_int:messages})',
 				array(
 					'messages' => $messages,
-					'notice' => empty($_POST['notice']) ? '' : '<br /><br />' . $_POST['notice'],
+					'notice' => '<br /><br />' . $_POST['notice'],
 				)
 			);
 	}
@@ -740,14 +740,14 @@ function RemoveAttachmentBySize()
 	$messages = removeAttachments(array('attachment_type' => 0, 'size' => 1024 * $_POST['size']), 'messages', true);
 
 	// And make a note on the post.
-	if (!empty($messages))
+	if (!empty($messages) && !empty($_POST['notice']))
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}messages
-			SET body = CONCAT(body, ' . (!empty($_POST['notice']) ? '{string:notice}' : '') . ')
+			SET body = CONCAT(body, {string:notice})
 			WHERE id_msg IN ({array_int:messages})',
 			array(
 				'messages' => $messages,
-				'notice' => empty($_POST['notice']) ? '' : '<br /><br />' . $_POST['notice'],
+				'notice' => '<br /><br />' . $_POST['notice'],
 			)
 		);
 
