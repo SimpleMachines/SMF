@@ -611,8 +611,8 @@ function MessageIndex()
 			foreach ($context['move_to_boards'] as $id_cat => $cat)
 			{
 				$context['move_to_boards'][$id_cat]['name'] = strip_tags($cat['name']);
-				foreach ($cat['boards'] as $id_board => $board)
-					$context['move_to_boards'][$id_cat]['boards'][$id_board]['name'] = strip_tags($board['name']);
+				foreach ($cat['boards'] as $id_board => $aboard)
+					$context['move_to_boards'][$id_cat]['boards'][$id_board]['name'] = strip_tags($aboard['name']);
 			}
 
 			// With no other boards to see, it's useless to move.
