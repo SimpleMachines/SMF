@@ -548,7 +548,7 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 		require_once($sourcedir . '/LogInOut.php');
 		LogOut(true);
 
-		redirectExit();
+		redirectexit();
 	}
 }
 

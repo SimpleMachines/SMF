@@ -1002,13 +1002,15 @@ function PackageInstall()
 					UPDATE {db_prefix}log_packages
 					SET install_state = {int:not_installed}, member_removed = {string:member_name}, id_member_removed = {int:current_member},
 						time_removed = {int:current_time}
-					WHERE package_id = {string:package_id}',
+					WHERE package_id = {string:package_id}
+						AND id_install = {int:install_id}',
 					array(
 						'current_member' => $user_info['id'],
 						'not_installed' => 0,
 						'current_time' => time(),
 						'package_id' => $row['package_id'],
 						'member_name' => $user_info['name'],
+						'install_id' => $context['install_id'],
 					)
 				);
 			}
