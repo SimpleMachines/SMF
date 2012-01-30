@@ -3764,7 +3764,8 @@ function setupMenuContext()
 	if (!empty($needs_action_hook))
 		call_integration_hook('integrate_current_action', array(&$current_action));
 
-	$context['menu_buttons'][$current_action]['active_button'] = true;
+	if (isset($context['menu_buttons'][$current_action]))
+		$context['menu_buttons'][$current_action]['active_button'] = true;
 
 	if (!$user_info['is_guest'] && $context['user']['unread_messages'] > 0 && isset($context['menu_buttons']['pm']))
 	{
