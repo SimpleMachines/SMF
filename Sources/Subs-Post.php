@@ -245,7 +245,8 @@ function preparsecode(&$message, $previewing = false)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
 
 	// Remove empty bbc.
-	$message = preg_replace('~\[([^\]]+)\]\[/\1\]~i', '', $message);
+	$message = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $message);
+	$message = preg_replace('~\[quote\]\s*\[/quote\]~', '', $message);
 }
 
 /**
@@ -1395,7 +1396,7 @@ function server_parse($message, $socket, $response)
 	// No response yet.
 	$server_response = '';
 
-	while (strpos($server_response, ' ') !== 3)
+	while (strpos($server_response, ' ', 3) !== 3)
 		if (!($server_response = fgets($socket, 256)))
 		{
 			// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
