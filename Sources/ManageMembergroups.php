@@ -1058,7 +1058,7 @@ function EditMembergroup()
 				'id' => $row['id_board'],
 				'name' => $row['name'],
 				'child_level' => $row['child_level'],
-				'selected' => !empty($row['can_access']),
+				'selected' => !(empty($row['can_access']) || $row['can_access'] == 'f'),
 			);
 		}
 		$smcFunc['db_free_result']($request);
