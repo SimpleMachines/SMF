@@ -1856,19 +1856,6 @@ function template_ignoreboards()
 	global $context, $txt, $settings, $scripturl;
 	// The main containing header.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		function selectBoards(ids)
-		{
-			var toggle = true;
-
-			for (i = 0; i < ids.length; i++)
-				toggle = toggle & document.forms.creator["ignore_brd" + ids[i]].checked;
-
-			for (i = 0; i < ids.length; i++)
-				document.forms.creator["ignore_brd" + ids[i]].checked = !toggle;
-		}
-	// ]]></script>
-
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg">
