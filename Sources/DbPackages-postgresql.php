@@ -629,6 +629,8 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
  */
 function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 {
+	// Let's be sure it's lowercase MySQL likes both, others no.
+	$type_name = strtolower($type_name);
 	// Generic => Specific.
 	if (!$reverse)
 	{
