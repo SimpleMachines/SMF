@@ -1434,7 +1434,7 @@ function PackageBrowse()
 
 function PackageOptions()
 {
-	global $txt, $scripturl, $context, $sourcedir, $modSettings;
+	global $txt, $scripturl, $context, $sourcedir, $modSettings, $smcFunc;
 
 	if (isset($_POST['submit']))
 	{

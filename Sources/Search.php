@@ -57,9 +57,6 @@ function PlushSearch1()
 		'name' => $txt['search']
 	);
 
-	// This is hard coded maximum string length.
-	$context['search_string_limit'] = 100;
-
 	$context['require_verification'] = $user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
 	if ($context['require_verification'])
 	{
@@ -116,6 +113,9 @@ function PlushSearch1()
 		{
 			if ($search_error === 'messages')
 				continue;
+
+			if ($search_error == 'string_too_long')
+				$txt['error_string_too_long'] = sprintf($txt['error_string_too_long'], $context['search_string_limit']);
 
 			$context['search_errors']['messages'][] = $txt['error_' . $search_error];
 		}
@@ -597,7 +597,6 @@ function PlushSearch2()
 	elseif ($smcFunc['strlen']($search_params['search']) > $context['search_string_limit'])
 	{
 		$context['search_errors']['string_too_long'] = true;
-		$txt['error_string_too_long'] = sprintf($txt['error_string_too_long'], $context['search_string_limit']);
 	}
 
 	// Change non-word characters into spaces.

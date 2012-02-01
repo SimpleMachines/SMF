@@ -1178,9 +1178,12 @@ function PickTheme()
 		$request = $smcFunc['db_query']('', '
 			SELECT id_theme, value
 			FROM {db_prefix}themes
-			WHERE variable = {string:theme_variant}',
+			WHERE variable = {string:theme_variant}
+				AND id_member IN ({array_int:id_member})
+			ORDER BY id_member ASC',
 			array(
 				'theme_variant' => 'theme_variant',
+				'id_member' => isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? array(-1, $context['current_member']) : array(-1),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
