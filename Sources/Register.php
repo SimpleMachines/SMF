@@ -505,7 +505,7 @@ function Register2($verifiedOpenID = false)
 	}
 	else
 	{
-		call_integration_hook('integrate_activate', array($row['member_name']));
+		call_integration_hook('integrate_activate', array($regOptions['username']));
 
 		setLoginCookie(60 * $modSettings['cookieTime'], $memberID, sha1(sha1(strtolower($regOptions['username']) . $regOptions['password']) . $regOptions['register_vars']['password_salt']));
 
