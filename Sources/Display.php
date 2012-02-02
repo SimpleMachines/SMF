@@ -1232,7 +1232,7 @@ function Download()
 		isAllowedTo('view_attachments');
 
 		// Make sure this attachment is on this board.
-		// NOTE: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
 		$request = $smcFunc['db_query']('', '
 			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
 			FROM {db_prefix}attachments AS a

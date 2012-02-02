@@ -454,10 +454,14 @@ function html_to_bbc($text)
 		// Now work out what the attributes are.
 		$attribs = fetchTagAttributes($matches[1]);
 		$tags = array();
+		$sizes_equivalence = array(1 => '8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt');
 		foreach ($attribs as $s => $v)
 		{
 			if ($s == 'size')
-				$tags[] = array('[size=' . (int) trim($v) . ']', '[/size]');
+			{
+				$v = empty((int) trim($v)) ? 1 : (int) trim($v);
+				$tags[] = array('[size=' . $sizes_equivalence[$v] . ']', '[/size]');
+			}
 			elseif ($s == 'face')
 				$tags[] = array('[font=' . trim(strtolower($v)) . ']', '[/font]');
 			elseif ($s == 'color')
