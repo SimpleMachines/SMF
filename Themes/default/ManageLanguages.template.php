@@ -195,6 +195,7 @@ function template_download_language()
 	echo '
 			<div class="righttext padding">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-dlang_token_var'], '" value="', $context['admin-dlang_token'], '" />
 				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button_submit" />
 			</div>
 		</form>

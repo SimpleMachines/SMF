@@ -495,7 +495,7 @@ function SplitSelectionExecute()
  */
 function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 {
-	global $user_info, $topic, $board, $modSettings, $smcFunc, $txt;
+	global $user_info, $topic, $board, $modSettings, $smcFunc, $txt, $sourcedir;
 
 	// Nothing to split?
 	if (empty($splitMessages))

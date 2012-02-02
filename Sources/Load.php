@@ -1371,7 +1371,6 @@ function isBrowser($browser)
 		}
 
 		log_error('Old browser support' . $function, 'debug', $file, $line);
-		var_dump($browser);die;
 	}
 
 	// Don't know any browser!

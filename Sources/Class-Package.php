@@ -813,7 +813,7 @@ class ftp_connection
 		$time = time();
 		do
 			$this->last_message = fgets($this->connection, 1024);
-		while ((strlen($this->last_message) < 4 || strpos($this->last_message, ' ') === 0 || strpos($this->last_message, ' ') !== 3) && time() - $time < 5);
+		while ((strlen($this->last_message) < 4 || strpos($this->last_message, ' ') === 0 || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < 5);
 
 		// Was the desired response returned?
 		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
@@ -830,7 +830,7 @@ class ftp_connection
 		$time = time();
 		do
 			$response = fgets($this->connection, 1024);
-		while (strpos($response, ' ') !== 3 && time() - $time < 5);
+		while (strpos($response, ' ', 3) !== 3 && time() - $time < 5);
 
 		// If it's not 227, we weren't given an IP and port, which means it failed.
 		if (strpos($response, '227 ') !== 0)
