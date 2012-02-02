@@ -27,13 +27,12 @@ $GLOBALS['search_versions'] = array(
 /**
  * Ask the user what they want to search for.
  * What it does:
- * * shows the screen to search forum posts (action=search), and uses the
- *   simple version if the simpleSearch setting is enabled.
- * * uses the main sub template of the Search template.
- * * uses the Search language file.
- * * requires the search_posts permission.
- * * decodes and loads search parameters given in the URL (if any).
- * * the form redirects to index.php?action=search2.
+ * - shows the screen to search forum posts (action=search), and uses the simple version if the simpleSearch setting is enabled.
+ * - uses the main sub template of the Search template.
+ * - uses the Search language file.
+ * - requires the search_posts permission.
+ * - decodes and loads search parameters given in the URL (if any).
+ * - the form redirects to index.php?action=search2.
  */
 function PlushSearch1()
 {
@@ -234,13 +233,12 @@ function PlushSearch1()
 /**
  * Gather the results and show them.
  * What it does:
- * * checks user input and searches the messages table for messages
- *   matching the query.
- * * requires the search_posts permission.
- * * uses the results sub template of the Search template.
- * * uses the Search language file.
- * * stores the results into the search cache.
- * * show the results of the search query.
+ * - checks user input and searches the messages table for messages matching the query.
+ * - requires the search_posts permission.
+ * - uses the results sub template of the Search template.
+ * - uses the Search language file.
+ * - stores the results into the search cache.
+ * - show the results of the search query.
  */
 function PlushSearch2()
 {
@@ -572,8 +570,9 @@ function PlushSearch2()
 
 	// *** Parse the search query
 
-	// Unfortunately, searching for words like this is going to be slow, so we're blacklisting them.
-	/**
+	/*
+	 * Unfortunately, searching for words like this is going to be slow, so we're blacklisting them.
+	 *
 	 * @todo Setting to add more here?
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
 	 */
@@ -616,8 +615,9 @@ function PlushSearch2()
 	$phraseArray = $matches[2];
 
 	// Remove the phrase parts and extract the words.
-	$wordArray = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']));
-
+	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
+	$wordArray = explode(' ',  $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
+	
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
 	$excludedIndexWords = array();
@@ -626,21 +626,25 @@ function PlushSearch2()
 
 	// .. first, we check for things like -"some words", but not "-some words".
 	foreach ($matches[1] as $index => $word)
+	{
 		if ($word === '-')
 		{
 			if (($word = trim($phraseArray[$index], '-_\' ')) !== '' && !in_array($word, $blacklisted_words))
 				$excludedWords[] = $word;
 			unset($phraseArray[$index]);
 		}
+		}
 
 	// Now we look for -test, etc.... normaller.
 	foreach ($wordArray as $index => $word)
+	{
 		if (strpos(trim($word), '-') === 0)
 		{
 			if (($word = trim($word, '-_\' ')) !== '' && !in_array($word, $blacklisted_words))
 				$excludedWords[] = $word;
 			unset($wordArray[$index]);
 		}
+	}
 
 	// The remaining words and phrases are all included.
 	$searchArray = array_merge($phraseArray, $wordArray);
@@ -1891,13 +1895,14 @@ function prepareSearchContext($reset = false)
 				$force_partial_word = false;
 				foreach ($context['key_words'] as $keyword)
 				{
+					$keyword = un_htmlspecialchars($keyword);
 					$keyword = preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~e', '$GLOBALS[\'smcFunc\'][\'entity_fix\'](\'\\1\')', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
 
 					if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword) != 0)
 						$force_partial_word = true;
 					$matchString .= strtr(preg_quote($keyword, '/'), array('\*' => '.+?')) . '|';
 				}
-				$matchString = substr($matchString, 0, -1);
+				$matchString = un_htmlspecialchars(substr($matchString, 0, -1));
 
 				$message['body'] = un_htmlspecialchars(strtr($message['body'], array('&nbsp;' => ' ', '<br />' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
 
@@ -2049,6 +2054,7 @@ function prepareSearchContext($reset = false)
 	foreach ($context['key_words'] as $query)
 	{
 		// Fix the international characters in the keyword too.
+		$query = un_htmlspecialchars($query);
 		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
 
 		$body_highlighted = preg_replace('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/ie' . ($context['utf8'] ? 'u' : ''), "'\$2' == '\$1' ? stripslashes('\$1') : '<strong class=\"highlight\">\$1</strong>'", $body_highlighted);
