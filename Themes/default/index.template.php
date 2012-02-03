@@ -75,6 +75,7 @@ function template_init()
 	$settings['require_theme_strings'] = false;
 
 	// Load the CSS
+	// The ?fin20 part of this link is just here to make sure browsers don't cache it wrongly.
 	loadCSSFile($settings['theme_url'] . '/css/index' . $context['theme_variant'] . '.css?fin20');
 
 	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
@@ -87,6 +88,8 @@ function template_init()
 		loadCSSFile($settings['theme_url'] . '/css/rtl.css');
 
 	// Now load the JS
+	// Note that the Superfish function seems to like being called by the full syntax.
+	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
 	loadJavascriptFile($settings['theme_url'] . '/scripts/jquery-1.6.4.min.js');
 	loadJavascriptFile($settings['theme_url'] . '/scripts/hoverIntent.js');
 	loadJavascriptFile($settings['theme_url'] . '/scripts/superfish.js');
@@ -106,39 +109,15 @@ function template_html_above()
 <html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 <head>';
 
-	// The ?fin20 part of this link is just here to make sure browsers don't cache it wrongly.
-	echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />';
-
-	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
-	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
-		if (isBrowser('is_' . $cssfix))
-			echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/', $cssfix, '.css" />';
-
-	// RTL languages require an additional stylesheet.
-	if ($context['right_to_left'])
-		echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css" />';
-
 	template_css();
 
 	// Here comes the JavaScript bits!
-	// Note that the Superfish function seems to like being called by the full syntax.
-	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
 	echo '
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/jquery-1.6.4.min.js"></script>
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/hoverIntent.js"></script>
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/superfish.js"></script>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?fin20"></script>
-	<script type="text/javascript">
-
+	<script type="text/javascript"><!-- // --><![CDATA[
 			$(document).ready(function() { 
 				$("ul.dropmenu").superfish(); 
 			});
-
-	</script>
+	// ]]></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var smf_theme_url = "', $settings['theme_url'], '";
 		var smf_default_theme_url = "', $settings['default_theme_url'], '";
@@ -597,7 +576,7 @@ function template_javascript_vars()
 }
 
 /**
- * Output the Javascript files
+ * Output the CSS files
  */
 function template_css()
 {
