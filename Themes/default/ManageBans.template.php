@@ -223,12 +223,11 @@ function template_ban_edit()
 		echo '
 					</tbody>
 				</table>
-				<div class="additional_rows">
-					<div class="floatleft">
-						[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>]
-					</div>
+				<div class="flow_auto">
 					<div class="floatright">
-						<input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+						<div class="additional_row">
+							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+						</div>
 					</div>
 				</div>
 				<br class="clear" />
