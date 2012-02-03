@@ -187,7 +187,7 @@ function ModifySubscriptionSettings($return_config = false)
  */
 function ViewSubscriptions()
 {
-	global $context, $txt, $modSettings, $smcFunc, $scripturl;
+	global $context, $txt, $modSettings, $smcFunc, $scripturl, $sourcedir;
 
 	// Not made the settings yet?
 	if (empty($modSettings['paid_currency_symbol']))
@@ -317,7 +317,7 @@ function ViewSubscriptions()
 		),
 	);
 
-	loadFile('Subs-List.php');
+	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
@@ -591,7 +591,7 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc;
+	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc, $sourcedir;
 
 	// Setup the template.
 	$context['page_title'] = $txt['viewing_users_subscribed'];
@@ -777,7 +777,7 @@ function ViewSubscribedUsers()
 		),
 	);
 
-	loadFile('Subs-List.php');
+	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';

@@ -590,7 +590,6 @@ function printMemberListRows($request)
 	}
 }
 
-
 /**
  * Used as a popup for searching members.
  * Uses sub template find_members of the Help template.
@@ -598,7 +597,7 @@ function printMemberListRows($request)
  */
 function JSMembers()
 {
-	global $context, $scripturl, $user_info, $smcFunc;
+	global $context, $scripturl, $user_info, $smcFunc, $sourcedir;
 
 	checkSession('get');
 
@@ -635,7 +634,7 @@ function JSMembers()
 	// If the user has done a search, well - search.
 	if (isset($_REQUEST['search']))
 	{
-		loadFile('Subs-Members.php');
+		require_once($sourcedir . 'Subs-Members.php');
 		$_REQUEST['search'] = $smcFunc['htmlspecialchars']($_REQUEST['search'], ENT_QUOTES);
 
 		$context['results'] = findMembers(array($_REQUEST['search']), true, $context['buddy_search']);
