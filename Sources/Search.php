@@ -708,6 +708,7 @@ function PlushSearch2()
 			'words' => array(),
 			'subject_words' => array(),
 			'all_words' => array(),
+			'complex_words' => array(),
 		);
 
 		// Sort the indexed words (large words -> small words -> excluded words).
@@ -752,6 +753,7 @@ function PlushSearch2()
 		{
 			$searchWords[$orIndex]['indexed_words'] = array_slice($searchWords[$orIndex]['indexed_words'], 0, 7);
 			$searchWords[$orIndex]['subject_words'] = array_slice($searchWords[$orIndex]['subject_words'], 0, 7);
+			$searchWords[$orIndex]['words'] = array_slice($searchWords[$orIndex]['words'], 0, 4);
 		}
 	}
 
@@ -1821,7 +1823,7 @@ function PlushSearch2()
  *
  * What it does:
  * - callback function for the results sub template.
-		- loads the necessary contextual data to show a search result.
+ * - loads the necessary contextual data to show a search result.
  *
  * @param $reset = false
  * @return array
@@ -2055,6 +2057,7 @@ function prepareSearchContext($reset = false)
 	{
 		// Fix the international characters in the keyword too.
 		$query = un_htmlspecialchars($query);
+		$query = trim($query, "\*+");
 		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
 
 		$body_highlighted = preg_replace('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/ie' . ($context['utf8'] ? 'u' : ''), "'\$2' == '\$1' ? stripslashes('\$1') : '<strong class=\"highlight\">\$1</strong>'", $body_highlighted);
@@ -2087,10 +2090,10 @@ function prepareSearchContext($reset = false)
 	return $output;
 }
 
-/*
+/**
  * Creates a search API and returns the object.
  *
-*/
+ */
 function findSearchAPI()
 {
 	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
@@ -2127,8 +2130,8 @@ function findSearchAPI()
 /**
  * This function compares the length of two strings plus a little.
  * What it does:
-		- callback function for usort used to sort the fulltext results.
-		- passes sorting duty to the current API.
+ * - callback function for usort used to sort the fulltext results.
+ * - passes sorting duty to the current API.
  *
  * @param string $a
  * @param string $b
