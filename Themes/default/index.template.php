@@ -114,11 +114,6 @@ function template_html_above()
 	// Here comes the JavaScript bits!
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
-			$(document).ready(function() { 
-				$("ul.dropmenu").superfish(); 
-			});
-	// ]]></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
 		var smf_theme_url = "', $settings['theme_url'], '";
 		var smf_default_theme_url = "', $settings['default_theme_url'], '";
 		var smf_images_url = "', $settings['images_url'], '";
@@ -139,6 +134,13 @@ function template_html_above()
 	// ]]></script>';
 
 	template_javascript();
+	
+	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+			$(document).ready(function() { 
+				$("ul.dropmenu").superfish(); 
+			});
+	// ]]></script>';
 
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />

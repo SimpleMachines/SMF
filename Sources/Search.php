@@ -56,6 +56,9 @@ function PlushSearch1()
 		'name' => $txt['search']
 	);
 
+	// This is hard coded maximum string length.
+	$context['search_string_limit'] = 100;
+
 	$context['require_verification'] = $user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
 	if ($context['require_verification'])
 	{
@@ -617,7 +620,7 @@ function PlushSearch2()
 	// Remove the phrase parts and extract the words.
 	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 	$wordArray = explode(' ',  $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
-	
+
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
 	$excludedIndexWords = array();
@@ -633,7 +636,7 @@ function PlushSearch2()
 				$excludedWords[] = $word;
 			unset($phraseArray[$index]);
 		}
-		}
+	}
 
 	// Now we look for -test, etc.... normaller.
 	foreach ($wordArray as $index => $word)
@@ -708,6 +711,7 @@ function PlushSearch2()
 			'words' => array(),
 			'subject_words' => array(),
 			'all_words' => array(),
+			'complex_words' => array(),
 		);
 
 		// Sort the indexed words (large words -> small words -> excluded words).
@@ -752,6 +756,7 @@ function PlushSearch2()
 		{
 			$searchWords[$orIndex]['indexed_words'] = array_slice($searchWords[$orIndex]['indexed_words'], 0, 7);
 			$searchWords[$orIndex]['subject_words'] = array_slice($searchWords[$orIndex]['subject_words'], 0, 7);
+			$searchWords[$orIndex]['words'] = array_slice($searchWords[$orIndex]['words'], 0, 4);
 		}
 	}
 
@@ -1646,7 +1651,7 @@ function PlushSearch2()
 					else
 						$_SESSION['search_cache']['num_results'] += $smcFunc['db_affected_rows']();
 				}
-				else
+				elseif ($_SESSION['search_cache']['num_results'] == -1)
 					$_SESSION['search_cache']['num_results'] = 0;
 			}
 		}
@@ -1821,7 +1826,7 @@ function PlushSearch2()
  *
  * What it does:
  * - callback function for the results sub template.
-		- loads the necessary contextual data to show a search result.
+ * - loads the necessary contextual data to show a search result.
  *
  * @param $reset = false
  * @return array
@@ -1907,9 +1912,9 @@ function prepareSearchContext($reset = false)
 				$message['body'] = un_htmlspecialchars(strtr($message['body'], array('&nbsp;' => ' ', '<br />' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
 
 				if (empty($modSettings['search_method']) || $force_partial_word)
-					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
+					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
 				else
-					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
+					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
 
 				$message['body'] = '';
 				foreach ($matches[0] as $index => $match)
@@ -2055,6 +2060,7 @@ function prepareSearchContext($reset = false)
 	{
 		// Fix the international characters in the keyword too.
 		$query = un_htmlspecialchars($query);
+		$query = trim($query, "\*+");
 		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
 
 		$body_highlighted = preg_replace('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/ie' . ($context['utf8'] ? 'u' : ''), "'\$2' == '\$1' ? stripslashes('\$1') : '<strong class=\"highlight\">\$1</strong>'", $body_highlighted);
@@ -2087,10 +2093,10 @@ function prepareSearchContext($reset = false)
 	return $output;
 }
 
-/*
+/**
  * Creates a search API and returns the object.
  *
-*/
+ */
 function findSearchAPI()
 {
 	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
@@ -2127,8 +2133,8 @@ function findSearchAPI()
 /**
  * This function compares the length of two strings plus a little.
  * What it does:
-		- callback function for usort used to sort the fulltext results.
-		- passes sorting duty to the current API.
+ * - callback function for usort used to sort the fulltext results.
+ * - passes sorting duty to the current API.
  *
  * @param string $a
  * @param string $b

@@ -114,12 +114,32 @@ class fulltext_search
 	// Do we have to do some work with the words we are searching for to prepare them?
 	public function prepareIndexes($word, &$wordsSearch, &$wordsExclude, $isExcluded)
 	{
-		global $modSettings;
+		global $modSettings, $smcFunc;
 
 		$subwords = text2words($word, null, false);
 
 		if (!$this->canDoBooleanSearch && count($subwords) > 1 && empty($modSettings['search_force_index']))
 			$wordsSearch['words'][] = $word;
+		elseif (empty($modSettings['search_force_index']) && $this->canDoBooleanSearch)
+		{
+			// A boolean capable search engine and not forced to only use an index, we may use a non index search
+			// this is harder on the server so we are restrictive here
+			if (count($subwords) > 1 && preg_match('~[.:@$]~', $word))
+			{
+				// using special characters that a full index would ignore and the remaining words are short which would also be ignored
+				if (($smcFunc['strlen'](current($subwords)) < $this->min_word_length) && ($smcFunc['strlen'](next($subwords)) < $this->min_word_length))
+				{
+					$wordsSearch['words'][] = trim($word, "/*- ");
+					$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+				}
+			}
+			elseif ($smcFunc['strlen'](trim($word, "/*- ")) < $this->min_word_length)
+			{
+				// short words have feelings too
+				$wordsSearch['words'][] = trim($word, "/*- ");
+				$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+			}
+		}
 
 		if ($this->canDoBooleanSearch)
 		{
@@ -208,11 +228,17 @@ class fulltext_search
 		elseif ($this->canDoBooleanSearch)
 		{
 			$query_params['boolean_match'] = '';
+
+			// remove any indexed words that are used in the complex body search terms
+			$words['indexed_words'] = array_diff($words['indexed_words'], $words['complex_words']);
+
 			foreach ($words['indexed_words'] as $fulltextWord)
 				$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
 			$query_params['boolean_match'] = substr($query_params['boolean_match'], 0, -1);
 
-			$query_where[] = 'MATCH (body) AGAINST ({string:boolean_match} IN BOOLEAN MODE)';
+			// if we have bool terms to search, add them in
+			if ($query_params['boolean_match'])
+				$query_where[] = 'MATCH (body) AGAINST ({string:boolean_match} IN BOOLEAN MODE)';
 		}
 		else
 		{
