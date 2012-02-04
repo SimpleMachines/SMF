@@ -56,6 +56,9 @@ function PlushSearch1()
 		'name' => $txt['search']
 	);
 
+	// This is hard coded maximum string length.
+	$context['search_string_limit'] = 100;
+
 	$context['require_verification'] = $user_info['is_guest'] && !empty($modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);
 	if ($context['require_verification'])
 	{
@@ -617,7 +620,7 @@ function PlushSearch2()
 	// Remove the phrase parts and extract the words.
 	$wordArray = preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . ($context['utf8'] ? 'u' : ''), ' ', $search_params['search']);
 	$wordArray = explode(' ',  $smcFunc['htmlspecialchars'](un_htmlspecialchars($wordArray), ENT_QUOTES));
-	
+
 	// A minus sign in front of a word excludes the word.... so...
 	$excludedWords = array();
 	$excludedIndexWords = array();
@@ -633,7 +636,7 @@ function PlushSearch2()
 				$excludedWords[] = $word;
 			unset($phraseArray[$index]);
 		}
-		}
+	}
 
 	// Now we look for -test, etc.... normaller.
 	foreach ($wordArray as $index => $word)
@@ -1648,7 +1651,7 @@ function PlushSearch2()
 					else
 						$_SESSION['search_cache']['num_results'] += $smcFunc['db_affected_rows']();
 				}
-				else
+				elseif ($_SESSION['search_cache']['num_results'] == -1)
 					$_SESSION['search_cache']['num_results'] = 0;
 			}
 		}
@@ -1909,9 +1912,9 @@ function prepareSearchContext($reset = false)
 				$message['body'] = un_htmlspecialchars(strtr($message['body'], array('&nbsp;' => ' ', '<br />' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
 
 				if (empty($modSettings['search_method']) || $force_partial_word)
-					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
+					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
 				else
-					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
+					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
 
 				$message['body'] = '';
 				foreach ($matches[0] as $index => $match)

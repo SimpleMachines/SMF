@@ -120,17 +120,27 @@ class fulltext_search
 
 		if (!$this->canDoBooleanSearch && count($subwords) > 1 && empty($modSettings['search_force_index']))
 			$wordsSearch['words'][] = $word;
-		// boolean capable search engine but perhaps using special characters or a short word and not forced to only use an index, Regex it is then
 		elseif (empty($modSettings['search_force_index']) && $this->canDoBooleanSearch)
 		{
-			if ((count($subwords) > 1 && preg_match('~[.:@]~', $word)) || ($smcFunc['strlen'](trim($word, "/*- ")) < $this->min_word_length))
+			// A boolean capable search engine and not forced to only use an index, we may use a non index search
+			// this is harder on the server so we are restrictive here
+			if (count($subwords) > 1 && preg_match('~[.:@$]~', $word))
 			{
-				// this will be used in a LIKE or RLIKE term, we will remove it (later) from our indexed_words array
+				// using special characters that a full index would ignore and the remaining words are short which would also be ignored
+				if (($smcFunc['strlen'](current($subwords)) < $this->min_word_length) && ($smcFunc['strlen'](next($subwords)) < $this->min_word_length))
+				{
+					$wordsSearch['words'][] = trim($word, "/*- ");
+					$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+				}
+			}
+			elseif ($smcFunc['strlen'](trim($word, "/*- ")) < $this->min_word_length)
+			{
+				// short words have feelings too
 				$wordsSearch['words'][] = trim($word, "/*- ");
 				$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
 			}
 		}
-		
+
 		if ($this->canDoBooleanSearch)
 		{
 			$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
