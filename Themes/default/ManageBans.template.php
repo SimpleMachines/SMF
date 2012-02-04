@@ -220,12 +220,11 @@ function template_ban_edit()
 					</tbody>
 				</table>
 				<div class="flow_auto">
-					<br />
-					<input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
-					<a class="button_link" href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>
-					<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
+					<div class="floatright">
+						<div class="additional_row">
+							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+						</div>
+					</div>
 				</div>
 			</form>';
 

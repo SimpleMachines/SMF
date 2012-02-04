@@ -366,184 +366,19 @@ function BanEdit()
 {
 	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc;
 
-	$_REQUEST['bg'] = empty($_REQUEST['bg']) ? 0 : (int) $_REQUEST['bg'];
+	if (isset($_REQUEST['save']) && empty($context['ban_errors']))
+		BanEdit2();
 
-	// Adding or editing a ban trigger?
-	if (!empty($_POST['add_new_trigger']) || !empty($_POST['edit_trigger']))
+	// Template needs this to show errors using javascript
+	loadLanguage('Errors');
+
+/**
+	 @todo convert errors
+	if (!empty($context['ban_errors']))
 	{
-		checkSession();
-		validateToken('admin-bet');
-
-		$newBan = !empty($_POST['add_new_trigger']);
-		$values = array(
-			'id_ban_group' => $_REQUEST['bg'],
-			'hostname' => '',
-			'email_address' => '',
-			'id_member' => 0,
-			'ip_low1' => 0,
-			'ip_high1' => 0,
-			'ip_low2' => 0,
-			'ip_high2' => 0,
-			'ip_low3' => 0,
-			'ip_high3' => 0,
-			'ip_low4' => 0,
-			'ip_high4' => 0,
-			'ip_low5' => 0,
-			'ip_high5' => 0,
-			'ip_low6' => 0,
-			'ip_high6' => 0,
-			'ip_low7' => 0,
-			'ip_high7' => 0,
-			'ip_low8' => 0,
-			'ip_high8' => 0,
-		);
-
-		// Preset all values that are required.
-		if ($newBan)
-		{
-			$insertKeys = array(
-				'id_ban_group' => 'int',
-				'hostname' => 'string',
-				'email_address' => 'string',
-				'id_member' => 'int',
-				'ip_low1' => 'int',
-				'ip_high1' => 'int',
-				'ip_low2' => 'int',
-				'ip_high2' => 'int',
-				'ip_low3' => 'int',
-				'ip_high3' => 'int',
-				'ip_low4' => 'int',
-				'ip_high4' => 'int',
-				'ip_low5' => 'int',
-				'ip_high5' => 'int',
-				'ip_low6' => 'int',
-				'ip_high6' => 'int',
-				'ip_low7' => 'int',
-				'ip_high7' => 'int',
-				'ip_low8' => 'int',
-				'ip_high8' => 'int',
-			);
-		}
-		else
-			$updateString = '
-				hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
-				ip_low1 = {int:ip_low1}, ip_high1 = {int:ip_high1},
-				ip_low2 = {int:ip_low2}, ip_high2 = {int:ip_high2},
-				ip_low3 = {int:ip_low3}, ip_high3 = {int:ip_high3},
-				ip_low4 = {int:ip_low4}, ip_high4 = {int:ip_high4},
-				ip_low5 = {int:ip_low5}, ip_high5 = {int:ip_high5},
-				ip_low6 = {int:ip_low6}, ip_high6 = {int:ip_high6},
-				ip_low7 = {int:ip_low7}, ip_high7 = {int:ip_high7},
-				ip_low8 = {int:ip_low8}, ip_high8 = {int:ip_high8}';
-
-		if ($_POST['bantype'] == 'ip_ban')
-		{
-			$ip = trim($_POST['ip']);
-			$ip_parts = ip2range($ip);
-			$ip_check = checkExistingTriggerIP($ip_parts, $ip);
-			if (!$ip_check)
-				fatal_lang_error('invalid_ip', false);
-			$values = array_merge($values, $ip_check);
-
-			$modlogInfo['ip_range'] = $_POST['ip'];
-		}
-		elseif ($_POST['bantype'] == 'hostname_ban')
-		{
-			if (preg_match('/[^\w.\-*]/', $_POST['hostname']) == 1)
-				fatal_lang_error('invalid_hostname', false);
-
-			// Replace the * wildcard by a MySQL compatible wildcard %.
-			$_POST['hostname'] = str_replace('*', '%', $_POST['hostname']);
-
-			$values['hostname'] = $_POST['hostname'];
-
-			$modlogInfo['hostname'] = $_POST['hostname'];
-		}
-		elseif ($_POST['bantype'] == 'email_ban')
-		{
-			if (preg_match('/[^\w.\-\+*@]/', $_POST['email']) == 1)
-				fatal_lang_error('invalid_email', false);
-			$_POST['email'] = strtolower(str_replace('*', '%', $_POST['email']));
-
-			// Check the user is not banning an admin.
-			$request = $smcFunc['db_query']('', '
-				SELECT id_member
-				FROM {db_prefix}members
-				WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
-					AND email_address LIKE {string:email}
-				LIMIT 1',
-				array(
-					'admin_group' => 1,
-					'email' => $_POST['email'],
-				)
-			);
-			if ($smcFunc['db_num_rows']($request) != 0)
-				fatal_lang_error('no_ban_admin', 'critical');
-			$smcFunc['db_free_result']($request);
-
-			$values['email_address'] = $_POST['email'];
-
-			$modlogInfo['email'] = $_POST['email'];
-		}
-		elseif ($_POST['bantype'] == 'user_ban')
-		{
-			$_POST['user'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $smcFunc['htmlspecialchars']($_POST['user'], ENT_QUOTES));
-
-			$request = $smcFunc['db_query']('', '
-				SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
-				FROM {db_prefix}members
-				WHERE member_name = {string:user_name} OR real_name = {string:user_name}
-				LIMIT 1',
-				array(
-					'admin_group' => 1,
-					'user_name' => $_POST['user'],
-				)
-			);
-			if ($smcFunc['db_num_rows']($request) == 0)
-				fatal_lang_error('invalid_username', false);
-			list ($memberid, $isAdmin) = $smcFunc['db_fetch_row']($request);
-			$smcFunc['db_free_result']($request);
-
-			if ($isAdmin && $isAdmin != 'f')
-				fatal_lang_error('no_ban_admin', 'critical');
-
-			$values['id_member'] = $memberid;
-
-			$modlogInfo['member'] = $memberid;
-		}
-		else
-			fatal_lang_error('no_bantype_selected', false);
-
-		if ($newBan)
-			$smcFunc['db_insert']('',
-				'{db_prefix}ban_items',
-				$insertKeys,
-				$values,
-				array('id_ban')
-			);
-		else
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}ban_items
-				SET ' . $updateString . '
-				WHERE id_ban = {int:ban_item}
-					AND id_ban_group = {int:id_ban_group}',
-				array_merge($values, array(
-					'ban_item' => (int) $_REQUEST['bi'],
-				))
-			);
-
-		// Log the addion of the ban entry into the moderation log.
-		logAction('ban', $modlogInfo + array(
-			'new' => $newBan,
-			'type' => $_POST['bantype'],
-		));
-
-		// Register the last modified date.
-		updateSettings(array('banLastUpdated' => time()));
-
-		// Update the member table to represent the new ban situation.
-		updateBanMembers();
+		
 	}
+*/
 
 	// The user pressed 'Remove selected ban entries'.
 	elseif (!empty($_POST['remove_selection']) && !empty($_POST['ban_items']) && is_array($_POST['ban_items']))
@@ -566,269 +401,6 @@ function BanEdit()
 		);
 
 		// It changed, let the settings and the member table know.
-		updateSettings(array('banLastUpdated' => time()));
-		updateBanMembers();
-	}
-
-	// Modify OR add a ban.
-	elseif (!empty($_POST['modify_ban']) || !empty($_POST['add_ban']))
-	{
-		checkSession();
-		validateToken('admin-bet');
-
-		$addBan = !empty($_POST['add_ban']);
-		if (empty($_POST['ban_name']))
-			fatal_lang_error('ban_name_empty', false);
-
-		// Let's not allow HTML in ban names, it's more evil than beneficial.
-		$_POST['ban_name'] = $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES);
-
-		// Check whether a ban with this name already exists.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_ban_group
-			FROM {db_prefix}ban_groups
-			WHERE name = {string:new_ban_name}' . ($addBan ? '' : '
-				AND id_ban_group != {int:ban_group}') . '
-			LIMIT 1',
-			array(
-				'ban_group' => $_REQUEST['bg'],
-				'new_ban_name' => $_POST['ban_name'],
-			)
-		);
-		if ($smcFunc['db_num_rows']($request) == 1)
-			fatal_lang_error('ban_name_exists', false, array($_POST['ban_name']));
-		$smcFunc['db_free_result']($request);
-
-		$_POST['reason'] = $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES);
-		$_POST['notes'] = $smcFunc['htmlspecialchars']($_POST['notes'], ENT_QUOTES);
-		$_POST['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br />', '&nbsp; '), $_POST['notes']);
-		$_POST['expiration'] = $_POST['expiration'] == 'never' ? 'NULL' : ($_POST['expiration'] == 'expired' ? '0' : ($_POST['expire_date'] != $_POST['old_expire'] ? time() + 24 * 60 * 60 * (int) $_POST['expire_date'] : 'expire_time'));
-		$_POST['full_ban'] = empty($_POST['full_ban']) ? '0' : '1';
-		$_POST['cannot_post'] = !empty($_POST['full_ban']) || empty($_POST['cannot_post']) ? '0' : '1';
-		$_POST['cannot_register'] = !empty($_POST['full_ban']) || empty($_POST['cannot_register']) ? '0' : '1';
-		$_POST['cannot_login'] = !empty($_POST['full_ban']) || empty($_POST['cannot_login']) ? '0' : '1';
-
-		if ($addBan)
-		{
-			// Adding some ban triggers?
-			if ($addBan && !empty($_POST['ban_suggestion']) && is_array($_POST['ban_suggestion']))
-			{
-				$ban_triggers = array();
-				$ban_logs = array();
-				if (in_array('main_ip', $_POST['ban_suggestion']) && !empty($_POST['main_ip']))
-				{
-					$ip = trim($_POST['main_ip']);
-					$ip_parts = ip2range($ip);
-					if (!checkExistingTriggerIP($ip_parts, $ip))
-						fatal_lang_error('invalid_ip', false);
-
-					$ban_triggers[] = array(
-						$ip_parts[0]['low'],
-						$ip_parts[0]['high'],
-						$ip_parts[1]['low'],
-						$ip_parts[1]['high'],
-						$ip_parts[2]['low'],
-						$ip_parts[2]['high'],
-						$ip_parts[3]['low'],
-						$ip_parts[3]['high'],
-						$ip_parts[4]['low'],
-						$ip_parts[4]['high'],
-						$ip_parts[5]['low'],
-						$ip_parts[5]['high'],
-						$ip_parts[6]['low'],
-						$ip_parts[6]['high'],
-						$ip_parts[7]['low'],
-						$ip_parts[7]['high'],
-						'',
-						'',
-						0,
-					);
-
-					$ban_logs[] = array(
-						'ip_range' => $_POST['main_ip'],
-					);
-				}
-				if (in_array('hostname', $_POST['ban_suggestion']) && !empty($_POST['hostname']))
-				{
-					if (preg_match('/[^\w.\-*]/', $_POST['hostname']) == 1)
-						fatal_lang_error('invalid_hostname', false);
-
-					// Replace the * wildcard by a MySQL wildcard %.
-					$_POST['hostname'] = str_replace('*', '%', $_POST['hostname']);
-
-					$ban_triggers[] = array(
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						substr($_POST['hostname'], 0, 255),
-						'',
-						0,
-					);
-					$ban_logs[] = array(
-						'hostname' => $_POST['hostname'],
-					);
-				}
-				if (in_array('email', $_POST['ban_suggestion']) && !empty($_POST['email']))
-				{
-					if (preg_match('/[^\w.\-\+*@]/', $_POST['email']) == 1)
-						fatal_lang_error('invalid_email', false);
-					$_POST['email'] = strtolower(str_replace('*', '%', $_POST['email']));
-
-					$ban_triggers[] = array(
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						'',
-						substr($_POST['email'], 0, 255),
-						0,
-					);
-					$ban_logs[] = array(
-						'email' => $_POST['email'],
-					);
-				}
-				if (in_array('user', $_POST['ban_suggestion']) && (!empty($_POST['bannedUser']) || !empty($_POST['user'])))
-				{
-					// We got a username, let's find its ID.
-					if (empty($_POST['bannedUser']))
-					{
-						$_POST['user'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $smcFunc['htmlspecialchars']($_POST['user'], ENT_QUOTES));
-
-						$request = $smcFunc['db_query']('', '
-							SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
-							FROM {db_prefix}members
-							WHERE member_name = {string:username} OR real_name = {string:username}
-							LIMIT 1',
-							array(
-								'admin_group' => 1,
-								'username' => $_POST['user'],
-							)
-						);
-						if ($smcFunc['db_num_rows']($request) == 0)
-							fatal_lang_error('invalid_username', false);
-						list ($_POST['bannedUser'], $isAdmin) = $smcFunc['db_fetch_row']($request);
-						$smcFunc['db_free_result']($request);
-
-						if ($isAdmin && $isAdmin != 'f')
-							fatal_lang_error('no_ban_admin', 'critical');
-					}
-
-					$ban_triggers[] = array(
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						'',
-						'',
-						(int) $_POST['bannedUser'],
-					);
-					$ban_logs[] = array(
-						'member' => $_POST['bannedUser'],
-					);
-				}
-
-				if (!empty($_POST['ban_suggestion']['ips']) && is_array($_POST['ban_suggestion']['ips']))
-				{
-					$_POST['ban_suggestion']['ips'] = array_unique($_POST['ban_suggestion']['ips']);
-
-					// Don't add the main IP again.
-					if (in_array('main_ip', $_POST['ban_suggestion']))
-						$_POST['ban_suggestion']['ips'] = array_diff($_POST['ban_suggestion']['ips'], array($_POST['main_ip']));
-
-					foreach ($_POST['ban_suggestion']['ips'] as $ip)
-					{
-						$ip_parts = ip2range($ip);
-
-						// They should be alright, but just to be sure...
-						if (count($ip_parts) != 4 || count($ip_parts) != 8)
-							fatal_lang_error('invalid_ip', false);
-
-						$ban_triggers[] = array(
-							$ip_parts[0]['low'],
-							$ip_parts[0]['high'],
-							$ip_parts[1]['low'],
-							$ip_parts[1]['high'],
-							$ip_parts[2]['low'],
-							$ip_parts[2]['high'],
-							$ip_parts[3]['low'],
-							$ip_parts[3]['high'],
-							$ip_parts[4]['low'],
-							$ip_parts[4]['high'],
-							$ip_parts[5]['low'],
-							$ip_parts[5]['high'],
-							$ip_parts[6]['low'],
-							$ip_parts[6]['high'],
-							$ip_parts[7]['low'],
-							$ip_parts[7]['high'],
-							'',
-							'',
-							0,
-						);
-						$ban_logs[] = array(
-							'ip_range' => $ip,
-						);
-					}
-				}
-			}
-
-			// Yes yes, we're ready to add now.
-			$smcFunc['db_insert']('',
-				'{db_prefix}ban_groups',
-				array(
-					'name' => 'string-20', 'ban_time' => 'int', 'expire_time' => 'raw', 'cannot_access' => 'int', 'cannot_register' => 'int',
-					'cannot_post' => 'int', 'cannot_login' => 'int', 'reason' => 'string-255', 'notes' => 'string-65534',
-				),
-				array(
-					$_POST['ban_name'], time(), $_POST['expiration'], $_POST['full_ban'], $_POST['cannot_register'],
-					$_POST['cannot_post'], $_POST['cannot_login'], $_POST['reason'], $_POST['notes'],
-				),
-				array('id_ban_group')
-			);
-			$_REQUEST['bg'] = $smcFunc['db_insert_id']('{db_prefix}ban_groups', 'id_ban_group');
-
-			// Now that the ban group is added, add some triggers as well.
-			if (!empty($ban_triggers) && !empty($_REQUEST['bg']))
-			{
-				// Put in the ban group ID.
-				foreach ($ban_triggers as $k => $trigger)
-					array_unshift($ban_triggers[$k], $_REQUEST['bg']);
-
-				// Log what we are doing!
-				foreach ($ban_logs as $log_details)
-					logAction('ban', $log_details + array('new' => 1));
-
-				$smcFunc['db_insert']('',
-					'{db_prefix}ban_items',
-					array(
-						'id_ban_group' => 'int', 'ip_low1' => 'int', 'ip_high1' => 'int', 'ip_low2' => 'int', 'ip_high2' => 'int',
-						'ip_low3' => 'int', 'ip_high3' => 'int', 'ip_low4' => 'int', 'ip_high4' => 'int', 'ip_low5' => 'int',
-						'ip_high5' => 'int', 'ip_low6' => 'int', 'ip_high6' => 'int', 'ip_low7' => 'int', 'ip_high7' => 'int',
-						'ip_low8' => 'int', 'ip_high8' => 'int', 'hostname' => 'string-255', 'email_address' => 'string-255', 'id_member' => 'int',
-					),
-					$ban_triggers,
-					array('id_ban')
-				);
-			}
-		}
-		else
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}ban_groups
-				SET
-					name = {string:ban_name},
-					reason = {string:reason},
-					notes = {string:notes},
-					expire_time = {raw:expiration},
-					cannot_access = {int:cannot_access},
-					cannot_post = {int:cannot_post},
-					cannot_register = {int:cannot_register},
-					cannot_login = {int:cannot_login}
-				WHERE id_ban_group = {int:id_ban_group}',
-				array(
-					'expiration' => $_POST['expiration'],
-					'cannot_access' => $_POST['full_ban'],
-					'cannot_post' => $_POST['cannot_post'],
-					'cannot_register' => $_POST['cannot_register'],
-					'cannot_login' => $_POST['cannot_login'],
-					'id_ban_group' => $_REQUEST['bg'],
-					'ban_name' => $_POST['ban_name'],
-					'reason' => $_POST['reason'],
-					'notes' => $_POST['notes'],
-				)
-			);
-
-		// No more caching, we have something new here.
 		updateSettings(array('banLastUpdated' => time()));
 		updateBanMembers();
 	}
@@ -1021,9 +593,6 @@ function BanEdit()
 		}
 	}
 
-	// Template needs this to show errors using javascript
-	loadLanguage('Errors');
-
 	// If we're in wireless mode remove the admin template layer and use a special template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
 	{
@@ -1036,6 +605,491 @@ function BanEdit()
 		$context['sub_template'] = 'ban_edit';
 
 	createToken('admin-bet');
+}
+
+function banEdit2()
+{
+	global $context;
+
+	checkSession();
+	validateToken('admin-bet');
+
+	$context['ban_errors'] = array();
+
+	// Adding or editing a ban group
+	if (isset($_POST['add_ban']) || isset($_POST['modify_ban']))
+	{
+		// Let's collect all the information we need
+		$ban_info['group_id'] = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
+		$ban_info['expire_date'] = !empty($_POST['ban_time']) ? (int) $_POST['ban_time'] : 0;
+		$ban_info['expiration'] = empty($_POST['ban_time']) ? 'NULL' : ($ban_info['expire_date'] != 0 ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 'expire_time');
+		$ban_info['full_ban'] = empty($_POST['ban_time']) ? 0 : 1;
+		$ban_info['reason'] = !empty($_POST['ban_reason']) ? $smcFunc['htmlspecialchars']($_POST['ban_reason'], ENT_QUOTES) : '';
+		$ban_info['ban_name'] = !empty($_POST['ban_name']) ? $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES) : '';
+		$ban_info['notes'] = isset($_POST['notes']) ? $smcFunc['htmlspecialchars']($_POST['notes'], ENT_QUOTES) : '';
+		$ban_info['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br />', '&nbsp; '), $ban_info['notes']);
+		$ban_info['cannot_post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
+		$ban_info['cannot_register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
+		$ban_info['cannot_login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;	
+
+		// Adding a new ban group
+		if (empty($_REQUEST['bg']))
+			$ban_group_id = insertBanGroup($ban_info);
+		// Editing an existing ban group
+		else
+			$ban_group_id = updateBanGroup($ban_info);
+
+		if (!is_numeric($ban_group_id))
+			$context['ban_settings'] = $ban_info;
+		else
+			$ban_info['group_id'] = $ban_group_id;
+	}
+
+	if (isset($_POST['ban_suggestion']))
+	{
+		$triggers = array();
+		$ban_triggers = array();
+
+		foreach ($_POST['ban_suggestion'] as $key => $value)
+			$triggers[$value] = $_POST[$value];
+
+		$ban_triggers = validateTriggers($triggers);
+
+		// Time to save!
+		if (!empty($ban_triggers['ban_triggers']) && empty($context['ban_errors']))
+		{
+			if (empty($_REQUEST['bi']))
+				addTriggers($ban_info['group_id'], $ban_triggers['ban_triggers'], $ban_triggers['log_info']);
+			else
+				updateTriggers((int) $_REQUEST['bi'], $ban_info['group_id'], $ban_triggers['ban_triggers'][0], $ban_triggers['log_info'][0]);
+		}
+		// Something went wrong somewhere... Oh well, let's go back.
+		elseif (!empty($ban_triggers['ban_triggers']) && !empty($context['ban_errors']))
+		{
+			$context['ban_suggestion'] = $triggers;
+		}
+	}
+
+	if (!empyt($context['ban_errors']))
+		return BanEdit();
+
+	// Register the last modified date.
+	updateSettings(array('banLastUpdated' => time()));
+
+	// Update the member table to represent the new ban situation.
+	updateBanMembers();
+}
+
+/**
+ * This function validates the ban triggers
+ *
+ * @param array $triggers
+ * @return triggers and logs ready to be inserted in the database
+ */
+function validateTriggers(&$triggers)
+{
+	global $context;
+
+	if (empty($triggers))
+		$context['ban_erros'][] = 'ban_empty_triggers';
+
+	$ban_triggers = array();
+
+	foreach ($triggers as $key => $value)
+	{
+		if (!empty($value))
+		{
+			if ($key == 'main_ip')
+			{
+				$value = trim($value);
+				$ip_parts = ip2range($value);
+				if (!checkExistingTriggerIP($ip_parts, $value))
+					$context['ban_erros'][] = 'invalid_ip';
+				else
+				{
+					$ban_triggers['main_ip'] = array(
+						'ip_low1' => $ip_parts[0]['low'],
+						'ip_high1' => $ip_parts[0]['high'],
+						'ip_low2' => $ip_parts[1]['low'],
+						'ip_high2' => $ip_parts[1]['high'],
+						'ip_low3' => $ip_parts[2]['low'],
+						'ip_high3' => $ip_parts[2]['high'],
+						'ip_low4' => $ip_parts[3]['low'],
+						'ip_high4' => $ip_parts[3]['high'],
+						'ip_low5' => $ip_parts[4]['low'],
+						'ip_high5' => $ip_parts[4]['high'],
+						'ip_low6' => $ip_parts[5]['low'],
+						'ip_high6' => $ip_parts[5]['high'],
+						'ip_low7' => $ip_parts[6]['low'],
+						'ip_high7' => $ip_parts[6]['high'],
+						'ip_low8' => $ip_parts[7]['low'],
+						'ip_high8' => $ip_parts[7]['high'],
+					);
+				}
+			}
+			elseif ($key == 'hostname')
+			{
+				if (preg_match('/[^\w.\-*]/', $value) == 1)
+					$context['ban_erros'][] = 'invalid_hostname';
+				else
+				{
+					// Replace the * wildcard by a MySQL wildcard %.
+					$value = substr(str_replace('*', '%', $value), 0, 255);
+
+					$ban_triggers['hostname']['hostname'] = $value;
+				}
+			}
+			elseif ($key == 'email')
+			{
+				if (preg_match('/[^\w.\-\+*@]/', $value) == 1)
+					$context['ban_erros'][] = 'invalid_email';
+
+				// Check the user is not banning an admin.
+				$request = $smcFunc['db_query']('', '
+					SELECT id_member
+					FROM {db_prefix}members
+					WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
+						AND email_address LIKE {string:email}
+					LIMIT 1',
+					array(
+						'admin_group' => 1,
+						'email' => $value,
+					)
+				);
+				if ($smcFunc['db_num_rows']($request) != 0)
+					$context['ban_erros'][] = 'no_ban_admin';
+				$smcFunc['db_free_result']($request);
+
+				$value = substr(strtolower(str_replace('*', '%', $value)), 0, 255);
+
+				$ban_triggers['email']['email_address'] = $value;
+			}
+			elseif ($key == 'user')
+			{
+				$user = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $smcFunc['htmlspecialchars']($value, ENT_QUOTES));
+
+				$request = $smcFunc['db_query']('', '
+					SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
+					FROM {db_prefix}members
+					WHERE member_name = {string:username} OR real_name = {string:username}
+					LIMIT 1',
+					array(
+						'admin_group' => 1,
+						'username' => $user,
+					)
+				);
+				if ($smcFunc['db_num_rows']($request) == 0)
+					$context['ban_erros'][] = 'invalid_username';
+				list ($value, $isAdmin) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				if ($isAdmin && strtolower($isAdmin) != 'f')
+				{
+					unset($value);
+					$context['ban_erros'][] = 'no_ban_admin';
+				}
+
+				$ban_triggers['user']['id_member'] = $user_id;
+			}
+			else
+				$context['ban_erros'][] = 'no_bantype_selected';
+
+			if (isset($value))
+				$log_info[] = array(
+					'value' => $value,
+					'bantype' => $key,
+				);
+		}
+	}
+	return array('ban_triggers' => $ban_triggers, 'log_info' => $log_info);
+}
+
+/**
+ * This function actually inserts the ban triggers into the database
+ *
+ * @param int $group_id
+ * @param array $triggers
+ * @param array $logs
+ * @return nothing
+ */
+function addTriggers($group_id = 0, $triggers = array(), $logs = array())
+{
+	global $smcFunc;
+
+	if (empty($group_id))
+		$context['ban_errors'][] = 'ban_group_id_empty';
+	if (empty($triggers))
+		$context['ban_errors'][] = 'ban_no_triggers';
+
+	if (!empty($context['ban_errors']))
+		return;
+
+	$logCorrel = array(
+		'main_ip' => 'ip_range',
+		'hostname' => 'email',
+		'email' => 'email',
+		'user' => 'member',
+	);
+
+	// Preset all values that are required.
+	$values = array(
+		'id_ban_group' => $group_id,
+		'hostname' => '',
+		'email_address' => '',
+		'id_member' => 0,
+		'ip_low1' => 0,
+		'ip_high1' => 0,
+		'ip_low2' => 0,
+		'ip_high2' => 0,
+		'ip_low3' => 0,
+		'ip_high3' => 0,
+		'ip_low4' => 0,
+		'ip_high4' => 0,
+		'ip_low5' => 0,
+		'ip_high5' => 0,
+		'ip_low6' => 0,
+		'ip_high6' => 0,
+		'ip_low7' => 0,
+		'ip_high7' => 0,
+		'ip_low8' => 0,
+		'ip_high8' => 0,
+	);
+
+	$insertKeys = array(
+		'id_ban_group' => 'int',
+		'hostname' => 'string',
+		'email_address' => 'string',
+		'id_member' => 'int',
+		'ip_low1' => 'int',
+		'ip_high1' => 'int',
+		'ip_low2' => 'int',
+		'ip_high2' => 'int',
+		'ip_low3' => 'int',
+		'ip_high3' => 'int',
+		'ip_low4' => 'int',
+		'ip_high4' => 'int',
+		'ip_low5' => 'int',
+		'ip_high5' => 'int',
+		'ip_low6' => 'int',
+		'ip_high6' => 'int',
+		'ip_low7' => 'int',
+		'ip_high7' => 'int',
+		'ip_low8' => 'int',
+		'ip_high8' => 'int',
+	);
+
+	foreach ($triggers as $key => &$trigger)
+		$trigger = array_merge($values, $trigger);
+
+	$smcFunc['db_insert']('',
+		'{db_prefix}ban_items',
+		$insertKeys,
+		$triggers,
+		array('id_ban')
+	);
+
+	// Log the addion of the ban entries into the moderation log.
+	foreach ($logs as $log)
+		logAction('ban', array(
+			$logCorrel[$log['bantype']] => $log['value'],
+			'new' => 1,
+			'type' => $log['bantype'],
+		));
+}
+
+/**
+ * This function updates an existing ban trigger into the database
+ *
+ * @param int $ban_item
+ * @param int $group_id
+ * @param array $triggers
+ * @param array $logs
+ * @return nothing
+ */
+function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs = array())
+{
+	global $smcFunc $context;
+
+	if (empty($ban_item))
+		$context['ban_errors'][] = 'ban_ban_item_empty';
+	if (empty($group_id))
+		$context['ban_errors'][] = 'ban_group_id_empty';
+	if (empty($triggers))
+		$context['ban_errors'][] = 'ban_no_triggers';
+
+	if (!empty($context['ban_errors']))
+		return;
+
+	// Preset all values that are required.
+	$values = array(
+		'id_ban_group' => $group_id,
+		'hostname' => '',
+		'email_address' => '',
+		'id_member' => 0,
+		'ip_low1' => 0,
+		'ip_high1' => 0,
+		'ip_low2' => 0,
+		'ip_high2' => 0,
+		'ip_low3' => 0,
+		'ip_high3' => 0,
+		'ip_low4' => 0,
+		'ip_high4' => 0,
+		'ip_low5' => 0,
+		'ip_high5' => 0,
+		'ip_low6' => 0,
+		'ip_high6' => 0,
+		'ip_low7' => 0,
+		'ip_high7' => 0,
+		'ip_low8' => 0,
+		'ip_high8' => 0,
+	);
+
+	$trigger = array_merge($values, $trigger);
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}ban_items
+		SET 
+			hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
+			ip_low1 = {int:ip_low1}, ip_high1 = {int:ip_high1},
+			ip_low2 = {int:ip_low2}, ip_high2 = {int:ip_high2},
+			ip_low3 = {int:ip_low3}, ip_high3 = {int:ip_high3},
+			ip_low4 = {int:ip_low4}, ip_high4 = {int:ip_high4},
+			ip_low5 = {int:ip_low5}, ip_high5 = {int:ip_high5},
+			ip_low6 = {int:ip_low6}, ip_high6 = {int:ip_high6},
+			ip_low7 = {int:ip_low7}, ip_high7 = {int:ip_high7},
+			ip_low8 = {int:ip_low8}, ip_high8 = {int:ip_high8}
+		WHERE id_ban = {int:ban_item}
+			AND id_ban_group = {int:id_ban_group}',
+		array_merge($trigger, array(
+			'id_ban_group' => $group_id,
+			'ban_item' => $ban_item,
+		))
+	);
+	// Log the addion of the ban entries into the moderation log.
+	logAction('ban', array(
+		$logCorrel[$log['bantype']] => $log['value'],
+		'new' => 0,
+		'type' => $log['bantype'],
+	));
+}
+
+/**
+ * Updates an existing ban group
+ * If the name doesn't exists a new one is created
+ *
+ * @param array $ban_info
+ * @return nothing
+ */
+function updateBanGroup($ban_info = array())
+{
+	global $smcFunc, $context;
+
+	if (empty($ban_info['ban_name']))
+		$context['ban_errors'][] = 'ban_name_empty';
+	if (empty($ban_info['group_id']))
+		$context['ban_errors'][] = 'ban_id_empty';
+
+	if (!empty($context['ban_errors']))
+		return;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_ban_group
+		FROM {db_prefix}ban_groups
+		WHERE name = {string:new_ban_name}
+			AND id_ban_group = {int:ban_group}
+		LIMIT 1',
+		array(
+			'ban_group' => $ban_info['group_id'],
+			'new_ban_name' => $ban_info['ban_name'],
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) == 0)
+		return insertBanGroup($ban_info);
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}ban_groups
+		SET
+			name = {string:ban_name},
+			reason = {string:reason},
+			notes = {string:notes},
+			expire_time = {raw:expiration},
+			cannot_access = {int:cannot_access},
+			cannot_post = {int:cannot_post},
+			cannot_register = {int:cannot_register},
+			cannot_login = {int:cannot_login}
+		WHERE id_ban_group = {int:id_ban_group}',
+		array(
+			'expiration' => $ban_info['expiration'],
+			'cannot_access' => $ban_info['full_ban'],
+			'cannot_post' => $ban_info['cannot_post'],
+			'cannot_register' => $ban_info['cannot_register'],
+			'cannot_login' => $ban_info['cannot_login'],
+			'id_ban_group' => $ban_info['group_id'],
+			'ban_name' => $ban_info['ban_name'],
+			'reason' => $ban_info['reason'],
+			'notes' => $ban_info['notes'],
+		)
+	);
+
+}
+
+/**
+ * Creates a new ban group
+ * If a ban group with the same name already exists or the group s sucessfully created the ID is returned
+ * On error the error code is returned or false
+ *
+ * @param array $ban_info
+ * @return int the ban group's ID
+ */
+function insertBanGroup($ban_info = array())
+{
+	global $smcFunc, $context;
+
+	if (empty($ban_info['ban_name']))
+		$context['ban_errors'][] = 'ban_name_empty';
+
+	if (!empty($context['ban_errors']))
+		return;
+
+	// Check whether a ban with this name already exists.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_ban_group
+		FROM {db_prefix}ban_groups
+		WHERE name = {string:new_ban_name}' . '
+		LIMIT 1',
+		array(
+			'new_ban_name' => $ban_info['ban_name'],
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) == 1)
+	{
+		list($id_ban) = $smcfunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+		return $id_ban;
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Yes yes, we're ready to add now.
+	$smcFunc['db_insert']('',
+		'{db_prefix}ban_groups',
+		array(
+			'name' => 'string-20', 'ban_time' => 'int', 'expire_time' => 'raw', 'cannot_access' => 'int', 'cannot_register' => 'int',
+			'cannot_post' => 'int', 'cannot_login' => 'int', 'reason' => 'string-255', 'notes' => 'string-65534',
+		),
+		array(
+			$ban_info['ban_name'], time(), $ban_info['expiration'], $ban_info['full_ban'], $ban_info['cannot_register'],
+			$ban_info['cannot_post'], $ban_info['cannot_login'], $ban_info['reason'], $ban_info['notes'],
+		),
+		array('id_ban_group')
+	);
+	$ban_info['group_id'] = $smcFunc['db_insert_id']('{db_prefix}ban_groups', 'id_ban_group');
+
+	if (empty($ban_info['group_id']))
+		$context['ban_errors'][] = 'impossible_insert_new_bangroup';
+
+	return $ban_info['group_id'];
 }
 
 /**

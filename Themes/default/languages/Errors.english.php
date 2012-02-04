@@ -188,6 +188,7 @@ $txt['no_bantype_selected'] = 'No ban type was selected';
 $txt['ban_not_found'] = 'Ban not found';
 $txt['ban_unknown_restriction_type'] = 'Restriction type unknown';
 $txt['ban_name_empty'] = 'The name of the ban was left empty';
+$txt['ban_id_empty'] = 'Ban id not found @todo: improve message';
 $txt['ban_name_exists'] = 'The name of this ban (%1$s) already exists. Please choose a different name.';
 $txt['ban_trigger_already_exists'] = 'This ban trigger (%1$s) already exists in %2$s.';
 
