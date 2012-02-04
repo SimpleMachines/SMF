@@ -632,7 +632,7 @@ function PackageUpload()
 	if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '')
 		fatal_lang_error('package_upload_error_nofile');
 	elseif (!is_uploaded_file($_FILES['package']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['package']['tmp_name'])))
-		fatal_lang_error('package_upload_error_failure');
+		fatal_lang_error('package_upload_error_failed');
 
 	// Make sure it has a sane filename.
 	$_FILES['package']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['package']['name']);
