@@ -184,10 +184,10 @@ function template_ban_edit()
 				<table class="table_grid" width="100%">
 					<thead>
 						<tr class="catbg">
-							<th width="65%" align="left">', $txt['ban_banned_entity'], '</th>
-							<th width="15%" align="center">', $txt['ban_hits'], '</th>
-							<th width="15%" align="center">', $txt['ban_actions'], '</th>
-							<th width="5%" align="center"><input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check" /></th>
+							<th scope="col" class="first_th" width="65%" align="left">', $txt['ban_banned_entity'], '</th>
+							<th scope="col" width="15%" align="center">', $txt['ban_hits'], '</th>
+							<th scope="col" width="15%" align="center">', $txt['ban_actions'], '</th>
+							<th scope="col" class="last_th" width="5%" align="center"><input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check" /></th>
 						</tr>
 					</thead>
 					<tbody>';
