@@ -286,34 +286,6 @@ function template_ban_edit()
 	</div>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
-			var oBanSuggest = new smc_AutoSuggest({
-			sSelf: \'oBanSuggest\',
-			sSessionId: smf_session_id,
-			sSessionVar: smf_session_var,
-			sSuggestId: \'ban_name\',
-			sControlId: \'ban_name\',
-			sSearchType: \'ban_name\',
-			iMinimumSearchChars: \'1\',
-			sItemListContainerId: \'test_ban_name\',
-			bItemList: true
-		});
-
-		function onSelectBanName(oAutoSuggest, sItemId)
-		{
-			document.getElementById(\'ban_name\').value = sItemId;
-			document.getElementById(\'ban_name\').className += \' error\';
-			document.getElementById(\'ban_name_label\').className += \' error\';
-			return false;
-		}
-		function onUpdateBanName(oAutoSuggest)
-		{
-			document.getElementById(\'ban_name\').className = document.getElementById(\'ban_name\').className.replace(\' error\', \'\');
-			document.getElementById(\'ban_name_label\').className = document.getElementById(\'ban_name_label\').className.replace(\' error\', \'\');
-			return true;
-		}
-		oBanSuggest.registerCallback(\'onBeforeAddItem\', \'onSelectBanName\');
-		oBanSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateBanName\');
-
 		var fUpdateStatus = function ()
 		{
 			document.getElementById("expire_date").disabled = !document.getElementById("expires_one_day").checked;
