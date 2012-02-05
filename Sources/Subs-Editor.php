@@ -459,7 +459,8 @@ function html_to_bbc($text)
 		{
 			if ($s == 'size')
 			{
-				$v = empty((int) trim($v)) ? 1 : (int) trim($v);
+				$v = (int) trim($v);
+				$v = empty($v) ? 1 : $v;
 				$tags[] = array('[size=' . $sizes_equivalence[$v] . ']', '[/size]');
 			}
 			elseif ($s == 'face')
