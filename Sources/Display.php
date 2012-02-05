@@ -1276,7 +1276,7 @@ function Download()
 	{
 		loadLanguage('Errors');
 
-		header('HTTP/1.0 404 ' . $txt['attachment_not_found']);
+		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
 		header('Content-Type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
