@@ -390,7 +390,6 @@ function BanEdit()
 				'register' => false,
 				'login' => false,
 		);
-		$context['ban']['is_new'] = isset($_REQUEST['bg']);
 /*
 		$context['ban_suggestions'] = array(
 			'main_ip' => '',
@@ -737,7 +736,7 @@ function removeBanTriggers($group_id = 0, $items_ids = array())
  */
 function validateTriggers(&$triggers)
 {
-	global $context;
+	global $context, $smcFunc;
 
 	if (empty($triggers))
 		$context['ban_erros'][] = 'ban_empty_triggers';
