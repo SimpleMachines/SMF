@@ -79,9 +79,8 @@ function template_ban_edit()
 						', $txt['ban_triggers'], '
 					</legend>
 					<dl class="settings">
-						<dt>
-							<input type="checkbox" name="ban_suggestion[]" id="main_ip_check" value="main_ip" class="input_check" />
-							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
+						<dt id="ban_name_label">
+							<strong>', $txt['ban_name'], ':</strong>
 						</dt>
 						<dd>
 							<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60" class="input_text" />
@@ -102,11 +101,67 @@ function template_ban_edit()
 						<dd>
 							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
 						</dd>
-						<dt>
-							<input type="checkbox" name="ban_suggestion[]" id="user_check" value="user" class="input_check" checked="checked" />
-							<label for="user_check">', $txt['ban_on_username'], '</label>:
-						</dt>
-						<dd>';
+					</dl>
+					<fieldset class="ban_settings floatleft">
+						<legend>
+							', $txt['ban_expiration'], '
+						</legend>
+						<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'never' ? ' checked="checked"' : '', ' class="input_radio" /> <label for="never_expires">', $txt['never'], '</label><br />
+						<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'still_active_but_we_re_counting_the_days' ? ' checked="checked"' : '', ' class="input_radio" /> <label for="expires_one_day">', $txt['ban_will_expire_within'], '</label>: <input type="text" name="expire_date" id="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" class="input_text" /> ', $txt['ban_days'], '<br />
+						<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'expired' ? ' checked="checked"' : '', ' class="input_radio" /> <label for="already_expired">', $txt['ban_expired'], '</label>
+					</fieldset>
+					<fieldset class="ban_settings floatright">
+						<legend>
+							', $txt['ban_restriction'], '
+						</legend>
+						<input type="radio" name="full_ban" id="full_ban" value="1" onclick="fUpdateStatus();"', $context['ban']['cannot']['access'] ? ' checked="checked"' : '', ' class="input_radio" /> <label for="full_ban">', $txt['ban_full_ban'], '</label><br />
+						<input type="radio" name="full_ban" id="partial_ban" value="0" onclick="fUpdateStatus();"', !$context['ban']['cannot']['access'] ? ' checked="checked"' : '', ' class="input_radio" /> <label for="partial_ban">', $txt['ban_partial_ban'], '</label><br />
+						<input type="checkbox" name="cannot_post" id="cannot_post" value="1"', $context['ban']['cannot']['post'] ? ' checked="checked"' : '', ' class="ban_restriction input_radio" /> <label for="cannot_post">', $txt['ban_cannot_post'], '</label> (<a href="', $scripturl, '?action=helpadmin;help=ban_cannot_post" onclick="return reqWin(this.href);">?</a>)<br />
+						<input type="checkbox" name="cannot_register" id="cannot_register" value="1"', $context['ban']['cannot']['register'] ? ' checked="checked"' : '', ' class="ban_restriction input_radio" /> <label for="cannot_register">', $txt['ban_cannot_register'], '</label><br />
+						<input type="checkbox" name="cannot_login" id="cannot_login" value="1"', $context['ban']['cannot']['login'] ? ' checked="checked"' : '', ' class="ban_restriction input_radio" /> <label for="cannot_login">', $txt['ban_cannot_login'], '</label><br />
+					</fieldset>
+					<br class="clear_right" />';
+
+	if (!empty($context['ban_suggestions']))
+	{
+		echo '
+					<fieldset>
+						<legend>
+							', $txt['ban_triggers'], '
+						</legend>
+						<dl class="settings">
+							<dt>
+								<input type="checkbox" name="ban_suggestion[]" id="main_ip_check" value="main_ip" class="input_check" />
+								<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
+	<div id="test_ban_name"></div>
+							</dt>
+							<dd>
+								<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;" class="input_text" />
+							</dd>';
+
+		if (empty($modSettings['disableHostnameLookup']))
+			echo '
+							<dt>
+								<input type="checkbox" name="ban_suggestion[]" id="hostname_check" value="hostname" class="input_check" />
+								<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
+							</dt>
+							<dd>
+								<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;" class="input_text" />
+							</dd>';
+
+		echo '
+							<dt>
+								<input type="checkbox" name="ban_suggestion[]" id="email_check" value="email" class="input_check" checked="checked" />
+								<label for="email_check">', $txt['ban_on_email'], '</label>
+							</dt>
+							<dd>
+								<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
+							</dd>
+							<dt>
+								<input type="checkbox" name="ban_suggestion[]" id="user_check" value="user" class="input_check" checked="checked" />
+								<label for="user_check">', $txt['ban_on_username'], '</label>:
+							</dt>
+							<dd>';
 
 		if (empty($context['ban_suggestions']['member']['id']))
 			echo '
@@ -239,8 +294,25 @@ function template_ban_edit()
 			sControlId: \'ban_name\',
 			sSearchType: \'ban_name\',
 			iMinimumSearchChars: \'1\',
-			bItemList: false
+			sItemListContainerId: \'test_ban_name\',
+			bItemList: true
 		});
+
+		function onSelectBanName(oAutoSuggest, sItemId)
+		{
+			document.getElementById(\'ban_name\').value = sItemId;
+			document.getElementById(\'ban_name\').className += \' error\';
+			document.getElementById(\'ban_name_label\').className += \' error\';
+			return false;
+		}
+		function onUpdateBanName(oAutoSuggest)
+		{
+			document.getElementById(\'ban_name\').className = document.getElementById(\'ban_name\').className.replace(\' error\', \'\');
+			document.getElementById(\'ban_name_label\').className = document.getElementById(\'ban_name_label\').className.replace(\' error\', \'\');
+			return true;
+		}
+		oBanSuggest.registerCallback(\'onBeforeAddItem\', \'onSelectBanName\');
+		oBanSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateBanName\');
 
 		var fUpdateStatus = function ()
 		{

@@ -2269,7 +2269,7 @@ function AutoSuggest_Search_BanNames()
 
 		$xml_data['items']['children'][] = array(
 			'attributes' => array(
-				'id' => $row['id_ban_group'],
+				'id' => $row['name'],
 			),
 			'value' => $row['name'],
 		);
