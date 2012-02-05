@@ -1636,8 +1636,10 @@ function range2ip($low, $high)
 	}
 
 	// Legacy IPv4 stuff.
-	if (count($low) != 4 || count($high) != 4)
-		return '';
+	// (count($low) != 4 || count($high) != 4) would not work because $low and $high always contain 8 elements!
+	for ($i = 4; $i < 8; $i++)
+		if (!empty($low[$i]) || !empty($high[$i]))
+			return '';
 
 	$ip = array();
 	for ($i = 0; $i < 4; $i++)
