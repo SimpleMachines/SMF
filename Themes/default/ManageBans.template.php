@@ -84,11 +84,8 @@ function template_ban_edit()
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 						</dt>
 						<dd>
-							<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;" class="input_text" />
-						</dd>';
-
-		if (empty($modSettings['disableHostnameLookup']))
-			echo '
+							<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60" class="input_text" />
+						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestion[]" id="hostname_check" value="hostname" class="input_check" />
 							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
@@ -234,6 +231,17 @@ function template_ban_edit()
 	</div>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
+			var oBanSuggest = new smc_AutoSuggest({
+			sSelf: \'oBanSuggest\',
+			sSessionId: smf_session_id,
+			sSessionVar: smf_session_var,
+			sSuggestId: \'ban_name\',
+			sControlId: \'ban_name\',
+			sSearchType: \'ban_name\',
+			iMinimumSearchChars: \'1\',
+			bItemList: false
+		});
+
 		var fUpdateStatus = function ()
 		{
 			document.getElementById("expire_date").disabled = !document.getElementById("expires_one_day").checked;

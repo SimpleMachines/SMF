@@ -2164,6 +2164,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	// These are all registered types.
 	$searchTypes = array(
 		'member' => 'Member',
+		'ban_name' => 'BanNames',
 		'versions' => 'SMFVersions',
 	);
 
@@ -2227,6 +2228,50 @@ function AutoSuggest_Search_Member()
 				'id' => $row['id_member'],
 			),
 			'value' => $row['real_name'],
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $xml_data;
+}
+
+/**
+ * Search for a ban name.
+ * 
+ * @return string
+ */
+function AutoSuggest_Search_BanNames()
+{
+	global $user_info, $txt, $smcFunc, $context;
+
+	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
+	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
+
+	// Find the member.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_ban_group, name
+		FROM {db_prefix}ban_groups
+		WHERE name LIKE {string:search}
+		LIMIT ' . ($smcFunc['strlen']($_REQUEST['search']) <= 2 ? '100' : '800'),
+		array(
+			'search' => $_REQUEST['search'],
+		)
+	);
+	$xml_data = array(
+		'items' => array(
+			'identifier' => 'item',
+			'children' => array(),
+		),
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$row['name'] = strtr($row['name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
+
+		$xml_data['items']['children'][] = array(
+			'attributes' => array(
+				'id' => $row['id_ban_group'],
+			),
+			'value' => $row['name'],
 		);
 	}
 	$smcFunc['db_free_result']($request);
