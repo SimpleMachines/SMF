@@ -371,7 +371,7 @@ function EditCategory2()
  */
 function EditBoard()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList, $smcFunc, $modSettings;
+	global $txt, $context, $cat_tree, $boards, $boardList, $smcFunc, $modSettings, $sourcedir;
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');
