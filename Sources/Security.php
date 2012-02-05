@@ -764,7 +764,12 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings;
+	global $modSettings, $db_show_debug;
+
+	// Sorry, but token are not the best while debugging
+	// @todo: remove before commit...
+	if (!empty($db_show_debug))
+		return true;
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 

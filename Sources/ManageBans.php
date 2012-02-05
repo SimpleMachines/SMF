@@ -627,7 +627,7 @@ function banEdit2()
 			'status' => isset($_POST['expiration']) && in_array($_POST['expiration'], array('never', 'one_day', 'expired')) ? $_POST['expiration'] : 'never',
 			'days' => $ban_info['expire_date'],
 		);
-		$ban_info['db_expiration'] = $ban_info['expiration'] == 'never' ? 'NULL' : ($ban_info['expiration'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
+		$ban_info['db_expiration'] = $ban_info['expiration']['status'] == 'never' ? 'NULL' : ($ban_info['expiration']['status'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
 		$ban_info['full_ban'] = empty($_POST['full_ban']) ? 0 : 1;
 		$ban_info['reason'] = !empty($_POST['ban_reason']) ? $smcFunc['htmlspecialchars']($_POST['ban_reason'], ENT_QUOTES) : '';
 		$ban_info['name'] = !empty($_POST['ban_name']) ? $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES) : '';
@@ -646,7 +646,10 @@ function banEdit2()
 			$ban_group_id = updateBanGroup($ban_info);
 
 		if (is_numeric($ban_group_id))
+		{
 			$ban_info['id'] = $ban_group_id;
+			$ban_info['is_new'] = false;
+		}
 
 		$context['ban'] = $ban_info;
 	}
@@ -1770,7 +1773,6 @@ function range2ip($low, $high)
 	if ((count($low) != 4 || count($high) != 4) && (count($low) != 8 || count($high) != 8))
 			return '';
 
-	$ip = array();
 	for ($i = 0; $i < 4; $i++)
 	{
 		if ($low[$i] == $high[$i])
