@@ -366,12 +366,13 @@ function BanEdit()
 {
 	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc;
 
-	if ((isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty($context['ban_errors']))
+	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty($context['ban_errors']))
 		BanEdit2();
+
+	$ban_group_id = isset($context['ban']['id']) ? $context['ban']['id'] : (isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0);
 
 	// Template needs this to show errors using javascript
 	loadLanguage('Errors');
-
 
 	if (!empty($context['ban_errors']))
 	{
@@ -403,7 +404,7 @@ function BanEdit()
 	else
 	{
 		// If we're editing an existing ban, get it from the database.
-		if (!empty($_REQUEST['bg']))
+		if (!empty($ban_group_id))
 		{
 			$context['ban_items'] = array();
 			$request = $smcFunc['db_query']('', '
@@ -418,7 +419,7 @@ function BanEdit()
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
 				WHERE bg.id_ban_group = {int:current_ban}',
 				array(
-					'current_ban' => $_REQUEST['bg'],
+					'current_ban' => $ban_group_id,
 				)
 			);
 			if ($smcFunc['db_num_rows']($request) == 0)
@@ -432,7 +433,7 @@ function BanEdit()
 						'id' => $row['id_ban_group'],
 						'name' => $row['name'],
 						'expiration' => array(
-							'status' => $row['expire_time'] === null ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'still_active_but_we_re_counting_the_days'),
+							'status' => $row['expire_time'] === null ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'one_day'),
 							'days' => $row['expire_time'] > time() ? floor(($row['expire_time'] - time()) / 86400) : 0
 						),
 						'reason' => $row['reason'],
@@ -446,6 +447,7 @@ function BanEdit()
 						'is_new' => false,
 					);
 				}
+
 				if (!empty($row['id_ban']))
 				{
 					$context['ban_items'][$row['id_ban']] = array(
@@ -607,7 +609,7 @@ function BanEdit()
 
 function banEdit2()
 {
-	global $context;
+	global $smcFunc, $context;
 
 	checkSession();
 	validateToken('admin-bet');
@@ -619,16 +621,22 @@ function banEdit2()
 	{
 		// Let's collect all the information we need
 		$ban_info['id'] = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
-		$ban_info['expire_date'] = !empty($_POST['ban_time']) ? (int) $_POST['ban_time'] : 0;
-		$ban_info['expiration'] = empty($_POST['ban_time']) ? 'NULL' : ($ban_info['expire_date'] != 0 ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 'expire_time');
-		$ban_info['full_ban'] = empty($_POST['ban_time']) ? 0 : 1;
+		$ban_info['is_new'] = empty($ban_info['id']);
+		$ban_info['expire_date'] = !empty($_POST['expire_date']) ? (int) $_POST['expire_date'] : 0;
+		$ban_info['expiration'] = array(
+			'status' => isset($_POST['expiration']) && in_array($_POST['expiration'], array('never', 'one_day', 'expired')) ? $_POST['expiration'] : 'never',
+			'days' => $ban_info['expire_date'],
+		);
+		$ban_info['db_expiration'] = $ban_info['expiration'] == 'never' ? 'NULL' : ($ban_info['expiration'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
+		$ban_info['full_ban'] = empty($_POST['full_ban']) ? 0 : 1;
 		$ban_info['reason'] = !empty($_POST['ban_reason']) ? $smcFunc['htmlspecialchars']($_POST['ban_reason'], ENT_QUOTES) : '';
 		$ban_info['name'] = !empty($_POST['ban_name']) ? $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES) : '';
 		$ban_info['notes'] = isset($_POST['notes']) ? $smcFunc['htmlspecialchars']($_POST['notes'], ENT_QUOTES) : '';
 		$ban_info['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br />', '&nbsp; '), $ban_info['notes']);
-		$ban_info['cannot_post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
-		$ban_info['cannot_register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
-		$ban_info['cannot_login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;	
+		$ban_info['cannot']['access'] = !empty($ban_info['full_ban']) ? 1 : 0;
+		$ban_info['cannot']['post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
+		$ban_info['cannot']['register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
+		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;	
 
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
@@ -637,10 +645,10 @@ function banEdit2()
 		else
 			$ban_group_id = updateBanGroup($ban_info);
 
-		if (!is_numeric($ban_group_id))
-			$context['ban'] = $ban_info;
-		else
+		if (is_numeric($ban_group_id))
 			$ban_info['id'] = $ban_group_id;
+
+		$context['ban'] = $ban_info;
 	}
 
 	if (isset($_POST['ban_suggestion']))
@@ -732,6 +740,7 @@ function validateTriggers(&$triggers)
 		$context['ban_erros'][] = 'ban_empty_triggers';
 
 	$ban_triggers = array();
+	$log_info = array();
 
 	foreach ($triggers as $key => $value)
 	{
@@ -1064,11 +1073,11 @@ function updateBanGroup($ban_info = array())
 			cannot_login = {int:cannot_login}
 		WHERE id_ban_group = {int:id_ban_group}',
 		array(
-			'expiration' => $ban_info['expiration'],
-			'cannot_access' => $ban_info['full_ban'],
-			'cannot_post' => $ban_info['cannot_post'],
-			'cannot_register' => $ban_info['cannot_register'],
-			'cannot_login' => $ban_info['cannot_login'],
+			'expiration' => $ban_info['db_expiration'],
+			'cannot_access' => $ban_info['cannot']['access'],
+			'cannot_post' => $ban_info['cannot']['post'],
+			'cannot_register' => $ban_info['cannot']['register'],
+			'cannot_login' => $ban_info['cannot']['login'],
 			'id_ban_group' => $ban_info['id'],
 			'ban_name' => $ban_info['name'],
 			'reason' => $ban_info['reason'],
@@ -1111,7 +1120,7 @@ function insertBanGroup($ban_info = array())
 
 	if ($smcFunc['db_num_rows']($request) == 1)
 	{
-		list($id_ban) = $smcfunc['db_fetch_row']($request);
+		list($id_ban) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		return $id_ban;
 	}
@@ -1125,8 +1134,8 @@ function insertBanGroup($ban_info = array())
 			'cannot_post' => 'int', 'cannot_login' => 'int', 'reason' => 'string-255', 'notes' => 'string-65534',
 		),
 		array(
-			$ban_info['name'], time(), $ban_info['expiration'], $ban_info['full_ban'], $ban_info['cannot_register'],
-			$ban_info['cannot_post'], $ban_info['cannot_login'], $ban_info['reason'], $ban_info['notes'],
+			$ban_info['name'], time(), $ban_info['db_expiration'], $ban_info['cannot']['access'], $ban_info['cannot']['register'],
+			$ban_info['cannot']['post'], $ban_info['cannot']['login'], $ban_info['reason'], $ban_info['notes'],
 		),
 		array('id_ban_group')
 	);

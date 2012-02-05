@@ -808,7 +808,7 @@ function template_imode_ban_edit()
 			<tr><td>
 				<strong>', $txt['ban_expiration'], ': </strong><br />
 				<input type="radio" name="expiration" value="never" ', $context['ban']['expiration']['status'] == 'never' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['never'], '<br />
-				<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'still_active_but_we_re_counting_the_days' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
+				<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'one_day' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
 				<input type="radio" name="expiration" value="expired" ', $context['ban']['expiration']['status'] == 'expired' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_expired'], '<br />
 			</td></tr>
 			<tr><td>
@@ -1440,7 +1440,7 @@ function template_wap2_ban_edit()
 		<p class="windowbg">
 			<strong>', $txt['ban_expiration'], ': </strong><br />
 			<input type="radio" name="expiration" value="never" ', $context['ban']['expiration']['status'] == 'never' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['never'], '<br />
-			<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'still_active_but_we_re_counting_the_days' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
+			<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'one_day' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
 			<input type="radio" name="expiration" value="expired" ', $context['ban']['expiration']['status'] == 'expired' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_expired'], '<br />
 		</p>
 		<p class="windowbg">
