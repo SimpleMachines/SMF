@@ -268,8 +268,13 @@ function MaintainEmptyUnimportantLogs()
 
 	// Clear out the ban, SPAM, and karma logs.
 	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_banned, {db_prefix}log_online,
-			{db_prefix}log_floodcontrol, {db_prefix}log_karma');
+		DELETE FROM {db_prefix}log_banned');
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_online');
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_floodcontrol');
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_karma');
 
 	// Start id_error back at 0 and dump the error log.
 	$smcFunc['db_query']('truncate_table', '
