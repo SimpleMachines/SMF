@@ -378,27 +378,6 @@ function BanEdit()
 	{
 		foreach ($context['ban_errors'] as $error)
 			$context['error_messages'][$error] = $txt[$error];
-/*
-		$context['ban']['expiration'] = array(
-				'status' => 'never',
-				'days' => 0
-		);
-		$context['ban']['ban_days'] = 0;
-		$context['ban']['cannot'] = array(
-				'access' => true,
-				'post' => false,
-				'register' => false,
-				'login' => false,
-		);*/
-/*
-		$context['ban_suggestions'] = array(
-			'main_ip' => '',
-			'hostname' => '',
-			'email' => '',
-			'member' => array(
-				'id' => 0,
-			),
-		);*/
 	}
 	else
 	{
@@ -547,47 +526,14 @@ function BanEdit()
 
 					// Default the ban name to the name of the banned member.
 					$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
-					$context['ban']['from_user'] = true; // @todo: there should be a better solution
+					// @todo: there should be a better solution...used to lock the "Ban on Username" input when banning from profile
+					$context['ban']['from_user'] = true;
 
 					// Would be nice if we could also ban the hostname.
-					if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 && empty($modSettings['disableHostnameLookup']))
+					if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
 						$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
 
-					// Find some additional IP's used by this member.
-					$context['ban_suggestions']['message_ips'] = array();
-					$request = $smcFunc['db_query']('ban_suggest_message_ips', '
-						SELECT DISTINCT poster_ip
-						FROM {db_prefix}messages
-						WHERE id_member = {int:current_user}
-							AND poster_ip RLIKE {string:poster_ip_regex}
-						ORDER BY poster_ip',
-						array(
-							'current_user' => (int) $_REQUEST['u'],
-							'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
-						)
-					);
-					while ($row = $smcFunc['db_fetch_assoc']($request))
-						$context['ban_suggestions']['message_ips'][] = $row['poster_ip'];
-					$smcFunc['db_free_result']($request);
-
-					$context['ban_suggestions']['error_ips'] = array();
-					$request = $smcFunc['db_query']('ban_suggest_error_ips', '
-						SELECT DISTINCT ip
-						FROM {db_prefix}log_errors
-						WHERE id_member = {int:current_user}
-							AND ip RLIKE {string:poster_ip_regex}
-						ORDER BY ip',
-						array(
-							'current_user' => (int) $_REQUEST['u'],
-							'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
-						)
-					);
-					while ($row = $smcFunc['db_fetch_assoc']($request))
-						$context['ban_suggestions']['error_ips'][] = $row['ip'];
-					$smcFunc['db_free_result']($request);
-
-					// Borrowing a few language strings from profile.
-					loadLanguage('Profile');
+					banLoadAdditionalIPs();
 				}
 			}
 		}
@@ -605,6 +551,47 @@ function BanEdit()
 		$context['sub_template'] = 'ban_edit';
 
 	createToken('admin-bet');
+}
+
+function banLoadAdditionalIPs()
+{
+	global $context, $smcFunc;
+
+	// Borrowing a few language strings from profile.
+	loadLanguage('Profile');
+
+	// Find some additional IP's used by this member.
+	$context['ban_suggestions']['message_ips'] = array();
+	$request = $smcFunc['db_query']('ban_suggest_message_ips', '
+		SELECT DISTINCT poster_ip
+		FROM {db_prefix}messages
+		WHERE id_member = {int:current_user}
+			AND poster_ip RLIKE {string:poster_ip_regex}
+		ORDER BY poster_ip',
+		array(
+			'current_user' => $context['ban_suggestions']['member']['id'],
+			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['ban_suggestions']['message_ips'][] = $row['poster_ip'];
+	$smcFunc['db_free_result']($request);
+
+	$context['ban_suggestions']['error_ips'] = array();
+	$request = $smcFunc['db_query']('ban_suggest_error_ips', '
+		SELECT DISTINCT ip
+		FROM {db_prefix}log_errors
+		WHERE id_member = {int:current_user}
+			AND ip RLIKE {string:poster_ip_regex}
+		ORDER BY ip',
+		array(
+			'current_user' => $context['ban_suggestions']['member']['id'],
+			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['ban_suggestions']['error_ips'][] = $row['ip'];
+	$smcFunc['db_free_result']($request);
 }
 
 function banEdit2()
@@ -661,13 +648,18 @@ function banEdit2()
 			'hostname' => '',
 			'email' => '',
 			'member' => array(
-				'id' => 0,
-			),
+				'id' => isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0,
+			)
 		);
 		$ban_triggers = array();
 
 		foreach ($_POST['ban_suggestions'] as $key => $value)
-			$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
+		{
+			if (is_array($value))
+				$triggers[$key] = $value;
+			else
+				$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
+		}
 
 		$ban_triggers = validateTriggers($triggers);
 
@@ -679,7 +671,7 @@ function banEdit2()
 			else
 				updateTriggers((int) $_REQUEST['bi'], $ban_info['id'], $ban_triggers['ban_triggers'][0], $ban_triggers['log_info'][0]);
 		}
-		elseif (!empty($ban_triggers['ban_triggers']) && !empty($context['ban_errors']))
+		if (!empty($context['ban_errors']))
 		{
 			$context['ban_suggestions'] = $triggers;
 		}
@@ -687,7 +679,12 @@ function banEdit2()
 
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
+	{
+		// Not strictly necessary, but it's nice
+		if (!empty($context['ban_suggestions']['member']['id']))
+			banLoadAdditionalIPs();
 		return BanEdit();
+	}
 
 	if (isset($_POST['ban_items']))
 	{
@@ -848,6 +845,48 @@ function validateTriggers(&$triggers)
 				else
 					$ban_triggers['user']['id_member'] = $value;
 			}
+			elseif ($key == 'ips_m' || $key == 'ips_e')
+			{
+				// Special case, those two are arrays themselves
+				$values = array_unique($value);
+				// Don't add the main IP again.
+				if (isset($triggers['main_ip']))
+					$values = array_diff($values, array($triggers['main_ip']));
+				unset($value);
+				foreach ($values as $val)
+				{
+					$val = trim($val);
+					$ip_parts = ip2range($val);
+					if (!checkExistingTriggerIP($ip_parts, $val))
+						$context['ban_erros'][] = 'invalid_ip';
+					else
+					{
+						$ban_triggers[$key][] = array(
+							'ip_low1' => $ip_parts[0]['low'],
+							'ip_high1' => $ip_parts[0]['high'],
+							'ip_low2' => $ip_parts[1]['low'],
+							'ip_high2' => $ip_parts[1]['high'],
+							'ip_low3' => $ip_parts[2]['low'],
+							'ip_high3' => $ip_parts[2]['high'],
+							'ip_low4' => $ip_parts[3]['low'],
+							'ip_high4' => $ip_parts[3]['high'],
+							'ip_low5' => $ip_parts[4]['low'],
+							'ip_high5' => $ip_parts[4]['high'],
+							'ip_low6' => $ip_parts[5]['low'],
+							'ip_high6' => $ip_parts[5]['high'],
+							'ip_low7' => $ip_parts[6]['low'],
+							'ip_high7' => $ip_parts[6]['high'],
+							'ip_low8' => $ip_parts[7]['low'],
+							'ip_high8' => $ip_parts[7]['high'],
+						);
+
+						$log_info[] = array(
+							'value' => $val,
+							'bantype' => 'ip_range',
+						);
+					}
+				}
+			}
 			else
 				$context['ban_erros'][] = 'no_bantype_selected';
 
@@ -877,17 +916,13 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 
 	if (empty($group_id))
 		$context['ban_errors'][] = 'ban_group_id_empty';
-	if (empty($triggers))
-		$context['ban_errors'][] = 'ban_no_triggers';
-
-	if (!empty($context['ban_errors']))
-		return;
 
 	$logCorrel = array(
 		'main_ip' => 'ip_range',
 		'hostname' => 'email',
 		'email' => 'email',
 		'user' => 'member',
+		'ip_range' => 'ip_range',
 	);
 
 	// Preset all values that are required.
@@ -937,8 +972,22 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'ip_high8' => 'int',
 	);
 
-	foreach ($triggers as $key => &$trigger)
-		$trigger = array_merge($values, $trigger);
+	$ins_triggers = array();
+	foreach ($triggers as $key => $trigger)
+	{
+		// Exceptions, exceptions, exceptions...always exceptions... :P
+		if (is_array($trigger))
+			foreach ($trigger as $real_trigger)
+				$ins_triggers[$key] = array_merge($values, $trigger);
+		else
+			$ins_triggers[$key] = array_merge($values, $trigger);
+	}
+
+	if (empty($triggers))
+		$context['ban_errors'][] = 'ban_no_triggers';
+
+	if (!empty($context['ban_errors']))
+		return false;
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}ban_items',
@@ -954,6 +1003,8 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 			'new' => 1,
 			'type' => $log['bantype'],
 		));
+
+	return true;
 }
 
 /**

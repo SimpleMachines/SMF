@@ -832,24 +832,24 @@ function template_imode_ban_edit()
 		echo '
 			<tr bgcolor="#b6dbff"><td>', $txt['ban_triggers'], '</td></tr>
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
+				<input type="checkbox" name="ban_suggestions[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
 				&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="20" class="input_text" />
 			</td></tr>';
 
 		if (empty($modSettings['disableHostnameLookup']))
 			echo '
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
+				<input type="checkbox" name="ban_suggestions[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
 				&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="20" class="input_text" />
 			</td></tr>';
 
 		echo '
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
+				<input type="checkbox" name="ban_suggestions[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
 				&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="20" class="input_text" />
 			</td></tr>
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
+				<input type="checkbox" name="ban_suggestions[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
 
 		if (empty($context['ban_suggestions']['member']['id']))
 			echo '
@@ -1464,24 +1464,24 @@ function template_wap2_ban_edit()
 		echo '
 		<p class="titlebg">', $txt['ban_triggers'], '</p>
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
+			<input type="checkbox" name="ban_suggestions[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
 			&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="20" class="input_text" />
 		</p>';
 
 		if (empty($modSettings['disableHostnameLookup']))
 			echo '
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
+			<input type="checkbox" name="ban_suggestions[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
 			&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="20" class="input_text" />
 		<p>';
 
 		echo '
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
+			<input type="checkbox" name="ban_suggestions[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
 			&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="20" class="input_text" />
 		</p>
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
+			<input type="checkbox" name="ban_suggestions[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
 
 		if (empty($context['ban_suggestions']['member']['id']))
 			echo '
