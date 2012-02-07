@@ -890,7 +890,7 @@ function validateTriggers(&$triggers)
 			else
 				$context['ban_erros'][] = 'no_bantype_selected';
 
-			if (isset($value))
+			if (isset($value) && !is_array($value))
 				$log_info[] = array(
 					'value' => $value,
 					'bantype' => $key,
@@ -972,18 +972,18 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'ip_high8' => 'int',
 	);
 
-	$ins_triggers = array();
+	$insertTriggers = array();
 	foreach ($triggers as $key => $trigger)
 	{
 		// Exceptions, exceptions, exceptions...always exceptions... :P
-		if (is_array($trigger))
+		if ($key == 'ips_m' || $key == 'ips_e')
 			foreach ($trigger as $real_trigger)
-				$ins_triggers[$key] = array_merge($values, $trigger);
+				$insertTriggers[] = array_merge($values, $real_trigger);
 		else
-			$ins_triggers[$key] = array_merge($values, $trigger);
+			$insertTriggers[] = array_merge($values, $trigger);
 	}
 
-	if (empty($triggers))
+	if (empty($insertTriggers))
 		$context['ban_errors'][] = 'ban_no_triggers';
 
 	if (!empty($context['ban_errors']))
@@ -992,7 +992,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 	$smcFunc['db_insert']('',
 		'{db_prefix}ban_items',
 		$insertKeys,
-		$triggers,
+		$insertTriggers,
 		array('id_ban')
 	);
 

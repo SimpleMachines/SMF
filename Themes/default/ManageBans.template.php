@@ -126,7 +126,7 @@ function template_ban_edit()
 								<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
 							</dd>
 							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check" ', !empty($context['ban_suggestions']['user']) ? 'checked="checked" ' : '', '/>
+								<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check" ', !empty($context['ban_suggestions']['user']) ||  isset($context['ban']['from_user']) ? 'checked="checked" ' : '', '/>
 								<label for="user_check">', $txt['ban_on_username'], '</label>:
 							</dt>
 							<dd>
@@ -140,13 +140,14 @@ function template_ban_edit()
 					<div>', $txt['ips_in_messages'], ':</div>
 					<dl class="settings">';
 
+			$count = 0;
 			foreach ($context['ban_suggestions']['message_ips'] as $ip)
 				echo '
 							<dt>
-								<input type="checkbox" name="ban_suggestions[ips_m][]" ', !empty($context['ban_suggestions']['ips_m']) && in_array($ip, $context['ban_suggestions']['ips_m']) ? 'checked="checked" ' : '', 'value="', $ip, '" class="input_check" />
+								<input type="checkbox" id="ban_suggestions_ips_m_', $count, '" name="ban_suggestions[ips_m][]" ', !empty($context['ban_suggestions']['ips_m']) && in_array($ip, $context['ban_suggestions']['ips_m']) ? 'checked="checked" ' : '', 'value="', $ip, '" class="input_check" />
 							</dt>
 							<dd>
-								', $ip, '
+								<label for="ban_suggestions_ips_m_', $count++, '">', $ip, '</label>
 							</dd>';
 		}
 
@@ -157,13 +158,14 @@ function template_ban_edit()
 					<div>', $txt['ips_in_errors'], '</div>
 					<dl class="settings">';
 
+			$count = 0;
 			foreach ($context['ban_suggestions']['error_ips'] as $ip)
 				echo '
 							<dt>
-								<input type="checkbox" name="ban_suggestions[ips_e][]" ', !empty($context['ban_suggestions']['ips_e']) && in_array($ip, $context['ban_suggestions']['ips_e']) ? 'checked="checked" ' : '', 'value="', $ip, '" class="input_check" />
+								<input type="checkbox" id="ban_suggestions_ips_e_', $count, '" name="ban_suggestions[ips_e][]" ', !empty($context['ban_suggestions']['ips_e']) && in_array($ip, $context['ban_suggestions']['ips_e']) ? 'checked="checked" ' : '', 'value="', $ip, '" class="input_check" />
 							</dt>
 							<dd>
-								', $ip, '
+								<label for="ban_suggestions_ips_m_', $count++, '">', $ip, '</label>
 							</dd>';
 		}
 
