@@ -27,6 +27,23 @@ function template_ban_edit()
 		echo '
 			<div class="information">', $txt['ban_add_notes'], '</div>';
 
+	// If there were errors for sending the PM, show them.
+	if (!empty($context['error_messages']))
+	{
+		echo '
+				<div class="errorbox">
+					<strong>', $txt['ban_errors_detected'], '</strong>
+					<ul>';
+
+		foreach ($context['error_messages'] as $error)
+			echo '
+						<li class="error">', $error, '</li>';
+
+		echo '
+					</ul>
+				</div>';
+	}
+
 	echo '
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=ban;sa=edit" method="post" accept-charset="', $context['character_set'], '" onsubmit="if (this.ban_name.value == \'\') {alert(\'', $txt['ban_name_empty'], '\'); return false;} if (this.partial_ban.checked &amp;&amp; !(this.cannot_post.checked || this.cannot_register.checked || this.cannot_login.checked)) {alert(\'', $txt['ban_restriction_empty'], '\'); return false;}">
@@ -83,9 +100,8 @@ function template_ban_edit()
 						</legend>
 						<dl class="settings">
 							<dt>
-								<input type="checkbox" name="ban_suggestion[]" id="main_ip_check" value="main_ip" class="input_check" />
+								<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check" ', !empty($context['ban_suggestions']['main_ip']) ? 'checked="checked ' : '', '/>
 								<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
-	<div id="test_ban_name"></div>
 							</dt>
 							<dd>
 								<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;" class="input_text" />
@@ -94,7 +110,7 @@ function template_ban_edit()
 		if (empty($modSettings['disableHostnameLookup']))
 			echo '
 							<dt>
-								<input type="checkbox" name="ban_suggestion[]" id="hostname_check" value="hostname" class="input_check" />
+								<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check" ', !empty($context['ban_suggestions']['hostname']) ? 'checked="checked ' : '', '/>
 								<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 							</dt>
 							<dd>
@@ -103,27 +119,19 @@ function template_ban_edit()
 
 		echo '
 							<dt>
-								<input type="checkbox" name="ban_suggestion[]" id="email_check" value="email" class="input_check" checked="checked" />
+								<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check" ', !empty($context['ban_suggestions']['email']) ? 'checked="checked ' : '', '/>
 								<label for="email_check">', $txt['ban_on_email'], '</label>
 							</dt>
 							<dd>
 								<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
 							</dd>
 							<dt>
-								<input type="checkbox" name="ban_suggestion[]" id="user_check" value="user" class="input_check" checked="checked" />
+								<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check" ', !empty($context['ban_suggestions']['user']) ? 'checked="checked' : '', '/>
 								<label for="user_check">', $txt['ban_on_username'], '</label>:
 							</dt>
-							<dd>';
-
-		if (empty($context['ban_suggestions']['member']['id']))
-			echo '
-							<input type="text" name="user" id="user" value="" size="44" class="input_text" />';
-		else
-			echo '
-							', $context['ban_suggestions']['member']['link'], '
-							<input type="hidden" name="bannedUser" value="', $context['ban_suggestions']['member']['id'], '" />';
-		echo '
-						</dd>';
+							<dd>
+								<input type="text" ', isset($context['ban']['from_user']) ? 'readonly="readonly" value="' . $context['ban_suggestions']['member']['name'] . '"' : ' value=""', ' name="user" id="user" size="44" class="input_text" />
+							</dd>';
 
 		if (!empty($context['ban_suggestions']['message_ips']))
 		{
@@ -226,7 +234,7 @@ function template_ban_edit()
 				<div class="flow_auto">
 					<div class="floatright">
 						<div class="additional_row">
-							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
 						</div>
 					</div>
 				</div>

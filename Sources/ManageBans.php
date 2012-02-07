@@ -377,8 +377,8 @@ function BanEdit()
 	if (!empty($context['ban_errors']))
 	{
 		foreach ($context['ban_errors'] as $error)
-			$context['errors'][$error] = $txt[$error];
-
+			$context['error_messages'][$error] = $txt[$error];
+/*
 		$context['ban']['expiration'] = array(
 				'status' => 'never',
 				'days' => 0
@@ -389,7 +389,7 @@ function BanEdit()
 				'post' => false,
 				'register' => false,
 				'login' => false,
-		);
+		);*/
 /*
 		$context['ban_suggestions'] = array(
 			'main_ip' => '',
@@ -547,6 +547,7 @@ function BanEdit()
 
 					// Default the ban name to the name of the banned member.
 					$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
+					$context['ban']['from_user'] = true; // @todo: there should be a better solution
 
 					// Would be nice if we could also ban the hostname.
 					if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 && empty($modSettings['disableHostnameLookup']))
@@ -628,11 +629,11 @@ function banEdit2()
 		);
 		$ban_info['db_expiration'] = $ban_info['expiration']['status'] == 'never' ? 'NULL' : ($ban_info['expiration']['status'] == 'one_day' ? time() + 24 * 60 * 60 * $ban_info['expire_date'] : 0);
 		$ban_info['full_ban'] = empty($_POST['full_ban']) ? 0 : 1;
-		$ban_info['reason'] = !empty($_POST['ban_reason']) ? $smcFunc['htmlspecialchars']($_POST['ban_reason'], ENT_QUOTES) : '';
+		$ban_info['reason'] = !empty($_POST['reason']) ? $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES) : '';
 		$ban_info['name'] = !empty($_POST['ban_name']) ? $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES) : '';
 		$ban_info['notes'] = isset($_POST['notes']) ? $smcFunc['htmlspecialchars']($_POST['notes'], ENT_QUOTES) : '';
 		$ban_info['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br />', '&nbsp; '), $ban_info['notes']);
-		$ban_info['cannot']['access'] = !empty($ban_info['full_ban']) ? 1 : 0;
+		$ban_info['cannot']['access'] = empty($ban_info['full_ban']) ? 0 : 1;
 		$ban_info['cannot']['post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
 		$ban_info['cannot']['register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
 		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;	
@@ -653,13 +654,20 @@ function banEdit2()
 		$context['ban'] = $ban_info;
 	}
 
-	if (isset($_POST['ban_suggestion']))
+	if (isset($_POST['ban_suggestions']))
 	{
-		$triggers = array();
+		$triggers = array(
+			'main_ip' => '',
+			'hostname' => '',
+			'email' => '',
+			'member' => array(
+				'id' => 0,
+			),
+		);
 		$ban_triggers = array();
 
-		foreach ($_POST['ban_suggestion'] as $key => $value)
-			$triggers[$value] = $_POST[$value];
+		foreach ($_POST['ban_suggestions'] as $key => $value)
+			$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
 
 		$ban_triggers = validateTriggers($triggers);
 
@@ -673,7 +681,7 @@ function banEdit2()
 		}
 		elseif (!empty($ban_triggers['ban_triggers']) && !empty($context['ban_errors']))
 		{
-			$context['ban_suggestion'] = $triggers;
+			$context['ban_suggestions'] = $triggers;
 		}
 	}
 
@@ -837,8 +845,8 @@ function validateTriggers(&$triggers)
 					unset($value);
 					$context['ban_erros'][] = 'no_ban_admin';
 				}
-
-				$ban_triggers['user']['id_member'] = $user_id;
+				else
+					$ban_triggers['user']['id_member'] = $value;
 			}
 			else
 				$context['ban_erros'][] = 'no_bantype_selected';
@@ -1105,6 +1113,8 @@ function insertBanGroup($ban_info = array())
 
 	if (empty($ban_info['name']))
 		$context['ban_errors'][] = 'ban_name_empty';
+	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
+		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
 	if (!empty($context['ban_errors']))
 		return;
