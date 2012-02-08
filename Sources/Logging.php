@@ -421,6 +421,10 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 		'admin' => 3,
 	);
 
+	// No point in doing anything, if the log isn't even enabled.
+	if (empty($modSettings['modlog_enabled']) || !isset($log_types[$log_type]))
+		return false;
+
 	if (!is_array($extra))
 		trigger_error('logAction(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
 
@@ -469,10 +473,6 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 		$smcFunc['db_free_result']($request);
 	}
 
-	// No point in doing anything else, if the log isn't even enabled.
-	if (empty($modSettings['modlog_enabled']) || !isset($log_types[$log_type]))
-		return false;
-
 	if (isset($extra['member']) && !is_numeric($extra['member']))
 		trigger_error('logAction(): data\'s member is not a number', E_USER_NOTICE);
 
@@ -497,6 +497,11 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 		}
 	}
 
+	if (isset($extra['member_affected']))
+		$memID = $extra['member_affected'];
+	else
+		$memID = $user_info['id'];
+
 	$smcFunc['db_insert']('',
 		'{db_prefix}log_actions',
 		array(
@@ -504,7 +509,7 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
 		),
 		array(
-			time(), $log_types[$log_type], $user_info['id'], $user_info['ip'], $action,
+			time(), $log_types[$log_type], $memID, $user_info['ip'], $action,
 			$board_id, $topic_id, $msg_id, serialize($extra),
 		),
 		array('id_action')
