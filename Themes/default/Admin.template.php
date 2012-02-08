@@ -388,7 +388,7 @@ function template_view_versions()
 						<th scope="col" width="25%">
 							<strong>', $txt['dvc_your'], '</strong>
 						</th>
-						<th class="last_th" scope="col"" width="25%">
+						<th class="last_th" scope="col" width="25%">
 							<strong>', $txt['dvc_current'], '</strong>
 						</th>
 					</tr>
@@ -1538,6 +1538,61 @@ function template_repair_boards()
 			setTimeout("doAutoSubmit();", 1000);
 		}
 	// ]]></script>';
+	}
+}
+
+function template_php_info()
+{
+	global $context;
+
+	// for each php info area
+	foreach ($context['pinfo'] as $area => $php_area)
+	{
+		echo '
+	<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
+		<thead>
+		<tr class="catbg" align="center">
+			<th class="first_th" scope="col" width="33%"></th>
+			<th scope="col" width="33%"><strong>', $area, '</strong></th>
+			<th class="last_th" scope="col" width="33%"></th>
+		</tr>
+		</thead>
+		<tbody>';
+
+		// and for each setting in that area
+		$alternate = true;
+		foreach ($php_area as $key => $setting)
+		{
+			// a local / master setting (3 col)
+			if (is_array($setting))
+			{
+				echo '
+		<tr>
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
+
+				foreach ($setting as $key_lm => $value)
+				{
+					echo '
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key_lm, '/', $value, '</td>';
+				}
+				echo '
+		</tr>';
+			}
+			// just a single setting (2 col)
+			else
+			{
+				echo '
+		<tr>
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key,  '</td>
+			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
+		</tr>';
+			}
+		$alternate = !$alternate;
+		}
+		echo '
+		</tbody>
+	</table>
+	<br class="clear" />';
 	}
 }
 
