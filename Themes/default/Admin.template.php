@@ -120,7 +120,7 @@ function template_admin()
 	foreach ($context['quick_admin_tasks'] as $task)
 		echo '
 					<li>
-						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image png_fix" /></a>' : '', '
+						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image" /></a>' : '', '
 						<h5>', $task['link'], '</h5>
 						<span class="task">', $task['description'],'</span>
 					</li>';
@@ -1350,7 +1350,7 @@ function template_core_features()
 			<div class="windowbg', $alternate ? '2' : '', '">
 				<span class="topslice"><span></span></span>
 				<div class="content features">
-					<img class="features_image png_fix" src="', $settings['default_images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
+					<img class="features_image" src="', $settings['images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
 					<div class="features_switch" id="js_feature_', $id, '" style="display: none;">
 						<a href="', $scripturl, '?action=admin;area=featuresettings;sa=core;', $context['session_var'], '=', $context['session_id'], ';toggle=', $id, ';state=', $feature['enabled'] ? 0 : 1, '" onclick="return toggleItem(\'', $id, '\');">
 							<input type="hidden" name="feature_', $id, '" id="feature_', $id, '" value="', $feature['enabled'] ? 1 : 0, '" /><img src="', $settings['images_url'], '/admin/switch_', $feature['enabled'] ? 'on' : 'off', '.png" id="switch_', $id, '" style="margin-top: 1.3em;" alt="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" title="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" />
