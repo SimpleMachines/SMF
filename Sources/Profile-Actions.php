@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $sourcedir, $context, $user_profile, $modSettings;
+	global $sourcedir, $context, $user_profile, $modSettings, $user_info;
 
 	isAllowedTo('moderate_forum');
 
@@ -42,6 +42,10 @@ function activateAccount($memID)
 
 		// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
 		updateMemberData($context['id_member'], array('is_activated' => $user_profile[$memID]['is_activated'] >= 10 ? 11 : 1, 'validation_code' => ''));
+
+		// Log what we did?
+		require_once($sourcedir . '/Logging.php');
+		logAction('approve_member', array('member' => $memID), 'admin');
 
 		// If we are doing approval, update the stats for the member just in case.
 		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 13, 14)))

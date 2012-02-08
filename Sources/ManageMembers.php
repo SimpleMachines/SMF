@@ -1257,22 +1257,10 @@ function AdminApprove()
 	{
 		$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
 		$log_inserts = array();
+
+		require_once($sourcedir . '/Logging.php');
 		foreach ($member_info as $member)
-		{
-			$log_inserts[] = array(
-				time(), 3, $user_info['id'], $user_info['ip'], $log_action,
-				0, 0, 0, serialize(array('member' => $member['id'])),
-			);
-		}
-		$smcFunc['db_insert']('',
-			'{db_prefix}log_actions',
-			array(
-				'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
-				'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
-			),
-			$log_inserts,
-			array('id_action')
-		);
+			logAction($log_action, array('member' => $member['id']), 'admin');
 	}
 
 	// Although updateStats *may* catch this, best to do it manually just in case (Doesn't always sort out unapprovedMembers).
