@@ -715,9 +715,7 @@ function EditMembergroup()
 		$_POST['group_hidden'] = empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $_REQUEST['group'] == 3 ? 0 : (int) $_POST['group_hidden'];
 		$_POST['group_inherit'] = $_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && (empty($inherit_type) || $inherit_type != 1) ? (int) $_POST['group_inherit'] : -2;
 
-		/**
-		 * @todo Don't set online_color for the Moderators group?
-		 */
+		//@todo Don't set online_color for the Moderators group?
 
 		// Do the update of the membergroup settings.
 		$smcFunc['db_query']('', '

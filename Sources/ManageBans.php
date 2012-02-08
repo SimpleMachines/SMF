@@ -111,7 +111,14 @@ function BanList()
 
 		// Unban them all!
 		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}ban_groups, {db_prefix}ban_items
+			DELETE FROM {db_prefix}ban_groups
+			WHERE id_ban_group IN ({array_int:ban_list})',
+			array(
+				'ban_list' => $_POST['remove'],
+			)
+		);
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}ban_items
 			WHERE id_ban_group IN ({array_int:ban_list})',
 			array(
 				'ban_list' => $_POST['remove'],

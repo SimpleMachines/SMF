@@ -128,7 +128,7 @@ function createCategory($catOptions)
 	call_integration_hook('integrate_create_category', array(&$catOptions));
 
 	// Check required values.
-	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) === '')
+	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
 		trigger_error('createCategory(): A category name is required', E_USER_ERROR);
 
 	// Set default values.

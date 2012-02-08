@@ -519,9 +519,7 @@ function MembergroupMembers()
 			$smcFunc['db_free_result']($request);
 		}
 
-		/**
-		 * @todo Add $_POST['additional'] to templates!
-		 */
+		// @todo Add $_POST['additional'] to templates!
 
 		// Do the updates...
 		if (!empty($members))

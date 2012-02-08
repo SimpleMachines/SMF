@@ -1390,9 +1390,7 @@ function InstallSmileySet()
 	$name = strtok(basename(isset($_FILES['set_gz']) ? $_FILES['set_gz']['name'] : $_REQUEST['set_gz']), '.');
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
-	/**
-	 * @todo Decide: overwrite or not?
-	 */
+	//@todo Decide: overwrite or not?
 	if (isset($_FILES['set_gz']) && is_uploaded_file($_FILES['set_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['set_gz']['tmp_name'])))
 		$extracted = read_tgz_file($_FILES['set_gz']['tmp_name'], $boarddir . '/Smileys/' . $name);
 	elseif (isset($_REQUEST['set_gz']))
@@ -1414,9 +1412,7 @@ function InstallSmileySet()
 	cache_put_data('parsing_smileys', null, 480);
 	cache_put_data('posting_smileys', null, 480);
 
-	/**
-	 * @todo Add some confirmation?
-	 */
+	// @todo Add some confirmation?
 	redirectexit('action=admin;area=smileys');
 }
 

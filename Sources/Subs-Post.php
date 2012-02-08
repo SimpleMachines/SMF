@@ -45,7 +45,7 @@ function preparsecode(&$message, $previewing = false)
 	// Trim off trailing quotes - these often happen by accident.
 	while (substr($message, -7) == '[quote]')
 		$message = substr($message, 0, -7);
-	while (strpos($message, '[/quote]') === 0)
+	while (substr($message, 0, 8) == '[/quote]')
 		$message = substr($message, 8);
 
 	// Find all code blocks, work out whether we'd be parsing them, then ensure they are all closed.
@@ -465,11 +465,11 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 
 		if (!$found && $protocols[0] == 'http')
 		{
-			if (strpos($replace, '/') === 0)
+			if (substr($replace, 0, 1) == '/')
 				$replace = $domain_url . $replace;
-			elseif (strpos($replace, '?') === 0)
+			elseif (substr($replace, 0, 1) == '?')
 				$replace = $scripturl . $replace;
-			elseif (strpos($replace, '#') === 0 && $embeddedUrl)
+			elseif (substr($replace, 0, 1) == '#' && $embeddedUrl)
 			{
 				$replace = '#' . preg_replace('~[^A-Za-z0-9_\-#]~', '', substr($replace, 1));
 				$this_tag = 'iurl';
@@ -1269,7 +1269,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if ($modSettings['mail_type'] == 2 && $modSettings['smtp_username'] != '' && $modSettings['smtp_password'] != '')
 	{
 		$socket = fsockopen($modSettings['smtp_host'], 110, $errno, $errstr, 2);
-		if (!$socket && (strpos($modSettings['smtp_host'], 'smtp.') === 0 || strpos($modSettings['smtp_host'], 'ssl://smtp.') === 0))
+		if (!$socket && (substr($modSettings['smtp_host'], 0, 5) == 'smtp.' || substr($modSettings['smtp_host'], 0, 11) == 'ssl://smtp.'))
 			$socket = fsockopen(strtr($modSettings['smtp_host'], array('smtp.' => 'pop.')), 110, $errno, $errstr, 2);
 
 		if ($socket)
@@ -1289,7 +1289,7 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
 	if (!$socket = fsockopen($modSettings['smtp_host'], empty($modSettings['smtp_port']) ? 25 : $modSettings['smtp_port'], $errno, $errstr, 3))
 	{
 		// Maybe we can still save this?  The port might be wrong.
-		if (strpos($modSettings['smtp_host'], 'ssl:') === 0 && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
+		if (substr($modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty($modSettings['smtp_port']) || $modSettings['smtp_port'] == 25))
 		{
 			if ($socket = fsockopen($modSettings['smtp_host'], 465, $errno, $errstr, 3))
 				log_error($txt['smtp_port_ssl']);
@@ -1396,7 +1396,7 @@ function server_parse($message, $socket, $response)
 	// No response yet.
 	$server_response = '';
 
-	while (strpos($server_response, ' ', 3) !== 3)
+	while (substr($server_response, 3, 1) != ' ')
 		if (!($server_response = fgets($socket, 256)))
 		{
 			// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.

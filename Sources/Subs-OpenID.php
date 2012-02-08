@@ -38,7 +38,7 @@ function smf_openID_validate($openid_uri, $return = false, $save_fields = array(
 	if ($response_data === false)
 		return 'no_data';
 
-	if (($assoc = smf_openID_getAssociation($response_data['server'])) === null)
+	if (($assoc = smf_openID_getAssociation($response_data['server'])) == null)
 		$assoc = smf_openID_makeAssociation($response_data['server']);
 
 	// Before we go wherever it is we are going, store the GET and POST data, because it might be useful when we get back.
@@ -393,7 +393,7 @@ function smf_openID_canonize($uri)
 	if (strpos($uri, 'http://') !== 0 && strpos($uri, 'https://') !== 0)
 		$uri = 'http://' . $uri;
 
-	if (strpos($uri, '/', strpos($uri, '://') + 3) === false)
+	if (strpos(substr($uri, strpos($uri, '://') + 3), '/') === false)
 		$uri .= '/';
 
 	return $uri;

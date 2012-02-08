@@ -149,7 +149,7 @@ function DisplayStats()
 	$context['latest_member'] = &$context['common_stats']['latest_member'];
 
 	// Male vs. female ratio - let's calculate this only every four minutes.
-	if (($context['gender'] = cache_get_data('stats_gender', 240)) === null)
+	if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 	{
 		$result = $smcFunc['db_query']('', '
 			SELECT COUNT(*) AS total_members, gender
@@ -419,7 +419,7 @@ function DisplayStats()
 	}
 
 	// Try to cache this when possible, because it's a little unavoidably slow.
-	if (($members = cache_get_data('stats_top_starters', 360)) === null)
+	if (($members = cache_get_data('stats_top_starters', 360)) == null)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member_started, COUNT(*) AS hits

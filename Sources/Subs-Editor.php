@@ -814,7 +814,7 @@ function html_to_bbc($text)
 					$tag_type = 'ftp';
 
 				// Or is this a link to an email address?
-				elseif (strpos($href, 'mailto:') === 0)
+				elseif (substr($href, 0, 7) == 'mailto:')
 				{
 					$tag_type = 'email';
 					$href = substr($href, 7);
@@ -968,7 +968,7 @@ function getMessageIcons($board_id)
 	// Otherwise load the icons, and check we give the right image too...
 	else
 	{
-		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) === null)
+		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
 		{
 			$request = $smcFunc['db_query']('select_message_icons', '
 				SELECT title, filename
@@ -1824,7 +1824,7 @@ function create_control_richedit($editorOptions)
 			);
 		elseif ($user_info['smiley_set'] != 'none')
 		{
-			if (($temp = cache_get_data('posting_smileys', 480)) === null)
+			if (($temp = cache_get_data('posting_smileys', 480)) == null)
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT code, filename, description, smiley_row, hidden
@@ -1946,7 +1946,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// If we want questions do we have a cache of all the IDs?
 	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
 	{
-		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestionIds', 300)) === null)
+		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestionIds', 300)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT id_comment
@@ -2126,7 +2126,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	);
 
 	// If we're just checking the callback function is registered return true or false.
-	if ($checkRegistered !== null)
+	if ($checkRegistered != null)
 		return isset($searchTypes[$checkRegistered]) && function_exists('AutoSuggest_Search_' . $checkRegistered);
 
 	checkSession('get');
