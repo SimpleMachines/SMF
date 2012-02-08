@@ -1791,7 +1791,7 @@ function EditTheme()
 	{
 		if (isset($_GET['directory']))
 		{
-			if (strpos($_GET['directory'], '.') === 0)
+			if (substr($_GET['directory'], 0, 1) == '.')
 				$_GET['directory'] = '';
 			else
 			{
@@ -1828,7 +1828,7 @@ function EditTheme()
 	}
 	else
 	{
-		if (strpos($_REQUEST['filename'], '.') === 0)
+		if (substr($_REQUEST['filename'], 0, 1) == '.')
 			$_REQUEST['filename'] = '';
 		else
 		{
@@ -1940,7 +1940,7 @@ function EditTheme()
 		$context['file_parts'] = array(array('lines' => 0, 'line' => 1, 'data' => ''));
 		for ($i = 0, $n = count($file_data); $i < $n; $i++)
 		{
-			if (isset($file_data[$i + 1]) && strpos($file_data[$i + 1], 'function ') === 0)
+			if (isset($file_data[$i + 1]) && substr($file_data[$i + 1], 0, 9) == 'function ')
 			{
 				// Try to format the functions a little nicer...
 				$context['file_parts'][$j]['data'] = trim($context['file_parts'][$j]['data']) . "\n";
@@ -1989,7 +1989,7 @@ function get_file_listing($path, $relative)
 	foreach ($entries as $entry)
 	{
 		// Skip all dot files, including .htaccess.
-		if (strpos($entry, '.') === 0 || $entry == 'CVS')
+		if (substr($entry, 0, 1) == '.' || $entry == 'CVS')
 			continue;
 
 		if (is_dir($path . '/' . $entry))

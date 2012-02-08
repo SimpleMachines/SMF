@@ -49,9 +49,7 @@ function MessageMain()
 		$context['message_limit'] = 0;
 	elseif (($context['message_limit'] = cache_get_data('msgLimit:' . $user_info['id'], 360)) === null)
 	{
-		/**
-		 * @todo Why do we do this?  It seems like if they have any limit we should use it.
-		 */
+		// @todo Why do we do this?  It seems like if they have any limit we should use it.
 		$request = $smcFunc['db_query']('', '
 			SELECT MAX(max_messages) AS top_limit, MIN(max_messages) AS bottom_limit
 			FROM {db_prefix}membergroups
@@ -1134,9 +1132,7 @@ function MessageSearch2()
 		}
 
 		// Who matches those criteria?
-		/**
-		 * @todo This doesn't support sent item searching.
-		 */
+		// @todo This doesn't support sent item searching.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member
 			FROM {db_prefix}members
@@ -2349,12 +2345,12 @@ function MessageActionsApply()
 			$to_delete[] = (int) $pm;
 		else
 		{
-			if (strpos($action, 'add_') === 0)
+			if (substr($action, 0, 4) == 'add_')
 			{
 				$type = 'add';
 				$action = substr($action, 4);
 			}
-			elseif (strpos($action, 'rem_') === 0)
+			elseif (substr($action, 0, 4) == 'rem_')
 			{
 				$type = 'rem';
 				$action = substr($action, 4);

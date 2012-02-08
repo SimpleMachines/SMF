@@ -138,7 +138,7 @@ class xmlArray
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (strpos($el, '@') === 0)
+			elseif (substr($el, 0, 1) == '@')
 			{
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el]))
@@ -200,7 +200,7 @@ class xmlArray
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (strpos($el, '@') === 0)
+			elseif (substr($el, 0, 1) == '@')
 				return isset($array[$el]);
 			else
 				$lvl = null;
@@ -501,7 +501,7 @@ class xmlArray
 		// Run through and recurively output all the elements or attrbutes inside this.
 		foreach ($array as $k => $v)
 		{
-			if (strpos($k, '@') === 0)
+			if (substr($k, 0, 1) == '@')
 				$output .= ' ' . substr($k, 1) . '="' . $v . '"';
 			elseif (is_array($v))
 			{

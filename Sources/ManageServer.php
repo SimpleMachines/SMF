@@ -262,6 +262,7 @@ function ModifyCookieSettings($return_config = false)
 	// Define the variables we want to edit.
 	$config_vars = array(
 		// Cookies...
+		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
 		array('cookieTime', $txt['cookieTime'], 'db', 'int'),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
@@ -417,7 +418,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		'loadavg_allunread' => '2.0',
 		'loadavg_unreadreplies' => '3.5',
 		'loadavg_show_posts' => '2.0',
-		'loadavg_bbc' => '25.0',
+		'loadavg_bbc' => '30.0',
 		'loadavg_forum' => '40.0',
 	);
 
@@ -594,9 +595,7 @@ function prepareDBSettingContext(&$config_vars)
 			}
 
 			// Set the subtext in case it's part of the label.
-			/**
-			 * @todo Temporary. Preventing divs inside label tags.
-			 */
+			// @todo Temporary. Preventing divs inside label tags.
 			$divPos = strpos($context['config_vars'][$config_var[1]]['label'], '<div');
 			if ($divPos !== false)
 			{
@@ -640,9 +639,7 @@ function prepareDBSettingContext(&$config_vars)
 
 			$context['bbc_columns'][$col][] = array(
 				'tag' => $tag,
-				/**
-				 * @todo  'tag_' . ?
-				 */
+				// @todo  'tag_' . ?
 				'show_help' => isset($helptxt[$tag]),
 			);
 

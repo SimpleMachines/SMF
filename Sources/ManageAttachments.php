@@ -856,7 +856,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		foreach ($condition as $real_type => $restriction)
 		{
 			// Doing a NOT?
-			$is_not = strpos($real_type, 'not_') === 0;
+			$is_not = substr($real_type, 0, 4) == 'not_';
 			$type = $is_not ? substr($real_type, 4) : $real_type;
 
 			if (in_array($type, array('id_member', 'id_attach', 'id_msg')))

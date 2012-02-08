@@ -333,7 +333,7 @@ function PackageGBrowse()
 			{
 				$remote_type = $thisPackage->exists('@type') ? $thisPackage->fetch('@type') : 'relative';
 
-				if ($remote_type == 'relative' && strpos($thisPackage->fetch('@href'), 'http://') !== 0)
+				if ($remote_type == 'relative' && substr($thisPackage->fetch('@href'), 0, 7) != 'http://')
 				{
 					if (isset($_GET['absolute']))
 						$current_url = $_GET['absolute'] . '/';

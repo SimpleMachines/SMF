@@ -1001,14 +1001,14 @@ function GeneralPermissionSettings($return_config = false)
 		if (empty($modSettings['permission_enable_deny']))
 		{
 			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}board_permissions
+				DELETE FROM {db_prefix}permissions
 				WHERE add_deny = {int:denied}',
 				array(
 					'denied' => 0,
 				)
 			);
 			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}permissions
+				DELETE FROM {db_prefix}board_permissions
 				WHERE add_deny = {int:denied}',
 				array(
 					'denied' => 0,
@@ -1686,7 +1686,6 @@ function loadAllPermissions($loadType = 'classic')
 		}
 }
 
-//
 /**
  * Initialize a form with inline permissions settings.
  * It loads a context variables for each permission.

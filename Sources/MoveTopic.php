@@ -278,9 +278,7 @@ function MoveTopic2()
 	}
 
 	// Create a link to this in the old board.
-	/**
-	 * @todo Does this make sense if the topic was unapproved before? I'd just about say so.
-	 */
+	// @todo Does this make sense if the topic was unapproved before? I'd just about say so.
 	if (isset($_POST['postRedirect']))
 	{
 		// Should be in the boardwide language.

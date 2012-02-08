@@ -80,7 +80,7 @@ function ShowAdminHelp()
 	loadLanguage('Help');
 
 	// Permission specific help?
-	if (isset($_GET['help']) && strpos($_GET['help'], 'permissionhelp') === 0)
+	if (isset($_GET['help']) && substr($_GET['help'], 0, 14) == 'permissionhelp')
 		loadLanguage('ManagePermissions');
 
 	loadTemplate('Help');

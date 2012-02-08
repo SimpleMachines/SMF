@@ -35,7 +35,7 @@ ob_start();
 // Do some cleaning, just in case.
 foreach (array('db_character_set', 'cachedir') as $variable)
 	if (isset($GLOBALS[$variable]))
-		unset($GLOBALS[$variable]);
+		unset($GLOBALS[$variable], $GLOBALS[$variable]);
 
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
@@ -88,7 +88,7 @@ if (isset($_GET['scheduled']))
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 {
 	// If zlib is being used, turn off output compression.
-	if (ini_get('zlib.output_compression') == '1' || ini_get('output_handler') === 'ob_gzhandler' || version_compare(PHP_VERSION, '4.2.0', '<'))
+	if (ini_get('zlib.output_compression') == '1' || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
 	else
 	{
@@ -137,7 +137,7 @@ if (WIRELESS)
 	$modSettings['defaultMaxTopics'] = 9;
 
 	// Wireless protocol header.
-	if (WIRELESS_PROTOCOL === 'wap')
+	if (WIRELESS_PROTOCOL == 'wap')
 		header('Content-Type: text/vnd.wap.wml');
 }
 
@@ -163,7 +163,7 @@ function smf_main()
 	global $modSettings, $settings, $user_info, $board, $topic, $board_info, $maintenance, $sourcedir;
 
 	// Special case: session keep-alive, output a transparent pixel.
-	if (isset($_GET['action']) && $_GET['action'] === 'keepalive')
+	if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
 	{
 		header('Content-Type: image/gif');
 		die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
@@ -179,7 +179,7 @@ function smf_main()
 	loadPermissions();
 
 	// Attachments don't require the entire theme to be loaded.
-	if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'dlattach' && (!empty($modSettings['allow_guestAccess']) && $user_info['is_guest']))
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && (!empty($modSettings['allow_guestAccess']) && $user_info['is_guest']))
 		detectBrowser();
 	// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 	else
@@ -210,10 +210,10 @@ function smf_main()
 	if (!empty($maintenance) && !allowedTo('admin_forum'))
 	{
 		// You can only login.... otherwise, you're getting the "maintenance mode" display.
-		if (isset($_REQUEST['action']) && ($_REQUEST['action'] === 'login2' || $_REQUEST['action'] === 'logout'))
+		if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'login2' || $_REQUEST['action'] == 'logout'))
 		{
 			require_once($sourcedir . '/LogInOut.php');
-			return $_REQUEST['action'] === 'login2' ? 'Login2' : 'Logout';
+			return $_REQUEST['action'] == 'login2' ? 'Login2' : 'Logout';
 		}
 		// Don't even try it, sonny.
 		else
