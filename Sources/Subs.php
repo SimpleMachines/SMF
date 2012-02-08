@@ -19,19 +19,25 @@ if (!defined('SMF'))
 /**
  * Update some basic statistics.
  * 
- * The 'member' statistic updates the latest member, the total member
+ * 'member' statistic updates the latest member, the total member 
  *  count, and the number of unapproved members.
  * 'member' also only counts approved members when approval is on, but
  *  is much more efficient with it off.
- * updating 'message' changes the total number of messages, and the
+ *
+ * 'message' changes the total number of messages, and the
  *  highest message id by id_msg - which can be parameters 1 and 2,
  *  respectively.
+ *
  * 'topic' updates the total number of topics, or if parameter1 is true
  *  simply increments them.
- * the 'postgroups' case updates those members who match condition's
+ *
+ * 'subject' updateds the log_search_subjects in the event of a topic being 
+ *  moved, removed or split.  parameter1 is the topicid, parameter2 is the new subject
+ * 
+ * 'postgroups' case updates those members who match condition's
  *  post-based membergroups in the database (restricted by parameter1).
  * 
- * @param string $type Stat type - can be 'member', 'message', 'topic', or 'postgroups'
+ * @param string $type Stat type - can be 'member', 'message', 'topic', 'subject' or 'postgroups'
  * @param mixed $parameter1 = null
  * @param mixed $parameter2 = null
  */
@@ -186,7 +192,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		if ($parameter2 !== null && !in_array('posts', $parameter2))
 			return;
 
-		if (($postgroups = cache_get_data('updateStats:postgroups', 360)) == null)
+		$postgroups = cache_get_data('updateStats:postgroups', 360);
+		if ($postgroups == null || $parameter1 == null)
 		{
 			// Fetch the postgroups!
 			$request = $smcFunc['db_query']('', '
@@ -242,18 +249,20 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 /**
  * Updates the columns in the members table.
- * Assumes the data has been htmlspecialchar'd.
+ * Assumes the data has been htmlspecialchar'd. 
+ * this function should be used whenever member data needs to be
+ * updated in place of an UPDATE query.
  * 
  * id_member is either an int or an array of ints to be updated.
- * data is an associative array of the columns to be updated and their
- *  respective values.
+ *
+ * data is an associative array of the columns to be updated and their respective values.
  * any string values updated should be quoted and slashed.
+ *
  * the value of any column can be '+' or '-', which mean 'increment'
- *  and decrement, respectively.
+ * and decrement, respectively.
+ *
  * if the member's post number is updated, updates their post groups.
- * this function should be used whenever member data needs to be
- *  updated in place of an UPDATE query.
- * 
+ *
  * @param mixed $members An array of integers
  * @param array $data
  */
@@ -397,13 +406,12 @@ function updateMemberData($members, $data)
 /**
  * Updates the settings table as well as $modSettings... only does one at a time if $update is true.
  * 
- * updates both the settings table and $modSettings array.
- * all of changeArray's indexes and values are assumed to have escaped
- *  apostrophes (')!
- * if a variable is already set to what you want to change it to, that
- *  variable will be skipped over; it would be unnecessary to reset.
- * if use_update is true, UPDATEs will be used instead of REPLACE.
- * when use_update is true, the value can be true or false to increment
+ * - updates both the settings table and $modSettings array.
+ * - all of changeArray's indexes and values are assumed to have escaped apostrophes (')!
+ * - if a variable is already set to what you want to change it to, that
+ *   variable will be skipped over; it would be unnecessary to reset.
+ * - When use_update is true, UPDATEs will be used instead of REPLACE.
+ * - when use_update is true, the value can be true or false to increment
  *  or decrement it, respectively.
  * 
  * @param array $changeArray
@@ -471,17 +479,17 @@ function updateSettings($changeArray, $update = false, $debug = false)
 
 /**
  * Constructs a page list.
- *  int num_per_page, bool compact_start = false)
- * builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
- * compact_start caused it to use "url.page" instead of
- *  "url;start=page".
- * handles any wireless settings (adding special things to URLs.)
- * very importantly, cleans up the start value passed, and forces it to
- *  be a multiple of num_per_page.
- * also checks that start is not more than max_value.
- * base_url should be the URL without any start parameter on it.
- * uses the compactTopicPagesEnable and compactTopicPagesContiguous
- *  settings to decide how to display the menu.
+ *
+ * - builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
+ * - flexible_start causes it to use "url.page" instead of "url;start=page".
+ * - handles any wireless settings (adding special things to URLs.)
+ * - very importantly, cleans up the start value passed, and forces it to
+ *   be a multiple of num_per_page.
+ * - checks that start is not more than max_value.
+ * - base_url should be the URL without any start parameter on it.
+ * - uses the compactTopicPagesEnable and compactTopicPagesContiguous
+ *   settings to decide how to display the menu.
+ *
  * an example is available near the function definition.
  * $pageindex = constructPageIndex($scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
  * 
@@ -582,10 +590,10 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 }
 
 /**
- * formats a number to display in the style of the admins' choosing.
- * uses the format of number_format to decide how to format the number.
- * for example, it might display "1 234,50".
- * caches the formatting data from the setting for optimization.
+ * - formats a number to display in the style of the admins' choosing.
+ * - uses the format of number_format to decide how to format the number.
+ *   for example, it might display "1 234,50".
+ * - caches the formatting data from the setting for optimization.
  * 
  * @param float $number
  * @param bool $override_decimal_count = false
@@ -618,14 +626,11 @@ function comma_format($number, $override_decimal_count = false)
 /**
  * Format a time to make it look purdy.
  * 
- * returns a pretty formated version of time based on the user's format
- *  in $user_info['time_format'].
- * applies all necessary time offsets to the timestamp, unless offset_type
- *  is set.
- * if todayMod is set and show_today was not not specified or true, an
- *  alternate format string is used to show the date with something to
- *  show it is "today" or "yesterday".
- * performs localization (more than just strftime would do alone.)
+ * - returns a pretty formated version of time based on the user's format in $user_info['time_format'].
+ * - applies all necessary time offsets to the timestamp, unless offset_type is set.
+ * - if todayMod is set and show_today was not not specified or true, an
+ *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
+ * - performs localization (more than just strftime would do alone.)
  * 
  * @param int $log_time
  * @param bool $show_today = true
@@ -711,11 +716,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 
 /**
  * Removes special entities from strings.  Compatibility...
- * 
- * removes the base entities (&lt;, &quot;, etc.) from text.
  * Should be used instead of html_entity_decode for PHP version compatibility reasons.
- * additionally converts &nbsp; and &#039;.
- * returns .
+ *
+ * - removes the base entities (&lt;, &quot;, etc.) from text.
+ * - additionally converts &nbsp; and &#039;.
+ * 
  * @param string $string
  * @return the string without entities
  */
@@ -732,11 +737,10 @@ function un_htmlspecialchars($string)
 /**
  * Shorten a subject + internationalization concerns.
  * 
- * shortens a subject so that it is either shorter than length, or that
- *  length plus an ellipsis.
- * respects internationalization characters and entities as one character.
- * avoids trailing entities.
- * returns the shortened string.
+ * - shortens a subject so that it is either shorter than length, or that length plus an ellipsis.
+ * - respects internationalization characters and entities as one character.
+ * - avoids trailing entities.
+ * - returns the shortened string.
  * 
  * @param string $subject
  * @param int $len
@@ -754,8 +758,10 @@ function shorten_subject($subject, $len)
 }
 
 /**
- * Get the current time with offset.
- * Always applies the offset in the time_offset setting.
+ * Gets the current time with offset.
+ *
+ * - always applies the offset in the time_offset setting.
+ *
  * @param bool $use_user_offset = true if use_user_offset is true, applies the user's offset as well
  * @param int $timestamp = null
  * @return int seconds since the unix epoch
@@ -806,16 +812,15 @@ function permute($array)
 
 /**
  * Parse bulletin board code in a string, as well as smileys optionally.
- * Only parses bbc tags which are not disabled in disabledBBC.
- * Also handles basic HTML, if enablePostHTML is on.
- * Caches the from/to replace regular expressions so as not to reload
- *  them every time a string is parsed.
- * Only parses smileys if smileys is true.
- * Does nothing if the enableBBC setting is off.
- * Applies the fixLongWords magic if the setting is set to on.
- * Uses the cache_id as a unique identifier to facilitate any caching
- *  it may do.
- * Returns the modified message.
+ *
+ * - only parses bbc tags which are not disabled in disabledBBC.
+ * - handles basic HTML, if enablePostHTML is on.
+ * - caches the from/to replace regular expressions so as not to reload them every time a string is parsed.
+ * - only parses smileys if smileys is true.
+ * - does nothing if the enableBBC setting is off.
+ * - applies the fixLongWords magic if the setting is set to on.
+ * - uses the cache_id as a unique identifier to facilitate any caching it may do.
+ *  -returns the modified message.
  * 
  * @param string $message
  * @param bool $smileys = true
@@ -2390,9 +2395,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 /**
  * Parse smileys in the passed message.
+ *
  * The smiley parsing function which makes pretty faces appear :).
- * If custom smiley sets are turned off by smiley_enable, the default
- *  set of smileys will be used.
+ * If custom smiley sets are turned off by smiley_enable, the default set of smileys will be used.
  * These are specifically not parsed in code tags [url=mailto:Dad@blah.com]
  * Caches the smileys from the database or array in memory.
  * Doesn't return anything, but rather modifies message directly.
@@ -2475,9 +2480,11 @@ function parsesmileys(&$message)
 
 /**
  * Highlight any code.
+ *
  * Uses PHP's highlight_string() to highlight PHP syntax
  * does special handling to keep the tabs in the code available.
  * used to parse PHP code from inside [code] and [php] tags.
+ *
  * @param string $code
  * @return string the code with highlighted HTML.
  */
@@ -2503,6 +2510,7 @@ function highlight_php_code($code)
 /**
  * Make sure the browser doesn't come back and repost the form data.
  * Should be used whenever anything is posted.
+ *
  * @param string $setLocation = ''
  * @param bool $refresh = false
  */
@@ -2770,7 +2778,8 @@ function url_image_size($url)
 }
 
 /**
- * 
+ * Sets the class of the current topic based on is_very_hot, veryhot, hot, etc
+ *
  * @param array &$topic_context
  */
 function determineTopicClass(&$topic_context)
@@ -3229,6 +3238,7 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
 /**
  * Convert a single IP to a ranged IP.
  * internal function used to convert a user-readable format to a format suitable for the database.
+ *
  * @param string $fullip
  * @return array|string 'unknown' if the ip in the input was '255.255.255.255'
  */
@@ -3287,6 +3297,7 @@ function ip2range($fullip)
 
 /**
  * Lookup an IP; try shell_exec first because we can do a timeout on it.
+ *
  * @param string $ip
  */
 function host_from_ip($ip)
@@ -3339,6 +3350,7 @@ function host_from_ip($ip)
 
 /**
  * Chops a string into words and prepares them to be inserted into (or searched from) the database.
+ *
  * @param string $text
  * @param int $max_chars = 20
  * @param bool $encrypt = false
@@ -3415,8 +3427,8 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 /**
  * Empty out the cache folder.
  * clean the cache directory ($cachedir, if any and in use)
- * it may only remove the files of a certain type
- *  (if the $type parameter is given)
+ * it may only remove the files of a certain type (if the $type parameter is given)
+ *
  * @param string $type = ''
  */
 function clean_cache($type = '')
@@ -3444,6 +3456,7 @@ function clean_cache($type = '')
 
 /**
  * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
+ *
  * @param string $filename
  * @todo remove this function since we are no longer supporting PHP < 5
  */
@@ -3796,6 +3809,7 @@ function smf_seed_generator()
  * Process functions of an integration hook.
  * calls all functions of the given hook.
  * supports static class method calls.
+ *
  * @param string $hook
  * @param array $paramaters = array()
  * @return array the results of the functions
@@ -3827,6 +3841,7 @@ function call_integration_hook($hook, $parameters = array())
 /**
  * Add a function for integration hook.
  * does nothing if the function is already added.
+ *
  * @param string $hook
  * @param string $function
  * @param bool $permanent = true if true, updates the value in settings table
@@ -3878,6 +3893,7 @@ function add_integration_function($hook, $function, $permanent = true)
  * Remove an integration hook function.
  * Removes the given function from the given hook.
  * Does nothing if the function is not available.
+ *
  * @param string $hook
  * @param string $function
  */
