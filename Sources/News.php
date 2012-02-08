@@ -170,9 +170,7 @@ function ShowXmlFeed()
 	// Show in rss or proprietary format?
 	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf', 'webslice')) ? $_GET['type'] : 'smf';
 
-	/**
-	 * @todo Birthdays? 
-	 */
+	// @todo Birthdays? 
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -184,9 +182,7 @@ function ShowXmlFeed()
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
 
-	/**
-	 * @todo Temp - webslices doesn't do everything yet.
-	 */
+	// @todo Temp - webslices doesn't do everything yet.
 	if ($xml_format == 'webslice' && $_GET['sa'] != 'recent')
 		$xml_format = 'rss2';
 	// If this is webslices we kinda cheat - we allow a template that we call direct for the HTML, and we override the CDATA.
@@ -973,7 +969,7 @@ function getXmlProfile($xml_format)
 		if (in_array($profile['show_email'], array('yes', 'yes_permission_override')))
 			$data['email'] = $profile['email'];
 
-		if (!empty($profile['birth_date']) && strpos($profile['birth_date'], '0000') !== 0)
+		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')
 		{
 			list ($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 			$datearray = getdate(forum_time());

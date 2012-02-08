@@ -1059,9 +1059,7 @@ function ShowNotice()
 
 	loadTemplate('ModerationCenter');
 
-	/**
-	 * @todo Assumes nothing needs permission more than accessing moderation center!
-	 */
+	// @todo Assumes nothing needs permission more than accessing moderation center!
 	$id_notice = (int) $_GET['nid'];
 	$request = $smcFunc['db_query']('', '
 		SELECT body, subject

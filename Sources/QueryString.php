@@ -76,7 +76,7 @@ function cleanRequest()
 
 		// Was this redirected? If so, get the REDIRECT_QUERY_STRING.
 		// Do not urldecode() the querystring, unless you so much wish to break OpenID implementation. :)
-		$_SERVER['QUERY_STRING'] = strpos($_SERVER['QUERY_STRING'], 'url=/') === 0 ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
+		$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], 0, 5) === 'url=/' ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
 
 		// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 		// @todo smflib
@@ -94,7 +94,7 @@ function cleanRequest()
 		// Search engines will send action=profile%3Bu=1, which confuses PHP.
 		foreach ($_GET as $k => $v)
 		{
-			if (is_string($v) && strpos($k, ';') !== false)
+			if ((string) $v === $v && strpos($k, ';') !== false)
 			{
 				$temp = explode(';', $v);
 				$_GET[$k] = $temp[0];

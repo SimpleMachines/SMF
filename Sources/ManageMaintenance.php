@@ -262,23 +262,23 @@ function MaintainEmptyUnimportantLogs()
 
 	// No one's online now.... MUHAHAHAHA :P.
 	$smcFunc['db_query']('', '
-		DELETE FROM ');
+		DELETE FROM {db_prefix}log_online');
 
-	// @todo why are we truncating some but not all?
-
-	// Clear out the ban, SPAM, and karma logs.
+	// Dump the banning logs.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_banned');
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_online');
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_floodcontrol');
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_karma');
 
 	// Start id_error back at 0 and dump the error log.
 	$smcFunc['db_query']('truncate_table', '
 		TRUNCATE {db_prefix}log_errors');
+
+	// Clear out the spam log.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_floodcontrol');
+
+	// Clear out the karma actions.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_karma');
 
 	// Last but not least, the search logs!
 	$smcFunc['db_query']('truncate_table', '

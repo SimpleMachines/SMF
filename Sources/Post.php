@@ -578,9 +578,7 @@ function Post()
 				)
 			);
 			// The message they were trying to edit was most likely deleted.
-			/**
-			 * @todo Change this error message?
-			 */
+			// @todo Change this error message?
 			if ($smcFunc['db_num_rows']($request) == 0)
 				fatal_lang_error('no_board', false);
 			$row = $smcFunc['db_fetch_assoc']($request);
@@ -683,9 +681,7 @@ function Post()
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
-		/**
-		 * @todo Change this error message?
-		 */
+		//@todo Change this error message?
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_board', false);
 		$row = $smcFunc['db_fetch_assoc']($request);
@@ -1052,9 +1048,7 @@ function Post()
 		$context['linktree'][count($context['linktree']) - 1]['url'] = $scripturl . '?action=post;' . (!empty($topic) ? 'topic=' . $topic : 'board=' . $board) . '.' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . (int) $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '');
 
 	// If they've unchecked an attachment, they may still want to attach that many more files, but don't allow more than num_allowed_attachments.
-	/**
-	 * @todo This won't work if you're posting an event.
-	 */
+	// @todo This won't work if you're posting an event.
 	$context['num_allowed_attachments'] = empty($modSettings['attachmentNumPerPostLimit']) ? 50 : min($modSettings['attachmentNumPerPostLimit'] - count($context['current_attachments']) + (isset($deleted_attachments) ? $deleted_attachments : 0), $modSettings['attachmentNumPerPostLimit']);
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments'))) && $context['num_allowed_attachments'] > 0;
 	$context['can_post_attachment_unapproved'] = allowedTo('post_attachment');
@@ -2620,9 +2614,7 @@ function QuoteFast()
 
 		$context['quote']['mozilla'] = strtr($smcFunc['htmlspecialchars']($context['quote']['text']), array('&quot;' => '"'));
 	}
-	/**
-	 * @todo Needs a nicer interface.
-	 */
+	//@todo Needs a nicer interface.
 	// In case our message has been removed in the meantime.
 	elseif (isset($_REQUEST['modify']))
 	{

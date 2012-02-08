@@ -252,7 +252,7 @@ function Display()
 		}
 
 		// Start from a certain time index, not a message.
-		if (strpos($_REQUEST['start'], 'from') === 0)
+		if (substr($_REQUEST['start'], 0, 4) == 'from')
 		{
 			$timestamp = (int) substr($_REQUEST['start'], 4);
 			if ($timestamp === 0)
@@ -282,7 +282,7 @@ function Display()
 		}
 
 		// Link to a message...
-		elseif (strpos($_REQUEST['start'], 'msg') === 0)
+		elseif (substr($_REQUEST['start'], 0, 3) == 'msg')
 		{
 			$virtual_msg = (int) substr($_REQUEST['start'], 3);
 			if (!$topicinfo['unapproved_posts'] && $virtual_msg >= $topicinfo['id_last_msg'])

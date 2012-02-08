@@ -55,7 +55,7 @@ if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !
 	die($mmessage);
 
 // Fix for using the current directory as a path.
-if (strpos($sourcedir, '.') === 0 && strpos($sourcedir, '.') !== 1)
+if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
 	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
 
 // Load the important includes.

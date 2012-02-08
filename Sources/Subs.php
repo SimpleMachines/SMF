@@ -186,7 +186,7 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 		if ($parameter2 !== null && !in_array('posts', $parameter2))
 			return;
 
-		if (($postgroups = cache_get_data('updateStats:postgroups', 360)) === null)
+		if (($postgroups = cache_get_data('updateStats:postgroups', 360)) == null)
 		{
 			// Fetch the postgroups!
 			$request = $smcFunc['db_query']('', '
@@ -612,7 +612,7 @@ function comma_format($number, $override_decimal_count = false)
 	}
 
 	// Format the string with our friend, number_format.
-	return number_format($number, is_float($number) ? ($override_decimal_count === false ? $decimal_count : $override_decimal_count) : 0, $decimal_separator, $thousands_separator);
+	return number_format($number, (float) $number === $number ? ($override_decimal_count === false ? $decimal_count : $override_decimal_count) : 0, $decimal_separator, $thousands_separator);
 }
 
 /**
@@ -634,7 +634,7 @@ function comma_format($number, $override_decimal_count = false)
 function timeformat($log_time, $show_today = true, $offset_type = false)
 {
 	global $context, $user_info, $txt, $modSettings, $smcFunc;
-	static $non_twelve_hour = null;
+	static $non_twelve_hour;
 
 	// Offset the time.
 	if (!$offset_type)
@@ -1323,7 +1323,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => isset($disabled['php']) ? null : create_function('&$tag, &$data, $disabled', '
 					if (!isset($disabled[\'php\']))
 					{
-						$add_begin = strpos(trim($data), \'&lt;?\') === 0;
+						$add_begin = substr(trim($data), 0, 5) != \'&lt;?\';
 						$data = highlight_php_code($add_begin ? \'&lt;?php \' . $data . \'?&gt;\' : $data);
 						if ($add_begin)
 							$data = preg_replace(array(\'~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~\', \'~\?&gt;((?:</(font|span)>)*)$~\'), \'$1\', $data, 2);
@@ -1912,7 +1912,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos2 = $pos - 1;
 
 				// See the comment at the end of the big loop - just eating whitespace ;).
-				if (!empty($tag['block_level']) && strpos($message, '<br />', $pos) === $pos)
+				if (!empty($tag['block_level']) && substr($message, $pos, 6) == '<br />')
 					$message = substr($message, 0, $pos) . substr($message, $pos + 6);
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br />|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
@@ -1956,7 +1956,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				if (in_array($possible['type'], array('unparsed_equals', 'unparsed_commas', 'unparsed_commas_content', 'unparsed_equals_content', 'parsed_equals')) && $next_c != '=')
 					continue;
 				// Maybe we just want a /...
-				if ($possible['type'] == 'closed' && $next_c != ']' && (strpos($message, '/]', $pos + 1 + strlen($possible['tag'])) !== $pos + 1 + strlen($possible['tag'])) && (strpos($message, ' /]', $pos + 1 + strlen($possible['tag'])) !== $pos + 1 + strlen($possible['tag'])))
+				if ($possible['type'] == 'closed' && $next_c != ']' && substr($message, $pos + 1 + strlen($possible['tag']), 2) != '/]' && substr($message, $pos + 1 + strlen($possible['tag']), 3) != ' /]')
 					continue;
 				// An immediate ]?
 				if ($possible['type'] == 'unparsed_content' && $next_c != ']')
@@ -2164,7 +2164,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += strlen($open_tags[$i]['after']) + 2;
 
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
-				if (!empty($open_tags[$i]['block_level']) && strpos($message, '<br />', $pos) === $pos)
+				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 6) == '<br />')
 					$message = substr($message, 0, $pos) . substr($message, $pos + 6);
 				if (!empty($open_tags[$i]['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br />|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
@@ -2190,7 +2190,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$data = substr($message, $pos1, $pos2 - $pos1);
 
-			if (!empty($tag['block_level']) && strpos($data, '<br />') === 0)
+			if (!empty($tag['block_level']) && substr($data, 0, 6) == '<br />')
 				$data = substr($data, 6);
 
 			if (isset($tag['validate']))
@@ -2209,7 +2209,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = strpos($message, '&quot;', $pos1) === $pos1;
+				$quoted = substr($message, $pos1, 6) == '&quot;';
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
@@ -2231,7 +2231,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
-			if (!empty($tag['block_level']) && strpos($data[0], '<br />') === 0)
+			if (!empty($tag['block_level']) && substr($data[0], 0, 6) == '<br />')
 				$data[0] = substr($data[0], 6);
 
 			// Validation for my parking, please!
@@ -2303,7 +2303,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = strpos($message, '&quot;', $pos1) === $pos1;
+				$quoted = substr($message, $pos1, 6) == '&quot;';
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
@@ -2337,7 +2337,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($tag['block_level']) && strpos($message, '<br />', $pos + 1) === $pos + 1)
+		if (!empty($tag['block_level']) && substr($message, $pos + 1, 6) == '<br />')
 			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 7);
 
 		// Are we trimming outside this tag?
@@ -2421,7 +2421,7 @@ function parsesmileys(&$message)
 		else
 		{
 			// Load the smileys in reverse order by length so they don't get parsed wrong.
-			if (($temp = cache_get_data('parsing_smileys', 480)) === null)
+			if (($temp = cache_get_data('parsing_smileys', 480)) == null)
 			{
 				$result = $smcFunc['db_query']('', '
 					SELECT code, filename, description
@@ -2515,7 +2515,7 @@ function redirectexit($setLocation = '', $refresh = false)
 		// @todo this relies on 'flush_mail' being only set in AddMailQueue itself... :\
 		AddMailQueue(true);
 
-	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && strpos($setLocation, 'about:') !== 0;
+	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
 
 	if (WIRELESS)
 	{
@@ -2855,7 +2855,7 @@ function setupThemeContext($forceload = false)
 		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
-		elseif (strpos($user_info['avatar']['url'], 'http://') === 0)
+		elseif (substr($user_info['avatar']['url'], 0, 7) == 'http://')
 		{
 			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
 

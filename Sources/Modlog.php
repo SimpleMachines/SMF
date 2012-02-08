@@ -143,7 +143,7 @@ function ViewModlog()
 		// For the moment they can only search for ONE action!
 		foreach ($txt as $key => $text)
 		{
-			if (strpos($key, 'modlog_ac_') === 0 && strpos($text, $search_params['string']) !== false)
+			if (substr($key, 0, 10) == 'modlog_ac_' && strpos($text, $search_params['string']) !== false)
 			{
 				$search_params['string'] = substr($key, 10);
 				break;

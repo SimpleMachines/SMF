@@ -830,7 +830,7 @@ function AdminSearchInternal()
 				$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
 				$context['search_results'][] = array(
-					'url' => (strpos($item[1], 'area') === 0 ? $scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . $context['session_var'] . '=' . $context['session_id'] . ((strpos($item[1], 'area') === 0 && $section == 'settings' ? '#' . $item[0][0] : '')),
+					'url' => (substr($item[1], 0, 4) == 'area' ? $scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . $context['session_var'] . '=' . $context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
 					'name' => $name,
 					'type' => $section,
 					'help' => shorten_subject(isset($item[2]) ? strip_tags($helptxt[$item[2]]) : (isset($helptxt[$found]) ? strip_tags($helptxt[$found]) : ''), 255),

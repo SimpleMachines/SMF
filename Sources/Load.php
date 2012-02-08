@@ -35,7 +35,7 @@ function reloadSettings()
 		);
 
 	// Try to load it from the cache first; it'll never get cached if the setting is off.
-	if (($modSettings = cache_get_data('modSettings', 90)) === null)
+	if (($modSettings = cache_get_data('modSettings', 90)) == null)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT variable, value
@@ -103,7 +103,7 @@ function reloadSettings()
 				$needle_size = count($needle_arr);
 
 				$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
-				while (is_int($result))
+				while ((int) $result === $result)
 				{
 					$offset += $result;
 					if (array_slice($haystack_arr, $offset, $needle_size) === $needle_arr)
@@ -152,7 +152,7 @@ function reloadSettings()
 	// Check the load averages?
 	if (!empty($modSettings['loadavg_enable']))
 	{
-		if (($modSettings['load_average'] = cache_get_data('loadavg', 90)) === null)
+		if (($modSettings['load_average'] = cache_get_data('loadavg', 90)) == null)
 		{
 			$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 			if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) != 0)
@@ -166,7 +166,8 @@ function reloadSettings()
 				cache_put_data('loadavg', $modSettings['load_average'], 90);
 		}
 		
-		call_integration_hook('integrate_load_average', array($modSettings['load_average']));
+		if (!empty($modSettings['load_average']))
+			call_integration_hook('integrate_load_average', array($modSettings['load_average']));
 
 		if (!empty($modSettings['loadavg_forum']) && !empty($modSettings['load_average']) && $modSettings['load_average'] >= $modSettings['loadavg_forum'])
 			display_loadavg_error();
@@ -246,7 +247,7 @@ function loadUserSettings()
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
-		 // @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
+		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
 		$id_member = !empty($id_member) && strlen($password) == 40 && $login_span > time() ? (int) $id_member : 0;
 	}
@@ -255,7 +256,7 @@ function loadUserSettings()
 	if ($id_member != 0)
 	{
 		// Is the member data cached?
-		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) === null)
+		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT mem.*, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
@@ -766,7 +767,7 @@ function loadPermissions()
 
 			return;
 		}
-		elseif (($temp = cache_get_data('permissions:' . $cache_groups, 240)) !== null && time() - 240 > $modSettings['settings_updated'])
+		elseif (($temp = cache_get_data('permissions:' . $cache_groups, 240)) != null && time() - 240 > $modSettings['settings_updated'])
 			list ($user_info['permissions'], $removals) = $temp;
 	}
 
@@ -878,7 +879,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		for ($i = 0, $n = count($users); $i < $n; $i++)
 		{
 			$data = cache_get_data('member_data-' . $set . '-' . $users[$i], 240);
-			if ($data === null)
+			if ($data == null)
 				continue;
 
 			$loaded_ids[] = $data['id_member'];
@@ -982,7 +983,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	// Are we loading any moderators?  If so, fix their group data...
 	if (!empty($loaded_ids) && !empty($board_info['moderators']) && $set === 'normal' && count($temp_mods = array_intersect($loaded_ids, array_keys($board_info['moderators']))) !== 0)
 	{
-		if (($row = cache_get_data('moderator_group_info', 480)) === null)
+		if (($row = cache_get_data('moderator_group_info', 480)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT group_name AS member_group, online_color AS member_group_color, stars
@@ -1099,7 +1100,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'title' => $profile['website_title'],
 			'url' => $profile['website_url'],
 		),
-		'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (strpos($profile['birthdate'], '0004') === 0 ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
+		'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 		'signature' => $profile['signature'],
 		'location' => $profile['location'],
 		'icq' => $profile['icq'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
@@ -1439,7 +1440,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$themeData = $temp;
 		$flag = true;
 	}
-	elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) !== null && time() - 60 > $modSettings['settings_updated'])
+	elseif (($temp = cache_get_data('theme_settings-' . $id_theme, 90)) != null && time() - 60 > $modSettings['settings_updated'])
 		$themeData = $temp + array($member => array());
 	else
 		$themeData = array(-1 => array(), 0 => array(), $member => array());
@@ -1470,7 +1471,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 			// If this isn't set yet, is a theme option, or is not the default theme..
 			if (!isset($themeData[$row['id_member']][$row['variable']]) || $row['id_theme'] != '1')
-				$themeData[$row['id_member']][$row['variable']] = strpos($row['variable'], 'show_') === 0 ? $row['value'] == '1' : $row['value'];
+				$themeData[$row['id_member']][$row['variable']] = substr($row['variable'], 0, 5) == 'show_' ? $row['value'] == '1' : $row['value'];
 		}
 		$smcFunc['db_free_result']($result);
 
@@ -1515,7 +1516,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
 	{
-		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on' ? 'https://' : 'http://';
+		$detected_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 'https://' : 'http://';
 		$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
 		$temp = preg_replace('~/' . basename($scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
 		if ($temp != '/')
@@ -1647,7 +1648,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	$context['server']['needs_login_fix'] = $context['server']['is_cgi'] && $context['server']['is_iis'];
 
-	// Detect the browser. This is separated out because it's also used in attachment downloads.
+	// Detect the browser. This is separated out because it's also used in attachment downloads
 	detectBrowser();
 
 	// Set the top level linktree up.
@@ -1777,7 +1778,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Fix font size with HTML 4.01, etc.
 	if (isset($settings['doctype']))
-		$context['browser']['needs_size_fix'] |= $settings['doctype'] === 'html' && isBrowser('ie6');
+		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && isBrowser('ie6');
 
 	// Compatibility.
 	if (!isset($settings['theme_version']))
@@ -1892,7 +1893,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 	if ($loaded)
 	{
 		// For compatibility reasons, if this is the index template without new functions, include compatible stuff.
-		if (strpos($template_name, 'index') === 0 && !function_exists('template_button_strip'))
+		if (substr($template_name, 0, 5) == 'index' && !function_exists('template_button_strip'))
 			loadTemplate('Compat');
 
 		if ($db_show_debug === true)
@@ -1920,7 +1921,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 		loadTemplate($template_name);
 	}
 	// Cause an error otherwise.
-	elseif ($template_name !== 'Errors' && $template_name !== 'index' && $fatal)
+	elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal)
 		fatal_lang_error('theme_template_error', 'template', array((string) $template_name));
 	elseif ($fatal)
 		die(log_error(sprintf(isset($txt['theme_template_error']) ? $txt['theme_template_error'] : 'Unable to load Themes/default/%s.template.php!', (string) $template_name), 'template'));
@@ -2129,7 +2130,7 @@ function getBoardParents($id_parent)
 				)
 			);
 			// In the EXTREMELY unlikely event this happens, give an error message.
-			if ($smcFunc['db_num_rows']($result) === 0)
+			if ($smcFunc['db_num_rows']($result) == 0)
 				fatal_lang_error('parent_not_found', 'critical');
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
@@ -2177,7 +2178,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 	global $context, $smcFunc, $settings, $modSettings;
 
 	// Either we don't use the cache, or its expired.
-	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) === null)
+	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
 	{
 		// If we don't have our theme information yet, lets get it.
 		if (empty($settings['default_theme_dir']))
@@ -2224,7 +2225,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		if ($favor_utf8)
 		{
 			foreach ($context['languages'] as $lang)
-				if (strpos($lang['filename'], '-utf8') !== strlen($lang['filename']) - 5 && isset($context['languages'][$lang['filename'] . '-utf8']))
+				if (substr($lang['filename'], strlen($lang['filename']) - 5, 5) != '-utf8' && isset($context['languages'][$lang['filename'] . '-utf8']))
 					unset($context['languages'][$lang['filename']]);
 		}
 
@@ -2258,7 +2259,7 @@ function censorText(&$text, $force = false)
 		return $text;
 
 	// If they haven't yet been loaded, load them.
-	if ($censor_vulgar === null)
+	if ($censor_vulgar == null)
 	{
 		$censor_vulgar = explode("\n", $modSettings['censor_vulgar']);
 		$censor_proper = explode("\n", $modSettings['censor_proper']);
@@ -2459,7 +2460,7 @@ function template_include($filename, $once = false)
 
 					echo '<span style="color: black;">', sprintf('%' . strlen($n) . 's', $line), ':</span> ';
 					if (isset($data2[$line]) && $data2[$line] != '')
-						echo strpos($data2[$line], '</') === 0 ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
+						echo substr($data2[$line], 0, 2) == '</' ? preg_replace('~^</[^>]+>~', '', $data2[$line]) : $last_line . $data2[$line];
 
 					if (isset($data2[$line]) && preg_match('~(<[^/>]+>)[^<]*$~', $data2[$line], $color_match) != 0)
 					{
@@ -2517,7 +2518,7 @@ function loadDatabase()
 		display_db_error();
 
 	// If in SSI mode fix up the prefix.
-	if (SMF === 'SSI')
+	if (SMF == 'SSI')
 		db_fix_prefix($db_prefix, $db_name);
 }
 

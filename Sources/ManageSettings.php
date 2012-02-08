@@ -1657,7 +1657,7 @@ function EditCustomProfiles()
 				'private' => $row['private'],
 				'can_search' => $row['can_search'],
 				'mask' => $row['mask'],
-				'regex' => strpos($row['mask'], 'regex') === 0 ? substr($row['mask'], 5) : '',
+				'regex' => substr($row['mask'], 0, 5) == 'regex' ? substr($row['mask'], 5) : '',
 				'enclose' => $row['enclose'],
 				'placement' => $row['placement'],
 			);
@@ -1766,9 +1766,7 @@ function EditCustomProfiles()
 				$colname = $initial_colname = 'cust_' . mt_rand(1, 999);
 
 			// Make sure this is unique.
-			/**
-			 * @todo This may not be the most efficient way to do this.
-			 */
+			// @todo This may not be the most efficient way to do this.
 			$unique = false;
 			for ($i = 0; !$unique && $i < 9; $i ++)
 			{
@@ -1848,9 +1846,7 @@ function EditCustomProfiles()
 						);
 				}
 			}
-			/**
-			 * @todo Maybe we should adjust based on new text length limits?
-			 */
+			// @todo Maybe we should adjust based on new text length limits?
 		}
 
 		// Do the insertion/updates.

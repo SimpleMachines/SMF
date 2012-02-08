@@ -67,13 +67,12 @@ function ManageNews()
 	);
 
 	// Force the right area...
-	if (strpos($_REQUEST['sa'], 'mailing') === 0)
+	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
 		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
 	$subActions[$_REQUEST['sa']][0]();
 }
 
-//
 /**
  * Let the administrator(s) edit the news items for the forum.
  * It writes an entry into the moderation log.

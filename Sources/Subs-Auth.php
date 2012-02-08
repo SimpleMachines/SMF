@@ -103,12 +103,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	}
 }
 
-// @todo remove this? wouldn't it get caught earlier?
-// PHP < 4.3.2 doesn't have this function
-if (!function_exists('session_regenerate_id'))
-{
-	require_once $sourcedir . 'Subs-Compat.php';
-}
+
 
 /**
  * Get the domain and path for the cookie

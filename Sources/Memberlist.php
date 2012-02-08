@@ -475,7 +475,7 @@ function MLSearch()
 		foreach ($_POST['fields'] as $field)
 		{
 			$curField = substr($field, 5);
-			if (strpos($field, 'cust_') === 0 && isset($context['custom_search_fields'][$curField]))
+			if (substr($field, 0, 5) == 'cust_' && isset($context['custom_search_fields'][$curField]))
 			{
 				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $curField . ' ON (t' . $curField . '.variable = {string:t' . $curField . '} AND t' . $curField . '.id_theme = 1 AND t' . $curField . '.id_member = mem.id_member)';
 				$query_parameters['t' . $curField] = $curField;

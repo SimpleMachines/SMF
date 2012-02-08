@@ -19,11 +19,11 @@ if (!defined('SMF'))
 /**
  * Show the database queries for debugging
  * What this does:
- * * Toggles the session variable 'view_queries'.
- * * Views a list of queries and analyzes them.
- * * Requires the admin_forum permission.
- * * Is accessed via ?action=viewquery.
- * * Strings in this function have not been internationalized.
+ * - Toggles the session variable 'view_queries'.
+ * - Views a list of queries and analyzes them.
+ * - Requires the admin_forum permission.
+ * - Is accessed via ?action=viewquery.
+ * - Strings in this function have not been internationalized.
  */
 function ViewQuery()
 {
@@ -94,7 +94,7 @@ function ViewQuery()
 		if (isset($query_data['f']))
 			$query_data['f'] = preg_replace('~^' . preg_quote($boarddir, '~') . '~', '...', $query_data['f']);
 
-		$is_select_query = strpos(trim($query_data['q']), 'SELECT') === 0;
+		$is_select_query = substr(trim($query_data['q']), 0, 6) == 'SELECT';
 		if ($is_select_query)
 			$select = $query_data['q'];
 		elseif (preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+(SELECT .+)$~s', trim($query_data['q']), $matches) != 0)
