@@ -1026,7 +1026,7 @@ function makeThemeChanges($memID, $id_theme)
 	);
 
 	// Can't change reserved vars.
-	if ((isset($_POST['options']) && array_intersect($_POST['options'], $reservedVars) != array()) || (isset($_POST['default_options']) && array_intersect($_POST['default_options'], $reservedVars) != array()))
+	if ((isset($_POST['options']) && count(array_intersect(array_keys($_POST['options']), $reservedVars)) != 0) || (isset($_POST['default_options']) && count(array_intersect(array_keys($_POST['default_options']), $reservedVars)) != 0))
 		fatal_lang_error('no_access', false);
 
 	// Don't allow any overriding of custom fields with default or non-default options.
