@@ -587,7 +587,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	);
 
 	// Can't change reserved vars.
-	if (isset($regOptions['theme_vars']) && array_intersect($regOptions['theme_vars'], $reservedVars) != array())
+	if (isset($regOptions['theme_vars']) && count(array_intersect(array_keys($regOptions['theme_vars']), $reservedVars)) != 0)
 		fatal_lang_error('no_theme');
 
 	// Some of these might be overwritten. (the lower ones that are in the arrays below.)
