@@ -166,7 +166,8 @@ function reloadSettings()
 				cache_put_data('loadavg', $modSettings['load_average'], 90);
 		}
 		
-		call_integration_hook('integrate_load_average', array($modSettings['load_average']));
+		if (!empty($modSettings['load_average']))
+			call_integration_hook('integrate_load_average', array($modSettings['load_average']));
 
 		if (!empty($modSettings['loadavg_forum']) && !empty($modSettings['load_average']) && $modSettings['load_average'] >= $modSettings['loadavg_forum'])
 			display_loadavg_error();
