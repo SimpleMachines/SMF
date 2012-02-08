@@ -226,7 +226,7 @@ function template_ban_edit()
 				<div class="flow_auto">
 					<div class="floatright">
 						<div class="additional_row">
-							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
 						</div>
 					</div>
 				</div>
