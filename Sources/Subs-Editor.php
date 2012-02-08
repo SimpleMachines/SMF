@@ -459,6 +459,7 @@ function html_to_bbc($text)
 		{
 			if ($s == 'size')
 			{
+				// Cast before empty chech because casting a string results in a 0 and we don't have zeros in the array! ;)
 				$v = (int) trim($v);
 				$v = empty($v) ? 1 : $v;
 				$tags[] = array('[size=' . $sizes_equivalence[$v] . ']', '[/size]');
