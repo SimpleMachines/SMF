@@ -1573,7 +1573,7 @@ function template_php_info()
 					// heading row for the settings section of this categorys settings
 					echo '
 		<tr class="titlebg">
-			<td align="center" width="33%"><strong>', $txt['phpinfo_settings'], '</strong></td>
+			<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
 			<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
 			<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
 		</tr>';

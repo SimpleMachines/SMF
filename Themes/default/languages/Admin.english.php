@@ -528,7 +528,7 @@ $txt['load_balancing_settings'] = 'Load Balancing';
 $txt['phpinfo_settings'] = 'PHP Info';
 $txt['phpinfo_localsettings'] = 'Local Settings';
 $txt['phpinfo_defaultsettings'] = 'Default Settings';
-$txt['phpinfo_settings'] = 'Settings';
+$txt['phpinfo_itemsettings'] = 'Settings';
 
 $txt['language_configuration'] = 'Languages';
 $txt['language_description'] = 'This section allows you to edit languages installed on your forum, download new ones from the Simple Machines website. You may also edit language-related settings here.';
