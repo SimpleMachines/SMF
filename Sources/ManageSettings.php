@@ -347,7 +347,7 @@ function ModifyCoreFeatures($return_config = false)
 		$setting_changes = array('admin_features' => array());
 
 		// Are we using the javascript stuff or radios to submit?
-		$post_var_prefix = empty($_POST['js_worked']) ? 'feature_plain_' : 'feature_';
+		$post_var_prefix = 'feature_';
 
 		// Cycle each feature and change things as required!
 		foreach ($core_features as $id => $feature)
@@ -402,6 +402,7 @@ function ModifyCoreFeatures($return_config = false)
 			'title' => isset($feature['title']) ? $feature['title'] : $txt['core_settings_item_' . $id],
 			'desc' => isset($feature['desc']) ? $feature['desc'] : $txt['core_settings_item_' . $id . '_desc'],
 			'enabled' => in_array($id, $context['admin_features']),
+			'state' => in_array($id, $context['admin_features']) ? 'on' : 'off',
 			'url' => !empty($feature['url']) ? $scripturl . '?' . $feature['url'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '',
 		);
 

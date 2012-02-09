@@ -1306,7 +1306,88 @@ function template_core_features()
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
+		var token_name;
+		var token_value;
+		$(document).ready(function() {
+			$(".core_features_status_box").css(\'display\', \'none\');
+			$(".core_features_img").css(\'cursor\', \'pointer\');
+			$("#core_features_submit").css(\'display\', \'none\');
+			if (token_name == undefined)
+				token_name = $("#core_features_token").attr("name")
+			if (token_value == undefined)
+				token_value = $("#core_features_token").attr("value")
+			$(".core_features_img").click(function(){
+				var cc = $(this);
+				var cf = $(this).attr("id").substring(7);
+				var imgs = new Array("', $settings['images_url'], '/admin/switch_off.png", "', $settings['images_url'], '/admin/switch_on.png");
+				var new_state = !$("#feature_" + cf).attr("checked");
+				$("#feature_" + cf).attr("checked", new_state);
+				data = {save: "save"};
+				data[$("#core_features_session").attr("name")] = $("#core_features_session").attr("value");
+				data[token_name] = token_value;
+				$(".core_features_status_box").each(function(){
+					data[$(this).attr("name")] = !$(this).attr("checked") ? 0 : 1;
+				});
+
+				// Launch AJAX request.
+				$.ajax({
+					// The link we are accessing.
+					url: $("#core_features").attr("action"),
+					// The type of request.
+					type: "post",
+					// The type of data that is getting returned.
+					dataType: "html",
+					data: data,
+					error: function(){
+						alert("Activation error");
+					},
+
+					success: function(strData){
+						$("#feature_link_" + cf).html($(strData).find("#feature_link_" + cf).html());
+						cc.attr("src", imgs[new_state ? 1 : 0]);
+
+						token_name = $(strData).find("#core_features_token").attr("name");
+						token_value = $(strData).find("#core_features_token").attr("value");
+					}
+				});
+			});
+		});
 		function toggleItem(itemID)
+		{
+			// Hook up link click events to load content.
+			$("a").click(function (objEvent){
+					var jLink = $( this );
+					// Clear status list.
+					$( "#ajax-status" ).empty();
+					// Launch AJAX request.
+					$.ajax({
+							// The link we are accessing.
+							url: jLink.attr( "href" ),
+							// The type of request.
+							type: "post",
+							// The type of data that is getting returned.
+							dataType: "html",
+							error: function(){
+								ShowStatus( "AJAX - error()" );
+								// Load the content in to the page.
+								jContent.html( "<p>Page Not Found!!</p>" );
+							},
+
+							success: function( strData ){
+								$("#" + jLink.ID + "").attr("src", "path/to/newImage.jpg");
+								ShowStatus( "AJAX - success()" );
+								
+								// Load the content in to the page.
+								jContent.html( strData );
+							}
+						});
+					
+					// Prevent default click.
+					return(false);
+			});
+		}
+
+		function toggleItem_no(itemID)
 		{
 			// Toggle the hidden item.
 			var itemValueHandle = document.getElementById("feature_" + itemID);
@@ -1336,7 +1417,7 @@ function template_core_features()
 	}
 
 	echo '
-		<form action="', $scripturl, '?action=admin;area=corefeatures;" method="post" accept-charset="', $context['character_set'], '">
+		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures;" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
@@ -1351,18 +1432,19 @@ function template_core_features()
 				<span class="topslice"><span></span></span>
 				<div class="content features">
 					<img class="features_image png_fix" src="', $settings['default_images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
-					<div class="features_switch" id="js_feature_', $id, '" style="display: none;">
-						<a href="', $scripturl, '?action=admin;area=featuresettings;sa=core;', $context['session_var'], '=', $context['session_id'], ';toggle=', $id, ';state=', $feature['enabled'] ? 0 : 1, '" onclick="return toggleItem(\'', $id, '\');">
-							<input type="hidden" name="feature_', $id, '" id="feature_', $id, '" value="', $feature['enabled'] ? 1 : 0, '" /><img src="', $settings['images_url'], '/admin/switch_', $feature['enabled'] ? 'on' : 'off', '.png" id="switch_', $id, '" style="margin-top: 1.3em;" alt="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" title="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" />
-						</a>
-					</div>
-					<h4>', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
+					<div class="features_switch" id="js_feature_', $id, '">
+<!--						<a href="', $scripturl, '?action=admin;area=corefeatures;', $context['session_var'], '=', $context['session_id'], ';toggle=', $id, ';state=', $feature['enabled'] ? 0 : 1, '" onclick="return toggleItem(\'', $id, '\');">
+-->							<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' />
+<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
+<!--						</a>
+-->					</div>
+					<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
 					<p>', $feature['desc'], '</p>
-					<div id="plain_feature_', $id, '">
+<!--					<div class="core_features_container" id="plain_feature_', $id, '">
 						<label for="plain_feature_', $id, '_radio_on"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_on" value="1"', $feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_enabled'], '</label>
 						<label for="plain_feature_', $id, '_radio_off"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_off" value="0"', !$feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_disabled'], '</label>
 					</div>
-				</div>
+-->				</div>
 				<span class="botslice clear_right"><span></span></span>
 			</div>';
 
@@ -1371,10 +1453,10 @@ function template_core_features()
 
 	echo '
 			<div class="righttext">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				<input type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
-				<input type="hidden" value="0" name="js_worked" id="js_worked" />
-				<input type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
+				<input id="core_features_session" type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input id="core_features_token" type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
+<!--				<input type="hidden" value="0" name="js_worked" id="js_worked" />-->
+				<input id="core_features_submit" type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
 			</div>
 		</form>
 	</div>
