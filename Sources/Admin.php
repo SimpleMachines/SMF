@@ -150,6 +150,7 @@ function AdminMain()
 						'cookie' => array($txt['cookies_sessions_settings']),
 						'cache' => array($txt['caching_settings']),
 						'loads' => array($txt['load_balancing_settings']),
+						'phpinfo' => array($txt['phpinfo_settings']),
 					),
 				),
 				'current_theme' => array(

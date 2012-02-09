@@ -103,6 +103,7 @@ function ModifySettings()
 		'cookie' => 'ModifyCookieSettings',
 		'cache' => 'ModifyCacheSettings',
 		'loads' => 'ModifyLoadBalancingSettings',
+		'phpinfo' => 'ShowPHPinfoSettings',
 	);
 
 	call_integration_hook('integrate_server_settings', array(&$subActions));
@@ -361,7 +362,7 @@ function ModifyCacheSettings($return_config = false)
 		$detected = 'APC';
 	elseif (function_exists('output_cache_put'))
 		$detected = 'Zend';
-	elseif (function_exists('memcache_set'))
+	elseif (function_exists('memcache_set') || function_exists('memcached_set'))
 		$detected = 'Memcached';
 	elseif (function_exists('xcache_set'))
 		$detected = 'XCache';
@@ -840,6 +841,53 @@ function saveDBSettings(&$config_vars)
 		require_once($sourcedir . '/ManagePermissions.php');
 		save_inline_permissions($inlinePermissions);
 	}
+}
+
+/**
+ * Allows us to see the servers php settings
+ * - loads the settings into an array for display in a template
+ * - drops cookie values just in case
+ *
+ */
+function ShowPHPinfoSettings()
+{
+	global $context, $txt;
+	
+	$info_lines = array();
+	$category = $txt['phpinfo_settings'];
+
+	// get the data
+	ob_start();
+	phpinfo();
+
+	// We only want it for its body, pigs that we are
+	$info_lines = preg_replace('~^.*<body>(.*)</body>.*$~', '$1', ob_get_contents());
+	$info_lines = explode("\n", strip_tags($info_lines, "<tr><td><h2>"));
+	ob_end_clean();
+
+	// put all of it into an array
+	foreach ($info_lines as $line)
+	{
+		// lets not load/show these as they may contain session info
+		if (strpos($line, '_COOKIE') !== false || strpos($line, 'Cookie') !== false || strpos($line, '_GET') !== false || strpos($line, '_REQUEST') !== false)
+			continue;
+
+		// new category?
+		if (strpos($line, '<h2>') !== false)
+			$category = preg_match('~<h2>(.*)</h2>~', $line, $title) ? $category = $title[1] : $category;
+
+		// load it as setting => value or the old setting local master
+		if (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val))
+			$pinfo[$category][$val[1]] = $val[2];
+		elseif (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val))
+			$pinfo[$category][$val[1]] = array($txt['phpinfo_localsettings'] => $val[2], $txt['phpinfo_defaultsettings'] => $val[3]);
+	}
+
+	// load it in to context and display it
+	$context['pinfo'] = $pinfo;
+	$context['page_title'] = $txt['admin_server_settings'];
+	$context['sub_template'] = 'php_info';
+	return;
 }
 
 ?>

@@ -120,7 +120,7 @@ function template_admin()
 	foreach ($context['quick_admin_tasks'] as $task)
 		echo '
 					<li>
-						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image png_fix" /></a>' : '', '
+						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image" /></a>' : '', '
 						<h5>', $task['link'], '</h5>
 						<span class="task">', $task['description'],'</span>
 					</li>';
@@ -388,7 +388,7 @@ function template_view_versions()
 						<th scope="col" width="25%">
 							<strong>', $txt['dvc_your'], '</strong>
 						</th>
-						<th class="last_th" scope="col"" width="25%">
+						<th class="last_th" scope="col" width="25%">
 							<strong>', $txt['dvc_current'], '</strong>
 						</th>
 					</tr>
@@ -1350,7 +1350,7 @@ function template_core_features()
 			<div class="windowbg', $alternate ? '2' : '', '">
 				<span class="topslice"><span></span></span>
 				<div class="content features">
-					<img class="features_image png_fix" src="', $settings['default_images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
+					<img class="features_image" src="', $settings['images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
 					<div class="features_switch" id="js_feature_', $id, '" style="display: none;">
 						<a href="', $scripturl, '?action=admin;area=featuresettings;sa=core;', $context['session_var'], '=', $context['session_id'], ';toggle=', $id, ';state=', $feature['enabled'] ? 0 : 1, '" onclick="return toggleItem(\'', $id, '\');">
 							<input type="hidden" name="feature_', $id, '" id="feature_', $id, '" value="', $feature['enabled'] ? 1 : 0, '" /><img src="', $settings['images_url'], '/admin/switch_', $feature['enabled'] ? 'on' : 'off', '.png" id="switch_', $id, '" style="margin-top: 1.3em;" alt="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" title="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" />
@@ -1538,6 +1538,76 @@ function template_repair_boards()
 			setTimeout("doAutoSubmit();", 1000);
 		}
 	// ]]></script>';
+	}
+}
+
+function template_php_info()
+{
+	global $context, $txt;
+
+	// for each php info area
+	foreach ($context['pinfo'] as $area => $php_area)
+	{
+		echo '
+	<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
+		<thead>
+		<tr class="catbg" align="center">
+			<th class="first_th" scope="col" width="33%"></th>
+			<th scope="col" width="33%"><strong>', $area, '</strong></th>
+			<th class="last_th" scope="col" width="33%"></th>
+		</tr>
+		</thead>
+		<tbody>';
+
+		$alternate = true;
+		$localmaster = true;
+		
+		// and for each setting in this category
+		foreach ($php_area as $key => $setting)
+		{
+			// start of a local / master setting (3 col)
+			if (is_array($setting))
+			{
+				if ($localmaster)
+				{
+					// heading row for the settings section of this categorys settings
+					echo '
+		<tr class="titlebg">
+			<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
+			<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
+			<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
+		</tr>';
+					$localmaster = false;
+				}
+					
+				echo '
+		<tr>
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
+
+				foreach ($setting as $key_lm => $value)
+				{
+					echo '
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $value, '</td>';
+				}
+				echo '
+		</tr>';
+			}
+			// just a single setting (2 col)
+			else
+			{
+				echo '
+		<tr>
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key,  '</td>
+			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
+		</tr>';
+			}
+		
+			$alternate = !$alternate;
+		}
+		echo '
+		</tbody>
+	</table>
+	<br class="clear" />';
 	}
 }
 
