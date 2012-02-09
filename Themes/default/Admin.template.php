@@ -1543,7 +1543,7 @@ function template_repair_boards()
 
 function template_php_info()
 {
-	global $context;
+	global $context, $txt;
 
 	// for each php info area
 	foreach ($context['pinfo'] as $area => $php_area)
@@ -1559,13 +1559,27 @@ function template_php_info()
 		</thead>
 		<tbody>';
 
-		// and for each setting in that area
 		$alternate = true;
+		$localmaster = true;
+		
+		// and for each setting in this category
 		foreach ($php_area as $key => $setting)
 		{
-			// a local / master setting (3 col)
+			// start of a local / master setting (3 col)
 			if (is_array($setting))
 			{
+				if ($localmaster)
+				{
+					// heading row for the settings section of this categorys settings
+					echo '
+		<tr class="titlebg">
+			<td align="center" width="33%"><strong>', $txt['phpinfo_settings'], '</strong></td>
+			<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
+			<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
+		</tr>';
+					$localmaster = false;
+				}
+					
 				echo '
 		<tr>
 			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
@@ -1573,7 +1587,7 @@ function template_php_info()
 				foreach ($setting as $key_lm => $value)
 				{
 					echo '
-			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key_lm, '/', $value, '</td>';
+			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $value, '</td>';
 				}
 				echo '
 		</tr>';
@@ -1587,7 +1601,8 @@ function template_php_info()
 			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
 		</tr>';
 			}
-		$alternate = !$alternate;
+		
+			$alternate = !$alternate;
 		}
 		echo '
 		</tbody>

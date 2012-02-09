@@ -677,7 +677,7 @@ smc_Editor.prototype.insertSmiley = function(oSmileyProperties)
 			this.insertText((begin != ' ' ? ' ' : '') + oSmileyProperties.sCode + (end != ' ' ? ' ' : ''));
 		}
 		else
-			this.insertText(oSmileyProperties.sCode);
+			this.insertText(' ' + oSmileyProperties.sCode);
 	}
 	// Otherwise we need to do a whole image...
 	else

@@ -851,10 +851,10 @@ function saveDBSettings(&$config_vars)
  */
 function ShowPHPinfoSettings()
 {
-	global $context;
+	global $context, $txt;
 	
 	$info_lines = array();
-	$category = 'General';
+	$category = $txt['phpinfo_settings'];
 
 	// get the data
 	ob_start();
@@ -868,8 +868,8 @@ function ShowPHPinfoSettings()
 	// put all of it into an array
 	foreach ($info_lines as $line)
 	{
-		// lets not load/show these.
-		if (strpos($line, '_COOKIE') !== false || strpos($line, 'Cookie') !== false)
+		// lets not load/show these as they may contain session info
+		if (strpos($line, '_COOKIE') !== false || strpos($line, 'Cookie') !== false || strpos($line, '_GET') !== false || strpos($line, '_REQUEST') !== false)
 			continue;
 
 		// new category?
@@ -880,9 +880,9 @@ function ShowPHPinfoSettings()
 		if (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val))
 			$pinfo[$category][$val[1]] = $val[2];
 		elseif (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val))
-			$pinfo[$category][$val[1]] = array('local' => $val[2], 'master' => $val[3]);
+			$pinfo[$category][$val[1]] = array($txt['phpinfo_localsettings'] => $val[2], $txt['phpinfo_defaultsettings'] => $val[3]);
 	}
-	
+
 	// load it in to context and display it
 	$context['pinfo'] = $pinfo;
 	$context['page_title'] = $txt['admin_server_settings'];
