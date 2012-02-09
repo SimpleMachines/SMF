@@ -52,7 +52,7 @@ function template_error_log()
 			<div class="title_bar clear_right">
 				<h3 class="titlebg">
 					<span class="ie6_header floatleft">
-						<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" align="top" /></a> ', $txt['errlog'], '
+						<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" class="icon" alt="', $txt['help'], '" /></a> ', $txt['errlog'], '
 					</span>
 				</h3>
 			</div>

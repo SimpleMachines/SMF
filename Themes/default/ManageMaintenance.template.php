@@ -42,7 +42,7 @@ function template_maintain_database()
 
 		<div class="cat_bar">
 			<h3 class="catbg">
-			<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '</span>
+			<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '</span>
 			</h3>
 		</div>
 
@@ -319,7 +319,7 @@ function template_maintain_members()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="ie6_header floatleft">
-					<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" /></a> ', $txt['maintain_members'], '
+					<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_members'], '
 				</span>
 			</h3>
 		</div>

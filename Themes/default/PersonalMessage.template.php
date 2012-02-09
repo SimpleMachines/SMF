@@ -924,7 +924,7 @@ function template_send()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/im_newmsg.gif" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '</span>
+					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/im_newmsg.gif" class="icon" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '</span>
 			</h3>
 		</div>';
 
