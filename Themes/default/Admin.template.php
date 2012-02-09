@@ -1343,11 +1343,38 @@ function template_core_features()
 					},
 
 					success: function(strData){
-						$("#feature_link_" + cf).html($(strData).find("#feature_link_" + cf).html());
-						cc.attr("src", imgs[new_state ? 1 : 0]);
+						// Session verification faile
+						// Token verification failed
+						// Admin session closed
+						if ($(strData).find("#feature_link_" + cf).length == 0)
+						{
+							if ($(strData).find("#frmLogin").length != 0)
+							{
+								alert("Admin session is not valid, please login again");
+								// Show login page.
+							}
+							// Token verification failed
+							else if ($(strData).find("#token_verify_fail").length != 0)
+							{
+								alert($(strData).find("#token_verify_fail").html());
+							}
+							else if ($(strData).find("#session_timeout").length != 0 || $(strData).find("#session_timeout").length != 0)
+							{
+								alert($(strData).find("#session_timeout").html());
+							}
+							else
+							{
+								alert("Another error...");
+							}
+						}
+						else
+						{
+							$("#feature_link_" + cf).html($(strData).find("#feature_link_" + cf).html());
+							cc.attr("src", imgs[new_state ? 1 : 0]);
 
-						token_name = $(strData).find("#core_features_token").attr("name");
-						token_value = $(strData).find("#core_features_token").attr("value");
+							token_name = $(strData).find("#core_features_token").attr("name");
+							token_value = $(strData).find("#core_features_token").attr("value");
+						}
 					}
 				});
 			});
