@@ -3456,6 +3456,8 @@ function clean_cache($type = '')
 
 /**
  * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
+ * - removed php4 support
+ * - left shell in place for mod compatablily
  *
  * @param string $filename
  * @todo remove this function since we are no longer supporting PHP < 5
@@ -3463,42 +3465,11 @@ function clean_cache($type = '')
 function loadClassFile($filename)
 {
 	global $sourcedir;
-	static $files_included = array();
 
 	if (!file_exists($sourcedir . '/' . $filename))
 		fatal_lang_error('error_bad_file', 'general', array($sourcedir . '/' . $filename));
 
-	// Using a version below PHP 5.0? Do a compatibility conversion.
-	if (version_compare(PHP_VERSION, '5.0.0', '<='))
-	{
-		// Check if it was included before.
-		if (in_array($filename, $files_included))
-			return;
-
-		// Make sure we don't include it again.
-		$files_included[] = $filename;
-
-		// Do some replacements to make it PHP 4 compatible.
-		eval('?' . '>' . preg_replace(array(
-			'~class\s+([\w-_]+)([^}]+)function\s+__construct\s*\(~',
-			'~([\s\t]+)public\s+\$~',
-			'~([\s\t]+)private\s+\$~',
-			'~([\s\t]+)protected\s+\$~',
-			'~([\s\t]+)public\s+function\s+~',
-			'~([\s\t]+)private\s+function\s+~',
-			'~([\s\t]+)protected\s+function\s+~',
-		), array(
-			'class $1$2function $1(',
-			'$1var $',
-			'$1var $',
-			'$1var $',
-			'$1function ',
-			'$1function ',
-			'$1function ',
-		), rtrim(file_get_contents($sourcedir . '/' . $filename))));
-	}
-	else
-		require_once($sourcedir . '/' . $filename);
+	require_once($sourcedir . '/' . $filename);
 }
 
 /**

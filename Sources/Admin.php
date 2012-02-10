@@ -891,7 +891,7 @@ function AdminSearchOM()
 
 	// Otherwise we simply walk through the XML and stick it in context for display.
 	$context['search_results'] = array();
-	loadClassFile('Class-Package.php');
+	require_once($sourcedir . '/Class-Package.php');
 
 	// Get the results loaded into an array for processing!
 	$results = new xmlArray($search_results, false);

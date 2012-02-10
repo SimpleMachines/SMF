@@ -2110,7 +2110,7 @@ function findSearchAPI()
 	$modSettings['search_index'] = empty($modSettings['search_index']) ? 'standard' : $modSettings['search_index'];
 	if (!file_exists($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php'))
 		fatal_lang_error('search_api_missing');
-	loadClassFile('SearchAPI-' . ucwords($modSettings['search_index']) . '.php');
+	require_once($sourcedir . '/SearchAPI-' . ucwords($modSettings['search_index']) . '.php');
 
 	// Create an instance of the search API and check it is valid for this version of SMF.
 	$search_class_name = $modSettings['search_index'] . '_search';
@@ -2123,7 +2123,7 @@ function findSearchAPI()
 		loadLanguage('Errors');
 		log_error(sprintf($txt['search_api_not_compatible'], 'SearchAPI-' . ucwords($modSettings['search_index']) . '.php'), 'critical');
 
-		loadClassFile('SearchAPI-Standard.php');
+		require_once($sourcedir . '/SearchAPI-Standard.php');
 		$searchAPI = new standard_search();
 	}
 
