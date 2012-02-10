@@ -1309,8 +1309,8 @@ function template_core_features()
 		var token_name;
 		var token_value;
 		$(document).ready(function() {
-			$(".core_features_status_box").css(\'display\', \'none\');
-			$(".core_features_img").css(\'cursor\', \'pointer\');
+			$(".core_features_hide").css(\'display\', \'none\');
+			$(".core_features_img").css({\'cursor\': \'pointer\', \'display\': \'\'});
 			$("#core_features_submit").css(\'display\', \'none\');
 			if (token_name == undefined)
 				token_name = $("#core_features_token").attr("name")
@@ -1348,29 +1348,23 @@ function template_core_features()
 						// Admin session closed
 						if ($(strData).find("#feature_link_" + cf).length == 0)
 						{
+							// @todo token verification fails
 							if ($(strData).find("#frmLogin").length != 0)
-							{
-								alert("Admin session is not valid, please login again");
-								// Show login page.
-							}
-							// Token verification failed
-							else if ($(strData).find("#token_verify_fail").length != 0)
-							{
-								alert($(strData).find("#token_verify_fail").html());
-							}
-							else if ($(strData).find("#session_timeout").length != 0 || $(strData).find("#session_timeout").length != 0)
-							{
-								alert($(strData).find("#session_timeout").html());
-							}
+								$(document).find("#core_features").submit();
 							else
 							{
-								alert("Another error...");
+								if ($(strData).find("#token_verify_fail").length != 0 || $(strData).find("#session_timeout").length != 0 || $(strData).find("#session_timeout").length != 0)
+									$(".errorbox").html($(strData).find("#token_verify_fail").html());
+								else
+									$(".errorbox").html(\'', $txt['error_occurred'], '\');
+								$(".errorbox").slideDown();
 							}
 						}
 						else
 						{
 							$("#feature_link_" + cf).html($(strData).find("#feature_link_" + cf).html());
 							cc.attr("src", imgs[new_state ? 1 : 0]);
+							$("#feature_link_" + cf).fadeOut().fadeIn();
 
 							token_name = $(strData).find("#core_features_token").attr("name");
 							token_value = $(strData).find("#core_features_token").attr("value");
@@ -1379,55 +1373,6 @@ function template_core_features()
 				});
 			});
 		});
-		function toggleItem(itemID)
-		{
-			// Hook up link click events to load content.
-			$("a").click(function (objEvent){
-					var jLink = $( this );
-					// Clear status list.
-					$( "#ajax-status" ).empty();
-					// Launch AJAX request.
-					$.ajax({
-							// The link we are accessing.
-							url: jLink.attr( "href" ),
-							// The type of request.
-							type: "post",
-							// The type of data that is getting returned.
-							dataType: "html",
-							error: function(){
-								ShowStatus( "AJAX - error()" );
-								// Load the content in to the page.
-								jContent.html( "<p>Page Not Found!!</p>" );
-							},
-
-							success: function( strData ){
-								$("#" + jLink.ID + "").attr("src", "path/to/newImage.jpg");
-								ShowStatus( "AJAX - success()" );
-								
-								// Load the content in to the page.
-								jContent.html( strData );
-							}
-						});
-					
-					// Prevent default click.
-					return(false);
-			});
-		}
-
-		function toggleItem_no(itemID)
-		{
-			// Toggle the hidden item.
-			var itemValueHandle = document.getElementById("feature_" + itemID);
-			itemValueHandle.value = itemValueHandle.value == 1 ? 0 : 1;
-
-			// Change the image, alternative text and the title.
-			document.getElementById("switch_" + itemID).src = \'', $settings['images_url'], '/admin/switch_\' + (itemValueHandle.value == 1 ? \'on\' : \'off\') + \'.png\';
-			document.getElementById("switch_" + itemID).alt = itemValueHandle.value == 1 ? \'', $txt['core_settings_switch_off'], '\' : \'', $txt['core_settings_switch_on'], '\';
-			document.getElementById("switch_" + itemID).title = itemValueHandle.value == 1 ? \'', $txt['core_settings_switch_off'], '\' : \'', $txt['core_settings_switch_on'], '\';
-
-			// Don\'t reload.
-			return false;
-		}
 	// ]]></script>
 	<div id="admincenter">';
 	if ($context['is_new_install'])
@@ -1449,7 +1394,8 @@ function template_core_features()
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
 				</h3>
-			</div>';
+			</div>
+			<div style="display:none" class="errorbox"></div>';
 
 	$alternate = true;
 	foreach ($context['features'] as $id => $feature)
@@ -1460,18 +1406,12 @@ function template_core_features()
 				<div class="content features">
 					<img class="features_image png_fix" src="', $settings['default_images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
 					<div class="features_switch" id="js_feature_', $id, '">
-<!--						<a href="', $scripturl, '?action=admin;area=corefeatures;', $context['session_var'], '=', $context['session_id'], ';toggle=', $id, ';state=', $feature['enabled'] ? 0 : 1, '" onclick="return toggleItem(\'', $id, '\');">
--->							<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' />
-<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
-<!--						</a>
--->					</div>
+							<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
+							<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;display:none" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
+					</div>
 					<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
 					<p>', $feature['desc'], '</p>
-<!--					<div class="core_features_container" id="plain_feature_', $id, '">
-						<label for="plain_feature_', $id, '_radio_on"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_on" value="1"', $feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_enabled'], '</label>
-						<label for="plain_feature_', $id, '_radio_off"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_off" value="0"', !$feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_disabled'], '</label>
-					</div>
--->				</div>
+				</div>
 				<span class="botslice clear_right"><span></span></span>
 			</div>';
 
@@ -1482,7 +1422,6 @@ function template_core_features()
 			<div class="righttext">
 				<input id="core_features_session" type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input id="core_features_token" type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
-<!--				<input type="hidden" value="0" name="js_worked" id="js_worked" />-->
 				<input id="core_features_submit" type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
 			</div>
 		</form>
