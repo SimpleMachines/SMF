@@ -439,7 +439,7 @@ function PackageGBrowse()
 					else
 						$authorhompage = $default_website;
 
-					if (strpos(strtolower($authorhompage), 'a href') === false)
+					if (stripos($authorhompage, 'a href') === false)
 					{
 						$package['author']['website']['href'] = $authorhompage;
 						$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
