@@ -619,24 +619,9 @@ function ModifyProfile($post_errors = array())
 			if (!empty($context['log_changes']) && !empty($modSettings['modlog_enabled']))
 			{
 				$log_changes = array();
+				require_once($sourcedir . '/Logging.php');
 				foreach ($context['log_changes'] as $k => $v)
-					$log_changes[] = array(
-						'action' => $k,
-						'id_log' => 2,
-						'log_time' => time(),
-						'id_member' => $memID,
-						'ip' => $user_info['ip'],
-						'extra' => serialize(array_merge($v, array('applicator' => $user_info['id']))),
-					);
-				$smcFunc['db_insert']('',
-					'{db_prefix}log_actions',
-					array(
-						'action' => 'string', 'id_log' => 'int', 'log_time' => 'int', 'id_member' => 'int', 'ip' => 'string-16',
-						'extra' => 'string-65534',
-					),
-					$log_changes,
-					array('id_action')
-				);
+					logAction($k, array_merge($v, array('applicator' => $user_info['id'], 'member_affected' => $memID)), 'user');
 			}
 
 			// Have we got any post save functions to execute?

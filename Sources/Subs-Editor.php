@@ -459,8 +459,9 @@ function html_to_bbc($text)
 		{
 			if ($s == 'size')
 			{
-				$v = trim($v);
-				$v = empty($v) ? 1 : (int) $v;
+				// Cast before empty chech because casting a string results in a 0 and we don't have zeros in the array! ;)
+				$v = (int) trim($v);
+				$v = empty($v) ? 1 : $v;
 				$tags[] = array('[size=' . $sizes_equivalence[$v] . ']', '[/size]');
 			}
 			elseif ($s == 'face')
@@ -2124,6 +2125,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	// These are all registered types.
 	$searchTypes = array(
 		'member' => 'Member',
+		'versions' => 'SMFVersions',
 	);
 
 	// If we're just checking the callback function is registered return true or false.
@@ -2191,4 +2193,56 @@ function AutoSuggest_Search_Member()
 	return $xml_data;
 }
 
+function AutoSuggest_Search_SMFVersions()
+{
+
+	$xml_data = array(
+		'items' => array(
+			'identifier' => 'item',
+			'children' => array(),
+		),
+	);
+
+	$versions = array(
+		'SMF 1.1',
+		'SMF 1.1.1',
+		'SMF 1.1.2',
+		'SMF 1.1.3',
+		'SMF 1.1.4',
+		'SMF 1.1.5',
+		'SMF 1.1.6',
+		'SMF 1.1.7',
+		'SMF 1.1.8',
+		'SMF 1.1.9',
+		'SMF 1.1.10',
+		'SMF 1.1.11',
+		'SMF 1.1.12',
+		'SMF 1.1.13',
+		'SMF 1.1.14',
+		'SMF 1.1.15',
+		'SMF 1.1.16',
+		'SMF 2.0 beta 1',
+		'SMF 2.0 beta 1.2',
+		'SMF 2.0 beta 2',
+		'SMF 2.0 beta 3',
+		'SMF 2.0 RC 1',
+		'SMF 2.0 RC 1.2',
+		'SMF 2.0 RC 2',
+		'SMF 2.0 RC 3',
+		'SMF 2.0',
+		'SMF 2.0.1',
+		'SMF 2.0.2',
+	);
+
+	foreach ($versions as $id => $version)
+		if (strpos($version, strtoupper($_REQUEST['search'])) !== false)
+			$xml_data['items']['children'][] = array(
+				'attributes' => array(
+					'id' => $id,
+				),
+				'value' => $version,
+			);
+
+	return $xml_data;
+}
 ?>

@@ -109,6 +109,7 @@ function deleteMembers($users, $check_not_admin = false)
 	if (empty($users))
 		return;
 
+	require_once($sourcedir . 'Logging.php');
 	// Log the action - regardless of who is deleting it.
 	$log_inserts = array();
 	foreach ($user_log_details as $user)
@@ -116,28 +117,12 @@ function deleteMembers($users, $check_not_admin = false)
 		// Integration rocks!
 		call_integration_hook('integrate_delete_member', array($user[0]));
 
-		// Add it to the administration log for future reference.
-		$log_inserts[] = array(
-			time(), 3, $user_info['id'], $user_info['ip'], 'delete_member',
-			0, 0, 0, serialize(array('member' => $user[0], 'name' => $user[1], 'member_acted' => $user_info['name'])),
-		);
+		logAction('delete_member', array('member' => $user[0], 'name' => $user[1], 'member_acted' => $user_info['name']), 'admin');
 
 		// Remove any cached data if enabled.
 		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
 			cache_put_data('user_settings-' . $user[0], null, 60);
 	}
-
-	// Do the actual logging...
-	if (!empty($log_inserts) && !empty($modSettings['modlog_enabled']))
-		$smcFunc['db_insert']('',
-			'{db_prefix}log_actions',
-			array(
-				'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
-				'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
-			),
-			$log_inserts,
-			array('id_action')
-		);
 
 	// Make these peoples' posts guest posts.
 	$smcFunc['db_query']('', '

@@ -213,7 +213,7 @@ function deleteMembergroups($groups)
  */
 function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false)
 {
-	global $smcFunc, $user_info, $modSettings;
+	global $smcFunc, $user_info, $modSettings, $sourcedir;
 
 	// You're getting nowhere without this permission, unless of course you are the group's moderator.
 	if (!$permissionCheckDone)
@@ -348,10 +348,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$log_inserts[] = array(
-			time(), 3, $user_info['id'], $user_info['ip'], 'removed_from_group',
-			0, 0, 0, serialize(array('group' => $group_names[$row['id_group']], 'member' => $row['id_member'])),
-		);
+		$log_inserts[] = array('group' => $group_names[$row['id_group']], 'member' => $row['id_member']);
 	$smcFunc['db_free_result']($request);
 
 	$smcFunc['db_query']('', '
@@ -384,10 +381,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 		// What log entries must we make for this one, eh?
 		foreach (explode(',', $row['additional_groups']) as $group)
 			if (in_array($group, $groups))
-				$log_inserts[] = array(
-					time(), 3, $user_info['id'], $user_info['ip'], 'removed_from_group',
-					0, 0, 0, serialize(array('group' => $group_names[$group], 'member' => $row['id_member'])),
-				);
+				$log_inserts[] = array('group' => $group_names[$group], 'member' => $row['id_member']);
 
 		$updates[$row['additional_groups']][] = $row['id_member'];
 	}
@@ -409,15 +403,11 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 
 	// Do the log.
 	if (!empty($log_inserts) && !empty($modSettings['modlog_enabled']))
-		$smcFunc['db_insert']('',
-			'{db_prefix}log_actions',
-			array(
-				'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
-				'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
-			),
-			$log_inserts,
-			array('id_action')
-		);
+	{
+		require_once($sourcedir . 'Logging.php');
+		foreach ($log_inserts as $extra)
+			logAction('removed_from_group', $extra, 'admin');
+	}
 
 	// Mission successful.
 	return true;
@@ -448,7 +438,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false)
 {
-	global $smcFunc, $user_info, $modSettings;
+	global $smcFunc, $user_info, $modSettings, $sourcedir;
 
 	// Show your licence, but only if it hasn't been done yet.
 	if (!$permissionCheckDone)
@@ -575,22 +565,9 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 
 	// Log the data.
 	$log_inserts = array();
+	require_once($sourcedir . 'Logging.php');
 	foreach ($members as $member)
-		$log_inserts[] = array(
-			time(), 3, $user_info['id'], $user_info['ip'], 'added_to_group',
-			0, 0, 0, serialize(array('group' => $group_names[$group], 'member' => $member)),
-		);
-
-	if (!empty($log_inserts) && !empty($modSettings['modlog_enabled']))
-		$smcFunc['db_insert']('',
-			'{db_prefix}log_actions',
-			array(
-				'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
-				'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
-			),
-			$log_inserts,
-			array('id_action')
-		);
+		logAction('added_to_group', array('group' => $group_names[$group], 'member' => $member), 'admin');
 
 	call_integration_hook('integrate_add_members_to_group', array($log_inserts));
 
