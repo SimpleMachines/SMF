@@ -3025,12 +3025,10 @@ function MessageSettings()
 
 /**
  * Allows the user to report a personal message to an administrator.
- * In the first instance requires that the ID of the message to report
- * is passed through $_GET.
- * It allows the user to report to either a particular administrator - or
- * the whole admin team.
- * It will forward on a copy of the original message without allowing the
- * reporter to make changes.
+ *
+ * - In the first instance requires that the ID of the message to report is passed through $_GET.
+ * - It allows the user to report to either a particular administrator - or the whole admin team.
+ * - It will forward on a copy of the original message without allowing the reporter to make changes.
  *
  * @uses report_message sub-template.
  */
@@ -3138,11 +3136,11 @@ function ReportMessage()
 			SELECT id_member, real_name, lngfile
 			FROM {db_prefix}members
 			WHERE (id_group = {int:admin_id} OR FIND_IN_SET({int:admin_id}, additional_groups) != 0)
-				' . (empty($_POST['ID_ADMIN']) ? '' : 'AND id_member = {int:specific_admin}') . '
+				' . (empty($_POST['id_admin']) ? '' : 'AND id_member = {int:specific_admin}') . '
 			ORDER BY lngfile',
 			array(
 				'admin_id' => 1,
-				'specific_admin' => isset($_POST['ID_ADMIN']) ? (int) $_POST['ID_ADMIN'] : 0,
+				'specific_admin' => isset($_POST['id_admin']) ? (int) $_POST['id_admin'] : 0,
 			)
 		);
 

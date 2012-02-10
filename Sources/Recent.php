@@ -17,7 +17,11 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * Get the latest post.
+ * Get the latest post made on the system
+ *
+ * - respects approved, recycled, and board permissions
+ * - @todo is this even used anywhere?
+ *
  * @return array
  */
 function getLastPost()

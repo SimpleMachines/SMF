@@ -1273,7 +1273,7 @@ function template_report_message()
 						<strong>', $txt['pm_report_admins'], ':</strong>
 					</dt>
 					<dd>
-						<select name="ID_ADMIN">
+						<select name="id_admin">
 							<option value="0">', $txt['pm_report_all_admins'], '</option>';
 		foreach ($context['admins'] as $id => $name)
 			echo '
