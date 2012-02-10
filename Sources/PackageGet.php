@@ -123,7 +123,7 @@ function PackageServers()
 	{
 		if (isset($_POST['ftp_username']))
 		{
-			loadClassFile('Class-Package.php');
+			require_once($sourcedir . '/Class-Package.php');
 			$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 			if ($ftp->error === false)
@@ -141,7 +141,7 @@ function PackageServers()
 		{
 			if (!isset($ftp))
 			{
-				loadClassFile('Class-Package.php');
+				require_once($sourcedir . '/Class-Package.php');
 				$ftp = new ftp_connection(null);
 			}
 			elseif ($ftp->error !== false && !isset($ftp_error))
@@ -252,7 +252,7 @@ function PackageGBrowse()
 	@set_time_limit(600);
 
 	// Read packages.xml and parse into xmlArray. (the true tells it to trim things ;).)
-	loadClassFile('Class-Package.php');
+	require_once($sourcedir . '/Class-Package.php');
 	$listing = new xmlArray(fetch_web_data($_GET['package']), true);
 
 	// Errm.... empty file?  Try the URL....
@@ -439,7 +439,7 @@ function PackageGBrowse()
 					else
 						$authorhompage = $default_website;
 
-					if (strpos(strtolower($authorhompage), 'a href') === false)
+					if (stripos($authorhompage, 'a href') === false)
 					{
 						$package['author']['website']['href'] = $authorhompage;
 						$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';

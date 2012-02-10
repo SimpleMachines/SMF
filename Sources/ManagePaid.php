@@ -1788,7 +1788,7 @@ function loadPaymentGateways()
 
 				if (strpos($header, '// SMF Payment Gateway: ' . strtolower($matches[1])) !== false)
 				{
-					loadClassFile($file);
+					require_once($sourcedir . '/' . $file);
 
 					$gateways[] = array(
 						'filename' => $file,

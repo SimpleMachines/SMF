@@ -227,7 +227,7 @@ function error_handler($error_level, $error_string, $file, $line)
 <strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br />';
 	}
 
-	$error_type = strpos(strtolower($error_string), 'undefined') !== false ? 'undefined_vars' : 'general';
+	$error_type = stripos($error_string, 'undefined') !== false ? 'undefined_vars' : 'general';
 
 	$message = log_error($error_level . ': ' . $error_string, $error_type, $file, $line);
 

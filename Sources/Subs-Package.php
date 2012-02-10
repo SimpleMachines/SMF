@@ -427,7 +427,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $boarddir;
+	global $boarddir, $sourcedir;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false)
@@ -450,7 +450,7 @@ function getPackageInfo($gzfilename)
 		return 'package_get_error_is_zero';
 
 	// Parse package-info.xml into an xmlArray.
-	loadClassFile('Class-Package.php');
+	require_once($sourcedir . '/Class-Package.php');
 	$packageInfo = new xmlArray($packageInfo);
 
 	// @todo Error message of some sort?
@@ -657,7 +657,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 	if (!empty($_SESSION['pack_ftp']['connected']))
 	{
 		// Load the file containing the ftp_connection class.
-		loadClassFile('Class-Package.php');
+		require_once($sourcedir . '/Class-Package.php');
 
 		$package_ftp = new ftp_connection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], package_crypt($_SESSION['pack_ftp']['password']));
 	}
@@ -665,7 +665,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 	// Just got a submission did we?
 	if (empty($package_ftp) && isset($_POST['ftp_username']))
 	{
-		loadClassFile('Class-Package.php');
+		require_once($sourcedir . '/Class-Package.php');
 		$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 		// We're connected, jolly good!
@@ -731,7 +731,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 		{
 			if (!isset($ftp))
 			{
-				loadClassFile('Class-Package.php');
+				require_once($sourcedir . '/Class-Package.php');
 				$ftp = new ftp_connection(null);
 			}
 			elseif ($ftp->error !== false && !isset($ftp_error))
@@ -781,7 +781,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
  */
 function packageRequireFTP($destination_url, $files = null, $return = false)
 {
-	global $context, $modSettings, $package_ftp, $boarddir, $txt;
+	global $context, $modSettings, $package_ftp, $boarddir, $txt, $sourcedir;
 
 	// Try to make them writable the manual way.
 	if ($files !== null)
@@ -848,7 +848,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	elseif (isset($_SESSION['pack_ftp']))
 	{
 		// Load the file containing the ftp_connection class.
-		loadClassFile('Class-Package.php');
+		require_once($sourcedir . '/Class-Package.php');
 
 		$package_ftp = new ftp_connection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], package_crypt($_SESSION['pack_ftp']['password']));
 
@@ -888,7 +888,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	}
 	elseif (isset($_POST['ftp_username']))
 	{
-		loadClassFile('Class-Package.php');
+		require_once($sourcedir . '/Class-Package.php');
 		$ftp = new ftp_connection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
 
 		if ($ftp->error === false)
@@ -906,7 +906,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 	{
 		if (!isset($ftp))
 		{
-			loadClassFile('Class-Package.php');
+			require_once($sourcedir . '/Class-Package.php');
 			$ftp = new ftp_connection(null);
 		}
 		elseif ($ftp->error !== false && !isset($ftp_error))
@@ -1735,7 +1735,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
 	global $boarddir, $sourcedir, $settings, $txt, $modSettings, $package_ftp;
 
 	@set_time_limit(600);
-	loadClassFile('Class-Package.php');
+	require_once($sourcedir . '/Class-Package.php');
 	$xml = new xmlArray(strtr($file, array("\r" => '')));
 	$actions = array();
 	$everything_found = true;
@@ -2426,7 +2426,7 @@ function package_get_contents($filename)
 	if (!isset($package_cache))
 	{
 		// Windows doesn't seem to care about the memory_limit.
-		if (!empty($modSettings['package_disable_cache']) || ini_set('memory_limit', '128M') !== false || strpos(strtolower(PHP_OS), 'win') !== false)
+		if (!empty($modSettings['package_disable_cache']) || ini_set('memory_limit', '128M') !== false || stripos(PHP_OS, 'win') !== false)
 			$package_cache = array();
 		else
 			$package_cache = false;
@@ -2455,7 +2455,7 @@ function package_put_contents($filename, $data, $testing = false)
 	if (!isset($package_cache))
 	{
 		// Try to increase the memory limit - we don't want to run out of ram!
-		if (!empty($modSettings['package_disable_cache']) || ini_set('memory_limit', '128M') !== false || strpos(strtolower(PHP_OS), 'win') !== false)
+		if (!empty($modSettings['package_disable_cache']) || ini_set('memory_limit', '128M') !== false || stripos(PHP_OS, 'win') !== false)
 			$package_cache = array();
 		else
 			$package_cache = false;
@@ -2840,7 +2840,7 @@ function package_create_backup($id = 'backup')
  */
 function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection_level = 0)
 {
-	global $webmaster_email;
+	global $webmaster_email, $sourcedir;
 	static $keep_alive_dom = null, $keep_alive_fp = null;
 
 	preg_match('~^(http|ftp)(s)?://([^/:]+)(:(\d+))?(.+)$~', $url, $match);
@@ -2851,7 +2851,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 	elseif ($match[1] == 'ftp')
 	{
 		// Include the file containing the ftp_connection class.
-		loadClassFile('Class-Package.php');
+		require_once($sourcedir . '/Class-Package.php');
 
 		// Establish a connection and attempt to enable passive mode.
 		$ftp = new ftp_connection(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? 21 : $match[5], 'anonymous', $webmaster_email);

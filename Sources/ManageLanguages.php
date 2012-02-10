@@ -81,7 +81,7 @@ function AddLanguage()
 		$url = 'http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
 
 		// Load the class file and stick it into an array.
-		loadClassFile('Class-Package.php');
+		require_once($sourcedir . '/Class-Package.php');
 		$language_list = new xmlArray(fetch_web_data($url), true);
 
 		// Check it exists.

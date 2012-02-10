@@ -769,7 +769,7 @@ function loadSearchAPIs()
 
 				if (strpos($header, '* SearchAPI-' . $matches[1] . '.php') !== false)
 				{
-					loadClassFile($file);
+					require_once($sourcedir . '/' . $file);
 
 					$index_name = strtolower($matches[1]);
 					$search_class_name = $index_name . '_search';

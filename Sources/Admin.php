@@ -816,8 +816,7 @@ function AdminSearchInternal()
 				$item[0] = array($item[0]);
 			foreach ($item[0] as $term)
 			{
-				$lc_term = strtolower($term);
-				if (strpos($lc_term, $search_term) !== false || (isset($txt[$term]) && strpos(strtolower($txt[$term]), $search_term) !== false) || (isset($txt['setting_' . $term]) && strpos(strtolower($txt['setting_' . $term]), $search_term) !== false))
+				if (stripos($term, $search_term) !== false || (isset($txt[$term]) && stripos($txt[$term], $search_term) !== false) || (isset($txt['setting_' . $term]) && stripos($txt['setting_' . $term], $search_term) !== false))
 				{
 					$found = $term;
 					break;
@@ -891,7 +890,7 @@ function AdminSearchOM()
 
 	// Otherwise we simply walk through the XML and stick it in context for display.
 	$context['search_results'] = array();
-	loadClassFile('Class-Package.php');
+	require_once($sourcedir . '/Class-Package.php');
 
 	// Get the results loaded into an array for processing!
 	$results = new xmlArray($search_results, false);
