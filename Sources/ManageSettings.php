@@ -346,14 +346,11 @@ function ModifyCoreFeatures($return_config = false)
 
 		$setting_changes = array('admin_features' => array());
 
-		// Are we using the javascript stuff or radios to submit?
-		$post_var_prefix = 'feature_';
-
 		// Cycle each feature and change things as required!
 		foreach ($core_features as $id => $feature)
 		{
 			// Enabled?
-			if (!empty($_POST[$post_var_prefix . $id]))
+			if (!empty($_POST['feature_' . $id]))
 				$setting_changes['admin_features'][] = $id;
 
 			// Setting values to change?
@@ -361,14 +358,14 @@ function ModifyCoreFeatures($return_config = false)
 			{
 				foreach ($feature['settings'] as $key => $value)
 				{
-					if (empty($_POST[$post_var_prefix . $id]) || (!empty($_POST[$post_var_prefix . $id]) && ($value < 2 || empty($modSettings[$key]))))
-						$setting_changes[$key] = !empty($_POST[$post_var_prefix . $id]) ? $value : !$value;
+					if (empty($_POST['feature_' . $id]) || (!empty($_POST['feature_' . $id]) && ($value < 2 || empty($modSettings[$key]))))
+						$setting_changes[$key] = !empty($_POST['feature_' . $id]) ? $value : !$value;
 				}
 			}
 			// Is there a call back for settings?
 			if (isset($feature['setting_callback']))
 			{
-				$returned_settings = $feature['setting_callback'](!empty($_POST[$post_var_prefix . $id]));
+				$returned_settings = $feature['setting_callback'](!empty($_POST['feature_' . $id]));
 				if (!empty($returned_settings))
 					$setting_changes = array_merge($setting_changes, $returned_settings);
 			}
@@ -389,7 +386,7 @@ function ModifyCoreFeatures($return_config = false)
 		{
 			// Standard save callback?
 			if (isset($feature['save_callback']))
-				$feature['save_callback'](!empty($_POST[$post_var_prefix . $id]));
+				$feature['save_callback'](!empty($_POST['feature_' . $id]));
 		}
 
 		redirectexit('action=admin;area=corefeatures;' . $context['session_var'] . '=' . $context['session_id']);

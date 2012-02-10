@@ -1427,17 +1427,6 @@ function template_core_features()
 		</form>
 	</div>
 	<br class="clear" />';
-
-	// Turn on the pretty javascript if we can!
-	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		document.getElementById(\'js_worked\').value = "1";';
-		foreach ($context['features'] as $id => $feature)
-			echo '
-		document.getElementById(\'js_feature_', $id, '\').style.display = "";
-		document.getElementById(\'plain_feature_', $id, '\').style.display = "none";';
-	echo '
-	// ]]></script>';
 }
 
 
