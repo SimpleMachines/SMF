@@ -1175,7 +1175,7 @@ function makeNotificationChanges($memID)
  */
 function makeCustomFieldChanges($memID, $area, $sanitize = true)
 {
-	global $context, $smcFunc, $user_profile, $user_info, $modSettings;
+	global $context, $smcFunc, $user_profile, $user_info, $modSettings, $sourcedir;
 
 	if ($sanitize && isset($_POST['customfield']))
 		$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
@@ -1243,11 +1243,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 		{
 			$log_changes[] = array(
 				'action' => 'customfield_' . $row['col_name'],
-				'id_log' => 2,
-				'log_time' => time(),
-				'id_member' => $memID,
-				'ip' => $user_info['ip'],
-				'extra' => serialize(array('previous' => !empty($user_profile[$memID]['options'][$row['col_name']]) ? $user_profile[$memID]['options'][$row['col_name']] : '', 'new' => $value, 'applicator' => $user_info['id'])),
+				'log_type' => 'user',
+				'extra' => array(
+					'previous' => !empty($user_profile[$memID]['options'][$row['col_name']]) ? $user_profile[$memID]['options'][$row['col_name']] : '',
+					'new' => $value,
+					'applicator' => $user_info['id'],
+					'member_affected' => $memID,
+				),
 			);
 			$changes[] = array(1, $row['col_name'], $value, $memID);
 			$user_profile[$memID]['options'][$row['col_name']] = $value;
@@ -1265,15 +1267,11 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 			array('id_theme', 'variable', 'id_member')
 		);
 		if (!empty($log_changes) && !empty($modSettings['modlog_enabled']))
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_actions',
-				array(
-					'action' => 'string', 'id_log' => 'int', 'log_time' => 'int', 'id_member' => 'int', 'ip' => 'string-16',
-					'extra' => 'string-65534',
-				),
-				$log_changes,
-				array('id_action')
-			);
+		{
+			require_once($sourcedir . '/Logging.php');
+			foreach ($log_changes as $log_change)
+				logAction($log_change['action'], $log_change['extra'], $log_change['log_type']);
+		}
 	}
 }
 

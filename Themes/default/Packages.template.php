@@ -874,7 +874,18 @@ function template_browse()
 			<input type="hidden" name="sa" value="browse" />
 		</form>
 	</div>
-	<br class="clear" />';
+	<br class="clear" />
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
+	<script type="text/javascript"><!-- // --><![CDATA[
+			var oAddMemberSuggest = new smc_AutoSuggest({
+			sSelf: \'oAddMemberSuggest\',
+			sSessionId: smf_session_id,
+			sSessionVar: smf_session_var,
+			sControlId: \'ve\',
+			sSearchType: \'versions\',
+			bItemList: false
+		});
+	// ]]></script>';
 }
 
 function template_servers()
