@@ -125,12 +125,12 @@ input:focus, textarea:focus, button:focus, select:focus
 }
 
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
-.input_check, .input_radio
+input.input_check, input.input_radio
 {
 	border: none;
 	background: none;
 }
-h3.catbg .input_check
+h3.catbg input.input_check
 {
 	margin: 9px 7px 0 7px;
 }
