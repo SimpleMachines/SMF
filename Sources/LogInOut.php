@@ -257,7 +257,7 @@ function Login2()
 			// Don't allow this!
 			validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood']);
 
-			$_SESSION['failed_login'] = @$_SESSION['failed_login'] + 1;
+			$_SESSION['failed_login'] = isset($_SESSION['failed_login']) ? ($_SESSION['failed_login'] + 1) : 1;
 
 			if ($_SESSION['failed_login'] >= $modSettings['failed_login_threshold'])
 				redirectexit('action=reminder');
@@ -364,7 +364,7 @@ function Login2()
 		else
 		{
 			// They've messed up again - keep a count to see if they need a hand.
-			$_SESSION['failed_login'] = @$_SESSION['failed_login'] + 1;
+			$_SESSION['failed_login'] = isset($_SESSION['failed_login']) ? ($_SESSION['failed_login'] + 1) : 1;
 
 			// Hmm... don't remember it, do you?  Here, try the password reminder ;).
 			if ($_SESSION['failed_login'] >= $modSettings['failed_login_threshold'])

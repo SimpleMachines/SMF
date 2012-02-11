@@ -2368,7 +2368,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	else
 		$message = strtr($message, array("\n" => ''));
 
-	if (substr($message, 0, 1) === ' ')
+	if (substr($message, 0, 1) == ' ')
 		$message = '&nbsp;' . substr($message, 1);
 
 	// Cleanup whitespace.
@@ -2410,7 +2410,7 @@ function parsesmileys(&$message)
 	static $smileyPregSearch = null, $smileyPregReplacements = array();
 
 	// No smiley set at all?!
-	if ($user_info['smiley_set'] === 'none' || trim($message) === '')
+	if ($user_info['smiley_set'] == 'none' || trim($message) == '')
 		return;
 
 	// If smileyPregSearch hasn't been set, do it now.

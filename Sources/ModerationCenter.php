@@ -174,6 +174,7 @@ function ModerationMain($dont_call = false)
 	// I don't know where we're going - I don't know where we've been...
 	$menuOptions = array(
 		'action' => 'moderate',
+		'disable_url_session_check' => true,
 	);
 	$mod_include_data = createMenu($moderation_areas, $menuOptions);
 	unset($moderation_areas);

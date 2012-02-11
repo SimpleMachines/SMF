@@ -991,9 +991,7 @@ function RepairAttachments()
 				redirectexit('action=admin;area=manageattachments;sa=maintenance');
 
 			$_SESSION['attachments_to_fix'] = array();
-			/**
-			 * @todo No need to do this I think.
-			 */
+			// @todo No need to do this I think.
 			foreach ($_POST['to_fix'] as $key => $value)
 				$_SESSION['attachments_to_fix'][] = $value;
 		}
