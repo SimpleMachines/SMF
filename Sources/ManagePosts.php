@@ -230,7 +230,7 @@ function ModifyPostSettings($return_config = false)
 					if ($column == 'body' && $index['type'] == 'fulltext')
 						$fulltext = true;
 
-			if (isset($body_type) && $_POST['max_messageLength'] > 65535 && $body_type == 'text')
+			if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text')
 			{
 				// @todo Show an error message?!
 				// MySQL only likes fulltext indexes on text columns... for now?
