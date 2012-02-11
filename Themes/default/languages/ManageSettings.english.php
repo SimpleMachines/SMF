@@ -47,6 +47,8 @@ $txt['pruneSpiderHitLog'] = 'Remove search engine hit logs older than<div class=
 $txt['cookieTime'] = 'Default login cookies length (in minutes)';
 $txt['localCookies'] = 'Enable local storage of cookies<div class="smalltext">(SSI won\'t work well with this on.)</div>';
 $txt['globalCookies'] = 'Use subdomain independent cookies<div class="smalltext">(turn off local cookies first!)</div>';
+$txt['globalCookiesDomain'] = 'Main domain used for subdomain independent cookies <div class="smalltext">(enable subdomain independent cookies first!<br />The domain could be for example: "website.com" or "website.co.uk" without http:// or slashes)</div>';
+$txt['invalid_cookie_domain'] = 'The domain intruduced seems to be invalid, please check it and save again.';
 $txt['secureCookies'] = 'Force cookies to be secure<div class="smalltext">(This only applies if you are using HTTPS - don\'t use otherwise!)</div>';
 $txt['httponlyCookies'] = 'Force cookies to be made accessible only through the HTTP protocol. <div class="smalltext">(Cookies won\'t be accessible by scripting languages, such as JavaScript. This setting can help to reduce identity theft through XSS attacks.)</div>';
 $txt['securityDisable'] = 'Disable administration security';
