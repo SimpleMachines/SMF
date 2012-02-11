@@ -2407,13 +2407,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 function parsesmileys(&$message)
 {
 	global $modSettings, $txt, $user_info, $context, $smcFunc;
-	static $smileyPregSearch = array(), $smileyPregReplacements = array();
+	static $smileyPregSearch = null, $smileyPregReplacements = array();
 
 	// No smiley set at all?!
 	if ($user_info['smiley_set'] === 'none' || trim($message) === '')
 		return;
 
-	// If the smiley array hasn't been set, do it now.
+	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
 		// Use the default smileys if it is disabled. (better for "portability" of smileys.)
