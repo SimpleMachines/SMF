@@ -1396,7 +1396,7 @@ function template_core_features()
 // This little beauty shows questions and answer from the captcha type feature.
 function template_callback_question_answer_list()
 {
-	global $txt, $context;
+	global $txt, $context, $settings;
 
 	echo '
 			<dt>
@@ -1430,6 +1430,7 @@ function template_callback_question_answer_list()
 		<dt id="add_more_question_placeholder" style="display: none;"></dt><dd></dd>
 		<dt id="add_more_link_div" style="display: none;">
 			<a href="#" onclick="addAnotherQuestion(); return false;">&#171; ', $txt['setup_verification_add_more'], ' &#187;</a>
+			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
 
 		</dt><dd></dd>';
 
