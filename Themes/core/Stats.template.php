@@ -193,7 +193,7 @@ function template_main()
 							<td width="15%">', $txt['stats_new_topics'], '</td>
 							<td width="15%">', $txt['stats_new_posts'], '</td>
 							<td width="15%">', $txt['stats_new_members'], '</td>
-							<td width="15%">', $txt['smf_stats_14'], '</td>';
+							<td width="15%">', $txt['most_online'], '</td>';
 
 		if (!empty($modSettings['hitStats']))
 			echo '
@@ -304,5 +304,3 @@ function template_main()
 	// ]]></script>';
 	}
 }
-
-?>

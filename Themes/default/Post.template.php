@@ -103,9 +103,9 @@ function template_main()
 							<dt>
 								<strong style="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'display: none;' : '', '" id="error_serious">', $txt['error_while_submitting'], '</strong>
 							</dt>
-							<dt class="error" id="error_list">
+							<dd class="error" id="error_list">
 								', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
-							</dt>
+							</dd>
 						</dl>
 					</div>';
 

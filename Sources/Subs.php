@@ -579,7 +579,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the '...' part near the end. (1 ... 6 7 [8] 9 10 >...< 15)
 		if ($start + $num_per_page * ($PageContiguous + 1) < $tmpMaxPages)
-			$pageindex .= '<span style="font-weight: bold;" onclick="expandPages(this, \'' . ($flexible_start ? strtr($base_url, array('\'' => '\\\'')) : strtr($base_url, array('%' => '%%', '\'' => '\\\'')) . ';start=%1$d') . '\', ' . ($start + $num_per_page * ($PageContiguous + 1)) . ', ' . $tmpMaxPages . ', ' . $num_per_page . ');" onmouseover="this.style.cursor=\'pointer\';"> ... </span>';
+			$pageindex .= '<span style="font-weight: bold;" onclick="' . htmlspecialchars('expandPages(this, ' . JavaScriptEscape(($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d')) . ', ' . ($start + $num_per_page * ($PageContiguous + 1)) . ', ' . $tmpMaxPages . ', ' . $num_per_page . ');') . '" onmouseover="this.style.cursor=\'pointer\';"> ... </span>';
 
 		// Show the last number in the list. (1 ... 6 7 [8] 9 10 ... >15<)
 		if ($start + $num_per_page * $PageContiguous < $tmpMaxPages)
@@ -2407,13 +2407,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 function parsesmileys(&$message)
 {
 	global $modSettings, $txt, $user_info, $context, $smcFunc;
-	static $smileyPregSearch = array(), $smileyPregReplacements = array();
+	static $smileyPregSearch = null, $smileyPregReplacements = array();
 
 	// No smiley set at all?!
 	if ($user_info['smiley_set'] === 'none' || trim($message) === '')
 		return;
 
-	// If the smiley array hasn't been set, do it now.
+	// If smileyPregSearch hasn't been set, do it now.
 	if (empty($smileyPregSearch))
 	{
 		// Use the default smileys if it is disabled. (better for "portability" of smileys.)

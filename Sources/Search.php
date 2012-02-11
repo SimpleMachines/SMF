@@ -1233,14 +1233,16 @@ function PlushSearch2()
 						$numTables = 0;
 						$prev_join = 0;
 						$count = 0;
+						$excluded = false;
 						foreach ($words['subject_words'] as $subjectWord)
 						{
 							$numTables++;
 							if (in_array($subjectWord, $excludedSubjectWords))
 							{
-								if ($subject_query['from'] != '{db_prefix}messages AS m')
-								{
+								if (($subject_query['from'] != '{db_prefix}messages AS m') && !$excluded)
+								{ 
 									$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
+									$excluded = true;
 								}
 								$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty($modSettings['search_match_words']) ? 'LIKE {string:subject_not_' . $count . '}' : '= {string:subject_not_' . $count . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
 								$subject_query['params']['subject_not_' . $count] = empty($modSettings['search_match_words']) ? '%' . $subjectWord . '%' : $subjectWord;
@@ -1305,7 +1307,7 @@ function PlushSearch2()
 						// Nothing to search for?
 						if (empty($subject_query['where']))
 							continue;
-
+						
 						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ( '
 							INSERT IGNORE INTO {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics
 								(' . ($createTemporary ? '' : 'id_search, ') . 'id_topic)') : '') . '
