@@ -484,6 +484,16 @@ function prepareServerSettingsContext(&$config_vars)
 			$varname = $config_var[0];
 			global $$varname;
 
+			// Set the subtext in case it's part of the label.
+			// @todo Temporary. Preventing divs inside label tags.
+			$divPos = strpos($config_var[1], '<div');
+			$subtext = '';
+			if ($divPos !== false)
+			{
+				$subtext = preg_replace('~</?div[^>]*>~', '', substr($config_var[1], $divPos));
+				$config_var[1] = substr($config_var[1], 0, $divPos);
+			}
+
 			$context['config_vars'][] = array(
 				'label' => $config_var[1],
 				'help' => isset($config_var[5]) ? $config_var[5] : '',
@@ -494,15 +504,16 @@ function prepareServerSettingsContext(&$config_vars)
 				'value' => $config_var[2] == 'file' ? htmlspecialchars($$varname) : (isset($modSettings[$config_var[0]]) ? htmlspecialchars($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
 				'disabled' => !empty($context['settings_not_writable']) || !empty($config_var['disabled']),
 				'invalid' => false,
+				'subtext' => $subtext,
 				'javascript' => '',
 				'preinput' => '',
 				'postinput' => '',
 			);
+			
 		}
 	}
 
 	createToken('admin-ssc');
-	createToken('admin-dbsc');
 }
 
 /**
@@ -659,7 +670,7 @@ function prepareDBSettingContext(&$config_vars)
 		}
 	}
 
-	call_integration_hook('integrate_prepare_server_settings', array(&$config_vars));
+	call_integration_hook('integrate_prepare_db_settings', array(&$config_vars));
 	createToken('admin-dbsc');
 }
 
