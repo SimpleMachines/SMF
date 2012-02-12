@@ -520,12 +520,6 @@ function AdminHome()
 
 	// This makes it easier to get the latest news with your time format.
 	$context['time_format'] = urlencode($user_info['time_format']);
-
-	$context['current_versions'] = array(
-		'php' => array('title' => $txt['support_versions_php'], 'version' => PHP_VERSION),
-		'db' => array('title' => sprintf($txt['support_versions_db'], $smcFunc['db_title']), 'version' => ''),
-		'server' => array('title' => $txt['support_versions_server'], 'version' => $_SERVER['SERVER_SOFTWARE']),
-	);
 	$context['forum_version'] = $forum_version;
 
 	// Get a list of current server versions.

@@ -220,9 +220,18 @@ function template_credits()
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
+	{
 		echo '
 					', $version['title'], ':
-				<em>', $version['version'], '</em><br />';
+				<em>', $version['version'], '</em>';
+		
+		// more details for this item, show them a link
+		if ($context['can_admin'] && isset($version['more']))
+			echo 
+				' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+		echo '
+				<br />';
+	}
 
 	echo '
 			</div>

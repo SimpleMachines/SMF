@@ -65,8 +65,9 @@ function getServerVersions($checkFor)
 		$versions['memcache'] = array('title' => 'Memcached', 'version' => empty($memcached) ? '???' : memcache_get_version($memcached));
 	if (in_array('xcache', $checkFor) && function_exists('xcache_set'))
 		$versions['xcache'] = array('title' => 'XCache', 'version' => XCACHE_VERSION);
+	
 	if (in_array('php', $checkFor))
-		$versions['php'] = array('title' => 'PHP', 'version' => PHP_VERSION);
+		$versions['php'] = array('title' => 'PHP', 'version' => PHP_VERSION, 'more' => '?action=admin;area=serversettings;sa=phpinfo');
 
 	if (in_array('server', $checkFor))
 		$versions['server'] = array('title' => $txt['support_versions_server'], 'version' => $_SERVER['SERVER_SOFTWARE']);
