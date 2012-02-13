@@ -129,13 +129,15 @@ function fatal_error($error, $log = 'general')
 }
 
 /**
- * A fatal error with a message stored in the language file.
- * This function stops executing and displays an error message by key.
- * It uses the string with the error_message_key key.
- * It logs the error in the forum's default language while displaying the error
- * message in the user's language.
- * @uses Errors language file and applies the $sprintf information if specified.
- * the information is logged if log is specified.
+ * Shows a fatal error with a message stored in the language file.
+ *
+ * This function stops execution and displays an error message by key.
+ *  - uses the string with the error_message_key key.
+ *  - logs the error in the forum's default language while displaying the error
+ *    message in the user's language.
+ *  - uses Errors language file and applies the $sprintf information if specified.
+ *  - the information is logged if log is specified.
+ *
  * @param $error
  * @param $log
  * @param $sprintf

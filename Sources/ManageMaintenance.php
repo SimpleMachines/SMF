@@ -72,6 +72,7 @@ function ManageMaintenance()
 			'activities' => array(
 				'reattribute' => 'MaintainReattributePosts',
 				'purgeinactive' => 'MaintainPurgeInactiveMembers',
+				'recountposts' => 'MaintainRecountPosts',
 			),
 		),
 		'topics' => array(
@@ -176,6 +177,9 @@ function MaintainMembers()
 		);
 	}
 	$smcFunc['db_free_result']($result);
+	
+	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
+		$context['maintenance_finished'] = $txt['maintain_recountposts'];
 }
 
 /**
@@ -960,6 +964,7 @@ function OptimizeTables()
  * Recount many forum totals that can be recounted automatically without harm.
  * it requires the admin_forum permission.
  * It shows the maintain_forum admin area.
+ *
  * Totals recounted:
  * - fixes for topics with wrong num_replies.
  * - updates for num_posts and num_topics of all boards.
@@ -977,13 +982,17 @@ function AdminBoardRecount()
 	global $time_start, $smcFunc;
 
 	isAllowedTo('admin_forum');
-
 	checkSession('request');
-	validateToken('admin-maint');
+	
+	// validate the request or the loop
+	if (!isset($_REQUEST['step']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-boardrecount');
 
 	$context['page_title'] = $txt['not_done_title'];
 	$context['continue_post_data'] = '';
-	$context['continue_countdown'] = '3';
+	$context['continue_countdown'] = 3;
 	$context['sub_template'] = 'not_done';
 
 	// Try for as much time as possible.
@@ -1072,6 +1081,9 @@ function AdminBoardRecount()
 
 			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 			{
+				createToken('admin-boardrecount');
+				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=0;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1127,6 +1139,9 @@ function AdminBoardRecount()
 
 			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 			{
+				createToken('admin-boardrecount');
+				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=1;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((200 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1180,6 +1195,9 @@ function AdminBoardRecount()
 
 			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 			{
+				createToken('admin-boardrecount');
+				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=2;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((300 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1233,6 +1251,9 @@ function AdminBoardRecount()
 
 			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 			{
+				createToken('admin-boardrecount');
+				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=3;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((400 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1286,6 +1307,9 @@ function AdminBoardRecount()
 
 			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 			{
+				createToken('admin-boardrecount');
+				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=4;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((500 + 100 * $_REQUEST['start'] / $max_topics) / $total_steps);
 
@@ -1332,6 +1356,9 @@ function AdminBoardRecount()
 
 		if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 		{
+			createToken('admin-boardrecount');
+			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 			$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=6;start=0;' . $context['session_var'] . '=' . $context['session_id'];
 			$context['continue_percent'] = round(700 / $total_steps);
 
@@ -1375,6 +1402,9 @@ function AdminBoardRecount()
 
 			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
 			{
+				createToken('admin-boardrecount');
+				$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-boardrecount_token_var'] . '" value="' . $context['admin-boardrecount_token'] . '" />';
+
 				$context['continue_get_data'] = '?action=admin;area=maintain;sa=routine;activity=recount;step=6;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$context['continue_percent'] = round((700 + 100 * $_REQUEST['start'] / $modSettings['maxMsgID']) / $total_steps);
 
@@ -1660,7 +1690,7 @@ function MaintainMassMoveTopics()
 
 	// Set up to the context.
 	$context['page_title'] = $txt['not_done_title'];
-	$context['continue_countdown'] = '3';
+	$context['continue_countdown'] = 3;
 	$context['continue_post_data'] = '';
 	$context['continue_get_data'] = '';
 	$context['sub_template'] = 'not_done';
@@ -1749,6 +1779,171 @@ function MaintainMassMoveTopics()
 	cache_put_data('board-' . $id_board_to, null, 120);
 
 	redirectexit('action=admin;area=maintain;sa=topics;done=massmove');
+}
+
+/**
+ * Recalculate all members post counts
+ * it requires the admin_forum permission.
+ * 
+ * - recounts all posts for members found in the message table
+ * - updates the members post count record in the members talbe
+ * - honors the boards post count flag
+ * - does not count posts in the recyle bin
+ * - zeros post counts for all members with no posts in the message table
+ * - runs as a delayed loop to avoid server overload
+ * - uses the not_done template in Admin.template
+ *
+ * The function redirects back to action=admin;area=maintain;sa=members when complete.
+ * It is accessed via ?action=admin;area=maintain;sa=members;activity=recountposts
+ */
+function MaintainRecountPosts()
+{
+	global $txt, $context, $modSettings, $smcFunc;
+
+	// You have to be allowed in here
+	isAllowedTo('admin_forum');
+	checkSession('request');
+
+	// Set up to the context.
+	$context['page_title'] = $txt['not_done_title'];
+	$context['continue_countdown'] = 3;
+	$context['continue_get_data'] = '';
+	$context['sub_template'] = 'not_done';
+	
+	// init
+	$increment = 200;
+	$_REQUEST['start'] = !isset($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
+
+	// Ask for some extra time, on big boards this may take a bit
+	@set_time_limit(600);
+
+	// Only run this query if we don't have the total number of members that have posted
+	if (!isset($_SESSION['total_members']))
+	{
+		validateToken('admin-maint');
+		
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(DISTINCT m.id_member)
+			FROM ({db_prefix}messages AS m, {db_prefix}boards AS b)
+			WHERE m.id_member != 0
+				AND b.count_posts = 0
+				AND m.id_board = b.id_board',
+			array(
+			)
+		);
+
+		// save it so we don't do this again for this task
+		list ($_SESSION['total_members']) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+	else
+		validateToken('admin-recountposts');
+
+	// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
+	$request = $smcFunc['db_query']('', '
+		SELECT /*!40001 SQL_NO_CACHE */ m.id_member, COUNT(m.id_member) AS posts
+		FROM ({db_prefix}messages AS m, {db_prefix}boards AS b)
+		WHERE m.id_member != {int:zero}
+			AND b.count_posts = {int:zero}
+			AND m.id_board = b.id_board ' . (!empty($modSettings['recycle_enable']) ? '
+			AND b.id_board != {int:recycle}' : '') . '
+		GROUP BY m.id_member
+		LIMIT {int:start}, {int:number}',
+		array(
+			'start' => $_REQUEST['start'],
+			'number' => $increment,
+			'recycle' => $modSettings['recycle_board'],
+			'zero' => 0,
+		)
+	);
+	$total_rows = $smcFunc['db_num_rows']($request);
+
+	// Update the post count for this group
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}members
+			SET posts = {int:posts}
+			WHERE id_member = {int:row}',
+			array(
+				'row' => $row['id_member'],
+				'posts' => $row['posts'],
+			)
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Continue?
+	if ($total_rows == $increment)
+	{
+		$_REQUEST['start'] += $increment;
+		$context['continue_get_data'] = '?action=admin;area=maintain;sa=members;activity=recountposts;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
+		$context['continue_percent'] = round(100 * $_REQUEST['start'] / $_SESSION['total_members']);
+		
+		createToken('admin-recountposts');
+		$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-recountposts_token_var'] . '" value="' . $context['admin-recountposts_token'] . '" />';
+
+		if (function_exists('apache_reset_timeout'))
+			apache_reset_timeout();
+		return;
+	}
+	
+	// final steps ... made more difficult since we don't yet support sub-selects on joins
+	// place all members who have posts in the message table in a temp table
+	$createTemporary = $smcFunc['db_query']('', '
+		CREATE TEMPORARY TABLE {db_prefix}tmp_maint_recountposts (
+			id_member mediumint(8) unsigned NOT NULL default {string:string_zero},
+			PRIMARY KEY (id_member)
+		)
+		SELECT m.id_member 
+		FROM ({db_prefix}messages AS m,{db_prefix}boards AS b)
+		WHERE m.id_member != {int:zero}
+			AND b.count_posts = {int:zero}
+			AND m.id_board = b.id_board ' . (!empty($modSettings['recycle_enable']) ? '
+			AND b.id_board != {int:recycle}' : '') . '
+		GROUP BY m.id_member',
+		array(
+			'zero' => 0,
+			'string_zero' => '0',
+			'db_error_skip' => true,
+		)
+	) !== false;
+
+	if ($createTemporary) 
+	{
+		// outer join the members table on the temporary table finding the members that have a post count but no posts in the message table
+		$request = $smcFunc['db_query']('', '
+			SELECT mem.id_member, mem.posts
+			FROM {db_prefix}members AS mem
+			LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
+			ON res.id_member = mem.id_member
+			WHERE res.id_member IS null 
+				AND mem.posts != {int:zero}',
+			array(
+				'zero' => 0,
+			)
+		);
+
+		// set the post count to zero for any delinquents we may have found
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}members
+				SET posts = {int:zero}
+				WHERE id_member = {int:row}',
+				array(
+					'row' => $row['id_member'],
+					'zero' => 0,
+				)
+			);
+		}
+		$smcFunc['db_free_result']($request);
+	}
+	
+	// all done
+	unset($_SESSION['total_members']);
+	$context['maintenance_finished'] = $txt['maintain_recountposts'];
+	redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
 }
 
 ?>

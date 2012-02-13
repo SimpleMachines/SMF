@@ -211,4 +211,7 @@ $txt['reattribute_confirm_username'] = 'a username';
 $txt['reattribute_confirm_email'] = 'an email address';
 $txt['reattribute_cannot_find_member'] = 'Could not find member to attribute posts to.';
 
+$txt['maintain_recountposts'] = 'Recount User Posts';
+$txt['maintain_recountposts_info'] = 'Run this maintenance task to update your users total post count.  It will recount all (countable) posts made by each user and then update their profile post count totals';
+
 ?>
