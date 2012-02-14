@@ -104,7 +104,7 @@ function ModifyKarma()
 	{
 		// If you are gonna try to repeat.... don't allow it.
 		if ($action == $dir)
-			fatal_lang_error('karma_wait_time', false, array($modSettings['karmaWaitTime'], $txt['hours']));
+			fatal_lang_error('karma_wait_time', false, array($modSettings['karmaWaitTime'], ($modSettings['karmaWaitTime'] == 1 ? strtolower($txt['hour']) : $txt['hours'])));
 
 		// You decided to go back on your previous choice?
 		$smcFunc['db_query']('', '
