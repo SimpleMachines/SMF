@@ -2412,7 +2412,8 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($msgOptions['body']))
 	{
 		$messages_columns['body'] = $msgOptions['body'];
-
+		
+		// using a custom search index, then lets get the old message so we can update our index as needed
 		if (!empty($modSettings['search_custom_index_config']))
 		{
 			$request = $smcFunc['db_query']('', '
@@ -2512,14 +2513,16 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($msgOptions['body']) && !empty($modSettings['search_custom_index_config']))
 	{
 		$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
-
 		$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
+		$old_body = isset($msgOptions['old_body']) ? $msgOptions['old_body'] : '';
+
 		$old_index = text2words($old_body, $customIndexSettings['bytes_per_word'], true);
 		$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
 
 		// Calculate the words to be added and removed from the index.
 		$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);
 		$inserted_words = array_diff(array_diff($new_index, $old_index), $stopwords);
+		
 		// Delete the removed words AND the added ones to avoid key constraints.
 		if (!empty($removed_words))
 		{
