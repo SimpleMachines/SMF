@@ -2654,7 +2654,7 @@ function JavaScriptModify()
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 			WHERE m.id_msg = {raw:id_msg}
-				AND m.id_topic = {int:current_topic}' . (allowedTo('approve_posts') ? '' : (!$modSettings['postmod_active'] ? '
+				AND m.id_topic = {int:current_topic}' . (allowedTo('modify_any') || allowedTo('approve_posts') ? '' : (!$modSettings['postmod_active'] ? '
 				AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
 				AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
 			array(
