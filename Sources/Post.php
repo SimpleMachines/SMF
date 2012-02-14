@@ -1997,7 +1997,7 @@ function Post2()
 		logAction('modify', array('topic' => $topic, 'message' => (int) $_REQUEST['msg'], 'member' => $row['id_member'], 'board' => $board));
 
 	if (isset($_POST['lock']) && $_POST['lock'] != 2)
-		logAction('lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
+		logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
 	if (isset($_POST['sticky']) && !empty($modSettings['enableStickyTopics']))
 		logAction('sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
