@@ -73,28 +73,6 @@ function template_init()
 
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
-
-	// Load the CSS
-	// The ?fin20 part of this link is just here to make sure browsers don't cache it wrongly.
-	loadCSSFile($settings['theme_url'] . '/css/index' . $context['theme_variant'] . '.css?fin20');
-
-	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
-	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
-		if (isBrowser('is_' . $cssfix))
-			loadCSSFile($settings['default_theme_url'] . '/css/' . $cssfix . '.css');
-
-	// RTL languages require an additional stylesheet.
-	if (!empty($context['right_to_left']))
-		loadCSSFile($settings['theme_url'] . '/css/rtl.css');
-
-	// Now load the JS
-	// Note that the Superfish function seems to like being called by the full syntax.
-	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
-	loadJavascriptFile($settings['theme_url'] . '/scripts/jquery-1.6.4.min.js');
-	loadJavascriptFile($settings['theme_url'] . '/scripts/hoverIntent.js');
-	loadJavascriptFile($settings['theme_url'] . '/scripts/superfish.js');
-	loadJavascriptFile($settings['default_theme_url'] . '/scripts/script.js?fin20');
-	loadJavascriptFile($settings['theme_url'] . '/scripts/theme.js?fin20');
 }
 
 /**
@@ -109,10 +87,48 @@ function template_html_above()
 <html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 <head>';
 
+	// The ?fin20 part of this link is just here to make sure browsers don't cache it wrongly.
+	echo '
+	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />';
+
+	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
+	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
+		if ($context['browser']['is_' . $cssfix])
+			echo '
+	<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/', $cssfix, '.css" />';
+
+	// RTL languages require an additional stylesheet.
+	if ($context['right_to_left'])
+		echo '
+	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css" />';
+
+	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
 
+	// Jquery Librarys
+	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
+		echo '
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>';
+	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
+		echo '
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"></script>';
+	else
+		echo '
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript"><!-- // --><![CDATA[
+		window.jQuery || document.write(\'<script src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"><\/script>\');
+	// ]]></script>';
+    
+	// Note that the Superfish function seems to like being called by the full syntax.
+	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
+	echo '
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/hoverIntent.js"></script>
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/superfish.js"></script>';
+	
 	// Here comes the JavaScript bits!
 	echo '
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var smf_theme_url = "', $settings['theme_url'], '";
 		var smf_default_theme_url = "', $settings['default_theme_url'], '";
@@ -133,15 +149,16 @@ function template_html_above()
 		var ajax_notification_cancel_text = "', $txt['modify_cancel'], '";
 	// ]]></script>';
 
-	template_javascript();
-	
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
-			$(document).ready(function() { 
-				$("ul.dropmenu").superfish(); 
-			});
+		$(document).ready(function() { 
+			$("ul.dropmenu").superfish(); 
+		});
 	// ]]></script>';
-
+		
+	// load in any javascript files from mods and themes
+	template_javascript();
+		
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 	<meta name="description" content="', $context['page_title_html_safe'], '" />', !empty($context['meta_keywords']) ? '

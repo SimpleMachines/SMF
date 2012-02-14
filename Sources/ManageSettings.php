@@ -439,6 +439,9 @@ function ModifyBasicSettings($return_config = false)
 			array('check', 'titlesEnable'),
 			array('text', 'default_personal_text'),
 		'',
+			// Jquery source
+			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'])),
+		'',
 			// SEO stuff
 			array('check', 'queryless_urls'),
 			array('text', 'meta_keywords', 'size' => 50),
@@ -459,7 +462,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
-			array('check', 'disallow_sendBody'),
+			array('check', 'disallow_sendBody'),	
 	);
 
 	// Get all the time zones.
