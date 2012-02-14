@@ -26,8 +26,7 @@ if (!defined('SMF'))
  */
 function RepairBoards()
 {
-	global $txt, $scripturl, $db_connection, $context, $sourcedir;
-	global $salvageCatID, $salvageBoardID, $smcFunc, $errorTests;
+	global $txt, $context, $sourcedir, $salvageBoardID;
 
 	isAllowedTo('admin_forum');
 
@@ -80,9 +79,6 @@ function RepairBoards()
 		$context['to_fix'] = isset($_SESSION['repairboards_to_fix']) ? $_SESSION['repairboards_to_fix'] : array();
 
 		require_once($sourcedir . '/Subs-Boards.php');
-
-		// Get the MySQL version for future reference.
-		$mysql_version = $smcFunc['db_server_info']($db_connection);
 
 		// Actually do the fix.
 		findForumErrors(true);
@@ -164,7 +160,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 // Load up all the tests we might want to do ;)
 function loadForumTests()
 {
-	global $smcFunc, $errorTests;
+	global $errorTests;
 
 	/* Here this array is defined like so:
 		string check_query:	Query to be executed when testing if errors exist.
@@ -288,11 +284,13 @@ function loadForumTests()
 
 				$newTopicID = $smcFunc[\'db_insert_id\']("{db_prefix}topics", \'id_topic\');
 
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}messages
-					SET id_topic = $newTopicID, id_board = $row[id_board]
-					WHERE id_topic = $row[id_topic]",
+					SET id_topic = $newTopicID, id_board = {int:board_id}
+					WHERE id_topic = {int:topic_id}\',
 					array(
+						\'board_id\' => $row[\'id_board\'],
+						\'topic_id\' => $row[\'id_topic\'],
 					)
 				);
 				'),
@@ -319,18 +317,18 @@ function loadForumTests()
 				'index' => 'id_topic',
 				'process' => create_function('$topics', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}topics
-						WHERE id_topic IN ({array_int:topics})",
+						WHERE id_topic IN ({array_int:topics})\',
 						array(
-							\'topics\' => $topics
+							\'topics\' => $topics,
 						)
 					);
 					$smcFunc[\'db_query\'](\'\', "
 						DELETE FROM {db_prefix}log_topics
 						WHERE id_topic IN ({array_int:topics})",
 						array(
-							\'topics\' => $topics
+							\'topics\' => $topics,
 						)
 					);
 				'),
@@ -422,11 +420,12 @@ function loadForumTests()
 
 				$newTopicID = $smcFunc[\'db_insert_id\']("{db_prefix}topics", \'id_topic\');
 
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}messages
-					SET id_topic = $newTopicID, id_board = $row[id_board]
-					WHERE id_msg = $newMessageID",
+					SET id_topic = $newTopicID, id_board = {int:id_board}
+					WHERE id_msg = $newMessageID\',
 					array(
+						\'id_board\' => $row[\'id_board\'],
 					)
 				);
 
@@ -473,13 +472,19 @@ function loadForumTests()
 				$memberStartedID = (int) getMsgMemberID($row[\'myid_first_msg\']);
 				$memberUpdatedID = (int) getMsgMemberID($row[\'myid_last_msg\']);
 
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}topics
-					SET id_first_msg = $row[myid_first_msg],
-						id_member_started = $memberStartedID, id_last_msg = $row[myid_last_msg],
-						id_member_updated = $memberUpdatedID, approved = $row[firstmsg_approved]
-					WHERE id_topic = $row[id_topic]",
+					SET id_first_msg = {int:myid_first_msg},
+						id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
+						id_member_updated = {int:memberUpdatedID}, approved = {int:firstmsg_approved}
+					WHERE id_topic = {int:topic_id}\',
 					array(
+						\'myid_first_msg\' => $row[\'myid_first_msg\'],
+						\'memberStartedID\' => $memberStartedID,
+						\'myid_last_msg\' => $row[\'myid_last_msg\'],
+						\'memberUpdatedID\' => $memberUpdatedID,
+						\'firstmsg_approved\' => $row[\'firstmsg_approved\'],
+						\'topic_id\' => $row[\'id_topic\'],
 					)
 				);
 			'),
@@ -526,11 +531,13 @@ function loadForumTests()
 				if ($row[\'my_num_replies\'] == $row[\'num_replies\'])
 					return false;
 
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}topics
-					SET num_replies = $row[my_num_replies]
-					WHERE id_topic = $row[id_topic]",
+					SET num_replies = {int:my_num_replies}
+					WHERE id_topic = {int:topic_id}\',
 					array(
+						\'my_num_replies\' => $row[\'my_num_replies\'],
+						\'topic_id\' => $row[\'id_topic\'],
 					)
 				);
 			'),
@@ -568,11 +575,13 @@ function loadForumTests()
 				global $smcFunc;
 				$row[\'my_unapproved_posts\'] = (int) $row[\'my_unapproved_posts\'];
 
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}topics
-					SET unapproved_posts = $row[my_unapproved_posts]
-					WHERE id_topic = $row[id_topic]",
+					SET unapproved_posts = {int:my_unapproved_posts}
+					WHERE id_topic = {int:topic_id}\',
 					array(
+						\'my_unapproved_posts\' => $row[\'my_unapproved_posts\'],
+						\'topic_id\' => $row[\'id_topic\'],
 					)
 				);
 			'),
@@ -616,18 +625,22 @@ function loadForumTests()
 				);
 				$newBoardID = $smcFunc[\'db_insert_id\'](\'{db_prefix}boards\', \'id_board\');
 
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}topics
-					SET id_board = $newBoardID
-					WHERE id_board = $row[id_board]",
+					SET id_board = {int:newBoardID}
+					WHERE id_board = {int:board_id}\',
 					array(
+						\'newBoardID\' => $newBoardID,
+						\'board_id\' => $row[\'id_board\'],
 					)
 				);
-				$smcFunc[\'db_query\'](\'\', "
+				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}messages
-					SET id_board = $newBoardID
-					WHERE id_board = $row[id_board]",
+					SET id_board = {int:newBoardID}
+					WHERE id_board = {int:board_id}",
 					array(
+						\'newBoardID\' => $newBoardID,
+						\'board_id\' => $row[\'id_board\'],
 					)
 				);
 			'),
@@ -646,12 +659,13 @@ function loadForumTests()
 				'process' => create_function('$cats', '
 					global $smcFunc, $salvageCatID;
 					createSalvageArea();
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						UPDATE {db_prefix}boards
-						SET id_cat = $salvageCatID
-						WHERE id_cat IN ({array_int:categories})",
+						SET id_cat = {int:salvageCatID}
+						WHERE id_cat IN ({array_int:categories})\',
 						array(
-							\'categories\' => $cats
+							\'salvageCatID\' => $salvageCatID,
+							\'categories\' => $cats,
 						)
 					);
 				'),
@@ -679,12 +693,13 @@ function loadForumTests()
 				'index' => 'id_msg',
 				'process' => create_function('$msgs', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						UPDATE {db_prefix}messages
-						SET id_member = 0
-						WHERE id_msg IN ({array_int:msgs})",
+						SET id_member = {int:guest_id}
+						WHERE id_msg IN ({array_int:msgs})\',
 						array(
-							\'msgs\' => $msgs
+							\'msgs\' => $msgs,
+							\'guest_id\' => 0,
 						)
 					);
 				'),
@@ -705,12 +720,14 @@ function loadForumTests()
 				'process' => create_function('$parents', '
 					global $smcFunc, $salvageBoardID, $salvageCatID;
 					createSalvageArea();
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						UPDATE {db_prefix}boards
-						SET id_parent = $salvageBoardID, id_cat = $salvageCatID, child_level = 1
+						SET id_parent = {int:salvageBoardID}, id_cat = {int:salvageCatID}, child_level = 1
 						WHERE id_parent IN ({array_int:parents})",
 						array(
-							\'parents\' => $parents
+							\'salvageBoardID\' => $salvageBoardID,
+							\'salvageCatID\' => $salvageCatID,
+							\'parents\' => $parents,
 						)
 					);
 				'),
@@ -735,12 +752,12 @@ function loadForumTests()
 				'index' => 'id_poll',
 				'process' => create_function('$polls', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						UPDATE {db_prefix}topics
 						SET id_poll = 0
-						WHERE id_poll IN ({array_int:polls})",
+						WHERE id_poll IN ({array_int:polls})\',
 						array(
-							\'polls\' => $polls
+							\'polls\' => $polls,
 						)
 					);
 				'),
@@ -771,7 +788,7 @@ function loadForumTests()
 						SET id_topic = 0, id_board = 0
 						WHERE id_topic IN ({array_int:events})\',
 						array(
-							\'events\' => $events
+							\'events\' => $events,
 						)
 					);
 				'),
@@ -795,11 +812,11 @@ function loadForumTests()
 				'index' => 'id_topic',
 				'process' => create_function('$topics', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_topics
-						WHERE id_topic IN ({array_int:topics})",
+						WHERE id_topic IN ({array_int:topics})\',
 						array(
-							\'topics\' => $topics
+							\'topics\' => $topics,
 						)
 					);
 				'),
@@ -824,11 +841,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_topics
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -853,11 +870,11 @@ function loadForumTests()
 				'index' => 'id_board',
 				'process' => create_function('$boards', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_boards
-						WHERE id_board IN ({array_int:boards})",
+						WHERE id_board IN ({array_int:boards})\',
 						array(
-							\'boards\' => $boards
+							\'boards\' => $boards,
 						)
 					);
 				'),
@@ -882,11 +899,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_boards
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -911,11 +928,11 @@ function loadForumTests()
 				'index' => 'id_board',
 				'process' => create_function('$boards', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_mark_read
-						WHERE id_board IN ({array_int:boards})",
+						WHERE id_board IN ({array_int:boards})\',
 						array(
-							\'boards\' => $boards
+							\'boards\' => $boards,
 						)
 					);
 				'),
@@ -940,11 +957,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_mark_read
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -969,11 +986,11 @@ function loadForumTests()
 				'index' => 'id_pm',
 				'process' => create_function('$pms', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}pm_recipients
-						WHERE id_pm IN ({array_int:pms})",
+						WHERE id_pm IN ({array_int:pms})\',
 						array(
-							\'pms\' => $pms
+							\'pms\' => $pms,
 						)
 					);
 				'),
@@ -999,11 +1016,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}pm_recipients
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -1028,12 +1045,12 @@ function loadForumTests()
 				'index' => 'id_pm',
 				'process' => create_function('$guestMessages', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						UPDATE {db_prefix}personal_messages
 						SET id_member_from = 0
-						WHERE id_pm IN ({array_int:guestMessages})",
+						WHERE id_pm IN ({array_int:guestMessages})\',
 						array(
-							\'guestMessages\' => $guestMessages
+							\'guestMessages\' => $guestMessages,
 						));
 				'),
 			),
@@ -1057,11 +1074,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_notify
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -1093,7 +1110,7 @@ function loadForumTests()
 					if (count($inserts) > 500)
 					{
 						$smcFunc[\'db_insert\'](\'ignore\',
-							"{db_prefix}log_search_subjects",
+							\'{db_prefix}log_search_subjects\',
 							array(\'word\' => \'string\', \'id_topic\' => \'int\'),
 							$inserts,
 							array(\'word\', \'id_topic\')
@@ -1105,7 +1122,7 @@ function loadForumTests()
 
 				if (!empty($inserts))
 					$smcFunc[\'db_insert\'](\'ignore\',
-						"{db_prefix}log_search_subjects",
+						\'{db_prefix}log_search_subjects\',
 						array(\'word\' => \'string\', \'id_topic\' => \'int\'),
 						$inserts,
 						array(\'word\', \'id_topic\')
@@ -1140,11 +1157,11 @@ function loadForumTests()
 				'index' => 'id_topic',
 				'process' => create_function('$deleteTopics', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_search_subjects
-						WHERE id_topic IN ({array_int:deleteTopics})",
+						WHERE id_topic IN ({array_int:deleteTopics})\',
 						array(
-							\'deleteTopics\' => $deleteTopics
+							\'deleteTopics\' => $deleteTopics,
 						)
 					);
 				'),
@@ -1169,11 +1186,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_polls
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -1197,11 +1214,11 @@ function loadForumTests()
 				'index' => 'id_poll',
 				'process' => create_function('$polls', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_polls
-						WHERE id_poll IN ({array_int:polls})",
+						WHERE id_poll IN ({array_int:polls})\',
 						array(
-							\'polls\' => $polls
+							\'polls\' => $polls,
 						)
 					);
 				'),
@@ -1225,11 +1242,11 @@ function loadForumTests()
 				'index' => 'id_report',
 				'process' => create_function('$reports', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_reported
-						WHERE id_report IN ({array_int:reports})",
+						WHERE id_report IN ({array_int:reports})\',
 						array(
-							\'reports\' => $reports
+							\'reports\' => $reports,
 						)
 					);
 				'),
@@ -1253,11 +1270,11 @@ function loadForumTests()
 				'index' => 'id_report',
 				'process' => create_function('$reports', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_reported_comments
-						WHERE id_report IN ({array_int:reports})",
+						WHERE id_report IN ({array_int:reports})\',
 						array(
-							\'reports\' => $reports
+							\'reports\' => $reports,
 						)
 					);
 				'),
@@ -1282,11 +1299,11 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => create_function('$members', '
 					global $smcFunc;
-					$smcFunc[\'db_query\'](\'\', "
+					$smcFunc[\'db_query\'](\'\', \'
 						DELETE FROM {db_prefix}log_group_requests
-						WHERE id_member IN ({array_int:members})",
+						WHERE id_member IN ({array_int:members})\',
 						array(
-							\'members\' => $members
+							\'members\' => $members,
 						)
 					);
 				'),
@@ -1315,7 +1332,7 @@ function loadForumTests()
 						DELETE FROM {db_prefix}log_group_requests
 						WHERE id_group IN ({array_int:groups})\',
 						array(
-							\'groups\' => $groups
+							\'groups\' => $groups,
 						)
 					);
 				'),
