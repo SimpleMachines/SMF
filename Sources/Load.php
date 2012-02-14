@@ -1189,7 +1189,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 		foreach ($context['display_fields'] as $custom)
 		{
-			if (empty($custom['title']) || empty($profile['options'][$custom['colname']]))
+			if (!isset($custom['title']) || trim($custom['title']) == '' || empty($profile['options'][$custom['colname']]))
 				continue;
 
 			$value = $profile['options'][$custom['colname']];

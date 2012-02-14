@@ -1167,6 +1167,17 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 		)
 	);
 
+	// ...and the topics too!
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}topics as t, {db_prefix}messages as m
+		SET t.id_member_started = {int:memID}
+		WHERE m.id_member = {int:memID}
+			AND t.id_first_msg = m.id_msg',
+		array(
+			'memID' => $memID,
+		)
+	);
+
 	return $smcFunc['db_affected_rows']();
 }
 
