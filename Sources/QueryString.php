@@ -573,7 +573,7 @@ function JavaScriptEscape($string)
 		'</' => '<\' + \'/',
 		'script' => 'scri\'+\'pt',
 		'<a href' => '<a hr\'+\'ef',
-		$scripturl => 'smf_scripturl\' + \'',
+		$scripturl => '\' + smf_scripturl + \'',
 	)) . '\'';
 }
 
