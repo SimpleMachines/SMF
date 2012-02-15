@@ -1944,7 +1944,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (stripos($message, $possible['tag'], $pos + 1) !== $pos + 1)
 				continue;
 
-			$next_c = $message[$pos + 1 + strlen($possible['tag'])];
+			$next_c = substr($message, $pos + 1 + strlen($possible['tag']), 1);
 
 			// A test validation?
 			if (isset($possible['test']) && preg_match('~^' . $possible['test'] . '~', substr($message, $pos + 1 + strlen($possible['tag']) + 1)) == 0)
