@@ -16,20 +16,18 @@ $txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approva
 $txt['scheduled_approval_email_attach'] = 'The following attachments are awaiting approval:';
 $txt['scheduled_approval_email_event'] = 'The following events are awaiting approval:';
 
-$txt['emails'] = array(
-	'resend_activate_message' => array(
-		/*
-			@additional_params: resend_activate_message
-				REALNAME: The display name for the member receiving the email.
-				USERNAME:  The user name for the member receiving the email.
-				ACTIVATIONLINK:  The url link to activate the member's account.
-				ACTIVATIONCODE:  The code needed to activate the member's account.
-				ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
-				FORGOTPASSWORDLINK: The url to the "forgot password" page.
-			@description:
-		*/
-		'subject' => 'Welcome to {FORUMNAME}',
-		'body' => 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. If you forget your password, you can reset it by visiting {FORGOTPASSWORDLINK}.
+/**
+	@additional_params: resend_activate_message
+		REALNAME: The display name for the member receiving the email.
+		USERNAME:  The user name for the member receiving the email.
+		ACTIVATIONLINK:  The url link to activate the member's account.
+		ACTIVATIONCODE:  The code needed to activate the member's account.
+		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
+		FORGOTPASSWORDLINK: The url to the "forgot password" page.
+	@description:
+*/
+$txt['resend_activate_message_subject'] = 'Welcome to {FORUMNAME}';
+$txt['resend_activate_message_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. If you forget your password, you can reset it by visiting {FORGOTPASSWORDLINK}.
 
 Before you can login, you must first activate your account by selecting the following link:
 
@@ -37,39 +35,36 @@ Before you can login, you must first activate your account by selecting the foll
 
 Should you have any problems with the activation, please visit {ACTIVATIONLINKWITHOUTCODE} and enter the code "{ACTIVATIONCODE}".
 
-{REGARDS}',
-	),
+{REGARDS}';
 
-	'resend_pending_message' => array(
-		/*
-			@additional_params: resend_pending_message
-				REALNAME: The display name for the member receiving the email.
-				USERNAME:  The user name for the member receiving the email.
-			@description:
-		*/
-		'subject' => 'Welcome to {FORUMNAME}',
-		'body' => 'Your registration request at {FORUMNAME} has been received, {REALNAME}.
+/**
+	@additional_params: resend_pending_message
+		REALNAME: The display name for the member receiving the email.
+		USERNAME:  The user name for the member receiving the email.
+	@description:
+*/
+$txt['resend_pending_message_subject' => 'Welcome to {FORUMNAME}';
+$txt['resend_pending_message_body' => 'Your registration request at {FORUMNAME} has been received, {REALNAME}.
 
 The username you registered with was {USERNAME}.
 
 Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
 
-{REGARDS}',
-	),
-	'mc_group_approve' => array(
-		/*
-			@additional_params: mc_group_approve
-				USERNAME: The user name for the member receiving the email.
-				GROUPNAME: The name of the membergroup that the user was accepted into.
-			@description: The request to join a particular membergroup has been accepted.
-		*/
-		'subject' => 'Group Membership Approval',
-		'body' => '{USERNAME},
+{REGARDS}';
+
+/**
+	@additional_params: mc_group_approve
+		USERNAME: The user name for the member receiving the email.
+		GROUPNAME: The name of the membergroup that the user was accepted into.
+	@description: The request to join a particular membergroup has been accepted.
+*/
+$txt['mc_group_approve_subject' => 'Group Membership Approval';
+$txt['mc_group_approve_body' => '{USERNAME},
 
 We\'re pleased to notify you that your application to join the "{GROUPNAME}" group at {FORUMNAME} has been accepted, and your account has been updated to include this new membergroup.
 
-{REGARDS}',
-	),
+{REGARDS}';
+
 	'mc_group_reject' => array(
 		/*
 			@additional_params: mc_group_reject
