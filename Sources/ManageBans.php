@@ -364,7 +364,7 @@ function list_getNumBans()
  */
 function BanEdit()
 {
-	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc;
+	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc, $sourcedir;
 
 	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty($context['ban_errors']))
 		BanEdit2();
@@ -373,6 +373,7 @@ function BanEdit()
 
 	// Template needs this to show errors using javascript
 	loadLanguage('Errors');
+	createToken('admin-bet');
 
 	if (!empty($context['ban_errors']))
 	{
@@ -384,94 +385,108 @@ function BanEdit()
 		// If we're editing an existing ban, get it from the database.
 		if (!empty($ban_group_id))
 		{
-			$context['ban_items'] = array();
-			$request = $smcFunc['db_query']('', '
-				SELECT
-					bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
-					bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
-					bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
-					bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
-					IFNULL(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
-				FROM {db_prefix}ban_groups AS bg
-					LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
-				WHERE bg.id_ban_group = {int:current_ban}',
-				array(
-					'current_ban' => $ban_group_id,
-				)
+			$context['ban_group_id'] = $ban_group_id;
+
+			// We're going to want this for making our list.
+			require_once($sourcedir . '/Subs-List.php');
+
+			$listOptions = array(
+				'id' => 'ban_items',
+				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit',
+				'no_items_label' => $txt['ban_no_triggers'],
+				'get_items' => array(
+					'function' => 'list_getBanItems',
+					'params' => array(
+						'ban_group_id' => $ban_group_id,
+					),
+				),
+				'get_count' => array(
+					'function' => 'list_getNumBanItems',
+					'params' => array(
+						'ban_group_id' => $ban_group_id,
+					),
+				),
+				'columns' => array(
+					'type' => array(
+						'header' => array(
+							'value' => $txt['ban_banned_entity'],
+							'style' => 'width: 60%;text-align: left;',
+						),
+						'data' => array(
+							'function' => create_function('$ban_item', '
+								global $txt;
+
+								if (in_array($ban_item[\'type\'], array(\'ip\', \'hostname\', \'email\')))
+									return \'<strong>\' . $txt[$ban_item[\'type\']] . \':</strong>&nbsp;\' . $ban_item[$ban_item[\'type\']];
+								elseif ($ban_item[\'type\'] == \'user\')
+									return \'<strong>\' . $txt[\'username\'] . \':</strong>&nbsp;\' . $ban_item[\'user\'][\'link\'];
+								else
+									return \'<strong>\' . $txt[\'unknown\'] . \':</strong>&nbsp;\' . $ban_item[\'no_bantype_selected\'];
+							'),
+							'style' => 'text-align: left;',
+						),
+					),
+					'hits' => array(
+						'header' => array(
+							'value' => $txt['ban_hits'],
+							'style' => 'width: 15%; text-align: center;',
+						),
+						'data' => array(
+							'db' => 'hits',
+							'style' => 'text-align: center;',
+						),
+					),
+					'id' => array(
+						'header' => array(
+							'value' => $txt['ban_actions'],
+							'style' => 'width: 15%; text-align: center;',
+						),
+						'data' => array(
+							'function' => create_function('$ban_item', '
+								global $txt, $context, $scripturl;
+								
+								return \'<a href="\' . $scripturl . \'?action=admin;area=ban;sa=edittrigger;bg=\' . $context[\'ban\'][\'id\'] . \';bi=\' . $ban_item[\'id\'] . \'">\' . $txt[\'ban_edit_trigger\'] . \'</a>\';
+							'),
+							'style' => 'text-align: center;',
+						),
+					),
+					'checkboxes' => array(
+						'header' => array(
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check" />',
+							'style' => 'width: 5%; text-align: center;',
+						),
+						'data' => array(
+							'sprintf' => array(
+								'format' => '<input type="checkbox" name="ban_items[]" value="%1$d" class="input_check" />',
+								'params' => array(
+									'id' => false,
+								),
+							'style' => 'text-align: center;',
+							),
+						),
+					),
+				),
+				'form' => array(
+					'href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
+					'name' => 'standardProfileFields',
+				),
+				'additional_rows' => array(
+					array(
+						'position' => 'below_table_data',
+						'value' => '
+						[<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>] <input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button_submit" />',
+						'style' => 'text-align: right;',
+					),
+					array(
+						'position' => 'below_table_data',
+						'value' => '
+						<input type="hidden" name="bg" value="' . $ban_group_id . '" />
+						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '" />',
+					),
+				),
 			);
-			if ($smcFunc['db_num_rows']($request) == 0)
-				fatal_lang_error('ban_not_found', false);
-
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-			{
-				if (!isset($context['ban']))
-				{
-					$context['ban'] = array(
-						'id' => $row['id_ban_group'],
-						'name' => $row['name'],
-						'expiration' => array(
-							'status' => $row['expire_time'] === null ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'one_day'),
-							'days' => $row['expire_time'] > time() ? floor(($row['expire_time'] - time()) / 86400) : 0
-						),
-						'reason' => $row['reason'],
-						'notes' => $row['notes'],
-						'cannot' => array(
-							'access' => !empty($row['cannot_access']),
-							'post' => !empty($row['cannot_post']),
-							'register' => !empty($row['cannot_register']),
-							'login' => !empty($row['cannot_login']),
-						),
-						'is_new' => false,
-					);
-				}
-
-				if (!empty($row['id_ban']))
-				{
-					$context['ban_items'][$row['id_ban']] = array(
-						'id' => $row['id_ban'],
-						'hits' => $row['hits'],
-					);
-					if (!empty($row['ip_high1']))
-					{
-						$context['ban_items'][$row['id_ban']]['type'] = 'ip';
-						$context['ban_items'][$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
-					}
-					elseif (!empty($row['hostname']))
-					{
-						$context['ban_items'][$row['id_ban']]['type'] = 'hostname';
-						$context['ban_items'][$row['id_ban']]['hostname'] = str_replace('%', '*', $row['hostname']);
-					}
-					elseif (!empty($row['email_address']))
-					{
-						$context['ban_items'][$row['id_ban']]['type'] = 'email';
-						$context['ban_items'][$row['id_ban']]['email'] = str_replace('%', '*', $row['email_address']);
-					}
-					elseif (!empty($row['id_member']))
-					{
-						$context['ban_items'][$row['id_ban']]['type'] = 'user';
-						$context['ban_items'][$row['id_ban']]['user'] = array(
-							'id' => $row['id_member'],
-							'name' => $row['real_name'],
-							'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-							'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
-						);
-					}
-					// Invalid ban (member probably doesn't exist anymore).
-					else
-					{
-						unset($context['ban_items'][$row['id_ban']]);
-						$smcFunc['db_query']('', '
-							DELETE FROM {db_prefix}ban_items
-							WHERE id_ban = {int:current_ban}',
-							array(
-								'current_ban' => $row['id_ban'],
-							)
-						);
-					}
-				}
-			}
-			$smcFunc['db_free_result']($request);
+			createList($listOptions);
 		}
 		// Not an existing one, then it's probably a new one.
 		else
@@ -550,7 +565,122 @@ function BanEdit()
 	else
 		$context['sub_template'] = 'ban_edit';
 
-	createToken('admin-bet');
+}
+
+function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0)
+{
+	global $context, $smcFunc;
+
+	$ban_items = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT
+			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
+			bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
+			bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
+			bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, bg.cannot_access, bg.cannot_register, bg.cannot_login, bg.cannot_post,
+			IFNULL(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
+		FROM {db_prefix}ban_groups AS bg
+			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
+		WHERE bg.id_ban_group = {int:current_ban}',
+		array(
+			'current_ban' => $ban_group_id,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) == 0)
+		fatal_lang_error('ban_not_found', false);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!isset($context['ban']))
+		{
+			$context['ban'] = array(
+				'id' => $row['id_ban_group'],
+				'name' => $row['name'],
+				'expiration' => array(
+					'status' => $row['expire_time'] === null ? 'never' : ($row['expire_time'] < time() ? 'expired' : 'one_day'),
+					'days' => $row['expire_time'] > time() ? floor(($row['expire_time'] - time()) / 86400) : 0
+				),
+				'reason' => $row['reason'],
+				'notes' => $row['notes'],
+				'cannot' => array(
+					'access' => !empty($row['cannot_access']),
+					'post' => !empty($row['cannot_post']),
+					'register' => !empty($row['cannot_register']),
+					'login' => !empty($row['cannot_login']),
+				),
+				'is_new' => false,
+			);
+		}
+
+		if (!empty($row['id_ban']))
+		{
+			$ban_items[$row['id_ban']] = array(
+				'id' => $row['id_ban'],
+				'hits' => $row['hits'],
+			);
+			if (!empty($row['ip_high1']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'ip';
+				$ban_items[$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
+			}
+			elseif (!empty($row['hostname']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'hostname';
+				$ban_items[$row['id_ban']]['hostname'] = str_replace('%', '*', $row['hostname']);
+			}
+			elseif (!empty($row['email_address']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'email';
+				$ban_items[$row['id_ban']]['email'] = str_replace('%', '*', $row['email_address']);
+			}
+			elseif (!empty($row['id_member']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'user';
+				$ban_items[$row['id_ban']]['user'] = array(
+					'id' => $row['id_member'],
+					'name' => $row['real_name'],
+					'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+				);
+			}
+			// Invalid ban (member probably doesn't exist anymore).
+			else
+			{
+				unset($ban_items[$row['id_ban']]);
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}ban_items
+					WHERE id_ban = {int:current_ban}',
+					array(
+						'current_ban' => $row['id_ban'],
+					)
+				);
+			}
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $ban_items;
+}
+
+function list_getNumBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0)
+{
+	global $smcFunc;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(bi.id_ban)
+		FROM {db_prefix}ban_groups AS bg
+			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
+		WHERE bg.id_ban_group = {int:current_ban}',
+		array(
+			'current_ban' => $ban_group_id,
+		)
+	);
+	list($banNumber) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	return $banNumber;
 }
 
 function banLoadAdditionalIPs()
