@@ -16,7 +16,9 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-// This function works out what to do!
+/**
+ * This function works out what to do!
+ */
 function AutoTask()
 {
 	global $time_start, $modSettings, $smcFunc;
@@ -135,7 +137,9 @@ function AutoTask()
 	die("\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x21\xF9\x04\x01\x00\x00\x00\x00\x2C\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3B");
 }
 
-// Function to sending out approval notices to moderators etc.
+/**
+ * Function to sending out approval notices to moderators etc.
+ */
 function scheduled_approval_notification()
 {
 	global $scripturl, $modSettings, $mbname, $txt, $sourcedir, $smcFunc;
@@ -349,7 +353,9 @@ function scheduled_approval_notification()
 	return true;
 }
 
-// Do some daily cleaning up.
+/**
+ * Do some daily cleaning up.
+ */
 function scheduled_daily_maintenance()
 {
 	global $smcFunc, $modSettings, $sourcedir, $db_type;
@@ -464,7 +470,9 @@ function scheduled_daily_maintenance()
 	return true;
 }
 
-// Auto optimize the database?
+/**
+ * Auto optimize the database?
+ */
 function scheduled_auto_optimize()
 {
 	global $modSettings, $smcFunc, $db_prefix, $db_type;
@@ -819,7 +827,9 @@ function scheduled_daily_digest()
 	return true;
 }
 
-// Like the daily stuff - just seven times less regular ;)
+/**
+ * Like the daily stuff - just seven times less regular ;)
+ */
 function scheduled_weekly_digest()
 {
 	global $is_weekly;
@@ -829,7 +839,9 @@ function scheduled_weekly_digest()
 	return scheduled_daily_digest();
 }
 
-// Send a bunch of emails from the mail queue.
+/**
+ * Send a bunch of emails from the mail queue.
+ */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
 	global $modSettings, $smcFunc, $sourcedir;
@@ -1027,7 +1039,9 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	return true;
 }
 
-// Calculate the next time the passed tasks should be triggered.
+/**
+ * Calculate the next time the passed tasks should be triggered.
+ */
 function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 {
 	global $modSettings, $smcFunc;
@@ -1091,7 +1105,9 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 		updateSettings(array('next_task_time' => $nextTaskTime));
 }
 
-// Simply returns a time stamp of the next instance of these time parameters.
+/**
+ * Simply returns a time stamp of the next instance of these time parameters.
+ */
 function next_time($regularity, $unit, $offset)
 {
 	// Just in case!
@@ -1154,7 +1170,9 @@ function next_time($regularity, $unit, $offset)
 	return $next_time;
 }
 
-// This loads the bare minimum data to allow us to load language files!
+/**
+ * This loads the bare minimum data to allow us to load language files!
+ */
 function loadEssentialThemeData()
 {
 	global $settings, $modSettings, $smcFunc, $mbname, $context, $sourcedir;
@@ -1207,6 +1225,9 @@ function loadEssentialThemeData()
 	loadLanguage('index+Modifications');
 }
 
+/**
+ * This retieves data (e.g. last version of SMF) from sm.org
+ */
 function scheduled_fetchSMfiles()
 {
 	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc;
@@ -1269,6 +1290,9 @@ function scheduled_fetchSMfiles()
 	return true;
 }
 
+/**
+ * Happy birthday!!
+ */
 function scheduled_birthdayemails()
 {
 	global $modSettings, $sourcedir, $mbname, $txt, $smcFunc, $birthdayEmails;
@@ -1346,6 +1370,9 @@ function scheduled_birthdayemails()
 	return true;
 }
 
+/**
+ * Weekly maintenance
+ */
 function scheduled_weekly_maintenance()
 {
 	global $modSettings, $smcFunc;
@@ -1529,7 +1556,9 @@ function scheduled_weekly_maintenance()
 	return true;
 }
 
-// Perform the standard checks on expiring/near expiring subscriptions.
+/**
+ * Perform the standard checks on expiring/near expiring subscriptions.
+ */
 function scheduled_paid_subscriptions()
 {
 	global $txt, $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
