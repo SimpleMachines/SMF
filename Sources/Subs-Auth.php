@@ -99,7 +99,6 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		session_regenerate_id();
 		$_SESSION = $oldSessionData;
 
-<<<<<<< HEAD
 		// Make sure to store the cookie of the new session.
 		if (!isset($_COOKIE[session_name()]) || $_COOKIE[session_name()] != session_id())
 		{
@@ -107,8 +106,6 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			smf_setcookie(session_name(), session_id(), time() + (empty($sessionCookieLifetime) ? $cookie_length : $sessionCookieLifetime), $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
 		}
 
-=======
->>>>>>> parent of 2307761... ! Part of cookie check was removed with php < 5 edits [4506]
 		$_SESSION['login_' . $cookiename] = $data;
 	}
 }
