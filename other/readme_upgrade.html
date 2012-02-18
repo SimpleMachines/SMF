@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>SMF 2.0 Upgrade Guide</title>
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?fin20" />
+		<style type="text/css">
+			#upper_section .user
+			{
+				height: 4em;
+			}
+			#upper_section .news
+			{
+				height: 80px;
+			}
+			#main_screen
+			{
+				padding: 0 40px;
+			}
+			#main_screen h2
+			{
+				font-size: 2em;
+				border-bottom: solid 1px #d05800;
+				line-height: 2em;
+				margin: 0 0 0.5em 0;
+				color: #d05800;
+			}
+			#content_section
+			{
+				position: relative;
+				top: -20px;
+			}
+			#main_content_section .panel
+			{
+				padding: 1em 2em 1em 1em;
+				line-height: 1.6em;
+			}
+			#main_content_section h2
+			{
+				font-size: 1.5em;
+				border-bottom: solid 1px #d05800;
+				line-height: 1.5em;
+				margin: 0 2em 0.5em 0;
+				color: #d05800;
+			}
+			#main_content_section li
+			{
+				line-height: 1.6em;
+				font-weight: bold;
+			}
+			#main_content_section li li
+			{
+				font-weight: normal;
+				line-height: 1.6em;
+			}
+			#liftup
+			{
+				position: relative;
+				top: -70px;
+			}
+			#footer_section
+			{
+				position: relative;
+				top: -20px;
+			}
+			#footer_section
+			{
+				position: relative;
+				top: -20px;
+			}
+			tt
+			{
+				font-family: verdana, sans-serif;
+				letter-spacing: 1px;
+				font-weight: bold;
+				font-size: 90%;
+				font-style: italic;
+			}
+			dt {
+				font-weight: bold;
+				margin-bottom: .1em;
+			}
+			dl {
+				margin-top: .2em;
+				margin-left: 2em;
+				margin-bottom: .5em;
+			}
+			dd {
+				line-height: 1.5em;
+				margin-left: 2em;
+				margin-bottom: .1em;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="header"><div class="frame">
+			<div id="top_section">
+				<h1 class="forumtitle">SMF 2.0 Upgrade Guide</h1>
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+			</div>
+			<div id="upper_section" class="middletext" style="overflow: hidden;">
+				<div class="user"></div>
+				<div class="news normaltext">
+				</div>
+			</div>
+		</div></div>
+		<div id="content_section"><div class="frame">
+			<div id="main_content_section">
+				<div id="liftup">
+					<div class="panel">
+						<h2 id="contents">Upgrading your forum</h2>
+						<p>Thank you for deciding to upgrade to <a href="http://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="http://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
+						<p>You can find the following information in this file:</p>
+						<ul style="list-style-type: none;">
+							<li>&raquo; <a href="#requirements">Minimum installation requirements</a></li>
+							<li>&raquo; <a href="#backups">Backing up data</a></li>
+							<li>&raquo; <a href="#uploadingftp">Upload files method 1: using FTP</a></li>
+							<li>&raquo; <a href="#Set_File_Permissions">Set file permissions</a></li>
+							<li>&raquo; <a href="#Run_the_upgrading_tool">Run the upgrading tool</a></li>
+							<li>&raquo; <a href="#webinstall">Upload files method 2: using webinstall.php</a></li>
+							<li>&raquo; <a href="#finishing">Finishing the upgrade and cleaning up</a></li>
+						</ul>
+					</div>
+					<div class="panel">
+						<h2 id="requirements">Minimum installation requirements</h2>
+						<p>Your server must meet a few requirements to be able to run SMF.  If you are unsure as to whether your webserver meets these, please try to upgrade anyway - it should detect any problems.</p>
+						<ul>
+							<li>Any webserver that properly supports PHP, such as <a href="http://httpd.apache.org/" target="_blank">Apache</a> or <a href="http://www.microsoft.com/iis" target="_blank">Internet Information Services (IIS)</a>.</li>
+							<li>
+								<a href="http://www.php.net" target="_blank">PHP</a> 4.1.0 or higher.  The following directives are required to be set correctly in php.ini:
+								<ul>
+									<li>the engine directive must be On.</li>
+									<li>the <a href="http://www.php.net/sybase#ini.magic-quotes-sybase" target="_blank">magic_quotes_sybase</a> directive must be set to Off.</li>
+									<li>the <a href="http://www.php.net/session#ini.session.save-path" target="_blank">session.save_path</a> directive must be set to a valid directory.</li>
+									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.file-uploads" target="_blank">file_uploads</a> directive must be On.</li>
+									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.upload-tmp-dir" target="_blank">upload_tmp_dir</a> must be set to a valid directory.</li>
+								</ul>
+							</li>
+							<li>Any of the following database systems
+								<ul>
+									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 4.0.18 or higher.</li>
+									<li><a href="http://www.postgresql.org/" target="_blank">PostgreSQL</a> 8.0 or higher.</li>
+									<li><a href="http://www.sqlite.org/" target="_blank">SQLite</a> 1.x - 2.x.</li>
+								</ul>
+							</li>
+							<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
+							<li>The database user must have at least the following privileges: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX.</li>
+							<li>about 20 megabytes of storage space on the web server, although more is recommended.</li>
+						</ul>
+						<p>Recommendations for best performance:</p>
+						<ul>
+							<li>Windows, <a href="http://www.linux.org/" target="_blank">Linux</a> or another Unix based operating system.</li>
+							<li>the <a href="http://aspell.sf.net/" target="_blank">GNU Aspell</a> 0.50 or higher and <a href="http://ftp.gnu.org/gnu/aspell/dict/" target="_blank">its dictionaries</a> for spell checking functionality.</li>
+							<li><a href="http://httpd.apache.org/" target="_blank">Apache</a> 2.0.0 or higher with <a href="http://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
+							<li>
+								<a href="http://www.php.net" target="_blank">PHP</a> 5.2.0 or higher, with the following set in php.ini:
+								<ul>
+									<li>the <a href="http://www.php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank">max_input_time</a> directive is set to a value of at least 30.</li>
+									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank">post_max_size</a> and <a href="http://www.php.net/configuration.directives#ini.upload-max-filesize" target="_blank">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
+									<li>the <a href="http://www.php.net/session#ini.session.use-trans-sid" target="_blank">session.use_trans_sid</a> directive set to Off.</li>
+									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.memory-limit" target="_blank">memory_limit</a> directive is set to at least 8M.</li>
+									<li>the <a href="http://www.php.net/manual/en/info.configuration.php#ini.max-execution-time" target="_blank">max_execution_time</a> directive is set to at least 15.</li>
+									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.register-globals" target="_blank">register_globals</a> directive is set to Off.</li>
+									<li>the <a href="http://www.php.net/manual/en/features.safe-mode.php" target="_blank">safe mode</a> disabled or <a href="http://httpd.apache.org/docs/2.0/suexec.html" target="_blank">suEXEC</a> ensabled.</li>
+									<li>the <a href="http://www.php.net/manual/en/book.bc.php" target="_blank">BCMath</a> library enabled for using the <a href="/smf/Registration#Settings" title="Registration">OpenID</a> registration method.</li>
+								</ul>
+							</li>
+							<li>Any of the following database systems
+								<ul>
+									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 5.0 or higher.</li>
+									<li><a href="http://www.postgresql.org/" target="_blank">PostgreSQL</a> 8.3.3 or higher.</li>
+									<li><a href="http://www.sqlite.org/" target="_blank">SQLite</a> 2.8.</li>
+								</ul>
+							</li>
+							<li><a href="http://www.boutell.com/gd/" target="_blank">GD Graphics Library</a> 2.0 or higher.</li>
+						</ul>
+						<p>If your server does not meet these requirements, SMF may not work properly.</p>
+					</div>
+					<div class="panel">
+						<h2 id="backups">Backing up data</h2>
+						<p>Before starting the upgrade process, a backup of the live database should be taken. This protects the forum from accidental damage and any issues from upgrading. Although all steps are taken, and extensive testing carried out, sometimes issues develop. Therefore, having a backup is crucial. The upgrading tool can backup all database tables before it runs, however the best practice is to have a full backup available. </p>
+						<h3>Back up a database using SMF</h3>
+						<p>From SMF, navigate to Forum Maintenance. (Administration Center -&gt; Maintenance -&gt; Forum Maintenance) On the database section, save the data and the structure. Then, compress the file. Select &quot;Download&quot; and wait for the database to complete the download completely. It is recommended if you use this method to verify that the backup is complete by opening the file and checking the last line. If the file is not complete and has an error please try one of the other methods to backup your database.</p>
+						<h3>Back up a database using PHPMyAdmin</h3>
+						<p>PHPMyAdmin gives the option to export a database, from the initial page, select the &quot;Export&quot; option and follow the instructions. Select your SMF database. These are different based on host. </p>
+						<h3>Back up a database using a control panel</h3>
+						<p>If your hosting service provides a control panel interface, this can be used to back up a database. Selecting the &quot;Backups&quot; or &quot;Backups Wizard&quot; options should take you to a page, prompting you to back up your database. With different hosts, these options may have different titles. </p>
+					</div>
+					<div class="panel">
+						<h2 id="uploadingftp">Upload files method 1: using FTP</h2>
+						<p>If your server doesn't support webinstall.php than you can use an FTP client and an FTP access to upload the files to your server.</p>
+						<p>All you need to do is upload all of the files in this package, excluding this file itself, to your server.  You should upload it to the same directory as your previous installation of SMF or YaBB SE. If you are given the option to &quot;resume&quot; uploads, make sure you do not do that - you must upload all of the files.  You may wish to make sure that all of the files were uploaded, such as those in <tt>Themes/default/languages</tt>, because some FTP clients have been known to drop files.</p>
+						<h3>Language files</h3>
+						<p>If you are using additional languages it will be useful to upload also the updated versions of the language files along with the upgrading packages. Doing so all updated text strings will appear correctly after the upgrade, and will allow the upgrade to run in your selected language.</p>
+					</div>
+					<div class="panel">
+						<h2 id="Set_File_Permissions">Set file permissions</h2>
+						<p>After the upgrade archive has been uploaded and extracted, you need to set the files' permissions. This is commonly done by use of the Unix utility <b>CHMOD</b>. The correct CHMOD value for SMF files is either 777, 775 or 755, depending on your hosting service. There are two methods for this step, the method used depends on the hosting service that you use.</p>
+						<h3>Setting File Permissions With the Upgrader</h3>
+						<p>The SMF upgrader can set file permissions simply and easily. Navigating to the directory where SMF is located should redirect you to the upgrade.php file and prompt the upgrader. For example: www.yourdomain.com/forum/upgrade.php. If the upgrader detects files that need their permissions adjusted it will prompt for FTP details so it can <b>CHMOD</b> the files it requires for the upgrade. This may not work on some servers.
+						</p>
+						<h3>Setting File Permissions With FTP</h3>
+						<p>Using a control panel or FTP client, file permissions can be changed quickly and easily. Usually, FTP programs will allow permissions to be changed by right-clicking files/directories and selecting &quot;Properties&quot;, &quot;Attributes&quot; or &quot;Permissions&quot;. The desired numerical value can be entered, or if provided, check boxes can be changed.</p>
+						<p>The following files and directories must be writable. Depending on how your server is set up, this could mean that they must have <b>CHMOD</b> values of 644, 664 or 666 for files, and 755, 775 or 777 for folders:</p>
+						<ul><li>/attachments
+						</li><li>/avatars
+						</li><li>/Packages
+						</li><li>/Packages/installed.list
+						</li><li>/Smileys
+						</li><li>/Themes
+						</li><li>agreement.txt
+						</li><li>Settings.php
+						</li><li>Settings_bak.php
+						</li><li>upgrade.php
+						</li></ul>
+						<p>If the permission on your files or folders does not make them writable, the SMF upgrader will report the problem. In that case, use your FTP client or host panel to reset the permissions for the files or folders the upgrader reports.</p>
+					</div>
+					<div class="panel">
+						<h2 id="Run_the_upgrading_tool">Run the upgrading tool</h2>
+						<p>The final step in upgrading SMF, is to run the upgrading tool. Navigate to the directory where SMF is located. It should redirect you to the upgrade.php file and prompt you to run the upgrade. In example: www.yourdomain.com/forum/upgrade.php. </p>
+						<p>The first page you see may request your FTP information.  If you see this screen, it is because the installer found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the installer can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the installer will not save your FTP password anywhere.</p>
+						<h3>Upgrade settings</h3>
+						<dl>
+							<dt>Backup database with the prefix "backup_"</dt>
+							<dd>Selecting this option will get the upgrade tool to copy all data in the database before upgrading within the original database.</dd>
+							<dt>Maintenance Mode</dt>
+							<dd>Selecting this option will place the forum into maintenance mode while upgrading rather than showing errors, this is highly recommended.</dd>
+							<dt>Output extra debugging information.</dt>
+							<dd>The upgrade tool can give detailed information while performing an upgrade by selecting this option, it will aid the support team to solve any errors if they occur while upgrading.</dd>
+						</dl>
+					</div>
+					<div class="panel">
+						<h2 id="webinstall">Upload files method 2: using webinstall.php</h2>
+						<p>Your server may support webinstall.php. This script will automatically download SMF to your server. This may not work on all servers and also may require providing it with FTP details.</p>
+						<p>The first thing you need to do is upload webinstall.php to the location of where SMF is to exist on your server.</p>
+						<p>After you have finished uploading the file, point your browser to http://www.yourdomain.tld/forum/webinstall.php - where www.yourdomain.tld/forum is the URL to where you uploaded it.  You should then see the webinstall interface.</p>
+						<p>The first page you see may request your FTP information.  If you see this screen, it is because the webinstaller found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the webinstaller can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the webinstaller will not save your FTP password anywhere.</p>
+						<p>On the webinstall interface you have an option to login, this is useful for charter members to easily download early releases. You may have an option to select multiple versions of SMF to download. It is up to you to decide which version of SMF you wish to install. Additionally you may have options of additional languages to download.</p>
+						<p>After specifying these options and agreeing to the agreement, webinstall will attempt to download al SMF files and decompress them in the same folder as webinstall.php. If successful you will be prompted to the SMF upgrade screen. If this fails you will need to follow the process below to upload files.</p>
+						<p>In most cases, you'll want to have &quot;Put the forum into maintenance mode during upgrade.&quot; checked, because it will ensure that nothing is messed with while the upgrader is working.  You may also wish to check &quot;Backup tables in your database...&quot;, which will make a backup of your old information and tables before making any changes in the database.</p>
+					</div>
+					<div class="panel">
+						<h2 id="finishing">Finishing the upgrade and cleaning up</h2>
+						<p>Once all parts of the upgrade have completed, check the box to remove the upgrade files from the server. If this does not work, they will need to be deleted via FTP. All upgrade files should be removed from the server once the upgrade process is complete. These files are upgrade.php and the .sql files whose name starts with 'upgrade'. They are a major security risk if they are left on a server unattended. Once SMF has been upgraded, they are no longer needed.</p>
+						<p>Good luck!<br />
+						Simple Machines</p>
+					</div>
+				</div>
+			</div>
+		</div></div>
+		<div id="footer_section"><div class="frame">
+			<div class="smalltext"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</div>
+			<div class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></div>
+		</div></div>
+	</body>
+</html>
