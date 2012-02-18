@@ -1096,7 +1096,7 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 {
 	global $modSettings, $user_info;
 
-	// Should this users email address be shown?
+	// Should this user's email address be shown?
 	// If you're guest and the forum is set to hide email for guests: no.
 	// If the user is post-banned: no.
 	// If it's your own profile and you've set your address hidden: yes_permission_override.
@@ -1105,8 +1105,16 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 	// If the forum is set to show full email addresses: yes.
 	// Otherwise: no_through_forum.
 
-	// @todo this is really hard to understand using the ternary operator. Change to regular if/switch syntax.
-	return (!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']) ? 'no' : ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum') ? 'yes_permission_override' : ($userProfile_hideEmail ? 'no' : (!empty($modSettings['make_email_viewable']) ? 'yes' : 'no_through_forum')));
+	if ((!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']))
+		return 'no';
+	elseif ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum'))
+		return 'yes_permission_override';
+	elseif ($userProfile_hideEmail)
+		return 'no';
+	elseif (!empty($modSettings['make_email_viewable']) )
+		return 'yes';
+	else
+		return 'no_through_forum';
 }
 
 /**
