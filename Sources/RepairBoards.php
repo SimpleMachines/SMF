@@ -282,15 +282,16 @@ function loadForumTests()
 					array(\'id_topic\')
 				);
 
-				$newTopicID = $smcFunc[\'db_insert_id\']("{db_prefix}topics", \'id_topic\');
+				$newTopicID = $smcFunc[\'db_insert_id\'](\'{db_prefix}topics\', \'id_topic\');
 
 				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}messages
-					SET id_topic = $newTopicID, id_board = {int:board_id}
+				SET id_topic = {int:newTopicID}, id_board = {int:board_id}
 					WHERE id_topic = {int:topic_id}\',
 					array(
 						\'board_id\' => $row[\'id_board\'],
 						\'topic_id\' => $row[\'id_topic\'],
+						\'newTopicID\' => $newTopicID,
 					)
 				);
 				'),
@@ -418,14 +419,15 @@ function loadForumTests()
 					array(\'id_topic\')
 				);
 
-				$newTopicID = $smcFunc[\'db_insert_id\']("{db_prefix}topics", \'id_topic\');
+				$newTopicID = $smcFunc[\'db_insert_id\'](\'{db_prefix}topics\', \'id_topic\');
 
 				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}messages
-					SET id_topic = $newTopicID, id_board = {int:id_board}
+				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 					WHERE id_msg = $newMessageID\',
 					array(
 						\'id_board\' => $row[\'id_board\'],
+						\'newTopicID\' => $newTopicID,
 					)
 				);
 
@@ -637,7 +639,7 @@ function loadForumTests()
 				$smcFunc[\'db_query\'](\'\', \'
 					UPDATE {db_prefix}messages
 					SET id_board = {int:newBoardID}
-					WHERE id_board = {int:board_id}",
+					WHERE id_board = {int:board_id}\',
 					array(
 						\'newBoardID\' => $newBoardID,
 						\'board_id\' => $row[\'id_board\'],
@@ -723,7 +725,7 @@ function loadForumTests()
 					$smcFunc[\'db_query\'](\'\', \'
 						UPDATE {db_prefix}boards
 						SET id_parent = {int:salvageBoardID}, id_cat = {int:salvageCatID}, child_level = 1
-						WHERE id_parent IN ({array_int:parents})",
+						WHERE id_parent IN ({array_int:parents})\',
 						array(
 							\'salvageBoardID\' => $salvageBoardID,
 							\'salvageCatID\' => $salvageCatID,
