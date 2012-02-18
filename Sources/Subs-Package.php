@@ -427,7 +427,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $boarddir, $sourcedir;
+	global $boarddir, $sourcedir, $smcFunc;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false)
@@ -462,6 +462,7 @@ function getPackageInfo($gzfilename)
 	$package = $packageInfo->to_array();
 	$package['xml'] = $packageInfo;
 	$package['filename'] = $gzfilename;
+	$package['name'] = $smcFunc['htmlspecialchars']($package['name']);
 
 	if (!isset($package['type']))
 		$package['type'] = 'modification';
