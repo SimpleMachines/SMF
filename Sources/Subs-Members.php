@@ -1099,7 +1099,7 @@ function membersAllowedTo($permission, $board_id = null)
  * @param string $email = false
  * @param string $membername = false
  * @param bool $post_count = false
- * @return the number of successful reattributed posts.
+ * @return nothing
  */
 function reattributePosts($memID, $email = false, $membername = false, $post_count = false)
 {
@@ -1177,8 +1177,6 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 			'memID' => $memID,
 		)
 	);
-
-	return $smcFunc['db_affected_rows']();
 }
 
 /**

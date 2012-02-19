@@ -343,10 +343,17 @@ function ModifyCacheSettings($return_config = false)
 		saveDBSettings($config_vars);
 
 		// We have to manually force the clearing of the cache otherwise the changed settings might not get noticed.
+		$cache_enable = $modSettings['cache_enable'];
 		$modSettings['cache_enable'] = 1;
 		cache_put_data('modSettings', null, 90);
+		$modSettings['cache_enable'] = $cache_enable;
 
-		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
+		if ($modSettings['cache_enable'] == 0)
+		{
+			loadLanguage('ManageMaintenance');
+			createToken('admin-maint');
+			$context['template_layers'][] = 'clean_cache_button';
+		}
 	}
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
