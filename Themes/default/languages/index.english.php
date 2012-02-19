@@ -285,6 +285,8 @@ $txt['www'] = 'WWW';
 $txt['by'] = 'by';
 
 $txt['hours'] = 'hours';
+// Used upper case in Paid subscriptions management
+$txt['hour'] = 'Hour';
 $txt['days_word'] = 'days';
 
 $txt['newest_member'] = ', our newest member.';

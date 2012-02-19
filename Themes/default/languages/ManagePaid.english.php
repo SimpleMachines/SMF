@@ -145,7 +145,6 @@ $txt['start_date_and_time'] = 'Start Date and Time';
 $txt['end_date_and_time'] = 'End Date and Time';
 $txt['edit'] = 'EDIT';
 $txt['one_username'] = 'Please enter one username only.';
-$txt['hour'] = 'Hour';
 $txt['minute'] = 'Minute';
 $txt['error_member_not_found'] = 'The member entered could not be found';
 $txt['member_already_subscribed'] = 'This member is already subscribed to this subscription. Please edit their existing subscription.';
