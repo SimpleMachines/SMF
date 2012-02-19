@@ -127,6 +127,7 @@ $txt['package_uninstall_done'] = 'The package has been uninstalled, it should no
 $txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller!<br /><br />Please contact the mod author for more information.';
 
 $txt['package_install_options'] = 'Installation Options';
+$txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and ftp access';
 $txt['package_install_options_ftp_why'] = 'Using the package manager\'s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br />Here you can set the default values for some fields.';
 $txt['package_install_options_ftp_server'] = 'FTP Server';
 $txt['package_install_options_ftp_port'] = 'Port';
