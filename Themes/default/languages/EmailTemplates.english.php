@@ -9,7 +9,7 @@
 
 // Do not use block comments in this file, they will have special meaning.
 
-global $context, $birthdayEmails;
+global $context, $txtBirthdayEmails;
 
 $txt['scheduled_approval_email_topic'] = 'The following topics are awaiting approval:';
 $txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approval:';
@@ -928,16 +928,16 @@ The following error occurred when processing a paid subscription
 	@description: A message sent to members on their birthday.
 */
 
-$birthdayEmails['happy_birthday_subject'] = 'Happy birthday from {FORUMNAME}.';
-$birthdayEmails['happy_birthday_body'] = 'Dear {REALNAME},
+$txtBirthdayEmails['happy_birthday_subject'] = 'Happy birthday from {FORUMNAME}.';
+$txtBirthdayEmails['happy_birthday_body'] = 'Dear {REALNAME},
 
 We here at {FORUMNAME} would like to wish you a happy birthday.  May this day and the year to follow be full of joy.
 
 {REGARDS}';
-$birthdayEmails['happy_birthday_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=2676">Thantos</a>';
+$txtBirthdayEmails['happy_birthday_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=2676">Thantos</a>';
 
-$birthdayEmails['karlbenson1_subject'] = 'On your Birthday...';
-$birthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card.  We could have sent you some flowers or a cake.
+$txtBirthdayEmails['karlbenson1_subject'] = 'On your Birthday...';
+$txtBirthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card.  We could have sent you some flowers or a cake.
 
 But we didn\'t.
 
@@ -952,27 +952,27 @@ We would like to wish you a very special birthday.
 {REGARDS}
 
 //:: This message was automatically generated :://';
-$birthdayEmails['karlbenson1_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=63186">karlbenson</a>';
+$txtBirthdayEmails['karlbenson1_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=63186">karlbenson</a>';
 
-$birthdayEmails['nite0859_subject'] = 'Happy Birthday!';
-$birthdayEmails['nite0859_body'] = 'Your friends at {FORUMNAME} would like to take a moment of your time to wish you a happy birthday, {REALNAME}. If you have not done so recently, please visit our community in order for others to have the opportunity to pass along their warm regards.
+$txtBirthdayEmails['nite0859_subject'] = 'Happy Birthday!';
+$txtBirthdayEmails['nite0859_body'] = 'Your friends at {FORUMNAME} would like to take a moment of your time to wish you a happy birthday, {REALNAME}. If you have not done so recently, please visit our community in order for others to have the opportunity to pass along their warm regards.
 
 Even though today is your birthday, {REALNAME}, we would like to remind you that your membership in our community has been the best gift to us thus far.
 
 Best Wishes,
 The Staff of {FORUMNAME}';
-$birthdayEmails['nite0859_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=46625">nite0859</a>';
+$txtBirthdayEmails['nite0859_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=46625">nite0859</a>';
 
-$birthdayEmails['zwaldowski_subject'] = 'Birthday Wishes to {REALNAME}';
-$birthdayEmails['zwaldowski_body'] = 'Dear {REALNAME},
+$txtBirthdayEmails['zwaldowski_subject'] = 'Birthday Wishes to {REALNAME}';
+$txtBirthdayEmails['zwaldowski_body'] = 'Dear {REALNAME},
 
 Another year in your life has passed.  We at {FORUMNAME} hope it has been filled with happiness, and wish you luck in the coming one.
 
 {REGARDS}';
-$birthdayEmails['zwaldowski_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=72038">zwaldowski</a>';
+$txtBirthdayEmails['zwaldowski_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=72038">zwaldowski</a>';
 
-$birthdayEmails['geezmo_subject'] = 'Happy birthday, {REALNAME}!';
-$birthdayEmails['geezmo_body'] = 'Do you know who\'s having a birthday today, {REALNAME}?
+$txtBirthdayEmails['geezmo_subject'] = 'Happy birthday, {REALNAME}!';
+$txtBirthdayEmails['geezmo_body'] = 'Do you know who\'s having a birthday today, {REALNAME}?
 
 We know... YOU!
 
@@ -983,14 +983,14 @@ You\'re now a year older but we hope you\'re a lot happier than last year.
 Enjoy your day today, {REALNAME}!
 
 - From your {FORUMNAME} family';
-$birthdayEmails['geezmo_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=48671">geezmo</a>';
+$txtBirthdayEmails['geezmo_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=48671">geezmo</a>';
 
-$birthdayEmails['karlbenson2_subject'] = 'Your Birthday Greeting';
-$birthdayEmails['karlbenson2_body'] = 'We hope your birthday is the best ever cloudy, sunny or whatever the weather.
+$txtBirthdayEmails['karlbenson2_subject'] = 'Your Birthday Greeting';
+$txtBirthdayEmails['karlbenson2_body'] = 'We hope your birthday is the best ever cloudy, sunny or whatever the weather.
 Have lots of birthday cake and fun, and tell us what you have done.
 
 We hope this message brought you cheer, and make it last, until same time same place, next year.
 
 {REGARDS}';
-$birthdayEmails['karlbenson2_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=63186">karlbenson</a>';
+$txtBirthdayEmails['karlbenson2_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=63186">karlbenson</a>';
 ?>
