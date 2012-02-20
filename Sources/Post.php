@@ -1039,8 +1039,8 @@ function Post()
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'],
 			'name' => $form_subject,
-			'extra_before' => '<span' . ($settings['linktree_inline'] ? ' class="smalltext"' : '') . '><strong class="nav">' . $context['page_title'] . ' ( </strong></span>',
-			'extra_after' => '<span' . ($settings['linktree_inline'] ? ' class="smalltext"' : '') . '><strong class="nav"> )</strong></span>'
+			'extra_before' => '<span><strong class="nav">' . $context['page_title'] . ' ( </strong></span>',
+			'extra_after' => '<span><strong class="nav"> )</strong></span>'
 		);
 
 	// Give wireless a linktree url to the post screen, so that they can switch to full version.
