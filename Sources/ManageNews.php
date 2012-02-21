@@ -85,7 +85,7 @@ function ManageNews()
  */
 function EditNews()
 {
-	global $txt, $modSettings, $context, $sourcedir, $user_info;
+	global $txt, $modSettings, $context, $sourcedir, $user_info, $scripturl;
 	global $smcFunc;
 
 	require_once($sourcedir . '/Subs-Post.php');
@@ -131,16 +131,117 @@ function EditNews()
 		logAction('news');
 	}
 
+	// We're going to want this for making our list.
+	require_once($sourcedir . '/Subs-List.php');
+
+	$context['page_title'] = $txt['admin_edit_news'];
+
+	// Use the standard templates for showing this.
+	$listOptions = array(
+		'id' => 'news_lists',
+//		'title' => $txt['admin_edit_news'],
+		'get_items' => array(
+			'function' => 'list_getNews',
+		),
+		'columns' => array(
+			'news' => array(
+				'header' => array(
+					'value' => $txt['admin_edit_news'],
+				),
+				'data' => array(
+					'function' => create_function('$news', '
+
+						if (is_numeric($news[\'id\']))
+							return \'<textarea rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width: 85%\') . \';">\' . $news[\'unparsed\'] . \'</textarea>\';
+						else
+							return $news[\'unparsed\'];
+					'),
+					'style' => 'width: 50%;',
+				),
+			),
+			'preview' => array(
+				'header' => array(
+					'value' => $txt['preview'],
+				),
+				'data' => array(
+					'function' => create_function('$news', '
+
+						return \'<div style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
+					'),
+					'style' => 'width: 45%;',
+				),
+			),
+			'check' => array(
+				'header' => array(
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+				),
+				'data' => array(
+					'function' => create_function('$news', '
+
+						if (is_numeric($news[\'id\']))
+							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check" />\';
+						else
+							return \'\';
+					'),
+					'style' => 'text-align: center',
+				),
+			),
+		),
+		'form' => array(
+			'href' => $scripturl . '?action=admin;area=news;sa=editnews',
+			'hidden_fields' => array(
+				$context['session_var'] => $context['session_id'],
+			),
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'bottom_of_list',
+				'value' => '
+				<span id="moreNewsItems_link" style="display: none;">[<a href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>]</span>
+				<script type="text/javascript"><!-- // --><![CDATA[
+					document.getElementById(\'list_news_lists_last\').style.display = "none";
+					document.getElementById("moreNewsItems_link").style.display = "";
+					function addNewsItem()
+					{
+						document.getElementById("list_news_lists_last").style.display = "";
+						setOuterHTML(document.getElementById("moreNewsItems"), \'<div style="margin-bottom: 2ex;"><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"><\' + \'/textarea><\' + \'/div><div id="moreNewsItems"><\' + \'/div>\');
+					}
+				// ]]></script>
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" /> <input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
+				'align' => 'right',
+			),
+		),
+	);
+
+	// Create the request list.
+	createList($listOptions);
+
+	$context['sub_template'] = 'show_list';
+	$context['default_list'] = 'news_lists';
+}
+
+function list_getNews()
+{
+	global $modSettings;
+
+	$admin_current_news = array();
 	// Ready the current news.
 	foreach (explode("\n", $modSettings['news']) as $id => $line)
-		$context['admin_current_news'][$id] = array(
+		$admin_current_news[$id] = array(
 			'id' => $id,
 			'unparsed' => un_preparsecode($line),
 			'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', parse_bbc($line)),
 		);
 
-	$context['sub_template'] = 'edit_news';
-	$context['page_title'] = $txt['admin_edit_news'];
+	$admin_current_news['last'] = array(
+		'id' => 'last',
+		'unparsed' => '<div id="moreNewsItems"></div>
+		<noscript><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea></noscript>',
+		'parsed' => '<div id="moreNewsItems_preview"></div>',
+	);
+
+	return $admin_current_news;
+//	$context['sub_template'] = 'edit_news';
 }
 
 /**
