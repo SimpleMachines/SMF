@@ -940,21 +940,17 @@ function template_send()
 			<div class="roundframe"><br class="clear" />';
 
 	// If there were errors for sending the PM, show them.
-	if (!empty($context['post_error']['messages']))
-	{
-		echo '
-				<div class="errorbox">
-					<strong>', $txt['error_while_submitting'], '</strong>
-					<ul class="reset">';
-
-		foreach ($context['post_error']['messages'] as $error)
-			echo '
-						<li class="error">', $error, '</li>';
-
-		echo '
-					</ul>
+	echo '
+				<div class="errorbox"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+					<dl>
+						<dt>
+							<strong>', $txt['error_while_submitting'], '</strong>
+						</dt>
+						<dd class="error" id="error_list">
+							', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
+						</dd>
+					</dl>
 				</div>';
-	}
 
 	echo '
 				<dl id="post_header">';
@@ -962,7 +958,7 @@ function template_send()
 	// To and bcc. Include a button to search for members.
 	echo '
 					<dt>
-						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_to']) ? ' class="error"' : ''), '>', $txt['pm_to'], ':</span>
+						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_to']) ? ' class="error"' : ''), ' id="caption_to">', $txt['pm_to'], ':</span>
 					</dt>';
 
 	// Autosuggest will be added by the JavaScript later on.
@@ -984,7 +980,7 @@ function template_send()
 	// This BCC row will be hidden by default if JavaScript is enabled.
 	echo '
 					<dt  class="clear_left" id="bcc_div">
-						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), '>', $txt['pm_bcc'], ':</span>
+						<span', (isset($context['post_error']['no_to']) || isset($context['post_error']['bad_bcc']) ? ' class="error"' : ''), ' id="caption_bbc">', $txt['pm_bcc'], ':</span>
 					</dt>
 					<dd id="bcc_div2">
 						<input type="text" name="bcc" id="bcc_control" value="', $context['bcc_value'], '" tabindex="', $context['tabindex']++, '" size="40" style="width: 130px;" class="input_text" />
@@ -994,7 +990,7 @@ function template_send()
 	// The subject of the PM.
 	echo '
 					<dt class="clear_left">
-						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), '>', $txt['subject'], ':</span>
+						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
 						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60" />
@@ -1077,11 +1073,8 @@ function template_send()
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
 					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'to\', \'bcc\'];
-					var numericFields = [
-					];
-					var checkboxFields = [
-						\'outbox\'
-					];
+					var numericFields = [\'recipient_to[]\', \'recipient_bcc[]\'];
+					var checkboxFields = [\'outbox\'];
 
 					for (var i = 0, n = textFields.length; i < n; i++)
 						if (textFields[i] in document.forms.postmodify)
@@ -1138,11 +1131,9 @@ function template_send()
 				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
 					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
 				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				document.getElementById(\'error_serious\').style.display = errors.getAttribute(\'serious\') == 1 ? \'\' : \'none\';
+				// @todo temporarly removed
+				//document.getElementById(\'error_serious\').style.display = errors.getAttribute(\'serious\') == 1 ? \'\' : \'none\';
 				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br />\'));
-
-				// Show a warning if the topic has been locked.
-				document.getElementById(\'lock_warning\').style.display = errors.getAttribute(\'topic_locked\') == 1 ? \'\' : \'none\';
 
 				// Adjust the color of captions if the given data is erroneous.
 				var captions = errors.getElementsByTagName(\'caption\');

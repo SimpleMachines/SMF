@@ -1873,7 +1873,12 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('pm_not_yours', false);
+		{
+			if (!isset($_REQUEST['xml']))
+				fatal_lang_error('pm_not_yours', false);
+			else
+				$error_types[] = 'pm_not_yours';
+		}
 		$row_quoted = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
@@ -1977,6 +1982,9 @@ function MessagePost2()
 	// Extract out the spam settings - it saves database space!
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
 
+	// Initialize the errors we're about to make.
+	$post_errors = array();
+
 	// Check whether we've gone over the limit of messages we can send per hour - fatal error if fails!
 	if (!empty($modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && $user_info['mod_cache']['bq'] == '0=1' && $user_info['mod_cache']['gq'] == '0=1')
 	{
@@ -1996,7 +2004,12 @@ function MessagePost2()
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($postCount) && $postCount >= $modSettings['pm_posts_per_hour'])
-			fatal_lang_error('pm_too_many_per_hour', true, array($modSettings['pm_posts_per_hour']));
+		{
+			if (!isset($_REQUEST['xml']))
+				fatal_lang_error('pm_too_many_per_hour', true, array($modSettings['pm_posts_per_hour']));
+			else
+				$post_errors[] = 'pm_too_many_per_hour';
+		}
 	}
 
 	// If we came from WYSIWYG then turn it back into BBC regardless.
@@ -2012,11 +2025,8 @@ function MessagePost2()
 		$_REQUEST['message'] = $_POST['message'];
 	}
 
-	// Initialize the errors we're about to make.
-	$post_errors = array();
-
 	// If your session timed out, show an error, but do allow to re-submit.
-	if (checkSession('post', '', false) != '')
+	if (!isset($_REQUEST['xml']) && checkSession('post', '', false) != '')
 		$post_errors[] = 'session_timeout';
 
 	$_REQUEST['subject'] = isset($_REQUEST['subject']) ? trim($_REQUEST['subject']) : '';
