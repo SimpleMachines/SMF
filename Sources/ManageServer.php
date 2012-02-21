@@ -520,7 +520,9 @@ function prepareServerSettingsContext(&$config_vars)
 		}
 	}
 
+	// Two tokens because save these settings require both saveSettings and saveDBSettings
 	createToken('admin-ssc');
+	createToken('admin-dbsc');
 }
 
 /**
