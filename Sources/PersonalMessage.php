@@ -41,7 +41,7 @@ function MessageMain()
 		fatal_lang_error('wireless_error_notyet', false);
 	elseif (WIRELESS)
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_pm';
-	else
+	elseif (!isset($_REQUEST['xml']))
 		loadTemplate('PersonalMessage');
 
 	// Load up the members maximum message capacity.
@@ -203,7 +203,8 @@ function MessageMain()
 		MessageFolder();
 	else
 	{
-		messageIndexBar($_REQUEST['sa']);
+		if (!isset($_REQUEST['xml']))
+			messageIndexBar($_REQUEST['sa']);
 		$subActions[$_REQUEST['sa']]();
 	}
 }
@@ -347,7 +348,7 @@ function messageIndexBar($area)
 	$context['menu_item_selected'] = $pm_include_data['current_area'];
 
 	// obExit will know what to do!
-	if (!WIRELESS)
+	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
 }
 
@@ -1770,6 +1771,7 @@ function MessagePost()
 		'labels' => array(
 			'post_button' => $txt['send_message'],
 		),
+		'preview_type' => 2,
 	);
 	create_control_richedit($editorOptions);
 
@@ -1804,10 +1806,13 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	global $txt, $context, $scripturl, $modSettings;
 	global $smcFunc, $user_info, $sourcedir;
 
-	$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
+	if (!isset($_REQUEST['xml']))
+		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
 
-	if (!WIRELESS)
+	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['sub_template'] = 'send';
+	elseif (isset($_REQUEST['xml']))
+		$context['sub_template'] = 'pm';
 
 	$context['page_title'] = $txt['send_message'];
 
@@ -1902,7 +1907,10 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	loadLanguage('Errors');
 	$context['post_error'] = array(
 		'messages' => array(),
+		// @todo error handling: maybe fatal errors can be error_type => serious
+		'error_type' => '',
 	);
+
 	foreach ($error_types as $error_type)
 	{
 		$context['post_error'][$error_type] = true;
@@ -2143,7 +2151,7 @@ function MessagePost2()
 	}
 
 	// If they did, give a chance to make ammends.
-	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']))
+	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']) && !isset($_REQUEST['xml']))
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 
 	// Want to take a second glance before you send?

@@ -10,6 +10,7 @@
  * @version 2.1 Alpha 1
  */
 
+
 // This is the main sidebar for the personal messages section.
 function template_pm_above()
 {
@@ -906,19 +907,23 @@ function template_send()
 	}
 
 	// Show the preview of the personal message.
-	if (isset($context['preview_message']))
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $context['preview_subject'], '</h3>
-		</div>
-		<div class="windowbg">
-			<span class="topslice"><span></span></span>
-			<div class="content">
-				', $context['preview_message'], '
+		<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
+				</h3>
 			</div>
-			<span class="botslice"><span></span></span>
-		</div>
-		<br />';
+			<div class="windowbg">
+				<span class="topslice"><span></span></span>
+				<div class="content">
+					<div class="post" id="preview_body">
+						', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
+					</div>
+				</div>
+				<span class="botslice"><span></span></span>
+			</div>
+		</div><br />';
 
 	// Main message editing box.
 	echo '
@@ -929,7 +934,7 @@ function template_send()
 		</div>';
 
 	echo '
-	<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
+	<form action="', $scripturl, '?action=pm;sa=send2;preview;xml" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
 		<div>
 			<span class="upperframe"><span></span></span>
 			<div class="roundframe"><br class="clear" />';
@@ -1042,6 +1047,121 @@ function template_send()
 			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>';
+
+	echo '
+		<script type="text/javascript"><!-- // --><![CDATA[';
+	// The functions used to preview a posts without loading a new page.
+	echo '
+			var txt_preview_title = "', $txt['preview_title'], '";
+			var txt_preview_fetch = "', $txt['preview_fetch'], '";
+			function previewPost()
+			{';
+	if (isBrowser('is_firefox'))
+		echo '
+				// Firefox doesn\'t render <marquee> that have been put it using javascript
+				if (document.forms.postmodify.elements[', JavaScriptEscape($context['post_box_name']), '].value.indexOf(\'[move]\') != -1)
+				{
+					return submitThisOnce(document.forms.postmodify);
+				}';
+	echo '
+				if (window.XMLHttpRequest)
+				{
+					// Opera didn\'t support setRequestHeader() before 8.01.
+					// @todo Remove support for old browsers
+					if (\'opera\' in window)
+					{
+						var test = new XMLHttpRequest();
+						if (!(\'setRequestHeader\' in test))
+							return submitThisOnce(document.forms.postmodify);
+					}
+					// @todo Currently not sending poll options and option checkboxes.
+					var x = new Array();
+					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'to\', \'bcc\'];
+					var numericFields = [
+					];
+					var checkboxFields = [
+						\'outbox\'
+					];
+
+					for (var i = 0, n = textFields.length; i < n; i++)
+						if (textFields[i] in document.forms.postmodify)
+						{
+							// Handle the WYSIWYG editor.
+							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
+								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+							else
+								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+						}
+					for (var i = 0, n = numericFields.length; i < n; i++)
+						if (numericFields[i] in document.forms.postmodify && \'value\' in document.forms.postmodify[numericFields[i]])
+							x[x.length] = numericFields[i] + \'=\' + parseInt(document.forms.postmodify.elements[numericFields[i]].value);
+					for (var i = 0, n = checkboxFields.length; i < n; i++)
+						if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked)
+							x[x.length] = checkboxFields[i] + \'=\' + document.forms.postmodify.elements[checkboxFields[i]].value;
+
+					sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=pm;sa=send2;preview;xml\', x.join(\'&\'), onDocSent);
+
+					document.getElementById(\'preview_section\').style.display = \'\';
+					setInnerHTML(document.getElementById(\'preview_subject\'), txt_preview_title);
+					setInnerHTML(document.getElementById(\'preview_body\'), txt_preview_fetch);
+
+					return false;
+				}
+				else
+					return submitThisOnce(document.forms.postmodify);
+			}
+			function onDocSent(XMLDoc)
+			{
+				if (!XMLDoc)
+				{
+					document.forms.postmodify.preview.onclick = new function ()
+					{
+						return true;
+					}
+					document.forms.postmodify.preview.click();
+				}
+
+				// Show the preview section.
+				var preview = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'preview\')[0];
+				setInnerHTML(document.getElementById(\'preview_subject\'), preview.getElementsByTagName(\'subject\')[0].firstChild.nodeValue);
+
+				var bodyText = \'\';
+				for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
+					bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
+
+				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
+				document.getElementById(\'preview_body\').className = \'post\';
+
+				// Show a list of errors (if any).
+				var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];
+				var errorList = new Array();
+				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
+					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
+				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
+				document.getElementById(\'error_serious\').style.display = errors.getAttribute(\'serious\') == 1 ? \'\' : \'none\';
+				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br />\'));
+
+				// Show a warning if the topic has been locked.
+				document.getElementById(\'lock_warning\').style.display = errors.getAttribute(\'topic_locked\') == 1 ? \'\' : \'none\';
+
+				// Adjust the color of captions if the given data is erroneous.
+				var captions = errors.getElementsByTagName(\'caption\');
+				for (var i = 0, numCaptions = errors.getElementsByTagName(\'caption\').length; i < numCaptions; i++)
+					if (document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')))
+						document.getElementById(\'caption_\' + captions[i].getAttribute(\'name\')).className = captions[i].getAttribute(\'class\');
+
+				if (errors.getElementsByTagName(\'post_error\').length == 1)
+					document.forms.postmodify.', $context['post_box_name'], '.style.border = \'1px solid red\';
+				else if (document.forms.postmodify.', $context['post_box_name'], '.style.borderColor == \'red\' || document.forms.postmodify.', $context['post_box_name'], '.style.borderColor == \'red red red red\')
+				{
+					if (\'runtimeStyle\' in document.forms.postmodify.', $context['post_box_name'], ')
+						document.forms.postmodify.', $context['post_box_name'], '.style.borderColor = \'\';
+					else
+						document.forms.postmodify.', $context['post_box_name'], '.style.border = null;
+				}
+			}';
+	echo '
+		// ]]></script>';
 
 	// Show the message you're replying to.
 	if ($context['reply'])
