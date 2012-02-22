@@ -1152,6 +1152,9 @@ function ModifyMembergroupsettings()
 	$context['post_url'] = $scripturl . '?action=admin;area=membergroups;save;sa=settings';
 	$context['settings_title'] = $txt['membergroups_settings'];
 
+	// We need this for the in-line permissions
+	createToken('admin-mp');
+
 	prepareDBSettingContext($config_vars);
 }
 

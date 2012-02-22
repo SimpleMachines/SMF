@@ -178,6 +178,9 @@ function EditSmileySettings($return_config = false)
 		redirectexit('action=admin;area=smileys;sa=settings');
 	}
 
+	// We need this for the in-line permissions
+	createToken('admin-mp');
+
 	prepareDBSettingContext($config_vars);
 }
 
