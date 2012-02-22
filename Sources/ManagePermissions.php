@@ -39,14 +39,14 @@ function ModifyPermissions()
 		'modify2' => array('ModifyMembergroup2', 'manage_permissions'),
 		'quick' => array('SetQuickGroups', 'manage_permissions'),
 		'quickboard' => array('SetQuickBoards', 'manage_permissions'),
-		'postmod' => array('ModifyPostModeration', 'manage_permissions'),
+		'postmod' => array('ModifyPostModeration', 'manage_permissions', 'disabled' => !in_array('pm', $context['admin_features'])),
 		'profiles' => array('EditPermissionProfiles', 'manage_permissions'),
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
 
 	call_integration_hook('integrate_manage_permissions', array(&$subActions));
 
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
 	// Create the tabs for the template.
