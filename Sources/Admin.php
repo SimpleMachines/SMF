@@ -89,6 +89,7 @@ function AdminMain()
 				'adminlogoff' => array(
 					'label' => $txt['admin_logoff'],
 					'function' => 'AdminEndSession',
+					'enabled' => empty($modSettings['securityDisable']),
 //					'icon' => 'administration.gif',
 				),
 
