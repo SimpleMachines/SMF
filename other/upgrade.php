@@ -2035,7 +2035,6 @@ function convertSettingsToTheme()
 		'newsfader_time' => @$GLOBALS['fadertime'],
 		'use_image_buttons' => empty($GLOBALS['MenuType']) ? 1 : 0,
 		'enable_news' => @$GLOBALS['enable_news'],
-		'linktree_inline' => @$modSettings['enableInlineLinks'],
 		'return_to_post' => @$modSettings['returnToPost'],
 	);
 

@@ -1283,6 +1283,7 @@ function detectBrowser()
 	if ($context['browser']['is_ie'])
 	{
 		$context['browser'] += array(
+			'is_ie9' => strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/5.0') !== false,
 			'is_ie8' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 8') !== false,
 			'is_ie_mobi' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'IEMobile/7') !== false,
 			'is_ie5.5' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.5') !== false,
@@ -1291,11 +1292,11 @@ function detectBrowser()
 			'is_mac_ie' => strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5.') !== false && strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false,
 		);
 
-		// Detect IE7 and not IE8 in combat mode.
-		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && !$context['browser']['is_ie8'];
+		// Detect IE7 and not IE8/IE9 in combat mode.
+		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && (!$context['browser']['is_ie8'] || !$context['browser']['is_ie9']);
 
 		// Before IE8 we need to fix IE... lots!
-		$context['browser']['ie_standards_fix'] = !$context['browser']['is_ie8'];
+		$context['browser']['ie_standards_fix'] = ($context['browser']['is_ie8'] || $context['browser']['is_ie9']) ? false : true;
 
 		$context['browser']['is_ie6'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6') !== false && !$context['browser']['is_ie8'] && !$context['browser']['is_ie7'];
 	}

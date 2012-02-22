@@ -485,7 +485,10 @@ function template_showPosts()
 function template_editBuddies()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
-
+	
+	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
+	$buddy_fields = array('icq', 'aim', 'yim', 'msn');
+	
 	echo '
 		<div class="title_bar">
 			<h3 class="titlebg">
@@ -496,11 +499,17 @@ function template_editBuddies()
 			<tr class="catbg">
 				<th class="first_th lefttext" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>
-				<th scope="col">', $txt['email'], '</th>
-				<th scope="col">', $txt['icq'], '</th>
-				<th scope="col">', $txt['aim'], '</th>
-				<th scope="col">', $txt['yim'], '</th>
-				<th scope="col">', $txt['msn'], '</th>
+				<th scope="col">', $txt['email'], '</th>';
+	
+	// don't show them if they are sdisabled
+	foreach ($buddy_fields as $key => $column)
+	{
+		if (!isset($disabled_fields[$column]))
+			echo '
+				<th scope="col">', $txt[$column], '</th>';
+	}
+
+	echo '
 				<th class="last_th" scope="col"></th>
 			</tr>';
 
@@ -519,11 +528,17 @@ function template_editBuddies()
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $buddy['link'], '</td>
 				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['label'], '" title="', $buddy['online']['label'], '" /></a></td>
-				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.gif" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $buddy['name'] . '" /></a>'), '</td>
-				<td align="center">', $buddy['icq']['link'], '</td>
-				<td align="center">', $buddy['aim']['link'], '</td>
-				<td align="center">', $buddy['yim']['link'], '</td>
-				<td align="center">', $buddy['msn']['link'], '</td>
+				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.gif" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $buddy['name'] . '" /></a>'), '</td>';
+		
+		// If these are off, don't show them
+		foreach ($buddy_fields as $key => $column)
+		{
+			if (!isset($disabled_fields[$column]))
+				echo '
+					<td align="center">', $buddy[$column]['link'], '</td>';
+		}
+		
+		echo '
 				<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><img src="', $settings['images_url'], '/icons/delete.gif" alt="', $txt['buddy_remove'], '" title="', $txt['buddy_remove'], '" /></a></td>
 			</tr>';
 
@@ -2817,6 +2832,7 @@ function template_profile_karma_modify()
 							</dd>';
 }
 
+
 // Select the time format!
 function template_profile_timeformat_modify()
 {
@@ -3020,5 +3036,6 @@ function template_authentication_method()
 	updateAuthMethod();
 	// ]]></script>';
 }
+
 
 ?>

@@ -464,7 +464,6 @@ function Display()
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?topic=' . $topic . '.0',
 		'name' => $topicinfo['subject'],
-		'extra_before' => $settings['linktree_inline'] ? $txt['topic'] . ': ' : ''
 	);
 
 	// Build a list of this board's moderators.
@@ -794,7 +793,7 @@ function Display()
 	$posters = array_unique($all_posters);
 
 	// Guests can't mark topics read or for notifications, just can't sorry.
-	if (!$user_info['is_guest'])
+	if (!$user_info['is_guest'] && !empty($messages))
 	{
 		$mark_at_msg = max($messages);
 		if ($mark_at_msg >= $topicinfo['id_last_msg'])

@@ -133,13 +133,13 @@ function ModifySettings()
 
 /**
  * General forum settings - forum name, maintenance mode, etc.
- * Practically, this shows an interface for the settings in Settings.php
- * to be changed.
- * It uses the rawdata sub template (not theme-able.)
- * Requires the admin_forum permission.
- * Uses the edit_settings administration area.
- * Contains the actual array of settings to show from Settings.php.
- * Accessed from ?action=admin;area=serversettings;sa=general.
+ * Practically, this shows an interface for the settings in Settings.php to be changed.
+ *
+ * - It uses the rawdata sub template (not theme-able.)
+ * - Requires the admin_forum permission.
+ * - Uses the edit_settings administration area.
+ * - Contains the actual array of settings to show from Settings.php.
+ * - Accessed from ?action=admin;area=serversettings;sa=general.
  *
  * @param $return_config
  */
@@ -190,12 +190,13 @@ function ModifyGeneralSettings($return_config = false)
 
 /**
  * Basic database and paths settings - database name, host, etc.
- * It shows an interface for the settings in Settings.php to be changed.
- * It contains the actual array of settings to show from Settings.php.
- * It uses the rawdata sub template (not theme-able.)
- * Requires the admin_forum permission.
- * Uses the edit_settings administration area.
- * Accessed from ?action=admin;area=serversettings;sa=database.
+ *
+ * - It shows an interface for the settings in Settings.php to be changed.
+ * - It contains the actual array of settings to show from Settings.php.
+ * - It uses the rawdata sub template (not theme-able.)
+ * - Requires the admin_forum permission.
+ * - Uses the edit_settings administration area.
+ * - Accessed from ?action=admin;area=serversettings;sa=database.
  *
  * @param $return_config
  */
@@ -689,10 +690,11 @@ function prepareDBSettingContext(&$config_vars)
 
 /**
  * Helper function. Saves settings by putting them in Settings.php or saving them in the settings table.
- * Saves those settings set from ?action=admin;area=serversettings.
- * Requires the admin_forum permission.
- * Contains arrays of the types of data to save into Settings.php.
-
+ *
+ * - Saves those settings set from ?action=admin;area=serversettings.
+ * - Requires the admin_forum permission.
+ * - Contains arrays of the types of data to save into Settings.php.
+ *
  * @param $config_vars
  */
 function saveSettings(&$config_vars)
@@ -869,9 +871,9 @@ function saveDBSettings(&$config_vars)
 
 /**
  * Allows us to see the servers php settings
+ *
  * - loads the settings into an array for display in a template
  * - drops cookie values just in case
- *
  */
 function ShowPHPinfoSettings()
 {
