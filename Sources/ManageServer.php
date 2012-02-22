@@ -291,7 +291,7 @@ function ModifyCookieSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_cookie_settings');
 
-		if (isset($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
+		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
 			fatal_lang_error('invalid_cookie_domain', false);
 
 		saveSettings($config_vars);
