@@ -152,7 +152,8 @@ function EditNews()
 					'function' => create_function('$news', '
 
 						if (is_numeric($news[\'id\']))
-							return \'<textarea rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width: 85%\') . \';">\' . $news[\'unparsed\'] . \'</textarea>\';
+							return \'<textarea rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width: 85%\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+							<div style="float:right" id="preview_\' . $news[\'id\'] . \'"></div>\';
 						else
 							return $news[\'unparsed\'];
 					'),
@@ -166,7 +167,7 @@ function EditNews()
 				'data' => array(
 					'function' => create_function('$news', '
 
-						return \'<div style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
+						return \'<div id="box_preview_\' . $news[\'id\'] . \'" style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
 					'),
 					'style' => 'width: 45%;',
 				),
@@ -201,11 +202,21 @@ function EditNews()
 				<script type="text/javascript"><!-- // --><![CDATA[
 					document.getElementById(\'list_news_lists_last\').style.display = "none";
 					document.getElementById("moreNewsItems_link").style.display = "";
+					$(document).ready(function() {
+						$("div[id ^= \'preview_\']").each(function () {
+							$(this).css({cursor: \'hand\', cursor: \'pointer\', });
+							$(this).text(\'' . $txt['preview'] . '\').click(function () {
+								// @todo ajax...
+							});
+						});
+					});
+
 					function addNewsItem()
 					{
 						document.getElementById("list_news_lists_last").style.display = "";
 						setOuterHTML(document.getElementById("moreNewsItems"), \'<div style="margin-bottom: 2ex;"><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"><\' + \'/textarea><\' + \'/div><div id="moreNewsItems"><\' + \'/div>\');
 					}
+					
 				// ]]></script>
 				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" /> <input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
 				'align' => 'right',
