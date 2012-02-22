@@ -115,7 +115,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
  */
 function url_parts($local, $global)
 {
-	global $boardurl;
+	global $boardurl, $modSettings;
 
 	// Parse the URL with PHP to make life easier.
 	$parsed_url = parse_url($boardurl);
@@ -124,8 +124,11 @@ function url_parts($local, $global)
 	if (empty($parsed_url['path']) || !$local)
 		$parsed_url['path'] = '';
 
+	if (!empty($modSettings['globalCookiesDomain']) && strpos($boardurl, $modSettings['globalCookiesDomain']) !== false)
+		$parsed_url['host'] = $modSettings['globalCookiesDomain'];
+
 	// Globalize cookies across domains (filter out IP-addresses)?
-	if ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
+	elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
 			$parsed_url['host'] = '.' . $parts[1];
 
 	// We shouldn't use a host at all if both options are off.
