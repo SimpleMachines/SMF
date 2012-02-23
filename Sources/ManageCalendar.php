@@ -366,6 +366,9 @@ function ModifyCalendarSettings($return_config = false)
 		redirectexit('action=admin;area=managecalendar;sa=settings');
 	}
 
+	// We need this for the in-line permissions
+	createToken('admin-mp');
+
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
 }

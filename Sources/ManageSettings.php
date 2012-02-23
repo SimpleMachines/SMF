@@ -63,6 +63,14 @@ function ModifyFeatureSettings()
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
 
+	// If Advanced Profile Fields are disabled don't show the setting page
+	if (!in_array('cp', $context['admin_features']))
+		unset($subActions['profile']);
+
+	// Same for Karma
+	if (!in_array('k', $context['admin_features']))
+		unset($subActions['karma']);
+
 	loadGeneralSettingParameters($subActions, 'basic');
 
 	// Load up all the tabs...
@@ -106,6 +114,10 @@ function ModifySecuritySettings()
 	);
 
 	call_integration_hook('integrate_modify_security', array(&$subActions));
+
+	// If Warning System is disabled don't show the setting page
+	if (!in_array('w', $context['admin_features']))
+		unset($subActions['moderation']);
 
 	loadGeneralSettingParameters($subActions, 'general');
 

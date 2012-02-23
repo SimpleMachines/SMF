@@ -40,7 +40,7 @@ function validateSession($type = 'admin')
 	$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
 
 	// Is the security option off?  Or are they already logged in?
-	if (!empty($modSettings['securityDisable' . $type != 'admin' ? '_' . $type : '']) || (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()))
+	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]) || (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()))
 		return;
 
 	require_once($sourcedir . '/Subs-Auth.php');

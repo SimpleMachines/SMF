@@ -826,6 +826,9 @@ function EditBoardSettings($return_config = false)
 		redirectexit('action=admin;area=manageboards;sa=settings');
 	}
 
+	// We need this for the in-line permissions
+	createToken('admin-mp');
+
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
 }

@@ -44,6 +44,20 @@ function ManageSmileys()
 
 	call_integration_hook('integrate_manage_smileys', array(&$subActions));
 
+	// If customized smileys is disabled don't show the setting page
+	if (empty($modSettings['smiley_enable']))
+	{
+		unset($subActions['addsmiley']);
+		unset($subActions['editsmileys']);
+		unset($subActions['setorder']);
+		unset($subActions['modifysmiley']);
+	}
+	if (empty($modSettings['messageIcons_enable']))
+	{
+		unset($subActions['editicon']);
+		unset($subActions['editicons']);
+	}
+
 	// Default the sub-action to 'edit smiley settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'editsets';
 
@@ -163,6 +177,9 @@ function EditSmileySettings($return_config = false)
 
 		redirectexit('action=admin;area=smileys;sa=settings');
 	}
+
+	// We need this for the in-line permissions
+	createToken('admin-mp');
 
 	prepareDBSettingContext($config_vars);
 }

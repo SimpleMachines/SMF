@@ -977,6 +977,10 @@ function template_show_settings()
 		echo '
 		<input type="hidden" name="', $context['admin-dbsc_token_var'], '" value="', $context['admin-dbsc_token'], '" />';
 
+	if (isset($context['admin-mp_token']))
+		echo '
+		<input type="hidden" name="', $context['admin-mp_token_var'], '" value="', $context['admin-mp_token'], '" />';
+
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>

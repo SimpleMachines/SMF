@@ -361,6 +361,7 @@ $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains.  
 	Your site is at http://www.simplemachines.org/,<br />
 	And your forum is at http://forum.simplemachines.org/,<br />
 	Using this option will allow you to access the forum\'s cookie on your site.  Do not enable this if there are other subdomains (like hacker.simplemachines.org) not controlled by you.';
+$helptxt['globalCookiesDomain'] = 'Define the main domain to be used when log in cookies are available across subdomains';
 $helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site as it will break cookie handling otherwise!';
 $helptxt['securityDisable'] = 'This <em>disables</em> the additional password check for the administration section. This is not recommended!';
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br /><br />Having to type this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
