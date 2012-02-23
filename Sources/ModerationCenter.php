@@ -148,6 +148,7 @@ function ModerationMain($dont_call = false)
 				'modlogoff' => array(
 					'label' => $txt['mc_logoff'],
 					'function' => 'ModEndSession',
+					'enabled' => empty($modSettings['securityDisable_moderate']),
 				),
 			),
 		),

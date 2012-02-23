@@ -105,9 +105,11 @@ function template_show_list($list_id = null)
 
 		echo '
 				</tr>
-			</thead>
-			<tbody>';
+			</thead>';
 	}
+
+		echo '
+			<tbody>';
 
 	// Show a nice message informing there are no items in this list.
 	if (empty($cur_list['rows']) && !empty($cur_list['no_items_label']))
