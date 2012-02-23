@@ -547,8 +547,7 @@ function DoLogin()
 
 /**
  * Logs the current user out of their account.
- * It requires that the session hash is sent as well, to prevent automatic logouts
- *  by images or javascript.
+ * It requires that the session hash is sent as well, to prevent automatic logouts by images or javascript.
  * It redirects back to $_SESSION['logout_url'], if it exists.
  * It is accessed via ?action=logout;session_var=...
  *
