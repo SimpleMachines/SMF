@@ -205,8 +205,20 @@ function EditNews()
 					$(document).ready(function() {
 						$("div[id ^= \'preview_\']").each(function () {
 							$(this).css({cursor: \'hand\', cursor: \'pointer\', });
+							var preview_id = $(this).attr(\'id\').split(\'_\')[1];
 							$(this).text(\'' . $txt['preview'] . '\').click(function () {
-								// @todo ajax...
+								$.ajax({
+									type: "POST",
+									url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+									data: {item: "newspreview", news: $(this).prev().val()},
+									context: document.body,
+									success: function(request){
+										if ($(request).find("error").text() == \'\')
+											$(document).find("#box_preview_" + preview_id).html($(request).text());
+										else
+											$(document).find("#box_preview_" + preview_id).text(\'' . $txt['news_error_no_news'] . '\');
+									},
+								});
 							});
 						});
 					});

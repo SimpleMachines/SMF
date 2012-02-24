@@ -28,6 +28,9 @@ function XMLhttpMain()
 		'messageicons' => array(
 			'function' => 'ListMessageIcons',
 		),
+		'previews' => array(
+			'function' => 'RetrievePreview',
+		),
 	);
 	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
@@ -71,4 +74,50 @@ function ListMessageIcons()
 	$context['sub_template'] = 'message_icons';
 }
 
+function RetrievePreview()
+{
+	global $context;
+
+	$subActions = array(
+		'newspreview' => 'newspreview',
+	);
+
+	$context['sub_template'] = 'generic_xml';
+
+	if (!isset($_POST['item']) || !in_array($_POST['item'], $subActions))
+		return false;
+
+// echo $subActions[$_REQUEST['item']];die();
+	$subActions[$_POST['item']]();
+}
+
+function newspreview()
+{
+	global $context, $sourcedir, $smcFunc;
+
+	require_once($sourcedir . '/Subs-Post.php');
+
+	$errors = array();
+	$news = !isset($_POST['news'])? '' : $smcFunc['htmlspecialchars']($_POST['news'], ENT_QUOTES);;
+	if (empty($news))
+		$errors[] = array('value' => 'no_news');
+	else
+		preparsecode($news);
+
+	$context['xml_data'] = array(
+		'news' => array(
+			'identifier' => 'parsedNews',
+			'children' => array(
+				array(
+					'value' => parse_bbc($news),
+				),
+			),
+		),
+		'errors' => array(
+			'identifier' => 'error',
+			'children' => $errors
+		),
+	);
+
+}
 ?>
