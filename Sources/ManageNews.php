@@ -139,7 +139,6 @@ function EditNews()
 	// Use the standard templates for showing this.
 	$listOptions = array(
 		'id' => 'news_lists',
-//		'title' => $txt['admin_edit_news'],
 		'get_items' => array(
 			'function' => 'list_getNews',
 		),
@@ -202,31 +201,50 @@ function EditNews()
 				<script type="text/javascript"><!-- // --><![CDATA[
 					document.getElementById(\'list_news_lists_last\').style.display = "none";
 					document.getElementById("moreNewsItems_link").style.display = "";
-					$(document).ready(function() {
+					var last_preview = 0;
+					$(document).ready(function () {
 						$("div[id ^= \'preview_\']").each(function () {
-							$(this).css({cursor: \'hand\', cursor: \'pointer\', });
 							var preview_id = $(this).attr(\'id\').split(\'_\')[1];
-							$(this).text(\'' . $txt['preview'] . '\').click(function () {
-								$.ajax({
-									type: "POST",
-									url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
-									data: {item: "newspreview", news: $(this).prev().val()},
-									context: document.body,
-									success: function(request){
-										if ($(request).find("error").text() == \'\')
-											$(document).find("#box_preview_" + preview_id).html($(request).text());
-										else
-											$(document).find("#box_preview_" + preview_id).text(\'' . $txt['news_error_no_news'] . '\');
-									},
-								});
-							});
+							if (last_preview < preview_id)
+								last_preview = preview_id;
+							make_preview_btn(preview_id);
 						});
 					});
 
-					function addNewsItem()
+					function make_preview_btn (preview_id)
 					{
-						document.getElementById("list_news_lists_last").style.display = "";
-						setOuterHTML(document.getElementById("moreNewsItems"), \'<div style="margin-bottom: 2ex;"><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"><\' + \'/textarea><\' + \'/div><div id="moreNewsItems"><\' + \'/div>\');
+						$("#preview_" + preview_id).css({cursor: \'hand\', cursor: \'pointer\', });
+						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
+							$.ajax({
+								type: "POST",
+								url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+								data: {item: "newspreview", news: $("#preview_" + preview_id).prev().val()},
+								context: document.body,
+								success: function(request){
+									if ($(request).find("error").text() == \'\')
+										$(document).find("#box_preview_" + preview_id).html($(request).text());
+									else
+										$(document).find("#box_preview_" + preview_id).text(\'' . $txt['news_error_no_news'] . '\');
+								},
+							});
+						});
+					}
+
+					function addNewsItem ()
+					{
+						last_preview++;
+						$("#list_news_lists_last").before(' . javaScriptEscape('
+						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
+							<td style="width: 50%;">
+									<textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea>
+									<div style="float:right" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
+							</td>
+							<td style="width: 45%;">
+								<div id="box_preview_') . ' + last_preview + ' . javaScriptEscape('" style="overflow: auto; width: 100%; height: 10ex;"></div>
+							</td>
+							<td></td>
+						</tr>') . ');
+						make_preview_btn(last_preview);
 					}
 					
 				// ]]></script>
