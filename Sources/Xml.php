@@ -80,6 +80,7 @@ function RetrievePreview()
 
 	$subActions = array(
 		'newspreview' => 'newspreview',
+		'newsletterpreview' => 'newsletterpreview',
 	);
 
 	$context['sub_template'] = 'generic_xml';
@@ -87,7 +88,6 @@ function RetrievePreview()
 	if (!isset($_POST['item']) || !in_array($_POST['item'], $subActions))
 		return false;
 
-// echo $subActions[$_REQUEST['item']];die();
 	$subActions[$_POST['item']]();
 }
 
@@ -98,7 +98,7 @@ function newspreview()
 	require_once($sourcedir . '/Subs-Post.php');
 
 	$errors = array();
-	$news = !isset($_POST['news'])? '' : $smcFunc['htmlspecialchars']($_POST['news'], ENT_QUOTES);;
+	$news = !isset($_POST['news'])? '' : $smcFunc['htmlspecialchars']($_POST['news'], ENT_QUOTES);
 	if (empty($news))
 		$errors[] = array('value' => 'no_news');
 	else
@@ -120,4 +120,48 @@ function newspreview()
 	);
 
 }
+function newsletterpreview()
+{
+	global $context, $sourcedir, $smcFunc, $txt;
+
+	require_once($sourcedir . '/Subs-Post.php');
+	require_once($sourcedir . '/ManageNews.php');
+	loadLanguage('Errors');
+
+	$errors = array();
+	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
+	$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
+
+	if (empty($_POST['subject']))
+		$errors[] = array('value' => $txt['error_no_subject'], 'attributes' => array('type' => 'subject_preview'));
+	if (empty($_POST['message']))
+		$errors[] = array('value' => $txt['error_no_message'], 'attributes' => array('type' => 'message_preview'));
+
+	prepareMailingForPreview();
+
+	$context['xml_data'] = array(
+		'message' => array(
+			'identifier' => 'preview_message',
+			'children' => array(
+				array(
+					'value' => $context['preview_message'],
+				),
+			),
+		),
+		'subject' => array(
+			'identifier' => 'preview_subject',
+			'children' => array(
+				array(
+					'value' => $context['preview_subject'],
+				),
+			),
+		),
+		'errors' => array(
+			'identifier' => 'error',
+			'children' => $errors
+		),
+	);
+}
+
+
 ?>

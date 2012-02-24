@@ -192,18 +192,26 @@ function template_email_members_compose()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
+					<div id="preview_box" ', empty($context['preview_subject']) && empty($context['preview_message']) ? 'style="display:none"' : '', '>
+						<div style="padding-bottom:10px"><em>', $txt['email_preview_warning'], '</em></div>
+						<strong>', $txt['subject'], '</strong>:
+						<div style="padding-left:10px;padding-bottom:10px" id="subject_preview">', !isset($context['preview_subject']) ? '' : $context['preview_subject'], '</div>
+						<strong>', $txt['message'], '</strong>:
+						<div style="padding-left:10px;padding-bottom:10px" id="message_preview">', !isset($context['preview_message']) ? '' : $context['preview_message'], '</div>
+					</div>
 					<p>
-						<input type="text" name="subject" size="60" value="', $context['default_subject'], '" class="input_text" />
+						<input type="text" name="subject" id="subject" size="60" value="', empty($context['subject']) ? $context['default_subject'] : $context['subject'], '" class="input_text" />
 					</p>
 					<p>
-						<textarea cols="70" rows="9" name="message" class="editor">', $context['default_message'], '</textarea>
+						<textarea cols="70" rows="9" name="message" id="message" class="editor">', empty($context['message']) ? $context['default_message'] : $context['message'], '</textarea>
 					</p>
 					<ul class="reset">
-						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" class="input_check" onclick="if (this.checked && ', $context['total_emails'], ' != 0 && !confirm(\'', $txt['admin_news_cannot_pm_emails_js'], '\')) return false; this.form.parse_html.disabled = this.checked; this.form.send_html.disabled = this.checked; " /> ', $txt['email_as_pms'], '</label></li>
-						<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html" class="input_check" onclick="this.form.parse_html.disabled = !this.checked;" /> ', $txt['email_as_html'], '</label></li>
+						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="if (this.checked && ', $context['total_emails'], ' != 0 && !confirm(\'', $txt['admin_news_cannot_pm_emails_js'], '\')) return false; this.form.parse_html.disabled = this.checked; this.form.send_html.disabled = this.checked; " /> ', $txt['email_as_pms'], '</label></li>
+						<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html" ', !empty($context['send_html']) ? 'checked="checked"' : '', 'class="input_check" onclick="this.form.parse_html.disabled = !this.checked;" /> ', $txt['email_as_html'], '</label></li>
 						<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked="checked" disabled="disabled" class="input_check" /> ', $txt['email_parsed_html'], '</label></li>
 					</ul>
 					<p>
+						<input type="submit" onclick="make_preview(); return false;" name="preview" value="', $txt['preview'], '" class="button_submit" />
 						<input type="submit" value="', $txt['sendtopic_send'], '" class="button_submit" />
 					</p>
 				</div>
@@ -219,6 +227,37 @@ function template_email_members_compose()
 			<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '" />';
 
 	echo '
+		<script type="text/javascript"><!-- // --><![CDATA[
+			function make_preview ()
+			{
+				$("#preview_box").css({display: \'\'});
+				$("#subject_preview").html(\'', $txt['preview_fetch'], '\');
+				$("#message_preview").html(\'', $txt['preview_fetch'], '\');
+				$.ajax({
+					type: "POST",
+					url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+					data: {
+						item: "newsletterpreview",
+						message: $("#message").val(),
+						subject: $("#subject").val(),
+						send_html: $("#send_html").is(\':checked\') ? 1 : 0,
+						send_pm: $("#send_pm").is(\':checked\') ? 1 : 0,
+					},
+					context: document.body,
+					success: function(request){
+
+						if ($(request).find(\'[type="subject_preview"]\').text() == \'\')
+							$("#subject_preview").html($(request).find("subject").text());
+						else
+							$("#subject_preview").html($(request).find(\'[type="subject_preview"]\').text()).css({color: "red"});
+						if ($(request).find(\'[type="message_preview"]\').text() == \'\')
+							$("#message_preview").html($(request).find("message").text());
+						else
+							$("#message_preview").html($(request).find(\'[type="message_preview"]\').text()).css({color: "red"});
+					},
+				});
+			}
+		// ]]></script>
 		</form>
 	</div>
 	<br class="clear" />';

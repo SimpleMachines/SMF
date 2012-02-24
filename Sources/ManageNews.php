@@ -411,6 +411,66 @@ function SelectMailingMembers()
 }
 
 /**
+ * Prepare subject and message of an email for the preview box
+ * Used in ComposeMailing and RetrievePreview (Xml.php)
+ */
+function prepareMailingForPreview ()
+{
+	global $context, $smcFunc, $modSettings, $scripturl, $user_info, $txt;
+	loadLanguage('Errors');
+
+	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
+
+	// Use the default time format.
+	$user_info['time_format'] = $modSettings['time_format'];
+
+	$variables = array(
+		'{$board_url}',
+		'{$current_time}',
+		'{$latest_member.link}',
+		'{$latest_member.id}',
+		'{$latest_member.name}'
+	);
+
+	$html = $context['send_html'];
+
+	// We might need this in a bit
+	$cleanLatestMember = empty($context['send_html']) || $context['send_pm'] ? un_htmlspecialchars($modSettings['latestRealName']) : $modSettings['latestRealName'];
+
+	foreach ($processing as $key => $post)
+	{
+		$context[$key] = $smcFunc['htmlspecialchars']($_REQUEST[$post], ENT_QUOTES);
+
+		if (empty($context[$key]) && empty($_REQUEST['xml']))
+		{
+			$html = true;
+			$context[$key] = '[color=red]' . $txt['error_no_' . $post] . '[/color]';
+		}
+		elseif (!empty($_REQUEST['xml']))
+			continue;
+
+		preparsecode($context[$key]);
+		if ($html)
+		{
+			$enablePostHTML = $modSettings['enablePostHTML'];
+			$modSettings['enablePostHTML'] = $context['send_html'];
+			$context[$key] = parse_bbc($context[$key]);
+			$modSettings['enablePostHTML'] = $enablePostHTML;
+		}
+
+		// Replace in all the standard things.
+		$context[$key] = str_replace($variables,
+			array(
+				!empty($context['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
+				timeformat(forum_time(), false),
+				!empty($context['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
+				$modSettings['latestMember'],
+				$cleanLatestMember
+			), $context[$key]);
+	}
+}
+
+/**
  * Shows a form to edit a forum mailing and its recipients.
  * Called by ?action=admin;area=news;sa=mailingcompose.
  * Requires the send_mail permission.
@@ -420,7 +480,33 @@ function SelectMailingMembers()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc;
+	global $txt, $sourcedir, $context, $smcFunc, $scripturl, $modSettings;
+
+	// Setup the template!
+	$context['page_title'] = $txt['admin_newsletters'];
+	$context['sub_template'] = 'email_members_compose';
+
+	$context['default_subject'] = htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
+	$context['default_message'] = htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+
+	if (isset($context['preview']))
+	{
+		require_once($sourcedir . '/Subs-Post.php');
+		$context['recipients']['members'] = explode(',', $_POST['exclude_members']);
+		$context['recipients']['exclude_members'] = explode(',', $_POST['exclude_members']);
+		$context['recipients']['groups'] = explode(',', $_POST['exclude_members']);
+		$context['recipients']['exclude_groups'] = explode(',', $_POST['exclude_members']);
+		$context['recipients']['emails'] = explode(';', $_POST['exclude_members']);
+		$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
+		$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
+		$context['max_id_member'] = !empty($_POST['max_id_member']) ? (int) $_POST['max_id_member'] : 0;
+		$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
+		$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
+		$context['subject'] = $_POST['subject'];
+		$context['message'] = $_POST['message'];
+
+		return prepareMailingForPreview();
+	}
 
 	// Start by finding any members!
 	$toClean = array();
@@ -561,13 +647,6 @@ function ComposeMailing()
 	// Clean up the arrays.
 	$context['recipients']['members'] = array_unique($context['recipients']['members']);
 	$context['recipients']['exclude_members'] = array_unique($context['recipients']['exclude_members']);
-
-	// Setup the template!
-	$context['page_title'] = $txt['admin_newsletters'];
-	$context['sub_template'] = 'email_members_compose';
-
-	$context['default_subject'] = htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
-	$context['default_message'] = htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
 }
 
 /**
@@ -584,6 +663,12 @@ function SendMailing($clean_only = false)
 {
 	global $txt, $sourcedir, $context, $smcFunc;
 	global $scripturl, $modSettings, $user_info;
+
+	if (isset($_POST['preview']))
+	{
+		$context['preview'] = true;
+		return ComposeMailing();
+	}
 
 	// How many to send at once? Quantity depends on whether we are queueing or not.
 	$num_at_once = empty($modSettings['mail_queue']) ? 60 : 1000;
@@ -696,6 +781,12 @@ function SendMailing($clean_only = false)
 			else
 				$_POST['message'] = '<html>' . $_POST['message'] . '</html>';
 		}
+	}
+
+	if (empty($_POST['message']) || empty($_POST['subject']))
+	{
+		$context['preview'] = true;
+		return ComposeMailing();
 	}
 
 	// Use the default time format.
