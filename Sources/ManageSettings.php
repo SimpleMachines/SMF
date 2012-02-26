@@ -342,6 +342,15 @@ function ModifyCoreFeatures($return_config = false)
 	if (isset($_POST['save']))
 	{
 		checkSession();
+
+	if (isset($_GET['xml']))
+	{
+		$tokenValidation = validateToken('admin-core', 'post', false);
+
+		if (empty($tokenValidation))
+			return 'token_verify_fail';
+	}
+	else
 		validateToken('admin-core');
 
 		$setting_changes = array('admin_features' => array());
@@ -389,7 +398,8 @@ function ModifyCoreFeatures($return_config = false)
 				$feature['save_callback'](!empty($_POST['feature_' . $id]));
 		}
 
-		redirectexit('action=admin;area=corefeatures;' . $context['session_var'] . '=' . $context['session_id']);
+		if (!isset($_REQUEST['xml']))
+			redirectexit('action=admin;area=corefeatures;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Put them in context.
@@ -409,6 +419,10 @@ function ModifyCoreFeatures($return_config = false)
 	// Don't show them this twice!
 	if ($context['is_new_install'])
 		updateSettings(array('admin_features' => ''));
+
+	// sub_template is already generic_xml and the token is created somewhere else
+	if (isset($_REQUEST['xml']))
+		return;
 
 	$context['sub_template'] = 'core_features';
 	$context['page_title'] = $txt['core_settings_title'];

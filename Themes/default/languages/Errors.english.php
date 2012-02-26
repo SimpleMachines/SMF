@@ -34,6 +34,7 @@ $txt['not_enough_posts_karma'] = 'Sorry, you don\'t have enough posts to modify 
 $txt['cant_change_own_karma'] = 'Sorry, you are not permitted to modify your own karma.';
 $txt['karma_wait_time'] = 'Sorry, you can\'t repeat a karma action without waiting %1$s %2$s.';
 $txt['feature_disabled'] = 'Sorry, this feature is disabled.';
+$txt['feature_no_exists'] = 'Sorry, this feature doesn\'t exists.';
 $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';

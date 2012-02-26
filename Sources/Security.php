@@ -83,7 +83,10 @@ function validateSession($type = 'admin')
 	}
 
 	// Need to type in a password for that, man.
-	adminLogin($type);
+	if (!isset($_GET['xml']))
+		adminLogin($type);
+	else
+		return 'session_verify_fail';
 }
 
 /**

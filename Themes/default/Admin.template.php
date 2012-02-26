@@ -1322,7 +1322,8 @@ function template_core_features()
 				var imgs = new Array("', $settings['images_url'], '/admin/switch_off.png", "', $settings['images_url'], '/admin/switch_on.png");
 				var new_state = !$("#feature_" + cf).attr("checked");
 				$("#feature_" + cf).attr("checked", new_state);
-				data = {save: "save"};
+
+				data = {save: "save", feature_id: cf};
 				data[$("#core_features_session").attr("name")] = $("#core_features_session").attr("value");
 				data[token_name] = token_value;
 				$(".core_features_status_box").each(function(){
@@ -1332,42 +1333,28 @@ function template_core_features()
 				// Launch AJAX request.
 				$.ajax({
 					// The link we are accessing.
-					url: $("#core_features").attr("action"),
+					url: "', $scripturl, '?action=xmlhttp;sa=corefeatures;xml",
 					// The type of request.
 					type: "post",
 					// The type of data that is getting returned.
-					dataType: "html",
 					data: data,
-					error: function(){
-						alert("Activation error");
+					error: function(error){
+							$("#activation_errors").html(error).slideDown(\'fast\');
 					},
 
-					success: function(strData){
-						// Session verification faile
-						// Token verification failed
-						// Admin session closed
-						if ($(strData).find("#feature_link_" + cf).length == 0)
+					success: function(request){
+						if ($(request).find("errors").find("error").length != 0)
 						{
-							// @todo token verification fails
-							if ($(strData).find("#frmLogin").length != 0)
-								$(document).find("#core_features").submit();
-							else
-							{
-								if ($(strData).find("#token_verify_fail").length != 0 || $(strData).find("#session_timeout").length != 0 || $(strData).find("#session_timeout").length != 0)
-									$(".errorbox").html($(strData).find("#token_verify_fail").html());
-								else
-									$(".errorbox").html(\'', $txt['error_occurred'], '\');
-								$(".errorbox").slideDown();
-							}
+							$("#activation_errors").html($(request).find("errors").find("error").text()).slideDown(\'fast\');
 						}
 						else
 						{
-							$("#feature_link_" + cf).html($(strData).find("#feature_link_" + cf).html());
+							$("#feature_link_" + cf).html($(request).find("corefeatures").find("corefeature").text());
 							cc.attr("src", imgs[new_state ? 1 : 0]);
 							$("#feature_link_" + cf).fadeOut().fadeIn();
 
-							token_name = $(strData).find("#core_features_token").attr("name");
-							token_value = $(strData).find("#core_features_token").attr("value");
+							token_name = $(request).find("tokens").find(\'[type="token"]\').text();
+							token_value = $(request).find("tokens").find(\'[type="token_var"]\').text();
 						}
 					}
 				});
@@ -1389,13 +1376,13 @@ function template_core_features()
 	}
 
 	echo '
-		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures;" method="post" accept-charset="', $context['character_set'], '">
+		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
 				</h3>
 			</div>
-			<div style="display:none" class="errorbox"></div>';
+			<div style="display:none" id="activation_errors" class="errorbox"></div>';
 
 	$alternate = true;
 	foreach ($context['features'] as $id => $feature)
