@@ -313,21 +313,22 @@ function PackageInstallTest()
 			$chmod_files[] = $action['filename'];
 			continue;
 		}
-		elseif ($action['type'] == 'readme')
+		elseif ($action['type'] == 'readme' || $action['type'] == 'license')
 		{
+			$type = 'package_' . $action['type'];
 			if (file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
-				$context['package_readme'] = htmlspecialchars(trim(file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), "\n\r"));
+				$context[$type] = htmlspecialchars(trim(file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), "\n\r"));
 			elseif (file_exists($action['filename']))
-				$context['package_readme'] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
+				$context[$type] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
 
 			if (!empty($action['parse_bbc']))
 			{
 				require_once($sourcedir . '/Subs-Post.php');
-				preparsecode($context['package_readme']);
-				$context['package_readme'] = parse_bbc($context['package_readme']);
+				preparsecode($context[$type]);
+				$context[$type] = parse_bbc($context[$type]);
 			}
 			else
-				$context['package_readme'] = nl2br($context['package_readme']);
+				$context[$type] = nl2br($context[$type]);
 
 			continue;
 		}
@@ -505,7 +506,7 @@ function PackageInstallTest()
 				'type' => $txt['package_create'] . ' ' . ($action['type'] == 'create-dir' ? $txt['package_tree'] : $txt['package_file']),
 				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
 			);
-		elseif (in_array($action['type'], array('hook')))
+		elseif ($action['type'] == 'hook')
 		{
 			$action['description'] = !isset($action['hook'], $action['function']) ? $txt['package_action_failure'] : $txt['package_action_success'];
 
@@ -515,6 +516,47 @@ function PackageInstallTest()
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
 				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+			);
+		}
+		elseif ($action['type'] == 'requires')
+		{
+			$installed = false;
+			$version = true;
+
+			// package missing required values?
+			if (!isset($action['id']))
+				$context['has_failure'] = true;
+			else
+			{
+				// See if this dependancy is installed
+				$request = $smcFunc['db_query']('', '
+					SELECT version
+					FROM {db_prefix}log_packages
+					WHERE package_id = {string:current_package}
+						AND install_state != {int:not_installed}
+					ORDER BY time_installed DESC
+					LIMIT 1',
+					array(
+						'not_installed'	=> 0,
+						'current_package' => $action['id'],
+					)
+				);
+				$installed = ($smcFunc['db_num_rows']($request) !== 0);
+				if ($installed)
+					list($version) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				// do a version level check (if requested) in the most basic way
+				$version = (isset($action['version']) ? $version == $action['version'] : true);
+			}
+
+			// Set success or failure information
+			$action['description'] = ($installed && $version) ? $txt['package_action_success'] : $txt['package_action_failure'];
+			$context['has_failure'] = !($installed && $version);
+
+			$thisAction = array(
+				'type' => $txt['package_requires'],
+				'action' => $txt['package_check_for'] . ' ' . $action['id'] . (isset($action['version']) ? (' / ' . ($version ? $action['version'] : '<span class="error">' . $action['version'] . '</span>')) : ''),
 			);
 		}
 		elseif (in_array($action['type'], array('require-dir', 'require-file')))
@@ -921,7 +963,7 @@ function PackageInstall()
 				// Now include the file and be done with it ;).
 				require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
 			}
-			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['name']))
+			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
 					remove_integration_function($action['hook'], $action['function']);

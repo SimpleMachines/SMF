@@ -46,6 +46,7 @@ function template_view_package()
 		</div>';
 	}
 
+	// Display the package readme if one exists
 	if (isset($context['package_readme']))
 	{
 		echo '
@@ -57,7 +58,7 @@ function template_view_package()
 				<div class="content">
 					', $context['package_readme'], '
 					<span class="floatright">', $txt['package_available_readme_language'], '
-						<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value);">';
+						<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
 							foreach ($context['readmes'] as $a => $b)
 								echo '<option value="', $b, '"', $a === 'selected' ? ' selected="selected"' : '', '>', $b == 'default' ? $txt['package_readme_default'] : ucfirst($b), '</option>';
 			echo '
@@ -68,7 +69,31 @@ function template_view_package()
 			</div>
 			<br />';
 	}
-
+	
+	// Did they specify a license to display?
+	if (isset($context['package_license']))
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['package_install_license'], '</h3>
+			</div>
+			<div class="windowbg2">
+				<span class="topslice"><span></span></span>
+				<div class="content">
+					', $context['package_license'], '
+					<span class="floatright">', $txt['package_available_license_language'], '
+						<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
+							foreach ($context['licenses'] as $a => $b)
+								echo '<option value="', $b, '"', $a === 'selected' ? ' selected="selected"' : '', '>', $b == 'default' ? $txt['package_license_default'] : ucfirst($b), '</option>';
+			echo '
+						</select>
+					</span>
+				</div>
+				<span class="botslice"><span></span></span>
+			</div>
+			<br />';
+	}
+	
 	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', $context['ftp_needed'] ? '' : '2', ';package=', $context['filename'], ';pid=', $context['install_id'], '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -342,6 +367,21 @@ function template_view_package()
 		}
 
 	echo '
+	// ]]></script>';
+	
+	// Get the currently selected item from a select list
+	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+	function get_selected(id)
+	{
+		var aSelected = document.getElementById(id);
+		for (var i = 0; i < aSelected.options.length; i++)
+		{
+			if (aSelected.options[i].selected == true)
+				return aSelected.options[i].value;
+		}
+		return aSelected.options[0];
+	}
 	// ]]></script>';
 
 	// And a bit more for database changes.
