@@ -1124,6 +1124,26 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 			);
 			continue;
 		}
+		elseif ($actionType == 'credits')
+		{
+			// quick check of any supplied url
+			$url = $action->exists('@url') ? $action->fetch('@url') : '';
+			if (strlen(trim($url)) > 0 && substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://')
+			{
+				$url = 'http://' . $url;
+				if (strlen($url) < 8 || (substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://'))
+					$url = '';
+			}
+
+			$return[] = array(
+				'type' => $actionType,
+				'url' => $url,
+				'license' => $action->exists('@license') ? $action->fetch('@license') : '',
+				'copyright' => $action->exists('@copyright') ? $action->fetch('@copyright') : '',
+				'title' => $action->fetch('.'),
+			);
+			continue;
+		}
 		elseif ($actionType == 'requires')
 		{
 			$return[] = array(
@@ -1263,7 +1283,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 		}
 		elseif ($actionType == 'remove-dir')
 		{
-			if (!is_writable($this_action['filename']) && file_exists($this_action['destination']))
+			if (!is_writable($this_action['filename']) && file_exists($this_action['filename']))
 				$return[] = array(
 					'type' => 'chmod',
 					'filename' => $this_action['filename']
@@ -1289,7 +1309,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	$not_done = array(array('type' => '!'));
 	foreach ($return as $action)
 	{
-		if (in_array($action['type'], array('modification', 'code', 'database', 'redirect', 'hook')))
+		if (in_array($action['type'], array('modification', 'code', 'database', 'redirect', 'hook', 'credits')))
 			$not_done[] = $action;
 
 		if ($action['type'] == 'create-dir')

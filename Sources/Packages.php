@@ -490,10 +490,12 @@ function PackageInstallTest()
 			$thisAction = array();
 		}
 		elseif ($action['type'] == 'code')
+		{
 			$thisAction = array(
 				'type' => $txt['execute_code'],
 				'action' => $smcFunc['htmlspecialchars']($action['filename']),
 			);
+		}
 		elseif ($action['type'] == 'database')
 		{
 			$thisAction = array(
@@ -502,10 +504,12 @@ function PackageInstallTest()
 			);
 		}
 		elseif (in_array($action['type'], array('create-dir', 'create-file')))
+		{
 			$thisAction = array(
 				'type' => $txt['package_create'] . ' ' . ($action['type'] == 'create-dir' ? $txt['package_tree'] : $txt['package_file']),
 				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
 			);
+		}
 		elseif ($action['type'] == 'hook')
 		{
 			$action['description'] = !isset($action['hook'], $action['function']) ? $txt['package_action_failure'] : $txt['package_action_success'];
@@ -516,6 +520,13 @@ function PackageInstallTest()
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
 				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+			);
+		}
+		elseif ($action['type'] == 'credits')
+		{
+			$thisAction = array(
+				'type' => $txt['execute_credits_add'],
+				'action' => sprintf($txt['execute_credits_action'],  $smcFunc['htmlspecialchars']($action['title'])),
 			);
 		}
 		elseif ($action['type'] == 'requires')
@@ -963,6 +974,16 @@ function PackageInstall()
 				// Now include the file and be done with it ;).
 				require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
 			}
+			elseif ($action['type'] == 'credits')
+			{
+				// Time to build the billboard
+				$credits_tag = array(
+					'url' => $action['url'],
+					'license' => $action['license'],
+					'copyright' => $action['copyright'],
+					'title' => $action['title'],
+				);
+			}
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
@@ -1090,19 +1111,21 @@ function PackageInstall()
 			// What failed steps?
 			$failed_step_insert = serialize($failed_steps);
 
+			// Credits tag?
+			$credits_tag = (empty($credits_tag)) ? array() : serialize($credits_tag);
 			$smcFunc['db_insert']('',
 				'{db_prefix}log_packages',
 				array(
 					'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
 					'id_member_installed' => 'int', 'member_installed' => 'string','time_installed' => 'int',
 					'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
-					'member_removed' => 'int', 'db_changes' => 'string',
+					'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
 				),
 				array(
 					$packageInfo['filename'], $packageInfo['name'], $packageInfo['id'], $packageInfo['version'],
 					$user_info['id'], $user_info['name'], time(),
 					$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
-					0, $db_changes,
+					0, $db_changes, $credits_tag,
 				),
 				array('id_install')
 			);
