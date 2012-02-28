@@ -41,7 +41,7 @@
 function template_init()
 {
 	global $context, $settings, $options, $txt;
-echo "AA";
+
 	/* Use images from default theme when using templates from the default theme?
 		if this is 'always', images from the default theme will be used.
 		if this is 'defaults', images from the default theme will only be used with default templates.
