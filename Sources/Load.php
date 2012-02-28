@@ -1674,26 +1674,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['javascript_files'] = array();
 	$context['css_files'] = array();
 
-	// We allow theme variants, because we're cool.
-	$context['theme_variant'] = '';
-	$context['theme_variant_url'] = '';
-	if (!empty($settings['theme_variants']))
-	{
-		// Overriding - for previews and that ilk.
-		if (!empty($_REQUEST['variant']))
-			$_SESSION['id_variant'] = $_REQUEST['variant'];
-		// User selection?
-		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
-			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
-		// If not a user variant, select the default.
-		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
-			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	
-		// Do this to keep things easier in the templates.
-		$context['theme_variant'] = '_' . $context['theme_variant'];
-		$context['theme_variant_url'] = $context['theme_variant'] . '/';
-	}
-
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
 	{
@@ -1751,6 +1731,26 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Any theme-related strings that need to be loaded?
 	if (!empty($settings['require_theme_strings']))
 		loadLanguage('ThemeStrings', '', false);
+
+	// We allow theme variants, because we're cool.
+	$context['theme_variant'] = '';
+	$context['theme_variant_url'] = '';
+	if (!empty($settings['theme_variants']))
+	{
+		// Overriding - for previews and that ilk.
+		if (!empty($_REQUEST['variant']))
+			$_SESSION['id_variant'] = $_REQUEST['variant'];
+		// User selection?
+		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
+			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
+		// If not a user variant, select the default.
+		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
+			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
+	
+		// Do this to keep things easier in the templates.
+		$context['theme_variant'] = '_' . $context['theme_variant'];
+		$context['theme_variant_url'] = $context['theme_variant'] . '/';
+	}
 
 	// Let's be compatible with old themes!
 	if (!function_exists('template_html_above') && in_array('html', $context['template_layers']))
