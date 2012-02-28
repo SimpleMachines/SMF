@@ -1354,7 +1354,10 @@ function template_core_features()
 							$("#feature_link_" + cf).fadeOut().fadeIn();
 							$("#activation_message").attr(\'class\', \'successbox\');
 							var message = new_state ? ' . JavaScriptEscape($txt['core_settings_activation_message']) . ' : ' . JavaScriptEscape($txt['core_settings_deactivation_message']) . ';
-							$("#activation_message").html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\').fadeOut().fadeIn();;
+							$("#activation_message").html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\');
+							setTimeout(function() {
+								$("#activation_message").slideUp();
+							}, 5000);
 
 							token_name = $(request).find("tokens").find(\'[type="token"]\').text();
 							token_value = $(request).find("tokens").find(\'[type="token_var"]\').text();
