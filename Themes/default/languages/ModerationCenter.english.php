@@ -5,8 +5,9 @@ global $scripturl;
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
+$txt['mc_logs'] = 'Logs';
 $txt['mc_posts'] = 'Posts';
-$txt['mc_groups'] = 'Membergroups';
+$txt['mc_groups'] = 'Members and groups';
 
 $txt['mc_view_groups'] = 'View Membergroups';
 
@@ -125,7 +126,6 @@ $txt['mc_warning_template_personal'] = 'Personal Template';
 $txt['mc_warning_template_personal_desc'] = 'If you select this option only you will be able to see, edit and use this template. If not selected all moderators will be able to use this template.';
 $txt['mc_warning_template_error_empty'] = 'You must set both a title and notification body.';
 
-$txt['mc_prefs'] = 'Preferences';
 $txt['mc_settings'] = 'Change Settings';
 $txt['mc_prefs_title'] = 'Moderation Preferences';
 $txt['mc_prefs_desc'] = 'This section allows you to set some personal preferences for moderation related activities such as email notifications.';
