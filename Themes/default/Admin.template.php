@@ -1339,22 +1339,30 @@ function template_core_features()
 					// The type of data that is getting returned.
 					data: data,
 					error: function(error){
-							$("#activation_errors").html(error).slideDown(\'fast\');
+							$("#activation_message").html(error).slideDown(\'fast\');
 					},
 
 					success: function(request){
 						if ($(request).find("errors").find("error").length != 0)
 						{
-							$("#activation_errors").html($(request).find("errors").find("error").text()).slideDown(\'fast\');
+							$("#activation_message").html($(request).find("errors").find("error").text()).slideDown(\'fast\');
 						}
-						else
+						else if ($(request).find("smf").length != 0)
 						{
 							$("#feature_link_" + cf).html($(request).find("corefeatures").find("corefeature").text());
 							cc.attr("src", imgs[new_state ? 1 : 0]);
 							$("#feature_link_" + cf).fadeOut().fadeIn();
+							$("#activation_message").attr(\'class\', \'successbox\');
+							var message = new_state ? ' . JavaScriptEscape($txt['core_settings_activation_message']) . ' : ' . JavaScriptEscape($txt['core_settings_deactivation_message']) . ';
+							$("#activation_message").html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\').fadeOut().fadeIn();;
 
 							token_name = $(request).find("tokens").find(\'[type="token"]\').text();
 							token_value = $(request).find("tokens").find(\'[type="token_var"]\').text();
+						}
+						else
+						{
+							$("#activation_message").html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
+							
 						}
 					}
 				});
@@ -1382,7 +1390,7 @@ function template_core_features()
 					', $txt['core_settings_title'], '
 				</h3>
 			</div>
-			<div style="display:none" id="activation_errors" class="errorbox"></div>';
+			<div style="display:none" id="activation_message" class="errorbox"></div>';
 
 	$alternate = true;
 	foreach ($context['features'] as $id => $feature)
