@@ -1811,7 +1811,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// This is done in a roundabout way because $breaker has "long words" :P.
 					$data = strtr($data, array($breaker => '< >', '&nbsp;' => $context['utf8'] ? "\xC2\xA0" : "\xA0"));
 					$data = preg_replace(
-						'~(?<=[>;:!? ' . $non_breaking_space . '\]()]|^)([\w' . ($context['utf8'] ? '\pL' : '') . '\.]{' . $modSettings['fixLongWords'] . ',})~e' . ($context['utf8'] ? 'u' : ''),
+						'~(?<=[>;:!? ' . $non_breaking_space . '\]()\n]|^)([\w' . ($context['utf8'] ? '\pL' : '') . '\.]{' . $modSettings['fixLongWords'] . ',})~e' . ($context['utf8'] ? 'u' : ''),
 						'preg_replace(\'/(.{' . ($modSettings['fixLongWords'] - 1) . '})/' . ($context['utf8'] ? 'u' : '') . '\', \'\\$1< >\', \'$1\')',
 						$data);
 					$data = strtr($data, array('< >' => $breaker, $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
