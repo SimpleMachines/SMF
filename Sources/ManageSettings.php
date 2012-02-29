@@ -175,7 +175,6 @@ function ModifyCoreFeatures($return_config = false)
 	/* This is an array of all the features that can be enabled/disabled - each option can have the following:
 		title		- Text title of this item (If standard string does not exist).
 		desc		- Description of this feature (If standard string does not exist).
-		image		- Custom image to show next to feature.
 		settings	- Array of settings to change (For each name => value) on enable - reverse is done for disable. If > 1 will not change value if set.
 		setting_callback- Function that returns an array of settings to save - takes one parameter which is value for this feature.
 		save_callback	- Function called on save, takes state as parameter.
@@ -411,6 +410,7 @@ function ModifyCoreFeatures($return_config = false)
 			'enabled' => in_array($id, $context['admin_features']),
 			'state' => in_array($id, $context['admin_features']) ? 'on' : 'off',
 			'url' => !empty($feature['url']) ? $scripturl . '?' . $feature['url'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '',
+			'image' => (file_exists($settings['theme_dir'] . '/images/admin/feature_' . $id . '.png') ? $settings['images_url'] : $settings['default_images_url']) . '/admin/feature_' . $id . '.png',
 		);
 
 	// Are they a new user?

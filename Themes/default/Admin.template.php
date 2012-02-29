@@ -1402,7 +1402,7 @@ function template_core_features()
 			<div class="windowbg', $alternate ? '2' : '', '">
 				<span class="topslice"><span></span></span>
 				<div class="content features">
-					<img class="features_image png_fix" src="', $settings['default_images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
+					<img class="features_image" src="', $feature['image'], '" alt="', $feature['title'], '" />
 					<div class="features_switch" id="js_feature_', $id, '">
 							<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
 							<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;display:none" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
