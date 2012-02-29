@@ -18,7 +18,8 @@ if (!defined('SMF'))
 
 /**
  * Load the $modSettings array.
- * @todo okay question of the day: why a function loading settings is called reloadSettings()
+ *
+ * @todo okay question of the day: why a function for loading settings is called reloadSettings()
  *
  * @global array $modSettings is a giant array of all of the forum-wide settings and statistics.
  */
@@ -72,9 +73,7 @@ function reloadSettings()
 	// Preg_replace can handle complex characters only for higher PHP versions.
 	$space_chars = $utf8 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
 
-	/**
-	 * @global array An array of anonymous helper functions.
-	 */
+	// global array of anonymous helper functions, used mosly to properly handle multi byte strings
 	$smcFunc += array(
 		'entity_fix' => create_function('$string', '
 			$num = $string[0] === \'x\' ? hexdec(substr($string, 1)) : (int) $string;
@@ -165,7 +164,7 @@ function reloadSettings()
 			if (!empty($modSettings['load_average']))
 				cache_put_data('loadavg', $modSettings['load_average'], 90);
 		}
-		
+
 		if (!empty($modSettings['load_average']))
 			call_integration_hook('integrate_load_average', array($modSettings['load_average']));
 
@@ -740,6 +739,7 @@ function loadBoard()
 
 /**
  * Load this user's permissions.
+ *
  */
 function loadPermissions()
 {
@@ -1224,13 +1224,13 @@ function loadMemberContext($user, $display_custom_fields = false)
 }
 
 /**
- * This function is... detecting the browser, right.
- * Loads a bunch of browser information in to $context
+ * Loads information about what browser the user is viewing with and places it in $context
+ *
  */
 function detectBrowser()
 {
 	global $context, $user_info;
-	
+
 	// The following determines the user agent (browser) as best it can.
 	$context['browser'] = array(
 		'is_opera' => strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false,
@@ -1344,7 +1344,8 @@ function detectBrowser()
 }
 
 /**
- * Are we using this browser? 
+ * Are we using this browser?
+ *
  * Wrapper function for detectBrowser
  * @param $browser: browser we are checking for.
 */
@@ -1674,26 +1675,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['javascript_files'] = array();
 	$context['css_files'] = array();
 
-	// We allow theme variants, because we're cool.
-	$context['theme_variant'] = '';
-	$context['theme_variant_url'] = '';
-	if (!empty($settings['theme_variants']))
-	{
-		// Overriding - for previews and that ilk.
-		if (!empty($_REQUEST['variant']))
-			$_SESSION['id_variant'] = $_REQUEST['variant'];
-		// User selection?
-		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
-			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
-		// If not a user variant, select the default.
-		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
-			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	
-		// Do this to keep things easier in the templates.
-		$context['theme_variant'] = '_' . $context['theme_variant'];
-		$context['theme_variant_url'] = $context['theme_variant'] . '/';
-	}
-
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
 	{
@@ -1751,6 +1732,26 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Any theme-related strings that need to be loaded?
 	if (!empty($settings['require_theme_strings']))
 		loadLanguage('ThemeStrings', '', false);
+
+	// We allow theme variants, because we're cool.
+	$context['theme_variant'] = '';
+	$context['theme_variant_url'] = '';
+	if (!empty($settings['theme_variants']))
+	{
+		// Overriding - for previews and that ilk.
+		if (!empty($_REQUEST['variant']))
+			$_SESSION['id_variant'] = $_REQUEST['variant'];
+		// User selection?
+		if (empty($settings['disable_user_variant']) || allowedTo('admin_forum'))
+			$context['theme_variant'] = !empty($_SESSION['id_variant']) ? $_SESSION['id_variant'] : (!empty($options['theme_variant']) ? $options['theme_variant'] : '');
+		// If not a user variant, select the default.
+		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
+			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
+	
+		// Do this to keep things easier in the templates.
+		$context['theme_variant'] = '_' . $context['theme_variant'];
+		$context['theme_variant_url'] = $context['theme_variant'] . '/';
+	}
 
 	// Let's be compatible with old themes!
 	if (!function_exists('template_html_above') && in_array('html', $context['template_layers']))
@@ -1841,9 +1842,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 /**
  * Load a template - if the theme doesn't include it, use the default.
  * What this function does:
- * * loads a template file with the name template_name from the current, default, or base theme.
- * * detects a wrong default theme directory and tries to work around it.
- * 
+ *  - loads a template file with the name template_name from the current, default, or base theme.
+ *  - detects a wrong default theme directory and tries to work around it.
+ *
  * @uses the template_include() function to include the file.
  * @param string $template_name
  * @param array $style_sheets = array()
@@ -1969,6 +1970,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 
 /**
  * Add a CSS file for output later
+ *
  * @param string $filename
  * @param array $options
  */
@@ -1984,6 +1986,7 @@ function loadCSSFile($filename, $options = array())
 
 /**
  * Add a Javascript file for output later
+ *
  * @param string $filename
  * @param array $options
  */
@@ -2243,14 +2246,13 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  * What this function does:
  *  - it censors the passed string.
  *  - if the theme setting allow_no_censored is on, and the theme option
- *  	  show_no_censored is enabled, does not censor - unless force is set.
+ *    show_no_censored is enabled, does not censor, unless force is also set.
  *  - it caches the list of censored words to reduce parsing.
- * 
+ *
  * @param string &$text
  * @param bool $force = false
  * @return string The censored text
  */
-// Replace all vulgar words with respective proper words. (substring or whole words..)
 function censorText(&$text, $force = false)
 {
 	global $modSettings, $options, $settings, $txt;
@@ -2525,7 +2527,6 @@ function loadDatabase()
 
 /**
  * Try to retrieve a cache entry. On failure, call the appropriate function.
- * @todo find a better place for cache implementation
  *
  * @param string $key
  * @param string $file
@@ -2542,14 +2543,14 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 
 	if (function_exists('call_integration_hook'))
 		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
-		
+
 	/* Refresh the cache if either:
 		1. Caching is disabled.
 		2. The cache level isn't high enough.
 		3. The item has not been cached or the cached item expired.
 		4. The cached item has a custom expiration condition evaluating to true.
 		5. The expire time set in the cache item has passed (needed for Zend).
-	*/	
+	*/
 	if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < $level || !is_array($cache_block = cache_get_data($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time()))
 	{
 		require_once($sourcedir . '/' . $file);
