@@ -93,6 +93,7 @@ $txt['warn_mute'] = 'Muted';
 $txt['message_index'] = 'Message Index';
 $txt['news'] = 'News';
 $txt['home'] = 'Home';
+$txt['page'] = 'Page';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
