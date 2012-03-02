@@ -144,13 +144,15 @@ function ManageBoardsMain()
 			$prev_child_level = 0;
 			$prev_board = 0;
 			$stack = array();
+			// Just a shortcut, this is the same for all the urls
+			$security = $context['session_var'] . '=' . $context['session_id'] . ';' . $context['admin-bm-' . $context['move_board'] . '_token_var'] . '=' . $context['admin-bm-' . $context['move_board'] . '_token'];
 			foreach ($boardList[$catid] as $boardid)
 			{
 				if (!isset($context['categories'][$catid]['move_link']))
 					$context['categories'][$catid]['move_link'] = array(
 						'child_level' => 0,
 						'label' => $txt['mboards_order_before'] . ' \'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context['admin-bm-' . $context['move_board'] . '_token_var'] . '=' . $context['admin-bm-' . $context['move_board'] . '_token'],
+						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 					);
 
 				if (!$context['categories'][$catid]['boards'][$boardid]['move'])
@@ -158,12 +160,12 @@ function ManageBoardsMain()
 					array(
 						'child_level' => $boards[$boardid]['level'],
 						'label' => $txt['mboards_order_after'] . '\'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $context['session_var'] . '=' . $context['session_id'],
+						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 					),
 					array(
 						'child_level' => $boards[$boardid]['level'] + 1,
 						'label' => $txt['mboards_order_child_of'] . ' \'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
-						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $context['session_var'] . '=' . $context['session_id'],
+						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 					),
 				);
 
@@ -192,7 +194,7 @@ function ManageBoardsMain()
 				$context['categories'][$catid]['move_link'] = array(
 					'child_level' => 0,
 					'label' => $txt['mboards_order_before'] . ' \'' . htmlspecialchars($tree['node']['name']) . '\'',
-					'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $context['session_var'] . '=' . $context['session_id'],
+					'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 				);
 		}
 	}
@@ -291,6 +293,7 @@ function EditCategory()
 
 	// Create a special token.
 	createToken('admin-bc-' . $_REQUEST['cat']);
+	$context['token_check'] = 'admin-bc-' . $_REQUEST['cat'];
 
 	call_integration_hook('integrate_edit_category');
 }
