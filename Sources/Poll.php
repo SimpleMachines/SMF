@@ -451,6 +451,8 @@ function EditPoll()
 			'is_last' => true
 		);
 
+		$context['last_choice_id'] = $last_id;
+
 		if ($context['can_moderate_poll'])
 			$context['poll']['expiration'] = $_POST['poll_expire'];
 
@@ -527,6 +529,7 @@ function EditPoll()
 				'label' => '',
 				'is_last' => true
 			);
+			$context['last_choice_id'] = $last_id;
 		}
 		// New poll?
 		else
@@ -551,6 +554,7 @@ function EditPoll()
 				array('id' => 3, 'number' => 4, 'votes' => -1, 'label' => '', 'is_last' => false),
 				array('id' => 4, 'number' => 5, 'votes' => -1, 'label' => '', 'is_last' => true)
 			);
+			$context['last_choice_id'] = 4;
 		}
 	}
 	$context['page_title'] = $context['is_edit'] ? $txt['poll_edit'] : $txt['add_poll'];
@@ -633,15 +637,19 @@ function EditPoll2()
 		isAllowedTo('poll_add_' . ($user_info['id'] == $bcinfo['id_member_started'] ? 'own' : 'any'));
 
 	$optionCount = 0;
+	$idCount = 0;
 	// Ensure the user is leaving a valid amount of options - there must be at least two.
 	foreach ($_POST['options'] as $k => $option)
 	{
 		if (trim($option) != '')
+		{
 			$optionCount++;
+			$idCount = max($idCount, $k);
+		}
 	}
 	if ($optionCount < 2)
 		$poll_errors[] = 'poll_few';
-	elseif ($optionCount > 256)
+	elseif ($optionCount > 256 || $idCount > 255)
 		$poll_errors[] = 'poll_many';
 
 	// Also - ensure they are not removing the question.
