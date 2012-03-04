@@ -627,10 +627,6 @@ function template_browse()
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var tempOldOnload;
-		// ]]></script>';
-
-		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
 			smfSetLatestPackages();
 		// ]]></script>';
 

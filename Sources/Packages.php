@@ -1492,7 +1492,15 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 		$dirs = array();
 		while ($package = readdir($dir))
 		{
-			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($boarddir . '/Packages/' . $package) && file_exists($boarddir . '/Packages/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip') || isset($context['available_' . $params][md5($package)]))
+			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($boarddir . '/Packages/' . $package) && file_exists($boarddir . '/Packages/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
+				continue;
+
+			$skip = false;
+			foreach ($context['modification_types'] as $type)
+				if (isset($context['available_' . $type][md5($package)]))
+					$skip = true;
+
+			if ($skip)
 				continue;
 
 			// Skip directories or files that are named the same.
