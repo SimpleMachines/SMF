@@ -49,7 +49,7 @@ function Packages()
 		'install2' => 'PackageInstall',
 		'uninstall' => 'PackageInstallTest',
 		'uninstall2' => 'PackageInstall',
-		'installed' => 'InstalledList',
+		'installed' => 'PackageBrowse',
 		'options' => 'PackageOptions',
 		'perms' => 'PackagePermissions',
 		'flush' => 'FlushInstall',
@@ -1330,11 +1330,13 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir;
+	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir, $settings;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 	$context['forum_version'] = $forum_version;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+
+	$installed = $context['sub_action'] == 'installed' ? true : false;
 
 	require_once($sourcedir . '/Subs-List.php');
 
@@ -1343,11 +1345,11 @@ function PackageBrowse()
 		// Use the standard templates for showing this.
 		$listOptions = array(
 			'id' => 'packages_lists_' . $type,
-			'title' => $txt[$type . '_package'],
+			'title' => $installed ? $txt['view_and_remove'] : $txt[$type . '_package'],
 			'no_items_label' => $txt['no_packages'],
 			'get_items' => array(
 				'function' => 'list_getPackages',
-				'params' => array($type),
+				'params' => array('type' => $type, 'installed' => $installed),
 			),
 			'columns' => array(
 				'id' => array(
@@ -1426,6 +1428,19 @@ function PackageBrowse()
 					),
 				),
 			),
+			'additional_rows' => array(
+				array(
+					'position' => 'bottom_of_list',
+					'value' => (
+					$context['sub_action'] == 'browse' ? '
+			<div class="padding smalltext floatleft">
+				' . $txt['package_installed_key'] . '
+				<img src="' . $settings['images_url'] . '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ' . $txt['package_installed_current'] . '
+				<img src="' . $settings['images_url'] . '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ' . $txt['package_installed_old'] . '
+			</div>' : '<a href="' . $scripturl . '?action=admin;area=packages;sa=flush;' . $context['session_var'] . '=' . $context['session_id'] . '">[ ' . $txt['delete_list'] . ' ]</a>'),
+					'align' => 'right',
+				),
+			),
 		);
 
 		createList($listOptions);
@@ -1443,7 +1458,7 @@ function PackageBrowse()
 
 }
 
-function list_getPackages($start, $items_per_page, $sort, $params)
+function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 {
 	global $boarddir, $scripturl, $context, $forum_version;
 	static $instmods, $packages;
@@ -1482,6 +1497,24 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 
 		// Get a list of all the ids installed, so the latest packages won't include already installed ones.
 		$context['installed_mods'] = array_keys($installed_mods);
+	}
+
+	if ($installed)
+	{
+		foreach ($instmods as $installed_mod)
+		{
+			$packages['modification'][] = $installed_mod['package_id'];
+			$context['available_modification'][$installed_mod['package_id']] = array(
+				'can_uninstall' => true,
+				'name' => $installed_mod['name'],
+				'filename' => $installed_mod['filename'],
+				'installed_id' => $installed_mod['id'],
+				'version' => $installed_mod['version'],
+				'is_installed' => true,
+				'is_current' => true,
+			);
+		}
+		return $packages['modification'];
 	}
 
 	if (empty($packages))

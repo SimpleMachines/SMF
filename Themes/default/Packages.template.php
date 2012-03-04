@@ -534,68 +534,16 @@ function template_examine()
 	<br class="clear" />';
 }
 
-function template_view_installed()
-{
-	global $context, $settings, $options, $txt, $scripturl;
-
-	echo '
-	<div id="admincenter">
-		<div class="title_bar">
-			<h3 class="titlebg">' . $txt['view_and_remove'] . '</h3>
-		</div>';
-
-	if (empty($context['installed_mods']))
-	{
-		echo '
-		<div class="information">
-			', $txt['no_mods_installed'], '
-		</div>';
-	}
-	else
-	{
-		echo '
-		<table class="table_grid" width="100%">
-		<thead>
-			<tr class="catbg">
-				<th class="first_th" scope="col" width="32"></th>
-				<th class="lefttext" scope="col" width="25%">', $txt['mod_name'], '</th>
-				<th class="lefttext" scope="col" width="25%">', $txt['mod_version'], '</th>
-				<th class="last_th" scope="col" width="49%"></th>
-			</tr>
-		</thead>
-		<tbody>';
-
-		$alt = false;
-		foreach ($context['installed_mods'] as $i => $file)
-		{
-			echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg2', '">
-				<td><span class="smalltext">', ++$i, '.</span></td>
-				<td><span class="smalltext">', $file['name'], '</span></td>
-				<td><span class="smalltext">', $file['version'], '</span></td>
-				<td align="right"><span class="smalltext"><a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $file['filename'], ';pid=', $file['id'], '">[ ', $txt['uninstall'], ' ]</a></span></td>
-			</tr>';
-			$alt = !$alt;
-		}
-
-		echo '
-		</tbody>
-		</table>
-		<br />
-		<a href="', $scripturl, '?action=admin;area=packages;sa=flush;', $context['session_var'], '=', $context['session_id'], '">[ ', $txt['delete_list'], ' ]</a>';
-	}
-
-	echo '
-	</div>
-	<br class="clear" />';
-}
-
 function template_browse()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings, $forum_version;
 
 	echo '
-	<div id="admincenter">
+	<div id="admincenter">';
+
+	if ($context['sub_action'] == 'browse')
+	{
+		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a> ', $txt['packages_latest'], '</span>
@@ -614,27 +562,28 @@ function template_browse()
 			window.smfForum_sessionid = "', $context['session_id'], '";
 			window.smfForum_sessionvar = "', $context['session_var'], '";';
 
-	// Make a list of already installed mods so nothing is listed twice ;).
-	echo '
+		// Make a list of already installed mods so nothing is listed twice ;).
+		echo '
 			window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 			window.smfVersion = "', $context['forum_version'], '";
 		// ]]></script>';
 
-	if (empty($modSettings['disable_smf_js']))
-		echo '
+		if (empty($modSettings['disable_smf_js']))
+			echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
 
-	echo '
+		echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var tempOldOnload;
 			smfSetLatestPackages();
 		// ]]></script>';
 
-	echo '
+		echo '
 		<br />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['browse_packages'], '</h3>
 		</div>';
+	}
 
 	$mods_available = false;
 	foreach ($context['modification_types'] as $type)
@@ -648,16 +597,11 @@ function template_browse()
 
 	if (!$mods_available)
 		echo '
-		<div class="information">', $txt['no_packages'], '</div>';
+		<div class="information">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
 
 	echo '
 		<div class="flow_auto">
 			<div class="padding smalltext floatleft">
-				', $txt['package_installed_key'], '
-				<img src="', $settings['images_url'], '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-				<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
-			</div>
-			<div class="padding smalltext floatright">
 				<a class="button_link" href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
 			</div>
 		</div>
