@@ -1146,7 +1146,7 @@ function template_edit_options()
 
 	// The main header!
 	echo '
-		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member'] . ';save'), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
+		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.gif" alt="" class="icon" />';
@@ -1330,13 +1330,17 @@ function template_edit_options()
 	echo '
 					<div class="righttext">';
 
+	if (!empty($context['show_preview_button']))
+		echo '
+						<input type="submit" name="preview" value="', $txt['preview_signature'], '" class="button_submit" />';
+
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
 		echo '
-						<input type="submit" value="', $context['submit_button_text'], '" class="button_submit" />';
+						<input type="submit" name="save" value="', $context['submit_button_text'], '" class="button_submit" />';
 	else
 		echo '
-						<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />';
+						<input type="submit" name="save" value="', $txt['change_profile'], '" class="button_submit" />';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -2541,6 +2545,21 @@ function template_profile_birthdate()
 function template_profile_signature_modify()
 {
 	global $txt, $context, $settings;
+
+	echo '
+							<dt id="current_signature"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
+								<strong>', $txt['current_signature'], ':</strong>
+							</dt>
+							<dd id="current_signature_display"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
+								', isset($context['member']['current_signature']) ? $context['member']['current_signature'] : '', '<hr />
+							</dd>';
+	echo '
+							<dt id="signature_preview"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+								<strong>', $txt['signature_preview'], ':</strong>
+							</dt>
+							<dd id="signature_preview_display"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+								', isset($context['member']['signature_preview']) ? $context['member']['signature_preview'] : '', '<hr />
+							</dd>';
 
 	echo '
 							<dt>

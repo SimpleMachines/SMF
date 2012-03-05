@@ -394,6 +394,8 @@ function ModifyProfile($post_errors = array())
 
 	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we ever compromise the menu function in error!
 	$context['completed_save'] = false;
+	$context['do_preview'] = isset($_REQUEST['preview']);
+
 	$security_checks = array();
 	$found_area = false;
 	foreach ($profile_areas as $section_id => $section)
@@ -409,7 +411,7 @@ function ModifyProfile($post_errors = array())
 					fatal_lang_error('no_access', false);
 
 				// Are we saving data in a valid area?
-				if (isset($area['sc']) && isset($_REQUEST['save']))
+				if (isset($area['sc']) && isset($_REQUEST['save']) || $context['do_preview'])
 				{
 					$security_checks['session'] = $area['sc'];
 					$context['completed_save'] = true;
@@ -645,7 +647,7 @@ function ModifyProfile($post_errors = array())
 			$context['modify_error'][$error_type] = true;
 	}
 	// If it's you then we should redirect upon save.
-	elseif (!empty($profile_vars) && $context['user']['is_owner'])
+	elseif (!empty($profile_vars) && $context['user']['is_owner'] && !$context['do_preview'])
 		redirectexit('action=profile;area=' . $current_area . ';updated');
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
