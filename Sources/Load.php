@@ -2659,11 +2659,32 @@ function cache_put_data($key, $value, $ttl = 120)
 		{
 			$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
 			
-			if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
+			// Write out the cache file, check that the cache write was successful; all the data must be written
+			// If it fails due to low diskspace, or other, remove the cache file
+			if (version_compare(PHP_VERSION, '5.1', '<'))
 			{
-				// Check that the cache write was successful; all the data should be written
-				// If it fails due to low diskspace, remove the cache file
-				@unlink($cachedir . '/data_' . $key . '.php');
+				$fh = @fopen($cachedir . '/data_' . $key . '.php', 'w');
+				if ($fh)
+				{
+					// Write the file.
+					set_file_buffer($fh, 0);
+
+					if (flock($fh, LOCK_EX))
+						$cache_bytes = fwrite($fh, $cache_data);
+					else
+						$cache_bytes = 0;
+
+					flock($fh, LOCK_UN);
+					fclose($fh);
+
+					if ($cache_bytes !== strlen($cache_data))
+						@unlink($cachedir . '/data_' . $key . '.php');
+				}
+			}
+			else
+			{
+				if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
+					@unlink($cachedir . '/data_' . $key . '.php');
 			}
 		}
 	}
