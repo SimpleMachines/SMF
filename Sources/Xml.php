@@ -164,15 +164,20 @@ function newsletterpreview()
 }
 function sig_preview()
 {
-	global $context, $sourcedir, $smcFunc, $txt;
+	global $context, $sourcedir, $smcFunc, $txt, $user_info;
 
 	require_once($sourcedir . '/Profile-Modify.php');
 	loadLanguage('Errors');
 
 	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
+	$is_owner = $user == $user_info['id'];
+
+	// @todo Temporary
+	// Borrowed from loadAttachmentContext in Display.php
+	$can_change = $is_owner ? allowedTo(array('profile_extra_any', 'profile_extra_own')) : allowedTo('profile_extra_any');
 
 	$errors = array();
-	if (!empty($user))
+	if (!empty($user) && $can_change)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT signature
@@ -196,6 +201,13 @@ function sig_preview()
 
 		censorText($preview_signature);
 		$preview_signature = parse_bbc($preview_signature, true, 'sig' . $user);
+	}
+	elseif (!$can_change)
+	{
+		if ($is_owner)
+			$errors[] = array('value' => $txt['cannot_profile_extra_own'], 'attributes' => array('type' => 'error'));
+		else
+			$errors[] = array('value' => $txt['cannot_profile_extra_any'], 'attributes' => array('type' => 'error'));
 	}
 	else
 		$errors[] = array('value' => $txt['no_user_selected'], 'attributes' => array('type' => 'error'));
