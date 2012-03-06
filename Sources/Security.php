@@ -1175,4 +1175,75 @@ function spamProtection($error_type)
 	return false;
 }
 
+/**
+ * A generic function to create a pair of index.php and .htaccess files in a directory
+ * @param string $path, the (absolute) directory path
+ * @param boolean $attachments, if the directory is an attachments directory or not
+ * @return true on success, error string if anything fails
+ */
+function secureDirectory($path, $attachments = false)
+{
+	if (empty($path))
+		return 'empty_path';
+
+	if (!is_writable($path))
+		return 'path_not_writable';
+
+	$directoryname = basename($path);
+
+	$errors = array();
+	$close = empty($attachments) ? '
+</Files>' : '
+	Allow from localhost
+</Files>
+
+RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
+
+	if (file_exists($path . '/.htaccess'))
+		$errors[] = 'htaccess_exists';
+	else
+	{
+		$fh = @fopen($path . '/.htaccess', 'w');
+		if ($fh) {
+			fwrite($fh, '<Files *>
+	Order Deny,Allow
+	Deny from all' . $close);
+			fclose($fh);
+		}
+		$errors[] = 'htaccess_cannot_create_file';
+	}
+
+	if (file_exists($path . '/index.php'))
+		$errors[] = 'index-php_exists';
+	else
+	{
+		$fh = @fopen($path . '/index.php', 'w');
+		if ($fh) {
+			fwrite($fh, '<?php
+
+// This file is here solely to protect your ' . $directoryname . ' directory.
+
+// Look for Settings.php....
+if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
+{
+	// Found it!
+	require(dirname(dirname(__FILE__)) . \'/Settings.php\');
+	header(\'Location: \' . $boardurl);
+}
+// Can\'t find it... just forget it.
+else
+	exit;
+
+?>');
+			fclose($fh);
+		}
+		$errors[] = 'index-php_cannot_create_file';
+	}
+
+	if (!empty($errors))
+		return $errors;
+	else
+		return true;
+}
+
 ?>

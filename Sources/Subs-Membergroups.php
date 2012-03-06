@@ -404,7 +404,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 	// Do the log.
 	if (!empty($log_inserts) && !empty($modSettings['modlog_enabled']))
 	{
-		require_once($sourcedir . 'Logging.php');
+		require_once($sourcedir . '/Logging.php');
 		foreach ($log_inserts as $extra)
 			logAction('removed_from_group', $extra, 'admin');
 	}
@@ -565,7 +565,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 
 	// Log the data.
 	$log_inserts = array();
-	require_once($sourcedir . 'Logging.php');
+	require_once($sourcedir . '/Logging.php');
 	foreach ($members as $member)
 		logAction('added_to_group', array('group' => $group_names[$group], 'member' => $member), 'admin');
 

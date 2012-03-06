@@ -18,6 +18,7 @@ function template_main()
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var pollOptionNum = 0;
+			var pollOptionId = ', $context['last_choice_id'], ';
 
 			function addPollOption()
 			{
@@ -28,8 +29,9 @@ function template_main()
 							pollOptionNum++;
 				}
 				pollOptionNum++
+				pollOptionId++
 
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<li><label for="options-\' + pollOptionNum + \'" ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['option'], ' \' + pollOptionNum + \'</label>: <input type="text" name="options[\' + (pollOptionNum - 1) + \']" id="options-\' + (pollOptionNum - 1) + \'" value="" size="80" maxlength="255" class="input_text" /></li><li id="pollMoreOptions"></li\');
+				setOuterHTML(document.getElementById("pollMoreOptions"), \'<li><label for="options-\' + pollOptionId + \'" ', (isset($context['poll_error']['no_question']) ? ' class="error"' : ''), '>', $txt['option'], ' \' + pollOptionNum + \'</label>: <input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255" class="input_text" /></li><li id="pollMoreOptions"></li\');
 			}
 		// ]]></script>';
 

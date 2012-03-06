@@ -278,15 +278,22 @@ function list_getMailQueueSize()
  */
 function ModifyMailSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $birthdayEmails, $modSettings;
+	global $txt, $scripturl, $context, $settings, $modSettings, $txtBirthdayEmails;
 
 	loadLanguage('EmailTemplates');
 
-	$body = $birthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['body'];
-	$subject = $birthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'];
+	$body = $txtBirthdayEmails[(empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']) . '_body'];
+	$subject = $txtBirthdayEmails[(empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']) . '_subject'];
 
 	$emails = array();
-	foreach ($birthdayEmails as $index => $dummy)
+	$processedBirthdayEmails = array();
+	foreach ($txtBirthdayEmails as $key => $value)
+	{
+		$index = substr($key, 0, strrpos($key, '_'));
+		$element = substr($key, strrpos($key, '_') + 1);
+		$processedBirthdayEmails[$index][$element] = $value;
+	}
+	foreach ($processedBirthdayEmails as $index => $dummy)
 		$emails[$index] = $index;
 
 	$config_vars = array(
@@ -302,8 +309,8 @@ function ModifyMailSettings($return_config = false)
 			array('text', 'smtp_username'),
 			array('password', 'smtp_password'),
 		'',
-			array('select', 'birthday_email', $emails, 'value' => empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email'], 'javascript' => 'onchange="fetch_birthday_preview()"'),
-			'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $birthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
+			array('select', 'birthday_email', $emails, 'value' => array('subject' => $subject, 'body' => $body), 'javascript' => 'onchange="fetch_birthday_preview()"'),
+			'birthday_subject' => array('var_message', 'birthday_subject', 'var_message' => $processedBirthdayEmails[empty($modSettings['birthday_email']) ? 'happy_birthday' : $modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3),
 			'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
 	);
 
@@ -341,9 +348,9 @@ function ModifyMailSettings($return_config = false)
 		var bDay = {';
 
 	$i = 0;
-	foreach ($birthdayEmails as $index => $email)
+	foreach ($processedBirthdayEmails as $index => $email)
 	{
-		$is_last = ++$i == count($birthdayEmails);
+		$is_last = ++$i == count($processedBirthdayEmails);
 		$context['settings_insert_above'] .= '
 			' . $index . ': {
 				subject: ' . JavaScriptEscape($email['subject']) . ',
