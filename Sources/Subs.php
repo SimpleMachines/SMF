@@ -3022,6 +3022,20 @@ function template_header()
 				if (!file_exists($boarddir . '/' . $securityFile))
 					unset($securityFiles[$i]);
 			}
+			// We are already checking so many files...just few more doesn't make any difference! :P
+			if (!empty($modSettings['currentAttachmentUploadDir']))
+			{
+				if (!is_array($modSettings['attachmentUploadDir']))
+					$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
+			}
+			else
+			{
+				$path = $modSettings['attachmentUploadDir'];
+				$id_folder_thumb = 1;
+			}
+			secureDirectory($path, true);
+			secureDirectory($cachedir);
 
 			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)))
 			{
