@@ -205,6 +205,7 @@ function Post()
 			array('id' => 3, 'number' => 4, 'label' => '', 'is_last' => false),
 			array('id' => 4, 'number' => 5, 'label' => '', 'is_last' => true)
 		);
+		$context['last_choice_id'] = 4;
 	}
 
 	if ($context['make_event'])
@@ -487,6 +488,14 @@ function Post()
 				);
 			}
 
+			// One empty option for those with js disabled...I know are few... :P
+			$context['choices'][] = array(
+				'id' => $choice_id++,
+				'number' => $choice_id,
+				'label' => '',
+				'is_last' => false
+			);
+
 			if (count($context['choices']) < 2)
 			{
 				$context['choices'][] = array(
@@ -495,13 +504,8 @@ function Post()
 					'label' => '',
 					'is_last' => false
 				);
-				$context['choices'][] = array(
-					'id' => $choice_id++,
-					'number' => $choice_id,
-					'label' => '',
-					'is_last' => false
-				);
 			}
+			$context['last_choice_id'] = $choice_id;
 			$context['choices'][count($context['choices']) - 1]['is_last'] = true;
 		}
 
@@ -1039,8 +1043,8 @@ function Post()
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'],
 			'name' => $form_subject,
-			'extra_before' => '<span' . ($settings['linktree_inline'] ? ' class="smalltext"' : '') . '><strong class="nav">' . $context['page_title'] . ' ( </strong></span>',
-			'extra_after' => '<span' . ($settings['linktree_inline'] ? ' class="smalltext"' : '') . '><strong class="nav"> )</strong></span>'
+			'extra_before' => '<span><strong class="nav">' . $context['page_title'] . ' ( </strong></span>',
+			'extra_after' => '<span><strong class="nav"> )</strong></span>'
 		);
 
 	// Give wireless a linktree url to the post screen, so that they can switch to full version.

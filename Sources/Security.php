@@ -40,7 +40,7 @@ function validateSession($type = 'admin')
 	$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
 
 	// Is the security option off?  Or are they already logged in?
-	if (!empty($modSettings['securityDisable' . $type != 'admin' ? '_' . $type : '']) || (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()))
+	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]) || (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()))
 		return;
 
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -335,7 +335,7 @@ function is_not_banned($forceCheck = false)
 		{
 			require_once($sourcedir . '/Subs-Auth.php');
 			$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-			smf_setcookie($modSettings['cookie_name'] . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
+			smf_setcookie($cookiename . '_', '', time() - 3600, $cookie_url[1], $cookie_url[0], false, false);
 		}
 	}
 
@@ -375,7 +375,7 @@ function is_not_banned($forceCheck = false)
 		// A goodbye present.
 		require_once($sourcedir . '/Subs-Auth.php');
 		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-		smf_setcookie($modSettings['cookie_name'] . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
+		smf_setcookie($cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
 
 		// Don't scare anyone, now.
 		$_GET['action'] = '';
@@ -1096,7 +1096,7 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 {
 	global $modSettings, $user_info;
 
-	// Should this users email address be shown?
+	// Should this user's email address be shown?
 	// If you're guest and the forum is set to hide email for guests: no.
 	// If the user is post-banned: no.
 	// If it's your own profile and you've set your address hidden: yes_permission_override.
@@ -1105,8 +1105,16 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 	// If the forum is set to show full email addresses: yes.
 	// Otherwise: no_through_forum.
 
-	// @todo this is really hard to understand using the ternary operator. Change to regular if/switch syntax.
-	return (!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']) ? 'no' : ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum') ? 'yes_permission_override' : ($userProfile_hideEmail ? 'no' : (!empty($modSettings['make_email_viewable']) ? 'yes' : 'no_through_forum')));
+	if ((!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']))
+		return 'no';
+	elseif ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum'))
+		return 'yes_permission_override';
+	elseif ($userProfile_hideEmail)
+		return 'no';
+	elseif (!empty($modSettings['make_email_viewable']) )
+		return 'yes';
+	else
+		return 'no_through_forum';
 }
 
 /**
@@ -1165,6 +1173,77 @@ function spamProtection($error_type)
 
 	// They haven't posted within the limit.
 	return false;
+}
+
+/**
+ * A generic function to create a pair of index.php and .htaccess files in a directory
+ * @param string $path, the (absolute) directory path
+ * @param boolean $attachments, if the directory is an attachments directory or not
+ * @return true on success, error string if anything fails
+ */
+function secureDirectory($path, $attachments = false)
+{
+	if (empty($path))
+		return 'empty_path';
+
+	if (!is_writable($path))
+		return 'path_not_writable';
+
+	$directoryname = basename($path);
+
+	$errors = array();
+	$close = empty($attachments) ? '
+</Files>' : '
+	Allow from localhost
+</Files>
+
+RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
+
+	if (file_exists($path . '/.htaccess'))
+		$errors[] = 'htaccess_exists';
+	else
+	{
+		$fh = @fopen($path . '/.htaccess', 'w');
+		if ($fh) {
+			fwrite($fh, '<Files *>
+	Order Deny,Allow
+	Deny from all' . $close);
+			fclose($fh);
+		}
+		$errors[] = 'htaccess_cannot_create_file';
+	}
+
+	if (file_exists($path . '/index.php'))
+		$errors[] = 'index-php_exists';
+	else
+	{
+		$fh = @fopen($path . '/index.php', 'w');
+		if ($fh) {
+			fwrite($fh, '<?php
+
+// This file is here solely to protect your ' . $directoryname . ' directory.
+
+// Look for Settings.php....
+if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
+{
+	// Found it!
+	require(dirname(dirname(__FILE__)) . \'/Settings.php\');
+	header(\'Location: \' . $boardurl);
+}
+// Can\'t find it... just forget it.
+else
+	exit;
+
+?>');
+			fclose($fh);
+		}
+		$errors[] = 'index-php_cannot_create_file';
+	}
+
+	if (!empty($errors))
+		return $errors;
+	else
+		return true;
 }
 
 ?>

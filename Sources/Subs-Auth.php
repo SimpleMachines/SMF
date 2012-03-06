@@ -43,7 +43,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		if (isset($array[3]) && $array[3] != $cookie_state)
 		{
 			$cookie_url = url_parts($array[3] & 1 > 0, $array[3] & 2 > 0);
-			smf_setcookie($modSettings['cookie_name'], serialize(array(0, '', 0)), time() - 3600, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, serialize(array(0, '', 0)), time() - 3600, $cookie_url[1], $cookie_url[0]);
 		}
 	}
 
@@ -52,11 +52,11 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($modSettings['cookie_name'], $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+	smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
 
 	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
 	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($modSettings['cookie_name'], $data, time() + $cookie_length, $cookie_url[1], '');
+		smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], '');
 
 	// Any alias URLs?  This is mainly for use with frames, etc.
 	if (!empty($modSettings['forum_alias_urls']))
@@ -75,7 +75,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 			if ($cookie_url[0] == '')
 				$cookie_url[0] = strtok($alias, '/');
 
-			smf_setcookie($modSettings['cookie_name'], $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+			smf_setcookie($cookiename, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
 		}
 
 		$boardurl = $temp;
@@ -99,6 +99,13 @@ function setLoginCookie($cookie_length, $id, $password = '')
 		session_regenerate_id();
 		$_SESSION = $oldSessionData;
 
+		// Make sure to store the cookie of the new session.
+		if (!isset($_COOKIE[session_name()]) || $_COOKIE[session_name()] != session_id())
+		{
+			$sessionCookieLifetime = ini_get('session.cookie_lifetime');
+			smf_setcookie(session_name(), session_id(), time() + (empty($sessionCookieLifetime) ? $cookie_length : $sessionCookieLifetime), $cookie_url[1], $cookie_url[0], !empty($modSettings['secureCookies']));
+		}
+
 		$_SESSION['login_' . $cookiename] = $data;
 	}
 }
@@ -115,7 +122,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
  */
 function url_parts($local, $global)
 {
-	global $boardurl;
+	global $boardurl, $modSettings;
 
 	// Parse the URL with PHP to make life easier.
 	$parsed_url = parse_url($boardurl);
@@ -124,8 +131,11 @@ function url_parts($local, $global)
 	if (empty($parsed_url['path']) || !$local)
 		$parsed_url['path'] = '';
 
+	if (!empty($modSettings['globalCookiesDomain']) && strpos($boardurl, $modSettings['globalCookiesDomain']) !== false)
+		$parsed_url['host'] = $modSettings['globalCookiesDomain'];
+
 	// Globalize cookies across domains (filter out IP-addresses)?
-	if ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
+	elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
 			$parsed_url['host'] = '.' . $parts[1];
 
 	// We shouldn't use a host at all if both options are off.

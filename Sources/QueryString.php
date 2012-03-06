@@ -573,7 +573,7 @@ function JavaScriptEscape($string)
 		'</' => '<\' + \'/',
 		'script' => 'scri\'+\'pt',
 		'<a href' => '<a hr\'+\'ef',
-		$scripturl => 'smf_scripturl\' + \'',
+		$scripturl => '\' + smf_scripturl + \'',
 	)) . '\'';
 }
 
@@ -601,7 +601,7 @@ function ob_sessrewrite($buffer)
 
 	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
 	// @todo smflib
-	if (empty($_COOKIE) && SID != '' && isBrowser('possibly_robot'))
+	if (empty($_COOKIE) && SID != '' && !isBrowser('possibly_robot'))
 		$buffer = preg_replace('/"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);
 	// Debugging templates, are we?
 	elseif (isset($_GET['debug']))

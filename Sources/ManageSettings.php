@@ -383,6 +383,8 @@ function ModifyCoreFeatures($return_config = false)
 
 		// Make any setting changes!
 		updateSettings($setting_changes);
+		// This is needed to let menus appear if cache > 2
+		clean_cache('data');
 
 		// Any post save things?
 		foreach ($core_features as $id => $feature)

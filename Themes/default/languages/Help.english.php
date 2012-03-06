@@ -296,9 +296,9 @@ $helptxt['attachment_manager_settings'] = 'Attachments are files that members ca
 		<strong>Check attachment extension</strong>:<br /> Do you want to check the extension of the files?<br />
 		<strong>Allowed attachment extensions</strong>:<br /> You can set the allowed extensions of attached files.<br />
 		<strong>Attachments directory</strong>:<br /> The path to your attachment folder<br />(example: /home/sites/yoursite/www/forum/attachments)<br />
-		<strong>Max attachment folder space</strong> (in KB):<br /> Select how large the attachment folder can be, including all files within it.<br />
-		<strong>Max attachment size per post</strong> (in KB):<br /> Select the maximum filesize of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.<br />
-		<strong>Max size per attachment</strong> (in KB):<br /> Select the maximum filesize of each separate attachment.<br />
+		<strong>Max attachment folder space</strong> (in kB):<br /> Select how large the attachment folder can be, including all files within it.<br />
+		<strong>Max attachment size per post</strong> (in kB):<br /> Select the maximum filesize of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.<br />
+		<strong>Max size per attachment</strong> (in kB):<br /> Select the maximum filesize of each separate attachment.<br />
 		<strong>Max number of attachments per post</strong>:<br /> Select the number of attachments a person can make, per post.<br />
 		<strong>Display attachment as picture in posts</strong>:<br /> If the uploaded file is a picture, this will show it underneath the post.<br />
 		<strong>Resize images when showing under posts</strong>:<br /> If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.<br />
@@ -361,6 +361,7 @@ $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains.  
 	Your site is at http://www.simplemachines.org/,<br />
 	And your forum is at http://forum.simplemachines.org/,<br />
 	Using this option will allow you to access the forum\'s cookie on your site.  Do not enable this if there are other subdomains (like hacker.simplemachines.org) not controlled by you.';
+$helptxt['globalCookiesDomain'] = 'Define the main domain to be used when log in cookies are available across subdomains';
 $helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site as it will break cookie handling otherwise!';
 $helptxt['securityDisable'] = 'This <em>disables</em> the additional password check for the administration section. This is not recommended!';
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br /><br />Having to type this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';

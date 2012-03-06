@@ -133,13 +133,13 @@ function ModifySettings()
 
 /**
  * General forum settings - forum name, maintenance mode, etc.
- * Practically, this shows an interface for the settings in Settings.php
- * to be changed.
- * It uses the rawdata sub template (not theme-able.)
- * Requires the admin_forum permission.
- * Uses the edit_settings administration area.
- * Contains the actual array of settings to show from Settings.php.
- * Accessed from ?action=admin;area=serversettings;sa=general.
+ * Practically, this shows an interface for the settings in Settings.php to be changed.
+ *
+ * - It uses the rawdata sub template (not theme-able.)
+ * - Requires the admin_forum permission.
+ * - Uses the edit_settings administration area.
+ * - Contains the actual array of settings to show from Settings.php.
+ * - Accessed from ?action=admin;area=serversettings;sa=general.
  *
  * @param $return_config
  */
@@ -190,12 +190,13 @@ function ModifyGeneralSettings($return_config = false)
 
 /**
  * Basic database and paths settings - database name, host, etc.
- * It shows an interface for the settings in Settings.php to be changed.
- * It contains the actual array of settings to show from Settings.php.
- * It uses the rawdata sub template (not theme-able.)
- * Requires the admin_forum permission.
- * Uses the edit_settings administration area.
- * Accessed from ?action=admin;area=serversettings;sa=database.
+ *
+ * - It shows an interface for the settings in Settings.php to be changed.
+ * - It contains the actual array of settings to show from Settings.php.
+ * - It uses the rawdata sub template (not theme-able.)
+ * - Requires the admin_forum permission.
+ * - Uses the edit_settings administration area.
+ * - Accessed from ?action=admin;area=serversettings;sa=database.
  *
  * @param $return_config
  */
@@ -258,7 +259,7 @@ function ModifyDatabaseSettings($return_config = false)
  */
 function ModifyCookieSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings;
+	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings, $boardurl;
 
 	// Define the variables we want to edit.
 	$config_vars = array(
@@ -267,6 +268,7 @@ function ModifyCookieSettings($return_config = false)
 		array('cookieTime', $txt['cookieTime'], 'db', 'int'),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
+		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
 		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies',  'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
 		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 		'',
@@ -288,6 +290,9 @@ function ModifyCookieSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_cookie_settings');
+
+		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
+			fatal_lang_error('invalid_cookie_domain', false);
 
 		saveSettings($config_vars);
 
@@ -520,7 +525,9 @@ function prepareServerSettingsContext(&$config_vars)
 		}
 	}
 
+	// Two tokens because save these settings require both saveSettings and saveDBSettings
 	createToken('admin-ssc');
+	createToken('admin-dbsc');
 }
 
 /**
@@ -683,10 +690,11 @@ function prepareDBSettingContext(&$config_vars)
 
 /**
  * Helper function. Saves settings by putting them in Settings.php or saving them in the settings table.
- * Saves those settings set from ?action=admin;area=serversettings.
- * Requires the admin_forum permission.
- * Contains arrays of the types of data to save into Settings.php.
-
+ *
+ * - Saves those settings set from ?action=admin;area=serversettings.
+ * - Requires the admin_forum permission.
+ * - Contains arrays of the types of data to save into Settings.php.
+ *
  * @param $config_vars
  */
 function saveSettings(&$config_vars)
@@ -863,9 +871,9 @@ function saveDBSettings(&$config_vars)
 
 /**
  * Allows us to see the servers php settings
+ *
  * - loads the settings into an array for display in a template
  * - drops cookie values just in case
- *
  */
 function ShowPHPinfoSettings()
 {

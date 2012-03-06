@@ -991,7 +991,7 @@ function ModifyLanguage()
 			// Got a new entry?
 			if ($line[0] == '$' && !empty($multiline_cache))
 			{
-				preg_match('~\$(helptxt|txt)\[\'(.+)\'\]\s=\s(.+);~', strtr($multiline_cache, array("\n" => '', "\t" => '')), $matches);
+				preg_match('~\$(helptxt|txt)\[\'(.+)\'\]\s?=\s?(.+);~', strtr($multiline_cache, array("\n" => '', "\t" => '')), $matches);
 				if (!empty($matches[3]))
 				{
 					$entries[$matches[2]] = array(
@@ -1007,7 +1007,7 @@ function ModifyLanguage()
 		// Last entry to add?
 		if ($multiline_cache)
 		{
-			preg_match('~\$(helptxt|txt)\[\'(.+)\'\]\s=\s(.+);~', strtr($multiline_cache, array("\n" => '', "\t" => '')), $matches);
+			preg_match('~\$(helptxt|txt)\[\'(.+)\'\]\s?=\s?(.+);~', strtr($multiline_cache, array("\n" => '', "\t" => '')), $matches);
 			if (!empty($matches[3]))
 				$entries[$matches[2]] = array(
 					'type' => $matches[1],

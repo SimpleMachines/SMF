@@ -146,7 +146,7 @@ function template_generic_menu_dropdown_above()
 				continue;
 
 			echo '
-					<li', (++$additional_items > 6) ? ' class="additional_items"' : '' ,'>';
+					<li', (++$additional_items > 6 && !empty($area['subsections'])) ? ' class="additional_items subsections"' : (($additional_items > 6) ? ' class="additional_items"' : ((!empty($area['subsections'])) ? ' class="subsections"' : '')), '>';
 
 			// Is this the current area, or just some area?
 			if ($i == $menu_context['current_area'])

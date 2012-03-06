@@ -105,6 +105,13 @@ function Login2()
 		if ($_GET['member'] != $user_info['id'])
 			fatal_lang_error('login_cookie_error', false);
 
+		$user_info['can_mod'] = allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']))));
+		if ($user_info['can_mod'] && isset($user_settings['openid_uri']) && empty($user_settings['openid_uri']))
+		{
+			$_SESSION['moderate_time'] = time();
+			unset($_SESSION['just_registered']);
+		}
+
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
 			redirectexit();
@@ -547,8 +554,7 @@ function DoLogin()
 
 /**
  * Logs the current user out of their account.
- * It requires that the session hash is sent as well, to prevent automatic logouts
- *  by images or javascript.
+ * It requires that the session hash is sent as well, to prevent automatic logouts by images or javascript.
  * It redirects back to $_SESSION['logout_url'], if it exists.
  * It is accessed via ?action=logout;session_var=...
  *

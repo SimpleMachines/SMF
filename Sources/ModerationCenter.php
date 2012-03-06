@@ -56,16 +56,30 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['moderation_center'],
 					'function' => 'ModerationHome',
 				),
-				'modlog' => array(
-					'label' => $txt['modlog_view'],
-					'enabled' => !empty($modSettings['modlog_enabled']) && $context['can_moderate_boards'],
-					'file' => 'Modlog.php',
-					'function' => 'ViewModlog',
+				'settings' => array(
+					'label' => $txt['mc_settings'],
+					'function' => 'ModerationSettings',
+				),
+				'modlogoff' => array(
+					'label' => $txt['mc_logoff'],
+					'function' => 'ModEndSession',
+					'enabled' => empty($modSettings['securityDisable_moderate']),
 				),
 				'notice' => array(
 					'file' => 'ModerationCenter.php',
 					'function' => 'ShowNotice',
 					'select' => 'index'
+				),
+			),
+		),
+		'logs' => array(
+			'title' => $txt['mc_logs'],
+			'areas' => array(
+				'modlog' => array(
+					'label' => $txt['modlog_view'],
+					'enabled' => !empty($modSettings['modlog_enabled']) && $context['can_moderate_boards'],
+					'file' => 'Modlog.php',
+					'function' => 'ViewModlog',
 				),
 				'warnings' => array(
 					'label' => $txt['mc_warnings'],
@@ -74,15 +88,6 @@ function ModerationMain($dont_call = false)
 					'subsections' => array(
 						'log' => array($txt['mc_warning_log']),
 						'templates' => array($txt['mc_warning_templates'], 'issue_warning'),
-					),
-				),
-				'userwatch' => array(
-					'label' => $txt['mc_watched_users_title'],
-					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
-					'function' => 'ViewWatchedUsers',
-					'subsections' => array(
-						'member' => array($txt['mc_watched_users_member']),
-						'post' => array($txt['mc_watched_users_post']),
 					),
 				),
 			),
@@ -125,6 +130,15 @@ function ModerationMain($dont_call = false)
 			'title' => $txt['mc_groups'],
 			'enabled' => $context['can_moderate_groups'],
 			'areas' => array(
+				'userwatch' => array(
+					'label' => $txt['mc_watched_users_title'],
+					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
+					'function' => 'ViewWatchedUsers',
+					'subsections' => array(
+						'member' => array($txt['mc_watched_users_member']),
+						'post' => array($txt['mc_watched_users_post']),
+					),
+				),
 				'groups' => array(
 					'label' => $txt['mc_group_requests'],
 					'file' => 'Groups.php',
@@ -135,19 +149,6 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['mc_view_groups'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
-				),
-			),
-		),
-		'prefs' => array(
-			'title' => $txt['mc_prefs'],
-			'areas' => array(
-				'settings' => array(
-					'label' => $txt['mc_settings'],
-					'function' => 'ModerationSettings',
-				),
-				'modlogoff' => array(
-					'label' => $txt['mc_logoff'],
-					'function' => 'ModEndSession',
 				),
 			),
 		),
@@ -1617,9 +1618,10 @@ function ViewWarningLog()
 				),
 			),
 		),
+/*		Commented out because of an Assertion failed error and an undefined index (href)
 		'form' => array(
 			'token' => 'mod-wt',
-		),
+		),*/
 	);
 
 	// Create the watched user list.

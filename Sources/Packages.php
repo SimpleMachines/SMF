@@ -81,7 +81,7 @@ function Packages()
 				'description' => $txt['package_file_perms_desc'],
 			),
 			'options' => array(
-				'description' => $txt['package_install_options_ftp_why'],
+				'description' => $txt['package_install_options_desc'],
 			),
 		),
 	);
