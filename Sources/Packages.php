@@ -313,21 +313,22 @@ function PackageInstallTest()
 			$chmod_files[] = $action['filename'];
 			continue;
 		}
-		elseif ($action['type'] == 'readme')
+		elseif ($action['type'] == 'readme' || $action['type'] == 'license')
 		{
+			$type = 'package_' . $action['type'];
 			if (file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
-				$context['package_readme'] = htmlspecialchars(trim(file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), "\n\r"));
+				$context[$type] = htmlspecialchars(trim(file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), "\n\r"));
 			elseif (file_exists($action['filename']))
-				$context['package_readme'] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
+				$context[$type] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
 
 			if (!empty($action['parse_bbc']))
 			{
 				require_once($sourcedir . '/Subs-Post.php');
-				preparsecode($context['package_readme']);
-				$context['package_readme'] = parse_bbc($context['package_readme']);
+				preparsecode($context[$type]);
+				$context[$type] = parse_bbc($context[$type]);
 			}
 			else
-				$context['package_readme'] = nl2br($context['package_readme']);
+				$context[$type] = nl2br($context[$type]);
 
 			continue;
 		}
@@ -489,10 +490,12 @@ function PackageInstallTest()
 			$thisAction = array();
 		}
 		elseif ($action['type'] == 'code')
+		{
 			$thisAction = array(
 				'type' => $txt['execute_code'],
 				'action' => $smcFunc['htmlspecialchars']($action['filename']),
 			);
+		}
 		elseif ($action['type'] == 'database')
 		{
 			$thisAction = array(
@@ -501,11 +504,13 @@ function PackageInstallTest()
 			);
 		}
 		elseif (in_array($action['type'], array('create-dir', 'create-file')))
+		{
 			$thisAction = array(
 				'type' => $txt['package_create'] . ' ' . ($action['type'] == 'create-dir' ? $txt['package_tree'] : $txt['package_file']),
 				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
 			);
-		elseif (in_array($action['type'], array('hook')))
+		}
+		elseif ($action['type'] == 'hook')
 		{
 			$action['description'] = !isset($action['hook'], $action['function']) ? $txt['package_action_failure'] : $txt['package_action_success'];
 
@@ -515,6 +520,54 @@ function PackageInstallTest()
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
 				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+			);
+		}
+		elseif ($action['type'] == 'credits')
+		{
+			$thisAction = array(
+				'type' => $txt['execute_credits_add'],
+				'action' => sprintf($txt['execute_credits_action'],  $smcFunc['htmlspecialchars']($action['title'])),
+			);
+		}
+		elseif ($action['type'] == 'requires')
+		{
+			$installed = false;
+			$version = true;
+
+			// package missing required values?
+			if (!isset($action['id']))
+				$context['has_failure'] = true;
+			else
+			{
+				// See if this dependancy is installed
+				$request = $smcFunc['db_query']('', '
+					SELECT version
+					FROM {db_prefix}log_packages
+					WHERE package_id = {string:current_package}
+						AND install_state != {int:not_installed}
+					ORDER BY time_installed DESC
+					LIMIT 1',
+					array(
+						'not_installed'	=> 0,
+						'current_package' => $action['id'],
+					)
+				);
+				$installed = ($smcFunc['db_num_rows']($request) !== 0);
+				if ($installed)
+					list($version) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				// do a version level check (if requested) in the most basic way
+				$version = (isset($action['version']) ? $version == $action['version'] : true);
+			}
+
+			// Set success or failure information
+			$action['description'] = ($installed && $version) ? $txt['package_action_success'] : $txt['package_action_failure'];
+			$context['has_failure'] = !($installed && $version);
+
+			$thisAction = array(
+				'type' => $txt['package_requires'],
+				'action' => $txt['package_check_for'] . ' ' . $action['id'] . (isset($action['version']) ? (' / ' . ($version ? $action['version'] : '<span class="error">' . $action['version'] . '</span>')) : ''),
 			);
 		}
 		elseif (in_array($action['type'], array('require-dir', 'require-file')))
@@ -921,7 +974,17 @@ function PackageInstall()
 				// Now include the file and be done with it ;).
 				require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
 			}
-			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['name']))
+			elseif ($action['type'] == 'credits')
+			{
+				// Time to build the billboard
+				$credits_tag = array(
+					'url' => $action['url'],
+					'license' => $action['license'],
+					'copyright' => $action['copyright'],
+					'title' => $action['title'],
+				);
+			}
+			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
 					remove_integration_function($action['hook'], $action['function']);
@@ -1048,19 +1111,21 @@ function PackageInstall()
 			// What failed steps?
 			$failed_step_insert = serialize($failed_steps);
 
+			// Credits tag?
+			$credits_tag = (empty($credits_tag)) ? array() : serialize($credits_tag);
 			$smcFunc['db_insert']('',
 				'{db_prefix}log_packages',
 				array(
 					'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
 					'id_member_installed' => 'int', 'member_installed' => 'string','time_installed' => 'int',
 					'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
-					'member_removed' => 'int', 'db_changes' => 'string',
+					'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
 				),
 				array(
 					$packageInfo['filename'], $packageInfo['name'], $packageInfo['id'], $packageInfo['version'],
 					$user_info['id'], $user_info['name'], time(),
 					$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
-					0, $db_changes,
+					0, $db_changes, $credits_tag,
 				),
 				array('id_install')
 			);

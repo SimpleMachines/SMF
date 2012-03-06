@@ -141,6 +141,9 @@ $txt['credits_groups_marketing'] = 'Marketing';
 $txt['credits_groups_internationalizers'] = 'Localizers';
 $txt['credits_groups_servers'] = 'Servers Administrators';
 $txt['credits_groups_site'] = 'Site Administrators';
+$txt['credits_license'] = 'License';
+$txt['credits_copyright'] = 'Copyright';
+$txt['credits_version'] = 'Version';
 // Replace "English" with the name of this language pack in the string below.
 $txt['credits_groups_translation'] = 'English Translation';
 $txt['credits_groups_translators'] = 'Language Translators';

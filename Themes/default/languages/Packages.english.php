@@ -79,6 +79,7 @@ $txt['packages_latest_fetch'] = 'Attempting to fetch the most popular and recent
 $txt['package_upgrade'] = 'Upgrade';
 $txt['package_uninstall_readme'] = 'Uninstallation Readme';
 $txt['package_install_readme'] = 'Installation Readme';
+$txt['package_install_license'] = 'License';
 $txt['package_install_type'] = 'Type';
 $txt['package_install_action'] = 'Action';
 $txt['package_install_desc'] = 'Description';
@@ -97,6 +98,11 @@ $txt['execute_database_changes'] = 'Adapt Database';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
 $txt['execute_hook_action'] = 'Adapting hook %1$s';
+$txt['package_requires'] = 'Requires Modification';
+$txt['package_check_for'] = 'Check for installation:';
+$txt['execute_credits_add'] = 'Add Credits';
+$txt['execute_credits_remove'] = 'Remove Credits';
+$txt['execute_credits_action'] = 'Credits: %1$s';
 
 $txt['package_install_actions'] = 'Installations actions for';
 $txt['package_will_fail_title'] = 'Error in Package Installation';
@@ -263,5 +269,8 @@ $txt['package_confirm_go_back'] = 'Go back';
 
 $txt['package_readme_default'] = 'Default';
 $txt['package_available_readme_language'] = 'Available Readme Languages:';
+$txt['package_license_default'] = 'Default';
+$txt['package_available_license_language'] = 'Available License Languages:';
+
 
 ?>
