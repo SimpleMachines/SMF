@@ -81,6 +81,7 @@ function RetrievePreview()
 	$subActions = array(
 		'newspreview' => 'newspreview',
 		'newsletterpreview' => 'newsletterpreview',
+		'sig_preview' => 'sig_preview',
 	);
 
 	$context['sub_template'] = 'generic_xml';
@@ -118,7 +119,6 @@ function newspreview()
 			'children' => $errors
 		),
 	);
-
 }
 function newsletterpreview()
 {
@@ -162,6 +162,71 @@ function newsletterpreview()
 		),
 	);
 }
+function sig_preview()
+{
+	global $context, $sourcedir, $smcFunc, $txt;
 
+	require_once($sourcedir . '/Profile-Modify.php');
+	loadLanguage('Errors');
+
+	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
+
+	$errors = array();
+	if (!empty($user))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT signature
+			FROM {db_prefix}members
+			WHERE id_member = {int:id_member}
+			LIMIT 1',
+			array(
+				'id_member' => $user,
+			)
+		);
+		list($current_signature) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+		censorText($current_signature);
+		$current_signature = parse_bbc($current_signature, true, 'sig' . $user);
+
+		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
+		$validation = profileValidateSignature($preview_signature);
+
+		if ($validation !== true && $validation !== false)
+			$errors[] = array('value' => $txt['profile_error_' . $validation], 'attributes' => array('type' => 'error'));
+
+		censorText($preview_signature);
+		$preview_signature = parse_bbc($preview_signature, true, 'sig' . $user);
+	}
+	else
+		$errors[] = array('value' => $txt['no_user_selected'], 'attributes' => array('type' => 'error'));
+
+	$context['xml_data']['signatures'] = array(
+			'identifier' => 'signature',
+			'children' => array()
+		);
+	if (isset($current_signature))
+		$context['xml_data']['signatures']['children'][] = array(
+					'value' => $current_signature,
+					'attributes' => array('type' => 'current'),
+				);
+	if (isset($preview_signature))
+		$context['xml_data']['signatures']['children'][] = array(
+					'value' => $preview_signature,
+					'attributes' => array('type' => 'preview'),
+				);
+	if (!empty($errors))
+		$context['xml_data']['errors'] = array(
+			'identifier' => 'error',
+			'children' => array_merge(
+				array(
+					array(
+						'value' => $txt['profile_errors_occurred'],
+						'attributes' => array('type' => 'errors_occurred'),
+					),
+				),
+				$errors
+			),
+		);
+}
 
 ?>

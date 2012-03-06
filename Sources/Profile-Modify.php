@@ -2430,7 +2430,6 @@ function profileLoadSignatureData()
 		censorText($signature);
 		$context['member']['signature_preview'] = parse_bbc($signature, true, 'sig' . $memberContext[$context['id_member']]);
 		$context['member']['signature'] = $_POST['signature'];
-		
 	}
 
 	return true;

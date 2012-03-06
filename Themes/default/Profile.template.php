@@ -26,8 +26,7 @@ function template_profile_above()
 	// ]]></script>';
 
 	// If an error occurred while trying to save previously, give the user a clue!
-	if (!empty($context['post_errors']))
-		echo '
+	echo '
 					', template_error_message();
 
 	// If the profile was update successfully, let the user know this.
@@ -1332,7 +1331,7 @@ function template_edit_options()
 
 	if (!empty($context['show_preview_button']))
 		echo '
-						<input type="submit" name="preview" value="', $txt['preview_signature'], '" class="button_submit" />';
+						<input type="submit" name="preview" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
 
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
@@ -2464,7 +2463,9 @@ function template_error_message()
 {
 	global $context, $txt;
 
-	echo '
+	if (!empty($context['post_errors']))
+	{
+		echo '
 		<div class="windowbg" id="profile_error">
 			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
 			<ul class="reset">';
@@ -2477,6 +2478,10 @@ function template_error_message()
 		echo '
 			</ul>
 		</div>';
+	}
+	else
+		echo '
+		<div class="windowbg" style="display:none" id="profile_error"></div>';
 }
 
 // Display a load of drop down selectors for allowing the user to change group.
@@ -2544,7 +2549,7 @@ function template_profile_birthdate()
 // Show the signature editing box?
 function template_profile_signature_modify()
 {
-	global $txt, $context, $settings;
+	global $txt, $context, $settings, $scripturl;
 
 	echo '
 							<dt id="current_signature"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
@@ -2554,10 +2559,10 @@ function template_profile_signature_modify()
 								', isset($context['member']['current_signature']) ? $context['member']['current_signature'] : '', '<hr />
 							</dd>';
 	echo '
-							<dt id="signature_preview"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+							<dt id="preview_signature"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
 								<strong>', $txt['signature_preview'], ':</strong>
 							</dt>
-							<dd id="signature_preview_display"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+							<dd id="preview_signature_display"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
 								', isset($context['member']['signature_preview']) ? $context['member']['signature_preview'] : '', '<hr />
 							</dd>';
 
@@ -2574,7 +2579,7 @@ function template_profile_signature_modify()
 		echo '
 							</dt>
 							<dd>
-								<textarea class="editor" onkeyup="calcCharLeft();" name="signature" rows="5" cols="50">', $context['member']['signature'], '</textarea><br />';
+								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50">', $context['member']['signature'], '</textarea><br />';
 
 	// If there is a limit at all!
 	if (!empty($context['signature_limits']['max_length']))
@@ -2625,6 +2630,44 @@ function template_profile_signature_modify()
 									}
 
 									addLoadEvent(tick);
+									$(document).ready(function() {
+										$("#preview_button").click(function() {
+											$.ajax({
+												type: "POST",
+												url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+												data: {item: "sig_preview", signature: $("#signature").val(), user: $(\'input[name="u"]\').attr("value")},
+												context: document.body,
+												success: function(request){
+													var signatures = new Array("current", "preview");
+													for (var i = 0; i < signatures.length; i++)
+													{
+														$("#" + signatures[i] + "_signature").css({display:""});
+														$("#" + signatures[i] + "_signature_display").css({display:""}).html($(request).find(\'[type="\' + signatures[i] + \'"]\').text() + \'<hr />\');
+													}
+
+													if ($(request).find("error").text() != \'\')
+													{
+														$("#profile_error").css({display:""});
+														var errors = $(request).find(\'[type="error"]\');
+														var errors_html = \'<span>\' + $(request).find(\'[type="errors_occurred"]\').text() + \'</span><ul>\';
+
+														for (var i = 0; i < errors.length; i++)
+															errors_html += \'<li>\' + $(errors).text() + \'</li>\';
+
+														errors_html += \'</ul>\';
+														$(document).find("#profile_error").html(errors_html);
+													}
+													else
+													{
+														$("#profile_error").css({display:"none"});
+														$("#profile_error").html(\'\');
+													}
+												return false;
+												},
+											});
+											return false;
+										});
+									});
 								// ]]></script>
 							</dd>';
 }
