@@ -39,7 +39,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
 	$context['sub_template'] = 'show_settings';
 
 	// By default do the basic settings.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($defaultAction) ? $defaultAction : array_pop(array_keys($subActions)));
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($defaultAction) ? $defaultAction : array_pop($dummy = array_keys($subActions)));
 	$context['sub_action'] = $_REQUEST['sa'];
 }
 
