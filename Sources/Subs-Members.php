@@ -109,7 +109,7 @@ function deleteMembers($users, $check_not_admin = false)
 	if (empty($users))
 		return;
 
-	require_once($sourcedir . 'Logging.php');
+	require_once($sourcedir . '/Logging.php');
 	// Log the action - regardless of who is deleting it.
 	$log_inserts = array();
 	foreach ($user_log_details as $user)

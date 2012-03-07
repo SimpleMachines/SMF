@@ -296,9 +296,9 @@ $helptxt['attachment_manager_settings'] = 'Attachments are files that members ca
 		<strong>Check attachment extension</strong>:<br /> Do you want to check the extension of the files?<br />
 		<strong>Allowed attachment extensions</strong>:<br /> You can set the allowed extensions of attached files.<br />
 		<strong>Attachments directory</strong>:<br /> The path to your attachment folder<br />(example: /home/sites/yoursite/www/forum/attachments)<br />
-		<strong>Max attachment folder space</strong> (in KB):<br /> Select how large the attachment folder can be, including all files within it.<br />
-		<strong>Max attachment size per post</strong> (in KB):<br /> Select the maximum filesize of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.<br />
-		<strong>Max size per attachment</strong> (in KB):<br /> Select the maximum filesize of each separate attachment.<br />
+		<strong>Max attachment folder space</strong> (in kB):<br /> Select how large the attachment folder can be, including all files within it.<br />
+		<strong>Max attachment size per post</strong> (in kB):<br /> Select the maximum filesize of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.<br />
+		<strong>Max size per attachment</strong> (in kB):<br /> Select the maximum filesize of each separate attachment.<br />
 		<strong>Max number of attachments per post</strong>:<br /> Select the number of attachments a person can make, per post.<br />
 		<strong>Display attachment as picture in posts</strong>:<br /> If the uploaded file is a picture, this will show it underneath the post.<br />
 		<strong>Resize images when showing under posts</strong>:<br /> If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.<br />
