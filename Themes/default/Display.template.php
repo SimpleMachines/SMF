@@ -781,6 +781,10 @@ function template_main()
 						sRestoreButtonLabel: \'', $txt['quick_mod_restore'], '\',
 						sRestoreButtonImage: \'restore_selected.gif\',
 						sRestoreButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						bCanSplit: ', $context['can_split'] ? 'true' : 'false', ',
+						sSplitButtonLabel: \'', $txt['quickmod_split_selected'], '\',
+						sSplitButtonImage: \'split_selected.gif\',
+						sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
 						sFormId: \'quickModForm\'
 					});';
 

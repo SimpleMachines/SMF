@@ -1631,6 +1631,22 @@ function QuickInTopicModeration()
 	// We are restoring messages. We handle this in another place.
 	if (isset($_REQUEST['restore_selected']))
 		redirectexit('action=restoretopic;msgs=' . implode(',', $messages) . ';' . $context['session_var'] . '=' . $context['session_id']);
+	if (isset($_REQUEST['split_selection']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT subject
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:message}
+			LIMIT 1',
+			array(
+				'message' => min($messages),
+			)
+		);
+		list($subname) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+		$_SESSION['split_selection'][$topic] = $messages;
+		redirectexit('action=splittopics;sa=selectTopics;topic=' . $topic . '.0;subname_enc=' .urlencode($subname) . ';' . $context['session_var'] . '=' . $context['session_id']);
+	}
 
 	// Allowed to delete any message?
 	if (allowedTo('delete_any'))

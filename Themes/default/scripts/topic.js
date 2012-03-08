@@ -453,6 +453,16 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 				sCustom: ' onclick="return ' + this.opt.sSelf + '.handleSubmit(\'restore\')"'
 			});
 
+		// Add the 'split selected items' button.
+		if (this.opt.bCanSplit)
+			smf_addButton(this.opt.sButtonStrip, this.opt.bUseImageButton, {
+				sId: this.opt.sSelf + '_split_button',
+				sText: this.opt.sSplitButtonLabel,
+				sImage: this.opt.sSplitButtonImage,
+				sUrl: '#',
+				sCustom: ' onclick="return ' + this.opt.sSelf + '.handleSubmit(\'split\')"'
+			});
+
 		// Adding these buttons once should be enough.
 		this.bButtonsShown = true;
 	}
@@ -471,6 +481,12 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 	{
 		setInnerHTML(document.getElementById(this.opt.sSelf + '_restore_button'), this.opt.sRestoreButtonLabel + ' [' + this.iNumSelected + ']');
 		document.getElementById(this.opt.sSelf + '_restore_button').style.display = this.iNumSelected < 1 ? "none" : "";
+	}
+
+	if (this.opt.bCanSplit && !this.opt.bUseImageButton)
+	{
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
+		document.getElementById(this.opt.sSelf + '_split_button').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	// Try to restore the correct position.
@@ -515,6 +531,13 @@ InTopicModeration.prototype.handleSubmit = function (sSubmitType)
 				return false;
 
 			oForm.action = oForm.action + ';restore_selected=1';
+		break;
+
+		case 'split':
+			if (!confirm(this.opt.sRestoreButtonConfirm))
+				return false;
+
+			oForm.action = oForm.action + ';split_selection=1';
 		break;
 
 		default:

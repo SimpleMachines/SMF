@@ -197,6 +197,10 @@ function SplitSelectTopics()
 	// Haven't selected anything have we?
 	$_SESSION['split_selection'][$topic] = empty($_SESSION['split_selection'][$topic]) ? array() : $_SESSION['split_selection'][$topic];
 
+	// This is a special case for split topics from quick-moderation checkboxes
+	if (isset($_REQUEST['subname_enc']))
+		$_REQUEST['subname'] = urldecode($_REQUEST['subname_enc']);
+
 	$context['not_selected'] = array(
 		'num_messages' => 0,
 		'start' => empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'],
