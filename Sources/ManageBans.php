@@ -392,8 +392,9 @@ function BanEdit()
 
 			$listOptions = array(
 				'id' => 'ban_items',
-				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit',
+				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				'no_items_label' => $txt['ban_no_triggers'],
+				'items_per_page' => $modSettings['defaultMaxMessages'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
 					'params' => array(
@@ -461,8 +462,8 @@ function BanEdit()
 								'params' => array(
 									'id' => false,
 								),
-							'style' => 'text-align: center;',
 							),
+							'style' => 'text-align: center;',
 						),
 					),
 				),
@@ -569,7 +570,7 @@ function BanEdit()
 
 function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0)
 {
-	global $context, $smcFunc;
+	global $context, $smcFunc, $scripturl;
 
 	$ban_items = array();
 	$request = $smcFunc['db_query']('', '
@@ -582,9 +583,12 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 		FROM {db_prefix}ban_groups AS bg
 			LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
-		WHERE bg.id_ban_group = {int:current_ban}',
+		WHERE bg.id_ban_group = {int:current_ban}
+		LIMIT {int:start}, {int:items_per_page}',
 		array(
 			'current_ban' => $ban_group_id,
+			'start' => $start,
+			'items_per_page' => $items_per_page,
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
@@ -663,9 +667,11 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 	return $ban_items;
 }
 
-function list_getNumBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0)
+function list_getNumBanItems()
 {
-	global $smcFunc;
+	global $smcFunc, $context;
+
+	$ban_group_id = isset($context['ban_group_id']) ? $context['ban_group_id'] : 0;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(bi.id_ban)
