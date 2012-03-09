@@ -523,6 +523,7 @@ InTopicModeration.prototype.handleSubmit = function (sSubmitType)
 			if (!confirm(this.opt.sRemoveButtonConfirm))
 				return false;
 
+			oForm.action = oForm.action.replace(/;split_selection=1/, '');
 			oForm.action = oForm.action.replace(/;restore_selected=1/, '');
 		break;
 
@@ -530,6 +531,7 @@ InTopicModeration.prototype.handleSubmit = function (sSubmitType)
 			if (!confirm(this.opt.sRestoreButtonConfirm))
 				return false;
 
+			oForm.action = oForm.action.replace(/;split_selection=1/, '');
 			oForm.action = oForm.action + ';restore_selected=1';
 		break;
 
@@ -537,6 +539,7 @@ InTopicModeration.prototype.handleSubmit = function (sSubmitType)
 			if (!confirm(this.opt.sRestoreButtonConfirm))
 				return false;
 
+			oForm.action = oForm.action.replace(/;restore_selected=1/, '');
 			oForm.action = oForm.action + ';split_selection=1';
 		break;
 
