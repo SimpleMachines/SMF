@@ -39,7 +39,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
 	$context['sub_template'] = 'show_settings';
 
 	// By default do the basic settings.
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($defaultAction) ? $defaultAction : array_pop(array_keys($subActions)));
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($defaultAction) ? $defaultAction : array_pop($temp = array_keys($subActions)));
 	$context['sub_action'] = $_REQUEST['sa'];
 }
 
@@ -62,6 +62,13 @@ function ModifyFeatureSettings()
 	);
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
+
+	if (!in_array('cp', $context['admin_features']))
+		unset($subActions['profile']);
+
+	// Same for Karma
+	if (!in_array('k', $context['admin_features']))
+		unset($subActions['karma']);
 
 	loadGeneralSettingParameters($subActions, 'basic');
 
@@ -106,6 +113,10 @@ function ModifySecuritySettings()
 	);
 
 	call_integration_hook('integrate_modify_security', array(&$subActions));
+
+	// If Warning System is disabled don't show the setting page
+	if (!in_array('w', $context['admin_features']))
+		unset($subActions['moderation']);
 
 	loadGeneralSettingParameters($subActions, 'general');
 
