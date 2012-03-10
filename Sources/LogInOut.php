@@ -135,7 +135,7 @@ function Login2()
 	spamProtection('login');
 
 	// Set the login_url if it's not already set (but careful not to send us to an attachment).
-	if (empty($_SESSION['login_url']) && isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0)
+	if ((empty($_SESSION['login_url']) && isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0) || (isset($_GET['quicklogin']) && isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'login') === false))
 		$_SESSION['login_url'] = $_SESSION['old_url'];
 
 	// Been guessing a lot, haven't we?
