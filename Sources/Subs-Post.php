@@ -3227,12 +3227,12 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 	if ($loadLang)
 		loadLanguage('EmailTemplates', $lang);
 
-	if (!isset($txt['emails_' . $template . '_subject']) || !isset($txt['emails_' . $template . '_body']))
+	if (!isset($txt[$template . '_subject']) || !isset($txt[$template . '_body']))
 		fatal_lang_error('email_no_template', 'template', array($template));
 
 	$ret = array(
-		'subject' => $txt['emails_' . $template . '_subject'],
-		'body' => $txt['emails_' . $template . '_body'],
+		'subject' => $txt[$template . '_subject'],
+		'body' => $txt[$template . '_body'],
 	);
 
 	// Add in the default replacements.
