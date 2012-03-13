@@ -800,7 +800,7 @@ function AdminSearchInternal()
 	$context['page_title'] = $txt['admin_search_results'];
 	$context['search_results'] = array();
 
-	$search_term = strtolower($context['search_term']);
+	$search_term = strtolower(un_htmlspecialchars($context['search_term']));
 	// Go through all the search data trying to find this text!
 	foreach ($search_data as $section => $data)
 	{
@@ -845,7 +845,8 @@ function AdminSearchMember()
 	require_once($sourcedir . '/ManageMembers.php');
 	$_REQUEST['sa'] = 'query';
 
-	$_POST['membername'] = $context['search_term'];
+	$_POST['membername'] = un_htmlspecialchars($context['search_term']);
+	$_POST['types'] = '';
 
 	ViewMembers();
 }
