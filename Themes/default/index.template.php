@@ -299,7 +299,7 @@ function template_body_above()
 		echo '
 				<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
 					<input type="text" name="search" value="" class="input_text" />&nbsp;
-					<input type="submit" name="submit" value="', $txt['search'], '" class="button_submit" />
+					<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
 					<input type="hidden" name="advanced" value="0" />';
 
 		// Search within current topic?

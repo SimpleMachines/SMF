@@ -302,7 +302,7 @@ function template_body_above()
 			<form class="floatright" id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
 				<a href="', $scripturl, '?action=search;advanced" title="', $txt['search_advanced'], '"><img id="advsearch" src="'.$settings['images_url'].'/filter.gif" align="middle" alt="', $txt['search_advanced'], '" /></a>
 				<input type="text" name="search" value="" style="width: 190px;" class="input_text" />&nbsp;
-				<input type="submit" name="submit" value="', $txt['search'], '" style="width: 11ex;" class="button_submit" />
+				<input type="submit" name="search2" value="', $txt['search'], '" style="width: 11ex;" class="button_submit" />
 				<input type="hidden" name="advanced" value="0" />';
 
 	// Search within current topic?

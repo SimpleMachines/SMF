@@ -1424,7 +1424,7 @@ function PackageOptions()
 {
 	global $txt, $scripturl, $context, $sourcedir, $modSettings, $smcFunc;
 
-	if (isset($_POST['submit']))
+	if (isset($_POST['save']))
 	{
 		checkSession('post');
 

@@ -665,7 +665,7 @@ function template_search()
 				<div id="search_term_input">
 					<strong>', $txt['pm_search_text'], ':</strong>
 					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text" />
-					<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit" />
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
 				</div>
 				<a href="', $scripturl, '?action=pm;sa=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['pm_search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
@@ -715,7 +715,7 @@ function template_search()
 				</dl>';
 		if (!$context['currently_using_labels'])
 			echo '
-				<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit floatright" />';
+				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />';
 			echo '
 				<br class="clear" />
 			</div>
@@ -747,7 +747,7 @@ function template_search()
 				</ul>
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
-					<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit floatright" />
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />
 				</p><br class="clear" />
 			</div>
 			<span class="lowerframe"><span></span></span>

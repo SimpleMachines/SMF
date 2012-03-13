@@ -683,7 +683,7 @@ function EditMembergroup()
 		redirectexit('action=admin;area=membergroups;');
 	}
 	// A form was submitted with the new membergroup settings.
-	elseif (isset($_POST['submit']))
+	elseif (isset($_POST['save']))
 	{
 		// Validate the session.
 		checkSession();

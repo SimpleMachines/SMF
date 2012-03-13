@@ -176,7 +176,7 @@ function template_search()
 				<div class="windowbg2">
 					<span id="mlist_search" class="windowbg2 largepadding clearfix">
 						<span class="enhanced">
-							<strong>', $txt['search_for'], ':</strong> <input type="text" name="search" value="', $context['old_search'], '" size="35" class="input_text" /> <input type="submit" name="submit" value="' . $txt['search'] . '" style="margin-left: 20px;" class="button_submit" />
+							<strong>', $txt['search_for'], ':</strong> <input type="text" name="search" value="', $context['old_search'], '" size="35" class="input_text" /> <input type="submit" name="ml_search" value="' . $txt['search'] . '" style="margin-left: 20px;" class="button_submit" />
 						</span>
 						<span class="floatleft">';
 

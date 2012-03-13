@@ -1317,7 +1317,7 @@ function template_install_options()
 					<label for="package_make_backups"><input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_backups'], '</label><br /><br />
 					<label for="package_make_full_backups"><input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_full_backups'], '</label><br /><br />
 					<div class="righttext">
-						<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
+						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					</div>
 				</form>

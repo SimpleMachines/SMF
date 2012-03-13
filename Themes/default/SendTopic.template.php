@@ -266,7 +266,7 @@ function template_report()
 	echo '
 						</dl>
 						<div class="righttext">
-							<input type="submit" name="submit" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit" />
+							<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit" />
 						</div>
 					</div>
 					<span class="botslice"><span></span></span>

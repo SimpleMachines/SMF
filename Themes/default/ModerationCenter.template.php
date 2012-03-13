@@ -404,7 +404,7 @@ function template_unapproved_posts()
 					<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 					<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 				</select>
-				<noscript><input type="submit" name="submit" value="', $txt['go'], '" class="button_submit" /></noscript>
+				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button_submit" /></noscript>
 			</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -501,7 +501,7 @@ function template_unapproved_attachments()
 						<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 						<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 					</select>
-					<noscript><input type="submit" name="submit" value="', $txt['go'], '" class="button_submit" /></noscript>
+					<noscript><input type="submit" name="ml_go" value="', $txt['go'], '" class="button_submit" /></noscript>
 				</div>';
 
 	if (!empty($context['unapproved_items']))

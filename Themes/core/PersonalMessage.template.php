@@ -670,7 +670,7 @@ function template_search()
 				<div id="search_term_input">
 					<strong>', $txt['pm_search_text'], ':</strong>
 					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text" />
-					<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit" />
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
 				</div>
 				<a href="', $scripturl, '?action=pm;sa=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['pm_search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
@@ -760,7 +760,7 @@ function template_search()
 
 		echo '
 		<div class="righttext padding">
-			<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit" />
+			<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
 		</div>';
 	}
 
@@ -964,7 +964,7 @@ function template_send()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/im_newmsg.gif" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '</span>
+					<span class="ie6_header floatleft"><img class="icon" src="', $settings['images_url'], '/icons/im_newmsg.gif" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '</span>
 			</h3>
 		</div>';
 
