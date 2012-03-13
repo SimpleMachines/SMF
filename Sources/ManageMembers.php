@@ -281,7 +281,7 @@ function ViewMemberlist()
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
-		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST))
+		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
 			$search_params = @unserialize(base64_decode($_REQUEST['params']));
 		elseif (!empty($_POST))
 		{

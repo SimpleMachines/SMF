@@ -3022,6 +3022,7 @@ function template_header()
 				if (!file_exists($boarddir . '/' . $securityFile))
 					unset($securityFiles[$i]);
 			}
+
 			// We are already checking so many files...just few more doesn't make any difference! :P
 			if (!empty($modSettings['currentAttachmentUploadDir']))
 			{
@@ -3098,9 +3099,8 @@ function template_header()
 
 /**
  * Show the copyright.
- * @param bool $get_it = false
  */
-function theme_copyright($get_it = false)
+function theme_copyright()
 {
 	global $forum_copyright, $context, $boardurl, $forum_version, $txt, $modSettings;
 
