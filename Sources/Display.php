@@ -1392,17 +1392,8 @@ function Download()
 	if (filesize($filename) > 4194304)
 	{
 		// Forcibly end any output buffering going on.
-		if (function_exists('ob_get_level'))
-		{
-			while (@ob_get_level() > 0)
-				@ob_end_clean();
-		}
-		else
-		{
+		while (@ob_get_level() > 0)
 			@ob_end_clean();
-			@ob_end_clean();
-			@ob_end_clean();
-		}
 
 		$fp = fopen($filename, 'rb');
 		while (!feof($fp))

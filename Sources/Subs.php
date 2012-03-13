@@ -2675,13 +2675,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	{
 		// The theme author wants to use the STRICT doctype (only God knows why).
 		$temp = ob_get_contents();
-		if (function_exists('ob_clean'))
-			ob_clean();
-		else
-		{
-			ob_end_clean();
-			ob_start('ob_sessrewrite');
-		}
+		ob_clean();
 
 		echo strtr($temp, array(
 			'var smf_iso_case_folding' => 'var target_blank = \'_blank\'; var smf_iso_case_folding',
