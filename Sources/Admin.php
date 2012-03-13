@@ -165,7 +165,7 @@ function AdminMain()
 					'label' => $txt['theme_admin'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
-					'custom_url' => $scripturl . '?action=admin;area=theme;sa=admin',
+					'custom_url' => $scripturl . '?action=admin;area=theme',
 					'icon' => 'themes.gif',
 					'subsections' => array(
 						'admin' => array($txt['themeadmin_admin_title']),
