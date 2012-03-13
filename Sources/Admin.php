@@ -480,7 +480,7 @@ function AdminMain()
 	$context['admin_menu_id'] = $context['max_menu_id'];
 	$context['admin_menu_name'] = 'menu_data_' . $context['admin_menu_id'];
 
-	// Why on the admin are we?
+	// Where in the admin are we?
 	$context['admin_area'] = $admin_include_data['current_area'];
 
 	// Now - finally - call the right place!

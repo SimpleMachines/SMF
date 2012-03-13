@@ -746,6 +746,7 @@ function SpiderLogs()
 		),
 		'form' => array(
 			'token' => 'admin-sl',
+			'href' => $scripturl . '?action=admin;area=sengines;sa=logs',
 		),
 		'additional_rows' => array(
 			array(
