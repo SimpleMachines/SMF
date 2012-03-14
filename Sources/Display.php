@@ -1270,7 +1270,14 @@ function Download()
 	$filename = getAttachmentFilename($real_filename, $_REQUEST['attach'], $id_folder, false, $file_hash);
 
 	// This is done to clear any output that was made before now.
-	ob_clean();
+	ob_end_clean();
+	if (!empty($modSettings['enableCompressedOutput']) && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
+		@ob_start('ob_gzhandler');
+	else
+	{
+		ob_start();
+		header('Content-Encoding: none');
+	}
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($filename))
