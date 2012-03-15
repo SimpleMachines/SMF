@@ -186,11 +186,6 @@ fieldset legend
 	font-weight: bold;
 	color: #444;
 }
-/* No image should have a border when linked. */
-a img
-{
-	border: 0;
-}
 
 /* Define strong as bold, and em as italics */
 strong
@@ -407,6 +402,12 @@ ul.reset, ul.reset li
 .bbc_tt
 {
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+}
+
+/* No image should have a border when linked. */
+a img
+{
+	border: 0;
 }
 
 /* Generally, those [?] icons.  This makes your cursor a help icon. */
