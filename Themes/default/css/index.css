@@ -1596,6 +1596,8 @@ table.table_list tbody.content td.icon
 {
 	text-align: center;
 	width: 6%;
+	color: #000;
+	background-color: #ecedf3;
 }
 
 /* Styles for the board index.
