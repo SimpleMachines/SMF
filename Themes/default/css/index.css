@@ -1169,30 +1169,32 @@ span.lowerframe span
 }
 .dropmenu li ul
 {
-	z-index: 90;
-	position: absolute;
-	left: -9999px;
-	width: 19.2em;
-	font-weight: normal;
-	border-bottom: 1px solid #999;
-	background: url(../images/theme/menu_gfx.png) 0 -130px no-repeat;
-	padding: 7px 0 0 0;
+    z-index: 90;
+    display: none;
+    position: absolute;
+    left: -6px;
+    width: 17em;
+    font-weight: normal;
+    background: #fff url(../images/theme/menu_gfx.png) -30px -137px repeat-x;
+    border: solid 1px #999;
+    border-radius: 4px;
+    box-shadow: 1px 2px 2px 1px #999;
+    padding: 6px 0px 2px 0;
 }
 .dropmenu li li
 {
-	width: 19em;
-	margin: 0;
-	border-left: 1px solid #999;
-	border-right: 1px solid #999;
+	width: 17em;
+	margin: 0;	
 }
 .dropmenu li li a span
 {
 	display: block;
-	padding: 8px;
+	padding: 8px;		
 }
 .dropmenu li ul ul
 {
-	margin: -1.8em 0 0 13em;
+    margin: -2.4em 0 0 15em;
+    padding: 2px 0;
 }
 
 /* the active button */
@@ -1243,18 +1245,28 @@ span.lowerframe span
 .dropmenu ul a:focus {
 	margin-left: 9999px;
 }
-.dropmenu ul a:focus span {
-	width: 19em;
+.dropmenu ul a:focus span 
+{
+	width: 17em;
 	white-space: pre;
 	background: #d4dbe4;
 }
 /* This declaration is necessary to reset the margin when js is active. */
-.dropmenu ul li.sfhover a:focus {
+.dropmenu ul li.sfhover a:focus 
+{
 	margin-left: 0;
 }
 .dropmenu li li.additional_items
 {
 	background: #fff;
+}
+.dropmenu li li.subsections
+{    
+	background: url(../images/admin/subsection.gif) no-repeat 98% center;
+}
+.dropmenu li li a.chosen
+{
+    font-weight: bold;
 }
 
 /* The dropdown menu toggle image */
