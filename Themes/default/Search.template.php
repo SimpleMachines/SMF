@@ -24,7 +24,7 @@ function template_main()
 
 	if (!empty($context['search_errors']))
 		echo '
-		<p id="search_error" class="error">', implode('<br />', $context['search_errors']['messages']), '</p>';
+		<p class="errorbox">', implode('<br />', $context['search_errors']['messages']), '</p>';
 
 	// Simple Search?
 	if ($context['simple_search'])
