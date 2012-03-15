@@ -1845,7 +1845,7 @@ function notification($memID)
 						$link = $board[\'link\'];
 
 						if ($board[\'new\'])
-							$link .= \' <a href="\' . $board[\'href\'] . \'"><img src="\' . $settings[\'lang_images_url\'] . \'/new.gif" alt="\' . $txt[\'new\'] . \'" /></a>\';
+							$link .= \' <a href="\' . $board[\'href\'] . \'"><span class="new_posts">' . $txt['new'] . '</span></a>\';
 
 						return $link;
 					'),
@@ -1928,7 +1928,7 @@ function notification($memID)
 						$link = $topic[\'link\'];
 
 						if ($topic[\'new\'])
-							$link .= \' <a href="\' . $topic[\'new_href\'] . \'"><img src="\' . $settings[\'lang_images_url\'] . \'/new.gif" alt="\' . $txt[\'new\'] . \'" /></a>\';
+							$link .= \' <a href="\' . $topic[\'new_href\'] . \'"><span class="new_posts">\' . $txt[\'new\'] . \'</span></a>\';
 
 						$link .= \'<br /><span class="smalltext"><em>\' . $txt[\'in\'] . \' \' . $topic[\'board_link\'] . \'</em></span>\';
 

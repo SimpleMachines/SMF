@@ -180,7 +180,7 @@ function template_unread()
 							<td class="subject ', $color_class2, ' windowbg2">
 								<div>
 									', $topic['is_sticky'] ? '<strong>' : '', '<span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
-									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><img src="', $settings['lang_images_url'], '/new.gif" alt="', $txt['new'], '" /></a>
+									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
 									<p>
 										', $txt['started_by'], ' <strong>', $topic['first_post']['member']['link'], '</strong>
 										', $txt['in'], ' <em>', $topic['board']['link'], '</em>
@@ -364,7 +364,7 @@ function template_replies()
 							<td class="subject ', $color_class2, ' windowbg2">
 								<div>
 									', $topic['is_sticky'] ? '<strong>' : '', '<span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
-									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><img src="', $settings['lang_images_url'], '/new.gif" alt="', $txt['new'], '" /></a>
+									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
 									<p>
 										', $txt['started_by'], ' <strong>', $topic['first_post']['member']['link'], '</strong>
 										', $txt['in'], ' <em>', $topic['board']['link'], '</em>

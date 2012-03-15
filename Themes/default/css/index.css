@@ -124,6 +124,21 @@ input:focus, textarea:focus, button:focus, select:focus
 	border: 1px solid #454545;
 }
 
+/* the new "button" */
+a.new_posts:hover
+{
+	text-decoration: none;
+}
+span.new_posts
+{
+	padding: 0 4px 1px 4px;
+	background-color: #ff8300;
+	color: #fff;
+	font-size: .7em;
+	font-weight: bold;
+	border-radius: 2px;
+}
+
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
 input.input_check, input.input_radio
 {
