@@ -252,15 +252,15 @@ function template_unread()
 		<div class="description " id="topic_icons">
 			<p class="smalltext floatleft">
 				', !empty($modSettings['enableParticipation']) ? '
-				<img src="' . $settings['images_url'] . '/topic/my_normal_post.gif" alt="" align="middle" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				<img src="', $settings['images_url'], '/topic/normal_post.gif" alt="" align="middle" /> ', $txt['normal_topic'], '<br />
-				<img src="', $settings['images_url'], '/topic/hot_post.gif" alt="" align="middle" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
-				<img src="', $settings['images_url'], '/topic/veryhot_post.gif" alt="" align="middle" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
+				<img src="' . $settings['images_url'] . '/topic/my_normal_post.gif" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
+				<img src="', $settings['images_url'], '/topic/normal_post.gif" alt="" class="centericon" /> ', $txt['normal_topic'], '<br />
+				<img src="', $settings['images_url'], '/topic/hot_post.gif" alt="" class="centericon" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
+				<img src="', $settings['images_url'], '/topic/veryhot_post.gif" alt="" class="centericon" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
 			</p>
 			<p class="smalltext para2">
-				<img src="', $settings['images_url'], '/icons/quick_lock.gif" alt="" align="middle" /> ', $txt['locked_topic'], '<br />', ($modSettings['enableStickyTopics'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.gif" alt="" align="middle" /> ' . $txt['sticky_topic'] . '<br />' : ''), ($modSettings['pollMode'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/topic/normal_poll.gif" alt="" align="middle" /> ' . $txt['poll'] : ''), '
+				<img src="', $settings['images_url'], '/icons/quick_lock.gif" alt="" class="centericon" /> ', $txt['locked_topic'], '<br />', ($modSettings['enableStickyTopics'] == '1' ? '
+				<img src="' . $settings['images_url'] . '/icons/quick_sticky.gif" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />' : ''), ($modSettings['pollMode'] == '1' ? '
+				<img src="' . $settings['images_url'] . '/topic/normal_poll.gif" alt="" class="centericon" /> ' . $txt['poll'] : ''), '
 			</p>
 		</div>
 	</div>';
@@ -429,15 +429,15 @@ function template_replies()
 		<div class="description flow_auto" id="topic_icons">
 			<p class="smalltext floatleft">
 				', !empty($modSettings['enableParticipation']) ? '
-				<img src="' . $settings['images_url'] . '/topic/my_normal_post.gif" alt="" align="middle" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				<img src="', $settings['images_url'], '/topic/normal_post.gif" alt="" align="middle" /> ', $txt['normal_topic'], '<br />
-				<img src="', $settings['images_url'], '/topic/hot_post.gif" alt="" align="middle" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
-				<img src="', $settings['images_url'], '/topic/veryhot_post.gif" alt="" align="middle" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
+				<img src="' . $settings['images_url'] . '/topic/my_normal_post.gif" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
+				<img src="', $settings['images_url'], '/topic/normal_post.gif" alt="" class="centericon" /> ', $txt['normal_topic'], '<br />
+				<img src="', $settings['images_url'], '/topic/hot_post.gif" alt="" class="centericon" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
+				<img src="', $settings['images_url'], '/topic/veryhot_post.gif" alt="" class="centericon" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
 			</p>
 			<p class="smalltext para2">
-				<img src="', $settings['images_url'], '/icons/quick_lock.gif" alt="" align="middle" /> ', $txt['locked_topic'], '<br />', ($modSettings['enableStickyTopics'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.gif" alt="" align="middle" /> ' . $txt['sticky_topic'] . '<br />' : '') . ($modSettings['pollMode'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/topic/normal_poll.gif" alt="" align="middle" /> ' . $txt['poll'] : '') . '
+				<img src="', $settings['images_url'], '/icons/quick_lock.gif" alt="" class="centericon" /> ', $txt['locked_topic'], '<br />', ($modSettings['enableStickyTopics'] == '1' ? '
+				<img src="' . $settings['images_url'] . '/icons/quick_sticky.gif" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />' : '') . ($modSettings['pollMode'] == '1' ? '
+				<img src="' . $settings['images_url'] . '/topic/normal_poll.gif" alt="" class="centericon" /> ' . $txt['poll'] : '') . '
 			</p>
 		</div>
 	</div>';

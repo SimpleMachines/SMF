@@ -3166,7 +3166,10 @@ div#profile_success
 	margin: 0 0 10px 2px;
 	overflow: auto;
 }
-
+img.centericon
+{
+	vertical-align: middle;
+}
 .ignoreboards
 {
 	margin: 0 2%;

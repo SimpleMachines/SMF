@@ -628,7 +628,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -685,7 +685,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -741,7 +741,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -797,7 +797,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -833,8 +833,8 @@ function template_browse()
 		<div class="flow_auto">
 			<div class="padding smalltext floatleft">
 				', $txt['package_installed_key'], '
-				<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" align="middle" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-				<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" align="middle" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+				<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
+				<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 			</div>
 			<div class="padding smalltext floatright">
 				<a href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
@@ -1140,7 +1140,7 @@ function template_package_list()
 
 					// Mark as installed and current?
 					if ($package['is_installed'] && !$package['is_newer'])
-						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" width="12" height="11" align="middle" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
+						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" width="12" height="11" class="centericon" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
 
 					echo '
 							</strong>
@@ -1189,8 +1189,8 @@ function template_package_list()
 		</div>
 		<div class="padding smalltext floatleft">
 			', $txt['package_installed_key'], '
-			<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" align="middle" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-			<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" align="middle" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+			<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
+			<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 		</div>
 	</div>
 	<br class="clear" />
