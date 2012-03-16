@@ -123,7 +123,8 @@ $txt['mc_warning_template_body_desc'] = 'The content of the notification message
 $txt['mc_warning_template_body_default'] = '{MEMBER},' . "\n\n" . 'You have received a warning for inappropriate activity. Please cease these activities and abide by the forum rules otherwise we will take further action.' . "\n\n" . '{REGARDS}';
 $txt['mc_warning_template_personal'] = 'Personal Template';
 $txt['mc_warning_template_personal_desc'] = 'If you select this option only you will be able to see, edit and use this template. If not selected all moderators will be able to use this template.';
-$txt['mc_warning_template_error_empty'] = 'You must set both a title and notification body.';
+$txt['mc_warning_template_error_no_title'] = 'You must set title.';
+$txt['mc_warning_template_error_no_body'] = 'You must set a notification body.';
 
 $txt['mc_prefs'] = 'Preferences';
 $txt['mc_settings'] = 'Change Settings';

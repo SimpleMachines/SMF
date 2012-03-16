@@ -821,6 +821,16 @@ function template_warn_template()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
+					<div class="errorbox"', empty($context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
+						<dl>
+							<dt>
+								<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
+							</dt>
+							<dd class="error" id="error_list">
+								', empty($context['warning_errors']) ? '' : implode('<br />', $context['warning_errors']), '
+							</dd>
+						</dl>
+					</div>
 					<dl class="settings">
 						<dt>
 							<strong><label for="template_title">', $txt['mc_warning_template_title'], '</label>:</strong>
