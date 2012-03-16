@@ -1618,14 +1618,9 @@ function ViewWarningLog()
 				),
 			),
 		),
-/*		Commented out because of an Assertion failed error and an undefined index (href)
-		'form' => array(
-			'token' => 'mod-wt',
-		),*/
 	);
 
 	// Create the watched user list.
-	createToken('mod-wt');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
