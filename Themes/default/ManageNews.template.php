@@ -206,8 +206,8 @@ function template_email_members_compose()
 						<textarea cols="70" rows="9" name="message" id="message" class="editor">', empty($context['message']) ? $context['default_message'] : $context['message'], '</textarea>
 					</p>
 					<ul class="reset">
-						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="if (this.checked && ', $context['total_emails'], ' != 0 && !confirm(\'', $txt['admin_news_cannot_pm_emails_js'], '\')) return false; this.form.parse_html.disabled = this.checked; this.form.send_html.disabled = this.checked; " /> ', $txt['email_as_pms'], '</label></li>
-						<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html" ', !empty($context['send_html']) ? 'checked="checked"' : '', 'class="input_check" onclick="this.form.parse_html.disabled = !this.checked;" /> ', $txt['email_as_html'], '</label></li>
+						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_pms'], '</label></li>
+						<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html" ', !empty($context['send_html']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_html'], '</label></li>
 						<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked="checked" disabled="disabled" class="input_check" /> ', $txt['email_parsed_html'], '</label></li>
 					</ul>
 					<p>
@@ -228,6 +228,19 @@ function template_email_members_compose()
 
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
+			function checkboxes_status (item)
+			{
+				if (item.id == \'send_html\')
+					document.getElementById(\'parse_html\').disabled = !document.getElementById(\'parse_html\').disabled;
+				if (item.id == \'send_pm\')
+				{
+					if (!document.getElementById(\'send_html\').checked)
+						document.getElementById(\'parse_html\').disabled = true;
+					else
+						document.getElementById(\'parse_html\').disabled = false;
+					document.getElementById(\'send_html\').disabled = !document.getElementById(\'send_html\').disabled;
+				}
+			}
 			function make_preview ()
 			{
 				$("#preview_box").css({display: \'\'});

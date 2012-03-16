@@ -282,7 +282,6 @@ function list_getNews()
 	);
 
 	return $admin_current_news;
-//	$context['sub_template'] = 'edit_news';
 }
 
 /**

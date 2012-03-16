@@ -1938,6 +1938,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		'labels' => array(
 			'post_button' => $txt['send_message'],
 		),
+		'preview_type' => 2,
 	);
 	create_control_richedit($editorOptions);
 
@@ -1946,7 +1947,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	// Check whether we need to show the code again.
 	$context['require_verification'] = !$user_info['is_admin'] && !empty($modSettings['pm_posts_verification']) && $user_info['posts'] < $modSettings['pm_posts_verification'];
-	if ($context['require_verification'])
+	if ($context['require_verification'] && !isset($_REQUEST['xml']))
 	{
 		require_once($sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
@@ -2146,7 +2147,7 @@ function MessagePost2()
 	}
 
 	// Wrong verification code?
-	if (!$user_info['is_admin'] && !empty($modSettings['pm_posts_verification']) && $user_info['posts'] < $modSettings['pm_posts_verification'])
+	if (!$user_info['is_admin'] && !isset($_REQUEST['xml']) && !empty($modSettings['pm_posts_verification']) && $user_info['posts'] < $modSettings['pm_posts_verification'])
 	{
 		require_once($sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
