@@ -938,16 +938,15 @@ function template_send()
 	if (!empty($context['post_error']['messages']))
 	{
 		echo '
-				<div class="errorbox">
-					<strong>', $txt['error_while_submitting'], '</strong>
-					<ul class="reset">';
-
-		foreach ($context['post_error']['messages'] as $error)
-			echo '
-						<li class="error">', $error, '</li>';
-
-		echo '
-					</ul>
+				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+					<dl>
+						<dt>
+							<strong id="error_serious">', $txt['pm_error_while_submitting'] , '</strong>
+						</dt>
+						<dd class="error" id="error_list">
+							', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
+						</dd>
+					</dl>
 				</div>';
 	}
 
@@ -992,7 +991,7 @@ function template_send()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), '>', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60" />
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
 					</dd>
 				</dl><hr class="clear" />';
 

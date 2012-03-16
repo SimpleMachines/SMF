@@ -100,10 +100,10 @@ function template_main()
 
 	// If an error occurred, explain what happened.
 	echo '
-					<div class="errorbox"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+					<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 						<dl>
 							<dt>
-								<strong style="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'display: none;' : '', '" id="error_serious">', $txt['error_while_submitting'], '</strong>
+								<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 							</dt>
 							<dd class="error" id="error_list">
 								', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
@@ -154,11 +154,11 @@ function template_main()
 
 	// Now show the subject box for this post.
 	echo '
-						<dt>
+						<dt class="clear">
 							<span', isset($context['post_error']['no_subject']) ? ' class="error"' : '', ' id="caption_subject">', $txt['subject'], ':</span>
 						</dt>
 						<dd>
-							<input type="text" name="subject"', $context['subject'] == '' ? '' : ' value="' . $context['subject'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" />
+							<input type="text" name="subject"', $context['subject'] == '' ? '' : ' value="' . $context['subject'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80"', isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
 						</dd>
 						<dt class="clear_left">
 							', $txt['message_icon'], ':
@@ -607,7 +607,8 @@ function template_main()
 				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
 					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
 				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				document.getElementById(\'error_serious\').style.display = errors.getAttribute(\'serious\') == 1 ? \'\' : \'none\';
+				document.getElementById(\'errors\').className = errors.getAttribute(\'serious\') == 1 ? \'errorbox\' : \'noticebox\';
+				document.getElementById(\'error_serious\').style.display = numErrors == 0 ? \'none\' : \'\';
 				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br />\'));
 
 				// Show a warning if the topic has been locked.

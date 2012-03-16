@@ -2559,20 +2559,7 @@ fieldset.merge_options
 	text-align: center;
 }
 
-/* Styles for the registration section.
-------------------------------------------------------- */
-.register_error
-{
-	border: 1px dashed red;
-	padding: 5px;
-	margin: 0 1ex 1ex 1ex;
-}
-.register_error span
-{
-	text-decoration: underline;
-}
-
-/* Additional profile fields */
+/* Additional register fields */
 dl.register_form
 {
 	margin: 0;
@@ -2798,13 +2785,14 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 	width: 80%;
 	margin: auto;
 }
-
-.errorbox
+.errorbox 
 {
-	padding: 1em;
-	border: 1px solid #cc3344;
-	color: #000;
-	background-color: #ffe4e9;
+	background: #ffe4e9 url(../images/warning_mute.gif) center no-repeat;
+	background-position: 8px 50%;
+	text-align: left;
+	border-top: 2px solid #cc3344;
+	border-bottom: 2px solid #cc3344;
+	padding: 5px 10px 5px 30px;
 	margin-bottom: 1em;
 }
 .errorbox h3
@@ -2825,6 +2813,31 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 	float: left;
 	width: 1em;
 	font-size: 1.5em;
+}
+
+/* Styles for info boxes
+------------------------------------------------- */
+
+.noticebox 
+{
+	color:#999;
+	background:#fff6bf url(../images/warning_moderate.gif) center no-repeat;
+	background-position: 8px 50%;
+	text-align:left;
+	border-top:1px solid #ffd324;
+	border-bottom:1px solid #ffd324;
+	padding:5px 2px 5px 30px;
+	margin-bottom: 1em;
+}
+.infobox 
+{
+	background:#c5ffb8 url(../images/warning_watch.gif) center no-repeat;
+	background-position:8px 50%;
+	text-align:left;
+	border-top:1px solid #ffd324;
+	border-bottom:1px solid #ffd324;
+	padding:1px 10px 1px 30px;
+	margin-bottom: 1em;
 }
 
 /* Styles for the profile section.

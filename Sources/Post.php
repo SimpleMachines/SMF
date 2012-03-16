@@ -462,7 +462,7 @@ function Post()
 				$context['post_error']['messages'][] = $txt['error_' . $post_error];
 
 				// If it's not a minor error flag it as such.
-				if (!in_array($post_error, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification')))
+				if (!in_array($post_error, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
 					$context['error_type'] = 'serious';
 			}
 		}

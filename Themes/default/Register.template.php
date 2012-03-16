@@ -73,7 +73,7 @@ function template_registration_form()
 	if (!empty($context['registration_errors']))
 	{
 		echo '
-		<div class="register_error">
+		<div class="errorbox">
 			<span>', $txt['registration_errors_occurred'], '</span>
 			<ul class="reset">';
 
