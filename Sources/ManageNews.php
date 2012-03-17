@@ -438,13 +438,10 @@ function prepareMailingForPreview ()
 
 	foreach ($processing as $key => $post)
 	{
-		$context[$key] = $smcFunc['htmlspecialchars']($_REQUEST[$post], ENT_QUOTES);
+		$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
 		if (empty($context[$key]) && empty($_REQUEST['xml']))
-		{
-			$html = true;
-			$context[$key] = '[color=red]' . $txt['error_no_' . $post] . '[/color]';
-		}
+			$context['post_error']['messages'][] = $txt['error_no_' . $post];
 		elseif (!empty($_REQUEST['xml']))
 			continue;
 
@@ -485,24 +482,40 @@ function ComposeMailing()
 	$context['page_title'] = $txt['admin_newsletters'];
 	$context['sub_template'] = 'email_members_compose';
 
-	$context['default_subject'] = htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
-	$context['default_message'] = htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
+	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+
+	// Needed for the WYSIWYG editor.
+	require_once($sourcedir . '/Subs-Editor.php');
+
+	// Now create the editor.
+	$editorOptions = array(
+		'id' => 'message',
+		'value' => $context['message'],
+		'height' => '175px',
+		'width' => '100%',
+		'labels' => array(
+			'post_button' => $txt['sendtopic_send'],
+		),
+		'preview_type' => 2,
+	);
+	create_control_richedit($editorOptions);
+	// Store the ID for old compatibility.
+	$context['post_box_name'] = $editorOptions['id'];
 
 	if (isset($context['preview']))
 	{
 		require_once($sourcedir . '/Subs-Post.php');
-		$context['recipients']['members'] = explode(',', $_POST['exclude_members']);
-		$context['recipients']['exclude_members'] = explode(',', $_POST['exclude_members']);
-		$context['recipients']['groups'] = explode(',', $_POST['exclude_members']);
-		$context['recipients']['exclude_groups'] = explode(',', $_POST['exclude_members']);
-		$context['recipients']['emails'] = explode(';', $_POST['exclude_members']);
+		$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
+		$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
+		$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
+		$context['recipients']['exclude_groups'] = !empty($_POST['exclude_groups']) ? explode(',', $_POST['exclude_groups']) : array();
+		$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : array();
 		$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
 		$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
 		$context['max_id_member'] = !empty($_POST['max_id_member']) ? (int) $_POST['max_id_member'] : 0;
 		$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 		$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
-		$context['subject'] = $_POST['subject'];
-		$context['message'] = $_POST['message'];
 
 		return prepareMailingForPreview();
 	}
@@ -760,6 +773,10 @@ function SendMailing($clean_only = false)
 		return;
 
 	require_once($sourcedir . '/Subs-Post.php');
+
+	// We are relying too much on writing to superglobals...
+	$_POST['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : '';
+	$_POST['message'] = !empty($_POST['message']) ? $_POST['message'] : '';
 
 	// Save the message and its subject in $context
 	$context['subject'] = htmlspecialchars($_POST['subject']);

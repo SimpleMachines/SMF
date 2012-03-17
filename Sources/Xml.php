@@ -128,40 +128,20 @@ function newsletterpreview()
 	require_once($sourcedir . '/ManageNews.php');
 	loadLanguage('Errors');
 
-	$errors = array();
+	$context['post_error']['messages'] = array();
 	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 	$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
 
 	if (empty($_POST['subject']))
-		$errors[] = array('value' => $txt['error_no_subject'], 'attributes' => array('type' => 'subject_preview'));
+		$context['post_error']['messages'][] = $txt['error_no_subject'];
 	if (empty($_POST['message']))
-		$errors[] = array('value' => $txt['error_no_message'], 'attributes' => array('type' => 'message_preview'));
+		$context['post_error']['messages'][] = $txt['error_no_message'];
 
 	prepareMailingForPreview();
 
-	$context['xml_data'] = array(
-		'message' => array(
-			'identifier' => 'preview_message',
-			'children' => array(
-				array(
-					'value' => $context['preview_message'],
-				),
-			),
-		),
-		'subject' => array(
-			'identifier' => 'preview_subject',
-			'children' => array(
-				array(
-					'value' => $context['preview_subject'],
-				),
-			),
-		),
-		'errors' => array(
-			'identifier' => 'error',
-			'children' => $errors
-		),
-	);
+	$context['sub_template'] = 'pm';
 }
+
 function sig_preview()
 {
 	global $context, $sourcedir, $smcFunc, $txt, $user_info;
