@@ -41,7 +41,7 @@ function template_view_package()
 	{
 		echo '
 		<div class="errorbox">
-			<strong>', $txt['package_will_fail_title'], '</strong><br />
+			', $txt['package_will_fail_title'], '<br />
 			', $txt['package_will_fail_warning'], '
 		</div>';
 	}
@@ -130,7 +130,10 @@ function template_view_package()
 
 	if (empty($context['actions']) && empty($context['database_changes']))
 		echo '
-				<strong>', $txt['corrupt_compatible'], '</strong>
+				<br />
+				<div class="errorbox">
+					', $txt['corrupt_compatible'], '
+				</div>
 			</div>';
 	else
 	{
@@ -677,12 +680,18 @@ function template_browse()
 			if ($package['can_uninstall'])
 				echo '
 					<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['uninstall'], ' ]</a>';
+			elseif ($package['can_emulate_uninstall'])
+				echo '
+					<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;ve=', $package['can_emulate_uninstall'], ';package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['package_emulate_uninstall'], ' ', $package['can_emulate_uninstall'], ' ]</a>';
 			elseif ($package['can_upgrade'])
 				echo '
 					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['package_upgrade'], ' ]</a>';
 			elseif ($package['can_install'])
 				echo '
 					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['install_mod'], ' ]</a>';
+			elseif ($package['can_emulate_install'])
+				echo '
+					<a href="', $scripturl, '?action=admin;area=packages;sa=install;ve=', $package['can_emulate_install'], ';package=', $package['filename'], '">[ ', $txt['package_emulate_install'], ' ', $package['can_emulate_install'], ' ]</a>';
 
 			echo '
 					<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $package['filename'], '">[ ', $txt['list_files'], ' ]</a>
@@ -895,7 +904,7 @@ function template_browse()
 							<dt>
 								<strong>', $txt['package_emulate'], ':</strong><br />
 								<span class="smalltext">
-									<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\'; return false">', $txt['package_emulate_revert'], '</a>
+									<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\';document.getElementsByName(\'version_emulate\')[0].value = \'', $forum_version, '\';return false">', $txt['package_emulate_revert'], '</a>
 								</span>
 							</dt>
 							<dd>
@@ -917,8 +926,8 @@ function template_browse()
 	<br class="clear" />
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
-			var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
+			var oAddVersionSuggest = new smc_AutoSuggest({
+			sSelf: \'oAddVersionSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sControlId: \'ve\',
