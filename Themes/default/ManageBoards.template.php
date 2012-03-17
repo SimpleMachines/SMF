@@ -174,6 +174,9 @@ function template_modify_category()
 						<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" onclick="return confirm(\'', $txt['catConfirm'], '\');" class="button_submit" />';
 	echo '
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+	if (!empty($context['token_check']))
+		echo '
+						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 	// If this category is empty we don't bother with the next confirmation screen.
 	if ($context['category']['is_empty'])

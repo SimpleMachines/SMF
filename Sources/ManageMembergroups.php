@@ -328,7 +328,7 @@ function AddMembergroup()
 	global $context, $txt, $sourcedir, $modSettings, $smcFunc;
 
 	// A form was submitted, we can start adding.
-	if (!empty($_POST['group_name']))
+	if (isset($_POST['group_name']) && trim($_POST['group_name']) != '')
 	{
 		checkSession();
 		validateToken('admin-mmg');
@@ -355,7 +355,7 @@ function AddMembergroup()
 				'stars' => 'string', 'online_color' => 'string', 'group_type' => 'int',
 			),
 			array(
-				$id_group, '', $_POST['group_name'], ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
+				$id_group, '', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
 				'1#star.gif', '', $_POST['group_type'],
 			),
 			array('id_group')
@@ -683,7 +683,7 @@ function EditMembergroup()
 		redirectexit('action=admin;area=membergroups;');
 	}
 	// A form was submitted with the new membergroup settings.
-	elseif (isset($_POST['submit']))
+	elseif (isset($_POST['save']))
 	{
 		// Validate the session.
 		checkSession();
@@ -732,7 +732,7 @@ function EditMembergroup()
 				'group_hidden' => $_POST['group_hidden'],
 				'group_inherit' => $_POST['group_inherit'],
 				'current_group' => (int) $_REQUEST['group'],
-				'group_name' => $_POST['group_name'],
+				'group_name' => $smcFunc['htmlspecialchars']($_POST['group_name']),
 				'online_color' => $_POST['online_color'],
 				'stars' => $_POST['stars'],
 				'group_desc' => $_POST['group_desc'],
@@ -992,7 +992,7 @@ function EditMembergroup()
 		'id' => $_REQUEST['group'],
 		'name' => $row['group_name'],
 		'description' => htmlspecialchars($row['description']),
-		'editable_name' => htmlspecialchars($row['group_name']),
+		'editable_name' => $row['group_name'],
 		'color' => $row['online_color'],
 		'min_posts' => $row['min_posts'],
 		'max_messages' => $row['max_messages'],

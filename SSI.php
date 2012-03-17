@@ -399,7 +399,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 				<td valign="top">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
-					', $post['is_new'] ? '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><img src="' . $settings['lang_images_url'] . '/new.gif" alt="' . $txt['new'] . '" /></a>' : '', '
+					', $post['is_new'] ? '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 				</td>
 				<td align="right" nowrap="nowrap">
 					', $post['time'], '
@@ -530,7 +530,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 				<td valign="top">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
-					', !$post['is_new'] ? '' : '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><img src="' . $settings['lang_images_url'] . '/new.gif" alt="' . $txt['new'] . '" /></a>', '
+					', !$post['is_new'] ? '' : '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>', '
 				</td>
 				<td align="right" nowrap="nowrap">
 					', $post['time'], '
@@ -625,7 +625,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 	foreach ($boards as $board)
 		echo '
 			<tr>
-				<td>', $board['link'], $board['new'] ? ' <a href="' . $board['href'] . '"><img src="' . $settings['lang_images_url'] . '/new.gif" alt="' . $txt['new'] . '" /></a>' : '', '</td>
+				<td>', $board['link'], $board['new'] ? ' <a href="' . $board['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
 				<td align="right">', comma_format($board['num_topics']), '</td>
 				<td align="right">', comma_format($board['num_posts']), '</td>
 			</tr>';
@@ -1455,7 +1455,7 @@ function ssi_quickSearch($output_method = 'echo')
 
 	echo '
 		<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="advanced" value="0" /><input type="text" name="search" size="30" class="input_text" /> <input type="submit" name="submit" value="', $txt['search'], '" class="button_submit" />
+			<input type="hidden" name="advanced" value="0" /><input type="text" name="ssi_search" size="30" class="input_text" /> <input type="submit" value="', $txt['search'], '" class="button_submit" />
 		</form>';
 }
 

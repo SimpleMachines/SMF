@@ -588,7 +588,7 @@ function template_subject_list()
 			// ]]></script>
 				', $message['is_replied_to'] ? '<img src="' . $settings['images_url'] . '/icons/pm_replied.gif" style="margin-right: 4px;" alt="' . $txt['pm_replied'] . '" />' : '<img src="' . $settings['images_url'] . '/icons/pm_read.gif" style="margin-right: 4px;" alt="' . $txt['pm_read'] . '" />', '</td>
 			<td>', $message['time'], '</td>
-			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.gif" alt="*" />' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], '</a>', $message['is_unread'] ? '&nbsp;<img src="' . $settings['lang_images_url'] . '/new.gif" alt="' . $txt['new'] . '" />' : '', '</td>
+			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.gif" alt="*" />' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>
 			<td align="center" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked="checked"' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check" /></td>
 		</tr>';
@@ -665,7 +665,7 @@ function template_search()
 				<div id="search_term_input">
 					<strong>', $txt['pm_search_text'], ':</strong>
 					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text" />
-					<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit" />
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
 				</div>
 				<a href="', $scripturl, '?action=pm;sa=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['pm_search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
@@ -715,7 +715,7 @@ function template_search()
 				</dl>';
 		if (!$context['currently_using_labels'])
 			echo '
-				<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit floatright" />';
+				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />';
 			echo '
 				<br class="clear" />
 			</div>
@@ -747,7 +747,7 @@ function template_search()
 				</ul>
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
-					<input type="submit" name="submit" value="', $txt['pm_search_go'], '" class="button_submit floatright" />
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />
 				</p><br class="clear" />
 			</div>
 			<span class="lowerframe"><span></span></span>
@@ -938,16 +938,15 @@ function template_send()
 	if (!empty($context['post_error']['messages']))
 	{
 		echo '
-				<div class="errorbox">
-					<strong>', $txt['error_while_submitting'], '</strong>
-					<ul class="reset">';
-
-		foreach ($context['post_error']['messages'] as $error)
-			echo '
-						<li class="error">', $error, '</li>';
-
-		echo '
-					</ul>
+				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+					<dl>
+						<dt>
+							<strong id="error_serious">', $txt['pm_error_while_submitting'] , '</strong>
+						</dt>
+						<dd class="error" id="error_list">
+							', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
+						</dd>
+					</dl>
 				</div>';
 	}
 
@@ -992,7 +991,7 @@ function template_send()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), '>', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60" />
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
 					</dd>
 				</dl><hr class="clear" />';
 

@@ -79,7 +79,7 @@ function DumpDatabase2()
 		if (!empty($modSettings['enableCompressedOutput']))
 			@ob_end_clean();
 		// If we can, clean anything already sent from the output buffer...
-		elseif (function_exists('ob_clean') && ob_get_length() != 0)
+		elseif (ob_get_length() != 0)
 			ob_clean();
 
 		// Tell the client to save this file, even though it's text.

@@ -55,7 +55,7 @@ function ViewQuery()
 <html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $context['forum_name_html_safe'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
 		<style type="text/css">
 			body
 			{

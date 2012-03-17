@@ -165,7 +165,7 @@ function AdminMain()
 					'label' => $txt['theme_admin'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
-					'custom_url' => $scripturl . '?action=admin;area=theme;sa=admin',
+					'custom_url' => $scripturl . '?action=admin;area=theme',
 					'icon' => 'themes.gif',
 					'subsections' => array(
 						'admin' => array($txt['themeadmin_admin_title']),
@@ -480,7 +480,7 @@ function AdminMain()
 	$context['admin_menu_id'] = $context['max_menu_id'];
 	$context['admin_menu_name'] = 'menu_data_' . $context['admin_menu_id'];
 
-	// Why on the admin are we?
+	// Where in the admin are we?
 	$context['admin_area'] = $admin_include_data['current_area'];
 
 	// Now - finally - call the right place!
@@ -800,7 +800,7 @@ function AdminSearchInternal()
 	$context['page_title'] = $txt['admin_search_results'];
 	$context['search_results'] = array();
 
-	$search_term = strtolower($context['search_term']);
+	$search_term = strtolower(un_htmlspecialchars($context['search_term']));
 	// Go through all the search data trying to find this text!
 	foreach ($search_data as $section => $data)
 	{
@@ -845,7 +845,8 @@ function AdminSearchMember()
 	require_once($sourcedir . '/ManageMembers.php');
 	$_REQUEST['sa'] = 'query';
 
-	$_POST['membername'] = $context['search_term'];
+	$_POST['membername'] = un_htmlspecialchars($context['search_term']);
+	$_POST['types'] = '';
 
 	ViewMembers();
 }

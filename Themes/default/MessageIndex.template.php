@@ -32,7 +32,7 @@ function template_main()
 		{
 			echo '
 				<tr id="board_', $board['id'], '" class="windowbg2">
-					<td class="icon windowbg"', !empty($board['children']) ? ' rowspan="2"' : '', '>
+					<td class="icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">';
 
 			// If the board or children is new, show an indicator.
@@ -103,7 +103,7 @@ function template_main()
 				foreach ($board['children'] as $child)
 				{
 					if (!$child['is_redirect'])
-						$child['link'] = '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . ($child['new'] ? '</a> <a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')"><img src="' . $settings['lang_images_url'] . '/new.gif" class="new_posts" alt="" />' : '') . '</a>';
+						$child['link'] = '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . ($child['new'] ? '</a> <a  ' . ($child['new'] ? 'class="new_posts" ' : '') . 'href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')"><span class="new_posts">' . $txt['new'] . '</span>' : '') . '</a>';
 					else
 						$child['link'] = '<a href="' . $child['href'] . '" title="' . comma_format($child['posts']) . ' ' . $txt['redirects'] . '">' . $child['name'] . '</a>';
 
@@ -260,7 +260,7 @@ function template_main()
 			// Is this topic new? (assuming they are logged in!)
 			if ($topic['new'] && $context['user']['is_logged'])
 					echo '
-							<a href="', $topic['new_href'], '" id="newicon' . $topic['first_post']['id'] . '"><img src="', $settings['lang_images_url'], '/new.gif" alt="', $txt['new'], '" /></a>';
+							<a href="', $topic['new_href'], '" id="newicon' . $topic['first_post']['id'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>';
 
 			echo '
 							<p>', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
@@ -385,15 +385,15 @@ function template_main()
 	if (!$context['no_topic_listing'])
 		echo '
 			<p class="floatleft smalltext">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<img src="' . $settings['images_url'] . '/topic/my_normal_post.gif" alt="" align="middle" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				<img src="' . $settings['images_url'] . '/topic/normal_post.gif" alt="" align="middle" /> ' . $txt['normal_topic'] . '<br />
-				<img src="' . $settings['images_url'] . '/topic/hot_post.gif" alt="" align="middle" /> ' . sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']) . '<br />
-				<img src="' . $settings['images_url'] . '/topic/veryhot_post.gif" alt="" align="middle" /> ' . sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']) . '
+				<img src="' . $settings['images_url'] . '/topic/my_normal_post.gif" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
+				<img src="' . $settings['images_url'] . '/topic/normal_post.gif" alt="" class="centericon" /> ' . $txt['normal_topic'] . '<br />
+				<img src="' . $settings['images_url'] . '/topic/hot_post.gif" alt="" class="centericon" /> ' . sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']) . '<br />
+				<img src="' . $settings['images_url'] . '/topic/veryhot_post.gif" alt="" class="centericon" /> ' . sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']) . '
 			</p>
 			<p class="smalltext">
-				<img src="' . $settings['images_url'] . '/icons/quick_lock.gif" alt="" align="middle" /> ' . $txt['locked_topic'] . '<br />' . ($modSettings['enableStickyTopics'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.gif" alt="" align="middle" /> ' . $txt['sticky_topic'] . '<br />' : '') . ($modSettings['pollMode'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/topic/normal_poll.gif" alt="" align="middle" /> ' . $txt['poll'] : '') . '
+				<img src="' . $settings['images_url'] . '/icons/quick_lock.gif" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />' . ($modSettings['enableStickyTopics'] == '1' ? '
+				<img src="' . $settings['images_url'] . '/icons/quick_sticky.gif" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />' : '') . ($modSettings['pollMode'] == '1' ? '
+				<img src="' . $settings['images_url'] . '/topic/normal_poll.gif" alt="" class="centericon" /> ' . $txt['poll'] : '') . '
 			</p>';
 
 	echo '

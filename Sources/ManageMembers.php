@@ -281,7 +281,7 @@ function ViewMemberlist()
 		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
-		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST))
+		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
 			$search_params = @unserialize(base64_decode($_REQUEST['params']));
 		elseif (!empty($_POST))
 		{
@@ -902,16 +902,16 @@ function MembersAwaitingActivation()
 			),
 			'date_registered' => array(
 				'header' => array(
-					'value' => $txt['date_registered'],
+					'value' => $context['current_filter'] == 4 ? $txt['viewmembers_online'] : $txt['date_registered'],
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return timeformat($rowData[\'date_registered\']);
+						return timeformat($rowData[\'' . ($context['current_filter'] == 4 ? 'last_login' : 'date_registered') . '\']);
 					'),
 				),
 				'sort' => array(
-					'default' => 'date_registered DESC',
-					'reverse' => 'date_registered',
+					'default' => $context['current_filter'] == 4 ? 'mem.last_login DESC' : 'date_registered DESC',
+					'reverse' => $context['current_filter'] == 4 ? 'mem.last_login' : 'date_registered',
 				),
 			),
 			'duplicates' => array(

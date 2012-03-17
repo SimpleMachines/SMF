@@ -63,11 +63,11 @@ ol.search_results li
 #live_news
 {
 	width: 64%;
-	font-size: 0.85em;
 }
 #live_news div.content
 {
 	padding: 0;
+	font-size: 0.85em;
 }
 #live_news div.content dl
 {
@@ -363,11 +363,13 @@ dl.right dt
 ------------------------------------------------- */
 .maintenance_finished, #task_completed
 {
-	margin: 1ex;
-	padding: 1ex 2ex;
-	border: 1px dashed green;
-	color: green;
-	background: #efe;
+	background:#B7FCA7 url(../images/warning_watch.gif) center no-repeat;
+	background-position:8px 50%;
+	text-align:left;
+	border-top:1px solid green;
+	border-bottom:1px solid green;
+	padding:4px 10px 2px 30px;
+	margin-bottom: 1em;
 }
 /* Styles for the manage calendar section.
 ------------------------------------------------- */

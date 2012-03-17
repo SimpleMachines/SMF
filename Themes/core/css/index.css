@@ -63,6 +63,20 @@ input, button, select, textarea
 	color: #000;
 }
 
+/* the new "button" */
+a.new_posts:hover
+{
+	text-decoration: none;
+}
+span.new_posts
+{
+	padding: 0 4px 1px 4px;
+	background-color: #ff8300;
+	color: #fff;
+	font-size: .7em;
+	font-weight: bold;
+}
+
 /* The font size of textareas should be just a little bit larger. */
 textarea
 {

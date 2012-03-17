@@ -668,7 +668,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -725,7 +725,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -781,7 +781,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -837,7 +837,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -873,8 +873,8 @@ function template_browse()
 		<div class="flow_auto">
 			<div class="padding smalltext floatleft">
 				', $txt['package_installed_key'], '
-				<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" align="middle" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-				<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" align="middle" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+				<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
+				<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 			</div>
 			<div class="padding smalltext floatright">
 				<a href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
@@ -1180,7 +1180,7 @@ function template_package_list()
 
 					// Mark as installed and current?
 					if ($package['is_installed'] && !$package['is_newer'])
-						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" width="12" height="11" align="middle" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
+						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" width="12" height="11" class="centericon" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
 
 					echo '
 							</strong>
@@ -1229,8 +1229,8 @@ function template_package_list()
 		</div>
 		<div class="padding smalltext floatleft">
 			', $txt['package_installed_key'], '
-			<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" align="middle" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-			<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" align="middle" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+			<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
+			<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 		</div>
 	</div>
 	<br class="clear" />
@@ -1357,7 +1357,7 @@ function template_install_options()
 					<label for="package_make_backups"><input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_backups'], '</label><br /><br />
 					<label for="package_make_full_backups"><input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_full_backups'], '</label><br /><br />
 					<div class="righttext">
-						<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
+						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					</div>
 				</form>
@@ -1540,7 +1540,7 @@ function template_view_operations()
 	<head>
 		<title>', $txt['operation_title'], '</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css" />
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/theme.js?fin20"></script>

@@ -205,6 +205,7 @@ function Post()
 			array('id' => 3, 'number' => 4, 'label' => '', 'is_last' => false),
 			array('id' => 4, 'number' => 5, 'label' => '', 'is_last' => true)
 		);
+		$context['last_choice_id'] = 4;
 	}
 
 	if ($context['make_event'])
@@ -461,7 +462,7 @@ function Post()
 				$context['post_error']['messages'][] = $txt['error_' . $post_error];
 
 				// If it's not a minor error flag it as such.
-				if (!in_array($post_error, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification')))
+				if (!in_array($post_error, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
 					$context['error_type'] = 'serious';
 			}
 		}
@@ -487,6 +488,14 @@ function Post()
 				);
 			}
 
+			// One empty option for those with js disabled...I know are few... :P
+			$context['choices'][] = array(
+				'id' => $choice_id++,
+				'number' => $choice_id,
+				'label' => '',
+				'is_last' => false
+			);
+
 			if (count($context['choices']) < 2)
 			{
 				$context['choices'][] = array(
@@ -495,13 +504,8 @@ function Post()
 					'label' => '',
 					'is_last' => false
 				);
-				$context['choices'][] = array(
-					'id' => $choice_id++,
-					'number' => $choice_id,
-					'label' => '',
-					'is_last' => false
-				);
 			}
+			$context['last_choice_id'] = $choice_id;
 			$context['choices'][count($context['choices']) - 1]['is_last'] = true;
 		}
 

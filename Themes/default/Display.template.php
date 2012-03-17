@@ -528,7 +528,7 @@ function template_main()
 										<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '"/><br />';
 				}
 				echo '
-										<a href="' . $attachment['href'] . '"><img src="' . $settings['images_url'] . '/icons/clip.gif" align="middle" alt="*" />&nbsp;' . $attachment['name'] . '</a> ';
+										<a href="' . $attachment['href'] . '"><img src="' . $settings['images_url'] . '/icons/clip.gif" class="centericon" alt="*" />&nbsp;' . $attachment['name'] . '</a> ';
 
 				if (!$attachment['is_approved'] && $context['can_approve'])
 					echo '
@@ -781,6 +781,10 @@ function template_main()
 						sRestoreButtonLabel: \'', $txt['quick_mod_restore'], '\',
 						sRestoreButtonImage: \'restore_selected.gif\',
 						sRestoreButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						bCanSplit: ', $context['can_split'] ? 'true' : 'false', ',
+						sSplitButtonLabel: \'', $txt['quickmod_split_selected'], '\',
+						sSplitButtonImage: \'split_selected.gif\',
+						sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
 						sFormId: \'quickModForm\'
 					});';
 

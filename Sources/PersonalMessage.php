@@ -1745,7 +1745,7 @@ function MessagePost()
 		$context['to_value'] = '';
 
 	// Set the defaults...
-	$context['subject'] = $form_subject != '' ? $form_subject : $txt['no_subject'];
+	$context['subject'] = $form_subject;
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 	$context['post_error'] = array();
 	$context['copy_to_outbox'] = !empty($options['copy_to_outbox']);
@@ -1900,6 +1900,9 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	// Set each of the errors for the template.
 	loadLanguage('Errors');
+	
+	$context['error_type'] = 'minor';
+	
 	$context['post_error'] = array(
 		'messages' => array(),
 	);
@@ -1912,6 +1915,10 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 				$txt['error_' . $error_type] = sprintf($txt['error_' . $error_type], $modSettings['max_messageLength']);
 			$context['post_error']['messages'][] = $txt['error_' . $error_type];
 		}
+		
+		// If it's not a minor error flag it as such.
+		if (!in_array($error_type, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
+			$context['error_type'] = 'serious';
 	}
 
 	// We need to load the editor once more.

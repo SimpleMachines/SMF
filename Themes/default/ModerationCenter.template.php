@@ -404,7 +404,7 @@ function template_unapproved_posts()
 					<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 					<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 				</select>
-				<noscript><input type="submit" name="submit" value="', $txt['go'], '" class="button_submit" /></noscript>
+				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button_submit" /></noscript>
 			</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -501,7 +501,7 @@ function template_unapproved_attachments()
 						<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 						<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 					</select>
-					<noscript><input type="submit" name="submit" value="', $txt['go'], '" class="button_submit" /></noscript>
+					<noscript><input type="submit" name="ml_go" value="', $txt['go'], '" class="button_submit" /></noscript>
 				</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -776,7 +776,7 @@ function template_show_notice()
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
 	</head>
 	<body>
 		<div class="cat_bar">

@@ -266,7 +266,7 @@ function template_body_above()
 	{
 		echo '
 				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
-				<form id="guest_form" action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
+				<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
 					<div class="info">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</div>
 					<input type="text" name="user" size="10" class="input_text" />
 					<input type="password" name="passwrd" size="10" class="input_password" />
@@ -299,7 +299,7 @@ function template_body_above()
 		echo '
 				<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
 					<input type="text" name="search" value="" class="input_text" />&nbsp;
-					<input type="submit" name="submit" value="', $txt['search'], '" class="button_submit" />
+					<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
 					<input type="hidden" name="advanced" value="0" />';
 
 		// Search within current topic?

@@ -268,7 +268,7 @@ function template_body_above()
 	{
 		echo '
 				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
-				<form class="windowbg" id="guest_form" action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
+				<form class="windowbg" id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
 					', $context['can_register'] ? $txt['login_or_register'] : $txt['please_login'], '<br />
 					<input type="text" name="user" size="10" class="input_text" />
 					<input type="password" name="passwrd" size="10" class="input_password" />
@@ -302,7 +302,7 @@ function template_body_above()
 			<form class="floatright" id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
 				<a href="', $scripturl, '?action=search;advanced" title="', $txt['search_advanced'], '"><img id="advsearch" src="'.$settings['images_url'].'/filter.gif" align="middle" alt="', $txt['search_advanced'], '" /></a>
 				<input type="text" name="search" value="" style="width: 190px;" class="input_text" />&nbsp;
-				<input type="submit" name="submit" value="', $txt['search'], '" style="width: 11ex;" class="button_submit" />
+				<input type="submit" name="search2" value="', $txt['search'], '" style="width: 11ex;" class="button_submit" />
 				<input type="hidden" name="advanced" value="0" />';
 
 	// Search within current topic?

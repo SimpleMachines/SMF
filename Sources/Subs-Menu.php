@@ -238,6 +238,25 @@ function createMenu($menuData, $menuOptions = array())
 	// What about the toggle url?
 	$menu_context['toggle_url'] = isset($menuOptions['toggle_url']) ? $menuOptions['toggle_url'] : $menu_context['base_url'] . (!empty($menu_context['current_area']) ? ';area=' . $menu_context['current_area'] : '') . (!empty($menu_context['current_subsection']) ? ';sa=' . $menu_context['current_subsection'] : '') . $menu_context['extra_parameters'] . ';togglebar';
 
+	// If there are sections quickly goes through all the sections to check if the base menu has an url
+	if (!empty($menu_context['current_section']))
+	{
+		$menu_context['sections'][$menu_context['current_section']]['selected'] = true;
+		$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['selected'] = true;
+		if (!empty($menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction']]))
+			$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction']]['selected'] = true;
+
+		foreach ($menu_context['sections'] as $section_id => $section)
+			foreach ($section['areas'] as $area_id => $area)
+			{
+				if (!isset($menu_context['sections'][$section_id]['url']))
+				{
+					$menu_context['sections'][$section_id]['url'] = isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $area_id;
+					break;
+				}
+			}
+	}
+
 	// If we didn't find the area we were looking for go to a default one.
 	if (isset($backup_area) && empty($found_section))
 		$menu_context['current_area'] = $backup_area;

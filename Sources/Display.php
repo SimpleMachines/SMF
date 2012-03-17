@@ -1270,7 +1270,14 @@ function Download()
 	$filename = getAttachmentFilename($real_filename, $_REQUEST['attach'], $id_folder, false, $file_hash);
 
 	// This is done to clear any output that was made before now.
-	ob_clean();
+	ob_end_clean();
+	if (!empty($modSettings['enableCompressedOutput']) && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
+		@ob_start('ob_gzhandler');
+	else
+	{
+		ob_start();
+		header('Content-Encoding: none');
+	}
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($filename))
@@ -1392,17 +1399,8 @@ function Download()
 	if (filesize($filename) > 4194304)
 	{
 		// Forcibly end any output buffering going on.
-		if (function_exists('ob_get_level'))
-		{
-			while (@ob_get_level() > 0)
-				@ob_end_clean();
-		}
-		else
-		{
+		while (@ob_get_level() > 0)
 			@ob_end_clean();
-			@ob_end_clean();
-			@ob_end_clean();
-		}
 
 		$fp = fopen($filename, 'rb');
 		while (!feof($fp))
@@ -1631,6 +1629,22 @@ function QuickInTopicModeration()
 	// We are restoring messages. We handle this in another place.
 	if (isset($_REQUEST['restore_selected']))
 		redirectexit('action=restoretopic;msgs=' . implode(',', $messages) . ';' . $context['session_var'] . '=' . $context['session_id']);
+	if (isset($_REQUEST['split_selection']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT subject
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:message}
+			LIMIT 1',
+			array(
+				'message' => min($messages),
+			)
+		);
+		list($subname) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+		$_SESSION['split_selection'][$topic] = $messages;
+		redirectexit('action=splittopics;sa=selectTopics;topic=' . $topic . '.0;subname_enc=' .urlencode($subname) . ';' . $context['session_var'] . '=' . $context['session_id']);
+	}
 
 	// Allowed to delete any message?
 	if (allowedTo('delete_any'))
