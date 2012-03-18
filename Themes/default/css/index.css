@@ -2820,8 +2820,8 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 
 .noticebox 
 {
-	color:#999;
-	background:#fff6bf url(../images/warning_moderate.gif) center no-repeat;
+	color:#777;
+	background:#fff6ca url(../images/warning_moderate.gif) center no-repeat;
 	background-position: 8px 50%;
 	text-align:left;
 	border-top:1px solid #ffd324;
@@ -2834,8 +2834,8 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 	background:#c5ffb8 url(../images/warning_watch.gif) center no-repeat;
 	background-position:8px 50%;
 	text-align:left;
-	border-top:1px solid #ffd324;
-	border-bottom:1px solid #ffd324;
+	border-top:1px solid #green;
+	border-bottom:1px solid #green;
 	padding:1px 10px 1px 30px;
 	margin-bottom: 1em;
 }
