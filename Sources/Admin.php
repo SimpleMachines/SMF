@@ -613,7 +613,7 @@ function DisplayAdminFile()
 {
 	global $context, $modSettings, $smcFunc;
 
-	@ini_set('memory_limit', '32M');
+	setMemoryLimit('32M');
 
 	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
 		fatal_lang_error('no_access', false);
@@ -702,7 +702,7 @@ function AdminSearchInternal()
 	global $context, $txt, $helptxt, $scripturl, $sourcedir;
 
 	// Try to get some more memory.
-	@ini_set('memory_limit', '128M');
+	setMemoryLimit('128M');
 
 	// Load a lot of language files.
 	$language_files = array(

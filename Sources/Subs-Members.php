@@ -39,9 +39,9 @@ function deleteMembers($users, $check_not_admin = false)
 
 	// Try give us a while to sort this out...
 	@set_time_limit(600);
+	
 	// Try to get some more memory.
-	if (ini_get('memory_limit') < 128)
-		@ini_set('memory_limit', '128M');
+	setMemoryLimit('128M');
 
 	// If it's not an array, make it so!
 	if (!is_array($users))

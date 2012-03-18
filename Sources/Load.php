@@ -1293,7 +1293,7 @@ function detectBrowser()
 		);
 
 		// Detect IE7 and not IE8/IE9 in combat mode.
-		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && (!$context['browser']['is_ie8'] || !$context['browser']['is_ie9']);
+		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && !($context['browser']['is_ie8'] || $context['browser']['is_ie9']);
 
 		// Before IE8 we need to fix IE... lots!
 		$context['browser']['ie_standards_fix'] = ($context['browser']['is_ie8'] || $context['browser']['is_ie9']) ? false : true;
