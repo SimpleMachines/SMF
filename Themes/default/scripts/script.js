@@ -1552,3 +1552,12 @@ function updateActionDef(optNum)
 		document.getElementById("labdiv" + optNum).style.display = "none";
 	}
 }
+
+function smfSetLatestPackages()
+{
+	if (typeof(window.smfLatestPackages) != "undefined")
+		setInnerHTML(document.getElementById("packagesLatest"), window.smfLatestPackages);
+
+	if (tempOldOnload)
+	tempOldOnload();
+}

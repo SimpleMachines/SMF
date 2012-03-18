@@ -2787,12 +2787,12 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .errorbox 
 {
-	background: #ffe4e9 url(../images/warning_mute.gif) center no-repeat;
-	background-position: 8px 50%;
+	background: #fee url(../images/warning_mute.gif) center no-repeat;
+	background-position: 10px 50%;
 	text-align: left;
-	border-top: 2px solid #cc3344;
-	border-bottom: 2px solid #cc3344;
-	padding: 5px 10px 5px 30px;
+	border-top: 2px solid #c34;
+	border-bottom: 2px solid #c34;
+	padding: 7px 10px 7px 35px;
 	margin-bottom: 1em;
 }
 .errorbox h3
@@ -2814,29 +2814,34 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 	width: 1em;
 	font-size: 1.5em;
 }
+.errorbox span
+{
+	text-decoration: underline;
+}
 
 /* Styles for info boxes
 ------------------------------------------------- */
 
 .noticebox 
 {
-	color:#777;
-	background:#fff6ca url(../images/warning_moderate.gif) center no-repeat;
-	background-position: 8px 50%;
-	text-align:left;
-	border-top:1px solid #ffd324;
-	border-bottom:1px solid #ffd324;
-	padding:5px 2px 5px 30px;
+	color: #777;
+	background: #fff6ca url(../images/warning_moderate.gif) center no-repeat;
+	background-position: 10px 50%;
+	text-align: left;
+	border-top: 1px solid #ffd324;
+	border-bottom: 1px solid #ffd324;
+	padding: 7px 10px 7px 35px;
 	margin-bottom: 1em;
 }
 .infobox 
 {
-	background:#c5ffb8 url(../images/warning_watch.gif) center no-repeat;
-	background-position:8px 50%;
-	text-align:left;
-	border-top:1px solid #green;
-	border-bottom:1px solid #green;
-	padding:1px 10px 1px 30px;
+	color: #000;
+	background: #efe url(../images/icons/field_valid.gif) center no-repeat;
+	background-position: 10px 50%;
+	text-align: left;
+	border-top: 1px solid green;
+	border-bottom: 1px solid green;
+	padding: 7px 10px 7px 35px;
 	margin-bottom: 1em;
 }
 
@@ -2989,32 +2994,6 @@ dl
 #main_admsection #basicinfo .botslice
 {
 	clear: both;
-}
-
-/* Simple feedback messages */
-div#profile_error, div#profile_success
-{
-	margin: 0 0 1em 0;
-	padding: 1em 2em;
-	border: 1px solid;
-}
-div#profile_error
-{
-	border-color: red;
-	color: red;
-	background: #fee;
-}
-
-div#profile_error span
-{
-	text-decoration: underline;
-}
-
-div#profile_success
-{
-	border-color: green;
-	color: green;
-	background: #efe;
 }
 
 /* Profile statistics */

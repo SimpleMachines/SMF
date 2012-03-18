@@ -501,7 +501,7 @@ function template_admin_register()
 
 	if (!empty($context['registration_done']))
 		echo '
-				<div class="windowbg" id="profile_success">
+				<div class="infobox">
 					', $context['registration_done'], '
 				</div>';
 

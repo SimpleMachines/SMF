@@ -33,7 +33,7 @@ function template_profile_above()
 	// If the profile was update successfully, let the user know this.
 	if (!empty($context['profile_updated']))
 		echo '
-					<div class="windowbg" id="profile_success">
+					<div class="infobox">
 						', $context['profile_updated'], '
 					</div>';
 }
@@ -1711,7 +1711,7 @@ function template_groupMembership()
 	// Do we have an update message?
 	if (!empty($context['update_message']))
 		echo '
-			<div id="profile_success">
+			<div class="infobox">
 				', $context['update_message'], '.
 			</div>';
 
@@ -2374,7 +2374,7 @@ function template_deleteAccount()
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
 	if ($context['needs_approval'])
 		echo '
-					<div id ="profile_error" class="alert">', $txt['deleteAccount_approval'], '</div>';
+					<div class="errorbox">', $txt['deleteAccount_approval'], '</div>';
 
 	// If the user is deleting their own account warn them first - and require a password!
 	if ($context['user']['is_owner'])
@@ -2476,7 +2476,7 @@ function template_error_message()
 	global $context, $txt;
 
 	echo '
-		<div class="windowbg" id="profile_error">
+		<div class="errorbox">
 			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
 			<ul class="reset">';
 

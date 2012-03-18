@@ -34,7 +34,7 @@ function template_pm_above()
 	// Message sent? Show a small indication.
 	if (isset($context['pm_sent']))
 		echo '
-		<div class="windowbg" id="profile_success">
+		<div class="infobox">
 			', $txt['pm_sent'], '
 		</div>';
 }

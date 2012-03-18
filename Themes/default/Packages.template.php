@@ -41,11 +41,12 @@ function template_view_package()
 	{
 		echo '
 		<div class="errorbox">
-			<strong>', $txt['package_will_fail_title'], '</strong><br />
+			', $txt['package_will_fail_title'], '<br />
 			', $txt['package_will_fail_warning'], '
 		</div>';
 	}
 
+	// Display the package readme if one exists
 	if (isset($context['package_readme']))
 	{
 		echo '
@@ -105,7 +106,10 @@ function template_view_package()
 
 	if (empty($context['actions']) && empty($context['database_changes']))
 		echo '
-				<strong>', $txt['corrupt_compatible'], '</strong>
+				<br />
+				<div class="errorbox">
+					', $txt['corrupt_compatible'], '
+				</div>
 			</div>';
 	else
 	{

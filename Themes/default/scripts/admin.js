@@ -532,15 +532,6 @@ function swap_database_changes()
 	return false;
 }
 
-function smfSetLatestPackages()
-{
-	if (typeof(window.smfLatestPackages) != "undefined")
-		setInnerHTML(document.getElementById("packagesLatest"), window.smfLatestPackages);
-
-	if (tempOldOnload)
-	tempOldOnload();
-}
-
 function testFTP()
 {
 	ajax_indicator(true);

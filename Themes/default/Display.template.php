@@ -18,7 +18,7 @@ function template_main()
 	if ($context['report_sent'])
 	{
 		echo '
-			<div class="windowbg" id="profile_success">
+			<div class="infobox">
 				', $txt['report_sent'], '
 			</div>';
 	}
