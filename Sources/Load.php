@@ -2682,31 +2682,8 @@ function cache_put_data($key, $value, $ttl = 120)
 			
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
-			if (version_compare(PHP_VERSION, '5.1', '<'))
-			{
-				$fh = @fopen($cachedir . '/data_' . $key . '.php', 'w');
-				if ($fh)
-				{
-					// Write the file.
-					set_file_buffer($fh, 0);
-
-					if (flock($fh, LOCK_EX))
-						$cache_bytes = fwrite($fh, $cache_data);
-					else
-						$cache_bytes = 0;
-
-					flock($fh, LOCK_UN);
-					fclose($fh);
-
-					if ($cache_bytes !== strlen($cache_data))
-						@unlink($cachedir . '/data_' . $key . '.php');
-				}
-			}
-			else
-			{
-				if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
-					@unlink($cachedir . '/data_' . $key . '.php');
-			}
+			if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
+				@unlink($cachedir . '/data_' . $key . '.php');
 		}
 	}
 	

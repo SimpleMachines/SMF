@@ -199,7 +199,7 @@ function smf_openID_makeAssociation($server)
 	if (!empty($assoc_data['enc_mac_key']))
 	{
 		$dh_secret = bcpowmod(binary_to_long(base64_decode($assoc_data['dh_server_public'])), $dh_keys['private'], $p);
-		$secret = base64_encode(binary_xor(sha1_raw(long_to_binary($dh_secret)), base64_decode($assoc_data['enc_mac_key'])));
+		$secret = base64_encode(binary_xor(sha1(long_to_binary($dh_secret), true), base64_decode($assoc_data['enc_mac_key'])));
 	}
 	else
 		$secret = $assoc_data['mac_key'];
@@ -569,35 +569,15 @@ function sha1_hmac($data, $key)
 {
 
 	if (strlen($key) > 64)
-		$key = sha1_raw($key);
+		$key = sha1($key, true);
 
 	// Pad the key if need be.
 	$key = str_pad($key, 64, chr(0x00));
 	$ipad = str_repeat(chr(0x36), 64);
 	$opad = str_repeat(chr(0x5c), 64);
-	$hash1 = sha1_raw(($key ^ $ipad) . $data);
-	$hmac = sha1_raw(($key ^ $opad) . $hash1);
+	$hash1 = sha1(($key ^ $ipad) . $data, true);
+	$hmac = sha1(($key ^ $opad) . $hash1, true);
 	return $hmac;
-}
-
-/**
- * @todo move to Subs-Compat.php
- */
-function sha1_raw($text)
-{
-	if (version_compare(PHP_VERSION, '5.0.0', '>='))
-		return sha1($text, true);
-
-	$hex = sha1($text);
-	$raw = '';
-	for ($i = 0; $i < 40; $i += 2)
-	{
-		$hexcode = substr($hex, $i, 2);
-		$charcode = (int) base_convert($hexcode, 16, 10);
-		$raw .= chr($charcode);
-	}
-
-	return $raw;
 }
 
 function binary_to_long($str)
