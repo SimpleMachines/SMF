@@ -627,3 +627,12 @@ h3.grid_header
 {
 	margin-bottom: 4px;
 }
+
+/* Styles for the Report generation 
+------------------------------------------------- */
+#report_buttons
+{
+    min-height: 2em;
+    padding-left: 0;
+	padding-bottom: 2px;
+}

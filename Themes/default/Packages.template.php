@@ -119,11 +119,11 @@ function template_view_package()
 			<table class="table_grid" width="100%">
 			<thead>
 				<tr class="catbg">
-					<th scope="col" width="20"></th>
+					<th class="first_th" scope="col" width="20"></th>
 					<th scope="col" width="30"></th>
 					<th scope="col" class="lefttext">', $txt['package_install_type'], '</th>
 					<th scope="col" class="lefttext" width="50%">', $txt['package_install_action'], '</th>
-					<th scope="col" class="lefttext" width="20%">', $txt['package_install_desc'], '</th>
+					<th class="last_th lefttext" scope="col" class="lefttext" width="20%">', $txt['package_install_desc'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -518,10 +518,10 @@ function template_view_installed()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th scope="col" width="32"></th>
-				<th scope="col" width="25%">', $txt['mod_name'], '</th>
-				<th scope="col" width="25%">', $txt['mod_version'], '</th>
-				<th scope="col" width="49%"></th>
+				<th class="first_th" scope="col" width="32"></th>
+				<th class="lefttext" scope="col" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" scope="col" width="25%">', $txt['mod_version'], '</th>
+				<th class="last_th" scope="col" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -671,10 +671,10 @@ function template_browse()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th width="32"></th>
-				<th width="25%">', $txt['mod_name'], '</th>
-				<th width="25%">', $txt['mod_version'], '</th>
-				<th width="49%"></th>
+				<th class="first_th" width="32"></th>
+				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+				<th lass="last_th" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -727,10 +727,10 @@ function template_browse()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th width="32"></th>
-				<th width="25%">', $txt['mod_name'], '</th>
-				<th width="25%">', $txt['mod_version'], '</th>
-				<th width="49%"></th>
+				<th class="first_th" width="32"></th>
+				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+				<th class="last_th" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -783,10 +783,10 @@ function template_browse()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th width="32"></th>
-				<th width="25%">', $txt['mod_name'], '</th>
-				<th width="25%">', $txt['mod_version'], '</th>
-				<th width="49%"></th>
+				<th class="first_th"width="32"></th>
+				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+				<th class="lasst_th" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -841,7 +841,7 @@ function template_browse()
 				<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 			</div>
 			<div class="padding smalltext floatright">
-				<a href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
+				<a class="button_link" href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
 			</div>
 		</div>
 		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">

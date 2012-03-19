@@ -456,11 +456,11 @@ function template_unapproved_attachments()
 			<table class="table_grid" width="100%">
 			<thead>
 				<tr class="catbg">
-					<th>', $txt['mc_unapproved_attach_name'], '</th>
+					<th class="first_th">', $txt['mc_unapproved_attach_name'], '</th>
 					<th>', $txt['mc_unapproved_attach_size'], '</th>
 					<th>', $txt['mc_unapproved_attach_poster'], '</th>
 					<th>', $txt['date'], '</th>
-					<th nowrap="nowrap" align="center"><input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" checked="checked" /></th>
+					<th class="last_th" nowrap="nowrap" align="center"><input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" checked="checked" /></th>
 				</tr>
 			</thead>
 			<tbody>';

@@ -123,6 +123,19 @@ input:focus, textarea:focus, button:focus, select:focus
 {
 	border: 1px solid #454545;
 }
+.button_link
+{
+	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
+	border: 1px solid #aaa;
+	padding: 2px 5px 3px 4px;
+	cursor: pointer;
+	font-size: 1.1em;
+	font-weight: normal;
+}
+a.button_link
+{ 
+	color: #000;
+}
 
 /* the new "button" */
 a.new_posts:hover
