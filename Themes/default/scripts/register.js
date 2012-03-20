@@ -256,7 +256,7 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 		if (!alt)
 			alt = '*';
 
-		var curImage = imageIcon ? (imageIcon == 'check' ? 'field_check.gif' : 'field_valid.gif') : 'field_invalid.gif';
+		var curImage = imageIcon ? (imageIcon == 'check' ? 'field_check.png' : 'field_valid.png') : 'field_invalid.png';
 		imageHandle.src = smf_images_url + '/icons/' + curImage;
 		imageHandle.alt = alt;
 		imageHandle.title = alt;

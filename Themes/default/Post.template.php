@@ -374,7 +374,7 @@ function template_main()
 	if (!empty($settings['additional_options_collapsable']))
 		echo '
 					<div id="postAdditionalOptionsHeader">
-						<img src="', $settings['images_url'], '/collapse.gif" alt="-" id="postMoreExpand" style="display: none;" /> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
+						<img src="', $settings['images_url'], '/collapse.png" alt="-" id="postMoreExpand" style="display: none;" /> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
 					</div>';
 
 	// Display the check boxes for all the standard options - if they are available to the user!
@@ -718,9 +718,9 @@ function template_main()
 				aSwapImages: [
 					{
 						sId: \'postMoreExpand\',
-						srcExpanded: smf_images_url + \'/collapse.gif\',
+						srcExpanded: smf_images_url + \'/collapse.png\',
 						altExpanded: \'-\',
-						srcCollapsed: smf_images_url + \'/expand.gif\',
+						srcCollapsed: smf_images_url + \'/expand.png\',
 						altCollapsed: \'+\'
 					}
 				],

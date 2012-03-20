@@ -933,7 +933,7 @@ function create_ajax_indicator_ele()
 	var cancel_link = document.createElement('a');
 	cancel_link.href = 'javascript:ajax_indicator(false)';
 	var cancel_img = document.createElement('img');
-	cancel_img.src = smf_images_url + '/icons/quick_remove.gif';
+	cancel_img.src = smf_images_url + '/icons/quick_remove.png';
 
 	if (typeof(ajax_notification_cancel_text) != 'undefined')
 	{
@@ -1342,7 +1342,7 @@ function addLoadEvent(fNewOnload)
 
 function smfFooterHighlight(element, value)
 {
-	element.src = smf_images_url + '/' + (value ? 'h_' : '') + element.id + '.gif';
+	element.src = smf_images_url + '/' + (value ? 'h_' : '') + element.id + '.png';
 }
 
 // Get the text in a code tag.
@@ -1511,7 +1511,7 @@ function expandCollapseBoards()
 	var current = document.getElementById("searchBoardsExpand").style.display != "none";
 
 	document.getElementById("searchBoardsExpand").style.display = current ? "none" : "";
-	document.getElementById("expandBoardsIcon").src = smf_images_url + (current ? "/expand.gif" : "/collapse.gif");
+	document.getElementById("expandBoardsIcon").src = smf_images_url + (current ? "/expand.png" : "/collapse.png");
 }
 
 function expandCollapseLabels()
@@ -1519,7 +1519,7 @@ function expandCollapseLabels()
 	var current = document.getElementById("searchLabelsExpand").style.display != "none";
 
 	document.getElementById("searchLabelsExpand").style.display = current ? "none" : "";
-	document.getElementById("expandLabelsIcon").src = smf_images_url + (current ? "/expand.gif" : "/collapse.gif");
+	document.getElementById("expandLabelsIcon").src = smf_images_url + (current ? "/expand.png" : "/collapse.png");
 }
 
 function updateRuleDef(optNum)

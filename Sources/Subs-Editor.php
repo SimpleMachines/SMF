@@ -963,7 +963,7 @@ function getMessageIcons($board_id)
 
 		foreach ($icons as $k => $dummy)
 		{
-			$icons[$k]['url'] = $settings['images_url'] . '/post/' . $dummy['value'] . '.gif';
+			$icons[$k]['url'] = $settings['images_url'] . '/post/' . $dummy['value'] . '.png';
 			$icons[$k]['is_last'] = false;
 		}
 	}
@@ -996,7 +996,7 @@ function getMessageIcons($board_id)
 			$icons[$icon['filename']] = array(
 				'value' => $icon['filename'],
 				'name' => $icon['title'],
-				'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.gif') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.gif',
+				'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
 				'is_last' => false,
 			);
 		}

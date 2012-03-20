@@ -651,7 +651,7 @@ a.moderation_link, a.moderation_link:visited
 
 .openid_login
 {
-	background: white url(../images/openid.gif) no-repeat;
+	background: white url(../images/openid.png) no-repeat;
 	padding-left: 18px;
 }
 
@@ -1275,7 +1275,7 @@ span.lowerframe span
 }
 .dropmenu li li.subsections
 {    
-	background: url(../images/admin/subsection.gif) no-repeat 98% center;
+	background: url(../images/admin/subsection.png) no-repeat 98% center;
 }
 .dropmenu li li a.chosen
 {
@@ -2769,19 +2769,19 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .topic_table td.stickybg2
 {
-	background-image: url(../images/icons/quick_sticky.gif);
+	background-image: url(../images/icons/quick_sticky.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
 .topic_table td.lockedbg2
 {
-	background-image: url(../images/icons/quick_lock.gif);
+	background-image: url(../images/icons/quick_lock.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
 .topic_table td.locked_sticky2
 {
-	background-image: url(../images/icons/quick_sticky_lock.gif);
+	background-image: url(../images/icons/quick_sticky_lock.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
@@ -2800,7 +2800,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .errorbox 
 {
-	background: #fee url(../images/warning_mute.gif) center no-repeat;
+	background: #fee url(../images/warning_mute.png) center no-repeat;
 	background-position: 10px 50%;
 	text-align: left;
 	border-top: 2px solid #c34;
@@ -2838,7 +2838,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 .noticebox 
 {
 	color: #777;
-	background: #fff6ca url(../images/warning_moderate.gif) center no-repeat;
+	background: #fff6ca url(../images/warning_moderate.png) center no-repeat;
 	background-position: 10px 50%;
 	text-align: left;
 	border-top: 1px solid #ffd324;
@@ -2849,7 +2849,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 .infobox 
 {
 	color: #000;
-	background: #efe url(../images/icons/field_valid.gif) center no-repeat;
+	background: #efe url(../images/icons/field_valid.png) center no-repeat;
 	background-position: 10px 50%;
 	text-align: left;
 	border-top: 1px solid green;
