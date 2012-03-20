@@ -482,7 +482,7 @@ function toggleBreakdown(id_group, forcedisplayType)
 		document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]).style.display = displayType
 	}
 	document.getElementById("group_hr_div_" + id_group).style.display = displayType
-	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "sort_down") + ".gif";
+	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "sort_down") + ".png";
 
 	return false;
 }
@@ -530,15 +530,6 @@ function swap_database_changes()
 	db_vis = !db_vis;
 	database_changes_area.style.display = db_vis ? "" : "none";
 	return false;
-}
-
-function smfSetLatestPackages()
-{
-	if (typeof(window.smfLatestPackages) != "undefined")
-		setInnerHTML(document.getElementById("packagesLatest"), window.smfLatestPackages);
-
-	if (tempOldOnload)
-	tempOldOnload();
 }
 
 function testFTP()

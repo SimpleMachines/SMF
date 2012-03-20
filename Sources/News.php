@@ -661,7 +661,7 @@ function getXmlNews($xml_format)
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'modified' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'icon' => $settings['images_url'] . '/icons/' . $row['icon'] . '.gif',
+				'icon' => $settings['images_url'] . '/icons/' . $row['icon'] . '.png',
 			);
 		// The biggest difference here is more information.
 		else
@@ -817,7 +817,7 @@ function getXmlRecent($xml_format)
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'icon' => $settings['images_url'] . '/icons/' . $row['icon'] . '.gif',
+				'icon' => $settings['images_url'] . '/icons/' . $row['icon'] . '.png',
 			);
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else

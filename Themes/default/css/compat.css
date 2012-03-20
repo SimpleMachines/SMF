@@ -1468,13 +1468,13 @@ tr.windowbg td, tr.windowbg2 td
 }
 .topic_table td.stickybg2
 {
-	background-image: url(../images/icons/quick_sticky.gif);
+	background-image: url(../images/icons/quick_sticky.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
 .topic_table td.lockedbg2
 {
-	background-image: url(../images/icons/quick_lock.gif);
+	background-image: url(../images/icons/quick_lock.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }

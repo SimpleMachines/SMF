@@ -48,18 +48,18 @@ function AdminMain()
 				'index' => array(
 					'label' => $txt['admin_center'],
 					'function' => 'AdminHome',
-					'icon' => 'administration.gif',
+					'icon' => 'administration.png',
 				),
 				'credits' => array(
 					'label' => $txt['support_credits_title'],
 					'function' => 'AdminHome',
-					'icon' => 'support.gif',
+					'icon' => 'support.png',
 				),
 				'news' => array(
 					'label' => $txt['news_title'],
 					'file' => 'ManageNews.php',
 					'function' => 'ManageNews',
-					'icon' => 'news.gif',
+					'icon' => 'news.png',
 					'permission' => array('edit_news', 'send_mail', 'admin_forum'),
 					'subsections' => array(
 						'editnews' => array($txt['admin_edit_news'], 'edit_news'),
@@ -72,7 +72,7 @@ function AdminMain()
 					'file' => 'Packages.php',
 					'function' => 'Packages',
 					'permission' => array('admin_forum'),
-					'icon' => 'packages.gif',
+					'icon' => 'packages.png',
 					'subsections' => array(
 						'browse' => array($txt['browse_packages']),
 						'packageget' => array($txt['download_packages'], 'url' => $scripturl . '?action=admin;area=packages;sa=packageget;get'),
@@ -90,7 +90,7 @@ function AdminMain()
 					'label' => $txt['admin_logoff'],
 					'function' => 'AdminEndSession',
 					'enabled' => empty($modSettings['securityDisable']),
-//					'icon' => 'administration.gif',
+//					'icon' => 'administration.png',
 				),
 
 			),
@@ -103,13 +103,13 @@ function AdminMain()
 					'label' => $txt['core_settings_title'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyCoreFeatures',
-					'icon' => 'corefeatures.gif',
+					'icon' => 'corefeatures.png',
 				),
 				'featuresettings' => array(
 					'label' => $txt['modSettings_title'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyFeatureSettings',
-					'icon' => 'features.gif',
+					'icon' => 'features.png',
 					'subsections' => array(
 						'basic' => array($txt['mods_cat_features']),
 						'layout' => array($txt['mods_cat_layout']),
@@ -122,7 +122,7 @@ function AdminMain()
 					'label' => $txt['admin_security_moderation'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifySecuritySettings',
-					'icon' => 'security.gif',
+					'icon' => 'security.png',
 					'subsections' => array(
 						'general' => array($txt['mods_cat_security_general']),
 						'spam' => array($txt['antispam_title']),
@@ -133,7 +133,7 @@ function AdminMain()
 					'label' => $txt['language_configuration'],
 					'file' => 'ManageLanguages.php',
 					'function' => 'ManageLanguages',
-					'icon' => 'languages.gif',
+					'icon' => 'languages.png',
 					'subsections' => array(
 						'edit' => array($txt['language_edit']),
 						'add' => array($txt['language_add']),
@@ -144,7 +144,7 @@ function AdminMain()
 					'label' => $txt['admin_server_settings'],
 					'file' => 'ManageServer.php',
 					'function' => 'ModifySettings',
-					'icon' => 'server.gif',
+					'icon' => 'server.png',
 					'subsections' => array(
 						'general' => array($txt['general_settings']),
 						'database' => array($txt['database_paths_settings']),
@@ -159,14 +159,14 @@ function AdminMain()
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => $scripturl . '?action=admin;area=theme;sa=settings;th=' . $settings['theme_id'],
-					'icon' => 'current_theme.gif',
+					'icon' => 'current_theme.png',
 				),
 				'theme' => array(
 					'label' => $txt['theme_admin'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
 					'custom_url' => $scripturl . '?action=admin;area=theme',
-					'icon' => 'themes.gif',
+					'icon' => 'themes.png',
 					'subsections' => array(
 						'admin' => array($txt['themeadmin_admin_title']),
 						'list' => array($txt['themeadmin_list_title']),
@@ -178,7 +178,7 @@ function AdminMain()
 					'label' => $txt['admin_modifications'],
 					'file' => 'ManageSettings.php',
 					'function' => 'ModifyModSettings',
-					'icon' => 'modifications.gif',
+					'icon' => 'modifications.png',
 					'subsections' => array(
 						'general' => array($txt['mods_cat_modifications_misc']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
@@ -196,7 +196,7 @@ function AdminMain()
 					'label' => $txt['admin_boards'],
 					'file' => 'ManageBoards.php',
 					'function' => 'ManageBoards',
-					'icon' => 'boards.gif',
+					'icon' => 'boards.png',
 					'permission' => array('manage_boards'),
 					'subsections' => array(
 						'main' => array($txt['boardsEdit']),
@@ -209,7 +209,7 @@ function AdminMain()
 					'file' => 'ManagePosts.php',
 					'function' => 'ManagePostSettings',
 					'permission' => array('admin_forum'),
-					'icon' => 'posts.gif',
+					'icon' => 'posts.png',
 					'subsections' => array(
 						'posts' => array($txt['manageposts_settings']),
 						'bbc' => array($txt['manageposts_bbc_settings']),
@@ -221,7 +221,7 @@ function AdminMain()
 					'label' => $txt['manage_calendar'],
 					'file' => 'ManageCalendar.php',
 					'function' => 'ManageCalendar',
-					'icon' => 'calendar.gif',
+					'icon' => 'calendar.png',
 					'permission' => array('admin_forum'),
 					'enabled' => in_array('cd', $context['admin_features']),
 					'subsections' => array(
@@ -233,7 +233,7 @@ function AdminMain()
 					'label' => $txt['manage_search'],
 					'file' => 'ManageSearch.php',
 					'function' => 'ManageSearch',
-					'icon' => 'search.gif',
+					'icon' => 'search.png',
 					'permission' => array('admin_forum'),
 					'subsections' => array(
 						'weights' => array($txt['search_weights']),
@@ -245,7 +245,7 @@ function AdminMain()
 					'label' => $txt['smileys_manage'],
 					'file' => 'ManageSmileys.php',
 					'function' => 'ManageSmileys',
-					'icon' => 'smiley.gif',
+					'icon' => 'smiley.png',
 					'permission' => array('manage_smileys'),
 					'subsections' => array(
 						'editsets' => array($txt['smiley_sets']),
@@ -260,7 +260,7 @@ function AdminMain()
 					'label' => $txt['attachments_avatars'],
 					'file' => 'ManageAttachments.php',
 					'function' => 'ManageAttachments',
-					'icon' => 'attachment.gif',
+					'icon' => 'attachment.png',
 					'permission' => array('manage_attachments'),
 					'subsections' => array(
 						'browse' => array($txt['attachment_manager_browse']),
@@ -279,7 +279,7 @@ function AdminMain()
 					'label' => $txt['admin_users'],
 					'file' => 'ManageMembers.php',
 					'function' => 'ViewMembers',
-					'icon' => 'members.gif',
+					'icon' => 'members.png',
 					'permission' => array('moderate_forum'),
 					'subsections' => array(
 						'all' => array($txt['view_all_members']),
@@ -290,7 +290,7 @@ function AdminMain()
 					'label' => $txt['admin_groups'],
 					'file' => 'ManageMembergroups.php',
 					'function' => 'ModifyMembergroups',
-					'icon' => 'membergroups.gif',
+					'icon' => 'membergroups.png',
 					'permission' => array('manage_membergroups'),
 					'subsections' => array(
 						'index' => array($txt['membergroups_edit_groups'], 'manage_membergroups'),
@@ -302,7 +302,7 @@ function AdminMain()
 					'label' => $txt['edit_permissions'],
 					'file' => 'ManagePermissions.php',
 					'function' => 'ModifyPermissions',
-					'icon' => 'permissions.gif',
+					'icon' => 'permissions.png',
 					'permission' => array('manage_permissions'),
 					'subsections' => array(
 						'index' => array($txt['permissions_groups'], 'manage_permissions'),
@@ -316,7 +316,7 @@ function AdminMain()
 					'label' => $txt['registration_center'],
 					'file' => 'ManageRegistration.php',
 					'function' => 'RegCenter',
-					'icon' => 'regcenter.gif',
+					'icon' => 'regcenter.png',
 					'permission' => array('admin_forum', 'moderate_forum'),
 					'subsections' => array(
 						'register' => array($txt['admin_browse_register_new'], 'moderate_forum'),
@@ -329,7 +329,7 @@ function AdminMain()
 					'label' => $txt['ban_title'],
 					'file' => 'ManageBans.php',
 					'function' => 'Ban',
-					'icon' => 'ban.gif',
+					'icon' => 'ban.png',
 					'permission' => 'manage_bans',
 					'subsections' => array(
 						'list' => array($txt['ban_edit_list']),
@@ -342,7 +342,7 @@ function AdminMain()
 					'label' => $txt['paid_subscriptions'],
 					'enabled' => in_array('ps', $context['admin_features']),
 					'file' => 'ManagePaid.php',
-					'icon' => 'paid.gif',
+					'icon' => 'paid.png',
 					'function' => 'ManagePaidSubscriptions',
 					'permission' => 'admin_forum',
 					'subsections' => array(
@@ -354,7 +354,7 @@ function AdminMain()
 					'label' => $txt['search_engines'],
 					'enabled' => in_array('sp', $context['admin_features']),
 					'file' => 'ManageSearchEngines.php',
-					'icon' => 'engines.gif',
+					'icon' => 'engines.png',
 					'function' => 'SearchEngines',
 					'permission' => 'admin_forum',
 					'subsections' => array(
@@ -373,7 +373,7 @@ function AdminMain()
 				'maintain' => array(
 					'label' => $txt['maintain_title'],
 					'file' => 'ManageMaintenance.php',
-					'icon' => 'maintain.gif',
+					'icon' => 'maintain.png',
 					'function' => 'ManageMaintenance',
 					'subsections' => array(
 						'routine' => array($txt['maintain_sub_routine'], 'admin_forum'),
@@ -385,7 +385,7 @@ function AdminMain()
 				'scheduledtasks' => array(
 					'label' => $txt['maintain_tasks'],
 					'file' => 'ManageScheduledTasks.php',
-					'icon' => 'scheduled.gif',
+					'icon' => 'scheduled.png',
 					'function' => 'ManageScheduledTasks',
 					'subsections' => array(
 						'tasks' => array($txt['maintain_tasks'], 'admin_forum'),
@@ -396,7 +396,7 @@ function AdminMain()
 					'label' => $txt['mailqueue_title'],
 					'file' => 'ManageMail.php',
 					'function' => 'ManageMail',
-					'icon' => 'mail.gif',
+					'icon' => 'mail.png',
 					'subsections' => array(
 						'browse' => array($txt['mailqueue_browse'], 'admin_forum'),
 						'settings' => array($txt['mailqueue_settings'], 'admin_forum'),
@@ -407,12 +407,12 @@ function AdminMain()
 					'label' => $txt['generate_reports'],
 					'file' => 'Reports.php',
 					'function' => 'ReportsMain',
-					'icon' => 'reports.gif',
+					'icon' => 'reports.png',
 				),
 				'logs' => array(
 					'label' => $txt['logs'],
 					'function' => 'AdminLogs',
-					'icon' => 'logs.gif',
+					'icon' => 'logs.png',
 					'subsections' => array(
 						'errorlog' => array($txt['errlog'], 'admin_forum', 'enabled' => !empty($modSettings['enableErrorLogging']), 'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
 						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => in_array('ml', $context['admin_features'])),
@@ -549,11 +549,11 @@ function AdminHome()
 		array('', 'credits', 'support_credits_title', 'support_credits_info', 'support_and_credits.png'),
 		array('admin_forum', 'featuresettings', 'modSettings_title', 'modSettings_info', 'features_and_options.png'),
 		array('admin_forum', 'maintain', 'maintain_title', 'maintain_info', 'forum_maintenance.png'),
-		array('manage_permissions', 'permissions', 'edit_permissions', 'edit_permissions_info', 'permissions.png'),
+		array('manage_permissions', 'permissions', 'edit_permissions', 'edit_permissions_info', 'permissions_lg.png'),
 		array('admin_forum', 'theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id'], 'theme_admin', 'theme_admin_info', 'themes_and_layout.png'),
-		array('admin_forum', 'packages', 'package', 'package_info', 'packages.png'),
+		array('admin_forum', 'packages', 'package', 'package_info', 'packages_lg.png'),
 		array('manage_smileys', 'smileys', 'smileys_manage', 'smileys_manage_info', 'smilies_and_messageicons.png'),
-		array('moderate_forum', 'viewmembers', 'admin_users', 'member_center_info', 'members.png'),
+		array('moderate_forum', 'viewmembers', 'admin_users', 'member_center_info', 'members_lg.png'),
 	);
 
 	$context['quick_admin_tasks'] = array();
@@ -613,7 +613,7 @@ function DisplayAdminFile()
 {
 	global $context, $modSettings, $smcFunc;
 
-	@ini_set('memory_limit', '32M');
+	setMemoryLimit('32M');
 
 	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
 		fatal_lang_error('no_access', false);
@@ -702,7 +702,7 @@ function AdminSearchInternal()
 	global $context, $txt, $helptxt, $scripturl, $sourcedir;
 
 	// Try to get some more memory.
-	@ini_set('memory_limit', '128M');
+	setMemoryLimit('128M');
 
 	// Load a lot of language files.
 	$language_files = array(

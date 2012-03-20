@@ -363,7 +363,7 @@ dl.right dt
 ------------------------------------------------- */
 .maintenance_finished, #task_completed
 {
-	background:#B7FCA7 url(../images/warning_watch.gif) center no-repeat;
+	background:#B7FCA7 url(../images/warning_watch.png) center no-repeat;
 	background-position:8px 50%;
 	text-align:left;
 	border-top:1px solid green;
@@ -509,7 +509,7 @@ ul.theme_options li
 .is_directory
 {
 	padding-left: 18px;
-	background: url(../images/admin/boards.gif) no-repeat;
+	background: url(../images/admin/boards.png) no-repeat;
 }
 .edit_file
 {
@@ -626,4 +626,13 @@ h3.grid_header
 #manage_boards span.botslice, #manage_maintenance span.botslice, #manage_mail span.botslice
 {
 	margin-bottom: 4px;
+}
+
+/* Styles for the Report generation 
+------------------------------------------------- */
+#report_buttons
+{
+    min-height: 2em;
+    padding-left: 0;
+	padding-bottom: 2px;
 }

@@ -42,7 +42,7 @@ function template_maintain_database()
 
 		<div class="cat_bar">
 			<h3 class="catbg">
-			<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '</span>
+			<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '</span>
 			</h3>
 		</div>
 
@@ -233,7 +233,7 @@ function template_maintain_members()
 			membersSwap = !membersSwap;
 			var membersForm = document.getElementById(\'membersForm\');
 
-			document.getElementById("membersIcon").src = smf_images_url + (membersSwap ? "/collapse.gif" : "/expand.gif");
+			document.getElementById("membersIcon").src = smf_images_url + (membersSwap ? "/collapse.png" : "/expand.png");
 			setInnerHTML(document.getElementById("membersText"), membersSwap ? "', $txt['maintain_members_choose'], '" : "', $txt['maintain_members_all'], '");
 			document.getElementById("membersPanel").style.display = (membersSwap ? "block" : "none");
 
@@ -319,7 +319,7 @@ function template_maintain_members()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="ie6_header floatleft">
-					<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_members'], '
+					<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_members'], '
 				</span>
 			</h3>
 		</div>
@@ -334,7 +334,7 @@ function template_maintain_members()
 					</select> ', $txt['maintain_members_since2'], ' <input type="text" name="maxdays" value="30" size="3" class="input_text" />', $txt['maintain_members_since3'], '</p>';
 
 	echo '
-					<p><a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/expand.gif" alt="+" id="membersIcon" /></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a></p>
+					<p><a href="#membersLink" onclick="swapMembers();"><img src="', $settings['images_url'], '/expand.png" alt="+" id="membersIcon" /></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', $txt['maintain_members_all'], '</a></p>
 					<div style="display: none; padding: 3px" id="membersPanel">';
 
 	foreach ($context['membergroups'] as $group)
@@ -404,7 +404,7 @@ function template_maintain_topics()
 				rotSwap = !rotSwap;
 
 				// Toggle icon
-				document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/collapse.gif" : "/expand.gif");
+				document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/collapse.png" : "/expand.png");
 				setInnerHTML(document.getElementById("rotText"), rotSwap ? ', JavaScriptEscape($txt['maintain_old_choose']), ' : ', JavaScriptEscape($txt['maintain_old_all']), ');
 
 				// Toggle panel
@@ -450,7 +450,7 @@ function template_maintain_topics()
 
 		echo '
 					<p>
-						<a href="#rotLink" onclick="swapRot();"><img src="', $settings['images_url'], '/expand.gif" alt="+" id="rotIcon" /></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', $txt['maintain_old_all'], '</a>
+						<a href="#rotLink" onclick="swapRot();"><img src="', $settings['images_url'], '/expand.png" alt="+" id="rotIcon" /></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', $txt['maintain_old_all'], '</a>
 					</p>
 					<div style="display: none;" id="rotPanel" class="flow_hidden">
 						<div class="floatleft" style="width: 49%">';

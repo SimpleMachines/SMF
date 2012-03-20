@@ -2966,6 +2966,68 @@ function setupThemeContext($forceload = false)
 }
 
 /**
+ * Helper function to set the system memory to a needed value
+ * - If the needed memory is greater than current, will attempt to get more
+ * - if in_use is set to true, will also try to take the current memory usage in to account
+ *
+ * @param string $needed The amount of memory to request, if needed, like 256M
+ * @param bool $in_use Set to true to account for current memory usage of the script
+ * @return bool, true if we have at least the needed memory
+ */
+function setMemoryLimit($needed, $in_use = false) 
+{
+	// everything in bytes
+	$memory_used = 0;
+	$memory_current = memoryReturnBytes(ini_get('memory_limit'));
+	$memory_needed = memoryReturnBytes($needed);
+	
+	// should we account for how much is currently being used?
+	if ($in_use)
+		$memory_needed += function_exists('memory_get_usage') ? memory_get_usage() : (2 * 1048576);
+
+	// if more is needed, request it
+	if ($memory_current < $memory_needed)
+	{
+		@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
+		$memory_current = memoryReturnBytes(ini_get('memory_limit'));
+	}
+
+	$memory_current = max($memory_current, memoryReturnBytes(get_cfg_var('memory_limit')));
+
+	// return success or not
+	return (bool) ($memory_current >= $memory_needed);
+}
+
+/**
+ * Helper function to convert memory string settings to bytes
+ *
+ * @param string $val The byte string, like 256M or 1G
+ * @return integer The string converted to a proper integer in bytes
+ */
+function memoryReturnBytes($val) 
+{
+	if (is_integer($val)) 
+		return $val;
+	
+	// Separate the number from the designator
+	$val = trim($val);
+	$num = intval(substr($val, 0, strlen($val) - 1));
+	$last = strtolower(substr($val, -1));
+	
+	// convert to bytes
+	switch ($last) 
+	{
+		case 'g':
+			$num *= 1024;
+		case 'm':
+			$num *= 1024;
+		case 'k':
+			$num *= 1024;
+	}
+	return $num;
+}
+
+/**
  * This is the only template included in the sources.
  */
 function template_rawdata()
