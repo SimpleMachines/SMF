@@ -1988,14 +1988,19 @@ function loadCSSFile($filename, $options = array())
  * Add a Javascript file for output later
  *
  * @param string $filename
- * @param array $options
+ * @param array $options, possible parameters:
+ * 	- local (true/false): define if the file is local
+ * 	- default_theme (true/false): force use of default theme url
+ * 	- defer (true/false): define if the file should be load in head or before the closing <html> tag
  */
 function loadJavascriptFile($filename, $options = array())
 {
 	global $settings, $context;
 
+	$theme = !empty($options['default_theme']) ? 'default_theme_url' : 'theme_url';
+
 	if (strpos($filename, 'http') === false || !empty($options['local']))
-		$filename = $settings['theme_url'] . '/' . $filename;
+		$filename = $settings[$theme] . '/' . $filename;
 
 	$context['javascript_files'][$filename] = $options;
 }
