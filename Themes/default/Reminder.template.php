@@ -102,14 +102,14 @@ function template_set_password()
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password" />
 						<span id="smf_autov_pwmain_div" style="display: none;">
-							<img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.gif" alt="*" />
+							<img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" />
 						</span>
 					</dd>
 					<dt>', $txt['verify_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22" class="input_password" />
 						<span id="smf_autov_pwverify_div" style="display: none;">
-							<img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_invalid.gif" alt="*" />
+							<img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" />
 						</span>
 					</dd>
 				</dl>
@@ -161,14 +161,14 @@ function template_ask()
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password" />
 						<span id="smf_autov_pwmain_div" style="display: none;">
-							<img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.gif" alt="*" />
+							<img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" />
 						</span>
 					</dd>
 					<dt>', $txt['verify_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22" class="input_password" />
 						<span id="smf_autov_pwverify_div" style="display: none;">
-							<img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_valid.gif" alt="*" />
+							<img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_valid.png" alt="*" />
 						</span>
 					</dd>';
 

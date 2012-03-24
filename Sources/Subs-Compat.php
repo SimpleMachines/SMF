@@ -19,6 +19,15 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
+/**
+ * Available since: (PHP 5)
+ * Find the position of the first occurrence of a case-insensitive substring in a string
+ *
+ * @param type $haystack
+ * @param type $needle
+ * @param int $offset
+ * @return positon of needle in haystack or false
+ */
 if (!function_exists('stripos'))
 {
 	function stripos($haystack, $needle, $offset = 0)
@@ -27,6 +36,13 @@ if (!function_exists('stripos'))
 	}
 }
 
+/**
+ * Available since: (PHP 4 >= 4.2.0, PHP 5)
+ * Calculates the md5 hash of a given file
+ *
+ * @param type $filename
+ * @return type
+ */
 if (!function_exists('md5_file'))
 {
 	function md5_file($filename)
@@ -36,13 +52,15 @@ if (!function_exists('md5_file'))
 	}
 }
 
+/**
+ * Available since: (PHP 5)
+ * Convert a string to an array
+ *
+ * @param $str the string to split
+ * @param $str_length
+ */
 if (!function_exists('str_split'))
 {
-	/**
-	 * Split a string into an array.
-	 * @param $str the string to split
-	 * @param $str_length
-	 */
 	function str_split($str, $str_length = 1)
 	{
 		if ($str_length < 1)
@@ -65,6 +83,15 @@ if (!function_exists('str_split'))
 	}
 }
 
+/**
+ * Available since: (PHP 4 >= 4.3.0, PHP 5)
+ * 5.1.0 Added the offset and maxlen parameters.
+ * 5.0.0 Added context support.
+ *
+ * @param type $filename
+ * @param type $include_path
+ * @return string|boolean
+ */
 if (!function_exists('file_get_contents'))
 {
 	function file_get_contents($filename, $include_path = false)
@@ -159,6 +186,9 @@ function sha1_core($x, $len)
 	return sprintf('%08x%08x%08x%08x%08x', $a, $b, $c, $d, $e);
 }
 
+/*
+ * Helper function for the core SHA-1 calculation
+ */
 function sha1_ft($t, $b, $c, $d)
 {
 	if ($t < 20)
@@ -171,11 +201,17 @@ function sha1_ft($t, $b, $c, $d)
 	return $b ^ $c ^ $d;
 }
 
+/*
+ * Helper function for the core SHA-1 calculation
+ */
 function sha1_kt($t)
 {
 	return $t < 20 ? 1518500249 : ($t < 40 ? 1859775393 : ($t < 60 ? -1894007588 : -899497514));
 }
 
+/*
+ * Helper function for the core SHA-1 calculation
+ */
 function sha1_rol($num, $cnt)
 {
 	// Unfortunately, PHP uses unsigned 32-bit longs only.  So we have to kludge it a bit.
@@ -188,6 +224,7 @@ function sha1_rol($num, $cnt)
 }
 
 /**
+ * Available since: (PHP 4 >= 4.3.0, PHP 5)
  * Still on old PHP - bad boy! (the built in one would be faster.)
  */
 if (!function_exists('sha1'))
@@ -198,6 +235,14 @@ if (!function_exists('sha1'))
 	}
 }
 
+/**
+ * Available since: (PHP 5)
+ * Creates an array by using one array for keys and another for its values
+ *
+ * @param type $keys
+ * @param type $values
+ * @return new array or boolean on failure
+ */
 if (!function_exists('array_combine'))
 {
 	function array_combine($keys, $values)
@@ -223,6 +268,10 @@ if (!function_exists('array_combine'))
 	}
 }
 
+/**
+ * Available since: (PHP 5 >= 5.1.0)
+ * Computes the difference of arrays using keys for comparison
+ */
 if (!function_exists('array_diff_key'))
 {
 	function array_diff_key()
@@ -243,6 +292,10 @@ if (!function_exists('array_diff_key'))
 	}
 }
 
+/**
+ * Available since: (PHP 4 >= 4.3.0, PHP 5)
+ * Escapes special characters in a string for use in an SQL statement
+ */
 if (!function_exists('mysql_real_escape_string'))
 {
 	function mysql_real_escape_string($string, $connection = null)
@@ -251,14 +304,14 @@ if (!function_exists('mysql_real_escape_string'))
 	}
 }
 
+/**
+ * Compatibility function.
+ * crc32 doesn't work as expected on 64-bit functions - make our own.
+ * http://www.php.net/crc32#79567
+ * @param $number
+ */
 if (!function_exists('smf_crc32'))
 {
-	/**
-	 * Compatibility function.
-	 * crc32 doesn't work as expected on 64-bit functions - make our own.
-	 * http://www.php.net/crc32#79567
-	 * @param $number
-	 */
 	function smf_crc32($number)
 	{
 		$crc = crc32($number);
@@ -274,7 +327,11 @@ if (!function_exists('smf_crc32'))
 	}
 }
 
-// PHP < 4.3.2 doesn't have this function
+/**
+ * Available since: (PHP 4 >= 4.3.2, PHP 5)
+ * Update the current session id with a newly generated one
+ * 5.1.0 Added the delete_old_session parameter.
+ */
 if (!function_exists('session_regenerate_id'))
 {
 	function session_regenerate_id()
@@ -288,8 +345,13 @@ if (!function_exists('session_regenerate_id'))
 	}
 }
 
-// @author [Unknown] unknown.w.brackets@simplemachines.org
-// @link http://www.simplemachines.org/community/index.php?msg=2420295
+/**
+ * Available since: (PHP 5)
+ * Case-insensitive version of str_replace().
+ *
+ * @author [Unknown] unknown.w.brackets@simplemachines.org
+ * @link http://www.simplemachines.org/community/index.php?msg=2420295
+ */
 if (!function_exists('str_ireplace'))
 {
 	function str_ireplace($search, $replace, $subject, $count = -1)
@@ -312,7 +374,7 @@ if (!function_exists('str_ireplace'))
 
 /**
  * Load a < PHP 5 class file
- * 
+ *
  * @param string $filename
  */
 function loadOldClassFile($filename)
@@ -348,7 +410,8 @@ function loadOldClassFile($filename)
 }
 
 /**
- * PHP 4 didn't have bcpowmod.
+ * Available since: (PHP 5)
+ * Raise an arbitrary precision number to another, reduced by a specified modulus
  */
 if (!function_exists('bcpowmod') && function_exists('bcpow'))
 {
@@ -360,11 +423,35 @@ if (!function_exists('bcpowmod') && function_exists('bcpow'))
 
 /**
  * Random seed generator
+ * As of PHP 4.2.0, there is no need to seed the random number generator with srand() or mt_srand()
+ * as this is now done automatically.
  */
 if (version_compare(PHP_VERSION, '4.2.0', '<'))
 {
 	$seed = ($modSettings['rand_seed'] + ((double) microtime() * 1000003)) & 0x7fffffff;
 	mt_srand($seed);
+}
+
+/**
+ * Available since: (PHP 5)
+ * If the optional raw_output is set to TRUE, then the sha1 digest is instead returned in raw binary format with a length of 20,
+ * otherwise the returned value is a 40-character hexadecimal number.
+ */
+function sha1_raw($text)
+{
+	if (version_compare(PHP_VERSION, '5.0.0', '>='))
+		return sha1($text, true);
+
+	$hex = sha1($text);
+	$raw = '';
+	for ($i = 0; $i < 40; $i += 2)
+	{
+		$hexcode = substr($hex, $i, 2);
+		$charcode = (int) base_convert($hexcode, 16, 10);
+		$raw .= chr($charcode);
+	}
+
+	return $raw;
 }
 
 ?>

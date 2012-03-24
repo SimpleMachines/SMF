@@ -38,7 +38,7 @@ class xmlArray
 	public function __construct($data, $auto_trim = false, $level = null, $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
-		@ini_set('memory_limit', '32M');
+		setMemoryLimit('32M');
 
 		// Set the debug level.
 		$this->debug_level = $level !== null ? $level : error_reporting();

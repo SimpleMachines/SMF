@@ -65,6 +65,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 		array('id_attach')
 	);
 	$attachID = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
+	
 	// Retain this globally in case the script wants it.
 	$modSettings['new_avatar_data'] = array(
 		'id' => $attachID,
@@ -270,6 +271,31 @@ function checkGD()
 }
 
 /**
+ * See if we have enough memory to thumbnail an image
+ *
+ * @return whether we do
+ */
+function imageMemoryCheck($sizes)
+{
+	global $modSettings;
+	
+	// doing the old 'set it and hope' way?
+	if (empty($modSettings['attachment_thumb_memory']))
+	{
+		setMemoryLimit('90M');
+		return true;
+	}
+
+	// Determine the memory requirements for this image, note: if you want to use an image formula W x H x bits/8 x channels x Overhead factor
+	// you will need to account for single bit images as GD expands them to an 8 bit and will greatly overun the calculated value.  The 5 is 
+	// simply a shortcut of 8bpp, 3 channels, 1.66 overhead
+	$needed_memory = ($sizes[0] * $sizes[1] * 5);
+	
+	// if we need more, lets try to get it
+	return setMemoryLimit($needed_memory, true);
+}
+
+/**
  * Resizes an image from a remote location or a local file.
  * Puts the resized image at the destination location.
  * The file would have the format preferred_format if possible,
@@ -299,7 +325,6 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	);
 
 	require_once($sourcedir . '/Subs-Package.php');
-	@ini_set('memory_limit', '90M');
 
 	$success = false;
 
@@ -332,6 +357,10 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	// We can't get to the file.
 	else
 		$sizes = array(-1, -1, -1);
+		
+	// See if we have -or- can get the need memory for this operation
+	if (!imageMemoryCheck($sizes))
+		return false;
 
 	// A known and supported format?
 	// @todo test PSD and gif.

@@ -119,7 +119,7 @@ function ThemeAdmin()
 	isAllowedTo('admin_forum');
 
 	// If we aren't submitting - that is, if we are about to...
-	if (!isset($_POST['submit']))
+	if (!isset($_POST['save']))
 	{
 		loadTemplate('Themes');
 
@@ -198,7 +198,7 @@ function ThemeList()
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
 
-	if (isset($_POST['submit']))
+	if (isset($_POST['save']))
 	{
 		checkSession();
 		validateToken('admin-tl');
@@ -400,7 +400,7 @@ function SetThemeOptions()
 	}
 
 	// Submit?
-	if (isset($_POST['submit']) && empty($_POST['who']))
+	if (isset($_POST['save']) && empty($_POST['who']))
 	{
 		checkSession();
 		validateToken('admin-sto');
@@ -454,7 +454,7 @@ function SetThemeOptions()
 
 		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
 	}
-	elseif (isset($_POST['submit']) && $_POST['who'] == 1)
+	elseif (isset($_POST['save']) && $_POST['who'] == 1)
 	{
 		checkSession();
 		validateToken('admin-sto');
@@ -750,7 +750,7 @@ function SetThemeSettings()
 	}
 
 	// Submitting!
-	if (isset($_POST['submit']))
+	if (isset($_POST['save']))
 	{
 		checkSession();
 		validateToken('admin-sts');
@@ -846,7 +846,7 @@ function SetThemeSettings()
 			// Have any text, old chap?
 			$context['theme_variants'][$variant] = array(
 				'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
-				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.gif') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.gif') ? $settings['images_url'] . '/thumbnail_' . $variant . '.gif' : ($settings['images_url'] . '/thumbnail.gif'),
+				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
 			);
 		}
 		$context['default_variant'] = !empty($settings['default_variant']) && isset($context['theme_variants'][$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
@@ -1214,7 +1214,7 @@ function PickTheme()
 			include($theme_data['theme_dir'] . '/languages/Settings.' . $language . '.php');
 		else
 		{
-			$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.gif';
+			$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
 			$txt['theme_description'] = '';
 		}
 
@@ -1240,7 +1240,7 @@ function PickTheme()
 					foreach ($settings['theme_variants'] as $variant)
 						$context['available_themes'][$id_theme]['variants'][$variant] = array(
 							'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
-							'thumbnail' => !file_exists($theme_data['theme_dir'] . '/images/thumbnail.gif') || file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.gif') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.gif' : ($theme_data['images_url'] . '/thumbnail.gif'),
+							'thumbnail' => !file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') || file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : ($theme_data['images_url'] . '/thumbnail.png'),
 						);
 
 					$context['available_themes'][$id_theme]['selected_variant'] = isset($_GET['vrt']) ? $_GET['vrt'] : (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty($settings['default_variant']) ? $settings['default_variant'] : $settings['theme_variants'][0]));
@@ -1625,7 +1625,7 @@ function SetJavaScript()
 
 	// This good-for-nothing pixel is being used to keep the session alive.
 	if (empty($_GET['var']) || !isset($_GET['val']))
-		redirectexit($settings['images_url'] . '/blank.gif');
+		redirectexit($settings['images_url'] . '/blank.png');
 
 	// Sorry, guests can't go any further than this..
 	if ($user_info['is_guest'] || $user_info['id'] == 0)
@@ -1653,7 +1653,7 @@ function SetJavaScript()
 
 	// Can't change reserved vars.
 	if (in_array(strtolower($_GET['var']), $reservedVars))
-		redirectexit($settings['images_url'] . '/blank.gif');
+		redirectexit($settings['images_url'] . '/blank.png');
 
 	// Use a specific theme?
 	if (isset($_GET['th']) || isset($_GET['id']))
@@ -1687,7 +1687,7 @@ function SetJavaScript()
 	cache_put_data('theme_settings-' . $settings['theme_id'] . ':' . $user_info['id'], null, 60);
 
 	// Don't output anything...
-	redirectexit($settings['images_url'] . '/blank.gif');
+	redirectexit($settings['images_url'] . '/blank.png');
 }
 
 /**
@@ -1847,7 +1847,7 @@ function EditTheme()
 			fatal_lang_error('theme_edit_missing', false);
 	}
 
-	if (isset($_POST['submit']))
+	if (isset($_POST['save']))
 	{
 		if (checkSession('post', '', false) == '' && validateToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']), 'post', false) == true)
 		{

@@ -121,7 +121,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	// Righty - let's do the damn thing!
 	$table_query = 'CREATE TABLE ' . $table_name . "\n" . '(';
 	foreach ($columns as $column)
-		$table_query .= "\n\t" . smf_db_create_query_column($column);
+		$table_query .= "\n\t" . smf_db_create_query_column($column)  . ',';
 
 	// Loop through the indexes next...
 	foreach ($indexes as $index)
@@ -236,9 +236,7 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 	// Now add the thing!
 	$query = '
 		ALTER TABLE ' . $table_name . '
-		ADD `' . $column_info['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (empty($column_info['null']) ? 'NOT NULL' : '') . ' ' .
-			(!isset($column_info['default']) ? '' : 'default \'' . $smcFunc['db_escape_string']($column_info['default']) . '\'') . ' ' .
-			(empty($column_info['auto']) ? '' : 'auto_increment primary key') . ' ';
+		ADD ' . smf_db_create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key');
 	$smcFunc['db_query']('', $query,
 		array(
 			'security_override' => true,
@@ -645,7 +643,7 @@ function smf_db_create_query_column($column)
 		$type = $type . '(' . $size . ')';
 
 	// Now just put it together!
-	return '`' .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default . ',';
+	return '`' .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
 }
 
 ?>

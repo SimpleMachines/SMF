@@ -73,7 +73,7 @@ function template_registration_form()
 	if (!empty($context['registration_errors']))
 	{
 		echo '
-		<div class="register_error">
+		<div class="errorbox">
 			<span>', $txt['registration_errors_occurred'], '</span>
 			<ul class="reset">';
 
@@ -104,7 +104,7 @@ function template_registration_form()
 							<input type="text" name="user" id="smf_autov_username" size="30" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '" class="input_text" />
 							<span id="smf_autov_username_div" style="display: none;">
 								<a id="smf_autov_username_link" href="#">
-									<img id="smf_autov_username_img" src="', $settings['images_url'], '/icons/field_check.gif" alt="*" />
+									<img id="smf_autov_username_img" src="', $settings['images_url'], '/icons/field_check.png" alt="*" />
 								</a>
 							</span>
 						</dd>
@@ -146,7 +146,7 @@ function template_registration_form()
 						<dd>
 							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
 							<span id="smf_autov_pwmain_div" style="display: none;">
-								<img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.gif" alt="*" />
+								<img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" />
 							</span>
 						</dd>
 					</dl>
@@ -155,7 +155,7 @@ function template_registration_form()
 						<dd>
 							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
 							<span id="smf_autov_pwverify_div" style="display: none;">
-								<img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_valid.gif" alt="*" />
+								<img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_valid.png" alt="*" />
 							</span>
 						</dd>
 					</dl>';
@@ -456,7 +456,7 @@ function template_verification_sound()
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 		<title>', $context['page_title'], '</title>
 		<meta name="robots" content="noindex" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
 		<style type="text/css">';
 
 	// Just show the help text and a "close window" link.
@@ -501,7 +501,7 @@ function template_admin_register()
 
 	if (!empty($context['registration_done']))
 		echo '
-				<div class="windowbg" id="profile_success">
+				<div class="infobox">
 					', $context['registration_done'], '
 				</div>';
 

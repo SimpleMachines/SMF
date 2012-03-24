@@ -22,7 +22,7 @@ function template_login()
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/login_sm.gif" alt="" class="icon" /> ', $txt['login'], '</span>
+					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '</span>
 				</h3>
 			</div>
 			<span class="upperframe"><span></span></span>
@@ -113,7 +113,7 @@ function template_kick_guest()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/login_sm.gif" alt="" class="icon" /> ', $txt['login'], '
+					<img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '
 				</h3>
 			</div>
 			<span class="upperframe"><span></span></span>
@@ -213,7 +213,7 @@ function template_admin_login()
 	<div class="tborder login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/login_sm.gif" alt="" class="icon" /> ', $txt['login'], '</span>
+				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '</span>
 			</h3>
 		</div>
 		<span class="upperframe"><span></span></span>
@@ -226,7 +226,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password" />
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" /></a><br />
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><br />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '" />
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit" />';

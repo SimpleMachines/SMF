@@ -41,7 +41,7 @@ function template_view_package()
 	{
 		echo '
 		<div class="errorbox">
-			<strong>', $txt['package_will_fail_title'], '</strong><br />
+			', $txt['package_will_fail_title'], '<br />
 			', $txt['package_will_fail_warning'], '
 		</div>';
 	}
@@ -130,7 +130,10 @@ function template_view_package()
 
 	if (empty($context['actions']) && empty($context['database_changes']))
 		echo '
-				<strong>', $txt['corrupt_compatible'], '</strong>
+				<br />
+				<div class="errorbox">
+					', $txt['corrupt_compatible'], '
+				</div>
 			</div>';
 	else
 	{
@@ -140,11 +143,11 @@ function template_view_package()
 			<table class="table_grid" width="100%">
 			<thead>
 				<tr class="catbg">
-					<th scope="col" width="20"></th>
+					<th class="first_th" scope="col" width="20"></th>
 					<th scope="col" width="30"></th>
 					<th scope="col" class="lefttext">', $txt['package_install_type'], '</th>
 					<th scope="col" class="lefttext" width="50%">', $txt['package_install_action'], '</th>
-					<th scope="col" class="lefttext" width="20%">', $txt['package_install_desc'], '</th>
+					<th class="last_th lefttext" scope="col" class="lefttext" width="20%">', $txt['package_install_desc'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -160,7 +163,7 @@ function template_view_package()
 
 			echo '
 				<tr class="windowbg', $alternate ? '' : '2', '">
-					<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/sort_down.gif" alt="*" style="display: none;" />' : '', '</td>
+					<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/sort_down.png" alt="*" style="display: none;" />' : '', '</td>
 					<td>', $i++, '.</td>
 					<td>', $packageaction['type'], '</td>
 					<td>', $packageaction['action'], '</td>
@@ -186,7 +189,7 @@ function template_view_package()
 					echo '
 							<tr class="windowbg', $alternate2 ? '' : '2', '">
 								<td width="0"></td>
-								<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><img src="', $settings['default_images_url'], '/admin/package_ops.gif" alt="" /></a></td>
+								<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><img src="', $settings['default_images_url'], '/admin/package_ops.png" alt="" /></a></td>
 								<td width="30" class="smalltext">', $operation_num, '.</td>
 								<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
 								<td width="50%" class="smalltext">', $operation['action'], '</td>
@@ -253,7 +256,7 @@ function template_view_package()
 				{
 					echo '
 					<tr class="windowbg', $alternate ? '' : '2', '">
-						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/sort_down.gif" alt="*" style="display: none;" />' : '', '</td>
+						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/sort_down.png" alt="*" style="display: none;" />' : '', '</td>
 						<td width="30" align="center">
 							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '" class="input_check" ', (!empty($action['not_mod']) ? '' : 'disabled="disabled"'), ' ', !empty($context['themes_locked']) ? 'checked="checked"' : '', '/>
 						</td>
@@ -280,7 +283,7 @@ function template_view_package()
 							echo '
 								<tr class="windowbg', $alternate2 ? '' : '2', '">
 									<td width="0"></td>
-									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><img src="', $settings['default_images_url'], '/admin/package_ops.gif" alt="" /></a></td>
+									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><img src="', $settings['default_images_url'], '/admin/package_ops.png" alt="" /></a></td>
 									<td width="30" class="smalltext">', $operation_num, '.</td>
 									<td width="23%" class="smalltext">', $txt[$operation_text], '</td>
 									<td width="50%" class="smalltext">', $operation['action'], '</td>
@@ -356,9 +359,9 @@ function template_view_package()
 				aSwapImages: [
 					{
 						sId: \'operation_img_', $key, '\',
-						srcExpanded: smf_images_url + \'/sort_down.gif\',
+						srcExpanded: smf_images_url + \'/sort_down.png\',
 						altExpanded: \'*\',
-						srcCollapsed: smf_images_url + \'/selected.gif\',
+						srcCollapsed: smf_images_url + \'/selected.png\',
 						altCollapsed: \'*\'
 					}
 				]
@@ -554,10 +557,10 @@ function template_view_installed()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th scope="col" width="32"></th>
-				<th scope="col" width="25%">', $txt['mod_name'], '</th>
-				<th scope="col" width="25%">', $txt['mod_version'], '</th>
-				<th scope="col" width="49%"></th>
+				<th class="first_th" scope="col" width="32"></th>
+				<th class="lefttext" scope="col" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" scope="col" width="25%">', $txt['mod_version'], '</th>
+				<th class="last_th" scope="col" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -595,7 +598,7 @@ function template_browse()
 	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" align="top" /></a> ', $txt['packages_latest'], '</span>
+				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a> ', $txt['packages_latest'], '</span>
 			</h3>
 		</div>
 		<div class="windowbg2">
@@ -668,7 +671,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -707,10 +710,10 @@ function template_browse()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th width="32"></th>
-				<th width="25%">', $txt['mod_name'], '</th>
-				<th width="25%">', $txt['mod_version'], '</th>
-				<th width="49%"></th>
+				<th class="first_th" width="32"></th>
+				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+				<th lass="last_th" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -725,7 +728,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -763,10 +766,10 @@ function template_browse()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th width="32"></th>
-				<th width="25%">', $txt['mod_name'], '</th>
-				<th width="25%">', $txt['mod_version'], '</th>
-				<th width="49%"></th>
+				<th class="first_th" width="32"></th>
+				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+				<th class="last_th" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -781,7 +784,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -819,10 +822,10 @@ function template_browse()
 		<table class="table_grid" width="100%">
 		<thead>
 			<tr class="catbg">
-				<th width="32"></th>
-				<th width="25%">', $txt['mod_name'], '</th>
-				<th width="25%">', $txt['mod_version'], '</th>
-				<th width="49%"></th>
+				<th class="first_th" width="32"></th>
+				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+				<th class="lasst_th" width="49%"></th>
 			</tr>
 		</thead>
 		<tbody>';
@@ -837,7 +840,7 @@ function template_browse()
 
 			if ($package['is_installed'] && !$package['is_newer'])
 				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" align="middle" style="margin-left: 2ex;" />';
+					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
 
 			echo '
 				</td>
@@ -873,11 +876,11 @@ function template_browse()
 		<div class="flow_auto">
 			<div class="padding smalltext floatleft">
 				', $txt['package_installed_key'], '
-				<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" align="middle" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-				<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" align="middle" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+				<img src="', $settings['images_url'], '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
+				<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 			</div>
 			<div class="padding smalltext floatright">
-				<a href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
+				<a class="button_link" href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
 			</div>
 		</div>
 		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">
@@ -1180,7 +1183,7 @@ function template_package_list()
 
 					// Mark as installed and current?
 					if ($package['is_installed'] && !$package['is_newer'])
-						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" width="12" height="11" align="middle" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
+						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" width="12" height="11" class="centericon" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
 
 					echo '
 							</strong>
@@ -1229,8 +1232,8 @@ function template_package_list()
 		</div>
 		<div class="padding smalltext floatleft">
 			', $txt['package_installed_key'], '
-			<img src="', $settings['images_url'], '/icons/package_installed.gif" alt="" align="middle" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-			<img src="', $settings['images_url'], '/icons/package_old.gif" alt="" align="middle" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+			<img src="', $settings['images_url'], '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
+			<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 		</div>
 	</div>
 	<br class="clear" />
@@ -1357,7 +1360,7 @@ function template_install_options()
 					<label for="package_make_backups"><input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_backups'], '</label><br /><br />
 					<label for="package_make_full_backups"><input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_full_backups'], '</label><br /><br />
 					<div class="righttext">
-						<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
+						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					</div>
 				</form>
@@ -1540,7 +1543,7 @@ function template_view_operations()
 	<head>
 		<title>', $txt['operation_title'], '</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css" />
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/theme.js?fin20"></script>
@@ -1660,7 +1663,7 @@ function template_file_permissions()
 						linkData.onclick = dynamicExpandFolder;
 
 						var folderImage = document.createElement("img");
-						folderImage.src = \'', addcslashes($settings['default_images_url'], "\\"), '/board.gif\';
+						folderImage.src = \'', addcslashes($settings['default_images_url'], "\\"), '/board.png\';
 						linkData.appendChild(folderImage);
 
 						linkData.appendChild(fileName);
@@ -1807,7 +1810,7 @@ function template_file_permissions()
 
 				if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 					echo '
-						<img src="', $settings['default_images_url'], '/board.gif" alt="*" />';
+						<img src="', $settings['default_images_url'], '/board.png" alt="*" />';
 
 				echo '
 						', $name, '
@@ -1916,7 +1919,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 			if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 				echo '
-					<img src="', $settings['default_images_url'], '/board.gif" alt="*" />';
+					<img src="', $settings['default_images_url'], '/board.png" alt="*" />';
 
 			echo '
 					', $name, '

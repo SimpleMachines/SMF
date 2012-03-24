@@ -1489,7 +1489,7 @@ function PackageOptions()
 {
 	global $txt, $scripturl, $context, $sourcedir, $modSettings, $smcFunc;
 
-	if (isset($_POST['submit']))
+	if (isset($_POST['save']))
 	{
 		checkSession('post');
 
@@ -1624,7 +1624,7 @@ function PackagePermissions()
 	}
 
 	// This is a memory eat.
-	@ini_set('memory_limit', '128M');
+	setMemoryLimit('128M');
 	@set_time_limit(600);
 
 	// Load up some FTP stuff.

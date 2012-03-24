@@ -23,7 +23,7 @@
 {
 	height: 5px;
 	font-size: 0;
-	background: #eee url(../images/bbc/resize-handle.gif) no-repeat 50% 1px;
+	background: #eee url(../images/bbc/resize-handle.png) no-repeat 50% 1px;
 	border: 1px solid #ddd;
 	border-top-width: 0;
 	cursor: s-resize;

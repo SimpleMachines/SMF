@@ -31,7 +31,7 @@ function RepairBoards()
 	isAllowedTo('admin_forum');
 
 	// Try secure more memory.
-	@ini_set('memory_limit', '128M');
+	setMemoryLimit('128M');
 
 	// Print out the top of the webpage.
 	$context['page_title'] = $txt['admin_repair'];

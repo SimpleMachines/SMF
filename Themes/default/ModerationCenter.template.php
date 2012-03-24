@@ -56,7 +56,7 @@ function template_latest_news()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.gif" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '</span>
+				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '</span>
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -72,7 +72,6 @@ function template_latest_news()
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
@@ -224,7 +223,7 @@ function template_notes()
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)
 				echo '
-						<li class="smalltext"><a href="', $note['delete_href'], '"><img src="', $settings['images_url'], '/pm_recipient_delete.gif" alt="" /></a> <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
+						<li class="smalltext"><a href="', $note['delete_href'], '"><img src="', $settings['images_url'], '/pm_recipient_delete.png" alt="" /></a> <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
 
 			echo '
 					</ul>
@@ -264,10 +263,10 @@ function template_reported_posts()
 		</div>';
 
 	// Make the buttons.
-	$close_button = create_button('close.gif', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'align="middle"');
-	$details_button = create_button('details.gif', 'mc_reportedp_details', 'mc_reportedp_details', 'align="middle"');
-	$ignore_button = create_button('ignore.gif', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'align="middle"');
-	$unignore_button = create_button('ignore.gif', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'align="middle"');
+	$close_button = create_button('close.png', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'align="middle"');
+	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'align="middle"');
+	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'align="middle"');
+	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'align="middle"');
 
 	foreach ($context['reports'] as $report)
 	{
@@ -343,8 +342,8 @@ function template_unapproved_posts()
 		</div>';
 
 	// Make up some buttons
-	$approve_button = create_button('approve.gif', 'approve', 'approve', 'align="middle"');
-	$remove_button = create_button('delete.gif', 'remove_message', 'remove', 'align="middle"');
+	$approve_button = create_button('approve.png', 'approve', 'approve', 'align="middle"');
+	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
 
 	// No posts?
 	if (empty($context['unapproved_items']))
@@ -404,7 +403,7 @@ function template_unapproved_posts()
 					<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 					<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 				</select>
-				<noscript><input type="submit" name="submit" value="', $txt['go'], '" class="button_submit" /></noscript>
+				<noscript><input type="submit" name="mc_go" value="', $txt['go'], '" class="button_submit" /></noscript>
 			</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -435,8 +434,8 @@ function template_unapproved_attachments()
 			</div>';
 
 	// The ever popular approve button, with the massively unpopular delete.
-	$approve_button = create_button('approve.gif', 'approve', 'approve', 'align="middle"');
-	$remove_button = create_button('delete.gif', 'remove_message', 'remove', 'align="middle"');
+	$approve_button = create_button('approve.png', 'approve', 'approve', 'align="middle"');
+	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
 
 	// None awaiting?
 	if (empty($context['unapproved_items']))
@@ -456,11 +455,11 @@ function template_unapproved_attachments()
 			<table class="table_grid" width="100%">
 			<thead>
 				<tr class="catbg">
-					<th>', $txt['mc_unapproved_attach_name'], '</th>
+					<th class="first_th">', $txt['mc_unapproved_attach_name'], '</th>
 					<th>', $txt['mc_unapproved_attach_size'], '</th>
 					<th>', $txt['mc_unapproved_attach_poster'], '</th>
 					<th>', $txt['date'], '</th>
-					<th nowrap="nowrap" align="center"><input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" checked="checked" /></th>
+					<th class="last_th" nowrap="nowrap" align="center"><input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" checked="checked" /></th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -501,7 +500,7 @@ function template_unapproved_attachments()
 						<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
 						<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
 					</select>
-					<noscript><input type="submit" name="submit" value="', $txt['go'], '" class="button_submit" /></noscript>
+					<noscript><input type="submit" name="ml_go" value="', $txt['go'], '" class="button_submit" /></noscript>
 				</div>';
 
 	if (!empty($context['unapproved_items']))
@@ -538,9 +537,9 @@ function template_viewmodreport()
 					<span class="floatright">';
 
 		// Make the buttons.
-		$close_button = create_button('close.gif', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'align="middle"');
-		$ignore_button = create_button('ignore.gif', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'align="middle"');
-		$unignore_button = create_button('ignore.gif', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'align="middle"');
+		$close_button = create_button('close.png', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'align="middle"');
+		$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'align="middle"');
+		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'align="middle"');
 
 		echo '
 						<a href="', $scripturl, '?action=moderate;area=reports;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$context['report']['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
@@ -659,7 +658,7 @@ function template_user_watch_post_callback($post)
 
 	// We'll have a delete please bob.
 	if (empty($delete_button))
-		$delete_button = create_button('delete.gif', 'remove_message', 'remove', 'align="middle"');
+		$delete_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
 
 	$output_html = '
 					<div>
@@ -776,7 +775,7 @@ function template_show_notice()
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
 	</head>
 	<body>
 		<div class="cat_bar">

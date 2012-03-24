@@ -63,11 +63,11 @@ ol.search_results li
 #live_news
 {
 	width: 64%;
-	font-size: 0.85em;
 }
 #live_news div.content
 {
 	padding: 0;
+	font-size: 0.85em;
 }
 #live_news div.content dl
 {
@@ -363,11 +363,13 @@ dl.right dt
 ------------------------------------------------- */
 .maintenance_finished, #task_completed
 {
-	margin: 1ex;
-	padding: 1ex 2ex;
-	border: 1px dashed green;
-	color: green;
-	background: #efe;
+	background:#B7FCA7 url(../images/warning_watch.png) center no-repeat;
+	background-position:8px 50%;
+	text-align:left;
+	border-top:1px solid green;
+	border-bottom:1px solid green;
+	padding:4px 10px 2px 30px;
+	margin-bottom: 1em;
 }
 /* Styles for the manage calendar section.
 ------------------------------------------------- */
@@ -507,7 +509,7 @@ ul.theme_options li
 .is_directory
 {
 	padding-left: 18px;
-	background: url(../images/admin/boards.gif) no-repeat;
+	background: url(../images/admin/boards.png) no-repeat;
 }
 .edit_file
 {
@@ -624,4 +626,13 @@ h3.grid_header
 #manage_boards span.botslice, #manage_maintenance span.botslice, #manage_mail span.botslice
 {
 	margin-bottom: 4px;
+}
+
+/* Styles for the Report generation 
+------------------------------------------------- */
+#report_buttons
+{
+    min-height: 2em;
+    padding-left: 0;
+	padding-bottom: 2px;
 }

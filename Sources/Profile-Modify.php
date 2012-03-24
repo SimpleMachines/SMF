@@ -1302,7 +1302,7 @@ function editBuddyIgnoreLists($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['editBuddyIgnoreLists'],
 		'description' => $txt['buddy_ignore_desc'],
-		'icon' => 'profile_sm.gif',
+		'icon' => 'profile_sm.png',
 		'tabs' => array(
 			'buddies' => array(),
 			'ignore' => array(),
@@ -1639,7 +1639,7 @@ function getAvatars($directory, $level)
 
 	while ($line = $dir->read())
 	{
-		if (in_array($line, array('.', '..', 'blank.gif', 'index.php')))
+		if (in_array($line, array('.', '..', 'blank.png', 'index.php')))
 			continue;
 
 		if (is_dir($modSettings['avatar_directory'] . '/' . $directory . (!empty($directory) ? '/' : '') . $line))
@@ -1656,8 +1656,8 @@ function getAvatars($directory, $level)
 	if ($level == 0)
 	{
 		$result[] = array(
-			'filename' => 'blank.gif',
-			'checked' => in_array($context['member']['avatar']['server_pic'], array('', 'blank.gif')),
+			'filename' => 'blank.png',
+			'checked' => in_array($context['member']['avatar']['server_pic'], array('', 'blank.png')),
 			'name' => $txt['no_pic'],
 			'is_dir' => false
 		);
@@ -1845,7 +1845,7 @@ function notification($memID)
 						$link = $board[\'link\'];
 
 						if ($board[\'new\'])
-							$link .= \' <a href="\' . $board[\'href\'] . \'"><img src="\' . $settings[\'lang_images_url\'] . \'/new.gif" alt="\' . $txt[\'new\'] . \'" /></a>\';
+							$link .= \' <a href="\' . $board[\'href\'] . \'"><span class="new_posts">' . $txt['new'] . '</span></a>\';
 
 						return $link;
 					'),
@@ -1928,7 +1928,7 @@ function notification($memID)
 						$link = $topic[\'link\'];
 
 						if ($topic[\'new\'])
-							$link .= \' <a href="\' . $topic[\'new_href\'] . \'"><img src="\' . $settings[\'lang_images_url\'] . \'/new.gif" alt="\' . $txt[\'new\'] . \'" /></a>\';
+							$link .= \' <a href="\' . $topic[\'new_href\'] . \'"><span class="new_posts">\' . $txt[\'new\'] . \'</span></a>\';
 
 						$link .= \'<br /><span class="smalltext"><em>\' . $txt[\'in\'] . \' \' . $topic[\'board_link\'] . \'</em></span>\';
 
@@ -2440,7 +2440,7 @@ function profileLoadAvatarData()
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'upload',
-			'server_pic' => 'blank.gif',
+			'server_pic' => 'blank.png',
 			'external' => 'http://'
 		);
 		$context['member']['avatar']['href'] = empty($cur_profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $cur_profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $cur_profile['filename'];
@@ -2448,19 +2448,19 @@ function profileLoadAvatarData()
 	elseif (stristr($cur_profile['avatar'], 'http://') && $context['member']['avatar']['allow_external'])
 		$context['member']['avatar'] += array(
 			'choice' => 'external',
-			'server_pic' => 'blank.gif',
+			'server_pic' => 'blank.png',
 			'external' => $cur_profile['avatar']
 		);
 	elseif ($cur_profile['avatar'] != '' && file_exists($modSettings['avatar_directory'] . '/' . $cur_profile['avatar']) && $context['member']['avatar']['allow_server_stored'])
 		$context['member']['avatar'] += array(
 			'choice' => 'server_stored',
-			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.gif' : $cur_profile['avatar'],
+			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
 			'external' => 'http://'
 		);
 	else
 		$context['member']['avatar'] += array(
 			'choice' => 'none',
-			'server_pic' => 'blank.gif',
+			'server_pic' => 'blank.png',
 			'external' => 'http://'
 		);
 
@@ -2652,7 +2652,7 @@ function profileSaveAvatarData(&$value)
 	elseif ($value == 'server_stored' && allowedTo('profile_server_avatar'))
 	{
 		$profile_vars['avatar'] = strtr(empty($_POST['file']) ? (empty($_POST['cat']) ? '' : $_POST['cat']) : $_POST['file'], array('&amp;' => '&'));
-		$profile_vars['avatar'] = preg_match('~^([\w _!@%*=\-#()\[\]&.,]+/)?[\w _!@%*=\-#()\[\]&.,]+$~', $profile_vars['avatar']) != 0 && preg_match('/\.\./', $profile_vars['avatar']) == 0 && file_exists($modSettings['avatar_directory'] . '/' . $profile_vars['avatar']) ? ($profile_vars['avatar'] == 'blank.gif' ? '' : $profile_vars['avatar']) : '';
+		$profile_vars['avatar'] = preg_match('~^([\w _!@%*=\-#()\[\]&.,]+/)?[\w _!@%*=\-#()\[\]&.,]+$~', $profile_vars['avatar']) != 0 && preg_match('/\.\./', $profile_vars['avatar']) == 0 && file_exists($modSettings['avatar_directory'] . '/' . $profile_vars['avatar']) ? ($profile_vars['avatar'] == 'blank.png' ? '' : $profile_vars['avatar']) : '';
 
 		// Clear current profile...
 		$cur_profile['id_attach'] = 0;

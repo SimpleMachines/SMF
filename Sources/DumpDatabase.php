@@ -44,12 +44,12 @@ function DumpDatabase2()
 
 	// Attempt to stop from dying...
 	@set_time_limit(600);
-	if (ini_get('memory_limit') < 256)
-		@ini_set('memory_limit', '256M');
+	
+	// @todo ... fail on not getting the requested memory?
+	setMemoryLimit('256M');
 
 	// Start saving the output... (don't do it otherwise for memory reasons.)
 	if (isset($_REQUEST['compress']) && function_exists('gzencode'))
-	
 	{
 		// Make sure we're gzipping output, but then say we're not in the header ^_^.
 		if (empty($modSettings['enableCompressedOutput']))
@@ -79,7 +79,7 @@ function DumpDatabase2()
 		if (!empty($modSettings['enableCompressedOutput']))
 			@ob_end_clean();
 		// If we can, clean anything already sent from the output buffer...
-		elseif (function_exists('ob_clean') && ob_get_length() != 0)
+		elseif (ob_get_length() != 0)
 			ob_clean();
 
 		// Tell the client to save this file, even though it's text.

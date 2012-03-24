@@ -124,7 +124,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 							{
 								sType: \'button\',
 								bEnabled: ', empty($context['disabled_tags'][$tag['code']]) ? 'true' : 'false', ',
-								sImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/' . $tag['image'] . '.gif'), ',
+								sImage: ', file_exists($settings['theme_dir'] . '/images/bbc/' . $tag['image'] . '.png') ? JavaScriptEscape($settings['images_url'] . '/bbc/' . $tag['image'] . '.png') : JavaScriptEscape($settings['images_url'] . '/bbc/' . $tag['image'] . '.gif'), ',
 								sCode: ', JavaScriptEscape($tag['code']), ',
 								sBefore: ', JavaScriptEscape($tag['before']), ',
 								sAfter: ', isset($tag['after']) ? JavaScriptEscape($tag['after']) : 'null', ',
@@ -215,11 +215,11 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					sButtonTemplate: ', JavaScriptEscape('
 						<img id="%buttonId%" src="%buttonSrc%" align="bottom" width="23" height="22" alt="%buttonDescription%" title="%buttonDescription%" />
 					'), ',
-					sButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_bg.gif'), ',
-					sButtonBackgroundImageHover: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.gif'), ',
-					sActiveButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.gif'), ',
+					sButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_bg.png'), ',
+					sButtonBackgroundImageHover: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.png'), ',
+					sActiveButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.png'), ',
 					sDividerTemplate: ', JavaScriptEscape('
-						<img src="' . $settings['images_url'] . '/bbc/divider.gif" alt="|" style="margin: 0 3px 0 3px;" />
+						<img src="' . $settings['images_url'] . '/bbc/divider.png" alt="|" style="margin: 0 3px 0 3px;" />
 					'), ',
 					sSelectTemplate: ', JavaScriptEscape('
 						<select name="%selectName%" id="%selectId%" style="margin-bottom: 1ex; font-size: x-small;">
