@@ -107,7 +107,7 @@ $txt['execute_credits_action'] = 'Credits: %1$s';
 $txt['package_install_actions'] = 'Installations actions for';
 $txt['package_will_fail_title'] = 'Error in Package Installation';
 $txt['package_will_fail_warning'] = 'At least one error was encountered during a test installation of this package.
-	It is <strong>strongly</strong> recommended that you do not continue with installation unless you know what you are doing, and have made a backup very recently.
+	It is <strong>strongly</strong> recommended that you do not continue with installation unless you know what you are doing, and have made a backup very recently.<br />
 	This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you don\'t have installed yet, or a package designed for another version of SMF.';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
@@ -194,6 +194,8 @@ $txt['package_advanced_button'] = 'Advanced';
 $txt['package_advanced_options'] = 'Advanced Options';
 $txt['package_apply'] = 'Apply';
 $txt['package_emulate'] = 'Emulate Version';
+$txt['package_emulate_install'] = 'Install Emulating:';
+$txt['package_emulate_uninstall'] = 'Uninstall Emulating:';
 $txt['package_emulate_revert'] = 'Revert';
 $txt['package_emulate_desc'] = 'Sometimes packages are locked to early versions of SMF but remain compatible with a newer version. Here you can choose to &quot;emulate&quot; a different SMF version within the package manager.';
 

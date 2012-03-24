@@ -293,6 +293,7 @@ function PackageInstallTest()
 	$context['has_failure'] = false;
 	$chmod_files = array();
 
+	// no actions found, return so we can display an error
 	if (empty($actions))
 		return;
 
@@ -617,6 +618,7 @@ function PackageInstallTest()
 				// Is the action already stated?
 				$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], array('no', 'yes', 'auto')) ? $action['theme_action'] : 'auto';
 				$action['unparsed_destination'] = $action['unparsed_filename'];
+				
 				// If it's not auto do we think we have something we can act upon?
 				if ($theme_action != 'auto' && !in_array($matches[1], array('languagedir', 'languages_dir', 'imagesdir', 'themedir')))
 					$theme_action = '';
@@ -668,6 +670,7 @@ function PackageInstallTest()
 				if (isset($theme_data['theme_dir']) && $id != 1)
 				{
 					$real_path = $theme_data['theme_dir'] . $path;
+					
 					// Confirm that we don't already have this dealt with by another entry.
 					if (!in_array(strtolower(strtr($real_path, array('\\' => '/'))), $themeFinds['other_themes']))
 					{
@@ -679,6 +682,7 @@ function PackageInstallTest()
 								$temp = dirname($temp);
 							$chmod_files[] = $temp;
 						}
+						
 						if ($action_data['type'] == 'require-dir' && !is_writable($real_path) && (file_exists($real_path) || !is_writable(dirname($real_path))))
 							$chmod_files[] = $real_path;
 
@@ -1472,7 +1476,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
 	if (isset($_GET['version_emulate']))
 	{
-		if ($_GET['version_emulate'] === 0 && isset($_SESSION['version_emulate']))
+		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === $forum_version) && isset($_SESSION['version_emulate']))
 			unset($_SESSION['version_emulate']);
 		elseif ($_GET['version_emulate'] !== 0)
 			$_SESSION['version_emulate'] = strtr($_GET['version_emulate'], array('-' => ' ', '+' => ' ', 'SMF ' => ''));
@@ -1482,6 +1486,8 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 		$context['forum_version'] = 'SMF ' . $_SESSION['version_emulate'];
 		$the_version = $_SESSION['version_emulate'];
 	}
+	if (isset($_SESSION['single_version_emulate']))
+		unset($_SESSION['single_version_emulate']);
 
 	if (empty($instmods))
 	{
@@ -1571,6 +1577,8 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				$packageInfo['can_install'] = false;
 				$packageInfo['can_uninstall'] = false;
 				$packageInfo['can_upgrade'] = false;
+				$packageInfo['can_emulate_install'] = false;
+				$packageInfo['can_emulate_uninstall'] = false;
 
 				// This package is currently NOT installed.  Check if it can be.
 				if (!$packageInfo['is_installed'] && $packageInfo['xml']->exists('install'))
@@ -1584,6 +1592,19 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 							// Okay, this one is good to go.
 							$packageInfo['can_install'] = true;
 							break;
+						}
+					}
+
+					// no install found for this version, lets see if one exists for another
+					if ($packageInfo['can_install'] === false && $install->exists('@for') && empty($_SESSION['version_emulate']))
+					{
+						$reset = true;
+						
+						// Get the highest install version that is available from the package
+						foreach ($installs as $install)
+						{
+							$packageInfo['can_emulate_install'] = matchHighestPackageVersion($install->fetch('@for'), $reset);
+							$reset = false;
 						}
 					}
 				}
@@ -1611,17 +1632,30 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 
 					// Can we find any uninstallation methods that work for this SMF version?
 					foreach ($uninstalls as $uninstall)
+					{
 						if (!$uninstall->exists('@for') || matchPackageVersion($the_version, $uninstall->fetch('@for')))
 						{
 							$packageInfo['can_uninstall'] = true;
 							break;
 						}
+					}
+					
+					// no uninstall found for this version, lets see if one exists for another
+					if ($packageInfo['can_uninstall'] === false && $uninstall->exists('@for') && empty($_SESSION['version_emulate']))
+					{
+						$reset = true;
+						
+						// Get the highest install version that is available from the package
+						foreach ($uninstalls as $uninstall)
+						{
+							$packageInfo['can_emulate_uninstall'] = matchHighestPackageVersion($uninstall->fetch('@for'), $reset);
+							$reset = false;
+						}
+					}
 				}
 
 				// Store a complete list.
 				$context['available_all'][] = $packageInfo;
-
-				$context['packageInfo'][] = $packageInfo;
 
 				// Modification.
 				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')

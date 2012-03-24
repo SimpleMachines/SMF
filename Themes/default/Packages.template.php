@@ -583,6 +583,72 @@ function template_browse()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['browse_packages'], '</h3>
 		</div>';
+
+		if (!empty($context['available_mods']))
+		{
+			echo '
+			<br />
+			<div class="title_bar">
+				<h3 class="titlebg">', $txt['modification_package'], '</h3>
+			</div>
+
+			<table class="table_grid" width="100%">
+			<thead>
+				<tr class="catbg">
+					<th class="first_th" width="32"></th>
+					<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
+					<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
+					<th class="last_th" width="49%"></th>
+				</tr>
+			</thead>
+			<tbody>';
+
+			$alt = false;
+			foreach ($context['available_mods'] as $i => $package)
+			{
+				echo '
+				<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
+					<td>', ++$i, '.</td>
+					<td>', $package['name'], '</td>
+					<td>
+						', $package['version'];
+
+				if ($package['is_installed'] && !$package['is_newer'])
+					echo '
+						<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.gif" alt="" class="centericon" style="margin-left: 2ex;" />';
+
+				echo '
+					</td>
+					<td align="right">';
+
+				if ($package['can_uninstall'])
+					echo '
+						<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['uninstall'], ' ]</a>';
+				elseif ($package['can_emulate_uninstall'])
+					echo '
+						<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;ve=', $package['can_emulate_uninstall'], ';package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['package_emulate_uninstall'], ' ', $package['can_emulate_uninstall'], ' ]</a>';
+				elseif ($package['can_upgrade'])
+					echo '
+						<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['package_upgrade'], ' ]</a>';
+				elseif ($package['can_install'])
+					echo '
+						<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['install_mod'], ' ]</a>';
+				elseif ($package['can_emulate_install'])
+					echo '
+						<a href="', $scripturl, '?action=admin;area=packages;sa=install;ve=', $package['can_emulate_install'], ';package=', $package['filename'], '">[ ', $txt['package_emulate_install'], ' ', $package['can_emulate_install'], ' ]</a>';
+
+				echo '
+						<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $package['filename'], '">[ ', $txt['list_files'], ' ]</a>
+						<a href="', $scripturl, '?action=admin;area=packages;sa=remove;package=', $package['filename'], ';', $context['session_var'], '=', $context['session_id'], '"', $package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '', '>[ ', $txt['package_delete'], ' ]</a>
+					</td>
+				</tr>';
+				$alt = !$alt;
+			}
+		}
+
+		echo '
+		</tbody>
+		</table>';
 	}
 
 	$mods_available = false;
@@ -620,7 +686,7 @@ function template_browse()
 							<dt>
 								<strong>', $txt['package_emulate'], ':</strong><br />
 								<span class="smalltext">
-									<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\'; return false">', $txt['package_emulate_revert'], '</a>
+									<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\';document.getElementsByName(\'version_emulate\')[0].value = \'', $forum_version, '\';return false">', $txt['package_emulate_revert'], '</a>
 								</span>
 							</dt>
 							<dd>
@@ -642,8 +708,8 @@ function template_browse()
 	<br class="clear" />
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
-			var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
+			var oAddVersionSuggest = new smc_AutoSuggest({
+			sSelf: \'oAddVersionSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sControlId: \'ve\',

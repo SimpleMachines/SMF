@@ -425,10 +425,11 @@ function loadInstalledPackages()
 
 /**
  * Loads a package's information and returns a representative array.
- * expects the file to be a package in Packages/.
- * returns a error string if the package-info is invalid.
- * returns a basic array of id, version, filename, and similar information.
- * in the array returned, an xmlArray is available in 'xml'.
+ * - expects the file to be a package in Packages/.
+ * - returns a error string if the package-info is invalid.
+ * - otherwise returns a basic array of id, version, filename, and similar information.
+ * - an xmlArray is available in 'xml'.
+ *
  * @param string $filename
  * @return array
  */
@@ -1006,6 +1007,15 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	// Emulation support...
 	if (!empty($_SESSION['version_emulate']))
 		$the_version = $_SESSION['version_emulate'];
+		
+	// Single package emulation 
+	if (!empty($_REQUEST['ve']) && !empty($_REQUEST['package']))
+	{
+		$the_version = $_REQUEST['ve'];
+		$_SESSION['single_version_emulate'][$_REQUEST['package']] = $the_version;
+	}
+	if (!empty($_REQUEST['package']) && (!empty($_SESSION['single_version_emulate'][$_REQUEST['package']])))
+		$the_version = $_SESSION['single_version_emulate'][$_REQUEST['package']];
 
 	// Get all the versions of this method and find the right one.
 	$these_methods = $packageXML->set($method);
@@ -1407,9 +1417,48 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 
 /**
  * Checks if version matches any of the versions in versions.
- * supports comma separated version numbers, with or without whitespace.
- * supports lower and upper bounds. (1.0-1.2)
- * returns true if the version matched.
+ * - supports comma separated version numbers, with or without whitespace.
+ * - supports lower and upper bounds. (1.0-1.2)
+ * - returns true if the version matched.
+ *
+ * @param string $versions
+ * @return highest install value string or false
+ */
+function matchHighestPackageVersion($versions, $reset = false)
+{
+	static $near_version = 0;
+	
+	if ($reset)
+		$near_version = 0;
+
+	// Normalize the $versions while we remove our previous Doh!
+	$versions = explode(',', str_replace(array(' ', '2.0rc1-1'), array('', '2.0rc1.1'), strtolower($versions)));
+
+	// Loop through each version, save the highest we can find
+	foreach ($versions as $for)
+	{
+		// Adjust for those wild cards
+		if (strpos($for, '*') !== false)
+			$for = str_replace('*', '0dev0', $for) . '-' . str_replace('*', '999', $for);
+
+		// If we have a range, grab the lower value, done this way so it looks normal-er to the user e.g. 2.0 vs 2.0.99
+		if (strpos($for, '-') !== false)
+			list ($for, $higher) = explode('-', $for);
+
+		// Do the compare, if the for is greater, save it
+		if (compareVersions($near_version, $for) === -1)
+			$near_version = $for;
+	}
+	
+	return !empty($near_version) ? $near_version : false;
+}
+
+/**
+ * Checks if the forum version matches any of the available versions from the package install xml.
+ * - supports comma separated version numbers, with or without whitespace.
+ * - supports lower and upper bounds. (1.0-1.2)
+ * - returns true if the version matched.
+ *
  * @param string $version
  * @param string $versions
  * @return bool
@@ -1449,10 +1498,14 @@ function matchPackageVersion($version, $versions)
 }
 
 /**
- * Compares two versions.
+ * Compares two versions and determines if one is newer, older or the same, returns
+ * - (-1) if version1 is lower than version2
+ * - (0) if version1 is equal to version2
+ * - (1) if version1 is higher than version2
+ *
  * @param string version1
  * @param string version2
- * @return int (-1 if version1 is lower than version2, 0 if version1 is equal to version2; 1 if version1 is higher than version2)
+ * @return int (-1, 0, 1)
  */
 function compareVersions($version1, $version2)
 {
