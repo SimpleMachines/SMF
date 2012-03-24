@@ -27,7 +27,7 @@ function template_main()
 
 	// Build the calendar button array.
 	$calendar_buttons = array(
-		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.gif', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 	);
 
 	template_button_strip($calendar_buttons, 'right');
@@ -385,7 +385,7 @@ function template_show_month_grid($grid_name)
 						// If they can edit the event, show a star they can click on....
 						if ($event['can_edit'])
 							echo '
-								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/modify_small.gif" alt="*" /></a>';
+								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/modify_small.png" alt="*" /></a>';
 
 						echo '
 								', $event['link'], $event['is_last'] ? '' : ', ';
@@ -503,7 +503,7 @@ function template_show_week_grid($grid_name)
 					// If they can edit the event, show a star they can click on....
 					if ($event['can_edit'])
 						echo '
-								<a href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/modify_small.gif" alt="*" /></a> ';
+								<a href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/modify_small.png" alt="*" /></a> ';
 
 					echo '
 								', $event['link'], $event['is_last'] ? '' : ', ';

@@ -18,10 +18,11 @@ if (!defined('SMF'))
 
 /**
  * sets the SMF-style login cookie and session based on the id_member and password passed.
- * password should be already encrypted with the cookie salt.
- * logs the user out if id_member is zero.
- * sets the cookie and session to last the number of seconds specified by cookie_length.
- * when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
+ * - password should be already encrypted with the cookie salt.
+ * - logs the user out if id_member is zero.
+ * - sets the cookie and session to last the number of seconds specified by cookie_length.
+ * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
+ *
  * @param int $cookie_length,
  * @param int $id The id of the member
  * @param string $password = ''
@@ -96,6 +97,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 		// Recreate and restore the new session.
 		loadSession();
+		// @todo should we use session_regenerate_id(true); now that we are 5.1+
 		session_regenerate_id();
 		$_SESSION = $oldSessionData;
 
@@ -114,8 +116,9 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 /**
  * Get the domain and path for the cookie
- * normally, local and global should be the localCookies and globalCookies settings, respectively.
- * uses boardurl to determine these two things.
+ * - normally, local and global should be the localCookies and globalCookies settings, respectively.
+ * - uses boardurl to determine these two things.
+ *
  * @param bool $local,
  * @param bool $global
  * @return array an array to set the cookie on with domain and path in it, in that order
@@ -151,8 +154,8 @@ function url_parts($local, $global)
 
 /**
  * Throws guests out to the login screen when guest access is off.
- * sets $_SESSION['login_url'] to $_SERVER['REQUEST_URL'].
- * uses the 'kick_guest' sub template found in Login.template.php.
+ * - sets $_SESSION['login_url'] to $_SERVER['REQUEST_URL'].
+ * - uses the 'kick_guest' sub template found in Login.template.php.
  */
 function KickGuest()
 {
@@ -170,8 +173,9 @@ function KickGuest()
 }
 
 /**
- * Display a message about being in maintenance mode.
- * display a login screen with sub template 'maintenance'.
+ * Display a message about the forum being in maintenance mode.
+ * - display a login screen with sub template 'maintenance'.
+ * - sends a 503 header, so search engines don't bother indexing while we're in maintenance mode.
  */
 function InMaintenance()
 {
@@ -191,10 +195,11 @@ function InMaintenance()
 }
 
 /**
- * Double check the verity of the admin by asking for his or her password.
- * loads Login.template.php and uses the admin_login sub template.
- * sends data to template so the admin is sent on to the page they
- *  wanted if their password is correct, otherwise they can try again.
+ * Question the verity of the admin by asking for his or her password.
+ * - loads Login.template.php and uses the admin_login sub template.
+ * - sends data to template so the admin is sent on to the page they
+ *   wanted if their password is correct, otherwise they can try again.
+ *
  * @param string $type = 'admin'
  */
 function adminLogin($type = 'admin')
@@ -253,6 +258,7 @@ function adminLogin($type = 'admin')
 /**
  * used by the adminLogin() function.
  * if 'value' is an array, the function is called recursively.
+ *
  * @param string $key
  * @param string $value
  * @return string 'hidden' HTML form fields, containing key-value-pairs
@@ -274,6 +280,13 @@ function adminLogin_outputPostVars($k, $v)
 	}
 }
 
+/**
+ * Properly urlencodes a string to be used in a query
+ *
+ * @global type $scripturl
+ * @param type $get
+ * @return our query string
+ */
 function construct_query_string($get)
 {
 	global $scripturl;
@@ -307,13 +320,14 @@ function construct_query_string($get)
 	return $query_string;
 }
 
-// Find members by email address, username, or real name.
 /**
- * searches for members whose username, display name, or e-mail address match the given pattern of array names.
- * searches only buddies if buddies_only is set.
- * @param array $names, 
+ * Finds members by email address, username, or real name.
+ * - searches for members whose username, display name, or e-mail address match the given pattern of array names.
+ * - searches only buddies if buddies_only is set.
+ *
+ * @param array $names,
  * @param bool $use_wildcards = false, accepts wildcards ? and * in the patern if true
- * @param bool $buddies_only = false, 
+ * @param bool $buddies_only = false,
  * @param int $max = 500 retrieves a maximum of max members, if passed
  * @return array containing information about the matching members
  */
@@ -395,9 +409,9 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 
 /**
  * called by index.php?action=findmember.
- * is used as a popup for searching members.
- * uses sub template find_members of the Help template.
- * also used to add members for PM's sent using wap2/imode protocol.
+ * - is used as a popup for searching members.
+ * - uses sub template find_members of the Help template.
+ * - also used to add members for PM's sent using wap2/imode protocol.
  */
 function JSMembers()
 {
@@ -467,7 +481,7 @@ function JSMembers()
 
 /**
  * outputs each member name on its own line.
- * used by javascript to find members matching the request.
+ * - used by javascript to find members matching the request.
  */
 function RequestMembers()
 {
@@ -529,11 +543,12 @@ function RequestMembers()
 
 /**
  * Generates a random password for a user and emails it to them.
- * called by Profile.php when changing someone's username.
- * checks the validity of the new username.
- * generates and sets a new password for the given user.
- * mails the new password to the email address of the user.
- * if username is not set, only a new password is generated and sent.
+ * - called by Profile.php when changing someone's username.
+ * - checks the validity of the new username.
+ * - generates and sets a new password for the given user.
+ * - mails the new password to the email address of the user.
+ * - if username is not set, only a new password is generated and sent.
+ *
  * @param int $memID
  * @param string $username = null
  */
@@ -593,6 +608,7 @@ function resetPassword($memID, $username = null)
 
 /**
  * Checks a username obeys a load of rules
+ *
  * @param int $memID,
  * @param string $username
  * @return string Returns null if fine
@@ -621,10 +637,11 @@ function validateUsername($memID, $username)
 
 /**
  * Checks whether a password meets the current forum rules
- * called when registering/choosing a password.
- * checks the password obeys the current forum settings for password strength.
- * if password checking is enabled, will check that none of the words in restrict_in appear in the password.
- * returns an error identifier if the password is invalid, or null.
+ * - called when registering/choosing a password.
+ * - checks the password obeys the current forum settings for password strength.
+ * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
+ * - returns an error identifier if the password is invalid, or null.
+ *
  * @param string $password
  * @param string $username
  * @param array $restrict_in = array()
@@ -648,8 +665,6 @@ function validatePassword($password, $username, $restrict_in = array())
 	elseif ($smcFunc['strpos']($password, $username) !== false)
 		return 'restricted_words';
 
-	// @todo If pspell is available, use it on the word, and return restricted_words if it doesn't give "bad spelling"?
-
 	// If just medium, we're done.
 	if ($modSettings['password_strength'] == 1)
 		return null;
@@ -662,8 +677,9 @@ function validatePassword($password, $username, $restrict_in = array())
 }
 
 /**
- * Quickly find out what this user can and cannot do.
- * stores some useful information on the current users moderation powers in the session.
+ * Quickly find out what moderation authority this user has
+ * - builds the moderator, group and board level querys for the user
+ * - stores the information on the current users moderation powers in $user_info['mod_cache'] and $_SESSION['mc']
  */
 function rebuildModCache()
 {
@@ -745,6 +761,7 @@ function rebuildModCache()
 
 /**
  * The same thing as setcookie but gives support for HTTP-Only cookies in PHP < 5.2
+ *
  * @param string $name
  * @param string $value = ''
  * @param int $expire = 0
@@ -762,7 +779,7 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 		$httponly = !empty($modSettings['httponlyCookies']);
 	if ($secure === null)
 		$secure = !empty($modSettings['secureCookies']);
-		
+
 	// This function is pointless if we have PHP >= 5.2.
 	if (version_compare(PHP_VERSION, '5.2', '>='))
 		return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);

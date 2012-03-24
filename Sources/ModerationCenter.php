@@ -225,6 +225,7 @@ function ModerationHome()
 	global $txt, $context, $scripturl, $modSettings, $user_info, $user_settings;
 
 	loadTemplate('ModerationCenter');
+	loadJavascriptFile('scripts/admin.js?fin20', array('default_theme' => true));
 
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
@@ -1602,7 +1603,7 @@ function ViewWarningLog()
 						if (!empty($warning[\'id_notice\']))
 							$output .= \'
 							<div class="floatright">
-								<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'default_images_url\'] . \'/filter.gif" alt="\' . $txt[\'profile_warning_previous_notice\'] . \'" /></a>
+								<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'default_images_url\'] . \'/filter.png" alt="\' . $txt[\'profile_warning_previous_notice\'] . \'" /></a>
 							</div>\';
 
 						return $output;
@@ -1618,14 +1619,9 @@ function ViewWarningLog()
 				),
 			),
 		),
-/*		Commented out because of an Assertion failed error and an undefined index (href)
-		'form' => array(
-			'token' => 'mod-wt',
-		),*/
 	);
 
 	// Create the watched user list.
-	createToken('mod-wt');
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';

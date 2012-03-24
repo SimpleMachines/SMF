@@ -49,7 +49,7 @@ function Packages()
 		'install2' => 'PackageInstall',
 		'uninstall' => 'PackageInstallTest',
 		'uninstall2' => 'PackageInstall',
-		'installed' => 'InstalledList',
+		'installed' => 'PackageBrowse',
 		'options' => 'PackageOptions',
 		'perms' => 'PackagePermissions',
 		'flush' => 'FlushInstall',
@@ -1334,22 +1334,148 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $boarddir, $scripturl, $context, $forum_version;
+	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir, $settings;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
-	$context['sub_template'] = 'browse';
-
 	$context['forum_version'] = $forum_version;
+	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
-	$instmods = loadInstalledPackages();
+	$installed = $context['sub_action'] == 'installed' ? true : false;
 
-	$installed_mods = array();
-	// Look through the list of installed mods...
-	foreach ($instmods as $installed_mod)
-		$installed_mods[$installed_mod['package_id']] = array(
-			'id' => $installed_mod['id'],
-			'version' => $installed_mod['version'],
+	require_once($sourcedir . '/Subs-List.php');
+
+	foreach ($context['modification_types'] as $type)
+	{
+		// Use the standard templates for showing this.
+		$listOptions = array(
+			'id' => 'packages_lists_' . $type,
+			'title' => $installed ? $txt['view_and_remove'] : $txt[$type . '_package'],
+			'no_items_label' => $txt['no_packages'],
+			'get_items' => array(
+				'function' => 'list_getPackages',
+				'params' => array('type' => $type, 'installed' => $installed),
+			),
+			'columns' => array(
+				'id' => array(
+					'header' => array(
+						'value' => '',
+						'style' => 'width: 32px;',
+					),
+					'data' => array(
+						'function' => create_function('$packages', '
+							static $packageCounter;
+							if (empty($packageCounter))
+								$packageCounter = 1;
+
+							return $packageCounter++ . \'.\';
+						'),
+					),
+				),
+				'mod_name' => array(
+					'header' => array(
+						'value' => $txt['mod_name'],
+						'style' => 'width: 25%;',
+					),
+					'data' => array(
+						'function' => create_function('$package_md5', '
+							global $context;
+
+							if (isset($context[\'available_' . $type . '\'][$package_md5]))
+								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];'
+						),
+					),
+				),
+				'version' => array(
+					'header' => array(
+						'value' => $txt['mod_version'],
+						'style' => 'width: 25%;',
+					),
+					'data' => array(
+						'function' => create_function('$package_md5', '
+							global $context;
+
+							if (isset($context[\'available_' . $type . '\'][$package_md5]))
+								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];'
+						),
+					),
+				),
+				'operations' => array(
+					'header' => array(
+						'value' => '',
+					),
+					'data' => array(
+						'function' => create_function('$package_md5', '
+							global $context, $scripturl, $txt;
+
+							if (!isset($context[\'available_' . $type . '\'][$package_md5]))
+								return \'\';
+
+							// Rewrite shortcut
+							$package = $context[\'available_' . $type . '\'][$package_md5];
+							$return = \'\';
+
+							if ($package[\'can_uninstall\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=uninstall;package=\' . $package[\'filename\'] . \';pid=\' . $package[\'installed_id\'] . \'">[ \' . $txt[\'uninstall\'] . \' ]</a>\';
+							elseif ($package[\'can_emulate_uninstall\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=uninstall;ve=\' . $package[\'can_emulate_uninstall\'] . \';package=\' . $package[\'filename\'] . \';pid=\' . $package[\'installed_id\'] . \'">[ \' . $txt[\'package_emulate_uninstall\'] . \' \' . $package[\'can_emulate_uninstall\'] . \' ]</a>\';
+							elseif ($package[\'can_upgrade\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'package_upgrade\'] . \' ]</a>\';
+							elseif ($package[\'can_install\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'install_mod\'] . \' ]</a>\';
+							elseif ($package[\'can_emulate_install\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;ve=\' . $package[\'can_emulate_install\'] . \';package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'package_emulate_install\'] . \' \' . $package[\'can_emulate_install\'] . \' ]</a>\';
+
+							return $return . \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=list;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'list_files\'] . \' ]</a>
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';'
+							),
+						'style' => 'text-align: right;',
+					),
+				),
+			),
+			'additional_rows' => array(
+				array(
+					'position' => 'bottom_of_list',
+					'value' => (
+					$context['sub_action'] == 'browse' ? '
+			<div class="padding smalltext floatleft">
+				' . $txt['package_installed_key'] . '
+				<img src="' . $settings['images_url'] . '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ' . $txt['package_installed_current'] . '
+				<img src="' . $settings['images_url'] . '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ' . $txt['package_installed_old'] . '
+			</div>' : '<a href="' . $scripturl . '?action=admin;area=packages;sa=flush;' . $context['session_var'] . '=' . $context['session_id'] . '">[ ' . $txt['delete_list'] . ' ]</a>'),
+					'align' => 'right',
+				),
+			),
 		);
+
+		createList($listOptions);
+	}
+
+	$context['sub_template'] = 'browse';
+	$context['default_list'] = 'packages_lists';
+
+	// Empty lists for now.
+	$context['available_mods'] = array();
+	$context['available_avatars'] = array();
+	$context['available_languages'] = array();
+	$context['available_other'] = array();
+	$context['available_all'] = array();
+
+}
+
+function list_getPackages($start, $items_per_page, $sort, $params, $installed)
+{
+	global $boarddir, $scripturl, $context, $forum_version;
+	static $instmods, $packages;
+
+	// We need the packages directory to be writable for this.
+	if (!@is_writable($boarddir . '/Packages'))
+		create_chmod_control(array($boarddir . '/Packages'), array('destination_url' => $scripturl . '?action=admin;area=packages', 'crash_on_error' => true));
 
 	$the_version = strtr($forum_version, array('SMF ' => ''));
 
@@ -1369,19 +1495,42 @@ function PackageBrowse()
 	if (isset($_SESSION['single_version_emulate']))
 		unset($_SESSION['single_version_emulate']);
 
-	// Get a list of all the ids installed, so the latest packages won't include already installed ones.
-	$context['installed_mods'] = array_keys($installed_mods);
+	if (empty($instmods))
+	{
+		$instmods = loadInstalledPackages();
 
-	// Empty lists for now.
-	$context['available_mods'] = array();
-	$context['available_avatars'] = array();
-	$context['available_languages'] = array();
-	$context['available_other'] = array();
-	$context['available_all'] = array();
+		$installed_mods = array();
+		// Look through the list of installed mods...
+		foreach ($instmods as $installed_mod)
+			$installed_mods[$installed_mod['package_id']] = array(
+				'id' => $installed_mod['id'],
+				'version' => $installed_mod['version'],
+			);
 
-	// We need the packages directory to be writable for this.
-	if (!@is_writable($boarddir . '/Packages'))
-		create_chmod_control(array($boarddir . '/Packages'), array('destination_url' => $scripturl . '?action=admin;area=packages', 'crash_on_error' => true));
+		// Get a list of all the ids installed, so the latest packages won't include already installed ones.
+		$context['installed_mods'] = array_keys($installed_mods);
+	}
+
+	if ($installed)
+	{
+		foreach ($instmods as $installed_mod)
+		{
+			$packages['modification'][] = $installed_mod['package_id'];
+			$context['available_modification'][$installed_mod['package_id']] = array(
+				'can_uninstall' => true,
+				'name' => $installed_mod['name'],
+				'filename' => $installed_mod['filename'],
+				'installed_id' => $installed_mod['id'],
+				'version' => $installed_mod['version'],
+				'is_installed' => true,
+				'is_current' => true,
+			);
+		}
+		return $packages['modification'];
+	}
+
+	if (empty($packages))
+		$packages = array('modification' => array(), 'avatar' => array(), 'language' => array(), 'unknown' => array());
 
 	if ($dir = @opendir($boarddir . '/Packages'))
 	{
@@ -1389,6 +1538,14 @@ function PackageBrowse()
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($boarddir . '/Packages/' . $package) && file_exists($boarddir . '/Packages/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
+				continue;
+
+			$skip = false;
+			foreach ($context['modification_types'] as $type)
+				if (isset($context['available_' . $type][md5($package)]))
+					$skip = true;
+
+			if ($skip)
 				continue;
 
 			// Skip directories or files that are named the same.
@@ -1415,110 +1572,124 @@ function PackageBrowse()
 			if (!is_array($packageInfo))
 				continue;
 
-			$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
-
-			$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
-			$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
-			$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
-
-			$packageInfo['can_install'] = false;
-			$packageInfo['can_uninstall'] = false;
-			$packageInfo['can_upgrade'] = false;
-			$packageInfo['can_emulate_install'] = false;
-			$packageInfo['can_emulate_uninstall'] = false;
-
-			// This package is currently NOT installed.  Check if it can be.
-			if (!$packageInfo['is_installed'] && $packageInfo['xml']->exists('install'))
+			if (!empty($packageInfo))
 			{
-				// Check if there's an install for *THIS* version of SMF.
-				$installs = $packageInfo['xml']->set('install');
-				foreach ($installs as $install)
+				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
+
+				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
+				$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
+				$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
+
+				$packageInfo['can_install'] = false;
+				$packageInfo['can_uninstall'] = false;
+				$packageInfo['can_upgrade'] = false;
+				$packageInfo['can_emulate_install'] = false;
+				$packageInfo['can_emulate_uninstall'] = false;
+
+				// This package is currently NOT installed.  Check if it can be.
+				if (!$packageInfo['is_installed'] && $packageInfo['xml']->exists('install'))
 				{
-					if (!$install->exists('@for') || matchPackageVersion($the_version, $install->fetch('@for')))
-					{
-						// Okay, this one is good to go.
-						$packageInfo['can_install'] = true;
-						break;
-					}
-				}
-				
-				// no install found for this version, lets see if one exists for another
-				if ($packageInfo['can_install'] === false && $install->exists('@for') && empty($_SESSION['version_emulate']))
-				{
-					$reset = true;
-					
-					// Get the highest install version that is available from the package
+					// Check if there's an install for *THIS* version of SMF.
+					$installs = $packageInfo['xml']->set('install');
 					foreach ($installs as $install)
 					{
-						$packageInfo['can_emulate_install'] = matchHighestPackageVersion($install->fetch('@for'), $reset);
-						$reset = false;
-					}
-				}
-			}
-			// An already installed, but old, package.  Can we upgrade it?
-			elseif ($packageInfo['is_installed'] && !$packageInfo['is_current'] && $packageInfo['xml']->exists('upgrade'))
-			{
-				$upgrades = $packageInfo['xml']->set('upgrade');
-
-				// First go through, and check against the current version of SMF.
-				foreach ($upgrades as $upgrade)
-				{
-					// Even if it is for this SMF, is it for the installed version of the mod?
-					if (!$upgrade->exists('@for') || matchPackageVersion($the_version, $upgrade->fetch('@for')))
-						if (!$upgrade->exists('@from') || matchPackageVersion($installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from')))
+						if (!$install->exists('@for') || matchPackageVersion($the_version, $install->fetch('@for')))
 						{
-							$packageInfo['can_upgrade'] = true;
+							// Okay, this one is good to go.
+							$packageInfo['can_install'] = true;
 							break;
 						}
-				}
-			}
-			// Note that it has to be the current version to be uninstallable.  Shucks.
-			elseif ($packageInfo['is_installed'] && $packageInfo['is_current'] && $packageInfo['xml']->exists('uninstall'))
-			{
-				$uninstalls = $packageInfo['xml']->set('uninstall');
+					}
 
-				// Can we find any uninstallation methods that work for this SMF version?
-				foreach ($uninstalls as $uninstall)
-				{
-					if (!$uninstall->exists('@for') || matchPackageVersion($the_version, $uninstall->fetch('@for')))
+					// no install found for this version, lets see if one exists for another
+					if ($packageInfo['can_install'] === false && $install->exists('@for') && empty($_SESSION['version_emulate']))
 					{
-						$packageInfo['can_uninstall'] = true;
-						break;
+						$reset = true;
+						
+						// Get the highest install version that is available from the package
+						foreach ($installs as $install)
+						{
+							$packageInfo['can_emulate_install'] = matchHighestPackageVersion($install->fetch('@for'), $reset);
+							$reset = false;
+						}
 					}
 				}
-				
-				// no uninstall found for this version, lets see if one exists for another
-				if ($packageInfo['can_uninstall'] === false && $uninstall->exists('@for') && empty($_SESSION['version_emulate']))
+				// An already installed, but old, package.  Can we upgrade it?
+				elseif ($packageInfo['is_installed'] && !$packageInfo['is_current'] && $packageInfo['xml']->exists('upgrade'))
 				{
-					$reset = true;
-					
-					// Get the highest install version that is available from the package
+					$upgrades = $packageInfo['xml']->set('upgrade');
+
+					// First go through, and check against the current version of SMF.
+					foreach ($upgrades as $upgrade)
+					{
+						// Even if it is for this SMF, is it for the installed version of the mod?
+						if (!$upgrade->exists('@for') || matchPackageVersion($the_version, $upgrade->fetch('@for')))
+							if (!$upgrade->exists('@from') || matchPackageVersion($installed_mods[$packageInfo['id']]['version'], $upgrade->fetch('@from')))
+							{
+								$packageInfo['can_upgrade'] = true;
+								break;
+							}
+					}
+				}
+				// Note that it has to be the current version to be uninstallable.  Shucks.
+				elseif ($packageInfo['is_installed'] && $packageInfo['is_current'] && $packageInfo['xml']->exists('uninstall'))
+				{
+					$uninstalls = $packageInfo['xml']->set('uninstall');
+
+					// Can we find any uninstallation methods that work for this SMF version?
 					foreach ($uninstalls as $uninstall)
 					{
-						$packageInfo['can_emulate_uninstall'] = matchHighestPackageVersion($uninstall->fetch('@for'), $reset);
-						$reset = false;
+						if (!$uninstall->exists('@for') || matchPackageVersion($the_version, $uninstall->fetch('@for')))
+						{
+							$packageInfo['can_uninstall'] = true;
+							break;
+						}
+					}
+					
+					// no uninstall found for this version, lets see if one exists for another
+					if ($packageInfo['can_uninstall'] === false && $uninstall->exists('@for') && empty($_SESSION['version_emulate']))
+					{
+						$reset = true;
+						
+						// Get the highest install version that is available from the package
+						foreach ($uninstalls as $uninstall)
+						{
+							$packageInfo['can_emulate_uninstall'] = matchHighestPackageVersion($uninstall->fetch('@for'), $reset);
+							$reset = false;
+						}
 					}
 				}
+
+				// Modification.
+				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
+				{
+					$packages['modification'][] = md5($package);
+					$context['available_modification'][md5($package)] = $packageInfo;
+				}
+				// Avatar package.
+				elseif ($packageInfo['type'] == 'avatar')
+				{
+					$packages['avatar'][] = md5($package);
+					$context['available_avatar'][md5($package)] = $packageInfo;
+				}
+				// Language package.
+				elseif ($packageInfo['type'] == 'language')
+				{
+					$packages['language'][] = md5($package);
+					$context['available_language'][md5($package)] = $packageInfo;
+				}
+				// Other stuff.
+				else
+				{
+					$packages['unknown'][] = md5($package);
+					$context['available_unknown'][md5($package)] = $packageInfo;
+				}
 			}
-
-			// Store a complete list.
-			$context['available_all'][] = $packageInfo;
-
-			// Modification.
-			if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
-				$context['available_mods'][] = $packageInfo;
-			// Avatar package.
-			elseif ($packageInfo['type'] == 'avatar')
-				$context['available_avatars'][] = $packageInfo;
-			// Language package.
-			elseif ($packageInfo['type'] == 'language')
-				$context['available_languages'][] = $packageInfo;
-			// Other stuff.
-			else
-				$context['available_other'][] = $packageInfo;
 		}
 		closedir($dir);
 	}
+
+return $packages[$params];
 }
 
 function PackageOptions()
@@ -1660,7 +1831,7 @@ function PackagePermissions()
 	}
 
 	// This is a memory eat.
-	@ini_set('memory_limit', '128M');
+	setMemoryLimit('128M');
 	@set_time_limit(600);
 
 	// Load up some FTP stuff.

@@ -105,7 +105,7 @@ function template_download_language()
 		echo '
 				<tr class="titlebg">
 					<td colspan="4">
-						<img src="', $settings['images_url'], '/sort_down.gif" id="toggle_image_', $theme, '" alt="*" />&nbsp;', isset($context['theme_names'][$theme]) ? $context['theme_names'][$theme] : $theme, '
+						<img src="', $settings['images_url'], '/sort_down.png" id="toggle_image_', $theme, '" alt="*" />&nbsp;', isset($context['theme_names'][$theme]) ? $context['theme_names'][$theme] : $theme, '
 					</td>
 				</tr>';
 
@@ -224,9 +224,9 @@ function template_download_language()
 				aSwapImages: [
 					{
 						sId: \'toggle_image_', $theme, '\',
-						srcExpanded: smf_images_url + \'/sort_down.gif\',
+						srcExpanded: smf_images_url + \'/sort_down.png\',
 						altExpanded: \'*\',
-						srcCollapsed: smf_images_url + \'/selected.gif\',
+						srcCollapsed: smf_images_url + \'/selected.png\',
 						altCollapsed: \'*\'
 					}
 				]

@@ -370,6 +370,7 @@ function ComposeMailing()
 		$condition_array[] = '{string:email_' . $count . '}';
 		$condition_array_params['email_' . $count++] = $row['email_address'];
 	}
+	$smcFunc['db_free_result']($request);
 
 	if (!empty($condition_array))
 	{
@@ -381,6 +382,7 @@ function ComposeMailing()
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$context['recipients']['exclude_members'][] = $row['id_member'];
+		$smcFunc['db_free_result']($request);
 	}
 
 	// Did they select moderators - if so add them as specific members...

@@ -123,6 +123,19 @@ input:focus, textarea:focus, button:focus, select:focus
 {
 	border: 1px solid #454545;
 }
+.button_link
+{
+	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
+	border: 1px solid #aaa;
+	padding: 2px 5px 3px 4px;
+	cursor: pointer;
+	font-size: 1.1em;
+	font-weight: normal;
+}
+a.button_link
+{ 
+	color: #000;
+}
 
 /* the new "button" */
 a.new_posts:hover
@@ -638,7 +651,7 @@ a.moderation_link, a.moderation_link:visited
 
 .openid_login
 {
-	background: white url(../images/openid.gif) no-repeat;
+	background: white url(../images/openid.png) no-repeat;
 	padding-left: 18px;
 }
 
@@ -1262,7 +1275,7 @@ span.lowerframe span
 }
 .dropmenu li li.subsections
 {    
-	background: url(../images/admin/subsection.gif) no-repeat 98% center;
+	background: url(../images/admin/subsection.png) no-repeat 98% center;
 }
 .dropmenu li li a.chosen
 {
@@ -2756,19 +2769,19 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .topic_table td.stickybg2
 {
-	background-image: url(../images/icons/quick_sticky.gif);
+	background-image: url(../images/icons/quick_sticky.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
 .topic_table td.lockedbg2
 {
-	background-image: url(../images/icons/quick_lock.gif);
+	background-image: url(../images/icons/quick_lock.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
 .topic_table td.locked_sticky2
 {
-	background-image: url(../images/icons/quick_sticky_lock.gif);
+	background-image: url(../images/icons/quick_sticky_lock.png);
 	background-repeat: no-repeat;
 	background-position: 98% 4px;
 }
@@ -2787,12 +2800,12 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .errorbox 
 {
-	background: #ffe4e9 url(../images/warning_mute.gif) center no-repeat;
-	background-position: 8px 50%;
+	background: #fee url(../images/warning_mute.png) center no-repeat;
+	background-position: 10px 50%;
 	text-align: left;
-	border-top: 2px solid #cc3344;
-	border-bottom: 2px solid #cc3344;
-	padding: 5px 10px 5px 30px;
+	border-top: 2px solid #c34;
+	border-bottom: 2px solid #c34;
+	padding: 7px 10px 7px 35px;
 	margin-bottom: 1em;
 }
 .errorbox h3
@@ -2814,29 +2827,34 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 	width: 1em;
 	font-size: 1.5em;
 }
+.errorbox span
+{
+	text-decoration: underline;
+}
 
 /* Styles for info boxes
 ------------------------------------------------- */
 
 .noticebox 
 {
-	color:#999;
-	background:#fff6bf url(../images/warning_moderate.gif) center no-repeat;
-	background-position: 8px 50%;
-	text-align:left;
-	border-top:1px solid #ffd324;
-	border-bottom:1px solid #ffd324;
-	padding:5px 2px 5px 30px;
+	color: #777;
+	background: #fff6ca url(../images/warning_moderate.png) center no-repeat;
+	background-position: 10px 50%;
+	text-align: left;
+	border-top: 1px solid #ffd324;
+	border-bottom: 1px solid #ffd324;
+	padding: 7px 10px 7px 35px;
 	margin-bottom: 1em;
 }
 .infobox 
 {
-	background:#c5ffb8 url(../images/warning_watch.gif) center no-repeat;
-	background-position:8px 50%;
-	text-align:left;
-	border-top:1px solid #ffd324;
-	border-bottom:1px solid #ffd324;
-	padding:1px 10px 1px 30px;
+	color: #000;
+	background: #efe url(../images/icons/field_valid.png) center no-repeat;
+	background-position: 10px 50%;
+	text-align: left;
+	border-top: 1px solid green;
+	border-bottom: 1px solid green;
+	padding: 7px 10px 7px 35px;
 	margin-bottom: 1em;
 }
 
@@ -2989,32 +3007,6 @@ dl
 #main_admsection #basicinfo .botslice
 {
 	clear: both;
-}
-
-/* Simple feedback messages */
-div#profile_error, div#profile_success
-{
-	margin: 0 0 1em 0;
-	padding: 1em 2em;
-	border: 1px solid;
-}
-div#profile_error
-{
-	border-color: red;
-	color: red;
-	background: #fee;
-}
-
-div#profile_error span
-{
-	text-decoration: underline;
-}
-
-div#profile_success
-{
-	border-color: green;
-	color: green;
-	background: #efe;
 }
 
 /* Profile statistics */

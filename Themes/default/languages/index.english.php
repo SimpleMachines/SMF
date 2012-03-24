@@ -666,6 +666,7 @@ $txt['ssi_session_broken'] = 'SSI.php was unable to load a session!  This may ca
 $txt['preview_title'] = 'Preview post';
 $txt['preview_fetch'] = 'Fetching preview...';
 $txt['preview_new'] = 'New message';
+$txt['pm_error_while_submitting'] = 'The following error or errors occurred while sending this personal message:';
 $txt['error_while_submitting'] = 'The following error or errors occurred while posting this message:';
 $txt['error_old_topic'] = 'Warning: this topic has not been posted in for at least %1$d days.<br />Unless you\'re sure you want to reply, please consider starting a new topic.';
 

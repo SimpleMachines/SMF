@@ -689,19 +689,19 @@ tr.titlebg td
 ------------------------------------------------------- */
 .topic_table td.stickybg2
 {
-	background-image: url(../images/icons/quick_sticky.gif);
+	background-image: url(../images/icons/quick_sticky.png);
 	background-repeat: no-repeat;
 	background-position: 2% 4px;
 }
 .topic_table td.lockedbg2
 {
-	background-image: url(../images/icons/quick_lock.gif);
+	background-image: url(../images/icons/quick_lock.png);
 	background-repeat: no-repeat;
 	background-position: 2% 4px;
 }
 .topic_table td.locked_sticky2
 {
-	background-image: url(../images/icons/quick_sticky_lock.gif);
+	background-image: url(../images/icons/quick_sticky_lock.png);
 	background-repeat: no-repeat;
 	background-position: 2% 4px;
 }
@@ -1062,7 +1062,7 @@ span.search_weight
 .is_directory
 {
 	padding-right: 18px;
-	background: url(../images/admin/boards.gif) no-repeat;
+	background: url(../images/admin/boards.png) no-repeat;
 	background-position: 100% 0;
 }
 /* Styles for the moderation center.

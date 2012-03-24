@@ -1094,7 +1094,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'blurb' => $profile['personal_text'],
 		'gender' => array(
 			'name' => $gendertxt,
-			'image' => !empty($profile['gender']) ? '<img class="gender" src="' . $settings['images_url'] . '/' . ($profile['gender'] == 1 ? 'Male' : 'Female') . '.gif" alt="' . $gendertxt . '" />' : ''
+			'image' => !empty($profile['gender']) ? '<img class="gender" src="' . $settings['images_url'] . '/' . ($profile['gender'] == 1 ? 'Male' : 'Female') . '.png" alt="' . $gendertxt . '" />' : ''
 		),
 		'website' => array(
 			'title' => $profile['website_title'],
@@ -1106,13 +1106,13 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'icq' => $profile['icq'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
 			'name' => $profile['icq'],
 			'href' => 'http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'],
-			'link' => '<a class="icq new_win" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" target="_blank" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '"><img src="http://status.icq.com/online.gif?img=5&amp;icq=' . $profile['icq'] . '" alt="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '" width="18" height="18" /></a>',
+			'link' => '<a class="icq new_win" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" target="_blank" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '"><img src="http://status.icq.com/online.png?img=5&amp;icq=' . $profile['icq'] . '" alt="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '" width="18" height="18" /></a>',
 			'link_text' => '<a class="icq extern" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '">' . $profile['icq'] . '</a>',
 		) : array('name' => '', 'add' => '', 'href' => '', 'link' => '', 'link_text' => ''),
 		'aim' => $profile['aim'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
 			'name' => $profile['aim'],
 			'href' => 'aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'],
-			'link' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '"><img src="' . $settings['images_url'] . '/aim.gif" alt="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '" /></a>',
+			'link' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '"><img src="' . $settings['images_url'] . '/aim.png" alt="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '" /></a>',
 			'link_text' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '">' . $profile['aim'] . '</a>'
 		) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
 		'yim' => $profile['yim'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
@@ -1124,7 +1124,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'msn' => $profile['msn'] !='' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
 			'name' => $profile['msn'],
 			'href' => 'http://members.msn.com/' . $profile['msn'],
-			'link' => '<a class="msn new_win" href="http://members.msn.com/' . $profile['msn'] . '" title="' . $txt['msn_title'] . ' - ' . $profile['msn'] . '"><img src="' . $settings['images_url'] . '/msntalk.gif" alt="' . $txt['msn_title'] . ' - ' . $profile['msn'] . '" /></a>',
+			'link' => '<a class="msn new_win" href="http://members.msn.com/' . $profile['msn'] . '" title="' . $txt['msn_title'] . ' - ' . $profile['msn'] . '"><img src="' . $settings['images_url'] . '/msntalk.png" alt="' . $txt['msn_title'] . ' - ' . $profile['msn'] . '" /></a>',
 			'link_text' => '<a class="msn new_win" href="http://members.msn.com/' . $profile['msn'] . '" title="' . $txt['msn_title'] . ' - ' . $profile['msn'] . '">' . $profile['msn'] . '</a>'
 		) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
 		'real_posts' => $profile['posts'],
@@ -1150,7 +1150,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'text' => $txt[$profile['is_online'] ? 'online' : 'offline'],
 			'href' => $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . $txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
-			'image_href' => $settings['images_url'] . '/' . ($profile['buddy'] ? 'buddy_' : '') . ($profile['is_online'] ? 'useron' : 'useroff') . '.gif',
+			'image_href' => $settings['images_url'] . '/' . ($profile['buddy'] ? 'buddy_' : '') . ($profile['is_online'] ? 'useron' : 'useroff') . '.png',
 			'label' => $txt[$profile['is_online'] ? 'online' : 'offline']
 		),
 		'language' => $smcFunc['ucwords'](strtr($profile['lngfile'], array('_' => ' ', '-utf8' => ''))),
@@ -1293,7 +1293,7 @@ function detectBrowser()
 		);
 
 		// Detect IE7 and not IE8/IE9 in combat mode.
-		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && (!$context['browser']['is_ie8'] || !$context['browser']['is_ie9']);
+		$context['browser']['is_ie7'] = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7') !== false && !($context['browser']['is_ie8'] || $context['browser']['is_ie9']);
 
 		// Before IE8 we need to fix IE... lots!
 		$context['browser']['ie_standards_fix'] = ($context['browser']['is_ie8'] || $context['browser']['is_ie9']) ? false : true;
@@ -1988,14 +1988,19 @@ function loadCSSFile($filename, $options = array())
  * Add a Javascript file for output later
  *
  * @param string $filename
- * @param array $options
+ * @param array $options, possible parameters:
+ * 	- local (true/false): define if the file is local
+ * 	- default_theme (true/false): force use of default theme url
+ * 	- defer (true/false): define if the file should be load in head or before the closing <html> tag
  */
 function loadJavascriptFile($filename, $options = array())
 {
 	global $settings, $context;
 
+	$theme = !empty($options['default_theme']) ? 'default_theme_url' : 'theme_url';
+
 	if (strpos($filename, 'http') === false || !empty($options['local']))
-		$filename = $settings['theme_url'] . '/' . $filename;
+		$filename = $settings[$theme] . '/' . $filename;
 
 	$context['javascript_files'][$filename] = $options;
 }
@@ -2682,31 +2687,8 @@ function cache_put_data($key, $value, $ttl = 120)
 			
 			// Write out the cache file, check that the cache write was successful; all the data must be written
 			// If it fails due to low diskspace, or other, remove the cache file
-			if (version_compare(PHP_VERSION, '5.1', '<'))
-			{
-				$fh = @fopen($cachedir . '/data_' . $key . '.php', 'w');
-				if ($fh)
-				{
-					// Write the file.
-					set_file_buffer($fh, 0);
-
-					if (flock($fh, LOCK_EX))
-						$cache_bytes = fwrite($fh, $cache_data);
-					else
-						$cache_bytes = 0;
-
-					flock($fh, LOCK_UN);
-					fclose($fh);
-
-					if ($cache_bytes !== strlen($cache_data))
-						@unlink($cachedir . '/data_' . $key . '.php');
-				}
-			}
-			else
-			{
-				if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
-					@unlink($cachedir . '/data_' . $key . '.php');
-			}
+			if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
+				@unlink($cachedir . '/data_' . $key . '.php');
 		}
 	}
 	

@@ -215,9 +215,6 @@ function EditSmileySets()
 				'smiley_sets_names' => implode("\n", $set_names),
 				'smiley_sets_default' => in_array($modSettings['smiley_sets_default'], $set_paths) ? $modSettings['smiley_sets_default'] : $set_paths[0],
 			));
-
-			cache_put_data('parsing_smileys', null, 480);
-			cache_put_data('posting_smileys', null, 480);
 		}
 		// Add a new smiley set.
 		elseif (!empty($_POST['add']))
@@ -263,10 +260,9 @@ function EditSmileySets()
 			// The user might have checked to also import smileys.
 			if (!empty($_POST['smiley_sets_import']))
 				ImportSmileys($_POST['smiley_sets_path']);
-
-			cache_put_data('parsing_smileys', null, 480);
-			cache_put_data('posting_smileys', null, 480);
 		}
+		cache_put_data('parsing_smileys', null, 480);
+		cache_put_data('posting_smileys', null, 480);
 	}
 
 	// Load all available smileysets...
@@ -1531,7 +1527,7 @@ function EditMessageIcons()
 			'id' => $row['id_icon'],
 			'title' => $row['title'],
 			'filename' => $row['filename'],
-			'image_url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $row['filename'] . '.gif') ? 'actual_images_url' : 'default_images_url'] . '/post/' . $row['filename'] . '.gif',
+			'image_url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $row['filename'] . '.png') ? 'actual_images_url' : 'default_images_url'] . '/post/' . $row['filename'] . '.png',
 			'board_id' => $row['id_board'],
 			'board' => empty($row['board_name']) ? $txt['icons_edit_icons_all_boards'] : $row['board_name'],
 			'order' => $row['icon_order'],
@@ -1669,8 +1665,8 @@ function EditMessageIcons()
 					'function' => create_function('$rowData', '
 						global $settings;
 
-						$images_url = $settings[file_exists(sprintf(\'%1$s/images/post/%2$s.gif\', $settings[\'theme_dir\'], $rowData[\'filename\'])) ? \'actual_images_url\' : \'default_images_url\'];
-						return sprintf(\'<img src="%1$s/post/%2$s.gif" alt="%3$s" />\', $images_url, $rowData[\'filename\'], htmlspecialchars($rowData[\'title\']));
+						$images_url = $settings[file_exists(sprintf(\'%1$s/images/post/%2$s.png\', $settings[\'theme_dir\'], $rowData[\'filename\'])) ? \'actual_images_url\' : \'default_images_url\'];
+						return sprintf(\'<img src="%1$s/post/%2$s.png" alt="%3$s" />\', $images_url, $rowData[\'filename\'], htmlspecialchars($rowData[\'title\']));
 					'),
 				),
 				'style' => 'text-align: center;',
@@ -1681,7 +1677,7 @@ function EditMessageIcons()
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '%1$s.gif',
+						'format' => '%1$s.png',
 						'params' => array(
 							'filename' => true,
 						),
