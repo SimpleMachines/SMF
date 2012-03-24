@@ -1417,12 +1417,18 @@ function PackageBrowse()
 							if ($package[\'can_uninstall\'])
 								$return = \'
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=uninstall;package=\' . $package[\'filename\'] . \';pid=\' . $package[\'installed_id\'] . \'">[ \' . $txt[\'uninstall\'] . \' ]</a>\';
+							elseif ($package[\'can_emulate_uninstall\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=uninstall;ve=\' . $package[\'can_emulate_uninstall\'] . \';package=\' . $package[\'filename\'] . \';pid=\' . $package[\'installed_id\'] . \'">[ \' . $txt[\'package_emulate_uninstall\'] . \' \' . $package[\'can_emulate_uninstall\'] . \' ]</a>\';
 							elseif ($package[\'can_upgrade\'])
 								$return = \'
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'package_upgrade\'] . \' ]</a>\';
 							elseif ($package[\'can_install\'])
 								$return = \'
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'install_mod\'] . \' ]</a>\';
+							elseif ($package[\'can_emulate_install\'])
+								$return = \'
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;ve=\' . $package[\'can_emulate_install\'] . \';package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'package_emulate_install\'] . \' \' . $package[\'can_emulate_install\'] . \' ]</a>\';
 
 							return $return . \'
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=list;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'list_files\'] . \' ]</a>
@@ -1654,32 +1660,29 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 					}
 				}
 
-				// Store a complete list.
-				$context['available_all'][] = $packageInfo;
-
 				// Modification.
 				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
 				{
 					$packages['modification'][] = md5($package);
-					$context['available_' . 'modification'][md5($package)] = $packageInfo;
+					$context['available_modification'][md5($package)] = $packageInfo;
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')
 				{
 					$packages['avatar'][] = md5($package);
-					$context['available_' . 'avatar'][md5($package)] = $packageInfo;
+					$context['available_avatar'][md5($package)] = $packageInfo;
 				}
 				// Language package.
 				elseif ($packageInfo['type'] == 'language')
 				{
 					$packages['language'][] = md5($package);
-					$context['available_' . 'language'][md5($package)] = $packageInfo;
+					$context['available_language'][md5($package)] = $packageInfo;
 				}
 				// Other stuff.
 				else
 				{
 					$packages['unknown'][] = md5($package);
-					$context['available_' . 'unknown'][md5($package)] = $packageInfo;
+					$context['available_unknown'][md5($package)] = $packageInfo;
 				}
 			}
 		}
