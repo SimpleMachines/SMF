@@ -207,8 +207,10 @@ function EditSmileySets()
 			$set_paths = explode(',', $modSettings['smiley_sets_known']);
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
+			{	
 				if (isset($set_paths[$id], $set_names[$id]) && !empty($id))
 					unset($set_paths[$id], $set_names[$id]);
+			}
 
 			updateSettings(array(
 				'smiley_sets_known' => implode(',', $set_paths),
@@ -365,6 +367,8 @@ function EditSmileySets()
 
 	$listOptions = array(
 		'id' => 'smiley_set_list',
+		'title' => $txt['smiley_sets'],
+		'no_items_label' => $txt['smiley_sets_none'],
 		'base_href' => $scripturl . '?action=admin;area=smileys;sa=editsets',
 		'default_sort_col' => 'default',
 		'get_items' => array(
@@ -394,7 +398,6 @@ function EditSmileySets()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'name',
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'name',
@@ -412,7 +415,6 @@ function EditSmileySets()
 							'path' => true,
 						),
 					),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'path',
@@ -452,7 +454,7 @@ function EditSmileySets()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '[<a href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a>] <input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" onclick="return confirm(\'' . $txt['smiley_sets_confirm'] . '\');" class="button_submit" />',
+				'value' => '<input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" onclick="return confirm(\'' . $txt['smiley_sets_confirm'] . '\');" class="button_submit" /> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
 			),
 		),
 	);
@@ -924,6 +926,7 @@ function EditSmileys()
 
 		$listOptions = array(
 			'id' => 'smiley_list',
+			'title' => $txt['smileys_edit'],
 			'items_per_page' => 40,
 			'base_href' => $scripturl . '?action=admin;area=smileys;sa=editsmileys',
 			'default_sort_col' => 'filename',
@@ -966,7 +969,6 @@ function EditSmileys()
 					),
 					'data' => array(
 						'db_htmlsafe' => 'filename',
-						'class' => 'windowbg',
 					),
 					'sort' => array(
 						'default' => 'filename',
@@ -988,7 +990,6 @@ function EditSmileys()
 							else
 								return $txt[\'smileys_location_popup\'];
 						'),
-						'class' => 'windowbg',
 					),
 					'sort' => array(
 						'default' => 'FIND_IN_SET(hidden, \'' . implode(',', array_keys($smiley_locations)) . '\')',
@@ -1018,7 +1019,6 @@ function EditSmileys()
 
 							return $description;
 						'),
-						'class' => 'windowbg',
 					),
 					'sort' => array(
 						'default' => 'description',
@@ -1654,6 +1654,7 @@ function EditMessageIcons()
 
 	$listOptions = array(
 		'id' => 'message_icon_list',
+		'title' => $txt['icons_edit_message_icons'],
 		'base_href' => $scripturl . '?action=admin;area=smileys;sa=editicons',
 		'get_items' => array(
 			'function' => 'list_getMessageIcons',
@@ -1690,7 +1691,6 @@ function EditMessageIcons()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'title',
-					'class' => 'windowbg',
 				),
 			),
 			'board' => array(
@@ -1740,7 +1740,7 @@ function EditMessageIcons()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '[<a href="' . $scripturl . '?action=admin;area=smileys;sa=editicon">' . $txt['icons_add_new'] . '</a>] <input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" /> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=editicon">' . $txt['icons_add_new'] . '</a>',
 			),
 		),
 	);

@@ -5,6 +5,7 @@ $txt['smiley_sets_save'] = 'Save Changes';
 $txt['smiley_sets_add'] = 'New smiley Set';
 $txt['smiley_sets_delete'] = 'Delete selected';
 $txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?\\n\\nNote: This won\\\'t remove the images, just the choices.';
+$txt['smiley_sets_none'] = 'There are currently no smiley sets.';
 
 $txt['setting_smiley_sets_default'] = 'Default Smiley Set';
 $txt['setting_smiley_sets_enable'] = 'Enable smiley set selection by members';

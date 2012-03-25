@@ -55,7 +55,7 @@ function template_main()
 
 	echo '
 				</form>
-				<br class="clear" />
+				<br class="clear_right" />
 			</div>
 		</div>';
 }

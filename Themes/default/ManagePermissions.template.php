@@ -184,9 +184,8 @@ function template_permission_index()
 							</dd>
 						</dl>
 					</fieldset>
-					<div class="righttext">
-						<input type="submit" value="', $txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button_submit" />
-					</div>
+					<input type="submit" value="', $txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>';
@@ -279,9 +278,10 @@ function template_by_board()
 
 	if (!$context['edit_all'])
 		echo '
-		<div class="righttext">
-			<a href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">[', $txt['permissions_board_all'], ']</a>
-		</div>';
+			<div class="content">
+			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>
+			<br class="clear_right" />
+			</div>';
 
 	foreach ($context['categories'] as $category)
 	{
@@ -340,14 +340,15 @@ function template_by_board()
 	}
 
 	echo '
-		<div class="righttext">';
+		<div class="content">';
 
 	if ($context['edit_all'])
 		echo '
 			<input type="submit" name="save_changes" value="', $txt['save'], '" class="button_submit" />';
 	else
 		echo '
-			<a href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">[', $txt['permissions_board_all'], ']</a>';
+			
+			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>';
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -448,11 +449,11 @@ function template_edit_profiles()
 							</select>
 						</dd>
 					</dl>
-					<div class="righttext">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />
-						<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />
+					<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit" />
+					<br class="clear_right />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

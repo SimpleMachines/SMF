@@ -88,7 +88,9 @@ function template_maintenance()
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['attachment_integrity_check_desc'], '</p>
+					<hr class="hrcolor" />
 					<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button_submit" />
+					<br class="clear_right" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -106,6 +108,7 @@ function template_maintenance()
 					<input type="hidden" name="type" value="attachments" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="sa" value="byAge" />
+					<br class="clear_right" />
 				</form>
 				<hr />
 				<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
@@ -115,6 +118,7 @@ function template_maintenance()
 					<input type="hidden" name="type" value="attachments" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="sa" value="bySize" />
+					<br class="clear_right" />
 				</form>
 				<hr />
 				<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
@@ -123,6 +127,7 @@ function template_maintenance()
 					<input type="hidden" name="type" value="avatars" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="sa" value="byAge" />
+					<br class="clear_right" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>

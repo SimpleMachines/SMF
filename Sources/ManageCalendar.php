@@ -133,7 +133,6 @@ function ModifyHolidays()
 						// Construct the date.
 						return sprintf(\'%1$d %2$s %3$s\', $rowData[\'day\'], $txt[\'months\'][(int) $rowData[\'month\']], $year);
 					'),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'event_date',
@@ -163,8 +162,9 @@ function ModifyHolidays()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<a href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday" style="margin: 0 1em">[' . $txt['holidays_add'] . ']</a>
-					<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />',
+					
+					<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />
+					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday" style="margin: 0 1em">' . $txt['holidays_add'] . '</a>',
 				'style' => 'text-align: right;',
 			),
 		),
@@ -316,7 +316,7 @@ function ModifyCalendarSettings($return_config = false)
 			array('permissions', 'calendar_edit_any'),
 		'',
 			// How many days to show on board index, and where to display events etc?
-			array('int', 'cal_days_for_index'),
+			array('int', 'cal_days_for_index', 6, 'postinput' => $txt['days_word']),
 			array('select', 'cal_showholidays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 			array('select', 'cal_showbdays', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
 			array('select', 'cal_showevents', array(0 => $txt['setting_cal_show_never'], 1 => $txt['setting_cal_show_cal'], 3 => $txt['setting_cal_show_index'], 2 => $txt['setting_cal_show_all'])),
@@ -333,7 +333,7 @@ function ModifyCalendarSettings($return_config = false)
 		'',
 			// Calendar spanning...
 			array('check', 'cal_allowspan'),
-			array('int', 'cal_maxspan'),
+			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word']),
 	);
 
 	call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));

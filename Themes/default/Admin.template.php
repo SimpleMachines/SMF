@@ -141,6 +141,7 @@ function template_admin()
 
 	// This sets the announcements and current versions themselves ;).
 	echo '
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
@@ -586,6 +587,7 @@ function template_view_versions()
 	   file categories. (sources, languages, and templates.) */
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oViewVersions = new smf_ViewVersions({
 				aKnownLanguages: [
@@ -625,12 +627,19 @@ function template_edit_censored()
 	// Show text boxes for censoring [bad   ] => [good  ].
 	foreach ($context['censored_words'] as $vulgar => $proper)
 		echo '
-					<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="20" /> => <input type="text" name="censor_proper[]" value="', $proper, '" size="20" /></div>';
+					<div style="margin-top: 1ex;">
+						<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30" /> => <input type="text" name="censor_proper[]" value="', $proper, '" size="30" />
+					</div>';
 
 	// Now provide a way to censor more words.
 	echo '
-					<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="20" class="input_text" /> => <input type="text" name="censor_proper[]" size="20" class="input_text" /></div>
-					<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link"><a href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a></div>
+					<div style="margin-top: 1ex;">
+						<input type="text" name="censor_vulgar[]" size="30" class="input_text" /> => <input type="text" name="censor_proper[]" size="30" class="input_text" />
+					</div>
+					<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
+						<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br />
+					</div>
+					<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
 					<script type="text/javascript"><!-- // --><![CDATA[
 						document.getElementById("moreCensoredWords_link").style.display = "";
 					// ]]></script>
@@ -649,10 +658,13 @@ function template_edit_censored()
 							<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked="checked"', ' class="input_check" />
 						</dd>
 					</dl>
+					<hr class="hrcolor" />
 					<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
-			</div>';
+			</div>
+			<br />';
 
 	// This table lets you test out your filters by typing in rude words and seeing what comes out.
 	echo '
@@ -954,10 +966,9 @@ function template_show_settings()
 
 	if (empty($context['settings_save_dont_show']))
 		echo '
-					<hr class="hrcolor clear" />
-					<div class="righttext">
-						<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled="disabled"' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit" />
-					</div>';
+					<hr class="hrcolor" />
+					<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled="disabled"' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit" />
+					<br class="clear_right" />';
 
 	if ($is_open)
 		echo '
@@ -1211,7 +1222,7 @@ function template_edit_profile_field()
 							</dd>
 						</dl>
 					</fieldset>
-					<div class="righttext">
+					<hr class="hrcolor" />
 						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />';
 
 	if ($context['fid'])
@@ -1219,7 +1230,7 @@ function template_edit_profile_field()
 						<input type="submit" name="delete" value="', $txt['delete'], '" onclick="return confirm(\'', $txt['custom_edit_delete_sure'], '\');" class="button_submit" />';
 
 	echo '
-					</div>
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -1355,8 +1366,11 @@ function template_core_features()
 			</div>';
 
 	$alternate = true;
+	$num = 0;
+	$num_features = count($context['features']);
 	foreach ($context['features'] as $id => $feature)
 	{
+		$num++;
 		echo '
 			<div class="windowbg', $alternate ? '2' : '', '">
 				<span class="topslice"><span></span></span>
@@ -1373,7 +1387,20 @@ function template_core_features()
 						<label for="plain_feature_', $id, '_radio_on"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_on" value="1"', $feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_enabled'], '</label>
 						<label for="plain_feature_', $id, '_radio_off"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_off" value="0"', !$feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_disabled'], '</label>
 					</div>
-				</div>
+				</div>';
+				
+		// last feature, show the save button
+		if ($num == $num_features)
+			echo '
+				<div class="content">
+					<hr class="color clear" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
+					<input type="hidden" value="0" name="js_worked" id="js_worked" />
+					<input type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
+				</div>';
+	
+		echo '
 				<span class="botslice clear_right"><span></span></span>
 			</div>';
 
@@ -1381,12 +1408,6 @@ function template_core_features()
 	}
 
 	echo '
-			<div class="righttext">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				<input type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
-				<input type="hidden" value="0" name="js_worked" id="js_worked" />
-				<input type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
-			</div>
 		</form>
 	</div>
 	<br class="clear" />';
@@ -1441,6 +1462,8 @@ function template_callback_question_answer_list()
 		<dt id="add_more_question_placeholder" style="display: none;"></dt><dd></dd>
 		<dt id="add_more_link_div" style="display: none;">
 			<a href="#" onclick="addAnotherQuestion(); return false;">&#171; ', $txt['setup_verification_add_more'], ' &#187;</a>
+			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
+
 		</dt><dd></dd>';
 
 	// The javascript needs to go at the end but we'll put it in this template for looks.

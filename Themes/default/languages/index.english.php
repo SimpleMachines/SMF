@@ -68,6 +68,7 @@ $txt['topics'] = 'Topics';
 $txt['modify_msg'] = 'Modify message';
 $txt['name'] = 'Name';
 $txt['email'] = 'Email';
+$txt['user_email_address'] = 'Email Address';
 $txt['subject'] = 'Subject';
 $txt['message'] = 'Message';
 $txt['redirects'] = 'Redirects';
@@ -286,6 +287,9 @@ $txt['www'] = 'WWW';
 $txt['by'] = 'by';
 
 $txt['hours'] = 'hours';
+$txt['minutes'] = 'minutes';
+$txt['seconds'] = 'seconds';
+
 // Used upper case in Paid subscriptions management
 $txt['hour'] = 'Hour';
 $txt['days_word'] = 'days';
@@ -293,6 +297,7 @@ $txt['days_word'] = 'days';
 $txt['newest_member'] = ', our newest member.';
 
 $txt['search_for'] = 'Search for';
+$txt['search_match'] = 'Match';
 
 $txt['aim'] = 'AIM';
 // In this string, please use +'s for spaces.
@@ -493,6 +498,7 @@ $txt['mail_send_unable'] = 'Unable to send mail to the email address \'%1$s\'';
 
 $txt['mlist_search'] = 'Search For Members';
 $txt['mlist_search_again'] = 'Search again';
+$txt['mlist_search_filter'] = 'Search Options';
 $txt['mlist_search_email'] = 'Search by email address';
 $txt['mlist_search_messenger'] = 'Search by messenger nickname';
 $txt['mlist_search_group'] = 'Search by position';

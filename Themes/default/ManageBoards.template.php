@@ -56,7 +56,7 @@ function template_main()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
-					<ul id="category_', $category['id'], '" style="float:left; width:100%;">';
+					<ul id="category_', $category['id'], '" <ul class="reset nolist">';
 
 		if (!empty($category['move_link']))
 			echo '
@@ -67,7 +67,6 @@ function template_main()
 		// List through every board in the category, printing its name and link to modify the board.
 		foreach ($category['boards'] as $board)
 		{
-			$alternate = !$alternate;
 
 			echo '
 						<li', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $alternate ? '' : '2', '" style="padding-' . ($context['right_to_left'] ? 'right' : 'left') . ': ', 5 + 30 * $board['child_level'], 'px;', $board['move'] ? 'color: red;' : '', '"><span class="floatleft"><a href="', $scripturl, '?board=', $board['id'], '">', $board['name'], '</a>', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? '<a href="' . $scripturl . '?action=admin;area=manageboards;sa=settings"> <img src="' . $settings['images_url'] . '/post/recycled.png" alt="' . $txt['recycle_board'] . '" /></a></span>' : '</span>', '
@@ -90,15 +89,16 @@ function template_main()
 				echo '
 						</li>';
 			}
+			$alternate = !$alternate;
 		}
 
 		// Button to add a new board.
 		echo '
 					</ul>
-					<div class="righttext">
-						<input type="submit" value="', $txt['mboards_new_board'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" value="', $txt['mboards_new_board'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -163,7 +163,7 @@ function template_modify_category()
 	// Table footer.
 	echo '
 					</dl>
-					<div class="righttext">';
+					<hr class="hrcolor" />';
 
 	if (isset($context['category']['is_new']))
 		echo '
@@ -184,7 +184,7 @@ function template_modify_category()
 						<input type="hidden" name="empty" value="1" />';
 
 	echo '
-					</div>
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -489,6 +489,7 @@ function template_modify_board()
 		echo '<div class="information">', $txt['mboards_recycle_disabled_delete'], '</div>';
 
 	echo '
+					<hr class="hrcolor" />
 					<input type="hidden" name="rid" value="', $context['redirect_location'], '" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '" />';
@@ -510,6 +511,7 @@ function template_modify_board()
 		echo '
 					<span', $context['board']['is_recycle'] ? ' style="visibility:hidden">' : '>', '<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" onclick="return confirm(\'', $txt['boardConfirm'], '\');"', ' class="button_submit" /></span>';
 	echo '
+				<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

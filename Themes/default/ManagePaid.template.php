@@ -185,11 +185,11 @@ function template_modify_subscription()
 							</dl>
 						</fieldset>
 					</div>
-					<div class="righttext">
-						<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '" />
-					</div>
+					<hr class="hrcolor">
+					<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

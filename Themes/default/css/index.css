@@ -68,6 +68,7 @@ form
 
 /* We can style the different types of input buttons to be uniform throughout different browsers and their color themes.
 	.button_submit - covers input[type=submit], input[type=button], button[type=submit] and button[type=button] in all browsers
+	.button_link   - covers links to make them look like a submit button
 	.button_reset  - covers input[type=reset] and button[type=reset] throughout all browsers
 	.input_check   - covers input[type=checkbox] throughout all browsers
 	.input_radio   - covers input[type=radio] throughout all browsers
@@ -103,12 +104,19 @@ textarea
 }
 
 /* Buttons should be styled a bit differently, in order to make them look more button'ish. */
+#frmLogin input.button_submit, #guest_form  input.button_submit
+{
+	float: none;
+	margin-left: inherit;
+}
 .button_submit, .button_reset
 {
 	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
 	border: 1px solid #aaa;
 	cursor: pointer;
 	font-weight: normal;
+	margin-left: 1em;
+	float: right;
 }
 input:hover, textarea:hover, button:hover, select:hover
 {
@@ -127,14 +135,22 @@ input:focus, textarea:focus, button:focus, select:focus
 {
 	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
 	border: 1px solid #aaa;
-	padding: 2px 5px 3px 4px;
+	padding: 3px 5px 3px 4px;
+	font: 95%/115% verdana, Helvetica, sans-serif;
 	cursor: pointer;
-	font-size: 1.1em;
 	font-weight: normal;
+	float: right;
 }
 a.button_link
 { 
 	color: #000;
+	margin: 0 !important;
+}
+.button_link:hover, .button_link:hover
+{
+	border: 1px solid #aaa;
+	text-decoration: none;
+	background: url(../images/theme/submit_bg.png) no-repeat 0 -140px #cde7ff;
 }
 
 /* the new "button" */
@@ -1206,7 +1222,7 @@ span.lowerframe span
 }
 .dropmenu li ul ul
 {
-    margin: -2.4em 0 0 15em;
+    margin: -2.2em 0 0 15em;
     padding: 2px 0;
 }
 
@@ -2837,7 +2853,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 
 .noticebox 
 {
-	color: #777;
+	color: #666;
 	background: #fff6ca url(../images/warning_moderate.png) center no-repeat;
 	background-position: 10px 50%;
 	text-align: left;

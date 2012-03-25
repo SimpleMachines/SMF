@@ -64,6 +64,7 @@ $txt['mc_groupr_reject_w_reason'] = 'Reject Request with Reason';
 $txt['mc_groupr_warning'] = 'Are you sure you wish to do this?';
 
 $txt['mc_unapproved_attachments_none_found'] = 'There are currently no attachments awaiting approval';
+$txt['mc_unapproved_attachments_desc'] = 'From here you can approve or delete any attachments awaiting moderation.';
 $txt['mc_unapproved_replies_none_found'] = 'There are currently no posts awaiting approval';
 $txt['mc_unapproved_topics_none_found'] = 'There are currently no topics awaiting approval';
 $txt['mc_unapproved_posts_desc'] = 'From here you can approve or delete any posts awaiting moderation.';

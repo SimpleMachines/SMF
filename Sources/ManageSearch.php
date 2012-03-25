@@ -99,7 +99,7 @@ function EditSearchSettings($return_config = false)
 			array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
 		'',
 			// Some limitations.
-			array('int', 'search_floodcontrol_time', 'subtext' => $txt['search_floodcontrol_time_desc']),
+			array('int', 'search_floodcontrol_time', 'subtext' => $txt['search_floodcontrol_time_desc'], 6, 'postinput' => $txt['seconds']),
 	);
 
 	call_integration_hook('integrate_modify_search_settings', array(&$config_vars));

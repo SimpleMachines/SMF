@@ -462,12 +462,12 @@ function ModifyBasicSettings($return_config = false)
 			// Number formatting, timezones.
 			array('text', 'time_format'),
 			array('select', 'number_format', array('1234.00' => '1234.00', '1,234.00' => '1,234.00', '1.234,00' => '1.234,00', '1 234,00' => '1 234,00', '1234,00' => '1234,00')),
-			array('float', 'time_offset'),
+			array('float', 'time_offset', 6, 'postinput' => $txt['hours']),
 			'default_timezone' => array('select', 'default_timezone', array()),
 		'',
 			// Who's online?
 			array('check', 'who_enabled'),
-			array('int', 'lastActive'),
+			array('int', 'lastActive', 6, 'postinput' => $txt['minutes']),
 		'',
 			// Statistics.
 			array('check', 'trackStats'),
@@ -639,8 +639,8 @@ function ModifyKarmaSettings($return_config = false)
 			array('select', 'karmaMode', explode('|', $txt['karma_options'])),
 		'',
 			// Who can do it.... and who is restricted by time limits?
-			array('int', 'karmaMinPosts'),
-			array('float', 'karmaWaitTime'),
+			array('int', 'karmaMinPosts', 6, 'postinput' => strtolower($txt['posts'])),
+			array('float', 'karmaWaitTime', 6, 'postinput' => $txt['hours']),
 			array('check', 'karmaTimeRestrictAdmins'),
 		'',
 			// What does it look like?  [smite]?

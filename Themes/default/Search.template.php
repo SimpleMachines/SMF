@@ -63,32 +63,40 @@ function template_main()
 	else
 	{
 		echo '
-		<fieldset id="advanced_search">
 			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
-				<input type="hidden" name="advanced" value="1" />
-				<span class="enhanced">
-					<strong>', $txt['search_for'], ':</strong>
-					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />
-					<script type="text/javascript"><!-- // --><![CDATA[
-						createEventListener(window);
-						window.addEventListener("load", initSearch, false);
-					// ]]></script>
-					<select name="searchtype">
-						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['all_words'], '</option>
-						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['any_words'], '</option>
-					</select>
-				</span>';
-
+				<dl class="settings" id="search_options">
+					<dt class="righttext">
+						<strong>', $txt['search_for'], ':</strong>
+					</dt>
+					<dd>
+						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />';
+		
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
 				<em class="smalltext">', $txt['search_example'], '</em>';
-
+				
 		echo '
-				<dl id="search_options">
-					<dt>', $txt['by_user'], ':</dt>
-					<dd><input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text" /></dd>
-					<dt>', $txt['search_order'], ':</dt>
+					</dd>
+
+					<dt class="righttext">',
+						$txt['search_match'], ':
+					</dt>
+					<dd>
+						<select name="searchtype">
+							<option value="1"', empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['all_words'], '</option>
+							<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['any_words'], '</option>
+						</select>
+					</dd>
+					<dt class="righttext">',
+						$txt['by_user'], ':
+					</dt>
+					<dd>
+						<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text" />
+					</dd>
+					<dt class="righttext">', 
+						$txt['search_order'], ':
+					</dt>
 					<dd>
 						<select id="sort" name="sort">
 							<option value="relevance|desc">', $txt['search_orderby_relevant_first'], '</option>
@@ -98,14 +106,30 @@ function template_main()
 							<option value="id_msg|asc">', $txt['search_orderby_old_first'], '</option>
 						</select>
 					</dd>
-					<dt class="options">', $txt['search_options'], ':</dt>
+					<dt class="righttext options">', 
+						$txt['search_options'], ':
+					</dt>
 					<dd class="options">
-						<label for="show_complete"><input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['search_show_complete_messages'], '</label><br />
-						<label for="subject_only"><input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['search_subject_only'], '</label>
+						<label for="show_complete">', $txt['search_show_complete_messages'], '
+							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked="checked"' : '', ' class="input_check" />
+						</label><br />
+						<label for="subject_only">', $txt['search_subject_only'], '
+							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked="checked"' : '', ' class="input_check" />
+						</label>
 					</dd>
-					<dt class="between">', $txt['search_post_age'], ': </dt>
-					<dd>', $txt['search_between'], ' <input type="text" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;', $txt['search_and'], '&nbsp;<input type="text" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '</dd>
-				</dl>';
+					<dt class="righttext between">', 
+						$txt['search_post_age'], ':
+					</dt>
+					<dd>', 
+						$txt['search_between'], ' <input type="text" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;', $txt['search_and'], '&nbsp;<input type="text" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
+					</dd>
+				</dl>
+				</fieldset>
+				<script type="text/javascript"><!-- // --><![CDATA[
+					createEventListener(window);
+					window.addEventListener("load", initSearch, false);
+				// ]]></script>
+				<input type="hidden" name="advanced" value="1" />';
 
 		// Require an image to be typed to save spamming?
 		if ($context['require_verification'])
@@ -126,7 +150,7 @@ function template_main()
 		echo '
 			</div>
 			<span class="lowerframe"><span></span></span>
-		</fieldset>';
+		';
 
 		if (empty($context['search_params']['topic']))
 		{
@@ -183,15 +207,26 @@ function template_main()
 			echo '
 				<div class="padding">
 					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked="checked"' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="input_check floatleft" />
-					<label for="check_all" class="floatleft">', $txt['check_all'], '</label>
-					<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit floatright" />
+					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
+					<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit" />
 				</div>
-				<br class="clear" />
+				<br class="clear_right" />
 			</div>
 			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 		}
-
+	echo '
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oAddMemberSuggest = new smc_AutoSuggest({
+				sSelf: \'oAddMemberSuggest\',
+				sSessionId: smf_session_id,
+				sSessionVar: smf_session_var,
+				sControlId: \'userspec\',
+				sSearchType: \'member\',
+				bItemList: false
+			});
+		// ]]></script>';
 	}
 
 	echo '
@@ -221,9 +256,17 @@ function template_results()
 
 		echo '
 			<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-				<strong>', $txt['search_for'], ':</strong>
-				<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />
+				<dl class="settings">
+					<dt class="righttext">
+						<strong>', $txt['search_for'], ':</strong>
+					</dt>
+					<dd>
+						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />
+					</dd>
+				</dl>
+				
 				<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button_submit" />
+				<br class="clear_right" />
 				<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '" />
 				<input type="hidden" name="userspec" value="', !empty($context['search_params']['userspec']) ? $context['search_params']['userspec'] : '', '" />
 				<input type="hidden" name="show_complete" value="', !empty($context['search_params']['show_complete']) ? 1 : 0, '" />
@@ -260,13 +303,23 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" />';
 				echo '
 				</span>
-				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
 			</h3>
-		</div>
+		</div>';
+		
+		// was anything even found?
+		if (!empty($context['topics']))
+		echo'
 		<div class="pagesection">
 			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
 		</div>';
+		else
+			echo '
+		<span class="upperframe"><span></span></span>
+			<div class="roundframe">', $txt['find_no_results'], '</div>
+		<span class="lowerframe"><span></span></span>';
 
+		// while we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
 			$color_class = '';

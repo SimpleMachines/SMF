@@ -140,6 +140,7 @@ function BanList()
 
 	$listOptions = array(
 		'id' => 'ban_list',
+		'title' => $txt['ban_title'],
 		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
@@ -1445,6 +1446,7 @@ function BanLog()
 
 	$listOptions = array(
 		'id' => 'ban_log',
+		'title' => $txt['ban_log'],
 		'items_per_page' => 30,
 		'base_href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',

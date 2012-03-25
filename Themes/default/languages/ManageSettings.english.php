@@ -44,7 +44,7 @@ $txt['pruneBanLog'] = 'Remove ban hit log entries older than<div class="smalltex
 $txt['pruneReportLog'] = 'Remove report to moderator log entries older than<div class="smalltext">(0 to disable)</div>';
 $txt['pruneScheduledTaskLog'] = 'Remove scheduled task log entries older than<div class="smalltext">(0 to disable)</div>';
 $txt['pruneSpiderHitLog'] = 'Remove search engine hit logs older than<div class="smalltext">(0 to disable)</div>';
-$txt['cookieTime'] = 'Default login cookies length (in minutes)';
+$txt['cookieTime'] = 'Default login cookies length';
 $txt['localCookies'] = 'Enable local storage of cookies<div class="smalltext">(SSI won\'t work well with this on.)</div>';
 $txt['globalCookies'] = 'Use subdomain independent cookies<div class="smalltext">(turn off local cookies first!)</div>';
 $txt['globalCookiesDomain'] = 'Main domain used for subdomain independent cookies <div class="smalltext">(enable subdomain independent cookies first!<br />The domain could be for example: "website.com" or "website.co.uk" without http:// or slashes)</div>';

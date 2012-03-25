@@ -89,9 +89,9 @@ function template_main()
 							<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=0;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
 						</dd>
 					</dl>
-					<div class="righttext">
-						<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -165,9 +165,9 @@ function template_main()
 
 	echo '
 					</dl>
-					<div class="righttext">
-						<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
+					</br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -264,6 +264,7 @@ function template_list_themes()
 						</dd>
 					</dl>
 					<input type="submit" name="save" value="', $txt['themeadmin_list_reset_go'], '" class="button_submit" />
+					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-tl_token_var'], '" value="', $context['admin-tl_token'], '" />
 				</div>
@@ -339,33 +340,50 @@ function template_set_options()
 			</div>
 			<div class="windowbg2">
 				<span class="topslice"><span></span></span>
-				<div class="content">
-					<ul class="theme_options">';
+				<div class="content">';
+	echo '
+					<dl class="settings">';
 
 	foreach ($context['options'] as $setting)
 	{
 		echo '
-						<li class="theme_option">';
-
+						<dt ', $context['theme_options_reset'] ? 'style="width:50%"' : '', '>';
+						
+		// Show the change option box ?
 		if ($context['theme_options_reset'])
 			echo '
-							<select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
+							<span class="floatleft"><select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
 								<option value="0" selected="selected">', $txt['themeadmin_reset_options_none'], '</option>
 								<option value="1">', $txt['themeadmin_reset_options_change'], '</option>
 								<option value="2">', $txt['themeadmin_reset_options_remove'], '</option>
-							</select>';
-
+							</select>&nbsp;</span>';
+		
+		// display checkbox options
 		if ($setting['type'] == 'checkbox')
 		{
 			echo '
+							<label for="options_', $setting['id'], '">', $setting['label'], '</label>';
+			if (isset($setting['description']))
+				echo '
+							<br /><span class="smalltext">', $setting['description'], '</span>';
+		echo '
+						</dt>
+						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
 							<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0" />
-							<label for="options_', $setting['id'], '"><input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked="checked"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' value="1" class="input_check" /> ', $setting['label'], '</label>';
+							<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked="checked"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' value="1" class="input_check floatleft" />';
 		}
+		// how about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
 		{
 			echo '
-							&nbsp;<label for="options_', $setting['id'], '">', $setting['label'], '</label>
-							<select name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled="disabled"' : '', '>';
+							<label for="options_', $setting['id'], '">', $setting['label'], '</label>';
+			if (isset($setting['description']))
+				echo '
+							<br /><span class="smalltext">', $setting['description'], '</span>';
+		echo '
+						</dt>
+						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
+							&nbsp;<select class="floatleft" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', $context['theme_options_reset'] ? ' disabled="disabled"' : '', '>';
 
 			foreach ($setting['options'] as $value => $label)
 			{
@@ -376,26 +394,32 @@ function template_set_options()
 			echo '
 							</select>';
 		}
+		// a textbox it is then
 		else
+		{
 			echo '
-							&nbsp;<label for="options_', $setting['id'], '">', $setting['label'], '</label>
-							<input type="text" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' class="input_text" />';
-
-		if (isset($setting['description']))
-			echo '
+							<label for="options_', $setting['id'], '">', $setting['label'], '</label>';
+			if (isset($setting['description']))
+				echo '
 							<br /><span class="smalltext">', $setting['description'], '</span>';
-
 		echo '
-					</li>';
+						</dt>
+						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
+							<input type="text" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' class="input_text" />';
+		}
+		
+		// end of this defintion 
+		echo '
+						</dd>';
 	}
-
+	
+	// close the option page up
 	echo '
-					</ul>
-					<div class="righttext">
-						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['admin-sto_token_var'], '" value="', $context['admin-sto_token'], '" />
-					</div>
+					</dl>
+					<hr class="hrcolor" />
+					<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -603,9 +627,9 @@ function template_set_settings()
 
 	echo '
 					</dl>
-					<div class="righttext">
-						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" /><br />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

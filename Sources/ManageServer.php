@@ -5,7 +5,7 @@
  * core server settings. This includes anything from which an error may
  * result in the forum destroying itself in a firey fury.
  *
- * Adding options to one of the setting screens isn't hard. Call prepareDBSettingsContext;
+ * Adding options to one of the setting screens isn't hard. Call prepareDBSettingContext;
  * The basic format for a checkbox is:
  * 		array('check', 'nameInModSettingsAndSQL'),
  * And for a text box:
@@ -265,7 +265,7 @@ function ModifyCookieSettings($return_config = false)
 	$config_vars = array(
 		// Cookies...
 		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
-		array('cookieTime', $txt['cookieTime'], 'db', 'int'),
+		array('cookieTime', $txt['cookieTime'], 'db', 'int', 'postinput' => $txt['minutes']),
 		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
 		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
 		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
@@ -275,7 +275,7 @@ function ModifyCookieSettings($return_config = false)
 		// Sessions
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
 		array('databaseSession_loose', $txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'),
-		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime'),
+		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => $txt['seconds']),
 	);
 
 	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
@@ -479,6 +479,18 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 /**
  * Helper function, it sets up the context for the manage server settings.
+ * - The basic usage of the six numbered key fields are
+ * - array (0 ,1, 2, 3, 4, 5
+ *		0 variable name - the name of the saved variable
+ *		1 label - the text to show on the settings page
+ *		2 saveto - file or db, where to save the variable name - value pair
+ *		3 type - type of data to save, int, float, text, check
+ *		4 size - false or field size
+ *		5 help - '' or helptxt variable name
+ *	)
+ *
+ * the following named keys are also permitted
+ * 'disabled' => 'postinput' => 'preinput' =>
  *
  * @param array $config_vars
  */
@@ -518,10 +530,9 @@ function prepareServerSettingsContext(&$config_vars)
 				'invalid' => false,
 				'subtext' => $subtext,
 				'javascript' => '',
-				'preinput' => '',
-				'postinput' => '',
+				'preinput' => !empty($config_var['preinput']) ? $config_var['preinput'] : '',
+				'postinput' => !empty($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
-			
 		}
 	}
 

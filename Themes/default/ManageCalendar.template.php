@@ -94,7 +94,8 @@ function template_edit_holiday()
 	echo '
 							</select>
 						</dd>
-					</dl>';
+					</dl>
+					<hr class="hrcolor" />';
 
 	if ($context['is_new'])
 		echo '
@@ -106,6 +107,7 @@ function template_edit_holiday()
 					<input type="hidden" name="holiday" value="', $context['holiday']['id'], '" />';
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

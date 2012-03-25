@@ -149,9 +149,7 @@ function template_main()
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
 	if (isset($context['old_search']))
 		echo '
-			<div class="floatright">
-				<a href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>
-			</div>';
+			<a class="button_link" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
 	echo '
 		</div>
 	</div>';
@@ -181,32 +179,38 @@ function template_search()
 			<div class="pagesection">
 				', template_button_strip($memberlist_buttons, 'right'), '
 			</div>';
+	
 	// Display the input boxes for the form.
 	echo '	<div id="memberlist_search" class="clear">
-				<span class="upperframe"><span></span></span>
+				<span class="upperframe"><span></span></span>';
+	
+	echo '
 				<div class="roundframe">
-					<div id="mlist_search" class="flow_hidden">
-						<div id="search_term_input"><br />
-							<strong>', $txt['search_for'], ':</strong>
-							<input type="text" name="search" value="', $context['old_search'], '" size="35" class="input_text" /> <input type="submit" name="ml_search" value="' . $txt['search'] . '" class="button_submit" />
-						</div>
-						<span class="floatleft">';
+					<dl id="mlist_search" class="settings">
+						<dt>
+							<label><strong>', $txt['search_for'], ':</strong></label>
+						</dt>
+						<dd>
+							<input type="text" name="search" value="', $context['old_search'], '" size="42" class="input_text" />
+						</dd>
+						<dt>
+							<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
+						</dt>';
 
-	$count = 0;
 	foreach ($context['search_fields'] as $id => $title)
 	{
 		echo '
-							<label for="fields-', $id, '"><input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '" ', in_array($id, $context['search_defaults']) ? 'checked="checked"' : '', ' class="input_check" />', $title, '</label><br />';
-	// Half way through?
-		if (round(count($context['search_fields']) / 2) == ++$count)
-			echo '
-						</span>
-						<span class="floatleft">';
+						<dd>
+							<label for="fields-', $id, '"><input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '" ', in_array($id, $context['search_defaults']) ? 'checked="checked"' : '', ' class="input_check floatright" />', $title, '</label>
+						</dd>';
 	}
-		echo '
-						</span>
-					</div>
-				</div>
+	echo '
+					</dl>
+					<hr class="hrcolor" />
+					<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
+					<br class="clear_right" />
+				</div>';	
+	echo '
 				<span class="lowerframe"><span></span></span>
 			</div>
 		</div>
