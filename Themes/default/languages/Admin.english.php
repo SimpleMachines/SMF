@@ -362,6 +362,9 @@ $txt['attachment_image_paranoid_warning'] = 'The extensive security checks can r
 $txt['attachment_image_paranoid'] = 'Perform extensive security checks on uploaded image attachments';
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
 $txt['attachment_thumb_png'] = 'Save thumbnails as PNG';
+$txt['attachment_thumb_memory'] = 'Adaptive thumbnail memory';
+$txt['attachment_thumb_memory_note2'] = 'If the system can not get the memory no thumbnail will be created.';
+$txt['attachment_thumb_memory_note1'] = 'Leave this unchecked to always attempt to create a thumbnail';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 

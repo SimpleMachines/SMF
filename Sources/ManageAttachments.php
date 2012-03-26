@@ -99,8 +99,6 @@ function ManageAttachmentSettings($return_config = false)
 			array('select', 'attachmentEnable', array($txt['attachmentEnable_deactivate'], $txt['attachmentEnable_enable_all'], $txt['attachmentEnable_disable_new'])),
 		'',
 			// Extension checks etc.
-			array('check', 'attachmentCheckExtensions'),
-			array('text', 'attachmentExtensions', 40),
 			array('check', 'attachmentRecodeLineEndings'),
 		'',
 			// Directory and size limits.
@@ -109,8 +107,13 @@ function ManageAttachmentSettings($return_config = false)
 			array('text', 'attachmentPostLimit', 6, 'postinput' => $txt['kilobyte']),
 			array('text', 'attachmentSizeLimit', 6, 'postinput' => $txt['kilobyte']),
 			array('text', 'attachmentNumPerPostLimit', 6),
+			// Security Items
 		'',
-			// Image settings.
+			// Extension checks etc.
+			array('check', 'attachmentCheckExtensions'),
+			array('text', 'attachmentExtensions', 40),
+		'',
+			// Image checks.
 			array('warning', empty($testGD) ? 'attachment_gd_warning' : ''),
 			array('check', 'attachment_image_reencode'),
 		'',
@@ -121,6 +124,8 @@ function ManageAttachmentSettings($return_config = false)
 			array('check', 'attachmentShowImages'),
 			array('check', 'attachmentThumbnails'),
 			array('check', 'attachment_thumb_png'),
+			array('check', 'attachment_thumb_memory', 'subtext' => $txt['attachment_thumb_memory_note1'], 'postinput' => $txt['attachment_thumb_memory_note2']),
+			array('warning', 'attachment_thumb_memory_note'),
 			array('text', 'attachmentThumbWidth', 6),
 			array('text', 'attachmentThumbHeight', 6),
 	);
