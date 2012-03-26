@@ -521,7 +521,7 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $context, $modSettings, $forum_copyright, $forum_version, $boardurl, $txt, $user_info;
+	global $context, $smcFunc, $modSettings, $forum_copyright, $forum_version, $boardurl, $txt, $user_info;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
@@ -694,6 +694,40 @@ function Credits($in_admin = false)
 		),
 	);
 
+	// support for mods that use the <credits> tag via the package manager
+	if (($mods = cache_get_data('mods_credits', 86400)) === null)
+	{
+		$mods = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT version, name, credits
+			FROM {db_prefix}log_packages
+			WHERE install_state = {int:installed_mods}
+				AND credits != {string:empty}
+				AND SUBSTRING(filename FROM 1 FOR 9) != {string:patch_name}',
+			array(
+				'installed_mods' => 1,
+				'patch_name' => 'smf_patch',
+				'empty' => '',
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$credit_info = unserialize($row['credits']);
+
+			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
+			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ' ' . $smcFunc['htmlspecialchars']($credit_info['license']);
+			$version = $txt['credits_version'] . $row['version'];
+			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ' : ' . $version;
+
+			// build this one out and stash it away
+			$mod_name = empty($credit_info['url']) ? '<strong>' . $title . '</strong>' : '<a href="' . $credit_info['url'] . '">' . '<strong>' . $title . '</strong>' . '</a>';
+			$mods[] =  $mod_name . (!empty($license) ? ' | ' . $license  : '') . (!empty($copyright) ? ' | ' . $copyright  : '');
+		}
+		cache_put_data('mods_credits', $mods, 86400);
+	}
+
+	$context['copyrights']['mods'] += $mods;
+
 	if (!$in_admin)
 	{
 		loadTemplate('Who');
@@ -702,6 +736,7 @@ function Credits($in_admin = false)
 		$context['page_title'] = $txt['credits'];
 	}
 
+	// Support for those that want to use a hook as well
 	call_integration_hook('integrate_credits');
 }
 

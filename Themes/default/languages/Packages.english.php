@@ -29,10 +29,11 @@ $txt['no_mods_installed'] = 'No mods currently installed';
 $txt['browse_installed'] = 'Browse installed mods';
 $txt['uninstall'] = 'Uninstall';
 $txt['delete_list'] = 'Delete Mod List';
-$txt['php_safe_mode'] = 'Sorry, you server has PHP set to SAFE MODE.  This feature is not compatible with SAFE MODE.  Sorry.';
+$txt['package_delete_list_warning'] = 'Are you sure you wish to clear the installed modification list?';
+$txt['php_safe_mode'] = 'Sorry, you server has PHP set to SAFE MODE.  This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
 
-$txt['package_manager_desc'] = 'From the package manager you can download and install modifications to your forum through an easy to use interface.';
+$txt['package_manager_desc'] = 'From this easy to use interface, you can download and install modifications for use on your forum.';
 $txt['installed_packages_desc'] = 'You can use the interface below to view those packages currently installed on the forum, and remove the ones you no longer require.';
 $txt['download_packages_desc'] = 'From this section you can choose to either download new packages from package servers, or upload a package file directly to the forum.';
 
@@ -50,8 +51,8 @@ $txt['remove'] = 'Remove';
 $txt['package_type'] = 'Package Type';
 $txt['archiving'] = 'Archiving';
 $txt['extracting'] = 'Extracting';
-$txt['avatars_extracted'] = 'The avatars have been extracted, you can now use them.';
-$txt['language_extracted'] = 'The language pack has been extracted, you can now use it (by setting it in your settings).';
+$txt['avatars_extracted'] = 'The avatars have been installed, you should now be able to use them.';
+$txt['language_extracted'] = 'The language pack has been installed, you can now enable its use in the language settings area of your admin control panel.';
 
 $txt['mod_name'] = 'Mod Name';
 $txt['mod_version'] = 'Version';
@@ -79,6 +80,7 @@ $txt['packages_latest_fetch'] = 'Attempting to fetch the most popular and recent
 $txt['package_upgrade'] = 'Upgrade';
 $txt['package_uninstall_readme'] = 'Uninstallation Readme';
 $txt['package_install_readme'] = 'Installation Readme';
+$txt['package_install_license'] = 'License';
 $txt['package_install_type'] = 'Type';
 $txt['package_install_action'] = 'Action';
 $txt['package_install_desc'] = 'Description';
@@ -97,11 +99,16 @@ $txt['execute_database_changes'] = 'Adapt Database';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
 $txt['execute_hook_action'] = 'Adapting hook %1$s';
+$txt['package_requires'] = 'Requires Modification';
+$txt['package_check_for'] = 'Check for installation:';
+$txt['execute_credits_add'] = 'Add Credits';
+$txt['execute_credits_remove'] = 'Remove Credits';
+$txt['execute_credits_action'] = 'Credits: %1$s';
 
 $txt['package_install_actions'] = 'Installations actions for';
 $txt['package_will_fail_title'] = 'Error in Package Installation';
 $txt['package_will_fail_warning'] = 'At least one error was encountered during a test installation of this package.
-	It is <strong>strongly</strong> recommended that you do not continue with installation unless you know what you are doing, and have made a backup very recently.
+	It is <strong>strongly</strong> recommended that you do not continue with installation unless you know what you are doing, and have made a backup very recently.<br />
 	This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you don\'t have installed yet, or a package designed for another version of SMF.';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
@@ -123,7 +130,7 @@ $txt['package_action_success'] = '<strong>Test successful</strong>';
 $txt['package_action_skipping'] = '<strong>Skipping file</strong>';
 
 $txt['package_uninstall_actions'] = 'Uninstall Actions';
-$txt['package_uninstall_done'] = 'The package has been uninstalled, it should no longer take effect.';
+$txt['package_uninstall_done'] = 'The package has been successfully uninstalled.';
 $txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller!<br /><br />Please contact the mod author for more information.';
 
 $txt['package_install_options'] = 'Installation Options';
@@ -138,7 +145,7 @@ $txt['package_install_options_make_full_backups'] = 'Create an entire backup (ex
 $txt['package_ftp_necessary'] = 'FTP Information Required';
 $txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable.  This needs to be changed by logging into FTP and using it to chmod or create the files and folders.  Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="%1$s">here</a>.';
 $txt['package_ftp_why_file_list'] = 'The following files need to made writable to continue installation:';
-$txt['package_ftp_why_download'] = 'To download packages, the Packages directory and files in it need to be writable - and they are not currently.  The package manager can use your FTP information to fix this.';
+$txt['package_ftp_why_download'] = 'In order to download packages, the Packages directory, and any files in it, need to be writable.  Currently the system does not have the needed write permissions to this directory.  The package manager can use your FTP information to fix this problem.';
 $txt['package_ftp_server'] = 'FTP Server';
 $txt['package_ftp_port'] = 'Port';
 $txt['package_ftp_username'] = 'Username';
@@ -184,10 +191,12 @@ $txt['package_db_remove_table'] = 'Drop table &quot;%1$s&quot;';
 $txt['package_db_remove_column'] = 'Remove column &quot;%2$s&quot; from &quot;%1$s&quot;';
 $txt['package_db_remove_index'] = 'Remove index &quot;%1$s&quot; from &quot;%2$s&quot;';
 
-$txt['package_advanced_button'] = 'Advanced';
+$txt['package_advanced_button'] = 'Emulation Support';
 $txt['package_advanced_options'] = 'Advanced Options';
 $txt['package_apply'] = 'Apply';
 $txt['package_emulate'] = 'Emulate Version';
+$txt['package_emulate_install'] = 'Install Emulating:';
+$txt['package_emulate_uninstall'] = 'Uninstall Emulating:';
 $txt['package_emulate_revert'] = 'Revert';
 $txt['package_emulate_desc'] = 'Sometimes packages are locked to early versions of SMF but remain compatible with a newer version. Here you can choose to &quot;emulate&quot; a different SMF version within the package manager.';
 
@@ -263,5 +272,7 @@ $txt['package_confirm_go_back'] = 'Go back';
 
 $txt['package_readme_default'] = 'Default';
 $txt['package_available_readme_language'] = 'Available Readme Languages:';
+$txt['package_license_default'] = 'Default';
+$txt['package_available_license_language'] = 'Available License Languages:';
 
 ?>

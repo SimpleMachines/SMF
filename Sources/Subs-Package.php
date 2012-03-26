@@ -50,16 +50,23 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
 
 /**
  * Extracts a file or files from the .tar.gz contained in data.
+ *
  * detects if the file is really a .zip file, and if so returns the result of read_zip_data
- * if destination is null, returns a list of files in the archive.
- * if single_file is true, returns the contents of the file specified by destination, if it exists, or false.
- * if single_file is true, destination can start with * and / to signify that the file may come from any directory.
- * destination should not begin with a / if single_file is true.
+ *
+ * if destination is null
+ *	- returns a list of files in the archive.
+ *
+ * if single_file is true
+ * - returns the contents of the file specified by destination, if it exists, or false.
+ * - destination can start with * and / to signify that the file may come from any directory.
+ * - destination should not begin with a / if single_file is true.
+ *
  * overwrites existing files with newer modification times if and only if overwrite is true.
  * creates the destination directory if it doesn't exist, and is is specified.
  * requires zlib support be built into PHP.
  * returns an array of the files extracted.
  * if files_to_extract is not equal to null only extracts file within this array.
+ *
  * @param string data,
  * @param string destination,
  * @param bool single_file = false,
@@ -296,7 +303,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		// Okay!  We can write this file, looks good from here...
 		if ($write_this && $destination !== null)
 		{
-			if ((strpos($file_info['filename'], '/') !== false && !$single_file) || (!is_dir($file_info['dir'])))
+			if ((strpos($file_info['filename'], '/') !== false && !$single_file) || (!$single_file && !is_dir($file_info['dir'])))
 				mktree($file_info['dir'], 0777);
 
 			// If we're looking for a specific file, and this is it... ka-bam, baby.
@@ -359,8 +366,10 @@ function url_exists($url)
 
 /**
  * Loads and returns an array of installed packages.
- * gets this information from Packages/installed.list.
- * returns the array of data.
+ * - gets this information from Packages/installed.list.
+ * - returns the array of data.
+ * - default sort order is package_installed time
+ * 
  * @return array
  */
 function loadInstalledPackages()
@@ -418,10 +427,11 @@ function loadInstalledPackages()
 
 /**
  * Loads a package's information and returns a representative array.
- * expects the file to be a package in Packages/.
- * returns a error string if the package-info is invalid.
- * returns a basic array of id, version, filename, and similar information.
- * in the array returned, an xmlArray is available in 'xml'.
+ * - expects the file to be a package in Packages/.
+ * - returns a error string if the package-info is invalid.
+ * - otherwise returns a basic array of id, version, filename, and similar information.
+ * - an xmlArray is available in 'xml'.
+ *
  * @param string $filename
  * @return array
  */
@@ -970,12 +980,14 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 }
 
 /**
- * Parses the actions in package-info.xml files from packages.
- * package should be an xmlArray with package-info as its base.
- * testing_only should be true if the package should not actually be applied.
- * method is upgrade, install, or uninstall.  Its default is install.
- * previous_version should be set to the previous installed version of this package, if any.
- * does not handle failure terribly well; testing first is always better.
+ * Parses the actions in package-info.xml file from packages.
+ *
+ * - package should be an xmlArray with package-info as its base.
+ * - testing_only should be true if the package should not actually be applied.
+ * - method can be upgrade, install, or uninstall.  Its default is install.
+ * - previous_version should be set to the previous installed version of this package, if any.
+ * - does not handle failure terribly well; testing first is always better.
+ *
  * @param xmlArray &$package
  * @param bool $testing_only = true
  * @param string $method = 'install' ('install', 'upgrade', or 'uninstall')
@@ -997,6 +1009,15 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	// Emulation support...
 	if (!empty($_SESSION['version_emulate']))
 		$the_version = $_SESSION['version_emulate'];
+
+	// Single package emulation
+	if (!empty($_REQUEST['ve']) && !empty($_REQUEST['package']))
+	{
+		$the_version = $_REQUEST['ve'];
+		$_SESSION['single_version_emulate'][$_REQUEST['package']] = $the_version;
+	}
+	if (!empty($_REQUEST['package']) && (!empty($_SESSION['single_version_emulate'][$_REQUEST['package']])))
+		$the_version = $_SESSION['single_version_emulate'][$_REQUEST['package']];
 
 	// Get all the versions of this method and find the right one.
 	$these_methods = $packageXML->set($method);
@@ -1035,53 +1056,55 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	$temp_path = $boarddir . '/Packages/temp/' . (isset($context['base_path']) ? $context['base_path'] : '');
 
 	$context['readmes'] = array();
+	$context['licences'] = array();
+
 	// This is the testing phase... nothing shall be done yet.
 	foreach ($actions as $action)
 	{
 		$actionType = $action->name();
 
-		if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'redirect')))
+		if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'redirect', 'license')))
 		{
-			// Allow for translated readme files.
-			if ($actionType == 'readme')
+			// Allow for translated readme and license files.
+			if ($actionType == 'readme' || $actionType == 'license')
 			{
+				$type = $actionType . 's';
 				if ($action->exists('@lang'))
 				{
-					// Auto-select a readme language based on either request variable or current language.
-					if ((isset($_REQUEST['readme']) && $action->fetch('@lang') == $_REQUEST['readme']) || (!isset($_REQUEST['readme']) && $action->fetch('@lang') == $language))
+					// Auto-select the language based on either request variable or current language.
+					if ((isset($_REQUEST['readme']) && $action->fetch('@lang') == $_REQUEST['readme']) || (isset($_REQUEST['license']) && $action->fetch('@lang') == $_REQUEST['license']) || (!isset($_REQUEST['readme']) && $action->fetch('@lang') == $language)	|| (!isset($_REQUEST['license']) && $action->fetch('@lang') == $language))
 					{
-						// In case the user put the readme blocks in the wrong order.
-						if (isset($context['readmes']['selected']) && $context['readmes']['selected'] == 'default')
-							$context['readmes'][] = 'default';
+						// In case the user put the blocks in the wrong order.
+						if (isset($context[$type]['selected']) && $context[$type]['selected'] == 'default')
+							$context[$type][] = 'default';
 
-						$context['readmes']['selected'] = htmlspecialchars($action->fetch('@lang'));
+						$context[$type]['selected'] = htmlspecialchars($action->fetch('@lang'));
 					}
 					else
 					{
-						// We don't want this readme now, but we'll allow the user to select to read it.
-						$context['readmes'][] = htmlspecialchars($action->fetch('@lang'));
+						// We don't want this now, but we'll allow the user to select to read it.
+						$context[$type][] = htmlspecialchars($action->fetch('@lang'));
 						continue;
 					}
 				}
-				// Fallback readme. Without lang parameter.
+				// Fallback when we have no lang parameter.
 				else
 				{
-
-					// Already selected a readme.
-					if (isset($context['readmes']['selected']))
+					// Already selected one for use?
+					if (isset($context[$type]['selected']))
 					{
-						$context['readmes'][] = 'default';
+						$context[$type][] = 'default';
 						continue;
 					}
 					else
-						$context['readmes']['selected'] = 'default';
+						$context[$type]['selected'] = 'default';
 				}
 			}
 
 			// @todo Make sure the file actually exists?  Might not work when testing?
 			if ($action->exists('@type') && $action->fetch('@type') == 'inline')
 			{
-				$filename = $temp_path . '$auto_' . $temp_auto++ . ($actionType == 'readme' || $actionType == 'redirect' ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));
+				$filename = $temp_path . '$auto_' . $temp_auto++ . (in_array($actionType, array('readme', 'redirect', 'license')) ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));
 				package_put_contents($filename, $action->fetch('.'));
 				$filename = strtr($filename, array($temp_path => ''));
 			}
@@ -1097,7 +1120,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'redirect_url' => $action->exists('@url') ? $action->fetch('@url') : '',
 				'redirect_timeout' => $action->exists('@timeout') ? (int) $action->fetch('@timeout') : '',
 				'parse_bbc' => $action->exists('@parsebbc') && $action->fetch('@parsebbc') == 'true',
-				'language' => ($actionType == 'readme' && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
+				'language' => (($actionType == 'readme' || $actionType == 'license')  && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
 			);
 
 			continue;
@@ -1109,6 +1132,36 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'function' => $action->exists('@function') ? $action->fetch('@function') : '',
 				'hook' => $action->exists('@hook') ? $action->fetch('@hook') : $action->fetch('.'),
 				'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true' ? true : false,
+				'description' => '',
+			);
+			continue;
+		}
+		elseif ($actionType == 'credits')
+		{
+			// quick check of any supplied url
+			$url = $action->exists('@url') ? $action->fetch('@url') : '';
+			if (strlen(trim($url)) > 0 && substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://')
+			{
+				$url = 'http://' . $url;
+				if (strlen($url) < 8 || (substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://'))
+					$url = '';
+			}
+
+			$return[] = array(
+				'type' => $actionType,
+				'url' => $url,
+				'license' => $action->exists('@license') ? $action->fetch('@license') : '',
+				'copyright' => $action->exists('@copyright') ? $action->fetch('@copyright') : '',
+				'title' => $action->fetch('.'),
+			);
+			continue;
+		}
+		elseif ($actionType == 'requires')
+		{
+			$return[] = array(
+				'type' => $actionType,
+				'id' => $action->exists('@id') ? $action->fetch('@id') : '',
+				'version' => $action->exists('@version') ? $action->fetch('@version') : $action->fetch('.'),
 				'description' => '',
 			);
 			continue;
@@ -1242,7 +1295,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 		}
 		elseif ($actionType == 'remove-dir')
 		{
-			if (!is_writable($this_action['filename']) && file_exists($this_action['destination']))
+			if (!is_writable($this_action['filename']) && file_exists($this_action['filename']))
 				$return[] = array(
 					'type' => 'chmod',
 					'filename' => $this_action['filename']
@@ -1268,7 +1321,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	$not_done = array(array('type' => '!'));
 	foreach ($return as $action)
 	{
-		if ($action['type'] == 'modification' || $action['type'] == 'code' || $action['type'] == 'database' || $action['type'] == 'redirect')
+		if (in_array($action['type'], array('modification', 'code', 'database', 'redirect', 'hook', 'credits')))
 			$not_done[] = $action;
 
 		if ($action['type'] == 'create-dir')
@@ -1366,9 +1419,48 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 
 /**
  * Checks if version matches any of the versions in versions.
- * supports comma separated version numbers, with or without whitespace.
- * supports lower and upper bounds. (1.0-1.2)
- * returns true if the version matched.
+ * - supports comma separated version numbers, with or without whitespace.
+ * - supports lower and upper bounds. (1.0-1.2)
+ * - returns true if the version matched.
+ *
+ * @param string $versions
+ * @return highest install value string or false
+ */
+function matchHighestPackageVersion($versions, $reset = false, $the_version)
+{
+	static $near_version = 0;
+
+	if ($reset)
+		$near_version = 0;
+
+	// Normalize the $versions while we remove our previous Doh!
+	$versions = explode(',', str_replace(array(' ', '2.0rc1-1'), array('', '2.0rc1.1'), strtolower($versions)));
+
+	// Loop through each version, save the highest we can find
+	foreach ($versions as $for)
+	{
+		// Adjust for those wild cards
+		if (strpos($for, '*') !== false)
+			$for = str_replace('*', '0dev0', $for) . '-' . str_replace('*', '999', $for);
+
+		// If we have a range, grab the lower value, done this way so it looks normal-er to the user e.g. 2.0 vs 2.0.99
+		if (strpos($for, '-') !== false)
+			list ($for, $higher) = explode('-', $for);
+
+		// Do the compare, if the for is greater, than what we have but not greater than what we are running .....
+		if (compareVersions($near_version, $for) === -1 && compareVersions($for, $the_version) !== 1)
+			$near_version = $for;
+	}
+
+	return !empty($near_version) ? $near_version : false;
+}
+
+/**
+ * Checks if the forum version matches any of the available versions from the package install xml.
+ * - supports comma separated version numbers, with or without whitespace.
+ * - supports lower and upper bounds. (1.0-1.2)
+ * - returns true if the version matched.
+ *
  * @param string $version
  * @param string $versions
  * @return bool
@@ -1408,10 +1500,14 @@ function matchPackageVersion($version, $versions)
 }
 
 /**
- * Compares two versions.
+ * Compares two versions and determines if one is newer, older or the same, returns
+ * - (-1) if version1 is lower than version2
+ * - (0) if version1 is equal to version2
+ * - (1) if version1 is higher than version2
+ *
  * @param string version1
  * @param string version2
- * @return int (-1 if version1 is lower than version2, 0 if version1 is equal to version2; 1 if version1 is higher than version2)
+ * @return int (-1, 0, 1)
  */
 function compareVersions($version1, $version2)
 {
@@ -2426,7 +2522,7 @@ function package_get_contents($filename)
 
 	if (!isset($package_cache))
 	{
-	
+
 		$mem_check = setMemoryLimit('128M');
 
 		// Windows doesn't seem to care about the memory_limit.
@@ -2460,7 +2556,7 @@ function package_put_contents($filename, $data, $testing = false)
 	{
 		// Try to increase the memory limit - we don't want to run out of ram!
 		$mem_check = setMemoryLimit('128M');
-		
+
 		if (!empty($modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false)
 			$package_cache = array();
 		else
@@ -2523,16 +2619,21 @@ function package_flush_cache($trash = false)
 		elseif (!file_exists($filename))
 			@touch($filename);
 
-		package_chmod($filename);
+		$result = package_chmod($filename);
 
-		$fp = fopen($filename, 'r+');
-		if (!$fp && !$trash)
+		// if we are not doing our test pass, then lets do a full write check
+		if (!$trash)
 		{
-			// We should have package_chmod()'d them before, no?!
-			trigger_error('package_flush_cache(): some files are still not writable', E_USER_WARNING);
-			return;
+			// acid test, can we really open this file for writing?
+			$fp = ($result) ? fopen($filename, 'r+') : $result;
+			if (!$fp)
+			{
+				// We should have package_chmod()'d them before, no?!
+				trigger_error('package_flush_cache(): some files are still not writable', E_USER_WARNING);
+				return;
+			}
+			fclose($fp);
 		}
-		fclose($fp);
 	}
 
 	if ($trash)
@@ -2553,6 +2654,7 @@ function package_flush_cache($trash = false)
 
 /**
  * Try to make a file writable.
+ *
  * @param string $filename
  * @param string $perm_state = 'writable'
  * @param bool $track_change = false
@@ -2686,6 +2788,8 @@ function package_chmod($filename, $perm_state = 'writable', $track_change = fals
 }
 
 /**
+ * Used to crypt the supplied ftp password in this session
+ *
  * @param string $pass
  * @return string The encrypted password
  */
@@ -2838,6 +2942,12 @@ function package_create_backup($id = 'backup')
 
 /**
  * Get the contents of a URL, irrespective of allow_url_fopen.
+ *
+ * - reads the contents of an http or ftp address and retruns the page in a string
+ * - will accept up to 3 page redirections (redirectio_level in the function call is private)
+ * - if post_data is supplied, the value and lenght is posted to the given url as form data
+ * - URL must be supplied in lowercase
+ *
  * @param string $url
  * @param string $post_data = ''
  * @param bool $keep_alive = false
