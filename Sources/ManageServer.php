@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Contains all the functionality required to be able to edit the
- * core server settings. This includes anything from which an error may
- * result in the forum destroying itself in a firey fury.
+ * Contains all the functionality required to be able to edit the core server 
+ * settings. This includes anything from which an error may result in the forum
+ * destroying itself in a firey fury.
  *
- * Adding options to one of the setting screens isn't hard. Call prepareDBSettingContext;
+ * Adding options to one of the setting screens isn't hard. Call prepareDBSettingsContext;
  * The basic format for a checkbox is:
  * 		array('check', 'nameInModSettingsAndSQL'),
  * And for a text box:
@@ -17,41 +17,33 @@
  *
  * Here's a quick explanation of how to add a new item:
  *
- * * A text input box.  For textual values.
- * ie.	array('text', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
- *
- * * A text input box.  For numerical values.
- * ie.	array('int', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
- *
- * * A text input box.  For floating point values.
- * ie.	array('float', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
- *
- * * A large text input box. Used for textual values spanning multiple lines.
- * ie.	array('large_text', 'nameInModSettingsAndSQL', 'OptionalNumberOfRows'),
- *
- * * A check box.  Either one or zero. (boolean)
- * ie.	array('check', 'nameInModSettingsAndSQL'),
- *
- * * A selection box.  Used for the selection of something from a list.
- * ie.	array('select', 'nameInModSettingsAndSQL', array('valueForSQL' => $txt['displayedValue'])),
- * Note that just saying array('first', 'second') will put 0 in the SQL for 'first'.
- *
- * * A password input box. Used for passwords, no less!
- * ie.	array('password', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
- *
- * * A permission - for picking groups who have a permission.
- * ie.	array('permissions', 'manage_groups'),
- *
- * * A BBC selection box.
- * ie.	array('bbc', 'sig_bbc'),
+ * - A text input box.  For textual values.
+ * 		array('text', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
+ * - A text input box.  For numerical values.
+ * 		array('int', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
+ * - A text input box.  For floating point values.
+ * 		array('float', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
+ * - A large text input box. Used for textual values spanning multiple lines.
+ * 		array('large_text', 'nameInModSettingsAndSQL', 'OptionalNumberOfRows'),
+ * - A check box.  Either one or zero. (boolean)
+ * 		array('check', 'nameInModSettingsAndSQL'),
+ * - A selection box.  Used for the selection of something from a list.
+ * 		array('select', 'nameInModSettingsAndSQL', array('valueForSQL' => $txt['displayedValue'])),
+ * 		Note that just saying array('first', 'second') will put 0 in the SQL for 'first'.
+ * - A password input box. Used for passwords, no less!
+ * 		array('password', 'nameInModSettingsAndSQL', 'OptionalInputBoxWidth'),
+ * - A permission - for picking groups who have a permission.
+ * 		array('permissions', 'manage_groups'),
+ * - A BBC selection box.
+ * 		array('bbc', 'sig_bbc'),
  *
  * For each option:
- * 	type (see above), variable name, size/possible values.
- * 	OR	make type '' for an empty string for a horizontal rule.
- *  SET	preinput - to put some HTML prior to the input box.
- *  SET	postinput - to put some HTML following the input box.
- *  SET	invalid - to mark the data as invalid.
- *  PLUS you can override label and help parameters by forcing their keys in the array, for example:
+ * 	- type (see above), variable name, size/possible values.
+ * 	  OR make type '' for an empty string for a horizontal rule.
+ *  - SET preinput - to put some HTML prior to the input box.
+ *  - SET postinput - to put some HTML following the input box.
+ *  - SET invalid - to mark the data as invalid.
+ *  - PLUS you can override label and help parameters by forcing their keys in the array, for example:
  *  	array('text', 'invalidlabel', 3, 'label' => 'Actual Label')
  *
  * Simple Machines Forum (SMF)
@@ -69,7 +61,8 @@ if (!defined('SMF'))
 
 /**
  * This is the main dispatcher. Sets up all the available sub-actions, all the tabs and selects
- *  the appropriate one based on the sub-action.
+ * the appropriate one based on the sub-action.
+ *
  * Requires the admin_forum permission.
  * Redirects to the appropriate function based on the sub-action.
  *
@@ -205,10 +198,10 @@ function ModifyDatabaseSettings($return_config = false)
 	global $scripturl, $context, $settings, $txt, $boarddir;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
-	For each option:
+		For each option:
 		variable name, description, type (constant), size/possible values, helptext.
-	OR	an empty string for a horizontal rule.
-	OR	a string for a titled section. */
+		OR an empty string for a horizontal rule.
+		OR a string for a titled section. */
 	$config_vars = array(
 		array('db_server', $txt['database_server'], 'file', 'text'),
 		array('db_user', $txt['database_user'], 'file', 'text'),
@@ -326,14 +319,67 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $helptxt, $modSettings;
+	global $context, $scripturl, $txt, $helptxt, $cache_enable;
+	
+	// Detect all available optimizers
+	$detected = array();
+	if (function_exists('eaccelerator_put'))
+		$detected['eaccelerator'] = $txt['eAccelerator_cache'];
+	if (function_exists('mmcache_put'))
+		$detected['mmcache'] = $txt['mmcache_cache'];
+	if (function_exists('apc_store'))
+		$detected['apc'] = $txt['apc_cache'];
+	if (function_exists('output_cache_put') || function_exists('zend_shm_cache_store'))
+		$detected['zend'] = $txt['zend_cache'];
+	if (function_exists('memcache_set') || function_exists('memcached_set'))
+		$detected['memcached'] = $txt['memcached_cache'];
+	if (function_exists('xcache_set'))
+		$detected['xcache'] = $txt['xcache_cache'];
+		
+	// set a message to show what, if anything, we found
+	if (empty($detected))
+		$txt['cache_settings_message'] = $txt['detected_no_caching'];
+	else
+		$txt['cache_settings_message'] = sprintf($txt['detected_accelerators'], implode(', ', $detected));
+	
+	// This is always an option
+	$detected['smf'] = $txt['default_cache'];
 
 	// Define the variables we want to edit.
 	$config_vars = array(
-		// Only a couple of settings, but they are important
-		array('select', 'cache_enable', array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3'])),
-		array('text', 'cache_memcached'),
+		// Only a few settings, but they are important
+		array('', $txt['cache_settings_message'], '', 'desc'),
+		array('cache_enable', $txt['cache_enable'], 'file', 'select', array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']), 'cache_enable'),
+		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $detected),
+		array('cache_memcached', $txt['cache_memcached'], 'file', 'text', $txt['cache_memcached'], 'cache_memcached'),
+		array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir'),
 	);
+	
+	// some javascript to enable / disable certain settings if the option is not selected
+	$context['settings_post_javascript'] = '
+		var cache_type = document.getElementById(\'cache_accelerator\');
+		mod_addEvent(cache_type, \'change\', toggleCache);
+		toggleCache();
+
+		function mod_addEvent(control, ev, fn)
+		{
+			if (control.addEventListener)
+			{
+				control.addEventListener(ev, fn, false); 
+			} 
+			else if (control.attachEvent)
+			{
+				control.attachEvent(\'on\'+ev, fn);
+			}
+		}
+		function toggleCache()
+		{
+			var select_elem1 = document.getElementById(\'cache_memcached\');
+			var select_elem2 = document.getElementById(\'cachedir\');
+			select_elem1.disabled = cache_type.value != "memcached";
+			select_elem2.disabled = cache_type.value != "smf";
+		}
+	';
 
 	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
@@ -345,46 +391,31 @@ function ModifyCacheSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_cache_settings');
 
-		saveDBSettings($config_vars);
+		saveSettings($config_vars);
+		
+		// we need to save the $cache_enable to $modSettings as well
+		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
-		// We have to manually force the clearing of the cache otherwise the changed settings might not get noticed.
-		$cache_enable = $modSettings['cache_enable'];
-		$modSettings['cache_enable'] = 1;
-		cache_put_data('modSettings', null, 90);
-		$modSettings['cache_enable'] = $cache_enable;
-
-		if ($modSettings['cache_enable'] == 0)
-		{
-			loadLanguage('ManageMaintenance');
-			createToken('admin-maint');
-			$context['template_layers'][] = 'clean_cache_button';
-		}
+		// exit so we reload our new settings on the page
+		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
+	}
+	
+	// if its off, allow them to clear it as well
+	// @todo why only when its off ?
+	if (empty($cache_enable))
+	{
+		loadLanguage('ManageMaintenance');
+		createToken('admin-maint');
+		$context['template_layers'][] = 'clean_cache_button';
 	}
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
 	$context['settings_message'] = $txt['caching_information'];
 
-	// Detect an optimizer?
-	if (function_exists('eaccelerator_put'))
-		$detected = 'eAccelerator';
-	elseif (function_exists('mmcache_put'))
-		$detected = 'MMCache';
-	elseif (function_exists('apc_store'))
-		$detected = 'APC';
-	elseif (function_exists('output_cache_put'))
-		$detected = 'Zend';
-	elseif (function_exists('memcache_set') || function_exists('memcached_set'))
-		$detected = 'Memcached';
-	elseif (function_exists('xcache_set'))
-		$detected = 'XCache';
-	else
-		$detected = 'no_caching';
-
-	$context['settings_message'] = sprintf($context['settings_message'], $txt['detected_' . $detected]);
-
 	// Prepare the template.
-	prepareDBSettingContext($config_vars);
+	createToken('admin-ssc');
+	prepareServerSettingsContext($config_vars);
 }
 
 /**
@@ -421,7 +452,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	// Start with a simple checkbox.
 	$config_vars = array(
-		array('check', 'loadavg_enable'),
+		array('check', 'loadavg_enable', 'disabled' => $disabled),
 	);
 
 	// Set the default values for each option.
@@ -472,7 +503,8 @@ function ModifyLoadBalancingSettings($return_config = false)
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
 	}
-
+	
+	createToken('admin-ssc');
 	prepareDBSettingContext($config_vars);
 }
 
@@ -518,12 +550,12 @@ function prepareServerSettingsContext(&$config_vars)
 				$config_var[1] = substr($config_var[1], 0, $divPos);
 			}
 
-			$context['config_vars'][] = array(
+			$context['config_vars'][$config_var[0]] = array(
 				'label' => $config_var[1],
 				'help' => isset($config_var[5]) ? $config_var[5] : '',
 				'type' => $config_var[3],
 				'size' => empty($config_var[4]) ? 0 : $config_var[4],
-				'data' => isset($config_var[4]) && is_array($config_var[4]) ? $config_var[4] : array(),
+				'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : array(),
 				'name' => $config_var[0],
 				'value' => $config_var[2] == 'file' ? htmlspecialchars($$varname) : (isset($modSettings[$config_var[0]]) ? htmlspecialchars($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
 				'disabled' => !empty($context['settings_not_writable']) || !empty($config_var['disabled']),
@@ -533,10 +565,23 @@ function prepareServerSettingsContext(&$config_vars)
 				'preinput' => !empty($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => !empty($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
+			
+			// If this is a select box handle any data.
+			if (!empty($config_var[4]) && is_array($config_var[4]))
+			{
+				// If it's associative
+				if (isset($config_var[4][0]) && is_array($config_var[4][0]))
+					$context['config_vars'][$config_var[0]]['data'] = $config_var[4];
+				else
+				{
+					foreach ($config_var[4] as $key => $item)
+						$context['config_vars'][$config_var[0]]['data'][] = array($key, $item);
+				}
+			}
 		}
 	}
 
-	// Two tokens because save these settings require both saveSettings and saveDBSettings
+	// Two tokens because saving these settings requires both saveSettings and saveDBSettings
 	createToken('admin-ssc');
 	createToken('admin-dbsc');
 }
@@ -743,11 +788,15 @@ function saveSettings(&$config_vars)
 		'cookiename',
 		'webmaster_email',
 		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
-		'boarddir', 'sourcedir', 'cachedir',
+		'boarddir', 'sourcedir', 
+		'cachedir', 'cache_accelerator', 'cache_memcached',
 	);
+	
 	// All the numeric variables.
 	$config_ints = array(
+		'cache_enable',
 	);
+	
 	// All the checkboxes.
 	$config_bools = array(
 		'db_persist', 'db_error_send',
@@ -783,7 +832,7 @@ function saveSettings(&$config_vars)
 	require_once($sourcedir . '/Subs-Admin.php');
 	updateSettingsFile($new_settings);
 
-	// Now loopt through the remaining (database-based) settings.
+	// Now loop through the remaining (database-based) settings.
 	$new_settings = array();
 	foreach ($config_vars as $config_var)
 	{

@@ -3497,28 +3497,104 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 }
 
 /**
- * Empty out the cache folder.
- * clean the cache directory ($cachedir, if any and in use)
- * it may only remove the files of a certain type (if the $type parameter is given)
+ * Empty out the cache in use as best it can
  *
- * @param string $type = ''
+ * it may only remove the files of a certain type (if the $type parameter is given)
+ * Type can be user, data or left blank
+ * 	- user clears out user data
+ *  - data clears out system / opcode data
+ *  - If no type is specified will perfom a complete cache clearing
+ * For cache engines that do not distinguish on types, a full cache flush will be done
+ *
+ * @param string $type = '' 
  */
 function clean_cache($type = '')
 {
-	global $cachedir, $sourcedir;
-
-	// No directory = no game.
-	if (!is_dir($cachedir))
-		return;
-
-	// Remove the files in SMF's own disk cache, if any
-	$dh = opendir($cachedir);
-	while ($file = readdir($dh))
+	global $cachedir, $sourcedir, $cache_accelerator, $modSettings, $memcached;
+	
+	switch ($cache_accelerator)
 	{
-		if ($file != '.' && $file != '..' && $file != 'index.php' && $file != '.htaccess' && (!$type || substr($file, 0, strlen($type)) == $type))
-			@unlink($cachedir . '/' . $file);
+		case 'memcached':
+			if (function_exists('memcache_flush') || function_exists('memcached_flush') && isset($modSettings['cache_memcached']) && trim($modSettings['cache_memcached']) != '')
+			{
+				// Not connected yet?
+				if (empty($memcached))
+					get_memcached_server();
+				if (!$memcached)
+					return;
+
+				// clear it out
+				if (function_exists('memcache_flush'))
+					memcache_flush($memcached);
+				else
+					memcached_flush($memcached);
+			}
+			break;
+		case 'eaccelerator':
+			if (function_exists('eaccelerator_clear') && function_exists('eaccelerator_clean') )
+			{ 
+				// Clean out the already expired items
+				@eaccelerator_clean();
+				
+				// Remove all unused scripts and data from shared memory and disk cache, 
+				// e.g. all data that isn't used in the current requests.
+				eaccelerator_clear();
+			}
+		case 'mmcache':
+			if (function_exists('mmcache_gc'))
+			{
+				// removes all expired keys from shared memory, this is not a complete cache flush :(
+				// @todo there is no clear function, should we try to find all of the keys and delete those? with mmcache_rm
+				mmcache_gc();
+			}
+			break;
+		case 'apc':
+			if (function_exists('apc_clear_cache'))
+			{
+				// if passed a type, clear that type out
+				if ($type === '' || $type === 'data')
+				{
+					apc_clear_cache('user');
+					apc_clear_cache('system');
+				}
+				elseif ($type === 'user')
+					apc_clear_cache('user');
+			}
+			break;
+		case 'zend':
+			if (function_exists('zend_shm_cache_clear'))
+				zend_shm_cache_clear('SMF');
+			break;
+		case 'xcache':
+			if (function_exists('xcache_clear_cache'))
+			{
+				// 
+				if ($type === '')
+				{
+					xcache_clear_cache(XC_TYPE_VAR, 0);
+					xcache_clear_cache(XC_TYPE_PHP, 0);
+				}
+				if ($type === 'user')
+					xcache_clear_cache(XC_TYPE_VAR, 0);
+				if ($type === 'data')
+					xcache_clear_cache(XC_TYPE_PHP, 0);
+			}
+			break;
+		default:
+			// No directory = no game.
+			if (!is_dir($cachedir))
+				return;
+
+			// Remove the files in SMF's own disk cache, if any
+			$dh = opendir($cachedir);
+			while ($file = readdir($dh))
+			{
+				if ($file != '.' && $file != '..' && $file != 'index.php' && $file != '.htaccess' && (!$type || substr($file, 0, strlen($type)) == $type))
+					@unlink($cachedir . '/' . $file);
+			}
+			closedir($dh);
+			break;
 	}
-	closedir($dh);
 
 	// Invalidate cache, to be sure!
 	// ... as long as Load.php can be modified, anyway.

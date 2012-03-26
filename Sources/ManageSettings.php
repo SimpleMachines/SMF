@@ -63,6 +63,7 @@ function ModifyFeatureSettings()
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
 
+	// If Advanced Profile Fields are disabled don't show the setting page
 	if (!in_array('cp', $context['admin_features']))
 		unset($subActions['profile']);
 
@@ -394,6 +395,7 @@ function ModifyCoreFeatures($return_config = false)
 
 		// Make any setting changes!
 		updateSettings($setting_changes);
+
 		// This is needed to let menus appear if cache > 2
 		clean_cache('data');
 
