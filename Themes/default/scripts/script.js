@@ -886,7 +886,7 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 	if ('oCookieOptions' in this.opt && this.opt.oCookieOptions.bUseCookie)
 		this.oCookie.set(this.opt.oCookieOptions.sCookieName, this.bCollapsed ? '1' : '0');
 
-	if ('oThemeOptions' in this.opt && this.opt.oThemeOptions.bUseThemeSettings)
+	if (!bInit && 'oThemeOptions' in this.opt && this.opt.oThemeOptions.bUseThemeSettings)
 		smf_setThemeOption(this.opt.oThemeOptions.sOptionName, this.bCollapsed ? '1' : '0', 'sThemeId' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sThemeId : null, smf_session_id, smf_session_var, 'sAdditionalVars' in this.opt.oThemeOptions ? this.opt.oThemeOptions.sAdditionalVars : null);
 }
 
