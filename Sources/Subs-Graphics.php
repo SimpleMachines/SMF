@@ -22,12 +22,12 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * downloads file from url and stores it locally for avatar use by id_member.
- * supports GIF, JPG, PNG, BMP and WBMP formats.
- * detects if GD2 is available.
- * uses resizeImageFile() to resize to max_width by max_height, and saves the result to a file.
- * updates the database info for the member's avatar.
- * returns whether the download and resize was successful.
+ * downloads a file from a url and stores it locally for avatar use by id_member.
+ * - supports GIF, JPG, PNG, BMP and WBMP formats.
+ * - detects if GD2 is available.
+ * - uses resizeImageFile() to resize to max_width by max_height, and saves the result to a file.
+ * - updates the database info for the member's avatar.
+ * - returns whether the download and resize was successful.
  *
  * @param string $temporary_path, the full path to the temporary file
  * @param int $memID, member ID
@@ -173,10 +173,10 @@ function createThumbnail($source, $max_width, $max_height)
 }
 
 /**
- * Creates a copy of the file at the same location as fileName.
- * The file would have the format preferred_format if possible,
- * otherwise the default format is jpeg.
- * The function makes sure that all non-essential image contents are disposed.
+ * Used to re-econodes an image to a specifed image format
+ * - creates a copy of the file at the same location as fileName.
+ * - the file would have the format preferred_format if possible, otherwise the default format is jpeg.
+ * - the function makes sure that all non-essential image contents are disposed.
  *
  * @param string $fileName
  * @param int $preferred_format = 0
@@ -206,8 +206,8 @@ function reencodeImage($fileName, $preferred_format = 0)
 }
 
 /**
- * Searches through the file to see if there's non-binary content.
- * If extensiveCheck is true, searches for asp/php short tags as well.
+ * Searches through the file to see if there's potentialy harmful non-binary content.
+ * - if extensiveCheck is true, searches for asp/php short tags as well.
  *
  * @param string $fileName
  * @param bool $extensiveCheck = false
@@ -674,9 +674,18 @@ if (!function_exists('imagecreatefrombmp'))
 						imagesetpixel($dst_img, $x, $y, $palette[$byte & 15]);
 				}
 			}
-			else
+			elseif ($info['bits'] == 1)
 			{
-				// Sorry, I'm just not going to do monochrome :P.
+				$x = 0;
+				for ($j = 0; $j < $scan_line_size; $x++)
+				{
+					$byte = ord($scan_line{$j++});
+					
+					imagesetpixel($dst_img, $x, $y, $palette[(($byte) & 128) != 0]);
+					for ($shift = 1; $shift < 8; $shift++) {
+						if (++$x < $info['width']) imagesetpixel($dst_img, $x, $y, $palette[(($byte << $shift) & 128) != 0]);
+					}
+				}
 			}
 		}
 
