@@ -1345,9 +1345,6 @@ function template_edit_options()
 	if (!empty($context['profile_posthtml']))
 		echo '
 					<div>', $context['profile_posthtml'], '</div>';
-	elseif ($lastItem != 'hr')
-		echo '
-					<hr width="100%" size="1" class="hrcolor clear" />';
 
 	// Only show the password box if it's actually needed.
 	if ($context['require_password'])
@@ -1363,25 +1360,25 @@ function template_edit_options()
 					</dl>';
 
 	echo '
-					<div class="righttext">';
+					<hr class="hrcolor">';
 
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
 		echo '
-						<input type="submit" value="', $context['submit_button_text'], '" class="button_submit" />';
+					<input type="submit" value="', $context['submit_button_text'], '" class="button_submit" />';
 	else
 		echo '
-						<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />';
+					<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />';
 
 	if (!empty($context['token_check']))
 		echo '
-						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 	echo '
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="u" value="', $context['id_member'], '" />
-						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
-					</div>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="u" value="', $context['id_member'], '" />
+					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

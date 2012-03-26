@@ -1764,13 +1764,10 @@ dl#ic_recentposts dd
 /* the small stats */
 #index_common_stats
 {
-	display: block;
-	margin: 0 0 0.5em 0;
-	text-align: right;
+	margin: -28px 0 0.5em 0;
+	float: right;
 	font-size: 0.9em;
-	position: relative;
-	top: -20px;
-	line-height: 1px;
+	line-height: 1.3em;
 }
 
 img.new_posts

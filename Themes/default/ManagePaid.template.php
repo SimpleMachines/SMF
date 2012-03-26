@@ -474,8 +474,9 @@ function template_user_subscription()
 					', sprintf($modSettings['paid_currency_symbol'], $subscription['costs']['fixed']);
 
 				echo '
-					<br />
-					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit" />';
+					<hr class="hrcolor" />
+					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit" />
+					<br class="clear_right" />';
 			}
 			else
 				echo '
