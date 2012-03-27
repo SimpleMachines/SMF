@@ -42,11 +42,10 @@ function template_ask()
 					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['split'], '" class="button_submit" />
 					<br class="clear_right" />
-					</div>
 				</div>
 				<span class="botslice"><span></span></span>
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
 	</div>';
 }

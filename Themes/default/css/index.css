@@ -104,7 +104,7 @@ textarea
 }
 
 /* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-#frmLogin input.button_submit, #guest_form  input.button_submit
+#frmLogin input.button_submit, #guest_form  input.button_submit, #calendar_navigation input.button_submit
 {
 	float: none;
 	margin-left: inherit;
