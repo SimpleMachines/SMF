@@ -718,7 +718,8 @@ function template_main()
 							<div class="quickReplyContent">
 								<textarea cols="600" rows="7" name="message" tabindex="', $context['tabindex']++, '"></textarea>
 							</div>
-							<div class="righttext padding">
+							<div class="padding">
+								<hr class="hrcolor" />
 								<input type="submit" name="post" value="', $txt['post'], '" onclick="return submitThisOnce(this);" accesskey="s" tabindex="', $context['tabindex']++, '" class="button_submit" />
 								<input type="submit" name="preview" value="', $txt['preview'], '" onclick="return submitThisOnce(this);" accesskey="p" tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
@@ -727,6 +728,7 @@ function template_main()
 								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'postmodify\', \'message\');" tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
 			echo '
+								<br class="clear_right" />
 							</div>
 						</form>
 					</div>

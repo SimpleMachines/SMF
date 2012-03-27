@@ -120,7 +120,7 @@ function ModifySubscriptionSettings($return_config = false)
 	// Some important context stuff
 	$context['page_title'] = $txt['settings'];
 	$context['sub_template'] = 'show_settings';
-	$context['settings_message'] = '<span class="smalltext">' . $txt['paid_note'] . '</span>';
+	$context['settings_message'] = $txt['paid_note'];
 	$context[$context['admin_menu_name']]['current_subsection'] = 'settings';
 
 	// Get the final touches in place.
@@ -202,6 +202,7 @@ function ViewSubscriptions()
 
 	$listOptions = array(
 		'id' => 'subscription_list',
+		'title' => $txt['subscriptions'],
 		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
@@ -630,6 +631,7 @@ function ViewSubscribedUsers()
 
 	$listOptions = array(
 		'id' => 'subscribed_users_list',
+		'title' => sprintf($txt['view_users_subscribed'], $row['name']),
 		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . $context['sub_id'],
 		'default_sort_col' => 'name',
@@ -759,18 +761,14 @@ function ViewSubscribedUsers()
 					<div class="floatleft">
 						<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit" />
 					</div>
-					<div class="floatright">
-						<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit" />
-						<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit" />
-					</div>
+					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit" />
+					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit" />
 				',
 			),
 			array(
 				'position' => 'top_of_list',
 				'value' => '
-					<div class="title_bar">
-						<h3 class="titlebg">' . sprintf($txt['view_users_subscribed'], $row['name']) . '</h3>
-					</div>
+
 					<div class="floatright">
 						<input type="text" name="sub_search" value="" class="input_text" />
 						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" />

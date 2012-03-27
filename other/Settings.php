@@ -114,7 +114,32 @@ $db_persist = 0;
  * 
  * @var int|bool
  */
-$db_error_send = 1;
+$db_error_send = 0;
+
+########## Cache Info ##########
+/**
+ * Select a cache system. You want to leave this up to the cache area of the admin panel for 
+ * proper detection of apc, eaccelerator, memcache, mmcache, output_cache, smf, or xcache 
+ * (you can add more with a mod).
+ * @var string
+ */
+$cache_accelerator = '';
+/**
+ * The level at which you would like to cache. Between 0 (off) through 3 (cache a lot).
+ * @var int
+ */
+$cache_enable = 0;
+/**
+ * This is only used for memcache / memcached. Should be a string of 'server:port,server:port'
+ * @var array
+ */
+$cache_memcached = '';
+/**
+ * This is only for the 'smf' file cache system. It is the path to the cache directory.
+ * It is also recommended that you place this in /tmp/ if you are going to use this.
+ * @var string
+ */
+$cachedir = dirname(__FILE__) . '/cache';
 
 ########## Directories/Files ##########
 # Note: These directories do not have to be changed unless you move things.
@@ -128,11 +153,6 @@ $boarddir = dirname(__FILE__);
  * @var string
  */
 $sourcedir = dirname(__FILE__) . '/Sources';
-/**
- * Path to the cache directory.
- * @var string
- */
-$cachedir = dirname(__FILE__) . '/cache';
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.

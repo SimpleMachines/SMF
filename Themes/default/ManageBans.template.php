@@ -37,21 +37,21 @@ function template_ban_edit()
 							<strong>', $txt['ban_name'], ':</strong>
 						</dt>
 						<dd>
-							<input type="text" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60" class="input_text" />
+							<input type="text" name="ban_name" value="', $context['ban']['name'], '" size="47" maxlength="60" class="input_text" />
 						</dd>
 						<dt>
 							<strong>', $txt['ban_reason'], ':</strong><br />
 							<span class="smalltext">', $txt['ban_reason_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="reason" cols="44" rows="3">', $context['ban']['reason'], '</textarea>
+							<textarea name="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
 						</dd>
 						<dt>
 							<strong>', $txt['ban_notes'], ':</strong><br />
 							<span class="smalltext">', $txt['ban_notes_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="notes" cols="44" rows="3">', $context['ban']['notes'], '</textarea>
+							<textarea name="notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
 						</dd>
 					</dl>
 					<fieldset class="ban_settings floatleft">
@@ -164,13 +164,13 @@ function template_ban_edit()
 	}
 
 	echo '
-						<div class="righttext">
-							<input type="submit" name="', $context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', $context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button_submit" />
-							<input type="hidden" name="old_expire" value="', $context['ban']['expiration']['days'], '" />
-							<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
-						</div>
+						<hr class="hrcolor" />
+						<input type="submit" name="', $context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', $context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button_submit" />
+						<input type="hidden" name="old_expire" value="', $context['ban']['expiration']['days'], '" />
+						<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
+						<br class="clear_right" />
 					</form>
 				</div>
 				<span class="botslice"><span></span></span>
@@ -198,10 +198,11 @@ function template_ban_edit()
 						</tr>';
 		else
 		{
+			$alternate = true;
 			foreach ($context['ban_items'] as $ban_item)
 			{
 				echo '
-						<tr class="windowbg2" align="left">
+						<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" align="left">
 							<td>';
 				if ($ban_item['type'] == 'ip')
 					echo '		<strong>', $txt['ip'], ':</strong>&nbsp;', $ban_item['ip'];
@@ -213,10 +214,11 @@ function template_ban_edit()
 					echo '		<strong>', $txt['username'], ':</strong>&nbsp;', $ban_item['user']['link'];
 				echo '
 							</td>
-							<td class="windowbg" align="center">', $ban_item['hits'], '</td>
-							<td class="windowbg" align="center"><a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], ';bi=', $ban_item['id'], '">', $txt['ban_edit_trigger'], '</a></td>
-							<td align="center" class="windowbg2"><input type="checkbox" name="ban_items[]" value="', $ban_item['id'], '" class="input_check" /></td>
+							<td align="center">', $ban_item['hits'], '</td>
+							<td align="center"><a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], ';bi=', $ban_item['id'], '">', $txt['ban_edit_trigger'], '</a></td>
+							<td align="center"><input type="checkbox" name="ban_items[]" value="', $ban_item['id'], '" class="input_check" /></td>
 						</tr>';
+				$alternate = !$alternate;
 			}
 		}
 
@@ -226,7 +228,8 @@ function template_ban_edit()
 				<div class="flow_auto">
 					<div class="floatright">
 						<div class="additional_row">
-							[<a href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>] <input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+							<input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />
+							<a class="button_link" href="', $scripturl, '?action=admin;area=ban;sa=edittrigger;bg=', $context['ban']['id'], '">', $txt['ban_add_trigger'], '</a>
 						</div>
 					</div>
 				</div>
@@ -329,9 +332,8 @@ function template_ban_edit_trigger()
 							</dd>
 						</dl>
 					</fieldset>
-					<div class="righttext">
-						<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit" />
-					</div>
+					<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

@@ -1602,10 +1602,7 @@ function ViewWarningLog()
 
 						if (!empty($warning[\'id_notice\']))
 							$output .= \'
-							<div class="floatright">
-								<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'default_images_url\'] . \'/filter.png" alt="\' . $txt[\'profile_warning_previous_notice\'] . \'" /></a>
-							</div>\';
-
+								<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'default_images_url\'] . \'/filter.png" alt="\' . $txt[\'profile_warning_previous_notice\'] . \'" /></a>\';
 						return $output;
 					'),
 				),
@@ -1805,6 +1802,7 @@ function ViewWarningTemplates()
 			),
 			'delete' => array(
 				'header' => array(
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
 					'style' => 'width: 4%;',
 				),
 				'data' => array(
@@ -1824,9 +1822,13 @@ function ViewWarningTemplates()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
+				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit" />',
+				'style' => 'text-align: right;',
+			),
+			array(
+				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit" />
-					<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit" />',
+					<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit" />',
 				'style' => 'text-align: right;',
 			),
 		),

@@ -129,8 +129,8 @@ $txt['spider_agent'] = 'User Agent';
 $txt['spider_ip_info'] = 'IP Addresses';
 $txt['spiders_add'] = 'Add New Spider';
 $txt['spiders_edit'] = 'Edit Spider';
-$txt['spiders_remove_selected'] = 'Remove Selected Spiders';
-$txt['spider_remove_selected_confirm'] = 'Are you sure you wish to remove these spiders?\\n\\nAll associated statistics will also be deleted!';
+$txt['spiders_remove_selected'] = 'Remove Selected';
+$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?\\n\\nAll associated statistics will also be deleted!';
 $txt['spiders_no_entries'] = 'There are currently no spiders configured.';
 
 $txt['add_spider_desc'] = 'From this page you can edit the parameters against which a spider is categorised. If a guest\'s user agent/IP address matches those entered below it will be detected as a search engine spider and tracked as per the forum preferences.';
@@ -144,6 +144,8 @@ $txt['spider_viewing'] = 'Viewing';
 $txt['spider_logs_empty'] = 'There are currently no spider log entries.';
 $txt['spider_logs_info'] = 'Note that logging of every spider action only occurs if tracking is set to either &quot;high&quot; or &quot;very high&quot;. Detail of every spiders action is only logged if tracking is set to &quot;very high&quot;.';
 $txt['spider_disabled'] = 'Disabled';
+$txt['spider_log_empty_log'] = 'Clear Log';
+$txt['spider_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log';
 
 $txt['spider_logs_delete'] = 'Delete Entries';
 $txt['spider_logs_delete_older'] = 'Delete all entries older than';

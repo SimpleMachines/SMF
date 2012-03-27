@@ -306,10 +306,9 @@ function template_modify_language_entries()
 						</dd>
 					</dl>
 					</fieldset>
-					<div class="righttext">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
-						<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled="disabled"' : '', ' class="button_submit" />';
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
+					<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled="disabled"' : '', ' class="button_submit" />';
 
 	// Allow deleting entries.
 	if ($context['lang_id'] != 'english')
@@ -320,7 +319,7 @@ function template_modify_language_entries()
 	}
 
 	echo '
-					</div>
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -462,16 +461,13 @@ function template_add_language()
 	{
 		// Display a little error box.
 		echo '
-						<div class="smalltext error">', $txt['add_language_error_' . $context['smf_error']], '</div>';
+						<div><br /><p class="errorbox">', $txt['add_language_error_' . $context['smf_error']], '</p></div>';
 	}
 
 	echo '
-
-					</fieldset>
-					<div class="righttext">
-						', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;" class="input_text" /> ' : '', '
-						<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button_submit" />
-					</div>
+					</fieldset>', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;" class="input_text" /> ' : '', '
+					<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button_submit" />
+					<br />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

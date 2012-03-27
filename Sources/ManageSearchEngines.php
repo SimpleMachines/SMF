@@ -212,6 +212,7 @@ function ViewSpiders()
 	createToken('admin-ser');
 	$listOptions = array(
 		'id' => 'spider_list',
+		'title' => $txt['spiders'],
 		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=spiders',
 		'default_sort_col' => 'name',
@@ -299,8 +300,8 @@ function ViewSpiders()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit" />
 					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" onclick="return confirm(\'' . $txt['spider_remove_selected_confirm'] . '\');" class="button_submit" />
+					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit" />
 				',
 				'style' => 'text-align: right;',
 			),
@@ -752,7 +753,12 @@ function SpiderLogs()
 			array(
 				'position' => 'after_title',
 				'value' => $txt['spider_logs_info'],
-				'class' => 'smalltext',
+				'class' => 'windowbg2',
+			),
+			array(
+				'position' => 'below_table_data',
+				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" onclick="return confirm(\'' . $txt['spider_log_empty_log_confirm'] . '\');" class="button_submit" />',
+				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -942,6 +948,7 @@ function SpiderStats()
 
 	$listOptions = array(
 		'id' => 'spider_stat_list',
+		'title' => $txt['spider'] . ' ' . $txt['spider_stats'],
 		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=stats',
 		'default_sort_col' => 'stat_date',

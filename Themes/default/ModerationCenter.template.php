@@ -25,7 +25,6 @@ function template_moderation_center()
 			<p>
 				', $txt['mc_description'], '
 			</p>
-
 		</div>';
 
 	$alternate = true;
@@ -72,6 +71,7 @@ function template_latest_news()
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
@@ -258,8 +258,8 @@ function template_reported_posts()
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
 			</h3>
 		</div>
-		<div class="pagesection">
-			<div class="pages">', $txt['pages'], ': ', $context['page_index'], '</div>
+		<div class="pagesection floatleft">
+			', $txt['pages'], ': ', $context['page_index'], '
 		</div>';
 
 	// Make the buttons.
@@ -357,8 +357,8 @@ function template_unapproved_posts()
 		</div>';
 	else
 		echo '
-			<div class="pagesection">
-				<div class="pagelinks">', $txt['pages'], ': ', $context['page_index'], '</div>
+			<div class="pagesection floatleft">
+				', $txt['pages'], ': ', $context['page_index'], '
 			</div>';
 
 	foreach ($context['unapproved_items'] as $item)
@@ -431,6 +431,9 @@ function template_unapproved_attachments()
 		<form action="', $scripturl, '?action=moderate;area=attachmod;sa=attachments;start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_unapproved_attachments'], '</h3>
+			</div>
+			<div class="information">
+				', $txt['mc_unapproved_attachments_desc'], '
 			</div>';
 
 	// The ever popular approve button, with the massively unpopular delete.
@@ -449,8 +452,8 @@ function template_unapproved_attachments()
 			</div>';
 	else
 		echo '
-			<div class="pagesection">
-				<div class="pagelinks">', $txt['pages'], ': ', $context['page_index'], '</div>
+			<div class="pagesection floatleft">
+				', $txt['pages'], ': ', $context['page_index'], '
 			</div>
 			<table class="table_grid" width="100%">
 			<thead>
@@ -751,11 +754,11 @@ function template_moderation_settings()
 
 	echo '
 					</dl>
-					<div class="righttext">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '" />
-						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '" />
+					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -847,7 +850,9 @@ function template_warn_template()
 						<br />';
 
 	echo '
+					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

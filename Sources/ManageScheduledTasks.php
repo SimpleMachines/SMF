@@ -251,8 +251,7 @@ function ScheduledTasks()
 			),
 			array(
 				'position' => 'after_title',
-				'value' => '
-					<span class="smalltext">' . $txt['scheduled_tasks_time_offset'] . '</span>',
+				'value' => $txt['scheduled_tasks_time_offset'],
 				'class' => 'windowbg2',
 			),
 		),
@@ -502,13 +501,13 @@ function TaskLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" class="button_submit" />',
+					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" onclick="return confirm(\'' . $txt['scheduled_log_empty_log_confirm'] . '\');" class="button_submit" />',
 				'style' => 'text-align: right;',
 			),
 			array(
 				'position' => 'after_title',
 				'value' => $txt['scheduled_tasks_time_offset'],
-				'class' => 'smalltext',
+				'class' => 'windowbg2',
 			),
 		),
 	);

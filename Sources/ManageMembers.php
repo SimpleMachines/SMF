@@ -418,6 +418,7 @@ function ViewMemberlist()
 
 	$listOptions = array(
 		'id' => 'member_list',
+		'title' => $txt['members_list'],
 		'items_per_page' => $modSettings['defaultMaxMembers'],
 		'base_href' => $scripturl . '?action=admin;area=viewmembers' . $context['params_url'],
 		'default_sort_col' => 'user_name',
@@ -444,7 +445,6 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'db' => 'id_member',
-					'class' => 'windowbg',
 					'style' => 'text-align: center;',
 				),
 				'sort' => array(
@@ -499,7 +499,6 @@ function ViewMemberlist()
 							'email_address' => true,
 						),
 					),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'email_address',
@@ -585,7 +584,6 @@ function ViewMemberlist()
 
 						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_member\'] . \'" class="input_check" \' . ($rowData[\'id_member\'] == $user_info[\'id\'] || $rowData[\'id_group\'] == 1 || in_array(1, explode(\',\', $rowData[\'additional_groups\'])) ? \'disabled="disabled"\' : \'\') . \' />\';
 					'),
-					'class' => 'windowbg',
 					'style' => 'text-align: center',
 				),
 			),
@@ -799,6 +797,7 @@ function MembersAwaitingActivation()
 
 	$listOptions = array(
 		'id' => 'approve_list',
+		'title' => $txt['members_approval_title'],
 		'items_per_page' => $modSettings['defaultMaxMembers'],
 		'base_href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : ''),
 		'default_sort_col' => 'date_registered',
@@ -826,7 +825,6 @@ function MembersAwaitingActivation()
 				),
 				'data' => array(
 					'db' => 'id_member',
-					'class' => 'windowbg',
 					'style' => 'text-align: center;',
 				),
 				'sort' => array(
@@ -863,7 +861,6 @@ function MembersAwaitingActivation()
 							'email_address' => true,
 						),
 					),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'email_address',
@@ -948,7 +945,6 @@ function MembersAwaitingActivation()
 							'id_member' => false,
 						),
 					),
-					'class' => 'windowbg',
 					'style' => 'text-align: center',
 				),
 			),

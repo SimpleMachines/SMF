@@ -58,7 +58,7 @@ function template_view_package()
 				<div class="content">
 					', $context['package_readme'], '
 					<span class="floatright">', $txt['package_available_readme_language'], '
-						<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value);">';
+						<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', ';package=', $context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
 							foreach ($context['readmes'] as $a => $b)
 								echo '<option value="', $b, '"', $a === 'selected' ? ' selected="selected"' : '', '>', $b == 'default' ? $txt['package_readme_default'] : ucfirst($b), '</option>';
 			echo '
@@ -69,7 +69,31 @@ function template_view_package()
 			</div>
 			<br />';
 	}
-
+	
+	// Did they specify a license to display?
+	if (isset($context['package_license']))
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['package_install_license'], '</h3>
+			</div>
+			<div class="windowbg2">
+				<span class="topslice"><span></span></span>
+				<div class="content">
+					', $context['package_license'], '
+					<span class="floatright">', $txt['package_available_license_language'], '
+						<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', $context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
+							foreach ($context['licenses'] as $a => $b)
+								echo '<option value="', $b, '"', $a === 'selected' ? ' selected="selected"' : '', '>', $b == 'default' ? $txt['package_license_default'] : ucfirst($b), '</option>';
+			echo '
+						</select>
+					</span>
+				</div>
+				<span class="botslice"><span></span></span>
+			</div>
+			<br />';
+	}
+	
 	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', $context['ftp_needed'] ? '' : '2', ';package=', $context['filename'], ';pid=', $context['install_id'], '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -347,6 +371,21 @@ function template_view_package()
 
 	echo '
 	// ]]></script>';
+	
+	// Get the currently selected item from a select list
+	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+	function get_selected(id)
+	{
+		var aSelected = document.getElementById(id);
+		for (var i = 0; i < aSelected.options.length; i++)
+		{
+			if (aSelected.options[i].selected == true)
+				return aSelected.options[i].value;
+		}
+		return aSelected.options[0];
+	}
+	// ]]></script>';
 
 	// And a bit more for database changes.
 	if (!empty($context['database_changes']))
@@ -495,68 +534,16 @@ function template_examine()
 	<br class="clear" />';
 }
 
-function template_view_installed()
-{
-	global $context, $settings, $options, $txt, $scripturl;
-
-	echo '
-	<div id="admincenter">
-		<div class="title_bar">
-			<h3 class="titlebg">' . $txt['view_and_remove'] . '</h3>
-		</div>';
-
-	if (empty($context['installed_mods']))
-	{
-		echo '
-		<div class="information">
-			', $txt['no_mods_installed'], '
-		</div>';
-	}
-	else
-	{
-		echo '
-		<table class="table_grid" width="100%">
-		<thead>
-			<tr class="catbg">
-				<th class="first_th" scope="col" width="32"></th>
-				<th class="lefttext" scope="col" width="25%">', $txt['mod_name'], '</th>
-				<th class="lefttext" scope="col" width="25%">', $txt['mod_version'], '</th>
-				<th class="last_th" scope="col" width="49%"></th>
-			</tr>
-		</thead>
-		<tbody>';
-
-		$alt = false;
-		foreach ($context['installed_mods'] as $i => $file)
-		{
-			echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg2', '">
-				<td><span class="smalltext">', ++$i, '.</span></td>
-				<td><span class="smalltext">', $file['name'], '</span></td>
-				<td><span class="smalltext">', $file['version'], '</span></td>
-				<td align="right"><span class="smalltext"><a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $file['filename'], ';pid=', $file['id'], '">[ ', $txt['uninstall'], ' ]</a></span></td>
-			</tr>';
-			$alt = !$alt;
-		}
-
-		echo '
-		</tbody>
-		</table>
-		<br />
-		<a href="', $scripturl, '?action=admin;area=packages;sa=flush;', $context['session_var'], '=', $context['session_id'], '">[ ', $txt['delete_list'], ' ]</a>';
-	}
-
-	echo '
-	</div>
-	<br class="clear" />';
-}
-
 function template_browse()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings, $forum_version;
 
 	echo '
-	<div id="admincenter">
+	<div id="admincenter">';
+
+	if ($context['sub_action'] == 'browse')
+	{
+		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a> ', $txt['packages_latest'], '</span>
@@ -575,275 +562,55 @@ function template_browse()
 			window.smfForum_sessionid = "', $context['session_id'], '";
 			window.smfForum_sessionvar = "', $context['session_var'], '";';
 
-	// Make a list of already installed mods so nothing is listed twice ;).
-	echo '
+		// Make a list of already installed mods so nothing is listed twice ;).
+		echo '
 			window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 			window.smfVersion = "', $context['forum_version'], '";
 		// ]]></script>';
 
-	if (empty($modSettings['disable_smf_js']))
-		echo '
+		if (empty($modSettings['disable_smf_js']))
+			echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
 
-	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var tempOldOnload;
-		// ]]></script>';
-
 		echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
+			var tempOldOnload;
 			smfSetLatestPackages();
 		// ]]></script>';
 
-	echo '
+		echo '
 		<br />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['browse_packages'], '</h3>
 		</div>';
-
-	if (!empty($context['available_mods']))
-	{
-		echo '
-		<br />
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['modification_package'], '</h3>
-		</div>
-
-		<table class="table_grid" width="100%">
-		<thead>
-			<tr class="catbg">
-				<th class="first_th" width="32"></th>
-				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
-				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
-				<th class="last_th" width="49%"></th>
-			</tr>
-		</thead>
-		<tbody>';
-
-		$alt = false;
-		foreach ($context['available_mods'] as $i => $package)
-		{
-			echo '
-			<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
-				<td>', ++$i, '.</td>
-				<td>', $package['name'], '</td>
-				<td>
-					', $package['version'];
-
-			if ($package['is_installed'] && !$package['is_newer'])
-				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
-
-			echo '
-				</td>
-				<td align="right">';
-
-			if ($package['can_uninstall'])
-				echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['uninstall'], ' ]</a>';
-			elseif ($package['can_upgrade'])
-				echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['package_upgrade'], ' ]</a>';
-			elseif ($package['can_install'])
-				echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['install_mod'], ' ]</a>';
-
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $package['filename'], '">[ ', $txt['list_files'], ' ]</a>
-					<a href="', $scripturl, '?action=admin;area=packages;sa=remove;package=', $package['filename'], ';', $context['session_var'], '=', $context['session_id'], '"', $package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '', '>[ ', $txt['package_delete'], ' ]</a>
-				</td>
-			</tr>';
-			$alt = !$alt;
-		}
-
-		echo '
-		</tbody>
-		</table>';
 	}
 
-	if (!empty($context['available_avatars']))
+	$mods_available = false;
+	foreach ($context['modification_types'] as $type)
 	{
-		echo '
-		<br />
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['avatar_package'], '</h3>
-		</div>
-		<table class="table_grid" width="100%">
-		<thead>
-			<tr class="catbg">
-				<th class="first_th" width="32"></th>
-				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
-				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
-				<th lass="last_th" width="49%"></th>
-			</tr>
-		</thead>
-		<tbody>';
-
-		foreach ($context['available_avatars'] as $i => $package)
+		if (!empty($context['available_' . $type]))
 		{
 			echo '
-			<tr class="windowbg2">
-				<td>', ++$i, '.</td>
-				<td>', $package['name'], '</td>
-				<td>', $package['version'];
-
-			if ($package['is_installed'] && !$package['is_newer'])
-				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
-
-			echo '
-				</td>
-				<td align="right">';
-
-		if ($package['can_uninstall'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['uninstall'], ' ]</a>';
-		elseif ($package['can_upgrade'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['package_upgrade'], ' ]</a>';
-		elseif ($package['can_install'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['install_mod'], ' ]</a>';
-
-		echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $package['filename'], '">[ ', $txt['list_files'], ' ]</a>
-					<a href="', $scripturl, '?action=admin;area=packages;sa=remove;package=', $package['filename'], ';', $context['session_var'], '=', $context['session_id'], '"', $package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '', '>[ ', $txt['package_delete'], ' ]</a>
-				</td>
-			</tr>';
+		<br />';
+		
+			template_show_list('packages_lists_' . $type);
+			$mods_available = true;
 		}
-
-		echo '
-		</tbody>
-		</table>';
 	}
 
-	if (!empty($context['available_languages']))
-	{
+	if (!$mods_available)
 		echo '
-		<br />
-		<div class="title_bar">
-			<h3 class="titlebg">' . $txt['language_package'] . '</h3>
-		</div>
-		<table class="table_grid" width="100%">
-		<thead>
-			<tr class="catbg">
-				<th class="first_th" width="32"></th>
-				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
-				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
-				<th class="last_th" width="49%"></th>
-			</tr>
-		</thead>
-		<tbody>';
+		<div class="information">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
 
-		foreach ($context['available_languages'] as $i => $package)
-		{
-			echo '
-			<tr class="windowbg">
-				<td>' . ++$i . '.</td>
-				<td>' . $package['name'] . '</td>
-				<td>' . $package['version'];
-
-			if ($package['is_installed'] && !$package['is_newer'])
-				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
-
-			echo '
-				</td>
-				<td align="right">';
-
-		if ($package['can_uninstall'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['uninstall'], ' ]</a>';
-		elseif ($package['can_upgrade'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['package_upgrade'], ' ]</a>';
-		elseif ($package['can_install'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['install_mod'], ' ]</a>';
-
-		echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $package['filename'], '">[ ', $txt['list_files'], ' ]</a>
-					<a href="', $scripturl, '?action=admin;area=packages;sa=remove;package=', $package['filename'], ';', $context['session_var'], '=', $context['session_id'], '"', $package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '', '>[ ', $txt['package_delete'], ' ]</a>
-				</td>
-			</tr>';
-		}
-
-		echo '
-		</tbody>
-		</table>';
-	}
-
-	if (!empty($context['available_other']))
-	{
-		echo '
-		<br />
-		<div class="title_bar">
-			<h3 class="titlebg">' . $txt['unknown_package'] . '</h3>
-		</div>
-		<table class="table_grid" width="100%">
-		<thead>
-			<tr class="catbg">
-				<th class="first_th" width="32"></th>
-				<th class="lefttext" width="25%">', $txt['mod_name'], '</th>
-				<th class="lefttext" width="25%">', $txt['mod_version'], '</th>
-				<th class="lasst_th" width="49%"></th>
-			</tr>
-		</thead>
-		<tbody>';
-
-		foreach ($context['available_other'] as $i => $package)
-		{
-			echo '
-			<tr class="windowbg2">
-				<td>' . ++$i . '.</td>
-				<td>' . $package['name'] . '</td>
-				<td>' . $package['version'];
-
-			if ($package['is_installed'] && !$package['is_newer'])
-				echo '
-					<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" alt="" class="centericon" style="margin-left: 2ex;" />';
-
-			echo '
-				</td>
-				<td align="right">';
-
-		if ($package['can_uninstall'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=uninstall;package=', $package['filename'], ';pid=', $package['installed_id'], '">[ ', $txt['uninstall'], ' ]</a>';
-		elseif ($package['can_upgrade'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['package_upgrade'], ' ]</a>';
-		elseif ($package['can_install'])
-			echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=install;package=', $package['filename'], '">[ ', $txt['install_mod'], ' ]</a>';
-
-		echo '
-					<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $package['filename'], '">[ ', $txt['list_files'], ' ]</a>
-					<a href="', $scripturl, '?action=admin;area=packages;sa=remove;package=', $package['filename'], ';', $context['session_var'], '=', $context['session_id'], '"', $package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '', '>[ ', $txt['package_delete'], ' ]</a>
-				</td>
-			</tr>';
-		}
-
-		echo '
-		</tbody>
-		</table>';
-	}
-
-	if (empty($context['available_mods']) && empty($context['available_avatars']) && empty($context['available_languages']) && empty($context['available_other']))
-		echo '
-		<div class="information">', $txt['no_packages'], '</div>';
-
+	if ($context['sub_action'] == 'browse')
 	echo '
 		<div class="flow_auto">
-			<div class="padding smalltext floatleft">
-				', $txt['package_installed_key'], '
-				<img src="', $settings['images_url'], '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-				<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
-			</div>
-			<div class="padding smalltext floatright">
+			<div class="padding">
 				<a class="button_link" href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
 			</div>
-		</div>
+		</div>';
+		
+	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">
 			<div id="advanced_box" style="display: none;">
 				<div class="cat_bar">
@@ -859,7 +626,7 @@ function template_browse()
 							<dt>
 								<strong>', $txt['package_emulate'], ':</strong><br />
 								<span class="smalltext">
-									<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\'; return false">', $txt['package_emulate_revert'], '</a>
+									<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\';document.getElementsByName(\'version_emulate\')[0].value = \'', $forum_version, '\';return false">', $txt['package_emulate_revert'], '</a>
 								</span>
 							</dt>
 							<dd>
@@ -881,8 +648,8 @@ function template_browse()
 	<br class="clear" />
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
-			var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
+			var oAddVersionSuggest = new smc_AutoSuggest({
+			sSelf: \'oAddVersionSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sControlId: \'ve\',
@@ -1039,10 +806,10 @@ function template_servers()
 							<input type="file" name="package" size="38" class="input_file" />
 						</dd>
 					</dl>
-					<div class="righttext">
-						<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit" />
-						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit" />
+					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+					<br class="clear_right" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -1320,10 +1087,10 @@ function template_install_options()
 					</dl>
 					<label for="package_make_backups"><input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_backups'], '</label><br /><br />
 					<label for="package_make_full_backups"><input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_full_backups'], '</label><br /><br />
-					<div class="righttext">
-						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -1837,10 +1604,10 @@ function template_file_permissions()
 
 	echo '
 				<span id="test_ftp_placeholder_full"></span>
-				<div class="righttext padding">
-					<input type="hidden" name="action_changes" value="1" />
-					<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit" />
-				</div>
+				<hr class="hrcolor" />
+				<input type="hidden" name="action_changes" value="1" />
+				<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit" />
+				<br class="clear_right" />
 			</div>
 			<span class="botslice"><span></span></span>
 		</div>';

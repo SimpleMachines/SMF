@@ -154,9 +154,9 @@ function template_new_group()
 							</fieldset>
 						</dd>
 					</dl>
-					<div class="righttext">
-						<input type="submit" value="', $txt['membergroups_add_group'], '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" value="', $txt['membergroups_add_group'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>';
@@ -369,10 +369,10 @@ function template_edit_group()
 	}
 	echo '
 					</dl>
-					<div class="righttext">
-						<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button_submit" />', $context['group']['allow_delete'] ? '
-						<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" onclick="return confirm(\'' . $txt['membergroups_confirm_delete'] . '\');" class="button_submit" />' : '', '
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button_submit" />', $context['group']['allow_delete'] ? '
+					<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" onclick="return confirm(\'' . $txt['membergroups_confirm_delete'] . '\');" class="button_submit" />' : '', '
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -385,8 +385,8 @@ function template_edit_group()
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oModeratorSuggest = new smc_AutoSuggest({
 				sSelf: \'oModeratorSuggest\',
-				sSessionId: \'', $context['session_id'], '\',
-				sSessionVar: \'', $context['session_var'], '\',
+				sSessionId: smf_session_id,
+				sSessionVar: smf_session_var,
 				sSuggestId: \'group_moderators\',
 				sControlId: \'group_moderators\',
 				sSearchType: \'member\',
@@ -500,14 +500,14 @@ function template_group_members()
 			<table width="100%" class="table_grid">
 				<thead>
 					<tr class="catbg">
-						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
+						<th class="first_th"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=email', $context['sort_by'] == 'email' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['email'], $context['sort_by'] == 'email' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=active', $context['sort_by'] == 'active' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['membergroups_members_last_active'], $context['sort_by'] == 'active' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=registered', $context['sort_by'] == 'registered' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['date_registered'], $context['sort_by'] == 'registered' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
-						<th', empty($context['group']['assignable']) ? ' colspan="2"' : '', '><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>';
+						<th ', empty($context['group']['assignable']) ? ' class="last_th" colspan="2"' : '', '><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>';
 	if (!empty($context['group']['assignable']))
 		echo '
-						<td width="4%" align="center"><input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" /></td>';
+						<th class="last_th" width="4%" align="center"><input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" /></th>';
 	echo '
 					</tr>
 				</thead>
@@ -519,10 +519,12 @@ function template_group_members()
 						<td colspan="6" align="center">', $txt['membergroups_members_no_members'], '</td>
 					</tr>';
 
+	$alternate = false;
 	foreach ($context['members'] as $member)
 	{
+		$alternate = !$alternate;
 		echo '
-					<tr class="windowbg2">
+					<tr class="', $alternate === true ? 'windowbg' : 'windowbg2', '">
 						<td>', $member['name'], '</td>
 						<td', $member['show_email'] == 'no_through_forum' && $settings['use_image_buttons'] ? ' align="center"' : '', '>';
 
@@ -545,8 +547,8 @@ function template_group_members()
 
 		echo '
 						</td>
-						<td class="windowbg">', $member['last_online'], '</td>
-						<td class="windowbg">', $member['registered'], '</td>
+						<td>', $member['last_online'], '</td>
+						<td>', $member['registered'], '</td>
 						<td', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 		if (!empty($context['group']['assignable']))
 			echo '
@@ -557,17 +559,20 @@ function template_group_members()
 
 	echo '
 				</tbody>
-			</table>
-			<div class="pagesection flow_hidden">
-				<div class="floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>';
-
+			</table>';
+		
 	if (!empty($context['group']['assignable']))
 		echo '
-				<div class="floatright"><input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button_submit" /></div>';
+			<div class="floatright">
+				<input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button_submit " />
+			</div>';
+	
 	echo '
+			<div class="pagesection flow_hidden">
+				<div class="floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
 			</div>
 			<br />';
-
+	
 	if (!empty($context['group']['assignable']))
 	{
 		echo '
@@ -577,10 +582,17 @@ function template_group_members()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
-					<strong>', $txt['membergroups_members_add_desc'], ':</strong>
-					<input type="text" name="toAdd" id="toAdd" value="" class="input_text" />
-					<div id="toAddItemContainer"></div>
+					<dl class="settings">
+						<dt>
+							<strong>', $txt['membergroups_members_add_desc'], ':</strong>
+						</dt>
+						<dd>
+							<input type="text" name="toAdd" id="toAdd" value="" class="input_text" />
+							<div id="toAddItemContainer"></div>
+						</dd>
+					</dl>
 					<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>';
@@ -638,7 +650,7 @@ function template_group_request_reason()
 						</dt>
 						<dd>
 							<input type="hidden" name="groupr[]" value="', $request['id'], '" />
-							<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';"></textarea>
+							<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="' . (isBrowser('is_ie8') ? 'width: 635px; min-width: 96%; max-width: 96%' : 'min-width: 80%; max-width: 99%') . ';"></textarea>
 						</dd>';
 
 	echo '
@@ -646,6 +658,7 @@ function template_group_request_reason()
 					<input type="submit" name="go" value="', $txt['mc_groupr_submit'], '" class="button_submit" />
 					<input type="hidden" name="req_action" value="got_reason" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

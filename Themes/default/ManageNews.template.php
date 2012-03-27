@@ -56,7 +56,7 @@ function template_edit_news()
 				</tbody>
 			</table>
 			<div class="floatleft padding">
-				<div id="moreNewsItems_link" style="display: none;"><a href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a></div>
+				<div id="moreNewsItems_link" style="display: none;">[<a href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a>]</div>
 				<script type="text/javascript"><!-- // --><![CDATA[
 					document.getElementById("moreNewsItems_link").style.display = "";
 					function addNewsItem()
@@ -213,8 +213,8 @@ function template_email_members()
 		document.getElementById("advanced_select_div").style.display = "";
 		var oMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oMemberSuggest\',
-			sSessionId: \'', $context['session_id'], '\',
-			sSessionVar: \'', $context['session_var'], '\',
+			sSessionId: smf_session_id,
+			sSessionVar: smf_session_var,
 			sSuggestId: \'members\',
 			sControlId: \'members\',
 			sSearchType: \'member\',

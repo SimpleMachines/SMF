@@ -39,13 +39,13 @@ function template_ask()
 							<input type="radio" id="selective" name="step2" value="selective" class="input_radio" /> <label for="selective">', $txt['select_split_posts'], '</label>
 						</li>
 					</ul>
-					<div class="righttext">
-						<input type="submit" value="', $txt['split'], '" class="button_submit" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" value="', $txt['split'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
 	</div>';
 }
@@ -459,9 +459,10 @@ function template_merge_extra_options()
 					</fieldset>';
 	}
 	echo '
-					<input type="submit" value="' . $txt['merge'] . '" class="button_submit floatright" />
+					<input type="submit" value="' . $txt['merge'] . '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="sa" value="execute" /><br class="clear" />
+					<input type="hidden" name="sa" value="execute" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

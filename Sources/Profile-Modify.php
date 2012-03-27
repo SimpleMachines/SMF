@@ -174,7 +174,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'email_address' => array(
 			'type' => 'text',
-			'label' => $txt['email'],
+			'label' => $txt['user_email_address'],
 			'subtext' => $txt['valid_email'],
 			'log_change' => true,
 			'permission' => 'profile_identity',
@@ -337,7 +337,7 @@ function loadProfileFields($force_reload = false)
 		'member_name' => array(
 			'type' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
 			'label' => $txt['username'],
-			'subtext' => allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '(<a href="' . $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=account;changeusername" style="font-style: italic;">' . $txt['username_change'] . '</a>)' : '',
+			'subtext' => allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=account;changeusername" style="font-style: italic;">' . $txt['username_change'] . '</a>]' : '',
 			'log_change' => true,
 			'permission' => 'profile_identity',
 			'prehtml' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . $txt['username_warning'] . '</div>' : '',
@@ -385,7 +385,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd1' => array(
 			'type' => 'password',
-			'label' => $txt['choose_pass'],
+			'label' => ucwords($txt['choose_pass']),
 			'subtext' => $txt['password_strength'],
 			'size' => 20,
 			'value' => '',
@@ -419,7 +419,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'passwrd2' => array(
 			'type' => 'password',
-			'label' => $txt['verify_pass'],
+			'label' => ucwords($txt['verify_pass']),
 			'enabled' => empty($cur_profile['openid_uri']),
 			'size' => 20,
 			'value' => '',
@@ -509,7 +509,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_answer'],
 			'subtext' => $txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext" style="margin-left: 4ex;"><a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqWin(this.href);">' . $txt['secret_why_blank'] . '</a></span>',
+			'postinput' => '<span class="smalltext" style="margin-left: 4ex;">[<a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqWin(this.href);">' . $txt['secret_why_blank'] . '</a>]</span>',
 			'value' => '',
 			'permission' => 'profile_identity',
 			'input_validate' => create_function('&$value', '

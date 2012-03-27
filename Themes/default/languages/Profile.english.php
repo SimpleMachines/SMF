@@ -22,7 +22,7 @@ $txt['age'] = 'Age';
 $txt['no_pic'] = '(no pic)';
 $txt['latest_posts'] = 'Latest posts of: ';
 $txt['additional_info'] = 'Additional Information';
-$txt['avatar_by_url'] = 'Specify your own avatar by URL. (e.g.: <em>http://www.mypage.com/mypic.gif</em>)';
+$txt['avatar_by_url'] = 'Specify your own avatar by URL. (e.g.: <em>http://www.mypage.com/mypic.png</em>)';
 $txt['my_own_pic'] = 'Specify avatar by URL';
 $txt['date_format'] = 'The format here will be used to show dates throughout this forum.';
 $txt['time_format'] = 'Time Format';
@@ -53,7 +53,7 @@ $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
 $txt['required_security_reasons'] = 'For security reasons, your current password is required to make changes to your account.';
 
-$txt['timeoffset_autodetect'] = '(auto detect)';
+$txt['timeoffset_autodetect'] = 'auto detect';
 
 $txt['secret_question'] = 'Secret Question';
 $txt['secret_desc'] = 'To help retrieve your password, enter a question here with an answer that <strong>only</strong> you know.';
@@ -78,7 +78,7 @@ $txt['reminder_openid_is'] = 'The OpenID identity associated with your account i
 $txt['reminder_continue'] = 'Continue';
 
 $txt['current_theme'] = 'Current Theme';
-$txt['change'] = '(change)';
+$txt['change'] = 'change';
 $txt['theme_preferences'] = 'Theme preferences';
 $txt['theme_forum_default'] = 'Forum or Board Default';
 $txt['theme_forum_default_desc'] = 'This is the default theme, which means your theme will change along with the administrator\'s settings and the board you are viewing.';
@@ -454,7 +454,7 @@ $txt['pm_display_mode_linked'] = 'As a conversation';
 $txt['pm_recommend_enable_outbox'] = 'To make the most of this setting we suggest you enable &quot;Save a copy of each Personal Message in my sent items by default&quot;\\n\\nThis will help ensure that the conversations flow better as you can see both sides of the conversation.';
 
 $txt['tracking'] = 'Tracking';
-$txt['tracking_description'] = 'This section allows you to review certain profile actions performed on this member\'s profile as well as track their IP address.';
+$txt['tracking_description'] = 'This section allows you to review certain profile actions performed on this member\'s profile as well as track their IP address and login history.';
 
 $txt['trackEdits'] = 'Profile Edits';
 $txt['trackEdit_deleted_member'] = 'Deleted Member';

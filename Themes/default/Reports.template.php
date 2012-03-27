@@ -46,10 +46,10 @@ function template_report_type()
 	}
 		echo '
 					</dl>
-					<div class="righttext">
-						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					</div>
+					<hr class="hrcolor" />
+					<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

@@ -13,7 +13,7 @@ $txt['admin_members_list'] = 'Below is a listing of all the members currently re
 $txt['admin_next'] = 'Next';
 $txt['admin_censored_words'] = 'Censored Words';
 $txt['admin_censored_where'] = 'Put the word to be censored on the left, and what to change it to on the right.';
-$txt['admin_censored_desc'] = 'Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member.<br />Blank a box to remove that word.';
+$txt['admin_censored_desc'] = 'Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member.<br />Clear a box to remove that word from the censor.';
 $txt['admin_reserved_names'] = 'Reserved Names';
 $txt['admin_template_edit'] = 'Edit Your Forum Template';
 $txt['admin_modifications'] = 'Modification Settings';
@@ -48,7 +48,7 @@ $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair All Boards and Topics';
-$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;.  From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<div style="margin-top: 1ex;">If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page.  If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.</div>You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.gif" alt="%2$s" title="%3$s" /> symbols for more information on the related functions.';
+$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;.  From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<div style="margin-top: 1ex;">If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page.  If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.</div>You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.png" alt="%2$s" title="%3$s" /> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
@@ -100,7 +100,7 @@ $txt['attachment_file_size'] = 'File Size';
 $txt['attachmentdir_size_not_set'] = 'No maximum directory size is currently set';
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
 $txt['live'] = 'Live from Simple Machines...';
-$txt['remove_all'] = 'Remove All';
+$txt['remove_all'] = 'Clear Log';
 $txt['approve_new_members'] = 'Admin must approve all new members';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
 
@@ -206,7 +206,7 @@ $txt['ban_log_ip'] = 'IP';
 $txt['ban_log_email'] = 'Email address';
 $txt['ban_log_member'] = 'Member';
 $txt['ban_log_date'] = 'Date';
-$txt['ban_log_remove_all'] = 'Remove all';
+$txt['ban_log_remove_all'] = 'Clear Log';
 $txt['ban_log_remove_all_confirm'] = 'Are you sure you want to delete all ban log entries?';
 $txt['ban_log_remove_selected'] = 'Remove selected';
 $txt['ban_log_remove_selected_confirm'] = 'Are you sure you want to delete all selected ban log entries?';
@@ -282,6 +282,7 @@ $txt['additional'] = 'Additional';
 $txt['messenger_address'] = 'Messenger Address';
 $txt['wild_cards_allowed'] = 'wildcard characters * and ? are allowed';
 $txt['search_for'] = 'Search for';
+$txt['search_match'] = 'Match';
 $txt['member_part_of_these_membergroups'] = 'Member is part of these membergroups';
 $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
@@ -361,6 +362,9 @@ $txt['attachment_image_paranoid_warning'] = 'The extensive security checks can r
 $txt['attachment_image_paranoid'] = 'Perform extensive security checks on uploaded image attachments';
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
 $txt['attachment_thumb_png'] = 'Save thumbnails as PNG';
+$txt['attachment_thumb_memory'] = 'Adaptive thumbnail memory';
+$txt['attachment_thumb_memory_note2'] = 'If the system can not get the memory no thumbnail will be created.';
+$txt['attachment_thumb_memory_note1'] = 'Leave this unchecked to always attempt to create a thumbnail';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 
@@ -444,7 +448,7 @@ $txt['xmlnews_maxlen'] = 'Maximum message length:<div class="smalltext">(0 to di
 $txt['editnews_clickadd'] = 'Click here to add another item.';
 $txt['editnews_remove_selected'] = 'Remove selected';
 $txt['editnews_remove_confirm'] = 'Are you sure you want to delete the selected news items?';
-$txt['censor_clickadd'] = 'Click here to add another word.';
+$txt['censor_clickadd'] = 'Add another word';
 
 $txt['layout_controls'] = 'Forum';
 $txt['logs'] = 'Logs';

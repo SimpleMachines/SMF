@@ -45,10 +45,9 @@ function template_error_log()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	echo '
-		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '" onsubmit="if (lastClicked == \'remove_all\' &amp;&amp; !confirm(\'', $txt['sure_about_errorlog_remove'], '\')) return false; else return true;">
-			<script type="text/javascript"><!-- // --><![CDATA[
-				var lastClicked = "";
-			// ]]></script>
+		<form action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">';
+	
+	echo '
 			<div class="title_bar clear_right">
 				<h3 class="titlebg">
 					<span class="ie6_header floatleft">
@@ -68,37 +67,36 @@ function template_error_log()
 	echo '
 						', implode('&nbsp;|&nbsp;', $error_types), '
 					</td>
-				</tr>
-				<tr>
-					<td colspan="3" class="windowbg">
-						&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
-					</td>
 				</tr>';
 
 	if ($context['has_filter'])
 		echo '
 				<tr>
 					<td colspan="3" class="windowbg">
-						<strong>', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], ' (<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>)
+						<strong>&nbsp;&nbsp;', $txt['applying_filter'], ':</strong> ', $context['filter']['entity'], ' ', $context['filter']['value']['html'], '&nbsp;&nbsp;[<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', '">', $txt['clear_filter'], '</a>]
 					</td>
 				</tr>';
 
-	if (!empty($context['errors']))
-		echo '
+	echo '
 				<tr class="titlebg">
-					<td colspan="3" class="lefttext">
-						<div class="floatright"><input type="submit" value="', $txt['remove_selection'], '" onclick="lastClicked = \'remove_selection\';" class="button_submit" /> <input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="lastClicked = \'remove_all\';" class="button_submit" /></div>
-						<label for="check_all1"><input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;" class="input_check" /><strong>', $txt['check_all'], '</strong></label>
+					<td colspan="3" class="righttext" style="padding-right: 1.2ex">
+						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>&nbsp;
+						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;" class="input_check" />
 					</td>
 				</tr>';
 
+	// No errors, then show a message
+	if (count($context['errors']) == 0)
+		echo '
+				<tr class="windowbg">
+					<td class="centertext" colspan="2">', $txt['errlog_no_entries'], '</td>
+				</tr>';		
+			
+	// we have some errors, must be some mods installed :P
 	foreach ($context['errors'] as $error)
 	{
 		echo '
 				<tr class="windowbg', $error['alternate'] ? '2' : '', '">
-					<td rowspan="2" class="checkbox_column">
-						<input type="checkbox" name="delete[]" value="', $error['id'], '" class="input_check" />
-					</td>
 					<td class="half_width">
 						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '" /></a>
 						<strong>', $error['member']['link'], '</strong><br />
@@ -120,6 +118,11 @@ function template_error_log()
 		echo '
 						<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '" /></a>
 						', $txt['error_type'], ': ', $error['error_type']['name'], '
+					</td>';
+
+		echo '
+					<td rowspan="2" class="checkbox_column">
+						<input type="checkbox" name="delete[]" value="', $error['id'], '" class="input_check" />
 					</td>
 				</tr>
 				<tr class="windowbg', $error['alternate'] ? '2' : '', '">
@@ -142,30 +145,32 @@ function template_error_log()
 				</tr>';
 	}
 
-	if (!empty($context['errors']))
-		echo '
-				<tr class="titlebg">
-					<td colspan="3" class="lefttext">
-						<div class="floatright"><input type="submit" value="', $txt['remove_selection'], '" onclick="lastClicked = \'remove_selection\';" class="button_submit" /> <input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="lastClicked = \'remove_all\';" class="button_submit" /></div>
-						&nbsp;<label for="check_all2"><input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;" class="input_check" /><strong>', $txt['check_all'], '</strong></label>
-					</td>
-				</tr>';
-	else
-		echo '
-				<tr>
-					<td colspan="3" class="windowbg2">', $txt['errlog_no_entries'], '</td>
-				</tr>';
-
 	echo '
-				<tr>
-					<td colspan="3" class="windowbg">
-						&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
+				<tr class="titlebg">
+					<td colspan="3" class="righttext" style="padding-right: 1.2ex">
+						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>&nbsp;
+						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;" class="input_check" />
 					</td>
 				</tr>
-			</table><br />';
+			</table>
+			<div class="pagesection floatleft">
+				&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
+			</div>';  
+
+	echo '
+			<div class="floatright" style="margin-top: 1ex">
+				<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit" />
+				<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit" />
+			</div>
+			<br />';
+
 	if ($context['sort_direction'] == 'down')
 		echo '
 			<input type="hidden" name="desc" value="1" />';
+		
+	echo '
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-el_token_var'], '" value="', $context['admin-el_token'], '" />

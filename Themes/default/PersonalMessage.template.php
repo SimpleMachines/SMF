@@ -717,7 +717,7 @@ function template_search()
 			echo '
 				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />';
 			echo '
-				<br class="clear" />
+				<br class="clear_right" />
 			</div>
 			<span class="lowerframe"><span></span></span>
 		</fieldset>';
@@ -747,8 +747,8 @@ function template_search()
 				</ul>
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
-					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />
-				</p><br class="clear" />
+					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
+				</p><br class="clear_right" />
 			</div>
 			<span class="lowerframe"><span></span></span>
 		</fieldset>';
@@ -1068,8 +1068,8 @@ function template_send()
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oPersonalMessageSend = new smf_PersonalMessageSend({
 				sSelf: \'oPersonalMessageSend\',
-				sSessionId: \'', $context['session_id'], '\',
-				sSessionVar: \'', $context['session_var'], '\',
+				sSessionId: smf_session_id,
+				sSessionVar: smf_session_var,
 				sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 				sToControlId: \'to_control\',
 				aToRecipients: [';
