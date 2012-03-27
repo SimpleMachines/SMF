@@ -72,6 +72,15 @@ CREATE OR REPLACE FUNCTION FIND_IN_SET(needle integer, haystack text) RETURNS in
 	LIMIT 1'
 LANGUAGE 'sql';
 
+CREATE OR REPLACE FUNCTION FIND_IN_SET(needle smallint, haystack text) RETURNS integer AS '
+	SELECT i AS result
+	FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)
+	WHERE  (string_to_array($2,'',''))[i] = CAST($1 AS text)
+		UNION ALL
+	SELECT 0
+	LIMIT 1'
+LANGUAGE 'sql';
+
 CREATE OR REPLACE FUNCTION LEFT (text, int4) RETURNS text AS
   'SELECT SUBSTRING($1 FROM 0 FOR $2) AS result'
 LANGUAGE 'sql';
