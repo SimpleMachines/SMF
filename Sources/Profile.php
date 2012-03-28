@@ -411,7 +411,7 @@ function ModifyProfile($post_errors = array())
 					fatal_lang_error('no_access', false);
 
 				// Are we saving data in a valid area?
-				if (isset($area['sc']) && isset($_REQUEST['save']) || $context['do_preview'])
+				if (isset($area['sc']) && isset($_REQUEST['save']))
 				{
 					$security_checks['session'] = $area['sc'];
 					$context['completed_save'] = true;

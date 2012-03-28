@@ -147,6 +147,7 @@ function sig_preview()
 	global $context, $sourcedir, $smcFunc, $txt, $user_info;
 
 	require_once($sourcedir . '/Profile-Modify.php');
+	loadLanguage('Profile');
 	loadLanguage('Errors');
 
 	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;

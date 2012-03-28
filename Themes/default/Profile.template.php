@@ -1329,10 +1329,6 @@ function template_edit_options()
 	echo '
 					<div class="righttext">';
 
-	if (!empty($context['show_preview_button']))
-		echo '
-						<input type="submit" name="preview" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
-
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
 		echo '
@@ -2466,7 +2462,7 @@ function template_error_message()
 	if (!empty($context['post_errors']))
 	{
 		echo '
-		<div class="windowbg" id="profile_error">
+		<div class="errorbox" id="profile_error">
 			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
 			<ul class="reset">';
 
@@ -2481,7 +2477,7 @@ function template_error_message()
 	}
 	else
 		echo '
-		<div class="windowbg" style="display:none" id="profile_error"></div>';
+		<div class="errorbox" style="display:none" id="profile_error"></div>';
 }
 
 // Display a load of drop down selectors for allowing the user to change group.
@@ -2586,6 +2582,10 @@ function template_profile_signature_modify()
 		echo '
 								<span class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></span><br />';
 
+	if (!empty($context['show_preview_button']))
+		echo '
+						<input type="submit" name="preview" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
+
 	if ($context['signature_warning'])
 		echo '
 								<span class="smalltext">', $context['signature_warning'], '</span>';
@@ -2613,6 +2613,7 @@ function template_profile_signature_modify()
 									{
 										var maxLength = ', $context['signature_limits']['max_length'], ';
 										var oldSignature = "", currentSignature = document.forms.creator.signature.value;
+										var currentChars = 0;
 
 										if (!document.getElementById("signatureLeft"))
 											return;
@@ -2621,53 +2622,76 @@ function template_profile_signature_modify()
 										{
 											oldSignature = currentSignature;
 
-											if (currentSignature.replace(/\r/, "").length > maxLength)
-												document.forms.creator.signature.value = currentSignature.replace(/\r/, "").substring(0, maxLength);
-											currentSignature = document.forms.creator.signature.value.replace(/\r/, "");
+											var currentChars = currentSignature.replace(/\r/, "").length;
+											if (is_opera)
+												currentChars = currentSignature.replace(/\r/g,\'\').length;
+
+											//ajax_getSignaturePreview(false);
+											if (currentChars > maxLength)
+											{
+												document.getElementById("signatureLeft").className = "error";
+												if (!$("#profile_error").is(":visible"))
+													ajax_getSignaturePreview(false);
+											}
+											else
+											{
+												if ($("#profile_error").is(":visible"))
+													ajax_getSignaturePreview(false);
+												document.getElementById("signatureLeft").className = "";
+											}
 										}
 
-										setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentSignature.length);
+										setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentChars);
 									}
 
 									addLoadEvent(tick);
 									$(document).ready(function() {
 										$("#preview_button").click(function() {
-											$.ajax({
-												type: "POST",
-												url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
-												data: {item: "sig_preview", signature: $("#signature").val(), user: $(\'input[name="u"]\').attr("value")},
-												context: document.body,
-												success: function(request){
+											return ajax_getSignaturePreview(true);
+										});
+									});
+
+									function ajax_getSignaturePreview (showPreview)
+									{
+										showPreview = (typeof showPreview == \'undefined\') ? false : showPreview;
+										$.ajax({
+											type: "POST",
+											url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+											data: {item: "sig_preview", signature: $("#signature").val(), user: $(\'input[name="u"]\').attr("value")},
+											context: document.body,
+											success: function(request){
+												if (showPreview)
+												{
 													var signatures = new Array("current", "preview");
 													for (var i = 0; i < signatures.length; i++)
 													{
 														$("#" + signatures[i] + "_signature").css({display:""});
 														$("#" + signatures[i] + "_signature_display").css({display:""}).html($(request).find(\'[type="\' + signatures[i] + \'"]\').text() + \'<hr />\');
 													}
+												}
 
-													if ($(request).find("error").text() != \'\')
-													{
-														$("#profile_error").css({display:""});
-														var errors = $(request).find(\'[type="error"]\');
-														var errors_html = \'<span>\' + $(request).find(\'[type="errors_occurred"]\').text() + \'</span><ul>\';
+												if ($(request).find("error").text() != \'\')
+												{
+													$("#profile_error").css({display:""});
+													var errors = $(request).find(\'[type="error"]\');
+													var errors_html = \'<span>\' + $(request).find(\'[type="errors_occurred"]\').text() + \'</span><ul class="reset">\';
 
-														for (var i = 0; i < errors.length; i++)
-															errors_html += \'<li>\' + $(errors).text() + \'</li>\';
+													for (var i = 0; i < errors.length; i++)
+														errors_html += \'<li>\' + $(errors).text() + \'</li>\';
 
-														errors_html += \'</ul>\';
-														$(document).find("#profile_error").html(errors_html);
-													}
-													else
-													{
-														$("#profile_error").css({display:"none"});
-														$("#profile_error").html(\'\');
-													}
-												return false;
-												},
-											});
+													errors_html += \'</ul>\';
+													$(document).find("#profile_error").html(errors_html);
+												}
+												else
+												{
+													$("#profile_error").css({display:"none"});
+													$("#profile_error").html(\'\');
+												}
 											return false;
+											},
 										});
-									});
+										return false;
+									}
 								// ]]></script>
 							</dd>';
 }
