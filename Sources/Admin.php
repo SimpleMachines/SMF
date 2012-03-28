@@ -860,27 +860,27 @@ function AdminSearchOM()
 {
 	global $context, $sourcedir;
 
-	$docsURL = 'docs.simplemachines.org';
-	$context['doc_scripturl'] = 'http://docs.simplemachines.org/index.php';
+	$context['doc_apiurl'] = 'http://wiki.simplemachines.org/api.php';
+	$context['doc_scripturl'] = 'http://wiki.simplemachines.org/smf/';
 
 	// Set all the parameters search might expect.
-	$postVars = array(
-		'search' => $context['search_term'],
-	);
+	$postVars = explode(' ', $context['search_term']);
 
 	// Encode the search data.
 	foreach ($postVars as $k => $v)
-		$postVars[$k] = urlencode($k) . '=' . urlencode($v);
+		$postVars[$k] = urlencode($v);
 
 	// This is what we will send.
-	$postVars = implode('&', $postVars);
+	$postVars = implode('+', $postVars);
 
 	// Get the results from the doc site.
 	require_once($sourcedir . '/Subs-Package.php');
-	$search_results = fetch_web_data($context['doc_scripturl'] . '?action=search2&xml', $postVars);
+	// Demo URL:
+	// http://wiki.simplemachines.org/api.php?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=template+eval
+	$search_results = fetch_web_data($context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
 
 	// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
-	if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\sencoding=".+?"\?' . '>\s*(<smf>.+?</smf>)~is', $search_results, $matches) != true)
+	if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?>\s*(<api>.+?</api>)~is', $search_results, $matches) != true)
 		fatal_lang_error('cannot_connect_doc_site');
 
 	$search_results = $matches[1];
@@ -892,52 +892,21 @@ function AdminSearchOM()
 	// Get the results loaded into an array for processing!
 	$results = new xmlArray($search_results, false);
 
-	// Move through the smf layer.
-	if (!$results->exists('smf'))
+	// Move through the api layer.
+	if (!$results->exists('api'))
 		fatal_lang_error('cannot_connect_doc_site');
-	$results = $results->path('smf[0]');
 
 	// Are there actually some results?
-	if (!$results->exists('noresults') && !$results->exists('results'))
-		fatal_lang_error('cannot_connect_doc_site');
-	elseif ($results->exists('results'))
+	if ($results->exists('api/query/search/p'))
 	{
-		foreach ($results->set('results/result') as $result)
+		$relevance = 0;
+		foreach ($results->set('api/query/search/p') as $result)
 		{
-			if (!$result->exists('messages'))
-				continue;
-
-			$context['search_results'][$result->fetch('id')] = array(
-				'topic_id' => $result->fetch('id'),
-				'relevance' => $result->fetch('relevance'),
-				'board' => array(
-					'id' => $result->fetch('board/id'),
-					'name' => $result->fetch('board/name'),
-					'href' => $result->fetch('board/href'),
-				),
-				'category' => array(
-					'id' => $result->fetch('category/id'),
-					'name' => $result->fetch('category/name'),
-					'href' => $result->fetch('category/href'),
-				),
-				'messages' => array(),
+			$context['search_results'][$result->fetch('@title')] = array(
+				'title' => $result->fetch('@title'),
+				'relevance' => $relevance++,
+				'snippet' => str_replace('class=\'searchmatch\'', 'class="highlight"', un_htmlspecialchars($result->fetch('@snippet'))),
 			);
-
-			// Add the messages.
-			foreach ($result->set('messages/message') as $message)
-				$context['search_results'][$result->fetch('id')]['messages'][] = array(
-					'id' => $message->fetch('id'),
-					'subject' => $message->fetch('subject'),
-					'body' => $message->fetch('body'),
-					'time' => $message->fetch('time'),
-					'timestamp' => $message->fetch('timestamp'),
-					'start' => $message->fetch('start'),
-					'author' => array(
-						'id' => $message->fetch('author/id'),
-						'name' => $message->fetch('author/name'),
-						'href' => $message->fetch('author/href'),
-					),
-				);
 		}
 	}
 }

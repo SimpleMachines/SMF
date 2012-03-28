@@ -1286,12 +1286,10 @@ function template_admin_search_results()
 				echo '
 				<li>
 					<p>
-						<a href="', $context['doc_scripturl'], '?topic=', $result['topic_id'], '.0" target="_blank" class="new_win"><strong>', $result['messages'][0]['subject'], '</strong></a>
-						<br /><span class="smalltext"><a href="', $result['category']['href'], '" target="_blank" class="new_win">', $result['category']['name'], '</a> &nbsp;/&nbsp;
-						<a href="', $result['board']['href'], '" target="_blank" class="new_win">', $result['board']['name'], '</a> /</span>
+						<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" class="new_win"><strong>', $result['title'], '</strong></a>
 					</p>
 					<p class="double_height">
-						', $result['messages'][0]['body'], '
+						', $result['snippet'], '
 					</p>
 				</li>';
 			}
