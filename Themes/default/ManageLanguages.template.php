@@ -275,34 +275,34 @@ function template_modify_language_entries()
 						<legend>', $context['primary_settings']['name'], '</legend>
 					<dl class="settings">
 						<dt>
-							', $txt['languages_character_set'], ':
+							<label for="character_set">', $txt['languages_character_set'], ':</label>
 						</dt>
 						<dd>
-							<input type="text" name="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							<input type="text" name="character_set" id="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
 						</dd>
 						<dt>
-							', $txt['languages_locale'], ':
+							<label for="locale>', $txt['languages_locale'], ':</label>
 						</dt>
 						<dd>
-							<input type="text" name="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							<input type="text" name="locale" id="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
 						</dd>
 						<dt>
-							', $txt['languages_dictionary'], ':
+							<label for="dictionary">', $txt['languages_dictionary'], ':</label>
 						</dt>
 						<dd>
-							<input type="text" name="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							<input type="text" name="dictionary" id="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
 						</dd>
 						<dt>
-							', $txt['languages_spelling'], ':
+							<label for="spelling">', $txt['languages_spelling'], ':</label>
 						</dt>
 						<dd>
-							<input type="text" name="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							<input type="text" name="spelling" id="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
 						</dd>
 						<dt>
-							', $txt['languages_rtl'], ':
+							<label for="rtl">', $txt['languages_rtl'], ':</label>
 						</dt>
 						<dd>
-							<input type="checkbox" name="rtl"', $context['primary_settings']['rtl'] ? ' checked="checked"' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' />
+							<input type="checkbox" name="rtl" id="rtl" ', $context['primary_settings']['rtl'] ? ' checked="checked"' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' />
 						</dd>
 					</dl>
 					</fieldset>

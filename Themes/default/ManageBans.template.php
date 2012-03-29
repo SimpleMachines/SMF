@@ -34,24 +34,24 @@ function template_ban_edit()
 				<form action="', $scripturl, '?action=admin;area=ban;sa=edit" method="post" accept-charset="', $context['character_set'], '" onsubmit="if (this.ban_name.value == \'\') {alert(\'', $txt['ban_name_empty'], '\'); return false;} if (this.partial_ban.checked &amp;&amp; !(this.cannot_post.checked || this.cannot_register.checked || this.cannot_login.checked)) {alert(\'', $txt['ban_restriction_empty'], '\'); return false;}">
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['ban_name'], ':</strong>
+							<strong><label for="ban_name">', $txt['ban_name'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="text" name="ban_name" value="', $context['ban']['name'], '" size="47" maxlength="60" class="input_text" />
+							<input type="text" name="ban_name" id="ban_name" value="', $context['ban']['name'], '" size="47" maxlength="60" class="input_text" />
 						</dd>
 						<dt>
-							<strong>', $txt['ban_reason'], ':</strong><br />
+							<strong><label for="reason">', $txt['ban_reason'], ':<label></strong><br />
 							<span class="smalltext">', $txt['ban_reason_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
+							<textarea name="reason" id="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
 						</dd>
 						<dt>
-							<strong>', $txt['ban_notes'], ':</strong><br />
+							<strong><label for="ban_notes">', $txt['ban_notes'], ':</label></strong><br />
 							<span class="smalltext">', $txt['ban_notes_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
+							<textarea name="notes" id="ban_notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
 						</dd>
 					</dl>
 					<fieldset class="ban_settings floatleft">

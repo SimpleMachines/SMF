@@ -367,6 +367,8 @@ $txt['attachment_thumb_memory_note2'] = 'If the system can not get the memory no
 $txt['attachment_thumb_memory_note1'] = 'Leave this unchecked to always attempt to create a thumbnail';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
+$txt['attachment_thumbnail_settings'] = 'Thumbnail Settings';
+$txt['attachment_security_settings'] = 'Attachment Security Settings';
 
 $txt['attach_dir_does_not_exist'] = 'Does Not Exist';
 $txt['attach_dir_not_writable'] = 'Not Writable';

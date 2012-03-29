@@ -52,11 +52,11 @@ function template_edit_scheduled_tasks()
 							<span class="smalltext">', $context['task']['desc'], '</span>
 						</dd>
 						<dt>
-							<strong>', $txt['scheduled_task_edit_interval'], ':</strong>
+							<strong><label for="regularity">', $txt['scheduled_task_edit_interval'], ':</label></strong>
 						</dt>
 						<dd>
 							', $txt['scheduled_task_edit_repeat'], '
-							<input type="text" name="regularity" value="', empty($context['task']['regularity']) ? 1 : $context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" maxlength="2" class="input_text" />
+							<input type="text" name="regularity" id="regularity" value="', empty($context['task']['regularity']) ? 1 : $context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" maxlength="2" class="input_text" />
 							<select name="unit">
 								<option value="0">', $txt['scheduled_task_edit_pick_unit'], '</option>
 								<option value="0">---------------------</option>
@@ -67,14 +67,14 @@ function template_edit_scheduled_tasks()
 							</select>
 						</dd>
 						<dt>
-							<strong>', $txt['scheduled_task_edit_start_time'], ':</strong><br />
+							<strong><label for="start_time">', $txt['scheduled_task_edit_start_time'], ':</label></strong><br />
 							<span class="smalltext">', $txt['scheduled_task_edit_start_time_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="offset" value="', $context['task']['offset_formatted'], '" size="6" maxlength="5" class="input_text" />
+							<input type="text" name="offset" id="start_time" value="', $context['task']['offset_formatted'], '" size="6" maxlength="5" class="input_text" />
 						</dd>
 						<dt>
-							<strong>', $txt['scheduled_tasks_enabled'], ':</strong>
+							<strong><label for="enabled">', $txt['scheduled_tasks_enabled'], ':</label></strong>
 						</dt>
 						<dd>
 							<input type="checkbox" name="enabled" id="enabled" ', !$context['task']['disabled'] ? 'checked="checked"' : '', ' class="input_check" />

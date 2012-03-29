@@ -612,16 +612,24 @@ function template_subject_list()
 					<option value="" disabled="disabled">---------------</option>';
 
 			echo '
-									<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
+					<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
+					
 			foreach ($context['labels'] as $label)
+			{
 				if ($label['id'] != $context['current_label_id'])
 					echo '
 					<option value="add_', $label['id'], '">&nbsp;', $label['name'], '</option>';
+			}
+			
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_remove'], ':</option>';
+					
 			foreach ($context['labels'] as $label)
+			{
 				echo '
 					<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
+			}
+			
 			echo '
 				</select>
 				<noscript>

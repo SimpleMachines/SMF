@@ -1246,7 +1246,7 @@ function template_edit_options()
 		{
 			echo '
 						<dt>
-							<strong', !empty($field['is_error']) ? ' class="error"' : '', '>', $field['label'], '</strong>';
+							<strong', !empty($field['is_error']) ? ' class="error"' : '', '>', $field['type'] !== 'label' ? '<label for="' . $key . '">' : '', $field['label'], $field['type'] !== 'label' ? '</label>' : '', '</strong>';
 
 			// Does it have any subtext to show?
 			if (!empty($field['subtext']))
@@ -1351,16 +1351,16 @@ function template_edit_options()
 		echo '
 					<dl>
 						<dt>
-							<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '>', $txt['current_password'], ': </strong><br />
+							<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', $txt['current_password'], ': </label></strong><br />
 							<span class="smalltext">', $txt['required_security_reasons'], '</span>
 						</dt>
 						<dd>
-							<input type="password" name="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" />
+							<input type="password" name="oldpasswrd" id="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" />
 						</dd>
 					</dl>';
 
 	echo '
-					<hr class="hrcolor">';
+					<hr class="hrcolor" />';
 
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
@@ -2305,19 +2305,19 @@ function template_issueWarning()
 				<hr />
 				<dl class="settings">
 					<dt>
-						<strong>', $txt['profile_warning_notify'], ':</strong>
+						<strong><label for="warn_notify">', $txt['profile_warning_notify'], ':</label></strong>
 					</dt>
 					<dd>
 						<input type="checkbox" name="warn_notify" id="warn_notify" onclick="modifyWarnNotify();" ', $context['warning_data']['notify'] ? 'checked="checked"' : '', ' class="input_check" />
 					</dd>
 					<dt>
-						<strong>', $txt['profile_warning_notify_subject'], ':</strong>
+						<strong><label for="warn_sub">', $txt['profile_warning_notify_subject'], ':</label></strong>
 					</dt>
 					<dd>
 						<input type="text" name="warn_sub" id="warn_sub" value="', empty($context['warning_data']['notify_subject']) ? $txt['profile_warning_notify_template_subject'] : $context['warning_data']['notify_subject'], '" size="50" style="width: 80%;" class="input_text" />
 					</dd>
 					<dt>
-						<strong>', $txt['profile_warning_notify_body'], ':</strong>
+						<strong><label for="warn_temp">', $txt['profile_warning_notify_body'], ':</label></strong>
 					</dt>
 					<dd>
 						<select name="warn_temp" id="warn_temp" disabled="disabled" onchange="populateNotifyTemplate();" style="font-size: x-small;">
@@ -2707,7 +2707,7 @@ function template_profile_avatar_select()
 	// Start with the upper menu
 	echo '
 							<dt>
-								<strong id="personal_picture">', $txt['personal_picture'], '</strong>
+								<strong id="personal_picture"><label for="avatar_upload_box">', $txt['personal_picture'], '</label></strong>
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['no_avatar'] . '</label><br />
 								', !empty($context['member']['avatar']['allow_server_stored']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['choose_avatar_gallery'] . '</label><br />' : '', '
 								', !empty($context['member']['avatar']['allow_external']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['my_own_pic'] . '</label><br />' : '', '
@@ -2851,7 +2851,7 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_upload">
-									<input type="file" size="44" name="attachment" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file" />
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file" />
 									', ($context['member']['avatar']['id_attach'] > 0 ? '<br /><br /><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" /><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '" />' : ''), '
 								</div>';
 	}
@@ -2915,19 +2915,19 @@ function template_profile_timeformat_modify()
 
 	echo '
 							<dt>
-								<strong>', $txt['time_format'], ':</strong><br />
+								<strong><label for="easyformat">', $txt['time_format'], ':</label></strong><br />
 								<a href="', $scripturl, '?action=helpadmin;help=time_format" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="floatleft" /></a>
-								<span class="smalltext">&nbsp;', $txt['date_format'], '</span>
+								<span class="smalltext">&nbsp;<label for="time_format">', $txt['date_format'], '</label></span>
 							</dt>
 							<dd>
-								<select name="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;" style="margin-bottom: 4px;">';
+								<select name="easyformat" id="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;" style="margin-bottom: 4px;">';
 	// Help the user by showing a list of common time formats.
 	foreach ($context['easy_timeformats'] as $time_format)
 		echo '
 									<option value="', $time_format['format'], '"', $time_format['format'] == $context['member']['time_format'] ? ' selected="selected"' : '', '>', $time_format['title'], '</option>';
 	echo '
 								</select><br />
-								<input type="text" name="time_format" value="', $context['member']['time_format'], '" size="30" class="input_text" />
+								<input type="text" name="time_format" id="time_format" value="', $context['member']['time_format'], '" size="30" class="input_text" />
 							</dd>';
 }
 
@@ -2938,7 +2938,7 @@ function template_profile_timeoffset_modify()
 
 	echo '
 							<dt>
-								<strong', (isset($context['modify_error']['bad_offset']) ? ' class="error"' : ''), '>', $txt['time_offset'], ':</strong><br />
+								<strong', (isset($context['modify_error']['bad_offset']) ? ' class="error"' : ''), '><label for="time_offset">', $txt['time_offset'], ':</label></strong><br />
 								<span class="smalltext">', $txt['personal_time_offset'], '</span>
 							</dt>
 							<dd>
@@ -2967,10 +2967,10 @@ function template_profile_smiley_pick()
 
 	echo '
 							<dt>
-								<strong>', $txt['smileys_current'], ':</strong>
+								<strong><label for="smiley_set">', $txt['smileys_current'], ':</label></strong>
 							</dt>
 							<dd>
-								<select name="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.png\';">';
+								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.png\';">';
 	foreach ($context['smiley_sets'] as $set)
 		echo '
 									<option value="', $set['id'], '"', $set['selected'] ? ' selected="selected"' : '', '>', $set['name'], '</option>';
