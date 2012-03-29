@@ -960,6 +960,7 @@ CREATE TABLE {$db_prefix}log_packages (
   failed_steps text NOT NULL,
   themes_installed varchar(255) NOT NULL default '',
   db_changes text NOT NULL,
+  credits varchar(255) NOT NULL default '',
   PRIMARY KEY (id_install),
   KEY filename (filename(15))
 ) ENGINE=MyISAM;
