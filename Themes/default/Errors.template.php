@@ -30,7 +30,7 @@ function template_fatal_error()
 		</div>
 		<div class="windowbg">
 			<span class="topslice"><span></span></span>
-			<div class="padding">', $context['error_message'], '</div>
+			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
 			<span class="botslice"><span></span></span>
 		</div>
 	</div>';
