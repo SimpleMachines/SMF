@@ -1365,6 +1365,7 @@ function template_core_features()
 					success: function(request){
 						if ($(request).find("errors").find("error").length != 0)
 						{
+							$("#activation_message").attr(\'class\', \'errorbox\');
 							$("#activation_message").html($(request).find("errors").find("error").text()).slideDown(\'fast\');
 						}
 						else if ($(request).find("smf").length != 0)
@@ -1372,7 +1373,7 @@ function template_core_features()
 							$("#feature_link_" + cf).html($(request).find("corefeatures").find("corefeature").text());
 							cc.attr("src", imgs[new_state ? 1 : 0]);
 							$("#feature_link_" + cf).fadeOut().fadeIn();
-							$("#activation_message").attr(\'class\', \'successbox\');
+							$("#activation_message").attr(\'class\', \'infobox\');
 							var message = new_state ? ' . JavaScriptEscape($txt['core_settings_activation_message']) . ' : ' . JavaScriptEscape($txt['core_settings_deactivation_message']) . ';
 							$("#activation_message").html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\');
 							setTimeout(function() {
@@ -1384,6 +1385,7 @@ function template_core_features()
 						}
 						else
 						{
+							$("#activation_message").attr(\'class\', \'errorbox\');
 							$("#activation_message").html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
 							
 						}

@@ -2757,7 +2757,7 @@ dl
 }
 
 /* Simple feedback messages */
-div#profile_error, div#profile_success, div.successbox
+div#profile_error, div#profile_success
 {
 	margin: 0 0 1em 0;
 	padding: 1em 2em;
@@ -2775,7 +2775,7 @@ div#profile_error span
 	text-decoration: underline;
 }
 
-div#profile_success, div.successbox
+div#profile_success
 {
 	border-color: green;
 	color: green;
