@@ -127,11 +127,11 @@ function template_generic_menu_dropdown_above()
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-			<li><a class="', !empty($section['selected']) ? 'active ' : '', 'firstlevel" href="', $section['url'], $menu_context['extra_parameters'], '"><span class="firstlevel">', $section['title'] , '</span></a>
+			<li><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'] , '</a>
 				<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
-		$additional_items = 0;
+		// Note: Code for additional_items class was deprecated and has been removed. Suggest following up in Sources if required.
 		foreach ($section['areas'] as $i => $area)
 		{
 			// Not supposed to be printed?
@@ -139,17 +139,16 @@ function template_generic_menu_dropdown_above()
 				continue;
 
 			echo '
-					<li', (++$additional_items > 6 && !empty($area['subsections'])) ? ' class="additional_items subsections"' : (($additional_items > 6) ? ' class="additional_items"' : ((!empty($area['subsections'])) ? ' class="subsections"' : '')), '>';
+					<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
 
 			echo '
-						<a ', !empty($area['selected']) ? 'class="chosen" ' : '', 'href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '"><span>', $area['icon'], $area['label'], !empty($area['subsections']) ? '...' : '', '</span></a>';
+						<a ', !empty($area['selected']) ? 'class="chosen" ' : '', 'href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
 					$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
 
 			// Is there any subsections?
-			$additional_items_sub = 0;
 			if (!empty($area['subsections']))
 			{
 				echo '
@@ -163,8 +162,8 @@ function template_generic_menu_dropdown_above()
 					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
-							<li', (++$additional_items_sub > 6) ? ' class="additional_items"' : '' ,'>
-								<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', 'href="', $url, $menu_context['extra_parameters'], '"><span>', $sub['label'], '</span></a>
+							<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>
+								<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', 'href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
 							</li>';
 				}
 

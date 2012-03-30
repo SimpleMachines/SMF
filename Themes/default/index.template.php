@@ -118,7 +118,7 @@ function template_html_above()
 	<script type="text/javascript"><!-- // --><![CDATA[
 		window.jQuery || document.write(\'<script src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"><\/script>\');
 	// ]]></script>';
-    
+
 	// Note that the Superfish function seems to like being called by the full syntax.
 	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
 	echo '
@@ -471,12 +471,13 @@ function template_menu()
 		<div id="main_menu">
 			<ul class="dropmenu" id="menu_nav">';
 
+	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes. 
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
 				<li id="button_', $act, '">
-					<a class="', $button['active_button'] ? 'active ' : '', 'firstlevel" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-						<span class="', isset($button['is_last']) ? 'last ' : '', 'firstlevel">', $button['title'], '</span>
+					<a class="', $button['active_button'] ? 'active' : '', isset($button['is_last']) ? ' last' : '', '" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
+						', $button['title'], '
 					</a>';
 		if (!empty($button['sub_buttons']))
 		{
@@ -487,8 +488,8 @@ function template_menu()
 			{
 				echo '
 						<li>
-							<a href="', $childbutton['href'], '"', isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
-								<span', isset($childbutton['is_last']) ? ' class="last"' : '', '>', $childbutton['title'], !empty($childbutton['sub_buttons']) ? '...' : '', '</span>
+							<a href="', $childbutton['href'], '" ', isset($childbutton['is_last']) ? 'class="last"' : '' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+								', $childbutton['title'], '
 							</a>';
 				// 3rd level menus :)
 				if (!empty($childbutton['sub_buttons']))
@@ -499,8 +500,8 @@ function template_menu()
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
 								<li>
-									<a href="', $grandchildbutton['href'], '"', isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
-										<span', isset($grandchildbutton['is_last']) ? ' class="last"' : '', '>', $grandchildbutton['title'], '</span>
+									<a href="', $grandchildbutton['href'], '" ', isset($grandchildbutton['is_last']) ? ' class="last"' : '' , isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
+										', $grandchildbutton['title'], '
 									</a>
 								</li>';
 
