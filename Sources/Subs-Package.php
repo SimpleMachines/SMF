@@ -457,7 +457,14 @@ function getPackageInfo($gzfilename)
 
 	// Nothing?
 	if (empty($packageInfo))
-		return 'package_get_error_is_zero';
+	{
+		// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
+		$packageInfo = read_tgz_file($boarddir . '/Packages/' . $gzfilename, '*/theme_info.xml', true);
+		if (!empty($packageInfo))
+			return 'package_get_error_is_theme';
+		else
+			return 'package_get_error_is_zero';
+	}
 
 	// Parse package-info.xml into an xmlArray.
 	require_once($sourcedir . '/Class-Package.php');
