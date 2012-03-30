@@ -1053,23 +1053,23 @@ function template_edit_profile_field()
 
 						<dl class="settings">
 							<dt>
-								<strong>', $txt['custom_edit_name'], ':</strong>
+								<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong>
 							</dt>
 							<dd>
-								<input type="text" name="field_name" value="', $context['field']['name'], '" size="20" maxlength="40" class="input_text" />
+								<input type="text" name="field_name" id="field_name" value="', $context['field']['name'], '" size="20" maxlength="40" class="input_text" />
 							</dd>
 							<dt>
-								<strong>', $txt['custom_edit_desc'], ':</strong>
+								<strong><label for="field_desc">', $txt['custom_edit_desc'], ':</label></strong>
 							</dt>
 							<dd>
-								<textarea name="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>
+								<textarea name="field_desc" id="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>
 							</dd>
 							<dt>
-								<strong>', $txt['custom_edit_profile'], ':</strong><br />
+								<strong><label for="profile_area">', $txt['custom_edit_profile'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_profile_desc'], '</span>
 							</dt>
 							<dd>
-								<select name="profile_area">
+								<select name="profile_area" id="profile_area">
 									<option value="none"', $context['field']['profile_area'] == 'none' ? ' selected="selected"' : '', '>', $txt['custom_edit_profile_none'], '</option>
 									<option value="account"', $context['field']['profile_area'] == 'account' ? ' selected="selected"' : '', '>', $txt['account'], '</option>
 									<option value="forumprofile"', $context['field']['profile_area'] == 'forumprofile' ? ' selected="selected"' : '', '>', $txt['forumprofile'], '</option>
@@ -1077,7 +1077,7 @@ function template_edit_profile_field()
 								</select>
 							</dd>
 							<dt>
-								<strong>', $txt['custom_edit_registration'], ':</strong>
+								<strong><label for="reg">', $txt['custom_edit_registration'], ':</label></strong>
 							</dt>
 							<dd>
 								<select name="reg" id="reg">
@@ -1087,14 +1087,14 @@ function template_edit_profile_field()
 								</select>
 							</dd>
 							<dt>
-								<strong>', $txt['custom_edit_display'], ':</strong>
+								<strong><label for="display">', $txt['custom_edit_display'], ':</label></strong>
 							</dt>
 							<dd>
 								<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 
 							<dt>
-								<strong>', $txt['custom_edit_placement'], ':</strong>
+								<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
 							</dt>
 							<dd>
 								<select name="placement" id="placement">
@@ -1105,11 +1105,11 @@ function template_edit_profile_field()
 							</dd>
 							<dt>
 								<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" align="top" /></a>
-								<strong>', $txt['custom_edit_enclose'], ':</strong><br />
+								<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 							</dt>
 							<dd>
-								<textarea name="enclose" rows="10" cols="50">', @$context['field']['enclose'], '</textarea>
+								<textarea name="enclose" id="enclose" rows="10" cols="50">', @$context['field']['enclose'], '</textarea>
 							</dd>
 						</dl>
 					</fieldset>
@@ -1117,7 +1117,7 @@ function template_edit_profile_field()
 						<legend>', $txt['custom_edit_input'], '</legend>
 						<dl class="settings">
 							<dt>
-								<strong>', $txt['custom_edit_picktype'], ':</strong>
+								<strong><label for="field_type">', $txt['custom_edit_picktype'], ':</label></strong>
 							</dt>
 							<dd>
 								<select name="field_type" id="field_type" onchange="updateInputBoxes();">
@@ -1129,28 +1129,28 @@ function template_edit_profile_field()
 								</select>
 							</dd>
 							<dt id="max_length_dt">
-								<strong>', $txt['custom_edit_max_length'], ':</strong><br />
+								<strong><label for="max_length_dd">', $txt['custom_edit_max_length'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_max_length_desc'], '</span>
 							</dt>
-							<dd id="max_length_dd">
-								<input type="text" name="max_length" value="', $context['field']['max_length'], '" size="7" maxlength="6" class="input_text" />
+							<dd>
+								<input type="text" name="max_length" id="max_length_dd" value="', $context['field']['max_length'], '" size="7" maxlength="6" class="input_text" />
 							</dd>
 							<dt id="dimension_dt">
-								<strong>', $txt['custom_edit_dimension'], ':</strong>
+								<strong><label for="dimension_dd">', $txt['custom_edit_dimension'], ':</label></strong>
 							</dt>
 							<dd id="dimension_dd">
 								<strong>', $txt['custom_edit_dimension_row'], ':</strong> <input type="text" name="rows" value="', $context['field']['rows'], '" size="5" maxlength="3" class="input_text" />
 								<strong>', $txt['custom_edit_dimension_col'], ':</strong> <input type="text" name="cols" value="', $context['field']['cols'], '" size="5" maxlength="3" class="input_text" />
 							</dd>
 							<dt id="bbc_dt">
-								<strong>', $txt['custom_edit_bbc'], '</strong>
+								<strong><label for="bbc_dd">', $txt['custom_edit_bbc'], '</label></strong>
 							</dt>
-							<dd id="bbc_dd">
-								<input type="checkbox" name="bbc"', $context['field']['bbc'] ? ' checked="checked"' : '', ' class="input_check" />
+							<dd >
+								<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 							<dt id="options_dt">
 								<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
-								<strong>', $txt['custom_edit_options'], ':</strong><br />
+								<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 							</dt>
 							<dd id="options_dd">
@@ -1167,10 +1167,10 @@ function template_edit_profile_field()
 								</div>
 							</dd>
 							<dt id="default_dt">
-								<strong>', $txt['custom_edit_default'], ':</strong>
+								<strong><label for="default_dd">', $txt['custom_edit_default'], ':</label></strong>
 							</dt>
-							<dd id="default_dd">
-								<input type="checkbox" name="default_check"', $context['field']['default_check'] ? ' checked="checked"' : '', ' class="input_check" />
+							<dd>
+								<input type="checkbox" name="default_check" id="default_dd"', $context['field']['default_check'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</fieldset>
@@ -1179,7 +1179,7 @@ function template_edit_profile_field()
 						<dl class="settings">
 							<dt id="mask_dt">
 								<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" align="top" /></a>
-								<strong>', $txt['custom_edit_mask'], ':</strong><br />
+								<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 							</dt>
 							<dd>
@@ -1195,7 +1195,7 @@ function template_edit_profile_field()
 								</span>
 							</dd>
 							<dt>
-								<strong>', $txt['custom_edit_privacy'], ':</strong>
+								<strong><label for="private">', $txt['custom_edit_privacy'], ':</label></strong>
 								<span class="smalltext">', $txt['custom_edit_privacy_desc'], '</span>
 							</dt>
 							<dd>
@@ -1207,18 +1207,18 @@ function template_edit_profile_field()
 								</select>
 							</dd>
 							<dt id="can_search_dt">
-								<strong>', $txt['custom_edit_can_search'], ':</strong><br />
+								<strong><label for="can_search_dd">', $txt['custom_edit_can_search'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_can_search_desc'], '</span>
 							</dt>
-							<dd id="can_search_dd">
-								<input type="checkbox" name="can_search"', $context['field']['can_search'] ? ' checked="checked"' : '', ' class="input_check" />
+							<dd>
+								<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 							<dt>
-								<strong>', $txt['custom_edit_active'], ':</strong><br />
+								<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_active_desc'], '</span>
 							</dt>
 							<dd>
-								<input type="checkbox" name="active"', $context['field']['active'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="active" id="can_search_check"', $context['field']['active'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</fieldset>

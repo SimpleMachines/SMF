@@ -129,23 +129,52 @@ tr.titlebg th.last_th
 ------------------------------------------------------- */
 #main_menu
 {
-	padding: 0 0.5em;
 	float: right;
-	text-align: right;
+}
+.dropmenu
+{
+	float: right;
 }
 .dropmenu li
 {
 	float: right;
-	margin: 0 0 0 8px;
-}
-.dropmenu li ul ul
-{
-	right: 15em;
 }
 .dropmenu li ul
 {
-	background: url(../images/theme/menu_gfx.png) 100% -130px no-repeat;
-	right: 5px;
+	right: -999em;
+	background: #fff url(../images/theme/menu_gfx.png) -30px -137px repeat-x;
+	/* Note: Using a black rgba box-shadow with suitable
+	alpha value gives the best effect on any background. */
+	box-shadow: -1px 2px 2px rgba(0,0,0,0.3);
+}
+/* Note: The next two declarations are for keyboard access with js disabled. */
+.dropmenu ul a:focus
+{
+	margin-right: 1109.5em;
+}
+.dropmenu ul ul a:focus
+{
+	margin-right: 2228em;
+}
+/* Level 3 submenu wrapper positioning. */
+.dropmenu li ul ul
+{
+	margin: -2.2em 15em 0 0;
+}
+/* Reposition Level 2 submenu as visible on hover. */
+.dropmenu li:hover ul, .dropmenu li.sfhover ul
+{
+	right: -4px;
+}
+/* Hiding Level 3 submenu off hover. */
+.dropmenu li:hover ul ul, .dropmenu li.sfhover ul ul, .dropmenu li:hover ul ul ul, .dropmenu li.sfhover ul ul ul
+{
+	right: -999em;
+}
+/* Reposition as visible on hover. */
+.dropmenu li li:hover ul, .dropmenu li li.sfhover ul
+{
+	right: auto;
 }
 
 /* The dropdown menu toggle image */

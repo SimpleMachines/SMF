@@ -25,48 +25,48 @@ function template_modify_weights()
 				<div class="content">
 					<dl class="settings">
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a>
-							', $txt['search_weight_frequency'], ':
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight1_val">
+							', $txt['search_weight_frequency'], ':</label>
 						</dt>
 						<dd class="large_caption">
 							<span class="search_weight"><input type="text" name="search_weight_frequency" id="weight1_val" value="', empty($modSettings['search_weight_frequency']) ? '0' : $modSettings['search_weight_frequency'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
 							<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a>
-							', $txt['search_weight_age'], ':
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight2_val">
+							', $txt['search_weight_age'], ':</label>
 						</dt>
 						<dd class="large_caption">
 							<span class="search_weight"><input type="text" name="search_weight_age" id="weight2_val" value="', empty($modSettings['search_weight_age']) ? '0' : $modSettings['search_weight_age'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
 							<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a>
-							', $txt['search_weight_length'], ':
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight3_val">
+							', $txt['search_weight_length'], ':</label>
 						</dt>
 						<dd class="large_caption">
 							<span class="search_weight"><input type="text" name="search_weight_length" id="weight3_val" value="', empty($modSettings['search_weight_length']) ? '0' : $modSettings['search_weight_length'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
 							<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a>
-							', $txt['search_weight_subject'], ':
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight4_val">
+							', $txt['search_weight_subject'], ':</label>
 						</dt>
 						<dd class="large_caption">
 							<span class="search_weight"><input type="text" name="search_weight_subject" id="weight4_val" value="', empty($modSettings['search_weight_subject']) ? '0' : $modSettings['search_weight_subject'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
 							<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a>
-							', $txt['search_weight_first_message'], ':
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight5_val">
+							', $txt['search_weight_first_message'], ':</label>
 						</dt>
 						<dd class="large_caption">
 							<span class="search_weight"><input type="text" name="search_weight_first_message" id="weight5_val" value="', empty($modSettings['search_weight_first_message']) ? '0' : $modSettings['search_weight_first_message'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
 							<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a>
-							', $txt['search_weight_sticky'], ':
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight6_val">
+							', $txt['search_weight_sticky'], ':</label>
 						</dt>
 						<dd class="large_caption">
 							<span class="search_weight"><input type="text" name="search_weight_sticky" id="weight6_val" value="', empty($modSettings['search_weight_sticky']) ? '0' : $modSettings['search_weight_sticky'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
@@ -348,25 +348,25 @@ function template_spider_edit()
 				<div class="content">
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['spider_name'], ':</strong><br />
+							<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br />
 							<span class="smalltext">', $txt['spider_name_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="spider_name" value="', $context['spider']['name'], '" class="input_text" />
+							<input type="text" name="spider_name" id="spider_name" value="', $context['spider']['name'], '" class="input_text" />
 						</dd>
 						<dt>
-							<strong>', $txt['spider_agent'], ':</strong><br />
+							<strong><label for="spider_agent">', $txt['spider_agent'], ':</label></strong><br />
 							<span class="smalltext">', $txt['spider_agent_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="spider_agent" value="', $context['spider']['agent'], '" class="input_text" />
+							<input type="text" name="spider_agent" id="spider_agent" value="', $context['spider']['agent'], '" class="input_text" />
 						</dd>
 						<dt>
-							<strong>', $txt['spider_ip_info'], ':</strong><br />
+							<strong><label for="spider_ip">', $txt['spider_ip_info'], ':</label></strong><br />
 							<span class="smalltext">', $txt['spider_ip_info_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="spider_ip" rows="4" cols="20">', $context['spider']['ip_info'], '</textarea>
+							<textarea name="spider_ip" id="spider_ip" rows="4" cols="20">', $context['spider']['ip_info'], '</textarea>
 						</dd>
 					</dl>
 					<hr class="hrcolor" />

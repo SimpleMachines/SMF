@@ -584,7 +584,7 @@ function template_group_members()
 				<div class="content">
 					<dl class="settings">
 						<dt>
-							<strong>', $txt['membergroups_members_add_desc'], ':</strong>
+							<strong><label for="toAdd">', $txt['membergroups_members_add_desc'], ':</strong></label>
 						</dt>
 						<dd>
 							<input type="text" name="toAdd" id="toAdd" value="" class="input_text" />

@@ -19,11 +19,11 @@ if (!defined('SMF'))
 
 /**
  * Shows a listing of registered members.
- * If a subaction is not specified, lists all registered members.
- * It allows searching for members with the 'search' sub action.
- * It calls MLAll or MLSearch depending on the sub action.
- * Requires the view_mlist permission.
- * Accessed via ?action=mlist.
+ * - If a subaction is not specified, lists all registered members.
+ * - It allows searching for members with the 'search' sub action.
+ * - It calls MLAll or MLSearch depending on the sub action.
+ * - Requires the view_mlist permission.
+ * - Accessed via ?action=mlist.
  *
  * @uses Memberlist template, main sub template.
  */
@@ -48,11 +48,13 @@ function Memberlist()
 	// Set up the sort links.
 	$context['sort_links'] = array();
 	foreach ($subActions as $act => $text)
+	{
 		$context['sort_links'][] = array(
 			'label' => $text[0],
 			'action' => $act,
 			'selected' => $text[2],
 		);
+	}
 
 	$context['num_members'] = $modSettings['totalMembers'];
 
@@ -60,51 +62,95 @@ function Memberlist()
 	$context['columns'] = array(
 		'is_online' => array(
 			'label' => $txt['status'],
-			'width' => '60',
+			'width' => 60,
 			'class' => 'first_th',
+			'sort' => array(
+				'down' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
+				'up' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
+			),
 		),
 		'real_name' => array(
-			'label' => $txt['username']
+			'label' => $txt['username'],
+			'sort' => array(
+				'down' => 'mem.real_name DESC',
+				'up' => 'mem.real_name ASC'
+			),
 		),
 		'email_address' => array(
 			'label' => $txt['email'],
-			'width' => '25'
+			'width' => 25,
+			'sort' => array(
+				'down' => allowedTo('moderate_forum') ? 'mem.email_address DESC' : 'mem.hide_email DESC, mem.email_address DESC',
+				'up' => allowedTo('moderate_forum') ? 'mem.email_address ASC' : 'mem.hide_email ASC, mem.email_address ASC'
+			),
 		),
 		'website_url' => array(
 			'label' => $txt['website'],
-			'width' => '70',
+			'width' => 70,
 			'link_with' => 'website',
+			'sort' => array(
+				'down' => 'LENGTH(mem.website_url) > 0 ASC, IFNULL(mem.website_url, 1=1) DESC, mem.website_url DESC',
+				'up' => 'LENGTH(mem.website_url) > 0 DESC, IFNULL(mem.website_url, 1=1) ASC, mem.website_url ASC'
+			),
 		),
 		'icq' => array(
 			'label' => $txt['icq'],
-			'width' => '30'
+			'width' => 30,
+			'sort' => array(
+				'down' => 'LENGTH(mem.icq) > 0 ASC, mem.icq = 0 DESC, mem.icq DESC',
+				'up' => 'LENGTH(mem.icq) > 0 DESC, mem.icq = 0 ASC, mem.icq ASC'
+			),
 		),
 		'aim' => array(
 			'label' => $txt['aim'],
-			'width' => '30'
+			'width' => 30,
+			'sort' => array(
+				'down' => 'LENGTH(mem.aim) > 0 ASC, IFNULL(mem.aim, 1=1) DESC, mem.aim DESC',
+				'up' => 'LENGTH(mem.aim) > 0 DESC, IFNULL(mem.aim, 1=1) ASC, mem.aim ASC'
+			),
 		),
 		'yim' => array(
 			'label' => $txt['yim'],
-			'width' => '30'
+			'width' => 30,
+			'sort' => array(
+				'down' => 'LENGTH(mem.yim) > 0 ASC, IFNULL(mem.yim, 1=1) DESC, mem.yim DESC',
+				'up' => 'LENGTH(mem.yim) > 0 DESC, IFNULL(mem.yim, 1=1) ASC, mem.yim ASC'
+			),
 		),
 		'msn' => array(
 			'label' => $txt['msn'],
-			'width' => '30'
+			'width' => 30,
+			'sort' => array(
+				'down' => 'LENGTH(mem.msn) > 0 ASC, IFNULL(mem.msn, 1=1) DESC, mem.msn DESC',
+				'up' => 'LENGTH(mem.msn) > 0 DESC, IFNULL(mem.msn, 1=1) ASC, mem.msn ASC'
+			),
 		),
 		'id_group' => array(
-			'label' => $txt['position']
+			'label' => $txt['position'],
+			'sort' => array(
+				'down' => 'IFNULL(mg.group_name, 1=1) DESC, mg.group_name DESC',
+				'up' => 'IFNULL(mg.group_name, 1=1) ASC, mg.group_name ASC'
+			),
 		),
 		'registered' => array(
-			'label' => $txt['date_registered']
+			'label' => $txt['date_registered'],
+			'sort' => array(
+				'down' => 'mem.date_registered DESC',
+				'up' => 'mem.date_registered ASC'
+			),
 		),
 		'posts' => array(
 			'label' => $txt['posts'],
-			'width' => '115',
-			'colspan' => '2',
+			'width' => 115,
+			'colspan' => 2,
 			'default_sort_rev' => true,
+			'sort' => array(
+				'down' => 'mem.posts DESC',
+				'up' => 'mem.posts ASC'
+			),
 		)
 	);
-
+	
 	$context['colspan'] = 0;
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 	foreach ($context['columns'] as $key => $column)
@@ -256,6 +302,7 @@ function MLAll()
 		$context['columns'][$col]['selected'] = $_REQUEST['sort'] == $col;
 	}
 
+	// Are we sorting the results
 	$context['sort_by'] = $_REQUEST['sort'];
 	$context['sort_direction'] = !isset($_REQUEST['desc']) ? 'up' : 'down';
 
@@ -274,59 +321,11 @@ function MLAll()
 		'extra_after' => ' (' . sprintf($txt['of_total_members'], $context['num_members']) . ')'
 	);
 
-	// List out the different sorting methods...
-	$sort_methods = array(
-		'is_online' => array(
-			'down' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
-			'up' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
-		),
-		'real_name' => array(
-			'down' => 'mem.real_name DESC',
-			'up' => 'mem.real_name ASC'
-		),
-		'email_address' => array(
-			'down' => allowedTo('moderate_forum') ? 'mem.email_address DESC' : 'mem.hide_email DESC, mem.email_address DESC',
-			'up' => allowedTo('moderate_forum') ? 'mem.email_address ASC' : 'mem.hide_email ASC, mem.email_address ASC'
-		),
-		'website_url' => array(
-			'down' => 'LENGTH(mem.website_url) > 0 ASC, IFNULL(mem.website_url, 1=1) DESC, mem.website_url DESC',
-			'up' => 'LENGTH(mem.website_url) > 0 DESC, IFNULL(mem.website_url, 1=1) ASC, mem.website_url ASC'
-		),
-		'icq' => array(
-			'down' => 'LENGTH(mem.icq) > 0 ASC, mem.icq = 0 DESC, mem.icq DESC',
-			'up' => 'LENGTH(mem.icq) > 0 DESC, mem.icq = 0 ASC, mem.icq ASC'
-		),
-		'aim' => array(
-			'down' => 'LENGTH(mem.aim) > 0 ASC, IFNULL(mem.aim, 1=1) DESC, mem.aim DESC',
-			'up' => 'LENGTH(mem.aim) > 0 DESC, IFNULL(mem.aim, 1=1) ASC, mem.aim ASC'
-		),
-		'yim' => array(
-			'down' => 'LENGTH(mem.yim) > 0 ASC, IFNULL(mem.yim, 1=1) DESC, mem.yim DESC',
-			'up' => 'LENGTH(mem.yim) > 0 DESC, IFNULL(mem.yim, 1=1) ASC, mem.yim ASC'
-		),
-		'msn' => array(
-			'down' => 'LENGTH(mem.msn) > 0 ASC, IFNULL(mem.msn, 1=1) DESC, mem.msn DESC',
-			'up' => 'LENGTH(mem.msn) > 0 DESC, IFNULL(mem.msn, 1=1) ASC, mem.msn ASC'
-		),
-		'registered' => array(
-			'down' => 'mem.date_registered DESC',
-			'up' => 'mem.date_registered ASC'
-		),
-		'id_group' => array(
-			'down' => 'IFNULL(mg.group_name, 1=1) DESC, mg.group_name DESC',
-			'up' => 'IFNULL(mg.group_name, 1=1) ASC, mg.group_name ASC'
-		),
-		'posts' => array(
-			'down' => 'mem.posts DESC',
-			'up' => 'mem.posts ASC'
-		)
-	);
-
 	$limit = $_REQUEST['start'];
 	$query_parameters = array(
 		'regular_id_group' => 0,
 		'is_activated' => 1,
-		'sort' => $sort_methods[$_REQUEST['sort']][$context['sort_direction']],
+		'sort' => $context['columns'][$_REQUEST['sort']]['sort'][$context['sort_direction']],
 	);
 
 	// Using cache allows to narrow down the list to be retrieved.
@@ -389,17 +388,13 @@ function MLAll()
 
 /**
  * Search for members, or display search results.
- * Called by MemberList().
- * If variable 'search' is empty displays search dialog box, using the
- * search sub template.
- * Calls printMemberListRows to retrieve the results of the query.
+ * - Called by MemberList().
+ * - If variable 'search' is empty displays search dialog box, using the search sub template.
+ * - Calls printMemberListRows to retrieve the results of the query.
  */
 function MLSearch()
 {
 	global $txt, $scripturl, $context, $user_info, $modSettings, $smcFunc;
-
-	$context['page_title'] = $txt['mlist_search'];
-	$context['can_moderate_forum'] = allowedTo('moderate_forum');
 
 	// Can they search custom fields?
 	$request = $smcFunc['db_query']('', '
@@ -438,17 +433,43 @@ function MLSearch()
 		// No fields?  Use default...
 		if (empty($_POST['fields']))
 			$_POST['fields'] = array('name');
+			
+		// Set defaults for how the results are sorted
+		if (!isset($_REQUEST['sort']) || !isset($context['columns'][$_REQUEST['sort']]))
+			$_REQUEST['sort'] = 'real_name';
+
+		// Build the column link / sort information.
+		foreach ($context['columns'] as $col => $column_details)
+		{
+			$context['columns'][$col]['href'] = $scripturl . '?action=mlist;sa=search;start=0;sort=' . $col;
+
+			if ((!isset($_REQUEST['desc']) && $col == $_REQUEST['sort']) || ($col != $_REQUEST['sort'] && !empty($column_details['default_sort_rev'])))
+				$context['columns'][$col]['href'] .= ';desc';
+				
+			if (isset($_POST['search']) && isset($_POST['fields']))
+				$context['columns'][$col]['href'] .= ';search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']);
+
+			$context['columns'][$col]['link'] = '<a href="' . $context['columns'][$col]['href'] . '" rel="nofollow">' . $context['columns'][$col]['label'] . '</a>';
+			$context['columns'][$col]['selected'] = $_REQUEST['sort'] == $col;
+		}
+	
+		// set up some things for use in the template
+		$context['page_title'] = $txt['mlist_search'];
+		$context['can_moderate_forum'] = allowedTo('moderate_forum');
+		$context['sort_direction'] = !isset($_REQUEST['desc']) ? 'up' : 'down';	
+		$context['sort_by'] = $_REQUEST['sort'];
 
 		$query_parameters = array(
 			'regular_id_group' => 0,
 			'is_activated' => 1,
 			'blank_string' => '',
 			'search' => '%' . strtr($smcFunc['htmlspecialchars']($_POST['search'], ENT_QUOTES), array('_' => '\\_', '%' => '\\%', '*' => '%')) . '%',
+			'sort' => $context['columns'][$_REQUEST['sort']]['sort'][$context['sort_direction']],
 		);
 
-		// Search for a name?
+		// Search for a name
 		if (in_array('name', $_POST['fields']))
-			$fields = array('member_name', 'real_name');
+			$fields = allowedTo('moderate_forum') ? array('member_name', 'real_name') : array('real_name');
 		else
 			$fields = array();
 		// Search for messengers...
@@ -471,6 +492,7 @@ function MLSearch()
 
 		$customJoin = array();
 		$customCount = 10;
+		
 		// Any custom fields to search for - these being tricky?
 		foreach ($_POST['fields'] as $field)
 		{
@@ -501,7 +523,6 @@ function MLSearch()
 		$context['page_index'] = constructPageIndex($scripturl . '?action=mlist;sa=search;search=' . $_POST['search'] . ';fields=' . implode(',', $_POST['fields']), $_REQUEST['start'], $numResults, $modSettings['defaultMaxMembers']);
 
 		// Find the members from the database.
-		// @todo SLOW This query is slow.
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member
 			FROM {db_prefix}members AS mem
@@ -511,6 +532,7 @@ function MLSearch()
 				', $customJoin)) . '
 			WHERE (' . implode( ' ' . $query . ' OR ', $fields) . ' ' . $query . $condition . ')
 				AND mem.is_activated = {int:is_activated}
+			ORDER BY {raw:sort}
 			LIMIT ' . $_REQUEST['start'] . ', ' . $modSettings['defaultMaxMembers'],
 			$query_parameters
 		);

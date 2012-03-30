@@ -67,10 +67,10 @@ function template_main()
 			<div class="roundframe">
 				<dl class="settings" id="search_options">
 					<dt class="righttext">
-						<strong>', $txt['search_for'], ':</strong>
+						<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 					</dt>
 					<dd>
-						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />';
+						<input type="text" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />';
 		
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
@@ -79,23 +79,23 @@ function template_main()
 		echo '
 					</dd>
 
-					<dt class="righttext">',
-						$txt['search_match'], ':
+					<dt class="righttext"><label for="searchtype">',
+						$txt['search_match'], ':</label>
 					</dt>
 					<dd>
-						<select name="searchtype">
+						<select name="searchtype" id="searchtype">
 							<option value="1"', empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['all_words'], '</option>
 							<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['any_words'], '</option>
 						</select>
 					</dd>
-					<dt class="righttext">',
-						$txt['by_user'], ':
+					<dt class="righttext"><label for="userspec">',
+						$txt['by_user'], ':</label>
 					</dt>
 					<dd>
 						<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text" />
 					</dd>
-					<dt class="righttext">', 
-						$txt['search_order'], ':
+					<dt class="righttext"><label for="sort">', 
+						$txt['search_order'], ':</label>
 					</dt>
 					<dd>
 						<select id="sort" name="sort">
@@ -120,8 +120,8 @@ function template_main()
 					<dt class="righttext between">', 
 						$txt['search_post_age'], ':
 					</dt>
-					<dd>', 
-						$txt['search_between'], ' <input type="text" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;', $txt['search_and'], '&nbsp;<input type="text" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
+					<dd><label for="minage">', 
+						$txt['search_between'], '</label><input type="text" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="text" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
 					</dd>
 				</dl>
 				</fieldset>

@@ -21,22 +21,6 @@ CREATE TABLE {$db_prefix}member_logins (
 );
 ---#
 
----# Moving the cookie name to the database...
----{
-if (!isset($modSettings['cookie_name']))
-{
-	if (empty($cookiename))
-		$cookiename = 'SMFCookie11';
-
-	upgrade_query("
-		INSERT INTO {$db_prefix}settings
-			(variable, value)
-		VALUES
-			('cookie_name', '$cookiename')");
-}
----}
----#
-
 ---# Copying the current package backup setting...
 ---{
 if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['package_make_backups']))
@@ -140,4 +124,12 @@ CHANGE ip_low3 ip_low3 tinyint(3) unsigned NOT NULL DEFAULT '0',
 CHANGE ip_high3 ip_high3 tinyint(3) unsigned NOT NULL DEFAULT '0',
 CHANGE ip_low4 ip_low4 tinyint(3) unsigned NOT NULL DEFAULT '0',
 CHANGE ip_high4 ip_high4 tinyint(3) unsigned NOT NULL DEFAULT '0';
+---#
+
+/******************************************************************************/
+--- Adding support for <credits> tag in package manager
+/******************************************************************************/
+---# Adding new columns to log_packages ..
+ALTER TABLE {$db_prefix}log_packages
+ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 ---#
