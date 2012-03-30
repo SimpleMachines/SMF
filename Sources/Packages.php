@@ -2159,7 +2159,7 @@ function fetchPerms__recursive($path, &$data, $level)
 	while ($entry = readdir($dh))
 	{
 		// Some kind of file?
-		if (!is_dir($path . '/' . $entry))
+		if (is_file($path . '/' . $entry))
 		{
 			// Are we listing PHP files in this directory?
 			if ($save_data && !empty($data['list_contents']) && substr($entry, -4) == '.php')
