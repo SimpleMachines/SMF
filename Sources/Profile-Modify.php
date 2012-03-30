@@ -467,7 +467,10 @@ function loadProfileFields($force_reload = false)
 			'size' => 7,
 			'permission' => 'moderate_forum',
 			'input_validate' => create_function('&$value', '
-				$value = $value != \'\' ? strtr($value, array(\',\' => \'\', \'.\' => \'\', \' \' => \'\')) : 0;
+				if (!is_numeric($value))
+					return \'digits_only\';
+				else
+					$value = $value != \'\' ? strtr($value, array(\',\' => \'\', \'.\' => \'\', \' \' => \'\')) : 0;
 				return true;
 			'),
 		),

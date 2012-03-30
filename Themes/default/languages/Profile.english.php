@@ -43,7 +43,6 @@ $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
 $txt['current_time'] = 'Current forum time';
-$txt['digits_only'] = 'The \'number of posts\' box can only contain digits.';
 
 $txt['language'] = 'Language';
 $txt['avatar_too_big'] = 'Avatar image is too big, please resize it and try again (max';
