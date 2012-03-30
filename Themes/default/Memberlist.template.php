@@ -46,13 +46,8 @@ function template_main()
 	// Display each of the column headers of the table.
 	foreach ($context['columns'] as $column)
 	{
-		// We're not able (through the template) to sort the search results right now...
-		if (isset($context['old_search']))
-			echo '
-					<th scope="col" class="', isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' width="' . $column['width'] . '"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
-						', $column['label'], '</th>';
 		// This is a selected column, so underline it or some such.
-		elseif ($column['selected'])
+		if ($column['selected'])
 			echo '
 					<th scope="col" class="', isset($column['class']) ? ' ' . $column['class'] : '', '" style="width: auto;"' . (isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '') . ' nowrap="nowrap">
 						<a href="' . $column['href'] . '" rel="nofollow">' . $column['label'] . ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" /></a></th>';
@@ -194,7 +189,7 @@ function template_search()
 							<label><strong>', $txt['search_for'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" name="search" value="', $context['old_search'], '" size="42" class="input_text" />
+							<input type="text" name="search" value="', $context['old_search'], '" size="40" class="input_text" />
 						</dd>
 						<dt>
 							<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
