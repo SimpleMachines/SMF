@@ -2664,37 +2664,7 @@ function template_profile_signature_modify()
 	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
 								<script type="text/javascript"><!-- // --><![CDATA[
-									function tick()
-									{
-										if (typeof(document.forms.creator) != "undefined")
-										{
-											calcCharLeft();
-											setTimeout("tick()", 1000);
-										}
-										else
-											setTimeout("tick()", 800);
-									}
-
-									function calcCharLeft()
-									{
-										var maxLength = ', $context['signature_limits']['max_length'], ';
-										var oldSignature = "", currentSignature = document.forms.creator.signature.value;
-
-										if (!document.getElementById("signatureLeft"))
-											return;
-
-										if (oldSignature != currentSignature)
-										{
-											oldSignature = currentSignature;
-
-											if (currentSignature.replace(/\r/, "").length > maxLength)
-												document.forms.creator.signature.value = currentSignature.replace(/\r/, "").substring(0, maxLength);
-											currentSignature = document.forms.creator.signature.value.replace(/\r/, "");
-										}
-
-										setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentSignature.length);
-									}
-
+									var maxLength = ', $context['signature_limits']['max_length'], ';
 									addLoadEvent(tick);
 								// ]]></script>
 							</dd>';
@@ -2741,97 +2711,14 @@ function template_profile_avatar_select()
 										var avatardir = "' . $modSettings['avatar_url'] . '/";
 										var size = avatar.alt.substr(3, 2) + " " + avatar.alt.substr(0, 2) + String.fromCharCode(117, 98, 116);
 										var file = document.getElementById("file");
+										var maxHeight = ', !empty($modSettings['avatar_max_height_external']) ? $modSettings['avatar_max_height_external'] : 0, ';
+										var maxWidth = ', !empty($modSettings['avatar_max_width_external']) ? $modSettings['avatar_max_width_external'] : 0, ';
 
 										if (avatar.src.indexOf("blank.png") > -1)
 											changeSel(selavatar);
 										else
 											previewExternalAvatar(avatar.src)
 
-										function changeSel(selected)
-										{
-											if (cat.selectedIndex == -1)
-												return;
-
-											if (cat.options[cat.selectedIndex].value.indexOf("/") > 0)
-											{
-												var i;
-												var count = 0;
-
-												file.style.display = "inline";
-												file.disabled = false;
-
-												for (i = file.length; i >= 0; i = i - 1)
-													file.options[i] = null;
-
-												for (i = 0; i < files.length; i++)
-													if (files[i].indexOf(cat.options[cat.selectedIndex].value) == 0)
-													{
-														var filename = files[i].substr(files[i].indexOf("/") + 1);
-														var showFilename = filename.substr(0, filename.lastIndexOf("."));
-														showFilename = showFilename.replace(/[_]/g, " ");
-
-														file.options[count] = new Option(showFilename, files[i]);
-
-														if (filename == selected)
-														{
-															if (file.options.defaultSelected)
-																file.options[count].defaultSelected = true;
-															else
-																file.options[count].selected = true;
-														}
-
-														count++;
-													}
-
-												if (file.selectedIndex == -1 && file.options[0])
-													file.options[0].selected = true;
-
-												showAvatar();
-											}
-											else
-											{
-												file.style.display = "none";
-												file.disabled = true;
-												document.getElementById("avatar").src = avatardir + cat.options[cat.selectedIndex].value;
-												document.getElementById("avatar").style.width = "";
-												document.getElementById("avatar").style.height = "";
-											}
-										}
-
-										function showAvatar()
-										{
-											if (file.selectedIndex == -1)
-												return;
-
-											document.getElementById("avatar").src = avatardir + file.options[file.selectedIndex].value;
-											document.getElementById("avatar").alt = file.options[file.selectedIndex].text;
-											document.getElementById("avatar").alt += file.options[file.selectedIndex].text == size ? "!" : "";
-											document.getElementById("avatar").style.width = "";
-											document.getElementById("avatar").style.height = "";
-										}
-
-										function previewExternalAvatar(src)
-										{
-											if (!document.getElementById("avatar"))
-												return;
-
-											var maxHeight = ', !empty($modSettings['avatar_max_height_external']) ? $modSettings['avatar_max_height_external'] : 0, ';
-											var maxWidth = ', !empty($modSettings['avatar_max_width_external']) ? $modSettings['avatar_max_width_external'] : 0, ';
-											var tempImage = new Image();
-
-											tempImage.src = src;
-											if (maxWidth != 0 && tempImage.width > maxWidth)
-											{
-												document.getElementById("avatar").style.height = parseInt((maxWidth * tempImage.height) / tempImage.width) + "px";
-												document.getElementById("avatar").style.width = maxWidth + "px";
-											}
-											else if (maxHeight != 0 && tempImage.height > maxHeight)
-											{
-												document.getElementById("avatar").style.width = parseInt((maxHeight * tempImage.width) / tempImage.height) + "px";
-												document.getElementById("avatar").style.height = maxHeight + "px";
-											}
-											document.getElementById("avatar").src = src;
-										}
 									// ]]></script>
 								</div>';
 	}
@@ -3073,44 +2960,8 @@ function template_authentication_method()
 	};
 	var verificationHandle = new smfRegister("creator", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
 	var currentAuthMethod = \'passwd\';
-	function updateAuthMethod()
-	{
-		// What authentication method is being used?
-		if (!document.getElementById(\'auth_openid\') || !document.getElementById(\'auth_openid\').checked)
-			currentAuthMethod = \'passwd\';
-		else
-			currentAuthMethod = \'openid\';
-
-		// No openID?
-		if (!document.getElementById(\'auth_openid\'))
-			return true;
-
-		document.forms.creator.openid_url.disabled = currentAuthMethod == \'openid\' ? false : true;
-		document.forms.creator.smf_autov_pwmain.disabled = currentAuthMethod == \'passwd\' ? false : true;
-		document.forms.creator.smf_autov_pwverify.disabled = currentAuthMethod == \'passwd\' ? false : true;
-		document.getElementById(\'smf_autov_pwmain_div\').style.display = currentAuthMethod == \'passwd\' ? \'\' : \'none\';
-		document.getElementById(\'smf_autov_pwverify_div\').style.display = currentAuthMethod == \'passwd\' ? \'\' : \'none\';
-
-		if (currentAuthMethod == \'passwd\')
-		{
-			verificationHandle.refreshMainPassword();
-			verificationHandle.refreshVerifyPassword();
-			document.forms.creator.openid_url.style.backgroundColor = \'\';
-			document.getElementById("auth_openid_div").style.display = "none";
-			document.getElementById("auth_pass_div").style.display = "";
-		}
-		else
-		{
-			document.forms.creator.smf_autov_pwmain.style.backgroundColor = \'\';
-			document.forms.creator.smf_autov_pwverify.style.backgroundColor = \'\';
-			document.forms.creator.openid_url.style.backgroundColor = \'#FCE184\';
-			document.getElementById("auth_openid_div").style.display = "";
-			document.getElementById("auth_pass_div").style.display = "none";
-		}
-	}
 	updateAuthMethod();
 	// ]]></script>';
 }
-
 
 ?>
