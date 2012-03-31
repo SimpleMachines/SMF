@@ -1010,7 +1010,7 @@ function template_show_settings()
 function template_show_custom_profile()
 {
 	global $context, $txt, $settings, $scripturl;
-
+	
 	// Standard fields.
 	template_show_list('standard_profile_fields');
 
@@ -1031,11 +1031,22 @@ function template_edit_profile_field()
 {
 	global $context, $txt, $settings, $scripturl;
 
-	// All the javascript for this page - quite a bit!
+	// All the javascript for this page - quite a bit in script.js!
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var startOptID = ', count($context['field']['options']), ';
 	// ]]></script>';
+	
+	// any errors messages to show?
+	if (isset($_GET['msg']))
+	{
+		loadLanguage('Errors');
+		if (isset($txt['custom_option_' . $_GET['msg']]))
+			echo '
+	<div class="errorbox">',
+		$txt['custom_option_' . $_GET['msg']], '
+	</div>';
+	}
 
 	echo '
 	<div id="admincenter">

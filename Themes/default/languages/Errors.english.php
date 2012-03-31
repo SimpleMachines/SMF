@@ -371,6 +371,7 @@ $txt['resend_email_success'] = 'A new activation email has successfully been sen
 
 $txt['custom_option_need_name'] = 'The profile option must have a name!';
 $txt['custom_option_not_unique'] = 'Field name is not unique!';
+$txt['custom_option_regex_error'] = 'The regex you entered is not valid';
 
 $txt['warning_no_reason'] = 'You must enter a reason for altering the warning state of a member';
 $txt['warning_notify_blank'] = 'You selected to notify the user but did not fill in the subject/message fields';
