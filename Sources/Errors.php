@@ -125,7 +125,7 @@ function fatal_error($error, $log = 'general')
 	if (empty($txt))
 		die($error);
 
-	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error);
+	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error, $error);
 }
 
 /**

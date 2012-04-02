@@ -85,7 +85,7 @@ function AddLanguage()
 		$language_list = new xmlArray(fetch_web_data($url), true);
 
 		// Check it exists.
-		if (!$language_list->exists('languages'))
+		if (!$language_list->exists('languages/language'))
 			$context['smf_error'] = 'no_response';
 		else
 		{
