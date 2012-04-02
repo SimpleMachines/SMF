@@ -595,11 +595,11 @@ $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or 
 
 $helptxt['custom_mask'] = 'The input mask is important for your forum\'s security. Validating the input from a user can help ensure that data is not used in a way you do not expect. We have provided some simple regular expressions as hints.<br /><br />
 	<div class="smalltext" style="margin: 0 2em">
-		&quot;[A-Za-z]+&quot; - Match all upper and lower case alphabet characters.<br />
-		&quot;[0-9]+&quot; - Match all numeric characters.<br />
-		&quot;[A-Za-z0-9]{7}&quot; - Match all upper and lower case alphabet and numeric characters seven times.<br />
-		&quot;[^0-9]?&quot; - Forbid any number from being matched.<br />
-		&quot;^([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$&quot; - Only allow 3 or 6 character hexcodes.<br />
+		&quot;~[A-Za-z]+~&quot; - Match all upper and lower case alphabet characters.<br />
+		&quot;~[0-9]+~&quot; - Match all numeric characters.<br />
+		&quot;~[A-Za-z0-9]{7}~&quot; - Match all upper and lower case alphabet and numeric characters seven times.<br />
+		&quot;~[^0-9]?~&quot; - Forbid any number from being matched.<br />
+		&quot;~^([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$~&quot; - Only allow 3 or 6 character hexcodes.<br />
 	</div><br /><br />
 	Additionally, special metacharacters ?+*^$ and {xx} can be defined.
 	<div class="smalltext" style="margin: 0 2em">
