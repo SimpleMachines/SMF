@@ -236,6 +236,9 @@ function issueWarning($memID)
 
 	$context['page_title'] = $txt['profile_issue_warning'];
 
+	// Let's use a generic list to get all the current warnings
+	require_once($sourcedir . '/Subs-List.php');
+
 	// Work our the various levels.
 	$context['level_effects'] = array(
 		0 => $txt['profile_warning_effect_none'],
@@ -248,16 +251,96 @@ function issueWarning($memID)
 		if ($context['member']['warning'] >= $limit)
 			$context['current_level'] = $limit;
 
-	// Load up all the old warnings - count first!
-	$context['total_warnings'] = list_getUserWarningCount($memID);
+	$listOptions = array(
+		'id' => 'view_warnings',
+		'title' => $txt['profile_viewwarning_previous_warnings'],
+		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'no_items_label' => $txt['profile_viewwarning_no_warnings'],
+		'base_href' => $scripturl . '?action=profile;area=issuewarning;sa=user;u=' . $memID,
+		'default_sort_col' => 'log_time',
+		'get_items' => array(
+			'function' => 'list_getUserWarnings',
+			'params' => array(
+				$memID,
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getUserWarningCount',
+			'params' => array(
+				$memID,
+			),
+		),
+		'columns' => array(
+			'issued_by' => array(
+				'header' => array(
+					'value' => $txt['profile_warning_previous_issued'],
+					'style' => 'width: 20%;',
+				),
+				'data' => array(
+					'function' => create_function('$warning', '
+						return $warning[\'issuer\'][\'link\'];
+					'
+					),
+				),
+				'sort' => array(
+					'default' => 'lc.member_name DESC',
+					'reverse' => 'lc.member_name',
+				),
+			),
+			'log_time' => array(
+				'header' => array(
+					'value' => $txt['profile_warning_previous_time'],
+					'style' => 'width: 30%;',
+				),
+				'data' => array(
+					'db' => 'time',
+				),
+				'sort' => array(
+					'default' => 'lc.log_time DESC',
+					'reverse' => 'lc.log_time',
+				),
+			),
+			'reason' => array(
+				'header' => array(
+					'value' => $txt['profile_warning_previous_reason'],
+				),
+				'data' => array(
+					'function' => create_function('$warning', '
+						global $scripturl, $txt, $settings;
 
-	// Make the page index.
-	$context['start'] = (int) $_REQUEST['start'];
-	$perPage = (int) $modSettings['defaultMaxMessages'];
-	$context['page_index'] = constructPageIndex($scripturl . '?action=profile;u=' . $memID . ';area=issuewarning', $context['start'], $context['total_warnings'], $perPage);
+						$ret = \'
+						<div class="floatleft">
+							\' . $warning[\'reason\'] . \'
+						</div>\';
 
-	// Now do the data itself.
-	$context['previous_warnings'] = list_getUserWarnings($context['start'], $perPage, 'log_time DESC', $memID);
+						if (!empty($warning[\'id_notice\']))
+							$ret .= \'
+						<div class="floatright">
+							<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'images_url\'] . \'/filter.png" alt="" /></a>
+						</div>\';
+
+						return $ret;'),
+				),
+			),
+			'level' => array(
+				'header' => array(
+					'value' => $txt['profile_warning_previous_level'],
+					'style' => 'width: 6%;',
+				),
+				'data' => array(
+					'db' => 'counter',
+				),
+				'sort' => array(
+					'default' => 'lc.counter DESC',
+					'reverse' => 'lc.counter',
+				),
+			),
+		),
+	);
+
+	// Create the list for viewing.
+	require_once($sourcedir . '/Subs-List.php');
+	createList($listOptions);
 
 	// Are they warning because of a message?
 	if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg'])
