@@ -40,7 +40,7 @@ function template_ban_edit()
 							<input type="text" name="ban_name" id="ban_name" value="', $context['ban']['name'], '" size="47" maxlength="60" class="input_text" />
 						</dd>
 						<dt>
-							<strong><label for="reason">', $txt['ban_reason'], ':<label></strong><br />
+							<strong><label for="reason">', $txt['ban_reason'], ':</label></strong><br />
 							<span class="smalltext">', $txt['ban_reason_desc'], '</span>
 						</dt>
 						<dd>

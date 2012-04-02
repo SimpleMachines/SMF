@@ -172,7 +172,7 @@ function template_main()
 	{
 		echo '
 						<li class="category">
-							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), ']); return false;">', $category['name'], '</a>
+							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
 		foreach ($category['boards'] as $board)

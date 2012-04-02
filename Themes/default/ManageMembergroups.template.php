@@ -26,7 +26,7 @@ function template_new_group()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="', $context['character_set'], '">
+		<form id="new_group" action="', $scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
 			</div>
@@ -128,7 +128,7 @@ function template_new_group()
 	{
 		echo '
 									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), ']); return false;">', $category['name'], '</a>
+										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;">', $category['name'], '</a>
 									<ul>';
 
 		foreach ($category['boards'] as $board)
@@ -336,7 +336,7 @@ function template_edit_group()
 		{
 			echo '
 									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), ']); return false;">', $category['name'], '</a>
+										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'groupForm\'); return false;">', $category['name'], '</a>
 										<ul>';
 
 			foreach ($category['boards'] as $board)
