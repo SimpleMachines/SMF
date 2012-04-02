@@ -85,7 +85,7 @@ function AddLanguage()
 		$language_list = new xmlArray(fetch_web_data($url), true);
 
 		// Check it exists.
-		if (!$language_list->exists('languages'))
+		if (!$language_list->exists('languages/language'))
 			$context['smf_error'] = 'no_response';
 		else
 		{
@@ -833,10 +833,6 @@ function ModifyLanguage()
 			if (preg_match('~^([A-Za-z]+)\.' . $context['lang_id'] . '\.php$~', $entry, $matches) == 0)
 				continue;
 
-			// @todo Temp!
-			if ($matches[1] == 'EmailTemplates')
-				continue;
-
 			if (!isset($context['possible_files'][$theme]))
 				$context['possible_files'][$theme] = array(
 					'id' => $theme,
@@ -851,6 +847,7 @@ function ModifyLanguage()
 			);
 		}
 		$dir->close();
+		usort($context['possible_files'][$theme]['files'], create_function('$val1, $val2', 'return strcmp($val1[\'name\'], $val2[\'name\']);'));
 	}
 
 	// We no longer wish to speak this language.

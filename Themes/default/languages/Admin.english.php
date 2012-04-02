@@ -588,6 +588,10 @@ $txt['signature_settings_short'] = 'Signatures';
 $txt['custom_profile_shorttitle'] = 'Profile Fields';
 $txt['pruning_title'] = 'Log Pruning';
 
+$txt['core_settings_activation_message'] = 'The Feature {core_feature} has been activated, click on the title to configure it';
+$txt['core_settings_deactivation_message'] = 'The Feature {core_feature} has been deactivated';
+$txt['core_settings_generic_error'] = 'An unforeseen error occurred, please relod the page and try again';
+
 $txt['boardsEdit'] = 'Modify Boards';
 $txt['mboards_new_cat'] = 'Create New Category';
 $txt['manage_holidays'] = 'Manage Holidays';

@@ -151,6 +151,7 @@ $txt['showPosts_help'] = 'This section allows you to view all posts made by this
 $txt['showMessages'] = 'Messages';
 $txt['showTopics'] = 'Topics';
 $txt['showAttachments'] = 'Attachments';
+$txt['viewWarning_help'] = 'This section allows you to view all warnings issued to this member.';
 $txt['statPanel'] = 'Show Stats';
 $txt['editBuddyIgnoreLists'] = 'Buddies/Ignore List';
 $txt['editBuddies'] = 'Edit Buddies';

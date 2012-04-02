@@ -1297,12 +1297,10 @@ function template_admin_search_results()
 				echo '
 				<li>
 					<p>
-						<a href="', $context['doc_scripturl'], '?topic=', $result['topic_id'], '.0" target="_blank" class="new_win"><strong>', $result['messages'][0]['subject'], '</strong></a>
-						<br /><span class="smalltext"><a href="', $result['category']['href'], '" target="_blank" class="new_win">', $result['category']['name'], '</a> &nbsp;/&nbsp;
-						<a href="', $result['board']['href'], '" target="_blank" class="new_win">', $result['board']['name'], '</a> /</span>
+						<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" class="new_win"><strong>', $result['title'], '</strong></a>
 					</p>
 					<p class="double_height">
-						', $result['messages'][0]['body'], '
+						', $result['snippet'], '
 					</p>
 				</li>';
 			}
@@ -1339,20 +1337,73 @@ function template_core_features()
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
-		function toggleItem(itemID)
-		{
-			// Toggle the hidden item.
-			var itemValueHandle = document.getElementById("feature_" + itemID);
-			itemValueHandle.value = itemValueHandle.value == 1 ? 0 : 1;
+		var token_name;
+		var token_value;
+		$(document).ready(function() {
+			$(".core_features_hide").css(\'display\', \'none\');
+			$(".core_features_img").css({\'cursor\': \'pointer\', \'display\': \'\'});
+			$("#core_features_submit").css(\'display\', \'none\');
+			if (token_name == undefined)
+				token_name = $("#core_features_token").attr("name")
+			if (token_value == undefined)
+				token_value = $("#core_features_token").attr("value")
+			$(".core_features_img").click(function(){
+				var cc = $(this);
+				var cf = $(this).attr("id").substring(7);
+				var imgs = new Array("', $settings['images_url'], '/admin/switch_off.png", "', $settings['images_url'], '/admin/switch_on.png");
+				var new_state = !$("#feature_" + cf).attr("checked");
+				$("#feature_" + cf).attr("checked", new_state);
 
-			// Change the image, alternative text and the title.
-			document.getElementById("switch_" + itemID).src = \'', $settings['images_url'], '/admin/switch_\' + (itemValueHandle.value == 1 ? \'on\' : \'off\') + \'.png\';
-			document.getElementById("switch_" + itemID).alt = itemValueHandle.value == 1 ? \'', $txt['core_settings_switch_off'], '\' : \'', $txt['core_settings_switch_on'], '\';
-			document.getElementById("switch_" + itemID).title = itemValueHandle.value == 1 ? \'', $txt['core_settings_switch_off'], '\' : \'', $txt['core_settings_switch_on'], '\';
+				data = {save: "save", feature_id: cf};
+				data[$("#core_features_session").attr("name")] = $("#core_features_session").attr("value");
+				data[token_name] = token_value;
+				$(".core_features_status_box").each(function(){
+					data[$(this).attr("name")] = !$(this).attr("checked") ? 0 : 1;
+				});
 
-			// Don\'t reload.
-			return false;
-		}
+				// Launch AJAX request.
+				$.ajax({
+					// The link we are accessing.
+					url: "', $scripturl, '?action=xmlhttp;sa=corefeatures;xml",
+					// The type of request.
+					type: "post",
+					// The type of data that is getting returned.
+					data: data,
+					error: function(error){
+							$("#activation_message").html(error).slideDown(\'fast\');
+					},
+
+					success: function(request){
+						if ($(request).find("errors").find("error").length != 0)
+						{
+							$("#activation_message").attr(\'class\', \'errorbox\');
+							$("#activation_message").html($(request).find("errors").find("error").text()).slideDown(\'fast\');
+						}
+						else if ($(request).find("smf").length != 0)
+						{
+							$("#feature_link_" + cf).html($(request).find("corefeatures").find("corefeature").text());
+							cc.attr("src", imgs[new_state ? 1 : 0]);
+							$("#feature_link_" + cf).fadeOut().fadeIn();
+							$("#activation_message").attr(\'class\', \'infobox\');
+							var message = new_state ? ' . JavaScriptEscape($txt['core_settings_activation_message']) . ' : ' . JavaScriptEscape($txt['core_settings_deactivation_message']) . ';
+							$("#activation_message").html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\');
+							setTimeout(function() {
+								$("#activation_message").slideUp();
+							}, 5000);
+
+							token_name = $(request).find("tokens").find(\'[type="token"]\').text();
+							token_value = $(request).find("tokens").find(\'[type="token_var"]\').text();
+						}
+						else
+						{
+							$("#activation_message").attr(\'class\', \'errorbox\');
+							$("#activation_message").html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
+							
+						}
+					}
+				});
+			});
+		});
 	// ]]></script>
 	<div id="admincenter">';
 	if ($context['is_new_install'])
@@ -1369,12 +1420,13 @@ function template_core_features()
 	}
 
 	echo '
-		<form action="', $scripturl, '?action=admin;area=corefeatures;" method="post" accept-charset="', $context['character_set'], '">
+		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
 				</h3>
-			</div>';
+			</div>
+			<div style="display:none" id="activation_message" class="errorbox"></div>';
 
 	$alternate = true;
 	$num = 0;
@@ -1386,32 +1438,14 @@ function template_core_features()
 			<div class="windowbg', $alternate ? '2' : '', '">
 				<span class="topslice"><span></span></span>
 				<div class="content features">
-					<img class="features_image" src="', $settings['images_url'], '/admin/feature_', $id, '.png" alt="', $feature['title'], '" />
-					<div class="features_switch" id="js_feature_', $id, '" style="display: none;">
-						<a href="', $scripturl, '?action=admin;area=featuresettings;sa=core;', $context['session_var'], '=', $context['session_id'], ';toggle=', $id, ';state=', $feature['enabled'] ? 0 : 1, '" onclick="return toggleItem(\'', $id, '\');">
-							<input type="hidden" name="feature_', $id, '" id="feature_', $id, '" value="', $feature['enabled'] ? 1 : 0, '" /><img src="', $settings['images_url'], '/admin/switch_', $feature['enabled'] ? 'on' : 'off', '.png" id="switch_', $id, '" style="margin-top: 1.3em;" alt="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" title="', $txt['core_settings_switch_' . ($feature['enabled'] ? 'off' : 'on')], '" />
-						</a>
+					<img class="features_image" src="', $feature['image'], '" alt="', $feature['title'], '" />
+					<div class="features_switch" id="js_feature_', $id, '">
+							<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
+							<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;display:none" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
 					</div>
-					<h4>', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
+					<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
 					<p>', $feature['desc'], '</p>
-					<div id="plain_feature_', $id, '">
-						<label for="plain_feature_', $id, '_radio_on"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_on" value="1"', $feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_enabled'], '</label>
-						<label for="plain_feature_', $id, '_radio_off"><input type="radio" name="feature_plain_', $id, '" id="plain_feature_', $id, '_radio_off" value="0"', !$feature['enabled'] ? ' checked="checked"' : '', ' class="input_radio" />', $txt['core_settings_disabled'], '</label>
-					</div>
-				</div>';
-				
-		// last feature, show the save button
-		if ($num == $num_features)
-			echo '
-				<div class="content">
-					<hr class="color clear" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
-					<input type="hidden" value="0" name="js_worked" id="js_worked" />
-					<input type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
-				</div>';
-	
-		echo '
+				</div>
 				<span class="botslice clear_right"><span></span></span>
 			</div>';
 
@@ -1419,20 +1453,14 @@ function template_core_features()
 	}
 
 	echo '
+			<div class="righttext">
+				<input id="core_features_session" type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input id="core_features_token" type="hidden" name="', $context['admin-core_token_var'], '" value="', $context['admin-core_token'], '" />
+				<input id="core_features_submit" type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
+			</div>
 		</form>
 	</div>
 	<br class="clear" />';
-
-	// Turn on the pretty javascript if we can!
-	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		document.getElementById(\'js_worked\').value = "1";';
-		foreach ($context['features'] as $id => $feature)
-			echo '
-		document.getElementById(\'js_feature_', $id, '\').style.display = "";
-		document.getElementById(\'plain_feature_', $id, '\').style.display = "none";';
-	echo '
-	// ]]></script>';
 }
 
 
