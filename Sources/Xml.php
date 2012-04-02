@@ -28,6 +28,9 @@ function XMLhttpMain()
 		'messageicons' => array(
 			'function' => 'ListMessageIcons',
 		),
+		'corefeatures' => array(
+			'function' => 'EnableCoreFeatures',
+		),
 	);
 	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
@@ -71,4 +74,91 @@ function ListMessageIcons()
 	$context['sub_template'] = 'message_icons';
 }
 
+function EnableCoreFeatures()
+{
+	global $context, $smcFunc, $sourcedir, $modSettings, $txt;
+
+	$context['xml_data'] = array();
+	// Just in case, maybe we don't need it
+	loadLanguage('Errors');
+
+	$errors = array();
+	$returns = array();
+	$tokens = array();
+	if (allowedTo('admin_forum'))
+	{
+		$validation = validateSession();
+		if (empty($validation))
+		{
+			require_once($sourcedir . '/ManageSettings.php');
+			$result = ModifyCoreFeatures();
+
+			if (empty($result))
+			{
+				$id = isset($_POST['feature_id']) ? $_POST['feature_id'] : '';
+
+				if (!empty($id) && isset($context['features'][$id]))
+				{
+					$feature = $context['features'][$id];
+
+					$returns[] = array(
+						'value' => (!empty($_POST['feature_' . $id]) && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']),
+					);
+
+					createToken('admin-core', 'post');
+					$tokens = array(
+						array(
+							'value' => $context['admin-core_token'],
+							'attributes' => array('type' => 'token_var'),
+						),
+						array(
+							'value' => $context['admin-core_token_var'],
+							'attributes' => array('type' => 'token'),
+						),
+					);
+				}
+				else
+				{
+					$errors[] = array(
+						'value' => $txt['feature_no_exists'],
+					);
+				}
+			}
+			else
+			{
+				$errors[] = array(
+					'value' => $txt[$result],
+				);
+			}
+		}
+		else
+		{
+			$errors[] = array(
+				'value' => $txt[$validation],
+			);
+		}
+	}
+	else
+	{
+		$errors[] = array(
+			'value' => $txt['cannot_admin_forum']
+		);
+	}
+
+	$context['sub_template'] = 'generic_xml';
+	$context['xml_data'] = array (
+		'corefeatures' => array (
+			'identifier' => 'corefeature',
+			'children' => $returns,
+		),
+		'tokens' => array (
+			'identifier' => 'token',
+			'children' => $tokens,
+		),
+		'errors' => array (
+			'identifier' => 'error',
+			'children' => $errors,
+		),
+	);
+}
 ?>

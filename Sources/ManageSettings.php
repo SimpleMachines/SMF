@@ -187,7 +187,6 @@ function ModifyCoreFeatures($return_config = false)
 	/* This is an array of all the features that can be enabled/disabled - each option can have the following:
 		title		- Text title of this item (If standard string does not exist).
 		desc		- Description of this feature (If standard string does not exist).
-		image		- Custom image to show next to feature.
 		settings	- Array of settings to change (For each name => value) on enable - reverse is done for disable. If > 1 will not change value if set.
 		setting_callback- Function that returns an array of settings to save - takes one parameter which is value for this feature.
 		save_callback	- Function called on save, takes state as parameter.
@@ -354,18 +353,24 @@ function ModifyCoreFeatures($return_config = false)
 	if (isset($_POST['save']))
 	{
 		checkSession();
+
+	if (isset($_GET['xml']))
+	{
+		$tokenValidation = validateToken('admin-core', 'post', false);
+
+		if (empty($tokenValidation))
+			return 'token_verify_fail';
+	}
+	else
 		validateToken('admin-core');
 
 		$setting_changes = array('admin_features' => array());
-
-		// Are we using the javascript stuff or radios to submit?
-		$post_var_prefix = empty($_POST['js_worked']) ? 'feature_plain_' : 'feature_';
 
 		// Cycle each feature and change things as required!
 		foreach ($core_features as $id => $feature)
 		{
 			// Enabled?
-			if (!empty($_POST[$post_var_prefix . $id]))
+			if (!empty($_POST['feature_' . $id]))
 				$setting_changes['admin_features'][] = $id;
 
 			// Setting values to change?
@@ -373,14 +378,14 @@ function ModifyCoreFeatures($return_config = false)
 			{
 				foreach ($feature['settings'] as $key => $value)
 				{
-					if (empty($_POST[$post_var_prefix . $id]) || (!empty($_POST[$post_var_prefix . $id]) && ($value < 2 || empty($modSettings[$key]))))
-						$setting_changes[$key] = !empty($_POST[$post_var_prefix . $id]) ? $value : !$value;
+					if (empty($_POST['feature_' . $id]) || (!empty($_POST['feature_' . $id]) && ($value < 2 || empty($modSettings[$key]))))
+						$setting_changes[$key] = !empty($_POST['feature_' . $id]) ? $value : !$value;
 				}
 			}
 			// Is there a call back for settings?
 			if (isset($feature['setting_callback']))
 			{
-				$returned_settings = $feature['setting_callback'](!empty($_POST[$post_var_prefix . $id]));
+				$returned_settings = $feature['setting_callback'](!empty($_POST['feature_' . $id]));
 				if (!empty($returned_settings))
 					$setting_changes = array_merge($setting_changes, $returned_settings);
 			}
@@ -404,10 +409,11 @@ function ModifyCoreFeatures($return_config = false)
 		{
 			// Standard save callback?
 			if (isset($feature['save_callback']))
-				$feature['save_callback'](!empty($_POST[$post_var_prefix . $id]));
+				$feature['save_callback'](!empty($_POST['feature_' . $id]));
 		}
 
-		redirectexit('action=admin;area=corefeatures;' . $context['session_var'] . '=' . $context['session_id']);
+		if (!isset($_REQUEST['xml']))
+			redirectexit('action=admin;area=corefeatures;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Put them in context.
@@ -417,7 +423,9 @@ function ModifyCoreFeatures($return_config = false)
 			'title' => isset($feature['title']) ? $feature['title'] : $txt['core_settings_item_' . $id],
 			'desc' => isset($feature['desc']) ? $feature['desc'] : $txt['core_settings_item_' . $id . '_desc'],
 			'enabled' => in_array($id, $context['admin_features']),
+			'state' => in_array($id, $context['admin_features']) ? 'on' : 'off',
 			'url' => !empty($feature['url']) ? $scripturl . '?' . $feature['url'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '',
+			'image' => (file_exists($settings['theme_dir'] . '/images/admin/feature_' . $id . '.png') ? $settings['images_url'] : $settings['default_images_url']) . '/admin/feature_' . $id . '.png',
 		);
 
 	// Are they a new user?
@@ -426,6 +434,10 @@ function ModifyCoreFeatures($return_config = false)
 	// Don't show them this twice!
 	if ($context['is_new_install'])
 		updateSettings(array('admin_features' => ''));
+
+	// sub_template is already generic_xml and the token is created somewhere else
+	if (isset($_REQUEST['xml']))
+		return;
 
 	$context['sub_template'] = 'core_features';
 	$context['page_title'] = $txt['core_settings_title'];

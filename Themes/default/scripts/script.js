@@ -1495,15 +1495,16 @@ function initSearch()
 		document.forms.searchform.search.value = unescape(document.forms.searchform.search.value);
 }
 
-function selectBoards(ids)
+function selectBoards(ids, aFormID)
 {
 	var toggle = true;
+	var aForm = document.getElementById(aFormID);
 
 	for (i = 0; i < ids.length; i++)
-		toggle = toggle & document.forms.searchform["brd" + ids[i]].checked;
+		toggle = toggle & aForm["brd" + ids[i]].checked;
 
 	for (i = 0; i < ids.length; i++)
-		document.forms.searchform["brd" + ids[i]].checked = !toggle;
+		aForm["brd" + ids[i]].checked = !toggle;
 }
 
 function expandCollapseBoards()

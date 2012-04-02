@@ -125,7 +125,7 @@ function fatal_error($error, $log = 'general')
 	if (empty($txt))
 		die($error);
 
-	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error);
+	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error, $error);
 }
 
 /**
@@ -175,7 +175,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
-	setup_fatal_error_context($error_message);
+	setup_fatal_error_context($error_message, $error);
 }
 
 /**
@@ -261,7 +261,7 @@ function error_handler($error_level, $error_string, $file, $line)
  * error sub template.
  * @param string $error_message
  */
-function setup_fatal_error_context($error_message)
+function setup_fatal_error_context($error_message, $error_code)
 {
 	global $context, $txt, $ssi_on_error_method;
 	static $level = 0;
@@ -281,6 +281,8 @@ function setup_fatal_error_context($error_message)
 	if (!isset($context['error_title']))
 		$context['error_title'] = $txt['error_occured'];
 	$context['error_message'] = isset($context['error_message']) ? $context['error_message'] : $error_message;
+
+	$context['error_code'] = isset($error_code) ? 'id="' . $error_code . '" ' : '';
 
 	if (empty($context['page_title']))
 		$context['page_title'] = $context['error_title'];
