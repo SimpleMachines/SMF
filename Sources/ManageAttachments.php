@@ -92,6 +92,12 @@ function ManageAttachmentSettings($return_config = false)
 
 	// Perform a test to see if the GD module is installed.
 	$testGD = get_extension_funcs('gd');
+	
+	// See if we can find if the server is set up to support the attacment limits
+	$post_max_size = ini_get('post_max_size');
+	$upload_max_filesize = ini_get('upload_max_filesize');
+	$testPM = !empty($post_max_size) ? (memoryReturnBytes($post_max_size) >= (isset($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] * 1024 : 0)) : true;
+	$testUM = !empty($upload_max_filesize) ? (memoryReturnBytes($upload_max_filesize) >= (isset($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] * 1024 : 0)) : true;
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
@@ -103,12 +109,14 @@ function ManageAttachmentSettings($return_config = false)
 		'',
 			// Directory and size limits.
 			empty($modSettings['currentAttachmentUploadDir']) ? array('text', 'attachmentUploadDir', 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' => 'attachmentUploadDir_multiple_configure'),
-			array('text', 'attachmentDirSizeLimit', 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentPostLimit', 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentSizeLimit', 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentNumPerPostLimit', 6),
+			array('int', 'attachmentDirSizeLimit', 6, 'postinput' => $txt['kilobyte'], 'subtext' => $txt['attachment_no_limit']),
+			array('int', 'attachmentPostLimit', 6, 'postinput' => $txt['kilobyte'], 'subtext' => $txt['attachment_no_limit']),
+			array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
+			array('int', 'attachmentSizeLimit', 6, 'postinput' => $txt['kilobyte'], 'subtext' => $txt['attachment_no_limit']),
+			array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
+			array('int', 'attachmentNumPerPostLimit', 6, 'subtext' => $txt['attachment_no_limit']),
 			// Security Items
-		'',
+		array('title', 'attachment_security_settings'),
 			// Extension checks etc.
 			array('check', 'attachmentCheckExtensions'),
 			array('text', 'attachmentExtensions', 40),
@@ -119,8 +127,8 @@ function ManageAttachmentSettings($return_config = false)
 		'',
 			array('warning', 'attachment_image_paranoid_warning'),
 			array('check', 'attachment_image_paranoid'),
-		'',
 			// Thumbnail settings.
+		array('title', 'attachment_thumbnail_settings'),
 			array('check', 'attachmentShowImages'),
 			array('check', 'attachmentThumbnails'),
 			array('check', 'attachment_thumb_png'),
@@ -186,8 +194,8 @@ function ManageAvatarSettings($return_config = false)
 		array('title', 'avatar_external'),
 			array('permissions', 'profile_remote_avatar', 0, $txt['avatar_external_url_groups']),
 			array('check', 'avatar_download_external', 0, 'onchange' => 'fUpdateStatus();'),
-			array('text', 'avatar_max_width_external', 6),
-			array('text', 'avatar_max_height_external', 6),
+			array('text', 'avatar_max_width_external', 6, 'subtext' => $txt['avatar_dimension_note']),
+			array('text', 'avatar_max_height_external', 6, 'subtext' => $txt['avatar_dimension_note']),
 			array('select', 'avatar_action_too_large',
 				array(
 					'option_refuse' => $txt['option_refuse'],
@@ -199,8 +207,8 @@ function ManageAvatarSettings($return_config = false)
 		// Uploadable avatars?
 		array('title', 'avatar_upload'),
 			array('permissions', 'profile_upload_avatar', 0, $txt['avatar_upload_groups']),
-			array('text', 'avatar_max_width_upload', 6),
-			array('text', 'avatar_max_height_upload', 6),
+			array('text', 'avatar_max_width_upload', 6, 'subtext' => $txt['avatar_dimension_note']),
+			array('text', 'avatar_max_height_upload', 6, 'subtext' => $txt['avatar_dimension_note']),
 			array('check', 'avatar_resize_upload', 'subtext' => $txt['avatar_resize_upload_note']),
 			array('check', 'avatar_reencode'),
 		'',
