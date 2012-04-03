@@ -43,8 +43,8 @@ function template_download_language()
 	// An error?
 	if (!empty($context['error_message']))
 		echo '
-	<div id="errorbox">
-		<p>', $context['error_message'], '</p>
+	<div class="errorbox">
+		', $context['error_message'], '
 	</div>';
 
 	// Provide something of an introduction...
@@ -142,8 +142,8 @@ function template_download_language()
 	{
 		if (!empty($context['package_ftp']['error']))
 			echo '
-			<div id="errorbox">
-				<tt>', $context['package_ftp']['error'], '</tt>
+			<div class="errorbox">
+				', $context['package_ftp']['error'], '
 			</div>';
 
 		echo '
@@ -251,6 +251,9 @@ function template_modify_language_entries()
 				<h3 class="catbg">
 					', $txt['edit_languages'], '
 				</h3>
+			</div>
+			<div class="information">
+				', $txt['edit_language_entries_primary'], '
 			</div>';
 
 	// Not writable?
@@ -258,16 +261,13 @@ function template_modify_language_entries()
 	{
 		// Oops, show an error for ya.
 		echo '
-			<div id="errorbox">
-				<p class="alert">', $context['lang_file_not_writable_message'], '</p>
+			<div class="errorbox">
+				', $context['lang_file_not_writable_message'], '
 			</div>';
 	}
 
 	// Show the language entries
 	echo '
-			<div class="information">
-				', $txt['edit_language_entries_primary'], '
-			</div>
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
@@ -357,8 +357,8 @@ function template_modify_language_entries()
 	// Show an error.
 	if (!empty($context['entries_not_writable_message']))
 		echo '
-			<div id="errorbox">
-				<span class="alert">', $context['entries_not_writable_message'], '</span>
+			<div class="errorbox">
+				', $context['entries_not_writable_message'], '
 			</div>';
 
 	// Already have some file entries?
