@@ -1439,6 +1439,7 @@ INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('che
 INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('grin', 'Grin', '9');
 INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('sad', 'Sad', '10');
 INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('wink', 'Wink', '11');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('poll', 'Poll', '12');
 COMMIT;
 
 # --------------------------------------------------------

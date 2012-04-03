@@ -1089,6 +1089,20 @@ function Post()
 
 	if (!empty($context['icons']))
 		$context['icons'][count($context['icons']) - 1]['is_last'] = true;
+	
+	// Are we starting a poll? if set the poll icon as selected if its available
+	if (isset($_REQUEST['poll']))
+	{
+	    foreach ($context['icons'] as $icons)
+		{  
+			if (isset($icons['value']) && $icons['value'] == 'poll')
+			{
+				// if found we are done
+				$context['icon'] = 'poll';
+				break;
+			}
+		}
+	}
 
 	$context['icon_url'] = '';
 	for ($i = 0, $n = count($context['icons']); $i < $n; $i++)
@@ -2068,7 +2082,6 @@ function Post2()
 		redirectexit('board=' . $board . '.0');
 }
 
-// General function for topic announcements.
 /**
  * handle the announce topic function (action=announce).
  * checks the topic announcement permissions and loads the announcement template.
