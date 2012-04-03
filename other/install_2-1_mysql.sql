@@ -1186,14 +1186,14 @@ CREATE TABLE {$db_prefix}membergroups (
 
 INSERT INTO {$db_prefix}membergroups
 	(id_group, group_name, description, online_color, min_posts, stars, group_type)
-VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#staradmin.gif', 1),
-	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#stargmod.gif', 0),
-	(3, '{$default_moderator_group}', '', '', -1, '5#starmod.gif', 0),
-	(4, '{$default_newbie_group}', '', '', 0, '1#star.gif', 0),
-	(5, '{$default_junior_group}', '', '', 50, '2#star.gif', 0),
-	(6, '{$default_full_group}', '', '', 100, '3#star.gif', 0),
-	(7, '{$default_senior_group}', '', '', 250, '4#star.gif', 0),
-	(8, '{$default_hero_group}', '', '', 500, '5#star.gif', 0);
+VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#staradmin.png', 1),
+	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#stargmod.png', 0),
+	(3, '{$default_moderator_group}', '', '', -1, '5#starmod.png', 0),
+	(4, '{$default_newbie_group}', '', '', 0, '1#star.png', 0),
+	(5, '{$default_junior_group}', '', '', 50, '2#star.png', 0),
+	(6, '{$default_full_group}', '', '', 100, '3#star.png', 0),
+	(7, '{$default_senior_group}', '', '', 250, '4#star.png', 0),
+	(8, '{$default_hero_group}', '', '', 500, '5#star.png', 0);
 # --------------------------------------------------------
 
 #
