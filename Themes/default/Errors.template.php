@@ -206,4 +206,32 @@ function template_show_file()
 </html>';
 }
 
+function template_attachment_errors()
+{
+	global $context, $scripturl, $txt;
+
+	echo '
+	<div>
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['attach_error_title'], '
+			</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="padding">
+				<div class="noticebox" />', 
+					$context['error_message'], '
+				</div>
+				<hr class="hrcolor" />
+				<a class="button_link" href="', $scripturl, $context['back_link'], '">', $txt['back'], '</a>
+				<span style="float: right; margin:.5em;"></span>
+				<a class="button_link" href="', $scripturl, $context['redirect_link'], '">', $txt['attach_continue'], '</a>
+				<br class="clear_right" />
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>
+	</div>';
+}
+
 ?>

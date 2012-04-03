@@ -407,8 +407,14 @@ function template_main()
 		foreach ($context['current_attachments'] as $attachment)
 			echo '
 						<dd class="smalltext">
-							<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked="checked"' : '', ' class="input_check" /> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''), '</label>
+							<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked="checked"' : '', ' class="input_check" /> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
+							!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label>
 						</dd>';
+
+		if (!empty($context['files_in_session_warning']))
+			echo '
+						<dd class="smalltext">', $context['files_in_session_warning'], '</dd>';
+
 		echo '
 					</dl>';
 	}
@@ -417,16 +423,22 @@ function template_main()
 	if ($context['can_post_attachment'])
 	{
 		echo '
-					<dl id="postAttachment2">
+					<dl id="postAttachment2">';
+		
+		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
+		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
+		{
+			echo '
 						<dt>
 							', $txt['attach'], ':
 						</dt>
 						<dd class="smalltext">
+							', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '" />'), '
 							<input type="file" size="60" name="attachment[]" id="attachment1" class="input_file" /> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
 
-		// Show more boxes only if they aren't approaching their limit.
-		if ($context['num_allowed_attachments'] > 1)
-			echo '
+			// Show more boxes if they aren't approaching that limit.
+			if ($context['num_allowed_attachments'] > 1)
+				echo '
 							<script type="text/javascript"><!-- // --><![CDATA[
 								var allowed_attachments = ', $context['num_allowed_attachments'], ';
 								var current_attachment = 1;
@@ -438,13 +450,20 @@ function template_main()
 									if (allowed_attachments <= 0)
 										return alert("', $txt['more_attachments_error'], '");
 
-									setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" size="60" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file" /> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '</a>)\' + \'</dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
+									setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" size="60" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file" /> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
 
 									return true;
 								}
 							// ]]></script>
 						</dd>
 						<dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a></dd>';
+			else
+				echo '
+						</dd>';
+		}
+
+		// Add any template changes for an alternative upload system here.
+		call_integration_hook('integrate_upload_template', array());
 
 		echo '
 						<dd class="smalltext">';
@@ -457,6 +476,10 @@ function template_main()
 		if (!empty($context['attachment_restrictions']))
 			echo '
 							', $txt['attach_restrictions'], ' ', implode(', ', $context['attachment_restrictions']), '<br />';
+
+		if ($context['num_allowed_attachments'] == 0)
+			echo '
+							', $txt['attach_limit_nag'], '<br />';
 
 		if (!$context['can_post_attachment_unapproved'])
 			echo '

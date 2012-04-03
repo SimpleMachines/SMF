@@ -35,12 +35,6 @@ $txt['cant_change_own_karma'] = 'Sorry, you are not permitted to modify your own
 $txt['karma_wait_time'] = 'Sorry, you can\'t repeat a karma action without waiting %1$s %2$s.';
 $txt['feature_disabled'] = 'Sorry, this feature is disabled.';
 $txt['feature_no_exists'] = 'Sorry, this feature doesn\'t exist.';
-$txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
-$txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d kB.';
-$txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';
-$txt['filename_exists'] = 'Sorry! There is already an attachment with the same filename as the one you tried to upload. Please rename the file and try again.';
-$txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
-$txt['ran_out_of_space'] = 'The upload folder is full. Please try a smaller file and/or contact an administrator.';
 $txt['couldnt_connect'] = 'Could not connect to server or could not find file';
 $txt['no_board'] = 'The board you specified doesn\'t exist';
 $txt['cant_split'] = 'You are not allowed to split topics';
@@ -215,12 +209,10 @@ $txt['email_missing_data'] = 'You must enter something in both the subject and m
 $txt['topic_gone'] = 'The topic or board you are looking for appears to be either missing or off limits to you.';
 $txt['theme_edit_missing'] = 'The file you are trying to edit... can\'t even be found!';
 
-$txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
-$txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
-
 $txt['no_dump_database'] = 'Only administrators can make database backups!';
 $txt['pm_not_yours'] = 'The personal message you\'re trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
+$txt['post_upload_error'] = 'The post data is missing. This error is can be caused by trying to submit to file larger than allowed by the server.  Please contact your administrator if this problem continues.';
 $txt['quoted_post_deleted'] = 'The post you are trying to quote either does not exist, was deleted, or is no longer viewable by you.';
 $txt['pm_too_many_per_hour'] = 'You have exceeded the limit of %1$d personal messages per hour.';
 $txt['labels_too_many'] = 'Sorry, %1$s messages already had the maximum amount of labels allowed!';

@@ -282,7 +282,7 @@ function imageMemoryCheck($sizes)
 	// doing the old 'set it and hope' way?
 	if (empty($modSettings['attachment_thumb_memory']))
 	{
-		setMemoryLimit('90M');
+		setMemoryLimit('128M');
 		return true;
 	}
 
@@ -358,7 +358,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	else
 		$sizes = array(-1, -1, -1);
 		
-	// See if we have -or- can get the need memory for this operation
+	// See if we have -or- can get the needed memory for this operation
 	if (!imageMemoryCheck($sizes))
 		return false;
 
