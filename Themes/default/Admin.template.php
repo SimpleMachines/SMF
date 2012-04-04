@@ -1352,6 +1352,10 @@ function template_core_features()
 				var cf = $(this).attr("id").substring(7);
 				var imgs = new Array("', $settings['images_url'], '/admin/switch_off.png", "', $settings['images_url'], '/admin/switch_on.png");
 				var new_state = !$("#feature_" + cf).attr("checked");
+				var ajax_infobar = document.createElement(\'div\');
+				$(ajax_infobar).css({\'position\': \'fixed\', \'top\': \'0\', \'left\': \'0\', \'width\': \'100%\'});
+				$("body").append(ajax_infobar);
+				$(ajax_infobar).slideUp();
 				$("#feature_" + cf).attr("checked", new_state);
 
 				data = {save: "save", feature_id: cf};
@@ -1370,25 +1374,25 @@ function template_core_features()
 					// The type of data that is getting returned.
 					data: data,
 					error: function(error){
-							$("#activation_message").html(error).slideDown(\'fast\');
+							$(ajax_infobar).html(error).slideDown(\'fast\');
 					},
 
 					success: function(request){
 						if ($(request).find("errors").find("error").length != 0)
 						{
-							$("#activation_message").attr(\'class\', \'errorbox\');
-							$("#activation_message").html($(request).find("errors").find("error").text()).slideDown(\'fast\');
+							$(ajax_infobar).attr(\'class\', \'errorbox\');
+							$(ajax_infobar).html($(request).find("errors").find("error").text()).slideDown(\'fast\');
 						}
 						else if ($(request).find("smf").length != 0)
 						{
 							$("#feature_link_" + cf).html($(request).find("corefeatures").find("corefeature").text());
 							cc.attr("src", imgs[new_state ? 1 : 0]);
 							$("#feature_link_" + cf).fadeOut().fadeIn();
-							$("#activation_message").attr(\'class\', \'infobox\');
+							$(ajax_infobar).attr(\'class\', \'infobox\');
 							var message = new_state ? ' . JavaScriptEscape($txt['core_settings_activation_message']) . ' : ' . JavaScriptEscape($txt['core_settings_deactivation_message']) . ';
-							$("#activation_message").html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\');
+							$(ajax_infobar).html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\');
 							setTimeout(function() {
-								$("#activation_message").slideUp();
+								$(ajax_infobar).slideUp();
 							}, 5000);
 
 							token_name = $(request).find("tokens").find(\'[type="token"]\').text();
@@ -1396,8 +1400,8 @@ function template_core_features()
 						}
 						else
 						{
-							$("#activation_message").attr(\'class\', \'errorbox\');
-							$("#activation_message").html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
+							$(ajax_infobar).attr(\'class\', \'errorbox\');
+							$(ajax_infobar).html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
 							
 						}
 					}
