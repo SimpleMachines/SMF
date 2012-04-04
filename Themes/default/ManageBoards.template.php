@@ -56,7 +56,7 @@ function template_main()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
-					<ul id="category_', $category['id'], '" <ul class="reset nolist">';
+					<ul id="category_', $category['id'], '" class="reset nolist">';
 
 		if (!empty($category['move_link']))
 			echo '
