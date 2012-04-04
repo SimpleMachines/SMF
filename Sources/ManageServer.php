@@ -570,7 +570,8 @@ function prepareServerSettingsContext(&$config_vars)
 			if (!empty($config_var[4]) && is_array($config_var[4]))
 			{
 				// If it's associative
-				if (isset($config_var[4][0]) && is_array($config_var[4][0]))
+				$config_values = array_values($config_var[4]);
+				if (isset($config_values[0]) && is_array($config_values[0]))
 					$context['config_vars'][$config_var[0]]['data'] = $config_var[4];
 				else
 				{
