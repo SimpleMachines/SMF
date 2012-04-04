@@ -2111,6 +2111,7 @@ function template_issueWarning()
 			document.getElementById(\'warn_body\').disabled = disable;
 			document.getElementById(\'warn_temp\').disabled = disable;
 			document.getElementById(\'new_template_link\').style.display = disable ? \'none\' : \'\';
+			document.getElementById(\'preview_button\').style.display = disable ? \'none\' : \'\';
 		}
 
 		function changeWarnLevel(amount)
@@ -2215,6 +2216,17 @@ function template_issueWarning()
 					</dd>
 				</dl>
 				<hr />
+				<div id="box_preview"', !empty($context['warning_data']['body_preview']) ? '' : ' style="display:none"', '>
+					<dl class="settings">
+						<dt>
+							<strong>', $txt['preview'] , '</strong>
+						</dt>
+						<dd id="body_preview">
+							', !empty($context['warning_data']['body_preview']) ? $context['warning_data']['body_preview'] : '', '
+						</dd>
+					</dl>
+					<hr />
+				</div>
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['profile_warning_notify'], ':</strong>
@@ -2252,10 +2264,11 @@ function template_issueWarning()
 
 	if (!empty($context['token_check']))
 		echo '
-				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button_submit" />
 				</div>
 			</div>
@@ -2264,7 +2277,8 @@ function template_issueWarning()
 	</form>';
 
 	// Previous warnings?
-	echo '<br />
+	echo '
+		<br />
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', $txt['profile_warning_previous'], '
@@ -2323,11 +2337,49 @@ function template_issueWarning()
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		document.getElementById(\'warndiv1\').style.display = "";
+		document.getElementById(\'preview_button\').style.display = "none";
 		document.getElementById(\'warndiv2\').style.display = "none";';
 
 	if (!$context['user']['is_owner'])
 		echo '
-		modifyWarnNotify();';
+		modifyWarnNotify();
+		$(document).ready(function() {
+			$("#preview_button").click(function() {
+				return ajax_getTemplatePreview();
+			});
+		});
+
+		function ajax_getTemplatePreview ()
+		{
+			$.ajax({
+				type: "POST",
+				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
+				context: document.body,
+				success: function(request){
+					$("#box_preview").css({display:""});
+					$("#body_preview").html($(request).find(\'body\').text());
+					if ($(request).find("error").text() != \'\')
+					{
+						$("#profile_error").css({display:""});
+						var errors_html = \'<span>\' + $("#profile_error").find("span").html() + \'</span>\' + \'<ul class="list_errors" class="reset">\';
+						var errors = $(request).find(\'error\').each(function() {
+							errors_html += \'<li>\' + $(this).text() + \'</li>\';
+						});
+						errors_html += \'</ul>\';
+
+						$("#profile_error").html(errors_html);
+					}
+					else
+					{
+						$("#profile_error").css({display:"none"});
+						$("#error_list").html(\'\');
+					}
+				return false;
+				},
+			});
+			return false;
+		}';
 
 	echo '
 	// ]]></script>';
@@ -2464,7 +2516,7 @@ function template_error_message()
 		echo '
 		<div class="errorbox" id="profile_error">
 			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
-			<ul class="reset">';
+			<ul id="list_errors">';
 
 		// Cycle through each error and display an error message.
 		foreach ($context['post_errors'] as $error)
@@ -2477,7 +2529,9 @@ function template_error_message()
 	}
 	else
 		echo '
-		<div class="errorbox" style="display:none" id="profile_error"></div>';
+		<div class="errorbox" style="display:none" id="profile_error">
+			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
+		</div>';
 }
 
 // Display a load of drop down selectors for allowing the user to change group.

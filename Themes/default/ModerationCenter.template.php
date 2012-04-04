@@ -890,7 +890,7 @@ function template_warn_template()
 			$.ajax({
 				type: "POST",
 				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
-				data: {item: "warning_preview", template_title: $("#template_title").val(), template_body: $("#template_body").val(), user: $(\'input[name="u"]\').attr("value")},
+				data: {item: "warning_preview", title: $("#template_title").val(), body: $("#template_body").val(), user: $(\'input[name="u"]\').attr("value")},
 				context: document.body,
 				success: function(request){
 					$("#box_preview").css({display:""});

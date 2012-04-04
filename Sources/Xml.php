@@ -236,23 +236,28 @@ function warning_preview()
 	$context['post_error']['messages'] = array();
 	if (allowedTo('issue_warning'))
 	{
-		$warning_body = !empty($_POST['template_body']) ? trim(censorText($_POST['template_body'])) : '';
-		$context['preview_subject'] = !empty($_POST['template_title']) ? trim($smcFunc['htmlspecialchars']($_POST['template_title'])) : '';
-		if (empty($_POST['template_title']))
-			$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_title'];
-		if (empty($_POST['template_body']))
-			$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
+		$warning_body = !empty($_POST['body']) ? trim(censorText($_POST['body'])) : '';
+		$context['preview_subject'] = !empty($_POST['title']) ? trim($smcFunc['htmlspecialchars']($_POST['title'])) : '';
+		if (isset($_POST['issuing']))
+		{
+			if (empty($_POST['title']) || empty($_POST['body']))
+				$context['post_error']['messages'][] = $txt['warning_notify_blank'];
+		}
 		else
 		{
+			if (empty($_POST['title']))
+				$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_title'];
+			if (empty($_POST['body']))
+				$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
 			// Add in few replacements.
 			/**
-			 * These are the defaults:
-			 * - {MEMBER} - Member Name. => current user for review
-			 * - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
-			 * - {FORUMNAME} - Forum Name.
-			 * - {SCRIPTURL} - Web address of forum.
-			 * - {REGARDS} - Standard email sign-off.
-			 */
+			* These are the defaults:
+			* - {MEMBER} - Member Name. => current user for review
+			* - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
+			* - {FORUMNAME} - Forum Name.
+			* - {SCRIPTURL} - Web address of forum.
+			* - {REGARDS} - Standard email sign-off.
+			*/
 			$find = array(
 				'{MEMBER}',
 				'{FORUMNAME}',
@@ -266,6 +271,10 @@ function warning_preview()
 				$txt['regards_team'],
 			);
 			$warning_body = str_replace($find, $replace, $warning_body);
+		}
+
+		if (!empty($_POST['body']))
+		{
 			preparsecode($warning_body);
 			$warning_body = parse_bbc($warning_body, true);
 		}

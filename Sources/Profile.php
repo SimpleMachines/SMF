@@ -458,7 +458,7 @@ function ModifyProfile($post_errors = array())
 		isAllowedTo($security_checks['permission']);
 
 	// Create a token if needed.
-	if (isset($security_checks['needsToken']))
+	if (isset($security_checks['needsToken']) || isset($security_checks['validateToken']))
 	{
 		createToken($token_name, $token_type);
 		$context['token_check'] = $token_name;
