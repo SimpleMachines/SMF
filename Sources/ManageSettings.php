@@ -464,19 +464,19 @@ function ModifyBasicSettings($return_config = false)
 			array('check', 'allow_editDisplayName'),
 			array('check', 'allow_hideOnline'),
 			array('check', 'titlesEnable'),
-			array('text', 'default_personal_text'),
+			array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note']),
 		'',
 			// Jquery source
 			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'])),
 		'',
 			// SEO stuff
-			array('check', 'queryless_urls'),
-			array('text', 'meta_keywords', 'size' => 50),
+			array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
+			array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
 		'',
 			// Number formatting, timezones.
 			array('text', 'time_format'),
 			array('select', 'number_format', array('1234.00' => '1234.00', '1,234.00' => '1,234.00', '1.234,00' => '1.234,00', '1 234,00' => '1 234,00', '1234,00' => '1234,00')),
-			array('float', 'time_offset', 6, 'postinput' => $txt['hours']),
+			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours']),
 			'default_timezone' => array('select', 'default_timezone', array()),
 		'',
 			// Who's online?
@@ -696,12 +696,12 @@ function ModifyModerationSettings($return_config = false)
 
 	$config_vars = array(
 			// Warning system?
-			array('int', 'warning_watch', 'help' => 'warning_enable'),
-			'moderate' => array('int', 'warning_moderate'),
-			array('int', 'warning_mute'),
-			'rem1' => array('int', 'user_limit'),
-			'rem2' => array('int', 'warning_decrement'),
-			array('select', 'warning_show', array($txt['setting_warning_show_mods'], $txt['setting_warning_show_user'], $txt['setting_warning_show_all'])),
+			array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'], 'help' => 'warning_enable'),
+			'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note']),
+			array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
+			'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
+			'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note']),
+			array('select', 'warning_show', 'subtext' => $txt['setting_warning_show_note'], array($txt['setting_warning_show_mods'], $txt['setting_warning_show_user'], $txt['setting_warning_show_all'])),
 	);
 
 	call_integration_hook('integrate_moderation_settings', array(&$config_vars));
@@ -774,9 +774,9 @@ function ModifySpamSettings($return_config = false)
 				array('check', 'guests_report_require_captcha'),
 			'',
 			// PM Settings
-				'pm1' => array('int', 'max_pm_recipients'),
-				'pm2' => array('int', 'pm_posts_verification'),
-				'pm3' => array('int', 'pm_posts_per_hour'),
+				'pm1' => array('int', 'max_pm_recipients', 'subtext' => $txt['pm_posts_recipients_note']),
+				'pm2' => array('int', 'pm_posts_verification', 'subtext' => $txt['pm_posts_verification_note']),
+				'pm3' => array('int', 'pm_posts_per_hour', 'subtext' => $txt['pm_posts_per_hour_note']),
 			// Visual verification.
 			array('title', 'configure_verification_means'),
 			array('desc', 'configure_verification_means_desc'),
@@ -962,16 +962,16 @@ function ModifySignatureSettings($return_config = false)
 			array('check', 'signature_enable'),
 		'',
 			// Tweaking settings!
-			array('int', 'signature_max_length'),
-			array('int', 'signature_max_lines'),
-			array('int', 'signature_max_font_size'),
+			array('int', 'signature_max_length', 'subtext' => $txt['zero_for_no_limit']),
+			array('int', 'signature_max_lines', 'subtext' => $txt['zero_for_no_limit']),
+			array('int', 'signature_max_font_size', 'subtext' => $txt['zero_for_no_limit']),
 			array('check', 'signature_allow_smileys', 'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;'),
-			array('int', 'signature_max_smileys'),
+			array('int', 'signature_max_smileys', 'subtext' => $txt['zero_for_no_limit']),
 		'',
 			// Image settings.
-			array('int', 'signature_max_images'),
-			array('int', 'signature_max_image_width'),
-			array('int', 'signature_max_image_height'),
+			array('int', 'signature_max_images', 'subtext' => $txt['signature_max_images_note']),
+			array('int', 'signature_max_image_width', 'subtext' => $txt['zero_for_no_limit']),
+			array('int', 'signature_max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 		'',
 			array('bbc', 'signature_bbc'),
 	);
@@ -2050,12 +2050,12 @@ function ModifyPruningSettings($return_config = false)
 			'pruningOptions' => array('check', 'pruningOptions'),
 		'',
 			// Various logs that could be pruned.
-			array('int', 'pruneErrorLog', 'postinput' => $txt['days_word']), // Error log.
-			array('int', 'pruneModLog', 'postinput' => $txt['days_word']), // Moderation log.
-			array('int', 'pruneBanLog', 'postinput' => $txt['days_word']), // Ban hit log.
-			array('int', 'pruneReportLog', 'postinput' => $txt['days_word']), // Report to moderator log.
-			array('int', 'pruneScheduledTaskLog', 'postinput' => $txt['days_word']), // Log of the scheduled tasks and how long they ran.
-			array('int', 'pruneSpiderHitLog', 'postinput' => $txt['days_word']), // Log of the scheduled tasks and how long they ran.
+			array('int', 'pruneErrorLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Error log.
+			array('int', 'pruneModLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Moderation log.
+			array('int', 'pruneBanLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Ban hit log.
+			array('int', 'pruneReportLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Report to moderator log.
+			array('int', 'pruneScheduledTaskLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
+			array('int', 'pruneSpiderHitLog', 'postinput' => $txt['days_word'], 'subtext' => $txt['zero_to_disable']), // Log of the scheduled tasks and how long they ran.
 			// If you add any additional logs make sure to add them after this point.  Additionally, make sure you add them to the weekly scheduled task.
 			// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
 	);

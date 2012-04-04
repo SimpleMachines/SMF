@@ -92,6 +92,7 @@ function ManageAttachmentSettings($return_config = false)
 
 	// Perform a test to see if the GD module is installed.
 	$testGD = get_extension_funcs('gd');
+	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
@@ -102,11 +103,11 @@ function ManageAttachmentSettings($return_config = false)
 			array('check', 'attachmentRecodeLineEndings'),
 		'',
 			// Directory and size limits.
-			empty($modSettings['currentAttachmentUploadDir']) ? array('text', 'attachmentUploadDir', 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' => 'attachmentUploadDir_multiple_configure'),
-			array('text', 'attachmentDirSizeLimit', 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentPostLimit', 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentSizeLimit', 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentNumPerPostLimit', 6),
+			empty($modSettings['currentAttachmentUploadDir']) ? array('text', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' => 'attachmentUploadDir_multiple_configure'),
+			array('text', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('text', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('text', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('text', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			// Security Items
 		'',
 			// Extension checks etc.
@@ -186,8 +187,8 @@ function ManageAvatarSettings($return_config = false)
 		array('title', 'avatar_external'),
 			array('permissions', 'profile_remote_avatar', 0, $txt['avatar_external_url_groups']),
 			array('check', 'avatar_download_external', 0, 'onchange' => 'fUpdateStatus();'),
-			array('text', 'avatar_max_width_external', 6),
-			array('text', 'avatar_max_height_external', 6),
+			array('text', 'avatar_max_width_external', 'subtext' => $txt['zero_for_no_limit'], 6),
+			array('text', 'avatar_max_height_external', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('select', 'avatar_action_too_large',
 				array(
 					'option_refuse' => $txt['option_refuse'],
@@ -199,8 +200,8 @@ function ManageAvatarSettings($return_config = false)
 		// Uploadable avatars?
 		array('title', 'avatar_upload'),
 			array('permissions', 'profile_upload_avatar', 0, $txt['avatar_upload_groups']),
-			array('text', 'avatar_max_width_upload', 6),
-			array('text', 'avatar_max_height_upload', 6),
+			array('text', 'avatar_max_width_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
+			array('text', 'avatar_max_height_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('check', 'avatar_resize_upload', 'subtext' => $txt['avatar_resize_upload_note']),
 			array('check', 'avatar_reencode'),
 		'',

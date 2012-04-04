@@ -106,14 +106,16 @@ $txt['search_did_you_mean'] = 'You may have meant to search for';
 $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 
 $txt['search_engines_description'] = 'From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs.';
-$txt['spider_mode'] = 'Search Engine Tracking Level<div class="smalltext">Note higher level tracking increases server resource requirement.</div>';
+$txt['spider_mode'] = 'Search Engine Tracking Level';
+$txt['spider_mode_note'] = 'Note higher level tracking increases server resource requirement.';
 $txt['spider_mode_off'] = 'Disabled';
 $txt['spider_mode_standard'] = 'Standard';
 $txt['spider_mode_high'] = 'Moderate';
 $txt['spider_mode_vhigh'] = 'Agressive';
 $txt['spider_settings_desc'] = 'You can change settings for spider tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up <a href="%1$s">here</a>';
 
-$txt['spider_group'] = 'Apply restrictive permissions from group<div class="smalltext">To enable you to stop spiders indexing some pages.</div>';
+$txt['spider_group'] = 'Apply restrictive permissions from group';
+$txt['spider_group_note'] = 'To enable you to stop spiders indexing some pages.';
 $txt['spider_group_none'] = 'Disabled';
 
 $txt['show_spider_online'] = 'Show spiders in the online list';
