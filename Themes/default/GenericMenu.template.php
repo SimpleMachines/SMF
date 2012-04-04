@@ -137,7 +137,7 @@ function template_generic_menu_dropdown_above()
 				continue;
 
 			echo '
-					<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
+					<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
 
 			echo '
 						<a ', !empty($area['selected']) ? 'class="chosen" ' : '', 'href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';

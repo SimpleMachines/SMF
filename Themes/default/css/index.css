@@ -537,7 +537,7 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 }
 .catbg select
 {
-	height: 1.5em;
+	height: 1.8em;
 	font-size: 0.85em;
 }
 
@@ -945,7 +945,7 @@ table.table_list a.collapse
 }
 .panel_toggle
 {	
-	margin: 12px 5px 0 1em;
+	margin: 8px 5px 0 1em;
 	float: right;
 }
 
@@ -1007,6 +1007,11 @@ table.table_grid td
 table.table_grid thead tr.catbg th
 {
 	white-space: nowrap;
+}
+img.sort
+{
+	margin-bottom: -0.3em;
+	margin-left: .3em;
 }
 
 /* table_grid styles for Profile > Show Permissions. */
