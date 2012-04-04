@@ -3473,6 +3473,11 @@ dl.addrules dt.floatleft
 {
 	clear: both;
 }
+#to_item_list_container div, #bcc_item_list_container div
+{
+	float:left;
+	margin-right:10px;
+}
 
 /* Styles for the calendar section.
 ------------------------------------------------- */
