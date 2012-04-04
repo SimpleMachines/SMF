@@ -2129,6 +2129,7 @@ function viewWarning($memID)
 	);
 
 	// Create the list for viewing.
+	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
 	// Create some common text bits for the template.

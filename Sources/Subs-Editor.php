@@ -930,10 +930,10 @@ function fetchTagAttributes($text)
 
 /**
  * Retrieves a list of message icons.
- * Based on the settings, the array will either contain a list of default
- * message icons or a list of custom message icons retrieved from the database.
- * The board_id is needed for the custom message icons (which can be set for
- * each board individually).
+ * - Based on the settings, the array will either contain a list of default
+ *   message icons or a list of custom message icons retrieved from the database.
+ * - The board_id is needed for the custom message icons (which can be set for
+ *   each board individually).
  * 
  * @param int $board_id
  * @return array
@@ -958,7 +958,8 @@ function getMessageIcons($board_id)
 			array('value' => 'cheesy', 'name' => $txt['icon_cheesy']),
 			array('value' => 'grin', 'name' => $txt['icon_grin']),
 			array('value' => 'sad', 'name' => $txt['icon_sad']),
-			array('value' => 'wink', 'name' => $txt['icon_wink'])
+			array('value' => 'wink', 'name' => $txt['icon_wink']),
+			array('value' => 'poll', 'name' => $txt['icon_poll']),
 		);
 
 		foreach ($icons as $k => $dummy)

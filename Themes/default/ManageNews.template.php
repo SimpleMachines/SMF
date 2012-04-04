@@ -56,7 +56,7 @@ function template_edit_news()
 				</tbody>
 			</table>
 			<div class="floatleft padding">
-				<div id="moreNewsItems_link" style="display: none;">[<a href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a>]</div>
+				<div id="moreNewsItems_link" style="display: none;"><a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a></div>
 				<script type="text/javascript"><!-- // --><![CDATA[
 					document.getElementById("moreNewsItems_link").style.display = "";
 					function addNewsItem()
@@ -81,20 +81,6 @@ function template_edit_news()
 function template_email_members()
 {
 	global $context, $settings, $options, $txt, $scripturl;
-
-	// This is some javascript for the simple/advanced toggling stuff.
-	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		function toggleAdvanced(mode)
-		{
-			// What styles are we doing?
-			var divStyle = mode ? "" : "none";
-
-			document.getElementById("advanced_settings_div").style.display = divStyle;
-			document.getElementById("gosimple").style.display = divStyle;
-			document.getElementById("goadvanced").style.display = mode ? "none" : "";
-		}
-	// ]]></script>';
 
 	echo '
 	<div id="admincenter">
@@ -132,15 +118,13 @@ function template_email_members()
 			<br />
 
 			<div class="cat_bar">
-				<h3 class="catbg" id="advanced_select_div" style="display: none;">
-					<span class="ie6_header floatleft">
-						<a href="#" onclick="toggleAdvanced(1); return false;" id="goadvanced"><img src="', $settings['images_url'], '/selected.png" alt="', $txt['advanced'], '" />&nbsp;<strong>', $txt['advanced'], '</strong></a>
-						<a href="#" onclick="toggleAdvanced(0); return false;" id="gosimple" style="display: none;"><img src="', $settings['images_url'], '/sort_down.png" alt="', $txt['simple'], '" />&nbsp;<strong>', $txt['simple'], '</strong></a>
-					</span>
+				<h3 class="catbg">
+					<span class="ie6_header floatleft"><strong>', $txt['advanced'], '</strong></span>
+					<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="advanced_panel_toggle" alt="*" />
 				</h3>
 			</div>
 
-			<div class="windowbg2" id="advanced_settings_div" style="display: none;">
+			<div id="advanced_panel_div" class="windowbg2">
 				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
@@ -206,11 +190,35 @@ function template_email_members()
 	</div>
 	<br class="clear" />';
 
-	// Make the javascript stuff visible.
+	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var oAdvancedPanelToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'advanced_panel_div\'
+			],
+			aSwapImages: [
+				{
+					sId: \'advanced_panel_toggle\',
+					srcExpanded: smf_images_url + \'/collapse.png\',
+					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+					srcCollapsed: smf_images_url + \'/expand.png\',
+					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\'
+			}
+		});
+	// ]]></script>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
-		document.getElementById("advanced_select_div").style.display = "";
 		var oMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oMemberSuggest\',
 			sSessionId: smf_session_id,

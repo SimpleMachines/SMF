@@ -2598,16 +2598,17 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 
 /**
  * Puts value in the cache under key for ttl seconds.
- * It may "miss" so shouldn't be depended on, and may go to any of many various caching servers.
- * It supports:
  *
- * Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
- * Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
- * memcache: http://www.php.net/memcache
- * APC: http://www.php.net/apc
- * eAccelerator: http://bart.eaccelerator.net/doc/phpdoc/
- * Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
- * Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
+ * - It may "miss" so shouldn't be depended on 
+ * - Uses the cahce engine chosen in the ACP and saved in settings.php
+ * - It supports:
+ *     Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
+ *     Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
+ *     memcache: http://www.php.net/memcache
+ *     APC: http://www.php.net/apc
+ *     eAccelerator: http://bart.eaccelerator.net/doc/phpdoc/
+ *     Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
+ *     Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
  * @param string $key
  * @param mixed $value
@@ -2729,8 +2730,8 @@ function cache_put_data($key, $value, $ttl = 120)
 
 /**
  * Gets the value from the cache specified by key, so long as it is not older than ttl seconds.
- * It may often "miss", so shouldn't be depended on.
- * It supports the same as cache_put_data().
+ * - It may often "miss", so shouldn't be depended on.
+ * - It supports the same as cache_put_data().
  *
  * @param string $key
  * @param int $ttl = 120
@@ -2823,9 +2824,10 @@ function cache_get_data($key, $ttl = 120)
 
 /**
  * Get memcache servers.
- * This function is used by cache_get_data() and cache_put_data().
- * It attempts to connect to a random server in the cache_memcached setting.
- * It recursively calls itself up to $level times.
+ *
+ * - This function is used by cache_get_data() and cache_put_data().
+ * - It attempts to connect to a random server in the cache_memcached setting.
+ * - It recursively calls itself up to $level times.
  *
  * @param int $level = 3
  */

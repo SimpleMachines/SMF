@@ -2974,7 +2974,7 @@ function setupThemeContext($forceload = false)
  * @param bool $in_use Set to true to account for current memory usage of the script
  * @return bool, true if we have at least the needed memory
  */
-function setMemoryLimit($needed, $in_use = false) 
+function setMemoryLimit($needed, $in_use = false)
 {
 	// everything in bytes
 	$memory_used = 0;
@@ -3004,9 +3004,9 @@ function setMemoryLimit($needed, $in_use = false)
  * @param string $val The byte string, like 256M or 1G
  * @return integer The string converted to a proper integer in bytes
  */
-function memoryReturnBytes($val) 
+function memoryReturnBytes($val)
 {
-	if (is_integer($val)) 
+	if (is_integer($val))
 		return $val;
 	
 	// Separate the number from the designator
@@ -3015,7 +3015,7 @@ function memoryReturnBytes($val)
 	$last = strtolower(substr($val, -1));
 	
 	// convert to bytes
-	switch ($last) 
+	switch ($last)
 	{
 		case 'g':
 			$num *= 1024;

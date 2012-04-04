@@ -93,6 +93,12 @@ function ManageAttachmentSettings($return_config = false)
 	// Perform a test to see if the GD module is installed.
 	$testGD = get_extension_funcs('gd');
 	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
+	
+	// See if we can find if the server is set up to support the attacment limits
+	$post_max_size = ini_get('post_max_size');
+	$upload_max_filesize = ini_get('upload_max_filesize');
+	$testPM = !empty($post_max_size) ? (memoryReturnBytes($post_max_size) >= (isset($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] * 1024 : 0)) : true;
+	$testUM = !empty($upload_max_filesize) ? (memoryReturnBytes($upload_max_filesize) >= (isset($modSettings['attachmentSizeLimit']) ? $modSettings['attachmentSizeLimit'] * 1024 : 0)) : true;
 
 	$config_vars = array(
 		array('title', 'attachment_manager_settings'),
@@ -106,10 +112,12 @@ function ManageAttachmentSettings($return_config = false)
 			empty($modSettings['currentAttachmentUploadDir']) ? array('text', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' => 'attachmentUploadDir_multiple_configure'),
 			array('text', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 			array('text', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
 			array('text', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
 			array('text', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			// Security Items
-		'',
+		array('title', 'attachment_security_settings'),
 			// Extension checks etc.
 			array('check', 'attachmentCheckExtensions'),
 			array('text', 'attachmentExtensions', 40),
@@ -120,8 +128,8 @@ function ManageAttachmentSettings($return_config = false)
 		'',
 			array('warning', 'attachment_image_paranoid_warning'),
 			array('check', 'attachment_image_paranoid'),
-		'',
 			// Thumbnail settings.
+		array('title', 'attachment_thumbnail_settings'),
 			array('check', 'attachmentShowImages'),
 			array('check', 'attachmentThumbnails'),
 			array('check', 'attachment_thumb_png'),

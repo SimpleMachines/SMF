@@ -2042,49 +2042,23 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 /**
  * Create an attachment, with the given array of parameters.
+ * - Adds any addtional or missing parameters to $attachmentOptions.
+ * - Renames the temporary file.
+ * - Creates a thumbnail if the file is an image and the option enabled.
  *
  * @param array $attachmentOptions
  */
 function createAttachment(&$attachmentOptions)
 {
 	global $modSettings, $sourcedir, $smcFunc, $context;
+	global $txt, $boarddir;
 
 	require_once($sourcedir . '/Subs-Graphics.php');
 
-	// We need to know where this thing is going.
 	if (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
-		// Just use the current path for temp files.
-		$attach_dir = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 		$id_folder = $modSettings['currentAttachmentUploadDir'];
-	}
 	else
-	{
-		$attach_dir = $modSettings['attachmentUploadDir'];
 		$id_folder = 1;
-	}
-
-	$attachmentOptions['errors'] = array();
-	if (!isset($attachmentOptions['post']))
-		$attachmentOptions['post'] = 0;
-	if (!isset($attachmentOptions['approved']))
-		$attachmentOptions['approved'] = 1;
-
-	$already_uploaded = preg_match('~^post_tmp_' . $attachmentOptions['poster'] . '_\d+$~', $attachmentOptions['tmp_name']) != 0;
-	$file_restricted = ini_get('open_basedir') != '' && !$already_uploaded;
-
-	if ($already_uploaded)
-		$attachmentOptions['tmp_name'] = $attach_dir . '/' . $attachmentOptions['tmp_name'];
-
-	// Make sure the file actually exists... sometimes it doesn't.
-	if ((!$file_restricted && !file_exists($attachmentOptions['tmp_name'])) || (!$already_uploaded && !is_uploaded_file($attachmentOptions['tmp_name'])))
-	{
-		$attachmentOptions['errors'] = array('could_not_upload');
-		return false;
-	}
 
 	// These are the only valid image types for SMF.
 	$validImageTypes = array(
@@ -2099,103 +2073,24 @@ function createAttachment(&$attachmentOptions)
 		14 => 'iff'
 	);
 
-	if (!$file_restricted || $already_uploaded)
-	{
-		$size = @getimagesize($attachmentOptions['tmp_name']);
-		list ($attachmentOptions['width'], $attachmentOptions['height']) = $size;
+	// If this is an image we need to set a few additional parameters.
+	$size = @getimagesize($attachmentOptions['tmp_name']);
+	list ($attachmentOptions['width'], $attachmentOptions['height']) = $size;
 
-		// If it's an image get the mime type right.
-		if (empty($attachmentOptions['mime_type']) && $attachmentOptions['width'])
-		{
-			// Got a proper mime type?
-			if (!empty($size['mime']))
-				$attachmentOptions['mime_type'] = $size['mime'];
-			// Otherwise a valid one?
-			elseif (isset($validImageTypes[$size[2]]))
-				$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
-		}
+	// If it's an image get the mime type right.
+	if (empty($attachmentOptions['mime_type']) && $attachmentOptions['width'])
+	{
+		// Got a proper mime type?
+		if (!empty($size['mime']))
+			$attachmentOptions['mime_type'] = $size['mime'];
+		// Otherwise a valid one?
+		elseif (isset($validImageTypes[$size[2]]))
+			$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
 	}
 
 	// Get the hash if no hash has been given yet.
 	if (empty($attachmentOptions['file_hash']))
 		$attachmentOptions['file_hash'] = getAttachmentFilename($attachmentOptions['name'], false, null, true);
-
-	// Is the file too big?
-	if (!empty($modSettings['attachmentSizeLimit']) && $attachmentOptions['size'] > $modSettings['attachmentSizeLimit'] * 1024)
-		$attachmentOptions['errors'][] = 'too_large';
-
-	if (!empty($modSettings['attachmentCheckExtensions']))
-	{
-		$allowed = explode(',', strtolower($modSettings['attachmentExtensions']));
-		foreach ($allowed as $k => $dummy)
-			$allowed[$k] = trim($dummy);
-
-		if (!in_array(strtolower(substr(strrchr($attachmentOptions['name'], '.'), 1)), $allowed))
-			$attachmentOptions['errors'][] = 'bad_extension';
-	}
-
-	if (!empty($modSettings['attachmentDirSizeLimit']))
-	{
-		// Make sure the directory isn't full.
-		$dirSize = 0;
-		$dir = @opendir($attach_dir) or fatal_lang_error('cant_access_upload_path', 'critical');
-		while ($file = readdir($dir))
-		{
-			if ($file == '.' || $file == '..')
-				continue;
-
-			if (preg_match('~^post_tmp_\d+_\d+$~', $file) != 0)
-			{
-				// Temp file is more than 5 hours old!
-				if (filemtime($attach_dir . '/' . $file) < time() - 18000)
-					@unlink($attach_dir . '/' . $file);
-				continue;
-			}
-
-			$dirSize += filesize($attach_dir . '/' . $file);
-		}
-		closedir($dir);
-
-		// Too big!  Maybe you could zip it or something...
-		if ($attachmentOptions['size'] + $dirSize > $modSettings['attachmentDirSizeLimit'] * 1024)
-			$attachmentOptions['errors'][] = 'directory_full';
-		// Soon to be too big - warn the admins...
-		elseif (!isset($modSettings['attachment_full_notified']) && $modSettings['attachmentDirSizeLimit'] > 4000 && $attachmentOptions['size'] + $dirSize > ($modSettings['attachmentDirSizeLimit'] - 2000) * 1024)
-		{
-			require_once($sourcedir . '/Subs-Admin.php');
-			emailAdmins('admin_attachments_full');
-			updateSettings(array('attachment_full_notified' => 1));
-		}
-	}
-
-	// Check if the file already exists.... (for those who do not encrypt their filenames...)
-	if (empty($modSettings['attachmentEncryptFilenames']))
-	{
-		// Make sure they aren't trying to upload a nasty file.
-		$disabledFiles = array('con', 'com1', 'com2', 'com3', 'com4', 'prn', 'aux', 'lpt1', '.htaccess', 'index.php');
-		if (in_array(strtolower(basename($attachmentOptions['name'])), $disabledFiles))
-			$attachmentOptions['errors'][] = 'bad_filename';
-
-		// Check if there's another file with that name...
-		$request = $smcFunc['db_query']('', '
-			SELECT id_attach
-			FROM {db_prefix}attachments
-			WHERE filename = {string:filename}
-			LIMIT 1',
-			array(
-				'filename' => strtolower($attachmentOptions['name']),
-			)
-		);
-		if ($smcFunc['db_num_rows']($request) > 0)
-			$attachmentOptions['errors'][] = 'taken_filename';
-		$smcFunc['db_free_result']($request);
-	}
-
-	if (!empty($attachmentOptions['errors']))
-		return false;
-
-	if (!is_writable($attach_dir))
-		fatal_lang_error('attachments_no_write', 'critical');
 
 	// Assuming no-one set the extension let's take a look at it.
 	if (empty($attachmentOptions['fileext']))
@@ -2221,10 +2116,15 @@ function createAttachment(&$attachmentOptions)
 	);
 	$attachmentOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 
+	// @todo Add an error here maybe?
 	if (empty($attachmentOptions['id']))
 		return false;
 
-	// If it's not approved add to the approval queue.
+	// Now that we have the attach id, let's rename this sucker and finish up.
+	$attachmentOptions['destination'] = getAttachmentFilename(basename($attachmentOptions['name']), $attachmentOptions['id'], $id_folder, false, $attachmentOptions['file_hash']);
+	rename($attachmentOptions['tmp_name'], $attachmentOptions['destination']);
+
+	// If it's not approved then add to the approval queue.
 	if (!$attachmentOptions['approved'])
 		$smcFunc['db_insert']('',
 			'{db_prefix}approval_queue',
@@ -2237,99 +2137,11 @@ function createAttachment(&$attachmentOptions)
 			array()
 		);
 
-	$attachmentOptions['destination'] = getAttachmentFilename(basename($attachmentOptions['name']), $attachmentOptions['id'], $id_folder, false, $attachmentOptions['file_hash']);
-
-	if ($already_uploaded)
-		rename($attachmentOptions['tmp_name'], $attachmentOptions['destination']);
-	elseif (!move_uploaded_file($attachmentOptions['tmp_name'], $attachmentOptions['destination']))
-		fatal_lang_error('attach_timeout', 'critical');
-
-	// Attempt to chmod it.
-	@chmod($attachmentOptions['destination'], 0644);
-
-	$size = @getimagesize($attachmentOptions['destination']);
-	list ($attachmentOptions['width'], $attachmentOptions['height']) = empty($size) ? array(null, null, null) : $size;
-
-	// We couldn't access the file before...
-	if ($file_restricted)
-	{
-		// Have a go at getting the right mime type.
-		if (empty($attachmentOptions['mime_type']) && $attachmentOptions['width'])
-		{
-			if (!empty($size['mime']))
-				$attachmentOptions['mime_type'] = $size['mime'];
-			elseif (isset($validImageTypes[$size[2]]))
-				$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
-		}
-
-		if (!empty($attachmentOptions['width']) && !empty($attachmentOptions['height']))
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}attachments
-				SET
-					width = {int:width},
-					height = {int:height},
-					mime_type = {string:mime_type}
-				WHERE id_attach = {int:id_attach}',
-				array(
-					'width' => (int) $attachmentOptions['width'],
-					'height' => (int) $attachmentOptions['height'],
-					'id_attach' => $attachmentOptions['id'],
-					'mime_type' => empty($attachmentOptions['mime_type']) ? '' : $attachmentOptions['mime_type'],
-				)
-			);
-	}
-
-	// Security checks for images
-	// Do we have an image? If yes, we need to check it out!
-	if (isset($validImageTypes[$size[2]]))
-	{
-		if (!checkImageContents($attachmentOptions['destination'], !empty($modSettings['attachment_image_paranoid'])))
-		{
-			// It's bad. Last chance, maybe we can re-encode it?
-			if (empty($modSettings['attachment_image_reencode']) || (!reencodeImage($attachmentOptions['destination'], $size[2])))
-			{
-				// Nothing to do: not allowed or not successful re-encoding it.
-				require_once($sourcedir . '/ManageAttachments.php');
-				removeAttachments(array(
-					'id_attach' => $attachmentOptions['id']
-				));
-				$attachmentOptions['id'] = null;
-				$attachmentOptions['errors'][] = 'bad_attachment';
-
-				return false;
-			}
-			// Success! However, successes usually come for a price:
-			// we might get a new format for our image...
-			$old_format = $size[2];
-			$size = @getimagesize($attachmentOptions['destination']);
-			if (!(empty($size)) && ($size[2] != $old_format))
-			{
-				// Let's update the image information
-				// @todo This is becoming a mess: we keep coming back and update the database,
-				// instead of getting it right the first time.
-				if (isset($validImageTypes[$size[2]]))
-				{
-					$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
-					$smcFunc['db_query']('', '
-						UPDATE {db_prefix}attachments
-						SET
-							mime_type = {string:mime_type}
-						WHERE id_attach = {int:id_attach}',
-						array(
-							'id_attach' => $attachmentOptions['id'],
-							'mime_type' => $attachmentOptions['mime_type'],
-						)
-					);
-				}
-			}
-		}
-	}
-
-	if (!empty($attachmentOptions['skip_thumbnail']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height'])))
+	if (empty($modSettings['attachmentThumbnails']) || (empty($attachmentOptions['width']) && empty($attachmentOptions['height'])))
 		return true;
 
 	// Like thumbnails, do we?
-	if (!empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > $modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > $modSettings['attachmentThumbHeight']))
+	if (!empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > $modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > $modSettings['attachmentThumbHeight']))
 	{
 		if (createThumbnail($attachmentOptions['destination'], $modSettings['attachmentThumbWidth'], $modSettings['attachmentThumbHeight']))
 		{
@@ -2379,6 +2191,150 @@ function createAttachment(&$attachmentOptions)
 				rename($attachmentOptions['destination'] . '_thumb', getAttachmentFilename($thumb_filename, $attachmentOptions['thumb'], $id_folder, false, $thumb_file_hash));
 			}
 		}
+	}
+	return true;
+}
+
+/**
+ * Performs various checks on an uploaded file.
+ * - Requires that $_SESSION['temp_attachments'][$attachID] be properly populated.
+ *
+ * @param $attachID
+ */
+function attachmentChecks($attachID)
+{
+	global $modSettings, $context, $sourcedir, $smcFunc;
+
+	// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
+	if ( empty($_SESSION['temp_attachments'][$attachID]))
+		$errror = '$_SESSION[\'temp_attachments\'][$attachID]';
+	elseif (empty($attachID))
+		$errror = '$attachID';
+	elseif (empty($context['attachments']))
+		$errror = '$context[\'attachments\']';
+	elseif (empty($context['attach_dir']))
+		$errror = '$context[\'attach_dir\']';
+		
+	// Let's get their attention.
+	if (!empty($error))
+		fatal_lang_error('attach_check_nag', 'debug', array($error));
+
+	// These are the only valid image types for SMF.
+	$validImageTypes = array(
+		1 => 'gif',
+		2 => 'jpeg',
+		3 => 'png',
+		5 => 'psd',
+		6 => 'bmp',
+		7 => 'tiff',
+		8 => 'tiff',
+		9 => 'jpeg',
+		14 => 'iff'
+	);
+
+	// Just in case this slipped by the first checks, we stop it here and now
+	if ($_SESSION['temp_attachments'][$attachID]['size'] == 0)
+	{
+		$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_0_byte_file';
+		return false;
+	}
+
+	// First, the dreaded security check. Sorry folks, but this can't be avoided
+	$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
+	if (isset($validImageTypes[$size[2]]))
+	{
+		require_once($sourcedir . '/Subs-Graphics.php');
+		if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty($modSettings['attachment_image_paranoid'])))
+		{
+			// It's bad. Last chance, maybe we can re-encode it?
+			if (empty($modSettings['attachment_image_reencode']) || (!reencodeImage($_SESSION['temp_attachments'][$attachID]['tmp_name'], $size[2])))
+			{
+				// Nothing to do: not allowed or not successful re-encoding it.
+				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
+				return false;
+			}
+			// Success! However, successes usually come for a price:
+			// we might get a new format for our image...
+			$old_format = $size[2];
+			$size = @getimagesize($attachmentOptions['tmp_name']);
+			if (!(empty($size)) && ($size[2] != $old_format))
+			{
+				if (isset($validImageTypes[$size[2]]))
+					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $validImageTypes[$size[2]];
+			}
+		}
+	}
+
+	if (!empty($modSettings['attachmentDirSizeLimit']))
+	{
+		// Check the folder size if it hasn't been done already.
+		if (!isset($context['dir_size']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT SUM(size)
+				FROM {db_prefix}attachments',
+				array(
+				)
+			);
+			list ($context['dir_size']) = $smcFunc['db_fetch_row']($request);
+			$smcFunc['db_free_result']($request);
+		}
+
+		$context['dir_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
+
+		// Soon to be too big - warn the admins...
+		if (empty($modSettings['attachment_full_notified']) && $modSettings['attachmentDirSizeLimit'] > 4000 && $context['dir_size'] > ($modSettings['attachmentDirSizeLimit'] - 2000) * 1024)
+		{
+			require_once($sourcedir . '/Subs-Admin.php');
+			emailAdmins('admin_attachments_full');
+			updateSettings(array('attachment_full_notified' => 1));
+		}
+
+		// Too big!  Maybe you could zip it or something...
+		if ($context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024)
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = 'ran_out_of_space';
+	}
+
+	// Is the file too big?
+	$context['attachments']['total_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
+	if (!empty($modSettings['attachmentSizeLimit']) && $_SESSION['temp_attachments'][$attachID]['size'] > $modSettings['attachmentSizeLimit'] * 1024)
+		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('file_too_big', array(comma_format($modSettings['attachmentSizeLimit'], 0)));
+
+	// Check the total upload size for this post...
+	if (!empty($modSettings['attachmentPostLimit']) && $context['attachments']['total_size'] > $modSettings['attachmentPostLimit'] * 1024)
+		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('attach_max_total_file_size', array(comma_format($modSettings['attachmentPostLimit'], 0), comma_format($modSettings['attachmentPostLimit'] - (($context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)));
+
+	// Have we reached the maximum number of files we are allowed?
+	$context['attachments']['quantity']++;
+	
+	// Set a max limit if none exists
+	if (empty($modSettings['attachmentNumPerPostLimit']) && $context['attachments']['quantity'] >= 50)
+		$modSettings['attachmentNumPerPostLimit'] = 50;
+
+	if (!empty($modSettings['attachmentNumPerPostLimit']) && $context['attachments']['quantity'] > $modSettings['attachmentNumPerPostLimit'])
+		$_SESSION['temp_attachments'][$attachID]['errors'][] = array('attachments_limit_per_post', array($modSettings['attachmentNumPerPostLimit']));
+
+	// File extension check
+	if (!empty($modSettings['attachmentCheckExtensions']))
+	{
+		$allowed = explode(',', strtolower($modSettings['attachmentExtensions']));
+		foreach ($allowed as $k => $dummy)
+			$allowed[$k] = trim($dummy);
+
+		if (!in_array(strtolower(substr(strrchr($_SESSION['temp_attachments'][$attachID]['name'], '.'), 1)), $allowed))
+		{
+			$allowed_extensions = strtr(strtolower($modSettings['attachmentExtensions']), array(',' => ', '));
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = array('cant_upload_type', array($allowed_extensions));
+		}
+	}
+
+	// back up to the previous one if there's been an error.
+	if (!empty($_SESSION['temp_attachments'][$attachID]['errors']))
+	{
+		$context['dir_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
+		$context['attachments']['total_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
+		$context['attachments']['quantity']--;
+		return false;
 	}
 
 	return true;

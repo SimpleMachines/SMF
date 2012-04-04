@@ -1577,14 +1577,14 @@ CREATE INDEX {$db_prefix}membergroups_min_posts ON {$db_prefix}membergroups (min
 # Dumping data for table `membergroups`
 #
 
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars, group_type) VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#staradmin.gif', 1);
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#stargmod.gif');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (3, '{$default_moderator_group}', '', '', -1, '5#starmod.gif');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (4, '{$default_newbie_group}', '', '', 0, '1#star.gif');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (5, '{$default_junior_group}', '', '', 50, '2#star.gif');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (6, '{$default_full_group}', '', '', 100, '3#star.gif');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (7, '{$default_senior_group}', '', '', 250, '4#star.gif');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (8, '{$default_hero_group}', '', '', 500, '5#star.gif');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars, group_type) VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#staradmin.png', 1);
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#stargmod.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (3, '{$default_moderator_group}', '', '', -1, '5#starmod.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (4, '{$default_newbie_group}', '', '', 0, '1#star.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (5, '{$default_junior_group}', '', '', 50, '2#star.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (6, '{$default_full_group}', '', '', 100, '3#star.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (7, '{$default_senior_group}', '', '', 250, '4#star.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (8, '{$default_hero_group}', '', '', 500, '5#star.png');
 # --------------------------------------------------------
 
 #
@@ -1747,6 +1747,7 @@ INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('che
 INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('grin', 'Grin', '9');
 INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('sad', 'Sad', '10');
 INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('wink', 'Wink', '11');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('poll', 'Poll', '12');
 # --------------------------------------------------------
 
 #
