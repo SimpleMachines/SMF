@@ -97,9 +97,8 @@ function template_permission_index()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft">
-						<img src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'selected' : 'sort_down', '.png" id="permissions_panel_toggle" alt="*" /> ', $txt['permissions_advanced_options'], '
-					</span>
+					<span class="ie6_header">', $txt['permissions_advanced_options'], '</span>
+					<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="permissions_panel_toggle" alt="*" />
 				</h3>
 			</div>
 			<div id="permissions_panel_advanced" class="windowbg">
@@ -202,9 +201,9 @@ function template_permission_index()
 			aSwapImages: [
 				{
 					sId: \'permissions_panel_toggle\',
-					srcExpanded: smf_images_url + \'/sort_down.png\',
+					srcExpanded: smf_images_url + \'/collapse.png\',
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
-					srcCollapsed: smf_images_url + \'/selected.png\',
+					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
 				}
 			],
@@ -453,7 +452,7 @@ function template_edit_profiles()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />
 					<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit" />
-					<br class="clear_right />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
@@ -615,7 +614,7 @@ function template_modify_group_simple($type)
 					<tr class="windowbg">
 						<td colspan="2" width="100%" align="left">
 							<a href="#" onclick="return toggleBreakdown(\'', $id_group, '\');">
-								<img src="', $settings['images_url'], '/sort_down.png" id="group_toggle_img_', $id_group, '" alt="*" />&nbsp;<strong>', $permissionGroup['name'], '</strong>
+								<img src="', $settings['images_url'], '/selected_open.png" id="group_toggle_img_', $id_group, '" alt="*" />&nbsp;<strong>', $permissionGroup['name'], '</strong>
 							</a>
 						</td>';
 				if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)

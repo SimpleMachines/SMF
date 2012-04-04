@@ -602,21 +602,19 @@ function template_browse()
 		echo '
 		<div class="information">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
 
+	// the advanced (emulation) box, collapsed by default
 	if ($context['sub_action'] == 'browse')
-	echo '
-		<div class="flow_auto">
-			<div class="padding">
-				<a class="button_link" href="#" onclick="document.getElementById(\'advanced_box\').style.display = document.getElementById(\'advanced_box\').style.display == \'\' ? \'none\' : \'\'; return false;">', $txt['package_advanced_button'], '</a>
-			</div>
-		</div>';
-		
-	echo '
+		echo '
+		<br class="clear" />
 		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">
-			<div id="advanced_box" style="display: none;">
+			<div id="advanced_box" >
 				<div class="cat_bar">
-					<h3 class="catbg">', $txt['package_advanced_options'], '</h3>
+					<h3 class="catbg">
+					<span class="ie6_header floatleft"><strong>', $txt['package_advanced_options'], '</strong></span>
+					<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="advanced_panel_toggle" alt="*" />
+					</h3>
 				</div>
-				<div class="windowbg">
+				<div id="advanced_panel_div" class="windowbg">
 					<span class="topslice"><span></span></span>
 					<div class="content">
 						<p>
@@ -643,9 +641,36 @@ function template_browse()
 			<input type="hidden" name="action" value="admin" />
 			<input type="hidden" name="area" value="packages" />
 			<input type="hidden" name="sa" value="browse" />
-		</form>
+		</form>';
+	
+	echo '
 	</div>
 	<br class="clear" />
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var oAdvancedPanelToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'advanced_panel_div\'
+			],
+			aSwapImages: [
+				{
+					sId: \'advanced_panel_toggle\',
+					srcExpanded: smf_images_url + \'/collapse.png\',
+					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+					srcCollapsed: smf_images_url + \'/expand.png\',
+					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\'
+			}
+		});
+	// ]]></script>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 			var oAddVersionSuggest = new smc_AutoSuggest({
@@ -1084,9 +1109,19 @@ function template_install_options()
 						<dd>
 							<input type="text" name="pack_user" id="pack_user" value="', $context['package_ftp_username'], '" size="30" class="input_text" />
 						</dd>
+						<dt>
+							<label for="package_make_backups">', $txt['package_install_options_make_backups'], '</label>
+						</dt>
+						<dd>
+							<input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' />
+						</dd>
+						<dt>
+							<label for="package_make_full_backups">', $txt['package_install_options_make_full_backups'], '</label>
+						</dt>
+						<dd>
+							<input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' />
+						</dd>
 					</dl>
-					<label for="package_make_backups"><input type="checkbox" name="package_make_backups" id="package_make_backups" value="1" class="input_check"', $context['package_make_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_backups'], '</label><br /><br />
-					<label for="package_make_full_backups"><input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' /> ', $txt['package_install_options_make_full_backups'], '</label><br /><br />
 					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />

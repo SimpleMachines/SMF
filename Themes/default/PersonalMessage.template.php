@@ -739,10 +739,12 @@ function template_search()
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft"><a href="javascript:void(0);" onclick="expandCollapseLabels(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandLabelsIcon" alt="" /></a> <a href="javascript:void(0);" onclick="expandCollapseLabels(); return false;"><strong>', $txt['pm_search_choose_label'], '</strong></a></span>
+						<span class="ie6_header floatleft"><strong>', $txt['pm_search_choose_label'], '</strong></span>
+						<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="advanced_panel_toggle" alt="*" />
 					</h4>
 				</div>
-				<ul id="searchLabelsExpand" class="reset" ', $context['check_all'] ? 'style="display: none;"' : '', '>';
+				<div id="advanced_panel_div">
+				<ul id="searchLabelsExpand" class="reset" >';
 
 			foreach ($context['search_labels'] as $label)
 				echo '
@@ -753,6 +755,7 @@ function template_search()
 
 			echo '
 				</ul>
+				</div>
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
 					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
@@ -760,6 +763,34 @@ function template_search()
 			</div>
 			<span class="lowerframe"><span></span></span>
 		</fieldset>';
+
+			// Some javascript for the advanced toggling
+			echo '
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oAdvancedPanelToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
+				aSwappableContainers: [
+					\'advanced_panel_div\'
+				],
+				aSwapImages: [
+					{
+						sId: \'advanced_panel_toggle\',
+						srcExpanded: smf_images_url + \'/collapse.png\',
+						altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+						srcCollapsed: smf_images_url + \'/expand.png\',
+						altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+					sOptionName: \'admin_preferences\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id,
+					sThemeId: \'1\'
+				}
+			});
+		// ]]></script>';
 		}
 	}
 
@@ -1227,6 +1258,7 @@ function template_labels()
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form>
+	<br class="clear" />
 	<form action="', $scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', $context['character_set'], '" style="margin-top: 1ex;">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_label_add_new'], '</h3>
@@ -1242,9 +1274,9 @@ function template_labels()
 						<input type="text" id="add_label" name="label" value="" size="30" maxlength="30" class="input_text" />
 					</dd>
 				</dl>
-				<div class="righttext">
-					<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button_submit" />
-				</div>
+				<hr class="hrcolor" />
+				<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button_submit" />
+				<br class="clear_right" />
 			</div>
 			<span class="botslice"><span></span></span>
 		</div>
@@ -1385,7 +1417,7 @@ function template_rules()
 		</tbody>
 		</table>
 		<div class="righttext">
-			[<a href="', $scripturl, '?action=pm;sa=manrules;add;rid=0">', $txt['pm_add_rule'], '</a>]';
+			<a class="button_link" href="', $scripturl, '?action=pm;sa=manrules;add;rid=0">', $txt['pm_add_rule'], '</a>';
 
 	if (!empty($context['rules']))
 		echo '
