@@ -259,6 +259,7 @@ $txt['permissionhelp_view_attachments'] = 'Attachments are files that are attach
 $txt['permissionname_post_attachment'] = 'Post attachments';
 $txt['permissionhelp_post_attachment'] = 'Attachments are files that are attached to posted messages. One message can contain multiple attachments.';
 
+$txt['permissiongroup_simple_disable_censor'] = 'Word Censor';
 $txt['permissiongroup_simple_view_basic_info'] = 'Use basic forum functionality';
 $txt['permissiongroup_simple_use_pm_system'] = 'Contact members using the personal messaging system';
 $txt['permissiongroup_simple_post_calendar'] = 'Post events onto the calendar';

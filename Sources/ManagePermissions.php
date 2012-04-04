@@ -1404,6 +1404,7 @@ function loadAllPermissions($loadType = 'classic')
 		'membergroup' => array(
 			'simple' => array(
 				'view_basic_info',
+				'disable_censor',
 				'use_pm_system',
 				'post_calendar',
 				'edit_profile',
