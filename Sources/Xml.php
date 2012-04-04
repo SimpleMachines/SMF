@@ -79,9 +79,10 @@ function RetrievePreview()
 	global $context;
 
 	$subActions = array(
-		'newspreview' => 'newspreview',
-		'newsletterpreview' => 'newsletterpreview',
-		'sig_preview' => 'sig_preview',
+		'newspreview',
+		'newsletterpreview',
+		'sig_preview',
+		'warning_preview',
 	);
 
 	$context['sub_template'] = 'generic_xml';
@@ -89,7 +90,7 @@ function RetrievePreview()
 	if (!isset($_POST['item']) || !in_array($_POST['item'], $subActions))
 		return false;
 
-	$subActions[$_POST['item']]();
+	$_POST['item']();
 }
 
 function newspreview()
@@ -220,6 +221,60 @@ function sig_preview()
 				$errors
 			),
 		);
+}
+
+function warning_preview()
+{
+	global $context, $sourcedir, $smcFunc, $txt, $user_info, $scripturl, $mbname;
+
+	require_once($sourcedir . '/Subs-Post.php');
+	loadLanguage('Errors');
+	loadLanguage('ModerationCenter');
+
+	$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
+
+	$context['post_error']['messages'] = array();
+	if (allowedTo('issue_warning'))
+	{
+		$warning_body = !empty($_POST['template_body']) ? trim(censorText($_POST['template_body'])) : '';
+		$context['preview_subject'] = !empty($_POST['template_title']) ? trim($smcFunc['htmlspecialchars']($_POST['template_title'])) : '';
+		if (empty($_POST['template_title']))
+			$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_title'];
+		if (empty($_POST['template_body']))
+			$context['post_error']['messages'][] = $txt['mc_warning_template_error_no_body'];
+		else
+		{
+			// Add in few replacements.
+			/**
+			 * These are the defaults:
+			 * - {MEMBER} - Member Name. => current user for review
+			 * - {MESSAGE} - Link to Offending Post. (If Applicable) => not applicable here, so not replaced
+			 * - {FORUMNAME} - Forum Name.
+			 * - {SCRIPTURL} - Web address of forum.
+			 * - {REGARDS} - Standard email sign-off.
+			 */
+			$find = array(
+				'{MEMBER}',
+				'{FORUMNAME}',
+				'{SCRIPTURL}',
+				'{REGARDS}',
+			);
+			$replace = array(
+				$user_info['name'],
+				$mbname,
+				$scripturl,
+				$txt['regards_team'],
+			);
+			$warning_body = str_replace($find, $replace, $warning_body);
+			preparsecode($warning_body);
+			$warning_body = parse_bbc($warning_body, true);
+		}
+		$context['preview_message'] = $warning_body;
+	}
+	else
+		$context['post_error']['messages'][] = array('value' => $txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
+
+	$context['sub_template'] = 'pm';
 }
 
 ?>

@@ -1046,7 +1046,7 @@ function template_send()
 
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[';
-	// The functions used to preview a posts without loading a new page.
+	// The functions used to preview a personal message without loading a new page.
 	echo '
 			var txt_preview_title = "', $txt['preview_title'], '";
 			var txt_preview_fetch = "', $txt['preview_fetch'], '";

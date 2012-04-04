@@ -831,6 +831,16 @@ function template_warn_template()
 							</dd>
 						</dl>
 					</div>
+					<div id="box_preview"', !empty($context['template_preview']) ? '' : ' style="display:none"', '>
+						<dl class="settings">
+							<dt>
+								<strong>', $txt['preview'] , '</strong>
+							</dt>
+							<dd id="template_preview">
+								', !empty($context['template_preview']) ? $context['template_preview'] : '', '
+							</dd>
+						</dl>
+					</div>
 					<dl class="settings">
 						<dt>
 							<strong><label for="template_title">', $txt['mc_warning_template_title'], '</label>:</strong>
@@ -858,6 +868,7 @@ function template_warn_template()
 						<br />';
 
 	echo '
+					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit" />
 				</div>
 				<span class="botslice"><span></span></span>
@@ -866,7 +877,45 @@ function template_warn_template()
 			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '" />
 		</form>
 	</div>
-	<br class="clear" />';
+	<br class="clear" />
+	<script type="text/javascript"><!-- // --><![CDATA[
+		$(document).ready(function() {
+			$("#preview_button").click(function() {
+				return ajax_getTemplatePreview();
+			});
+		});
+
+		function ajax_getTemplatePreview ()
+		{
+			$.ajax({
+				type: "POST",
+				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+				data: {item: "warning_preview", template_title: $("#template_title").val(), template_body: $("#template_body").val(), user: $(\'input[name="u"]\').attr("value")},
+				context: document.body,
+				success: function(request){
+					$("#box_preview").css({display:""});
+					$("#template_preview").html($(request).find(\'body\').text());
+					if ($(request).find("error").text() != \'\')
+					{
+						$("#errors").css({display:""});
+						var errors_html = \'\';
+						var errors = $(request).find(\'error\').each(function() {
+							errors_html += $(this).text() + \'<br />\';
+						});
+
+						$(document).find("#error_list").html(errors_html);
+					}
+					else
+					{
+						$("#errors").css({display:"none"});
+						$("#error_list").html(\'\');
+					}
+				return false;
+				},
+			});
+			return false;
+		}
+	// ]]></script>';
 }
 
 ?>

@@ -2626,7 +2626,6 @@ function template_profile_signature_modify()
 											if (is_opera)
 												currentChars = currentSignature.replace(/\r/g,\'\').length;
 
-											//ajax_getSignaturePreview(false);
 											if (currentChars > maxLength)
 											{
 												document.getElementById("signatureLeft").className = "error";
