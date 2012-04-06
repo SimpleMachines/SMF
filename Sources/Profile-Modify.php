@@ -1773,9 +1773,12 @@ function authentication($memID, $saving = false)
 				// Do the important bits.
 				updateMemberData($memID, array('openid_uri' => '', 'passwd' => $passwd));
 				if ($context['user']['is_owner'])
+				{
 					setLoginCookie(60 * $modSettings['cookieTime'], $memID, sha1(sha1(strtolower($cur_profile['member_name']) . un_htmlspecialchars($_POST['passwrd2'])) . $cur_profile['password_salt']));
-
-				redirectexit('action=profile;u=' . $memID);
+					redirectexit('action=profile;area=authentication;updated');
+				}
+				else
+					redirectexit('action=profile;u=' . $memID);
 			}
 
 			return true;
