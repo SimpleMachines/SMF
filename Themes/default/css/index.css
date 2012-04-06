@@ -137,7 +137,7 @@ input:focus, textarea:focus, button:focus, select:focus
 input, select, textarea, textarea.editor 
 {
 	background: #fff;
-	outline:none !important;
+	outline: none !important;
 	border: 1px solid #bbb;
 	vertical-align: top;
 	border-radius: 3px;
@@ -145,7 +145,7 @@ input, select, textarea, textarea.editor
 }
 input:hover, select:hover, textarea:hover, textarea.editor:hover 
 {
-	outline:none !important;
+	outline: none !important;
 	border: 1px solid #999;
 }
 textarea:hover, textarea.editor:hover 
@@ -332,14 +332,12 @@ em
 }
 .righttext
 {
-	margin-left: auto;
-	margin-right: 0;
+	margin: 0 0 0 auto;
 	text-align: right;
 }
 .lefttext
 {
-	margin-left: 0;
-	margin-right: auto;
+	margin: 0 0 0 auto;
 	text-align: left;
 }
 .double_height
@@ -928,10 +926,10 @@ div.title_barIC h4.titlebg
 	margin: 0;
 	padding: 0.5em;
 }
-img#upshrink_ic, img#newsupshrink
+img#upshrink_ic, img#newsupshrink, img.panel_toggle
 {
 	float: right;
-	margin: 10px 5px 0 0;
+	margin: 12px 5px 0 1em;
 }
 table.table_list a.unreadlink, table.table_list a.collapse
 {
@@ -942,11 +940,6 @@ table.table_list a.collapse
 	margin: 12px 5px 0 1em;
 	height: 38px;
 	line-height: 38px;
-}
-.panel_toggle
-{	
-	margin: 12px 5px 0 1em;
-	float: right;
 }
 
 /* The half-round header bars for some tables. */
@@ -1172,19 +1165,23 @@ span.lowerframe span
 ------------------------------------------------------- */
 .auto_suggest_div
 {
-	border: 1px solid #000;
 	position: absolute;
 	visibility: hidden;
+	border-radius: 3px;
+	outline: none !important;
+	border: 1px solid #bbb;
 }
 .auto_suggest_item
 {
 	background-color: #ddd;
+	padding: .1em .3em;
 }
 .auto_suggest_item_hover
 {
 	background-color: #888;
 	cursor: pointer;
 	color: #eee;
+	padding: .1em .3em;
 }
 
 /* Styles for the standard dropdown menus.
@@ -2819,21 +2816,15 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .topic_table td.stickybg2
 {
-	background-image: url(../images/icons/quick_sticky.png);
-	background-repeat: no-repeat;
-	background-position: 98% 4px;
+	background: url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
 }
 .topic_table td.lockedbg2
 {
-	background-image: url(../images/icons/quick_lock.png);
-	background-repeat: no-repeat;
-	background-position: 98% 4px;
+	background: url(../images/icons/quick_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.locked_sticky2
 {
-	background-image: url(../images/icons/quick_sticky_lock.png);
-	background-repeat: no-repeat;
-	background-position: 98% 4px;
+	background: url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.lastpost
 {
@@ -2850,8 +2841,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .errorbox 
 {
-	background: #fee url(../images/warning_mute.png) center no-repeat;
-	background-position: 10px 50%;
+	background: #fee url(../images/warning_mute.png) no-repeat 10px 50%;
 	text-align: left;
 	border-top: 2px solid #c34;
 	border-bottom: 2px solid #c34;
@@ -2888,8 +2878,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 .noticebox 
 {
 	color: #666;
-	background: #fff6ca url(../images/warning_moderate.png) center no-repeat;
-	background-position: 10px 50%;
+	background: #fff6ca url(../images/warning_moderate.png) no-repeat 10px 50%;
 	text-align: left;
 	border-top: 1px solid #ffd324;
 	border-bottom: 1px solid #ffd324;
@@ -2899,8 +2888,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 .infobox 
 {
 	color: #000;
-	background: #efe url(../images/icons/field_valid.png) center no-repeat;
-	background-position: 10px 50%;
+	background: #efe url(../images/icons/field_valid.png) no-repeat 10px 50%;
 	text-align: left;
 	border-top: 1px solid green;
 	border-bottom: 1px solid green;

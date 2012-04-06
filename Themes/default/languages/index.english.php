@@ -654,8 +654,8 @@ $txt['quickmod_split_selected'] = 'Split Selected';
 // In this string, don't use entities. (&amp;, etc.)
 $txt['show_personal_messages'] = 'You have received one or more new personal messages.\\nWould you like to open a new window to view them?';
 
-$txt['previous_next_back'] = '&171; previous';
-$txt['previous_next_forward'] = 'next &187;';
+$txt['previous_next_back'] = '&laquo; previous';
+$txt['previous_next_forward'] = 'next &raquo;';
 
 $txt['movetopic_auto_board'] = '[BOARD]';
 $txt['movetopic_auto_topic'] = '[TOPIC LINK]';

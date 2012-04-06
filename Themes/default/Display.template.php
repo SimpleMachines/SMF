@@ -676,10 +676,11 @@ function template_main()
 			<div class="tborder" id="quickreplybox">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="ie6_header floatleft"><a href="javascript:oQuickReply.swap();">
-							<img src="', $settings['images_url'], '/', $options['display_quick_reply'] == 2 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" />
-						</a>
-						<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
+						<span class="ie6_header floatright">
+							<a href="javascript:oQuickReply.swap();"><img src="', $settings['images_url'], '/', $options['display_quick_reply'] == 2 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" />		</a>
+						</span>
+						<span>
+							<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
 						</span>
 					</h3>
 				</div>

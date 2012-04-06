@@ -610,8 +610,8 @@ function template_browse()
 			<div id="advanced_box" >
 				<div class="cat_bar">
 					<h3 class="catbg">
-					<span class="ie6_header floatleft"><strong>', $txt['package_advanced_options'], '</strong></span>
-					<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="advanced_panel_toggle" alt="*" />
+						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" alt="*" />
+						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
 				<div id="advanced_panel_div" class="windowbg">
@@ -660,6 +660,13 @@ function template_browse()
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'advanced_panel_link\',
+					msgExpanded: ', JavaScriptEscape($txt['package_advanced_button']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['package_advanced_button']), '
 				}
 			],
 			oThemeOptions: {

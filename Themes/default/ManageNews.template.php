@@ -119,8 +119,8 @@ function template_email_members()
 
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><strong>', $txt['advanced'], '</strong></span>
-					<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="advanced_panel_toggle" alt="*" />
+					<img id="advanced_panel_toggle" class="panel_toggle" style="display: none; src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" alt="*" />
+					<a href="#" id="advanced_panel_link" >', $txt['advanced'], '</a>
 				</h3>
 			</div>
 
@@ -206,6 +206,13 @@ function template_email_members()
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'advanced_panel_link\',
+					msgExpanded: ', JavaScriptEscape($txt['advanced']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['advanced']), '
 				}
 			],
 			oThemeOptions: {

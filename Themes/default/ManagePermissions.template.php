@@ -97,8 +97,8 @@ function template_permission_index()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header">', $txt['permissions_advanced_options'], '</span>
-					<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="permissions_panel_toggle" alt="*" />
+					<img id="permissions_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png"  alt="*" />
+					<a href="#" id="permissions_panel_link">', $txt['permissions_advanced_options'], '</a>
 				</h3>
 			</div>
 			<div id="permissions_panel_advanced" class="windowbg">
@@ -205,6 +205,13 @@ function template_permission_index()
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'permissions_panel_link\',
+					msgExpanded: ', JavaScriptEscape($txt['advanced']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['advanced']), '
 				}
 			],
 			oThemeOptions: {

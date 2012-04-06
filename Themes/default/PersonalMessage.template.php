@@ -739,8 +739,7 @@ function template_search()
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft"><strong>', $txt['pm_search_choose_label'], '</strong></span>
-						<img class="panel_toggle" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" id="advanced_panel_toggle" alt="*" />
+						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png"  alt="*" /><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
 					</h4>
 				</div>
 				<div id="advanced_panel_div">
@@ -780,6 +779,13 @@ function template_search()
 						altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 						srcCollapsed: smf_images_url + \'/expand.png\',
 						altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'advanced_panel_link\',
+						msgExpanded: ', JavaScriptEscape($txt['pm_search_choose_label']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['pm_search_choose_label']), '
 					}
 				],
 				oThemeOptions: {
