@@ -826,8 +826,8 @@ dl.settings dt a img
 h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg
 {
 	overflow: hidden;
-	height: 31px;
-	line-height: 31px;
+	height: 38px;
+	line-height: 38px;
 	font-size: 1.2em;
 	font-weight: bold;
 }
@@ -881,13 +881,13 @@ h4.titlebg, h3.titlebg
 h4.titlebg img.icon
 {
 	float: left;
-	margin: 5px 8px 0 0;
+	margin: 9px 8px 0 0;
 }
 div.cat_bar
 {
 	background: #99abbf url(../images/theme/main_block.png) no-repeat 0 -160px;
 	padding-left: 9px;
-	height: 31px;
+	height: 38px;
 	overflow: hidden;
 	margin-bottom: 1px;
 }
@@ -895,7 +895,7 @@ div.title_bar
 {
 	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -200px;
 	padding-left: 9px;
-	height: 31px;
+	height: 38px;
 	overflow: hidden;
 	margin-bottom: 1px;
 }
@@ -915,7 +915,7 @@ div.title_barIC
 {
 	background: #dadfe6 url(../images/theme/main_block.png) no-repeat 0 -120px;
 	padding-left: 9px;
-	height: 31px;
+	height: 38px;
 	overflow: hidden;
 	margin-bottom: 1px;
 }
@@ -939,13 +939,13 @@ table.table_list a.unreadlink, table.table_list a.collapse
 }
 table.table_list a.collapse
 {
-	margin: 8px 5px 0 1em;
-	height: 31px;
-	line-height: 31px;
+	margin: 12px 5px 0 1em;
+	height: 38px;
+	line-height: 38px;
 }
 .panel_toggle
 {	
-	margin: 8px 5px 0 1em;
+	margin: 12px 5px 0 1em;
 	float: right;
 }
 
@@ -957,8 +957,8 @@ table.table_list a.collapse
 }
 .table_grid tr.catbg th, .table_grid tr.titlebg th
 {
-	height: 28px;
-	line-height: 28px;
+	height: 38px;
+	line-height: 38px;
 }
 tr.catbg th.first_th
 {
@@ -1993,7 +1993,7 @@ div#pollmoderation
 #forumposts h3 img
 {
 	float: left;
-	margin: 4px 0.5em 0 0;
+	margin: 8px 0.5em 0 0;
 }
 #forumposts h3.catbg
 {
@@ -3500,12 +3500,12 @@ dl.addrules dt.floatleft
 }
 #month_grid div.cat_bar
 {
-	height: 25px;
+	height: 38px;
 }
 #month_grid h3.catbg
 {
-	height: 25px;
-	line-height: 27px;
+	height: 38px;
+	line-height: 38px;
 }
 #month_grid table
 {
