@@ -482,7 +482,7 @@ function toggleBreakdown(id_group, forcedisplayType)
 		document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]).style.display = displayType
 	}
 	document.getElementById("group_hr_div_" + id_group).style.display = displayType
-	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "sort_down") + ".png";
+	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "selected_open") + ".png";
 
 	return false;
 }
