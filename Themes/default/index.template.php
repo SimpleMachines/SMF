@@ -155,7 +155,7 @@ function template_html_above()
 			$("ul.dropmenu").superfish(); 
 		});
 	// ]]></script>';
-		
+
 	// load in any javascript files from mods and themes
 	template_javascript();
 		
@@ -202,7 +202,7 @@ function template_html_above()
 
 	echo '
 </head>
-<body class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ? 'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')),
+<body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ? 'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')),
 	!empty($context['current_board']) ? ' board_' . htmlspecialchars($context['current_board']) : '',
 	'"',
 	// Style per page.
