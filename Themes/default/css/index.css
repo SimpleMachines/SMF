@@ -939,7 +939,7 @@ table.table_list a.unreadlink, table.table_list a.collapse
 }
 table.table_list a.collapse
 {
-	margin: 10px 5px 0 1em;
+	margin: 8px 5px 0 1em;
 	height: 31px;
 	line-height: 31px;
 }
