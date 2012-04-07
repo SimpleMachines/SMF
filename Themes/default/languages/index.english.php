@@ -95,6 +95,8 @@ $txt['message_index'] = 'Message Index';
 $txt['news'] = 'News';
 $txt['home'] = 'Home';
 $txt['page'] = 'Page';
+$txt['prev'] = 'previous';
+$txt['next'] = 'next';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';

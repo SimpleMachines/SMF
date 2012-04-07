@@ -498,10 +498,11 @@ function updateSettings($changeArray, $update = false, $debug = false)
  * @param int $max_value
  * @param int $num_per_page
  * @param bool $flexible_start = false
+ * @param bool $show_prevnext = true
  */
-function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false)
+function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $modSettings, $context;
+	global $modSettings, $context, $txt;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
@@ -546,17 +547,21 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// If they didn't enter an odd value, pretend they did.
 		$PageContiguous = (int) ($modSettings['compactTopicPagesContiguous'] - ($modSettings['compactTopicPagesContiguous'] % 2)) / 2;
 
-		// Show the first page. (>1< ... 6 7 [8] 9 10 ... 15)
-		if ($start > $num_per_page * $PageContiguous)
-			$pageindex = sprintf($base_link, 0, '1');
+		// Show the "prev page" link. (>prev page< 1 ... 6 7 [8] 9 10 ... 15 next page)
+		if (!empty($start) && $show_prevnext)
+			$pageindex = sprintf($base_link, $start - $num_per_page, '<span class="previous_page">&#171; ' . $txt['prev'] . '</span>');
 		else
 			$pageindex = '';
 
-		// Show the ... after the first page.  (1 >...< 6 7 [8] 9 10 ... 15)
+		// Show the first page. (prev page >1< ... 6 7 [8] 9 10 ... 15)
+		if ($start > $num_per_page * $PageContiguous)
+			$pageindex .= sprintf($base_link, 0, '1');
+
+		// Show the ... after the first page.  (prev page 1 >...< 6 7 [8] 9 10 ... 15 next page)
 		if ($start > $num_per_page * ($PageContiguous + 1))
 			$pageindex .= '<span style="font-weight: bold;" onclick="' . htmlspecialchars('expandPages(this, ' . JavaScriptEscape(($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d')) . ', ' . $num_per_page . ', ' . ($start - $num_per_page * $PageContiguous) . ', ' . $num_per_page . ');') . '" onmouseover="this.style.cursor = \'pointer\';"> ... </span>';
 
-		// Show the pages before the current one. (1 ... >6 7< [8] 9 10 ... 15)
+		// Show the pages before the current one. (prev page 1 ... >6 7< [8] 9 10 ... 15 next page)
 		for ($nCont = $PageContiguous; $nCont >= 1; $nCont--)
 			if ($start >= $num_per_page * $nCont)
 			{
@@ -564,13 +569,13 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 				$pageindex.= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
 			}
 
-		// Show the current page. (1 ... 6 7 >[8]< 9 10 ... 15)
+		// Show the current page. (prev page 1 ... 6 7 >[8]< 9 10 ... 15 next page)
 		if (!$start_invalid)
 			$pageindex .= '[<strong>' . ($start / $num_per_page + 1) . '</strong>] ';
 		else
 			$pageindex .= sprintf($base_link, $start, $start / $num_per_page + 1);
 
-		// Show the pages after the current one... (1 ... 6 7 [8] >9 10< ... 15)
+		// Show the pages after the current one... (prev page 1 ... 6 7 [8] >9 10< ... 15 next page)
 		$tmpMaxPages = (int) (($max_value - 1) / $num_per_page) * $num_per_page;
 		for ($nCont = 1; $nCont <= $PageContiguous; $nCont++)
 			if ($start + $num_per_page * $nCont <= $tmpMaxPages)
@@ -579,13 +584,17 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 				$pageindex .= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
 			}
 
-		// Show the '...' part near the end. (1 ... 6 7 [8] 9 10 >...< 15)
+		// Show the '...' part near the end. (prev page 1 ... 6 7 [8] 9 10 >...< 15 next page)
 		if ($start + $num_per_page * ($PageContiguous + 1) < $tmpMaxPages)
 			$pageindex .= '<span style="font-weight: bold;" onclick="' . htmlspecialchars('expandPages(this, ' . JavaScriptEscape(($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d')) . ', ' . ($start + $num_per_page * ($PageContiguous + 1)) . ', ' . $tmpMaxPages . ', ' . $num_per_page . ');') . '" onmouseover="this.style.cursor=\'pointer\';"> ... </span>';
 
-		// Show the last number in the list. (1 ... 6 7 [8] 9 10 ... >15<)
+		// Show the last number in the list. (prev page 1 ... 6 7 [8] 9 10 ... >15<  next page)
 		if ($start + $num_per_page * $PageContiguous < $tmpMaxPages)
 			$pageindex .= sprintf($base_link, $tmpMaxPages, $tmpMaxPages / $num_per_page + 1);
+
+		// Show the "next page" link. (prev page 1 ... 6 7 [8] 9 10 ... 15 >next page<)
+		if ($start != $tmpMaxPages && $show_prevnext)
+			$pageindex .= sprintf($base_link, $start + $num_per_page, '<span class="next_page">' . $txt['next'] . ' &#187;</span>');
 	}
 
 	return $pageindex;
