@@ -248,6 +248,10 @@ function PlushSearch2()
 	global $scripturl, $modSettings, $sourcedir, $txt, $db_connection;
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc;
+	
+	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
+	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
+		redirectexit($scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
 
 	if (!empty($context['load_average']) && !empty($modSettings['loadavg_search']) && $context['load_average'] >= $modSettings['loadavg_search'])
 		fatal_lang_error('loadavg_search_disabled', false);
@@ -292,6 +296,7 @@ function PlushSearch2()
 
 	// Number of pages hard maximum - normally not set at all.
 	$modSettings['search_max_results'] = empty($modSettings['search_max_results']) ? 200 * $modSettings['search_results_per_page'] : (int) $modSettings['search_max_results'];
+	
 	// Maximum length of the string.
 	$context['search_string_limit'] = 100;
 
@@ -322,15 +327,17 @@ function PlushSearch2()
 	{
 		// Due to IE's 2083 character limit, we have to compress long search strings
 		$temp_params = base64_decode(str_replace(array('-', '_', '.'), array('+', '/', '='), $_REQUEST['params']));
+		
 		// Test for gzuncompress failing
 		$temp_params2 = @gzuncompress($temp_params);
 		$temp_params = explode('|"|', (!empty($temp_params2) ? $temp_params2 : $temp_params));
 
 		foreach ($temp_params as $i => $data)
 		{
-			@list ($k, $v) = explode('|\'|', $data);
+			@list($k, $v) = explode('|\'|', $data);
 			$search_params[$k] = $v;
 		}
+		
 		if (isset($search_params['brd']))
 			$search_params['brd'] = empty($search_params['brd']) ? array() : explode(',', $search_params['brd']);
 	}
@@ -352,9 +359,9 @@ function PlushSearch2()
 		$search_params['maxage'] = !empty($search_params['maxage']) ? (int) $search_params['maxage'] : (int) $_REQUEST['maxage'];
 
 	// Searching a specific topic?
-	if (!empty($_REQUEST['topic']))
-	{
-		$search_params['topic'] = (int) $_REQUEST['topic'];
+	if (!empty($_REQUEST['topic']) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'topic'))
+	{	
+		$search_params['topic'] = empty($_REQUEST['search_selection']) ? (int) $_REQUEST['topic'] : (isset($_REQUEST['sd_topic']) ? (int) $_REQUEST['sd_topic'] : '');
 		$search_params['show_complete'] = true;
 	}
 	elseif (!empty($search_params['topic']))
@@ -458,8 +465,13 @@ function PlushSearch2()
 		$_REQUEST['brd'] = $search_params['brd'];
 
 	// Ensure that brd is an array.
-	if (!empty($_REQUEST['brd']) && !is_array($_REQUEST['brd']))
-		$_REQUEST['brd'] = strpos($_REQUEST['brd'], ',') !== false ? explode(',', $_REQUEST['brd']) : array($_REQUEST['brd']);
+	if ((!empty($_REQUEST['brd']) && !is_array($_REQUEST['brd'])) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'board'))
+	{
+		if (!empty($_REQUEST['brd']))
+			$_REQUEST['brd'] = strpos($_REQUEST['brd'], ',') !== false ? explode(',', $_REQUEST['brd']) : array($_REQUEST['brd']);
+		else
+			$_REQUEST['brd'] = isset($_REQUEST['sd_brd']) ? array($_REQUEST['sd_brd']) : array();
+	}
 
 	// Make sure all boards are integers.
 	if (!empty($_REQUEST['brd']))

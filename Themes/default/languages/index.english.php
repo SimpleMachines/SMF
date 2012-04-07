@@ -147,6 +147,10 @@ $txt['search_on'] = 'on';
 
 $txt['search'] = 'Search';
 $txt['all'] = 'All';
+$txt['search_entireforum'] = 'Entire Forum';
+$txt['search_thisbrd'] = 'This board';
+$txt['search_thistopic'] = 'This topic';
+$txt['search_members'] = 'Members';
 
 $txt['back'] = 'Back';
 $txt['password_reminder'] = 'Password reminder';

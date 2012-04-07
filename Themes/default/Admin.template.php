@@ -767,7 +767,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
-
+		
 	echo '
 	<div id="admincenter">
 		<form action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
