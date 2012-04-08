@@ -39,8 +39,18 @@ function validateSession($type = 'admin')
 	// If we're using XML give an additional ten minutes grace as an admin can't log on in XML mode.
 	$refreshTime = isset($_GET['xml']) ? 4200 : 3600;
 
-	// Is the security option off?  Or are they already logged in?
-	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]) || (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()))
+	// Is the security option off? 
+	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
+		return;
+		
+	// Or are they already logged in?
+	if ($type === 'moderate')
+	{
+		// Moderator or admin sesssion is need for this area
+		if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
+			return;
+	}
+	elseif (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time())
 		return;
 
 	require_once($sourcedir . '/Subs-Auth.php');

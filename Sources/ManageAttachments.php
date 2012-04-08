@@ -110,12 +110,12 @@ function ManageAttachmentSettings($return_config = false)
 		'',
 			// Directory and size limits.
 			empty($modSettings['currentAttachmentUploadDir']) ? array('text', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' => 'attachmentUploadDir_multiple_configure'),
-			array('text', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
-			array('text', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('int', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 			array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
-			array('text', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+			array('int', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 			array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
-			array('text', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
+			array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			// Security Items
 		array('title', 'attachment_security_settings'),
 			// Extension checks etc.

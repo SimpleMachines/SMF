@@ -283,7 +283,7 @@ function template_info_center()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />
-				', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '
+				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
 		<div id="upshrinkHeaderIC"', empty($options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
@@ -352,31 +352,35 @@ function template_info_center()
 
 		// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P.
 		if (!empty($context['calendar_holidays']))
-				echo '
+			echo '
 				<span class="holiday">', $txt['calendar_prompt'], ' ', implode(', ', $context['calendar_holidays']), '</span><br />';
 
 		// People's birthdays. Like mine. And yours, I guess. Kidding.
 		if (!empty($context['calendar_birthdays']))
 		{
-				echo '
+			echo '
 				<span class="birthday">', $context['calendar_only_today'] ? $txt['birthdays'] : $txt['birthdays_upcoming'], '</span> ';
-		/* Each member in calendar_birthdays has:
-				id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?) */
-		foreach ($context['calendar_birthdays'] as $member)
+			
+			// Each member in calendar_birthdays has:
+			//		id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?) 
+			foreach ($context['calendar_birthdays'] as $member)
 				echo '
 				<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['is_today'] ? '<strong>' : '', $member['name'], $member['is_today'] ? '</strong>' : '', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '<br />' : ', ';
 		}
+		
 		// Events like community get-togethers.
 		if (!empty($context['calendar_events']))
 		{
 			echo '
 				<span class="event">', $context['calendar_only_today'] ? $txt['events'] : $txt['events_upcoming'], '</span> ';
-			/* Each event in calendar_events should have:
-					title, href, is_last, can_edit (are they allowed?), modify_href, and is_today. */
+			
+			// Each event in calendar_events should have:
+			//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 			foreach ($context['calendar_events'] as $event)
 				echo '
 					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/modify_small.png" alt="*" /></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br />' : ', ';
 		}
+		
 		echo '
 			</p>';
 	}
@@ -490,6 +494,13 @@ function template_info_center()
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'upshrink_link\',
+					msgExpanded: ', JavaScriptEscape(sprintf($txt['info_center_title'], $context['forum_name_html_safe'])), ',
+					msgCollapsed: ', JavaScriptEscape(sprintf($txt['info_center_title'], $context['forum_name_html_safe'])), '
 				}
 			],
 			oThemeOptions: {

@@ -3001,6 +3001,21 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		$ftp->check_response(226);
 		$ftp->close();
 	}
+	// More likely a standard HTTP URL, first try to use cURL if available
+	elseif (isset($match[1]) && $match[1] === 'http' && function_exists('curl_init'))
+	{
+		// Include the file containing the curl_fetch_web_data class.
+		require_once($sourcedir . '/Class-CurlFetchWeb.php');
+
+		$fetch_data = new curl_fetch_web_data();
+		$fetch_data->get_url_data($url, $post_data);
+
+		// no errors and a 200 result, then we have a good dataset, well we at least have data ;)
+		if ($fetch_data->result('code') == 200 && !$fetch_data->result('error'))
+			$data = $fetch_data->result('body');
+		else
+			return false;
+	}
 	// This is more likely; a standard HTTP URL.
 	elseif (isset($match[1]) && $match[1] == 'http')
 	{
@@ -3023,7 +3038,7 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 		// I want this, from there, and I'm not going to be bothering you for more (probably.)
 		if (empty($post_data))
 		{
-			fwrite($fp, 'GET ' . ($match[6] !== '/' ? $match[6] : '') . ' HTTP/1.0' . "\r\n");
+			fwrite($fp, 'GET ' . ($match[6] !== '/' ? str_replace(' ', '%20', $match[6]) : '') . ' HTTP/1.0' . "\r\n");
 			fwrite($fp, 'Host: ' . $match[3] . (empty($match[5]) ? ($match[2] ? ':443' : '') : ':' . $match[5]) . "\r\n");
 			fwrite($fp, 'User-Agent: PHP/SMF' . "\r\n");
 			if ($keep_alive)

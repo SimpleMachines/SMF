@@ -373,8 +373,10 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($settings['additional_options_collapsable']))
 		echo '
-					<div id="postAdditionalOptionsHeader">
-						<img src="', $settings['images_url'], '/collapse.png" alt="-" id="postMoreExpand" style="display: none;" /> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
+					<div id="postAdditionalOptionsHeader" class="title_bar">
+						<h4 class="titlebg">
+							<img id="postMoreExpand" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png" alt="-" /> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
+						</h4>
 					</div>';
 
 	// Display the check boxes for all the standard options - if they are available to the user!
@@ -504,11 +506,11 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<p class="smalltext" id="shortcuts">
-						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
-					</p>
 					<hr class="hrcolor" />
-					<p id="post_confirm_buttons">
+					<span class="smalltext" >
+						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+					</span>
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.
@@ -517,8 +519,8 @@ function template_main()
 						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['event_delete_confirm'], '\');" class="button_submit" />';
 
 	echo '
-						<br class="clear_right" />
-					</p>
+					</span>
+					<br class="clear_right" />
 				</div>
 				<span class="lowerframe"><span></span></span>
 			</div>

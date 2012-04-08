@@ -262,7 +262,7 @@ function template_credits()
 				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '</span>
 			</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<span class="topslice"><span></span></span>
 			<div class="content">
 				<div id="latestSupport">', $txt['support_latest_fetch'], '</div>
@@ -277,7 +277,7 @@ function template_credits()
 				', $txt['admin_credits'], '
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			<span class="topslice"><span></span></span>
 			<div class="content">';
 
@@ -767,7 +767,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
-
+		
 	echo '
 	<div id="admincenter">
 		<form action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';

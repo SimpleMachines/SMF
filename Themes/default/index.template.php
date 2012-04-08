@@ -155,7 +155,7 @@ function template_html_above()
 			$("ul.dropmenu").superfish(); 
 		});
 	// ]]></script>';
-		
+
 	// load in any javascript files from mods and themes
 	template_javascript();
 		
@@ -202,7 +202,7 @@ function template_html_above()
 
 	echo '
 </head>
-<body class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ? 'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')),
+<body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ? 'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')),
 	!empty($context['current_board']) ? ' board_' . htmlspecialchars($context['current_board']) : '',
 	'"',
 	// Style per page.
@@ -294,24 +294,49 @@ function template_body_above()
 	echo '
 			</div>
 			<div class="news normaltext">';
+	
 	if ($context['allow_search'])
 	{
 		echo '
-				<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-					<input type="text" name="search" value="" class="input_text" />&nbsp;
-					<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
-					<input type="hidden" name="advanced" value="0" />';
+			<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+				<input type="text" name="search" value="" class="input_text" />&nbsp';
+		
+		// Using the quick search dropdown?
+		if (!empty($modSettings['search_dropdown']))
+		{
+			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
+			
+			echo '
+				<select name="search_selection">
+					<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
+				
+				// Can't limit it to a specific topic if we are not in one
+				if (!empty($context['current_topic']))
+					echo '
+					<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
 
+				// Can't limit it to a specific board if we are not in one
+				if (!empty($context['current_board']))
+					echo '
+					<option value="board"', ($selected == 'current_board' ? ' selected="selected"' : ''), '>', $txt['search_thisbrd'], '</option>';
+			echo '
+					<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
+				</select>';
+		}
+		
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
-						<input type="hidden" name="topic" value="', $context['current_topic'], '" />';
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '" />';
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-						<input type="hidden" name="brd[', $context['current_board'], ']" value="', $context['current_board'], '" />';
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'],   ']"', 'value="', $context['current_board'], '" />';
 
-		echo '</form>';
+		echo '
+				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
+				<input type="hidden" name="advanced" value="0" />
+			</form>';	
 	}
 
 	// Show a random news item? (or you could pick one from news_lines...)

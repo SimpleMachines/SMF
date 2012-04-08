@@ -2876,23 +2876,23 @@ function template_authentication_method()
 							<span class="smalltext">', $txt['required_security_reasons'], '</span>
 						</dt>
 						<dd>
-							<input type="password" name="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" />
+							<input type="password" name="oldpasswrd" tabindex="', $context['tabindex']++, '" size="20" style="margin-right: 4ex;" class="input_password" />
 						</dd>
 					</dl>';
 
 	echo '
-					<div class="righttext">';
+					<hr class="hrcolor" />';
 
 	if (!empty($context['token_check']))
 		echo '
-						<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 	echo '
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="u" value="', $context['id_member'], '" />
-						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
-						<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />
-					</div>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="u" value="', $context['id_member'], '" />
+					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
+					<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>

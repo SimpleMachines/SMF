@@ -66,6 +66,7 @@ require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
+require_once($sourcedir . '/Class-BrowserDetect.php');
 
 // Using an pre-PHP 5.1 version?
 if (version_compare(PHP_VERSION, '5.1', '<'))

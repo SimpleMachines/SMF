@@ -364,7 +364,7 @@ function template_main()
 			echo '
 				<tr class="windowbg2" valign="middle" align="center" id="year_', $id, '">
 					<th class="lefttext" width="25%">
-						<img id="year_img_', $id, '" src="', $settings['images_url'], '/collapse.png" alt="*" /> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
+						<img id="year_img_', $id, '" src="', $settings['images_url'], '/selected_open.png" alt="*" /> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
 					</th>
 					<th width="15%">', $year['new_topics'], '</th>
 					<th width="15%">', $year['new_posts'], '</th>
@@ -383,7 +383,7 @@ function template_main()
 				echo '
 				<tr class="windowbg2" valign="middle" align="center" id="tr_month_', $month['id'], '">
 					<th class="stats_month">
-						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'collapse.png' : 'expand.png', '" alt="" id="img_', $month['id'], '" /> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
+						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '" /> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
 					</th>
 					<th width="15%">', $month['new_topics'], '</th>
 					<th width="15%">', $month['new_posts'], '</th>
@@ -431,14 +431,14 @@ function template_main()
 			sTableId: \'stats\',
 
 			reYearPattern: /year_(\d+)/,
-			sYearImageCollapsed: \'expand.png\',
-			sYearImageExpanded: \'collapse.png\',
+			sYearImageCollapsed: \'selected.png\',
+			sYearImageExpanded: \'selected_open.png\',
 			sYearImageIdPrefix: \'year_img_\',
 			sYearLinkIdPrefix: \'year_link_\',
 
 			reMonthPattern: /tr_month_(\d+)/,
-			sMonthImageCollapsed: \'expand.png\',
-			sMonthImageExpanded: \'collapse.png\',
+			sMonthImageCollapsed: \'selected.png\',
+			sMonthImageExpanded: \'selected_open.png\',
 			sMonthImageIdPrefix: \'img_\',
 			sMonthLinkIdPrefix: \'m\',
 
