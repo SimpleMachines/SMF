@@ -263,10 +263,10 @@ function template_reported_posts()
 		</div>';
 
 	// Make the buttons.
-	$close_button = create_button('close.png', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'align="middle"');
-	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'align="middle"');
-	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'align="middle"');
-	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'align="middle"');
+	$close_button = create_button('close.png', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
+	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'class="centericon"');
+	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
+	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
 
 	foreach ($context['reports'] as $report)
 	{
@@ -342,8 +342,8 @@ function template_unapproved_posts()
 		</div>';
 
 	// Make up some buttons
-	$approve_button = create_button('approve.png', 'approve', 'approve', 'align="middle"');
-	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
+	$approve_button = create_button('approve.png', 'approve', 'approve', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
 
 	// No posts?
 	if (empty($context['unapproved_items']))
@@ -437,8 +437,8 @@ function template_unapproved_attachments()
 			</div>';
 
 	// The ever popular approve button, with the massively unpopular delete.
-	$approve_button = create_button('approve.png', 'approve', 'approve', 'align="middle"');
-	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
+	$approve_button = create_button('approve.png', 'approve', 'approve', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
 
 	// None awaiting?
 	if (empty($context['unapproved_items']))
@@ -540,9 +540,9 @@ function template_viewmodreport()
 					<span class="floatright">';
 
 		// Make the buttons.
-		$close_button = create_button('close.png', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'align="middle"');
-		$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'align="middle"');
-		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'align="middle"');
+		$close_button = create_button('close.png', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
+		$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
+		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
 
 		echo '
 						<a href="', $scripturl, '?action=moderate;area=reports;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$context['report']['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
@@ -661,7 +661,7 @@ function template_user_watch_post_callback($post)
 
 	// We'll have a delete please bob.
 	if (empty($delete_button))
-		$delete_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
+		$delete_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
 
 	$output_html = '
 					<div>
