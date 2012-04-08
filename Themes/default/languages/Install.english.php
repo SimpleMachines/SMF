@@ -45,6 +45,7 @@ $txt['default_reserved_names'] = 'Admin\nWebmaster\nGuest\nroot';
 $txt['default_smileyset_name'] = 'Alienine\'s Set';
 $txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
 $txt['default_akyhne_smileyset_name'] = 'Akyhne\'s Set';
+$txt['default_fugue_smileyset_name'] = 'Fugue\'s Set';
 $txt['default_theme_name'] = 'SMF Default Theme - Curve';
 $txt['default_core_theme_name'] = 'Core Theme';
 $txt['default_classic_theme_name'] = 'Classic YaBB SE Theme';
