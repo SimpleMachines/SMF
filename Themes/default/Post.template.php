@@ -506,11 +506,11 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<p class="smalltext" id="shortcuts">
-						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
-					</p>
 					<hr class="hrcolor" />
-					<p id="post_confirm_buttons">
+					<span class="smalltext" >
+						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+					</span>
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
 	// Option to delete an event if user is editing one.
@@ -519,8 +519,8 @@ function template_main()
 						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['event_delete_confirm'], '\');" class="button_submit" />';
 
 	echo '
-						<br class="clear_right" />
-					</p>
+					</span>
+					<br class="clear_right" />
 				</div>
 				<span class="lowerframe"><span></span></span>
 			</div>

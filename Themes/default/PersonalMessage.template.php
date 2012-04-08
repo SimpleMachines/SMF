@@ -1068,21 +1068,24 @@ function template_send()
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<p><label for="outbox"><input type="checkbox" name="outbox" id="outbox" value="1" tabindex="', $context['tabindex']++, '"', $context['copy_to_outbox'] ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['pm_save_outbox'], '</label></p>
-				<p id="shortcuts" class="smalltext">
+				<p>
+					<label for="outbox"><input type="checkbox" name="outbox" id="outbox" value="1" tabindex="', $context['tabindex']++, '"', $context['copy_to_outbox'] ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['pm_save_outbox'], '</label>
+				</p>
+				<hr class="hrcolor" />
+				<span id="shortcuts" class="smalltext">
 					', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
-				</p>
-				<p id="post_confirm_strip" class="righttext">
+				</span>
+				<span id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
-				</p>
+				</span>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />
 				<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '" />
 				<input type="hidden" name="pm_head" value="', !empty($context['quoted_message']['pm_head']) ? $context['quoted_message']['pm_head'] : 0, '" />
 				<input type="hidden" name="f" value="', isset($context['folder']) ? $context['folder'] : '', '" />
 				<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '" />
-				<br class="clear" />
-				</div>
+				<br class="clear_right" />
+			</div>
 			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>';

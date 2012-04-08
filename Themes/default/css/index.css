@@ -2305,7 +2305,6 @@ ul.post_options li
 	overflow: hidden;
 	margin: .5em 0;
 	padding: 0;
-	border-bottom: 1px solid #cacdd3;
 	padding: 0.5em;
 }
 #postAttachment dd, #postAttachment2 dd
@@ -2820,15 +2819,15 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
 }
 .topic_table td.stickybg2
 {
-	background: url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
+	background:  #f2e3d9 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
 }
 .topic_table td.lockedbg2
 {
-	background: url(../images/icons/quick_lock.png) no-repeat 98% 4px;
+	background: #d8e1e7 url(../images/icons/quick_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.locked_sticky2
 {
-	background: url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
+	background: #f2e3d9 url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.lastpost
 {
