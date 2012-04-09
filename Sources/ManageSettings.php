@@ -774,7 +774,7 @@ function ModifySpamSettings($return_config = false)
 				array('check', 'guests_report_require_captcha'),
 			'',
 			// PM Settings
-				'pm1' => array('int', 'max_pm_recipients', 'subtext' => $txt['pm_posts_recipients_note']),
+				'pm1' => array('int', 'max_pm_recipients', 'subtext' => $txt['max_pm_recipients_note']),
 				'pm2' => array('int', 'pm_posts_verification', 'subtext' => $txt['pm_posts_verification_note']),
 				'pm3' => array('int', 'pm_posts_per_hour', 'subtext' => $txt['pm_posts_per_hour_note']),
 			// Visual verification.
