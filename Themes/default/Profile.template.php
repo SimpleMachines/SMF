@@ -2511,10 +2511,11 @@ function template_error_message()
 {
 	global $context, $txt;
 
+	echo '
+		<div class="errorbox" ', empty($context['post_errors']) ? 'style="display:none" ' : '', 'id="profile_error">';
 	if (!empty($context['post_errors']))
 	{
 		echo '
-		<div class="errorbox" id="profile_error">
 			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
 			<ul id="list_errors">';
 
@@ -2524,13 +2525,10 @@ function template_error_message()
 				<li>', isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : $error, '.</li>';
 
 		echo '
-			</ul>
-		</div>';
+			</ul>';
 	}
-	else
-		echo '
-		<div class="errorbox" style="display:none" id="profile_error">
-			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
+
+	echo '
 		</div>';
 }
 
@@ -2652,20 +2650,11 @@ function template_profile_signature_modify()
 	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
 								<script type="text/javascript"><!-- // --><![CDATA[
-									function tick()
-									{
-										if (typeof(document.forms.creator) != "undefined")
-										{
-											calcCharLeft();
-											setTimeout("tick()", 1000);
-										}
-										else
-											setTimeout("tick()", 800);
-									}
+									var maxLength = ', $context['signature_limits']['max_length'], ';
+									var error_displayed = false;
 
 									function calcCharLeft()
 									{
-										var maxLength = ', $context['signature_limits']['max_length'], ';
 										var oldSignature = "", currentSignature = document.forms.creator.signature.value;
 										var currentChars = 0;
 
@@ -2678,27 +2667,20 @@ function template_profile_signature_modify()
 
 											var currentChars = currentSignature.replace(/\r/, "").length;
 											if (is_opera)
-												currentChars = currentSignature.replace(/\r/g,\'\').length;
+												currentChars = currentSignature.replace(/\r/g, "").length;
 
+											ajax_getSignaturePreview(false);
 											if (currentChars > maxLength)
-											{
 												document.getElementById("signatureLeft").className = "error";
-												if (!$("#profile_error").is(":visible"))
-													ajax_getSignaturePreview(false);
-											}
 											else
-											{
-												if ($("#profile_error").is(":visible"))
-													ajax_getSignaturePreview(false);
 												document.getElementById("signatureLeft").className = "";
-											}
 										}
 
 										setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentChars);
 									}
 
-									addLoadEvent(tick);
 									$(document).ready(function() {
+										calcCharLeft();
 										$("#preview_button").click(function() {
 											return ajax_getSignaturePreview(true);
 										});
@@ -2726,6 +2708,7 @@ function template_profile_signature_modify()
 												if ($(request).find("error").text() != \'\')
 												{
 													$("#profile_error").css({display:""});
+													error_displayed = true;
 													var errors = $(request).find(\'[type="error"]\');
 													var errors_html = \'<span>\' + $(request).find(\'[type="errors_occurred"]\').text() + \'</span><ul class="reset">\';
 
@@ -2738,6 +2721,7 @@ function template_profile_signature_modify()
 												else
 												{
 													$("#profile_error").css({display:"none"});
+													error_displayed = false;
 													$("#profile_error").html(\'\');
 												}
 											return false;

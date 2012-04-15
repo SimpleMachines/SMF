@@ -1131,8 +1131,6 @@ function template_send()
 				for (var i = 0, numErrors = errors.getElementsByTagName(\'error\').length; i < numErrors; i++)
 					errorList[errorList.length] = errors.getElementsByTagName(\'error\')[i].firstChild.nodeValue;
 				document.getElementById(\'errors\').style.display = numErrors == 0 ? \'none\' : \'\';
-				// @todo temporarly removed
-				//document.getElementById(\'error_serious\').style.display = errors.getAttribute(\'serious\') == 1 ? \'\' : \'none\';
 				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br />\'));
 
 				// Adjust the color of captions if the given data is erroneous.
@@ -1150,7 +1148,9 @@ function template_send()
 					else
 						document.forms.postmodify.', $context['post_box_name'], '.style.border = null;
 				}
+				location.hash = \'#\' + \'preview_section\';
 			}';
+
 	echo '
 		// ]]></script>';
 

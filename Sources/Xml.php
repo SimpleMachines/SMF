@@ -78,7 +78,7 @@ function RetrievePreview()
 {
 	global $context;
 
-	$subActions = array(
+	$items = array(
 		'newspreview',
 		'newsletterpreview',
 		'sig_preview',
@@ -87,7 +87,7 @@ function RetrievePreview()
 
 	$context['sub_template'] = 'generic_xml';
 
-	if (!isset($_POST['item']) || !in_array($_POST['item'], $subActions))
+	if (!isset($_POST['item']) || !in_array($_POST['item'], $items))
 		return false;
 
 	$_POST['item']();
