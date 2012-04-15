@@ -720,6 +720,8 @@ function template_main()
 					}
 				}
 
+				location.hash = \'#\' + \'preview_section\';
+
 				if (typeof(smf_codeFix) != \'undefined\')
 					smf_codeFix();
 			}';

@@ -79,6 +79,10 @@ function issueWarning($memID)
 	if (empty($modSettings['warning_enable']) || ($context['user']['is_owner'] && !$cur_profile['warning']) || !allowedTo('issue_warning'))
 		fatal_lang_error('no_access', false);
 
+	// Get the base (errors related) stuff done.
+	loadLanguage('Errors');
+	$context['custom_error_title'] = $txt['profile_warning_errors_occured'];
+
 	// Make sure things which are disabled stay disabled.
 	$modSettings['warning_watch'] = !empty($modSettings['warning_watch']) ? $modSettings['warning_watch'] : 110;
 	$modSettings['warning_moderate'] = !empty($modSettings['warning_moderate']) && !empty($modSettings['postmod_active']) ? $modSettings['warning_moderate'] : 110;
@@ -212,15 +216,6 @@ function issueWarning($memID)
 		}
 		else
 		{
-			// Get the base stuff done.
-			loadLanguage('Errors');
-			$context['custom_error_title'] = $txt['profile_warning_errors_occured'];
-
-			// Fill in the suite of errors.
-			$context['post_errors'] = array();
-			foreach ($issueErrors as $error)
-				$context['post_errors'][] = $txt[$error];
-
 			// Try to remember some bits.
 			$context['warning_data'] = array(
 				'reason' => $_POST['warn_reason'],
@@ -233,6 +228,41 @@ function issueWarning($memID)
 		// Show the new improved warning level.
 		$context['member']['warning'] = $_POST['warning_level'];
 	}
+
+	if (isset($_POST['preview']))
+	{
+		$warning_body = !empty($_POST['warn_body']) ? trim(censorText($_POST['warn_body'])) : '';
+		$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim($smcFunc['htmlspecialchars']($_POST['warn_sub'])) : '';
+		if (empty($_POST['warn_sub']) || empty($_POST['warn_body']))
+			$issueErrors[] = 'warning_notify_blank';
+
+		if (!empty($_POST['warn_body']))
+		{
+			require_once($sourcedir . '/Subs-Post.php');
+
+			preparsecode($warning_body);
+			$warning_body = parse_bbc($warning_body, true);
+		}
+
+		// Try to remember some bits.
+		$context['warning_data'] = array(
+			'reason' => $_POST['warn_reason'],
+			'notify' => !empty($_POST['warn_notify']),
+			'notify_subject' => isset($_POST['warn_sub']) ? $_POST['warn_sub'] : '',
+			'notify_body' => isset($_POST['warn_body']) ? $_POST['warn_body'] : '',
+			'body_preview' => $warning_body,
+		);
+// 		print_r($context['warning_data']);die();
+	}
+
+	if (!empty($issueErrors))
+	{
+		// Fill in the suite of errors.
+		$context['post_errors'] = array();
+		foreach ($issueErrors as $error)
+			$context['post_errors'][] = $txt[$error];
+	}
+
 
 	$context['page_title'] = $txt['profile_issue_warning'];
 

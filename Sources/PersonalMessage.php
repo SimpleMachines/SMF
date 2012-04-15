@@ -41,7 +41,7 @@ function MessageMain()
 		fatal_lang_error('wireless_error_notyet', false);
 	elseif (WIRELESS)
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_pm';
-	else
+	elseif (!isset($_REQUEST['xml']))
 		loadTemplate('PersonalMessage');
 
 	// Load up the members maximum message capacity.
@@ -203,7 +203,8 @@ function MessageMain()
 		MessageFolder();
 	else
 	{
-		messageIndexBar($_REQUEST['sa']);
+		if (!isset($_REQUEST['xml']))
+			messageIndexBar($_REQUEST['sa']);
 		$subActions[$_REQUEST['sa']]();
 	}
 }
@@ -347,7 +348,7 @@ function messageIndexBar($area)
 	$context['menu_item_selected'] = $pm_include_data['current_area'];
 
 	// obExit will know what to do!
-	if (!WIRELESS)
+	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
 }
 
@@ -1770,6 +1771,7 @@ function MessagePost()
 		'labels' => array(
 			'post_button' => $txt['send_message'],
 		),
+		'preview_type' => 2,
 	);
 	create_control_richedit($editorOptions);
 
@@ -1804,10 +1806,13 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	global $txt, $context, $scripturl, $modSettings;
 	global $smcFunc, $user_info, $sourcedir;
 
-	$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
+	if (!isset($_REQUEST['xml']))
+		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
 
-	if (!WIRELESS)
+	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['sub_template'] = 'send';
+	elseif (isset($_REQUEST['xml']))
+		$context['sub_template'] = 'pm';
 
 	$context['page_title'] = $txt['send_message'];
 
@@ -1868,7 +1873,12 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('pm_not_yours', false);
+		{
+			if (!isset($_REQUEST['xml']))
+				fatal_lang_error('pm_not_yours', false);
+			else
+				$error_types[] = 'pm_not_yours';
+		}
 		$row_quoted = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
@@ -1905,7 +1915,10 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	
 	$context['post_error'] = array(
 		'messages' => array(),
+		// @todo error handling: maybe fatal errors can be error_type => serious
+		'error_type' => '',
 	);
+
 	foreach ($error_types as $error_type)
 	{
 		$context['post_error'][$error_type] = true;
@@ -1932,6 +1945,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		'labels' => array(
 			'post_button' => $txt['send_message'],
 		),
+		'preview_type' => 2,
 	);
 	create_control_richedit($editorOptions);
 
@@ -1940,7 +1954,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	// Check whether we need to show the code again.
 	$context['require_verification'] = !$user_info['is_admin'] && !empty($modSettings['pm_posts_verification']) && $user_info['posts'] < $modSettings['pm_posts_verification'];
-	if ($context['require_verification'])
+	if ($context['require_verification'] && !isset($_REQUEST['xml']))
 	{
 		require_once($sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
@@ -1976,6 +1990,9 @@ function MessagePost2()
 	// Extract out the spam settings - it saves database space!
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
 
+	// Initialize the errors we're about to make.
+	$post_errors = array();
+
 	// Check whether we've gone over the limit of messages we can send per hour - fatal error if fails!
 	if (!empty($modSettings['pm_posts_per_hour']) && !allowedTo(array('admin_forum', 'moderate_forum', 'send_mail')) && $user_info['mod_cache']['bq'] == '0=1' && $user_info['mod_cache']['gq'] == '0=1')
 	{
@@ -1995,7 +2012,12 @@ function MessagePost2()
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($postCount) && $postCount >= $modSettings['pm_posts_per_hour'])
-			fatal_lang_error('pm_too_many_per_hour', true, array($modSettings['pm_posts_per_hour']));
+		{
+			if (!isset($_REQUEST['xml']))
+				fatal_lang_error('pm_too_many_per_hour', true, array($modSettings['pm_posts_per_hour']));
+			else
+				$post_errors[] = 'pm_too_many_per_hour';
+		}
 	}
 
 	// If we came from WYSIWYG then turn it back into BBC regardless.
@@ -2011,11 +2033,8 @@ function MessagePost2()
 		$_REQUEST['message'] = $_POST['message'];
 	}
 
-	// Initialize the errors we're about to make.
-	$post_errors = array();
-
 	// If your session timed out, show an error, but do allow to re-submit.
-	if (checkSession('post', '', false) != '')
+	if (!isset($_REQUEST['xml']) && checkSession('post', '', false) != '')
 		$post_errors[] = 'session_timeout';
 
 	$_REQUEST['subject'] = isset($_REQUEST['subject']) ? trim($_REQUEST['subject']) : '';
@@ -2135,7 +2154,7 @@ function MessagePost2()
 	}
 
 	// Wrong verification code?
-	if (!$user_info['is_admin'] && !empty($modSettings['pm_posts_verification']) && $user_info['posts'] < $modSettings['pm_posts_verification'])
+	if (!$user_info['is_admin'] && !isset($_REQUEST['xml']) && !empty($modSettings['pm_posts_verification']) && $user_info['posts'] < $modSettings['pm_posts_verification'])
 	{
 		require_once($sourcedir . '/Subs-Editor.php');
 		$verificationOptions = array(
@@ -2150,7 +2169,7 @@ function MessagePost2()
 	}
 
 	// If they did, give a chance to make ammends.
-	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']))
+	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']) && !isset($_REQUEST['xml']))
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 
 	// Want to take a second glance before you send?
