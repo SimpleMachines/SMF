@@ -26,8 +26,7 @@ function template_profile_above()
 	// ]]></script>';
 
 	// If an error occurred while trying to save previously, give the user a clue!
-	if (!empty($context['post_errors']))
-		echo '
+	echo '
 					', template_error_message();
 
 	// If the profile was update successfully, let the user know this.
@@ -1181,7 +1180,7 @@ function template_edit_options()
 
 	// The main header!
 	echo '
-		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member'] . ';save'), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
+		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />';
@@ -1365,10 +1364,10 @@ function template_edit_options()
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
 		echo '
-					<input type="submit" value="', $context['submit_button_text'], '" class="button_submit" />';
+					<input type="submit" name="save" value="', $context['submit_button_text'], '" class="button_submit" />';
 	else
 		echo '
-					<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />';
+					<input type="submit" name="save" value="', $txt['change_profile'], '" class="button_submit" />';
 
 	if (!empty($context['token_check']))
 		echo '
@@ -2201,6 +2200,7 @@ function template_issueWarning()
 			document.getElementById(\'warn_body\').disabled = disable;
 			document.getElementById(\'warn_temp\').disabled = disable;
 			document.getElementById(\'new_template_link\').style.display = disable ? \'none\' : \'\';
+			document.getElementById(\'preview_button\').style.display = disable ? \'none\' : \'\';
 		}
 
 		function changeWarnLevel(amount)
@@ -2305,6 +2305,17 @@ function template_issueWarning()
 					</dd>
 				</dl>
 				<hr />
+				<div id="box_preview"', !empty($context['warning_data']['body_preview']) ? '' : ' style="display:none"', '>
+					<dl class="settings">
+						<dt>
+							<strong>', $txt['preview'] , '</strong>
+						</dt>
+						<dd id="body_preview">
+							', !empty($context['warning_data']['body_preview']) ? $context['warning_data']['body_preview'] : '', '
+						</dd>
+					</dl>
+					<hr />
+				</div>
 				<dl class="settings">
 					<dt>
 						<strong><label for="warn_notify">', $txt['profile_warning_notify'], ':</label></strong>
@@ -2342,18 +2353,70 @@ function template_issueWarning()
 
 	if (!empty($context['token_check']))
 		echo '
-				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
+					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
 
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button_submit" />
 				</div>
 				<br class="clear" />
 			</div>
 			<span class="botslice"><span></span></span>
 		</div>
-	</form>
-	<br />';
+	</form>';
+
+	// Previous warnings?
+	echo '
+		<br />
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['profile_warning_previous'], '
+			</h3>
+		</div>
+		<table border="0" width="100%" cellspacing="0" cellpadding="5" class="table_grid">
+			<thead>
+				<tr class="titlebg lefttext">
+					<th class="first_th" scope="col" width="20%">', $txt['profile_warning_previous_issued'], '</th>
+					<th scope="col" width="30%">', $txt['profile_warning_previous_time'], '</th>
+					<th scope="col">', $txt['profile_warning_previous_reason'], '</th>
+					<th class="last_th" scope="col" width="6%">', $txt['profile_warning_previous_level'], '</th>
+				</tr>
+			</thead>
+			<tbody>';
+
+	// Print the warnings.
+	$alternate = 0;
+	foreach ($context['previous_warnings'] as $warning)
+	{
+		$alternate = !$alternate;
+		echo '
+				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+					<td class="smalltext">', $warning['issuer']['link'], '</td>
+					<td class="smalltext">', $warning['time'], '</td>
+					<td class="smalltext">
+						<div class="floatleft">
+							', $warning['reason'], '
+						</div>';
+
+		if (!empty($warning['id_notice']))
+			echo '
+						<div class="floatright">
+							<a href="', $scripturl, '?action=moderate;area=notice;nid=', $warning['id_notice'], '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="', $txt['profile_warning_previous_notice'], '"><img src="', $settings['images_url'], '/filter.gif" alt="" /></a>
+						</div>';
+		echo '
+					</td>
+					<td class="smalltext">', $warning['counter'], '</td>
+				</tr>';
+	}
+
+	if (empty($context['previous_warnings']))
+		echo '
+				<tr class="windowbg2">
+					<td align="center" colspan="4">
+						', $txt['profile_warning_previous_none'], '
+					</td>
+				</tr>';
 
 	template_show_list('view_warnings');
 
@@ -2361,11 +2424,49 @@ function template_issueWarning()
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		document.getElementById(\'warndiv1\').style.display = "";
+		document.getElementById(\'preview_button\').style.display = "none";
 		document.getElementById(\'warndiv2\').style.display = "none";';
 
 	if (!$context['user']['is_owner'])
 		echo '
-		modifyWarnNotify();';
+		modifyWarnNotify();
+		$(document).ready(function() {
+			$("#preview_button").click(function() {
+				return ajax_getTemplatePreview();
+			});
+		});
+
+		function ajax_getTemplatePreview ()
+		{
+			$.ajax({
+				type: "POST",
+				url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+				data: {item: "warning_preview", title: $("#warn_sub").val(), body: $("#warn_body").val(), issuing: true},
+				context: document.body,
+				success: function(request){
+					$("#box_preview").css({display:""});
+					$("#body_preview").html($(request).find(\'body\').text());
+					if ($(request).find("error").text() != \'\')
+					{
+						$("#profile_error").css({display:""});
+						var errors_html = \'<span>\' + $("#profile_error").find("span").html() + \'</span>\' + \'<ul class="list_errors" class="reset">\';
+						var errors = $(request).find(\'error\').each(function() {
+							errors_html += \'<li>\' + $(this).text() + \'</li>\';
+						});
+						errors_html += \'</ul>\';
+
+						$("#profile_error").html(errors_html);
+					}
+					else
+					{
+						$("#profile_error").css({display:"none"});
+						$("#error_list").html(\'\');
+					}
+				return false;
+				},
+			});
+			return false;
+		}';
 
 	echo '
 	// ]]></script>';
@@ -2499,9 +2600,13 @@ function template_error_message()
 	global $context, $txt;
 
 	echo '
-		<div class="errorbox">
-			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], '</span>
-			<ul class="reset">';
+		<div class="errorbox" ', empty($context['post_errors']) ? 'style="display:none" ' : '', 'id="profile_error">';
+
+	if (!empty($context['post_errors']))
+	{
+		echo '
+			<span>', !empty($context['custom_error_title']) ? $context['custom_error_title'] : $txt['profile_errors_occurred'], ':</span>
+			<ul id="list_errors">';
 
 		// Cycle through each error and display an error message.
 		foreach ($context['post_errors'] as $error)
@@ -2509,7 +2614,10 @@ function template_error_message()
 				<li>', isset($txt['profile_error_' . $error]) ? $txt['profile_error_' . $error] : $error, '</li>';
 
 		echo '
-			</ul>
+			</ul>';
+	}
+
+	echo '
 		</div>';
 }
 
@@ -2580,7 +2688,22 @@ function template_profile_birthdate()
 // Show the signature editing box?
 function template_profile_signature_modify()
 {
-	global $txt, $context, $settings;
+	global $txt, $context, $settings, $scripturl;
+
+	echo '
+							<dt id="current_signature"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
+								<strong>', $txt['current_signature'], ':</strong>
+							</dt>
+							<dd id="current_signature_display"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
+								', isset($context['member']['current_signature']) ? $context['member']['current_signature'] : '', '<hr />
+							</dd>';
+	echo '
+							<dt id="preview_signature"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+								<strong>', $txt['signature_preview'], ':</strong>
+							</dt>
+							<dd id="preview_signature_display"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+								', isset($context['member']['signature_preview']) ? $context['member']['signature_preview'] : '', '<hr />
+							</dd>';
 
 	echo '
 							<dt>
@@ -2595,12 +2718,16 @@ function template_profile_signature_modify()
 		echo '
 							</dt>
 							<dd>
-								<textarea class="editor" onkeyup="calcCharLeft();" name="signature" rows="5" cols="50" style="min-width: 50%; max-width: 99%;">', $context['member']['signature'], '</textarea><br />';
+								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50" style="min-width: 50%; max-width: 99%;">', $context['member']['signature'], '</textarea><br />';
 
 	// If there is a limit at all!
 	if (!empty($context['signature_limits']['max_length']))
 		echo '
 								<span class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></span><br />';
+
+	if (!empty($context['show_preview_button']))
+		echo '
+						<input type="submit" name="preview" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
 
 	if ($context['signature_warning'])
 		echo '
@@ -2615,7 +2742,13 @@ function template_profile_signature_modify()
 	echo '
 								<script type="text/javascript"><!-- // --><![CDATA[
 									var maxLength = ', $context['signature_limits']['max_length'], ';
-									addLoadEvent(tick);
+
+									$(document).ready(function() {
+										calcCharLeft();
+										$("#preview_button").click(function() {
+											return ajax_getSignaturePreview(true);
+										});
+									});
 								// ]]></script>
 							</dd>';
 }

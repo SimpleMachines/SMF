@@ -2602,7 +2602,7 @@ function notifyMembersBoard(&$topicData)
 				continue;
 		}
 
-		$langloaded = loadLanguage('EmailTemplates', empty($rowmember['lngfile']) || empty($modSettings['userLanguage']) ? $language : $rowmember['lngfile'], false);
+		$langloaded = loadLanguage('index', empty($rowmember['lngfile']) || empty($modSettings['userLanguage']) ? $language : $rowmember['lngfile'], false);
 
 		// Now loop through all the notifications to send for this board.
 		if (empty($boards[$rowmember['id_board']]))
@@ -2649,6 +2649,8 @@ function notifyMembersBoard(&$topicData)
 		}
 	}
 	$smcFunc['db_free_result']($members);
+
+	loadLanguage('index', $user_info['language']);
 
 	// Sent!
 	$smcFunc['db_query']('', '

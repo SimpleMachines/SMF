@@ -95,6 +95,8 @@ $txt['message_index'] = 'Message Index';
 $txt['news'] = 'News';
 $txt['home'] = 'Home';
 $txt['page'] = 'Page';
+$txt['prev'] = 'previous';
+$txt['next'] = 'next';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
@@ -112,7 +114,7 @@ $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
 $txt['notify_request'] = 'Do you want a notification email if someone replies to this topic?';
 // Use numeric entities in the below string.
-$txt['regards_team'] = 'Regards,' . "\n" . 'The ' . $context['forum_name'] . ' Team.';
+$txt['regards_team'] = "Regards,\nThe " . $context['forum_name'] . ' Team.';
 $txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';

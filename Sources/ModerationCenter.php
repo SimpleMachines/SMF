@@ -1974,72 +1974,83 @@ function ModifyWarningTemplate()
 		$_POST['template_title'] = trim($_POST['template_title']);
 
 		// Need something in both boxes.
-		if (empty($_POST['template_body']) || empty($_POST['template_title']))
-			fatal_error($txt['mc_warning_template_error_empty']);
-
-		// Safety first.
-		$_POST['template_title'] = $smcFunc['htmlspecialchars']($_POST['template_title']);
-
-		// Clean up BBC.
-		preparsecode($_POST['template_body']);
-		// But put line breaks back!
-		$_POST['template_body'] = strtr($_POST['template_body'], array('<br />' => "\n"));
-
-		// Is this personal?
-		$recipient_id = !empty($_POST['make_personal']) ? $user_info['id'] : 0;
-
-		// If we are this far it's save time.
-		if ($context['is_edit'])
+		if (!empty($_POST['template_body']) && !empty($_POST['template_title']))
 		{
-			// Simple update...
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_comments
-				SET id_recipient = {int:personal}, recipient_name = {string:title}, body = {string:body}
-				WHERE id_comment = {int:id}
-					AND comment_type = {string:warntpl}
-					AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})'.
-					($recipient_id ? ' AND id_member = {int:current_member}' : ''),
-				array(
-					'personal' => $recipient_id,
-					'title' => $_POST['template_title'],
-					'body' => $_POST['template_body'],
-					'id' => $context['id_template'],
-					'warntpl' => 'warntpl',
-					'generic' => 0,
-					'current_member' => $user_info['id'],
-				)
-			);
+			// Safety first.
+			$_POST['template_title'] = $smcFunc['htmlspecialchars']($_POST['template_title']);
 
-			// If it wasn't visible and now is they've effectively added it.
-			if ($context['template_data']['personal'] && !$recipient_id)
-				logAction('add_warn_template', array('template' => $_POST['template_title']));
-			// Conversely if they made it personal it's a delete.
-			elseif (!$context['template_data']['personal'] && $recipient_id)
-				logAction('delete_warn_template', array('template' => $_POST['template_title']));
-			// Otherwise just an edit.
+			// Clean up BBC.
+			preparsecode($_POST['template_body']);
+			// But put line breaks back!
+			$_POST['template_body'] = strtr($_POST['template_body'], array('<br />' => "\n"));
+
+			// Is this personal?
+			$recipient_id = !empty($_POST['make_personal']) ? $user_info['id'] : 0;
+
+			// If we are this far it's save time.
+			if ($context['is_edit'])
+			{
+				// Simple update...
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}log_comments
+					SET id_recipient = {int:personal}, recipient_name = {string:title}, body = {string:body}
+					WHERE id_comment = {int:id}
+						AND comment_type = {string:warntpl}
+						AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})'.
+						($recipient_id ? ' AND id_member = {int:current_member}' : ''),
+					array(
+						'personal' => $recipient_id,
+						'title' => $_POST['template_title'],
+						'body' => $_POST['template_body'],
+						'id' => $context['id_template'],
+						'warntpl' => 'warntpl',
+						'generic' => 0,
+						'current_member' => $user_info['id'],
+					)
+				);
+
+				// If it wasn't visible and now is they've effectively added it.
+				if ($context['template_data']['personal'] && !$recipient_id)
+					logAction('add_warn_template', array('template' => $_POST['template_title']));
+				// Conversely if they made it personal it's a delete.
+				elseif (!$context['template_data']['personal'] && $recipient_id)
+					logAction('delete_warn_template', array('template' => $_POST['template_title']));
+				// Otherwise just an edit.
+				else
+					logAction('modify_warn_template', array('template' => $_POST['template_title']));
+			}
 			else
-				logAction('modify_warn_template', array('template' => $_POST['template_title']));
+			{
+				$smcFunc['db_insert']('',
+					'{db_prefix}log_comments',
+					array(
+						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int',
+						'recipient_name' => 'string-255', 'body' => 'string-65535', 'log_time' => 'int',
+					),
+					array(
+						$user_info['id'], $user_info['name'], 'warntpl', $recipient_id,
+						$_POST['template_title'], $_POST['template_body'], time(),
+					),
+					array('id_comment')
+				);
+
+				logAction('add_warn_template', array('template' => $_POST['template_title']));
+			}
+
+			// Get out of town...
+			redirectexit('action=moderate;area=warnings;sa=templates');
 		}
 		else
 		{
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_comments',
-				array(
-					'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int',
-					'recipient_name' => 'string-255', 'body' => 'string-65535', 'log_time' => 'int',
-				),
-				array(
-					$user_info['id'], $user_info['name'], 'warntpl', $recipient_id,
-					$_POST['template_title'], $_POST['template_body'], time(),
-				),
-				array('id_comment')
-			);
-
-			logAction('add_warn_template', array('template' => $_POST['template_title']));
+			$context['warning_errors'] = array();
+			$context['template_data']['title'] = !empty($_POST['template_title']) ? $_POST['template_title'] : '';
+			$context['template_data']['body'] = !empty($_POST['template_body']) ? $_POST['template_body'] : $txt['mc_warning_template_body_default'];
+			$context['template_data']['personal'] = !empty($_POST['make_personal']);
+			if (empty($_POST['template_title']))
+				$context['warning_errors'][] = $txt['mc_warning_template_error_no_title'];
+			if (empty($_POST['template_body']))
+				$context['warning_errors'][] = $txt['mc_warning_template_error_no_body'];
 		}
-
-		// Get out of town...
-		redirectexit('action=moderate;area=warnings;sa=templates');
 	}
 
 	createToken('mod-wt');

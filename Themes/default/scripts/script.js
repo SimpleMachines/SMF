@@ -1563,20 +1563,10 @@ function smfSetLatestPackages()
 	tempOldOnload();
 }
 
-function tick()
-{
-	if (typeof(document.forms.creator) != "undefined")
-	{
-		calcCharLeft();
-		setTimeout("tick()", 1000);
-	}
-	else
-		setTimeout("tick()", 800);
-}
-
 function calcCharLeft()
 {
 	var oldSignature = "", currentSignature = document.forms.creator.signature.value;
+	var currentChars = 0;
 
 	if (!document.getElementById("signatureLeft"))
 		return;
@@ -1585,12 +1575,61 @@ function calcCharLeft()
 	{
 		oldSignature = currentSignature;
 
-		if (currentSignature.replace(/\r/, "").length > maxLength)
-			document.forms.creator.signature.value = currentSignature.replace(/\r/, "").substring(0, maxLength);
-		currentSignature = document.forms.creator.signature.value.replace(/\r/, "");
+		var currentChars = currentSignature.replace(/\r/, "").length;
+		if (is_opera)
+			currentChars = currentSignature.replace(/\r/g, "").length;
+
+		ajax_getSignaturePreview(false);
+		if (currentChars > maxLength)
+			document.getElementById("signatureLeft").className = "error";
+		else
+			document.getElementById("signatureLeft").className = "";
 	}
 
-	setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentSignature.length);
+	setInnerHTML(document.getElementById("signatureLeft"), maxLength - currentChars);
+}
+
+function ajax_getSignaturePreview (showPreview)
+{
+	showPreview = (typeof showPreview == 'undefined') ? false : showPreview;
+	$.ajax({
+		type: "POST",
+		url: smf_scripturl + "?action=xmlhttp;sa=previews;xml",
+		data: {item: "sig_preview", signature: $("#signature").val(), user: $('input[name="u"]').attr("value")},
+		context: document.body,
+		success: function(request){
+			if (showPreview)
+			{
+				var signatures = new Array("current", "preview");
+				for (var i = 0; i < signatures.length; i++)
+				{
+					$("#" + signatures[i] + "_signature").css({display:""});
+					$("#" + signatures[i] + "_signature_display").css({display:""}).html($(request).find('[type="' + signatures[i] + '"]').text() + '<hr />');
+				}
+			}
+
+			if ($(request).find("error").text() != '')
+			{
+				if (!$("#profile_error").is(":visible"))
+					$("#profile_error").css({display: "", position: "fixed", top: 0, left: 0, width: "100%"});
+				var errors = $(request).find('[type="error"]');
+				var errors_html = '<span>' + $(request).find('[type="errors_occurred"]').text() + '</span><ul class="reset">';
+
+				for (var i = 0; i < errors.length; i++)
+					errors_html += '<li>' + $(errors).text() + '</li>';
+
+				errors_html += '</ul>';
+				$(document).find("#profile_error").html(errors_html);
+			}
+			else
+			{
+				$("#profile_error").css({display:"none"});
+				$("#profile_error").html('');
+			}
+		return false;
+		},
+	});
+	return false;
 }
 
 function changeSel(selected)
