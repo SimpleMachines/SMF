@@ -85,7 +85,7 @@ function ManageNews()
  */
 function EditNews()
 {
-	global $txt, $modSettings, $context, $sourcedir, $user_info;
+	global $txt, $modSettings, $context, $sourcedir, $user_info, $scripturl;
 	global $smcFunc;
 
 	require_once($sourcedir . '/Subs-Post.php');
@@ -131,16 +131,157 @@ function EditNews()
 		logAction('news');
 	}
 
+	// We're going to want this for making our list.
+	require_once($sourcedir . '/Subs-List.php');
+
+	$context['page_title'] = $txt['admin_edit_news'];
+
+	// Use the standard templates for showing this.
+	$listOptions = array(
+		'id' => 'news_lists',
+		'get_items' => array(
+			'function' => 'list_getNews',
+		),
+		'columns' => array(
+			'news' => array(
+				'header' => array(
+					'value' => $txt['admin_edit_news'],
+				),
+				'data' => array(
+					'function' => create_function('$news', '
+
+						if (is_numeric($news[\'id\']))
+							return \'<textarea rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width: 85%\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+							<div style="float:right" id="preview_\' . $news[\'id\'] . \'"></div>\';
+						else
+							return $news[\'unparsed\'];
+					'),
+					'style' => 'width: 50%;',
+				),
+			),
+			'preview' => array(
+				'header' => array(
+					'value' => $txt['preview'],
+				),
+				'data' => array(
+					'function' => create_function('$news', '
+
+						return \'<div id="box_preview_\' . $news[\'id\'] . \'" style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
+					'),
+					'style' => 'width: 45%;',
+				),
+			),
+			'check' => array(
+				'header' => array(
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+				),
+				'data' => array(
+					'function' => create_function('$news', '
+
+						if (is_numeric($news[\'id\']))
+							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check" />\';
+						else
+							return \'\';
+					'),
+					'style' => 'text-align: center',
+				),
+			),
+		),
+		'form' => array(
+			'href' => $scripturl . '?action=admin;area=news;sa=editnews',
+			'hidden_fields' => array(
+				$context['session_var'] => $context['session_id'],
+			),
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'bottom_of_list',
+				'value' => '
+				<span id="moreNewsItems_link" style="display: none;">[<a href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>]</span>
+				<script type="text/javascript"><!-- // --><![CDATA[
+					document.getElementById(\'list_news_lists_last\').style.display = "none";
+					document.getElementById("moreNewsItems_link").style.display = "";
+					var last_preview = 0;
+					$(document).ready(function () {
+						$("div[id ^= \'preview_\']").each(function () {
+							var preview_id = $(this).attr(\'id\').split(\'_\')[1];
+							if (last_preview < preview_id)
+								last_preview = preview_id;
+							make_preview_btn(preview_id);
+						});
+					});
+
+					function make_preview_btn (preview_id)
+					{
+						$("#preview_" + preview_id).css({cursor: \'hand\', cursor: \'pointer\', });
+						$("#preview_" + preview_id).text(\'' . $txt['preview'] . '\').click(function () {
+							$.ajax({
+								type: "POST",
+								url: "' . $scripturl . '?action=xmlhttp;sa=previews;xml",
+								data: {item: "newspreview", news: $("#preview_" + preview_id).prev().val()},
+								context: document.body,
+								success: function(request){
+									if ($(request).find("error").text() == \'\')
+										$(document).find("#box_preview_" + preview_id).html($(request).text());
+									else
+										$(document).find("#box_preview_" + preview_id).text(\'' . $txt['news_error_no_news'] . '\');
+								},
+							});
+						});
+					}
+
+					function addNewsItem ()
+					{
+						last_preview++;
+						$("#list_news_lists_last").before(' . javaScriptEscape('
+						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
+							<td style="width: 50%;">
+									<textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea>
+									<div style="float:right" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
+							</td>
+							<td style="width: 45%;">
+								<div id="box_preview_') . ' + last_preview + ' . javaScriptEscape('" style="overflow: auto; width: 100%; height: 10ex;"></div>
+							</td>
+							<td></td>
+						</tr>') . ');
+						make_preview_btn(last_preview);
+					}
+					
+				// ]]></script>
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" /> <input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
+				'align' => 'right',
+			),
+		),
+	);
+
+	// Create the request list.
+	createList($listOptions);
+
+	$context['sub_template'] = 'show_list';
+	$context['default_list'] = 'news_lists';
+}
+
+function list_getNews()
+{
+	global $modSettings;
+
+	$admin_current_news = array();
 	// Ready the current news.
 	foreach (explode("\n", $modSettings['news']) as $id => $line)
-		$context['admin_current_news'][$id] = array(
+		$admin_current_news[$id] = array(
 			'id' => $id,
 			'unparsed' => un_preparsecode($line),
 			'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', parse_bbc($line)),
 		);
 
-	$context['sub_template'] = 'edit_news';
-	$context['page_title'] = $txt['admin_edit_news'];
+	$admin_current_news['last'] = array(
+		'id' => 'last',
+		'unparsed' => '<div id="moreNewsItems"></div>
+		<noscript><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea></noscript>',
+		'parsed' => '<div id="moreNewsItems_preview"></div>',
+	);
+
+	return $admin_current_news;
 }
 
 /**
@@ -269,6 +410,63 @@ function SelectMailingMembers()
 }
 
 /**
+ * Prepare subject and message of an email for the preview box
+ * Used in ComposeMailing and RetrievePreview (Xml.php)
+ */
+function prepareMailingForPreview ()
+{
+	global $context, $smcFunc, $modSettings, $scripturl, $user_info, $txt;
+	loadLanguage('Errors');
+
+	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
+
+	// Use the default time format.
+	$user_info['time_format'] = $modSettings['time_format'];
+
+	$variables = array(
+		'{$board_url}',
+		'{$current_time}',
+		'{$latest_member.link}',
+		'{$latest_member.id}',
+		'{$latest_member.name}'
+	);
+
+	$html = $context['send_html'];
+
+	// We might need this in a bit
+	$cleanLatestMember = empty($context['send_html']) || $context['send_pm'] ? un_htmlspecialchars($modSettings['latestRealName']) : $modSettings['latestRealName'];
+
+	foreach ($processing as $key => $post)
+	{
+		$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
+
+		if (empty($context[$key]) && empty($_REQUEST['xml']))
+			$context['post_error']['messages'][] = $txt['error_no_' . $post];
+		elseif (!empty($_REQUEST['xml']))
+			continue;
+
+		preparsecode($context[$key]);
+		if ($html)
+		{
+			$enablePostHTML = $modSettings['enablePostHTML'];
+			$modSettings['enablePostHTML'] = $context['send_html'];
+			$context[$key] = parse_bbc($context[$key]);
+			$modSettings['enablePostHTML'] = $enablePostHTML;
+		}
+
+		// Replace in all the standard things.
+		$context[$key] = str_replace($variables,
+			array(
+				!empty($context['send_html']) ? '<a href="' . $scripturl . '">' . $scripturl . '</a>' : $scripturl,
+				timeformat(forum_time(), false),
+				!empty($context['send_html']) ? '<a href="' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . '">' . $cleanLatestMember . '</a>' : ($context['send_pm'] ? '[url=' . $scripturl . '?action=profile;u=' . $modSettings['latestMember'] . ']' . $cleanLatestMember . '[/url]' : $cleanLatestMember),
+				$modSettings['latestMember'],
+				$cleanLatestMember
+			), $context[$key]);
+	}
+}
+
+/**
  * Shows a form to edit a forum mailing and its recipients.
  * Called by ?action=admin;area=news;sa=mailingcompose.
  * Requires the send_mail permission.
@@ -278,7 +476,49 @@ function SelectMailingMembers()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc;
+	global $txt, $sourcedir, $context, $smcFunc, $scripturl, $modSettings;
+
+	// Setup the template!
+	$context['page_title'] = $txt['admin_newsletters'];
+	$context['sub_template'] = 'email_members_compose';
+
+	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
+	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+
+	// Needed for the WYSIWYG editor.
+	require_once($sourcedir . '/Subs-Editor.php');
+
+	// Now create the editor.
+	$editorOptions = array(
+		'id' => 'message',
+		'value' => $context['message'],
+		'height' => '175px',
+		'width' => '100%',
+		'labels' => array(
+			'post_button' => $txt['sendtopic_send'],
+		),
+		'preview_type' => 2,
+	);
+	create_control_richedit($editorOptions);
+	// Store the ID for old compatibility.
+	$context['post_box_name'] = $editorOptions['id'];
+
+	if (isset($context['preview']))
+	{
+		require_once($sourcedir . '/Subs-Post.php');
+		$context['recipients']['members'] = !empty($_POST['members']) ? explode(',', $_POST['members']) : array();
+		$context['recipients']['exclude_members'] = !empty($_POST['exclude_members']) ? explode(',', $_POST['exclude_members']) : array();
+		$context['recipients']['groups'] = !empty($_POST['groups']) ? explode(',', $_POST['groups']) : array();
+		$context['recipients']['exclude_groups'] = !empty($_POST['exclude_groups']) ? explode(',', $_POST['exclude_groups']) : array();
+		$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : array();
+		$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
+		$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
+		$context['max_id_member'] = !empty($_POST['max_id_member']) ? (int) $_POST['max_id_member'] : 0;
+		$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
+		$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
+
+		return prepareMailingForPreview();
+	}
 
 	// Start by finding any members!
 	$toClean = array();
@@ -421,13 +661,6 @@ function ComposeMailing()
 	// Clean up the arrays.
 	$context['recipients']['members'] = array_unique($context['recipients']['members']);
 	$context['recipients']['exclude_members'] = array_unique($context['recipients']['exclude_members']);
-
-	// Setup the template!
-	$context['page_title'] = $txt['admin_newsletters'];
-	$context['sub_template'] = 'email_members_compose';
-
-	$context['default_subject'] = htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
-	$context['default_message'] = htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
 }
 
 /**
@@ -444,6 +677,12 @@ function SendMailing($clean_only = false)
 {
 	global $txt, $sourcedir, $context, $smcFunc;
 	global $scripturl, $modSettings, $user_info;
+
+	if (isset($_POST['preview']))
+	{
+		$context['preview'] = true;
+		return ComposeMailing();
+	}
 
 	// How many to send at once? Quantity depends on whether we are queueing or not.
 	$num_at_once = empty($modSettings['mail_queue']) ? 60 : 1000;
@@ -537,6 +776,10 @@ function SendMailing($clean_only = false)
 
 	require_once($sourcedir . '/Subs-Post.php');
 
+	// We are relying too much on writing to superglobals...
+	$_POST['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : '';
+	$_POST['message'] = !empty($_POST['message']) ? $_POST['message'] : '';
+
 	// Save the message and its subject in $context
 	$context['subject'] = htmlspecialchars($_POST['subject']);
 	$context['message'] = htmlspecialchars($_POST['message']);
@@ -556,6 +799,12 @@ function SendMailing($clean_only = false)
 			else
 				$_POST['message'] = '<html>' . $_POST['message'] . '</html>';
 		}
+	}
+
+	if (empty($_POST['message']) || empty($_POST['subject']))
+	{
+		$context['preview'] = true;
+		return ComposeMailing();
 	}
 
 	// Use the default time format.

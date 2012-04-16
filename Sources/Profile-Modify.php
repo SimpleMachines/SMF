@@ -799,7 +799,7 @@ function saveProfileFields()
 	// Cycle through the profile fields working out what to do!
 	foreach ($profile_fields as $key => $field)
 	{
-		if (!isset($_POST[$key]) || !empty($field['is_dummy']))
+		if (!isset($_POST[$key]) || !empty($field['is_dummy']) || (isset($_POST['preview']) && $key == 'signature'))
 			continue;
 
 		// What gets updated?
@@ -1584,6 +1584,7 @@ function forumProfile($memID)
 
 	$context['sub_template'] = 'edit_options';
 	$context['page_desc'] = $txt['forumProfile_info'];
+	$context['show_preview_button'] = true;
 
 	setupProfileContext(
 		array(
@@ -2387,7 +2388,7 @@ function profileLoadGroups()
  */
 function profileLoadSignatureData()
 {
-	global $modSettings, $context, $txt, $cur_profile, $smcFunc;
+	global $modSettings, $context, $txt, $cur_profile, $smcFunc, $memberContext;
 
 	// Signature limits.
 	list ($sig_limits, $sig_bbc) = explode(':', $modSettings['signature_settings']);
@@ -2415,7 +2416,27 @@ function profileLoadSignatureData()
 
 	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 
-	$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br />', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
+	if (empty($context['do_preview']))
+		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br />', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
+	else
+	{
+		$signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
+		$validation = profileValidateSignature($signature);
+		if (empty($context['post_errors']))
+		{
+			loadLanguage('Errors');
+			$context['post_errors'] = array();
+		}
+		$context['post_errors'][] = 'signature_not_yet_saved';
+		if ($validation !== true && $validation !== false)
+			$context['post_errors'][] = $validation;
+
+		censorText($context['member']['signature']);
+		$context['member']['current_signature'] = $context['member']['signature'];
+		censorText($signature);
+		$context['member']['signature_preview'] = parse_bbc($signature, true, 'sig' . $memberContext[$context['id_member']]);
+		$context['member']['signature'] = $_POST['signature'];
+	}
 
 	return true;
 }
@@ -2856,13 +2877,6 @@ function profileValidateSignature(&$value)
 		$disabledTags = !empty($sig_bbc) ? explode(',', $sig_bbc) : array();
 
 		$unparsed_signature = strtr(un_htmlspecialchars($value), array("\r" => '', '&#039' => '\''));
-		// Too long?
-		if (!empty($sig_limits[1]) && $smcFunc['strlen']($unparsed_signature) > $sig_limits[1])
-		{
-			$_POST['signature'] = trim(htmlspecialchars($smcFunc['substr']($unparsed_signature, 0, $sig_limits[1]), ENT_QUOTES));
-			$txt['profile_error_signature_max_length'] = sprintf($txt['profile_error_signature_max_length'], $sig_limits[1]);
-			return 'signature_max_length';
-		}
 		// Too many lines?
 		if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2])
 		{
@@ -3007,6 +3021,14 @@ function profileValidateSignature(&$value)
 	}
 
 	preparsecode($value);
+	// Too long?
+	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && $smcFunc['strlen'](str_replace('<br />', "\n", $value)) > $sig_limits[1])
+	{
+		$_POST['signature'] = trim(htmlspecialchars(str_replace('<br />', "\n", $value), ENT_QUOTES));
+		$txt['profile_error_signature_max_length'] = sprintf($txt['profile_error_signature_max_length'], $sig_limits[1]);
+		return 'signature_max_length';
+	}
+
 	return true;
 }
 

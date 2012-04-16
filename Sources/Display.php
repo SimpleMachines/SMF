@@ -499,7 +499,7 @@ function Display()
 	// Set the topic's information for the template.
 	$context['subject'] = $topicinfo['subject'];
 	$context['num_views'] = $topicinfo['num_views'];
-	$context['mark_unread_time'] = $topicinfo['new_from'];
+	$context['mark_unread_time'] = !empty($virtual_msg) ? $virtual_msg : $topicinfo['new_from'];
 
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.' . $context['start'];

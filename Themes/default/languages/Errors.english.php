@@ -177,6 +177,7 @@ $txt['invalid_hostname'] = 'Invalid host name / host name range.<br />Example of
 $txt['invalid_ip'] = 'Invalid IP / IP range.<br />Example of a valid IP address: 127.0.0.1<br />Example of a valid IP range: 127.0.0-20.*';
 $txt['invalid_tracking_ip'] = 'Invalid IP / IP range.<br />Example of a valid IP address: 127.0.0.1<br />Example of a valid IP range: 127.0.0.*';
 $txt['invalid_username'] = 'Member name not found';
+$txt['no_user_selected'] = 'Member not found';
 $txt['no_ban_admin'] = 'You may not ban an admin - You must demote them first!';
 $txt['no_bantype_selected'] = 'No ban type was selected';
 $txt['ban_not_found'] = 'Ban not found';
@@ -316,6 +317,7 @@ $txt['profile_error_password_restricted_words'] = 'Your password must not contai
 $txt['profile_error_password_chars'] = 'Your password must contain a mix of upper and lower case letters, as well as digits.';
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID authentication URL';
+$txt['profile_error_signature_not_yet_saved'] = 'The signature is not yet saved!';
 
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
