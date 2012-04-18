@@ -1092,9 +1092,12 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		);
 
 		$insertRows = array();
+		$to_list = array();
 		foreach ($all_to as $to)
 		{
 			$insertRows[] = array($id_pm, $to, in_array($to, $recipients['bcc']) ? 1 : 0, isset($deletes[$to]) ? 1 : 0, 1);
+			if (!in_array($to, $recipients['bcc']))
+				$to_list[] = $to;
 		}
 
 		$smcFunc['db_insert']('insert',
@@ -1116,18 +1119,36 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	else
 		$message = '';
 
+	$to_names = array();
+	if (count($to_list) > 1)
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT real_name
+			FROM {db_prefix}members
+			WHERE id_member IN ({array_int:to_members})',
+			array(
+				'to_members' => $to_list,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$to_names[] = un_htmlspecialchars($row['real_name']);
+		$smcFunc['db_free_result']($request);
+	}
+	$replacements = array(
+		'SUBJECT' => $subject,
+		'MESSAGE' => $message,
+		'SENDER' => un_htmlspecialchars($from['name']),
+		'REPLYLINK' => $scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
+		'TOLIST' => implode(', ', $to_names),
+	);
+	$email_template = 'new_pm' . (empty($modSettings['disallow_sendBody']) ? '_body' : '') . (!empty($to_names) ? '_tolist' : '');
+
 	foreach ($notifications as $lang => $notification_list)
 	{
-		// Make sure to use the right language.
-		loadLanguage('index+PersonalMessage', $lang, false);
-
-		// Replace the right things in the message strings.
-		$mailsubject = str_replace(array('SUBJECT', 'SENDER'), array($subject, un_htmlspecialchars($from['name'])), $txt['new_pm_subject']);
-		$mailmessage = str_replace(array('SUBJECT', 'MESSAGE', 'SENDER'), array($subject, $message, un_htmlspecialchars($from['name'])), $txt['pm_email'] . (empty($modSettings['disallow_sendBody']) ? $txt['pm_email_body'] : ''));
-		$mailmessage .= "\n\n" . $txt['instant_reply'] . ' ' . $scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'];
+		$mail = loadEmailTemplate($email_template, $replacements, $lang);
 
 		// Off the notification email goes!
-		sendmail($notification_list, $mailsubject, $mailmessage, null, 'p' . $id_pm, false, 2, null, true);
+		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
 	}
 
 	// Back to what we were on before!
