@@ -1107,9 +1107,14 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		);
 	}
 
-	censorText($message);
 	censorText($subject);
-	$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc(htmlspecialchars($message), false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+	if (empty($modSettings['disallow_sendBody']))
+	{
+		censorText($message);
+		$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc(htmlspecialchars($message), false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+	}
+	else
+		$message = '';
 
 	foreach ($notifications as $lang => $notification_list)
 	{
@@ -1118,7 +1123,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 		// Replace the right things in the message strings.
 		$mailsubject = str_replace(array('SUBJECT', 'SENDER'), array($subject, un_htmlspecialchars($from['name'])), $txt['new_pm_subject']);
-		$mailmessage = str_replace(array('SUBJECT', 'MESSAGE', 'SENDER'), array($subject, $message, un_htmlspecialchars($from['name'])), $txt['pm_email']);
+		$mailmessage = str_replace(array('SUBJECT', 'MESSAGE', 'SENDER'), array($subject, $message, un_htmlspecialchars($from['name'])), $txt['pm_email'] . (empty($modSettings['disallow_sendBody']) ? $txt['pm_email_body'] : ''));
 		$mailmessage .= "\n\n" . $txt['instant_reply'] . ' ' . $scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'];
 
 		// Off the notification email goes!
