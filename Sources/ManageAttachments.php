@@ -90,8 +90,8 @@ function ManageAttachmentSettings($return_config = false)
 
 	$context['valid_upload_dir'] = is_dir($modSettings['attachmentUploadDir']) && is_writable($modSettings['attachmentUploadDir']);
 
-	// Perform a test to see if the GD module is installed.
-	$testGD = get_extension_funcs('gd');
+	// Perform a test to see if the GD module or ImageMagick are installed.
+	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
 	
 	// See if we can find if the server is set up to support the attacment limits
@@ -123,7 +123,7 @@ function ManageAttachmentSettings($return_config = false)
 			array('text', 'attachmentExtensions', 40),
 		'',
 			// Image checks.
-			array('warning', empty($testGD) ? 'attachment_gd_warning' : ''),
+			array('warning', empty($testImg) ? 'attachment_img_enc_warning' : ''),
 			array('check', 'attachment_image_reencode'),
 		'',
 			array('warning', 'attachment_image_paranoid_warning'),
@@ -178,8 +178,8 @@ function ManageAvatarSettings($return_config = false)
 {
 	global $txt, $context, $modSettings, $sourcedir, $scripturl;
 
-	// Perform a test to see if the GD module is installed.
-	$testGD = get_extension_funcs('gd');
+	// Perform a test to see if the GD module or ImageMagick are installed.
+	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
 	$context['valid_avatar_dir'] = is_dir($modSettings['avatar_directory']);
 	$context['valid_custom_avatar_dir'] = empty($modSettings['custom_avatar_enabled']) || (!empty($modSettings['custom_avatar_dir']) && is_dir($modSettings['custom_avatar_dir']) && is_writable($modSettings['custom_avatar_dir']));
@@ -187,7 +187,7 @@ function ManageAvatarSettings($return_config = false)
 	$config_vars = array(
 		// Server stored avatars!
 		array('title', 'avatar_server_stored'),
-			array('warning', empty($testGD) ? 'avatar_gd_warning' : ''),
+			array('warning', empty($testImg) ? 'avatar_img_enc_warning' : ''),
 			array('permissions', 'profile_server_avatar', 0, $txt['avatar_server_stored_groups']),
 			array('text', 'avatar_directory', 40, 'invalid' => !$context['valid_avatar_dir']),
 			array('text', 'avatar_url', 40),
