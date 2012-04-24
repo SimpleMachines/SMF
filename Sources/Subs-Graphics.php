@@ -269,16 +269,9 @@ function checkGD()
  *
  * @return whether or not Imagick is available.
  */
-function checkIM()
+function checkImagick()
 {
-	static $IM;
-
-	if (isset($IM))
-		return $IM;
-
-	$IM = class_exists('Imagick');
-
-	return $IM;
+	return class_exists('Imagick', false);
 }
 
 /**
@@ -324,7 +317,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	global $sourcedir;
 
 	// Nothing to do without GD or IM
-	if (!checkGD() || !checkIM())
+	if (!checkGD() && !checkImagick())
 		return false;
 
 	static $default_formats = array(
@@ -373,7 +366,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 
 	// A known and supported format?
 	// @todo test PSD and gif.
-	if (checkIM() && isset($default_formats[$sizes[2]]))
+	if (checkImagick() && isset($default_formats[$sizes[2]]))
 	{
 		return resizeImage(null, $destination, null, null, $max_width, $max_height, true, $preferred_format);
 	}
@@ -410,7 +403,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 {
 	global $gd2, $modSettings;
 
-	if (checkIM())
+	if (checkImagick())
 	{
 		static $default_formats = array(
 			'1' => 'gif',
@@ -428,6 +421,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		$dest_height = empty($max_height) ? $src_height : $max_height;
 
 		$imagick->setImageFormat($default_formats[$preferred_format]);
+		$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
 		$success = $imagick->writeImage($destName);
 
 		return !empty($success);
