@@ -27,11 +27,15 @@ if (!defined('SMF'))
  */
 function DumpDatabase2()
 {
-	global $db_name, $scripturl, $context, $modSettings, $crlf, $smcFunc, $db_prefix;
+	global $db_name, $scripturl, $context, $modSettings, $crlf, $smcFunc, $db_prefix, $db_show_debug;
 
 	// Administrators only!
 	if (!allowedTo('admin_forum'))
 		fatal_lang_error('no_dump_database', 'critical');
+
+	// We don't need debug when dumping the database
+	$modSettings['disableQueryCheck'] = true;
+	$db_show_debug = false;
 
 	// You can't dump nothing!
 	if (!isset($_REQUEST['struct']) && !isset($_REQUEST['data']))
@@ -44,22 +48,22 @@ function DumpDatabase2()
 
 	// Attempt to stop from dying...
 	@set_time_limit(600);
+	$time_limit = ini_get('max_execution_time');
+	$start_time = time();
 	
 	// @todo ... fail on not getting the requested memory?
 	setMemoryLimit('256M');
+	$memory_limit = memoryReturnBytes(ini_get('memory_limit')) / 4;
+	$current_used_memory = 0;
+	$db_backup = '';
+	$output_function = 'un_compressed';
+
+	@ob_end_clean();
 
 	// Start saving the output... (don't do it otherwise for memory reasons.)
 	if (isset($_REQUEST['compress']) && function_exists('gzencode'))
 	{
-		// Make sure we're gzipping output, but then say we're not in the header ^_^.
-		if (empty($modSettings['enableCompressedOutput']))
-			@ob_start('ob_gzhandler', 65536);
-		// Try to clean any data already outputted.
-		elseif (ob_get_length() != 0)
-		{
-			ob_end_clean();
-			@ob_start('ob_gzhandler', 65536);
-		}
+		$output_function = 'gzencode';
 
 		// Send faked headers so it will just save the compressed output as a gzip.
 		header('Content-Type: application/x-gzip');
@@ -109,13 +113,13 @@ function DumpDatabase2()
 	$crlf = "\r\n";
 
 	// SQL Dump Header.
-	echo
-		'-- ==========================================================', $crlf,
-		'--', $crlf,
-		'-- Database dump of tables in `', $db_name, '`', $crlf,
-		'-- ', timeformat(time(), false), $crlf,
-		'--', $crlf,
-		'-- ==========================================================', $crlf,
+	$db_chunks = 
+		'-- ==========================================================' . $crlf .
+		'--' . $crlf .
+		'-- Database dump of tables in `' . $db_name . '`' . $crlf .
+		'-- ' . timeformat(time(), false) . $crlf .
+		'--' . $crlf .
+		'-- ==========================================================' . $crlf .
 		$crlf;
 
 	// Get all tables in the database....
@@ -134,49 +138,94 @@ function DumpDatabase2()
 	$tables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
 	foreach ($tables as $tableName)
 	{
-		if (function_exists('apache_reset_timeout'))
-			@apache_reset_timeout();
-
 		// Are we dumping the structures?
 		if (isset($_REQUEST['struct']))
 		{
-			echo
-				$crlf,
-				'--', $crlf,
-				'-- Table structure for table `', $tableName, '`', $crlf,
-				'--', $crlf,
-				$crlf,
-				$smcFunc['db_table_sql']($tableName), ';', $crlf;
+			$db_chunks .= 
+				$crlf .
+				'--' . $crlf .
+				'-- Table structure for table `' . $tableName . '`' . $crlf .
+				'--' . $crlf .
+				$crlf .
+				$smcFunc['db_table_sql']($tableName) . ';' . $crlf;
 		}
+		else
+			// This is needed to speedup things later
+			$smcFunc['db_table_sql']($tableName);
 
 		// How about the data?
 		if (!isset($_REQUEST['data']) || substr($tableName, -10) == 'log_errors')
 			continue;
 
+		$first_round = true;
+		$close_table = false;
+
 		// Are there any rows in this table?
-		$get_rows = $smcFunc['db_insert_sql']($tableName);
+		while ($get_rows = $smcFunc['db_insert_sql']($tableName, $first_round))
+		{
+			if (empty($get_rows))
+				break;
+
+			// Time is what we need here!
+			if (function_exists('apache_reset_timeout'))
+				@apache_reset_timeout();
+			elseif (!empty($time_limit) && ($start_time + $time_limit - 20 > time()))
+			{
+				$start_time = time();
+				@set_time_limit(150);
+			}
+
+			if ($first_round)
+			{
+				$db_chunks .= 
+					$crlf .
+					'--' . $crlf .
+					'-- Dumping data in `' . $tableName . '`' . $crlf .
+					'--' . $crlf .
+					$crlf;
+				$first_round = false;
+			}
+			$db_chunks .= 
+				$get_rows;
+			$current_used_memory += $smcFunc['strlen']($db_chunks);
+
+			$db_backup .= $db_chunks;
+			unset($db_chunks);
+			$db_chunks = '';
+			if ($current_used_memory > $memory_limit)
+			{
+				echo $output_function($db_backup);
+				$current_used_memory = 0;
+				// This is probably redundant
+				unset($db_backup);
+				$db_backup = '';
+			}
+			$close_table = true;
+		}
 
 		// No rows to get - skip it.
-		if (empty($get_rows))
-			continue;
-
-		echo
-			$crlf,
-			'--', $crlf,
-			'-- Dumping data in `', $tableName, '`', $crlf,
-			'--', $crlf,
-			$crlf,
-			$get_rows,
-			'-- --------------------------------------------------------', $crlf;
-
-		unset($get_rows);
+		if ($close_table)
+			$db_backup .= 
+			'-- --------------------------------------------------------' . $crlf;
 	}
 
-	echo
-		$crlf,
-		'-- Done', $crlf;
+	$db_backup .= 
+		$crlf .
+		'-- Done' . $crlf;
+
+	echo $output_function($db_backup);
 
 	exit;
+}
+
+/**
+ * Dummy/helper function, it simply returns the string passed as argument
+ * @param $string, a string
+ * @return the string passed
+ */
+function un_compressed($string = '')
+{
+	return $string;
 }
 
 ?>
