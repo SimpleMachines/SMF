@@ -500,8 +500,13 @@ function template_group_members()
 			<table width="100%" class="table_grid">
 				<thead>
 					<tr class="catbg">
-						<th class="first_th"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
-						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=email', $context['sort_by'] == 'email' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['email'], $context['sort_by'] == 'email' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
+						<th class="first_th"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>';
+
+	if ($context['can_send_email'])
+		echo '
+						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=email', $context['sort_by'] == 'email' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['email'], $context['sort_by'] == 'email' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>';
+
+	echo '
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=active', $context['sort_by'] == 'active' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['membergroups_members_last_active'], $context['sort_by'] == 'active' ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=registered', $context['sort_by'] == 'registered' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['date_registered'], $context['sort_by'] == 'registered' ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
 						<th ', empty($context['group']['assignable']) ? ' class="last_th" colspan="2"' : '', '><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '','</a></th>';
@@ -525,28 +530,33 @@ function template_group_members()
 		$alternate = !$alternate;
 		echo '
 					<tr class="', $alternate === true ? 'windowbg' : 'windowbg2', '">
-						<td>', $member['name'], '</td>
+						<td>', $member['name'], '</td>';
+		if ($context['can_send_email'])
+		{
+			echo '
 						<td', $member['show_email'] == 'no_through_forum' && $settings['use_image_buttons'] ? ' align="center"' : '', '>';
 
-		// Is it totally hidden?
-		if ($member['show_email'] == 'no')
+			// Is it totally hidden?
+			if ($member['show_email'] == 'no')
+				echo '
+								<em>', $txt['hidden'], '</em>';
+			// ... otherwise they want it hidden but it's not to this person?
+			elseif ($member['show_email'] == 'yes_permission_override')
+				echo '
+								<a href="mailto:', $member['email'], '"><em>', $member['email'], '</em></a>';
+			// ... otherwise it's visible - but only via an image?
+			elseif ($member['show_email'] == 'no_through_forum')
+				echo '
+								<a href="', $scripturl, '?action=emailuser;sa=email;uid=', $member['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a>';
+			// ... otherwise it must be a 'yes', show it and show it fully.
+			else
+				echo '
+								<a href="mailto:', $member['email'], '">', $member['email'], '</a>';
 			echo '
-							<em>', $txt['hidden'], '</em>';
-		// ... otherwise they want it hidden but it's not to this person?
-		elseif ($member['show_email'] == 'yes_permission_override')
-			echo '
-							<a href="mailto:', $member['email'], '"><em>', $member['email'], '</em></a>';
-		// ... otherwise it's visible - but only via an image?
-		elseif ($member['show_email'] == 'no_through_forum')
-			echo '
-							<a href="', $scripturl, '?action=emailuser;sa=email;uid=', $member['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a>';
-		// ... otherwise it must be a 'yes', show it and show it fully.
-		else
-			echo '
-							<a href="mailto:', $member['email'], '">', $member['email'], '</a>';
+						</td>';
+		}
 
 		echo '
-						</td>
 						<td>', $member['last_online'], '</td>
 						<td>', $member['registered'], '</td>
 						<td', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';

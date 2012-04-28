@@ -44,8 +44,12 @@ function template_main()
 				<tr class="catbg">';
 
 	// Display each of the column headers of the table.
-	foreach ($context['columns'] as $column)
+	foreach ($context['columns'] as $key => $column)
 	{
+		// @TODO maybe find something nicer?
+		if ($key == 'email_address' && !$context['can_send_email'])
+			continue;
+
 		// This is a selected column, so underline it or some such.
 		if ($column['selected'])
 			echo '
@@ -73,7 +77,9 @@ function template_main()
 					<td class="centertext">
 						', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" class="centericon" />' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 					</td>
-					<td class="lefttext">', $member['link'], '</td>
+					<td class="lefttext">', $member['link'], '</td>';
+			if ($context['can_send_email'])
+				echo '
 					<td class="centertext">', $member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>', '</td>';
 
 		if (!isset($context['disabled_fields']['website']))

@@ -1597,6 +1597,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
@@ -1613,6 +1614,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_edit_any');

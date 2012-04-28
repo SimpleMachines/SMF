@@ -1293,6 +1293,7 @@ function editBuddyIgnoreLists($memID)
 
 	// Can we email the user direct?
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');
+	$context['can_send_email'] = allowedTo('send_email_to_members');
 
 	$subActions = array(
 		'buddies' => array('editBuddies', $txt['editBuddies']),

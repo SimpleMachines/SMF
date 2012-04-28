@@ -156,6 +156,8 @@ function CustomEmail()
 	if ($user_info['is_guest'] && !empty($modSettings['guest_hideContacts']))
 		fatal_lang_error('no_access', false);
 
+	isAllowedTo('send_email_to_members');
+
 	// Are we sending to a user?
 	$context['form_hidden_vars'] = array();
 	if (isset($_REQUEST['uid']))

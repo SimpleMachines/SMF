@@ -997,6 +997,7 @@ function Display()
 		'can_mark_notify' => 'mark_any_notify',
 		'can_send_topic' => 'send_topic',
 		'can_send_pm' => 'pm_send',
+		'can_send_email' => 'send_email_to_members',
 		'can_report_moderator' => 'report_any',
 		'can_moderate_forum' => 'moderate_forum',
 		'can_issue_warning' => 'issue_warning',
