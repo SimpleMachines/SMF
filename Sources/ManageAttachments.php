@@ -1456,6 +1456,7 @@ function RepairAttachments()
 				{
 					if ($file == '.' || $file == '..')
 						continue;
+
 					if ($files_checked <= $current_check)
 					{
 						// Temporary file, get rid of it!
@@ -1464,6 +1465,36 @@ function RepairAttachments()
 							// Temp file is more than 5 hours old!
 							if (filemtime($attach_dir . '/' . $file) < time() - 18000)
 								@unlink($attach_dir . '/' . $file);
+						}
+						// That should be an attachment, let's check if we have it in the database
+						elseif (strpos($file, '_') !== false)
+						{
+							$attachID = (int) substr($file, 0, strpos($file, '_'));
+							if (!empty($attachID))
+							{
+								$request = $smcFunc['db_query']('', '
+									SELECT  id_attach
+									FROM {db_prefix}attachments
+									WHERE id_attach = {int:attachment_id}
+									LIMIT 1',
+									array(
+										'attachment_id' => $attachID,
+									)
+								);
+								if ($smcFunc['db_num_rows']($request) == 0)
+								{
+									if ($fix_errors)
+									{
+										@unlink($attach_dir . '/' . $file);
+									}
+									else
+									{
+										$context['repair_errors']['files_without_attachment']++;
+										$to_fix[] = 'files_without_attachment';
+									}
+								}
+								$smcFunc['db_free_result']($request);
+							}
 						}
 					}
 					$current_check++;
