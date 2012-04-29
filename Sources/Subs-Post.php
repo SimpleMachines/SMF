@@ -2298,8 +2298,10 @@ function attachmentChecks($attachID)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT SUM(size)
-				FROM {db_prefix}attachments',
+				FROM {db_prefix}attachments
+				WHERE id_folder = {int:folder_id}',
 				array(
+					'folder_id' => empty($modSettings['currentAttachmentUploadDir']) ? 1 : $modSettings['currentAttachmentUploadDir'],
 				)
 			);
 			list ($context['dir_size']) = $smcFunc['db_fetch_row']($request);

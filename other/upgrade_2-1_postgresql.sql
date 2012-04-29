@@ -133,3 +133,13 @@ CHANGE ip_high4 ip_high4 tinyint(3) unsigned NOT NULL DEFAULT '0';
 ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Adding new scheduled tasts
+/******************************************************************************/
+---# Adding new Scheduled Task...
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+VALUES
+	(0, 120, 1, 'd', 0, 'remove_old_temp_attachments');
+---#

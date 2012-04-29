@@ -620,7 +620,7 @@ function MaintainFiles()
 			if ($file == '.' || $file == '..')
 				continue;
 
-			if (preg_match('~^post_tmp_\d+_\d+$~', $file) != 0)
+			if (strpos($file, 'post_tmp_') !== false)
 			{
 				// Temp file is more than 5 hours old!
 				if (filemtime($attach_dir . '/' . $file) < time() - 18000)
