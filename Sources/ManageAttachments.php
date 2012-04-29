@@ -853,6 +853,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 	$query_parameter = array(
 		'thumb_attachment_type' => 3,
 	);
+	$do_logging = array();
 
 	if (is_array($condition))
 	{
@@ -877,6 +878,9 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 
 			// Add the parameter!
 			$query_parameter[$real_type] = $restriction;
+
+			if ($type == 'do_logging')
+				$do_logging = $condition['id_attach'];
 		}
 		$condition = implode(' AND ', $new_condition);
 	}
@@ -946,6 +950,32 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 				'no_thumb' => 0,
 			)
 		);
+
+	if (!empty($do_logging))
+	{
+		// In order to log the attachments, we really need their message and filename
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, a.filename
+			FROM {db_prefix}attachments AS a
+				INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
+			WHERE a.id_attach IN ({array_int:attachments})
+				AND a.attachment_type = {int:attachment_type}',
+			array(
+				'attachments' => $do_logging,
+				'attachment_type' => 0,
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			logAction(
+				'remove_attach',
+				array(
+					'message' => $row['id_msg'],
+					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+				)
+			);
+		$smcFunc['db_free_result']($request);
+	}
 
 	if (!empty($attach))
 		$smcFunc['db_query']('', '
@@ -1648,7 +1678,7 @@ function ApproveAttach()
 		ApproveAttachments($attachments);
 	}
 	else
-		removeAttachments(array('id_attach' => $attachments));
+		removeAttachments(array('id_attach' => $attachments, 'do_logging' => true));
 
 	// Return to the topic....
 	redirectexit($redirect);
@@ -1690,6 +1720,9 @@ function ApproveAttachments($attachments)
 	}
 	$smcFunc['db_free_result']($request);
 
+	if (empty($attachments))
+		return 0;
+
 	// Approving an attachment is not hard - it's easy.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}attachments
@@ -1700,6 +1733,29 @@ function ApproveAttachments($attachments)
 			'is_approved' => 1,
 		)
 	);
+
+	// In order to log the attachments, we really need their message and filename
+	$request = $smcFunc['db_query']('', '
+		SELECT m.id_msg, a.filename
+		FROM {db_prefix}attachments AS a
+			INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
+		WHERE a.id_attach IN ({array_int:attachments})
+			AND a.attachment_type = {int:attachment_type}',
+		array(
+			'attachments' => $attachments,
+			'attachment_type' => 0,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		logAction(
+			'approve_attach',
+			array(
+				'message' => $row['id_msg'],
+				'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+			)
+		);
+	$smcFunc['db_free_result']($request);
 
 	// Remove from the approval queue.
 	$smcFunc['db_query']('', '

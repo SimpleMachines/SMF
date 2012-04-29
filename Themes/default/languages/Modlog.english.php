@@ -86,4 +86,6 @@ $txt['modlog_ac_restore_posts'] = 'Restored posts from &quot;{subject}&quot; to 
 
 $txt['modlog_parameter_guest'] = '<em>Guest</em>';
 
+$txt['modlog_ac_approve_attach'] = 'Approved &quot;{filename}&quot; in &quot;{message}&quot;';
+$txt['modlog_ac_remove_attach'] = 'Removed unapproved &quot;{filename}&quot; in &quot;{message}&quot;';
 ?>
