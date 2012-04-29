@@ -986,7 +986,7 @@ function template_send()
 
 	// If there were errors for sending the PM, show them.
 	echo '
-				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+				<div class="errorbox"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
 							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
