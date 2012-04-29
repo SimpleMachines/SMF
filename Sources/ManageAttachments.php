@@ -610,30 +610,16 @@ function MaintainFiles()
 	list ($context['num_avatars']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Find out how big the directory is. We have to loop through all our attachment paths in case there's an old temp file in one of them.
-	$attachmentDirSize = 0;
-	foreach ($attach_dirs as $id => $attach_dir)
-	{
-		$dir = @opendir($attach_dir) or fatal_lang_error('cant_access_upload_path', 'critical');
-		while ($file = readdir($dir))
-		{
-			if ($file == '.' || $file == '..')
-				continue;
+	// Check the size of all the directories.
+	$request = $smcFunc['db_query']('', '
+		SELECT SUM(size)
+		FROM {db_prefix}attachments',
+		array(
+		)
+	);
+	list ($attachmentDirSize) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
-			if (strpos($file, 'post_tmp_') !== false)
-			{
-				// Temp file is more than 5 hours old!
-				if (filemtime($attach_dir . '/' . $file) < time() - 18000)
-					@unlink($attach_dir . '/' . $file);
-				continue;
-			}
-
-			// We're only counting the size of the current attachment directory.
-			if (empty($modSettings['currentAttachmentUploadDir']) || $modSettings['currentAttachmentUploadDir'] == $id)
-				$attachmentDirSize += filesize($attach_dir . '/' . $file);
-		}
-		closedir($dir);
-	}
 	// Divide it into kilobytes.
 	$attachmentDirSize /= 1024;
 
@@ -1024,6 +1010,7 @@ function RepairAttachments()
 		'attachment_no_msg' => 0,
 		'avatar_no_member' => 0,
 		'wrong_folder' => 0,
+		'files_without_attachment' => 0,
 	);
 
 	$to_fix = !empty($_SESSION['attachments_to_fix']) ? $_SESSION['attachments_to_fix'] : array();
@@ -1435,6 +1422,56 @@ function RepairAttachments()
 				);
 
 			pauseAttachmentMaintenance($to_fix, $thumbnails);
+		}
+
+		$_GET['step'] = 5;
+		$_GET['substep'] = 0;
+		pauseAttachmentMaintenance($to_fix);
+	}
+
+	// What about files who are not recorded in the database?
+	if ($_GET['step'] <= 5)
+	{
+		if (!empty($modSettings['currentAttachmentUploadDir']))
+		{
+			if (!is_array($modSettings['attachmentUploadDir']))
+				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+
+			// Just use the current path for temp files.
+			$attach_dirs = $modSettings['attachmentUploadDir'];
+		}
+		else
+		{
+			$attach_dirs = array($modSettings['attachmentUploadDir']);
+		}
+
+		$current_check = 0;
+		$max_checks = 500;
+		$files_checked = empty($_GET['substep']) ? 0 : $_GET['substep'];
+		foreach ($attach_dirs as $attach_dir)
+		{
+			if ($dir = @opendir($attach_dir))
+			{
+				while ($file = readdir($dir))
+				{
+					if ($file == '.' || $file == '..')
+						continue;
+					if ($files_checked <= $current_check)
+					{
+						// Temporary file, get rid of it!
+						if (strpos($file, 'post_tmp_') !== false)
+						{
+							// Temp file is more than 5 hours old!
+							if (filemtime($attach_dir . '/' . $file) < time() - 18000)
+								@unlink($attach_dir . '/' . $file);
+						}
+					}
+					$current_check++;
+					if ($current_check - $files_checked >= $max_checks)
+						pauseAttachmentMaintenance($to_fix);
+				}
+				closedir($dir);
+			}
 		}
 
 		$_GET['step'] = 5;
