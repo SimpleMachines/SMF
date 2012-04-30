@@ -764,7 +764,7 @@ function RemoveAttachmentBySize()
  */
 function RemoveAttachment()
 {
-	global $modSettings, $txt, $smcFunc;
+	global $txt, $smcFunc, $language;
 
 	checkSession('post');
 
@@ -783,6 +783,8 @@ function RemoveAttachment()
 
 			// And change the message to reflect this.
 			if (!empty($messages))
+			{
+				loadLanguage('index', $language, true);
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
 					SET body = CONCAT(body, {string:deleted_message})
@@ -792,6 +794,8 @@ function RemoveAttachment()
 						'deleted_message' => '<br /><br />' . $txt['attachment_delete_admin'],
 					)
 				);
+				loadLanguage('index', $user_info['language'], true);
+			}
 		}
 	}
 
