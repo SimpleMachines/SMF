@@ -141,5 +141,5 @@ ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
-	(0, 120, 1, 'd', 0, 'remove_old_temp_attachments');
+	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
 ---#

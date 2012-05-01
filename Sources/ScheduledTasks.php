@@ -1645,7 +1645,7 @@ function scheduled_paid_subscriptions()
  * Check for un-posted attachments is something we can do once in a while :P
  * This function uses opendir cycling through all the attachments
  */
-function scheduled_remove_old_temp_attachments()
+function scheduled_remove_temp_attachments()
 {
 	global $modSettings;
 
