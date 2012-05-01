@@ -911,7 +911,7 @@ function ForumSettings()
 
 	// Check if the database sessions will even work.
 	$incontext['test_dbsession'] = ini_get('session.auto_start') != 1;
-	$incontext['utf8_should_work'] = stripos(PHP_OS, 'win') !== false;
+	$incontext['utf8_should_work'] = stripos(PHP_OS, 'win') === false;
 	$incontext['utf8_default'] = $databases[$db_type]['utf8_default'];
 	$incontext['utf8_required'] = $databases[$db_type]['utf8_required'];
 

@@ -1613,7 +1613,7 @@ VALUES
 	(7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles'),
 	(8, 0, 0, 1, 'd', 1, 'birthdayemails'),
 	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance'),
-	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
+	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions'),
 	(11, 0, 120, 1, 'd', 1, 'remove_old_temp_attachments');
 
 # --------------------------------------------------------
