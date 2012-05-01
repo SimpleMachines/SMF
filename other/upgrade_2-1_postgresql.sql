@@ -116,14 +116,14 @@ ADD COLUMN ip_high8 smallint(255) unsigned NOT NULL DEFAULT '0';
 
 ---# Changing existing columns to ban items...
 ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 tinyint(3) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 tinyint(3) unsigned NOT NULL DEFAULT '0';
+CHANGE ip_low1 ip_low1 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_high1 ip_high1 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_low2 ip_low2 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_high2 ip_high2 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_low3 ip_low3 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_high3 ip_high3 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_low4 ip_low4 smallint(255) unsigned NOT NULL DEFAULT '0',
+CHANGE ip_high4 ip_high4 smallint(255) unsigned NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -132,6 +132,20 @@ CHANGE ip_high4 ip_high4 tinyint(3) unsigned NOT NULL DEFAULT '0';
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
+--- Adding more space for session ids
+/******************************************************************************/
+---# Altering the session_id columns...
+ALTER TABLE {$db_prefix}log_online
+CHANGE `session` varchar(64) NOT NULL DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_errors
+CHANGE `session` char(64) NOT NULL default '                                                                ';
+
+ALTER TABLE {$db_prefix}sessions
+CHANGE `session_id` char(64) NOT NULL default '';
 ---#
 
 /******************************************************************************/

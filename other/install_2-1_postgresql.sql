@@ -1099,7 +1099,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip varchar(16) NOT NULL default '',
   url text NOT NULL,
   message text NOT NULL,
-  session char(32) NOT NULL default '                                ',
+  session char(64) NOT NULL default '                                                                ',
   error_type varchar(15) NOT NULL default 'general',
   file varchar(255) NOT NULL,
   line int NOT NULL default '0',
@@ -1219,7 +1219,7 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session varchar(32) NOT NULL default '',
+  session varchar(64) NOT NULL default '',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
@@ -2302,7 +2302,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id char(32) NOT NULL,
+  session_id char(64) NOT NULL,
   last_update int NOT NULL,
   data text NOT NULL,
   PRIMARY KEY (session_id)
