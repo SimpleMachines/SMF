@@ -411,6 +411,7 @@ function MembergroupMembers()
 		'url' => $scripturl . '?action=groups;sa=members;group=' . $context['group']['id'],
 		'name' => $context['group']['name'],
 	);
+	$context['can_send_email'] = allowedTo('send_email_to_members');
 
 	// Load all the group moderators, for fun.
 	$request = $smcFunc['db_query']('', '

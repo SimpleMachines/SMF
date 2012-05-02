@@ -373,7 +373,7 @@ function UnapprovedAttachments()
 			if ($curAction == 'approve')
 				ApproveAttachments($attachments);
 			else
-				removeAttachments(array('id_attach' => $attachments));
+				removeAttachments(array('id_attach' => $attachments, 'do_logging' => true));
 		}
 	}
 

@@ -62,9 +62,9 @@ function template_summary()
 				<div class="username"><h4>', $context['member']['name'], ' <span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4></div>
 				', $context['member']['avatar']['image'], '
 				<ul class="reset">';
-
+	// @TODO fix the <ul> when no fields are visible
 	// What about if we allow email only via the forum??
-	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override')
+	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
 		echo '
 					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" /></a></li>';
 
@@ -130,17 +130,20 @@ function template_summary()
 					<dt>', $txt['profile_posts'], ': </dt>
 					<dd>', $context['member']['posts'], ' (', $context['member']['posts_per_day'], ' ', $txt['posts_per_day'], ')</dd>';
 
-	// Only show the email address fully if it's not hidden - and we reveal the email.
-	if ($context['member']['show_email'] == 'yes')
-		echo '
-					<dt>', $txt['email'], ': </dt>
-					<dd><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></dd>';
+	if ($context['can_send_email'])
+	{
+		// Only show the email address fully if it's not hidden - and we reveal the email.
+		if ($context['member']['show_email'] == 'yes')
+			echo '
+						<dt>', $txt['email'], ': </dt>
+						<dd><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></dd>';
 
-	// ... Or if the one looking at the profile is an admin they can see it anyway.
-	elseif ($context['member']['show_email'] == 'yes_permission_override')
-		echo '
-					<dt>', $txt['email'], ': </dt>
-					<dd><em><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></em></dd>';
+		// ... Or if the one looking at the profile is an admin they can see it anyway.
+		elseif ($context['member']['show_email'] == 'yes_permission_override')
+			echo '
+						<dt>', $txt['email'], ': </dt>
+						<dd><em><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></em></dd>';
+	}
 
 	if (!empty($modSettings['titlesEnable']) && !empty($context['member']['title']))
 		echo '
@@ -497,7 +500,9 @@ function template_editBuddies()
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
-				<th scope="col">', $txt['status'], '</th>
+				<th scope="col">', $txt['status'], '</th>';
+	if ($context['can_send_email'])
+		echo '
 				<th scope="col">', $txt['email'], '</th>';
 	
 	// don't show them if they are sdisabled
@@ -526,7 +531,9 @@ function template_editBuddies()
 		echo '
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $buddy['link'], '</td>
-				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['label'], '" title="', $buddy['online']['label'], '" /></a></td>
+				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['label'], '" title="', $buddy['online']['label'], '" /></a></td>';
+		if ($context['can_send_email'])
+			echo '
 				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $buddy['name'] . '" /></a>'), '</td>';
 		
 		// If these are off, don't show them
@@ -607,8 +614,11 @@ function template_editIgnoreList()
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
-				<th scope="col">', $txt['status'], '</th>
-				<th scope="col">', $txt['email'], '</th>
+				<th scope="col">', $txt['status'], '</th>';
+	if ($context['can_send_email'])
+		echo '
+				<th scope="col">', $txt['email'], '</th>';
+	echo '
 				<th scope="col">', $txt['icq'], '</th>
 				<th scope="col">', $txt['aim'], '</th>
 				<th scope="col">', $txt['yim'], '</th>
@@ -630,8 +640,11 @@ function template_editIgnoreList()
 		echo '
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $member['link'], '</td>
-				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['label'], '" title="', $member['online']['label'], '" /></a></td>
-				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>'), '</td>
+				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['label'], '" title="', $member['online']['label'], '" /></a></td>';
+		if ($context['can_send_email'])
+			echo '
+				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>'), '</td>';
+		echo '
 				<td align="center">', $member['icq']['link'], '</td>
 				<td align="center">', $member['aim']['link'], '</td>
 				<td align="center">', $member['yim']['link'], '</td>

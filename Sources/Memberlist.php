@@ -174,6 +174,7 @@ function Memberlist()
 	);
 
 	$context['can_send_pm'] = allowedTo('pm_send');
+	$context['can_send_email'] = allowedTo('send_email_to_members');
 
 	// Jump to the sub action.
 	if (isset($subActions[$context['listing_by']]))

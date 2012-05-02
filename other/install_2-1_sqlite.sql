@@ -880,7 +880,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip char(16) NOT NULL default '                ',
   url text NOT NULL,
   message text NOT NULL,
-  session char(32) NOT NULL default '                                ',
+  session char(64) NOT NULL default '                                                                ',
   error_type char(15) NOT NULL default 'general',
   file varchar(255) NOT NULL,
   line int NOT NULL default '0'
@@ -985,7 +985,7 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session varchar(32) NOT NULL default '',
+  session varchar(64) NOT NULL default '',
   log_time int(10) NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
@@ -1597,6 +1597,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
@@ -1613,6 +1614,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_edit_any');
@@ -1754,6 +1756,7 @@ INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_r
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (8, 0, 0, 1, 'd', 1, 'birthdayemails');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (9, 0, 0, 1, 'w', 0, 'weekly_maintenance');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (11, 0, 120, 1, 'd', 1, 'remove_temp_attachments');
 COMMIT;
 
 # --------------------------------------------------------
@@ -1957,7 +1960,7 @@ COMMIT;
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id char(32) NOT NULL,
+  session_id char(64) NOT NULL,
   last_update int NOT NULL,
   data text NOT NULL,
   PRIMARY KEY (session_id)
