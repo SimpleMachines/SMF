@@ -43,14 +43,8 @@ function validateSession($type = 'admin')
 	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
 		return;
 		
-	// Or are they already logged in?
-	if ($type === 'moderate')
-	{
-		// Moderator or admin sesssion is need for this area
-		if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
-			return;
-	}
-	elseif (!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time())
+	// Or are they already logged in?, Moderator or admin sesssion is need for this area
+	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
 		return;
 
 	require_once($sourcedir . '/Subs-Auth.php');
