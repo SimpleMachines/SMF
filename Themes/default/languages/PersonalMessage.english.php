@@ -19,13 +19,6 @@ $txt['delete_message'] = 'Delete Messages';
 $txt['delete_all'] = 'Delete all messages in your PMBOX';
 $txt['delete_all_confirm'] = 'Are you sure you want to delete all messages?';
 $txt['recipient'] = 'Recipient';
-// Don't translate the word "SUBJECT" here, as it is used to format the message - use numeric entities as well.
-$txt['new_pm_subject'] = 'New Personal Message: SUBJECT';
-// Don't translate SENDER or MESSAGE in this language string; they are replaced with the corresponding text - use numeric entities too.
-$txt['pm_email'] = 'You have just been sent a personal message by SENDER on ' . $context['forum_name'] . '.' . "\n\n" . 'IMPORTANT: Remember, this is just a notification. Please do not reply to this email.' . "\n\n" . 'The message they sent you was:' . "\n\n" . 'MESSAGE';
-$txt['pm_multiple'] = '(multiple recipients: \'name1, name2\')';
-// Use numeric entities in the below string.
-$txt['instant_reply'] = 'Reply to this Personal Message here:';
 
 $txt['delete_selected_confirm'] = 'Are you sure you want to delete all selected personal messages?';
 

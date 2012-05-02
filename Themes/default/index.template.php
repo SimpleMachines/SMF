@@ -299,7 +299,7 @@ function template_body_above()
 	{
 		echo '
 			<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="search" value="" class="input_text" />&nbsp';
+				<input type="text" name="search" value="" class="input_text" />&nbsp;';
 		
 		// Using the quick search dropdown?
 		if (!empty($modSettings['search_dropdown']))

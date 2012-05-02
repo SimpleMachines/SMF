@@ -710,47 +710,12 @@ function AdminSearchInternal()
 		'Help', 'ManageMail', 'ManageSettings', 'ManageCalendar', 'ManageBoards', 'ManagePaid', 'ManagePermissions', 'Search',
 		'Login', 'ManageSmileys',
 	);
-	loadLanguage(implode('+', $language_files));
 
 	// All the files we need to include.
 	$include_files = array(
 		'ManageSettings', 'ManageBoards', 'ManageNews', 'ManageAttachments', 'ManageCalendar', 'ManageMail', 'ManagePaid', 'ManagePermissions',
 		'ManagePosts', 'ManageRegistration', 'ManageSearch', 'ManageSearchEngines', 'ManageServer', 'ManageSmileys', 'ManageLanguages',
 	);
-	// @todo add hook to add more include_files here
-	foreach ($include_files as $file)
-		require_once($sourcedir . '/' . $file . '.php');
-
-	/* This is the huge array that defines everything... it's a huge array of items formatted as follows:
-		0 = Language index (Can be array of indexes) to search through for this setting.
-		1 = URL for this indexes page.
-		2 = Help index for help associated with this item (If different from 0)
-	*/
-
-	$search_data = array(
-		// All the major sections of the forum.
-		'sections' => array(
-		),
-		'settings' => array(
-			array('COPPA', 'area=regcenter;sa=settings'),
-			array('CAPTCHA', 'area=securitysettings;sa=spam'),
-		),
-	);
-
-	// Go through the admin menu structure trying to find suitably named areas!
-	foreach ($context[$context['admin_menu_name']]['sections'] as $section)
-	{
-		foreach ($section['areas'] as $menu_key => $menu_item)
-		{
-			$search_data['sections'][] = array($menu_item['label'], 'area=' . $menu_key);
-			if (!empty($menu_item['subsections']))
-				foreach ($menu_item['subsections'] as $key => $sublabel)
-				{
-					if (isset($sublabel['label']))
-						$search_data['sections'][] = array($sublabel['label'], 'area=' . $menu_key . ';sa=' . $key);
-				}
-		}
-	}
 
 	// This is a special array of functions that contain setting data - we query all these to simply pull all setting bits!
 	$settings_search = array(
@@ -787,7 +752,44 @@ function AdminSearchInternal()
 		array('ModifyPruningSettings', 'area=logs;sa=pruning'),
 	);
 
-	// @todo add hook to add more $settings search
+	call_integration_hook('integrate_admin_search', array(&$language_files, &$include_files, &$settings_search));
+
+	loadLanguage(implode('+', $language_files));
+
+	foreach ($include_files as $file)
+		require_once($sourcedir . '/' . $file . '.php');
+
+	/* This is the huge array that defines everything... it's a huge array of items formatted as follows:
+		0 = Language index (Can be array of indexes) to search through for this setting.
+		1 = URL for this indexes page.
+		2 = Help index for help associated with this item (If different from 0)
+	*/
+
+	$search_data = array(
+		// All the major sections of the forum.
+		'sections' => array(
+		),
+		'settings' => array(
+			array('COPPA', 'area=regcenter;sa=settings'),
+			array('CAPTCHA', 'area=securitysettings;sa=spam'),
+		),
+	);
+
+	// Go through the admin menu structure trying to find suitably named areas!
+	foreach ($context[$context['admin_menu_name']]['sections'] as $section)
+	{
+		foreach ($section['areas'] as $menu_key => $menu_item)
+		{
+			$search_data['sections'][] = array($menu_item['label'], 'area=' . $menu_key);
+			if (!empty($menu_item['subsections']))
+				foreach ($menu_item['subsections'] as $key => $sublabel)
+				{
+					if (isset($sublabel['label']))
+						$search_data['sections'][] = array($sublabel['label'], 'area=' . $menu_key . ';sa=' . $key);
+				}
+		}
+	}
+
 	foreach ($settings_search as $setting_area)
 	{
 		// Get a list of their variables.

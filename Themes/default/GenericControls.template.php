@@ -219,7 +219,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					sButtonBackgroundImageHover: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.png'), ',
 					sActiveButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.png'), ',
 					sDividerTemplate: ', JavaScriptEscape('
-						<img src="' . $settings['images_url'] . '/bbc/divider.png" alt="|" style="margin: 0 3px 0 3px;" />
+						<img src="' . $settings['images_url'] . '/bbc/divider.png" alt="|" style="margin: 0 3px;" />
 					'), ',
 					sSelectTemplate: ', JavaScriptEscape('
 						<select name="%selectName%" id="%selectId%" style="margin-bottom: 1ex; font-size: x-small;">

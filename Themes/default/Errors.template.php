@@ -55,6 +55,9 @@ function template_error_log()
 					</span>
 				</h3>
 			</div>
+			<div class="pagesection floatleft">
+				&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
+			</div>
 			<table border="0" cellspacing="1" class="table_grid" id="error_log">
 				<tr>
 					<td colspan="3" class="windowbg">

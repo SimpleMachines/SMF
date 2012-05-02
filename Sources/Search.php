@@ -1824,6 +1824,7 @@ function PlushSearch2()
 	$context['page_title'] = $txt['search_results'];
 	$context['get_topics'] = 'prepareSearchContext';
 	$context['can_send_pm'] = allowedTo('pm_send');
+	$context['can_send_email'] = allowedTo('send_email_to_members');
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),

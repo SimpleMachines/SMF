@@ -442,6 +442,7 @@ $txt['attach_repair_file_size_of_zero'] = '%1$d attachments/avatars have a size 
 $txt['attach_repair_attachment_no_msg'] = '%1$d attachments no longer have a message associated with them';
 $txt['attach_repair_avatar_no_member'] = '%1$d avatars no longer have a member associated with them';
 $txt['attach_repair_wrong_folder'] = '%1$d attachments are in the wrong folder';
+$txt['attach_repair_files_without_attachment'] = '%1$d files doesn\'t have a corresponding entri into the database. (These will be deleted)';
 
 $txt['news_title'] = 'News and Newsletters';
 $txt['news_settings_desc'] = 'Here you can change the settings and permissions related to news and newsletters.';

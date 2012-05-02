@@ -607,30 +607,16 @@ function MaintainFiles()
 	list ($context['num_avatars']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Find out how big the directory is. We have to loop through all our attachment paths in case there's an old temp file in one of them.
-	$attachmentDirSize = 0;
-	foreach ($attach_dirs as $id => $attach_dir)
-	{
-		$dir = @opendir($attach_dir) or fatal_lang_error('cant_access_upload_path', 'critical');
-		while ($file = readdir($dir))
-		{
-			if ($file == '.' || $file == '..')
-				continue;
+	// Check the size of all the directories.
+	$request = $smcFunc['db_query']('', '
+		SELECT SUM(size)
+		FROM {db_prefix}attachments',
+		array(
+		)
+	);
+	list ($attachmentDirSize) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
-			if (preg_match('~^post_tmp_\d+_\d+$~', $file) != 0)
-			{
-				// Temp file is more than 5 hours old!
-				if (filemtime($attach_dir . '/' . $file) < time() - 18000)
-					@unlink($attach_dir . '/' . $file);
-				continue;
-			}
-
-			// We're only counting the size of the current attachment directory.
-			if (empty($modSettings['currentAttachmentUploadDir']) || $modSettings['currentAttachmentUploadDir'] == $id)
-				$attachmentDirSize += filesize($attach_dir . '/' . $file);
-		}
-		closedir($dir);
-	}
 	// Divide it into kilobytes.
 	$attachmentDirSize /= 1024;
 
@@ -775,7 +761,7 @@ function RemoveAttachmentBySize()
  */
 function RemoveAttachment()
 {
-	global $modSettings, $txt, $smcFunc;
+	global $txt, $smcFunc, $language;
 
 	checkSession('post');
 
@@ -794,6 +780,8 @@ function RemoveAttachment()
 
 			// And change the message to reflect this.
 			if (!empty($messages))
+			{
+				loadLanguage('index', $language, true);
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
 					SET body = CONCAT(body, {string:deleted_message})
@@ -803,6 +791,8 @@ function RemoveAttachment()
 						'deleted_message' => '<br /><br />' . $txt['attachment_delete_admin'],
 					)
 				);
+				loadLanguage('index', $user_info['language'], true);
+			}
 		}
 	}
 
@@ -864,6 +854,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 	$query_parameter = array(
 		'thumb_attachment_type' => 3,
 	);
+	$do_logging = array();
 
 	if (is_array($condition))
 	{
@@ -888,6 +879,9 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 
 			// Add the parameter!
 			$query_parameter[$real_type] = $restriction;
+
+			if ($type == 'do_logging')
+				$do_logging = $condition['id_attach'];
 		}
 		$condition = implode(' AND ', $new_condition);
 	}
@@ -958,6 +952,32 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 			)
 		);
 
+	if (!empty($do_logging))
+	{
+		// In order to log the attachments, we really need their message and filename
+		$request = $smcFunc['db_query']('', '
+			SELECT m.id_msg, a.filename
+			FROM {db_prefix}attachments AS a
+				INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
+			WHERE a.id_attach IN ({array_int:attachments})
+				AND a.attachment_type = {int:attachment_type}',
+			array(
+				'attachments' => $do_logging,
+				'attachment_type' => 0,
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			logAction(
+				'remove_attach',
+				array(
+					'message' => $row['id_msg'],
+					'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+				)
+			);
+		$smcFunc['db_free_result']($request);
+	}
+
 	if (!empty($attach))
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}attachments
@@ -1021,6 +1041,7 @@ function RepairAttachments()
 		'attachment_no_msg' => 0,
 		'avatar_no_member' => 0,
 		'wrong_folder' => 0,
+		'files_without_attachment' => 0,
 	);
 
 	$to_fix = !empty($_SESSION['attachments_to_fix']) ? $_SESSION['attachments_to_fix'] : array();
@@ -1439,6 +1460,87 @@ function RepairAttachments()
 		pauseAttachmentMaintenance($to_fix);
 	}
 
+	// What about files who are not recorded in the database?
+	if ($_GET['step'] <= 5)
+	{
+		if (!empty($modSettings['currentAttachmentUploadDir']))
+		{
+			if (!is_array($modSettings['attachmentUploadDir']))
+				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+
+			// Just use the current path for temp files.
+			$attach_dirs = $modSettings['attachmentUploadDir'];
+		}
+		else
+		{
+			$attach_dirs = array($modSettings['attachmentUploadDir']);
+		}
+
+		$current_check = 0;
+		$max_checks = 500;
+		$files_checked = empty($_GET['substep']) ? 0 : $_GET['substep'];
+		foreach ($attach_dirs as $attach_dir)
+		{
+			if ($dir = @opendir($attach_dir))
+			{
+				while ($file = readdir($dir))
+				{
+					if ($file == '.' || $file == '..')
+						continue;
+
+					if ($files_checked <= $current_check)
+					{
+						// Temporary file, get rid of it!
+						if (strpos($file, 'post_tmp_') !== false)
+						{
+							// Temp file is more than 5 hours old!
+							if (filemtime($attach_dir . '/' . $file) < time() - 18000)
+								@unlink($attach_dir . '/' . $file);
+						}
+						// That should be an attachment, let's check if we have it in the database
+						elseif (strpos($file, '_') !== false)
+						{
+							$attachID = (int) substr($file, 0, strpos($file, '_'));
+							if (!empty($attachID))
+							{
+								$request = $smcFunc['db_query']('', '
+									SELECT  id_attach
+									FROM {db_prefix}attachments
+									WHERE id_attach = {int:attachment_id}
+									LIMIT 1',
+									array(
+										'attachment_id' => $attachID,
+									)
+								);
+								if ($smcFunc['db_num_rows']($request) == 0)
+								{
+									if ($fix_errors)
+									{
+										@unlink($attach_dir . '/' . $file);
+									}
+									else
+									{
+										$context['repair_errors']['files_without_attachment']++;
+										$to_fix[] = 'files_without_attachment';
+									}
+								}
+								$smcFunc['db_free_result']($request);
+							}
+						}
+					}
+					$current_check++;
+					if ($current_check - $files_checked >= $max_checks)
+						pauseAttachmentMaintenance($to_fix);
+				}
+				closedir($dir);
+			}
+		}
+
+		$_GET['step'] = 5;
+		$_GET['substep'] = 0;
+		pauseAttachmentMaintenance($to_fix);
+	}
+
 	// Got here we must be doing well - just the template! :D
 	$context['page_title'] = $txt['repair_attachments'];
 	$context[$context['admin_menu_name']]['current_subsection'] = 'maintenance';
@@ -1577,7 +1679,7 @@ function ApproveAttach()
 		ApproveAttachments($attachments);
 	}
 	else
-		removeAttachments(array('id_attach' => $attachments));
+		removeAttachments(array('id_attach' => $attachments, 'do_logging' => true));
 
 	// Return to the topic....
 	redirectexit($redirect);
@@ -1619,6 +1721,9 @@ function ApproveAttachments($attachments)
 	}
 	$smcFunc['db_free_result']($request);
 
+	if (empty($attachments))
+		return 0;
+
 	// Approving an attachment is not hard - it's easy.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}attachments
@@ -1629,6 +1734,29 @@ function ApproveAttachments($attachments)
 			'is_approved' => 1,
 		)
 	);
+
+	// In order to log the attachments, we really need their message and filename
+	$request = $smcFunc['db_query']('', '
+		SELECT m.id_msg, a.filename
+		FROM {db_prefix}attachments AS a
+			INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
+		WHERE a.id_attach IN ({array_int:attachments})
+			AND a.attachment_type = {int:attachment_type}',
+		array(
+			'attachments' => $attachments,
+			'attachment_type' => 0,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		logAction(
+			'approve_attach',
+			array(
+				'message' => $row['id_msg'],
+				'filename' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($row['filename'])),
+			)
+		);
+	$smcFunc['db_free_result']($request);
 
 	// Remove from the approval queue.
 	$smcFunc['db_query']('', '

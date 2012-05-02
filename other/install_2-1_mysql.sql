@@ -841,7 +841,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip char(16) NOT NULL default '                ',
   url text NOT NULL,
   message text NOT NULL,
-  session char(32) NOT NULL default '                                ',
+  session char(64) NOT NULL default '                                                                ',
   error_type char(15) NOT NULL default 'general',
   file varchar(255) NOT NULL default '',
   line mediumint(8) unsigned NOT NULL default '0',
@@ -929,7 +929,7 @@ CREATE TABLE {$db_prefix}log_notify (
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session varchar(32) NOT NULL default '',
+  session varchar(64) NOT NULL default '',
   log_time int(10) NOT NULL default '0',
   id_member mediumint(8) unsigned NOT NULL default '0',
   id_spider smallint(5) unsigned NOT NULL default '0',
@@ -1471,6 +1471,7 @@ VALUES (-1, 'search_posts'),
 	(0, 'profile_server_avatar'),
 	(0, 'profile_upload_avatar'),
 	(0, 'profile_remote_avatar'),
+	(0, 'send_email_to_members'),
 	(0, 'karma_edit'),
 	(2, 'view_mlist'),
 	(2, 'search_posts'),
@@ -1487,6 +1488,7 @@ VALUES (-1, 'search_posts'),
 	(2, 'profile_server_avatar'),
 	(2, 'profile_upload_avatar'),
 	(2, 'profile_remote_avatar'),
+	(2, 'send_email_to_members'),
 	(2, 'profile_title_own'),
 	(2, 'calendar_post'),
 	(2, 'calendar_edit_any'),
@@ -1611,7 +1613,8 @@ VALUES
 	(7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles'),
 	(8, 0, 0, 1, 'd', 1, 'birthdayemails'),
 	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance'),
-	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
+	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions'),
+	(11, 0, 120, 1, 'd', 1, 'remove_temp_attachments');
 
 # --------------------------------------------------------
 
@@ -1810,7 +1813,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id char(32) NOT NULL,
+  session_id char(64) NOT NULL,
   last_update int(10) unsigned NOT NULL,
   data text NOT NULL,
   PRIMARY KEY (session_id)

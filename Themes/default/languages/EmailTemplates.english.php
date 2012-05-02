@@ -923,6 +923,74 @@ The following error occurred when processing a paid subscription
 {REGARDS}';
 
 /**
+	@additional_params: new_pm
+		SUBJECT: The personal message subject.
+		SENDER:  The user name for the member sending the personal message.
+		REPLYLINK:  The link to directly access the reply page.
+	@description: A notification email sent to the receivers of a personal message
+*/
+$txt['new_pm_subject'] = 'New Personal Message: {SUBJECT}';
+$txt['new_pm_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
+
+IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
+
+Reply to this Personal Message here: {REPLYLINK}';
+
+/**
+	@additional_params: new_pm_body
+		SUBJECT: The personal message subject.
+		SENDER:  The user name for the member sending the personal message.
+		MESSAGE:  The text of the personal message.
+		REPLYLINK:  The link to directly access the reply page.
+	@description: A notification email sent to the receivers of a personal message
+*/
+$txt['new_pm_body_subject'] = 'New Personal Message: {SUBJECT}';
+$txt['new_pm_body_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
+
+IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
+
+The message they sent you was:
+
+{MESSAGE}
+
+Reply to this Personal Message here: {REPLYLINK}';
+
+/**
+	@additional_params: new_pm_tolist
+		SUBJECT: The personal message subject.
+		SENDER:  The user name for the member sending the personal message.
+		REPLYLINK:  The link to directly access the reply page.
+		TOLIST:  The list of users that will receive the personal message.
+	@description: A notification email sent to the receivers of a personal message
+*/
+$txt['new_pm_tolist_subject'] = 'New Personal Message: {SUBJECT}';
+$txt['new_pm_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
+
+IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
+
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+
+/**
+	@additional_params: new_pm_body_tolist
+		SUBJECT: The personal message subject.
+		SENDER:  The user name for the member sending the personal message.
+		MESSAGE:  The text of the personal message.
+		REPLYLINK:  The link to directly access the reply page.
+		TOLIST:  The list of users that will receive the personal message.
+	@description: A notification email sent to the receivers of a personal message
+*/
+$txt['new_pm_body_tolist_subject'] = 'New Personal Message: {SUBJECT}';
+$txt['new_pm_body_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
+
+IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
+
+The message they sent you was:
+
+{MESSAGE}
+
+Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+
+/**
 	@additional_params: happy_birthday
 		REALNAME: The real (display) name of the person receiving the birthday message.
 	@description: A message sent to members on their birthday.

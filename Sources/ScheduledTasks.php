@@ -1641,4 +1641,45 @@ function scheduled_paid_subscriptions()
 	return true;
 }
 
+/**
+ * Check for un-posted attachments is something we can do once in a while :P
+ * This function uses opendir cycling through all the attachments
+ */
+function scheduled_remove_temp_attachments()
+{
+	global $modSettings;
+
+	// We need to know where this thing is going.
+	if (!empty($modSettings['currentAttachmentUploadDir']))
+	{
+		if (!is_array($modSettings['attachmentUploadDir']))
+			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+
+		// Just use the current path for temp files.
+		$attach_dirs = $modSettings['attachmentUploadDir'];
+	}
+	else
+	{
+		$attach_dirs = array($modSettings['attachmentUploadDir']);
+	}
+
+	foreach ($attach_dirs as $attach_dir)
+	{
+		$dir = @opendir($attach_dir) or fatal_lang_error('cant_access_upload_path', 'critical');
+		while ($file = readdir($dir))
+		{
+			if ($file == '.' || $file == '..')
+				continue;
+
+			if (strpos($file, 'post_tmp_') !== false)
+			{
+				// Temp file is more than 5 hours old!
+				if (filemtime($attach_dir . '/' . $file) < time() - 18000)
+					@unlink($attach_dir . '/' . $file);
+			}
+		}
+		closedir($dir);
+	}
+}
+
 ?>

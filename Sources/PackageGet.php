@@ -662,7 +662,7 @@ function PackageUpload()
 	{
 		@unlink($destination);
 		loadLanguage('Errors');
-		$txt[$context['package']] = str_replace('{MANAGETHEMEURL}', $scripturl . '?action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id'], $txt[$context['package']]);
+		$txt[$context['package']] = str_replace('{MANAGETHEMEURL}', $scripturl . '?action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id'] . '#theme_install', $txt[$context['package']]);
 		fatal_lang_error('package_upload_error_broken', false, $txt[$context['package']]);
 	}
 	// Is it already uploaded, maybe?

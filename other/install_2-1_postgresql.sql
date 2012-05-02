@@ -750,36 +750,36 @@ CREATE INDEX {$db_prefix}calendar_holidays_event_date ON {$db_prefix}calendar_ho
 # Dumping data for table `calendar_holidays`
 #
 
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('New Year\'s', '0004-01-01');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('New Year''s', '0004-01-01');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Christmas', '0004-12-25');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Valentine\'s Day', '0004-02-14');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('St. Patrick\'s Day', '0004-03-17');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Valentine''s Day', '0004-02-14');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('St. Patrick''s Day', '0004-03-17');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('April Fools', '0004-04-01');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Earth Day', '0004-04-22');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('United Nations Day', '0004-10-24');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Halloween', '0004-10-31');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2010-05-09');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2011-05-08');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2012-05-13');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2013-05-12');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2014-05-11');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2015-05-10');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2016-05-08');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2017-05-14');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2018-05-13');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2019-05-12');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother\'s Day', '2020-05-10');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2010-06-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2011-06-19');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2012-06-17');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2013-06-16');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2014-06-15');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2015-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2016-06-19');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2017-06-18');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2018-06-17');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2019-06-16');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father\'s Day', '2020-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2010-05-09');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2011-05-08');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2012-05-13');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2013-05-12');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2014-05-11');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2015-05-10');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2016-05-08');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2017-05-14');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2018-05-13');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2019-05-12');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2020-05-10');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2010-06-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2011-06-19');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2012-06-17');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2013-06-16');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2014-06-15');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2015-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2016-06-19');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2017-06-18');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2018-06-17');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2019-06-16');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2020-06-21');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2010-06-21');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2011-06-21');
 INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2012-06-20');
@@ -1099,7 +1099,7 @@ CREATE TABLE {$db_prefix}log_errors (
   ip varchar(16) NOT NULL default '',
   url text NOT NULL,
   message text NOT NULL,
-  session char(32) NOT NULL default '                                ',
+  session char(64) NOT NULL default '                                                                ',
   error_type varchar(15) NOT NULL default 'general',
   file varchar(255) NOT NULL,
   line int NOT NULL default '0',
@@ -1219,7 +1219,7 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session varchar(32) NOT NULL default '',
+  session varchar(64) NOT NULL default '',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
@@ -1921,6 +1921,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
@@ -1937,6 +1938,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_edit_any');
@@ -2103,6 +2105,7 @@ INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_r
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (8, 0, 0, 1, 'd', 1, 'birthdayemails');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (9, 0, 0, 1, 'w', 0, 'weekly_maintenance');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (11, 0, 120, 1, 'd', 1, 'remove_temp_attachments');
 
 # --------------------------------------------------------
 
@@ -2299,7 +2302,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id char(32) NOT NULL,
+  session_id char(64) NOT NULL,
   last_update int NOT NULL,
   data text NOT NULL,
   PRIMARY KEY (session_id)
@@ -2343,9 +2346,9 @@ INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidd
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':P', 'tongue.gif', '{$default_tongue_smiley}', 10, 0);
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':-[', 'embarrassed.gif', '{$default_embarrassed_smiley}', 11, 0);
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':-X', 'lipsrsealed.gif', '{$default_lips_sealed_smiley}', 12, 0);
-INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':-\\', 'undecided.gif', '{$default_undecided_smiley}', 13, 0);
+INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':-\', 'undecided.gif', '{$default_undecided_smiley}', 13, 0);
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':-*', 'kiss.gif', '{$default_kiss_smiley}', 14, 0);
-INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':\'(', 'cry.gif', '{$default_cry_smiley}', 15, 0);
+INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES (':''(', 'cry.gif', '{$default_cry_smiley}', 15, 0);
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES ('>:D', 'evil.gif', '{$default_evil_smiley}', 16, 1);
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES ('^-^', 'azn.gif', '{$default_azn_smiley}', 17, 1);
 INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidden) VALUES ('O0', 'afro.gif', '{$default_afro_smiley}', 18, 1);
