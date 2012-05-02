@@ -56,7 +56,8 @@ function template_edit_news()
 				</tbody>
 			</table>
 			<div class="floatleft padding">
-				<div id="moreNewsItems_link" style="display: none;"><a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a></div>
+				<div id="moreNewsItems_link" style="display: none;">
+					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a></div>
 				<script type="text/javascript"><!-- // --><![CDATA[
 					document.getElementById("moreNewsItems_link").style.display = "";
 					function addNewsItem()
