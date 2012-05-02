@@ -186,10 +186,15 @@ input[disabled].input_text
 /* Standard horizontal rule.. ([hr], etc.) */
 hr, .hrcolor
 {
-	height: 1px;
-	border: 0;
+    height: 1px;
+    border: none;
 	color: #ccc;
 	background-color: #ccc;
+    background: -webkit-gradient(linear, 0 0, 100% 0, from(rgba(50, 50, 50, 0.01)), to(rgba(80, 80, 80, 0.01)), color-stop(.5, #c4c4c4));
+    background: -moz-linear-gradient(left, rgba(0, 0 ,0, 0.001) 0%, rgba(201,201,201,1) 50%, rgba(0, 0, 0, 0.001) 100%);
+    background: -ms-linear-gradient(left, hsla(0, 0%, 0%, 0) 0%, hsla(0, 0%, 0%, .75) 50%, hsla(0, 0%, 0%, 0) 100%);
+    background: -o-linear-gradient(left, hsla(0, 0%, 0%, 0) 0%, hsla(0, 0%, 0%, .75) 50%, hsla(0, 0%, 0%, 0) 100%);
+    background: linear-gradient(left, hsla(0, 0%, 0%, 0) 0%, hsla(0, 0%, 0%, .75) 50%, hsla(0, 0%, 0%, 0) 100%);
 }
 
 /* By default set the color on these tags as #000. */
