@@ -427,7 +427,7 @@ $txt['profile_warning_previous_notice'] = 'View Notice Sent to Member';
 
 $txt['viewwarning'] = 'View Warnings';
 $txt['profile_viewwarning_for_user'] = 'Warnings for %1$s';
-$txt['profile_viewwarning_no_warnings'] = 'No warnings have yet been issued.';
+$txt['profile_viewwarning_no_warnings'] = 'No warnings have been issued.';
 $txt['profile_viewwarning_desc'] = 'Below is a summary of all the warnings that have been issued by the forum moderation team.';
 $txt['profile_viewwarning_previous_warnings'] = 'Previous Warnings';
 $txt['profile_viewwarning_impact'] = 'Warning Impact';

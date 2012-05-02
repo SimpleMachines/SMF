@@ -48,6 +48,7 @@ $txt['thumbs_up'] = 'Thumb Up';
 $txt['thumbs_down'] = 'Thumb Down';
 $txt['excamation_point'] = 'Exclamation point';
 $txt['question_mark'] = 'Question mark';
+$txt['icon_poll'] = 'Poll';
 $txt['lamp'] = 'Lamp';
 $txt['add_smileys'] = 'Add Smileys';
 $txt['flash'] = 'Insert Flash';
