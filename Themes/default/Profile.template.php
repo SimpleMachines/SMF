@@ -2380,57 +2380,6 @@ function template_issueWarning()
 	</form>';
 
 	// Previous warnings?
-	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['profile_warning_previous'], '
-			</h3>
-		</div>
-		<table border="0" width="100%" cellspacing="0" cellpadding="5" class="table_grid">
-			<thead>
-				<tr class="titlebg lefttext">
-					<th class="first_th" scope="col" width="20%">', $txt['profile_warning_previous_issued'], '</th>
-					<th scope="col" width="30%">', $txt['profile_warning_previous_time'], '</th>
-					<th scope="col">', $txt['profile_warning_previous_reason'], '</th>
-					<th class="last_th" scope="col" width="6%">', $txt['profile_warning_previous_level'], '</th>
-				</tr>
-			</thead>
-			<tbody>';
-
-	// Print the warnings.
-	$alternate = 0;
-	foreach ($context['previous_warnings'] as $warning)
-	{
-		$alternate = !$alternate;
-		echo '
-				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
-					<td class="smalltext">', $warning['issuer']['link'], '</td>
-					<td class="smalltext">', $warning['time'], '</td>
-					<td class="smalltext">
-						<div class="floatleft">
-							', $warning['reason'], '
-						</div>';
-
-		if (!empty($warning['id_notice']))
-			echo '
-						<div class="floatright">
-							<a href="', $scripturl, '?action=moderate;area=notice;nid=', $warning['id_notice'], '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="', $txt['profile_warning_previous_notice'], '"><img src="', $settings['images_url'], '/filter.gif" alt="" /></a>
-						</div>';
-		echo '
-					</td>
-					<td class="smalltext">', $warning['counter'], '</td>
-				</tr>';
-	}
-
-	if (empty($context['previous_warnings']))
-		echo '
-				<tr class="windowbg2">
-					<td align="center" colspan="4">
-						', $txt['profile_warning_previous_none'], '
-					</td>
-				</tr>';
-
 	template_show_list('view_warnings');
 
 	// Do our best to get pretty javascript enabled.
