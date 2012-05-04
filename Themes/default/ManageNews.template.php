@@ -56,7 +56,8 @@ function template_edit_news()
 				</tbody>
 			</table>
 			<div class="floatleft padding">
-				<div id="moreNewsItems_link" style="display: none;"><a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a></div>
+				<div id="moreNewsItems_link" style="display: none;">
+					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">', $txt['editnews_clickadd'], '</a></div>
 				<script type="text/javascript"><!-- // --><![CDATA[
 					document.getElementById("moreNewsItems_link").style.display = "";
 					function addNewsItem()
@@ -484,7 +485,7 @@ function template_email_members_send()
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a> ', $txt['admin_newsletters'], '
+					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['admin_newsletters'], '
 				</h3>
 			</div>
 			<div class="windowbg">

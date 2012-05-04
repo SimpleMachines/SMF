@@ -396,6 +396,7 @@ function template_view_package()
 		database_changes_area.style.display = "none";
 	// ]]></script>';
 }
+
 function template_extract_package()
 {
 	global $context, $settings, $options, $txt, $scripturl;
@@ -546,7 +547,7 @@ function template_browse()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a> ', $txt['packages_latest'], '</span>
+				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '</span>
 			</h3>
 		</div>
 		<div class="windowbg2">
@@ -603,10 +604,9 @@ function template_browse()
 		<div class="information">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
 
 	// the advanced (emulation) box, collapsed by default
-	if ($context['sub_action'] == 'browse')
-		echo '
+	echo '
 		<br class="clear" />
-		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">
+		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['sub_action'], '" method="get">
 			<div id="advanced_box" >
 				<div class="cat_bar">
 					<h3 class="catbg">
@@ -640,7 +640,7 @@ function template_browse()
 			</div>
 			<input type="hidden" name="action" value="admin" />
 			<input type="hidden" name="area" value="packages" />
-			<input type="hidden" name="sa" value="browse" />
+			<input type="hidden" name="sa" value="', $context['sub_action'], '" />
 		</form>';
 	
 	echo '

@@ -1,32 +1,40 @@
 <?php
 /**
-* Simple cURL class to fetch a web page
-* Properly redirects even with safe mode and basedir restrictions
-* Can provide simple post options to a page
-*
-* Load class
-* Initiate as
-*  - $fetch_data = new cURL_fetch_web_data();
-*	- optionaly pass an array of cURL options and redirect count
-*	- cURL_fetch_web_data(cURL options array, Max redirects);
-*  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
-*
-* Make the call
-*  - $fetch_data('http://www.simplemachines.org'); // fetch a page
-*  - $fetch_data('http://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page
-*  - $fetch_data('http://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page
-*
-*
-* Get the data
-*  - $fetch_data->result('body'); // just the page content
-*  - $fetch_data->result(); // an array of results, body, header, http result codes
-*  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
-*  - $fetch_data->result_raw(0); // show all results of call x
-*
-*/
+ *
+ * Simple Machines Forum (SMF)
+ * Simple cURL class to fetch a web page
+ * Properly redirects even with safe mode and basedir restrictions
+ * Can provide simple post options to a page
+ *
+ * Load class
+ * Initiate as
+ *  - $fetch_data = new cURL_fetch_web_data();
+ *	- optionaly pass an array of cURL options and redirect count
+ *	- cURL_fetch_web_data(cURL options array, Max redirects);
+ *  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
+ *
+ * Make the call
+ *  - $fetch_data('http://www.simplemachines.org'); // fetch a page
+ *  - $fetch_data('http://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page
+ *  - $fetch_data('http://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page
+ *
+ *
+ * Get the data
+ *  - $fetch_data->result('body'); // just the page content
+ *  - $fetch_data->result(); // an array of results, body, header, http result codes
+ *  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
+ *  - $fetch_data->result_raw(0); // show all results of call x
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2011 Simple Machines
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Alpha 1
+ */
 
 if (!defined('SMF'))
-die('Hacking attempt...');
+	die('Hacking attempt...');
 
 class curl_fetch_web_data
 {
@@ -290,4 +298,5 @@ class curl_fetch_web_data
 		return strlen($header);
 	}
 }
+
 ?>

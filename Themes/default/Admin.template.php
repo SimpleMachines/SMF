@@ -27,7 +27,7 @@ function template_admin()
 		echo '
 			<object id="quick_search">
 				<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
-					<img src="', $settings['images_url'] , '/filter.png" alt="" />
+					<img class="icon" src="', $settings['images_url'] , '/filter.png" alt="" />
 					<input type="text" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text" />
 					<select name="search_type">
 						<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_internal'], '</option>
@@ -1115,7 +1115,7 @@ function template_edit_profile_field()
 								</select>
 							</dd>
 							<dt>
-								<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" align="top" /></a>
+								<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 								<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 							</dt>
@@ -1189,7 +1189,7 @@ function template_edit_profile_field()
 						<legend>', $txt['custom_edit_advanced'], '</legend>
 						<dl class="settings">
 							<dt id="mask_dt">
-								<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" align="top" /></a>
+								<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 								<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 							</dt>

@@ -88,7 +88,7 @@ function template_summary()
 				', !isset($context['disabled_fields']['aim']) && !empty($context['member']['aim']['link']) ? '<li>' . $context['member']['aim']['link'] . '</li>' : '', '
 				', !isset($context['disabled_fields']['yim']) && !empty($context['member']['yim']['link']) ? '<li>' . $context['member']['yim']['link'] . '</li>' : '', '
 			</ul>
-			<span id="userstatus">', $context['can_send_pm'] ? '<a href="' . $context['member']['online']['href'] . '" title="' . $context['member']['online']['label'] . '" rel="nofollow">' : '', $settings['use_image_buttons'] ? '<img src="' . $context['member']['online']['image_href'] . '" alt="' . $context['member']['online']['text'] . '" align="middle" />' : $context['member']['online']['text'], $context['can_send_pm'] ? '</a>' : '', $settings['use_image_buttons'] ? '<span class="smalltext"> ' . $context['member']['online']['text'] . '</span>' : '';
+			<span id="userstatus">', $context['can_send_pm'] ? '<a href="' . $context['member']['online']['href'] . '" title="' . $context['member']['online']['label'] . '" rel="nofollow">' : '', $settings['use_image_buttons'] ? '<img src="' . $context['member']['online']['image_href'] . '" alt="' . $context['member']['online']['text'] . '" class="centericon" />' : $context['member']['online']['text'], $context['can_send_pm'] ? '</a>' : '', $settings['use_image_buttons'] ? '<span class="smalltext"> ' . $context['member']['online']['text'] . '</span>' : '';
 
 	// Can they add this member as a buddy?
 	if (!empty($context['can_have_buddy']) && !$context['user']['is_owner'])
@@ -344,10 +344,10 @@ function template_showPosts()
 		</div>';
 
 	// Button shortcuts
-	$quote_button = create_button('quote.png', 'reply_quote', 'quote', 'align="middle"');
-	$reply_button = create_button('reply_sm.png', 'reply', 'reply', 'align="middle"');
-	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'align="middle"');
-	$notify_button = create_button('notify_sm.png', 'notify_replies', 'notify', 'align="middle"');
+	$quote_button = create_button('quote.png', 'reply_quote', 'quote', 'class="centericon"');
+	$reply_button = create_button('reply_sm.png', 'reply', 'reply', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
+	$notify_button = create_button('notify_sm.png', 'notify_replies', 'notify', 'class="centericon"');
 
 	// Are we displaying posts or attachments?
 	if (!isset($context['attachments']))
@@ -2380,57 +2380,6 @@ function template_issueWarning()
 	</form>';
 
 	// Previous warnings?
-	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['profile_warning_previous'], '
-			</h3>
-		</div>
-		<table border="0" width="100%" cellspacing="0" cellpadding="5" class="table_grid">
-			<thead>
-				<tr class="titlebg lefttext">
-					<th class="first_th" scope="col" width="20%">', $txt['profile_warning_previous_issued'], '</th>
-					<th scope="col" width="30%">', $txt['profile_warning_previous_time'], '</th>
-					<th scope="col">', $txt['profile_warning_previous_reason'], '</th>
-					<th class="last_th" scope="col" width="6%">', $txt['profile_warning_previous_level'], '</th>
-				</tr>
-			</thead>
-			<tbody>';
-
-	// Print the warnings.
-	$alternate = 0;
-	foreach ($context['previous_warnings'] as $warning)
-	{
-		$alternate = !$alternate;
-		echo '
-				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
-					<td class="smalltext">', $warning['issuer']['link'], '</td>
-					<td class="smalltext">', $warning['time'], '</td>
-					<td class="smalltext">
-						<div class="floatleft">
-							', $warning['reason'], '
-						</div>';
-
-		if (!empty($warning['id_notice']))
-			echo '
-						<div class="floatright">
-							<a href="', $scripturl, '?action=moderate;area=notice;nid=', $warning['id_notice'], '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="', $txt['profile_warning_previous_notice'], '"><img src="', $settings['images_url'], '/filter.gif" alt="" /></a>
-						</div>';
-		echo '
-					</td>
-					<td class="smalltext">', $warning['counter'], '</td>
-				</tr>';
-	}
-
-	if (empty($context['previous_warnings']))
-		echo '
-				<tr class="windowbg2">
-					<td align="center" colspan="4">
-						', $txt['profile_warning_previous_none'], '
-					</td>
-				</tr>';
-
 	template_show_list('view_warnings');
 
 	// Do our best to get pretty javascript enabled.
@@ -2953,12 +2902,12 @@ function template_profile_smiley_pick()
 								<strong><label for="smiley_set">', $txt['smileys_current'], ':</label></strong>
 							</dt>
 							<dd>
-								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.png\';">';
+								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.gif\';">';
 	foreach ($context['smiley_sets'] as $set)
 		echo '
 									<option value="', $set['id'], '"', $set['selected'] ? ' selected="selected"' : '', '>', $set['name'], '</option>';
 	echo '
-								</select> <img id="smileypr" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.png' : $settings['images_url'] . '/blank.png', '" alt=":)" align="top" style="padding-left: 20px;" />
+								</select> <img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.gif' : $settings['images_url'] . '/blank.png', '" alt=":)"  style="padding-left: 20px;" />
 							</dd>';
 }
 

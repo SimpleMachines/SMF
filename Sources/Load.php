@@ -2522,7 +2522,7 @@ function cache_put_data($key, $value, $ttl = 120)
 		$st = microtime();
 	}
 
-	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':', '-');
+	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':/', '-_');
 	$value = $value === null ? null : serialize($value);
 
 	switch ($cache_accelerator)

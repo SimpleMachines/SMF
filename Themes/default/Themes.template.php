@@ -21,7 +21,7 @@ function template_main()
 			<input type="hidden" value="0" name="options[theme_allow]" />
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" align="top" /></a>
+					<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 					', $txt['themeadmin_title'], '
 					</span>
 				</h3>
@@ -509,7 +509,7 @@ function template_set_settings()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/config_sm.png" alt="" align="top" /> ', $txt['theme_variants'], '</span>
+					<span class="ie6_header floatleft"><img class="icon" src="', $settings['images_url'], '/icons/config_sm.png" alt="" /> ', $txt['theme_variants'], '</span>
 				</h3>
 			</div>
 			<div class="windowbg2">

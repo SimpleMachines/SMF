@@ -866,8 +866,8 @@ function template_search_results()
 
 				if ($context['can_send_pm'])
 				{
-					$quote_button = create_button('quote.png', 'reply_quote', 'reply_quote', 'align="middle"');
-					$reply_button = create_button('im_reply.png', 'reply', 'reply', 'align="middle"');
+					$quote_button = create_button('quote.png', 'reply_quote', 'reply_quote', 'class="centericon"');
+					$reply_button = create_button('im_reply.png', 'reply', 'reply', 'class="centericon"');
 					// You can only reply if they are not a guest...
 					if (!$message['member']['is_guest'])
 						echo '
@@ -986,7 +986,7 @@ function template_send()
 
 	// If there were errors for sending the PM, show them.
 	echo '
-				<div class="errorbox"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
 							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>

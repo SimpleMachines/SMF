@@ -75,28 +75,18 @@ form
 	.input_text    - covers input[type=text] throughout all browsers
 	.input_file    - covers input[type=file] throughout all browsers
 */
-
-input, button, select, textarea
+input, button, select, textarea, textarea.editor 
 {
+	background: #fff;
+	outline: none !important;
+	border: 1px solid #bbb;
+	vertical-align: middle;
+	border-radius: 3px;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
+    padding: 3px;
 	font: 95%/115% verdana, Helvetica, sans-serif;
 	color: #000;
-	background: #fff;
-	border: 1px solid #7f9db9;
-	padding: 2px;
 }
-
-/* Select elements look horrible with the extra padding, so leave them unpadded. */
-select
-{
-	padding: 0;
-}
-
-/* Add some padding to the options instead. */
-select option
-{
-	padding: 2px;
-}
-
 /* The font size of textareas should be just a little bit larger. */
 textarea
 {
@@ -109,7 +99,7 @@ textarea
 	float: none;
 	margin-left: inherit;
 }
-.button_submit, .button_reset
+.button_submit, .button_reset, .button_link
 {
 	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
 	border: 1px solid #aaa;
@@ -118,32 +108,19 @@ textarea
 	margin-left: 1em;
 	float: right;
 }
+.button_link
+{
+	padding: 4px 5px 4px 4px;
+	font: 95%/115% verdana, Helvetica, sans-serif;
+	float: right;
+	border-radius: 3px;
+}
+a.button_link
+{ 
+	color: #000;
+	margin: 0 !important;
+}
 input:hover, textarea:hover, button:hover, select:hover
-{
-	border: 1px solid #454545;
-}
-.button_submit:hover, .button_reset:hover
-{
-	border: 1px solid #aaa;
-	background: url(../images/theme/submit_bg.png) no-repeat 0 -140px #cde7ff;
-}
-input:focus, textarea:focus, button:focus, select:focus
-{
-	border: 1px solid #454545;
-}
-/* Lotsa new stuff innit */
-/* Nifty input focus styling from Mollyhawk pages. */
-
-input, select, textarea, textarea.editor 
-{
-	background: #fff;
-	outline: none !important;
-	border: 1px solid #bbb;
-	vertical-align: top;
-	border-radius: 4px;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
-}
-input:hover, select:hover, textarea:hover, textarea.editor:hover 
 {
 	outline: none !important;
 	border: 1px solid #999;
@@ -152,7 +129,16 @@ textarea:hover, textarea.editor:hover
 {
 	background: #fbfbfb;
 }
-input:focus, select:focus, textarea:focus, textarea.editor:focus 
+.button_submit:hover, .button_reset:hover, .button_link:hover
+{
+	border: 1px solid #aaa;
+	background: url(../images/theme/submit_bg.png) no-repeat 0 -140px #cde7ff;
+}
+.button_link:hover
+{
+	text-decoration: none;
+}
+input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus
 {
 	outline:none !important;
 	border: 1px solid #999;
@@ -160,31 +146,7 @@ input:focus, select:focus, textarea:focus, textarea.editor:focus
 }
 select option 
 {
-	padding: 0.1em 0.3em;
-}
-/* End lotsa new stuff */
-
-.button_link
-{
-	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
-	border: 1px solid #aaa;
-	padding: 3px 5px 3px 4px;
-	font: 95%/115% verdana, Helvetica, sans-serif;
-	cursor: pointer;
-	font-weight: normal;
-	float: right;
-	border-radius: 4px;
-}
-a.button_link
-{ 
-	color: #000;
-	margin: 0 !important;
-}
-.button_link:hover, .button_link:hover
-{
-	border: 1px solid #aaa;
-	text-decoration: none;
-	background: url(../images/theme/submit_bg.png) no-repeat 0 -140px #cde7ff;
+	padding: 0em 0.3em 0 0.3em;
 }
 
 /* the new "button" */
@@ -208,6 +170,7 @@ input.input_check, input.input_radio
 {
 	border: none;
 	background: none;
+	vertical-align: top;
 }
 h3.catbg input.input_check
 {
@@ -223,10 +186,15 @@ input[disabled].input_text
 /* Standard horizontal rule.. ([hr], etc.) */
 hr, .hrcolor
 {
-	height: 1px;
-	border: 0;
+    height: 1px;
+    border: none;
 	color: #ccc;
 	background-color: #ccc;
+    background: -webkit-gradient(linear, 0 0, 100% 0, from(rgba(50, 50, 50, 0.01)), to(rgba(80, 80, 80, 0.01)), color-stop(.5, #c4c4c4));
+    background: -moz-linear-gradient(left, rgba(0, 0 ,0, 0.001) 0%, rgba(201,201,201,1) 50%, rgba(0, 0, 0, 0.001) 100%);
+    background: -ms-linear-gradient(left, hsla(0, 0%, 0%, 0) 0%, hsla(0, 0%, 0%, .75) 50%, hsla(0, 0%, 0%, 0) 100%);
+    background: -o-linear-gradient(left, hsla(0, 0%, 0%, 0) 0%, hsla(0, 0%, 0%, .75) 50%, hsla(0, 0%, 0%, 0) 100%);
+    background: linear-gradient(left, hsla(0, 0%, 0%, 0) 0%, hsla(0, 0%, 0%, .75) 50%, hsla(0, 0%, 0%, 0) 100%);
 }
 
 /* By default set the color on these tags as #000. */
@@ -242,13 +210,18 @@ h1, h2, h3, h4, h5, h6
 fieldset
 {
 	border: 1px solid #c4c4c4;
-	padding: 1em;
+	padding: 1.5em;
 	margin: 0 0 0.5em 0;
+    border-radius: 3px;
 }
 fieldset legend
 {
 	font-weight: bold;
-	color: #444;
+	color: #555;
+    border-radius: 3px;
+	border: 1px solid #999;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 3px 6px;
 }
 
 /* Define strong as bold, and em as italics */
@@ -535,8 +508,9 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 }
 .catbg select
 {
-	height: 1.8em;
+	height: 2em;
 	font-size: 0.85em;
+	padding: 0;
 }
 
 /* Alternating backgrounds for posts, and several other sections of the forum. */
@@ -811,12 +785,13 @@ dl.settings dd
 dl.settings img
 {
 	margin: 0 10px 0 0;
+	vertical-align: middle;
 }
 /* help icons */
 dl.settings dt a img
 {
 	position: relative;
-	top: 2px;
+	vertical-align: top;
 }
 
 /* Styles for rounded headers.
@@ -1167,7 +1142,7 @@ span.lowerframe span
 {
 	position: absolute;
 	visibility: hidden;
-	border-radius: 4px;
+	border-radius: 3px;
 	outline: none !important;
 	border: 1px solid #bbb;
 }
@@ -1215,7 +1190,7 @@ span.lowerframe span
 	padding: 0 5px 0 5px;
 	margin: 0 0 0 0;
 	display: block;
-	border-radius: 4px;
+	border-radius: 3px;
 }
 /* Level 1 active button. */
 .dropmenu li a.active
@@ -1246,7 +1221,7 @@ span.lowerframe span
 	font-size: 1.1em;
 	background: #fff url(../images/theme/menu_gfx.png) -30px -137px repeat-x;
 	border: solid 1px #999;
-	border-radius: 4px;
+	border-radius: 3px;
 	/* Note: Using a black rgba box-shadow with suitable
 	alpha value gives the best effect on any background. */
 	box-shadow: 1px 2px 2px rgba(0,0,0,0.3);
@@ -2694,7 +2669,7 @@ h3.titlebg img
 {
 	vertical-align: middle;
 	margin-right: 0.5em;
-	margin-top: -1px;
+	margin-top: -4px;
 }
 tr.titlebg td
 {

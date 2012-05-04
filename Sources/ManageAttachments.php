@@ -354,7 +354,6 @@ function BrowseFiles()
 
 						return sprintf(\'%1$s%2$s\', round($rowData[\'size\'] / 1024, 2), $txt[\'kilobyte\']);
 					'),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'a.size',
@@ -400,7 +399,6 @@ function BrowseFiles()
 
 						return $date;
 						'),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => $context['browse_type'] === 'avatars' ? 'mem.last_login' : 'm.id_msg',
@@ -417,7 +415,6 @@ function BrowseFiles()
 
 						return comma_format($rowData[\'downloads\']);
 					'),
-					'class' => 'windowbg',
 				),
 				'sort' => array(
 					'default' => 'a.downloads',
