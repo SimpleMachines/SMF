@@ -131,11 +131,11 @@ class curl_fetch_web_data
 
 		// store this 'loops' data, someone may want all of these :O
 		$this->response[] = array(
-			'url'	 => $url,
-			'code'	=> $http_code,
-			'error'   => $error,
+			'url' => $url,
+			'code' => $http_code,
+			'error' => $error,
 			'headers' => isset($this->headers) ? $this->headers : false,
-			'body'	=> $body,
+			'body' => $body,
 		);
 
 		// If this a redirect with a location header and we have not given up, then do it again
