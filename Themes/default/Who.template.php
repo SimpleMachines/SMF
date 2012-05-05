@@ -208,6 +208,15 @@ function template_credits()
 	echo '
 					</dd>
 				</dl>';
+				
+	if (!empty($context['copyrights']['other']))
+	{
+		echo '
+				<dl>
+					<dt><strong>', $txt['credits_other'], '</strong></dt>
+					<dd>', implode('</dd><dd>', $context['copyrights']['other']), '</dd>
+				</dl>';
+	}
 
 	if (!empty($context['copyrights']['mods']))
 	{
