@@ -80,7 +80,7 @@ function template_init()
  */
 function template_html_above()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $options, $scripturl, $txt, $modSettings, $cache_versions;
 
 	// Show right to left and the character set for ease of translating.
 	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
