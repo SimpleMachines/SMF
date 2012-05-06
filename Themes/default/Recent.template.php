@@ -201,7 +201,7 @@ function template_unread()
 
 			if ($showCheckboxes)
 				echo '
-							<td class="windowbg2" valign="middle" align="center">
+							<td class="' . (!empty($color_class) ? $color_class : 'windowbg2') . '" valign="middle" align="center">
 								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
 							</td>';
 			echo '
