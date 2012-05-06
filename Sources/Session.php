@@ -51,7 +51,7 @@ function loadSession()
 			session_write_close();
 
 		// This is here to stop people from using bad junky PHPSESSIDs.
-		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,32}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
+		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
 		{
 			$session_id = md5(md5('smf_sess_' . time()) . mt_rand());
 			$_REQUEST[session_name()] = $session_id;
@@ -129,7 +129,7 @@ function sessionRead($session_id)
 {
 	global $smcFunc;
 
-	if (preg_match('~^[A-Za-z0-9]{16,32}$~', $session_id) == 0)
+	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
 		return false;
 
 	// Look for it in the database.
@@ -159,7 +159,7 @@ function sessionWrite($session_id, $data)
 {
 	global $smcFunc;
 
-	if (preg_match('~^[A-Za-z0-9]{16,32}$~', $session_id) == 0)
+	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
 		return false;
 
 	// First try to update an existing row...
@@ -196,7 +196,7 @@ function sessionDestroy($session_id)
 {
 	global $smcFunc;
 
-	if (preg_match('~^[A-Za-z0-9]{16,32}$~', $session_id) == 0)
+	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
 		return false;
 
 	// Just delete the row...
