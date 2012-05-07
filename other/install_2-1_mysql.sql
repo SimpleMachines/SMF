@@ -1965,11 +1965,7 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'additional_options_collapsable', '1'),
 	(1, 'use_image_buttons', '1'),
 	(1, 'enable_news', '1'),
-	(1, 'forum_width', '90%'),
-	(2, 'name', '{$default_core_theme_name}'),
-	(2, 'theme_url', '{$boardurl}/Themes/core'),
-	(2, 'images_url', '{$boardurl}/Themes/core/images'),
-	(2, 'theme_dir', '{$boarddir}/Themes/core');
+	(1, 'forum_width', '90%');
 
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '1');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
