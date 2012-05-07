@@ -413,10 +413,15 @@ function determineActions($urls, $preferred_prefix = false)
 			{
 				if (allowedTo($allowedActions[$actions['action']]))
 					$data[$k] = $txt['whoallow_' . $actions['action']];
+				elseif (in_array('moderate_forum', $allowedActions[$actions['action']]))
+					$data[$k] = $txt['who_moderate'];
+				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
+					$data[$k] = $txt['who_admin'];
 				else
 					$data[$k] = $txt['who_hidden'];
 			}
-			// Unlisted or unknown action.
+			elseif (!empty($actions['action']))
+				$data[$k] = $txt['who_generic'] . ' ' . $actions['action'];
 			else
 				$data[$k] = $txt['who_unknown'];
 		}
