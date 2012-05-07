@@ -194,21 +194,35 @@ function smf_db_list_tables($db = false, $filter = false)
  * @return string, the query to insert the data back in, or an empty
  *  string if the table was empty.
  */
-function smf_db_insert_sql($tableName)
+function smf_db_insert_sql($tableName, $new_table = false)
 {
-	global $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix, $detected_id;
+	static $start = 0, $num_rows, $fields, $limit, $last_id;
 
+	if ($new_table)
+	{
+		$limit = strstr($tableName, 'log_') !== false ? 500 : 250;
+		$start = 0;
+		$last_id = 0;
+	}
+
+	$data = '';
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
 
 	// This will be handy...
 	$crlf = "\r\n";
 
-	// Get everything from the table.
+	// This is done this way because retrieve data only with LIMIT will become slower after each query
+	// and for long tables (e.g. {db_prefix}messages) it could be a pain...
+	// Instead using WHERE speeds up thing *a lot* (especially after the first 50'000 records)
 	$result = $smcFunc['db_query']('', '
 		SELECT *
-		FROM {raw:table}',
+		FROM ' . $tableName .
+		(!empty($last_id) && !empty($detected_id) ? '
+		WHERE ' . $detected_id . ' > ' . $last_id : '') . '
+		LIMIT ' . (empty($last_id) ? $start . ', ' : '') . $limit,
 		array(
-			'table' => $tableName,
+			'security_override' => true,
 		)
 	);
 
@@ -218,39 +232,51 @@ function smf_db_insert_sql($tableName)
 	if ($num_rows == 0)
 		return '';
 
-	$fields = array_keys($smcFunc['db_fetch_assoc']($result));
+	if ($new_table)
+	{
+		$fields = array_keys($smcFunc['db_fetch_assoc']($result));
 
-	// SQLite fetches an array so we need to filter out the numberic index for the columns.
-	foreach ($fields as $key => $name)
-		if (is_numeric($name))
-			unset($fields[$key]);
+		// SQLite fetches an array so we need to filter out the numberic index for the columns.
+		foreach ($fields as $key => $name)
+			if (is_numeric($name))
+				unset($fields[$key]);
 
-	$smcFunc['db_data_seek']($result, 0);
+		$smcFunc['db_data_seek']($result, 0);
+	}
 
 	// Start it off with the basic INSERT INTO.
 	$data = 'BEGIN TRANSACTION;' . $crlf;
+	$insert_msg = $crlf . 'INSERT INTO ' . $tableName . $crlf . "\t" . '(' . implode(', ', $fields) . ')' . $crlf . 'VALUES ' . $crlf . "\t";
 
 	// Loop through each row.
-	while ($row = $smcFunc['db_fetch_row']($result))
+	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
 		// Get the fields in this row...
 		$field_list = array();
-		for ($j = 0; $j < $smcFunc['db_num_fields']($result); $j++)
+
+		foreach ($row as $key => $item)
 		{
 			// Try to figure out the type of each field. (NULL, number, or 'string'.)
-			if (!isset($row[$j]))
+			if (!isset($item))
 				$field_list[] = 'NULL';
-			elseif (is_numeric($row[$j]) && (int) $row[$j] == $row[$j])
-				$field_list[] = $row[$j];
+			elseif (is_numeric($item) && (int) $item == $item)
+				$field_list[] = $item;
 			else
-				$field_list[] = '\'' . $smcFunc['db_escape_string']($row[$j]) . '\'';
+				$field_list[] = '\'' . $smcFunc['db_escape_string']($item) . '\'';
 		}
-		$data .= 'INSERT INTO ' . $tableName . ' (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $field_list) . ');' . $crlf;
+		if (!empty($detected_id) && isset($row[$detected_id]))
+			$last_id = $row[$detected_id];
+
+		// 'Insert' the data.
+		$data .= $insert_msg . '(' . implode(', ', $field_list) . ');' . $crlf;
 	}
 	$smcFunc['db_free_result']($result);
 
-	// Return an empty string if there were no rows.
-	return $num_rows == 0 ? '' : $data . 'COMMIT;' . $crlf;
+	$data .= $crlf;
+
+	$start += $limit;
+
+	return $data;
 }
 
 /**
@@ -261,9 +287,10 @@ function smf_db_insert_sql($tableName)
  */
 function smf_db_table_sql($tableName)
 {
-	global $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix, $detected_id;
 
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
+	$detected_id = '';
 
 	// This will be needed...
 	$crlf = "\r\n";

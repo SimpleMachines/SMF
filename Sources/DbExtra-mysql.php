@@ -288,16 +288,16 @@ function smf_db_insert_sql($tableName, $new_table = false)
 	$num_rows = $smcFunc['db_num_rows']($result);
 
 	if ($num_rows == 0)
-		return false;
+		return '';
 
 	if ($new_table)
 	{
 		$fields = array_keys($smcFunc['db_fetch_assoc']($result));
 		$smcFunc['db_data_seek']($result, 0);
-
-		// Start it off with the basic INSERT INTO.
-		$data = 'INSERT INTO `' . $tableName . '`' . $crlf . "\t" . '(`' . implode('`, `', $fields) . '`)' . $crlf . 'VALUES ';
 	}
+
+	// Start it off with the basic INSERT INTO.
+	$data = 'INSERT INTO `' . $tableName . '`' . $crlf . "\t" . '(`' . implode('`, `', $fields) . '`)' . $crlf . 'VALUES ';
 
 	// Loop through each row.
 	while ($row = $smcFunc['db_fetch_assoc']($result))

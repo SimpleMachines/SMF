@@ -105,7 +105,7 @@ function DumpDatabase2()
 	}
 
 	// Send the proper headers to let them download this file.
-	header('Content-Disposition: filename="' . $db_name . '-' . (empty($_REQUEST['struct']) ? 'data' : (empty($_REQUEST['data']) ? 'structure' : 'complete')) . '_' . strftime('%Y-%m-%d') . $extension . '"');
+	header('Content-Disposition: attachment; filename="' . $db_name . '-' . (empty($_REQUEST['struct']) ? 'data' : (empty($_REQUEST['data']) ? 'structure' : 'complete')) . '_' . strftime('%Y-%m-%d') . $extension . '"');
 	header('Cache-Control: private');
 	header('Connection: close');
 
