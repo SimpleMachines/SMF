@@ -328,7 +328,7 @@ function template_body_above()
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'],   ']"', ' value="', $context['current_board'], '" />';
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '" />';
 
 		echo '
 				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
