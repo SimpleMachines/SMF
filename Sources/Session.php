@@ -51,7 +51,7 @@ function loadSession()
 			session_write_close();
 
 		// This is here to stop people from using bad junky PHPSESSIDs.
-
+		if (isset($_REQUEST[session_name()]) && preg_match('~^[A-Za-z0-9,-]{16,64}$~', $_REQUEST[session_name()]) == 0 && !isset($_COOKIE[session_name()]))
 		{
 			$session_id = md5(md5('smf_sess_' . time()) . mt_rand());
 			$_REQUEST[session_name()] = $session_id;
