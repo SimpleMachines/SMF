@@ -21,6 +21,7 @@
  */
 
 $forum_version = 'SMF 2.1 Alpha 1';
+$cache_version = '21alpha1';
 
 // Get everything started up...
 define('SMF', 1);
