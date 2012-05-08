@@ -91,7 +91,7 @@ function AdminMain()
 					'label' => $txt['admin_logoff'],
 					'function' => 'AdminEndSession',
 					'enabled' => empty($modSettings['securityDisable']),
-//					'icon' => 'administration.png',
+					'icon' => 'exit.png',
 				),
 
 			),
