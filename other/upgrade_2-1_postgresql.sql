@@ -145,7 +145,7 @@ ALTER TABLE {$db_prefix}log_errors
 CHANGE `session` char(64) NOT NULL default '                                                                ';
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` char(64) NOT NULL;
+CHANGE `session_id` char(64) NOT NULL default '';
 ---#
 
 /******************************************************************************/
