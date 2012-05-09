@@ -545,13 +545,13 @@ function Post()
 
 			// Do all bulletin board code tags, with or without smileys.
 			$context['preview_message'] = parse_bbc($context['preview_message'], isset($_REQUEST['ns']) ? 0 : 1);
-
+			censorText($context['preview_message']);
+			
 			if ($form_subject != '')
 			{
 				$context['preview_subject'] = $form_subject;
 
 				censorText($context['preview_subject']);
-				censorText($context['preview_message']);
 			}
 			else
 				$context['preview_subject'] = '<em>' . $txt['no_subject'] . '</em>';
