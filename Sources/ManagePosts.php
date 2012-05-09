@@ -255,7 +255,7 @@ function ModifyPostSettings($return_config = false)
 		
 		// If we're changing the post preview length let's check its valid
 		if (!empty($_POST['preview_characters']))
-			$_POST['max_messageLength'] = (int) min(max(0, $_POST['max_messageLength']), 512);
+			$_POST['preview_characters'] = (int) min(max(0, $_POST['preview_characters']), 512);
 
 		call_integration_hook('integrate_save_post_settings');
 
