@@ -104,6 +104,9 @@ function ModifySettings()
 	// By default we're editing the core settings
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 	$context['sub_action'] = $_REQUEST['sa'];
+	
+	// Any messages to speak of?
+	$context['settings_message'] = (isset($_REQUEST['msg']) && isset($txt[$_REQUEST['msg']])) ? $txt[$_REQUEST['msg']] : '';
 
 	// Warn the user if there's any relevant information regarding Settings.php.
 	if ($_REQUEST['sa'] != 'cache')
@@ -174,7 +177,7 @@ function ModifyGeneralSettings($return_config = false)
 		call_integration_hook('integrate_save_general_settings');
 
 		saveSettings($config_vars);
-		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']. ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
 	}
 
 	// Fill the config array.
@@ -238,7 +241,7 @@ function ModifyDatabaseSettings($return_config = false)
 		call_integration_hook('integrate_save_database_settings');
 
 		saveSettings($config_vars);
-		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id'] . ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
 	}
 
 	// Fill the config array.
@@ -305,7 +308,7 @@ function ModifyCookieSettings($return_config = false)
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
 		}
 
-		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']. ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
 	}
 
 	// Fill the config array.
@@ -505,6 +508,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 	}
 	
 	createToken('admin-ssc');
+	createToken('admin-dbsc');
 	prepareDBSettingContext($config_vars);
 }
 

@@ -781,7 +781,7 @@ function template_show_settings()
 				</h3>
 			</div>';
 
-	// Have we got some custom code to insert?
+	// Have we got a message to display?
 	if (!empty($context['settings_message']))
 		echo '
 			<div class="information">', $context['settings_message'], '</div>';
