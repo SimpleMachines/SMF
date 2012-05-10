@@ -258,8 +258,10 @@ function template_reported_posts()
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
 			</h3>
 		</div>
-		<div class="pagesection floatleft">
-			', $txt['pages'], ': ', $context['page_index'], '
+		<div class="pagesection">
+			<div class="floatleft">
+				', $txt['pages'], ': ', $context['page_index'], '
+			</div>
 		</div>';
 
 	// Make the buttons.
@@ -357,8 +359,10 @@ function template_unapproved_posts()
 		</div>';
 	else
 		echo '
-			<div class="pagesection floatleft">
-				', $txt['pages'], ': ', $context['page_index'], '
+			<div class="pagesection">
+				<div class="floatleft">
+					', $txt['pages'], ': ', $context['page_index'], '
+				</div>
 			</div>';
 
 	foreach ($context['unapproved_items'] as $item)
@@ -452,8 +456,10 @@ function template_unapproved_attachments()
 			</div>';
 	else
 		echo '
-			<div class="pagesection floatleft">
-				', $txt['pages'], ': ', $context['page_index'], '
+			<div class="pagesection">
+				<div class="floatleft">
+					', $txt['pages'], ': ', $context['page_index'], '
+				</div>
 			</div>
 			<table class="table_grid" width="100%">
 			<thead>

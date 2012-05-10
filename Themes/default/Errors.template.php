@@ -55,8 +55,10 @@ function template_error_log()
 					</span>
 				</h3>
 			</div>
-			<div class="pagesection floatleft">
-				&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
+			<div class="pagesection">
+				<div class="floatleft">
+					', $txt['pages'], ': ', $context['page_index'], '
+				</div>
 			</div>
 			<table border="0" cellspacing="1" class="table_grid" id="error_log">
 				<tr>
@@ -156,8 +158,10 @@ function template_error_log()
 					</td>
 				</tr>
 			</table>
-			<div class="pagesection floatleft">
-				&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
+			<div class="pagesection">
+				<div class="floatleft">
+					', $txt['pages'], ': ', $context['page_index'], '
+				</div>
 			</div>';  
 
 	echo '
