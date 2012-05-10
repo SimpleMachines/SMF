@@ -181,6 +181,7 @@ function AdminMain()
 					'function' => 'ModifyModSettings',
 					'icon' => 'modifications.png',
 					'subsections' => array(
+						'hooks' => array($txt['hooks_title_list']),
 						'general' => array($txt['mods_cat_modifications_misc']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
 						// 'shout' => array($txt['shout']),
