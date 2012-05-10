@@ -368,38 +368,44 @@ function template_unapproved_posts()
 	foreach ($context['unapproved_items'] as $item)
 	{
 		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="smalltext floatleft">', $item['counter'], '&nbsp;</span>
-				<span class="smalltext floatleft"><a href="', $scripturl, '#c', $item['category']['id'], '">', $item['category']['name'], '</a> / <a href="', $scripturl, '?board=', $item['board']['id'], '.0">', $item['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $item['topic']['id'], '.msg', $item['id'], '#msg', $item['id'], '">', $item['subject'], '</a></span>
-				<span class="smalltext floatright">', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ': ', $item['time'], '</span>
-			</h3>
-		</div>
-		<div class="', $item['alternate'] ? 'windowbg' : 'windowbg2', '">
-			<span class="topslice"><span></span></span>
-			<div class="content">
-				<div class="post">', $item['body'], '</div>
-				<span class="floatright">
-					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
+		<div class="topic">
+			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+				<span class="topslice"><span></span></span>
+				<div class="content">
+					<div class="counter">', $item['counter'], '</div>
+					<div class="topic_details">
+						<h5><strong><a href="', $scripturl, '#c', $item['category']['id'], '">', $item['category']['name'], '</a> / <a href="', $scripturl, '?board=', $item['board']['id'], '.0">', $item['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $item['topic'], '.', $item['start'], '#msg', $item['id'], '">', $item['subject'], '</a></strong></h5>
+						<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
+					</div>
+					<div class="list_posts">
+						<div class="post">', $item['body'], '</div>
+					</div>
+					<span class="floatright">
+						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
 
 			if ($item['can_delete'])
 				echo '
 					', $context['menu_separator'], '
-					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
+						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
+
+			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+				echo '
+						<input type="checkbox" name="item[]" value="', $item['id'], '" checked="checked" class="input_check" /> ';
 
 			echo '
-					<input type="checkbox" name="item[]" value="', $item['id'], '" checked="checked" class="input_check" /> ';
-
-			echo '
-				</span>
-				<br class="clear" />
+					</span>
+					<br class="clear" />
+				</div>
+				<span class="botslice"><span></span></span>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 	}
 
 	echo '
-		<div class="pagesection">
+		<div class="pagesection">';
+
+	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+		echo '
 			<div class="floatright">
 				<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', $txt['mc_unapproved_sure'], '\')) submit();">
 					<option value="0">', $txt['with_selected'], ':</option>
