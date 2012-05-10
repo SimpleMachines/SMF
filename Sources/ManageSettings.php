@@ -1732,7 +1732,7 @@ function EditCustomProfiles()
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=need_name');
 
 		// Regex you say?  Do a very basic test to see if the pattern is valid
-		if (isset($_POST['regex']) && (empty($_POST['regex']) || @preg_match($_POST['regex'], 'dummy') === false))
+		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
 			
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);

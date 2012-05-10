@@ -4,6 +4,9 @@
 global $scripturl, $context;
 
 $txt['who_hidden'] = '<em>Nothing, or nothing you can see...</em>';
+$txt['who_admin'] = 'Viewing the admin portal';
+$txt['who_moderate'] = 'Viewing the moderator portal';
+$txt['who_generic'] = 'Viewing the';
 $txt['who_unknown'] = '<em>Unknown Action</em>';
 $txt['who_user'] = 'User';
 $txt['who_time'] = 'Time';
@@ -132,6 +135,7 @@ $txt['credits_anyone'] = 'And for anyone we may have missed, thank you!';
 $txt['credits_copyright'] = 'Copyrights';
 $txt['credits_forum'] = 'Forum';
 $txt['credits_modifications'] = 'Modifications';
+$txt['credits_other'] = 'Software/Graphics';
 $txt['credits_groups_ps'] = 'Project Support';
 $txt['credits_groups_dev'] = 'Developers';
 $txt['credits_groups_support'] = 'Support Specialists';

@@ -263,6 +263,16 @@ function template_settings()
 			'id' => 'additional_options_collapsable',
 			'label' => $txt['additional_options_collapsable'],
 		),
+	'',
+		array(
+			'id' => 'message_index_preview',
+			'label' => $txt['message_index_preview'],
+		),
+		array(
+			'id' => 'message_index_preview_first',
+			'label' => $txt['message_index_preview_first'],
+			'description' => $txt['message_index_preview_first_desc'],
+		),
 	);
 }
 

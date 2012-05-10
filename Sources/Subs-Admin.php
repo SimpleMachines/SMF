@@ -77,13 +77,13 @@ function getServerVersions($checkFor)
 
 /**
  * Search through source, theme and language files to determine their version.
- * Get detailed version information about the physical SMF files on the
- * server.
- * the input parameter allows to set whether to include SSI.php and
- * whether the results should be sorted.
- * returns an array containing information on source files, templates
- * and language files found in the default theme directory (grouped by
- * language).
+ * Get detailed version information about the physical SMF files on the server.
+ * 
+ * - the input parameter allows to set whether to include SSI.php and whether 
+ *   the results should be sorted.
+ * - returns an array containing information on source files, templates and
+ *   language files found in the default theme directory (grouped by language).
+ *
  * @param array &$versionOptions
  */
 function getFileVersions(&$versionOptions)
@@ -223,25 +223,38 @@ function getFileVersions(&$versionOptions)
  *
  * The most important function in this file for mod makers happens to be the
  * updateSettingsFile() function, but it shouldn't be used often anyway.
- * updates the Settings.php file with the changes in config_vars.
- * expects config_vars to be an associative array, with the keys as the
- * variable names in Settings.php, and the values the varaible values.
- * does not escape or quote values.
- * preserves case, formatting, and additional options in file.
- * writes nothing if the resulting file would be less than 10 lines
- * in length (sanity check for read lock.)
+ * 
+ * - updates the Settings.php file with the changes supplied in config_vars.
+ * - expects config_vars to be an associative array, with the keys as the
+ *   variable names in Settings.php, and the values the variable values.
+ * - does not escape or quote values.
+ * - preserves case, formatting, and additional options in file.
+ * - writes nothing if the resulting file would be less than 10 lines
+ *   in length (sanity check for read lock.)
+ * - check for changes to db_last_error and passes those off to a separate handler
+ * - attempts to create a backup file and will use it should the writing of the 
+ *   new settings file fail
  *
  * @param array $config_vars
  */
 function updateSettingsFile($config_vars)
 {
-	global $boarddir, $cachedir;
+	global $boarddir, $cachedir, $context;
+	
+	// Updating the db_last_error, then don't mess around with Settings.php
+	if (count($config_vars) === 1 && isset($config_vars['db_last_error']))
+	{
+		updateDbLastError($config_vars['db_last_error']);
+		return;
+	}
 
-	// When is Settings.php last changed?
+	// When was Settings.php last changed?
 	$last_settings_change = filemtime($boarddir . '/Settings.php');
 
-	// Load the file.  Break it up based on \r or \n, and then clean out extra characters.
+	// Load the settings file.
 	$settingsArray = trim(file_get_contents($boarddir . '/Settings.php'));
+	
+	// Break it up based on \r or \n, and then clean out extra characters.
 	if (strpos($settingsArray, "\n") !== false)
 		$settingsArray = explode("\n", $settingsArray);
 	elseif (strpos($settingsArray, "\r") !== false)
@@ -249,23 +262,15 @@ function updateSettingsFile($config_vars)
 	else
 		return;
 
-	// Make sure we got a good file.
-	if (count($config_vars) == 1 && isset($config_vars['db_last_error']))
-	{
-		$temp = trim(implode("\n", $settingsArray));
-		if (substr($temp, 0, 5) != '<?php' || substr($temp, -2) != '?' . '>')
-			return;
-		if (strpos($temp, 'sourcedir') === false || strpos($temp, 'boarddir') === false)
-			return;
-	}
-
 	// Presumably, the file has to have stuff in it for this function to be called :P.
 	if (count($settingsArray) < 10)
 		return;
 
+	// remove any /r's that made there way in here
 	foreach ($settingsArray as $k => $dummy)
 		$settingsArray[$k] = strtr($dummy, array("\r" => '')) . "\n";
 
+	// go line by line and see whats changing
 	for ($i = 0, $n = count($settingsArray); $i < $n; $i++)
 	{
 		// Don't trim or bother with it if it's not a variable.
@@ -277,7 +282,13 @@ function updateSettingsFile($config_vars)
 		// Look through the variables to set....
 		foreach ($config_vars as $var => $val)
 		{
-			if (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
+			// be sure someone is not updating db_last_error this with a group
+			if ($var === 'db_last_error')
+			{
+				updateDbLastError($val);
+				unset($config_vars[$var]);
+			}
+			elseif (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
 			{
 				$comment = strstr(substr($settingsArray[$i], strpos($settingsArray[$i], ';')), '#');
 				$settingsArray[$i] = '$' . $var . ' = ' . $val . ';' . ($comment == '' ? '' : "\t\t" . rtrim($comment)) . "\n";
@@ -287,6 +298,7 @@ function updateSettingsFile($config_vars)
 			}
 		}
 
+		// End of the file ... maybe
 		if (substr(trim($settingsArray[$i]), 0, 2) == '?' . '>')
 			$end = $i;
 	}
@@ -295,16 +307,18 @@ function updateSettingsFile($config_vars)
 	if (empty($end) || $end < 10)
 		$end = count($settingsArray) - 1;
 
-	// Still more?  Add them at the end.
+	// Still more variables to go?  Then lets add them at the end.
 	if (!empty($config_vars))
 	{
 		if (trim($settingsArray[$end]) == '?' . '>')
 			$settingsArray[$end++] = '';
 		else
 			$end++;
-
+		
+		// Add in any newly defined vars that were passed
 		foreach ($config_vars as $var => $val)
 			$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
+		
 		$settingsArray[$end] = '?' . '>';
 	}
 	else
@@ -315,24 +329,22 @@ function updateSettingsFile($config_vars)
 		return;
 
 	// Try to avoid a few pitfalls:
-	// like a possible race condition,
-	// or a failure to write at low diskspace
-
-	// Check before you act: if cache is enabled, we can do a simple test
-	// Can we even write things on this filesystem?
+	//  - like a possible race condition,
+	//  - or a failure to write at low diskspace
+	//
+	// Check before you act: if cache is enabled, we can do a simple write test
+	// to validate that we even write things on this filesystem.
 	if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 		$cachedir = $boarddir . '/cache';
+	
 	$test_fp = @fopen($cachedir . '/settings_update.tmp', "w+");
 	if ($test_fp)
 	{
 		fclose($test_fp);
-
-		$test_fp = @fopen($cachedir . '/settings_update.tmp', 'r+');
-		$written_bytes = fwrite($test_fp, "test");
-		fclose($test_fp);
+		$written_bytes = file_put_contents($cachedir . '/settings_update.tmp', 'test', LOCK_EX);
 		@unlink($cachedir . '/settings_update.tmp');
 
-		if ($written_bytes !== strlen("test"))
+		if ($written_bytes !== 4)
 		{
 			// Oops. Low disk space, perhaps. Don't mess with Settings.php then.
 			// No means no. :P
@@ -344,23 +356,39 @@ function updateSettingsFile($config_vars)
 	clearstatcache();
 	if (filemtime($boarddir . '/Settings.php') === $last_settings_change)
 	{
-		// You asked for it...
-		// Blank out the file - done to fix a oddity with some servers.
-		$fp = @fopen($boarddir . '/Settings.php', 'w');
+		// save the old before we do anything
+		$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
-		// Is it even writable, though?
-		if ($fp)
+		// write out the new
+		$write_settings = implode('', $settingsArray);
+		$written_bytes = file_put_contents($boarddir . '/Settings.php', $write_settings, LOCK_EX);
+		
+		// survey says ...
+		if ($written_bytes !== strlen($write_settings) && !$settings_backup_fail)
 		{
-			fclose($fp);
+			// Well this is not good at all, lets see if we can save this
+			$context['settings_message'] = 'settings_error';
 
-			$fp = fopen($boarddir . '/Settings.php', 'r+');
-			foreach ($settingsArray as $line)
-				fwrite($fp, strtr($line, "\r", ''));
-			fclose($fp);
+			if (file_exists($boarddir . '/Settings_bak.php'))
+				@copy($boarddir . '/Settings_bak.php', $boarddir . '/Settings.php');
 		}
 	}
 }
 
+/**
+ * Saves the time of the last db error for the error log
+ * - Done separately from updateSettingsFile to avoid race conditions 
+ *   which can occur during a db error
+ * - If it fails Settings.php will assume 0
+ */
+function updateDbLastError($time) 
+{
+	global $boarddir; 
+	
+	// Write out the db_last_error file with the error timestamp 
+	file_put_contents($boarddir . '/db_last_error.php', "<?php\n$db_last_error = " . $time . ";\n?" . ">\n", LOCK_EX);
+	@touch($boarddir . '/' . 'Settings.php');
+}
 /**
  * Saves the admins current preferences to the database.
  */
@@ -400,9 +428,9 @@ function updateAdminPreferences()
 
 /**
  * Send all the administrators a lovely email.
- * loads all users who are admins or have the admin forum permission.
- * uses the email template and replacements passed in the parameters.
- * sends them an email.
+ * - loads all users who are admins or have the admin forum permission.
+ * - uses the email template and replacements passed in the parameters.
+ * - sends them an email.
  */
 function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 {

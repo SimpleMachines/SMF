@@ -196,6 +196,9 @@ function ModifyPostSettings($return_config = false)
 			array('int', 'spamWaitTime', 'postinput' => $txt['manageposts_seconds']),
 			array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
 			array('int', 'edit_disable_time', 'subtext' => $txt['edit_disable_time_zero'], 'postinput' => $txt['manageposts_minutes']),
+		'',
+			// First & Last message preview lengths
+			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -249,6 +252,10 @@ function ModifyPostSettings($return_config = false)
 				$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'text'));
 			}
 		}
+		
+		// If we're changing the post preview length let's check its valid
+		if (!empty($_POST['preview_characters']))
+			$_POST['preview_characters'] = (int) min(max(0, $_POST['preview_characters']), 512);
 
 		call_integration_hook('integrate_save_post_settings');
 

@@ -689,6 +689,7 @@ function upgradeExit($fallThrough = false)
 		$upgradeData = base64_encode(serialize($upcontext['user']));
 		copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 		changeSettings(array('upgradeData' => '"' . $upgradeData . '"'));
+		updateLastError();
 	}
 
 	// Handle the progress of the step, if any.
@@ -2166,6 +2167,11 @@ function changeSettings($config_vars)
 	}
 	fwrite($fp, rtrim($settingsArray[$i]));
 	fclose($fp);
+}
+function updateLastError() 
+{
+	// clear out the db_last_error file
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', "<?php\n$db_last_error = 0;\n?" . ">\n");
 }
 
 function php_version_check()

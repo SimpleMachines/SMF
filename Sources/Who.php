@@ -413,10 +413,15 @@ function determineActions($urls, $preferred_prefix = false)
 			{
 				if (allowedTo($allowedActions[$actions['action']]))
 					$data[$k] = $txt['whoallow_' . $actions['action']];
+				elseif (in_array('moderate_forum', $allowedActions[$actions['action']]))
+					$data[$k] = $txt['who_moderate'];
+				elseif (in_array('admin_forum', $allowedActions[$actions['action']]))
+					$data[$k] = $txt['who_admin'];
 				else
 					$data[$k] = $txt['who_hidden'];
 			}
-			// Unlisted or unknown action.
+			elseif (!empty($actions['action']))
+				$data[$k] = $txt['who_generic'] . ' ' . $actions['action'];
 			else
 				$data[$k] = $txt['who_unknown'];
 		}
@@ -685,7 +690,9 @@ function Credits($in_admin = false)
 
 	$context['copyrights'] = array(
 		'smf' => sprintf($forum_copyright, $forum_version),
-
+		'other' => array(
+			'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | &copy; 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
+		),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
 			Copyright statements should be in the form of a value only without a array key.  I.E.:
 				'Some Mod by Thantos &copy; 2010',
@@ -721,7 +728,7 @@ function Credits($in_admin = false)
 			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ' : ' . $version;
 
 			// build this one out and stash it away
-			$mod_name = empty($credit_info['url']) ? '<strong>' . $title . '</strong>' : '<a href="' . $credit_info['url'] . '">' . '<strong>' . $title . '</strong>' . '</a>';
+			$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
 			$mods[] =  $mod_name . (!empty($license) ? ' | ' . $license  : '') . (!empty($copyright) ? ' | ' . $copyright  : '');
 		}
 		cache_put_data('mods_credits', $mods, 86400);
