@@ -1565,9 +1565,9 @@ function EditMessageIcons()
 			$_GET['icon'] = (int) $_GET['icon'];
 
 			// Do some preperation with the data... like check the icon exists *somewhere*
-			if (strpos($_POST['icon_filename'], '.gif') !== false)
+			if (strpos($_POST['icon_filename'], '.png') !== false)
 				$_POST['icon_filename'] = substr($_POST['icon_filename'], 0, -4);
-			if (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.gif'))
+			if (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon_filename'] . '.png'))
 				fatal_lang_error('icon_not_found');
 			// There is a 16 character limit on message icons...
 			elseif (strlen($_POST['icon_filename']) > 16)
