@@ -156,13 +156,13 @@ $sourcedir = dirname(__FILE__) . '/Sources';
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.
-if (file_exists(dirname(__FILE__) . '/db_last_error.php')); 
+if (file_exists(dirname(__FILE__) . '/db_last_error.php'))
 	include(dirname(__FILE__) . '/db_last_error.php'); 
 
 if (!isset($db_last_error))
 {
 	// File does not exist so lets try to create it
-	updateDbLastError(0); 
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 	$db_last_error = 0; 
 }
 
