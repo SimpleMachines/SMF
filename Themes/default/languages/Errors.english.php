@@ -214,6 +214,7 @@ $txt['theme_edit_missing'] = 'The file you are trying to edit... can\'t even be 
 $txt['no_dump_database'] = 'Only administrators can make database backups!';
 $txt['pm_not_yours'] = 'The personal message you\'re trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
+$txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some.';
 $txt['post_upload_error'] = 'The post data is missing. This error is can be caused by trying to submit a file larger than allowed by the server.  Please contact your administrator if this problem continues.';
 $txt['quoted_post_deleted'] = 'The post you are trying to quote either does not exist, was deleted, or is no longer viewable by you.';
 $txt['pm_too_many_per_hour'] = 'You have exceeded the limit of %1$d personal messages per hour.';
