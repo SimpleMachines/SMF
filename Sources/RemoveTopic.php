@@ -48,6 +48,8 @@ function RemoveTopic2()
 	if (empty($topic))
 		redirectexit();
 
+	removeDeleteConcurrence();
+
 	$request = $smcFunc['db_query']('', '
 		SELECT t.id_member_started, ms.subject, t.approved
 		FROM {db_prefix}topics AS t
@@ -94,6 +96,8 @@ function DeleteMessage()
 	// Is $topic set?
 	if (empty($topic) && isset($_REQUEST['topic']))
 		$topic = (int) $_REQUEST['topic'];
+
+	removeDeleteConcurrence();
 
 	$request = $smcFunc['db_query']('', '
 		SELECT t.id_member_started, m.id_member, m.subject, m.poster_time, m.approved
@@ -1456,6 +1460,31 @@ function mergePosts($msgs = array(), $from_topic, $target_topic)
 	}
 
 	updateLastMessages(array($from_board, $target_board));
+}
+
+function removeDeleteConcurrence()
+{
+	global $modSettings, $board, $topic, $smcFunc, $scripturl, $context;
+
+	// No recycle no need to go further
+	if (empty($modSettings['recycle_enable']) || empty($modSettings['recycle_board']))
+		return false;
+
+	// If it's confirmed go on and delete (from recycle)
+	if (isset($_GET['confirm_delete']))
+		return true;
+
+	if (empty($board))
+		return false;
+
+	if ($modSettings['recycle_board'] != $board)
+		return true;
+	elseif (isset($_REQUEST['msg']))
+		$confirm_url = $scripturl . '?action=deletemsg;confirm_delete;topic=' . $context['current_topic'] . '.0;msg=' . $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'];
+	else
+		$confirm_url = $scripturl . '?action=removetopic2;confirm_delete;topic=' . $context['current_topic'] . '.0;' . $context['session_var'] . '=' . $context['session_id'];
+
+	fatal_lang_error('post_already_deleted', false, array($confirm_url));
 }
 
 ?>

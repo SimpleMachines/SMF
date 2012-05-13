@@ -189,6 +189,7 @@ $txt['ban_name_exists'] = 'The name of this ban (%1$s) already exists. Please ch
 $txt['ban_trigger_already_exists'] = 'This ban trigger (%1$s) already exists in %2$s.';
 
 $txt['recycle_no_valid_board'] = 'No valid board selected for recycled topics';
+$txt['post_already_deleted'] = 'The topic or message has already been moved to the recycle board. Are you sure you want to delete it completely?<br />If so follow <a href="%1$s">this link</a>';
 
 $txt['login_threshold_fail'] = 'Sorry, you are out of login chances.  Please come back and try again later.';
 $txt['login_threshold_brute_fail'] = 'Sorry, but you\'ve reached your login attempts threshold.  Please wait 30 seconds and try again later.';
