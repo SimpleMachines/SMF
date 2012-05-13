@@ -131,6 +131,7 @@ $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
 $txt['reply_noun'] = 'Reply';
 $txt['approve'] = 'Approve';
+$txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
 $txt['awaiting_approval'] = 'Awaiting Approval';
 $txt['attach_awaiting_approve'] = 'Attachments awaiting approval';
