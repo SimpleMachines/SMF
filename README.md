@@ -3,7 +3,7 @@
 This is a SMF 2.1 development repository.
 The software is licensed under [BSD 3-clause license](http://www.opensource.org/licenses/BSD-3-Clause).
 
-Existing documentation is licensed under CC-by-SA 3. Third party libraries or sets of images, are under their own licenses.
+Contributions to documentation are licensed under [CC-by-SA 3](http://creativecommons.org/licenses/by-sa/3.0). Third party libraries or sets of images, are under their own licenses.
 
 ######Notes:
 
