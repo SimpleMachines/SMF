@@ -810,6 +810,9 @@ function QuickModeration()
 			$stickyCache[] = $topic;
 		elseif ($action == 'move')
 		{
+			require_once($sourcedir . '/MoveTopic.php');
+			moveTopicConcurrence();
+
 			// $moveCache[0] is the topic, $moveCache[1] is the board to move to.
 			$moveCache[1][$topic] = (int) (isset($_REQUEST['move_tos'][$topic]) ? $_REQUEST['move_tos'][$topic] : $_REQUEST['move_to']);
 
