@@ -799,7 +799,7 @@ function saveProfileFields()
 	// Cycle through the profile fields working out what to do!
 	foreach ($profile_fields as $key => $field)
 	{
-		if (!isset($_POST[$key]) || !empty($field['is_dummy']) || (isset($_POST['preview']) && $key == 'signature'))
+		if (!isset($_POST[$key]) || !empty($field['is_dummy']) || (isset($_POST['preview_signature']) && $key == 'signature'))
 			continue;
 
 		// What gets updated?

@@ -394,7 +394,7 @@ function ModifyProfile($post_errors = array())
 
 	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we ever compromise the menu function in error!
 	$context['completed_save'] = false;
-	$context['do_preview'] = isset($_REQUEST['preview']);
+	$context['do_preview'] = isset($_REQUEST['preview_signature']);
 
 	$security_checks = array();
 	$found_area = false;
@@ -411,7 +411,7 @@ function ModifyProfile($post_errors = array())
 					fatal_lang_error('no_access', false);
 
 				// Are we saving data in a valid area?
-				if (isset($area['sc']) && isset($_REQUEST['save']))
+				if (isset($area['sc']) && (isset($_REQUEST['save']) || $context['do_preview']))
 				{
 					$security_checks['session'] = $area['sc'];
 					$context['completed_save'] = true;

@@ -19,7 +19,7 @@ function template_main()
 
 	echo '
 	<div id="move_topic" class="lower_padding">
-		<form action="', $scripturl, '?action=movetopic2;topic=', $context['current_topic'], '.0" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);">
+		<form action="', $scripturl, '?action=movetopic2;current_board=' . $context['current_board'] . ';topic=', $context['current_topic'], '.0" method="post" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['move_topic'], '</h3>
 			</div>

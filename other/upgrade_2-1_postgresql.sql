@@ -10,14 +10,12 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 
 ---# Creating login history table.
 CREATE TABLE {$db_prefix}member_logins (
-	id_login int(10) NOT NULL default nextval('{$db_prefix}member_logins_seq'),
-	id_member mediumint(8) NOT NULL,
-	time int(10) NOT NULL,
+	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
+	id_member mediumint NOT NULL,
+	time int NOT NULL,
 	ip varchar(255) NOT NULL default '',
 	ip2 varchar(255) NOT NULL default '',
-	PRIMARY KEY id_login(id_login)
-	KEY id_member (id_member)
-	KEY time (time)
+	PRIMARY KEY (id_login)
 );
 ---#
 
@@ -104,26 +102,49 @@ unset($_GET['a']);
 
 ---# Adding new columns to ban items...
 ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 smallint(255) unsigned NOT NULL DEFAULT '0';
+ADD COLUMN ip_low5 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_high5 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_low6 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_high6 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_low7 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_high7 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_low8 smallint NOT NULL DEFAULT '0',
+ADD COLUMN ip_high8 smallint NOT NULL DEFAULT '0';
 ---#
 
 ---# Changing existing columns to ban items...
+---{
+upgrade_query("
 ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 smallint(255) unsigned NOT NULL DEFAULT '0';
+ALTER COLUMN ip_low1 type smallint,
+ALTER COLUMN ip_high1 type smallint,
+ALTER COLUMN ip_low2 type smallint,
+ALTER COLUMN ip_high2 type smallint,
+ALTER COLUMN ip_low3 type smallint,
+ALTER COLUMN ip_high3 type smallint,
+ALTER COLUMN ip_low4 type smallint,
+ALTER COLUMN ip_high4 type smallint;");
+upgrade_query("
+ALTER TABLE {$db_prefix}ban_items
+ALTER COLUMN ip_low1 SET DEFAULT '0',
+ALTER COLUMN ip_high1 SET DEFAULT '0',
+ALTER COLUMN ip_low2 SET DEFAULT '0',
+ALTER COLUMN ip_high2 SET DEFAULT '0',
+ALTER COLUMN ip_low3 SET DEFAULT '0',
+ALTER COLUMN ip_high3 SET DEFAULT '0',
+ALTER COLUMN ip_low4 SET DEFAULT '0',
+ALTER COLUMN ip_high4 SET DEFAULT '0';");
+upgrade_query("
+ALTER TABLE {$db_prefix}ban_items
+ALTER COLUMN ip_low1 SET NOT NULL,
+ALTER COLUMN ip_high1 SET NOT NULL,
+ALTER COLUMN ip_low2 SET NOT NULL,
+ALTER COLUMN ip_high2 SET NOT NULL,
+ALTER COLUMN ip_low3 SET NOT NULL,
+ALTER COLUMN ip_high3 SET NOT NULL,
+ALTER COLUMN ip_low4 SET NOT NULL,
+ALTER COLUMN ip_high4 SET NOT NULL;");
+---}
 ---#
 
 /******************************************************************************/
@@ -138,14 +159,32 @@ ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 --- Adding more space for session ids
 /******************************************************************************/
 ---# Altering the session_id columns...
+---{
+upgrade_query("
 ALTER TABLE {$db_prefix}log_online
-CHANGE `session` `session` varchar(64) NOT NULL DEFAULT '';
+ALTER COLUMN session type varchar(64);
 
 ALTER TABLE {$db_prefix}log_errors
-CHANGE `session` `session` char(64) NOT NULL default '                                                                ';
+ALTER COLUMN session type char(64);
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` char(64) NOT NULL;
+ALTER COLUMN session_id type char(64);");
+upgrade_query("
+ALTER TABLE {$db_prefix}log_online
+ALTER COLUMN session SET DEFAULT '';
+
+ALTER TABLE {$db_prefix}log_errors
+ALTER COLUMN session SET default '                                                                ';");
+upgrade_query("
+ALTER TABLE {$db_prefix}log_online
+ALTER COLUMN session SET NOT NULL;
+
+ALTER TABLE {$db_prefix}log_errors
+ALTER COLUMN session SET NOT NULL;
+
+ALTER TABLE {$db_prefix}sessions
+ALTER COLUMN session_id SET NOT NULL;");
+---}
 ---#
 
 /******************************************************************************/

@@ -986,21 +986,21 @@ function getMessageIcons($board_id)
 				$icon_data[] = $row;
 			$smcFunc['db_free_result']($request);
 
-			cache_put_data('posting_icons-' . $board_id, $icon_data, 480);
+			$icons = array();
+			foreach ($icon_data as $icon)
+			{
+				$icons[$icon['filename']] = array(
+					'value' => $icon['filename'],
+					'name' => $icon['title'],
+					'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
+					'is_last' => false,
+				);
+			}
+
+			cache_put_data('posting_icons-' . $board_id, $icons, 480);
 		}
 		else
-			$icon_data = $temp;
-
-		$icons = array();
-		foreach ($icon_data as $icon)
-		{
-			$icons[$icon['filename']] = array(
-				'value' => $icon['filename'],
-				'name' => $icon['title'],
-				'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
-				'is_last' => false,
-			);
-		}
+			$icons = $temp;
 	}
 
 	return array_values($icons);
