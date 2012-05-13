@@ -145,11 +145,45 @@ CHANGE `session_id` `session_id` char(64) NOT NULL;
 ---#
 
 /******************************************************************************/
---- Adding new scheduled tasts
+--- Adding new columns for MOVED topic updates
 /******************************************************************************/
----# Adding new Scheduled Task...
+---# Adding new custom fields columns.
+---{
+$smcFunc['db_alter_table']('{db_prefix}topics', array(
+	'add' => array(
+		'redirect_expires' => array(
+			'name' => 'redirect_expires',
+			'null' => false,
+			'default' => '0',
+			'type' => 'int',
+			'auto' => false,
+		),
+	)
+));
+$smcFunc['db_alter_table']('{db_prefix}topics', array(
+	'add' => array(
+		'id_redirect_topic' => array(
+			'name' => 'id_redirect_topic',
+			'null' => false,
+			'default' => '0',
+			'type' => 'int',
+			'auto' => false,
+		),
+	)
+));
+---}
+---#
+
+/******************************************************************************/
+--- Adding new scheduled tasks
+/******************************************************************************/
+---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+VALUES
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
 ---#

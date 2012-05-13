@@ -115,35 +115,40 @@ ADD COLUMN ip_high8 smallint NOT NULL DEFAULT '0';
 ---# Changing existing columns to ban items...
 ---{
 upgrade_query("
-ALTER TABLE {$db_prefix}ban_items
-ALTER COLUMN ip_low1 type smallint,
-ALTER COLUMN ip_high1 type smallint,
-ALTER COLUMN ip_low2 type smallint,
-ALTER COLUMN ip_high2 type smallint,
-ALTER COLUMN ip_low3 type smallint,
-ALTER COLUMN ip_high3 type smallint,
-ALTER COLUMN ip_low4 type smallint,
-ALTER COLUMN ip_high4 type smallint;");
+	ALTER TABLE {$db_prefix}ban_items
+	ALTER COLUMN ip_low1 type smallint,
+	ALTER COLUMN ip_high1 type smallint,
+	ALTER COLUMN ip_low2 type smallint,
+	ALTER COLUMN ip_high2 type smallint,
+	ALTER COLUMN ip_low3 type smallint,
+	ALTER COLUMN ip_high3 type smallint,
+	ALTER COLUMN ip_low4 type smallint,
+	ALTER COLUMN ip_high4 type smallint;"
+);
+
 upgrade_query("
-ALTER TABLE {$db_prefix}ban_items
-ALTER COLUMN ip_low1 SET DEFAULT '0',
-ALTER COLUMN ip_high1 SET DEFAULT '0',
-ALTER COLUMN ip_low2 SET DEFAULT '0',
-ALTER COLUMN ip_high2 SET DEFAULT '0',
-ALTER COLUMN ip_low3 SET DEFAULT '0',
-ALTER COLUMN ip_high3 SET DEFAULT '0',
-ALTER COLUMN ip_low4 SET DEFAULT '0',
-ALTER COLUMN ip_high4 SET DEFAULT '0';");
+	ALTER TABLE {$db_prefix}ban_items
+	ALTER COLUMN ip_low1 SET DEFAULT '0',
+	ALTER COLUMN ip_high1 SET DEFAULT '0',
+	ALTER COLUMN ip_low2 SET DEFAULT '0',
+	ALTER COLUMN ip_high2 SET DEFAULT '0',
+	ALTER COLUMN ip_low3 SET DEFAULT '0',
+	ALTER COLUMN ip_high3 SET DEFAULT '0',
+	ALTER COLUMN ip_low4 SET DEFAULT '0',
+	ALTER COLUMN ip_high4 SET DEFAULT '0';"
+);
+
 upgrade_query("
-ALTER TABLE {$db_prefix}ban_items
-ALTER COLUMN ip_low1 SET NOT NULL,
-ALTER COLUMN ip_high1 SET NOT NULL,
-ALTER COLUMN ip_low2 SET NOT NULL,
-ALTER COLUMN ip_high2 SET NOT NULL,
-ALTER COLUMN ip_low3 SET NOT NULL,
-ALTER COLUMN ip_high3 SET NOT NULL,
-ALTER COLUMN ip_low4 SET NOT NULL,
-ALTER COLUMN ip_high4 SET NOT NULL;");
+	ALTER TABLE {$db_prefix}ban_items
+	ALTER COLUMN ip_low1 SET NOT NULL,
+	ALTER COLUMN ip_high1 SET NOT NULL,
+	ALTER COLUMN ip_low2 SET NOT NULL,
+	ALTER COLUMN ip_high2 SET NOT NULL,
+	ALTER COLUMN ip_low3 SET NOT NULL,
+	ALTER COLUMN ip_high3 SET NOT NULL,
+	ALTER COLUMN ip_low4 SET NOT NULL,
+	ALTER COLUMN ip_high4 SET NOT NULL;"
+);
 ---}
 ---#
 
@@ -161,38 +166,57 @@ ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 ---# Altering the session_id columns...
 ---{
 upgrade_query("
-ALTER TABLE {$db_prefix}log_online
-ALTER COLUMN session type varchar(64);
+	ALTER TABLE {$db_prefix}log_online
+	ALTER COLUMN session type varchar(64);
 
-ALTER TABLE {$db_prefix}log_errors
-ALTER COLUMN session type char(64);
+	ALTER TABLE {$db_prefix}log_errors
+	ALTER COLUMN session type char(64);
 
-ALTER TABLE {$db_prefix}sessions
-ALTER COLUMN session_id type char(64);");
+	ALTER TABLE {$db_prefix}sessions
+	ALTER COLUMN session_id type char(64);");
+	
 upgrade_query("
-ALTER TABLE {$db_prefix}log_online
-ALTER COLUMN session SET DEFAULT '';
+	ALTER TABLE {$db_prefix}log_online
+	ALTER COLUMN session SET DEFAULT '';
 
-ALTER TABLE {$db_prefix}log_errors
-ALTER COLUMN session SET default '                                                                ';");
+	ALTER TABLE {$db_prefix}log_errors
+	ALTER COLUMN session SET default '                                                                ';");
 upgrade_query("
-ALTER TABLE {$db_prefix}log_online
-ALTER COLUMN session SET NOT NULL;
+	ALTER TABLE {$db_prefix}log_online
+	ALTER COLUMN session SET NOT NULL;
 
-ALTER TABLE {$db_prefix}log_errors
-ALTER COLUMN session SET NOT NULL;
+	ALTER TABLE {$db_prefix}log_errors
+	ALTER COLUMN session SET NOT NULL;
 
-ALTER TABLE {$db_prefix}sessions
-ALTER COLUMN session_id SET NOT NULL;");
+	ALTER TABLE {$db_prefix}sessions
+	ALTER COLUMN session_id SET NOT NULL;");
 ---}
 ---#
 
 /******************************************************************************/
---- Adding new scheduled tasts
+--- Adding support for MOVED topics enhancements
 /******************************************************************************/
----# Adding new Scheduled Task...
+---# Adding new columns to topics table
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}topics
+	ADD COLUMN redirect_expires int NOT NULL DEFAULT '0'");
+upgrade_query("
+	ALTER TABLE {$db_prefix}topics
+	ADD COLUMN id_redirect_topic int NOT NULL DEFAULT '0'");
+---}
+---#
+
+/******************************************************************************/
+--- Adding new scheduled tasks
+/******************************************************************************/
+---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+VALUES
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
 ---#

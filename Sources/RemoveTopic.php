@@ -230,9 +230,9 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	if (empty($topics))
 		return;
 	// Only a single topic.
-	elseif (is_numeric($topics))
+	if (is_numeric($topics))
 		$topics = array($topics);
-
+		
 	// Decrease the post counts.
 	if ($decreasePostCount)
 	{

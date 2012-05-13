@@ -1762,6 +1762,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
 	$topicOptions['sticky_mode'] = isset($topicOptions['sticky_mode']) ? $topicOptions['sticky_mode'] : null;
+	$topicOptions['redirect_expires'] = isset($topicOptions['redirect_expires']) ? $topicOptions['redirect_expires'] : null;
+	$topicOptions['redirect_topic'] = isset($topicOptions['redirect_topic']) ? $topicOptions['redirect_topic'] : null;
 	$posterOptions['id'] = empty($posterOptions['id']) ? 0 : (int) $posterOptions['id'];
 	$posterOptions['ip'] = empty($posterOptions['ip']) ? $user_info['ip'] : $posterOptions['ip'];
 
@@ -1869,11 +1871,13 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
 				'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
 				'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
+ 				'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
 			),
 			array(
 				$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
 				$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
 				$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
+				$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
 			),
 			array('id_topic')
 		);
