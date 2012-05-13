@@ -2170,10 +2170,8 @@ function changeSettings($config_vars)
 }
 function updateLastError() 
 {
-	global $db_last_error;
-
 	// clear out the db_last_error file
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', "<?php\n$db_last_error = 0;\n?" . ">\n");
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 }
 
 function php_version_check()
