@@ -2165,7 +2165,7 @@ function list_integration_hooks()
 {
 	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
 
-	if (!empty($_POST['remove_hooks']) && !empty($_POST['remove']) && is_array($_POST['remove']))
+	if (!empty($_POST['remove']) && is_array($_POST['remove']))
 	{
 		checkSession();
 
@@ -2174,8 +2174,9 @@ function list_integration_hooks()
 			if (!is_array($functions))
 				continue;
 
-			foreach ($functions as $function)
-				remove_integration_function($hook, $function);
+			foreach ($functions as $function => $state)
+				if ($state == 'remove')
+					remove_integration_function($hook, $function);
 		}
 	}
 
@@ -2467,7 +2468,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
 					'img_text' => $txt['hooks_' . ($hook_exists ? ($enabled ? 'active' : 'disabled') : 'missing')],
 					'enabled' => $enabled,
-					'can_be_disabled' => (isset($hook_status[$hook][$function]['enabled']) || $thisMod ? false : true),
+					'can_be_disabled' => !isset($hook_status[$hook][$function]['enabled']),
 				);
 			}
 	}

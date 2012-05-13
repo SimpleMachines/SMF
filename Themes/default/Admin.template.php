@@ -1742,11 +1742,8 @@ function template_integrationHooks_below()
 
 		function integrationHooks_remove(id)
 		{
-			var elem = document.getElementById(\'input_remove_\'+id);
-			if (elem.value == \'enable\')
-				elem.value = \'disable\';
-			else if (elem.value == \'disable\')
-				elem.value = \'enable\';
+			var elem = document.getElementById(\'input_\'+id);
+			elem.value = \'remove\';
 
 			document.forms["' . $context['default_list'] . '"].submit();
 		}
