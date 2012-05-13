@@ -869,6 +869,15 @@ function GroupRequests()
 					'db' => 'reason',
 				),
 			),
+			'date' => array(
+				'header' => array(
+					'value' => $txt['date'],
+					'style' => 'width: 18%;white-space:nowrap;',
+				),
+				'data' => array(
+					'db' => 'time_submitted',
+				),
+			),
 			'action' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',

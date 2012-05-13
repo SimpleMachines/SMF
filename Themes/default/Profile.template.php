@@ -2689,7 +2689,7 @@ function template_profile_signature_modify()
 
 	if (!empty($context['show_preview_button']))
 		echo '
-						<input type="submit" name="preview" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
+						<input type="submit" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
 
 	if ($context['signature_warning'])
 		echo '

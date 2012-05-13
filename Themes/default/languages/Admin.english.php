@@ -641,4 +641,21 @@ $txt['spider_stats'] = 'Stats';
 $txt['paid_subscriptions'] = 'Paid Subscriptions';
 $txt['paid_subs_view'] = 'View Subscriptions';
 
+$txt['hooks_title_list'] = 'Integration Hooks';
+$txt['hooks_field_hook_name'] = 'Hook Name';
+$txt['hooks_field_function_name'] = 'Function Name';
+$txt['hooks_field_file_name'] = 'File Name';
+$txt['hooks_field_hook_exists'] = 'Status';
+$txt['hooks_active'] = 'Exists';
+$txt['hooks_disabled'] = 'Disabled';
+$txt['hooks_missing'] = 'Not found';
+$txt['hooks_no_hooks'] = 'There are not any hooks setup.';
+$txt['hooks_button_remove'] = 'Remove';
+$txt['hooks_disable_instructions'] = 'Click on the status icon to enable or disable the hook';
+$txt['hooks_disable_legend'] = 'Legend';
+$txt['hooks_disable_legend_exists'] = 'the hook exists and is active';
+$txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
+$txt['hooks_disable_legend_missing'] = 'the hook has not been found';
+$txt['hooks_reset_filter'] = 'Reset filter';
+
 ?>

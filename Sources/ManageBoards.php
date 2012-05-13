@@ -626,6 +626,9 @@ function EditBoard2()
 			foreach ($_POST['groups'] as $group)
 				$boardOptions['access_groups'][] = (int) $group;
 
+		if (strlen(implode(',', $boardOptions['access_groups'])) > 255)
+			fatal_lang_error('too_many_groups', false);
+
 		// Change '1 & 2' to '1 &amp; 2', but not '&amp;' to '&amp;amp;'...
 		$boardOptions['board_name'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['board_name']);
 		$boardOptions['board_description'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['desc']);

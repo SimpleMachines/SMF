@@ -125,6 +125,8 @@ function MoveTopic()
 		$txt['movetopic_default'] = $temp;
 	}
 
+	moveTopicConcurrence();
+
 	// Register this form and get a sequence number in $context.
 	checkSubmitOnce('register');
 }
@@ -151,6 +153,8 @@ function MoveTopic2()
 	// You can't choose to have a redirection topic and use an empty reason.
 	if (isset($_POST['postRedirect']) && (!isset($_POST['reason']) || trim($_POST['reason']) == ''))
 		fatal_lang_error('movetopic_no_reason', false);
+
+	moveTopicConcurrence();
 
 	// Make sure this form hasn't been submitted before.
 	checkSubmitOnce('check');
@@ -687,6 +691,39 @@ function moveTopics($topics, $toBoard)
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
+}
+
+function moveTopicConcurrence()
+{
+	global $board, $topic, $smcFunc, $scripturl;
+
+	if (isset($_GET['current_board']))
+		$move_from = (int) $_GET['current_board'];
+
+	if (empty($move_from) || empty($board) || empty($topic))
+		return true;
+
+	if ($move_from == $board)
+		return true;
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT m.subject, b.name
+			FROM {db_prefix}topics as t
+			LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+			LEFT JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+			WHERE t.id_topic = {int:topic_id}
+			LIMIT 1',
+			array(
+				'topic_id' => $topic,
+			)
+		);
+		list($topic_subject, $board_name) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+		$board_link = '<a href="' . $scripturl . '?board=' . $board . '.0">' . $board_name . '</a>';
+		$topic_link = '<a href="' . $scripturl . '?topic=' . $topic . '.0">' . $topic_subject . '</a>';
+		fatal_lang_error('topic_already_moved', false, array($topic_link, $board_link));
+	}
 }
 
 ?>

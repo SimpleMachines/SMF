@@ -168,6 +168,7 @@ $txt['no_span'] = 'The span feature is currently disabled.';
 $txt['invalid_days_numb'] = 'Invalid number of days to span.';
 
 $txt['moveto_noboards'] = 'There are no boards to move this topic to!';
+$txt['topic_already_moved'] = 'This topic %1$s has been moved to the board %2$s, please check its new location before moving it again.';
 
 $txt['already_activated'] = 'Your account has already been activated.';
 $txt['still_awaiting_approval'] = 'Your account is still awaiting admin approval.';
@@ -188,6 +189,7 @@ $txt['ban_name_exists'] = 'The name of this ban (%1$s) already exists. Please ch
 $txt['ban_trigger_already_exists'] = 'This ban trigger (%1$s) already exists in %2$s.';
 
 $txt['recycle_no_valid_board'] = 'No valid board selected for recycled topics';
+$txt['post_already_deleted'] = 'The topic or message has already been moved to the recycle board. Are you sure you want to delete it completely?<br />If so follow <a href="%1$s">this link</a>';
 
 $txt['login_threshold_fail'] = 'Sorry, you are out of login chances.  Please come back and try again later.';
 $txt['login_threshold_brute_fail'] = 'Sorry, but you\'ve reached your login attempts threshold.  Please wait 30 seconds and try again later.';
@@ -214,6 +216,7 @@ $txt['theme_edit_missing'] = 'The file you are trying to edit... can\'t even be 
 $txt['no_dump_database'] = 'Only administrators can make database backups!';
 $txt['pm_not_yours'] = 'The personal message you\'re trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
+$txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some.';
 $txt['post_upload_error'] = 'The post data is missing. This error is can be caused by trying to submit a file larger than allowed by the server.  Please contact your administrator if this problem continues.';
 $txt['quoted_post_deleted'] = 'The post you are trying to quote either does not exist, was deleted, or is no longer viewable by you.';
 $txt['pm_too_many_per_hour'] = 'You have exceeded the limit of %1$d personal messages per hour.';
