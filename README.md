@@ -16,7 +16,7 @@ by signing off your contributions, you acknowledge that you can and do license y
 * fork the repository. If you are not used to Github, please check out [fork a repository](http://help.github.com/fork-a-repo).
 * branch your repository, to commit the desired changes.
 * sign-off your commits, to acknowledge your submission under the license of the project.
-** an easy way to do so, is to define an alias for the git commit command, which includes -s switch (reference: [How to create Git aliases](http://githacks.com/post/1168909216/how-to-create-git-aliases))
+ * an easy way to do so, is to define an alias for the git commit command, which includes -s switch (reference: [How to create Git aliases](http://githacks.com/post/1168909216/how-to-create-git-aliases))
 * send a pull request to us.
 
 Finally, feel free to play around. That's what we're doing. ;)
