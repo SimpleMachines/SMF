@@ -673,6 +673,7 @@ CREATE TABLE {$db_prefix}boards (
   unapproved_posts smallint NOT NULL default '0',
   unapproved_topics smallint NOT NULL default '0',
   redirect varchar(255) NOT NULL default '',
+  deny_member_groups varchar(255) NOT NULL default '',
   PRIMARY KEY (id_board)
 );
 

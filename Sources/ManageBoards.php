@@ -402,6 +402,7 @@ function EditBoard()
 		// Some things that need to be setup for a new board.
 		$curBoard = array(
 			'member_groups' => array(0, -1),
+			'deny_group' => array(),
 			'category' => (int) $_REQUEST['cat']
 		);
 		$context['board_order'] = array();
@@ -443,13 +444,15 @@ function EditBoard()
 		-1 => array(
 			'id' => '-1',
 			'name' => $txt['parent_guests_only'],
-			'checked' => in_array('-1', $curBoard['member_groups']),
+			'allow' => in_array('-1', $curBoard['member_groups']),
+			'deny' => in_array('-1', $curBoard['deny_groups']),
 			'is_post_group' => false,
 		),
 		0 => array(
 			'id' => '0',
 			'name' => $txt['parent_members_only'],
-			'checked' => in_array('0', $curBoard['member_groups']),
+			'allow' => in_array('0', $curBoard['member_groups']),
+			'deny' => in_array('0', $curBoard['deny_groups']),
 			'is_post_group' => false,
 		)
 	);
@@ -473,7 +476,8 @@ function EditBoard()
 		$context['groups'][(int) $row['id_group']] = array(
 			'id' => $row['id_group'],
 			'name' => trim($row['group_name']),
-			'checked' => in_array($row['id_group'], $curBoard['member_groups']),
+			'allow' => in_array($row['id_group'], $curBoard['member_groups']),
+			'deny' => in_array($row['id_group'], $curBoard['deny_groups']),
 			'is_post_group' => $row['min_posts'] != -1,
 		);
 	}
@@ -594,7 +598,6 @@ function EditBoard2()
 
 	require_once($sourcedir . '/Subs-Boards.php');
 
-
 	// Mode: modify aka. don't delete.
 	if (isset($_POST['edit']) || isset($_POST['add']))
 	{
@@ -623,10 +626,15 @@ function EditBoard2()
 		$boardOptions['access_groups'] = array();
 
 		if (!empty($_POST['groups']))
-			foreach ($_POST['groups'] as $group)
-				$boardOptions['access_groups'][] = (int) $group;
+			foreach ($_POST['groups'] as $group => $action)
+			{
+				if ($action == 'allow')
+					$boardOptions['access_groups'][] = (int) $group;
+				elseif ($action == 'deny')
+					$boardOptions['deny_groups'][] = (int) $group;
+			}
 
-		if (strlen(implode(',', $boardOptions['access_groups'])) > 255)
+		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
 
 		// Change '1 & 2' to '1 &amp; 2', but not '&amp;' to '&amp;amp;'...
@@ -791,6 +799,7 @@ function EditBoardSettings($return_config = false)
 			array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
 			array('select', 'recycle_board', $recycle_boards),
 			array('check', 'allow_ignore_boards'),
+			array('check', 'denyBoardsAccess'),
 	);
 
 	call_integration_hook('integrate_modify_board_settings', array(&$config_vars));

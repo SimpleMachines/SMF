@@ -257,6 +257,10 @@ function template_modify_board()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
+	if (!empty($modSettings['denyBoardsAccess']))
+		echo '
+		<div class="information">', $txt['boardsaccess_option_desc'], '</div>';
+
 	// The main table header.
 	echo '
 	<div id="manage_boards">
@@ -358,16 +362,53 @@ function template_modify_board()
 						</dt>
 						<dd>';
 
+	if (!empty($modSettings['denyBoardsAccess']))
+		echo '
+							<table>
+								<tr>
+									<td></td>
+									<th>', $txt['permissions_option_on'], '</th>
+									<th>', $txt['permissions_option_off'], '</th>
+									<th>', $txt['permissions_option_deny'], '</th>
+								</tr>';
+
 	// List all the membergroups so the user can choose who may access this board.
 	foreach ($context['groups'] as $group)
-		echo '
+		if (empty($modSettings['denyBoardsAccess']))
+			echo '
 							<label for="groups_', $group['id'], '">
-								<input type="checkbox" name="groups[]" value="', $group['id'], '" id="groups_', $group['id'], '"', $group['checked'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['checked'] ? ' checked="checked"' : '', ' class="input_check" />
 								<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : '', $group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : '', '>
 									', $group['name'], '
 								</span>
 							</label><br />';
-	echo '
+		else
+			echo '
+								<tr>
+									<td>
+										<label for="groups_', $group['id'], '_a">
+											<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : '', $group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : '', '>
+												', $group['name'], '
+											</span>
+										</label>
+									</td>
+									<td>
+										<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['allow'] ? ' checked="checked"' : '', ' class="input_radio" />
+									</td>
+									<td>
+										<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '"', !$group['allow'] && !$group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
+									</td>
+									<td>
+										<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '"', $group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
+									</td>
+';
+
+	if (!empty($modSettings['denyBoardsAccess']))
+		echo '
+							</table>
+						</dd>';
+	else
+		echo '
 							<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[]\');" /><br />
 							<br />
 						</dd>';

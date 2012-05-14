@@ -153,3 +153,11 @@ INSERT INTO {$db_prefix}scheduled_tasks
 VALUES
 	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
 ---#
+
+/******************************************************************************/
+--- Adding support for deny boards access
+/******************************************************************************/
+---# Adding new columns to boards...
+ALTER TABLE {$db_prefix}boards
+ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+---#
