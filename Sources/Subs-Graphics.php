@@ -184,10 +184,6 @@ function createThumbnail($source, $max_width, $max_height)
  */
 function reencodeImage($fileName, $preferred_format = 0)
 {
-	// There is nothing we can do without GD, sorry!
-	if (!checkGD())
-		return false;
-
 	if (!resizeImageFile($fileName, $fileName . '.tmp', null, null, $preferred_format))
 	{
 		if (file_exists($fileName . '.tmp'))
@@ -201,8 +197,6 @@ function reencodeImage($fileName, $preferred_format = 0)
 
 	if (!rename($fileName . '.tmp', $fileName))
 		return false;
-
-	return true;
 }
 
 /**
@@ -271,6 +265,16 @@ function checkGD()
 }
 
 /**
+ * Checks whether the Imagick class is present.
+ *
+ * @return whether or not Imagick is available.
+ */
+function checkImagick()
+{
+	return class_exists('Imagick', false);
+}
+
+/**
  * See if we have enough memory to thumbnail an image
  *
  * @return whether we do
@@ -312,8 +316,8 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 {
 	global $sourcedir;
 
-	// Nothing to do without GD
-	if (!checkGD())
+	// Nothing to do without GD or IM
+	if (!checkGD() && !checkImagick())
 		return false;
 
 	static $default_formats = array(
@@ -325,8 +329,6 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 	);
 
 	require_once($sourcedir . '/Subs-Package.php');
-
-	$success = false;
 
 	// Get the image file, we have to work with something after all
 	$fp_destination = fopen($destination, 'wb');
@@ -359,22 +361,25 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 		$sizes = array(-1, -1, -1);
 		
 	// See if we have -or- can get the needed memory for this operation
-	if (!imageMemoryCheck($sizes))
+	if (checkGD() && !imageMemoryCheck($sizes))
 		return false;
 
 	// A known and supported format?
 	// @todo test PSD and gif.
-	if (isset($default_formats[$sizes[2]]) && function_exists('imagecreatefrom' . $default_formats[$sizes[2]]))
+	if (checkImagick() && isset($default_formats[$sizes[2]]))
+	{
+		return resizeImage(null, $destination, null, null, $max_width, $max_height, true, $preferred_format);
+	}
+	elseif (checkGD() && isset($default_formats[$sizes[2]]) && function_exists('imagecreatefrom' . $default_formats[$sizes[2]]))
 	{
 		$imagecreatefrom = 'imagecreatefrom' . $default_formats[$sizes[2]];
 		if ($src_img = @$imagecreatefrom($destination))
 		{
-			resizeImage($src_img, $destination, imagesx($src_img), imagesy($src_img), $max_width === null ? imagesx($src_img) : $max_width, $max_height === null ? imagesy($src_img) : $max_height, true, $preferred_format);
-			$success = true;
+			return resizeImage($src_img, $destination, imagesx($src_img), imagesy($src_img), $max_width === null ? imagesx($src_img) : $max_width, $max_height === null ? imagesy($src_img) : $max_height, true, $preferred_format);
 		}
 	}
 
-	return $success;
+	return false;
 }
 
 /**
@@ -398,71 +403,96 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 {
 	global $gd2, $modSettings;
 
-	// Without GD, no image resizing at all.
-	if (!checkGD())
-		return false;
-
-	$success = false;
-
-	// Determine whether to resize to max width or to max height (depending on the limits.)
-	if (!empty($max_width) || !empty($max_height))
+	if (checkImagick())
 	{
-		if (!empty($max_width) && (empty($max_height) || $src_height * $max_width / $src_width <= $max_height))
-		{
-			$dst_width = $max_width;
-			$dst_height = floor($src_height * $max_width / $src_width);
-		}
-		elseif (!empty($max_height))
-		{
-			$dst_width = floor($src_width * $max_height / $src_height);
-			$dst_height = $max_height;
-		}
+		static $default_formats = array(
+			'1' => 'gif',
+			'2' => 'jpeg',
+			'3' => 'png',
+			'6' => 'bmp',
+			'15' => 'wbmp'
+		);
+		$preferred_format = empty($preferred_format) || !isset($default_formats[$preferred_format]) ? 2 : $preferred_format;
 
-		// Don't bother resizing if it's already smaller...
-		if (!empty($dst_width) && !empty($dst_height) && ($dst_width < $src_width || $dst_height < $src_height || $force_resize))
+		$imagick = New Imagick($destName);
+		$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
+		$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
+		$dest_width = empty($max_width) ? $src_width : $max_width;
+		$dest_height = empty($max_height) ? $src_height : $max_height;
+
+		$imagick->setImageFormat($default_formats[$preferred_format]);
+		$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
+		$success = $imagick->writeImage($destName);
+
+		return !empty($success);
+	}
+	elseif (checkGD())
+	{
+		$success = false;
+
+		// Determine whether to resize to max width or to max height (depending on the limits.)
+		if (!empty($max_width) || !empty($max_height))
 		{
-			// (make a true color image, because it just looks better for resizing.)
-			if ($gd2)
+			if (!empty($max_width) && (empty($max_height) || $src_height * $max_width / $src_width <= $max_height))
 			{
-				$dst_img = imagecreatetruecolor($dst_width, $dst_height);
+				$dst_width = $max_width;
+				$dst_height = floor($src_height * $max_width / $src_width);
+			}
+			elseif (!empty($max_height))
+			{
+				$dst_width = floor($src_width * $max_height / $src_height);
+				$dst_height = $max_height;
+			}
 
-				// Deal nicely with a PNG - because we can.
-				if ((!empty($preferred_format)) && ($preferred_format == 3))
+			// Don't bother resizing if it's already smaller...
+			if (!empty($dst_width) && !empty($dst_height) && ($dst_width < $src_width || $dst_height < $src_height || $force_resize))
+			{
+				// (make a true color image, because it just looks better for resizing.)
+				if ($gd2)
 				{
-					imagealphablending($dst_img, false);
-					if (function_exists('imagesavealpha'))
-						imagesavealpha($dst_img, true);
+					$dst_img = imagecreatetruecolor($dst_width, $dst_height);
+
+					// Deal nicely with a PNG - because we can.
+					if ((!empty($preferred_format)) && ($preferred_format == 3))
+					{
+						imagealphablending($dst_img, false);
+						if (function_exists('imagesavealpha'))
+							imagesavealpha($dst_img, true);
+					}
 				}
+				else
+					$dst_img = imagecreate($dst_width, $dst_height);
+
+				// Resize it!
+				if ($gd2)
+					imagecopyresampled($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
+				else
+					imagecopyresamplebicubic($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
 			}
 			else
-				$dst_img = imagecreate($dst_width, $dst_height);
-
-			// Resize it!
-			if ($gd2)
-				imagecopyresampled($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
-			else
-				imagecopyresamplebicubic($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
+				$dst_img = $src_img;
 		}
 		else
 			$dst_img = $src_img;
+
+		// Save the image as ...
+		if (!empty($preferred_format) && ($preferred_format == 3) && function_exists('imagepng'))
+			$success = imagepng($dst_img, $destName);
+		elseif (!empty($preferred_format) && ($preferred_format == 1) && function_exists('imagegif'))
+			$success = imagegif($dst_img, $destName);
+		elseif (function_exists('imagejpeg'))
+			$success = imagejpeg($dst_img, $destName);
+
+		// Free the memory.
+		imagedestroy($src_img);
+		if ($dst_img != $src_img)
+			imagedestroy($dst_img);
+
+		return $success;
 	}
 	else
-		$dst_img = $src_img;
-
-	// Save the image as ...
-	if (!empty($preferred_format) && ($preferred_format == 3) && function_exists('imagepng'))
-		$success = imagepng($dst_img, $destName);
-	elseif (!empty($preferred_format) && ($preferred_format == 1) && function_exists('imagegif'))
-		$success = imagegif($dst_img, $destName);
-	elseif (function_exists('imagejpeg'))
-		$success = imagejpeg($dst_img, $destName);
-
-	// Free the memory.
-	imagedestroy($src_img);
-	if ($dst_img != $src_img)
-		imagedestroy($dst_img);
-
-	return $success;
+		// Without GD, no image resizing at all.
+		return false;
 }
 
 /**
@@ -735,7 +765,7 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
  */
 function showCodeImage($code)
 {
-	global $settings, $user_info, $modSettings;
+	global $gd2, $settings, $user_info, $modSettings;
 
 	// Note: The higher the value of visual_verification_type the harder the verification is - from 0 as disabled through to 4 as "Very hard".
 
@@ -772,11 +802,6 @@ function showCodeImage($code)
 	$fontTrans = $imageType == 2 || $imageType == 3 ? true : false;
 	// Give the image a border?
 	$hasBorder = $simpleBGColor;
-
-	// Is this GD2? Needed for pixel size.
-	$testGD = get_extension_funcs('gd');
-	$gd2 = in_array('imagecreatetruecolor', $testGD) && function_exists('imagecreatetruecolor');
-	unset($testGD);
 
 	// The amount of pixels inbetween characters.
 	$character_spacing = 1;

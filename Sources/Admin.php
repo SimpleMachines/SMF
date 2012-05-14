@@ -529,6 +529,7 @@ function AdminHome()
 	require_once($sourcedir . '/Subs-Admin.php');
 	$checkFor = array(
 		'gd',
+		'imagick',
 		'db_server',
 		'mmcache',
 		'eaccelerator',
