@@ -1783,6 +1783,12 @@ img.new_posts
 {
 	padding: 0 0.1em;
 }
+
+.fix_rtl_names
+{
+	display:inline-block;
+}
+
 /* Styles for the message (topic) index.
 ---------------------------------------------------- */
 div.table_frame .table_list
