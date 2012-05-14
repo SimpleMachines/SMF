@@ -298,7 +298,7 @@ function MoveTopic2()
 		));
 		
 		// auto remove this MOVED redirection topic in the future?
-		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) $_POST['redirect_expires'] + time()) : 0;
+		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
 
 		// redirect to the MOVED topic from topic list?
 		$redirect_topic = isset($_POST['redirect_topic']) ? $topic : 0;
