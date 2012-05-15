@@ -242,11 +242,22 @@ function displayDebug()
 
 	echo preg_replace('~</body>\s*</html>~', '', $temp), '
 <div class="smalltext" style="text-align: left; margin: 1ex;">
+	', $txt['debug_browser'], $context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys($context['browser'], true))), ')</em><br />
 	', $txt['debug_templates'], count($context['debug']['templates']), ': <em>', implode('</em>, <em>', $context['debug']['templates']), '</em>.<br />
 	', $txt['debug_subtemplates'], count($context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', $context['debug']['sub_templates']), '</em>.<br />
 	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br />
 	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br />
 	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br />';
+	
+	// What tokens are active?
+	if (isset($_SESSION['token']))
+	{
+		$token_list = array();
+		foreach ($_SESSION['token'] as $key => $data)
+			$token_list[] = $key;
+		
+		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', $token_list), '</em>.<br />';
+	}
 
 	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
 	{
