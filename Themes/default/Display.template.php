@@ -350,7 +350,7 @@ function template_main()
 								</li>';
 
 			// Show the profile, website, email address, and personal message buttons.
-			if ($settings['show_profile_buttons'])
+			if ($context['show_profile_buttons'])
 			{
 				echo '
 								<li class="profile">
