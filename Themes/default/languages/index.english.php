@@ -397,6 +397,7 @@ $txt['delete'] = 'Delete';
 $txt['your_pms'] = 'Your Personal Messages';
 
 $txt['kilobyte'] = 'kB';
+$txt['megabyte'] = 'MB';
 
 $txt['more_stats'] = '[More Stats]';
 
