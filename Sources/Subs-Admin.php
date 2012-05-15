@@ -35,6 +35,14 @@ function getServerVersions($checkFor)
 		$versions['gd'] = array('title' => $txt['support_versions_gd'], 'version' => $temp['GD Version']);
 	}
 
+	// Why not have a look at ImageMagick? If it is, we should show version information for it too.
+	if (in_array('imagick', $checkFor) && class_exists('Imagick'))
+	{
+		$temp = New Imagick;
+		$temp2 = $temp->getVersion();
+		$versions['imagick'] = array('title' => $txt['support_versions_imagick'], 'version' => $temp2['versionString']);
+	}
+
 	// Now lets check for the Database.
 	if (in_array('db_server', $checkFor))
 	{

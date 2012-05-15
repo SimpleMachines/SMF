@@ -355,7 +355,7 @@ function template_show_month_grid($grid_name)
 					foreach ($day['birthdays'] as $member)
 					{
 						echo '
-									<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] || ($count == 10 && $use_js_hide)? '' : ', ';
+									<a href="', $scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] || ($count == 10 && $use_js_hide)? '' : ', ';
 
 						// Stop at ten?
 						if ($count == 10 && $use_js_hide)
@@ -484,7 +484,7 @@ function template_show_week_grid($grid_name)
 					id, name (person), age (if they have one set?), and is_last. (last in list?) */
 				foreach ($day['birthdays'] as $member)
 					echo '
-								<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '' : ', ';
+								<a href="', $scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '' : ', ';
 				echo '
 							</div>';
 			}

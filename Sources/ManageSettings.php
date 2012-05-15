@@ -2165,63 +2165,41 @@ function list_integration_hooks()
 {
 	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
 
-	if (!empty($_POST['remove']) && is_array($_POST['remove']))
-	{
-		checkSession();
-
-		foreach ($_POST['remove'] as $hook => $functions)
-		{
-			if (!is_array($functions))
-				continue;
-
-			foreach ($functions as $function => $state)
-				if ($state == 'remove')
-					remove_integration_function($hook, $function);
-		}
-	}
-
-	if (!empty($_POST['disable']))
-	{
-		checkSession();
-
-		foreach ($_POST['disable'] as $hook => $functions)
-		{
-			if (!is_array($functions))
-				continue;
-
-			$active_hooks = explode(',', $modSettings[$hook]);
-			foreach ($active_hooks as &$active_hook)
-				$active_hook = trim($active_hook);
-
-			foreach ($functions as $function => $state)
-			{
-				$function = trim($function);
-				if ($state == 'disable' && in_array($function, $active_hooks))
-				{
-					remove_integration_function($hook, $function);
-					// It's a hack I know...but I'm way too lazy!!!
-					add_integration_function($hook, ']' . $function);
-				}
-				elseif ($state == 'enable' && in_array(']' . $function, $active_hooks))
-				{
-					remove_integration_function($hook, ']' . $function);
-					// It's a hack I know...but I'm way too lazy!!!
-					add_integration_function($hook, $function);
-				}
-			}
-		}
-	}
-
-	$context['filter'] = false;
+	$context['filter'] = '';
 	$presentHooks = get_integration_hooks();
 	if (isset($_GET['filter']) && in_array($_GET['filter'], array_keys($presentHooks)))
-		$context['filter'] = $_GET['filter'];
+		$context['filter'] = ';filter=' . $_GET['filter'];
+
+	if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
+	{
+		checkSession('request');
+		validateToken('admin-hook', 'request');
+
+		if ($_REQUEST['do'] == 'remove')
+			remove_integration_function($_REQUEST['hook'], $_REQUEST['function']);
+		elseif ($_REQUEST['do'] == 'disable')
+		{
+			remove_integration_function($_REQUEST['hook'], $_REQUEST['function']);
+			// It's a hack I know...but I'm way too lazy!!!
+			add_integration_function($_REQUEST['hook'], $_REQUEST['function'] . ']');
+		}
+		elseif ($_REQUEST['do'] == 'enable')
+		{
+			remove_integration_function($_REQUEST['hook'], $_REQUEST['function'] . ']');
+			// It's a hack I know...but I'm way too lazy!!!
+			add_integration_function($_REQUEST['hook'], $_REQUEST['function']);
+		}
+
+		redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter']);
+	}
+
+	createToken('admin-hook', 'request');
 
 	$list_options = array(
 		'id' => 'list_integration_hooks',
 		'title' => $txt['hooks_title_list'],
 		'items_per_page' => 20,
-		'base_href' => $scripturl . '?action=admin;area=modsettings;sa=hooks;' . (!empty($context['filter']) ? ('filter=' . $context['filter'] . ';') : '') . $context['session_var'] . '=' . $context['session_id'],
+		'base_href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 		'default_sort_col' => 'hook_name',
 		'get_items' => array(
 			'function' => 'get_integration_hooks_data',
@@ -2274,13 +2252,13 @@ function list_integration_hooks()
 				),
 				'data' => array(
 					'function' => create_function('$data', '
-						global $settings;
+						global $txt, $settings, $scripturl, $context;
 
 						$change_status = array(\'before\' => \'\', \'after\' => \'\');
 						if ($data[\'can_be_disabled\'] && $data[\'status\'] != \'deny\')
 						{
-							$change_status[\'before\'] = \'<a href="" onclick="integrationHooks_switchstatus(this.id); return false;" id="\' . $data[\'id\'] . \'">\';
-							$change_status[\'after\'] = \'</a><input id="input_\' . $data[\'id\'] . \'" type="hidden" name="disable[\' . $data[\'hook_name\'] . \'][\' . $data[\'function_name\'] . \']" value="\' . ($data[\'enabled\'] ? \'enable\' : \'disable\') . \'" />\';
+							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'function_name\'] . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
+							$change_status[\'after\'] = \'</a>\';
 						}
 						return $change_status[\'before\'] . \'<img src="\' . $settings[\'images_url\'] . \'/admin/post_moderation_\' . $data[\'status\'] . \'.png" alt="\' . $data[\'img_text\'] . \'" title="\' . $data[\'img_text\'] . \'" />\' . $change_status[\'after\'];
 					'),
@@ -2298,21 +2276,20 @@ function list_integration_hooks()
 				),
 				'data' => array(
 					'function' => create_function('$data', '
-						global $settings;
+						global $txt, $settings, $scripturl, $context;
 
 						if (!$data[\'hook_exists\'])
 							return \'
-							<a href="" onclick="integrationHooks_remove(this.id); return false;" id="remove_\' . $data[\'id\'] . \'">
-								<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="*" title="*" />
-							</a>
-							<input id="input_remove_\' . $data[\'id\'] . \'" type="hidden" name="remove[\' . $data[\'hook_name\'] . \'][\' . $data[\'function_name\'] . \']" value="\' . ($data[\'enabled\'] ? \'enable\' : \'disable\') . \'" />\';
+							<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'function_name\'] . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
+								<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="\' . $txt[\'hooks_button_remove\'] . \'" title="\' . $txt[\'hooks_button_remove\'] . \'" />
+							</a>\';
 					'),
 					'class' => 'centertext',
 				),
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks;' . (!empty($context['filter']) ? ('filter=' . $context['filter'] . ';') : '') . $context['session_var'] . '=' . $context['session_id'],
+			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 			'name' => 'list_integration_hooks',
 		),
 		'additional_rows' => array(
@@ -2330,7 +2307,6 @@ function list_integration_hooks()
 	);
 
 	require_once($sourcedir . '/Subs-List.php');
-
 	createList($list_options);
 
 	$context['page_title'] = $txt['hooks_title_list'];
@@ -2429,7 +2405,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 		{
 			$enabled = strstr($function, ']') === false;
 			$function = str_replace(']', '', $function);
-			
+
 			// This is a not an include and the function is included in a certain file (if not it doesn't exists so don't care)
 			if (substr($hook, -8) !== '_include' && isset($hook_status[$hook][$function]['in_file']))
 			{
