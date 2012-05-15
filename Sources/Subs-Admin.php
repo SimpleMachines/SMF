@@ -357,7 +357,9 @@ function updateSettingsFile($config_vars)
 	if (filemtime($boarddir . '/Settings.php') === $last_settings_change)
 	{
 		// save the old before we do anything
+		$file = $boarddir . '/Settings.php';
 		$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+		$settings_backup_fail = !$settings_backup_fail ? (!file_exists($boarddir . '/Settings_bak.php') || filesize($boarddir . '/Settings_bak.php') === 0) : $settings_backup_fail;
 
 		// write out the new
 		$write_settings = implode('', $settingsArray);
