@@ -1682,4 +1682,42 @@ function scheduled_remove_temp_attachments()
 	}
 }
 
+/**
+ * Check for move topic notices that have past their best by date
+ */
+function scheduled_remove_topic_redirect() 
+{
+	global $smcFunc, $sourcedir;
+	
+	// init
+	$topics = array();
+	
+	// We will need this for lanaguage files
+	loadEssentialThemeData();
+	
+	// Find all of the old MOVE topic notices that were set to expire
+	$request = $smcFunc['db_query']('', '
+		SELECT id_topic
+		FROM {db_prefix}topics
+		WHERE redirect_expires <= {int:redirect_expires}
+			AND redirect_expires <> 0',
+		array(
+			'redirect_expires' => time(),
+		)
+	);
+	
+	while ($row = $smcFunc['db_fetch_row']($request))
+		$topics[] = $row[0];
+	$smcFunc['db_free_result']($request);
+	
+	// Zap, your gone
+	if (count($topics) > 0)
+	{
+		require_once($sourcedir . '/RemoveTopic.php');
+		removeTopics($topics, false, true);
+	}
+
+	return true;
+}
+
 ?>

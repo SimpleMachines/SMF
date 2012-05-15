@@ -678,7 +678,7 @@ function template_browse()
 			}
 		});
 	// ]]></script>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 			var oAddVersionSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddVersionSuggest\',
@@ -1313,10 +1313,10 @@ function template_view_operations()
 	<head>
 		<title>', $txt['operation_title'], '</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css" />
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?fin20"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/theme.js?fin20"></script>
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css?alp21" />
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?alp21"></script>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/theme.js?alp21"></script>
 	</head>
 	<body>
 		<div class="padding windowbg">

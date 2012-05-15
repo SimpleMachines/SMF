@@ -380,7 +380,9 @@ $txt['poll_edit'] = 'Edit Poll';
 $txt['poll'] = 'Poll';
 $txt['one_day'] = '1 Day';
 $txt['one_week'] = '1 Week';
+$txt['two_weeks'] = '2 Weeks';
 $txt['one_month'] = '1 Month';
+$txt['two_months'] = '2 Months';
 $txt['forever'] = 'Forever';
 $txt['quick_login_dec'] = 'Login with username, password and session length';
 $txt['one_hour'] = '1 Hour';
@@ -395,6 +397,7 @@ $txt['delete'] = 'Delete';
 $txt['your_pms'] = 'Your Personal Messages';
 
 $txt['kilobyte'] = 'kB';
+$txt['megabyte'] = 'MB';
 
 $txt['more_stats'] = '[More Stats]';
 
@@ -490,6 +493,11 @@ $txt['moveTopic2'] = 'Change the topic\'s subject';
 $txt['moveTopic3'] = 'New subject';
 $txt['moveTopic4'] = 'Change every message\'s subject';
 $txt['move_topic_unapproved_js'] = 'Warning! This topic has not yet been approved.\\n\\nIt is not recommended that you create a redirection topic unless you intend to approve the post immediately following the move.';
+$txt['movetopic_auto_board'] = '[BOARD]';
+$txt['movetopic_auto_topic'] = '[TOPIC LINK]';
+$txt['movetopic_default'] = 'This topic has been moved to ' . $txt['movetopic_auto_board'] . ".\n\n" . $txt['movetopic_auto_topic'];
+$txt['movetopic_redirect'] = 'Redirect to the moved topic';
+$txt['movetopic_expires'] = 'Automatically remove the redirection topic';
 
 $txt['theme_template_error'] = 'Unable to load the \'%1$s\' template.';
 $txt['theme_language_error'] = 'Unable to load the \'%1$s\' language file.';
@@ -663,10 +671,6 @@ $txt['show_personal_messages'] = 'You have received one or more new personal mes
 $txt['previous_next_back'] = '&laquo; previous';
 $txt['previous_next_forward'] = 'next &raquo;';
 
-$txt['movetopic_auto_board'] = '[BOARD]';
-$txt['movetopic_auto_topic'] = '[TOPIC LINK]';
-$txt['movetopic_default'] = 'This topic has been moved to ' . $txt['movetopic_auto_board'] . ".\n\n" . $txt['movetopic_auto_topic'];
-
 $txt['upshrink_description'] = 'Shrink or expand the header.';
 
 $txt['mark_unread'] = 'Mark unread';
@@ -770,5 +774,7 @@ $txt['debug_query_which_took'] = 'which took %1$s seconds.';
 $txt['debug_query_which_took_at'] = 'which took %1$s seconds at %2$s into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
+$txt['debug_tokens'] = 'Tokens: ';
+$txt['debug_browser'] = 'Browser ID: ';
 
 ?>

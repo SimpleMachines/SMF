@@ -1969,7 +1969,7 @@ function updateSettingsFile($vars)
 function updateDbLastError() 
 {
 	// Write out the db_last_error file with the error timestamp 
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', "<?php\n$db_last_error = 0;\n?" . ">\n");
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 	
 	return true;
 }
@@ -2034,8 +2034,8 @@ function template_install_above()
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '" />
 		<meta name="robots" content="noindex" />
 		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?fin20" />
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?fin20" />
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21" />
 		<script type="text/javascript" src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>

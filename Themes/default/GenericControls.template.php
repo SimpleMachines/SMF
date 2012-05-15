@@ -80,7 +80,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						<html>
 							<head>
 								<title>' . $txt['more_smileys_title'] . '</title>
-								<link rel="stylesheet" type="text/css" href="' . $settings['theme_url'] . '/css/index' . $context['theme_variant'] . '.css?fin20" />
+								<link rel="stylesheet" type="text/css" href="' . $settings['theme_url'] . '/css/index' . $context['theme_variant'] . '.css?alp21" />
 							</head>
 							<body id="help_popup">
 								<div class="padding windowbg">

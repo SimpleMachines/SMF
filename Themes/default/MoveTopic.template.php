@@ -70,11 +70,29 @@ function template_main()
 								<dd>
 									<textarea name="reason" rows="3" cols="40">', $txt['movetopic_default'], '</textarea>
 								</dd>
+								<dt>
+									<label for="redirect_topic">', $txt['movetopic_redirect'], '</label>
+								</dt>
+								<dd>
+									<input type="checkbox" name="redirect_topic" id="redirect_topic" checked="checked" class="input_check" />
+								</dd>
+								<dt>
+									', $txt['movetopic_expires'], '
+								</dt>
+								<dd>
+									<select name="redirect_expires">
+										<option value="0" selected="selected">', $txt['never'], '</option>
+										<option value="1440">', $txt['one_day'], '</option>
+										<option value="10080">', $txt['one_week'], '</option>
+										<option value="20160">', $txt['two_weeks'], '</option>
+										<option value="43200">', $txt['one_month'], '</option>
+										<option value="86400">', $txt['two_months'], '</option>
+									</select>
+								</dd>
 							</dl>
 						</fieldset>
-						<div class="righttext">
-							<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit" />
-						</div>
+						<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit" />
+						<br class="clear_right" />
 					</div>
 				</div>
 				<span class="botslice"><span></span></span>

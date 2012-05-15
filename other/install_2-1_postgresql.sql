@@ -2106,6 +2106,7 @@ INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_r
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (9, 0, 0, 1, 'w', 0, 'weekly_maintenance');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (11, 0, 120, 1, 'd', 1, 'remove_temp_attachments');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (12, 0, 180, 1, 'd', 1, 'remove_topic_redirect');
 
 # --------------------------------------------------------
 
@@ -2505,6 +2506,8 @@ CREATE TABLE {$db_prefix}topics (
   num_replies int NOT NULL default '0',
   num_views int NOT NULL default '0',
   locked smallint NOT NULL default '0',
+  redirect_expires int NOT NULL default '0',
+  id_redirect_topic int NOT NULL default '0',
   unapproved_posts smallint NOT NULL default '0',
   approved smallint NOT NULL default '1',
   PRIMARY KEY (id_topic)

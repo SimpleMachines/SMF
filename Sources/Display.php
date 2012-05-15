@@ -149,7 +149,7 @@ function Display()
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
-			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts,
+			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
 			' . (!empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $board ? ', id_previous_board, id_previous_topic' : '') . '
 		FROM {db_prefix}topics AS t
@@ -168,6 +168,10 @@ function Display()
 		fatal_lang_error('not_a_topic', false);
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+	
+	// Is this a moved topic that we are redirecting to?
+	if (!empty($topicinfo['id_redirect_topic']))
+		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0');
 
 	$context['real_num_replies'] = $context['num_replies'] = $topicinfo['num_replies'];
 	$context['topic_first_message'] = $topicinfo['id_first_msg'];
@@ -1190,7 +1194,7 @@ function prepareDisplayContext($reset = false)
 }
 
 /**
- * Downloads an attachment or avatar, and increments the downloads.
+ * Downloads an attachment or avatar, and increments the download count.
  * It requires the view_attachments permission. (not for avatars!)
  * It disables the session parser, and clears any previous output.
  * It depends on the attachmentUploadDir setting being correct.
@@ -1422,8 +1426,7 @@ function Download()
 }
 
 /**
- * This loads an attachment's contextual data including, most importantly, its size
- *  if it is an image.
+ * This loads an attachment's contextual data including, most importantly, its size if it is an image.
  *  Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
  *  (@todo change this pre-condition, too fragile and error-prone.)
  *  It requires the view_attachments permission to calculate image size.
@@ -1445,7 +1448,7 @@ function loadAttachmentContext($id_msg)
 				'id' => $attachment['id_attach'],
 				'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', htmlspecialchars($attachment['filename'])),
 				'downloads' => $attachment['downloads'],
-				'size' => round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'],
+				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
 				'byte_size' => $attachment['filesize'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attachment['id_attach'],
 				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attachment['id_attach'] . '">' . htmlspecialchars($attachment['filename']) . '</a>',

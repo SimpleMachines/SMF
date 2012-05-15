@@ -504,8 +504,8 @@ function template_editBuddies()
 	if ($context['can_send_email'])
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
-	
-	// don't show them if they are sdisabled
+
+	// don't show them if they are disabled
 	foreach ($buddy_fields as $key => $column)
 	{
 		if (!isset($disabled_fields[$column]))
@@ -535,7 +535,7 @@ function template_editBuddies()
 		if ($context['can_send_email'])
 			echo '
 				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $buddy['name'] . '" /></a>'), '</td>';
-		
+
 		// If these are off, don't show them
 		foreach ($buddy_fields as $key => $column)
 		{
@@ -543,7 +543,7 @@ function template_editBuddies()
 				echo '
 					<td align="center">', $buddy[$column]['link'], '</td>';
 		}
-		
+
 		echo '
 				<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><img src="', $settings['images_url'], '/icons/delete.png" alt="', $txt['buddy_remove'], '" title="', $txt['buddy_remove'], '" /></a></td>
 			</tr>';
@@ -572,7 +572,7 @@ function template_editBuddies()
 						<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text" />
 					</dd>
 				</dl>';
-					
+
 	if (!empty($context['token_check']))
 		echo '
 				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />';
@@ -585,7 +585,7 @@ function template_editBuddies()
 			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAddBuddySuggest = new smc_AutoSuggest({
 			sSelf: \'oAddBuddySuggest\',
@@ -689,7 +689,7 @@ function template_editIgnoreList()
 			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?fin20"></script>
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddIgnoreSuggest\',
@@ -782,7 +782,7 @@ function template_trackIP()
 					<dt>
 						<label for="searchip"><strong>', $txt['enter_ip'], ':</strong></label>
 					</dt>
-					<dd>					
+					<dd>
 						<input type="text" name="searchip" value="', $context['ip'], '" class="input_text" />
 					</dd>
 				</dl>
@@ -1560,7 +1560,7 @@ function template_profile_theme_settings()
 								<input type="hidden" name="default_options[show_no_signatures]" value="0" />
 								<input type="checkbox" name="default_options[show_no_signatures]" id="show_no_signatures" value="1"', !empty($context['member']['options']['show_no_signatures']) ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>';
-							
+
 	if ($settings['allow_no_censored'])
 		echo '
 							<dt>
@@ -2447,7 +2447,7 @@ function template_deleteAccount()
 					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['deleteAccount'], '</span>
 				</h3>
 			</div>';
-	
+
 	// If deleting another account give them a lovely info box.
 	if (!$context['user']['is_owner'])
 		echo '
@@ -2612,7 +2612,7 @@ function template_profile_group_manage()
 							<dd>
 								<span id="additional_groupsList">
 									<input type="hidden" name="additional_groups[]" value="0" />';
-									
+
 		// For each membergroup show a checkbox so members can be assigned to more than one group.
 		foreach ($context['member_groups'] as $member_group)
 			if ($member_group['can_be_additional'])

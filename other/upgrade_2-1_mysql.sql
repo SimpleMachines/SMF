@@ -145,11 +145,24 @@ CHANGE `session_id` `session_id` char(64) NOT NULL;
 ---#
 
 /******************************************************************************/
---- Adding new scheduled tasts
+--- Adding support for MOVED topics enhancements
 /******************************************************************************/
----# Adding new Scheduled Task...
+---# Adding new columns to topics ..
+ALTER TABLE {$db_prefix}topics
+ADD COLUMN redirect_expires int(10) unsigned NOT NULL default '0',
+ADD COLUMN id_redirect_topic mediumint(8) unsigned NOT NULL default '0',
+---#
+
+/******************************************************************************/
+--- Adding new scheduled tasks
+/******************************************************************************/
+---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+VALUES
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
 ---#

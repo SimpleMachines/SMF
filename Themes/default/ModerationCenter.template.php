@@ -71,7 +71,7 @@ function template_latest_news()
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?fin20"></script>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
@@ -790,7 +790,7 @@ function template_show_notice()
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
 	</head>
 	<body>
 		<div class="cat_bar">

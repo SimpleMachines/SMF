@@ -2170,10 +2170,8 @@ function changeSettings($config_vars)
 }
 function updateLastError() 
 {
-	global $db_last_error;
-
 	// clear out the db_last_error file
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', "<?php\n$db_last_error = 0;\n?" . ">\n");
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
 }
 
 function php_version_check()
@@ -3436,8 +3434,8 @@ function template_upgrade_above()
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '" />
 		<meta name="robots" content="noindex" />
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?fin20" />
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?fin20" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?alp21" />
 				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var smf_scripturl = \'', $upgradeurl, '\';

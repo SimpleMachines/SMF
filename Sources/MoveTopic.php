@@ -296,6 +296,12 @@ function MoveTopic2()
 			$txt['movetopic_auto_board'] => '[url=' . $scripturl . '?board=' . $_POST['toboard'] . '.0]' . $board_name . '[/url]',
 			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]'
 		));
+		
+		// auto remove this MOVED redirection topic in the future?
+		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
+
+		// redirect to the MOVED topic from topic list?
+		$redirect_topic = isset($_POST['redirect_topic']) ? $topic : 0;
 
 		$msgOptions = array(
 			'subject' => $txt['moved'] . ': ' . $subject,
@@ -307,6 +313,8 @@ function MoveTopic2()
 			'board' => $board,
 			'lock_mode' => 1,
 			'mark_as_read' => true,
+			'redirect_expires' => $redirect_expires,
+			'redirect_topic' => $redirect_topic,
 		);
 		$posterOptions = array(
 			'id' => $user_info['id'],
@@ -384,8 +392,9 @@ function moveTopics($topics, $toBoard)
 	// Empty array?
 	if (empty($topics))
 		return;
+		
 	// Only a single topic.
-	elseif (is_numeric($topics))
+	if (is_numeric($topics))
 		$topics = array($topics);
 	$num_topics = count($topics);
 	$fromBoards = array();
@@ -710,8 +719,8 @@ function moveTopicConcurrence()
 		$request = $smcFunc['db_query']('', '
 			SELECT m.subject, b.name
 			FROM {db_prefix}topics as t
-			LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
-			LEFT JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
+				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
+				LEFT JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
 			WHERE t.id_topic = {int:topic_id}
 			LIMIT 1',
 			array(

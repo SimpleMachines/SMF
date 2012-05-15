@@ -1614,8 +1614,9 @@ VALUES
 	(8, 0, 0, 1, 'd', 1, 'birthdayemails'),
 	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance'),
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions'),
-	(11, 0, 120, 1, 'd', 1, 'remove_temp_attachments');
-
+	(11, 0, 120, 1, 'd', 1, 'remove_temp_attachments'),
+	(12, 0, 180, 1, 'd', 1, 'remove_topic_redirect');
+	
 # --------------------------------------------------------
 
 #
@@ -1989,6 +1990,8 @@ CREATE TABLE {$db_prefix}topics (
   num_replies int(10) unsigned NOT NULL default '0',
   num_views int(10) unsigned NOT NULL default '0',
   locked tinyint(4) NOT NULL default '0',
+  redirect_expires int(10) unsigned NOT NULL default '0',
+  id_redirect_topic mediumint(8) unsigned NOT NULL default '0',
   unapproved_posts smallint(5) NOT NULL default '0',
   approved tinyint(3) NOT NULL default '1',
   PRIMARY KEY (id_topic),
