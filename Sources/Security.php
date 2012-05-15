@@ -786,6 +786,7 @@ function createToken($action, $type = 'post')
 
 /**
  * Only patrons with valid tokens can ride this ride.
+ *
  * @param string $action
  * @param string $type = 'post' (get, request, or post)
  * @param bool $reset = true
@@ -858,6 +859,7 @@ function cleanTokens($complete = false)
  * Depending on the value of is_fatal shows an error or returns true or false.
  * Frees a sequence number from the stack after it's been checked.
  * Frees a sequence number without checking if action == 'free'.
+ *
  * @param string $action
  * @param bool $is_fatal = true
  * @return bool

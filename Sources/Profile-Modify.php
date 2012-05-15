@@ -2878,18 +2878,21 @@ function profileValidateSignature(&$value)
 		$disabledTags = !empty($sig_bbc) ? explode(',', $sig_bbc) : array();
 
 		$unparsed_signature = strtr(un_htmlspecialchars($value), array("\r" => '', '&#039' => '\''));
+		
 		// Too many lines?
 		if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2])
 		{
 			$txt['profile_error_signature_max_lines'] = sprintf($txt['profile_error_signature_max_lines'], $sig_limits[2]);
 			return 'signature_max_lines';
 		}
+		
 		// Too many images?!
 		if (!empty($sig_limits[3]) && (substr_count(strtolower($unparsed_signature), '[img') + substr_count(strtolower($unparsed_signature), '<img')) > $sig_limits[3])
 		{
 			$txt['profile_error_signature_max_image_count'] = sprintf($txt['profile_error_signature_max_image_count'], $sig_limits[3]);
 			return 'signature_max_image_count';
 		}
+		
 		// What about too many smileys!
 		$smiley_parsed = $unparsed_signature;
 		parsesmileys($smiley_parsed);
@@ -2901,6 +2904,7 @@ function profileValidateSignature(&$value)
 			$txt['profile_error_signature_max_smileys'] = sprintf($txt['profile_error_signature_max_smileys'], $sig_limits[4]);
 			return 'signature_max_smileys';
 		}
+		
 		// Maybe we are abusing font sizes?
 		if (!empty($sig_limits[7]) && preg_match_all('~\[size=([\d\.]+)?(px|pt|em|x-large|larger)~i', $unparsed_signature, $matches) !== false && isset($matches[2]))
 		{
@@ -2924,6 +2928,7 @@ function profileValidateSignature(&$value)
 				}
 			}
 		}
+		
 		// The difficult one - image sizes! Don't error on this - just fix it.
 		if ((!empty($sig_limits[5]) || !empty($sig_limits[6])))
 		{
@@ -3008,6 +3013,7 @@ function profileValidateSignature(&$value)
 					$value = str_replace(array_keys($replaces), array_values($replaces), $value);
 			}
 		}
+		
 		// Any disabled BBC?
 		$disabledSigBBC = implode('|', $disabledTags);
 		if (!empty($disabledSigBBC))
@@ -3022,6 +3028,7 @@ function profileValidateSignature(&$value)
 	}
 
 	preparsecode($value);
+	
 	// Too long?
 	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && $smcFunc['strlen'](str_replace('<br />', "\n", $value)) > $sig_limits[1])
 	{
@@ -3064,6 +3071,7 @@ function profileValidateEmail($email, $memID = 0)
 			'email_address' => $email,
 		)
 	);
+	
 	if ($smcFunc['db_num_rows']($request) > 0)
 		return 'email_taken';
 	$smcFunc['db_free_result']($request);

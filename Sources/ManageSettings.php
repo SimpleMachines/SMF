@@ -2346,6 +2346,7 @@ function get_files_recursive($dir_path)
 	if ($dh = opendir($dir_path))
 	{
 		while (($file = readdir($dh)) !== false)
+		{
 			if ($file != '.' && $file != '..')
 			{
 				if (is_dir($dir_path . '/' . $file))
@@ -2353,6 +2354,7 @@ function get_files_recursive($dir_path)
 				else
 					$files[] = array('dir' => $dir_path, 'name' => $file);
 			}
+		}
 	}
 	closedir($dh);
 
@@ -2368,6 +2370,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 	$files = get_files_recursive($sourcedir);
 	if (!empty($files))
+	{
 		foreach ($files as $file)
 		{
 			if (is_file($file['dir'] . '/' . $file['name']) && substr($file['name'], -4) === '.php')
@@ -2401,6 +2404,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				}
 			}
 		}
+	}
 
 	$sort_types = array(
 		'hook_name' => array('hook', SORT_ASC),
@@ -2425,6 +2429,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 		{
 			$enabled = strstr($function, ']') === false;
 			$function = str_replace(']', '', $function);
+			
 			// This is a not an include and the function is included in a certain file (if not it doesn't exists so don't care)
 			if (substr($hook, -8) !== '_include' && isset($hook_status[$hook][$function]['in_file']))
 			{
@@ -2451,6 +2456,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 	foreach ($hooks as $hook => $functions)
 	{
 		if (empty($context['filter']) || (!empty($context['filter']) && $context['filter'] == $hook))
+		{
 			foreach ($functions as $function)
 			{
 				$enabled = strstr($function, ']') === false;
@@ -2471,6 +2477,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'can_be_disabled' => !isset($hook_status[$hook][$function]['enabled']),
 				);
 			}
+		}
 	}
 
 	array_multisort($sort, $sort_options[1], $temp_data);
@@ -2503,8 +2510,10 @@ function get_integration_hooks_count()
 		$context['filter'] = $_GET['filter'];
 
 	foreach ($hooks as $hook => $functions)
+	{
 		if (empty($context['filter']) || (!empty($context['filter']) && $context['filter'] == $hook))
 			$hooks_count += count($functions);
+	}
 
 	return $hooks_count;
 }
