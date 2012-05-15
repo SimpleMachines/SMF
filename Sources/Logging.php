@@ -157,70 +157,38 @@ function writeLog($force = false)
 /**
  * Logs the last database error into a file.
  * Attempts to use the backup file first, to store the last database error
- * and only update Settings.php if the first was successful.
+ * and only update db_last_error.php if the first was successful.
  */
 function logLastDatabaseError()
 {
 	global $boarddir;
-
-	// Find out this way if we can even write things on this filesystem.
-	// In addition, store things first in the backup file
-
-	$last_settings_change = @filemtime($boarddir . '/Settings.php');
-
-	// Make sure the backup file is there...
-	$file = $boarddir . '/Settings_bak.php';
-	if ((!file_exists($file) || filesize($file) == 0) && !copy($boarddir . '/Settings.php', $file))
-			return false;
-
-	// ...and writable!
-	if (!is_writable($file))
+	
+	// Make a note of the last modified time in case someone does this before us
+	$last_db_error_change = @filemtime($boarddir . '/db_last_error.php');
+	
+	// save the old file before we do anything
+	$file = $boarddir . '/db_last_error.php';
+	$dberror_backup_fail = !@is_writable($boarddir . '/db_last_error_bak.php') || !@copy($file, $boarddir . '/db_last_error_bak.php');
+	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($boarddir . '/db_last_error_bak.php') || filesize($boarddir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
+	
+	clearstatcache();
+	if (filemtime($boarddir . '/db_last_error.php') === $last_db_error_change)
 	{
-		chmod($file, 0755);
-		if (!is_writable($file))
+		// Write the change 
+		$write_db_change =  '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
+		$written_bytes = file_put_contents($boarddir . '/db_last_error.php', $write_db_change, LOCK_EX);
+		
+		// survey says ...
+		if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail)
 		{
-			chmod($file, 0775);
-			if (!is_writable($file))
-			{
-				chmod($file, 0777);
-				if (!is_writable($file))
-						return false;
-			}
-		}
-	}
-
-	// Put the new timestamp.
-	$data = file_get_contents($file);
-	$data = preg_replace('~\$db_last_error = \d+;~', '$db_last_error = ' . time() . ';', $data);
-
-	// Open the backup file for writing
-	if ($fp = @fopen($file, 'w'))
-	{
-		// Reset the file buffer.
-		set_file_buffer($fp, 0);
-
-		// Update the file.
-		$t = flock($fp, LOCK_EX);
-		$bytes = fwrite($fp, $data);
-		flock($fp, LOCK_UN);
-		fclose($fp);
-
-		// Was it a success?
-		// ...only relevant if we're still dealing with the same good ole' settings file.
-		clearstatcache();
-		if (($bytes == strlen($data)) && (filemtime($boarddir . '/Settings.php') === $last_settings_change))
-		{
-			// This is our new Settings file...
-			// At least this one is an atomic operation
-			@copy($file, $boarddir . '/Settings.php');
-			return true;
+			// Oops. maybe we have no more disk space left, or some other troubles, troubles...
+			// Copy the file back and run for your life!
+			@copy($boarddir . '/db_last_error_bak.php', $boarddir . '/db_last_error.php');
 		}
 		else
 		{
-			// Oops. Someone might have been faster
-			// or we have no more disk space left, troubles, troubles...
-			// Copy the file back and run for your life!
-			@copy($boarddir . '/Settings.php', $file);
+			@touch($boarddir . '/' . 'Settings.php');
+			return true;
 		}
 	}
 
