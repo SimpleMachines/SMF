@@ -848,14 +848,21 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// Don't waste cycles
 	if ($message === '')
 		return '';
+		
+	// Just in case it wasn't determined yet whether UTF-8 is enabled.
+	if (!isset($context['utf8']))
+		$context['utf8'] = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
+		
+	// Clean up any cut/paste issues we may have
+	$message = sanitizeMSCutPaste($message);
 
 	// If the load average is too high, don't parse the BBC.
-	// I placed this below the empty $message check because it is slower
 	if (!empty($context['load_average']) && !empty($modSettings['bbc']) && $context['load_average'] >= $modSettings['bbc'])
 	{
 		$context['disabled_parse_bbc'] = true;
 		return $message;
 	}
+	
 	// Never show smileys for wireless clients.  More bytes, can't see it anyway :P.
 	if (WIRELESS)
 		$smileys = false;
@@ -869,10 +876,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 		return $message;
 	}
-
-	// Just in case it wasn't determined yet whether UTF-8 is enabled.
-	if (!isset($context['utf8']))
-		$context['utf8'] = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
 
 	// If we are not doing every tag then we don't cache this run.
 	if (!empty($parse_tags) && !empty($bbc_codes))
@@ -4058,6 +4061,69 @@ function remove_integration_function($hook, $function)
 
 	$functions = array_diff($functions, array($function));
 	$modSettings[$hook] = implode(',', $functions);
+}
+
+/**
+* Microsoft uses their own character set Code Page 1252 (CP1252), which is a
+* superset of ISO 8859-1, defining several characters between DEC 128 and 159
+* that are not normally displayable.  This converts the popular ones that
+* appear from a cut and paste from windows.
+*
+* @param string $string
+* @return string $string
+*/
+function sanitizeMSCutPaste($string)
+{
+	global $context;
+	
+	if (empty($string))
+		return;
+		
+	// UTF-8 occurences of MS special characters
+	$findchars_utf8 = array(
+		"\xe2\80\x9a",	// single low-9 quotation mark
+		"\xe2\80\x9e",	// double low-9 quotation mark
+		"\xe2\80\xa6",	// horizontal ellipsis
+		"\xe2\x80\x98",	// left single curly quote
+		"\xe2\x80\x99",	// right single curly quote
+		"\xe2\x80\x9c",	// left double curly quote
+		"\xe2\x80\x9d",	// right double curly quote
+		"\xe2\x80\x93",	// en dash
+		"\xe2\x80\x94",	// em dash
+	);
+	
+	// windows 1252 / iso equivalents
+	$findchars_iso = array(
+		chr(130),
+		chr(132),
+		chr(133),
+		chr(145),
+		chr(146),
+		chr(147),
+		chr(148),
+		chr(150),
+		chr(151),
+	);
+
+	// safe replacements
+	$replacechars = array(
+		',',	// &sbquo;
+		',,',	// &bdquo;
+		'...',	// &hellip;
+		"'",	// &lsquo;
+		"'",	// &rsquo;
+		'"',	// &ldquo;
+		'"',	// &rdquo;
+		'-',	// &ndash;
+		'--',	// &mdash;
+	);
+	
+	if ($context['utf8'])
+		$string = str_replace($findchars_utf8, $replacechars, $string);
+	else
+		$string = str_replace($findchars_iso, $replacechars, $string);
+
+	return $string;
 }
 
 ?>
