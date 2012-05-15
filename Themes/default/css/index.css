@@ -150,7 +150,7 @@ select option
 }
 
 /* the new "button" */
-a.new_posts
+a span.new_posts
 {
 	padding: 0 4px 1px 4px;
 	background: orange;
@@ -160,9 +160,9 @@ a.new_posts
 	line-height: 1.1em;
 	border-radius: 2px;
 }
-a.new_posts:hover
+a  span.new_posts:hover
 {
-	text-decoration: none;
+	text-decoration: underline;
 }
 
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
@@ -901,7 +901,7 @@ div.title_barIC h4.titlebg
 	margin: 0;
 	padding: 0.5em;
 }
-img#upshrink_ic, img#newsupshrink, img.panel_toggle
+img#upshrink_ic, img#newsupshrink, img.panel_toggle, img#quickReplyExpand
 {
 	float: right;
 	margin: 12px 5px 0 1em;
