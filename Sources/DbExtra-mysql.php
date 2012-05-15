@@ -252,72 +252,81 @@ function smf_db_list_tables($db = false, $filter = false)
  * @return string, the query to insert the data back in, or an empty
  *  string if the table was empty.
  */
-function smf_db_insert_sql($tableName)
+function smf_db_insert_sql($tableName, $new_table = false)
 {
-	global $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix, $detected_id;
+	static $start = 0, $num_rows, $fields, $limit, $last_id;
 
+	if ($new_table)
+	{
+		$limit = strstr($tableName, 'log_') !== false ? 500 : 250;
+		$start = 0;
+		$last_id = 0;
+	}
+
+	$data = '';
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
 
 	// This will be handy...
 	$crlf = "\r\n";
 
-	// Get everything from the table.
+	// This is done this way because retrieve data only with LIMIT will become slower after each query
+	// and for long tables (e.g. {db_prefix}messages) it could be a pain...
+	// Instead using WHERE speeds up thing *a lot* (especially after the first 50'000 records)
 	$result = $smcFunc['db_query']('', '
 		SELECT /*!40001 SQL_NO_CACHE */ *
-		FROM `{raw:table}`',
+		FROM `' . $tableName . '`' .
+		(!empty($last_id) && !empty($detected_id) ? '
+		WHERE ' . $detected_id . ' > ' . $last_id : '') . '
+		LIMIT ' . (empty($last_id) ? $start . ', ' : '') . $limit,
 		array(
-			'table' => $tableName,
+			'security_override' => true,
 		)
 	);
 
 	// The number of rows, just for record keeping and breaking INSERTs up.
 	$num_rows = $smcFunc['db_num_rows']($result);
-	$current_row = 0;
 
 	if ($num_rows == 0)
 		return '';
 
-	$fields = array_keys($smcFunc['db_fetch_assoc']($result));
-	$smcFunc['db_data_seek']($result, 0);
+	if ($new_table)
+	{
+		$fields = array_keys($smcFunc['db_fetch_assoc']($result));
+		$smcFunc['db_data_seek']($result, 0);
+	}
 
 	// Start it off with the basic INSERT INTO.
 	$data = 'INSERT INTO `' . $tableName . '`' . $crlf . "\t" . '(`' . implode('`, `', $fields) . '`)' . $crlf . 'VALUES ';
 
 	// Loop through each row.
-	while ($row = $smcFunc['db_fetch_row']($result))
+	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
-		$current_row++;
-
 		// Get the fields in this row...
 		$field_list = array();
-		for ($j = 0; $j < $smcFunc['db_num_fields']($result); $j++)
+
+		foreach ($row as $key => $item)
 		{
 			// Try to figure out the type of each field. (NULL, number, or 'string'.)
-			if (!isset($row[$j]))
+			if (!isset($item))
 				$field_list[] = 'NULL';
-			elseif (is_numeric($row[$j]) && (int) $row[$j] == $row[$j])
-				$field_list[] = $row[$j];
+			elseif (is_numeric($item) && (int) $item == $item)
+				$field_list[] = $item;
 			else
-				$field_list[] = '\'' . $smcFunc['db_escape_string']($row[$j]) . '\'';
+				$field_list[] = '\'' . $smcFunc['db_escape_string']($item) . '\'';
 		}
+		if (!empty($detected_id) && isset($row[$detected_id]))
+			$last_id = $row[$detected_id];
 
-		// 'Insert' the data.
-		$data .= '(' . implode(', ', $field_list) . ')';
-
-		// All done!
-		if ($current_row == $num_rows)
-			$data .= ';' . $crlf;
-		// Start a new INSERT statement after every 250....
-		elseif ($current_row > 249 && $current_row % 250 == 0)
-			$data .= ';' . $crlf . 'INSERT INTO `' . $tableName . '`' . $crlf . "\t" . '(`' . implode('`, `', $fields) . '`)' . $crlf . 'VALUES ';
-		// Otherwise, go to the next line.
-		else
-			$data .= ',' . $crlf . "\t";
+		$data .= '(' . implode(', ', $field_list) . ')' . ',' . $crlf . "\t";
 	}
-	$smcFunc['db_free_result']($result);
 
-	// Return an empty string if there were no rows.
-	return $num_rows == 0 ? '' : $data;
+	$smcFunc['db_free_result']($result);
+	$data .= ';' . $crlf;
+
+	$start += $limit;
+
+	return $data;
 }
 
 /**
@@ -328,9 +337,10 @@ function smf_db_insert_sql($tableName)
  */
 function smf_db_table_sql($tableName)
 {
-	global $smcFunc, $db_prefix;
+	global $smcFunc, $db_prefix, $detected_id;
 
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
+	$detected_id = '';
 
 	// This will be needed...
 	$crlf = "\r\n";
@@ -373,6 +383,8 @@ function smf_db_table_sql($tableName)
 
 		// And now any extra information. (such as auto_increment.)
 		$schema_create .= ($row['Extra'] != '' ? ' ' . $row['Extra'] : '') . ',' . $crlf;
+		if ($row['Extra'] == 'auto_increment')
+			$detected_id = $row['Field'];
 	}
 	$smcFunc['db_free_result']($result);
 
