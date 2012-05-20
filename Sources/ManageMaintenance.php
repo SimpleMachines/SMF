@@ -162,12 +162,12 @@ function MaintainDatabase()
 	$context['use_maintenance'] = 0;
 
 	if ($context['safe_mode_enable'])
-		$context['suggested_method'] = 'use_exernal_tool';
+		$context['suggested_method'] = 'use_external_tool';
 	elseif ($zip_limit < $plain_limit && $messages < $zip_limit)
 		$context['suggested_method'] = 'zipped_file';
 	elseif ($zip_limit > $plain_limit || ($zip_limit < $plain_limit && $plain_limit < $messages))
 	{
-		$context['suggested_method'] = 'use_exernal_tool';
+		$context['suggested_method'] = 'use_external_tool';
 		$context['use_maintenance'] = empty($maintenance) ? 2 : 0;
 	}
 	else

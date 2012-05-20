@@ -217,10 +217,10 @@ $txt['maintain_recountposts'] = 'Recount User Posts';
 $txt['maintain_recountposts_info'] = 'Run this maintenance task to update your users total post count.  It will recount all (countable) posts made by each user and then update their profile post count totals';
 
 $txt['safe_mode_enabled'] = '<a href="http://php.net/manual/en/features.safe-mode.php">safe_mode</a> is enabled on your server!<br />The backup done with this tool cannot be considered reliable!';
-$txt['use_exernal_tool'] = 'Please consider using an external tool to backup your database, any backup done with this tool cannot be considered 100% reliable.';
-$txt['zipped_file'] = 'If you want you can create a zipped backup.';
-$txt['plain_text'] = 'The more appropriate method to backup your database is to create a plain text file, a compressed package could not be completely reliable.';
-$txt['enable_maintenance1'] = 'Due to the size of your forum, is reccomended to enable the maintenance mode before start the backup.';
-$txt['enable_maintenance2'] = 'If you want to procede, due to the size of your forum, before start the backup please enable the maintenance mode.';
+$txt['use_external_tool'] = 'Please consider using an external tool to backup your database, any backup created with this utility cannot be considered 100% reliable.';
+$txt['zipped_file'] = 'If you want you can create a compressed (zipped) backup.';
+$txt['plain_text'] = 'The best method to backup your database is to create a plain text file, a compressed package may not be completely reliable.';
+$txt['enable_maintenance1'] = 'Due to the size of your forum, it is recommended to place your forum in "maintenance mode" before you start the backup.';
+$txt['enable_maintenance2'] = 'To proceed, due to the size of your forum, please place your fourm in "maintenance mode".';
 
 ?>
