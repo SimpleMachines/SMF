@@ -2194,6 +2194,17 @@ img.smiley
 {
 	padding: 0 0.5em;
 }
+.attachments_top 
+{
+	margin: 0 auto;
+	text-align: center;
+}
+.attachments_bot 
+{
+	font-size: 0.85em;
+	font-family: verdana, sans-serif;
+	color: #000;
+}
 
 /* Styles for the quick reply area.
 ---------------------------------------------------- */
