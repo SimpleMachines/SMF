@@ -314,6 +314,7 @@ function ModifyCalendarSettings($return_config = false)
 			array('permissions', 'calendar_post'),
 			array('permissions', 'calendar_edit_own'),
 			array('permissions', 'calendar_edit_any'),
+			array('permissions', 'calendar_export'),
 		'',
 			// How many days to show on board index, and where to display events etc?
 			array('int', 'cal_days_for_index', 6, 'postinput' => $txt['days_word']),

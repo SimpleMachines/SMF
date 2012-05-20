@@ -1868,8 +1868,8 @@ div.table_frame .table_list
 }
 .edit_event
 {
-	margin: 0 1em;
-	vertical-align: middle;
+	margin: 0 .8em;
+	vertical-align: top;
 }
 /* Poll question */
 #poll

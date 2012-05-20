@@ -7,6 +7,7 @@ $txt['calendar_desc'] = 'From here you can modify all aspects of the calendar.';
 $txt['calendar_settings_desc'] = 'Here you can enable the calendar, and determine the settings that it should use.';
 $txt['save_settings'] = 'Save Settings';
 $txt['groups_calendar_view'] = 'Membergroups allowed to view the calendar';
+$txt['groups_calendar_export'] = 'Membergroups allowed to export calendar events';
 $txt['groups_calendar_post'] = 'Membergroups allowed to create events';
 $txt['groups_calendar_edit_own'] = 'Membergroups allowed to edit their own events';
 $txt['groups_calendar_edit_any'] = 'Membergroups allowed to edit any events';

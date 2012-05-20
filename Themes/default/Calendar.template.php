@@ -101,7 +101,7 @@ function template_event_post()
 
 	// Start the main table.
 	echo '
-			<div id="post_event">
+		<div id="post_event">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $context['page_title'], '
@@ -130,7 +130,7 @@ function template_event_post()
 					<fieldset id="event_main">
 						<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
 						<input type="text" name="evtitle" maxlength="255" size="70" value="', $context['event']['title'], '" class="input_text" />
-						<div class="smalltext">
+						<div class="smalltext" style="white-space: nowrap;">
 							<input type="hidden" name="calendar" value="1" />', $txt['calendar_year'], '
 							<select name="year" id="year" onchange="generateDays();">';
 
@@ -221,7 +221,6 @@ function template_event_post()
 					</fieldset>';
 
 	echo '
-					<div class="righttext">
 						<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit" />';
 	// Delete button?
 	if (empty($context['event']['new']))
@@ -231,13 +230,12 @@ function template_event_post()
 	echo '
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="eventid" value="', $context['event']['eventid'], '" />
-					</div>
+						<br class="clear" />
 				</div>
 				<span class="lowerframe"><span></span></span>
 			</div>
-			</div>
-		</form>
-		<br class="clear" />';
+		</div>
+		</form>';
 }
 
 // Display a monthly calendar grid.
@@ -375,20 +373,25 @@ function template_show_month_grid($grid_name)
 				if (!empty($day['events']))
 				{
 					echo '
-							<div class="smalltext">
-								<span class="event">', $txt['events'], '</span>';
+							<div class="smalltext lefttext">
+								<span class="event">', $txt['events'], '</span><br />';
 
 					/* The events are made up of:
 						title, href, is_last, can_edit (are they allowed to?), and modify_href. */
 					foreach ($day['events'] as $event)
 					{
-						// If they can edit the event, show a star they can click on....
+						// If they can edit the event, show an icon they can click on....
 						if ($event['can_edit'])
 							echo '
-								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/modify_small.png" alt="*" /></a>';
+								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" title="' . $txt['modify'] . '" /></a>';
+						
+						if ($event['can_export'])
+							echo '
+								<a class="modify_event" href="', $event['export_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_export.png" alt=">" title="' . $txt['save'] . '"/></a>';
 
+								
 						echo '
-								', $event['link'], $event['is_last'] ? '' : ', ';
+								', $event['link'], $event['is_last'] ? '' : '<br />';
 					}
 
 					echo '
@@ -503,7 +506,7 @@ function template_show_week_grid($grid_name)
 					// If they can edit the event, show a star they can click on....
 					if ($event['can_edit'])
 						echo '
-								<a href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/modify_small.png" alt="*" /></a> ';
+								<a href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" /></a> ';
 
 					echo '
 								', $event['link'], $event['is_last'] ? '' : ', ';

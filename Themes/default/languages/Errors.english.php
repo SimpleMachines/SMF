@@ -64,6 +64,7 @@ $txt['cannot_post_unapproved_replies_own'] = 'You do not have permission to post
 $txt['cannot_post_unapproved_replies_any'] = 'You do not have permission to post unapproved replies to other users\' topics.';
 $txt['cannot_calendar_edit_any'] = 'You cannot edit calendar events.';
 $txt['cannot_calendar_edit_own'] = 'You don\'t have the privileges necessary to edit your own events.';
+$txt['cannot_calendar_export'] = 'Sorry, You cannot export calendar events.';
 $txt['cannot_calendar_post'] = 'Event posting isn\'t allowed - sorry.';
 $txt['cannot_calendar_view'] = 'Sorry, but you are not allowed to view the calendar.';
 $txt['cannot_remove_any'] = 'Sorry, but you don\'t have the privilege to remove just any topic.  Check to make sure this topic wasn\'t just moved to another board.';

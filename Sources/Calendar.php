@@ -148,8 +148,10 @@ function CalendarMain()
 
 /**
  * This function processes posting/editing/deleting a calendar event.
+ *
  * 	- calls Post() function if event is linked to a post.
  *  - calls insertEvent() to insert the event if not linked to post.
+ *
  * It requires the calendar_post permission to use.
  * It uses the event_post sub template in the Calendar template.
  * It is accessed with ?action=calendar;sa=post.
@@ -317,12 +319,21 @@ function CalendarPost()
 
 /**
  * This function offers up a download of an event in iCal 2.0 format.
- * @todo lol... User interface! :P
+ *
+ * follows the conventions in RFC5546 http://tools.ietf.org/html/rfc5546
+ * sets events as all day events since we don't have hourly events
+ * will honor and set multi day events
+ * sets a sequence number if the event has been modified
+ *
+ * @todo .... allow for week or month export files as well?
  */
 function iCalDownload()
 {
-	global $smcFunc, $sourcedir, $forum_version, $context, $modSettings;
+	global $smcFunc, $sourcedir, $forum_version, $context, $modSettings, $webmaster_email, $mbname;
 
+	// This requires the export permission
+	isAllowedTo('calendar_export');
+	
 	// Goes without saying that this is required.
 	if (!isset($_REQUEST['eventid']))
 		fatal_lang_error('no_access', false);
@@ -332,7 +343,7 @@ function iCalDownload()
 
 	// Load up the event in question and check it exists.
 	$event = getEventProperties($_REQUEST['eventid']);
-
+	
 	if ($event === false)
 		fatal_lang_error('no_access', false);
 
@@ -345,19 +356,39 @@ function iCalDownload()
 		$title[$id] .= "\n";
 	}
 
-	// Format the date.
-	$date = $event['year'] . '-' . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . '-' . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']) . 'T';
-	$date .= '1200:00:00Z';
+	// Format the dates.
+	$datestamp = date('Ymd\THis\Z', time());
+	$datestart = $event['year'] . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']);
 
-	// This is what we will be sending later.
+	// Do we have a mutli day event?
+	if ($event['span'] > 1)
+	{
+		$dateend = strtotime($event['year'] . '-' . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . '-' . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']));
+		$dateend += ($event['span'] - 1) * 86400;
+		$dateend = date('Ymd', $dateend);
+	}
+
+	// This is what we will be sending later
 	$filecontents = '';
 	$filecontents .= 'BEGIN:VCALENDAR' . "\n";
+	$filecontents .= 'METHOD:PUBLISH' . "\n";
+	$filecontents .= 'PRODID:-//SimpleMachines//SMF ' . (empty($forum_version) ? 2.0 : strtr($forum_version, array('SMF ' => ''))) . '//EN' . "\n";
 	$filecontents .= 'VERSION:2.0' . "\n";
-	$filecontents .= 'PRODID:-//SimpleMachines//SMF ' . (empty($forum_version) ? 1.0 : strtr($forum_version, array('SMF ' => ''))) . '//EN' . "\n";
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
-	$filecontents .= 'DTSTART:' . $date . "\n";
-	$filecontents .= 'DTEND:' . $date . "\n";
+	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
+	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
+	$filecontents .= 'DTSTART;VALUE=DATE:' . $datestart . "\n";
+	
+	// more than one day
+	if ($event['span'] > 1)
+		$filecontents .= 'DTEND;VALUE=DATE:' . $dateend . "\n";
+	
+	// event has changed? advance the sequence for this UID
+	if ($event['sequence'] > 0)
+		$filecontents .= 'SEQUENCE:' . $event['sequence'] . "\n";
+	
 	$filecontents .= 'SUMMARY:' . implode('', $title);
+	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";
 	$filecontents .= 'END:VEVENT' . "\n";
 	$filecontents .= 'END:VCALENDAR';
 
@@ -367,7 +398,7 @@ function iCalDownload()
 		@ob_start('ob_gzhandler');
 	else
 		ob_start();
-
+	
 	// Send the file headers
 	header('Pragma: ');
 	header('Cache-Control: no-cache');
@@ -378,8 +409,9 @@ function iCalDownload()
 	header('Accept-Ranges: bytes');
 	header('Connection: close');
 	header('Content-Disposition: attachment; filename=' . $event['title'] . '.ics');
-	header('Content-Length: ' . $smcFunc['strlen']($filecontents));
-
+	if (empty($modSettings['enableCompressedOutput']))
+		header('Content-Length: ' . $smcFunc['strlen']($filecontents));
+	
 	// This is a calendar item!
 	header('Content-Type: text/calendar');
 

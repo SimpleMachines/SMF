@@ -102,11 +102,13 @@ function getBirthdayRange($low_date, $high_date)
 }
 
 /**
- * Get all events within the given time range.
- * finds all the posted calendar events within a date range.
- * both the earliest_date and latest_date should be in the standard YYYY-MM-DD format.
- * censors the posted event titles.
- * uses the current user's permissions if use_permissions is true, otherwise it does nothing "permission specific"
+ * Get all calendar events within the given time range.
+ *
+ * - finds all the posted calendar events within a date range.
+ * - both the earliest_date and latest_date should be in the standard YYYY-MM-DD format.
+ * - censors the posted event titles.
+ * - uses the current user's permissions if use_permissions is true, otherwise it does nothing "permission specific"
+ *
  * @param string $earliest_date
  * @param string $latest_date
  * @param bool $use_permissions = true
@@ -142,7 +144,6 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	while ($row = $smcFunc['db_fetch_assoc']($result))
 	{
 		// If the attached topic is not approved then for the moment pretend it doesn't exist
-		// @todo This should be fixed to show them all and then sort by approval state later?
 		if (!empty($row['id_first_msg']) && $modSettings['postmod_active'] && !$row['approved'])
 			continue;
 
@@ -168,31 +169,34 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 				$events[strftime('%Y-%m-%d', $date)][] = array(
 					'id' => $row['id_event'],
 					'title' => $row['title'],
-					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
-					'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'start_date' => $row['start_date'],
 					'end_date' => $row['end_date'],
 					'is_last' => false,
-					'id_board' => $row['id_board'],
+					'id_board' => $row['id_board'],	
+					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
+					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
+					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
+					'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+					'can_export' => allowedTo('calendar_export'),
+					'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				);
 			// Otherwise, this is going to be cached and the VIEWER'S permissions should apply... just put together some info.
 			else
 				$events[strftime('%Y-%m-%d', $date)][] = array(
 					'id' => $row['id_event'],
 					'title' => $row['title'],
-					'topic' => $row['id_topic'],
-					'msg' => $row['id_first_msg'],
-					'poster' => $row['id_member'],
 					'start_date' => $row['start_date'],
 					'end_date' => $row['end_date'],
 					'is_last' => false,
-					'allowed_groups' => explode(',', $row['member_groups']),
 					'id_board' => $row['id_board'],
 					'href' => $row['id_topic'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => false,
+					'can_export' => false,
+					'topic' => $row['id_topic'],
+					'msg' => $row['id_first_msg'],
+					'poster' => $row['id_member'],
+					'allowed_groups' => explode(',', $row['member_groups']),
 				);
 		}
 	}
@@ -898,9 +902,8 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// Properly sanitize the title.
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
-
+	
 	// Scan the start date for validity and get its components.
-	// @todo $year, $month, and $day are not set
 	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
 		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
 
@@ -909,7 +912,6 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// Set the end date to the start date + span (if the end date wasn't already given).
 	if (!isset($eventOptions['end_date']))
-		// @todo $year, $month, and $day are not set
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
 	$smcFunc['db_query']('', '
@@ -970,9 +972,12 @@ function getEventProperties($event_id)
 			c.id_event, c.id_board, c.id_topic, MONTH(c.start_date) AS month,
 			DAYOFMONTH(c.start_date) AS day, YEAR(c.start_date) AS year,
 			(TO_DAYS(c.end_date) - TO_DAYS(c.start_date)) AS span, c.id_member, c.title,
-			t.id_first_msg, t.id_member_started
+			t.id_first_msg, t.id_member_started,
+			mb.real_name, m.modified_time
 		FROM {db_prefix}calendar AS c
 			LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = c.id_topic)
+			LEFT JOIN {db_prefix}members AS mb ON (mb.id_member = t.id_member_started)
+			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg  = t.id_first_msg)
 		WHERE c.id_event = {int:id_event}',
 		array(
 			'id_event' => $event_id,
@@ -997,6 +1002,8 @@ function getEventProperties($event_id)
 		'title' => $row['title'],
 		'span' => 1 + $row['span'],
 		'member' => $row['id_member'],
+		'realname' => $row['real_name'],
+		'sequence' => $row['modified_time'],
 		'topic' => array(
 			'id' => $row['id_topic'],
 			'member_started' => $row['id_member_started'],
