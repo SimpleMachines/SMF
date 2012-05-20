@@ -625,12 +625,14 @@ function Post()
 					SELECT IFNULL(size, -1) AS filesize, filename, id_attach, approved
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
-						AND attachment_type = {int:attachment_type}',
+						AND attachment_type = {int:attachment_type}
+					ORDER BY id_attach',
 					array(
 						'id_msg' => (int) $_REQUEST['msg'],
 						'attachment_type' => 0,
 					)
 				);
+				
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
 					if ($row['filesize'] <= 0)
@@ -740,17 +742,26 @@ function Post()
 		// Show an "approve" box if the user can approve it, and the message isn't approved.
 		if (!$row['approved'] && !$context['show_approval'])
 			$context['show_approval'] = allowedTo('approve_posts');
-
-		// Load up 'em attachments!
+		
+		// Sort the attachments so they are in the order saved
+		$temp = array();
 		foreach ($attachment_stuff as $attachment)
 		{
 			if ($attachment['filesize'] >= 0 && !empty($modSettings['attachmentEnable']))
-				$context['current_attachments'][] = array(
-					'name' => htmlspecialchars($attachment['filename']),
-					'size' => $attachment['filesize'],
-					'id' => $attachment['id_attach'],
-					'approved' => $attachment['attachment_approved'],
-				);
+				$temp[$attachment['id_attach']] = $attachment;
+
+		}
+		ksort($temp);
+		
+		// Load up 'em attachments!
+		foreach ($temp as $attachment)
+		{
+			$context['current_attachments'][] = array(
+				'name' => htmlspecialchars($attachment['filename']),
+				'size' => $attachment['filesize'],
+				'id' => $attachment['id_attach'],
+				'approved' => $attachment['attachment_approved'],
+			);
 		}
 
 		// Allow moderators to change names....
