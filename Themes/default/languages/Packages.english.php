@@ -23,14 +23,14 @@ $txt['package_downloaded_successfully'] = 'Package has been downloaded successfu
 $txt['package_manager'] = 'Package Manager';
 $txt['install_mod'] = 'Install Mod';
 $txt['uninstall_mod'] = 'Uninstall Mod';
-$txt['sql_file'] = 'The Modification file has been extracted.  This modification also comes with a database file containing modifications the database needs.  You will need to execute this file for the modificaiton to function properly.';
+$txt['sql_file'] = 'The Modification file has been extracted.  This modification also comes with a database file containing changes the database needs.  You will need to execute this file for the modification to function properly.';
 $txt['sql_queries'] = 'SQL Queries';
 $txt['no_mods_installed'] = 'No mods currently installed';
 $txt['browse_installed'] = 'Browse installed mods';
 $txt['uninstall'] = 'Uninstall';
 $txt['delete_list'] = 'Delete Mod List';
 $txt['package_delete_list_warning'] = 'Are you sure you wish to clear the installed modification list?';
-$txt['php_safe_mode'] = 'Sorry, you server currently has PHP set to run in SAFE MODE.  This feature is not compatible with SAFE MODE.';
+$txt['php_safe_mode'] = 'Sorry, your server currently has PHP set to run in SAFE MODE.  This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
 
 $txt['package_manager_desc'] = 'From this easy to use interface, you can download and install modifications for use on your forum.';
