@@ -23,14 +23,14 @@ $txt['package_downloaded_successfully'] = 'Package has been downloaded successfu
 $txt['package_manager'] = 'Package Manager';
 $txt['install_mod'] = 'Install Mod';
 $txt['uninstall_mod'] = 'Uninstall Mod';
-$txt['sql_file'] = 'Modification file was extracted, this modification also comes with a SQL file with modifications the database needs.  It is a good idea to run it.';
+$txt['sql_file'] = 'The Modification file has been extracted.  This modification also comes with a database file containing modifications the database needs.  You will need to execute this file for the modificaiton to function properly.';
 $txt['sql_queries'] = 'SQL Queries';
 $txt['no_mods_installed'] = 'No mods currently installed';
 $txt['browse_installed'] = 'Browse installed mods';
 $txt['uninstall'] = 'Uninstall';
 $txt['delete_list'] = 'Delete Mod List';
 $txt['package_delete_list_warning'] = 'Are you sure you wish to clear the installed modification list?';
-$txt['php_safe_mode'] = 'Sorry, you server has PHP set to SAFE MODE.  This feature is not compatible with SAFE MODE.';
+$txt['php_safe_mode'] = 'Sorry, you server currently has PHP set to run in SAFE MODE.  This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
 
 $txt['package_manager_desc'] = 'From this easy to use interface, you can download and install modifications for use on your forum.';
@@ -145,7 +145,7 @@ $txt['package_install_options_make_full_backups'] = 'Create an entire backup (ex
 $txt['package_ftp_necessary'] = 'FTP Information Required';
 $txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable.  This needs to be changed by logging into FTP and using it to chmod or create the files and folders.  Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="%1$s">here</a>.';
 $txt['package_ftp_why_file_list'] = 'The following files need to made writable to continue installation:';
-$txt['package_ftp_why_download'] = 'In order to download packages, the Packages directory, and any files in it, need to be writable.  Currently the system does not have the needed write permissions to this directory.  The package manager can use your FTP information to fix this problem.';
+$txt['package_ftp_why_download'] = 'In order to download packages, the Packages directory, and any files in it, must be writable.  Currently the system does not have the needed permissions to write to this directory.  The package manager can use your FTP information to attempt to fix this problem.';
 $txt['package_ftp_server'] = 'FTP Server';
 $txt['package_ftp_port'] = 'Port';
 $txt['package_ftp_username'] = 'Username';

@@ -163,7 +163,7 @@ function template_view_package()
 
 			echo '
 				<tr class="windowbg', $alternate ? '' : '2', '">
-					<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/sort_down.png" alt="*" style="display: none;" />' : '', '</td>
+					<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;" />' : '', '</td>
 					<td>', $i++, '.</td>
 					<td>', $packageaction['type'], '</td>
 					<td>', $packageaction['action'], '</td>
@@ -256,7 +256,7 @@ function template_view_package()
 				{
 					echo '
 					<tr class="windowbg', $alternate ? '' : '2', '">
-						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/sort_down.png" alt="*" style="display: none;" />' : '', '</td>
+						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;" />' : '', '</td>
 						<td width="30" align="center">
 							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '" class="input_check" ', (!empty($action['not_mod']) ? '' : 'disabled="disabled"'), ' ', !empty($context['themes_locked']) ? 'checked="checked"' : '', '/>
 						</td>
@@ -359,7 +359,7 @@ function template_view_package()
 				aSwapImages: [
 					{
 						sId: \'operation_img_', $key, '\',
-						srcExpanded: smf_images_url + \'/sort_down.png\',
+						srcExpanded: smf_images_url + \'/selected_open.png\',
 						altExpanded: \'*\',
 						srcCollapsed: smf_images_url + \'/selected.png\',
 						altCollapsed: \'*\'

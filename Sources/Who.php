@@ -249,17 +249,15 @@ function Who()
  *
  * Adding actions to the Who's Online list:
  * Adding actions to this list is actually relatively easy...
- *  - for actions anyone should be able to see, just add a string named
- *   whoall_ACTION.  (where ACTION is the action used in index.php.)
- *  - for actions that have a subaction which should be represented
- *   differently, use whoall_ACTION_SUBACTION.
- *  - for actions that include a topic, and should be restricted, use
- *   whotopic_ACTION.
+ *  - for actions anyone should be able to see, just add a string named whoall_ACTION.
+*     (where ACTION is the action used in index.php.)
+ *  - for actions that have a subaction which should be represented differently, use whoall_ACTION_SUBACTION.
+ *  - for actions that include a topic, and should be restricted, use whotopic_ACTION.
  *  - for actions that use a message, by msg or quote, use whopost_ACTION.
  *  - for administrator-only actions, use whoadmin_ACTION.
  *  - for actions that should be viewable only with certain permissions,
- *   use whoallow_ACTION and add a list of possible permissions to the
- *   $allowedActions array, using ACTION as the key.
+ *    use whoallow_ACTION and add a list of possible permissions to the
+ *    $allowedActions array, using ACTION as the key.
  *
  * @param mixed $urls, a single url (string) or an array of arrays, each
  * inner array being (serialized request data, id_member)
@@ -276,7 +274,6 @@ function determineActions($urls, $preferred_prefix = false)
 	loadLanguage('Who');
 
 	// Actions that require a specific permission level.
-	// @todo are these actions still available
 	$allowedActions = array(
 		'admin' => array('moderate_forum', 'manage_membergroups', 'manage_bans', 'admin_forum', 'manage_permissions', 'send_mail', 'manage_attachments', 'manage_smileys', 'manage_boards', 'edit_news'),
 		'ban' => array('manage_bans'),
