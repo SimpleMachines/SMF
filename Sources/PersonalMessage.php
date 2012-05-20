@@ -411,10 +411,6 @@ function MessageFolder()
 
 	$context['sort_direction'] = $descending ? 'down' : 'up';
 
-	// Why would you want access to your sent items if you're not allowed to send anything?
-	if ($context['folder'] == 'sent')
-		isAllowedTo('pm_send');
-
 	// Set the text to resemble the current folder.
 	$pmbox = $context['folder'] != 'sent' ? $txt['inbox'] : $txt['sent_items'];
 	$txt['delete_all'] = str_replace('PMBOX', $pmbox, $txt['delete_all']);
