@@ -936,6 +936,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	else
 		trigger_error('loadMemberData(): Invalid member data set \'' . $set . '\'', E_USER_WARNING);
 
+	// Allow mods to easily add to the selected member data
+	call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables));
+	
 	if (!empty($users))
 	{
 		// Load the member's data.
