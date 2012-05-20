@@ -119,8 +119,7 @@ function template_html_above()
 	// Note that the Superfish function seems to like being called by the full syntax.
 	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
 	echo '
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/hoverIntent.js"></script>
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/superfish.js"></script>';
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/smf_jquery_plugins.js"></script>';
 	
 	// Here comes the JavaScript bits!
 	echo '
@@ -149,7 +148,8 @@ function template_html_above()
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		$(document).ready(function() { 
-			$("ul.dropmenu").superfish(); 
+			$("ul.dropmenu").superfish();
+			$(".preview").SMFtooltip();
 		});
 	// ]]></script>';
 
