@@ -438,96 +438,16 @@ function template_unapproved_attachments()
 	// Show all the attachments still oustanding.
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=attachmod;sa=attachments;start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_unapproved_attachments'], '</h3>
-			</div>
-			<div class="information">
-				', $txt['mc_unapproved_attachments_desc'], '
-			</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['mc_unapproved_attachments'], '</h3>
+		</div>
+		<div class="information">
+			', $txt['mc_unapproved_attachments_desc'], '
+		</div>';
 
-	// The ever popular approve button, with the massively unpopular delete.
-	$approve_button = create_button('approve.png', 'approve', 'approve', 'class="centericon"');
-	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
-
-	// None awaiting?
-	if (empty($context['unapproved_items']))
-		echo '
-			<div class="windowbg">
-				<span class="topslice"><span></span></span>
-				<div class="content">
-					<p class="centertext">', $txt['mc_unapproved_attachments_none_found'], '</p>
-				</div>
-				<span class="botslice"><span></span></span>
-			</div>';
-	else
-		echo '
-			<div class="pagesection">
-				<div class="floatleft">
-					', $txt['pages'], ': ', $context['page_index'], '
-				</div>
-			</div>
-			<table class="table_grid" width="100%">
-			<thead>
-				<tr class="catbg">
-					<th class="first_th">', $txt['mc_unapproved_attach_name'], '</th>
-					<th>', $txt['mc_unapproved_attach_size'], '</th>
-					<th>', $txt['mc_unapproved_attach_poster'], '</th>
-					<th>', $txt['date'], '</th>
-					<th class="last_th" nowrap="nowrap" align="center"><input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" checked="checked" /></th>
-				</tr>
-			</thead>
-			<tbody>';
-
-	foreach ($context['unapproved_items'] as $item)
-	{
-		echo '
-				<tr class="', $item['alternate'] ? 'windowbg' : 'windowbg2', '">
-					<td>
-						', $item['filename'], '
-					</td>
-					<td align="right">
-						', $item['size'], $txt['kilobyte'], '
-					</td>
-					<td>
-						', $item['poster']['link'], '
-					</td>
-					<td class="smalltext">
-						', $item['time'], '<br />', $txt['in'], ' <a href="', $item['message']['href'], '">', $item['message']['subject'], '</a>
-					</td>
-					<td width="4%" align="center">
-						<input type="checkbox" name="item[]" value="', $item['id'], '" checked="checked" class="input_check" />
-					</td>
-				</tr>';
-	}
-
-	if (!empty($context['unapproved_items']))
-		echo '
-			</tbody>
-			</table>';
-
-		echo '
-			<div class="pagesection">
-				<div class="floatright">
-					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', $txt['mc_unapproved_sure'], '\')) submit();">
-						<option value="0">', $txt['with_selected'], ':</option>
-						<option value="0">-------------------</option>
-						<option value="approve">&nbsp;--&nbsp;', $txt['approve'], '</option>
-						<option value="delete">&nbsp;--&nbsp;', $txt['delete'], '</option>
-					</select>
-					<noscript><input type="submit" name="ml_go" value="', $txt['go'], '" class="button_submit" /></noscript>
-				</div>';
-
-	if (!empty($context['unapproved_items']))
-		echo '
-				<div class="floatleft">
-					<div class="pagelinks">', $txt['pages'], ': ', $context['page_index'], '</div>
-				</div>';
+	template_show_list('mc_unapproved_attach');
 
 	echo '
-			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-		</form>
 	</div>
 	<br class="clear" />';
 }

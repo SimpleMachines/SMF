@@ -182,8 +182,7 @@ function template_unread()
 									', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
 									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
 									<p>
-										', $txt['started_by'], ' <strong>', $topic['first_post']['member']['link'], '</strong>
-										', $txt['in'], ' <em>', $topic['board']['link'], '</em>
+										', $topic['first_post']['started_by'], '
 										<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 									</p>
 								</div>
@@ -366,8 +365,7 @@ function template_replies()
 									', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
 									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
 									<p>
-										', $txt['started_by'], ' <strong>', $topic['first_post']['member']['link'], '</strong>
-										', $txt['in'], ' <em>', $topic['board']['link'], '</em>
+										', $topic['first_post']['started_by'], '
 										<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 									</p>
 								</div>

@@ -427,7 +427,7 @@ function ModifyProfile($post_errors = array())
 				}
 
 				// Does this require session validating?
-				if (!empty($area['validate']))
+				if (!empty($area['validate']) || (isset($_REQUEST['save']) && !$context['user']['is_owner']))
 					$security_checks['validate'] = true;
 
 				// Permissions for good measure.
@@ -512,10 +512,6 @@ function ModifyProfile($post_errors = array())
 	// Right - are we saving - if so let's save the old data first.
 	if ($context['completed_save'])
 	{
-		// If it's someone elses profile then validate the session.
-		if (!$context['user']['is_owner'])
-			validateSession();
-
 		// Clean up the POST variables.
 		$_POST = htmltrim__recursive($_POST);
 		$_POST = htmlspecialchars__recursive($_POST);

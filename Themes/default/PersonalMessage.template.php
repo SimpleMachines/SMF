@@ -291,14 +291,15 @@ function template_folder()
 				</li>';
 
 				// Show the profile, website, email address, and personal message buttons.
-				if ($settings['show_profile_buttons'])
+				if ($message['member']['show_profile_buttons'])
 				{
 					echo '
 				<li class="profile">
 					<ul>';
 
 					// Show the profile button
-					echo '
+					if ($message['member']['can_view_profile'])
+						echo '
 						<li><a href="', $message['member']['href'], '">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="' . $txt['view_profile'] . '" title="' . $txt['view_profile'] . '" />' : $txt['view_profile']), '</a></li>';
 
 					// Don't show an icon if they haven't specified a website.

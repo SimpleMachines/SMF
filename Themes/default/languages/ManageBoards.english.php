@@ -88,6 +88,8 @@ $txt['recycle_board'] = 'Board for recycled topics';
 $txt['recycle_board_unselected_notice'] = 'You have enabled the recycling of topics without specifying a board to place them in.  This feature will not be enabled until you specify a board to place recycled topics into.';
 $txt['countChildPosts'] = 'Count child\'s posts in parent\'s totals';
 $txt['allow_ignore_boards'] = 'Allow boards to be ignored';
+$txt['denyBoardsAccess'] = 'Enable the option to deny boards access to a group';
+$txt['boardsaccess_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Ignore\' (X), or <span class="alert">\'Deny\' (D)</span>.<br /><br />Remember that if you deny access, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br />For this reason, you should use deny carefully, only when <strong>necessary</strong>. Ignore, on the other hand, denies unless otherwise granted.';
 
 $txt['mboards_select_destination'] = 'Select destination for board \'<strong>%1$s</strong>\'';
 $txt['mboards_cancel_moving'] = 'Cancel moving';
