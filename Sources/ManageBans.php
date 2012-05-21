@@ -1261,18 +1261,26 @@ function BanBrowseTriggers()
 					$rowData[\'ip_low1\'],
 					$rowData[\'ip_low2\'],
 					$rowData[\'ip_low3\'],
-					$rowData[\'ip_low4\']
+					$rowData[\'ip_low4\'],
+					$rowData[\'ip_low5\'],
+					$rowData[\'ip_low6\'],
+					$rowData[\'ip_low7\'],
+					$rowData[\'ip_low8\']
 				), array(
 					$rowData[\'ip_high1\'],
 					$rowData[\'ip_high2\'],
 					$rowData[\'ip_high3\'],
-					$rowData[\'ip_high4\']
+					$rowData[\'ip_high4\'],
+					$rowData[\'ip_high5\'],
+					$rowData[\'ip_high6\'],
+					$rowData[\'ip_high7\'],
+					$rowData[\'ip_high8\']
 				));
 			'),
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
-			'default' => 'bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4',
-			'reverse' => 'bi.ip_low1 DESC, bi.ip_high1 DESC, bi.ip_low2 DESC, bi.ip_high2 DESC, bi.ip_low3 DESC, bi.ip_high3 DESC, bi.ip_low4 DESC, bi.ip_high4 DESC',
+			'default' => 'bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8',
+			'reverse' => 'bi.ip_low1 DESC, bi.ip_high1 DESC, bi.ip_low2 DESC, bi.ip_high2 DESC, bi.ip_low3 DESC, bi.ip_high3 DESC, bi.ip_low4 DESC, bi.ip_high4 DESC, bi.ip_low5 DESC, bi.ip_high5 DESC, bi.ip_low6 DESC, bi.ip_high6 DESC, bi.ip_low7 DESC, bi.ip_high7 DESC, bi.ip_low8 DESC, bi.ip_high8 DESC',
 		);
 	}
 	elseif ($context['selected_entity'] === 'hostname')
@@ -1625,7 +1633,7 @@ function list_getNumBanLogEntries()
 function range2ip($low, $high)
 {
 	// IPv6 check.
-	if (!empty($low[5]))
+	if (!empty($high[4]) || !empty($high[5]) || !empty($high[6]) || !empty($high[7]))
 	{
 		if (count($low) != 8 || count($high) != 8)
 			return '';
@@ -1646,8 +1654,7 @@ function range2ip($low, $high)
 
 	// Legacy IPv4 stuff.
 	// (count($low) != 4 || count($high) != 4) would not work because $low and $high always contain 8 elements!
-	for ($i = 4; $i < 8; $i++)
-		if (!empty($low[$i]) || !empty($high[$i]))
+	if ((count($low) != 4 || count($high) != 4) && (count($low) != 8 || count($high) != 8))
 			return '';
 
 	$ip = array();

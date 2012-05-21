@@ -308,7 +308,7 @@ function isValidIPv6($ip)
 /**
  * Converts IPv6s to numbers.  This makes ban checks much easier.
  * @param string $ip ip address to be converted
- * @return string 
+ * @return array 
  */
 function convertIPv6toInts($ip)
 {
@@ -326,7 +326,7 @@ function convertIPv6toInts($ip)
 		$new_ip[] = hexdec($int);
 
 	// Save this incase of repeated use.
-	$expanded[$ip] = implode($new_ip, '-');
+	$expanded[$ip] = $new_ip;
 
 	return $expanded[$ip];
 }

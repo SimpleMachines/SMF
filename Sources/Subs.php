@@ -3331,7 +3331,7 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
  * internal function used to convert a user-readable format to a format suitable for the database.
  *
  * @param string $fullip
- * @return array|string 'unknown' if the ip in the input was '255.255.255.255'
+ * @return array 
  */
 function ip2range($fullip)
 {
