@@ -625,6 +625,13 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdateParameters['member_groups'] = implode(',', $boardOptions['access_groups']);
 	}
 
+	// And who isn't.
+	if (isset($boardOptions['deny_groups']))
+	{
+		$boardUpdates[] = 'deny_member_groups = {string:deny_groups}';
+		$boardUpdateParameters['deny_groups'] = implode(',', $boardOptions['deny_groups']);
+	}
+
 	if (isset($boardOptions['board_name']))
 	{
 		$boardUpdates[] = 'name = {string:board_name}';
@@ -1067,7 +1074,7 @@ function getBoardTree()
 		SELECT
 			IFNULL(b.id_board, 0) AS id_board, b.id_parent, b.name AS board_name, b.description, b.child_level,
 			b.board_order, b.count_posts, b.member_groups, b.id_theme, b.override_theme, b.id_profile, b.redirect,
-			b.num_posts, b.num_topics, c.id_cat, c.name AS cat_name, c.cat_order, c.can_collapse
+			b.num_posts, b.num_topics, b.deny_member_groups, c.id_cat, c.name AS cat_name, c.cat_order, c.can_collapse
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
 		ORDER BY c.cat_order, b.child_level, b.board_order',
@@ -1109,6 +1116,7 @@ function getBoardTree()
 				'order' => $row['board_order'],
 				'name' => $row['board_name'],
 				'member_groups' => explode(',', $row['member_groups']),
+				'deny_groups' => explode(',', $row['deny_member_groups']),
 				'description' => $row['description'],
 				'count_posts' => empty($row['count_posts']),
 				'posts' => $row['num_posts'],

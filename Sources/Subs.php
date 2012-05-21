@@ -2968,6 +2968,7 @@ function setupThemeContext($forceload = false)
 		'total_members' => comma_format($modSettings['totalMembers']),
 		'latest_member' => $context['common_stats']['latest_member'],
 	);
+	$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], $context['common_stats']['total_posts'], $context['common_stats']['total_topics'], $context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
 		$context['html_headers'] .= '

@@ -187,3 +187,11 @@ INSERT INTO {$db_prefix}scheduled_tasks
 VALUES
 	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
 ---#
+
+/******************************************************************************/
+--- Adding support for deny boards access
+/******************************************************************************/
+---# Adding new columns to boards...
+ALTER TABLE {$db_prefix}boards
+ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+---#
