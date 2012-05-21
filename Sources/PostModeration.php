@@ -307,7 +307,7 @@ function UnapprovedPosts()
  */
 function UnapprovedAttachments()
 {
-	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc;
+	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc, $modSettings;
 
 	$context['page_title'] = $txt['mc_unapproved_attachments'];
 
@@ -377,26 +377,158 @@ function UnapprovedAttachments()
 		}
 	}
 
-	// How many unapproved attachments in total?
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}attachments AS a
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-		WHERE a.approved = {int:not_approved}
-			AND a.attachment_type = {int:attachment_type}
-			AND {query_see_board}
-			' . $approve_query,
-		array(
-			'not_approved' => 0,
-			'attachment_type' => 0,
-		)
-	);
-	list ($context['total_unapproved_attachments']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	require_once($sourcedir . '/Subs-List.php');
 
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=attachmod;sa=attachments', $_GET['start'], $context['total_unapproved_attachments'], 10);
-	$context['start'] = $_GET['start'];
+	$listOptions = array(
+		'id' => 'mc_unapproved_attach',
+		'width' => '100%',
+		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'no_items_label' => $txt['mc_unapproved_attachments_none_found'],
+		'base_href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
+		'default_sort_col' => 'attach_name',
+		'get_items' => array(
+			'function' => 'list_getUnapprovedAttachments',
+			'params' => array(
+				$approve_query,
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getNumUnapprovedAttachments',
+			'params' => array(
+				$approve_query,
+			),
+		),
+		'columns' => array(
+			'attach_name' => array(
+				'header' => array(
+					'value' => $txt['mc_unapproved_attach_name'],
+				),
+				'data' => array(
+					'db' => 'filename',
+				),
+				'sort' => array(
+					'default' => 'a.filename',
+					'reverse' => 'a.filename DESC',
+				),
+			),
+			'attach_size' => array(
+				'header' => array(
+					'value' => $txt['mc_unapproved_attach_size'],
+				),
+				'data' => array(
+					'db' => 'size',
+				),
+				'sort' => array(
+					'default' => 'a.size',
+					'reverse' => 'a.size DESC',
+				),
+			),
+			'attach_poster' => array(
+				'header' => array(
+					'value' => $txt['mc_unapproved_attach_poster'],
+				),
+				'data' => array(
+					'function' => create_function('$data', '
+						return $data[\'poster\'][\'link\'];'
+					)
+				),
+				'sort' => array(
+					'default' => 'm.id_member',
+					'reverse' => 'm.id_member DESC',
+				),
+			),
+			'date' => array(
+				'header' => array(
+					'value' => $txt['date'],
+					'style' => 'width: 18%;',
+				),
+				'data' => array(
+					'db' => 'time',
+					'class' => 'smalltext',
+					'style' => 'white-space:nowrap;',
+				),
+				'sort' => array(
+					'default' => 'm.poster_time',
+					'reverse' => 'm.poster_time DESC',
+				),
+			),
+			'message' => array(
+				'header' => array(
+					'value' => $txt['post'],
+				),
+				'data' => array(
+					'function' => create_function('$data', '
+						return \'<a href="\' . $data[\'message\'][\'href\'] . \'">\' . shorten_subject($data[\'message\'][\'subject\'], 20) . \'</a>\';'
+					),
+					'class' => 'smalltext',
+					'style' => 'width:15em;',
+				),
+				'sort' => array(
+					'default' => 'm.subject',
+					'reverse' => 'm.subject DESC',
+				),
+			),
+			'action' => array(
+				'header' => array(
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" checked="checked" />',
+					'style' => 'width: 4%;',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' => '<input type="checkbox" name="item[]" value="%1$d" checked="checked" class="input_check" />',
+						'params' => array(
+							'id' => false,
+						),
+					),
+					'style' => 'text-align: center;',
+				),
+			),
+		),
+		'form' => array(
+			'href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
+			'include_sort' => true,
+			'include_start' => true,
+			'hidden_fields' => array(
+				$context['session_var'] => $context['session_id'],
+			),
+			'token' => 'mod-ap',
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'bottom_of_list',
+				'value' => '
+					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . $txt['mc_unapproved_sure'] . '\')) submit();">
+						<option value="0">' . $txt['with_selected'] . ':</option>
+						<option value="0">-------------------</option>
+						<option value="approve">&nbsp;--&nbsp;' . $txt['approve'] . '</option>
+						<option value="delete">&nbsp;--&nbsp;' . $txt['delete'] . '</option>
+					</select>
+					<noscript><input type="submit" name="ml_go" value="' . $txt['go'] . '" class="button_submit" /></noscript>',
+				'align' => 'right',
+			),
+		),
+	);
+
+	// Create the request list.
+	createToken('mod-ap');
+	createList($listOptions);
+
+	$context['sub_template'] = 'unapproved_attachments';
+}
+
+/**
+ * Callback function for UnapprovedAttachments
+ * retrieve all the attachments waiting for approval the approver can approve
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $approve_query additional restrictions based on the boards the approver can see
+ * @return array, an array of unapproved attachments
+ */
+function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_query)
+{
+	global $smcFunc, $scripturl;
 
 	// Get all unapproved attachments.
 	$request = $smcFunc['db_query']('', '
@@ -412,19 +544,24 @@ function UnapprovedAttachments()
 		WHERE a.approved = {int:not_approved}
 			AND a.attachment_type = {int:attachment_type}
 			AND {query_see_board}
-			' . $approve_query . '
-		LIMIT ' . $context['start'] . ', 10',
+			{raw:approve_query}
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:items_per_page}',
 		array(
 			'not_approved' => 0,
 			'attachment_type' => 0,
+			'start' => $start,
+			'sort' => $sort,
+			'items_per_page' => $items_per_page,
+			'approve_query' => $approve_query,
 		)
 	);
-	$context['unapproved_items'] = array();
-	for ($i = 1; $row = $smcFunc['db_fetch_assoc']($request); $i++)
+
+	$unapproved_items = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['unapproved_items'][] = array(
+		$unapproved_items[] = array(
 			'id' => $row['id_attach'],
-			'alternate' => $i % 2,
 			'filename' => $row['filename'],
 			'size' => round($row['size'] / 1024, 2),
 			'time' => timeformat($row['poster_time']),
@@ -456,7 +593,42 @@ function UnapprovedAttachments()
 	}
 	$smcFunc['db_free_result']($request);
 
-	$context['sub_template'] = 'unapproved_attachments';
+	return $unapproved_items;
+}
+
+/**
+ * Callback function for UnapprovedAttachments
+ * count all the attachments waiting for approval the approver can approve
+ * 
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param string $approve_query additional restrictions based on the boards the approver can see
+ * @return int, the number of unapproved attachments
+ */
+function list_getNumUnapprovedAttachments($approve_query)
+{
+	global $smcFunc;
+
+	// How many unapproved attachments in total?
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}attachments AS a
+			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
+		WHERE a.approved = {int:not_approved}
+			AND a.attachment_type = {int:attachment_type}
+			AND {query_see_board}
+			' . $approve_query,
+		array(
+			'not_approved' => 0,
+			'attachment_type' => 0,
+		)
+	);
+	list ($total_unapproved_attachments) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	return $total_unapproved_attachments;
 }
 
 /**
