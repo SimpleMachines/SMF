@@ -1985,8 +1985,8 @@ p#whoisviewing
 /* poster and postarea + moderation area underneath */
 .post_wrapper
 {
-	float:left;
-	width:100%;
+	float: left;
+	width: 100%;
 }
 .poster
 {
@@ -2000,6 +2000,10 @@ p#whoisviewing
 .postarea div.flow_hidden
 {
 	width: 100%;
+}
+.poster img
+{
+	vertical-align: middle;
 }
 
 .moderatorbar

@@ -105,8 +105,6 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	}
 }
 
-
-
 /**
  * Get the domain and path for the cookie
  * - normally, local and global should be the localCookies and globalCookies settings, respectively.

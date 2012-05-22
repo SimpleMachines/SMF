@@ -404,7 +404,7 @@ function template_modify_board()
 
 	if (empty($modSettings['deny_boards_access']))
 		echo '
-							<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[]\');" /><br />
+							<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[\');" /><br />
 							<br />
 						</dd>';
 	else
