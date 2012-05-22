@@ -1356,7 +1356,7 @@ function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			bi.id_ban, bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.hostname, bi.email_address, bi.hits,
+			bi.id_ban, bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8, bi.hostname, bi.email_address, bi.hits,
 			bg.id_ban_group, bg.name' . ($trigger_type === 'member' ? ',
 			mem.id_member, mem.real_name' : '') . '
 		FROM {db_prefix}ban_items AS bi
