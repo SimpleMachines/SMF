@@ -1829,19 +1829,26 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$new_topic = empty($topicOptions['id']);
 
+	$message_columns = array(
+		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (isset($modSettings['max_messageLength']) && $modSettings['max_messageLength'] == 0 ? 'string' : 'string-65534')),
+		'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'string-255',
+		'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
+	);
+
+	$message_parameters = array(
+		$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
+		$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
+		$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
+	);
+
+	// What if we want to do anything with posts?
+	call_integration_hook('integrate_create_post', array($msgOptions, $topicOptions, $posterOptions, &$message_columns, &$message_parameters));
+
 	// Insert the post.
 	$smcFunc['db_insert']('',
 		'{db_prefix}messages',
-		array(
-			'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (isset($modSettings['max_messageLength']) && $modSettings['max_messageLength'] == 0 ? 'string' : 'string-65534')),
-			'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'string-255',
-			'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
-		),
-		array(
-			$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-			$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
-			$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
-		),
+		$message_columns,
+		$message_parameters,
 		array('id_msg')
 	);
 	$msgOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}messages', 'id_msg');
@@ -2430,6 +2437,8 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$update_parameters = array(
 		'id_msg' => $msgOptions['id'],
 	);
+
+	call_integration_hook('integrate_modify_post', array($msgOptions, $topicOptions, $posterOptions, &$messages_columns, &$update_parameters));
 
 	foreach ($messages_columns as $var => $val)
 	{
