@@ -1305,6 +1305,7 @@ function template_prune()
 				<div class="righttext">
 					<input type="submit" value="', $txt['delete'], '" class="button_submit" />
 				</div>
+				<br class="clear" />
 			</div>
 			<span class="botslice"><span></span></span>
 		</div>
