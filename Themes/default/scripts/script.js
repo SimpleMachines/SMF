@@ -530,6 +530,13 @@ function selectRadioByName(oRadioGroup, sName)
 	return false;
 }
 
+function selectAllRadio(oInvertCheckbox, oForm, sMask, sValue)
+{
+	for (var i = 0; i < oForm.length; i++)
+		if (oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue)
+			oForm[i].checked = true;
+}
+
 // Invert all checkboxes at once by clicking a single checkbox.
 function invertAll(oInvertCheckbox, oForm, sMask, bIgnoreDisabled)
 {

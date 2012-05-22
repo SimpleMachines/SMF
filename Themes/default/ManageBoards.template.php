@@ -257,10 +257,6 @@ function template_modify_board()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
-	if (!empty($modSettings['denyBoardsAccess']))
-		echo '
-		<div class="information">', $txt['boardsaccess_option_desc'], '</div>';
-
 	// The main table header.
 	echo '
 	<div id="manage_boards">
@@ -358,11 +354,13 @@ function template_modify_board()
 						</dd>
 						<dt>
 							<strong>', $txt['mboards_groups'], ':</strong><br />
-							<span class="smalltext">', $txt['mboards_groups_desc'], '</span>
+							<span class="smalltext">', empty($modSettings['deny_boards_access']) ? $txt['mboards_groups_desc'] : $txt['boardsaccess_option_desc'], '</span>';
+
+	echo '
 						</dt>
 						<dd>';
 
-	if (!empty($modSettings['denyBoardsAccess']))
+	if (!empty($modSettings['deny_boards_access']))
 		echo '
 							<table>
 								<tr>
@@ -374,10 +372,10 @@ function template_modify_board()
 
 	// List all the membergroups so the user can choose who may access this board.
 	foreach ($context['groups'] as $group)
-		if (empty($modSettings['denyBoardsAccess']))
+		if (empty($modSettings['deny_boards_access']))
 			echo '
 							<label for="groups_', $group['id'], '">
-								<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['checked'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['allow'] ? ' checked="checked"' : '', ' class="input_check" />
 								<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : '', $group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : '', '>
 									', $group['name'], '
 								</span>
@@ -393,24 +391,41 @@ function template_modify_board()
 										</label>
 									</td>
 									<td>
-										<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['allow'] ? ' checked="checked"' : '', ' class="input_radio" />
+										<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '_a"', $group['allow'] ? ' checked="checked"' : '', ' class="input_radio" />
 									</td>
 									<td>
-										<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '"', !$group['allow'] && !$group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
+										<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '_x"', !$group['allow'] && !$group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
 									</td>
 									<td>
-										<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '"', $group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
+										<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '_d"', $group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
 									</td>
-';
+									<td></td>
+								</tr>';
 
-	if (!empty($modSettings['denyBoardsAccess']))
-		echo '
-							</table>
-						</dd>';
-	else
+	if (empty($modSettings['deny_boards_access']))
 		echo '
 							<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[]\');" /><br />
 							<br />
+						</dd>';
+	else
+		echo '
+								<tr>
+									<td>
+									</td>
+									<td>
+										<input type="radio" name="select_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'groups\', \'allow\');" />
+									</td>
+									<td>
+										<input type="radio" name="select_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'groups\', \'ignore\');" />
+									</td>
+									<td>
+										<input type="radio" name="select_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'groups\', \'deny\');" />
+									</td>
+									<td>
+										<em>', $txt['check_all'], '</em>
+									</td>
+								</tr>
+							</table>
 						</dd>';
 
 	// Options to choose moderators, specifiy as announcement board and choose whether to count posts here.

@@ -1709,6 +1709,7 @@ function template_clean_cache_button_below()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 			</form>
 		</div>
+		<br class="clear" />
 		<span class="botslice"><span></span></span>
 	</div>';
 }

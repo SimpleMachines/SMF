@@ -424,6 +424,7 @@ function template_edit_profiles()
 
 	echo '
 				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button_submit" />
+				<br class="clear" />
 			</div>
 		</form>
 		<br />

@@ -192,59 +192,19 @@ function is_not_banned($forceCheck = false)
 		// Check both IP addresses.
 		foreach (array('ip', 'ip2') as $ip_number)
 		{
-			// First attempt a IPv6 address.
-			if (strpos($user_info[$ip_number], ':') !== false)
+			if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
+				continue;
+			$ban_query[] = constructBanQueryIP($user_info[$ip_number]);
+			// IP was valid, maybe there's also a hostname...
+			if (empty($modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
 			{
-				if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
-					continue;
-
-				$ip_parts = array_map('hexdec', explode(':', expandIPv6($user_info[$ip_number])));
-
-				$ban_query[] = '((' . $ip_parts[0] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-							AND (' . $ip_parts[1] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-							AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-							AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low4 AND bi.ip_high4)
-							AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low5 AND bi.ip_high5)
-							AND (' . $ip_parts[5] . ' BETWEEN bi.ip_low6 AND bi.ip_high6)
-							AND (' . $ip_parts[6] . ' BETWEEN bi.ip_low7 AND bi.ip_high7)
-							AND (' . $ip_parts[7] . ' BETWEEN bi.ip_low8 AND bi.ip_high8))';
-
-				// IP was valid, maybe there's also a hostname...
-				if (empty($modSettings['disableHostnameLookup']))
+				$hostname = host_from_ip($user_info[$ip_number]);
+				if (strlen($hostname) > 0)
 				{
-					$hostname = host_from_ip($user_info[$ip_number]);
-					if (strlen($hostname) > 0)
-					{
-						$ban_query[] = '({string:hostname} LIKE bi.hostname)';
-						$ban_query_vars['hostname'] = $hostname;
-					}
+					$ban_query[] = '({string:hostname} LIKE bi.hostname)';
+					$ban_query_vars['hostname'] = $hostname;
 				}
 			}
-			// Check if we have a valid IPv4 address.
-			elseif (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $user_info[$ip_number], $ip_parts) == 1)
-			{
-				$ban_query[] = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-							AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-							AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-							AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low4 AND bi.ip_high4))';
-
-				// IP was valid, maybe there's also a hostname...
-				if (empty($modSettings['disableHostnameLookup']))
-				{
-					$hostname = host_from_ip($user_info[$ip_number]);
-					if (strlen($hostname) > 0)
-					{
-						$ban_query[] = '({string:hostname} LIKE bi.hostname)';
-						$ban_query_vars['hostname'] = $hostname;
-					}
-				}
-			}
-			// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
-			elseif ($user_info['ip'] == 'unknown')
-				$ban_query[] = '(bi.ip_low1 = 255 AND bi.ip_high1 = 255
-							AND bi.ip_low2 = 255 AND bi.ip_high2 = 255
-							AND bi.ip_low3 = 255 AND bi.ip_high3 = 255
-							AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
 		}
 
 		// Is their email address banned?
@@ -1253,6 +1213,43 @@ else
 		return $errors;
 	else
 		return true;
+}
+
+/**
+ * Another helper function that put together the 
+ * @param string $fullip An IP address either IPv6 or not
+ * @return string A SQL condition
+ */
+function constructBanQueryIP($fullip)
+{
+	// First attempt a IPv6 address.
+	if (isValidIPv6($fullip))
+	{
+		$ip_parts = convertIPv6toInts($fullip);
+
+		$ban_query = '((' . $ip_parts[0] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
+			AND (' . $ip_parts[1] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
+			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
+			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low4 AND bi.ip_high4)
+			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low5 AND bi.ip_high5)
+			AND (' . $ip_parts[5] . ' BETWEEN bi.ip_low6 AND bi.ip_high6)
+			AND (' . $ip_parts[6] . ' BETWEEN bi.ip_low7 AND bi.ip_high7)
+			AND (' . $ip_parts[7] . ' BETWEEN bi.ip_low8 AND bi.ip_high8))';
+	}
+	// Check if we have a valid IPv4 address.
+	elseif (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $fullip, $ip_parts) == 1)
+		$ban_query = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
+			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
+			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
+			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low4 AND bi.ip_high4))';
+	// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
+	else
+		$ban_query = '(bi.ip_low1 = 255 AND bi.ip_high1 = 255
+			AND bi.ip_low2 = 255 AND bi.ip_high2 = 255
+			AND bi.ip_low3 = 255 AND bi.ip_high3 = 255
+			AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
+
+	return $ban_query;
 }
 
 ?>

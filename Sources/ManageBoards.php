@@ -799,7 +799,7 @@ function EditBoardSettings($return_config = false)
 			array('check', 'recycle_enable', 'onclick' => 'document.getElementById(\'recycle_board\').disabled = !this.checked;'),
 			array('select', 'recycle_board', $recycle_boards),
 			array('check', 'allow_ignore_boards'),
-			array('check', 'denyBoardsAccess'),
+			array('check', 'deny_boards_access'),
 	);
 
 	call_integration_hook('integrate_modify_board_settings', array(&$config_vars));

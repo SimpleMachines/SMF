@@ -848,7 +848,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// Don't waste cycles
 	if ($message === '')
 		return '';
-		
+
 	// Just in case it wasn't determined yet whether UTF-8 is enabled.
 	if (!isset($context['utf8']))
 		$context['utf8'] = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
@@ -862,7 +862,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$context['disabled_parse_bbc'] = true;
 		return $message;
 	}
-	
+
 	// Never show smileys for wireless clients.  More bytes, can't see it anyway :P.
 	if (WIRELESS)
 		$smileys = false;
@@ -3331,7 +3331,7 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
  * internal function used to convert a user-readable format to a format suitable for the database.
  *
  * @param string $fullip
- * @return array|string 'unknown' if the ip in the input was '255.255.255.255'
+ * @return array 
  */
 function ip2range($fullip)
 {
@@ -4084,7 +4084,7 @@ function sanitizeMSCutPaste($string)
 	global $context;
 	
 	if (empty($string))
-		return;
+		return $string;
 		
 	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(

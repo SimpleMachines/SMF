@@ -125,29 +125,13 @@ function summary($memID)
 			'time' => time(),
 		);
 		$ban_query[] = 'id_member = ' . $context['member']['id'];
-
-		// Valid IP?
-		if (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $memberContext[$memID]['ip'], $ip_parts) == 1)
+		$ban_query[] = constructBanQueryIP($memberContext[$memID]['ip']);
+		// Do we have a hostname already?
+		if (!empty($context['member']['hostname']))
 		{
-			$ban_query[] = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-						AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-						AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-						AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low4 AND bi.ip_high4))';
-
-			// Do we have a hostname already?
-			if (!empty($context['member']['hostname']))
-			{
-				$ban_query[] = '({string:hostname} LIKE hostname)';
-				$ban_query_vars['hostname'] = $context['member']['hostname'];
-			}
+			$ban_query[] = '({string:hostname} LIKE hostname)';
+			$ban_query_vars['hostname'] = $context['member']['hostname'];
 		}
-		// Use '255.255.255.255' for 'unknown' - it's not valid anyway.
-		elseif ($memberContext[$memID]['ip'] == 'unknown')
-			$ban_query[] = '(bi.ip_low1 = 255 AND bi.ip_high1 = 255
-						AND bi.ip_low2 = 255 AND bi.ip_high2 = 255
-						AND bi.ip_low3 = 255 AND bi.ip_high3 = 255
-						AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
-
 		// Check their email as well...
 		if (strlen($context['member']['email']) != 0)
 		{
