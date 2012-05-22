@@ -797,7 +797,7 @@ function MembersAwaitingActivation()
 
 	$listOptions = array(
 		'id' => 'approve_list',
-		'title' => $txt['members_approval_title'],
+// 		'title' => $txt['members_approval_title'],
 		'items_per_page' => $modSettings['defaultMaxMembers'],
 		'base_href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : ''),
 		'default_sort_col' => 'date_registered',

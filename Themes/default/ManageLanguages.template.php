@@ -423,13 +423,13 @@ function template_modify_language_entries()
 
 		echo '
 				</div>
+				<br class="clear" />
 				<span class="botslice"><span></span></span>
 			</div>';
 	}
 	echo '
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 /**

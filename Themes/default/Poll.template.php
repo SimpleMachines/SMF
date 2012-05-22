@@ -145,6 +145,7 @@ function template_main()
 					<div class="righttext padding">
 						<input type="submit" name="post" value="', $txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit" />
 					</div>
+					<br class="clear" />
 				</div>
 				<span class="lowerframe"><span></span></span>
 			</div>
@@ -152,7 +153,7 @@ function template_main()
 			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
 		</form>
 	</div>
-	<br class="clear" />';
+';
 }
 
 ?>
