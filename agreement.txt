@@ -11,3 +11,5 @@ After you register and login to this forum, you will be able to fill out a detai
 Please note that with each post, your IP address is recorded, in the event that you need to be banned from this forum or your ISP contacted. This will only happen in the event of a major violation of this agreement.
 
 Also note that the software places a cookie, a text file containing bits of information (such as your username and password), in your browser's cache. This is ONLY used to keep you logged in/out. The software does not collect or send any other form of information to your computer.
+
+Test
