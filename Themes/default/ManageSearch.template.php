@@ -251,12 +251,11 @@ function template_create_index()
 					<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>
+				<br class="clear" />
 				<span class="botslice"><span></span></span>
 			</div>
-
 	</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_create_index_progress()
