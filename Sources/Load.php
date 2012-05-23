@@ -2651,7 +2651,7 @@ function cache_get_data($key, $ttl = 120)
 		$st = microtime();
 	}
 
-	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':', '-');
+	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':/', '-_');
 
 	switch ($cache_accelerator)
 	{
@@ -2698,7 +2698,8 @@ function cache_get_data($key, $ttl = 120)
 			// Otherwise it's SMF data!
 			if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
 			{
-				require($cachedir . '/data_' . $key . '.php');
+				// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
+				@include($cachedir . '/data_' . $key . '.php');
 				if (!empty($expired) && isset($value))
 				{
 					@unlink($cachedir . '/data_' . $key . '.php');
