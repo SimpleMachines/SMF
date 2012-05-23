@@ -280,7 +280,7 @@ function EditSearchMethod()
 	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext')
 	{
 		checkSession('get');
-		validateToken('admin-msm');
+		validateToken('admin-msm', 'get');
 
 		// Make sure it's gone before creating it.
 		$smcFunc['db_query']('', '
@@ -303,7 +303,7 @@ function EditSearchMethod()
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removefulltext' && !empty($context['fulltext_index']))
 	{
 		checkSession('get');
-		validateToken('admin-msm');
+		validateToken('admin-msm', 'get');
 
 		$smcFunc['db_query']('', '
 			ALTER TABLE {db_prefix}messages
@@ -325,7 +325,7 @@ function EditSearchMethod()
 	elseif (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'removecustom')
 	{
 		checkSession('get');
-		validateToken('admin-msm');
+		validateToken('admin-msm', 'get');
 
 		db_extend();
 		$tables = $smcFunc['db_list_tables'](false, $db_prefix . 'log_search_words');
@@ -352,7 +352,7 @@ function EditSearchMethod()
 	elseif (isset($_POST['save']))
 	{
 		checkSession();
-		validateToken('admin-msm');
+		validateToken('admin-msmpost');
 
 		updateSettings(array(
 			'search_index' => empty($_POST['search_index']) || (!in_array($_POST['search_index'], array('fulltext', 'custom')) && !isset($context['search_apis'][$_POST['search_index']])) ? '' : $_POST['search_index'],
@@ -497,7 +497,8 @@ function EditSearchMethod()
 	$context['partial_custom_index'] = !empty($modSettings['search_custom_index_resume']) && empty($modSettings['search_custom_index_config']);
 	$context['double_index'] = !empty($context['fulltext_index']) && $context['custom_index'];
 
-	createToken('admin-msm');
+	createToken('admin-msmpost');
+	createToken('admin-msm', 'get');
 }
 
 /**
