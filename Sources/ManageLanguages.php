@@ -1087,7 +1087,7 @@ function ModifyLanguage()
 				continue;
 
 			// These are arrays that need breaking out.
-			$arrays = array('days', 'days_short', 'months', 'months_titles', 'months_short');
+			$arrays = array('days', 'days_short', 'months', 'months_titles', 'months_short', 'happy_birthday_author', 'karlbenson1_author', 'nite0859_author', 'zwaldowski_author', 'geezmo_author', 'karlbenson2_author');
 			if (in_array($entryKey, $arrays))
 			{
 				// Get off the first bits.
