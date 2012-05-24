@@ -89,7 +89,7 @@ if (isset($_GET['scheduled']))
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 {
 	// If zlib is being used, turn off output compression.
-	if (ini_get('zlib.output_compression') == '1' || ini_get('output_handler') == 'ob_gzhandler')
+	if (ini_get('zlib.output_compression') >=  1 || ini_get('output_handler') == 'ob_gzhandler')
 		$modSettings['enableCompressedOutput'] = '0';
 	else
 	{
