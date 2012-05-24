@@ -193,7 +193,62 @@ function template_credits()
 			<span class="botslice"><span></span></span>
 		</div>';
 	}
+	
+	// Other software and graphics
+	if (!empty($context['credits_software_graphics']))
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['credits_software_graphics'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">';
+		
+		if (!empty($context['credits_software_graphics']['graphics']))
+			echo '
+				<dl>
+					<dt><strong>', $txt['credits_graphics'], '</strong></dt>
+					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['graphics']), '</dd>
+				</dl>';
+		
+		if (!empty($context['credits_software_graphics']['software']))
+			echo '
+				<dl>
+					<dt><strong>', $txt['credits_software'], '</strong></dt>
+					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['software']), '</dd>
+				</dl>';
+	
+		echo '
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>';
+	}
+	
+	// How about Modifications, we all love em
+	if (!empty($context['credits_modifications']))
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['credits_modifications'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">';
+				
+		echo '
+				<dl>
+					<dt><strong>', $txt['credits_modifications'], '</strong></dt>
+					<dd>', implode('</dd><dd>', $context['credits_modifications']), '</dd>
+				</dl>';
+		
+		echo '
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>';
+	}
 
+	// SMF itself
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['credits_copyright'], '</h3>
@@ -209,15 +264,6 @@ function template_credits()
 					</dd>
 				</dl>';
 				
-	if (!empty($context['copyrights']['other']))
-	{
-		echo '
-				<dl>
-					<dt><strong>', $txt['credits_other'], '</strong></dt>
-					<dd>', implode('</dd><dd>', $context['copyrights']['other']), '</dd>
-				</dl>';
-	}
-
 	if (!empty($context['copyrights']['mods']))
 	{
 		echo '
