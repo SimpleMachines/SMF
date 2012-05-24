@@ -155,13 +155,21 @@ function MaintainDatabase()
 	// Here is more tricky: it depends on many factors, but the main idea is that
 	// if it takes "too long" the backup is not reliable. So, I know that on my computer it take
 	// 20 minutes to backup 2.5 GB, of course my computer is not representative, so I'll multiply by 4 the time.
-	// I would consider "too long" 5 minutes (I know it can be a long time, but let's start with that:
+	// I would consider "too long" 5 minutes (I know it can be a long time, but let's start with that):
 	// 80 minutes for a 2.5 GB and a 5 minutes limit means 160 MB approx
 	$plain_limit = 240000;
+	// Last thing: are we able to gain time?
+	$current_time_limit = ini_get('max_execution_time');
+	@set_time_limit(159); //something strange just to be sure
+	$new_time_limit = ini_get('max_execution_time');
 
 	$context['use_maintenance'] = 0;
 
-	if ($context['safe_mode_enable'])
+	// External tool if:
+	//  * safe_mode enable OR
+	//  * cannot change the execution time OR
+	//  * cannot reset timeout
+	if ($context['safe_mode_enable'] || empty($new_time_limit) || $current_time_limit == $new_time_limit || !function_exists('apache_reset_timeout'))
 		$context['suggested_method'] = 'use_external_tool';
 	elseif ($zip_limit < $plain_limit && $messages < $zip_limit)
 		$context['suggested_method'] = 'zipped_file';
