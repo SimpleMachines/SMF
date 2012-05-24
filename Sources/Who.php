@@ -684,22 +684,21 @@ function Credits($in_admin = false)
 			),
 		),
 	);
-
-	$context['copyrights'] = array(
-		'smf' => sprintf($forum_copyright, $forum_version),
-		'other' => array(
+	
+	// Give credit to any graphic library's, software library's, plugins etc
+	$context['credits_software_graphics'] = array(
+		'graphics' => array(
 			'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | &copy; 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
 		),
-		/* Modification Authors:  You may add a copyright statement to this array for your mods.
-			Copyright statements should be in the form of a value only without a array key.  I.E.:
-				'Some Mod by Thantos &copy; 2010',
-				$txt['some_mod_copyright'],
-		*/
-		'mods' => array(
+		'software' => array(
+			'<a href="http://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="http://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
+			'<a href="http://cherne.net/brian/resources/jquery.hoverIntent.html">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://users.tpg.com.au/j_birch/plugins/superfish/">Superfish</a> | &copy; Joel Birch | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 	);
-
+	
 	// support for mods that use the <credits> tag via the package manager
+	$context['credits_modifications'] = array();
 	if (($mods = cache_get_data('mods_credits', 86400)) === null)
 	{
 		$mods = array();
@@ -715,6 +714,7 @@ function Credits($in_admin = false)
 				'empty' => '',
 			)
 		);
+		
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$credit_info = unserialize($row['credits']);
@@ -730,9 +730,22 @@ function Credits($in_admin = false)
 		}
 		cache_put_data('mods_credits', $mods, 86400);
 	}
-
-	$context['copyrights']['mods'] += $mods;
-
+	$context['credits_modifications'] = $mods;
+	
+	$context['copyrights'] = array(
+		'smf' => sprintf($forum_copyright, $forum_version),
+		/* Modification Authors:  You may add a copyright statement to this array for your mods.
+			Copyright statements should be in the form of a value only without a array key.  I.E.:
+				'Some Mod by Thantos &copy; 2010',
+				$txt['some_mod_copyright'],
+		*/
+		'mods' => array(
+		),
+	);
+	
+	// Support for those that want to use a hook as well
+	call_integration_hook('integrate_credits');
+	
 	if (!$in_admin)
 	{
 		loadTemplate('Who');
@@ -740,9 +753,6 @@ function Credits($in_admin = false)
 		$context['robot_no_index'] = true;
 		$context['page_title'] = $txt['credits'];
 	}
-
-	// Support for those that want to use a hook as well
-	call_integration_hook('integrate_credits');
 }
 
 ?>
