@@ -218,6 +218,7 @@ $helptxt['smileys'] = '<strong>Smiley Center</strong><br />
 	You are also able to edit message icons from here, if you have them enabled on the settings page.';
 $helptxt['calendar'] = '<strong>Manage Calendar</strong><br />
 	Here you can modify the current calendar settings as well as add and remove holidays that appear on the calendar.';
+$helptxt['cal_export'] = 'Exports a text file in the iCal format for importing in to other calendar applications';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br />
 	Here you can perform the core configuration for your forum. This section includes the database and url settings, as well as other

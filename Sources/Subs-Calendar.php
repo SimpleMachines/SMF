@@ -177,7 +177,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
 					'modify_href' => $scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-					'can_export' => allowedTo('calendar_export'),
+					'can_export' => !empty($modSettings['cal_export']) ? true : false,
 					'export_href' => $scripturl . '?action=calendar;sa=ical;eventid=' . $row['id_event'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				);
 			// Otherwise, this is going to be cached and the VIEWER'S permissions should apply... just put together some info.
@@ -192,7 +192,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'href' => $row['id_topic'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => false,
-					'can_export' => false,
+					'can_export' => !empty($modSettings['cal_export']) ? true : false,
 					'topic' => $row['id_topic'],
 					'msg' => $row['id_first_msg'],
 					'poster' => $row['id_member'],
