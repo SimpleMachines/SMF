@@ -331,8 +331,9 @@ function iCalDownload()
 {
 	global $smcFunc, $sourcedir, $forum_version, $context, $modSettings, $webmaster_email, $mbname;
 
-	// This requires the export permission
-	isAllowedTo('calendar_export');
+	// You can't export if the calendar export feature is off.
+	if (empty($modSettings['cal_export']))
+		fatal_lang_error('calendar_export_off', false);
 	
 	// Goes without saying that this is required.
 	if (!isset($_REQUEST['eventid']))

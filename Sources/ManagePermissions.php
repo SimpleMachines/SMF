@@ -1463,7 +1463,6 @@ function loadAllPermissions($loadType = 'classic')
 			'pm_read' => array(false, 'pm', 'use_pm_system'),
 			'pm_send' => array(false, 'pm', 'use_pm_system'),
 			'calendar_view' => array(false, 'calendar', 'view_basic_info'),
-			'calendar_export' => array(false, 'calendar', 'view_basic_info'),
 			'calendar_post' => array(false, 'calendar', 'post_calendar'),
 			'calendar_edit' => array(true, 'calendar', 'post_calendar', 'moderate_general'),
 			'admin_forum' => array(false, 'maintenance', 'administrate'),
@@ -1544,7 +1543,6 @@ function loadAllPermissions($loadType = 'classic')
 		$hiddenPermissions[] = 'calendar_view';
 		$hiddenPermissions[] = 'calendar_post';
 		$hiddenPermissions[] = 'calendar_edit';
-		$hiddenPermissions[] = 'calendar_export';
 	}
 	if (!in_array('w', $context['admin_features']))
 		$hiddenPermissions[] = 'issue_warning';

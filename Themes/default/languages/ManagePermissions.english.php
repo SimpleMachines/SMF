@@ -104,8 +104,6 @@ $txt['permissionname_calendar_edit'] = 'Edit events in the calendar';
 $txt['permissionhelp_calendar_edit'] = 'An Event is a topic linked to a certain date or date range. The event can be edited by clicking the red asterisk (*) next to the event in the calendar view. In order to be able to edit an event, a user must have sufficient permissions to edit the first message of the topic that is linked to the event.';
 $txt['permissionname_calendar_edit_own'] = 'Own events';
 $txt['permissionname_calendar_edit_any'] = 'Any events';
-$txt['permissionname_calendar_export'] = 'Export events from the calendar';
-$txt['permissionhelp_calendar_export'] = 'Exports a text file in the iCal format for importing in to other calendar applications';
 
 $txt['permissiongroup_maintenance'] = 'Forum administration';
 $txt['permissionname_admin_forum'] = 'Administrate forum and database';
