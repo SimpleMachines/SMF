@@ -339,7 +339,7 @@ function smf_main()
 	call_integration_hook('integrate_actions', array(&$actionArray));
 
 	// Get the function and file to include - if it's not there, do the board index.
-	if (!isset($_REQUEST['action']) || !isset($actionArray[$_REQUEST['action']]))
+	if (!isset($_REQUEST['action']))
 	{
 		// Catch the action with the theme?
 		if (!empty($settings['catch_action']))
@@ -352,10 +352,25 @@ function smf_main()
 		require_once($sourcedir . '/BoardIndex.php');
 		return 'BoardIndex';
 	}
-
-	// Otherwise, it was set - so let's go to that action.
-	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
-	return $actionArray[$_REQUEST['action']][1];
+	if(array_key_exists($_REQUEST['action'],$actionArray))
+	{
+		// Otherwise, it was set - so let's go to that action.
+		require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
+		return $actionArray[$_REQUEST['action']][1];
+	} else {
+		// This is ugly and more needs to be in a template, should be on todo list. :D
+		header('HTTP/1.0 404 Not Found');
+		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>404: Page Not Found</title>
+	<meta http-equiv="Content-type" content="text/html; charset=ISO-8859-1" />
+</head>
+<body>
+	<h1>404: Page Not Found</h1>
+</body>
+</html>';
+	}
 }
 
 ?>
