@@ -702,12 +702,12 @@ function Credits($in_admin = false)
 	if (($mods = cache_get_data('mods_credits', 86400)) === null)
 	{
 		$mods = array();
-		$request = $smcFunc['db_query']('', '
+		$request = $smcFunc['db_query']('substring', '
 			SELECT version, name, credits
 			FROM {db_prefix}log_packages
 			WHERE install_state = {int:installed_mods}
 				AND credits != {string:empty}
-				AND SUBSTRING(filename FROM 1 FOR 9) != {string:patch_name}',
+				AND SUBSTRING(filename, 1, 9) != {string:patch_name}',
 			array(
 				'installed_mods' => 1,
 				'patch_name' => 'smf_patch',
@@ -726,7 +726,7 @@ function Credits($in_admin = false)
 
 			// build this one out and stash it away
 			$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
-			$mods[] =  $mod_name . (!empty($license) ? ' | ' . $license  : '') . (!empty($copyright) ? ' | ' . $copyright  : '');
+			$mods[] = $mod_name . (!empty($license) ? ' | ' . $license  : '') . (!empty($copyright) ? ' | ' . $copyright  : '');
 		}
 		cache_put_data('mods_credits', $mods, 86400);
 	}

@@ -506,12 +506,12 @@ CREATE TABLE {$db_prefix}boards (
   override_theme smallint NOT NULL default '0',
   unapproved_posts smallint NOT NULL default '0',
   unapproved_topics smallint NOT NULL default '0',
-  redirect varchar(255) NOT NULL default ''
-  deny_member_groups varchar(255) NOT NULL default '',
+  redirect varchar(255) NOT NULL default '',
+  deny_member_groups varchar(255) NOT NULL default ''
 );
 
 #
-# Indexes for table `ban_items`
+# Indexes for table `boards`
 #
 
 CREATE UNIQUE INDEX {$db_prefix}boards_categories ON {$db_prefix}boards (id_cat, id_board);
