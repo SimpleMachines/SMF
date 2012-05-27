@@ -174,3 +174,11 @@ VALUES
 ALTER TABLE {$db_prefix}boards
 ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Fixing mail queue for long messages
+/******************************************************************************/
+---# Altering mil_queue table...
+ALTER TABLE {$db_prefix}mail_queue
+CHANGE body body mediumtext NOT NULL;
+---#
