@@ -167,7 +167,7 @@ function AdminMain()
 					'label' => $txt['theme_current_settings'],
 					'file' => 'Themes.php',
 					'function' => 'ThemesMain',
-					'custom_url' => $scripturl . '?action=admin;area=theme;sa=settings;th=' . $settings['theme_id'],
+					'custom_url' => $scripturl . '?action=admin;area=theme;sa=list;th=' . $settings['theme_id'],
 					'icon' => 'current_theme.png',
 				),
 				'theme' => array(
