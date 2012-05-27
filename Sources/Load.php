@@ -452,8 +452,7 @@ function loadUserSettings()
 		$user_info['query_see_board'] = '1=1';
 	// Otherwise just the groups in $user_info['groups'].
 	else
-		$user_info['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $user_info['groups']) . ', b.member_groups) != 0' . (!empty($modSettings['deny_boards_access']) ? ') AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $user_info['groups']) . ', b.deny_member_groups) = 0)' : '') . (isset($user_info['mod_cache']) ? ' OR ' . $user_info['mod_cache']['mq'] : '') . ')';
-
+		$user_info['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $user_info['groups']) . ', b.member_groups) != 0)' . (!empty($modSettings['deny_boards_access']) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $user_info['groups']) . ', b.deny_member_groups) = 0)' : '') . (isset($user_info['mod_cache']) ? ' OR ' . $user_info['mod_cache']['mq'] : '') . ')';
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
@@ -2651,7 +2650,7 @@ function cache_get_data($key, $ttl = 120)
 		$st = microtime();
 	}
 
-	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':', '-');
+	$key = md5($boardurl . filemtime($sourcedir . '/Load.php')) . '-SMF-' . strtr($key, ':/', '-_');
 
 	switch ($cache_accelerator)
 	{
@@ -2698,7 +2697,8 @@ function cache_get_data($key, $ttl = 120)
 			// Otherwise it's SMF data!
 			if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
 			{
-				require($cachedir . '/data_' . $key . '.php');
+				// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
+				@include($cachedir . '/data_' . $key . '.php');
 				if (!empty($expired) && isset($value))
 				{
 					@unlink($cachedir . '/data_' . $key . '.php');

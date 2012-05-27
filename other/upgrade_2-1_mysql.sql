@@ -150,7 +150,7 @@ CHANGE `session_id` `session_id` char(64) NOT NULL;
 ---# Adding new columns to topics ..
 ALTER TABLE {$db_prefix}topics
 ADD COLUMN redirect_expires int(10) unsigned NOT NULL default '0',
-ADD COLUMN id_redirect_topic mediumint(8) unsigned NOT NULL default '0',
+ADD COLUMN id_redirect_topic mediumint(8) unsigned NOT NULL default '0';
 ---#
 
 /******************************************************************************/

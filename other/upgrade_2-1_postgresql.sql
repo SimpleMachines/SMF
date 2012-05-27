@@ -225,7 +225,10 @@ VALUES
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...
-ALTER TABLE {$db_prefix}boards
-ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}boards
+	ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT ''");
+---}
 ---#
 

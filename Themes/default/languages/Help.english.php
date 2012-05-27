@@ -218,6 +218,7 @@ $helptxt['smileys'] = '<strong>Smiley Center</strong><br />
 	You are also able to edit message icons from here, if you have them enabled on the settings page.';
 $helptxt['calendar'] = '<strong>Manage Calendar</strong><br />
 	Here you can modify the current calendar settings as well as add and remove holidays that appear on the calendar.';
+$helptxt['cal_export'] = 'Exports a text file in the iCal format for importing in to other calendar applications';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br />
 	Here you can perform the core configuration for your forum. This section includes the database and url settings, as well as other
@@ -416,6 +417,7 @@ $helptxt['queryless_urls'] = 'This changes the format of URLs a little so search
 $helptxt['countChildPosts'] = 'Checking this option will mean that posts and topics in a board\'s child board will count toward its totals on the index page.<br /><br />This will make things notably slower, but means that a parent with no posts in it won\'t show \'0\'.';
 $helptxt['fixLongWords'] = 'This option breaks words longer than a certain length into pieces so they don\'t disturb the forum\'s layout. (as much...)  This option should not be set to a value under 40. This option will not work with forums using UTF-8. This ' .  (empty($GLOBALS['context']['utf8']) ? 'WILL' : 'WILL NOT') . ' work on your server';
 $helptxt['allow_ignore_boards'] = 'Checking this option will allow users to select boards they wish to ignore.';
+$helptxt['deny_boards_access'] = 'Checking this option will allow you to deny access to certain boards based on membergroup access';
 
 $helptxt['who_enabled'] = 'This option allows you to turn on or off the ability for users to see who is browsing the forum and what they are doing.';
 

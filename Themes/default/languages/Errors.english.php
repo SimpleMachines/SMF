@@ -64,7 +64,6 @@ $txt['cannot_post_unapproved_replies_own'] = 'You do not have permission to post
 $txt['cannot_post_unapproved_replies_any'] = 'You do not have permission to post unapproved replies to other users\' topics.';
 $txt['cannot_calendar_edit_any'] = 'You cannot edit calendar events.';
 $txt['cannot_calendar_edit_own'] = 'You don\'t have the privileges necessary to edit your own events.';
-$txt['cannot_calendar_export'] = 'Sorry, You cannot export calendar events.';
 $txt['cannot_calendar_post'] = 'Event posting isn\'t allowed - sorry.';
 $txt['cannot_calendar_view'] = 'Sorry, but you are not allowed to view the calendar.';
 $txt['cannot_remove_any'] = 'Sorry, but you don\'t have the privilege to remove just any topic.  Check to make sure this topic wasn\'t just moved to another board.';
@@ -149,6 +148,7 @@ $txt['parent_not_found'] = 'Board structure corrupt: unable to find parent board
 $txt['modify_post_time_passed'] = 'You may not modify this post as the time limit for edits has passed.';
 
 $txt['calendar_off'] = 'You cannot access the calendar right now because it is disabled.';
+$txt['calendar_export_off'] = 'You cannot export calendar events because that feature is currently disabled.';
 $txt['invalid_month'] = 'Invalid month value.';
 $txt['invalid_year'] = 'Invalid year value.';
 $txt['invalid_day'] = 'Invalid day value.';

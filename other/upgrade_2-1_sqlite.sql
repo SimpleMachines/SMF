@@ -192,6 +192,18 @@ VALUES
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...
-ALTER TABLE {$db_prefix}boards
-ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+---{
+$smcFunc['db_alter_table']('{db_prefix}boards', array(
+	'add' => array(
+		'deny_member_groups' => array(
+			'name' => 'deny_member_groups',
+			'null' => false,
+			'default' => '',
+			'type' => varchar,
+			'size' => 255,
+			'auto' => false,
+		),
+	)
+));
+---}
 ---#

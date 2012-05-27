@@ -331,8 +331,9 @@ function iCalDownload()
 {
 	global $smcFunc, $sourcedir, $forum_version, $context, $modSettings, $webmaster_email, $mbname;
 
-	// This requires the export permission
-	isAllowedTo('calendar_export');
+	// You can't export if the calendar export feature is off.
+	if (empty($modSettings['cal_export']))
+		fatal_lang_error('calendar_export_off', false);
 	
 	// Goes without saying that this is required.
 	if (!isset($_REQUEST['eventid']))
@@ -360,7 +361,7 @@ function iCalDownload()
 	$datestamp = date('Ymd\THis\Z', time());
 	$datestart = $event['year'] . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']);
 
-	// Do we have a mutli day event?
+	// Do we have a event that spans several days?
 	if ($event['span'] > 1)
 	{
 		$dateend = strtotime($event['year'] . '-' . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . '-' . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']));
@@ -408,7 +409,7 @@ function iCalDownload()
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . 'GMT');
 	header('Accept-Ranges: bytes');
 	header('Connection: close');
-	header('Content-Disposition: attachment; filename=' . $event['title'] . '.ics');
+	header('Content-Disposition: attachment; filename="' . $event['title'] . '.ics"');
 	if (empty($modSettings['enableCompressedOutput']))
 		header('Content-Length: ' . $smcFunc['strlen']($filecontents));
 	
