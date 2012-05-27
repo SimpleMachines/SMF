@@ -236,7 +236,7 @@ function template_modifysmiley()
 						</dd>
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['smileys_save'], '" class="button_submit" />
+					<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit" />
 					<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" onclick="return confirm(\'', $txt['smileys_delete_confirm'], '\');" class="button_submit" />
 					<br class="clear_right" />
 				</div>
@@ -388,7 +388,7 @@ function template_addsmiley()
 						</dd>
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['smileys_save'], '" class="button_submit" />
+					<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
@@ -544,7 +544,7 @@ function template_editicon()
 
 	echo '
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['smileys_save'], '" class="button_submit" />
+					<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<br class="clear_right" />
 				</div>
