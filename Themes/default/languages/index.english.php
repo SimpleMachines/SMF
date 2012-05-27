@@ -399,7 +399,7 @@ $txt['delete'] = 'Delete';
 
 $txt['your_pms'] = 'Your Personal Messages';
 
-$txt['kilobyte'] = 'kB';
+$txt['kilobyte'] = 'KB';
 $txt['megabyte'] = 'MB';
 
 $txt['more_stats'] = '[More Stats]';
@@ -765,7 +765,7 @@ $txt['debug_subtemplates'] = 'Sub templates: ';
 $txt['debug_language_files'] = 'Language files: ';
 $txt['debug_stylesheets'] = 'Style sheets: ';
 $txt['debug_files_included'] = 'Files included: ';
-$txt['debug_kb'] = 'kB.';
+$txt['debug_kb'] = 'KB.';
 $txt['debug_show'] = 'show';
 $txt['debug_cache_hits'] = 'Cache hits: ';
 $txt['debug_cache_seconds_bytes'] = '%1$ss - %2$s bytes';

@@ -379,10 +379,6 @@ function Register2($verifiedOpenID = false)
 	// Make sure they are clean, dammit!
 	$regOptions['theme_vars'] = htmlspecialchars__recursive($regOptions['theme_vars']);
 
-	// If Quick Reply hasn't been set then set it to be shown but collapsed.
-	if (!isset($regOptions['theme_vars']['display_quick_reply']))
-		$regOptions['theme_vars']['display_quick_reply'] = 1;
-
 	// Check whether we have fields that simply MUST be displayed?
 	$request = $smcFunc['db_query']('', '
 		SELECT col_name, field_name, field_type, field_length, mask, show_reg

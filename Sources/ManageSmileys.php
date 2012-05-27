@@ -196,7 +196,7 @@ function EditSmileySets()
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsets';
 
 	// They must've been submitted a form.
-	if (isset($_POST[$context['session_var']]))
+	if (isset($_POST['smiley_save']))
 	{
 		checkSession();
 		validateToken('admin-mss', 'request');
@@ -782,7 +782,7 @@ function EditSmileys()
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
 
 	// Submitting a form?
-	if (isset($_POST[$context['session_var']]))
+	if (isset($_POST['smiley_save']))
 	{
 		checkSession();
 
@@ -1539,7 +1539,7 @@ function EditMessageIcons()
 	$smcFunc['db_free_result']($request);
 
 	// Submitting a form?
-	if (isset($_POST[$context['session_var']]))
+	if (isset($_POST['icons_save']))
 	{
 		checkSession();
 

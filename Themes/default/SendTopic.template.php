@@ -269,12 +269,12 @@ function template_report()
 							<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit" />
 						</div>
 					</div>
+					<br class="clear" />
 					<span class="botslice"><span></span></span>
 				</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>
