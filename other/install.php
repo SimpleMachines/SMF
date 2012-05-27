@@ -218,7 +218,8 @@ function initialize_inputs()
 	// Add slashes, as long as they aren't already being added.
 	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
 		foreach ($_POST as $k => $v)
-			$_POST[$k] = addslashes($v);
+			if (strpos($k, 'password') === false)
+				$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
@@ -1294,6 +1295,8 @@ function AdminAccount()
 	if (isset($_POST['password1']) && !empty($_POST['contbutt']))
 	{
 		// Wrong password?
+		print_r($_POST['password3']) . '<br />';
+		print_r($db_passwd) . '<br />';
 		if ($incontext['require_db_confirm'] && $_POST['password3'] != $db_passwd)
 		{
 			$incontext['error'] = $txt['error_db_connect'];
