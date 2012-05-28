@@ -39,6 +39,14 @@ function AdminMain()
 
 	// Some preferences.
 	$context['admin_preferences'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
+	$context['hooks_exist'] = false;
+	foreach ($modSettings as $key => $setting)
+	if (strpos($key, 'integrate') === 0)
+		if (!empty($setting))
+		{
+			$context['hooks_exist'] = true;
+			break;
+		}
 
 	// Define all the menu structure - see Subs-Menu.php for details!
 	$admin_areas = array(
@@ -181,7 +189,7 @@ function AdminMain()
 					'function' => 'ModifyModSettings',
 					'icon' => 'modifications.png',
 					'subsections' => array(
-						'hooks' => array($txt['hooks_title_list']),
+						'hooks' => array($txt['hooks_title_list'], 'enabled' => $context['hooks_exist']),
 						'general' => array($txt['mods_cat_modifications_misc']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
 						// 'shout' => array($txt['shout']),

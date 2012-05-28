@@ -162,6 +162,9 @@ function smf_db_insert_sql($tableName, $new_table = false)
 	$data = '';
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
 
+	if ($tableName != $db_prefix . 'messages' || $tableName != $db_prefix . 'topics')
+		$detected_id = 0;
+
 	// This will be handy...
 	$crlf = "\r\n";
 

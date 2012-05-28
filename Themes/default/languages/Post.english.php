@@ -115,8 +115,8 @@ $txt['reported_by'] = 'has been reported by';
 $txt['board_moderate'] = 'on a board you moderate';
 $txt['report_comment'] = 'The reporter has made the following comment';
 
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$d kB';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$d kB';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$d KB';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$d KB';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '%1$d per post';
 $txt['attach_restrictions'] = 'Restrictions:';
 
@@ -198,14 +198,14 @@ $txt['attach_error_title'] = 'Error uploading your attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
 $txt['attach_continue'] = 'Continue';
-$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s kB. Space remaining is %2$s kB.';
+$txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s kB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings.';
 $txt['attach_limit_nag'] = 'Sorry, but you have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
 $txt['attach_remaining'] = '%1$d remaining';
-$txt['attach_available'] = '%1$s kB available';
-$txt['attach_kb'] = ' (%1$s kB)';
+$txt['attach_available'] = '%1$s KB available';
+$txt['attach_kb'] = ' (%1$s KB)';
 $txt['attach_0_byte_file'] = 'This file appears to be empty. Please contact your forum administrator if this continues to be a problem';
 $txt['attached_files_in_session'] = '<em>The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.</em>';
 
@@ -223,7 +223,7 @@ $txt['error_temp_attachments_gone'] = 'Those attachments are now removed and you
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted. Have now been removed.';
 
 $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
-$txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d kB.';
+$txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload folder is full. Please try a smaller file and/or contact an administrator.';

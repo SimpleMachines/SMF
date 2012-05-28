@@ -400,7 +400,7 @@ function SetThemeOptions()
 	}
 
 	// Submit?
-	if (isset($_POST['save']) && empty($_POST['who']))
+	if (isset($_POST['submit']) && empty($_POST['who']))
 	{
 		checkSession();
 		validateToken('admin-sto');
@@ -454,7 +454,7 @@ function SetThemeOptions()
 
 		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
 	}
-	elseif (isset($_POST['save']) && $_POST['who'] == 1)
+	elseif (isset($_POST['submit']) && $_POST['who'] == 1)
 	{
 		checkSession();
 		validateToken('admin-sto');

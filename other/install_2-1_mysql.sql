@@ -1151,7 +1151,7 @@ CREATE TABLE {$db_prefix}mail_queue (
   id_mail int(10) unsigned NOT NULL auto_increment,
   time_sent int(10) NOT NULL default '0',
   recipient varchar(255) NOT NULL default '',
-  body text NOT NULL,
+  body mediumtext NOT NULL,
   subject varchar(255) NOT NULL default '',
   headers text NOT NULL,
   send_html tinyint(3) NOT NULL default '0',
