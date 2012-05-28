@@ -1295,8 +1295,6 @@ function AdminAccount()
 	if (isset($_POST['password1']) && !empty($_POST['contbutt']))
 	{
 		// Wrong password?
-		print_r($_POST['password3']) . '<br />';
-		print_r($db_passwd) . '<br />';
 		if ($incontext['require_db_confirm'] && $_POST['password3'] != $db_passwd)
 		{
 			$incontext['error'] = $txt['error_db_connect'];
