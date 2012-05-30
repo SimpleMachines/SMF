@@ -556,6 +556,10 @@ function CreateMessageIndex()
 		);
 		$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 		$context['step'] = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : 0;
+		
+		// admin timeouts are painful when building these long indexes
+		if ($_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
+			$_SESSION['admin_time'] = time();
 	}
 
 	if ($context['step'] !== 0)
@@ -676,7 +680,7 @@ function CreateMessageIndex()
 					updateSettings(array('search_custom_index_resume' => serialize(array_merge($context['index_settings'], array('resume_at' => $context['start'])))));
 			}
 
-			// Since there are still two steps to go, 90% is the maximum here.
+			// Since there are still two steps to go, 80% is the maximum here.
 			$context['percentage'] = round($num_messages['done'] / ($num_messages['done'] + $num_messages['todo']), 3) * 80;
 		}
 	}
@@ -732,7 +736,7 @@ function CreateMessageIndex()
 			$context['percentage'] = 80 + round($context['start'] / $index_properties[$context['index_settings']['bytes_per_word']]['max_size'], 3) * 20;
 		}
 	}
-
+	
 	// Step 3: remove words not distinctive enough.
 	if ($context['step'] === 3)
 	{

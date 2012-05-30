@@ -248,10 +248,11 @@ function template_create_index()
 							</select>
 						</dd>
 					</dl>
+					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<br class="clear_right" />
 				</div>
-				<br class="clear" />
 				<span class="botslice"><span></span></span>
 			</div>
 	</form>
@@ -270,22 +271,23 @@ function template_create_index_progress()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
-					<p>
-						', $txt['search_create_index_not_ready'], '
-					</p>
-					<p>
-						<strong>', $txt['search_create_index_progress'], ': ', $context['percentage'], '%</strong>
-					</p>
+					<div><p>',
+						$txt['search_create_index_not_ready'], '</p>
+						<div class="progress_bar">
+							<div class="full_bar">', $context['percentage'], '%</div>
+							<div class="green_percent" style="width: ', $context['percentage'], '%;">&nbsp;</div>
+						</div>
+					</div>
+					<hr class="hrcolor" />
 					<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit" />
+					<br class="clear_right" />
 				</div>
-				<br class="clear" />
 				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="step" value="', $context['step'], '" />
 			<input type="hidden" name="start" value="', $context['start'], '" />
 			<input type="hidden" name="bytes_per_word" value="', $context['index_settings']['bytes_per_word'], '" />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '" />
 		</form>
 	</div>
 	<br class="clear" />

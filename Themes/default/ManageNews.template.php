@@ -491,9 +491,11 @@ function template_email_members_send()
 			<div class="windowbg">
 				<span class="topslice"><span></span></span>
 				<div class="content">
-					<p>
-						<strong>', $context['percentage_done'], '% ', $txt['email_done'], '</strong>
-					</p>
+					<div class="progress_bar">
+						<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
+						<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+					</div>
+					<hr class="hrcolor" />
 					<input type="submit" name="b" value="', $txt['email_continue'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="subject" value="', $context['subject'], '" />
@@ -511,6 +513,7 @@ function template_email_members_send()
 					<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '" />';
 
 	echo '
+				<br class="clear_right" />
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
