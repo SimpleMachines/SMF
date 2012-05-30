@@ -236,8 +236,7 @@ function template_credits()
 	echo '
 			</div>
 			<span class="botslice"><span></span></span>
-		</div>
-	';
+		</div>';
 
 	// Point the admin to common support resources.
 	echo '
@@ -710,27 +709,26 @@ function template_not_done()
 
 	if (!empty($context['continue_percent']))
 		echo '
-				<div style="padding-left: 20%; padding-right: 20%; margin-top: 1ex;">
-					<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-						<div style="padding-top: ', isBrowser('is_webkit') || isBrowser('is_konqueror') ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['continue_percent'], '%</div>
-						<div style="width: ', $context['continue_percent'], '%; height: 12pt; z-index: 1; background-color: red;">&nbsp;</div>
-					</div>
+				<br /><br />
+				<div class="progress_bar">
+					<div class="full_bar">', $context['continue_percent'], '%</div>
+					<div class="green_percent" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
 				</div>';
 
 	if (!empty($context['substep_enabled']))
 		echo '
-				<div style="padding-left: 20%; padding-right: 20%; margin-top: 1ex;">
-					<span class="smalltext">', $context['substep_title'], '</span>
-					<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; padding: 1px; position: relative;">
-						<div style="padding-top: ', isBrowser('is_webkit') || isBrowser('is_konqueror') ? '2pt' : '1pt', '; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['substep_continue_percent'], '%</div>
-						<div style="width: ', $context['substep_continue_percent'], '%; height: 12pt; z-index: 1; background-color: blue;">&nbsp;</div>
-					</div>
+				<br /><br />
+				<div class="progress_bar">
+					<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
+					<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
 				</div>';
 
 	echo '
 				<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" style="margin: 0;" name="autoSubmit" id="autoSubmit">
-					<div style="margin: 1ex; text-align: right;"><input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit" /></div>
+					<hr class="hrcolor" />
+					<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit" />
 					', $context['continue_post_data'], '
+					<br class="clear_right" />
 				</form>
 			</div>
 			<span class="botslice"><span></span></span>
@@ -1617,6 +1615,7 @@ function template_repair_boards()
 	}
 }
 
+// Retrieves info from the php_info function, scrubs and preps it for display
 function template_php_info()
 {
 	global $context, $txt;

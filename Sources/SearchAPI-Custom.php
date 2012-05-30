@@ -210,9 +210,9 @@ class custom_search
 
 		return $ignoreRequest;
 	}
-
+	
 	/**
-	 * After a post is made, we update the database.
+	 * After a post is made, we update the search index database.
 	 */
 	public function postCreated($msgOptions, $topicOptions, $posterOptions)
 	{
@@ -234,48 +234,54 @@ class custom_search
 	}
 
 	/**
-	 * After a post is modified, we update the database.
+	 * After a post is modified, we update the search index database.
 	 */
 	public function postModified($msgOptions, $topicOptions, $posterOptions)
 	{
 		global $modSettings, $smcFunc;
-
-		$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
-
-		$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
-		$old_index = text2words($msgOptions['old_body'], $customIndexSettings['bytes_per_word'], true);
-		$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
-
-		// Calculate the words to be added and removed from the index.
-		$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);
-		$inserted_words = array_diff(array_diff($new_index, $old_index), $stopwords);
-		// Delete the removed words AND the added ones to avoid key constraints.
-		if (!empty($removed_words))
+		
+		if (isset($msgOptions['body']))
 		{
-			$removed_words = array_merge($removed_words, $inserted_words);
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}log_search_words
-				WHERE id_msg = {int:id_msg}
-					AND id_word IN ({array_int:removed_words})',
-				array(
-					'removed_words' => $removed_words,
-					'id_msg' => $msgOptions['id'],
-				)
-			);
-		}
+			$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
+			$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
+			$old_body = isset($msgOptions['old_body']) ? $msgOptions['old_body'] : '';
+			
+			// create thew new and old index
+			$old_index = text2words($old_body, $customIndexSettings['bytes_per_word'], true);
+			$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
+			
+			// Calculate the words to be added and removed from the index.
+			$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);
+			$inserted_words = array_diff(array_diff($new_index, $old_index), $stopwords);
+			
+			// Delete the removed words AND the added ones to avoid key constraints.
+			if (!empty($removed_words))
+			{
+				$removed_words = array_merge($removed_words, $inserted_words);
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}log_search_words
+					WHERE id_msg = {int:id_msg}
+						AND id_word IN ({array_int:removed_words})',
+					array(
+						'removed_words' => $removed_words,
+						'id_msg' => $msgOptions['id'],
+					)
+				);
+			}
 
-		// Add the new words to be indexed.
-		if (!empty($inserted_words))
-		{
-			$inserts = array();
-			foreach ($inserted_words as $word)
-				$inserts[] = array($word, $msgOptions['id']);
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}log_search_words',
-				array('id_word' => 'string', 'id_msg' => 'int'),
-				$inserts,
-				array('id_word', 'id_msg')
-			);
+			// Add the new words to be indexed.
+			if (!empty($inserted_words))
+			{
+				$inserts = array();
+				foreach ($inserted_words as $word)
+					$inserts[] = array($word, $msgOptions['id']);
+				$smcFunc['db_insert']('insert',
+					'{db_prefix}log_search_words',
+					array('id_word' => 'string', 'id_msg' => 'int'),
+					$inserts,
+					array('id_word', 'id_msg')
+				);
+			}
 		}
 	}
 }

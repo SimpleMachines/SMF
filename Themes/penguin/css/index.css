@@ -1,0 +1,4308 @@
+/* Styles for the general looks for the theme.
+------------------------------------------------------- */
+/* The wrapper division controls the width of the forum. */
+/* Width may be set in px (fixed width) or in % (fluid width). */
+/* The max-width and min-width values only apply if the forum is set to fluid width (in %). */
+/* If using a fixed with (in px) you can ignore the max-width and min-width values. */
+/* Default min-width is set to accommodate screens down to 800px wide. */ 
+/* If you wish to prevent the forum expanding past a certain width, you may also set a max-width in px. */
+div.wrapper {
+	width: 960px;
+	min-width: 770px;
+	max-width: 98%;
+	margin: 0 auto;
+}
+
+/* Normal, standard links. */
+a:link, a:visited {
+	color: #346;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Links that open in a new window. */
+a.new_win:link, a.new_win:visited {
+	color: #346;
+	text-decoration: none;
+}
+a.new_win:hover {
+	text-decoration: underline;
+}
+
+/* Tables should show empty cells. */
+table {
+	empty-cells: show;
+}
+
+/* Set a fontsize that will look the same in all browsers. */
+body {
+	background: #E9EEF2 url(../images/theme/backdrop.png) repeat-x;
+	font: 75%/140% "Verdana", "Arial", "Helvetica", sans-serif;
+	margin: 0 auto;
+	padding: 0 0 15px 0;
+}
+
+/* Help popups require a different styling of the body element. */
+body#help_popup {
+	padding: 1em;
+}
+
+/* use dark grey for the text, leaving #000 for headers etc */
+body, td, th, tr {
+	color: #333;
+}
+
+/* lets give all forms zero padding/margins */
+form {
+	padding: 0;
+	margin: 0;
+}
+
+/* We can style the different types of input buttons to be uniform throughout different browsers and their color themes.
+	.button_submit - covers input[type=submit], input[type=button], button[type=submit] and button[type=button] in all browsers
+	.button_link   - covers links to make them look like a submit button
+	.button_reset  - covers input[type=reset] and button[type=reset] throughout all browsers
+	.input_check   - covers input[type=checkbox] throughout all browsers
+	.input_radio   - covers input[type=radio] throughout all browsers
+	.input_text    - covers input[type=text] throughout all browsers
+	.input_file    - covers input[type=file] throughout all browsers */
+
+input, select {
+	font-size: 0.917em;
+	line-height: 1.28em;
+	font-family: "Verdana", "Arial", "Helvetica", sans-serif;
+}
+dl.settings input {
+	font-size: 100%;
+}
+/* Select elements look horrible with the extra padding, so leave them unpadded. */
+select {
+	padding: 0;
+}
+/* Add some padding to the options instead. */
+select option {
+	padding: 1px 4px;
+}
+
+input, input.input_file, select, textarea, textarea.editor {
+	font: 1em/1.4em "Verdana", "Arial", "Helvetica", sans-serif;
+	background: #fff;
+	outline: none !important;
+	border: 1px solid #bbb;
+	vertical-align: middle;
+	border-radius: 3px;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
+}
+input:hover, input.input_file:hover, select:hover, textarea:hover, textarea.editor:hover {
+	outline:none !important;
+	border: 1px solid #aaa;
+}
+textarea:hover, textarea.editor:hover {
+	background: #fbfbfb;
+}
+input:focus, input.input_file:focus, select:focus, textarea:focus, textarea.editor:focus {
+	outline:none !important;
+	border: 1px solid #aaa;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
+}
+/* [WIP]: .input_file seems impossible to style. Look into it further. */
+
+/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
+#frmLogin input.button_submit, #guest_form  input.button_submit, #calendar_navigation input.button_submit {
+	float: none;
+	margin-left: inherit;
+}
+.button_submit, .button_reset, a.button_link {
+	cursor: pointer;
+	color: #333;
+	font-weight: normal;
+	margin-left: 5px;
+	float: right;
+	padding: 1px 4px;
+	padding: 2px 6px;
+	background: #fff;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 2px;
+	overflow: visible;
+	box-shadow: 0 5px 10px rgba(244,247,255,1) inset, 0 -4px 8px rgba(0,0,0,0.1) inset, 1px 1px 1px rgba(0,0,0,0.1);
+}
+.button_submit:hover, .button_reset:hover, a.button_link:hover {
+	color: #222;
+	text-decoration: none;
+	background: #f4f4f4;
+	border-top: none;
+	padding: 2px 4px 1px 5px;
+	padding: 3px 6px 2px 7px;
+	border-left: none;
+	border-bottom: 1px solid #dadada;
+	border-right: 1px solid #dadada;
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+/* the new "button" */
+a.new_posts, span.new_posts {
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+	font-weight: bold;
+	border: 1px solid #888;
+	border-top: 1px solid #aaa;
+	border-radius: 4px;
+	background: #6187ad;
+}
+span.new_posts {
+	display: inline;
+	margin: 0 5px 0 -2px;
+	padding: 1px 4px;
+	font-size: /*0.9em*/ 11px;
+	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
+}
+/* Le bugger. Have to override to stop board index gruesomeness :P */
+/* the new "button" */
+.children a.new_posts {
+	display: inline;
+	float: left;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	background: none;
+	border: none;
+	text-shadow: none;
+	box-shadow: none;
+	font-size: 1em;
+	
+	color: #346; text-decoration: underline;
+}
+a.new_posts:hover {
+	text-decoration: none;
+}
+/* Page listings. */
+a.navPages {
+	/*border-left: 2px solid #777;*/ padding: 0 0 0 4px; margin: 0 0 0 0;
+}
+span.page_last a.navPages {
+	/*border-right: 2px solid #777;*/ padding: 0 4px 0 4px;
+}
+.table_grid td span.next_page, .table_grid td span.previous_page {display: none;}
+/* Stuff. */
+.helligrumbler, .lastpost_icon {border: 1px solid rgba(0,0,0,0); border-radius: 4px; padding: 4px; cursor: pointer; z-index: 2;}
+.helligrumbler:hover {border: 1px solid #aaa; box-shadow: 1px 2px 2px rgba(0,0,0,0.2); background: #fff;}
+.lastpost_icon {margin: 7px 5px 0 0; padding: 4px; display: block; float: right;}
+.lastpost_stuff {float: right; margin: 0 7px 0 0;}
+/* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
+input.input_check, input.input_radio {
+	border: none;
+	background: none;
+	vertical-align: top;
+}
+h3.catbg input.input_check {
+	margin: 9px 7px 0 7px;
+}
+
+/* Give disabled text input elements a different background color. */
+input[disabled].input_text {
+	background: #eee;
+}
+
+/* Standard horizontal rule.. ([hr], etc.) */
+hr, .hrcolor {
+	border: 0;
+	height: 3px;
+	color: #eee;
+	background: #eee;
+	box-shadow: 0 1px 0 #bbb inset;
+}
+.windowbg hr {
+	border: 0;
+	height: 3px;
+	color: #ddd;
+	background: #ddd;
+	box-shadow: 0 1px 0 #aaa inset;
+}
+
+/* By default set the color on these tags as #000. */
+h1, h2, h3, h4, h5, h6 {
+	color: #333;
+	font-size: 1em;
+	margin: 0;
+	padding: 0;
+}
+
+/* Fieldsets are used to group elements. */
+fieldset {
+	border: 1px solid #c4c4c4;
+	border-radius: 2px;
+	padding: 1em;
+	margin: 0 0 0.5em 0;
+}
+fieldset legend {
+	font-weight: bold;
+	color: #444;
+}
+
+/* Define strong as bold, and em as italics. */
+/* Use a slightly lighter colour for strong, to give better visual balance. */
+/* Yes, I'm fussy about stuff like that. Details matter. */
+strong {
+	font-weight: bold;
+	color: #444;
+}
+
+em {
+	font-style: italic;
+}
+/* Alternative for u tag */
+.underline {
+	text-decoration: underline;
+}
+
+/* Common classes to easy styling.
+------------------------------------------------------- */
+
+.floatright {
+	float: right;
+}
+.floatleft {
+	float: left;
+}
+
+.flow_auto {
+	overflow: auto;
+}
+.flow_hidden {
+	overflow: hidden;
+}
+/*[WIP]*/
+/*
+.flow_hidden .windowbg, .flow_hidden .windowbg2 {
+	margin-top: 2px;
+}
+*/
+.clear {
+	clear: both;
+}
+.clear_left {
+	clear: left;
+}
+.clear_right {
+	clear: right;
+}
+
+/* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
+/* The smalltext class is currently stupid. Smallest font-size anywhere should be 0.9em. */
+.smalltext, tr.smalltext th, .middletext {
+	font-size: 0.917em;
+	font-family: verdana, sans-serif;
+}
+.normaltext {
+	font-size: 1em;
+}
+.largetext {
+	font-size: 1.417em;
+}
+.centertext {
+	margin: 0 auto;
+	text-align: center;
+}
+.righttext {
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+.lefttext {
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+.large_height {
+	line-height: 1.7em;
+}
+.double_height {
+	line-height: 2em;
+}
+/* some common padding styles */
+.padding {
+	padding: 0.7em;
+}
+.main_section, .lower_padding {
+	padding-bottom: 0.5em;
+}
+/* a quick reset list class. */
+ul.reset, ul.reset li {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+/* Some BBC related styles.
+------------------------------------------------------- */
+/* Quotes and code blocks have a slightly different small font-size */
+/* which believe it or not really is for consistency. */
+/* A quote, perhaps from another post. */
+.bbc_standard_quote, .bbc_alternate_quote {
+	font-size: 0.91em;
+	color: #333;
+	border: 1px solid #bbb;	border-bottom: 2px solid #bbb;
+	padding: 8px;
+	margin: 0 0 8px 0;
+	overflow: auto;
+	/*box-shadow: 1px 1px 2px rgba(0,0,0,0.1);*/
+}
+/* Alterate blockquote stylings */
+.windowbg2 .bbc_standard_quote, .windowbg .bbc_alternate_quote {
+	background: /*#e7f0f7*//*#e4e8eb*//*#e1ebf5*/#F1F6FF;
+}
+.windowbg2 .bbc_alternate_quote, .windowbg .bbc_standard_quote {
+	background: /*#DAE3EF*/ /*#e9eef2*//*#e8eef5*/#FcfdFF;
+}
+/* A code block - maybe PHP ;). */
+.bbc_code {
+	display: block;
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+	font-size: 0.91em;
+	color: #333;
+	background: /*#d3e3f4*/#e5e8eb; border: 1px solid #ccc;
+	border-top: 2px solid #aaa;
+	border-bottom: 2px solid #aaa;
+	margin: 0 0 8px 0;
+	padding: 8px;
+	overflow: auto;
+	white-space: nowrap;
+	/* Show a scrollbar after about 24 lines. */
+	/* This is much better than the old max-height css. */
+	height: 24em;
+	resize: vertical;
+}
+/* The "Quote:" and "Code:" header parts... */
+.codeheader, .standard_quoteheader, .alternate_quoteheader {
+	color: #666;
+	font-weight: bold;
+	font-size: 0.91em;
+	margin: 8px 0 -1px 0;
+	overflow: auto;
+	padding: 0 0 0 0;
+}
+.bbc_standard_quote .codeheader, .bbc_standard_quote .standard_quoteheader, .bbc_standard_quote .alternate_quoteheader,
+.bbc_alternate_quote .codeheader, .bbc_alternate_quote .standard_quoteheader, .bbc_alternate_quote .alternate_quoteheader {
+	margin: 0 0 -1px 0;
+}
+.codeheader {padding: 0 4px; background: #fff; border: 1px solid #ccc; border-top: 2px solid #aaa;}
+.topslice_quote {float: left; border-radius: 0px 14px 0 0; line-height: 1em; padding: 6px 12px 0 20px;}
+.windowbg .standard_quoteheader .topslice_quote, .windowbg2 .alternate_quoteheader .topslice_quote {border: 1px solid #bbb; border-bottom: 1px solid #FcfdFF; background: #FcfdFF url(../images/theme/quote.png) 0px 1px no-repeat;}
+.windowbg2 .standard_quoteheader .topslice_quote, .windowbg .alternate_quoteheader .topslice_quote {border: 1px solid #bbb; border-bottom: 1px solid #F1F6FF; background: #F1F6FF url(../images/theme/quote.png) 0px 1px no-repeat;}
+.quoteheader a {}
+/* The following are required to prevent undesirable cascades. */
+.bbc_standard_quote .bbc_alternate_quote, .bbc_alternate_quote .bbc_standard_quote,
+.bbc_standard_quote .bbc_code, .bbc_alternate_quote .bbc_code,
+.bbc_standard_quote .standard_quoteheader, .bbc_alternate_quote .standard_quoteheader,
+.bbc_standard_quote .alternate_quoteheader, .bbc_alternate_quote .alternate_quoteheader
+.bbc_standard_quote  .codeheader, .bbc_alternate_quote  .codeheader {
+	font-size: 1em;
+}
+.codeheader {
+	font-size: 12px;
+	padding: 3px 4px;
+	/*width: 20em;*/
+}
+/* For links to change the code stuff... */
+.codeoperation {
+	font-weight: normal;
+}
+
+/* Styling for BBC tags */
+.bbc_link:link, .bbc_link:visited {
+	border-bottom: 1px solid #A8B6CF;
+}
+.bbc_link:hover {
+	text-decoration: none;
+	border-bottom: 1px solid #346;
+}
+.bbc_size {
+	
+}
+.bbc_color a {
+	color: inherit;
+}
+.bbc_img {
+	border: 0;
+}
+.bbc_table {
+	font: inherit;
+	color: inherit;
+}
+.bbc_table td {
+	font: inherit;
+	color: inherit;
+	vertical-align: top;
+}
+.bbc_u {
+	text-decoration: underline;
+}
+.bbc_list {
+	text-align: left;
+}
+.bbc_tt {
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+}
+
+/* No image should have a border when linked. */
+a img {
+	border: 0;
+}
+
+/* Generally, those [?] icons.  This makes your cursor a help icon. */
+.help {
+	display: inline;
+}
+.help .icon {
+	cursor: help;
+	line-height: 2.5em;
+	opacity: 0.8;
+}
+.help .icon:hover {
+	opacity: 1;
+}
+
+/* /me uses this a lot. (emote, try typing /me in a post.) */
+.meaction {
+	color: red;
+}
+
+/* Highlighted text - such as search results. */
+.highlight {
+	font-weight: bold;
+	color: #ff7200 !important;
+}
+
+/* A more discreet highlight color, for selected membergroups etc. */
+/* Note: IIRC this is only used in one place and could be ditched in favour of just using .highlight everywhere. */
+.highlight2 {
+	background: #D1E1EF;
+	color: #000 !important;
+}
+
+/* Generic, mostly color-related, classes.
+------------------------------------------------------- */
+
+.titlebg, .titlebg2, tr.titlebg th, tr.titlebg td, tr.titlebg2 td {
+	background: #eee;
+	border-radius: 0 0 0 0;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding: 0.2em 9px 0 9px;
+	margin: 0 0 0 0;
+	line-height: 2em;
+	font-size: 1.167em;
+	height: 2.2em;
+}
+.catbg, .catbg2, tr.catbg td, tr.catbg2 td, tr.catbg th, tr.catbg2 th {
+	color: #fff;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 1.083em;
+	font-weight: bold;
+	background: #a7b9cd url(../images/theme/main_block.png) no-repeat -10px -280px;
+}
+
+/* adjust the table versions of headers */
+tr.titlebg th, tr.titlebg2 th, td.titlebg, td.titlebg2, tr.catbg th, tr.catbg2 th, td.catbg, td.catbg2 {
+	padding: 0 6px;
+}
+tr.titlebg th a:link, tr.titlebg th a:visited, tr.titlebg2 td a:link, tr.titlebg2 td a:visited {
+	color: #333;
+}
+tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:visited {
+	color: #fff;
+}
+.catbg select {
+	height: 1.5em;
+	font-size: 0.917em;
+}
+
+/* Alternating backgrounds for posts, and several other sections of the forum. */
+.windowbg, #preview_body {
+	color: #333;
+	background: #f3f7ff/*#f0f3f8*//*#fff*/;
+}
+.windowbg2 {
+	color: #333;
+	background: /*#f3f7ff*/#fff;
+}
+.windowbg3 {
+	color: #333;
+	background: #cacdd3;
+}
+div.windowbg, div.windowbg2, div.windowbg3, #preview_body {
+	overflow: auto;
+	float: left; 
+	width: 100%; 
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	padding: 6px;
+	margin: 2px 0 4px 0;
+	border-radius: 4px;
+}
+#forumposts div.windowbg, #recent div.windowbg, #forumposts div.windowbg2, #recent .windowbg2 {
+	border: 1px solid #ddd; border-bottom: 1px solid #ccc;
+	margin: 2px 0 0 0;
+	border-radius: 0 0 0 0; /*box-shadow: 1px 1px 1px rgba(0,0,0,0.1)/*, -5px -10px 15px rgba(99,129,159,0.06) inset*/;
+}
+#display_lower_buttons {
+	border: 1px solid #ddd;
+	margin: 1px 0 0 0;
+}
+#recent .windowbg, #recent .windowbg2{
+	padding: 6px 6px 16px 6px;
+}
+
+/* the page navigation area */
+.pagesection {
+	font-size: 0.917em;
+	padding: 0.2em;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.pagesection div.floatright input {
+	margin-top: 3px;
+}
+
+.pagelinks {
+	padding: 0 0 0 0/*.6em 0 0.4em 0*/;
+}
+
+/* Colors for background of posts requiring approval */
+.approvebg {
+	color: #000;
+	background: #ffeaea;
+}
+.approvebg2 {
+	color: #000;
+	background: #fff2f2;
+}
+
+/* Color for background of *topics* requiring approval */
+.approvetbg {
+	color: #000;
+	background: #e4a17c;
+}
+.approvetbg2 {
+	color: #000;
+	background: #f3bd9f;
+}
+
+/* Sticky topics get a different background */
+.stickybg {
+	background: #e7f0f7;
+}
+.stickybg2 {
+	background: #f7fbff;
+}
+
+/* Locked posts get a different shade, too! */
+.lockedbg {
+	background: #e7f0f7;
+}
+.lockedbg2 {
+	background: #f7fbff;
+}
+
+/* Posts and personal messages displayed throughout the forum. */
+.post, .personalmessage {
+	overflow: auto;
+	padding: 2px;
+}
+
+/* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
+.signature, .attachments {
+	/*width: 100%;*/
+	overflow: auto;
+	clear: both;
+	padding: /*1em 0 3px 160px*/;
+	/*border-top: 1px solid #ccc;*/
+	/*font-size: 0.917em;*/
+}
+.custom_fields_above_signature {
+	width: 98%;
+	clear: right;
+	padding: 1em 0 3px 0;
+	border-top: 1px solid #ccc;
+	font-size: 0.917em;
+}
+
+/* Sometimes there will be an error when you post */
+.error {
+	color: red;
+}
+
+/* Messages that somehow need to attract the attention. */
+.alert {
+	color: red;
+}
+
+/* Calendar colors for birthdays, events and holidays */
+.birthday {
+	color: #920ac4;
+}
+
+.event {
+	color: #078907;
+}
+
+.holiday {
+	color: #000080;
+}
+
+/* Colors for warnings */
+.warn_mute {
+	color: red;
+}
+
+.warn_moderate {
+	color: #ffa500;
+}
+
+.warn_watch, .success {
+	color: green;
+}
+
+a.moderation_link, a.moderation_link:visited {
+	color: red;
+	font-weight: bold;
+}
+
+.openid_login {
+	background: white url(../images/openid.png) no-repeat;
+	padding-left: 18px;
+}
+
+/* a descriptive style */
+.description, .description_board, .plainbox, .information {
+	padding: 0.5em 1em;
+	font-size: 0.917em;
+	border: 1px solid #bbb;
+	background: #f5f5f0;
+	margin: 2px 0 1em 0;
+}
+.description_board {
+	margin: 1em 0 0 0;
+}
+
+/* an informative style */
+.information {
+	background: #f0f6f0;
+}
+.information p {
+	padding: 1em;
+	margin: 0;
+}
+p.para2 {
+	padding: 1em 0 3.5em 0;
+	margin: 0;
+}
+/* AJAX notification bar
+------------------------------------------------------- */
+#ajax_in_progress {
+	background: url(../images/theme/loadingbar.png) repeat-x;
+	color: #f96f00;
+	text-align: center;
+	font-size: 16pt;
+	padding: 8px;
+	width: 100%;
+	height: 66px;
+	line-height: 25px;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#ajax_in_progress a {
+	color: orange;
+	text-decoration: underline;
+	font-size: smaller;
+	float: right;
+	margin-right: 20px;
+}
+
+/* Lists with settings use these a lot.
+------------------------------------------------------- */
+dl.settings {
+	clear: right;
+	overflow: auto;
+	margin: 0 0 10px 0;
+	padding: 0;
+}
+dl.settings dt {
+	width: 40%;
+	float: left;
+	margin: 0 0 10px 0;
+	padding: 0;
+	clear: both;
+}
+dl.settings dt.settings_title {
+	width: 100%;
+	float: none;
+	margin: 0 0 10px 0;
+	padding: 5px 0 0 0;
+	font-weight: bold;
+	clear: both;
+}
+dl.settings dt.windowbg {
+	width: 98%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0 0 5px 0;
+	clear: both;
+}
+dl.settings dd {
+	width: 56%;
+	float: right;
+	overflow: auto;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+dl.settings img {
+	margin: 0 10px 0 0;
+	vertical-align: middle;
+}
+/* help icons */
+dl.settings dt a img {
+	position: relative;
+	vertical-align: top;
+}
+
+/* Styles for rounded headers.
+------------------------------------------------------- */
+h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
+	height: 2.4em;
+	line-height: 2.4em;
+	padding: 0.1em 0 0 0;
+	font-size: 1.4em;
+	font-weight: bold;
+}
+h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
+	color: #fff;
+}
+h3.catbg2 a, h3.catbg2 {
+	color: #feb;
+}
+h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover {
+	color: #fd9;
+	text-decoration: none;
+}
+h3.catbg2 a:hover {
+	color: #fff;
+	text-decoration: none;
+}
+h3.titlebg a, h3.titlebg, h4.titlebg, h4.titlebg a {
+	color: #333;
+}
+h3.titlebg a:hover, h4.titlebg a:hover {
+	color: #53616f;
+	text-decoration: none;
+}
+h3.catbg img.icon, h4.titlebg img.icon {
+	vertical-align: middle;
+	margin: 6px 5px 0 0;
+}
+/*h4.catbg a.toggle img {
+	vertical-align: middle;
+	margin: -2px 5px 0 5px;
+}*/
+h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg {
+	background: #dadfe6 url(../images/theme/main_block.png) no-repeat -10px -280px;
+	border-radius: 4px 4px 0 0;
+	padding: 0.1em 9px 0 9px;
+	border-radius: 5px 5px 0 0;
+	background: #63819F;
+	margin: 0 0 1px 0;
+	padding-left: 1.2%;
+	box-shadow: 0 10px 16px rgba(255,255,255,0.3) inset, 0 -10px 16px rgba(0,0,0,0.05) inset;
+}
+h4.titlebg, h3.titlebg {
+	background: #dadfe6 url(../images/theme/main_block.png) no-repeat -10px -380px;
+	border-radius: 4px 4px 0 0;
+	padding: 0 9px 0 9px;
+}
+h4.titlebg img.icon {
+	float: left;
+	margin: 5px 8px 0 0;
+}
+div.cat_bar {
+	background: none;
+	padding: 0 0 0 0;
+}
+div.title_bar {
+	background: none;
+	padding: 0 0 0 0;
+}
+
+/* rounded bars needs a different background here */
+#info_centre h3.catbg {
+	padding: 0.8em 9px 0 9px;
+	max-height: 1.6em;
+	line-height: 1.167em;
+	overflow: hidden;
+}
+div.roundframe div.cat_bar {
+	background: none; margin-bottom: 0;
+}
+div.roundframe div.cat_bar h3.catbg {
+	background: /*url(../images/theme/main_block.png) no-repeat 100% -280px*/ #fff; color: #444;
+	border-bottom: 1px solid #ccc;
+}
+#upshrink_ic {
+	margin: -0.25em -0.25em 0 0;
+}
+img#upshrink_ic, img#newsupshrink, img.panel_toggle, img#quickReplyExpand {
+	margin: .5em .5em 0 1em;
+}
+div.title_barIC {
+	background: /*url(../images/theme/main_block.png) no-repeat 100% -120px;*/none;
+	padding: 0 0 0 0;
+}
+div.title_barIC h4.titlebg {
+	background: /*#dadfe6 url(../images/theme/main_block.png) no-repeat -10px -380px*/ #fff;
+	border-radius: 0 0 0 0;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding: 0.2em 9px 0 9px;
+	margin: 0 0 0 0;
+	line-height: 2em;
+	font-size: 1.167em;
+	height: 2.2em;
+}
+#upshrinkHeaderIC p.pminfo {
+	margin: 0;
+	padding: 0.5em;
+}
+h3.catbg img, h4.titlebg img {
+	float: left;
+	margin: 0.5em 0.2em 0 0.2em;
+}
+table.table_list a.collapse, #upshrink_ic, #newsupshrink, #expandBoardsIcon {
+	float: right;
+	opacity: 0.7;
+}
+table.table_list a.collapse:hover, #upshrink_ic:hover, #newsupshrink:hover, #expandBoardsIcon:hover {
+	opacity: 1;
+}
+
+/* The half-round header bars for some tables. */
+.table_grid tr.catbg, .table_grid tr.titlebg {
+	font-size: 1em;
+	border-bottom: 1px solid #fff;
+	background: none;
+}
+.table_grid thead tr.catbg, .table_grid thead tr.catbg:hover /*, .table_grid tr.titlebg th */{
+	border-radius: 5px 5px 0 0;
+	background: #63819F;
+	background-image: none;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	box-shadow: 0 10px 16px rgba(255,255,255,0.3) inset, 0 -10px 16px rgba(0,0,0,0.05) inset;
+}
+.table_grid thead tr.catbg th/*, .table_grid tr.titlebg th */{
+	font-size: 1.167em;
+	font-weight: normal;
+	border-bottom: 1px solid #fff;
+	line-height: 1.8em;
+	background: none;
+	margin: 0 0 1px 0;
+	padding: 5px 0 5px 0;
+}
+tr.catbg th.first_th {
+	background: none;
+	border-radius: 5px 0 0 0;
+}
+tr.catbg th.last_th {
+	background: none;
+	border-radius: 0 5px 0 0;
+	margin-right: 1px;
+}
+tr.titlebg th.first_th {
+	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -380px;
+}
+tr.titlebg th.last_th {
+	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 100% -380px;
+}
+.table_grid th.last_th input {
+	margin: 0 2px;
+}
+.table_grid th.lefttext {
+	padding: 0 0.7em;
+}
+
+/* a general table class */
+table.table_grid {
+	border-collapse: collapse;
+	margin: 4px 0;
+}
+table.table_grid tr.windowbg, table.table_grid tr.windowbg2/*, table.table_grid td.stats */{
+	border-right: 1px solid #e7e7e7;
+	border-left: 1px solid #e7e7e7;
+}
+table.table_grid tbody tr {
+	background: /*#f4f7ff*/ #fff;
+	box-shadow: 0 -5px 10px rgba(244,247,255,0.4) inset;
+}
+table.table_grid tbody td.sticky_bar, table.table_grid tbody td.normal_bar {
+	background: /*#f4f7ff*/ #fff;
+	box-shadow: 0 5px 10px rgba(244,247,255,1) inset, 0 -4px 8px rgba(0,0,0,0.05) inset;
+}
+table.table_grid tr:hover {
+	background: #f9fbff;
+}
+table.table_grid td {
+	padding: 5px;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #e7e7e7;
+	/*border-left: 1px solid #e7e7e7;*/
+}
+table.table_grid td.subject {
+	padding: 5px 8px 5px 5px;
+	background: none;
+	line-height: 1.5em;
+}
+table.table_grid td.lastpost {
+	font-size: 0.917em;
+	padding: 0 0 0 0;
+	line-height: 1.7em;
+}
+table.table_grid td.lastpost div{
+	padding: 5px 0 5px 8px;
+}
+
+/* GenericList */
+.additional_row {
+	padding: 0.5em 0 0.5em 0;
+}
+table.table_grid thead tr.catbg th {
+	white-space: nowrap;
+}
+img.sort {
+	margin-bottom: -0.3em;
+	margin-left: .3em;
+}
+
+/* table_grid styles for Profile > Show Permissions. */
+#permissions table.table_grid  td {
+	padding: 0.4em 0.8em;
+	cursor: default;
+} 
+
+/* Common styles used to add corners to divisions.
+------------------------------------------------------- */
+.postbg {
+	border-left: 1px solid #7f7f7f;
+	border-right: 1px solid #7f7f7f;
+}
+
+/* Used for sections that need somewhat larger corners.
+----------------------------------------------------------- */
+.roundframe {
+	padding: 0 0 0.2em 0;
+	background: #fafafa;
+/*	border-left: 1px solid #c5c5c5;
+	border-right: 1px solid #c5c5c5;*/
+	border: 1px solid #c5c5c5;
+	border-radius: 5px;
+	clear: both;
+	box-shadow: 0 10px 16px rgba(231,234,239,0.4) inset;
+}
+.roundframe dl, .roundframe dt, .roundframe p {
+	margin: 0;
+}
+.roundframe p {
+	padding: 0.5em;
+}
+
+/* The main content area.
+------------------------------------------------------- */
+.content {
+	padding: 6px 12px;
+	margin: 0;
+	border: none;
+}
+.content p {
+	margin: 0 0 6px 0;
+}
+
+/* Styles used by the auto suggest control.
+------------------------------------------------------- */
+.auto_suggest_div {
+	border: 1px solid #000;
+	position: absolute;
+	visibility: hidden;
+}
+.auto_suggest_item {
+	background: #ddd;
+}
+.auto_suggest_item_hover {
+	background: #888;
+	cursor: pointer;
+	color: #eee;
+}
+
+/* Styles for the standard dropdown menus.
+------------------------------------------------------- */
+#main_menu {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	float: left;
+	width: 100%;
+}
+.dropmenu {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	float: left;
+}
+/* Level 1 button background. */
+.dropmenu li {
+	margin: 0 2px 0 2px;
+	padding: 0 0 0.4em 0;
+	list-style: none;
+	float: left;
+	font-size: 1em;
+	line-height: 1.9em;
+	position: relative;
+}
+/* Needed for new PM notifications. */
+.dropmenu li strong {
+	color: #fff;
+}
+.dropmenu li a {
+	padding: 0 4px 0 4px;
+	margin: 0 0 0 0;
+	display: block;
+	border: 1px solid rgba(255,255,255,0);
+	border-radius: 4px;
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}
+/* Level 1 active button. */
+.dropmenu li a.active {
+	background: orange;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+	font-weight: bold;
+	border: 1px solid rgba(255,255,255,0);
+	box-shadow: 0 -5px 5px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.1) inset;
+}
+/* Level 1 hover effects. */
+.dropmenu li a:hover/*, .dropmenu li:hover a*/, .dropmenu li a:focus {
+	background: #597b9f;
+	color: #fff;
+	cursor: pointer;
+	text-decoration: none;
+	box-shadow: 0 -4px 4px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.13) inset;
+	border: 1px solid /*#9ba1cf*/rgba(255,255,255,0.2);
+}
+/* Level 1 active button. */
+.dropmenu li a.active:hover {
+	background: orange;
+	box-shadow: 0 -5px 5px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.1) inset;
+	border: 1px solid #ffa43d;
+	border-top: 1px solid #e07700;
+}
+/* If we feel like styling the active state separately. */
+.dropmenu li a:active {}
+/* Levels 2 and 3 submenu wrapper. */
+.dropmenu li ul {
+	z-index: 90;
+	position: absolute;
+	top: 2.2em;
+	left: -9999px;
+	width: 17em;
+	font-weight: normal;
+	background: #fff;
+	border: solid 1px #888;
+	border-left: solid 1px #999;
+	border-top: solid 1px #999;
+	border-radius: 0 5px 0 5px;
+	box-shadow: 2px 2px 2px rgba(0,0,0,0.3), 0 0 16px rgba(99,129,159,0.15) inset;
+	padding: 5px 0 7px 0;
+}
+/* Level 2 link background. */
+.dropmenu li li {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	position: relative;
+	overflow: visible;
+	border-top: 1px solid rgba(0,0,0,0);
+	border-bottom: 1px solid rgba(0,0,0,0);
+	float: none;
+}
+.dropmenu li li a {
+	padding: 0 0 0 2px;
+	font-size: 0.85em;
+	line-height: 1.7em;
+}
+/* Note: The next two declarations are for keyboard access with js disabled. */
+.dropmenu ul a:focus  {
+	margin-left: 9999px;
+	min-width: 17em;
+	background: #fff;
+	text-shadow: none;
+	border-radius: 0 0 0 0;
+}
+.dropmenu ul ul a:focus {
+	margin-left: 19950px;
+}
+.dropmenu li:hover li a, .dropmenu li.sfhover li a {
+	margin: 0 0 0 0;
+	padding: 0 5px 0 5px;
+	display: block;
+	border: none;
+	border-radius: 0;
+	/* Necessary to allow highlighting of 1st level while hovering over submenu. */
+	background: none;
+	color: #346;
+	text-shadow: none;
+	box-shadow: none;
+}
+/* Level 3 submenu wrapper positioning. */
+.dropmenu li ul ul, .dropmenu li.sfhover ul ul {
+	margin: -2.5em 0 0 15.8em;
+}
+/* Level 3 maintains font-size the same as Level 2. */
+.dropmenu li li li a {
+	font-size: 0.85em;
+}
+/* Levels 2 and 3 hover effects. */
+.dropmenu li li:hover, .dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li.subsections a:focus {
+	background: none;
+	color: #333;
+	text-decoration: none;
+}
+.dropmenu li li:hover {
+	border-top: 1px solid #999;
+	border-bottom: 1px solid #888;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+}
+/* If we feel like styling the active state separately. */
+.dropmenu li li a:active, .dropmenu li li:hover>a:active {}
+/* Reposition Level 2 submenu as visible on hover. */
+.dropmenu li:hover ul, .dropmenu li.sfhover ul {
+	left: 0;
+}
+/* Hiding Level 3 submenu off hover. */
+.dropmenu li:hover ul ul, .dropmenu li.sfhover ul ul, .dropmenu li:hover ul ul ul, .dropmenu li.sfhover ul ul ul {
+	left: -9999px;
+}
+/* Reposition as visible on hover. */
+.dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
+	left: auto;
+}
+/* Indicator for additonal levels. Best in the anchor so it stays visible on hover. */
+.dropmenu li li.subsections a {
+	background: url(../images/admin/subsection.png) no-repeat 99% 40%;
+}
+/* For no-js background. */
+.dropmenu li li.subsections a:focus {
+	background: #fff url(../images/admin/subsection.png) no-repeat 99% 40%;
+}
+/* Stops inheritance of indicator icon if there is no fourth level. */
+.dropmenu li li.subsections li a {
+	background: none;
+}
+.dropmenu li li.subsections li a:focus {
+	background: #fff;
+}
+/* Highlighting of current section */
+.dropmenu li li a.chosen {
+	font-weight: bold;
+}
+
+/* The dropdown menu toggle image */
+#menu_toggle {
+	float: right;
+	margin-right: 2px;
+	padding: 7px 9px 4px 9px;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 2px;
+	line-height: 1.9em;
+	overflow: visible;
+	box-shadow: 0 5px 10px rgba(244,247,255,1) inset, 0 -4px 8px rgba(0,0,0,0.1) inset, 1px 1px 1px rgba(0,0,0,0.1);
+}
+#menu_toggle:hover {
+	background: #f4f4f4;
+	padding: 8px 9px 4px 9px;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+#menu_toggle span {
+	position: relative;
+	right: 5000px;
+}
+.adm_section h4 img {
+	background: #eaeff3;
+	padding: 3px 5px 0 6px;
+	border: 1px solid #bbb;
+	border-radius: 5px;
+}
+
+/* Styles for the standard button lists.
+------------------------------------------------------- */
+.buttonlist {
+	padding: 0;
+	margin: 0;
+}
+.buttonlist ul {
+	z-index: 100;
+	padding: 0;
+	margin: 0;
+}
+.buttonlist ul li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	float: left;
+}
+.buttonlist ul li a {
+	display: block;
+	font-size: 0.917em;
+	color: #333;
+	background: #fff;
+	margin: 0 0 2px 2px;
+	padding: 1px 8px 0 8px;
+	text-transform: uppercase;
+	cursor: pointer;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 2px;
+	line-height: 1.9em;
+	overflow: visible;
+	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
+}
+.pagesection .buttonlist ul li a {
+	font-size: 1em;
+}
+/*.buttonlist ul li a.first {
+	border-radius: 2px 0 0 2px;
+}
+.buttonlist ul li a.last {
+	border-radius: 0 2px 2px 0;
+	border-right: 1px solid #bbb;
+}*/
+.buttonlist ul li a:hover {
+	color: #222;
+	text-decoration: none;
+	background: #f4f4f4;
+	padding: 2px 8px 0 9px;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+/* the active one */
+.buttonlist ul li a.active {
+	color: #12304c;
+	background: #f4f4f4;
+	font-weight: bold;
+	padding: 2px 8px 0 9px;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	/*box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;*/
+}
+.buttonlist ul li a.active:hover {
+	color: #0A3E6B;	text-shadow: none;	margin: 0 -1px 1px 2px;
+	background: #f0f0f0;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.3) inset, 1px 1px 1px rgba(0,0,0,0.8) inset, -4px -4px 4px rgba(255,255,255,0.6) inset;
+}
+.buttonlist ul li a.active {
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.6);	padding: 1px 8px 1px 9px;
+	background: #47719b;
+	font-weight: bold;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: none;
+	border-radius: 5px;
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.8) inset, -4px -4px 4px rgba(255,255,255,0.2) inset;
+}
+.align_top ul li a, .align_bottom ul li a {
+	margin: 0 12px 0 0;
+}
+
+/* the navigation list */
+ul#navigation {
+	margin: 0;
+	font-size: 0.917em;
+	padding: 1em 0.4em;
+}
+ul#navigation li {
+	float: none;
+	font-size: 0.91em;
+	display: inline;
+}
+
+#adm_submenus {
+	padding-left: 2em;
+	overflow: hidden;
+}
+
+/* Styles for the general looks for the Curve theme.
+------------------------------------------------------- */
+
+h3, h4 {
+	padding-bottom: 3px;
+}
+select.qaction, input.qaction {
+	font-size: 0.917em;
+	padding: 0;
+}
+input.qaction {
+	padding: 1px 4px;
+	font-weight: bold;
+}
+#mlist table tbody td.windowbg2 {
+	text-align: center;
+}
+
+/* Styles for a typical table.
+------------------------------------------------------- */
+table.table_list {
+	width: 100%;
+}
+table.table_list p {
+	padding: 0;
+	margin: 0;
+}
+table.table_list td, table.table_list th {
+	padding: 5px;
+}
+table.table_list tbody.header td {
+	padding: 0;
+}
+table.table_list div.cat_bar, .childboards  div.cat_bar, #newsfader  div.cat_bar {
+	background: #222 url(../images/theme/main_block.png) 0 -280px no-repeat;
+}
+table.table_list h3.catbg, .childboards h3.catbg, #newsfader  h3.catbg {
+	background: url(../images/theme/main_block.png) 100% -280px no-repeat;
+}
+table.table_list tbody.content td.stats {
+	font-size: 90%;
+	width: 15%;
+	text-align: center;
+}
+table.table_list tbody.content td.lastpost {
+	
+	font-size: 85%;
+	width: 24%;
+	padding: 0.8em;
+}
+table.table_list tbody.content td.icon {
+	text-align: center;
+	width: 6%;
+	vertical-align: top;
+	padding: 0.6em;
+}
+
+/* Styles for the board index.
+------------------------------------------------- */
+
+/* the board title! */
+.table_list tbody.content td.info a.subject {
+	font-weight: bold;
+	font-size: 110%;
+	color: #d97b33;
+}
+.table_list tbody.content td.info a.subject:hover {
+	
+	
+}
+.table_list tbody.content td.children {
+	color: #555;
+	font-size: 85%;
+	padding-left: 0.917em;
+}
+p.moderators {
+	font-size: 0.917em;
+	font-family: verdana, sans-serif;
+}
+/* hide the table header/footer parts - but its here for those needing to style it */
+#boardindex_table .table_list thead, #boardindex_table .table_list tfoot {
+	display: none;
+}
+
+/* the posting icons */
+#posting_icons {
+	padding: 0 1em 0.5em 1em;
+	margin: 0 0 1em 0;
+	line-height: 1em;
+}
+#posting_icons ul {
+	font-size: 0.917em;
+}
+#posting_icons img {
+	vertical-align: middle;
+	margin: 0 0 0 4ex;
+}
+#postbuttons_upper ul li a span {
+	line-height: 19px;
+	padding: 0 0 0 6px;
+}
+.nextlinks {
+	text-align: right;
+	margin-top: -1px;
+	font-weight: bold;
+	line-height: 2em;
+	padding: 0 0.5em;
+}
+.nextlinks_bottom {
+	clear: right;
+	text-align: right;
+}
+.mark_read {
+	padding: 0 0.5em;
+}
+
+/* the newsfader */
+#newsfader {
+	margin: 0 2px;
+	clear: both;
+}
+#smfFadeScroller {
+	text-align: center;
+	padding: 1em;
+	overflow: auto;
+	margin: 0 0 1em 0;
+	min-height: 40px;
+	color: #575757; /* shouldn't be shorthand style due to a JS bug in IE! */
+	border: #ccc 1px solid;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	border-top: none;
+}
+
+/* Styles for the info center on the board index.
+---------------------------------------------------- */
+
+#upshrinkHeaderIC {
+	margin-top: 4px;
+}
+dl#ic_recentposts {
+	margin: 0 0 0.5em 0;
+	padding: 0.5em;
+	
+}
+dl#ic_recentposts dt {
+	float: left;
+}
+dl#ic_recentposts dd {
+	text-align: right;
+}
+#upshrinkHeaderIC p {
+	margin: 0 0 0.5em 0;
+	padding: 0.5em;
+}
+#upshrinkHeaderIC p.last {
+	margin: 0;
+	padding: 0.5em;
+	border-top: 1px dotted #bbb;
+}
+#upshrinkHeaderIC p.inline {
+	border: none;
+	margin: 0;
+	padding: 0.2em 0.5em 0.2em 0.5em;
+	line-height: 2em;
+}
+#upshrinkHeaderIC p.stats {
+	font-size: 1.1em;
+	padding-top: 8px;
+}
+/* the small stats */
+#index_common_stats {
+	margin: -28px 0 0.5em 0;
+	float: right;
+	font-size: 0.917em;
+}
+
+img.new_posts {
+	padding: 0 0.1em;
+}
+.children img.new_posts {
+	display: none;
+}
+/* Styles for the message (topic) index.
+---------------------------------------------------- */
+div.table_frame .table_list {
+	border-collapse: collapse;
+	margin: 2px 0;
+}
+.table_frame .table_list td.icon, .table_frame .table_list td.info, .table_frame .table_list td.stats {
+	border-right: 2px solid white;
+}
+#messageindex {
+	clear: both;
+}
+/* the page navigation area */
+.childboards {
+	margin-bottom: 0.2em;
+}
+#childboards h3 {
+	padding-bottom: 0;
+}
+#childboards .table_list thead {
+	display: none;
+}
+#childboards .table_list {
+	margin-bottom: 1em;
+}
+/*.lastpost img {
+	float: right;
+	padding: 4px;
+}*/
+
+/* Styles for the display template (topic view).
+---------------------------------------------------- */
+
+#postbuttons div.buttons {
+	padding: 0.5em;
+	width: 40%;
+	float: right;
+}
+#postbuttons div.middletext {
+	width: 60%;
+}
+#postbuttons span {
+	display: block;
+	text-align: right;
+}
+#postbuttons span.lower {
+	clear: right;
+}
+#postbuttons .buttonlist {
+	float: right;
+}
+#postbuttons #pagelinks {
+	padding-top: 1em;
+}
+#display_lower_buttons ul {
+	margin-bottom: 0;
+}
+#moderationbuttons {
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	clear: both;
+}
+#moderationbuttons ul {
+	margin-top: 0;
+	padding-top: 0;
+	float: left;
+}
+#moderationbuttons li {
+	margin-top: 1em;
+}
+/* Events */
+.linked_events {
+	padding: 1em 0;
+}
+.edit_event {
+	margin: 0 1em;
+	vertical-align: top;
+}
+/* Poll question */
+#poll {
+	overflow: hidden;
+}
+#poll .cat_bar {
+	margin-bottom: 3px;
+}
+#poll .content {
+	padding: 0 1em;
+}
+h4#pollquestion {
+	padding: 0 0 0.5em 2em;
+}
+
+/* Poll vote options */
+#poll_options ul.options {
+	border-top: 1px solid #9999aa;
+	padding: 1em 2.5em 0 2em;
+	margin: 0 0 1em 0;
+}
+#poll_options div.submitbutton {
+	border-bottom: 1px solid #9999aa;
+	clear: both;
+	padding: 0 0 1em 2em;
+	margin: 0 0 1em 0;
+}
+
+/* Poll results */
+#poll_options dl.options {
+	border: solid #9999aa;
+	border-width: 1px 0;
+	padding: 1em 2.5em 1em 2em;
+	margin: 0 1em 1em 0;
+	font-size: 1.1em;
+	line-height: 1.3em !important;
+}
+
+#poll_options dl.options dt {
+	padding: 0.3em 0;
+	width: 30%;
+	max-width: 350px;
+	float: left;
+	margin: 0 0 0.4em 0;
+	clear: left;
+}
+
+#poll_options dl.options .voted {
+	font-weight: bold;
+}
+
+#poll_options dl.options dd {
+	margin: 0 0 0.4em 2em;
+	padding: 0;
+	width: 40em;
+	float: left;
+	background: url(../images/bar_stats.png) no-repeat 0 0;
+}
+
+#poll_options dl.options .percentage {
+	display: block;
+	float: right;
+	
+	padding: 0 0 0 1em;
+	background: #ccc;
+	width: 9em;
+}
+/* Poll notices */
+#poll_options p {
+	margin: 0 1.5em 0.2em 1.5em;
+	padding: 0 0.5em 0.5em 0.5em;
+}
+
+div#pollmoderation {
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+
+/* onto the posts */
+#forumposts {
+	clear: both;
+}
+/*#forumposts .cat_bar {
+	margin: 0 0 2px 0;
+}*/
+/* author and topic information */
+#forumposts h3 span#author {
+	margin: 0 7.7em 0 0;
+}
+#forumposts h3 img {
+	float: left;
+	/*margin: 4px 0.5em 0 0;*/
+}
+/* [WIP] #forumposts h3.catbg {
+	margin-bottom: 3px;
+}*/
+p#whoisviewing {
+	margin: 0;
+	padding: 4px;
+}
+/* poster and postarea + moderation area underneath */
+.post_wrapper {
+	float: left;
+	width: 100%;
+	position: relative;
+	padding: 0 0 4px 0;
+}
+.poster {
+	float: left;
+	text-align: center;
+	clear: none;
+}
+.postarea {
+	padding: 0;
+	margin: 0 5px 0 5px;
+}
+/* poster details and list of items */
+/*.poster h4, .poster ul {
+	padding: 0;
+	margin: 0 auto;
+}
+.poster h4 {
+	margin: 0.2em 0 0.4em 0;
+	font-size: 120%;
+}
+.poster h4, .poster h4 a {
+	color: #c06002;
+}
+.poster ul ul {
+	margin: 0.3em 0 0 0;
+	padding: 0;
+}
+.poster ul ul li {
+	display: inline;
+}
+.poster li.stars, .poster li.avatar, .poster li.blurb, li.postcount, li.im_icons ul {
+	margin-top: 0.5em;
+}
+.poster li.avatar {
+	overflow: hidden;
+}
+.poster li.warning {
+	line-height: 1.167em;
+	padding-top: 1em;
+}
+.poster li.warning a img {
+	vertical-align: bottom;
+	padding: 0 0.2em;
+}*/
+.messageicon {
+	float: left;
+	margin: 0 0.5em 0 0;
+	width: 24px;
+	height: 30px;
+	text-align: center;
+	display: none;
+}
+.messageicon img {
+	padding: 0;
+}
+.keyinfo {
+	/*position: relative;*/
+	margin: 0 0 0 0;
+	padding: 7px 6px 0px 6px;
+}
+.keyinfo h5 {
+	padding: 0 0 0 0; font-weight: normal;
+}
+.keyinfo a:hover, .keyinfo h5 a:hover {
+	text-decoration: none;
+}
+.keyinfo a.go_up, .keyinfo a.go_down {
+	position: absolute;
+	top: -4px;
+	right: 30px;
+	z-index: 4;
+	opacity: 0.7;
+}
+.keyinfo a.go_down {
+	right: 5px;
+}
+.keyinfo a:hover {
+	opacity: 1.0;
+}
+.keyinfo .smalltext {
+	/*margin: 0;
+	position: relative;
+	left: 0;*/
+	line-height: 2em;
+}
+.post {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	clear: right;
+}
+.inner {
+	padding: 0 0 2px 16px;
+	margin: 0 0 0 0;
+	/*float: left;*/
+	/*width: 100%;*/
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	overflow: auto;
+}
+img.smiley {
+	vertical-align: bottom;
+}
+#forumposts .modified {
+	float: left;
+	color: #333;
+}
+#forumposts .reportlinks {
+	margin-right: 1.5em;
+	text-align: right;
+	clear: right;
+}
+#forumposts .signature, .post .signature {
+	margin: 1em 0 0 0;
+}
+.attachments hr {
+	clear: both;
+	margin: 1em 0 1em 0;
+}
+.attachments {
+	padding: 1em 0 2em 0;
+}
+.attachments div {
+	padding: 0 0.5em;
+}
+.attachments_top  {
+	margin: 0 auto;
+	text-align: center;
+}
+.attachments_bot  {
+	font-size: 0.85em;
+	font-family: verdana, sans-serif;
+	color: #000;
+}
+
+/* Styles for the quick reply area.
+---------------------------------------------------- */
+
+#quickreplybox {
+
+}
+#quickreplybox .cat_bar {
+	margin-bottom: 2px;
+}
+#quickReplyExpand {
+
+}
+#quickReplyOptions .roundframe {
+	padding: 0 10% 15px 10%;
+	border-radius: 0 0 5px 5px;
+}
+#quickReplyOptions form textarea {
+	height: 100px;
+	width: 635px;
+	max-width: 100%;
+	min-width: 100%;
+	margin: 10px 0;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+/* The jump to box */
+#display_jump_to {
+	clear: both;
+	padding: 5px;
+	margin: 0 0 0 0;
+}
+#display_jump_to_select {
+	clear: both;
+	font-size: 0.917em;
+}
+#display_jump_to input {
+	display: none;
+}
+/* Separator of posts. More useful in the print stylesheet. */
+#forumposts .post_separator {
+	display: none;
+}
+
+/* Styles for edit post section
+---------------------------------------------------- */
+form#postmodify .roundframe {
+	padding: 5px 12% 20px 12%;
+	border-radius: 0 0 5px 5px;
+	margin: 0 0 15px 0;
+}
+#post_header, .postbox {
+	padding: 0.5em;
+	overflow: hidden;
+}
+#post_header dt, .postbox dt {
+	float: left;
+	padding: 0;
+	width: 15%;
+	margin: .5em 0 0 0;
+	font-weight: bold;
+}
+#post_header dd, .postbox dd {
+	float: left;
+	padding: 0;
+	width: 83%;
+	margin: .3em 0;
+}
+#post_header img {
+	vertical-align: middle;
+}
+ul.post_options {
+	margin: 0 0 0 1em;
+	padding: 0;
+	list-style: none;
+	overflow: hidden;
+}
+ul.post_options li {
+	margin: 0.2em 0;
+	width: 49%;
+	float: left;
+}
+#postAdditionalOptionsHeader {
+	margin-top: 1em;
+}
+#postMoreOptions {
+	border-bottom: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+#postAttachment, #postAttachment2 {
+	overflow: hidden;
+	margin: .5em 0;
+	padding: 0;
+	border-bottom: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+#postAttachment dd, #postAttachment2 dd {
+	margin: .3em 0 .3em 1em;
+}
+#postAttachment dt, #postAttachment2 dt {
+	font-weight: bold;
+}
+#postAttachment3 {
+	margin-left: 1em;
+}
+#post_confirm_strip, #shortcuts {
+	padding: 1em 0 0 0;
+}
+.post_verification {
+	margin-top: .5em;
+}
+.post_verification #verification_control {
+	margin: .3em 0 .3em 1em;
+}
+/* The BBC buttons */
+#bbcBox_message {
+	margin: 0.75em 0.5em;
+}
+#bbcBox_message div {
+	margin: 0.2em 0;
+	vertical-align: top;
+}
+#bbcBox_message div img {
+	margin: 0 1px 0 0;
+	vertical-align: top;
+}
+#bbcBox_message select {
+	margin: 0 2px;
+}
+/* The smiley strip */
+#smileyBox_message {
+	margin: 0.5em;
+}
+
+/* Styles for edit event section
+---------------------------------------------------- */
+#post_event .roundframe {
+	padding: 0 12%;
+}
+#post_event fieldset {
+	padding: 0.5em;
+	clear: both;
+}
+#post_event #event_main input {
+	margin: 0 0 1em 0;
+	float: left;
+}
+#post_event #event_main div.smalltext {
+	width: 33em;
+	float: right;
+}
+#post_event div.event_options {
+	float: right;
+}
+#post_event ul.event_main, ul.event_options {
+	padding: 0;
+	overflow: hidden;
+}
+#post_event ul.event_main li {
+	list-style-type: none;
+	margin: 0.2em 0;
+	width: 49%;
+	float: left;
+}
+#post_event ul.event_options {
+	margin: 0;
+	padding: 0 0 .7em .7em;
+}
+#post_event ul.event_options li {
+	list-style-type: none;
+	margin: 0;
+	float: left;
+}
+#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check {
+	margin: 0 1em 0 0;
+}
+
+/* Styles for edit poll section.
+---------------------------------------------------- */
+
+#edit_poll {
+	overflow: hidden;
+}
+#edit_poll fieldset {
+	padding: 0.5em;
+	clear: both;
+	overflow: hidden;
+}
+#edit_poll fieldset input {
+	margin-left: 8.1em;
+}
+#edit_poll ul.poll_main li {
+	padding-left: 1em;
+}
+#edit_poll ul.poll_main input {
+	margin-left: 1em;
+}
+#edit_poll ul.poll_main, dl.poll_options {
+	overflow: hidden;
+	padding: 0 0 .7em .7em;
+	list-style: none;
+}
+#edit_poll ul.poll_main li {
+	margin: 0.2em 0;
+}
+#edit_poll dl.poll_options dt {
+	width: 33%;
+	padding: 0 0 0 1em;
+}
+#edit_poll dl.poll_options dd {
+	width: 65%;
+}
+#edit_poll dl.poll_options dd input {
+	margin-left: 0; 
+}
+
+/* Styles for the recent messages section.
+---------------------------------------------------- */
+
+#readbuttons_top .pagelinks, #readbuttons .pagelinks {
+	padding-bottom: 1em;
+	width: 60%;
+}
+#readbuttons .pagelinks {
+	padding-top: 1em;
+}
+#recent {
+	clear: both;
+}
+/* Styles for the move topic section.
+---------------------------------------------------- */
+
+#move_topic dl {
+	margin-bottom: 0;
+}
+#move_topic dl.settings dt {
+	width: 40%;
+}
+#move_topic dl.settings dd {
+	width: 59%;
+}
+.move_topic {
+	width: 710px;
+	margin: auto;
+	text-align: left;
+}
+div.move_topic fieldset {
+	padding: 0.5em;
+}
+
+/* Styles for the send topic section.
+---------------------------------------------------- */
+
+fieldset.send_topic {
+	border: none;
+	padding: 0.5em;
+}
+dl.send_topic {
+	margin-bottom: 0;
+}
+dl.send_mail dt {
+	width: 35%;
+}
+dl.send_mail dd {
+	width: 64%;
+}
+
+/* Styles for the report topic section.
+---------------------------------------------------- */
+
+#report_topic dl {
+	margin-bottom: 0;
+}
+#report_topic dl.settings dt {
+	width: 20%;
+}
+#report_topic dl.settings dd {
+	width: 79%;
+}
+
+/* Styles for the split topic section.
+---------------------------------------------------- */
+
+div#selected, div#not_selected {
+	width: 49%;
+}
+ul.split_messages li.windowbg, ul.split_messages li.windowbg2 {
+	margin: 1px;
+}
+ul.split_messages li a.split_icon {
+	padding: 0 0.5em;
+}
+ul.split_messages div.post {
+	padding: 1em 0 0 0;
+	border-top: 1px solid #fff;
+}
+
+/* Styles for the merge topic section.
+---------------------------------------------------- */
+ul.merge_topics li {
+	list-style-type: none;
+}
+dl.merge_topic dt {
+	width: 25%;
+}
+dl.merge_topic dd {
+	width: 74%;
+}
+fieldset.merge_options {
+	clear: both;
+}
+.custom_subject {
+	margin: 0.5em 0;
+}
+
+/* Styles for the login areas.
+------------------------------------------------------- */
+.login {
+	width: 540px;
+	margin: 0 auto;
+}
+.login dl {
+	overflow: auto;
+	clear: right;
+}
+.login dt, .login dd {
+	margin: 0 0 0.4em 0;
+	width: 44%;
+	padding: 0.1em;
+}
+.login dt {
+	float: left;
+	clear: both;
+	text-align: right;
+	font-weight: bold;
+}
+.login dd {
+	width: 54%;
+	float: right;
+	text-align: left;
+}
+.login p {
+	text-align: center;
+}
+
+/* Additional register fields */
+dl.register_form {
+	margin: 0;
+	clear: right;
+}
+
+dl.register_form dt {
+	font-weight: normal;
+	float: left;
+	clear: both;
+	width: 50%;
+	margin: 0.5em 0 0 0;
+}
+
+dl.register_form dt strong {
+	font-weight: bold;
+}
+
+dl.register_form dt span {
+	display: block;
+}
+
+dl.register_form dd {
+	float: left;
+	width: 49%;
+	margin: 0.5em 0 0 0;
+}
+
+#confirm_buttons {
+	text-align: center;
+	padding: 1em 0;
+}
+
+.coppa_contact {
+	padding: 4px;
+	width: 32ex;
+	background: #fff;
+	color: #000;
+	margin-left: 5ex;
+	border: 1px solid #000;
+}
+
+.valid_input {
+	background: #f5fff0;
+}
+.invalid_input {
+	background: #fff0f0;
+}
+
+/* Styles for maintenance mode.
+------------------------------------------------------- */
+#maintenance_mode {
+	width: 75%;
+	min-width: 520px;
+	text-align: left;
+}
+#maintenance_mode img.floatleft {
+	margin-right: 1em;
+}
+
+/* common for all admin sections */
+/*h3.titlebg img {
+	vertical-align: middle;
+	margin-right: 0.5em;
+	margin-top: -1px;
+}*/
+tr.titlebg td {
+	padding-left: 0.7em;
+}
+#admin_menu {
+	min-height: 2em;
+	padding-left: 0;
+}
+#admin_content {
+	clear: left;
+	padding-top: 4px;
+	/* [WIP] */
+	overflow: auto;
+}
+/* Custom profile fields like to play with us some times. */
+#admin_content .custom_field {
+	margin-bottom: 15px;
+}
+#admin_login .centertext {
+	padding: 1em;
+}
+#admin_login .centertext .error {
+	padding: 0 0 1em 0;
+}
+#admin_login .centertext a.help img {
+	vertical-align: middle;
+}
+
+/* Styles for sidebar menus.
+------------------------------------------------------- */
+.left_admmenu, .left_admmenu ul, .left_admmenu li {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+#left_admsection {
+	width: 160px;
+	float: left;
+	padding-right: 10px;
+	overflow: auto;
+}
+.adm_section h4.catbg {
+	font-size: 95%;
+	margin-bottom: 5px;
+}
+#main_container {
+	position: relative;
+	clear: both;
+}
+.left_admmenu li {
+	padding: 0 0 0 0.5em;
+}
+.left_admmenu {
+	margin-bottom: 0.5em;
+}
+#main_admsection {
+	position: relative;
+	left: 0;
+	right: 0;
+	overflow: auto;
+}
+
+tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
+	padding: 0.3em 0.7em;
+}
+#credits p {
+	padding: 0;
+	font-style: italic;
+	margin: 0;
+}
+
+/* Styles for generic tables.
+------------------------------------------------------- */
+.topic_table table {
+	width: 100%;
+}
+.topic_table .icon1, .topic_table .icon2, .topic_table .stats {
+	text-align: center;
+}
+#topic_icons {
+	margin: 1em 0 0 0;
+}
+#topic_icons .description {
+	margin: 0;
+}
+.topic_table table thead {
+	border-bottom: 1px solid #fff;
+}
+/* the subject column */
+.topic_table td {
+	font-size: 1em;
+}
+.topic_table td.subject p, .topic_table td.stats {
+	font-size: 0.917em;
+	padding: 0;
+	margin: 0;
+}
+.topic_table td.lastpost {
+	font-size: 0.917em;
+	
+	padding: 4px;
+}
+.topic_table td.stickybg2, .topic_table td.lockedbg2, .topic_table td.locked_sticky2, .topic_table td.icon2, .topic_table td.stats, .topic_table td.lastpost, .topic_table td.moderation {
+	background: none;
+}
+/*td.stickybg, td.stickybg2 {display: none;}
+/* Styles for (fatal) errors.
+------------------------------------------------- */
+
+#fatal_error {
+	width: 80%;
+	margin: auto;
+}
+.errorbox  {
+	background: #fee url(../images/warning_mute.png) 10px 50% no-repeat;
+	text-align: left;
+	border-top: 2px solid #c34;
+	border-bottom: 2px solid #c34;
+	padding: 7px 10px 7px 35px;
+	margin-bottom: 1em;
+}
+.errorbox h3 {
+	padding: 0;
+	margin: 0;
+	font-size: 1.1em;
+	text-decoration: underline;
+}
+.errorbox p {
+	margin: 1em 0 0 0;
+}
+.errorbox p.alert {
+	padding: 0;
+	margin: 0;
+	float: left;
+	width: 1em;
+	font-size: 1.5em;
+}
+.errorbox span {
+	text-decoration: underline;
+}
+
+/* Styles for info boxes */
+/* Note: Are these classes really needed when we have so many other container classes? */
+/*------------------------------------------------- */
+.noticebox  {
+	color: #666;
+	background: #fff6ca url(../images/warning_moderate.png) 10px 50% no-repeat;
+	text-align: left;
+	border-top: 1px solid #ffd324;
+	border-bottom: 1px solid #ffd324;
+	padding: 7px 10px 7px 35px;
+	margin-bottom: 1em;
+}
+.infobox  {
+	color: #000;
+	background: #efe url(../images/icons/field_valid.png) 10px 50% no-repeat;
+	text-align: left;
+	border: 1px solid green;
+	padding: 7px 10px 7px 35px;
+	margin-bottom: 1em;
+}
+
+/* Styles for the profile section.
+------------------------------------------------- */
+
+dl {
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+/* The basic user info on the left */
+#basicinfo {
+	width: 20%;
+	float: left;
+}
+#basicinfo .windowbg .content {
+	padding-left: 20px;
+}
+#detailedinfo {
+	width: 79.5%;
+	float: right;
+}
+#basicinfo h4 {
+	font-size: 135%;
+	font-weight: 100;
+	line-height: 105%;
+	white-space: pre-wrap;
+	overflow: hidden;
+}
+#basicinfo h4 span.position {
+	font-size: 80%;
+	font-weight: 100;
+	display: block;
+}
+#basicinfo img.avatar {
+	display: block;
+	margin: 10px 0 0 0;
+}
+#basicinfo ul {
+	list-style-type: none;
+	margin: 10px 0 0 0;
+}
+#basicinfo ul li {
+	display: block;
+	float: left;
+	margin-right: 5px;
+	height: 20px;
+}
+#basicinfo span#userstatus {
+	display: block;
+	clear: both;
+}
+#basicinfo span#userstatus img {
+	vertical-align: middle;
+}
+#detailedinfo div.content {
+	overflow: auto;
+}
+#detailedinfo div.content dl, #tracking div.content dl {
+	clear: right;
+	overflow: auto;
+	margin: 0 0 18px 0;
+	padding: 0 0 15px 0;
+	border-bottom: 1px #ccc solid;
+}
+#detailedinfo div.content dt, #tracking div.content dt {
+	width: 35%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#detailedinfo div.content dd, #tracking div.content dd {
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+#detailedinfo div.content dl.noborder {
+	border-bottom: 0;
+}
+#detailedinfo div.content dt.clear {
+	width: 100%;
+}
+.signature, .custom_fields_above_signature {
+	/*border-top: 1px #ccc solid;*/
+}
+.signature h5 {
+	font-size: 0.917em;
+	margin-bottom: 10px;
+}
+#personal_picture {
+	display: block;
+	margin-bottom: 0.3em;
+}
+#avatar_server_stored div {
+	float: left;
+}
+#avatar_upload {
+	overflow: auto;
+}
+#main_admsection #basicinfo, #main_admsection #detailedinfo {
+	width: 100%;
+}
+#main_admsection #basicinfo h4 {
+	float: left;
+	width: 35%;
+}
+#main_admsection #basicinfo img.avatar {
+	float: right;
+	vertical-align: top;
+}
+#main_admsection #basicinfo ul {
+	clear: left;
+}
+#main_admsection #basicinfo span#userstatus {
+	clear: left;
+}
+#main_admsection #basicinfo p#infolinks {
+	display: none;
+	clear: both;
+}
+#main_admsection #basicinfo .botslice {
+	clear: both;
+}
+
+/* Profile statistics */
+#generalstats div.content dt {
+	width: 50%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#generalstats div.content dd {
+	width: 50%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+
+/* Activity by time */
+#activitytime {
+	margin: 6px 0;
+}
+.activity_stats {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.activity_stats li {
+	margin: 0;
+	padding: 0;
+	width: 4.16%;
+	float: left;
+}
+.activity_stats li span {
+	display: block;
+	border: solid #000;
+	border-width: 1px 1px 0 0;
+	text-align: center;
+}
+.activity_stats li.last span {
+	border-right: none;
+}
+.activity_stats li div.bar {
+	margin: 0 auto;
+	width: 15px;
+}
+.activity_stats li div.bar div {
+	background: #6294CE;
+}
+.activity_stats li div.bar span {
+	position: absolute;
+	top: -1000em;
+	left: -1000em;
+}
+
+/* Most popular boards by posts and activity */
+#popularposts {
+	width: 49.5%;
+	float: left;
+}
+#popularactivity {
+	width: 49.5%;
+	float: right;
+}
+
+#popularposts div.content dt, #popularactivity div.content dt {
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#popularposts div.content dd, #popularactivity div.content dd {
+	width: 35%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+
+.profile_pie {
+	background: url(../images/stats_pie.png);
+	float: left;
+	height: 20px;
+	width: 20px;
+	margin: 0 1em 0 0;
+	padding: 0;
+	text-indent: -1000em;
+}
+
+/* View posts */
+.topic .time {
+	float: right;
+}
+
+.counter {
+	margin: 0 0 0 0;
+	padding: 0.2em 0.5em 0.1em 0.2em;
+	font-size: 2.2em;
+	font-weight: bold;
+	color: #3f3f3f;
+	float: left;
+}
+.list_posts {
+	border-top: 2px solid #b3b3bf;
+	padding-top: 12px;
+	margin-top: 6px;
+	overflow: auto;
+}
+#recent .list_posts {
+	border-top: none;
+	padding-top: 0;
+	margin-top: 0;
+	overflow: auto;
+}
+
+.core_posts {
+	margin-bottom: 3px;
+}
+
+.topic h4 {
+	margin: 3px 0;
+}
+
+.topic .post {
+	margin: 0 1em;
+	min-height: 80px;
+	height: auto !important;
+	height: 80px;
+}
+
+.topic .mod_icons {
+	text-align: right;
+	margin-right: 1em;
+}
+
+#tracking div.content dl {
+	border-bottom: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#creator dl {
+	margin: 0;
+}
+#creator dt {
+	width: 40%;
+	float: left;
+	clear: both;
+	margin: 0 0 10px 0;
+}
+#creator dd {
+	float: right;
+	width: 55%;
+	margin: 0 0 10px 2px;
+	overflow: auto;
+}
+img.centericon {
+	vertical-align: middle;
+}
+.ignoreboards {
+	margin: 0 2%;
+	padding: 0;
+	width: 45%;
+}
+.ignoreboards a {
+	font-weight: bold;
+	border-bottom: 1px solid #c4c4c4;
+	padding: 0.1em 0;
+}
+.ignoreboards a:hover {
+	text-decoration: none;
+	border-bottom: 1px solid #334466;
+}
+.ignoreboards ul {
+	margin: 0;
+	padding: 0;
+}
+.ignoreboards li {
+	list-style: none;
+	float: left;
+	clear: both;
+}
+.ignoreboards li.category {
+	margin: 0.7em 0 0 0;
+	width: 100%;
+}
+.ignoreboards li ul {
+	margin: 0.2em 0 0 0;
+}
+.ignoreboards li.category ul li.board {
+	width: 93%;
+}
+
+#theme_settings {
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+#theme_settings li {
+	list-style: none;
+	margin: 10px 0;
+	padding: 0;
+}
+/* Paid Subscriptions */
+#paid_subscription {
+	width: 100%;
+}
+#paid_subscription dl.settings {
+	margin-bottom: 0;
+}
+#paid_subscription dl.settings dd, #paid_subscription dl.settings dt {
+	margin-bottom: 4px;
+}
+/* Pick theme */
+#pick_theme {
+	width: 100%;
+	float: left;
+}
+/*Issue a warning*/
+#warn_body{
+	width: 80%;
+	font-size: 0.917em;
+}
+
+/* Styles for the statistics center.
+------------------------------------------------- */
+#statistics {
+	padding: 0.5em 0;
+}
+#statistics div.title_bar {
+	margin: 4px 0 -2px 0;
+}
+#statistics h3.catbg {
+	text-align: center;
+}
+#statistics div.content {
+	min-height: 210px;
+}
+#statistics div.top_row {
+	min-height: 150px;
+}
+#stats_left, #top_posters, #top_topics_replies, #top_topics_starter {
+	float: left;
+	width: 49.5%;
+}
+#stats_right, #top_boards, #top_topics_views, #most_online {
+	float: right;
+	width: 49.5%;
+}
+dl.stats {
+	clear: both;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	
+	font-size: 1em;
+}
+dl.stats dt {
+	width: 44%;
+	float: left;
+	margin: 0 0 4px 0;
+	padding: 0;
+	clear: both;
+	height: 1.3em;
+	overflow: hidden;
+}
+dl.stats dd {
+	text-align: right;
+	width: 55%;
+
+	float: right;
+	margin: 0 0 4px 0;
+
+	padding: 0;
+	background: url(../images/bar_stats.png) no-repeat 0 0;
+}
+#stats_left dt, #stats_right dt {
+	width: 54%;
+	background: none;
+	text-align: left;
+	height: auto;
+	overflow: visible;
+}
+#stats_left dd, #stats_right dd {
+	text-align: left;
+	width: 39%;
+	background: none;
+}
+.statsbar div.bar {
+	float: left;
+	display: block;
+	margin: 0;
+}
+.statsbar div.bar div {
+	position: relative;
+	right: 0;
+
+
+	height: 16px;
+	padding: 0 1px 0 0;
+	background: #585858 url(../images/bar_stats.png) no-repeat 100% 0;
+}
+.statsbar span {
+	background: #0b0b0b;
+	width: 5em;
+	padding: 0 0 0 8px;
+	display: inline-block;
+}
+#most_online dt, #top_topics_starter dt {
+	width: 30%;
+}
+#most_online dd, #top_topics_starter dd {
+	width: 69%;
+}
+#most_online .statsbar span {
+	background: #0b0b0b;
+	width: 8em;
+	padding: 0 0 0 8px;
+	display: inline-block;
+}
+tr.windowbg2 th.stats_month {
+	width: 25%;
+	padding: 0 2em;
+	text-align: left;
+}
+tr.windowbg2 td.stats_day {
+	padding: 0 3.5em;
+	text-align: left;
+}
+
+/* Styles for the personal messages section.
+------------------------------------------------- */
+
+#personal_messages h3 span#author, #personal_messages h3 span#topic_title {
+	float: left;
+}
+#personal_messages h3 span#author {
+	margin: 0 0 0 0.5em;
+}
+#personal_messages h3 span#topic_title {
+	margin: 0 0 0 9em;
+}
+#personal_messages div.labels {
+	padding: 0 1em 0 0;
+}
+#personal_messages .capacity_bar {
+	background: #f0f4f7;
+	display: block;
+	margin: 0.5em 0 0 1em;
+	height: 1em;
+	border: 1px solid #adadad;
+	width: 10em;
+}
+#personal_messages .capacity_bar span {
+	border-right: 1px solid #adadad;
+	display: block;
+	height: 1em;
+}
+#personal_messages .capacity_bar span.empty {
+	background: #a6d69d;
+}
+#personal_messages .capacity_bar span.filled {
+	background: #eea800;
+}
+#personal_messages .capacity_bar span.full {
+	background: #f10909;
+}
+#personal_messages .reportlinks {
+	padding: 0.5em 1.3em;
+}
+#searchLabelsExpand li {
+	padding: 0.3em 0.5em;
+}
+#manrules div.righttext {
+	padding: 0.3em 0.1em;
+}
+dl.addrules dt.floatleft {
+	width: 15em;
+	color: #333;
+	padding: 0 1.25em 0.5em 1.25em;
+}
+#addrule fieldset {
+	clear: both;
+}
+
+/* Styles for the calendar section.
+------------------------------------------------- */
+.calendar_table {
+	margin-bottom: 0.7em;
+}
+
+/* Used to indicate the current day in the grid. */
+.calendar_today {
+	background: #fff;
+	border: 1px solid #bbb;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
+}
+
+#month_grid {
+	width: 200px;
+	text-align: center;
+	float: left;
+}
+#month_grid div.cat_bar {
+	height: 25px;
+}
+#month_grid h3.catbg {
+	height: 25px;
+	line-height: 27px;
+}
+#month_grid table {
+	width: 200px;
+}
+#main_grid table {
+	width: 100%;
+	padding-bottom: 4px;
+}
+#main_grid table h3.catbg {
+	text-align: center;
+	height: 29px;
+	border-top: 2px solid #fff;
+	border-bottom: none;
+}
+#main_grid table.weeklist td.windowbg {
+	text-align: center;
+	height: 49px;
+	width: 25px;
+	font-size: large;
+	padding: 0 7px;
+	border-bottom: 2px solid #fff;
+}
+#main_grid table.weeklist td.weekdays {
+	height: 49px;
+	width: 100%;
+	padding: 4px;
+	text-align: left;
+	vertical-align: middle;
+	border-bottom: 2px solid #fff;
+}
+#main_grid h3.weekly {
+	text-align: center;
+	padding-left: 0;
+	font-size: large;
+	height: 29px;
+}
+#main_grid h3 span.floatleft, #main_grid h3 span.floatright {
+	display: block;
+	font-weight: bold;
+}
+#main_grid table th.days {
+	width: 14%;
+	padding: 4px 0;
+}
+#main_grid table.weeklist h4.titlebg {
+	margin: 0 0 0 0;
+	height: 23px;
+	line-height: 27px;
+}
+#main_grid table td.weeks {
+	vertical-align: middle;
+	text-align: center;
+	font-weight: bold;
+	font-size: large;
+}
+#main_grid table td.days {
+	vertical-align: top;
+	text-align: center;
+}
+
+a.modify_event {
+	color: red;
+}
+
+span.hidelink {
+	font-style: italic;
+}
+
+#calendar_navigation {
+	text-align: center;
+}
+
+/* Styles for the memberlist section.
+------------------------------------------------- */
+#mlist_search {
+	margin: auto;
+	width: 500px;
+}
+
+/* Styles for the basic search section.
+------------------------------------------------- */
+#searchform, #simple_search p {
+	padding: 0.5em;
+	margin: 0;
+}
+#simple_search, #simple_search p, #advanced_search {
+	text-align: center !important;
+	margin: 0;
+}
+#search_error {
+	font-style: italic;
+	padding: 0.3em 1em;
+}
+#search_term_input {
+	font-size: 115%;
+	margin: 0 0 1em;
+}
+
+/* Styles for the advanced search section.
+------------------------------------------------- */
+#searchform fieldset {
+	text-align: left;
+	padding: 0;
+	border: none;
+}
+#advanced_search dl#search_options {
+	margin: 0 auto;
+	width: 600px;
+	padding-top: 1em;
+	overflow: hidden;
+}
+#advanced_search dt {
+	clear: both;
+	float: left;
+	padding: 0.2em;
+	text-align: right;
+	width: 20%;
+}
+#advanced_search dd {
+	width: 75%;
+	float: left;
+	padding: 0.2em;
+	margin: 0 0 0 0.5em;
+	text-align: left;
+}
+#searchform p.clear {
+	clear: both;
+}
+
+/* Styles for the search results page.
+------------------------------------------------- */
+.topic_table td blockquote, .topic_table td .quoteheader {
+	margin: 0.5em;
+}
+.search_results_posts {
+	overflow: hidden;
+}
+.search_results_posts .buttons {
+	padding: 5px 1em 0 0;
+}
+
+/* Styles for the help section.
+------------------------------------------------- */
+/*
+#help_container {
+	margin: 4px 0 0 0;
+	padding: 0 0 8px 0;
+}
+#helpmain {
+	padding: 0 1em;
+}
+#helpmain p {
+	margin: 0 0 1.5em 0;
+	line-height: 1.5em;
+}
+#helpmain ul {
+	line-height: 1.5em;
+}
+
+/* Styles for print media.
+------------------------------------------------------- */
+@media print {
+	#headerarea
+	{
+		display: none;
+	}
+
+	.tborder
+	{
+		border: none;
+	}
+}
+/* Styles for the progress bar 
+-------------------------------------------------- */
+.progress_bar {
+	height: 15pt;
+	border: 1px solid black;
+	background-color: white;
+	padding: 3px;
+	width: 80%;
+	margin: 0 auto;
+	position: relative;
+	border-radius: 5px;
+	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+.progress_bar div.full_bar {
+	padding-top: 1pt;
+	width: 100%;
+	color: black;
+	position: absolute;
+	text-align: center;
+	font-weight: bold;
+	border-radius: 3px;
+	z-index: 2;
+}
+.progress_bar div.green_percent {
+	height: 15pt;
+	background-color: #c1ffc1;
+	background-image: -webkit-linear-gradient(top, #c1ffc1, green);
+	background-image: -moz-linear-gradient(top, #c1ffc1, green);
+	background-image: -ms-linear-gradient(top, #c1ffc1, green);
+	background-image: -o-linear-gradient(top, #c1ffc1, green);
+	background-image: linear-gradient(top, #c1ffc1, green);
+	border-radius: 3px;
+	z-index: 1;
+}
+.progress_bar div.blue_percent {
+	height: 15pt;
+	background-color: #98b8f4;
+	background-image: -webkit-linear-gradient(top, #98b8f4, blue);
+	background-image: -moz-linear-gradient(top, #98b8f4, blue);
+	background-image: -ms-linear-gradient(top, #98b8f4, blue);
+	background-image: -o-linear-gradient(top, #98b8f4, blue);
+	background-image: linear-gradient(top, #98b8f4, blue);
+	border-radius: 3px;
+	z-index: 1;
+}
+/* Reuters RSS feed class */
+div.feedflare {display: none;}
+/* Beauty tips tooltips. */
+.bt-fucker {
+	background: #000;
+}
+.bt-content {
+	position: relative;
+	padding: 6px 9px;
+	color: #333;
+	white-space: pre;
+	background: /*#fff*/ #fff;
+	border: 1px solid #aaa;
+	border-radius: 4px 4px 4px 0;
+	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), /*0 -5px 10px rgba(244,247,255,1) inset,*/ 0 0px 10px rgba(0,0,0,0.05) inset;
+}
+/* Skip navigation link. */
+#skipnav {
+	position: absolute; top: 0; left: -999em; padding: 1em 1.5em; background: #222 url(../images/theme/main_block.png) no-repeat -20px -380px; color: #bfad8f;
+	border: 2px solid #bfad8f; border-top: none; border-radius: 0 0 7px 7px; font-weight: bold; box-shadow: 2px 3px 4px #000; z-index: 10;
+}
+#skipnav:focus {
+	left: 20%; outline: none;
+}
+/* Test css fix for topic summary quote buttons in Post.template.php */
+.core_posts .content ul {float:right; width: 13em;}
+#preview_section .content{overflow: auto;}
+
+/* TABLE-LESS BOARD INDEX TESTING */
+.category_wrapper {
+	margin-bottom: 0.8em;
+	clear: both;
+	/*border: 1px solid #ddd;*/
+	padding: 1px 1px 1px 1px;
+	border-radius: 6px 6px 0 0;
+}
+.category_wrapper div.cat_bar h3.catbg {
+	border-radius: 5px 5px 0 0;
+	background: #63819F;
+	margin: 0 0 1px 0;
+	padding-left: 1.2%;
+	box-shadow: 0 10px 16px rgba(255,255,255,0.3) inset, 0 -10px 16px rgba(0,0,0,0.05) inset;
+}
+.category_wrapper div.cat_bar a.collapse {
+	float: right; margin: 1px 0 0 0; opacity: 1;
+}
+.category_wrapper div.cat_bar a.collapse:hover {
+	opacity: 1;
+}
+.category_wrapper div.cat_bar a.collapse img {
+	/*border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin-top: 4px; box-shadow: 1px 1px 2px rgba(0,0,0,0.2);*/
+}
+.forum_category {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	border-bottom: none;
+}
+.forum_category li {
+	list-style: none;
+	margin: 1px 0 0 0;
+	padding: 0.4em 0 0 0;
+	overflow: hidden;
+	border: 1px solid #ddd;
+		border-top: 1px solid #e3e3e3;
+			border-bottom: 1px solid #d8d8d8;
+	position: relative;
+	/*background: #fff;
+	box-shadow: 0 10px 16px rgba(239,240,255,0.6) inset*//*, 0 -10px 10px rgba(0,0,0,0.05) inset*/
+	background: /*#eff3ff*/ rgba(240,244,245,0.9);
+	box-shadow: 0 10px 20px rgba(255,255,255,0.7) inset/*, 0 -10px 10px rgba(0,0,0,0.05) inset*/;
+	
+	
+		background: /*#f4f7ff*/ #fff;
+	box-shadow: 0 -5px 10px rgba(244,247,255,0.6) inset;
+}
+.forum_category li li{
+	border: none;
+	box-shadow: none;
+}
+.forum_category li.subheader {
+	display: none;
+}
+.forum_category li h5 {
+	float: left;
+	font-weight: bold;
+	color: #444;
+}
+.forum_category div {
+	float: left;
+	margin: 0 0 -98.5em 0;
+	padding: 1em 1em 99em 1em;
+	/* Note: the following is critically important. */
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.forum_category div.icon {
+	padding: 1.0em 0em 99em 0em;
+	width: 6.5%;
+	text-align: center;
+	background: none;
+	border-right: none;
+}
+.forum_category div.icon a {
+	opacity: 0.8;
+}
+.forum_category div.icon a:hover {
+	opacity: 1;
+}
+.forum_category div.icon a img{
+	border: none;
+}
+.forum_category div.info {
+	width: 48.5%;
+	background: none;
+	border-right: none;
+	padding-left: 0;
+}
+.forum_category div.info a {
+	font-weight: bold;
+	font-size: 1.167em;
+}
+.forum_category div.info a:hover {
+	text-decoration: none;
+	border-bottom: 1px solid #82705b;
+}
+.forum_category div.info p {
+	margin: 0.50em 0;
+}
+.forum_category div.info div.moderators {
+	font-size: 0.917em;
+	border: none;
+	padding: 0 0 0 0;
+	margin: 0;
+}
+.forum_category div.info div.moderators a {
+	font-size: 1em;
+	font-weight: normal;
+}
+.forum_category div.stats {
+	/*width: 14%;*/ width: 45%;
+	text-align: center;
+	background: none;
+	line-height: 1.8em;
+	position: relative;
+	top: 0;
+	right: 0;
+	float: right;
+	border-right: none;
+	padding-top: 0.7em;
+}
+.forum_category div.stats ul, .forum_category div.lastpost ul {
+	margin: 0; padding: 0; /**/float:right;
+}
+.forum_category div.stats li, .forum_category div.lastpost li {
+	margin: 0;
+	/*float: none;*/ float: left;
+	border: none;
+}
+.forum_category div.stats li {
+	font-size: 1.167em; font-weight: bold; padding: 0 0.2em 0 1em; float: left; margin-top: 0.05em;
+}
+.forum_category div.stats li span{
+	font-size: 0.917em; font-weight: normal;
+}
+.forum_category div.lastpost {
+	/*font-size: 0.9em;*/font-size: 1em;
+	float: right;
+	/*width: 28.5%;*/width: 45%;
+	padding: 0.6em 0.5em 98.5em /*1.4em*/0;
+	border-right: none;
+	background: none;
+	position: relative;
+	top: -0.95em;
+	right: 0;
+	background: none;
+}
+.forum_category div.lastpost ul {
+	overflow: hidden;
+	padding-top: 0.4em;
+}
+.forum_category div.lastpost ul li:nth-child(3), .forum_category div.lastpost ul li span:nth-child(1) {
+	display: none;
+}
+.forum_category div.lastpost ul li span {
+	padding: 0 0.4em 0 0;
+}
+.forum_category div.lastpost ul li {
+	padding: 0 0.6em 0 0.2em;
+	/*border-left: 1px solid #777;*/
+	margin-left: -3px;
+	line-height: 1.167em;
+	float: right;
+}
+.forum_category div.lastpost ul li h5 {
+	font-weight: normal;
+	display: none;
+}
+.forum_category div.children {
+	clear: both;
+	float: left;
+	width: 93.6%; position: relative; right: 0;
+	margin: 0 0 -98.5em 6.5%;
+	padding: 0.5em 1em 99em /*1.167em*/ 0; background: none;
+	/*border-top: 2px solid #000;*/border-top: 1px solid #ddd; /*border-left: 1px solid #000; border-radius: 3px 0 0 0;*/
+	font-size: 0.917em;
+}
+.forum_category div.children ul {
+	margin: 0 0 0 -0.6em;
+	overflow: hidden;
+	max-width: 64em;
+}
+.forum_category div.children ul li {
+	float: left;
+	/* Width can be changed to 50%, 33% or 25% to stack child boards in 2, 3, or 4 columns. */
+	width: 50%;
+	/* If stacking child boards in columns, suggest using only border: none; here. */
+	border: none;
+	/*border-left: 1px solid #444;*/
+	margin: 0 0 0 -1px;
+	padding: 0 0.6em;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.forum_category li.divider {
+	display: none;
+}
+/*.forum_category div.icon, .forum_category div.info,.forum_category div.stats,.forum_category div.lastpost {background: none;}*/
+.forum_category li div, .forum_category li div li {background: none;}
+/* Extras */
+div.category_wrapper {
+	/*border: 1px solid #82705B;
+	border-radius: 6px;
+	padding: 2px 1px 1px 1px;
+	margin-bottom: 0.3em;*/
+	/*box-shadow: 0 2px 6px #000;*/
+}
+/*
+.forum_category {
+	/*margin: 2px 0 0 0;
+	padding-top: 1px;
+	border-top: 1px solid #82705B;
+}
+.forum_category li.subheader{
+	background: #1a1a1a url(../images/theme/main_block.png) no-repeat -10px -380px;
+}
+.forum_category li.subheader div {
+	background: none;
+	font-size: 1em;
+	color: #666;
+	margin: 0 0 -0.2em 0;
+	padding: 0.4em 1em 0 1em;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.forum_category li.subheader div.icon {
+	padding: 0.8em 1em 0 1em;
+}
+.forum_category li.subheader div.info {
+	width: 44%;
+}
+.forum_category li.subheader div.stats {
+	margin-top: 0;
+	padding: 0 0 0 0;
+	width: 21%;
+}
+.forum_category li.subheader div.stats ul {
+	margin: 0;
+	padding: 0;
+}
+.forum_category li.subheader div.stats li{
+	float: left;
+	font-size: 1em;
+	padding-top: 0.4em;
+	margin-top: 0;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.forum_category li.subheader div.stats li.stats {
+	/*display: none;
+	float: none;
+	width: 100%;
+	text-align: center;
+}
+.forum_category li.subheader div.stats li.posts {
+	/*width: 58%;
+	display: none;
+}
+.forum_category li.subheader div.stats li.topics{
+	/*width: 42%;
+	display: none;
+}
+.forum_category li.subheader div.lastpost {
+	width: 28.5%;
+}
+.forum_category div.info {
+	width: 44%;
+	border-right: none;
+}
+.forum_category div.stats {
+	width: 21%;
+	padding: 0 0 99em 0;
+	float: right;
+	border: none;
+}
+.forum_category div.stats ul {
+	margin: 0;
+	padding: 0;
+}
+.forum_category div.stats li {
+	float: left;
+	width: 58%;
+	margin: 0 0 -98.5em 0;
+	padding: 1em 0 99em 0;
+	text-align: center;
+	border: none;
+	border-left: 2px solid #000;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	font-size: 1.167em;
+	font-weight: bold;
+}
+.forum_category div.stats li.topics {
+	width: 42%;
+}
+.forum_category div.stats li span{
+	display: block;
+	font-size: 0.75em;
+	font-weight: normal;
+	/*display: none;
+}
+.forum_category div.lastpost h5 {
+	display: none;
+}
+.forum_category div.children ul li {
+	width: 33%;
+	border: none;
+}
+.forum_category li.divider {
+	height: 0.7em;
+	border-top: 1px;
+	border-radius: 0 0 5px 5px;
+	background: #0a0a0a;
+}
+/* End extras */
+/* More extras. Yay!
+.forum_category li{
+	position: relative;
+}
+.forum_category div.info {
+	width: 61.5%;
+	padding: 0.8em 1em 99em 1em;
+}
+.forum_category div.info a {
+	font-size: 1.1em;
+}
+.forum_category div.info p {
+	margin: 0;
+	padding: 0 0 0.7em 0;
+}
+.forum_category div.info div.moderators {
+	margin: -0.8em 0 0 0;
+	padding: 0 0 0.7em 0;
+}
+.forum_category div.stats {
+	clear: both;
+	float: left;
+	width: 61.5%;
+	margin: 0 0 -98.5em 6.5%;
+	padding: 0 1em 99em 1.1em;
+	border: none;
+	background: none;
+}
+.forum_category div.stats ul {
+	padding: 0;
+	margin: -1em 0 0 -0.5em;
+	overflow: hidden;
+}
+.forum_category div.stats ul li {
+	float: left;
+	padding: 0 1em 0 0.5em;
+	margin-left: -0.2em;
+	border: none;
+	border-left: 2px solid #444;
+	background: none;
+	font-size:0.9em;
+	line-height: 1.167em;
+	font-weight: bold;
+	color: #444;
+}
+.forum_category div.lastpost {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 32%;
+	padding: 1.1em 1em 99em 1.167em;
+}
+.forum_category div.children {
+	position: relative;
+	bottom: 0;
+	width: 93.6%;
+	border-right: none;
+}
+.forum_category div.children ul li {
+	width: 50%;
+	border: none;
+}
+/* End more extras. Yay! */
+/* END TABLE-LESS BOARD INDEX TESTING */
+/*====================================*/
+
+/* Start index.template.php */
+/* Set a background colour so footer looks good when page has little content. */
+html {
+	padding: 0;
+	background: #41576e;
+}
+/* Set a background colour to hide margin between main content and footer. */
+body {
+	background: /*#eaeff3*/ #99adbe;
+	padding: 0 0 0 0;
+}
+/* Start top bar. */
+#top_section {
+	float: left;
+	width: 100%;
+	background: #75899e url(../images/test_header_top.png) 0 100% repeat-x;
+	border-bottom: 1px solid #111;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+#top_section .wrapper .frame{
+	float: left;
+	width: 100%;
+	margin: 0 0 0 0;
+	padding: 4px 0 4px 0;
+}
+/* Start user avatar. */
+#top_section a.avatar {
+	float: left;
+	margin: 0 0 0 13px;
+	padding: 0 0 0 0;
+}
+#top_section a.avatar img {
+	max-height: 32px;
+	max-width: 32px;
+	border: 1px solid #999;
+	border-radius: 5px;
+	box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+/* End user avatar - Start greeting and time. */
+#top_section  ul {
+	float: left;
+	padding: 0 0 0 0;
+	margin: 9px 0 0 0;
+}
+#top_section  ul li {
+	float: left;
+	position: relative;
+	line-height: 1.7em;
+	font-size: 0.917em;
+	padding: 0 0 0 10px;
+	list-style: none;
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+/* Larger text for the greeting. */
+#top_section  ul li.greeting {
+	float: left;
+	line-height: 1.5em;
+	font-size: 1em;
+}
+#top_section  ul li.greeting span {
+	font-weight: bold;
+}
+/* End greeting and time - Start notifications for maintenance mode,
+   moderator reports, unapproved content and personal messages. */
+#top_section #top_bar_notifications {
+	position: absolute;
+	z-index: 50;
+	top: auto;
+	left: 8px;
+	margin: 0 0 0 0;
+	padding: 8px;
+	background: #fff;
+	border: 1px solid #888;
+	border-radius: 0 5px 0 5px;
+	box-shadow: 2px 2px 2px rgba(0,0,0,0.3), 0 0 16px rgba(99,129,159,0.2) inset;
+}
+#top_section #top_bar_notifications li {
+	float: none;
+	padding: 0 0 0 0;
+	white-space: pre;
+	color: #333;
+	text-shadow: none;
+}
+#top_section #top_bar_notifications li.notice {
+	color: red;
+	font-weight: bold;
+}
+/* End notifications - Start quick search form. */ 
+#search_form {
+	float: right;
+	margin: 7px 0 0 0;
+	padding: 0 0 0 0;
+}
+#search_form  input {
+	margin: 0 0 0 0;
+	width: 180px;
+	padding: 0 4px;
+	line-height: 1.6em;
+	height: 1.6em;
+	background: rgba(255,255,255,0.9);
+	border: 1px solid #346;
+	border-radius: 3px;
+	font-weight: normal;
+	color: #444;
+}
+#search_form  input:focus {
+	box-shadow: 0 0 5px rgba(255,255,255,0.7); background: rgba(255,255,255,0.9);
+}
+/* Should be re-styled in case it will be displayed. */
+#search_form  .button_submit {
+	background: #eff0ff;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
+	display: none;
+}
+/* End quick search form - Start news section upshrink icon. */
+#upshrink {
+	float: right;
+	padding: 0 0 0 0;
+	margin: 8px 10px 0 4px;
+	opacity: 0.4;
+}
+#upshrink:hover {
+	opacity: 1.0;
+}
+/* End news section upshrink. */
+/* End top bar - Start Header. */
+#header {
+	clear: both;
+	background: #fff;
+	border-bottom: 2px solid #999;
+	padding: 0;
+	margin: 0;
+}
+#header div.frame {
+	background: none;
+	padding: 28px 0 3.5em 0;
+	position: relative;
+}
+/* Start forum banner or name. */
+h1.forumtitle {
+	float: left;
+	max-height: 200px;
+	min-width: 50%;
+	overflow: auto;
+	padding: 0 5px;
+	margin: 0 0 0 0;
+	font-size: 52px;
+	line-height: 65px;
+	font-weight: normal;
+}
+h1.forumtitle a:link, h1.forumtitle a:visited {
+	color: #7F5B37;
+	text-shadow: 0 2px 3px rgba(0,0,0,0.3);
+}
+h1.forumtitle a:hover {
+	text-decoration: none;
+	text-shadow: 0 3px 5px rgba(0,0,0,0.4);
+}
+/* End forum banner or name - Start SMF logo or site slogan. */
+#siteslogan, img#smflogo {
+	margin: 26px 0 0 0;
+	padding: 0;
+	float: right;
+}
+/* End SMF logo or site slogan - Start news section. */
+#upper_section {
+	float: left;
+	width: 100%;
+	clear: both;
+	margin: 10px 0 0 0;
+}
+#news_collapse {
+	border-top: 2px solid #ccc;
+	margin: 0 5px;
+	padding: 10px 0;
+}
+#news_collapse h2 {
+	clear: left;
+}
+#news_collapse h2, #news_collapse p {
+	float: left;
+	padding: 3px;
+	margin: 0;
+}
+/* The login form that is displayed to guests. */
+#guest_form {
+	border-bottom: 1px solid #ccc;
+	margin: -8px 0 8px 0;
+}
+#guest_form  .input_text, #guest_form  .input_password, #guest_form  select, #guest_form  .button_submit {
+	margin: 0;
+	font-size: 1em;
+	padding: 3px 4px 2px 4px;
+	vertical-align: top;
+}
+#guest_form  select {
+	padding: 0;
+}
+#guest_form  select option{
+	padding: 3px 4px 0 4px;
+}
+#guest_form  .button_submit {
+	padding: 2px 4px 1px 4px;
+}
+#guest_form  .button_submit:hover {
+	padding: 3px 4px 1px 5px;
+}
+#guest_form .info {
+	padding: 4px 0 ;
+	
+}
+/* End login form - End news section. */
+#main_menu {
+	background: #476B8F;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+	border-radius: 7px;
+	border-bottom: 1 px solid rgba(0,0,0,0.9);
+	margin: 0;
+	padding: 0;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	position: absolute;
+	bottom: -2em;
+	z-index: 5;
+}
+#main_menu #menu_nav {
+	box-shadow: 0 10px 16px rgba(255,255,255,0.25) inset, 0 -10px 16px rgba(0,0,0,0.2) inset;
+	border-radius: 7px;
+	padding: 13px 13px 8px 13px;
+	width: 100%;
+	font-size: 1.083em;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+/* End header - Start main content. */
+#content_section {
+	padding: 0 0 0 0;
+	background: /*#eaeff3*/ /*#f3f3f3*//*#A1B6C8*/#99adbe /*url(../images/backdrop-new.png) 0 0 repeat-x*/;
+}
+#content_section div.wrapper {
+	padding: 3em 0 0 0;
+}
+#content_section div.frame {
+	padding: 0 12px 15px 12px;
+	border: 1px solid #aaa;
+	border-radius: 7px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 10px rgba(99,129,159,0.2) inset;
+}
+.navigate_section {
+	padding: 4px 0 4px 0;
+	margin: 0;
+	overflow: auto;
+}
+.navigate_section ul{
+	float: left;
+	margin: 4px;
+	padding: 0;
+}
+.navigate_section ul li{
+	float: left;
+	padding: 0 2px;
+	list-style: none;
+	font-size: 0.917em;
+	font-weight: bold;
+}
+.navigate_section ul li a {
+	white-space: pre;
+}
+ul.unread_links {
+	float: right;
+}
+/* End main content - Start footer. */
+#footer_section {
+	padding: 0 0 0 0;
+	margin: 25px 0 0 0;
+	background: #41576e url(../images/test_header_top.png) 0 -12px repeat-x;
+	border-top: 1px solid #040404;
+	overflow: auto;
+}
+#footer_section div.frame {
+	float: left;
+	width: 100%;
+	padding: 6px 0 12px 0;
+	margin: 0 0 0 0;
+}
+/* Start copyright and other links. */
+#footer_section div.frame ul {
+	float: left;
+	padding: 0 12px 0 12px;
+	margin: 0 0 0 0;
+}
+#footer_section div.frame ul li{
+	padding: 0 12px 0 0;
+	list-style: none;
+	float: left;
+	color: #fff;
+	font-size: 0.917em;
+}
+#footer_section div.frame ul li.copyright{
+	padding: 0;
+	float: none;
+}
+#footer_section div.frame ul li a {
+	color: #fff;
+	white-space: pre;
+}
+/* End copyright and other links - Start go-to-top-of-page icon. */
+#footer_section div.frame a.topmost {
+	float: right;
+	width: 24px;
+	height: 24px;
+	background: url(../images/upshrink.png) no-repeat 50% 3px; margin: 0 1.7em 0 0; opacity: 0.4;
+}
+#footer_section div.frame a.topmost:hover {
+	opacity: 1;
+}
+/* End go-to-top-of-page icon - End footer. */
+/* End index.template.php - Start BoardIndex.template.php */
+
+
+/* End BoardIndex.template.php */
+/*******************************************************/
+/* ODD BITZ WOT R WIP */
+/*====================*/
+.inner {
+	padding-left: 8px;
+}
+#button_pm ul li:nth-child(3) {
+	border-top: 2px solid #ccc;
+}
+#display_lower_buttons {
+	float: left;
+	width: 100%;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	margin: 2px 0 0 0;
+	padding: 10px 5px;
+	border-radius: 0 0 4px 4px;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+#display_lower_buttons .button_strip_reply{
+	margin-right: 8px;
+}
+#display_lower_buttons .first{
+	margin-left: 5px;
+}
+#display_lower_buttons .navigate_section {
+	float: left;
+	width: 100%;
+}
+#display_lower_buttons .navigate_section ul {
+	border: none;
+	font-weight: bold;
+	padding: 0.5em 0 0.5em 0;
+	margin: 0 14px;
+	background: none;
+}
+#display_lower_buttons .navigate_section ul li{
+	float: left;
+	padding: 0 2px;
+	list-style: none;
+	font-size: 0.917em;
+	font-weight: bold;
+}
+#admin_menu {
+	margin: 0;
+	padding: 0;
+}
+#adm_submenus {
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+#admin_menu .dropmenu, #adm_submenus .dropmenu {
+	margin: 0;
+	padding: 0 2px;
+}
+#admin_menu > .dropmenu > li, #adm_submenus > .dropmenu > li {
+	margin: 0 0 0 0;
+}
+#admin_menu .dropmenu li li a, #adm_submenus .dropmenu li li a{
+	font-size: 0.917em;
+}
+#admin_menu > .dropmenu > li > a, #adm_submenus > .dropmenu > li > a, .quickbuttons > li > a{
+	color: #333;
+	background: #fff;
+	margin: 0 2px 0 0;
+	padding: 1px 8px 0 8px;
+	cursor: pointer;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 2px;
+	line-height: 1.9em;
+	overflow: visible;
+	text-shadow: none;
+	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
+}
+#admin_menu > .dropmenu > li > a.active, #adm_submenus > .dropmenu > li > a.active{
+	color: #12304c;
+	background: #f4f4f4;
+	padding: 2px 8px 0 9px;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc;  
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+#admin_menu > .dropmenu > li > a:hover, #admin_menu >.dropmenu>li:hover>a, #adm_submenus > .dropmenu > li > a:hover, .quickbuttons > li:hover > a, .quickbuttons > li.sfhover > a {
+	color: #222;
+	text-decoration: none;
+	background: #f4f4f4;
+	padding: 2px 8px 0 9px;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+#admin_menu > .dropmenu > li > a.active:hover, #adm_submenus > .dropmenu > li > a.active:hover {
+	color: #0A3E6B;
+	background: #f0f0f0;
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.3) inset, 1px 1px 1px rgba(0,0,0,0.8) inset, -4px -4px 4px rgba(255,255,255,0.6) inset;
+}
+#admin_menu > .dropmenu > li > ul {
+	margin-top: 2px;
+}
+/************************************************/
+/* The quick buttons */
+/*div.quickbuttons_wrap {
+	width: 100%;
+	float: left;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0; border: 1px solid red;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}*/
+
+ul.quickbuttons {
+	float: left;
+	width: 100%;
+	margin: 0 0 0 0;
+	padding: 0 0 0 140px; /*border-top: 1px solid #ccc;*/
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	font: bold 0.833em verdana, arial, sans-serif;
+}
+ul.quickbuttons li, .quickbuttons li:hover, .quickbuttons li.sfhover {
+	float: /*left*/ right;
+	margin: 2px 0 2px 2px;
+	padding: 0 0 0 0;
+}
+ul.quickbuttons li.blurb {
+	float: left;
+	padding: 14px 0 0 0;
+	max-width: 320px;
+	font-weight: normal;
+	word-wrap: break-word;
+}
+ul.quickbuttons li.quote_button {
+	float: right;
+}
+.quickbuttons li.moderation_button {
+	position: relative;
+	/*width: 160px;
+	text-align: center;*/
+}
+.quickbuttons li.modify_inline {
+	padding: 6px 22px 6px 4px;
+			background: #fff;
+			border: 1px solid #bbb;
+			border-bottom: 1px solid #aaa;
+			border-radius: 2px;
+			/*padding: 2px 6px 2px 6px;
+			display: block;*/ position: relative;
+			box-shadow: /*0 2px 6px rgba(244,247,255,0.8) inset,*/ 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
+}
+.quickbuttons li.modify_inline:hover {
+	padding: 7px 22px 6px 5px;
+				background: #f4f4f4;
+				border-top: none;
+				border-left: none;
+				border-right: 1px solid #ccc; 
+				border-bottom: 1px solid #ccc; 
+				box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+.quickbuttons li.modify_inline img {
+	margin: 0 0 0 0; position: absolute; top: 1px; right: 0; padding: 2px 4px 2px 25px;
+}
+.quickbuttons li.modify_inline:hover img {
+	right: 0; padding: 3px 4px 4px 25px;
+}
+ul.quickbuttons li a {
+	background: #fff;
+	margin: 0 0 0 0;
+	padding: 2px 6px 2px 6px;
+	display: block;
+	box-shadow: /*0 2px 6px rgba(244,247,255,0.8) inset,*/ 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
+}
+ul.quickbuttons li.quote_button a {
+	text-transform: uppercase;
+}
+.quickbuttons li:hover a, .quickbuttons li.sfhover a {
+	padding: 3px 6px 2px 7px;
+	text-decoration: none;
+}
+ul.quickbuttons li.quote_button:hover a {
+}
+/* Levels 2 and 3 submenu wrapper. */
+.quickbuttons li ul, .poster li ul {
+	z-index: 90;
+	position: absolute;
+	top: 2.2em;
+	left: -9999px;
+	font-size: 1em;
+	width: 13em;
+	text-align: left;
+	font-weight: normal;
+	background: #fff;
+	border: solid 1px #888;
+	border-left: solid 1px #999;
+	border-top: solid 1px #999;
+	border-radius: 0 5px 0 5px;
+	box-shadow: 2px 2px 2px rgba(0,0,0,0.3), 0 0 10px rgba(99,129,159,0.10) inset;
+	margin: 7px 0 0 0;
+	padding: 5px 0 7px 0;
+}
+/* Level 2 link background. */
+.quickbuttons li li, .poster li li  {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	overflow: visible;
+	border: none;
+	float: none;
+	border-top: 1px solid rgba(0,0,0,0);
+	border-bottom: 1px solid rgba(0,0,0,0);
+}
+.quickbuttons li.sfhover li a, .quickbuttons li.sfhover li label, .poster  li.sfhover li a {
+	border: none;
+	padding: 0 5px;
+	font-size: 1em;
+	/*font-weight: bold;*/ font-weight: normal;
+	line-height: 2em;
+	width: 13em;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+/* Note: The next declaration is for keyboard access with js disabled. */
+.quickbuttons ul a:focus {
+	margin-left: 9999px;
+	min-width: 13em;
+	background: #fff;
+	text-shadow: none;
+	border-radius: 0 0 0 0;
+}
+.quickbuttons li:hover li a, .quickbuttons li.sfhover li a, .quickbuttons li:hover li label, .quickbuttons li.sfhover li label,
+.poster li:hover li a, .poster li.sfhover li a {
+	margin: 0 0 0 0;
+	padding: 0 5px;
+	display: block;
+	border-radius: 0;
+	/* Necessary to allow highlighting of 1st level while hovering over submenu. */
+	background: none;
+	color: #346;
+	border: none;
+	text-shadow: none;
+	box-shadow: none;
+}
+/* Levels 2 and 3 hover effects. */
+.quickbuttons li li:hover, .quickbuttons li li:hover>a, .quickbuttons li li a:focus, .quickbuttons li li:hover>label
+.poster li li:hover, .poster li li:hover>a, .poster li li a:focus {
+	background: none;
+	color: #333;
+	text-decoration: none;
+}
+.quickbuttons li li:hover, .quickbuttons li.sfhover li:hover {
+	/*border-top: 1px solid #999;
+	border-bottom: 1px solid #888;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.25);*/
+}
+/* Reposition Level 2 submenu as visible on hover. */
+.quickbuttons li:hover ul, .quickbuttons li.sfhover ul, .poster li:hover ul, .poster li.sfhover ul {
+	left: 0;
+}
+.quickbuttons li.sfhover li.inline_mod_check input {
+	margin: -1.7em 5px 0 0;
+	float: right;
+}
+.quickbuttons li .ip_link a {
+	background: url(../images/buttons/search.png) no-repeat 0 50%;
+}
+/* Poster info area */
+.poster {
+	min-height: 6em;
+	width: 136px;
+	margin: 0px /*10px*/2px -2.55em /*3px*/0;
+	word-wrap: break-word;
+}
+.poster li.title, .poster li.online_button , .poster li.stars {
+	margin: 2px 0 0 0;
+}
+.poster li.avatar {
+	margin: 0 0 0 0;
+}
+.poster li.membergroup {
+	/*background: /*#63819F*/ /*#fff;*/
+	/*color: white;*/
+	font-weight: bold;
+	padding: 0px 0 0px 0; max-width: 136px;
+	/*border-radius: 0 0 2px 2px;	border: 1px solid #bbb;
+	text-shadow: none;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.15);*/
+}
+.poster li.stars {
+	padding: /*4px 5px 0 5px*/2px 5px 0 5px;
+	/*border: 1px solid #bbb;
+	border-bottom: none;
+	border-radius: 2px 2px 0 0;
+	background: #fff;
+	text-shadow: none;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.15);*/
+}
+.poster li.avatar {
+	padding: 0;
+	overflow: visible;
+	position: relative;
+}
+.poster li.avatar a {
+	margin: 0 0 0 0;
+	padding: 5px;
+	overflow: hidden;
+	display: block;
+	/*background: #fff;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;*/
+	border-radius: 2px; border: 1px solid rgba(0,0,0,0);
+	/*text-shadow: none;
+	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);*/
+}
+.poster li.avatar a.offline img {
+	opacity: 0.5;
+}
+.poster li.avatar a:hover {
+	padding: 6px 5px 5px 6px;
+	background: #f4f4f4;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+.poster li.avatar ul {
+	top: 0;
+	margin-top: 0; 
+	left: 138px;
+	width: 500px;
+	border-radius: 0 4px 0 4px;
+	text-align: left;
+	overflow: auto;
+}
+.poster li.sfhover ul li {
+	float: left;
+	width: 100%;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	padding: 0 8px 0 8px;
+	margin: 0 0 0 0;
+}
+.poster li.sfhover ul li.signature {
+}
+.poster li.sfhover li a {
+	display: block;
+}
+.poster li.title {
+	padding: 5px 0 4px 0;
+	font-weight: bold;
+	color: #444;
+	background: #fff;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 2px;
+	text-shadow: none;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+}
+.poster li.blurb {
+	font-weight: bold;
+}
+.poster li.online_button {
+	padding: 0 0 0 0;
+	width: 136px;
+}
+/*.poster li.ignore_button {
+	margin: 0.5em 0 0 2.7em;
+	font-size: 0.917em;
+	padding: 0 0 0 0;
+	width: 125px;
+	display: block;
+	border-radius: 4px;
+	text-align: center;
+}*/
+.poster li.online_button a {
+	display: block;
+	color: #333;
+	/*background: #fff;*/
+	margin: 0 0 0 0;
+	padding: /*5px 0 4px 0*/1px 0 0px 0;
+	/*border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;*/
+	border-radius: 2px; border: 1px solid rgba(0,0,0,0);
+	/*overflow: visible;
+	text-shadow: none;
+	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);*/
+}
+.poster li.online_button a:hover {
+	color: #222;
+	text-decoration: none;
+	background: #f4f4f4;
+	padding: /*6px 0 4px 0*/2px 0 0px 0;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+}
+/*******************************************************/
+#message_index_jump_to_select, #message_index_jump_to input {
+	font-size: 1em;
+}
+#message_index_jump_to input {
+	padding: 1px 4px;
+}
+/*******************************************************/
+.keyinfo {padding: 4px 6px 0 6px;}
+.keyinfo h5{margin: -5px 40px -4px 125px; padding: 0 9px 0 2px; border-radius: 2px 2px 0 0;}
+.keyinfo a, .keyinfo strong{}

@@ -4,7 +4,6 @@
 	Causes issues in IE browsers, and breaks cached search engines pages.
 */
 
-table.table_list tbody.header td div.cat_bar
-{
+table.table_list tbody.header td div.cat_bar {
 	margin-bottom: -1px;
 }

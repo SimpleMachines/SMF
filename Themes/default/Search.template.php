@@ -308,7 +308,7 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" />';
 				echo '
 				</span>
-				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
 			</h3>
 		</div>';
 		
@@ -458,7 +458,7 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<span class="ie6_header floatleft"><img class="centericon" src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
 			</h3>
 		</div>
 		<div class="pagesection">

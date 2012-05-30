@@ -2022,23 +2022,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
-	// If there's a custom search index, it needs updating...
-	if (!empty($modSettings['search_custom_index_config']))
-	{
-		$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
-
-		$inserts = array();
-		foreach (text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true) as $word)
-			$inserts[] = array($word, $msgOptions['id']);
-
-		if (!empty($inserts))
-			$smcFunc['db_insert']('ignore',
-				'{db_prefix}log_search_words',
-				array('id_word' => 'int', 'id_msg' => 'int'),
-				$inserts,
-				array('id_word', 'id_msg')
-			);
-	}
+	// If there's a custom search index, it may need updating...
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if (is_callable(array($searchAPI, 'postCreated')))
+		$searchAPI->postCreated($msgOptions, $topicOptions, $posterOptions);
 
 	// Increase the post counter for the user that created the post.
 	if (!empty($posterOptions['update_post_count']) && !empty($posterOptions['id']) && $msgOptions['approved'])
@@ -2498,48 +2486,10 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	}
 
 	// If there's a custom search index, it needs to be modified...
-	if (isset($msgOptions['body']) && !empty($modSettings['search_custom_index_config']))
-	{
-		$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
-		$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
-		$old_body = isset($msgOptions['old_body']) ? $msgOptions['old_body'] : '';
-
-		$old_index = text2words($old_body, $customIndexSettings['bytes_per_word'], true);
-		$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
-
-		// Calculate the words to be added and removed from the index.
-		$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);
-		$inserted_words = array_diff(array_diff($new_index, $old_index), $stopwords);
-		
-		// Delete the removed words AND the added ones to avoid key constraints.
-		if (!empty($removed_words))
-		{
-			$removed_words = array_merge($removed_words, $inserted_words);
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}log_search_words
-				WHERE id_msg = {int:id_msg}
-					AND id_word IN ({array_int:removed_words})',
-				array(
-					'removed_words' => $removed_words,
-					'id_msg' => $msgOptions['id'],
-				)
-			);
-		}
-
-		// Add the new words to be indexed.
-		if (!empty($inserted_words))
-		{
-			$inserts = array();
-			foreach ($inserted_words as $word)
-				$inserts[] = array($word, $msgOptions['id']);
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}log_search_words',
-				array('id_word' => 'string', 'id_msg' => 'int'),
-				$inserts,
-				array('id_word', 'id_msg')
-			);
-		}
-	}
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if (is_callable(array($searchAPI, 'postModified')))
+		$searchAPI->postModified($msgOptions, $topicOptions, $posterOptions);
 
 	if (isset($msgOptions['subject']))
 	{

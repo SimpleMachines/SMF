@@ -210,7 +210,7 @@ function sessionDestroy($session_id)
 }
 
 /**
- * Implementation of sessionDestroy() replacing the standard gc handler.
+ * Implementation of sessionGC() replacing the standard gc handler.
  * Callback for garbage collection.
  *
  * @param int $max_lifetime
@@ -233,3 +233,5 @@ function sessionGC($max_lifetime)
 		)
 	);
 }
+
+?>
