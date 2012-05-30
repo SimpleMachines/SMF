@@ -1751,7 +1751,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
  */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $txt, $modSettings, $smcFunc, $context;
+	global $user_info, $txt, $modSettings, $smcFunc, $context, $sourcedir;
 
 	// Set optional parameters to the default value.
 	$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
@@ -1829,19 +1829,26 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	$new_topic = empty($topicOptions['id']);
 
+	$message_columns = array(
+		'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (isset($modSettings['max_messageLength']) && $modSettings['max_messageLength'] == 0 ? 'string' : 'string-65534')),
+		'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'string-255',
+		'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
+	);
+
+	$message_parameters = array(
+		$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
+		$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
+		$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
+	);
+
+	// What if we want to do anything with posts?
+	call_integration_hook('integrate_create_post', array(&$message_columns, &$message_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+
 	// Insert the post.
 	$smcFunc['db_insert']('',
 		'{db_prefix}messages',
-		array(
-			'id_board' => 'int', 'id_topic' => 'int', 'id_member' => 'int', 'subject' => 'string-255', 'body' => (!empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] > 65534 ? 'string-' . $modSettings['max_messageLength'] : (isset($modSettings['max_messageLength']) && $modSettings['max_messageLength'] == 0 ? 'string' : 'string-65534')),
-			'poster_name' => 'string-255', 'poster_email' => 'string-255', 'poster_time' => 'int', 'poster_ip' => 'string-255',
-			'smileys_enabled' => 'int', 'modified_name' => 'string', 'icon' => 'string-16', 'approved' => 'int',
-		),
-		array(
-			$topicOptions['board'], $topicOptions['id'], $posterOptions['id'], $msgOptions['subject'], $msgOptions['body'],
-			$posterOptions['name'], $posterOptions['email'], time(), $posterOptions['ip'],
-			$msgOptions['smileys_enabled'] ? 1 : 0, '', $msgOptions['icon'], $msgOptions['approved'],
-		),
+		$message_columns,
+		$message_parameters,
 		array('id_msg')
 	);
 	$msgOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}messages', 'id_msg');
@@ -1865,20 +1872,25 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// Insert a new topic (if the topicID was left empty.)
 	if ($new_topic)
 	{
+		$topic_columns = array(
+			'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
+			'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
+			'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
+			'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
+		);
+		$topic_parameters = array(
+			$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
+			$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
+			$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
+			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
+		);
+
+		call_integration_hook('integrate_before_create_topic', array(&$topic_columns, &$topic_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+
 		$smcFunc['db_insert']('',
 			'{db_prefix}topics',
-			array(
-				'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
-				'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
-				'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
- 				'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
-			),
-			array(
-				$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
-				$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
-				$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
-				$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
-			),
+			$topic_columns,
+			$topic_parameters,
 			array('id_topic')
 		);
 		$topicOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
@@ -1921,24 +1933,43 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// The topic already exists, it only needs a little updating.
 	else
 	{
-		$countChange = $msgOptions['approved'] ? 'num_replies = num_replies + 1' : 'unapproved_posts = unapproved_posts + 1';
+		$update_parameters = array(
+			'poster_id' => $posterOptions['id'],
+			'id_msg' => $msgOptions['id'],
+			'locked' => $topicOptions['lock_mode'],
+			'is_sticky' => $topicOptions['sticky_mode'],
+			'id_topic' => $topicOptions['id'],
+			'counter_increment' => 1,
+		);
+		$topics_columns = array();
+		if ($msgOptions['approved'])
+			$topics_columns = array(
+				'id_member_updated = {int:poster_id}',
+				'id_last_msg = {int:id_msg}',
+				'num_replies = num_replies + {int:counter_increment}',
+			);
+		else
+			$topics_columns = array(
+				'unapproved_posts = unapproved_posts + {int:counter_increment}',
+			);
+		if ($topicOptions['lock_mode'] !== null)
+			$topics_columns = array(
+				'locked = {int:locked}',
+			);
+		if ($topicOptions['sticky_mode'] !== null)
+			$topics_columns = array(
+				'is_sticky = {int:is_sticky}',
+			);
+
+		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 		// Update the number of replies and the lock/sticky status.
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}topics
 			SET
-				' . ($msgOptions['approved'] ? 'id_member_updated = {int:poster_id}, id_last_msg = {int:id_msg},' : '') . '
-				' . $countChange . ($topicOptions['lock_mode'] === null ? '' : ',
-				locked = {int:locked}') . ($topicOptions['sticky_mode'] === null ? '' : ',
-				is_sticky = {int:is_sticky}') . '
+				' . implode(', ', $topics_columns) . '
 			WHERE id_topic = {int:id_topic}',
-			array(
-				'poster_id' => $posterOptions['id'],
-				'id_msg' => $msgOptions['id'],
-				'locked' => $topicOptions['lock_mode'],
-				'is_sticky' => $topicOptions['sticky_mode'],
-				'id_topic' => $topicOptions['id'],
-			)
+			$update_parameters
 		);
 
 		// One new post has been added today.
@@ -2369,7 +2400,7 @@ function attachmentChecks($attachID)
  */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $modSettings, $smcFunc, $context;
+	global $user_info, $modSettings, $smcFunc, $context, $sourcedir;
 
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
@@ -2418,6 +2449,8 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$update_parameters = array(
 		'id_msg' => $msgOptions['id'],
 	);
+
+	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 	foreach ($messages_columns as $var => $val)
 	{
