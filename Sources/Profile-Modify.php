@@ -631,6 +631,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'text',
 			'label' => $txt['custom_title'],
 			'log_change' => true,
+			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
 			'permission' => 'profile_title',
 			'enabled' => !empty($modSettings['titlesEnable']),
