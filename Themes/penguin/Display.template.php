@@ -374,8 +374,7 @@ function template_main()
 									', $txt['post_awaiting_approval'], '
 								</div>';
 		echo '
-								<div class="inner" id="msg_', $message['id'], '"', ' style="padding-bottom: 0.6em;">', $message['body'], '</div>
-							</div>';
+								<div class="inner" id="msg_', $message['id'], '"', ' style="padding-bottom: 0.6em;">', $message['body'], '</div>';
 
 		// Assuming there are attachments...
 		if (!empty($message['attachment']))
@@ -455,7 +454,9 @@ function template_main()
 								</div>
 							</div>';
 		}
-
+		
+		echo '
+			</div>';
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
