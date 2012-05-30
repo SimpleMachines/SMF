@@ -1,20 +1,17 @@
 /* This is the editor's playground (textarea for non-wysiwyg, iframe for wysiwyg). */
-.editor
-{
+.editor {
 	width: 635px;
 	max-width: 100%;
 	min-width: 100%;
 }
 
 /* This is the IFRAME that holds the editor. */
-.rich_editor_frame
-{
+.rich_editor_frame {
 	border: 1px solid #808080;
 }
 
 /* This is the WYSIWYG editor */
-.rich_editor
-{
+.rich_editor {
 	background-color: #fff;
 	color: #000;
 	font-family: verdana;
@@ -22,19 +19,16 @@
 	border: none;
 }
 
-.rich_editor p
-{
+.rich_editor p {
 	margin: 0;
 }
 
-.rich_editor a img
-{
+.rich_editor a img {
 	border: 0;
 }
 
 /* The resize handle. */
-.richedit_resize
-{
+.richedit_resize {
 	height: 5px;
 	font-size: 0;
 	background: #eee url(../images/bbc/resize-handle.png) no-repeat 50% 1px;
