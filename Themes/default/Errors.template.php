@@ -158,10 +158,8 @@ function template_error_log()
 					</td>
 				</tr>
 			</table>
-			<div class="pagesection">
-				<div class="floatleft">
-					', $txt['pages'], ': ', $context['page_index'], '
-				</div>
+			<div class="pagesection floatleft">
+				&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
 			</div>';  
 
 	echo '

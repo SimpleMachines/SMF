@@ -37,7 +37,7 @@ function template_generic_menu_sidebar_above()
 		if ($firstSection && !empty($menu_context['can_toggle_drop_down']))
 		{
 			echo '
-							<a href="', $menu_context['toggle_url'], '">', $section['title'],'<img style="margin: 0 5px; vertical-align: middle;" src="', $context['menu_image_path'], '/change_menu', $context['right_to_left'] ? '' : '2', '.png" alt="!" /></a>';
+							<a href="', $menu_context['toggle_url'], '">', $section['title'],'<img src="', $context['menu_image_path'], '/change_menu', $context['right_to_left'] ? '' : '2', '.png" alt="!" /></a>';
 		}
 		else
 		{
@@ -101,7 +101,8 @@ function template_generic_menu_sidebar_below()
 
 	echo '
 		</div>
-	</div><br class="clear" />';
+	</div>
+	<br class="clear" />';
 }
 
 // This contains the html for the side bar of the admin center, which is used for all admin pages.
@@ -315,7 +316,8 @@ function template_generic_menu_tabs(&$menu_context)
 		// the end of tabs
 		echo '
 		</ul>
-	</div><br class="clear" />';
+	</div>
+	<br class="clear" />';
 	}
 	// ...if not use the old style
 	else

@@ -162,7 +162,7 @@ function template_manual()
 			<div id="help_container">
 				<div class="windowbg2">
 					<span class="topslice"><span></span></span>
-					<div id="helpmain">
+					<div id="helpmain" class="content">
 						<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
 						<p>', $txt['manual_introduction'], '</p>
 						<ul>';
@@ -179,7 +179,8 @@ function template_manual()
 					</div>
 					<span class="botslice"><span></span></span>
 				</div>
-			</div>';
+			</div>
+			<br class="clear" />';
 }
 
 ?>

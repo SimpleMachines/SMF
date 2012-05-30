@@ -109,6 +109,9 @@ $txt['replies'] = 'Replies';
 $txt['last_post'] = 'Last post';
 $txt['last_post_message'] = '<strong>Last post</strong> by %1$s<br />in %2$s<br />on %3$s';
 $txt['boardindex_total_posts'] = '%1$d Posts in %2$d Topics by %3$d Members.';
+$txt['show'] = 'Show';
+$txt['hide'] = 'Hide';
+
 $txt['admin_login'] = 'Administration Login';
 // Use numeric entities in the below string.
 $txt['topic'] = 'Topic';
