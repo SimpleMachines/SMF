@@ -1842,7 +1842,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	);
 
 	// What if we want to do anything with posts?
-	call_integration_hook('integrate_create_post', array($msgOptions, $topicOptions, $posterOptions, &$message_columns, &$message_parameters));
+	call_integration_hook('integrate_create_post', array(&$message_columns, &$message_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 	// Insert the post.
 	$smcFunc['db_insert']('',
@@ -1872,20 +1872,25 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// Insert a new topic (if the topicID was left empty.)
 	if ($new_topic)
 	{
+		$topic_columns = array(
+			'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
+			'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
+			'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
+			'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
+		);
+		$topic_parameters = array(
+			$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
+			$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
+			$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
+			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
+		);
+
+		call_integration_hook('integrate_before_create_topic', array(&$topic_columns, &$topic_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+
 		$smcFunc['db_insert']('',
 			'{db_prefix}topics',
-			array(
-				'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
-				'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
-				'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
- 				'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
-			),
-			array(
-				$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
-				$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
-				$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
-				$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
-			),
+			$topic_columns,
+			$topic_parameters,
 			array('id_topic')
 		);
 		$topicOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
@@ -1928,24 +1933,43 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	// The topic already exists, it only needs a little updating.
 	else
 	{
-		$countChange = $msgOptions['approved'] ? 'num_replies = num_replies + 1' : 'unapproved_posts = unapproved_posts + 1';
+		$update_parameters = array(
+			'poster_id' => $posterOptions['id'],
+			'id_msg' => $msgOptions['id'],
+			'locked' => $topicOptions['lock_mode'],
+			'is_sticky' => $topicOptions['sticky_mode'],
+			'id_topic' => $topicOptions['id'],
+			'counter_increment' => 1,
+		);
+		$topics_columns = array();
+		if ($msgOptions['approved'])
+			$topics_columns = array(
+				'id_member_updated = {int:poster_id}',
+				'id_last_msg = {int:id_msg}',
+				'num_replies = num_replies + {int:counter_increment}',
+			);
+		else
+			$topics_columns = array(
+				'unapproved_posts = unapproved_posts + {int:counter_increment}',
+			);
+		if ($topicOptions['lock_mode'] !== null)
+			$topics_columns = array(
+				'locked = {int:locked}',
+			);
+		if ($topicOptions['sticky_mode'] !== null)
+			$topics_columns = array(
+				'is_sticky = {int:is_sticky}',
+			);
+
+		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 		// Update the number of replies and the lock/sticky status.
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}topics
 			SET
-				' . ($msgOptions['approved'] ? 'id_member_updated = {int:poster_id}, id_last_msg = {int:id_msg},' : '') . '
-				' . $countChange . ($topicOptions['lock_mode'] === null ? '' : ',
-				locked = {int:locked}') . ($topicOptions['sticky_mode'] === null ? '' : ',
-				is_sticky = {int:is_sticky}') . '
+				' . implode(', ', $topics_columns) . '
 			WHERE id_topic = {int:id_topic}',
-			array(
-				'poster_id' => $posterOptions['id'],
-				'id_msg' => $msgOptions['id'],
-				'locked' => $topicOptions['lock_mode'],
-				'is_sticky' => $topicOptions['sticky_mode'],
-				'id_topic' => $topicOptions['id'],
-			)
+			$update_parameters
 		);
 
 		// One new post has been added today.
@@ -2438,7 +2462,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		'id_msg' => $msgOptions['id'],
 	);
 
-	call_integration_hook('integrate_modify_post', array($msgOptions, $topicOptions, $posterOptions, &$messages_columns, &$update_parameters));
+	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
 	foreach ($messages_columns as $var => $val)
 	{
