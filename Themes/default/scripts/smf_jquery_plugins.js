@@ -60,21 +60,23 @@
 				iPosy = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
 			}
 			
+			// Position of the tooltip top left corner and its size
 			var oPosition = {
 				x: iPosx + oSettings.positionLeft,
 				y: iPosy + oSettings.positionTop,
 				w: $('#' + oSettings.tooltipID).width(),
 				h: $('#' + oSettings.tooltipID).height()
 			}
-			
+
+			// Display limits and window scroll postion
 			var oLimits = {
 				x: $(window).scrollLeft(),
 				y: $(window).scrollTop(),
-				w: $(window).width() - 20,
-				h: $(window).height() - 20
+				w: $(window).width() - 24,
+				h: $(window).height() - 24
 			};
-				
-			// don't go off screen
+
+			// don't go off screen with our tooltop
 			if ((oPosition.y + oPosition.h > oLimits.y + oLimits.h) && (oPosition.x + oPosition.w > oLimits.x + oLimits.w))
 			{
 				oPosition.x = (oPosition.x - oPosition.w) - 45;
@@ -82,11 +84,11 @@
 			}
 			else if ((oPosition.x + oPosition.w) > (oLimits.x + oLimits.w))
 			{
-				oPosition.x = oPosition.x - (((oPosition.x + oPosition.w) - (oLimits.x + oLimits.w)) + 20);
+				oPosition.x = oPosition.x - (((oPosition.x + oPosition.w) - (oLimits.x + oLimits.w)) + 24);
 			}
 			else if (oPosition.y + oPosition.h > oLimits.y + oLimits.h)
 			{
-				oPosition.y = oPosition.y - (((oPosition.y + oPosition.h) - (oLimits.y + oLimits.h)) + 20);
+				oPosition.y = oPosition.y - (((oPosition.y + oPosition.h) - (oLimits.y + oLimits.h)) + 24);
 			}
 			
 			// finally set the position we determined
@@ -100,7 +102,7 @@
 		
 		// used to hide a tooltip
 		var hideTooltip = function(valueOfThis){
-			$('#' + oSettings.tooltipID).fadeOut('fast').trigger("unload").remove();
+			$('#' + oSettings.tooltipID).fadeOut('slow').trigger("unload").remove();
 		}
 		
 		// for all of the elements that match the selector on the page, lets set up some actions
@@ -136,11 +138,13 @@
 					var $tt = $('#' + oSettings.tooltipID);
 					var $ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
 				
-					// set the  in the div and show it off
-					positionTooltip(event);
+					// set the text in the div
 					$ttContent.text($(this).children('.' + oSettings.tooltipClass).text());
 					$tt.show();
+					
+					// show then position or it may postion off screen
 					showTooltip();
+					positionTooltip(event);
 				}
 			
 				return false;
