@@ -90,6 +90,7 @@ $txt['board_override_theme'] = 'Force Board Theme';
 $txt['board_profile'] = 'Permissions Profile';
 $txt['board_moderators'] = 'Moderators';
 $txt['board_groups'] = 'Groups with Access';
+$txt['board_disallowed_groups'] = 'Groups with Access Denied';
 
 // Group Permissions.
 $txt['group_perms_name_access_mod_center'] = 'Access Moderation Center';

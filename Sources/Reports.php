@@ -120,7 +120,7 @@ function ReportsMain()
  */
 function BoardReport()
 {
-	global $context, $txt, $sourcedir, $smcFunc;
+	global $context, $txt, $sourcedir, $smcFunc, $modSettings;
 
 	// Load the permission profiles.
 	require_once($sourcedir . '/ManagePermissions.php');
@@ -165,13 +165,15 @@ function BoardReport()
 		'moderators' => $txt['board_moderators'],
 		'groups' => $txt['board_groups'],
 	);
+	if (!empty($modSettings['deny_boards_access']))
+		$boardSettings['disallowed_groups'] = $txt['board_disallowed_groups'];
 
 	// Do it in columns, it's just easier.
 	setKeys('cols');
 
 	// Go through each board!
 	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile,
+		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
 			c.name AS cat_name, IFNULL(par.name, {string:text_none}) AS parent_name, IFNULL(th.value, {string:text_none}) AS theme_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -207,7 +209,7 @@ function BoardReport()
 			'moderators' => empty($moderators[$row['id_board']]) ? $txt['none'] : implode(', ', $moderators[$row['id_board']]),
 		);
 
-		// Work out the membergroups who can access it.
+		// Work out the membergroups who can and cannot access it (but only if enabled).
 		$allowedGroups = explode(',', $row['member_groups']);
 		foreach ($allowedGroups as $key => $group)
 		{
@@ -217,6 +219,18 @@ function BoardReport()
 				unset($allowedGroups[$key]);
 		}
 		$boardData['groups'] = implode(', ', $allowedGroups);
+		if (!empty($modSettings['deny_boards_access']))
+		{
+			$disallowedGroups = explode(',', $row['deny_member_groups']);
+			foreach ($disallowedGroups as $key => $group)
+			{
+				if (isset($groups[$group]))
+					$disallowedGroups[$key] = $groups[$group];
+				else
+					unset($disallowedGroups[$key]);
+			}
+			$boardData['disallowed_groups'] = implode(', ', $disallowedGroups);
+		}
 
 		// Next add the main data.
 		addData($boardData);
@@ -418,7 +432,7 @@ function MemberGroupsReport()
 
 	// Fetch all the board names.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_board, name, member_groups, id_profile
+		SELECT id_board, name, member_groups, id_profile, deny_member_groups
 		FROM {db_prefix}boards',
 		array(
 		)
@@ -430,11 +444,17 @@ function MemberGroupsReport()
 		else
 			$groups = array_merge(array(1), explode(',', $row['member_groups']));
 
+		if (trim($row['deny_member_groups']) == '')
+			$denyGroups = array();
+		else
+			$denyGroups = explode(',', $row['deny_member_groups']);
+
 		$boards[$row['id_board']] = array(
 			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'profile' => $row['id_profile'],
 			'groups' => $groups,
+			'deny_groups' => $denyGroups,
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -515,7 +535,7 @@ function MemberGroupsReport()
 
 		// Board permissions.
 		foreach ($boards as $board)
-			$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>' : 'x';
+			$group['board_' . $board['id']] = in_array($row['id_group'], $board['groups']) ? '<span class="success">' . $txt['board_perms_allow'] . '</span>' : (!empty($modSettings['deny_boards_access']) && in_array($row['id_group'], $board['deny_groups']) ? '<span class="alert">' . $txt['board_perms_deny'] . '</span>' : 'x');
 
 		addData($group);
 	}
