@@ -143,6 +143,18 @@ function Display()
 		$_SESSION['last_read_topic'] = $topic;
 	}
 
+	$topic_parameters = array(
+		'current_member' => $user_info['id'],
+		'current_topic' => $topic,
+		'current_board' => $board,
+	);
+	if (!empty($modSettings['integrate_display_topic']))
+	{
+		$topic_selects = array();
+		$topic_tables = array();
+		call_integration_hook('integrate_display_topic', array(&$topic_selects, &$topic_tables, &$topic_parameters));
+	}
+
 	// @todo Why isn't this cached?
 	// @todo if we get id_board in this query and cache it, we can save a query on posting
 	// Get all the important topic info.
@@ -152,16 +164,15 @@ function Display()
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
 			' . (!empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $board ? ', id_previous_board, id_previous_topic' : '') . '
+			' . (!empty($topic_selects) ? implode(',', $topic_selects) : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
+			' . (!empty($topic_tables) ? implode("\n", $topic_tables)) . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
-		array(
-			'current_member' => $user_info['id'],
-			'current_topic' => $topic,
-			'current_board' => $board,
+			$topic_parameters
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
@@ -960,6 +971,17 @@ function Display()
 				$attachments[$row['id_msg']][] = $row;
 		}
 
+		$msg_parameters = array(
+			'message_list' => $messages,
+			'new_from' => $topicinfo['new_from'],
+		);
+		if (!empty($modSettings['integrate_query_message']))
+		{
+			$msg_selects = array();
+			$msg_tables = array();
+			call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
+		}
+
 		// What?  It's not like it *couldn't* be only guests in this topic...
 		if (!empty($posters))
 			loadMemberData($posters);
@@ -968,13 +990,12 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, body,
 				smileys_enabled, poster_name, poster_email, approved,
 				id_msg_modified < {int:new_from} AS is_read
+				' . (!empty($msg_selects) ? implode(',', $msg_selects)) . '
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:message_list})
+				' . (!empty($msg_tables) ? implode("\n", $msg_tables)) . '
 			ORDER BY id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
-			array(
-				'message_list' => $messages,
-				'new_from' => $topicinfo['new_from'],
-			)
+			$msg_parameters
 		);
 
 		// Go to the last message if the given time is beyond the time of the last message.
@@ -1260,6 +1281,9 @@ function prepareDisplayContext($reset = false)
 
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
+
+	if (!empty($modSettings['integrate_prepare_context']))
+		call_integration_hook('integrate_prepare_context', array(&$output, &$message));
 
 	if (empty($options['view_newest_first']))
 		$counter++;
