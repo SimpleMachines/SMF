@@ -3799,14 +3799,14 @@ ul.quickbuttons li.blurb {
 	font-weight: normal;
 	word-wrap: break-word;
 }
-ul.quickbuttons li.quote_button {
+ul.quickbuttons li a.quote_button {
 	float: right;
 }
 .quickbuttons li.moderation_button {
 	position: relative;
 }
-.quickbuttons li.modify_inline {
-	padding: 6px 22px 6px 4px;
+.quickbuttons li a.modify_inline {
+	padding: 2px 22px 2px 4px;
 	background: #fff;
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -3814,8 +3814,8 @@ ul.quickbuttons li.quote_button {
 	position: relative;
 	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
 }
-.quickbuttons li.modify_inline:hover {
-	padding: 7px 22px 6px 5px;
+.quickbuttons li a.modify_inline:hover {
+	padding: 2px 22px 2px 5px;
 	background: #f4f4f4;
 	border-top: none;
 	border-left: none;
@@ -3823,14 +3823,14 @@ ul.quickbuttons li.quote_button {
 	border-bottom: 1px solid #ccc; 
 	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
 }
-.quickbuttons li.modify_inline img {
+.quickbuttons li a.modify_inline img {
 	margin: 0 0 0 0;
 	position: absolute;
 	top: 1px;
 	right: 0;
 	padding: 2px 4px 2px 25px;
 }
-.quickbuttons li.modify_inline:hover img {
+.quickbuttons li a.modify_inline:hover img {
 	right: 0;
 	padding: 3px 4px 4px 25px;
 }
@@ -3876,15 +3876,6 @@ ul.quickbuttons li.quote_button:hover a {
 	border-top: 1px solid rgba(0,0,0,0);
 	border-bottom: 1px solid rgba(0,0,0,0);
 }
-.quickbuttons li.sfhover li a, .quickbuttons li.sfhover li label, .poster  li.sfhover li a {
-	border: none;
-	padding: 0 5px;
-	font-size: 1em;
-	font-weight: normal;
-	line-height: 2em;
-	width: 13em;
-
-}
 /* Note: The next declaration is for keyboard access with js disabled. */
 .quickbuttons ul a:focus {
 	margin-left: 9999px;
@@ -3894,17 +3885,19 @@ ul.quickbuttons li.quote_button:hover a {
 	border-radius: 0 0 0 0;
 }
 .quickbuttons li:hover li a, .quickbuttons li.sfhover li a, .quickbuttons li:hover li label, .quickbuttons li.sfhover li label,
-.poster li:hover li a, .poster li.sfhover li a {
+.poster li:hover li a, .poster  li.sfhover li a{
 	margin: 0 0 0 0;
+	width: 13em;
+	line-height: 2em;
 	padding: 0 5px;
 	display: block;
 	border-radius: 0;
-	/* Necessary to allow highlighting of 1st level while hovering over submenu. */
 	background: none;
 	color: #346;
 	border: none;
 	text-shadow: none;
 	box-shadow: none;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 /* Levels 2 and 3 hover effects. */
 .quickbuttons li li:hover, .quickbuttons li li:hover>a, .quickbuttons li li a:focus, .quickbuttons li li:hover>label

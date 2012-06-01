@@ -1846,31 +1846,31 @@ ul.quickbuttons li a {
 ul.quickbuttons a:hover {
 	color: #a70;
 }
-ul.quickbuttons li.quote_button {
+ul.quickbuttons li a.quote_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 0;
 }
-ul.quickbuttons li.remove_button {
+ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -30px;
 }
-ul.quickbuttons li.modify_button {
+ul.quickbuttons li a.modify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -60px;
 }
-ul.quickbuttons li.approve_button {
+ul.quickbuttons li a.approve_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -90px;
 }
-ul.quickbuttons li.restore_button {
+ul.quickbuttons li a.restore_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
 }
-ul.quickbuttons li.split_button {
+ul.quickbuttons li a.split_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -150px;
 }
-ul.quickbuttons li.reply_button {
+ul.quickbuttons li a.reply_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
 }
-ul.quickbuttons li.reply_all_button {
+ul.quickbuttons li a.reply_all_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
 }
-ul.quickbuttons li.notify_button {
+ul.quickbuttons li a.notify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
 }
 ul.quickbuttons li.inline_mod_check {

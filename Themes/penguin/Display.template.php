@@ -470,22 +470,22 @@ function template_main()
 		// Can they reply? Have they turned on quick reply?
 		//if ($context['can_quote'] && !empty($options['display_quick_reply']))
 		//	echo '
-		//							<li class="quote_button"><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post" onclick="return oQuickReply.quote(', $message['id'], ');">', $txt['quote'], '</a></li>';
+		//							<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post" onclick="return oQuickReply.quote(', $message['id'], ');" class="quote_button">', $txt['quote'], '</a></li>';
 
 		// So... quick reply is off, but they *can* reply?
 		//elseif ($context['can_quote'])
 		//	echo '
-		//							<li class="quote_button"><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post">', $txt['quote'], '</a></li>';
+		//							<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post" class="quote_button">', $txt['quote'], '</a></li>';
 
 		// Can the user modify the contents of this post?
 		if ($message['can_modify'])
 			echo '
-									<li class="modify_button"><a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '">Full&nbsp;edit</a></li>';
+									<li><a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '" title="', $txt['fulledit'], '" class="modify_button">', $txt['fulledit'], '</a></li>';
 
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-									<li class="modify_inline">Edit<img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="Quick edit" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer; display: none;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" /></li>';
+									<li><a href="#" class="modify_inline" title="', $txt['quick_edit'], '">', $txt['edit'], '<img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['quick_edit'] ,'" id="modify_button_', $message['id'], '" style="cursor: pointer; display: none;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" /></a></li>';
 
 		if ($context['can_moderate_forum'])
 		{
@@ -498,26 +498,30 @@ function template_main()
 										echo '
 											<li><a href="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $message['counter'], ';msg=', $message['id'], '">', $txt['report_to_mod'], '</a></li>';
 										echo '
-											<li class="remove_button"><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['remove_message'], '?\');">', $txt['remove'], '</a></li>
-											<li class="split_button"><a href="', $scripturl, '?action=splittopics;topic=', $context['current_topic'], '.0;at=', $message['id'], '">', $txt['split'], '</a></li>';
+											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['remove_message'], '?\');" class="remove_button">', $txt['remove'], '</a></li>
+											<li><a href="', $scripturl, '?action=splittopics;topic=', $context['current_topic'], '.0;at=', $message['id'], '" class="split_button">', $txt['split'], '</a></li>';
+									
 									// Maybe we can approve it, maybe we should?
 									if ($message['can_approve'])
 										echo '
-											<li class="approve_button"><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['approve'], '</a></li>';
+											<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="approve_button">', $txt['approve'], '</a></li>';
+									
 									// Can we restore topics?
 									if ($context['can_restore_msg'])
 										echo '
-											<li class="restore_button"><a href="', $scripturl, '?action=restoretopic;msgs=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['restore_message'], '</a></li>';
+											<li><a href="', $scripturl, '?action=restoretopic;msgs=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="restore_button">', $txt['restore_message'], '</a></li>';
+									
 									// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
 									if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
 										echo '
-											<li class="issue_warning"><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '" title="', $txt['issue_warning_post'], '">Issue warning</a></li>';
+											<li><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '" title="', $txt['issue_warning_post'], '" class="issue_warning">Issue warning</a></li>';
+									
 									// Show a checkbox for quick moderation?
 									if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $message['can_remove'])
 										echo '
 											<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"><label for="fukn_pita_bastard_', $message['id'], '">Select post&nbsp;</label></li>';
 										echo '
-											<li class="ip_link"><a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '">', $message['member']['ip'], '</a></li>
+											<li><a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" class="ip_link">', $message['member']['ip'], '</a></li>
 										</ul>
 									</li>';
 		}
@@ -525,12 +529,12 @@ function template_main()
 		// Can they reply? Have they turned on quick reply?
 		if ($context['can_quote'] && !empty($options['display_quick_reply']))
 			echo '
-									<li class="quote_button"><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post" onclick="return oQuickReply.quote(', $message['id'], ');">', $txt['quote'], '</a></li>';
+									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post" onclick="return oQuickReply.quote(', $message['id'], ');" class="quote_button">', $txt['quote'], '</a></li>';
 
 		// So... quick reply is off, but they *can* reply?
 		elseif ($context['can_quote'])
 			echo '
-									<li class="quote_button"><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post">', $txt['quote'], '</a></li>';
+									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" title="', $txt['quote'], '&nbsp;', $message['member']['name'], '\'s post" class="quote_button">', $txt['quote'], '</a></li>';
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
@@ -570,7 +574,7 @@ function template_main()
 	call_integration_hook('integrate_mod_buttons', array(&$mod_buttons));
 
 	echo '
-			<div class="windowbg"  id="display_lower_buttons">
+			<div class="windowbg" id="display_lower_buttons">
 				', template_button_strip($normal_buttons, 'left'), '', template_button_strip($reply_button, 'right'), '
 				<div id="moderationbuttons">', template_button_strip($mod_buttons, 'bottom', array('id' => 'moderationbuttons_strip')), '</div>
 				<div class="title_bar" style="margin: 10px 11px 10px 11px; border-radius: 4px; clear: both;">
@@ -812,7 +816,7 @@ function template_main()
 		});
 
 		$(document).ready(function() { 
-			$("li.quote_button a").bt(jQuery.bt.options = {positions: "top, bottom"})
+			$("li a.quote_button, li a.modify_button, li a.modify_inline, a.topic_reply_title").bt(jQuery.bt.options = {positions: "top, bottom"});
 		});
 
 				// ]]></script>';

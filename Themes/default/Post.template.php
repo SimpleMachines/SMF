@@ -684,7 +684,7 @@ function template_main()
 
 	if ($context['can_quote'])
 		echo '
-						newPostsHTML += \'<ul class="reset smalltext quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li class="quote_button"><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');"><span>',$txt['bbc_quote'],'</span><\' + \'/a></li></ul>\';';
+						newPostsHTML += \'<ul class="reset smalltext quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>',$txt['bbc_quote'],'</span><\' + \'/a></li></ul>\';';
 
 	echo '
 						newPostsHTML += \'<br class="clear" />\';
@@ -795,7 +795,7 @@ function template_main()
 			{
 				echo '
 					<ul class="reset smalltext quickbuttons" id="msg_', $post['id'], '_quote">
-						<li class="quote_button"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span>',$txt['bbc_quote'],'</span></a></li>
+						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button"><span>',$txt['bbc_quote'],'</span></a></li>
 					</ul>';
 			}
 
