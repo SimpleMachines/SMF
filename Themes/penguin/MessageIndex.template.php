@@ -22,7 +22,7 @@ function template_main()
 		echo '
 	<div class="tborder childboards" id="board_', $context['current_board'], '_childboards">
 		<div class="cat_bar">
-			<h3 class="catbg"><span class="floatleft">', $txt['parent_boards'], '</span><img id="Child_swap" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none; float: right;" /></h3>
+			<h3 class="catbg"><span class="floatleft">', $txt['parent_boards'], '</span><img class="toggle" id="Child_swap" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" /></h3>
 		</div>
 		<div class="table_frame">
 			<table class="table_list">
@@ -460,23 +460,35 @@ function template_main()
 
 	var mouse_on_div;
 
-		$(document).ready(function(){
-				$(".table_list tbody tr").show();
-				$("#Child_swap").show();
+	$(document).ready(function(){
+		$(".table_list tbody tr").show();
+		$("#Child_swap").show();
 
-			$("#Child_swap").click(function(){
+		$("#Child_swap").click(function(){
+			// toggle the div on / off
 			$(".table_list tbody tr").toggle();
-			});
+			
+			// swap the collapse / expand images
+			var sCurrent_image = $("#Child_swap").attr("src");
+			if ($("#Child_swap").attr("class") == "toggle") {
+				$("#Child_swap").attr("src", sCurrent_image.replace("collapse", "expand"));
+			} else {
+				$("#Child_swap").attr("src", sCurrent_image.replace("expand", "collapse"));
+			}
+			
+			// add/remove a class element to keep track of the image status
+			$("#Child_swap").toggleClass("on");
 		});
+	});
 
-		$(document).ready(function(){
-				$("td.stickybg, td.stickybg2").show();
-				$("#Sticky_toggle").show();
+	$(document).ready(function(){
+		$("td.stickybg, td.stickybg2").show();
+		$("#Sticky_toggle").show();
 
-			$("#Sticky_toggle").click(function(){
+		$("#Sticky_toggle").click(function(){
 			$("td.stickybg, td.stickybg2").toggle();
-			});
 		});
+	});
 ';
 		//$(document).ready(function() { 
 		//	$("span.thingy").bt();

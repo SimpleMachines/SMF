@@ -158,7 +158,7 @@ function template_search_members()
 				</div>
 				<span class="botslice clear_right"><span></span></span>
 			</div>
-			<br />
+			<br class="clear" />
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>

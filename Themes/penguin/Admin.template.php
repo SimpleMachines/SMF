@@ -772,6 +772,10 @@ function template_show_settings()
 			// A title?
 			if ($config_var['type'] == 'title')
 			{
+				if (!$is_open)
+					echo '
+					<br class="clear" />';
+				
 				echo '
 					<div class="cat_bar">
 						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>

@@ -580,7 +580,7 @@ function template_browse()
 		// ]]></script>';
 
 		echo '
-		<br />
+		<br class="clear" />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['browse_packages'], '</h3>
 		</div>';
@@ -591,9 +591,6 @@ function template_browse()
 	{
 		if (!empty($context['available_' . $type]))
 		{
-			echo '
-		<br />';
-		
 			template_show_list('packages_lists_' . $type);
 			$mods_available = true;
 		}

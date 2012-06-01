@@ -30,7 +30,8 @@ function template_browse()
 				</dl>
 			</div>
 			<span class="botslice"><span></span></span>
-		</div>';
+		</div>
+		<br class="clear" />';
 
 	template_show_list('mail_queue');
 

@@ -80,6 +80,7 @@ function template_maintenance()
 			</div>
 			<span class="botslice"><span></span></span>
 		</div>
+		<br class="clear" />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_integrity_check'], '</h3>
 		</div>
@@ -95,6 +96,7 @@ function template_maintenance()
 			</div>
 			<span class="botslice"><span></span></span>
 		</div>
+		<br class="clear" />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_pruning'], '</h3>
 		</div>

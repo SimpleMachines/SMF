@@ -316,7 +316,7 @@ function template_main()
 					<th width="15%">', $txt['stats_new_topics'], '</th>
 					<th width="15%">', $txt['stats_new_posts'], '</th>
 					<th width="15%">', $txt['stats_new_members'], '</th>
-					<th', empty($modSettings['hitStats']) ? ' class="last_th"' : '', ' width="15%">', $txt['most_online'], '</th>';
+					<th width="15%">', $txt['most_online'], '</th>';
 
 		if (!empty($modSettings['hitStats']))
 			echo '

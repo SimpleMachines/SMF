@@ -550,7 +550,7 @@ function template_editBuddies()
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['buddy_add'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="roundframe padding">
 				<dl class="settings">
 					<dt>
 						<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
@@ -733,7 +733,7 @@ function template_trackActivity()
 					</dl>
 				</div>
 			</div>
-		<br />';
+			<br class="clear" />';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -766,7 +766,7 @@ function template_trackIP()
 			</form>
 		</div>
 	</div>
-	<br />';
+	<br class="clear" />';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
 	if ($context['single_ip'])
@@ -783,7 +783,7 @@ function template_trackIP()
 			echo '
 				</div>
 			</div>
-		<br />';
+		<br class="clear" />';
 	}
 
 	// The second table lists all the members who have been logged as using this IP address.
@@ -1014,7 +1014,8 @@ function template_statPanel()
 					</dl>
 				</div>
 			</div>
-		</div>';
+		</div>
+		<br class="clear" />';
 
 	// This next section draws a graph showing what times of day they post the most.
 	echo '

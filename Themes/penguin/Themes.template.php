@@ -304,7 +304,8 @@ function template_reset_list()
 					</li>
 				</ul>
 			</div>
-		</div>';
+		</div>
+		<br class="clear" />';
 	}
 
 	echo '
@@ -446,7 +447,8 @@ function template_set_settings()
 						</li>
 					</ul>
 				</div>
-			</div>';
+			</div>
+			<br class="clear" />';
 
 	echo '
 			<div class="cat_bar">
@@ -483,7 +485,8 @@ function template_set_settings()
 						</dd>
 					</dl>
 				</div>
-			</div>';
+			</div>
+			<br class="clear" />';
 
 	// Do we allow theme variants?
 	if (!empty($context['theme_variants']))
@@ -790,7 +793,8 @@ function template_edit_list()
 					<li><a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=copy">', $txt['themeadmin_edit_copy_template'], '</a></li>
 				</ul>
 			</div>
-		</div>';
+		</div>
+		<br class="clear" />';
 	}
 
 	echo '
