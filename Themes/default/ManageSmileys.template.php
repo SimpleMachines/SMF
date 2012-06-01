@@ -350,7 +350,7 @@ function template_addsmiley()
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
-			<br />
+			<br class="clear" />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>

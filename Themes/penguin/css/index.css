@@ -1,5 +1,11 @@
 /* Styles for the general looks for the theme.
 ------------------------------------------------------- */
+
+/* Box sizing for the masses */
+div, ul, li, textarea { 
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+
 /* The wrapper division controls the width of the forum. */
 /* Width may be set in px (fixed width) or in % (fluid width). */
 /* The max-width and min-width values only apply if the forum is set to fluid width (in %). */
@@ -108,7 +114,6 @@ input:focus, input.input_file:focus, select:focus, textarea:focus, textarea.edit
 	border: 1px solid #aaa;
 	box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
-/* [WIP]: .input_file seems impossible to style. Look into it further. */
 
 /* Buttons should be styled a bit differently, in order to make them look more button'ish. */
 #frmLogin input.button_submit, #guest_form  input.button_submit, #calendar_navigation input.button_submit {
@@ -171,7 +176,6 @@ span.new_posts {
 	text-shadow: none;
 	box-shadow: none;
 	font-size: 1em;
-	
 	color: #346; text-decoration: underline;
 }
 a.new_posts:hover {
@@ -179,17 +183,29 @@ a.new_posts:hover {
 }
 /* Page listings. */
 a.navPages {
-	/*border-left: 2px solid #777;*/ padding: 0 0 0 4px; margin: 0 0 0 0;
+	padding: 0 0 0 4px; margin: 0 0 0 0;
 }
 span.page_last a.navPages {
-	/*border-right: 2px solid #777;*/ padding: 0 4px 0 4px;
+	padding: 0 4px 0 4px;
 }
-.table_grid td span.next_page, .table_grid td span.previous_page {display: none;}
-/* Stuff. */
-.helligrumbler, .lastpost_icon {border: 1px solid rgba(0,0,0,0); border-radius: 4px; padding: 4px; cursor: pointer; z-index: 2;}
-.helligrumbler:hover {border: 1px solid #aaa; box-shadow: 1px 2px 2px rgba(0,0,0,0.2); background: #fff;}
-.lastpost_icon {margin: 7px 5px 0 0; padding: 4px; display: block; float: right;}
-.lastpost_stuff {float: right; margin: 0 7px 0 0;}
+.table_grid td span.next_page, .table_grid td span.previous_page {
+	display: none;
+}
+
+/* Lastpost Stuff. */
+.lastpost_icon {
+	margin: 7px 5px 0 0;
+	padding: 4px;
+	display: block;
+	float: right;
+	cursor: pointer;	
+	z-index: 2;
+}
+.lastpost_stuff {
+	float: right;
+	margin: 0 7px 0 0;
+}
+
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
 input.input_check, input.input_radio {
 	border: none;
@@ -221,7 +237,7 @@ hr, .hrcolor {
 	box-shadow: 0 1px 0 #aaa inset;
 }
 
-/* By default set the color on these tags as #000. */
+/* By default set the color on these tags as #333 */
 h1, h2, h3, h4, h5, h6 {
 	color: #333;
 	font-size: 1em;
@@ -252,7 +268,6 @@ strong {
 em {
 	font-style: italic;
 }
-/* Alternative for u tag */
 .underline {
 	text-decoration: underline;
 }
@@ -347,14 +362,13 @@ ul.reset, ul.reset li {
 	padding: 8px;
 	margin: 0 0 8px 0;
 	overflow: auto;
-	/*box-shadow: 1px 1px 2px rgba(0,0,0,0.1);*/
 }
 /* Alterate blockquote stylings */
 .windowbg2 .bbc_standard_quote, .windowbg .bbc_alternate_quote {
-	background: /*#e7f0f7*//*#e4e8eb*//*#e1ebf5*/#F1F6FF;
+	background: #F1F6FF;
 }
 .windowbg2 .bbc_alternate_quote, .windowbg .bbc_standard_quote {
-	background: /*#DAE3EF*/ /*#e9eef2*//*#e8eef5*/#FcfdFF;
+	background: #FcfdFF;
 }
 /* A code block - maybe PHP ;). */
 .bbc_code {
@@ -362,7 +376,7 @@ ul.reset, ul.reset li {
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 	font-size: 0.91em;
 	color: #333;
-	background: /*#d3e3f4*/#e5e8eb; border: 1px solid #ccc;
+	background: #e5e8eb; border: 1px solid #ccc;
 	border-top: 2px solid #aaa;
 	border-bottom: 2px solid #aaa;
 	margin: 0 0 8px 0;
@@ -387,11 +401,31 @@ ul.reset, ul.reset li {
 .bbc_alternate_quote .codeheader, .bbc_alternate_quote .standard_quoteheader, .bbc_alternate_quote .alternate_quoteheader {
 	margin: 0 0 -1px 0;
 }
-.codeheader {padding: 0 4px; background: #fff; border: 1px solid #ccc; border-top: 2px solid #aaa;}
-.topslice_quote {float: left; border-radius: 0px 14px 0 0; line-height: 1em; padding: 6px 12px 0 20px;}
-.windowbg .standard_quoteheader .topslice_quote, .windowbg2 .alternate_quoteheader .topslice_quote {border: 1px solid #bbb; border-bottom: 1px solid #FcfdFF; background: #FcfdFF url(../images/theme/quote.png) 0px 1px no-repeat;}
-.windowbg2 .standard_quoteheader .topslice_quote, .windowbg .alternate_quoteheader .topslice_quote {border: 1px solid #bbb; border-bottom: 1px solid #F1F6FF; background: #F1F6FF url(../images/theme/quote.png) 0px 1px no-repeat;}
-.quoteheader a {}
+.codeheader {
+	padding: 0 4px;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-top: 2px solid #aaa;
+}
+.topslice_quote {
+	float: left;
+	border-radius: 0px 14px 0 0;
+	line-height: 1em;
+	padding: 6px 12px 0 20px;
+}
+.windowbg .standard_quoteheader .topslice_quote, .windowbg2 .alternate_quoteheader .topslice_quote {
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #fcfdff;
+	background: #fcfdff url(../images/theme/quote.png) 0px 1px no-repeat;
+}
+.windowbg2 .standard_quoteheader .topslice_quote, .windowbg .alternate_quoteheader .topslice_quote {
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #F1F6FF;
+	background: #f1f6ff url(../images/theme/quote.png) 0px 1px no-repeat;
+}
+.quoteheader a {
+}
+
 /* The following are required to prevent undesirable cascades. */
 .bbc_standard_quote .bbc_alternate_quote, .bbc_alternate_quote .bbc_standard_quote,
 .bbc_standard_quote .bbc_code, .bbc_alternate_quote .bbc_code,
@@ -403,7 +437,6 @@ ul.reset, ul.reset li {
 .codeheader {
 	font-size: 12px;
 	padding: 3px 4px;
-	/*width: 20em;*/
 }
 /* For links to change the code stuff... */
 .codeoperation {
@@ -419,7 +452,6 @@ ul.reset, ul.reset li {
 	border-bottom: 1px solid #346;
 }
 .bbc_size {
-	
 }
 .bbc_color a {
 	color: inherit;
@@ -522,11 +554,11 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 /* Alternating backgrounds for posts, and several other sections of the forum. */
 .windowbg, #preview_body {
 	color: #333;
-	background: #f3f7ff/*#f0f3f8*//*#fff*/;
+	background: #f3f7ff;
 }
 .windowbg2 {
 	color: #333;
-	background: /*#f3f7ff*/#fff;
+	background: #fff;
 }
 .windowbg3 {
 	color: #333;
@@ -536,7 +568,6 @@ div.windowbg, div.windowbg2, div.windowbg3, #preview_body {
 	overflow: auto;
 	float: left; 
 	width: 100%; 
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	padding: 6px;
 	margin: 2px 0 4px 0;
 	border-radius: 4px;
@@ -544,7 +575,7 @@ div.windowbg, div.windowbg2, div.windowbg3, #preview_body {
 #forumposts div.windowbg, #recent div.windowbg, #forumposts div.windowbg2, #recent .windowbg2 {
 	border: 1px solid #ddd; border-bottom: 1px solid #ccc;
 	margin: 2px 0 0 0;
-	border-radius: 0 0 0 0; /*box-shadow: 1px 1px 1px rgba(0,0,0,0.1)/*, -5px -10px 15px rgba(99,129,159,0.06) inset*/;
+	border-radius: 0 0 0 0;
 }
 #display_lower_buttons {
 	border: 1px solid #ddd;
@@ -613,12 +644,8 @@ div.pagesection div.floatright input {
 
 /* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
 .signature, .attachments {
-	/*width: 100%;*/
 	overflow: auto;
 	clear: both;
-	padding: /*1em 0 3px 160px*/;
-	/*border-top: 1px solid #ccc;*/
-	/*font-size: 0.917em;*/
 }
 .custom_fields_above_signature {
 	width: 98%;
@@ -761,12 +788,11 @@ dl.settings dd {
 }
 dl.settings img {
 	margin: 0 10px 0 0;
-	vertical-align: middle;
 }
 /* help icons */
 dl.settings dt a img {
 	position: relative;
-	vertical-align: top;
+	top: 2px;
 }
 
 /* Styles for rounded headers.
@@ -799,14 +825,12 @@ h3.titlebg a:hover, h4.titlebg a:hover {
 	color: #53616f;
 	text-decoration: none;
 }
-h3.catbg img.icon, h4.titlebg img.icon {
+h3.catbg img.icon {
 	vertical-align: middle;
-	margin: 6px 5px 0 0;
+	margin: 8px 8px 0 0;
 }
-/*h4.catbg a.toggle img {
-	vertical-align: middle;
-	margin: -2px 5px 0 5px;
-}*/
+h4.catbg a.toggle img {
+}
 h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg {
 	background: #dadfe6 url(../images/theme/main_block.png) no-repeat -10px -280px;
 	border-radius: 4px 4px 0 0;
@@ -824,7 +848,7 @@ h4.titlebg, h3.titlebg {
 }
 h4.titlebg img.icon {
 	float: left;
-	margin: 5px 8px 0 0;
+	margin: 8px 8px 0 0;
 }
 div.cat_bar {
 	background: none;
@@ -846,7 +870,8 @@ div.roundframe div.cat_bar {
 	background: none; margin-bottom: 0;
 }
 div.roundframe div.cat_bar h3.catbg {
-	background: /*url(../images/theme/main_block.png) no-repeat 100% -280px*/ #fff; color: #444;
+	background: #fff; 
+	color: #444;
 	border-bottom: 1px solid #ccc;
 }
 #upshrink_ic {
@@ -856,11 +881,11 @@ img#upshrink_ic, img#newsupshrink, img.panel_toggle, img#quickReplyExpand {
 	margin: .5em .5em 0 1em;
 }
 div.title_barIC {
-	background: /*url(../images/theme/main_block.png) no-repeat 100% -120px;*/none;
+	background: none;
 	padding: 0 0 0 0;
 }
 div.title_barIC h4.titlebg {
-	background: /*#dadfe6 url(../images/theme/main_block.png) no-repeat -10px -380px*/ #fff;
+	background: #fff;
 	border-radius: 0 0 0 0;
 	border-top: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
@@ -870,13 +895,21 @@ div.title_barIC h4.titlebg {
 	font-size: 1.167em;
 	height: 2.2em;
 }
+div.title_barIC img.icon {
+	margin: 4px 8px 0 0;
+}
 #upshrinkHeaderIC p.pminfo {
 	margin: 0;
 	padding: 0.5em;
 }
 h3.catbg img, h4.titlebg img {
 	float: left;
-	margin: 0.5em 0.2em 0 0.2em;
+	margin: 10px 8px 0 2px;;
+}
+h3.catbg img.toggle {
+	float: right;
+	margin: 10px 8px 0 0;
+	display: none;
 }
 table.table_list a.collapse, #upshrink_ic, #newsupshrink, #expandBoardsIcon {
 	float: right;
@@ -892,7 +925,7 @@ table.table_list a.collapse:hover, #upshrink_ic:hover, #newsupshrink:hover, #exp
 	border-bottom: 1px solid #fff;
 	background: none;
 }
-.table_grid thead tr.catbg, .table_grid thead tr.catbg:hover /*, .table_grid tr.titlebg th */{
+.table_grid thead tr.catbg, .table_grid thead tr.catbg:hover {
 	border-radius: 5px 5px 0 0;
 	background: #63819F;
 	background-image: none;
@@ -900,29 +933,31 @@ table.table_list a.collapse:hover, #upshrink_ic:hover, #newsupshrink:hover, #exp
 	padding: 0 0 0 0;
 	box-shadow: 0 10px 16px rgba(255,255,255,0.3) inset, 0 -10px 16px rgba(0,0,0,0.05) inset;
 }
-.table_grid thead tr.catbg th/*, .table_grid tr.titlebg th */{
+.table_grid thead tr.catbg th {
 	font-size: 1.167em;
-	font-weight: normal;
+	font-weight: bold;
 	border-bottom: 1px solid #fff;
 	line-height: 1.8em;
 	background: none;
 	margin: 0 0 1px 0;
-	padding: 5px 0 5px 0;
+	padding: 5px 10px;
 }
 tr.catbg th.first_th {
-	background: none;
+	background: #a7b9cd url(../images/theme/main_block.png) no-repeat -10px -280px;
 	border-radius: 5px 0 0 0;
 }
 tr.catbg th.last_th {
-	background: none;
+	background: #a7b9cd url(../images/theme/main_block.png) no-repeat -10px -280px;
 	border-radius: 0 5px 0 0;
 	margin-right: 1px;
 }
 tr.titlebg th.first_th {
-	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -380px;
+	background: #eee;
+	border-radius: 5px 0 0 0;
 }
 tr.titlebg th.last_th {
-	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 100% -380px;
+	background: #eee;
+	border-radius: 0 5px 0 0;
 }
 .table_grid th.last_th input {
 	margin: 0 2px;
@@ -936,16 +971,16 @@ table.table_grid {
 	border-collapse: collapse;
 	margin: 4px 0;
 }
-table.table_grid tr.windowbg, table.table_grid tr.windowbg2/*, table.table_grid td.stats */{
+table.table_grid tr.windowbg, table.table_grid tr.windowbg2 {
 	border-right: 1px solid #e7e7e7;
 	border-left: 1px solid #e7e7e7;
 }
 table.table_grid tbody tr {
-	background: /*#f4f7ff*/ #fff;
+	background: #fff;
 	box-shadow: 0 -5px 10px rgba(244,247,255,0.4) inset;
 }
 table.table_grid tbody td.sticky_bar, table.table_grid tbody td.normal_bar {
-	background: /*#f4f7ff*/ #fff;
+	background: #fff;
 	box-shadow: 0 5px 10px rgba(244,247,255,1) inset, 0 -4px 8px rgba(0,0,0,0.05) inset;
 }
 table.table_grid tr:hover {
@@ -955,7 +990,6 @@ table.table_grid td {
 	padding: 5px;
 	border-top: 1px solid #fff;
 	border-bottom: 1px solid #e7e7e7;
-	/*border-left: 1px solid #e7e7e7;*/
 }
 table.table_grid td.subject {
 	padding: 5px 8px 5px 5px;
@@ -999,10 +1033,8 @@ img.sort {
 /* Used for sections that need somewhat larger corners.
 ----------------------------------------------------------- */
 .roundframe {
-	padding: 0 0 0.2em 0;
+	padding: .5em .5em 0.2em .5em;
 	background: #fafafa;
-/*	border-left: 1px solid #c5c5c5;
-	border-right: 1px solid #c5c5c5;*/
 	border: 1px solid #c5c5c5;
 	border-radius: 5px;
 	clear: both;
@@ -1087,13 +1119,13 @@ img.sort {
 	box-shadow: 0 -5px 5px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.1) inset;
 }
 /* Level 1 hover effects. */
-.dropmenu li a:hover/*, .dropmenu li:hover a*/, .dropmenu li a:focus {
+.dropmenu li a:hover, .dropmenu li a:focus {
 	background: #597b9f;
 	color: #fff;
 	cursor: pointer;
 	text-decoration: none;
 	box-shadow: 0 -4px 4px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.13) inset;
-	border: 1px solid /*#9ba1cf*/rgba(255,255,255,0.2);
+	border: 1px solid rgba(255,255,255,0.2);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover {
@@ -1103,7 +1135,9 @@ img.sort {
 	border-top: 1px solid #e07700;
 }
 /* If we feel like styling the active state separately. */
-.dropmenu li a:active {}
+.dropmenu li a:active {
+}
+
 /* Levels 2 and 3 submenu wrapper. */
 .dropmenu li ul {
 	z-index: 90;
@@ -1178,7 +1212,9 @@ img.sort {
 	box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
 }
 /* If we feel like styling the active state separately. */
-.dropmenu li li a:active, .dropmenu li li:hover>a:active {}
+.dropmenu li li a:active, .dropmenu li li:hover>a:active {
+}
+
 /* Reposition Level 2 submenu as visible on hover. */
 .dropmenu li:hover ul, .dropmenu li.sfhover ul {
 	left: 0;
@@ -1279,13 +1315,6 @@ img.sort {
 .pagesection .buttonlist ul li a {
 	font-size: 1em;
 }
-/*.buttonlist ul li a.first {
-	border-radius: 2px 0 0 2px;
-}
-.buttonlist ul li a.last {
-	border-radius: 0 2px 2px 0;
-	border-right: 1px solid #bbb;
-}*/
 .buttonlist ul li a:hover {
 	color: #222;
 	text-decoration: none;
@@ -1307,7 +1336,6 @@ img.sort {
 	border-left: none;
 	border-right: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
-	/*box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;*/
 }
 .buttonlist ul li a.active:hover {
 	color: #0A3E6B;	text-shadow: none;	margin: 0 -1px 1px 2px;
@@ -1416,8 +1444,6 @@ table.table_list tbody.content td.icon {
 	color: #d97b33;
 }
 .table_list tbody.content td.info a.subject:hover {
-	
-	
 }
 .table_list tbody.content td.children {
 	color: #555;
@@ -1492,7 +1518,6 @@ p.moderators {
 dl#ic_recentposts {
 	margin: 0 0 0.5em 0;
 	padding: 0.5em;
-	
 }
 dl#ic_recentposts dt {
 	float: left;
@@ -1557,10 +1582,6 @@ div.table_frame .table_list {
 #childboards .table_list {
 	margin-bottom: 1em;
 }
-/*.lastpost img {
-	float: right;
-	padding: 4px;
-}*/
 
 /* Styles for the display template (topic view).
 ---------------------------------------------------- */
@@ -1672,7 +1693,6 @@ h4#pollquestion {
 #poll_options dl.options .percentage {
 	display: block;
 	float: right;
-	
 	padding: 0 0 0 1em;
 	background: #ccc;
 	width: 9em;
@@ -1693,16 +1713,13 @@ div#pollmoderation {
 #forumposts {
 	clear: both;
 }
-/*#forumposts .cat_bar {
-	margin: 0 0 2px 0;
-}*/
+
 /* author and topic information */
 #forumposts h3 span#author {
 	margin: 0 7.7em 0 0;
 }
 #forumposts h3 img {
 	float: left;
-	/*margin: 4px 0.5em 0 0;*/
 }
 /* [WIP] #forumposts h3.catbg {
 	margin-bottom: 3px;
@@ -1727,39 +1744,6 @@ p#whoisviewing {
 	padding: 0;
 	margin: 0 5px 0 5px;
 }
-/* poster details and list of items */
-/*.poster h4, .poster ul {
-	padding: 0;
-	margin: 0 auto;
-}
-.poster h4 {
-	margin: 0.2em 0 0.4em 0;
-	font-size: 120%;
-}
-.poster h4, .poster h4 a {
-	color: #c06002;
-}
-.poster ul ul {
-	margin: 0.3em 0 0 0;
-	padding: 0;
-}
-.poster ul ul li {
-	display: inline;
-}
-.poster li.stars, .poster li.avatar, .poster li.blurb, li.postcount, li.im_icons ul {
-	margin-top: 0.5em;
-}
-.poster li.avatar {
-	overflow: hidden;
-}
-.poster li.warning {
-	line-height: 1.167em;
-	padding-top: 1em;
-}
-.poster li.warning a img {
-	vertical-align: bottom;
-	padding: 0 0.2em;
-}*/
 .messageicon {
 	float: left;
 	margin: 0 0.5em 0 0;
@@ -1772,7 +1756,6 @@ p#whoisviewing {
 	padding: 0;
 }
 .keyinfo {
-	/*position: relative;*/
 	margin: 0 0 0 0;
 	padding: 7px 6px 0px 6px;
 }
@@ -1796,9 +1779,6 @@ p#whoisviewing {
 	opacity: 1.0;
 }
 .keyinfo .smalltext {
-	/*margin: 0;
-	position: relative;
-	left: 0;*/
 	line-height: 2em;
 }
 .post {
@@ -1809,9 +1789,6 @@ p#whoisviewing {
 .inner {
 	padding: 0 0 2px 16px;
 	margin: 0 0 0 0;
-	/*float: left;*/
-	/*width: 100%;*/
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	overflow: auto;
 }
 img.smiley {
@@ -1871,7 +1848,6 @@ img.smiley {
 	max-width: 100%;
 	min-width: 100%;
 	margin: 10px 0;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 /* The jump to box */
 #display_jump_to {
@@ -2251,13 +2227,6 @@ dl.register_form dd {
 #maintenance_mode img.floatleft {
 	margin-right: 1em;
 }
-
-/* common for all admin sections */
-/*h3.titlebg img {
-	vertical-align: middle;
-	margin-right: 0.5em;
-	margin-top: -1px;
-}*/
 tr.titlebg td {
 	padding-left: 0.7em;
 }
@@ -2268,7 +2237,6 @@ tr.titlebg td {
 #admin_content {
 	clear: left;
 	padding-top: 4px;
-	/* [WIP] */
 	overflow: auto;
 }
 /* Custom profile fields like to play with us some times. */
@@ -2356,13 +2324,12 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .topic_table td.lastpost {
 	font-size: 0.917em;
-	
 	padding: 4px;
 }
 .topic_table td.stickybg2, .topic_table td.lockedbg2, .topic_table td.locked_sticky2, .topic_table td.icon2, .topic_table td.stats, .topic_table td.lastpost, .topic_table td.moderation {
 	background: none;
 }
-/*td.stickybg, td.stickybg2 {display: none;}
+
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
@@ -2399,7 +2366,6 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 
 /* Styles for info boxes */
-/* Note: Are these classes really needed when we have so many other container classes? */
 /*------------------------------------------------- */
 .noticebox  {
 	color: #666;
@@ -2504,7 +2470,6 @@ dl {
 	width: 100%;
 }
 .signature, .custom_fields_above_signature {
-	/*border-top: 1px #ccc solid;*/
 }
 .signature h5 {
 	font-size: 0.917em;
@@ -2799,7 +2764,6 @@ dl.stats {
 	overflow: hidden;
 	margin: 0;
 	padding: 0;
-	
 	font-size: 1em;
 }
 dl.stats dt {
@@ -2819,7 +2783,7 @@ dl.stats dd {
 	margin: 0 0 4px 0;
 
 	padding: 0;
-	background: url(../images/bar_stats.png) no-repeat 0 0;
+	/*background: url(../images/bar_stats.png) no-repeat 0 0;*/
 }
 #stats_left dt, #stats_right dt {
 	width: 54%;
@@ -2836,7 +2800,7 @@ dl.stats dd {
 .statsbar div.bar {
 	float: left;
 	display: block;
-	margin: 0;
+	margin: 0 4px;
 }
 .statsbar div.bar div {
 	position: relative;
@@ -2845,10 +2809,10 @@ dl.stats dd {
 
 	height: 16px;
 	padding: 0 1px 0 0;
-	background: #585858 url(../images/bar_stats.png) no-repeat 100% 0;
+	background: #fff url(../images/bar_stats.png) no-repeat 100% 0;
 }
 .statsbar span {
-	background: #0b0b0b;
+	/*background: #0b0b0b;*/
 	width: 5em;
 	padding: 0 0 0 8px;
 	display: inline-block;
@@ -2860,7 +2824,7 @@ dl.stats dd {
 	width: 69%;
 }
 #most_online .statsbar span {
-	background: #0b0b0b;
+	/*background: #0b0b0b;*/
 	width: 8em;
 	padding: 0 0 0 8px;
 	display: inline-block;
@@ -3095,24 +3059,6 @@ span.hidelink {
 	padding: 5px 1em 0 0;
 }
 
-/* Styles for the help section.
-------------------------------------------------- */
-/*
-#help_container {
-	margin: 4px 0 0 0;
-	padding: 0 0 8px 0;
-}
-#helpmain {
-	padding: 0 1em;
-}
-#helpmain p {
-	margin: 0 0 1.5em 0;
-	line-height: 1.5em;
-}
-#helpmain ul {
-	line-height: 1.5em;
-}
-
 /* Styles for print media.
 ------------------------------------------------------- */
 @media print {
@@ -3172,38 +3118,48 @@ span.hidelink {
 	z-index: 1;
 }
 /* Reuters RSS feed class */
-div.feedflare {display: none;}
-/* Beauty tips tooltips. */
-.bt-fucker {
-	background: #000;
+div.feedflare {
+	display: none;
 }
+/* Beauty tips tooltips. */
 .bt-content {
 	position: relative;
 	padding: 6px 9px;
 	color: #333;
 	white-space: pre;
-	background: /*#fff*/ #fff;
+	background: #fff;
 	border: 1px solid #aaa;
 	border-radius: 4px 4px 4px 0;
-	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), /*0 -5px 10px rgba(244,247,255,1) inset,*/ 0 0px 10px rgba(0,0,0,0.05) inset;
+	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), 0 0px 10px rgba(0,0,0,0.05) inset;
 }
 /* Skip navigation link. */
 #skipnav {
-	position: absolute; top: 0; left: -999em; padding: 1em 1.5em; background: #222 url(../images/theme/main_block.png) no-repeat -20px -380px; color: #bfad8f;
-	border: 2px solid #bfad8f; border-top: none; border-radius: 0 0 7px 7px; font-weight: bold; box-shadow: 2px 3px 4px #000; z-index: 10;
+	position: absolute; top: 0;
+	left: -999em;
+	padding: 1em 1.5em;
+	background: #222 url(../images/theme/main_block.png) no-repeat -20px -380px; color: #bfad8f;
+	border: 2px solid #bfad8f;
+	border-top: none;
+	border-radius: 0 0 7px 7px;
+	font-weight: bold;
+	box-shadow: 2px 3px 4px #000;
+	z-index: 10;
 }
 #skipnav:focus {
 	left: 20%; outline: none;
 }
 /* Test css fix for topic summary quote buttons in Post.template.php */
-.core_posts .content ul {float:right; width: 13em;}
-#preview_section .content{overflow: auto;}
+.core_posts .content ul {
+	float:right; width: 13em;
+}
+#preview_section .content{
+	overflow: auto;
+}
 
 /* TABLE-LESS BOARD INDEX TESTING */
 .category_wrapper {
 	margin-bottom: 0.8em;
 	clear: both;
-	/*border: 1px solid #ddd;*/
 	padding: 1px 1px 1px 1px;
 	border-radius: 6px 6px 0 0;
 }
@@ -3221,7 +3177,8 @@ div.feedflare {display: none;}
 	opacity: 1;
 }
 .category_wrapper div.cat_bar a.collapse img {
-	/*border: 1px solid #bbb; border-radius: 5px; padding: 3px; margin-top: 4px; box-shadow: 1px 1px 2px rgba(0,0,0,0.2);*/
+	vertical-align: middle;
+	margin: 8px 8px 0 0;
 }
 .forum_category {
 	margin: 0 0 0 0;
@@ -3234,19 +3191,15 @@ div.feedflare {display: none;}
 	padding: 0.4em 0 0 0;
 	overflow: hidden;
 	border: 1px solid #ddd;
-		border-top: 1px solid #e3e3e3;
-			border-bottom: 1px solid #d8d8d8;
+	border-top: 1px solid #e3e3e3;
+	border-bottom: 1px solid #d8d8d8;
 	position: relative;
-	/*background: #fff;
-	box-shadow: 0 10px 16px rgba(239,240,255,0.6) inset*//*, 0 -10px 10px rgba(0,0,0,0.05) inset*/
-	background: /*#eff3ff*/ rgba(240,244,245,0.9);
-	box-shadow: 0 10px 20px rgba(255,255,255,0.7) inset/*, 0 -10px 10px rgba(0,0,0,0.05) inset*/;
-	
-	
-		background: /*#f4f7ff*/ #fff;
+	background: rgba(240,244,245,0.9);
+	box-shadow: 0 10px 20px rgba(255,255,255,0.7) inset;
+	background: /*#f4f7ff*/ #fff;
 	box-shadow: 0 -5px 10px rgba(244,247,255,0.6) inset;
 }
-.forum_category li li{
+.forum_category li li {
 	border: none;
 	box-shadow: none;
 }
@@ -3262,8 +3215,6 @@ div.feedflare {display: none;}
 	float: left;
 	margin: 0 0 -98.5em 0;
 	padding: 1em 1em 99em 1em;
-	/* Note: the following is critically important. */
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 .forum_category div.icon {
 	padding: 1.0em 0em 99em 0em;
@@ -3278,7 +3229,7 @@ div.feedflare {display: none;}
 .forum_category div.icon a:hover {
 	opacity: 1;
 }
-.forum_category div.icon a img{
+.forum_category div.icon a img {
 	border: none;
 }
 .forum_category div.info {
@@ -3309,7 +3260,7 @@ div.feedflare {display: none;}
 	font-weight: normal;
 }
 .forum_category div.stats {
-	/*width: 14%;*/ width: 45%;
+	width: 45%;
 	text-align: center;
 	background: none;
 	line-height: 1.8em;
@@ -3321,24 +3272,31 @@ div.feedflare {display: none;}
 	padding-top: 0.7em;
 }
 .forum_category div.stats ul, .forum_category div.lastpost ul {
-	margin: 0; padding: 0; /**/float:right;
+	margin: 0;
+	padding: 0;
+	float:right;
 }
 .forum_category div.stats li, .forum_category div.lastpost li {
 	margin: 0;
-	/*float: none;*/ float: left;
+	float: left;
 	border: none;
 }
 .forum_category div.stats li {
-	font-size: 1.167em; font-weight: bold; padding: 0 0.2em 0 1em; float: left; margin-top: 0.05em;
+	font-size: 1.167em;
+	font-weight: bold;
+	padding: 0 0.2em 0 1em;
+	float: left;
+	margin-top: 0.05em;
 }
 .forum_category div.stats li span{
-	font-size: 0.917em; font-weight: normal;
+	font-size: 0.917em;
+	font-weight: normal;
 }
 .forum_category div.lastpost {
-	/*font-size: 0.9em;*/font-size: 1em;
+	font-size: 1em;
 	float: right;
-	/*width: 28.5%;*/width: 45%;
-	padding: 0.6em 0.5em 98.5em /*1.4em*/0;
+	width: 45%;
+	padding: 0.6em 0.5em 98.5em 0;
 	border-right: none;
 	background: none;
 	position: relative;
@@ -3358,7 +3316,6 @@ div.feedflare {display: none;}
 }
 .forum_category div.lastpost ul li {
 	padding: 0 0.6em 0 0.2em;
-	/*border-left: 1px solid #777;*/
 	margin-left: -3px;
 	line-height: 1.167em;
 	float: right;
@@ -3372,8 +3329,8 @@ div.feedflare {display: none;}
 	float: left;
 	width: 93.6%; position: relative; right: 0;
 	margin: 0 0 -98.5em 6.5%;
-	padding: 0.5em 1em 99em /*1.167em*/ 0; background: none;
-	/*border-top: 2px solid #000;*/border-top: 1px solid #ddd; /*border-left: 1px solid #000; border-radius: 3px 0 0 0;*/
+	padding: 0.5em 1em 99em 0; background: none;
+	border-top: 1px solid #ddd;
 	font-size: 0.917em;
 }
 .forum_category div.children ul {
@@ -3383,198 +3340,21 @@ div.feedflare {display: none;}
 }
 .forum_category div.children ul li {
 	float: left;
-	/* Width can be changed to 50%, 33% or 25% to stack child boards in 2, 3, or 4 columns. */
 	width: 50%;
-	/* If stacking child boards in columns, suggest using only border: none; here. */
 	border: none;
-	/*border-left: 1px solid #444;*/
 	margin: 0 0 0 -1px;
 	padding: 0 0.6em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 .forum_category li.divider {
 	display: none;
 }
-/*.forum_category div.icon, .forum_category div.info,.forum_category div.stats,.forum_category div.lastpost {background: none;}*/
-.forum_category li div, .forum_category li div li {background: none;}
+.forum_category li div, .forum_category li div li {
+	background: none;
+}
+
 /* Extras */
 div.category_wrapper {
-	/*border: 1px solid #82705B;
-	border-radius: 6px;
-	padding: 2px 1px 1px 1px;
-	margin-bottom: 0.3em;*/
-	/*box-shadow: 0 2px 6px #000;*/
 }
-/*
-.forum_category {
-	/*margin: 2px 0 0 0;
-	padding-top: 1px;
-	border-top: 1px solid #82705B;
-}
-.forum_category li.subheader{
-	background: #1a1a1a url(../images/theme/main_block.png) no-repeat -10px -380px;
-}
-.forum_category li.subheader div {
-	background: none;
-	font-size: 1em;
-	color: #666;
-	margin: 0 0 -0.2em 0;
-	padding: 0.4em 1em 0 1em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-.forum_category li.subheader div.icon {
-	padding: 0.8em 1em 0 1em;
-}
-.forum_category li.subheader div.info {
-	width: 44%;
-}
-.forum_category li.subheader div.stats {
-	margin-top: 0;
-	padding: 0 0 0 0;
-	width: 21%;
-}
-.forum_category li.subheader div.stats ul {
-	margin: 0;
-	padding: 0;
-}
-.forum_category li.subheader div.stats li{
-	float: left;
-	font-size: 1em;
-	padding-top: 0.4em;
-	margin-top: 0;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-.forum_category li.subheader div.stats li.stats {
-	/*display: none;
-	float: none;
-	width: 100%;
-	text-align: center;
-}
-.forum_category li.subheader div.stats li.posts {
-	/*width: 58%;
-	display: none;
-}
-.forum_category li.subheader div.stats li.topics{
-	/*width: 42%;
-	display: none;
-}
-.forum_category li.subheader div.lastpost {
-	width: 28.5%;
-}
-.forum_category div.info {
-	width: 44%;
-	border-right: none;
-}
-.forum_category div.stats {
-	width: 21%;
-	padding: 0 0 99em 0;
-	float: right;
-	border: none;
-}
-.forum_category div.stats ul {
-	margin: 0;
-	padding: 0;
-}
-.forum_category div.stats li {
-	float: left;
-	width: 58%;
-	margin: 0 0 -98.5em 0;
-	padding: 1em 0 99em 0;
-	text-align: center;
-	border: none;
-	border-left: 2px solid #000;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-	font-size: 1.167em;
-	font-weight: bold;
-}
-.forum_category div.stats li.topics {
-	width: 42%;
-}
-.forum_category div.stats li span{
-	display: block;
-	font-size: 0.75em;
-	font-weight: normal;
-	/*display: none;
-}
-.forum_category div.lastpost h5 {
-	display: none;
-}
-.forum_category div.children ul li {
-	width: 33%;
-	border: none;
-}
-.forum_category li.divider {
-	height: 0.7em;
-	border-top: 1px;
-	border-radius: 0 0 5px 5px;
-	background: #0a0a0a;
-}
-/* End extras */
-/* More extras. Yay!
-.forum_category li{
-	position: relative;
-}
-.forum_category div.info {
-	width: 61.5%;
-	padding: 0.8em 1em 99em 1em;
-}
-.forum_category div.info a {
-	font-size: 1.1em;
-}
-.forum_category div.info p {
-	margin: 0;
-	padding: 0 0 0.7em 0;
-}
-.forum_category div.info div.moderators {
-	margin: -0.8em 0 0 0;
-	padding: 0 0 0.7em 0;
-}
-.forum_category div.stats {
-	clear: both;
-	float: left;
-	width: 61.5%;
-	margin: 0 0 -98.5em 6.5%;
-	padding: 0 1em 99em 1.1em;
-	border: none;
-	background: none;
-}
-.forum_category div.stats ul {
-	padding: 0;
-	margin: -1em 0 0 -0.5em;
-	overflow: hidden;
-}
-.forum_category div.stats ul li {
-	float: left;
-	padding: 0 1em 0 0.5em;
-	margin-left: -0.2em;
-	border: none;
-	border-left: 2px solid #444;
-	background: none;
-	font-size:0.9em;
-	line-height: 1.167em;
-	font-weight: bold;
-	color: #444;
-}
-.forum_category div.lastpost {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 32%;
-	padding: 1.1em 1em 99em 1.167em;
-}
-.forum_category div.children {
-	position: relative;
-	bottom: 0;
-	width: 93.6%;
-	border-right: none;
-}
-.forum_category div.children ul li {
-	width: 50%;
-	border: none;
-}
-/* End more extras. Yay! */
-/* END TABLE-LESS BOARD INDEX TESTING */
-/*====================================*/
 
 /* Start index.template.php */
 /* Set a background colour so footer looks good when page has little content. */
@@ -3584,7 +3364,7 @@ html {
 }
 /* Set a background colour to hide margin between main content and footer. */
 body {
-	background: /*#eaeff3*/ #99adbe;
+	background: #99adbe;
 	padding: 0 0 0 0;
 }
 /* Start top bar. */
@@ -3788,7 +3568,6 @@ h1.forumtitle a:hover {
 }
 #guest_form .info {
 	padding: 4px 0 ;
-	
 }
 /* End login form - End news section. */
 #main_menu {
@@ -3798,7 +3577,6 @@ h1.forumtitle a:hover {
 	border-bottom: 1 px solid rgba(0,0,0,0.9);
 	margin: 0;
 	padding: 0;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	position: absolute;
 	bottom: -2em;
 	z-index: 5;
@@ -3809,12 +3587,11 @@ h1.forumtitle a:hover {
 	padding: 13px 13px 8px 13px;
 	width: 100%;
 	font-size: 1.083em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 /* End header - Start main content. */
 #content_section {
 	padding: 0 0 0 0;
-	background: /*#eaeff3*/ /*#f3f3f3*//*#A1B6C8*/#99adbe /*url(../images/backdrop-new.png) 0 0 repeat-x*/;
+	background: #99adbe;
 }
 #content_section div.wrapper {
 	padding: 3em 0 0 0;
@@ -3896,9 +3673,9 @@ ul.unread_links {
 }
 /* End go-to-top-of-page icon - End footer. */
 /* End index.template.php - Start BoardIndex.template.php */
-
-
 /* End BoardIndex.template.php */
+
+
 /*******************************************************/
 /* ODD BITZ WOT R WIP */
 /*====================*/
@@ -3911,16 +3688,15 @@ ul.unread_links {
 #display_lower_buttons {
 	float: left;
 	width: 100%;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	margin: 2px 0 0 0;
 	padding: 10px 5px;
 	border-radius: 0 0 4px 4px;
 	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
-#display_lower_buttons .button_strip_reply{
+#display_lower_buttons .button_strip_reply {
 	margin-right: 8px;
 }
-#display_lower_buttons .first{
+#display_lower_buttons .first {
 	margin-left: 5px;
 }
 #display_lower_buttons .navigate_section {
@@ -3934,7 +3710,7 @@ ul.unread_links {
 	margin: 0 14px;
 	background: none;
 }
-#display_lower_buttons .navigate_section ul li{
+#display_lower_buttons .navigate_section ul li {
 	float: left;
 	padding: 0 2px;
 	list-style: none;
@@ -3956,10 +3732,10 @@ ul.unread_links {
 #admin_menu > .dropmenu > li, #adm_submenus > .dropmenu > li {
 	margin: 0 0 0 0;
 }
-#admin_menu .dropmenu li li a, #adm_submenus .dropmenu li li a{
+#admin_menu .dropmenu li li a, #adm_submenus .dropmenu li li a {
 	font-size: 0.917em;
 }
-#admin_menu > .dropmenu > li > a, #adm_submenus > .dropmenu > li > a, .quickbuttons > li > a{
+#admin_menu > .dropmenu > li > a, #adm_submenus > .dropmenu > li > a, .quickbuttons > li > a {
 	color: #333;
 	background: #fff;
 	margin: 0 2px 0 0;
@@ -3973,7 +3749,7 @@ ul.unread_links {
 	text-shadow: none;
 	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
 }
-#admin_menu > .dropmenu > li > a.active, #adm_submenus > .dropmenu > li > a.active{
+#admin_menu > .dropmenu > li > a.active, #adm_submenus > .dropmenu > li > a.active {
 	color: #12304c;
 	background: #f4f4f4;
 	padding: 2px 8px 0 9px;
@@ -4004,24 +3780,15 @@ ul.unread_links {
 }
 /************************************************/
 /* The quick buttons */
-/*div.quickbuttons_wrap {
-	width: 100%;
-	float: left;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0; border: 1px solid red;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}*/
-
 ul.quickbuttons {
 	float: left;
 	width: 100%;
 	margin: 0 0 0 0;
-	padding: 0 0 0 140px; /*border-top: 1px solid #ccc;*/
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	padding: 0 0 0 140px;
 	font: bold 0.833em verdana, arial, sans-serif;
 }
 ul.quickbuttons li, .quickbuttons li:hover, .quickbuttons li.sfhover {
-	float: /*left*/ right;
+	float: right;
 	margin: 2px 0 2px 2px;
 	padding: 0 0 0 0;
 }
@@ -4037,43 +3804,42 @@ ul.quickbuttons li.quote_button {
 }
 .quickbuttons li.moderation_button {
 	position: relative;
-	/*width: 160px;
-	text-align: center;*/
 }
 .quickbuttons li.modify_inline {
 	padding: 6px 22px 6px 4px;
-			background: #fff;
-			border: 1px solid #bbb;
-			border-bottom: 1px solid #aaa;
-			border-radius: 2px;
-			/*padding: 2px 6px 2px 6px;
-			display: block;*/ position: relative;
-			box-shadow: /*0 2px 6px rgba(244,247,255,0.8) inset,*/ 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
+	background: #fff;
+	border: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 2px;
+	position: relative;
+	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
 }
 .quickbuttons li.modify_inline:hover {
 	padding: 7px 22px 6px 5px;
-				background: #f4f4f4;
-				border-top: none;
-				border-left: none;
-				border-right: 1px solid #ccc; 
-				border-bottom: 1px solid #ccc; 
-				box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+	background: #f4f4f4;
+	border-top: none;
+	border-left: none;
+	border-right: 1px solid #ccc; 
+	border-bottom: 1px solid #ccc; 
+	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
 }
 .quickbuttons li.modify_inline img {
-	margin: 0 0 0 0; position: absolute; top: 1px; right: 0; padding: 2px 4px 2px 25px;
+	margin: 0 0 0 0;
+	position: absolute;
+	top: 1px;
+	right: 0;
+	padding: 2px 4px 2px 25px;
 }
 .quickbuttons li.modify_inline:hover img {
-	right: 0; padding: 3px 4px 4px 25px;
+	right: 0;
+	padding: 3px 4px 4px 25px;
 }
 ul.quickbuttons li a {
 	background: #fff;
 	margin: 0 0 0 0;
 	padding: 2px 6px 2px 6px;
 	display: block;
-	box-shadow: /*0 2px 6px rgba(244,247,255,0.8) inset,*/ 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
-}
-ul.quickbuttons li.quote_button a {
-	text-transform: uppercase;
+	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);
 }
 .quickbuttons li:hover a, .quickbuttons li.sfhover a {
 	padding: 3px 6px 2px 7px;
@@ -4114,10 +3880,10 @@ ul.quickbuttons li.quote_button:hover a {
 	border: none;
 	padding: 0 5px;
 	font-size: 1em;
-	/*font-weight: bold;*/ font-weight: normal;
+	font-weight: normal;
 	line-height: 2em;
 	width: 13em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+
 }
 /* Note: The next declaration is for keyboard access with js disabled. */
 .quickbuttons ul a:focus {
@@ -4148,9 +3914,6 @@ ul.quickbuttons li.quote_button:hover a {
 	text-decoration: none;
 }
 .quickbuttons li li:hover, .quickbuttons li.sfhover li:hover {
-	/*border-top: 1px solid #999;
-	border-bottom: 1px solid #888;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.25);*/
 }
 /* Reposition Level 2 submenu as visible on hover. */
 .quickbuttons li:hover ul, .quickbuttons li.sfhover ul, .poster li:hover ul, .poster li.sfhover ul {
@@ -4167,7 +3930,7 @@ ul.quickbuttons li.quote_button:hover a {
 .poster {
 	min-height: 6em;
 	width: 136px;
-	margin: 0px /*10px*/2px -2.55em /*3px*/0;
+	margin: 0px 2px -2.55em 0;
 	word-wrap: break-word;
 }
 .poster li.title, .poster li.online_button , .poster li.stars {
@@ -4177,22 +3940,11 @@ ul.quickbuttons li.quote_button:hover a {
 	margin: 0 0 0 0;
 }
 .poster li.membergroup {
-	/*background: /*#63819F*/ /*#fff;*/
-	/*color: white;*/
 	font-weight: bold;
 	padding: 0px 0 0px 0; max-width: 136px;
-	/*border-radius: 0 0 2px 2px;	border: 1px solid #bbb;
-	text-shadow: none;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.15);*/
 }
 .poster li.stars {
-	padding: /*4px 5px 0 5px*/2px 5px 0 5px;
-	/*border: 1px solid #bbb;
-	border-bottom: none;
-	border-radius: 2px 2px 0 0;
-	background: #fff;
-	text-shadow: none;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.15);*/
+	padding: 2px 5px 0 5px;
 }
 .poster li.avatar {
 	padding: 0;
@@ -4204,12 +3956,7 @@ ul.quickbuttons li.quote_button:hover a {
 	padding: 5px;
 	overflow: hidden;
 	display: block;
-	/*background: #fff;
-	border: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;*/
 	border-radius: 2px; border: 1px solid rgba(0,0,0,0);
-	/*text-shadow: none;
-	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);*/
 }
 .poster li.avatar a.offline img {
 	opacity: 0.5;
@@ -4235,7 +3982,6 @@ ul.quickbuttons li.quote_button:hover a {
 .poster li.sfhover ul li {
 	float: left;
 	width: 100%;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	padding: 0 8px 0 8px;
 	margin: 0 0 0 0;
 }
@@ -4262,33 +4008,18 @@ ul.quickbuttons li.quote_button:hover a {
 	padding: 0 0 0 0;
 	width: 136px;
 }
-/*.poster li.ignore_button {
-	margin: 0.5em 0 0 2.7em;
-	font-size: 0.917em;
-	padding: 0 0 0 0;
-	width: 125px;
-	display: block;
-	border-radius: 4px;
-	text-align: center;
-}*/
 .poster li.online_button a {
 	display: block;
 	color: #333;
-	/*background: #fff;*/
 	margin: 0 0 0 0;
-	padding: /*5px 0 4px 0*/1px 0 0px 0;
-	/*border: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;*/
+	padding: 1px 0 0px 0;
 	border-radius: 2px; border: 1px solid rgba(0,0,0,0);
-	/*overflow: visible;
-	text-shadow: none;
-	box-shadow: 0 -3px 6px rgba(0,0,0,0.07) inset, 1px 1px 2px rgba(0,0,0,0.15);*/
 }
 .poster li.online_button a:hover {
 	color: #222;
 	text-decoration: none;
 	background: #f4f4f4;
-	padding: /*6px 0 4px 0*/2px 0 0px 0;
+	padding: 2px 0 0px 0;
 	border-top: none;
 	border-left: none;
 	border-right: 1px solid #ccc; 
@@ -4303,6 +4034,13 @@ ul.quickbuttons li.quote_button:hover a {
 	padding: 1px 4px;
 }
 /*******************************************************/
-.keyinfo {padding: 4px 6px 0 6px;}
-.keyinfo h5{margin: -5px 40px -4px 125px; padding: 0 9px 0 2px; border-radius: 2px 2px 0 0;}
-.keyinfo a, .keyinfo strong{}
+.keyinfo {
+	padding: 4px 6px 0 6px;
+}
+.keyinfo h5 { 
+	margin: -5px 40px -4px 125px;
+	padding: 0 9px 0 2px;
+	border-radius: 2px 2px 0 0;
+}
+.keyinfo a, .keyinfo strong{
+}

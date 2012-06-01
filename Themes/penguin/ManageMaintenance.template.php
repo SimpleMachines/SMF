@@ -18,14 +18,14 @@ function template_maintain_database()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="infobox">
+			<div class="maintenance_finished">
 				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 			</div>';
 
 	echo '
 	<div id="manage_maintenance">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['maintain_sub_database'], '', $txt['permitgroups_maintenance'], '</h3>
+			<h3 class="catbg">', $txt['maintain_sub_database'], ' ', $txt['permitgroups_maintenance'], '</h3>
 		</div>
 		<div class="windowbg2">
 			<div class="content">
@@ -35,14 +35,16 @@ function template_maintain_database()
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
-				</form><hr />
+				</form>
+				<hr />
 			</div>
 			<div class="content">
 				<h3 class="double_height">
 					<a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '
 				</h3>
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=backup" method="post" accept-charset="', $context['character_set'], '">
-					<p class="floatleft">', $txt['maintain_backup_info'], '</p>';
+					<p class="floatleft">', $txt['maintain_backup_info'], '</p>
+					<br classs="clear" />';
 
 	if ($db_type == 'sqlite')
 		echo '
@@ -51,14 +53,27 @@ function template_maintain_database()
 						<input type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" class="button_submit" />
 					</p>';
 	else
+	{
+		if ($context['safe_mode_enable'])
+			echo '
+					<div class="errorbox">', $txt['safe_mode_enabled'], '</div>';
+		else
+			echo '
+					<div class="', $context['suggested_method'] == 'use_external_tool' || $context['use_maintenance'] != 0 ? 'errorbox' : 'noticebox', '">
+						', $txt[$context['suggested_method']],
+						$context['use_maintenance'] != 0 ? '<br />' . $txt['enable_maintenance' . $context['use_maintenance']] : '',
+					'</div>';
 		echo '
-					<p class="floatleft clear">
+					<p>
 						<label for="struct"><input type="checkbox" name="struct" id="struct" onclick="document.getElementById(\'submitDump\').disabled = !document.getElementById(\'struct\').checked &amp;&amp; !document.getElementById(\'data\').checked;" class="input_check" checked="checked" /> ', $txt['maintain_backup_struct'], '</label><br />
 						<label for="data"><input type="checkbox" name="data" id="data" onclick="document.getElementById(\'submitDump\').disabled = !document.getElementById(\'struct\').checked &amp;&amp; !document.getElementById(\'data\').checked;" checked="checked" class="input_check" /> ', $txt['maintain_backup_data'], '</label><br />
-						<label for="compress"><input type="checkbox" name="compress" id="compress" value="gzip" checked="checked" class="input_check" /> ', $txt['maintain_backup_gz'], '</label>
+						<label for="compress"><input type="checkbox" name="compress" id="compress" value="gzip"', $context['suggested_method'] == 'zipped_file' ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['maintain_backup_gz'], '</label>
 					</p>
-					<input type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" onclick="return document.getElementById(\'struct\').checked || document.getElementById(\'data\').checked;" class="button_submit" />';
-
+					<p>
+						<input ', $context['use_maintenance'] == 2 ? 'disabled="disabled" ' : '', 'type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" onclick="return document.getElementById(\'struct\').checked || document.getElementById(\'data\').checked;" class="button_submit" />
+						<br class="clear_right" />
+					</p>';
+	}
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />

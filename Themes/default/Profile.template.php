@@ -455,7 +455,7 @@ function template_showPosts()
 		{
 			echo '
 				<tr class="', $attachment['approved'] ? ($alternate ? 'windowbg' : 'windowbg2') : 'approvebg', '">
-					<td><a href="', $scripturl, '?action=dlattach;topic=', $attachment['topic'], '.0;attach=', $attachment['id'], '">', $attachment['filename'], '</a>', !$attachment['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : '', '</td>
+					<td><a href="', $scripturl, '?action=dlattach;topic=', $attachment['topic'], '.0;attach=', $attachment['id'], '">',	$attachment['filename'], '</a>', !$attachment['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : '', '</td>
 					<td align="center">', $attachment['downloads'], '</td>
 					<td><a href="', $scripturl, '?topic=', $attachment['topic'], '.msg', $attachment['msg'], '#msg', $attachment['msg'], '" rel="nofollow">', $attachment['subject'], '</a></td>
 					<td>', $attachment['posted'], '</td>
@@ -487,10 +487,10 @@ function template_showPosts()
 function template_editBuddies()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
-	
+
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 	$buddy_fields = array('icq', 'aim', 'yim', 'msn');
-	
+
 	echo '
 		<div class="title_bar">
 			<h3 class="titlebg">
@@ -757,7 +757,7 @@ function template_trackActivity()
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
-		<br />';
+			<br class="clear" />';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -792,7 +792,7 @@ function template_trackIP()
 		</div>
 		<span class="lowerframe"><span></span></span>
 	</div>
-	<br />';
+	<br class="clear" />';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
 	if ($context['single_ip'])
@@ -811,7 +811,7 @@ function template_trackIP()
 				</div>
 				<span class="botslice"><span></span></span>
 			</div>
-		<br />';
+		<br class="clear" />';
 	}
 
 	// The second table lists all the members who have been logged as using this IP address.
