@@ -698,7 +698,8 @@ function template_pick()
 						</li>
 					</ul>
 				</div>
-			</div>';
+			</div>
+			<br class="clear" />';
 
 		if (!empty($theme['variants']))
 		{
