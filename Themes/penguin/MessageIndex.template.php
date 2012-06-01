@@ -308,7 +308,7 @@ function template_main()
 
 			echo '
 							<span style="font-size: 1.083em; white-space: pre;">', $topic['replies'], ' ', $txt['replies'], '&nbsp;-&nbsp;', $topic['views'], ' ', $txt['views'], '</span><br />
-							', $topic['last_post']['time'], '&nbsp;', $txt['by'], '&nbsp;<strong style="white-space: pre;">', $topic['last_post']['member']['link'], '</strong>
+							', $topic['last_post']['time'], '&nbsp;', $txt['by'], '&nbsp;<span style="white-space: pre;"><strong>', $topic['last_post']['member']['link'], '</strong></span>
 						</div>';
 			//echo '
 			//			<div style="float: left; width: 100%; height: 0.6em; clear: both; margin: 0 0 0 0; padding: 2px 10px; overflow: visible;"><small style="font-weight: bold; display: block; margin: -8px 0 0 0; padding-right: 56px;" id="pages' . $topic['first_post']['id'] . '">', $topic['pages'], '</small></div>';
@@ -479,14 +479,23 @@ function template_main()
 			// add/remove a class element to keep track of the image status
 			$("#Child_swap").toggleClass("on");
 		});
-	});
 
-	$(document).ready(function(){
 		$("td.stickybg, td.stickybg2").show();
 		$("#Sticky_toggle").show();
 
 		$("#Sticky_toggle").click(function(){
 			$("td.stickybg, td.stickybg2").toggle();
+			
+			// swap the arrow up / down images
+			var sCurrent_image = $("#Sticky_toggle").attr("src");
+			if ($("#Sticky_toggle").attr("class") == "icon floatright") {
+				$("#Sticky_toggle").attr("src", sCurrent_image.replace("arrow", "arrow-down"));
+			} else {
+				$("#Sticky_toggle").attr("src", sCurrent_image.replace("arrow-down", "arrow"));
+			}
+			
+			// add/remove a class element to keep track of the image status
+			$("#Sticky_toggle").toggleClass("on");
 		});
 	});
 ';

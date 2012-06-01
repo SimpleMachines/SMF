@@ -490,7 +490,7 @@ function template_main()
 		if ($context['can_moderate_forum'])
 		{
 			echo '
-									<li class="moderation_button"><a href="#">More..</a>
+									<li class="moderation_button"><a href="#">', $txt['post_options'], '</a>
 										<ul>';
 
 									// Maybe they want to report this post to the moderator(s)?
@@ -803,23 +803,17 @@ function template_main()
 	echo '
 
 		$(document).ready(function(){
-				$("#quickReplyOptions").hide();
-				$("#QuickReply_swap").show();
+			$("#quickReplyOptions").hide();
+			$("#QuickReply_swap").show();
 
 			$("#QuickReply_swap").click(function(){
-			$("#quickReplyOptions").slideToggle();
+				$("#quickReplyOptions").slideToggle();
 			});
-		});
 
-		$(document).ready(function() { 
-			$("a.topic_reply_title").bt(jQuery.bt.options = {positions: "top, bottom"})
-		});
-
-		$(document).ready(function() { 
 			$("li a.quote_button, li a.modify_button, li a.modify_inline, a.topic_reply_title").bt(jQuery.bt.options = {positions: "top, bottom"});
 		});
 
-				// ]]></script>';
+		// ]]></script>';
 }
 
 ?>

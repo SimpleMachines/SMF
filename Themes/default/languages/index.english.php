@@ -412,6 +412,10 @@ $txt['code'] = 'Code';
 $txt['code_select'] = '[Select]';
 $txt['quote_from'] = 'Quote from';
 $txt['quote'] = 'Quote';
+$txt['fulledit'] = 'Full&nbsp;edit';
+$txt['edit'] = 'Edit';
+$txt['quick_edit'] = 'Quick Edit';
+$txt['post_options'] = 'More...';
 
 $txt['merge_to_topic_id'] = 'ID of target topic';
 $txt['split'] = 'Split Topic';

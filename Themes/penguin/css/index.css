@@ -204,6 +204,7 @@ span.page_last a.navPages {
 .lastpost_stuff {
 	float: right;
 	margin: 0 7px 0 0;
+	word-wrap: break-word;
 }
 
 /* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
@@ -565,7 +566,7 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 	background: #cacdd3;
 }
 div.windowbg, div.windowbg2, div.windowbg3, #preview_body {
-	overflow: auto;
+	/*overflow: auto;*/
 	float: left; 
 	width: 100%; 
 	padding: 6px;
