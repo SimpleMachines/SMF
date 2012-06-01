@@ -1750,6 +1750,8 @@ p#whoisviewing {
 .poster {
 	float: left;
 	width: 15em;
+	word-wrap: break-word;
+	overflow: hidden;
 }
 .postarea, .moderatorbar {
 	margin: 0 0 0 16em;

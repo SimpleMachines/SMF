@@ -1465,7 +1465,7 @@ function create_control_richedit($editorOptions)
 		if ($context['show_spellchecking'])
 		{
 			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js"></script>';
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js?alp21"></script>';
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
