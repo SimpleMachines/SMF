@@ -525,6 +525,149 @@ function showAttachments($memID)
 	if (empty($boardsAllowed))
 		$boardsAllowed = array(-1);
 
+	require_once($sourcedir . '/Subs-List.php');
+
+	// This is all the information required for a group listing.
+	$listOptions = array(
+		'id' => 'attachments',
+		'width' => '100%',
+		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'no_items_label' => $txt['show_attachments_none'],
+		'base_href' => $scripturl . '?action=profile;area=showposts;sa=attach;sort=filename;u=' . $memID,
+		'default_sort_col' => 'filename',
+		'get_items' => array(
+			'function' => 'list_getAttachments',
+			'params' => array(
+				$boardsAllowed,
+				$memID,
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getNumAttachments',
+			'params' => array(
+				$boardsAllowed,
+				$memID,
+			),
+		),
+		'data_check' => array(
+			'class' => create_function('$data', '
+				return $data[\'approved\'] ? \'\' : \'approvebg\';
+			')
+		),
+		'columns' => array(
+			'filename' => array(
+				'header' => array(
+					'value' => $txt['show_attach_downloads'],
+					'class' => 'lefttext',
+					'style' => 'width: 25%',
+				),
+				'data' => array(
+					'db' => 'filename',
+				),
+				'sort' => array(
+					'default' => 'a.filename',
+					'reverse' => 'a.filename DESC',
+				),
+			),
+			'downloads' => array(
+				'header' => array(
+					'value' => $txt['show_attach_downloads'],
+					'style' => 'width: 12%',
+				),
+				'data' => array(
+					'db' => 'downloads',
+				),
+				'sort' => array(
+					'default' => 'a.downloads',
+					'reverse' => 'a.downloads DESC',
+				),
+			),
+			'subject' => array(
+				'header' => array(
+					'value' => $txt['message'],
+					'class' => 'lefttext',
+					'style' => 'width: 30%',
+				),
+				'data' => array(
+					'db' => 'subject',
+				),
+				'sort' => array(
+					'default' => 'm.subject',
+					'reverse' => 'm.subject DESC',
+				),
+			),
+			'posted' => array(
+				'header' => array(
+					'value' => $txt['show_attach_posted'],
+					'class' => 'lefttext',
+				),
+				'data' => array(
+					'db' => 'posted',
+				),
+			),
+		),
+	);
+
+	// Create the request list.
+	createList($listOptions);
+
+}
+
+function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $memID)
+{
+	global $smcFunc, $board, $modSettings, $context;
+
+	// Retrieve some attachments.
+	$request = $smcFunc['db_query']('', '
+		SELECT a.id_attach, a.id_msg, a.filename, a.downloads, a.approved, m.id_msg, m.id_topic,
+			m.id_board, m.poster_time, m.subject, b.name
+		FROM {db_prefix}attachments AS a
+			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+		WHERE a.attachment_type = {int:attachment_type}
+			AND a.id_msg != {int:no_message}
+			AND m.id_member = {int:current_member}' . (!empty($board) ? '
+			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
+			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
+			AND m.approved = {int:is_approved}') . '
+		ORDER BY {raw:sort}
+		LIMIT {int:offset}, {int:limit}',
+		array(
+			'boards_list' => $boardsAllowed,
+			'attachment_type' => 0,
+			'no_message' => 0,
+			'current_member' => $memID,
+			'is_approved' => 1,
+			'board' => $board,
+			'sort' => $sort,
+			'offset' => $start,
+			'limit' => $items_per_page,
+		)
+	);
+	$attachments = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$attachments[] = array(
+			'id' => $row['id_attach'],
+			'filename' => $row['filename'],
+			'downloads' => $row['downloads'],
+			'subject' => censorText($row['subject']),
+			'posted' => timeformat($row['poster_time']),
+			'msg' => $row['id_msg'],
+			'topic' => $row['id_topic'],
+			'board' => $row['id_board'],
+			'board_name' => $row['name'],
+			'approved' => $row['approved'],
+		);
+
+	$smcFunc['db_free_result']($request);
+
+	return $attachments;
+}
+
+function list_getNumAttachments($boardsAllowed, $memID)
+{
+	global $board, $smcFunc, $modSettings, $context;
+
 	// Get the total number of attachments they have posted.
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -549,69 +692,7 @@ function showAttachments($memID)
 	list ($attachCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$maxIndex = (int) $modSettings['defaultMaxMessages'];
-
-	// What about ordering?
-	$sortTypes = array(
-		'filename' => 'a.filename',
-		'downloads' => 'a.downloads',
-		'subject' => 'm.subject',
-		'posted' => 'm.poster_time',
-	);
-	$context['sort_order'] = isset($_GET['sort']) && isset($sortTypes[$_GET['sort']]) ? $_GET['sort'] : 'posted';
-	$context['sort_direction'] = isset($_GET['asc']) ? 'up' : 'down';
-
-	$sort = $sortTypes[$context['sort_order']];
-
-	// Let's get ourselves a lovely page index.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=profile;u=' . $memID . ';area=showposts;sa=attach;sort=' . $context['sort_order'] . ($context['sort_direction'] == 'up' ? ';asc' : ''), $context['start'], $attachCount, $maxIndex);
-
-	// Retrieve some attachments.
-	$request = $smcFunc['db_query']('', '
-		SELECT a.id_attach, a.id_msg, a.filename, a.downloads, a.approved, m.id_msg, m.id_topic,
-			m.id_board, m.poster_time, m.subject, b.name
-		FROM {db_prefix}attachments AS a
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-		WHERE a.attachment_type = {int:attachment_type}
-			AND a.id_msg != {int:no_message}
-			AND m.id_member = {int:current_member}' . (!empty($board) ? '
-			AND b.id_board = {int:board}' : '') . (!in_array(0, $boardsAllowed) ? '
-			AND b.id_board IN ({array_int:boards_list})' : '') . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
-			AND m.approved = {int:is_approved}') . '
-		ORDER BY {raw:sort}
-		LIMIT {int:offset}, {int:limit}',
-		array(
-			'boards_list' => $boardsAllowed,
-			'attachment_type' => 0,
-			'no_message' => 0,
-			'current_member' => $memID,
-			'is_approved' => 1,
-			'board' => $board,
-			'sort' => $sort . ' ' . ($context['sort_direction'] == 'down' ? 'DESC' : 'ASC'),
-			'offset' => $context['start'],
-			'limit' => $maxIndex,
-		)
-	);
-	$context['attachments'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$row['subject'] = censorText($row['subject']);
-
-		$context['attachments'][] = array(
-			'id' => $row['id_attach'],
-			'filename' => $row['filename'],
-			'downloads' => $row['downloads'],
-			'subject' => $row['subject'],
-			'posted' => timeformat($row['poster_time']),
-			'msg' => $row['id_msg'],
-			'topic' => $row['id_topic'],
-			'board' => $row['id_board'],
-			'board_name' => $row['name'],
-			'approved' => $row['approved'],
-		);
-	}
-	$smcFunc['db_free_result']($request);
+	return $attachCount;
 }
 
 /**

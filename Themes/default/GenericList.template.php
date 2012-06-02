@@ -125,9 +125,9 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['rows'] as $id => $row)
 		{
 			echo '
-				<tr class="windowbg', $alternate ? '2' : '', '" id="list_', $list_id, '_', $id, '">';
+				<tr class="windowbg', $alternate ? '2' : '', $row['class'], '"', $row['style'], ' id="list_', $list_id, '_', $id, '">';
 
-			foreach ($row as $row_data)
+			foreach ($row['data'] as $row_data)
 				echo '
 					<td', empty($row_data['class']) ? '' : ' class="' . $row_data['class'] . '"', empty($row_data['style']) ? '' : ' style="' . $row_data['style'] . '"', '>', $row_data['value'], '</td>';
 
