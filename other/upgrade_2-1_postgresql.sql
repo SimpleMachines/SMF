@@ -232,3 +232,13 @@ upgrade_query("
 ---}
 ---#
 
+/******************************************************************************/
+--- Name changes
+/******************************************************************************/
+---# Altering the membergroup stars to icons
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}membergroups
+	CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT ''");
+---}
+---#

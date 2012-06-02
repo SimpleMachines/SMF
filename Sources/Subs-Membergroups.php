@@ -649,7 +649,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 
 	// Get the basic group data.
 	$request = $smcFunc['db_query']('substring_membergroups', '
-		SELECT id_group, group_name, min_posts, online_color, stars, 0 AS num_members
+		SELECT id_group, group_name, min_posts, online_color, icons, 0 AS num_members
 		FROM {db_prefix}membergroups
 		WHERE min_posts ' . ($membergroup_type === 'post_count' ? '!=' : '=') . ' -1' . (allowedTo('admin_forum') ? '' : '
 			AND group_type != {int:is_protected}') . '
@@ -665,7 +665,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			'group_name' => $row['group_name'],
 			'min_posts' => $row['min_posts'],
 			'online_color' => $row['online_color'],
-			'stars' => $row['stars'],
+			'icons' => $row['icons'],
 			'num_members' => $row['num_members'],
 		);
 	$smcFunc['db_free_result']($request);

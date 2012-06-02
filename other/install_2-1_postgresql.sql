@@ -1561,7 +1561,7 @@ CREATE TABLE {$db_prefix}membergroups (
   online_color varchar(20) NOT NULL default '',
   min_posts int NOT NULL default '-1',
   max_messages smallint NOT NULL default '0',
-  stars varchar(255) NOT NULL,
+  icons varchar(255) NOT NULL,
   group_type smallint NOT NULL default '0',
   hidden smallint NOT NULL default '0',
   id_parent smallint NOT NULL default '-2',
@@ -1578,14 +1578,14 @@ CREATE INDEX {$db_prefix}membergroups_min_posts ON {$db_prefix}membergroups (min
 # Dumping data for table `membergroups`
 #
 
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars, group_type) VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#staradmin.png', 1);
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#stargmod.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (3, '{$default_moderator_group}', '', '', -1, '5#starmod.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (4, '{$default_newbie_group}', '', '', 0, '1#star.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (5, '{$default_junior_group}', '', '', 50, '2#star.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (6, '{$default_full_group}', '', '', 100, '3#star.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (7, '{$default_senior_group}', '', '', 250, '4#star.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, stars) VALUES (8, '{$default_hero_group}', '', '', 500, '5#star.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons, group_type) VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1);
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (4, '{$default_newbie_group}', '', '', 0, '1#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (5, '{$default_junior_group}', '', '', 50, '2#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (6, '{$default_full_group}', '', '', 100, '3#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (7, '{$default_senior_group}', '', '', 250, '4#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (8, '{$default_hero_group}', '', '', 500, '5#icon.png');
 # --------------------------------------------------------
 
 #

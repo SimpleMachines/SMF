@@ -3927,7 +3927,7 @@ ul.quickbuttons li.quote_button:hover a {
 	margin: 0px 2px -2.55em 0;
 	word-wrap: break-word;
 }
-.poster li.title, .poster li.online_button , .poster li.stars {
+.poster li.title, .poster li.online_button , .poster li.icons {
 	margin: 2px 0 0 0;
 }
 .poster li.avatar {
@@ -3937,7 +3937,7 @@ ul.quickbuttons li.quote_button:hover a {
 	font-weight: bold;
 	padding: 0px 0 0px 0; max-width: 136px;
 }
-.poster li.stars {
+.poster li.icons {
 	padding: 2px 5px 0 5px;
 }
 .poster li.avatar {

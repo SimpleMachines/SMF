@@ -127,32 +127,32 @@ function MembergroupIndex()
 					'reverse' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, group_name DESC',
 				),
 			),
-			'stars' => array(
+			'icons' => array(
 				'header' => array(
-					'value' => $txt['membergroups_stars'],
+					'value' => $txt['membergroups_icons'],
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
 						global $settings;
 
-						$stars = explode(\'#\', $rowData[\'stars\']);
+						$icons = explode(\'#\', $rowData[\'icons\']);
 
-						// In case no stars are setup, return with nothing
-						if (empty($stars[0]) || empty($stars[1]))
+						// In case no icons are setup, return with nothing
+						if (empty($icons[0]) || empty($icons[1]))
 							return \'\';
 
 						// Otherwise repeat the image a given number of times.
 						else
 						{
-							$image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $stars[1]);
-							return str_repeat($image, $stars[0]);
+							$image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $icons[1]);
+							return str_repeat($image, $icons[0]);
 						}
 					'),
 
 				),
 				'sort' => array(
-					'default' => 'stars',
-					'reverse' => 'stars DESC',
+					'default' => 'icons',
+					'reverse' => 'icons DESC',
 				)
 			),
 			'members' => array(
@@ -236,28 +236,28 @@ function MembergroupIndex()
 					'reverse' => 'group_name DESC',
 				),
 			),
-			'stars' => array(
+			'icons' => array(
 				'header' => array(
-					'value' => $txt['membergroups_stars'],
+					'value' => $txt['membergroups_icons'],
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
 						global $settings;
 
-						$stars = explode(\'#\', $rowData[\'stars\']);
+						$icons = explode(\'#\', $rowData[\'icons\']);
 
-						if (empty($stars[0]) || empty($stars[1]))
+						if (empty($icons[0]) || empty($icons[1]))
 							return \'\';
 						else
 						{
-							$star_image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $stars[1]);
-							return str_repeat($star_image, $stars[0]);
+							$icon_image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $icons[1]);
+							return str_repeat($icon_image, $icons[0]);
 						}
 					'),
 				),
 				'sort' => array(
-					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, stars',
-					'reverse' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, stars DESC',
+					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, icons',
+					'reverse' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, icons DESC',
 				)
 			),
 			'members' => array(
@@ -352,7 +352,7 @@ function AddMembergroup()
 			'{db_prefix}membergroups',
 			array(
 				'id_group' => 'int', 'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
-				'stars' => 'string', 'online_color' => 'string', 'group_type' => 'int',
+				'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
 			),
 			array(
 				$id_group, '', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
@@ -456,7 +456,7 @@ function AddMembergroup()
 			if ($copy_id > 0 && $_POST['perm_type'] == 'copy')
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT online_color, max_messages, stars
+					SELECT online_color, max_messages, icons
 					FROM {db_prefix}membergroups
 					WHERE id_group = {int:copy_from}
 					LIMIT 1',
@@ -473,13 +473,13 @@ function AddMembergroup()
 					SET
 						online_color = {string:online_color},
 						max_messages = {int:max_messages},
-						stars = {string:stars}
+						icons = {string:icons}
 					WHERE id_group = {int:current_group}',
 					array(
 						'max_messages' => $group_info['max_messages'],
 						'current_group' => $id_group,
 						'online_color' => $group_info['online_color'],
-						'stars' => $group_info['stars'],
+						'icons' => $group_info['icons'],
 					)
 				);
 			}
@@ -709,7 +709,7 @@ function EditMembergroup()
 		// Set variables to their proper value.
 		$_POST['max_messages'] = isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0;
 		$_POST['min_posts'] = isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $_REQUEST['group'] > 3 ? abs($_POST['min_posts']) : ($_REQUEST['group'] == 4 ? 0 : -1);
-		$_POST['stars'] = (empty($_POST['star_count']) || $_POST['star_count'] < 0) ? '' : min((int) $_POST['star_count'], 99) . '#' . $_POST['star_image'];
+		$_POST['icons'] = (empty($_POST['icon_count']) || $_POST['icon_count'] < 0) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'];
 		$_POST['group_desc'] = isset($_POST['group_desc']) && ($_REQUEST['group'] == 1 || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? trim($_POST['group_desc']) : '';
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 		$_POST['group_hidden'] = empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $_REQUEST['group'] == 3 ? 0 : (int) $_POST['group_hidden'];
@@ -721,7 +721,7 @@ function EditMembergroup()
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}membergroups
 			SET group_name = {string:group_name}, online_color = {string:online_color},
-				max_messages = {int:max_messages}, min_posts = {int:min_posts}, stars = {string:stars},
+				max_messages = {int:max_messages}, min_posts = {int:min_posts}, icons = {string:icons},
 				description = {string:group_desc}, group_type = {int:group_type}, hidden = {int:group_hidden},
 				id_parent = {int:group_inherit}
 			WHERE id_group = {int:current_group}',
@@ -734,7 +734,7 @@ function EditMembergroup()
 				'current_group' => (int) $_REQUEST['group'],
 				'group_name' => $smcFunc['htmlspecialchars']($_POST['group_name']),
 				'online_color' => $_POST['online_color'],
-				'stars' => $_POST['stars'],
+				'icons' => $_POST['icons'],
 				'group_desc' => $_POST['group_desc'],
 			)
 		);
@@ -973,7 +973,7 @@ function EditMembergroup()
 
 	// Fetch the current group information.
 	$request = $smcFunc['db_query']('', '
-		SELECT group_name, description, min_posts, online_color, max_messages, stars, group_type, hidden, id_parent
+		SELECT group_name, description, min_posts, online_color, max_messages, icons, group_type, hidden, id_parent
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:current_group}
 		LIMIT 1',
@@ -986,7 +986,7 @@ function EditMembergroup()
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	$row['stars'] = explode('#', $row['stars']);
+	$row['icons'] = explode('#', $row['icons']);
 
 	$context['group'] = array(
 		'id' => $_REQUEST['group'],
@@ -996,8 +996,8 @@ function EditMembergroup()
 		'color' => $row['online_color'],
 		'min_posts' => $row['min_posts'],
 		'max_messages' => $row['max_messages'],
-		'star_count' => (int) $row['stars'][0],
-		'star_image' => isset($row['stars'][1]) ? $row['stars'][1] : '',
+		'icon_count' => (int) $row['icons'][0],
+		'icon_image' => isset($row['icons'][1]) ? $row['icons'][1] : '',
 		'is_post_group' => $row['min_posts'] != -1,
 		'type' => $row['min_posts'] != -1 ? 0 : $row['group_type'],
 		'hidden' => $row['min_posts'] == -1 ? $row['hidden'] : 0,

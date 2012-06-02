@@ -72,7 +72,7 @@ function GroupList()
 	// Yep, find the groups...
 	$request = $smcFunc['db_query']('', '
 		SELECT mg.id_group, mg.group_name, mg.description, mg.group_type, mg.online_color, mg.hidden,
-			mg.stars, IFNULL(gm.id_member, 0) AS can_moderate
+			mg.icons, IFNULL(gm.id_member, 0) AS can_moderate
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts = {int:min_posts}
@@ -96,7 +96,7 @@ function GroupList()
 		if ($row['hidden'] && !$row['can_moderate'] && !allowedTo('manage_membergroups'))
 			continue;
 
-		$row['stars'] = explode('#', $row['stars']);
+		$row['icons'] = explode('#', $row['icons']);
 
 		$context['groups'][$row['id_group']] = array(
 			'id' => $row['id_group'],
@@ -105,7 +105,7 @@ function GroupList()
 			'color' => $row['online_color'],
 			'type' => $row['group_type'],
 			'num_members' => 0,
-			'stars' => !empty($row['stars'][0]) && !empty($row['stars'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['stars'][1] . '" alt="*" />', $row['stars'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
 		);
 
 		$context['can_moderate'] |= $row['can_moderate'];
@@ -183,12 +183,12 @@ function GroupList()
 					'style' => 'width: 50%;',
 				),
 			),
-			'stars' => array(
+			'icons' => array(
 				'header' => array(
-					'value' => $txt['membergroups_stars'],
+					'value' => $txt['membergroups_icons'],
 				),
 				'data' => array(
-					'db' => 'stars',
+					'db' => 'icons',
 				),
 			),
 			'moderators' => array(
@@ -235,7 +235,7 @@ function list_getGroups($start, $items_per_page, $sort)
 	// Yep, find the groups...
 	$request = $smcFunc['db_query']('', '
 		SELECT mg.id_group, mg.group_name, mg.description, mg.group_type, mg.online_color, mg.hidden,
-			mg.stars, IFNULL(gm.id_member, 0) AS can_moderate
+			mg.icons, IFNULL(gm.id_member, 0) AS can_moderate
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts = {int:min_posts}
@@ -259,7 +259,7 @@ function list_getGroups($start, $items_per_page, $sort)
 		if ($row['hidden'] && !$row['can_moderate'] && !allowedTo('manage_membergroups'))
 			continue;
 
-		$row['stars'] = explode('#', $row['stars']);
+		$row['icons'] = explode('#', $row['icons']);
 
 		$groups[$row['id_group']] = array(
 			'id' => $row['id_group'],
@@ -269,7 +269,7 @@ function list_getGroups($start, $items_per_page, $sort)
 			'type' => $row['group_type'],
 			'num_members' => 0,
 			'moderators' => array(),
-			'stars' => !empty($row['stars'][0]) && !empty($row['stars'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['stars'][1] . '" alt="*" />', $row['stars'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
 		);
 
 		$context['can_moderate'] |= $row['can_moderate'];
@@ -387,7 +387,7 @@ function MembergroupMembers()
 	// Load up the group details.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group AS id, group_name AS name, CASE WHEN min_posts = {int:min_posts} THEN 1 ELSE 0 END AS assignable, hidden, online_color,
-			stars, description, CASE WHEN min_posts != {int:min_posts} THEN 1 ELSE 0 END AS is_post_group, group_type
+			icons, description, CASE WHEN min_posts != {int:min_posts} THEN 1 ELSE 0 END AS is_post_group, group_type
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:id_group}
 		LIMIT 1',
@@ -402,9 +402,9 @@ function MembergroupMembers()
 	$context['group'] = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Fix the stars.
-	$context['group']['stars'] = explode('#', $context['group']['stars']);
-	$context['group']['stars'] = !empty($context['group']['stars'][0]) && !empty($context['group']['stars'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $context['group']['stars'][1] . '" alt="*" />', $context['group']['stars'][0]) : '';
+	// Fix the membergroup icons.
+	$context['group']['icons'] = explode('#', $context['group']['icons']);
+	$context['group']['icons'] = !empty($context['group']['icons'][0]) && !empty($context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $context['group']['icons'][1] . '" alt="*" />', $context['group']['icons'][0]) : '';
 	$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || $context['group']['group_type'] != 1);
 
 	$context['linktree'][] = array(

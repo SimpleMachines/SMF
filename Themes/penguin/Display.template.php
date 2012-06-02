@@ -262,7 +262,7 @@ function template_main()
 		//						<li class="membergroup">', $message['member']['group'], '</li>';
 
 //			echo '
-//								<li class="stars">', $message['member']['group_stars'], '</li>';
+//								<li class="icons">', $message['member']['group_icons'], '</li>';
 
 			// Show avatars, images, etc.?
 			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
@@ -318,7 +318,7 @@ function template_main()
 		}
 
 			echo '
-								<li class="stars">', $message['member']['group_stars'], '</li>';
+								<li class="icons">', $message['member']['group_icons'], '</li>';
 
 		// Show the member's primary group (like 'Administrator') if they have one.
 		if (!empty($message['member']['group']))

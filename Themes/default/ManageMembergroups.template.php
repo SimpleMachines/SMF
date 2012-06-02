@@ -299,19 +299,19 @@ function template_edit_group()
 							<input type="text" name="online_color" id="online_color_input" value="', $context['group']['color'], '" size="20" class="input_text" />
 						</dd>
 						<dt>
-							<label for="star_count_input"><strong>', $txt['membergroups_star_count'], ':</strong></label>
+							<label for="icon_count_input"><strong>', $txt['membergroups_icon_count'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" name="star_count" id="star_count_input" value="', $context['group']['star_count'], '" size="4" onkeyup="if (this.value.length > 2) this.value = 99;" onkeydown="this.onkeyup();" onchange="if (this.value != 0) this.form.star_image.onchange();" class="input_text" />
+							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" onkeyup="if (this.value.length > 2) this.value = 99;" onkeydown="this.onkeyup();" onchange="if (this.value != 0) this.form.icon_image.onchange();" class="input_text" />
 						</dd>
 						<dt>
-							<label for="star_image_input"><strong>', $txt['membergroups_star_image'], ':</strong></label><br />
-							<span class="smalltext">', $txt['membergroups_star_image_note'], '</span>
+							<label for="icon_image_input"><strong>', $txt['membergroups_icon_image'], ':</strong></label><br />
+							<span class="smalltext">', $txt['membergroups_icon_image_note'], '</span>
 						</dt>
 						<dd>
 							', $txt['membergroups_images_url'], '
-							<input type="text" name="star_image" id="star_image_input" value="', $context['group']['star_image'], '" onchange="if (this.value &amp;&amp; this.form.star_count.value == 0) this.form.star_count.value = 1; else if (!this.value) this.form.star_count.value = 0; document.getElementById(\'star_preview\').src = smf_images_url + \'/\' + (this.value &amp;&amp; this.form.star_count.value > 0 ? this.value.replace(/\$language/g, \'', $context['user']['language'], '\') : \'blank.png\');" size="20" class="input_text" />
-							<img id="star_preview" src="', $settings['images_url'], '/', $context['group']['star_image'] == '' ? 'blank.png' : $context['group']['star_image'], '" alt="*" />
+							<input type="text" name="icon_image" id="icon_image_input" value="', $context['group']['icon_image'], '" onchange="if (this.value &amp;&amp; this.form.icon_count.value == 0) this.form.icon_count.value = 1; else if (!this.value) this.form.icon_count.value = 0; document.getElementById(\'star_preview\').src = smf_images_url + \'/\' + (this.value &amp;&amp; this.form.icon_count.value > 0 ? this.value.replace(/\$language/g, \'', $context['user']['language'], '\') : \'blank.png\');" size="20" class="input_text" />
+							<img id="star_preview" src="', $settings['images_url'], '/', $context['group']['icon_image'] == '' ? 'blank.png' : $context['group']['icon_image'], '" alt="*" />
 						</dd>
 						<dt>
 							<label for="max_messages_input"><strong>', $txt['membergroups_max_messages'], ':</strong></label><br />
@@ -450,7 +450,7 @@ function template_group_members()
 							<strong>', $txt['name'], ':</strong>
 						</dt>
 						<dd>
-							<span ', $context['group']['online_color'] ? 'style="color: ' . $context['group']['online_color'] . ';"' : '', '>', $context['group']['name'], '</span> ', $context['group']['stars'], '
+							<span ', $context['group']['online_color'] ? 'style="color: ' . $context['group']['online_color'] . ';"' : '', '>', $context['group']['name'], '</span> ', $context['group']['icons'], '
 						</dd>';
 	//Any description to show?
 	if (!empty($context['group']['description']))

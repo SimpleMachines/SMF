@@ -46,9 +46,9 @@ $txt['membergroups_group_type_free'] = 'Free <span class="smalltext">(User may l
 $txt['membergroups_group_type_post'] = 'Post Based <span class="smalltext">(Membership based on post count)</span>';
 $txt['membergroups_min_posts'] = 'Required posts';
 $txt['membergroups_online_color'] = 'Color in online list';
-$txt['membergroups_star_count'] = 'Number of star images';
-$txt['membergroups_star_image'] = 'Star image filename';
-$txt['membergroups_star_image_note'] = 'you can use $language for the language of the user';
+$txt['membergroups_icon_count'] = 'Number of icon images';
+$txt['membergroups_icon_image'] = 'Icon image filename';
+$txt['membergroups_icon_image_note'] = 'you can use $language for the language of the user';
 $txt['membergroups_max_messages'] = 'Max personal messages';
 $txt['membergroups_max_messages_note'] = '0 = unlimited';
 $txt['membergroups_edit_save'] = 'Save';
@@ -77,7 +77,7 @@ $txt['membergroups_images_url'] = '{theme URL}/images/';
 $txt['membergroups_select_visible_boards'] = 'Show boards';
 $txt['membergroups_members_top'] = 'Members';
 $txt['membergroups_name'] = 'Name';
-$txt['membergroups_stars'] = 'Stars';
+$txt['membergroups_icons'] = 'Icons';
 
 $txt['admin_browse_approve'] = 'Members whose accounts are awaiting approval';
 $txt['admin_browse_approve_desc'] = 'From here you can manage all members who are waiting to have their accounts approved.';

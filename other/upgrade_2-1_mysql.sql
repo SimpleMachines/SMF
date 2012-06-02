@@ -182,3 +182,11 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ALTER TABLE {$db_prefix}mail_queue
 CHANGE body body mediumtext NOT NULL;
 ---#
+
+/******************************************************************************/
+--- Name changes
+/******************************************************************************/
+---# Altering the membergroup stars to icons
+ALTER TABLE {$db_prefix}membergroups
+CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT '';
+---#
