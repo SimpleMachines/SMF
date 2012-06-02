@@ -477,36 +477,9 @@ function template_add_language()
 	if (!empty($context['smf_languages']))
 	{
 		echo '
-			<div class="information">', $txt['add_language_smf_found'], '</div>
+			<div class="information">', $txt['add_language_smf_found'], '</div>';
 
-				<table class="table_grid" cellspacing="0" width="100%">
-					<thead>
-						<tr class="catbg">
-							<th class="first_th" scope="col">', $txt['name'], '</th>
-							<th scope="col">', $txt['add_language_smf_desc'], '</th>
-							<th scope="col">', $txt['add_language_smf_version'], '</th>
-							<th scope="col">', $txt['add_language_smf_utf8'], '</th>
-							<th class="last_th" scope="col">', $txt['add_language_smf_install'], '</th>
-						</tr>
-					</thead>
-					<tbody>';
-
-		foreach ($context['smf_languages'] as $language)
-		{
-			// Write each language information out.
-			echo '
-						<tr class="windowbg2">
-							<td align="left">', $language['name'], '</td>
-							<td align="left">', $language['description'], '</td>
-							<td align="left">', $language['version'], '</td>
-							<td align="center">', $language['utf8'] ? $txt['yes'] : $txt['no'], '</td>
-							<td align="left"><a href="', $language['link'], '">', $txt['add_language_smf_install'], '</a></td>
-						</tr>';
-		}
-
-		echo '
-					</tbody>
-					</table>';
+		template_show_list('smf_languages');
 	}
 
 	echo '
