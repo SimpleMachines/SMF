@@ -38,7 +38,6 @@ smf_NewsFader.prototype.init = function init()
 		for (var i = 0, n = oNewsItems.length; i < n; i ++)
 			this.aFaderItems[i] = oNewsItems[i].innerHTML;
 	}
-	$('#' + this.opt.sFaderControlId).fadeOut('fast');
 
 	// Start the fader!
 	this.fade();
@@ -65,9 +64,12 @@ smf_NewsFader.prototype.fade = function fade()
 			this.iFadeIndex = 0;
 	}
 
-	$('#' + this.opt.sFaderControlId).fadeOut('slow', function () {
-		setInnerHTML(this, currentText);
-	}).fadeIn('slow');
+	$('#' + this.opt.sFaderControlId).each(function() {
+		temp_elem = $(this).clone().css({height: 'auto'}).appendTo('body').html(currentText);
+		final_height = parseInt(temp_elem.height()) + parseInt($(this).css('padding-top').replace(/[^-\d\.]/g, '')) + parseInt($(this).css('padding-bottom').replace(/[^-\d\.]/g, ''));
+		temp_elem.remove();
+		$(this).height($(this).height());
+	}).html(currentText).animate({height: final_height}, 'slow');
 
 	// Keep going.
 	window.setTimeout(this.opt.sSelf + '.fade();', this.iFadeDelay);
