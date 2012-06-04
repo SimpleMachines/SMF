@@ -271,7 +271,7 @@ function template_main()
 				echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
 			echo '
-								<li class="icons">', $message['member']['group_icons'], '</li>';
+								<li class="stars">', $message['member']['group_stars'], '</li>';
 
 			// Show avatars, images, etc.?
 			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
