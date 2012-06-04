@@ -3113,12 +3113,16 @@ function template_header()
 			secureDirectory($path, true);
 			secureDirectory($cachedir);
 
-			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)))
+			// If agreement is enabled, at least the english version shall exists
+			if ($modSettings['requireAgreement'])
+				$agreement = !file_exists($boarddir . '/agreement.txt');
+
+			if (!empty($securityFiles) || (!empty($modSettings['cache_enable']) && !is_writable($cachedir)) || !empty($agreement))
 			{
 				echo '
 		<div class="errorbox">
 			<p class="alert">!!</p>
-			<h3>', empty($securityFiles) ? $txt['cache_writable_head'] : $txt['security_risk'], '</h3>
+			<h3>', empty($securityFiles) ? $txt['generic_warning'] : $txt['security_risk'], '</h3>
 			<p>';
 
 				foreach ($securityFiles as $securityFile)
@@ -3134,6 +3138,10 @@ function template_header()
 				if (!empty($modSettings['cache_enable']) && !is_writable($cachedir))
 					echo '
 				<strong>', $txt['cache_writable'], '</strong><br />';
+
+				if (!empty($agreement))
+					echo '
+				<strong>', $txt['agreement_missing'], '</strong><br />';
 
 				echo '
 			</p>
