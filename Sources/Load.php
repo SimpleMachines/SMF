@@ -900,7 +900,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			mem.karma_good, mem.id_post_group, mem.karma_bad, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
 			mem.buddy_list, mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
 			pg.online_color AS post_group_color, IFNULL(pg.group_name, {string:blank_string}) AS post_group, mem.is_activated, mem.warning,
-			CASE WHEN mem.id_group = 0 OR mg.stars = {string:blank_string} THEN pg.stars ELSE mg.stars END AS stars' . (!empty($modSettings['titlesEnable']) ? ',
+			CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons' . (!empty($modSettings['titlesEnable']) ? ',
 			mem.usertitle' : '');
 		$select_tables = '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
@@ -921,7 +921,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			mem.total_time_logged_in, mem.id_post_group, mem.notify_announcements, mem.notify_regularity, mem.notify_send_body,
 			mem.notify_types, lo.url, mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
 			pg.online_color AS post_group_color, IFNULL(pg.group_name, {string:blank_string}) AS post_group, mem.ignore_boards, mem.warning,
-			CASE WHEN mem.id_group = 0 OR mg.stars = {string:blank_string} THEN pg.stars ELSE mg.stars END AS stars, mem.password_salt, mem.pm_prefs';
+			CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons, mem.password_salt, mem.pm_prefs';
 		$select_tables = '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
 			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)
@@ -991,7 +991,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		if (($row = cache_get_data('moderator_group_info', 480)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT group_name AS member_group, online_color AS member_group_color, stars
+				SELECT group_name AS member_group, online_color AS member_group_color, icons
 				FROM {db_prefix}membergroups
 				WHERE id_group = {int:moderator_group}
 				LIMIT 1',
@@ -1011,9 +1011,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			if ($user_profile[$id]['id_group'] != 1 && $user_profile[$id]['id_group'] != 2)
 				$user_profile[$id]['member_group'] = $row['member_group'];
 
-			// If the Moderator group has no color or stars, but their group does... don't overwrite.
-			if (!empty($row['stars']))
-				$user_profile[$id]['stars'] = $row['stars'];
+			// If the Moderator group has no color or icons, but their group does... don't overwrite.
+			if (!empty($row['icons']))
+				$user_profile[$id]['icons'] = $row['icons'];
 			if (!empty($row['member_group_color']))
 				$user_profile[$id]['member_group_color'] = $row['member_group_color'];
 		}
@@ -1064,7 +1064,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
 
 	$profile['is_online'] = (!empty($profile['show_online']) || allowedTo('moderate_forum')) && $profile['is_online'] > 0;
-	$profile['stars'] = empty($profile['stars']) ? array('', '') : explode('#', $profile['stars']);
+	$profile['icons'] = empty($profile['icons']) ? array('', '') : explode('#', $profile['icons']);
 	// Setup the buddy status here (One whole in_array call saved :P)
 	$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
 	$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
@@ -1168,7 +1168,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'group_id' => $profile['id_group'],
 		'post_group' => $profile['post_group'],
 		'post_group_color' => $profile['post_group_color'],
-		'group_stars' => str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($profile['stars'][1]) ? $settings['images_url'] . '/' . $profile['stars'][1] : '') . '" alt="*" />', empty($profile['stars'][0]) || empty($profile['stars'][1]) ? 0 : $profile['stars'][0]),
+		'group_icons' => str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($profile['icons'][1]) ? $settings['images_url'] . '/' . $profile['icons'][1] : '') . '" alt="*" />', empty($profile['icons'][0]) || empty($profile['icons'][1]) ? 0 : $profile['icons'][0]),
 		'warning' => $profile['warning'],
 		'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 		'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
@@ -1767,7 +1767,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 			$sheet_path = file_exists($settings['theme_dir']. '/css/' . $sheet . '.css') ? 'theme_url' : (file_exists($settings['default_theme_dir']. '/css/' . $sheet . '.css') ? 'default_theme_url' : '');
 			if ($sheet_path)
 			{
-				$context['html_headers'] .= "\n\t" . '<link rel="stylesheet" type="text/css" id="' . $sheet . '_css" href="' . $settings[$sheet_path] . '/css/' . $sheet . '.css" />';
+				$context['html_headers'] .= "\n\t" . '<link rel="stylesheet" type="text/css" id="' . $sheet . '_css" href="' . $settings[$sheet_path] . '/css/' . $sheet . '.css?alp21" />';
 				if ($db_show_debug === true)
 					$context['debug']['sheets'][] = $sheet . ' (' . basename($settings[$sheet_path]) . ')';
 			}

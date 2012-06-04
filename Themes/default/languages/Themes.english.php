@@ -121,10 +121,10 @@ $txt['themeadmin_reset_remove'] = 'Remove all members\' options and use the defa
 $txt['themeadmin_reset_remove_current'] = 'members currently using their own options.';
 // Don't use entities in the below string.
 $txt['themeadmin_reset_remove_confirm'] = 'Are you sure you want to remove all theme options?\\nThis may reset some custom profile fields as well.';
-$txt['themeadmin_reset_options_info'] = 'The options below will reset options for <em>everyone</em>.  To change an option, select &quot;change&quot; in the box next to it, and then select a value for it.  To use the default, select &quot;remove&quot;.  Otherwise, use &quot;don\'t change&quot; to keep it as-is.';
+$txt['themeadmin_reset_options_info'] = 'The options below will reset options for <em>everyone</em>.  To change an option, select &quot;change&quot; in the box next to it, and then select a value for it.  To use the default, select &quot;default&quot;.  Otherwise, use &quot;don\'t change&quot; to keep it as-is.';
 $txt['themeadmin_reset_options_change'] = 'Change';
 $txt['themeadmin_reset_options_none'] = 'Don\'t change';
-$txt['themeadmin_reset_options_remove'] = 'Remove';
+$txt['themeadmin_reset_options_default'] = 'Default';
 
 $txt['themeadmin_edit_browse'] = 'Browse the templates and files in this theme.';
 $txt['themeadmin_edit_style'] = 'Edit this theme\'s stylesheets.';

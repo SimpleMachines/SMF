@@ -466,7 +466,7 @@ function MemberGroupsReport()
 		'color' => $txt['member_group_color'],
 		'min_posts' => $txt['member_group_min_posts'],
 		'max_messages' => $txt['member_group_max_messages'],
-		'stars' => $txt['member_group_stars'],
+		'icons' => $txt['member_group_icons'],
 		'#sep#2' => $txt['member_group_access'],
 	);
 
@@ -485,7 +485,7 @@ function MemberGroupsReport()
 
 	// Now start cycling the membergroups!
 	$request = $smcFunc['db_query']('', '
-		SELECT mg.id_group, mg.group_name, mg.online_color, mg.min_posts, mg.max_messages, mg.stars,
+		SELECT mg.id_group, mg.group_name, mg.online_color, mg.min_posts, mg.max_messages, mg.icons,
 			CASE WHEN bp.permission IS NOT NULL OR mg.id_group = {int:admin_group} THEN 1 ELSE 0 END AS can_moderate
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}board_permissions AS bp ON (bp.id_group = mg.id_group AND bp.id_profile = {int:default_profile} AND bp.permission = {string:moderate_board})
@@ -506,7 +506,7 @@ function MemberGroupsReport()
 			'online_color' => '',
 			'min_posts' => -1,
 			'max_messages' => null,
-			'stars' => ''
+			'icons' => ''
 		),
 		array(
 			'id_group' => 0,
@@ -514,7 +514,7 @@ function MemberGroupsReport()
 			'online_color' => '',
 			'min_posts' => -1,
 			'max_messages' => null,
-			'stars' => ''
+			'icons' => ''
 		),
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -523,14 +523,14 @@ function MemberGroupsReport()
 
 	foreach ($rows as $row)
 	{
-		$row['stars'] = explode('#', $row['stars']);
+		$row['icons'] = explode('#', $row['icons']);
 
 		$group = array(
 			'name' => $row['group_name'],
 			'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
 			'min_posts' => $row['min_posts'] == -1 ? 'N/A' : $row['min_posts'],
 			'max_messages' => $row['max_messages'],
-			'stars' => !empty($row['stars'][0]) && !empty($row['stars'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['stars'][1] . '" alt="*" />', $row['stars'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
 		);
 
 		// Board permissions.

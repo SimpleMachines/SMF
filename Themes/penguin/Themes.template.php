@@ -343,7 +343,7 @@ function template_set_options()
 							<span class="floatleft"><select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
 								<option value="0" selected="selected">', $txt['themeadmin_reset_options_none'], '</option>
 								<option value="1">', $txt['themeadmin_reset_options_change'], '</option>
-								<option value="2">', $txt['themeadmin_reset_options_remove'], '</option>
+								<option value="2">', $txt['themeadmin_reset_options_default'], '</option>
 							</select>&nbsp;</span>';
 		
 		// display checkbox options
@@ -698,7 +698,8 @@ function template_pick()
 						</li>
 					</ul>
 				</div>
-			</div>';
+			</div>
+			<br class="clear" />';
 
 		if (!empty($theme['variants']))
 		{

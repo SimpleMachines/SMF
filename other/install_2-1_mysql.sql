@@ -1173,7 +1173,7 @@ CREATE TABLE {$db_prefix}membergroups (
   online_color varchar(20) NOT NULL default '',
   min_posts mediumint(9) NOT NULL default '-1',
   max_messages smallint(5) unsigned NOT NULL default '0',
-  stars varchar(255) NOT NULL default '',
+  icons varchar(255) NOT NULL default '',
   group_type tinyint(3) NOT NULL default '0',
   hidden tinyint(3) NOT NULL default '0',
   id_parent smallint(5) NOT NULL default '-2',
@@ -1186,15 +1186,15 @@ CREATE TABLE {$db_prefix}membergroups (
 #
 
 INSERT INTO {$db_prefix}membergroups
-	(id_group, group_name, description, online_color, min_posts, stars, group_type)
-VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#staradmin.png', 1),
-	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#stargmod.png', 0),
-	(3, '{$default_moderator_group}', '', '', -1, '5#starmod.png', 0),
-	(4, '{$default_newbie_group}', '', '', 0, '1#star.png', 0),
-	(5, '{$default_junior_group}', '', '', 50, '2#star.png', 0),
-	(6, '{$default_full_group}', '', '', 100, '3#star.png', 0),
-	(7, '{$default_senior_group}', '', '', 250, '4#star.png', 0),
-	(8, '{$default_hero_group}', '', '', 500, '5#star.png', 0);
+	(id_group, group_name, description, online_color, min_posts, icons, group_type)
+VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
+	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
+	(3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png', 0),
+	(4, '{$default_newbie_group}', '', '', 0, '1#icon.png', 0),
+	(5, '{$default_junior_group}', '', '', 50, '2#icon.png', 0),
+	(6, '{$default_full_group}', '', '', 100, '3#icon.png', 0),
+	(7, '{$default_senior_group}', '', '', 250, '4#icon.png', 0),
+	(8, '{$default_hero_group}', '', '', 500, '5#icon.png', 0);
 # --------------------------------------------------------
 
 #

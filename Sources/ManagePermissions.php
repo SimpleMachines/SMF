@@ -125,7 +125,7 @@ function PermissionIndex()
 			'link' => '',
 			'is_post_group' => false,
 			'color' => '',
-			'stars' => '',
+			'icons' => '',
 			'children' => array(),
 			'num_permissions' => array(
 				'allowed' => 0,
@@ -144,7 +144,7 @@ function PermissionIndex()
 			'href' => $scripturl . '?action=moderate;area=viewgroups;sa=members;group=0',
 			'is_post_group' => false,
 			'color' => '',
-			'stars' => '',
+			'icons' => '',
 			'children' => array(),
 			'num_permissions' => array(
 				'allowed' => 0,
@@ -159,7 +159,7 @@ function PermissionIndex()
 
 	// Query the database defined membergroups.
 	$query = $smcFunc['db_query']('', '
-		SELECT id_group, id_parent, group_name, min_posts, online_color, stars
+		SELECT id_group, id_parent, group_name, min_posts, online_color, icons
 		FROM {db_prefix}membergroups' . (empty($modSettings['permission_enable_postgroups']) ? '
 		WHERE min_posts = {int:min_posts}' : '') . '
 		ORDER BY id_parent = {int:not_inherited} DESC, min_posts, CASE WHEN id_group < {int:newbie_group} THEN id_group ELSE 4 END, group_name',
@@ -179,7 +179,7 @@ function PermissionIndex()
 			continue;
 		}
 
-		$row['stars'] = explode('#', $row['stars']);
+		$row['icons'] = explode('#', $row['icons']);
 		$context['groups'][$row['id_group']] = array(
 			'id' => $row['id_group'],
 			'name' => $row['group_name'],
@@ -190,7 +190,7 @@ function PermissionIndex()
 			'href' => $scripturl . '?action=moderate;area=viewgroups;sa=members;group=' . $row['id_group'],
 			'is_post_group' => $row['min_posts'] != -1,
 			'color' => empty($row['online_color']) ? '' : $row['online_color'],
-			'stars' => !empty($row['stars'][0]) && !empty($row['stars'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['stars'][1] . '" alt="*" />', $row['stars'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
 			'children' => array(),
 			'num_permissions' => array(
 				'allowed' => $row['id_group'] == 1 ? '(' . $txt['permissions_all'] . ')' : 0,
