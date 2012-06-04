@@ -105,6 +105,14 @@ function Register($reg_errors = array())
 			$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
 		else
 			$context['agreement'] = '';
+		
+		// Nothing to show, lets disable registration and inform the admin of this error
+		if (empty($context['agreement']))
+		{
+			// No file found or a blank file, log the error so the admin knows there is a problem!
+			log_error($txt['registration_agreement_missing'], 'critical');
+			fatal_lang_error('registration_disabled', false);
+		}
 	}
 
 	if (!empty($modSettings['userLanguage']))
