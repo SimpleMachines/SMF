@@ -33,7 +33,7 @@ if (!defined('SMF'))
  */
 function ShowXmlFeed()
 {
-	global $board, $board_info, $context, $scripturl, $txt, $modSettings, $user_info;
+	global $board, $board_info, $context, $scripturl, $boardurl, $txt, $modSettings, $user_info;
 	global $query_this_board, $smcFunc, $forum_version, $cdata_override;
 
 	// If it's not enabled, die.
@@ -278,13 +278,20 @@ function ShowXmlFeed()
 	}
 	elseif ($xml_format == 'atom')
 	{
+		foreach (array('board', 'boards', 'c') as $var)
+			if (isset($_REQUEST[$var]))
+				$url_parts[] = $var . '=' . (is_array($_REQUEST[$var]) ? implode(',', $_REQUEST[$var]) : $_REQUEST[$var]);
+
 		echo '
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
 	<link rel="alternate" type="text/html" href="', $scripturl, '" />
+	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<id>', $scripturl, '</id>
+	<icon>', $boardurl, '/favicon.ico</icon>
 
-	<modified>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</modified>
-	<tagline><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></tagline>
+	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
+	<subtitle><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></subtitle>
 	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>
 	<author>
 		<name>', strip_tags($context['forum_name']), '</name>
@@ -459,6 +466,8 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 		// If it's empty/0/nothing simply output an empty tag.
 		if ($val == '')
 			echo '<', $key, ' />';
+		elseif ($xml_format == 'atom' && $key == 'category')
+			echo '<', $key, ' term="', $val, '" />';
 		else
 		{
 			// Beginning tag.
@@ -635,7 +644,7 @@ function getXmlNews($xml_format)
 				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'description' => cdata_parse($row['body']),
-				'author' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
+				'author' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['posterEmail'] . ' ('.$row['posterName'].')' : null,
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'category' => '<![CDATA[' . $row['bname'] . ']]>',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
@@ -652,7 +661,7 @@ function getXmlNews($xml_format)
 				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'summary' => cdata_parse($row['body']),
-				'category' => array('term' => $row['id_board'], 'label' => cdata_parse($row['bname'])),
+				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
@@ -661,7 +670,6 @@ function getXmlNews($xml_format)
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'modified' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'icon' => $settings['images_url'] . '/icons/' . $row['icon'] . '.png',
 			);
 		// The biggest difference here is more information.
 		else
@@ -805,10 +813,7 @@ function getXmlRecent($xml_format)
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'summary' => cdata_parse($row['body']),
-				'category' => array(
-					'term' => $row['id_board'],
-					'label' => cdata_parse($row['bname'])
-				),
+				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
@@ -817,7 +822,6 @@ function getXmlRecent($xml_format)
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'icon' => $settings['images_url'] . '/icons/' . $row['icon'] . '.png',
 			);
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else

@@ -308,6 +308,7 @@ function PackageInstallTest()
 	{
 		// Not failed until proven otherwise.
 		$failed = false;
+		$thisAction = array();
 
 		if ($action['type'] == 'chmod')
 		{
@@ -351,144 +352,144 @@ function PackageInstallTest()
 					'failed' => true,
 				);
 			}
-
-			if ($action['boardmod'])
-				$mod_actions = parseBoardMod(@file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
 			else
-				$mod_actions = parseModification(@file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
-
-			if (count($mod_actions) == 1 && isset($mod_actions[0]) && $mod_actions[0]['type'] == 'error' && $mod_actions[0]['filename'] == '-')
-				$mod_actions[0]['filename'] = $action['filename'];
-
-			foreach ($mod_actions as $key => $mod_action)
 			{
-				// Lets get the last section of the file name.
-				if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php')
-					$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
-				elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches))
-					$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
+
+				if ($action['boardmod'])
+					$mod_actions = parseBoardMod(@file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
 				else
-					$actual_filename = $key;
+					$mod_actions = parseModification(@file_get_contents($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
 
-				if ($mod_action['type'] == 'opened')
-					$failed = false;
-				elseif ($mod_action['type'] == 'failure')
+				if (count($mod_actions) == 1 && isset($mod_actions[0]) && $mod_actions[0]['type'] == 'error' && $mod_actions[0]['filename'] == '-')
+					$mod_actions[0]['filename'] = $action['filename'];
+
+				foreach ($mod_actions as $key => $mod_action)
 				{
-					if (empty($mod_action['is_custom']))
-						$context['has_failure'] = true;
-					$failed = true;
-				}
-				elseif ($mod_action['type'] == 'chmod')
-				{
-					$chmod_files[] = $mod_action['filename'];
-				}
-				elseif ($mod_action['type'] == 'saved')
-				{
-					if (!empty($mod_action['is_custom']))
+					// Lets get the last section of the file name.
+					if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php')
+						$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
+					elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches))
+						$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
+					else
+						$actual_filename = $key;
+
+					if ($mod_action['type'] == 'opened')
+						$failed = false;
+					elseif ($mod_action['type'] == 'failure')
 					{
-						if (!isset($context['theme_actions'][$mod_action['is_custom']]))
-							$context['theme_actions'][$mod_action['is_custom']] = array(
-								'name' => $theme_paths[$mod_action['is_custom']]['name'],
-								'actions' => array(),
-								'has_failure' => $failed,
-							);
-						else
-							$context['theme_actions'][$mod_action['is_custom']]['has_failure'] |= $failed;
-
-						$context['theme_actions'][$mod_action['is_custom']]['actions'][$actual_filename] = array(
-							'type' => $txt['execute_modification'],
-							'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-							'description' => $failed ? $txt['package_action_failure'] : $txt['package_action_success'],
-							'failed' => $failed,
-						);
+						if (empty($mod_action['is_custom']))
+							$context['has_failure'] = true;
+						$failed = true;
 					}
-					elseif (!isset($context['actions'][$actual_filename]))
+					elseif ($mod_action['type'] == 'chmod')
+					{
+						$chmod_files[] = $mod_action['filename'];
+					}
+					elseif ($mod_action['type'] == 'saved')
+					{
+						if (!empty($mod_action['is_custom']))
+						{
+							if (!isset($context['theme_actions'][$mod_action['is_custom']]))
+								$context['theme_actions'][$mod_action['is_custom']] = array(
+									'name' => $theme_paths[$mod_action['is_custom']]['name'],
+									'actions' => array(),
+									'has_failure' => $failed,
+								);
+							else
+								$context['theme_actions'][$mod_action['is_custom']]['has_failure'] |= $failed;
+
+							$context['theme_actions'][$mod_action['is_custom']]['actions'][$actual_filename] = array(
+								'type' => $txt['execute_modification'],
+								'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
+								'description' => $failed ? $txt['package_action_failure'] : $txt['package_action_success'],
+								'failed' => $failed,
+							);
+						}
+						elseif (!isset($context['actions'][$actual_filename]))
+						{
+							$context['actions'][$actual_filename] = array(
+								'type' => $txt['execute_modification'],
+								'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
+								'description' => $failed ? $txt['package_action_failure'] : $txt['package_action_success'],
+								'failed' => $failed,
+							);
+						}
+						else
+						{
+								$context['actions'][$actual_filename]['failed'] |= $failed;
+								$context['actions'][$actual_filename]['description'] = $context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
+						}
+					}
+					elseif ($mod_action['type'] == 'skipping')
 					{
 						$context['actions'][$actual_filename] = array(
 							'type' => $txt['execute_modification'],
 							'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-							'description' => $failed ? $txt['package_action_failure'] : $txt['package_action_success'],
-							'failed' => $failed,
+							'description' => $txt['package_action_skipping']
 						);
 					}
-					else
+					elseif ($mod_action['type'] == 'missing' && empty($mod_action['is_custom']))
 					{
-							$context['actions'][$actual_filename]['failed'] |= $failed;
-							$context['actions'][$actual_filename]['description'] = $context['actions'][$actual_filename]['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'];
+						$context['has_failure'] = true;
+						$context['actions'][$actual_filename] = array(
+							'type' => $txt['execute_modification'],
+							'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
+							'description' => $txt['package_action_missing'],
+							'failed' => true,
+						);
+					}
+					elseif ($mod_action['type'] == 'error')
+						$context['actions'][$actual_filename] = array(
+							'type' => $txt['execute_modification'],
+							'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
+							'description' => $txt['package_action_error'],
+							'failed' => true,
+						);
+				}
+
+				// We need to loop again just to get the operations down correctly.
+				foreach ($mod_actions as $operation_key => $mod_action)
+				{
+					// Lets get the last section of the file name.
+					if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php')
+						$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
+					elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches))
+						$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
+					else
+						$actual_filename = $key;
+
+					// We just need it for actual parse changes.
+					if (!in_array($mod_action['type'], array('error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod')))
+					{
+						if (empty($mod_action['is_custom']))
+							$context['actions'][$actual_filename]['operations'][] = array(
+								'type' => $txt['execute_modification'],
+								'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
+								'description' => $mod_action['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'],
+								'position' => $mod_action['position'],
+								'operation_key' => $operation_key,
+								'filename' => $action['filename'],
+								'is_boardmod' => $action['boardmod'],
+								'failed' => $mod_action['failed'],
+								'ignore_failure' => !empty($mod_action['ignore_failure']),
+							);
+
+						// Themes are under the saved type.
+						if (isset($mod_action['is_custom']) && isset($context['theme_actions'][$mod_action['is_custom']]))
+							$context['theme_actions'][$mod_action['is_custom']]['actions'][$actual_filename]['operations'][] = array(
+								'type' => $txt['execute_modification'],
+								'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
+								'description' => $mod_action['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'],
+								'position' => $mod_action['position'],
+								'operation_key' => $operation_key,
+								'filename' => $action['filename'],
+								'is_boardmod' => $action['boardmod'],
+								'failed' => $mod_action['failed'],
+								'ignore_failure' => !empty($mod_action['ignore_failure']),
+							);
 					}
 				}
-				elseif ($mod_action['type'] == 'skipping')
-				{
-					$context['actions'][$actual_filename] = array(
-						'type' => $txt['execute_modification'],
-						'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-						'description' => $txt['package_action_skipping']
-					);
-				}
-				elseif ($mod_action['type'] == 'missing' && empty($mod_action['is_custom']))
-				{
-					$context['has_failure'] = true;
-					$context['actions'][$actual_filename] = array(
-						'type' => $txt['execute_modification'],
-						'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-						'description' => $txt['package_action_missing'],
-						'failed' => true,
-					);
-				}
-				elseif ($mod_action['type'] == 'error')
-					$context['actions'][$actual_filename] = array(
-						'type' => $txt['execute_modification'],
-						'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-						'description' => $txt['package_action_error'],
-						'failed' => true,
-					);
 			}
-
-			// We need to loop again just to get the operations down correctly.
-			foreach ($mod_actions as $operation_key => $mod_action)
-			{
-				// Lets get the last section of the file name.
-				if (isset($mod_action['filename']) && substr($mod_action['filename'], -13) != '.template.php')
-					$actual_filename = strtolower(substr(strrchr($mod_action['filename'], '/'), 1) . '||' . $action['filename']);
-				elseif (isset($mod_action['filename']) && preg_match('~([\w]*)/([\w]*)\.template\.php$~', $mod_action['filename'], $matches))
-					$actual_filename = strtolower($matches[1] . '/' . $matches[2] . '.template.php' . '||' . $action['filename']);
-				else
-					$actual_filename = $key;
-
-				// We just need it for actual parse changes.
-				if (!in_array($mod_action['type'], array('error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod')))
-				{
-					if (empty($mod_action['is_custom']))
-						$context['actions'][$actual_filename]['operations'][] = array(
-							'type' => $txt['execute_modification'],
-							'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-							'description' => $mod_action['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'],
-							'position' => $mod_action['position'],
-							'operation_key' => $operation_key,
-							'filename' => $action['filename'],
-							'is_boardmod' => $action['boardmod'],
-							'failed' => $mod_action['failed'],
-							'ignore_failure' => !empty($mod_action['ignore_failure']),
-						);
-
-					// Themes are under the saved type.
-					if (isset($mod_action['is_custom']) && isset($context['theme_actions'][$mod_action['is_custom']]))
-						$context['theme_actions'][$mod_action['is_custom']]['actions'][$actual_filename]['operations'][] = array(
-							'type' => $txt['execute_modification'],
-							'action' => $smcFunc['htmlspecialchars'](strtr($mod_action['filename'], array($boarddir => '.'))),
-							'description' => $mod_action['failed'] ? $txt['package_action_failure'] : $txt['package_action_success'],
-							'position' => $mod_action['position'],
-							'operation_key' => $operation_key,
-							'filename' => $action['filename'],
-							'is_boardmod' => $action['boardmod'],
-							'failed' => $mod_action['failed'],
-							'ignore_failure' => !empty($mod_action['ignore_failure']),
-						);
-				}
-			}
-
-			// Don't add anything else.
-			$thisAction = array();
 		}
 		elseif ($action['type'] == 'code')
 		{
@@ -638,8 +639,20 @@ function PackageInstallTest()
 		if (empty($thisAction))
 			continue;
 
+		if (!file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
+		{
+			$context['has_failure'] = true;
+
+			$thisAction += array(
+				'description' => $txt['package_action_error'],
+				'failed' => true,
+			);
+		}
+
 		// @todo None given?
-		$thisAction['description'] = isset($action['description']) ? $action['description'] : '';
+		if (empty($thisAction['description']))
+			$thisAction['description'] = isset($action['description']) ? $action['description'] : '';
+
 		$context['actions'][] = $thisAction;
 	}
 
@@ -976,7 +989,8 @@ function PackageInstall()
 				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $forum_version, $smcFunc;
 
 				// Now include the file and be done with it ;).
-				require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
+				if (file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
+					require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
 			}
 			elseif ($action['type'] == 'credits')
 			{
@@ -1006,7 +1020,8 @@ function PackageInstall()
 				db_extend('packages');
 
 				// Let the file work its magic ;)
-				require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
+				if (file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
+					require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
 			}
 			// Handle a redirect...
 			elseif ($action['type'] == 'redirect' && !empty($action['redirect_url']))

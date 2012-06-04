@@ -77,42 +77,104 @@ function AddLanguage()
 
 		$context['smf_search_term'] = htmlspecialchars(trim($_POST['smf_add']));
 
-		// We're going to use this URL.
-		$url = 'http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
+		$listOptions = array(
+			'id' => 'smf_languages',
+			'get_items' => array(
+				'function' => 'list_getLanguagesList',
+			),
+			'columns' => array(
+				'name' => array(
+					'header' => array(
+						'value' => $txt['name'],
+					),
+					'data' => array(
+						'db' => 'name',
+					),
+				),
+				'description' => array(
+					'header' => array(
+						'value' => $txt['add_language_smf_desc'],
+					),
+					'data' => array(
+						'db' => 'description',
+					),
+				),
+				'version' => array(
+					'header' => array(
+						'value' => $txt['add_language_smf_version'],
+					),
+					'data' => array(
+						'db' => 'version',
+					),
+				),
+				'utf8' => array(
+					'header' => array(
+						'value' => $txt['add_language_smf_utf8'],
+					),
+					'data' => array(
+						'db' => 'utf8',
+						'style' => 'text-align: center',
+					),
+				),
+				'install_link' => array(
+					'header' => array(
+						'value' => $txt['add_language_smf_install'],
+					),
+					'data' => array(
+						'db' => 'install_link',
+					),
+				),
+			),
+		);
 
-		// Load the class file and stick it into an array.
-		require_once($sourcedir . '/Class-Package.php');
-		$language_list = new xmlArray(fetch_web_data($url), true);
+		require_once($sourcedir . '/Subs-List.php');
+		createList($listOptions);
 
-		// Check it exists.
-		if (!$language_list->exists('languages/language'))
-			$context['smf_error'] = 'no_response';
-		else
-		{
-			$language_list = $language_list->path('languages[0]');
-			$lang_files = $language_list->set('language');
-			$context['smf_languages'] = array();
-			foreach ($lang_files as $file)
-			{
-				// Were we searching?
-				if (!empty($context['smf_search_term']) && strpos($file->fetch('name'), $smcFunc['strtolower']($context['smf_search_term'])) === false)
-					continue;
-
-				$context['smf_languages'][] = array(
-					'id' => $file->fetch('id'),
-					'name' => $smcFunc['ucwords']($file->fetch('name')),
-					'version' => $file->fetch('version'),
-					'utf8' => $file->fetch('utf8'),
-					'description' => $file->fetch('description'),
-					'link' => $scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . $context['session_var'] . '=' . $context['session_id'],
-				);
-			}
-			if (empty($context['smf_languages']))
-				$context['smf_error'] = 'no_files';
-		}
+		$context['default_list'] = 'smf_languages';
 	}
 
 	$context['sub_template'] = 'add_language';
+}
+
+function list_getLanguagesList()
+{
+	global $forum_version, $context, $sourcedir, $smcFunc, $txt, $scripturl;
+
+	// We're going to use this URL.
+	$url = 'http://download.simplemachines.org/fetch_language.php?version=' . urlencode(strtr($forum_version, array('SMF ' => '')));
+
+	// Load the class file and stick it into an array.
+	require_once($sourcedir . '/Class-Package.php');
+	$language_list = new xmlArray(fetch_web_data($url), true);
+
+	// Check it exists.
+	if (!$language_list->exists('languages/language'))
+		$context['smf_error'] = 'no_response';
+	else
+	{
+		$language_list = $language_list->path('languages[0]');
+		$lang_files = $language_list->set('language');
+		$smf_languages = array();
+		foreach ($lang_files as $file)
+		{
+			// Were we searching?
+			if (!empty($context['smf_search_term']) && strpos($file->fetch('name'), $smcFunc['strtolower']($context['smf_search_term'])) === false)
+				continue;
+
+			$smf_languages[] = array(
+				'id' => $file->fetch('id'),
+				'name' => $smcFunc['ucwords']($file->fetch('name')),
+				'version' => $file->fetch('version'),
+				'utf8' => $file->fetch('utf8') ? $txt['yes'] : $txt['no'],
+				'description' => $file->fetch('description'),
+				'install_link' => '<a href="' . $scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['add_language_smf_install'] . '</a>',
+			);
+		}
+		if (empty($smf_languages))
+			$context['smf_error'] = 'no_files';
+		else
+			return $smf_languages;
+	}
 }
 
 /**

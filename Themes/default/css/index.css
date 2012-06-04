@@ -1026,7 +1026,7 @@ span.lowerframe span {
 }
 /* Needed for new PM notifications. */
 .dropmenu li strong {
-	color: #fff;
+	color: #000;
 }
 .dropmenu li a {
 	padding: 0 4px 0 4px;

@@ -532,49 +532,6 @@ function template_viewmodreport()
 
 	template_show_list('moderation_actions_list');
 
-	if (!empty($context['entries']))
-	{
-		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_modreport_modactions'], '</h3>
-			</div>
-			<table width="100%" class="table_grid">
-				<thead>
-					<tr class="catbg">
-						<th>', $txt['modlog_action'], '</th>
-						<th>', $txt['modlog_date'], '</th>
-						<th>', $txt['modlog_member'], '</th>
-						<th>', $txt['modlog_position'], '</th>
-						<th>', $txt['modlog_ip'], '</th>
-					</tr>
-				</thead>
-				<tbody>';
-
-		foreach ($context['entries'] as $entry)
-		{
-			echo '
-					<tr class="', $alt ? 'windowbg2' : 'windowbg', '">
-						<td>', $entry['action'], '</td>
-						<td>', $entry['time'], '</td>
-						<td>', $entry['moderator']['link'], '</td>
-						<td>', $entry['position'], '</td>
-						<td>', $entry['ip'], '</td>
-					</tr>
-					<tr>
-						<td colspan="5" class="', $alt ? 'windowbg2' : 'windowbg', '">';
-
-			foreach ($entry['extra'] as $key => $value)
-				echo '
-							<em>', $key, '</em>: ', $value;
-			echo '
-						</td>
-					</tr>';
-		}
-		echo '
-				</tbody>
-			</table>';
-	}
-
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
