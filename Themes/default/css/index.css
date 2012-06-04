@@ -164,7 +164,13 @@ input[disabled].input_text {
 }
 
 /* Standard horizontal rule.. ([hr], etc.) */
-hr, .hrcolor {
+hr {
+	height: 1px;
+	border: 0;
+	color: #ccc;
+	background-color: #ccc;
+}
+hr.hrcolor {
     height: 1px;
     border: none;
 	color: #ccc;
@@ -720,7 +726,7 @@ h3.titlebg a:hover, h4.titlebg a:hover {
 	color: #53616f;
 	text-decoration: none;
 }
-h3.catbg img.icon, h4.titlebg img.icon {
+h3.catbg img.icon {
 	vertical-align: middle;
 	margin: -2px 5px 0 0;
 }
@@ -737,8 +743,9 @@ h4.titlebg, h3.titlebg {
 	padding-right: 9px;
 }
 h4.titlebg img.icon {
+	vertical-align: middle;
 	float: left;
-	margin: 9px 8px 0 0;
+	margin: 10px 8px 0 0;
 }
 div.cat_bar {
 	background: #99abbf url(../images/theme/main_block.png) no-repeat 0 -160px;
@@ -793,7 +800,7 @@ table.table_list a.collapse {
 
 /* The half-round header bars for some tables. */
 .table_grid tr.catbg, .table_grid tr.titlebg {
-	font-size: 0.95em;
+	font-size: 1.05em;
 	border-bottom: 1px solid #fff;
 }
 .table_grid tr.catbg th, .table_grid tr.titlebg th {
@@ -839,7 +846,7 @@ table.table_grid thead tr.catbg th {
 	white-space: nowrap;
 }
 img.sort {
-	margin-bottom: -0.3em;
+	margin-bottom: -0.25em;
 	margin-left: .3em;
 }
 
@@ -1733,7 +1740,7 @@ div#pollmoderation {
 }
 #forumposts h3 img {
 	float: left;
-	margin: 8px 0.5em 0 0;
+	margin: 10px 0.5em 0 0;
 }
 #forumposts h3.catbg {
 	margin-bottom: 3px;
@@ -1785,7 +1792,7 @@ p#whoisviewing {
 .poster ul ul li {
 	display: inline;
 }
-.poster li.stars, .poster li.avatar, .poster li.blurb, li.postcount, li.im_icons ul {
+.poster li.icons, .poster li.avatar, .poster li.blurb, li.postcount, li.im_icons ul {
 	margin-top: 0.5em;
 }
 .poster li.avatar {
@@ -3162,12 +3169,14 @@ span.hidelink {
     position: absolute;
     z-index: 999;
     left: -9999px;
-    padding: 10px;
-    width: 250px;
-	border-radius: 5px;
-	box-shadow: 1px 2px 2px rgba(0,0,0,0.3);
-	background: #e7eaef; 
-	border: 1px solid lightblue;
+	word-wrap: break-word;
+    max-width: 350px;
+	padding: 6px 9px;
+	color: #333;
+	background: #fff;
+	border: 1px solid #aaa;
+	border-radius: 4px 4px 4px 4px;
+	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), 0 0px 10px rgba(0,0,0,0.05) inset;
 }
 
 /* Styles for the progress bar 

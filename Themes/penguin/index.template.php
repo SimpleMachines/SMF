@@ -403,7 +403,7 @@ function template_body_above()
 	// Custom banners and shoutboxes should be placed here, before the linktree.
 
 	// Show the navigation tree.
-				theme_linktree();
+	theme_linktree();
 
 }
 

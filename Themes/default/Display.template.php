@@ -271,7 +271,7 @@ function template_main()
 				echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
 			echo '
-								<li class="stars">', $message['member']['group_stars'], '</li>';
+								<li class="icons">', $message['member']['group_icons'], '</li>';
 
 			// Show avatars, images, etc.?
 			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
@@ -597,7 +597,7 @@ function template_main()
 			echo '
 								<a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '"><img src="', $settings['images_url'], '/warn.png" alt="', $txt['issue_warning_post'], '" title="', $txt['issue_warning_post'], '" /></a>';
 		echo '
-								<img src="', $settings['images_url'], '/ip.png" alt="" />';
+								<img class="centericon" src="', $settings['images_url'], '/ip.png" alt="" />';
 
 		// Show the IP to this user for this post - because you can moderate?
 		if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
@@ -911,6 +911,7 @@ function template_main()
 
 	echo '
 				// ]]></script>';
+	
 }
 
 ?>

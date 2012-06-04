@@ -147,9 +147,15 @@ function template_html_above()
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
-		$(document).ready(function() { 
+		$(document).ready(function() {
+			// menu drop downs
 			$("ul.dropmenu").superfish();
+			
+			// tooltips
 			$(".preview").SMFtooltip();
+
+			// find all nested linked images and turn off the border
+			$("a.bbc_link img.bbc_img").parent().css("border", "0");
 		});
 	// ]]></script>';
 
