@@ -1101,7 +1101,8 @@ function spamProtection($error_type)
 	$timeOverrides = array(
 		'login' => 2,
 		'register' => 2,
-		'sendtopc' => $modSettings['spamWaitTime'] * 4,
+		'loginremind' => 30,
+		'sendtopic' => $modSettings['spamWaitTime'] * 4,
 		'sendmail' => $modSettings['spamWaitTime'] * 5,
 		'reporttm' => $modSettings['spamWaitTime'] * 4,
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,

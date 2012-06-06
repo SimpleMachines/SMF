@@ -91,7 +91,7 @@ function SendTopic()
 
 	// Actually send the message...
 	checkSession();
-	spamProtection('sendtopc');
+	spamProtection('sendtopic');
 
 	// This is needed for sendmail().
 	require_once($sourcedir . '/Subs-Post.php');
