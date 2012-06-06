@@ -30,9 +30,8 @@ function template_login()
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
-		foreach ($context['login_errors'] as $error)
-			echo '
-				<p class="error">', $error, '</p>';
+		echo '
+			<p class="errorbox">', implode('<br />', $context['login_errors']), '</p><br />';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
@@ -52,8 +51,9 @@ function template_login()
 		echo '<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
 				<dl>
 					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17" />&nbsp;<em><a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqWin(this.href);" class="help">(?)</a></em></dd>
-				</dl><hr />';
+					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon" /></a></dd>
+				</dl>
+				<hr />';
 
 	echo '
 				<dl>
@@ -75,7 +75,8 @@ function template_login()
 				<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 			</div>
 			<span class="lowerframe"><span></span></span>
-		</div></form>';
+		</div>
+		</form>';
 
 	// Focus on the correct input - username or password.
 	echo '
