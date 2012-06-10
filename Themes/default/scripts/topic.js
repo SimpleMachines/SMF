@@ -123,6 +123,7 @@ function QuickReply(oOptions)
 {
 	this.opt = oOptions;
 	this.bCollapsed = this.opt.bDefaultCollapsed;
+	this.bIsFull = this.opt.bIsFull;
 }
 
 // When a user presses quote, put it in the quick reply box (if expanded).
@@ -143,7 +144,10 @@ QuickReply.prototype.quote = function (iMessageId, xDeprecated)
 		if (window.XMLHttpRequest)
 		{
 			ajax_indicator(true);
-			getXMLDocument(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';xml', this.onQuoteReceived);
+			if (this.bIsFull)
+				insertQuoteFast(iMessageId);
+			else
+				getXMLDocument(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';xml', this.onQuoteReceived);
 		}
 		// Or with a smart popup!
 		else
@@ -176,7 +180,7 @@ QuickReply.prototype.onQuoteReceived = function (oXMLDoc)
 QuickReply.prototype.swap = function ()
 {
 	document.getElementById(this.opt.sImageId).src = this.opt.sImagesUrl + "/" + (this.bCollapsed ? this.opt.sImageCollapsed : this.opt.sImageExpanded);
-	document.getElementById(this.opt.sContainerId).style.display = this.bCollapsed ? '' : 'none';
+	$('#' + this.opt.sContainerId).slideToggle();
 
 	this.bCollapsed = !this.bCollapsed;
 }

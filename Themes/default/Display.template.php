@@ -703,14 +703,14 @@ function template_main()
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<span class="ie6_header floatright">
-							<a href="javascript:oQuickReply.swap();"><img src="', $settings['images_url'], '/', $options['display_quick_reply'] == 2 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" />		</a>
+							<a href="javascript:oQuickReply.swap();"><img src="', $settings['images_url'], '/', $options['display_quick_reply'] > 1 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" /></a>
 						</span>
 						<span>
 							<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
 						</span>
 					</h3>
 				</div>
-				<div id="quickReplyOptions"', $options['display_quick_reply'] == 2 ? '' : ' style="display: none"', '>
+				<div id="quickReplyOptions"', $options['display_quick_reply'] > 1 ? '' : ' style="display: none"', '>
 					<span class="upperframe"><span></span></span>
 					<div class="roundframe">
 						<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>
@@ -730,31 +730,72 @@ function template_main()
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 							<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />';
 
-			// Guests just need more.
-			if ($context['user']['is_guest'])
-				echo '
+		// Guests just need more.
+		if ($context['user']['is_guest'])
+			echo '
 							<strong>', $txt['name'], ':</strong> <input type="text" name="guestname" value="', $context['name'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '" />
 							<strong>', $txt['email'], ':</strong> <input type="text" name="email" value="', $context['email'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '" /><br />';
 
-			// Is visual verification enabled?
-			if ($context['require_verification'])
-				echo '
+		// Is visual verification enabled?
+		if ($context['require_verification'])
+			echo '
 							<strong>', $txt['verification'], ':</strong>', template_control_verification($context['visual_verification_id'], 'quick_reply'), '<br />';
 
+		if ($options['display_quick_reply'] < 3)
+		{
 			echo '
 							<div class="quickReplyContent">
 								<textarea cols="600" rows="7" name="message" tabindex="', $context['tabindex']++, '"></textarea>
-							</div>
+							</div>';
+		}
+		else
+		{
+			// Show the actual posting area...
+			if ($context['show_bbc'])
+			{
+				echo '
+							<div id="bbcBox_message"></div>';
+			}
+
+			// What about smileys?
+			if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
+				echo '
+							<div id="smileyBox_message"></div>';
+
+			echo '
+							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
+							<script type="text/javascript"><!-- // --><![CDATA[
+								function insertQuoteFast(messageid)
+								{
+									if (window.XMLHttpRequest)
+										getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
+									else
+										reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
+									return false;
+								}
+								function onDocReceived(XMLDoc)
+								{
+									var text = \'\';
+									for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
+										text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
+									oEditorHandle_', $context['post_box_name'], '.insertText(text, false, true);
+
+									ajax_indicator(false);
+								}
+							// ]]></script>';
+
+		}
+		echo '
 							<div class="padding">
 								<hr class="hrcolor" />
 								<input type="submit" name="post" value="', $txt['post'], '" onclick="return submitThisOnce(this);" accesskey="s" tabindex="', $context['tabindex']++, '" class="button_submit" />
 								<input type="submit" name="preview" value="', $txt['preview'], '" onclick="return submitThisOnce(this);" accesskey="p" tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
-			if ($context['show_spellchecking'])
-				echo '
+		if ($context['show_spellchecking'])
+			echo '
 								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'postmodify\', \'message\');" tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
-			echo '
+		echo '
 								<br class="clear_right" />
 							</div>
 						</form>
@@ -779,7 +820,7 @@ function template_main()
 	if (!empty($options['display_quick_reply']))
 		echo '
 					var oQuickReply = new QuickReply({
-						bDefaultCollapsed: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] == 2 ? 'false' : 'true', ',
+						bDefaultCollapsed: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 1 ? 'false' : 'true', ',
 						iTopicId: ', $context['current_topic'], ',
 						iStart: ', $context['start'], ',
 						sScriptUrl: smf_scripturl,
@@ -788,7 +829,8 @@ function template_main()
 						sImageId: "quickReplyExpand",
 						sImageCollapsed: "collapse.png",
 						sImageExpanded: "expand.png",
-						sJumpAnchor: "quickreply"
+						sJumpAnchor: "quickreply",
+						bIsFull: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'true' : 'false', '
 					});';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
