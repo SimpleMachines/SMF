@@ -250,42 +250,47 @@
 			};
 
 			$toolbar   = $('<div class="sceditor-toolbar" />');
-			var	groups = base.options.toolbar.split("|"),
-				group, buttons, accessibilityName, button, i;
+			var rows = base.options.toolbar.split("||");
+			for (var r=0; r < rows.length; r++) {
+				var row   = $('<div class="sceditor-row" />');
+				var	groups = rows[r].split("|"),
+					group, buttons, accessibilityName, button, i;
 
-			for (i=0; i < groups.length; i++) {
-				group   = $('<div class="sceditor-group" />');
-				buttons = groups[i].split(",");
+				for (i=0; i < groups.length; i++) {
+					group   = $('<div class="sceditor-group" />');
+					buttons = groups[i].split(",");
 
-				for (var x=0; x < buttons.length; x++) {
-					// the button must be a valid command otherwise ignore it
-					if(!base.commands.hasOwnProperty(buttons[x]))
-						continue;
+					for (var x=0; x < buttons.length; x++) {
+						// the button must be a valid command otherwise ignore it
+						if(!base.commands.hasOwnProperty(buttons[x]))
+							continue;
 
-					accessibilityName = base.commands[buttons[x]].tooltip ? base._(base.commands[buttons[x]].tooltip) : buttons[x];
-					
-					button = $('<a class="sceditor-button sceditor-button-' + buttons[x] +
-						' " unselectable="on"><div unselectable="on">' + accessibilityName + '</div></a>');
-
-					if(base.commands[buttons[x]].hasOwnProperty("tooltip"))
-						button.attr('title', base._(base.commands[buttons[x]].tooltip));
+						accessibilityName = base.commands[buttons[x]].tooltip ? base._(base.commands[buttons[x]].tooltip) : buttons[x];
 						
-					if(base.commands[buttons[x]].exec)
-						button.data('sceditor-wysiwygmode', true);
-					else
-						button.addClass('disabled');
-						
-					if(base.commands[buttons[x]].txtExec)
-						button.data('sceditor-txtmode', true);
+						button = $('<a class="sceditor-button sceditor-button-' + buttons[x] +
+							' " unselectable="on"><div unselectable="on">' + accessibilityName + '</div></a>');
 
-					// add the click handler for the button
-					button.data("sceditor-command", buttons[x]);
-					button.click(buttonClick);
+						if(base.commands[buttons[x]].hasOwnProperty("tooltip"))
+							button.attr('title', base._(base.commands[buttons[x]].tooltip));
+							
+						if(base.commands[buttons[x]].exec)
+							button.data('sceditor-wysiwygmode', true);
+						else
+							button.addClass('disabled');
+							
+						if(base.commands[buttons[x]].txtExec)
+							button.data('sceditor-txtmode', true);
 
-					group.append(button);
+						// add the click handler for the button
+						button.data("sceditor-command", buttons[x]);
+						button.click(buttonClick);
+
+						group.append(button);
+					}
+
+					row.append(group);
 				}
-
-				$toolbar.append(group);
+				$toolbar.append(row);
 			}
 
 			// append the toolbar to the toolbarContainer option if given

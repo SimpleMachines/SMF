@@ -148,6 +148,12 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 			-khtml-border-radius: 4px;
 			border-radius: 4px;
 		}
+		div.sceditor-row {
+			overflow: hidden;
+			display: block;
+			zoom: 1; /* IE6 */
+			*display: inline;
+		}
 
 		.sceditor-button {
 			float: left;
