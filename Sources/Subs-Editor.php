@@ -58,7 +58,7 @@ function EditorMain()
 function bbc_to_html($text)
 {
 	global $modSettings, $smcFunc;
-
+return $text;
 	// Turn line breaks back into br's.
 	$text = strtr($text, array("\r" => '', "\n" => '<br />'));
 
@@ -116,7 +116,7 @@ function bbc_to_html($text)
 function html_to_bbc($text)
 {
 	global $modSettings, $smcFunc, $sourcedir, $scripturl, $context;
-
+return $text;
 	// Replace newlines with spaces, as that's how browsers usually interpret them.
 	$text = preg_replace("~\s*[\r\n]+\s*~", ' ', $text);
 
@@ -1459,7 +1459,14 @@ function create_control_richedit($editorOptions)
 				prompt_text_img: \'' . addcslashes($txt['prompt_text_img'], "'") . '\'
 			}
 		// ]]></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/editor.js?alp21"></script>';
+		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>
+		<script>$(document).ready(function() {
+			$("textarea").sceditorBBCodePlugin({
+				style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css"
+			});
+		});</script>';
 
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
