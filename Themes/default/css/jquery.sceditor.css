@@ -1,0 +1,222 @@
+/**
+ * SCEditor v1.3.1
+ * http://www.samclarke.com/2011/07/sceditor/
+ *
+ * Copyright (C) 2011, Sam Clarke (samclarke.com)
+ *
+ * SCEditor is dual licensed under the MIT and GPL licenses:
+ *	http://www.opensource.org/licenses/mit-license.php
+ *	http://www.gnu.org/licenses/gpl.html
+ *
+ * Icons by Mark James (http://www.famfamfam.com/lab/icons/silk/)
+ * Licensed under the Creative Commons CC-BY license (http://creativecommons.org/licenses/by/3.0/)
+ */
+
+/*
+	spritemapper.output_image = minified/jquery.sceditor.min.png
+	spritemapper.output_css = minified/jquery.sceditor.min.css
+*/
+.sceditor-container {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #aaa;
+	background: #fff;
+
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-opera-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	border-radius: 4px;
+}
+
+.sceditor-container, .sceditor-container div,
+div.sceditor-dropdown, div.sceditor-dropdown div {
+	padding: 0;
+	margin: 0;
+	z-index: 3;
+}
+	.sceditor-container iframe, .sceditor-container textarea {
+		border: 0;
+		outline: none;
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+		font-size: 13px;
+		color: #111;
+		padding: 0;
+		margin: 5px;
+		resize: none;
+	}
+	div.sceditor-resize-cover {
+		position: absolute;
+		top: 0;
+		left: 0;
+		background: #000;
+		width: 3000px;
+		height: 6000px;
+		z-index: 2;
+		filter: alpha(opacity=30);
+		opacity: 0.3;
+	}
+	div.sceditor-grip {
+		background: #000;
+		overflow: hidden;
+		width: 10px;
+		height: 10px;
+		cursor: pointer;
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		z-index: 3;
+		background: url('icons/grip.png');
+	}
+	div.sceditor-dropdown {
+		position: absolute;
+		margin: 22px 0 0 1px;
+		border: 1px solid #bbb;
+		background: #fff;
+		color: #222;
+		font-size: 13px;
+		z-index: 6;
+	}
+		div.sceditor-dropdown form { margin: 0; }
+		div.sceditor-dropdown label {
+			display:block;
+			font-weight: bold;
+			font-size: .95em;
+			margin: .65em 0 .15em;
+		}
+		div.sceditor-dropdown .button {	margin: .5em 0 0; }
+		.sceditor-pastetext textarea { border: 1px solid #bbb; width: 20em; }
+		div.sceditor-inserttable, div.sceditor-insertimage,
+		div.sceditor-pastetext, div.sceditor-insertlink,
+		div.sceditor-insertemail {
+			padding: 5px;
+		}
+		.sceditor-insertemoticon img {
+			cursor: pointer;
+			margin: 2px;
+		}
+		.sceditor-more {
+			border-top: 1px solid #bbb;
+			display: block;
+			text-align: center;
+			cursor: pointer;
+			padding: 2px 0;
+		}
+		.sceditor-more:hover { background: #eee; }
+		.sceditor-fontsize-option, .sceditor-font-option {
+			display: block;
+			padding: 4px 6px;
+			cursor: pointer;
+			font-size: 14px;
+			text-decoration: none;
+			color: #222;
+		}
+		.sceditor-fontsize-option:hover, .sceditor-font-option:hover { background: #eee; }
+		.sceditor-color-column { float: left; }
+			.sceditor-color-option {
+				display: block;
+				border: 1px solid #fff;
+				height: 10px;
+				width: 10px;
+				overflow: hidden;
+			}
+			.sceditor-color-option:hover { border: 1px solid #333; }
+
+	div.sceditor-toolbar {
+		overflow: hidden;
+		zoom: 1; /* IE6 */
+		padding: 3px 5px 0 5px;
+		*padding: 3px 5px 3px 5px;
+		background: #f7f7f7;
+		border-bottom: 1px solid #aaa;
+
+		-webkit-border-radius: 4px 4px 0 0;
+	}
+
+		div.sceditor-group {
+			overflow: hidden;
+			display: inline-block;
+			zoom: 1; /* IE6 */
+			*display: inline;
+			background: #ddd;
+			margin: 1px 5px 1px 0;
+			*margin: 2px 5px 2px 0;
+			padding: 2px;
+
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;
+			-opera-border-radius: 4px;
+			-khtml-border-radius: 4px;
+			border-radius: 4px;
+		}
+
+		.sceditor-button {
+			float: left;
+			cursor: pointer;
+			padding: 3px 4px;
+		}
+		/*.sceditor-button.disabled {
+			background-color: #666;
+		}*/
+		.sceditor-button.disabled div {
+			filter: alpha(opacity=30);
+			opacity: 0.3;
+		}
+		.sceditor-button.disabled:hover {
+			background: inherit;
+			cursor: default;
+		}
+		.sceditor-button div, .sceditor-button {
+			display: block;
+			width: 16px;
+			height: 16px;
+		}
+		.sceditor-button div {
+			margin: 0;
+			padding: 0;
+			text-indent: -9999px;
+		}
+		.sceditor-button:hover { background: #eee; }
+			.sceditor-button-bold div { background: url('icons/text_bold.png'); }
+			.sceditor-button-italic div { background: url('icons/text_italic.png'); }
+			.sceditor-button-underline div { background: url('icons/text_underline.png'); }
+			.sceditor-button-strike div { background: url('icons/text_strikethrough.png'); }
+			.sceditor-button-subscript div { background: url('icons/text_subscript.png'); }
+			.sceditor-button-superscript div { background: url('icons/text_superscript.png'); }
+
+			.sceditor-button-left div { background: url('icons/text_align_left.png'); }
+			.sceditor-button-center div { background: url('icons/text_align_center.png'); }
+			.sceditor-button-right div { background: url('icons/text_align_right.png'); }
+			.sceditor-button-justify div { background: url('icons/text_align_justify.png'); }
+
+			.sceditor-button-font div { background: url('icons/font.png'); }
+			.sceditor-button-size div { background: url('icons/font_size.png'); }
+			.sceditor-button-color div { background: url('icons/color_swatch.png'); }
+			.sceditor-button-removeformat div { background: url('icons/font_delete.png'); }
+
+			.sceditor-button-cut div { background: url('icons/cut.png'); }
+			.sceditor-button-copy div { background: url('icons/page_copy.png'); }
+			.sceditor-button-paste div { background: url('icons/page_white_paste.png'); }
+			.sceditor-button-pastetext div { background: url('icons/paste_plain.png'); }
+
+			.sceditor-button-bulletlist div { background: url('icons/text_list_bullets.png'); }
+			.sceditor-button-orderedlist div { background: url('icons/text_list_numbers.png'); }
+
+			.sceditor-button-table div { background: url('icons/table_add.png'); }
+
+			.sceditor-button-horizontalrule div { background: url('icons/text_horizontalrule.png'); }
+			.sceditor-button-image div { background: url('icons/image_add.png'); }
+			.sceditor-button-code div { background: url('icons/script_code.png'); }
+			.sceditor-button-email div { background: url('icons/email_add.png'); }
+			.sceditor-button-link div { background: url('icons/link_add.png'); }
+			.sceditor-button-unlink div { background: url('icons/link_break.png'); }
+
+			.sceditor-button-quote div { background: url('icons/comment.png'); }
+
+			.sceditor-button-emoticon div { background: url('icons/emoticon_smile.png'); }
+			.sceditor-button-youtube div { background: url('icons/youtube.png'); }
+			.sceditor-button-date div { background: url('icons/date_add.png'); }
+			.sceditor-button-time div { background: url('icons/time_add.png'); }
+
+			.sceditor-button-print div { background: url('icons/printer.png'); }
+			.sceditor-button-source div { background: url('icons/page_white_text.png'); }
