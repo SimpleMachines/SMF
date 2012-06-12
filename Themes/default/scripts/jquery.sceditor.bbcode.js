@@ -4,9 +4,8 @@
  *
  * Copyright (C) 2011-2012, Sam Clarke (samclarke.com)
  *
- * SCEditor is dual licensed under the MIT and GPL licenses:
+ * SCEditor is licensed under the MIT license:
  *	http://www.opensource.org/licenses/mit-license.php
- *	http://www.gnu.org/licenses/gpl.html
  */
 
 // ==ClosureCompiler==
@@ -57,8 +56,7 @@
 		 * @private
 		 */
 		var validChildren = {
-			ul: ['li'],
-			ol: ['li'],
+			list: ['li'],
 			table: ['tr'],
 			tr: ['td', 'th'],
 			code: ['br', 'p', 'div'],
@@ -430,7 +428,7 @@
 		 */
 		base.getTextHandler = function(text, isPaste) {
 			var	oldText, replaceBBCodeFunc,
-				bbcodeRegex = /\[([^\[\s=]*?)(?:([^\[]*?))?\]((?:[\s\S(?!=\[\\\1)](?!\[\1))*?)\[\/(\1)\]/g,
+				bbcodeRegex = /\[([^\[\s=]*?)(?:([\s=][^\[]*?))?\]((?:[\s\S(?!=\[\\\1)](?!\[\1))*?)\[\/(\1)\]/g,
 				atribsRegex = /(\S+)=((?:(?:(["'])(?:\\\3|[^\3])*?\3))|(?:[^'"\s]+))/g;
 
 			replaceBBCodeFunc = function(str, bbcode, attrs, content)
@@ -776,15 +774,28 @@
 		// END_COMMAND
 
 		// START_COMMAND: Lists
+		list: {
+			isBlock: true,
+			html: function(element, attrs, content) {
+				var style = '';
+				var code = 'ul';
+				if (attrs.type)
+						style = ' style="list-style-type: ' + attrs.type + '"';
+
+				return '<' + code + style + '>' + content + '</' + code + '>';
+			}
+		},
 		ul: {
 			tags: {
 				ul: null
 			},
 			isBlock: true,
-			format: "[ul]{0}[/ul]",
-			html: '<ul>{0}</ul>'
-		},
-		list: {
+			format: function(element, content) {
+				if ($(element[0]).css('list-style-type') == 'disc')
+					return '[list]' + content + '[/list]';
+				else
+					return '[list type=' + $(element[0]).css('list-style-type') + ']' + content + '[/list]';
+			},
 			html: '<ul>{0}</ul>'
 		},
 		ol: {
@@ -792,7 +803,7 @@
 				ol: null
 			},
 			isBlock: true,
-			format: "[ol]{0}[/ol]",
+			format: '[list type=decimal]{0}[/list]',
 			html: '<ol>{0}</ol>'
 		},
 		li: {
@@ -948,23 +959,64 @@
 			},
 			isBlock: true,
 			format: function(element, content) {
-				var	attr = '';
+				var author = '';
+				var date = '';
+				var link = '';
 
-				if($(element).children("cite:first").length === 1) {
-					attr = '=' + $(element).children("cite:first").text();
+				if ($(element).children("cite:first").length === 1)
+				{
+					author = $(element).children("cite:first").find("author").text();
+					date = $(element).children("cite:first").find("date").attr('timestamp');
+					link = $(element).children("cite:first").find("quote_link").text();
+
+					if (author != '')
+						author = ' author=' + author;
+					if (date != '')
+						date = ' date=' + date;
+					if (link != '')
+						link = ' link=' + link;
 
 					content = '';
 					$(element).children("cite:first").remove();
 					content = this.elementToBbcode($(element));
 				}
 
-				return '[quote' + attr + ']' + content + '[/quote]';
+				return '[quote' + author + date + link + ']' + content + '[/quote]';
 			},
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr !== "undefined")
-					content = '<cite>' + attrs.defaultAttr + '</cite>' + content;
+				var author = '';
+				var sDate = '';
+				var link = '';
+				if(typeof attrs.author !== "undefined")
+					author = bbc_quote_from + ': <author>' + attrs.author + '</author>';
 
-				return '<blockquote>' + content + '</blockquote>';
+				// Links could be in the form: link=topic=71.msg201#msg201 that would fool javascript, so we need a workaround
+				for (var key in attrs)
+				{
+					if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key))
+					{
+						var possible_url = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
+
+						link = possible_url.substr(0, 7) == 'http://' ? possible_url : smf_scripturl + '?' + possible_url;
+						author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': <author>' + link + '</author></a>' : '<a href="' + link + '">' + author + '</a>';
+						link = '<quote_link style="display:none">' + possible_url + '</quote_link>';
+					}
+				}
+
+				if(typeof attrs.date !== "undefined")
+				{
+					var date = new Date(attrs.date * 1000);
+					sDate = date;
+				}
+
+				if (author == '' && sDate == '')
+					author = bbc_quote;
+				else
+					author += ' ';
+
+				content = '<blockquote><cite>' + author + bbc_search_on + ' ' + '<date timestamp="' + attrs.date + '">' + sDate + '</date>' + link + '</cite>' + content + '</blockquote>';
+
+				return content;
 			}
 		},
 		// END_COMMAND

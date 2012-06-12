@@ -4,9 +4,8 @@
  *
  * Copyright (C) 2011-2012, Sam Clarke (samclarke.com)
  *
- * SCEditor is dual licensed under the MIT and GPL licenses:
+ * SCEditor is licensed under the MIT license:
  *	http://www.opensource.org/licenses/mit-license.php
- *	http://www.gnu.org/licenses/gpl.html
  */
 
 // ==ClosureCompiler==
