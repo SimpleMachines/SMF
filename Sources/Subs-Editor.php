@@ -1463,7 +1463,7 @@ function create_control_richedit($editorOptions)
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>
 		<script>$(document).ready(function() {
-			$("textarea").sceditorBBCodePlugin({
+			$("#' . $editorOptions['id'] . '").sceditorBBCodePlugin({
 				style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css"
 			});
 		});</script>';
@@ -1501,9 +1501,9 @@ function create_control_richedit($editorOptions)
 		'rich_active' => empty($modSettings['disable_wysiwyg']) && (!empty($options['wysiwyg_default']) || !empty($editorOptions['force_rich']) || !empty($_REQUEST[$editorOptions['id'] . '_mode'])),
 		'disable_smiley_box' => !empty($editorOptions['disable_smiley_box']),
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
-		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 12,
+		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '70%',
-		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '150px',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '250px',
 		'form' => isset($editorOptions['form']) ? $editorOptions['form'] : 'postmodify',
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
