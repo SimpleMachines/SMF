@@ -48,6 +48,21 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						if (!bIsSource)
 							this.toggleTextMode();
 
+					},
+					getText: function() {
+						var bIsSource = this.inSourceMode();
+						var current_value = this.getWysiwygEditorValue();
+
+						// @TODO make it put the quote close to the current selection
+
+						if (!bIsSource)
+						{
+							this.toggleTextMode();
+							this.toggleTextMode();
+						}
+
+						return current_value;
+
 					}
 				};
 

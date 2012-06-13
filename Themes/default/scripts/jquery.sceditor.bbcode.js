@@ -1098,7 +1098,7 @@
 				var from = '';
 				if(typeof attrs.defaultAttr !== "undefined")
 					from = '<cite>' + attrs.defaultAttr + '</cite>';
-				
+
 				return '<code>' + from + content + '</code>'
 			}
 		},
