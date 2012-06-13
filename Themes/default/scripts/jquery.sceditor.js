@@ -445,7 +445,7 @@
 				emoticon;
 
 			$.each(emoticons, function (key, url) {
-				if (key == '|')
+				if (key == '')
 					emoticon = document.createElement('br');
 				else
 				{
@@ -789,6 +789,8 @@
 			var emoticons = $.extend({}, base.options.emoticons.more, base.options.emoticons.dropdown, base.options.emoticons.hidden);
 
 			$.each(emoticons, function (key, url) {
+				if (key == '')
+					return;
 				// escape the key before using it as a regex
 				// and append the regex to only find emoticons outside
 				// of HTML tags
