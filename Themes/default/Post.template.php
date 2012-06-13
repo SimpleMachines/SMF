@@ -850,19 +850,20 @@ function template_main()
 			function onDocReceived(XMLDoc)
 			{
 				var text = \'\';
-				var bIsSource = $("#', $context['post_box_name'], '").data("sceditor").inSourceMode();
-				var current_value = $("#', $context['post_box_name'], '").data("sceditor").getWysiwygEditorValue() + "\n" + text;
+// 				var bIsSource = $("#', $context['post_box_name'], '").data("sceditor").inSourceMode();
 
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 
+/*				var current_value = $("#', $context['post_box_name'], '").data("sceditor").getWysiwygEditorValue() + "\n" + text;
 				if (!bIsSource)
 					$("#', $context['post_box_name'], '").data("sceditor").toggleTextMode();
 
 				$("#', $context['post_box_name'], '").data("sceditor").setTextareaValue(current_value);
 
 				if (!bIsSource)
-					$("#', $context['post_box_name'], '").data("sceditor").toggleTextMode();
+					$("#', $context['post_box_name'], '").data("sceditor").toggleTextMode();*/
 			}
 		// ]]></script>';
 	}
