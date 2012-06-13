@@ -71,7 +71,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 			$(document).ready(function() {
 				$("#' . $editor_id . '").sceditorBBCodePlugin({
-					style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css"';
+					style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css",
+					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
 		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)

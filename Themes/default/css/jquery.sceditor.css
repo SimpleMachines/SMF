@@ -115,8 +115,8 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 			.sceditor-color-option {
 				display: block;
 				border: 1px solid #fff;
-				height: 10px;
-				width: 10px;
+				height: 20px;
+				width: 100px;
 				overflow: hidden;
 			}
 			.sceditor-color-option:hover { border: 1px solid #333; }
