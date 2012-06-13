@@ -994,6 +994,7 @@
 					date = $(element).children("cite:first").find("date").attr('timestamp');
 					link = $(element).children("cite:first").find("quote_link").text();
 
+					$(element).attr({'author': author.php_htmlspecialchars(), 'date': date, 'link': link});
 					if (author != '')
 						author = ' author=' + author;
 					if (date != '')
@@ -1004,6 +1005,15 @@
 					content = '';
 					$(element).children("cite:first").remove();
 					content = this.elementToBbcode($(element));
+				}
+				else
+				{
+					if ($(element).attr('author') != 'undefined');
+						author = ' author=' + $(element).attr('author').php_unhtmlspecialchars();
+					if ($(element).attr('date') != 'undefined');
+						date = ' date=' + $(element).attr('date');
+					if ($(element).attr('link') != 'undefined');
+						link = ' link=' + $(element).attr('link');
 				}
 
 				return '[quote' + author + date + link + ']' + content + '[/quote]';
@@ -1027,7 +1037,7 @@
 						var possible_url = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
 
 						link = possible_url.substr(0, 7) == 'http://' ? possible_url : smf_scripturl + '?' + possible_url;
-						author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': <author>' + link + '</author></a>' : '<a href="' + link + '">' + author + '</a>';
+						author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': <author src=">' + link + '</author></a>' : '<a href="' + link + '">' + author + '</a>';
 						link = '<quote_link style="display:none">' + possible_url + '</quote_link>';
 					}
 				}
