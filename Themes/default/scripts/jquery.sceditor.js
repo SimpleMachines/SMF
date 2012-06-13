@@ -1095,7 +1095,7 @@
 	 * @return string
 	 */
 	$.sceditor.regexEscape = function (str) {
-		return str.replace(/[\$\?\[\]\.\*\(\)\|]/g, "\\$&")
+		return str.replace(/[\$\?\[\]\.\*\(\)\|\\]/g, "\\$&")
 			.replace("<", "&lt;")
 			.replace(">", "&gt;");
 	};
