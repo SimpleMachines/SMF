@@ -47,7 +47,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 						if (!bIsSource)
 							this.toggleTextMode();
-					alert(this.this.getWysiwygEditorValue());
+
 					}
 				};
 

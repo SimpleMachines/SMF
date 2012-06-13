@@ -448,8 +448,33 @@
 						if(attrs.charAt(0) === "=")
 							attrs = "defaultAttr" + attrs;
 
-						while((matches = atribsRegex.exec(attrs)))
-							attrsMap[matches[1].toLowerCase()] = base.stripQuotes(matches[2]);
+						if (typeof base.bbcodes[bbcode].attrs == 'function')
+						{
+							var declaredAttrs = base.bbcodes[bbcode].attrs();
+							var attrArray = new Array;
+							var compatArray = new Array;
+							for (var i = 0; i < declaredAttrs.length; i++)
+							{
+								var attrPos = attrs.indexOf(declaredAttrs[i]);
+								if (attrPos != -1)
+								{
+									attrArray[attrPos] = [declaredAttrs[i], attrPos + declaredAttrs[i].length + 1];
+								}
+							}
+
+							for (var attrElem in attrArray)
+								compatArray.push(attrArray[attrElem]);
+							for (var i = 0; i < compatArray.length; i++)
+							{
+								if (typeof compatArray[i+1] != 'undefined')
+									attrsMap[compatArray[i][0].toLowerCase()] = attrs.substr(compatArray[i][1], attrs.indexOf(compatArray[i+1][0]) - compatArray[i][1]).trim();
+								else
+									attrsMap[compatArray[i][0].toLowerCase()] = attrs.substr(compatArray[i][1], attrs.length);
+							}
+						}
+						else
+							while((matches = atribsRegex.exec(attrs)))
+								attrsMap[matches[1].toLowerCase()] = base.stripQuotes(matches[2]);
 					}
 				}
 
@@ -983,6 +1008,9 @@
 
 				return '[quote' + author + date + link + ']' + content + '[/quote]';
 			},
+			attrs: function () {
+				return ['author', 'date', 'link'];
+			},
 			html: function(element, attrs, content) {
 				var author = '';
 				var sDate = '';
@@ -991,6 +1019,7 @@
 					author = bbc_quote_from + ': <author>' + attrs.author + '</author>';
 
 				// Links could be in the form: link=topic=71.msg201#msg201 that would fool javascript, so we need a workaround
+				// Probably no more necessary
 				for (var key in attrs)
 				{
 					if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key))
