@@ -1008,11 +1008,11 @@
 				}
 				else
 				{
-					if ($(element).attr('author') != 'undefined');
+					if ($(element).attr('author') != undefined);
 						author = ' author=' + $(element).attr('author').php_unhtmlspecialchars();
-					if ($(element).attr('date') != 'undefined');
+					if ($(element).attr('date') != undefined);
 						date = ' date=' + $(element).attr('date');
-					if ($(element).attr('link') != 'undefined');
+					if ($(element).attr('link') != undefined);
 						link = ' link=' + $(element).attr('link');
 				}
 
@@ -1066,8 +1066,46 @@
 				code: null
 			},
 			isBlock: true,
-			format: "[code]{0}[/code]",
-			html: '<code>{0}</code>'
+			format: function(element, content) {
+				if ($(element[0]).hasClass('php'))
+					return '[php]' + content + '[/php]';
+
+				var from = '';
+				if ($(element).children("cite:first").length === 1)
+				{
+					from = $(element).children("cite:first").text();
+
+					$(element).attr({'from': from.php_htmlspecialchars()});
+
+					from = '=' + from;
+					content = '';
+					$(element).children("cite:first").remove();
+					content = this.elementToBbcode($(element));
+				}
+				else
+				{
+					if ($(element).attr('from') != undefined)
+					{
+						alert($(element).attr('from'));
+						alert($(element).attr('from').php_unhtmlspecialchars());
+						from = '=' + $(element).attr('from').php_unhtmlspecialchars();
+					}
+				}
+
+				return '[code' + from + ']' + content + '[/code]';
+			},
+			html:  function(element, attrs, content) {
+				var from = '';
+				if(typeof attrs.defaultAttr !== "undefined")
+					from = '<cite>' + attrs.defaultAttr + '</cite>';
+				
+				return '<code>' + from + content + '</code>'
+			}
+		},
+		php: {
+			isBlock: true,
+			format: "[php]{0}[/php]",
+			html: '<code class="php">{0}</code>'
 		},
 		// END_COMMAND
 
