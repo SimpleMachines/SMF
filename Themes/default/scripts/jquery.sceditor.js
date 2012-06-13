@@ -445,8 +445,13 @@
 				emoticon;
 
 			$.each(emoticons, function (key, url) {
-				emoticon	= document.createElement('img');
-				emoticon.src	= url;
+				if (key == '|')
+					emoticon = document.createElement('br');
+				else
+				{
+					emoticon	= document.createElement('img');
+					emoticon.src	= url;
+				}
 				preLoadCache.push(emoticon);
 			});
 		};
