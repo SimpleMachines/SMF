@@ -30,7 +30,33 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var bbc_quote_from = \'', $txt['quote_from'], '\'
 			var bbc_quote = \'', $txt['quote'], '\'
-			var bbc_search_on = \'', $txt['search_on'], '\'';
+			var bbc_search_on = \'', $txt['search_on'], '\';
+
+			(function($) {
+				var extensionMethods = {
+					InsertText: function(text) {
+						var bIsSource = this.inSourceMode();
+						var current_value = this.getWysiwygEditorValue() + "\n" + text;
+
+						// @TODO make it put the quote close to the current selection
+
+						if (!bIsSource)
+							this.toggleTextMode();
+
+						this.setTextareaValue(current_value);
+
+						if (!bIsSource)
+							this.toggleTextMode();
+					alert(this.this.getWysiwygEditorValue());
+					}
+				};
+
+				$.extend(true, $[\'sceditor\'].prototype, extensionMethods);
+			})(jQuery);
+
+			$(document).ready(function() {
+				$("#' . $editor_id . '").sceditorBBCodePlugin({
+					style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css"';
 
 		// Show the smileys.
 // 		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
@@ -254,6 +280,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 // 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';';
 
 		echo '
+				});
+		});
 			// ]]></script>';
 }
 

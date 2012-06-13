@@ -1461,32 +1461,7 @@ function create_control_richedit($editorOptions)
 		// ]]></script>
 		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>
-		<script>
-			(function($) {
-				var extensionMethods = {
-					InsertText: function(text) {
-						var bIsSource = this.inSourceMode();
-						var current_value = this.getWysiwygEditorValue() + "\n" + text;
-
-						if (!bIsSource)
-							this.toggleTextMode();
-
-						this.setTextareaValue(current_value);
-
-						if (!bIsSource)
-							this.toggleTextMode();
-					}
-				};
-
-				$.extend(true, $[\'sceditor\'].prototype, extensionMethods);
-			})(jQuery);
-
-			$(document).ready(function() {
-				$("#' . $editorOptions['id'] . '").sceditorBBCodePlugin({
-					style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css"
-				});
-		});</script>';
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>';
 
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])

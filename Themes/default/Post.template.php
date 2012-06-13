@@ -850,20 +850,14 @@ function template_main()
 			function onDocReceived(XMLDoc)
 			{
 				var text = \'\';
-// 				var bIsSource = $("#', $context['post_box_name'], '").data("sceditor").inSourceMode();
 
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
 				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
-
-/*				var current_value = $("#', $context['post_box_name'], '").data("sceditor").getWysiwygEditorValue() + "\n" + text;
-				if (!bIsSource)
-					$("#', $context['post_box_name'], '").data("sceditor").toggleTextMode();
-
-				$("#', $context['post_box_name'], '").data("sceditor").setTextareaValue(current_value);
-
-				if (!bIsSource)
-					$("#', $context['post_box_name'], '").data("sceditor").toggleTextMode();*/
+			}
+			function onReceiveOpener(text)
+			{
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 			}
 		// ]]></script>';
 	}
@@ -984,7 +978,7 @@ function template_quotefast()
 			if (\'opera\' in window)
 				quote = quote.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, \'"\').replace(/&amp;/g, "&");
 
-			window.opener.oEditorHandle_', $context['post_box_name'], '.InsertText(quote);
+			window.opener.onReceiveOpener(quote);
 
 			window.focus();
 			setTimeout("window.close();", 400);';
