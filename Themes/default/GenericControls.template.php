@@ -13,7 +13,7 @@
 // This function displays all the stuff you get with a richedit box - BBC, smileys etc.
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $context, $settings, $options, $txt, $modSettings, $scripturl;
+	global $context, $settings, $options, $txt, $modSettings, $scripturl, $boardurl;
 
 	$editor_context = &$context['controls']['richedit'][$editor_id];
 
@@ -57,6 +57,65 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			$(document).ready(function() {
 				$("#' . $editor_id . '").sceditorBBCodePlugin({
 					style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css"';
+
+		// Show the smileys.
+		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
+		{
+			echo ',
+					emoticons:
+					{';
+			$countLocations = count($context['smileys']);
+			foreach ($context['smileys'] as $location => $smileyRows)
+			{
+				$countLocations--;
+				if ($location == 'postform')
+					echo '
+						dropdown:
+						{';
+				elseif ($location == 'popup')
+					echo '
+						more:
+						{';
+
+				$numRows = count($smileyRows);
+				foreach ($smileyRows as $smileyRow)
+				{
+					foreach ($smileyRow['smileys'] as $smiley)
+					{
+						echo '
+								', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape(str_replace($boardurl . '/', '', $settings['smileys_url'] . '/' . $smiley['filename'])), empty($smiley['isLast']) ? ',' : '';
+					}
+					if (empty($smileyRow['isLast']) && $numRows != 1)
+						echo ',
+						\'\': \'\',';
+				}
+				echo '
+						}', $countLocations != 0 ? ',' : '';
+			}
+			echo '
+					}';
+
+/*
+emoticons:
+{
+    // emoticons to be included in the dropdown
+    dropdown: {
+        ":)": "emoticons/smile.png",
+        ":angel:": "emoticons/angel.png"
+    },
+    // emoticons to be included in the more section
+    more: {
+        ":alien:": "emoticons/alien.png",
+        ":blink:": "emoticons/blink.png"
+    },
+    // emoticons that are not shwon in the dropdown but will be converted ATY
+    hidden: {
+        ":aliasforalien:": "emoticons/alien.png",
+        ":aliasforblink:": "emoticons/blink.png"
+    }
+},*/
+
+		}
 
 		// Show the smileys.
 // 		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
