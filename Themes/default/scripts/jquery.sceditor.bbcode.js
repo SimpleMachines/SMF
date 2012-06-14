@@ -1021,26 +1021,25 @@
 				if(typeof element.attr('data-sceditor-emoticon') !== "undefined")
 					return content;
 
-				var attribs = "=" + $(element).width() + "x" + $(element).height();
+				var width = ' width=' + $(element).width();
+				var height = ' height=' + $(element).height();
+				var alt = $(element).attr('alt') != undefined ? ' alt=' + $(element).attr('author').php_unhtmlspecialchars() : '';
 
-				return '[img' + attribs + ']' + element.attr('src') + '[/img]';
+				return '[img' + width + height + alt + ']' + element.attr('src') + '[/img]';
+			},
+			attrs: function () {
+				return ['alt', 'width', 'height'];
 			},
 			html: function(element, attrs, content) {
-				var attribs = "", parts;
+				var attribs = "";
 
 				// handle [img width=340 height=240]url[/img]
 				if(typeof attrs.width !== "undefined")
 					attribs += ' width="' + attrs.width + '"';
 				if(typeof attrs.height !== "undefined")
 					attribs += ' height="' + attrs.height + '"';
-
-				// handle [img=340x240]url[/img]
-				if(typeof attrs.defaultAttr !== "undefined") {
-					parts = attrs.defaultAttr.split(/x/i);
-
-					attribs = ' width="' + parts[0] + '"' +
-						' height="' + (parts.length === 2 ? parts[1] : parts[0]) + '"';
-				}
+				if(typeof attrs.alt !== "undefined")
+					attribs += ' alt="' + attrs.alt + '"';
 
 				return '<img ' + attribs + ' src="' + content + '" />';
 			}
@@ -1060,8 +1059,19 @@
 				if(element.attr('href').substr(0, 7) === 'mailto:')
 					return '[email=' + element.attr('href').substr(7) + ']' + content + '[/email]';
 
-				return '[url=' + decodeURI(element.attr('href')) + ']' + content + '[/url]';
+				if(element.attr('target') !== undefined)
+					return '[url=' + decodeURI(element.attr('href')) + ']' + content + '[/url]';
+				else
+					return '[iurl=' + decodeURI(element.attr('href')) + ']' + content + '[/iurl]';
 			},
+			html: function(element, attrs, content) {
+				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+					attrs.defaultAttr = content;
+
+				return '<a trget="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+			}
+		},
+		iurl: {
 			html: function(element, attrs, content) {
 				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
 					attrs.defaultAttr = content;
@@ -1277,6 +1287,78 @@
 				'" data-youtube-id="{0}" frameborder="0" allowfullscreen></iframe>'
 		},
 		// END_COMMAND
+		
+		abbr: {
+			tags: {
+				abbr: {
+					title: null
+				}
+			},
+			format: function(element, content) {
+				return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
+			},
+			html: function(element, attrs, content) {
+				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+					return content;
+
+				return '<abbr title="' + attrs.defaultAttr + '">' + content + '</abbr>';
+			}
+		},
+		acronym: {
+			tags: {
+				acronym: {
+					title: null
+				}
+			},
+			format: function(element, content) {
+				return '[acronym=' + element.attr('title') + ']' + content + '[/acronym]';
+			},
+			html: function(element, attrs, content) {
+				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+					return content;
+
+				return '<acronym title="' + attrs.defaultAttr + '">' + content + '</acronym>';
+			}
+		},
+		bdo: {
+			tags: {
+				bdo: {
+					dir: null
+				}
+			},
+			format: function(element, content) {
+				return '[bdo=' + element.attr('dir') + ']' + content + '[/bdo]';
+			},
+			html: function(element, attrs, content) {
+				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+					return content;
+				if (attrs.defaultAttr != 'rtl' && attrs.defaultAttr != 'ltr')
+					return '[bdo=' + attrs.defaultAttr + ']' + content + '[/bdo]';
+
+				return '<bdo dir="' + attrs.defaultAttr + '">' + content + '</bdo>';
+			}
+		},
+		tt: {
+			tags: {
+				tt: null
+			},
+			format: "[tt]{0}[/tt]",
+			html: '<tt>{0}</tt>'
+		},
+		pre: {
+			tags: {
+				pre: null
+			},
+			format: "[pre]{0}[/pre]",
+			html: '<pre>{0}</pre>'
+		},
+		move: {
+			tags: {
+				marquee: null
+			},
+			format: "[move]{0}[/move]",
+			html: '<marquee>{0}</marquee>'
+		},
 		
 		// this is here so that commands above can be removed
 		// without having to remove the , after the last one.
