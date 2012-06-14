@@ -54,6 +54,46 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 							var current_value = this.getTextareaValue(false);
 						else
 							var current_value = this.getWysiwygEditorValue();
+					},
+					createPermanentDropDown: function() {
+							var	emoticons	= $.extend({}, this.options.emoticons.dropdown);
+							content = $(\'<div />\').css({width: "100%"}).attr({class: "sceditor-insertemoticon"});
+							line = $(\'<div />\');
+							base = this;
+
+							$.each(emoticons, function (code, emoticon) {
+								if (code == \'\')
+								{
+									line.append($(\'<br />\'));
+								}
+								else
+									line.append($(\'<img />\')
+										.attr({
+											src: emoticon,
+											alt: code,
+										})
+										.click(function (e) {
+											var	start = \'\', end = \'\';
+											
+											if(base.options.emoticonsCompat)
+											{
+												start = \'<span> \';
+												end   = \' </span>\';
+											}
+
+											// @TODO check if inSource or not
+											base.wysiwygEditorInsertHtml(start + \'<img src="\' + $(this).attr("src") +
+												\'" data-sceditor-emoticon="\' + $(this).attr(\'alt\') + \'" />\' + end);
+
+											e.preventDefault();
+										})
+									);
+
+								if(line.children().length > 0)
+									content.append(line);
+
+								$(".sceditor-toolbar").append(content);
+						})
 					}
 				};
 
@@ -63,6 +103,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			$(document).ready(function() {
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
+					emoticonsCompat: true,
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
@@ -346,8 +387,9 @@ emoticons:
 // 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';';
 */
 		echo '
-				});
-		});
+				})
+				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
+			});
 			// ]]></script>';
 }
 
