@@ -36,13 +36,14 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				var extensionMethods = {
 					InsertText: function(text) {
 						var bIsSource = this.inSourceMode();
-						var current_value = this.getWysiwygEditorValue() + "\n" + text;
 
 						// @TODO make it put the quote close to the current selection
+						// @TODO there must be a cleaner mode to get the proper text...
 
 						if (!bIsSource)
 							this.toggleTextMode();
 
+						var current_value = this.getWysiwygEditorValue() + "\n" + text;
 						this.setTextareaValue(current_value);
 
 						if (!bIsSource)
@@ -51,9 +52,18 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					},
 					getText: function() {
 						var bIsSource = this.inSourceMode();
-						var current_value = this.getWysiwygEditorValue();
 
-						// @TODO make it put the quote close to the current selection
+						// @TODO there must be a cleaner mode to get the proper text...
+
+						if (!bIsSource)
+						{
+							this.toggleTextMode();
+							this.toggleTextMode();
+						}
+						else
+							this.toggleTextMode();
+
+						var current_value = this.getWysiwygEditorValue();
 
 						if (!bIsSource)
 						{
@@ -70,8 +80,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			})(jQuery);
 
 			$(document).ready(function() {
-				$("#' . $editor_id . '").sceditorBBCodePlugin({
-					style: "' . $settings['default_theme_url'] . '/css/jquery.sceditor.default.css",
+				$("#', $editor_id, '").sceditorBBCodePlugin({
+					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
@@ -132,7 +142,7 @@ emoticons:
 },*/
 
 		}
-
+/*
 		// Show the smileys.
 // 		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
 // 		{
@@ -204,7 +214,7 @@ emoticons:
 // 						</html>'), '
 // 				});';
 // 		}
-
+*/ /*
 // 		if ($context['show_bbc'] && $bbcContainer !== null)
 // 		{
 // 			echo '
@@ -353,7 +363,7 @@ emoticons:
 // 					oBBCBox: ', $context['show_bbc'] && $bbcContainer !== null ? 'oBBCBox_' . $editor_id : 'null', '
 // 				});
 // 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';';
-
+*/
 		echo '
 				});
 		});
