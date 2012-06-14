@@ -98,12 +98,102 @@
 				center: { txtExec: ["[center]", "[/center]"] },
 				right: { txtExec: ["[right]", "[/right]"] },
 				justify: { txtExec: ["[justify]", "[/justify]"] },
-				//font: { txtExec: ["[u]", "[/u]"] },
-				//size: { txtExec: ["[u]", "[/u]"] },
-				//color: { txtExec: ["[u]", "[/u]"] },
-				//bulletlist: { txtExec: ["[u]", "[/u]"] },
-				//orderedlist: { txtExec: ["[u]", "[/u]"] },
-				//table: { txtExec: ["[u]", "[/u]"] },
+				bulletlist: { txtExec: ["[list]\n[li][/li]\n[li][/li]\n[/list]"] },
+				orderedlist: { txtExec: ["[list type=decimal]\n[li][/li]\n[li][/li]\n[/list]"] },
+				font: {
+					txtExec: function (caller) {
+						var	editor  = this,
+							fonts   = editor.options.fonts.split(","),
+							content = $("<div />"),
+							clickFunc = function (e) {
+								editor.textEditorInsertText("[font=" + $(this).data('sceditor-font') + "]", "[/font]");
+								editor.closeDropDown(true);
+								e.preventDefault();
+							};
+
+						for (var i=0; i < fonts.length; i++) {
+							content.append(
+								$('<a class="sceditor-font-option" href="#"><font face="' + fonts[i] + '">' + fonts[i] + '</font></a>')
+									.data('sceditor-font', fonts[i])
+									.click(clickFunc));
+						}
+
+						editor.createDropDown(caller, "font-picker", content);
+					},
+					tooltip: "Font Name"
+				},
+				size: {
+					txtExec: function (caller) {
+						var sizes = [0, 8, 10, 12, 14, 18, 24, 36];
+						var	editor    = this,
+							content   = $("<div />"),
+							clickFunc = function (e) {
+								editor.textEditorInsertText("[size=" + sizes[$(this).data('sceditor-fontsize')] + "pt]", "[/font]");
+								editor.closeDropDown(true);
+								e.preventDefault();
+							};
+
+						for (var i=1; i<= 7; i++) {
+							content.append(
+								$('<a class="sceditor-fontsize-option" style="line-height:' + sizes[i] + 'pt" href="#"><font size="' + i + '">' + sizes[i] + 'pt</font></a>')
+									.data('sceditor-fontsize', i)
+									.click(clickFunc));
+						}
+
+						editor.createDropDown(caller, "fontsize-picker", content);
+					},
+					tooltip: "Font Size"
+				},
+				color: {
+					txtExec: function (caller) {
+						var	editor			= this,
+							genColor		= {r: 255, g: 255, b: 255},
+							content			= $("<div />"),
+							colorColumns	= this.options.colors?this.options.colors.split("|"):new Array(21),
+							// IE is slow at string concation so use an array
+							html			= [],
+							htmlIndex		= 0;
+
+						for (var i=0; i < colorColumns.length; ++i) {
+							var colors = (typeof colorColumns[i] !== "undefined")?colorColumns[i].split(","):new Array(21);
+
+							html[htmlIndex++] = '<div class="sceditor-color-column">';
+
+							for (var x=0; x < colors.length; ++x) {
+								// use pre defined colour if can otherwise use the generated color
+								var color = (typeof colors[x] !== "undefined")?colors[x]:"#" + genColor.r.toString(16) + genColor.g.toString(16) + genColor.b.toString(16);
+
+								html[htmlIndex++] = '<a href="#" class="sceditor-color-option" style="background-color: '+color+'" data-color="'+color+'"></a>';
+
+								// calculate the next generated color
+								if(x%5===0)
+									genColor = {r: genColor.r, g: genColor.g-51, b: 255};
+								else
+									genColor = {r: genColor.r, g: genColor.g, b: genColor.b-51};
+							}
+
+							html[htmlIndex++] = '</div>';
+
+							// calculate the next generated color
+							if(i%5===0)
+								genColor = {r: genColor.r-51, g: 255, b: 255};
+							else
+								genColor = {r: genColor.r, g: 255, b: 255};
+						}
+
+						content.append(html.join(''))
+							.find('a')
+							.click(function (e) {
+								editor.textEditorInsertText("[color=" + $(this).attr('data-color') + "]", "[/color]");
+								editor.closeDropDown(true);
+								e.preventDefault();
+							});
+
+						editor.createDropDown(caller, "color-picker", content);
+					},
+					tooltip: "Font Color"
+				},
+				table: { txtExec: ["[table]\n[tr]\n[td]", "[/td]\n[/tr]\n[/table]"] },
 				horizontalrule: { txtExec: ["[hr]"] },
 				code: { txtExec: ["[code]", "[/code]"] },
 				image: { txtExec: function() {
