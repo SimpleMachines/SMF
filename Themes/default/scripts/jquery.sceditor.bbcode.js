@@ -886,6 +886,21 @@
 				return '<font color="' + attrs.defaultAttr + '">' + content + '</font>';
 			}
 		},
+		black: {
+			html: '<font color="black">{0}</font>'
+		},
+		blue: {
+			html: '<font color="blue">{0}</font>'
+		},
+		green: {
+			html: '<font color="green">{0}</font>'
+		},
+		red: {
+			html: '<font color="red">{0}</font>'
+		},
+		white: {
+			html: '<font color="white">{0}</font>'
+		},
 		// END_COMMAND
 
 		// START_COMMAND: Lists
