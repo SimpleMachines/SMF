@@ -991,6 +991,8 @@
 				}
 			},
 			format: function(element, content) {
+				if (element.attr('data-sceditor-emoticon') == '')
+					return content;
 				return element.attr('data-sceditor-emoticon') + content;
 			},
 			html: '{0}'
@@ -1123,11 +1125,11 @@
 				}
 				else
 				{
-					if ($(element).attr('author') != undefined);
+					if ($(element).attr('author') != undefined)
 						author = ' author=' + $(element).attr('author').php_unhtmlspecialchars();
-					if ($(element).attr('date') != undefined);
+					if ($(element).attr('date') != undefined)
 						date = ' date=' + $(element).attr('date');
-					if ($(element).attr('link') != undefined);
+					if ($(element).attr('link') != undefined)
 						link = ' link=' + $(element).attr('link');
 				}
 

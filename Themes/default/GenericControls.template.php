@@ -38,12 +38,11 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						var bIsSource = this.inSourceMode();
 
 						// @TODO make it put the quote close to the current selection
-						// @TODO there must be a cleaner mode to get the proper text...
 
 						if (!bIsSource)
 							this.toggleTextMode();
 
-						var current_value = this.getWysiwygEditorValue() + "\n" + text;
+						var current_value = this.getTextareaValue(false) + "\n" + text;
 						this.setTextareaValue(current_value);
 
 						if (!bIsSource)
@@ -51,28 +50,10 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 					},
 					getText: function() {
-						var bIsSource = this.inSourceMode();
-
-						// @TODO there must be a cleaner mode to get the proper text...
-
-						if (!bIsSource)
-						{
-							this.toggleTextMode();
-							this.toggleTextMode();
-						}
+						if(this.inSourceMode())
+							var current_value = this.getTextareaValue(false);
 						else
-							this.toggleTextMode();
-
-						var current_value = this.getWysiwygEditorValue();
-
-						if (!bIsSource)
-						{
-							this.toggleTextMode();
-							this.toggleTextMode();
-						}
-
-						return current_value;
-
+							var current_value = this.getWysiwygEditorValue();
 					}
 				};
 
