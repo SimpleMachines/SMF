@@ -1194,6 +1194,7 @@
 		// START_COMMAND: Size
 		size: {
 			exec: function (caller) {
+				var sizes = [0, 8, 10, 12, 14, 18, 24, 36];
 				var	editor    = this,
 					content   = $("<div />"),
 					clickFunc = function (e) {
@@ -1204,7 +1205,7 @@
 
 				for (var i=1; i<= 7; i++) {
 					content.append(
-						$('<a class="sceditor-fontsize-option" href="#"><font size="' + i + '">' + i + '</font></a>')
+						$('<a class="sceditor-fontsize-option" style="line-height:' + sizes[i] + 'pt" href="#"><font size="' + i + '">' + i + '</font></a>')
 							.data('sceditor-fontsize', i)
 							.click(clickFunc));
 				}
