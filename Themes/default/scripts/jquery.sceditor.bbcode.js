@@ -1201,8 +1201,6 @@
 				{
 					if ($(element).attr('from') != undefined)
 					{
-						alert($(element).attr('from'));
-						alert($(element).attr('from').php_unhtmlspecialchars());
 						from = '=' + $(element).attr('from').php_unhtmlspecialchars();
 					}
 				}
