@@ -55,45 +55,72 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						else
 							var current_value = this.getWysiwygEditorValue();
 					},
+					appendEmoticon: function (code, emoticon) {
+						if (code == \'\')
+							line.append($(\'<br />\'));
+						else
+							line.append($(\'<img />\')
+								.attr({
+									src: emoticon,
+									alt: code,
+								})
+								.click(function (e) {
+									var	start = \'\', end = \'\';
+									
+									if (base.options.emoticonsCompat)
+									{
+										start = \'<span> \';
+										end   = \' </span>\';
+									}
+
+									if (base.inSourceMode())
+										base.textEditorInsertText(start +  + end);
+									else
+										base.wysiwygEditorInsertHtml(start + \'<img src="\' + $(this).attr("src") +
+											\'" data-sceditor-emoticon="\' + $(this).attr(\'alt\') + \'" />\' + end);
+
+									e.preventDefault();
+									base.closeDropDown(true);
+								})
+							);
+
+						if (line.children().length > 0)
+							content.append(line);
+
+						$(".sceditor-toolbar").append(content);
+					},
 					createPermanentDropDown: function() {
 							var	emoticons	= $.extend({}, this.options.emoticons.dropdown);
-							content = $(\'<div />\').css({width: "100%"}).attr({class: "sceditor-insertemoticon"});
+							content = $(\'<div />\').attr({class: "sceditor-insertemoticon"});
 							line = $(\'<div />\');
+							
 							base = this;
+							if (typeof this.options.emoticons.popup !== "undefined")
+							{
+								this.options.emoticons.more = this.options.emoticons.popup;
+								moreButton = $(\'<div />\').attr({class: "sceditor-more"}).text(', JavaScriptEscape($txt['more']), ').click(function () {
+									var emoticons = $.extend({}, base.options.emoticons.popup);
+									var basement = $(\'<div />\').attr({class: "sceditor-popup"});
+										allowHide = true;
+										popupContent = $(\'<div />\');
+										line = $(\'<div />\');
+										closeButton = $(\'<div />\').text(', JavaScriptEscape($txt['find_close']), ').click(function () {
+											base.closeDropDown();
+										});
 
-							$.each(emoticons, function (code, emoticon) {
-								if (code == \'\')
-								{
-									line.append($(\'<br />\'));
-								}
-								else
-									line.append($(\'<img />\')
-										.attr({
-											src: emoticon,
-											alt: code,
-										})
-										.click(function (e) {
-											var	start = \'\', end = \'\';
-											
-											if(base.options.emoticonsCompat)
-											{
-												start = \'<span> \';
-												end   = \' </span>\';
-											}
+									$.each(emoticons, base.appendEmoticon);
 
-											// @TODO check if inSource or not
-											base.wysiwygEditorInsertHtml(start + \'<img src="\' + $(this).attr("src") +
-												\'" data-sceditor-emoticon="\' + $(this).attr(\'alt\') + \'" />\' + end);
+									if (line.children().length > 0)
+										popupContent.append(line);
+									if (typeof closeButton !== "undefined")
+										popupContent.append(closeButton);
 
-											e.preventDefault();
-										})
-									);
-
-								if(line.children().length > 0)
-									content.append(line);
-
-								$(".sceditor-toolbar").append(content);
-						})
+									base.createDropDown($(basement), \'smileyPopup\', popupContent, base.ieUnselectable);
+								});
+							}
+							$.each(emoticons, base.appendEmoticon);
+							if (typeof moreButton !== "undefined")
+								content.append(moreButton);
 					}
 				};
 
@@ -122,7 +149,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 				elseif ($location == 'popup')
 					echo '
-						more:
+						popup:
 						{';
 
 				$numRows = count($smileyRows);
@@ -388,6 +415,7 @@ emoticons:
 */
 		echo '
 				})
+// 				$("#', $editor_id, '").data("sceditor").overrideReplaceEmoticons();
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
 			});
 			// ]]></script>';
