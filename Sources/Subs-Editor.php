@@ -1525,28 +1525,28 @@ function create_control_richedit($editorOptions)
 		$context['bbc_tags'][] = array(
 			array(
 				'image' => 'bold',
-				'code' => 'b',
+				'code' => 'bold',
 				'before' => '[b]',
 				'after' => '[/b]',
 				'description' => $txt['bold'],
 			),
 			array(
 				'image' => 'italicize',
-				'code' => 'i',
+				'code' => 'italic',
 				'before' => '[i]',
 				'after' => '[/i]',
 				'description' => $txt['italic'],
 			),
 			array(
 				'image' => 'underline',
-				'code' => 'u',
+				'code' => 'uunderline',
 				'before' => '[u]',
 				'after' => '[/u]',
 				'description' => $txt['underline']
 			),
 			array(
 				'image' => 'strike',
-				'code' => 's',
+				'code' => 'strike',
 				'before' => '[s]',
 				'after' => '[/s]',
 				'description' => $txt['strike']
@@ -1591,14 +1591,14 @@ function create_control_richedit($editorOptions)
 			),
 			array(
 				'image' => 'img',
-				'code' => 'img',
+				'code' => 'image',
 				'before' => '[img]',
 				'after' => '[/img]',
 				'description' => $txt['image']
 			),
 			array(
 				'image' => 'url',
-				'code' => 'url',
+				'code' => 'link',
 				'before' => '[url]',
 				'after' => '[/url]',
 				'description' => $txt['hyperlink']
@@ -1642,14 +1642,14 @@ function create_control_richedit($editorOptions)
 			array(),
 			array(
 				'image' => 'sup',
-				'code' => 'sup',
+				'code' => 'superscript',
 				'before' => '[sup]',
 				'after' => '[/sup]',
 				'description' => $txt['superscript']
 			),
 			array(
 				'image' => 'sub',
-				'code' => 'sub',
+				'code' => 'subscript',
 				'before' => '[sub]',
 				'after' => '[/sub]',
 				'description' => $txt['subscript']
@@ -1686,21 +1686,21 @@ function create_control_richedit($editorOptions)
 			array(),
 			array(
 				'image' => 'list',
-				'code' => 'list',
+				'code' => 'bulletlist',
 				'before' => '[list]\n[li]',
 				'after' => '[/li]\n[li][/li]\n[/list]',
 				'description' => $txt['list_unordered']
 			),
 			array(
 				'image' => 'orderlist',
-				'code' => 'orderlist',
+				'code' => 'orderedlist',
 				'before' => '[list type=decimal]\n[li]',
 				'after' => '[/li]\n[li][/li]\n[/list]',
 				'description' => $txt['list_ordered']
 			),
 			array(
 				'image' => 'hr',
-				'code' => 'hr',
+				'code' => 'horizontalrule',
 				'before' => '[hr]',
 				'description' => $txt['horizontal_rule']
 			),
@@ -1727,8 +1727,76 @@ function create_control_richedit($editorOptions)
 			);
 		}
 
+		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
+		$disabled_tags = array();
+		if (!empty($modSettings['disabledBBC']))
+			$disabled_tags = explode(',', $modSettings['disabledBBC']);
+		if (empty($modSettings['enableEmbeddedFlash']))
+			$disabled_tags[] = 'flash';
+
+		foreach ($disabled_tags as $tag)
+		{
+			if ($tag == 'list')
+				$context['disabled_tags']['orderlist'] = true;
+
+			$context['disabled_tags'][trim($tag)] = true;
+		}
+
+		$context['html_headers'] .= '
+		<style type="text/css">';
+		$context['bbc_toolbar'] = array();
 		foreach ($context['bbc_tags'] as $row => $tagRow)
-			$context['bbc_tags'][$row][count($tagRow) - 1]['isLast'] = true;
+		{
+			if (!isset($context['bbc_toolbar'][$row]))
+				$context['bbc_toolbar'][$row] = array();
+			$tagsRow = array();
+			foreach ($tagRow as $tag)
+			{
+			 if (!empty($tag))
+			 {
+					if (empty($context['disabled_tags'][$tag['code']]))
+					{
+						$tagsRow[] = $tag['code']; 
+						$context['html_headers'] .= '
+			.sceditor-button-' . $tag['code'] . ' div {
+				background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
+			}';
+					}
+				}
+				else
+				{
+					$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+					$tagsRow = array();
+				}
+			}
+
+			if ($row == 0)
+			{
+				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+				$tagsRow = array();
+				if (!isset($context['disabled_tags']['font']))
+					$tagsRow[] = 'font';
+				if (!isset($context['disabled_tags']['size']))
+					$tagsRow[] = 'size';
+				if (!isset($context['disabled_tags']['color']))
+					$tagsRow[] = 'color';
+			}
+			elseif ($row == 1)
+			{
+				$tmp = array();
+				$tagsRow[] = 'removeformat';
+				$tagsRow[] = 'source';
+				if (!empty($tmp))
+				{
+					$tagsRow[] = '|' . implode(',', $tmp);
+				}
+			}
+
+			if (!empty($tagsRow))
+				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+		}
+		$context['html_headers'] .= '
+		</style>';
 	}
 
 	// Initialize smiley array... if not loaded before.
@@ -1866,21 +1934,6 @@ function create_control_richedit($editorOptions)
 
 	// Set a flag so the sub template knows what to do...
 	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($settings['show_bbc']);
-
-	// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
-	$disabled_tags = array();
-	if (!empty($modSettings['disabledBBC']))
-		$disabled_tags = explode(',', $modSettings['disabledBBC']);
-	if (empty($modSettings['enableEmbeddedFlash']))
-		$disabled_tags[] = 'flash';
-
-	foreach ($disabled_tags as $tag)
-	{
-		if ($tag == 'list')
-			$context['disabled_tags']['orderlist'] = true;
-
-		$context['disabled_tags'][trim($tag)] = true;
-	}
 
 	// Switch the URLs back... now we're back to whatever the main sub template is.  (like folder in PersonalMessage.)
 	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))

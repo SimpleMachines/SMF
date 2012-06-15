@@ -98,8 +98,12 @@
 				center: { txtExec: ["[center]", "[/center]"] },
 				right: { txtExec: ["[right]", "[/right]"] },
 				justify: { txtExec: ["[justify]", "[/justify]"] },
-				bulletlist: { txtExec: ["[list]\n[li][/li]\n[li][/li]\n[/list]"] },
-				orderedlist: { txtExec: ["[list type=decimal]\n[li][/li]\n[li][/li]\n[/list]"] },
+				bulletlist: { txtExec: ["[list]\n[li]", "[/li]\n[li][/li]\n[/list]"] },
+				orderedlist: { txtExec: ["[list type=decimal]\n[li]", "[/li]\n[li][/li]\n[/list]"] },
+				ftp: { txtExec: ["[ftp]", "[/ftp]"] },
+				tt: { txtExec: ["[tt]", "[/tt]"] },
+				glow: { txtExec: ["[glow=red,2,300]", "[/glow]"] },
+				shadow: { txtExec: ["[shadow=red,left]", "[/shadow]"] },
 				font: {
 					txtExec: function (caller) {
 						var	editor  = this,
@@ -1079,6 +1083,14 @@
 					attrs.defaultAttr = content;
 
 				return '<a href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+			}
+		},
+		ftp: {
+			html: function(element, attrs, content) {
+				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+					attrs.defaultAttr = content;
+
+				return '<a trget="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
 			}
 		},
 		// END_COMMAND

@@ -172,8 +172,10 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 		}
 		.sceditor-button div, .sceditor-button {
 			display: block;
-			width: 16px;
-			height: 16px;
+			width: 18px;
+			height: 18px;
+			background-repeat:no-repeat !important;
+			background-position:center center !important;
 		}
 		.sceditor-button div {
 			margin: 0;
