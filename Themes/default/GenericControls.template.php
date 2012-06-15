@@ -443,6 +443,7 @@ emoticons:
 		echo '
 				})
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
+				$(".sceditor-container").width("100%");
 			});
 			// ]]></script>';
 }
