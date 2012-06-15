@@ -90,11 +90,11 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 		div.sceditor-insertemail {
 			padding: 5px;
 		}
-		.sceditor-insertemoticon img {
+		.sceditor-insertemoticon img, .sceditor-smileyPopup img {
 			cursor: pointer;
 			margin: 2px;
 		}
-		.sceditor-more {
+		.sceditor-more, .sceditor-smileyPopup {
 			display: inline;
 			text-align: center;
 			cursor: pointer;

@@ -80,7 +80,6 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 											\'" data-sceditor-emoticon="\' + $(this).attr(\'alt\') + \'" />\' + end);
 
 									e.preventDefault();
-									base.closeDropDown(true);
 								})
 							);
 
@@ -93,29 +92,57 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 							var	emoticons	= $.extend({}, this.options.emoticons.dropdown);
 							content = $(\'<div />\').attr({class: "sceditor-insertemoticon"});
 							line = $(\'<div />\');
-							
+
 							base = this;
 							if (typeof this.options.emoticons.popup !== "undefined")
 							{
 								this.options.emoticons.more = this.options.emoticons.popup;
-								moreButton = $(\'<div />\').attr({class: "sceditor-more"}).text(', JavaScriptEscape($txt['more']), ').click(function () {
-									var emoticons = $.extend({}, base.options.emoticons.popup);
-									var basement = $(\'<div />\').attr({class: "sceditor-popup"});
-										allowHide = true;
-										popupContent = $(\'<div />\');
-										line = $(\'<div />\');
-										closeButton = $(\'<div />\').text(', JavaScriptEscape($txt['find_close']), ').click(function () {
-											base.closeDropDown();
+								moreButton = $(\'<div />\').attr({class: "sceditor-more"}).text(', JavaScriptEscape('[' . $txt['more'] . ']'), ').click(function () {
+									if ($(".sceditor-smileyPopup").length > 0)
+									{
+										$(".sceditor-smileyPopup").fadeIn(\'fast\');
+									}
+									else
+									{
+										var emoticons = $.extend({}, base.options.emoticons.popup);
+										var basement = $(\'<div />\').attr({class: "sceditor-popup"});
+											allowHide = true;
+											popupContent = $(\'<div />\');
+											line = $(\'<div />\');
+											closeButton = $(\'<span />\').text(', JavaScriptEscape('[' . $txt['find_close'] . ']'), ').click(function () {
+												$(".sceditor-smileyPopup").fadeOut(\'fast\');
+											});
+
+										$.each(emoticons, base.appendEmoticon);
+
+										if (line.children().length > 0)
+											popupContent.append(line);
+										if (typeof closeButton !== "undefined")
+											popupContent.append(closeButton);
+
+										// IE needs unselectable attr to stop it from unselecting the text in the editor.
+										// The editor can cope if IE does unselect the text it\'s just not nice.
+										if(base.ieUnselectable !== false) {
+											content = $(content);
+											content.find(\':not(input,textarea)\').filter(function() { return this.nodeType===1; }).attr(\'unselectable\', \'on\');
+										}
+
+										$dropdown = $(\'<div class="sceditor-dropdown sceditor-smileyPopup" />\').append(popupContent);
+
+										$dropdown.appendTo($(\'body\'));
+										dropdownIgnoreLastClick = true;
+										$dropdown.css({
+											position: "fixed",
+											top: $(window).height() * 0.2,
+											left: $(window).width() * 0.5 - ($dropdown.width() / 2),
+											"max-width": "50%"
 										});
 
-									$.each(emoticons, base.appendEmoticon);
-
-									if (line.children().length > 0)
-										popupContent.append(line);
-									if (typeof closeButton !== "undefined")
-										popupContent.append(closeButton);
-
-									base.createDropDown($(basement), \'smileyPopup\', popupContent, base.ieUnselectable);
+										// stop clicks within the dropdown from being handled
+										$dropdown.click(function (e) {
+											e.stopPropagation();
+										});
+									}
 								});
 							}
 							$.each(emoticons, base.appendEmoticon);
@@ -415,7 +442,6 @@ emoticons:
 */
 		echo '
 				})
-// 				$("#', $editor_id, '").data("sceditor").overrideReplaceEmoticons();
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
 			});
 			// ]]></script>';
