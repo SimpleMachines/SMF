@@ -29,7 +29,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 			(function($) {
 				var extensionMethods = {
-					InsertText: function(text) {
+					InsertText: function(text, bClear) {
 						var bIsSource = this.inSourceMode();
 
 						// @TODO make it put the quote close to the current selection
@@ -37,7 +37,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						if (!bIsSource)
 							this.toggleTextMode();
 
-						var current_value = this.getTextareaValue(false) + "\n" + text;
+						var current_value = bClear ? text : this.getTextareaValue(false) + "\n" + text;
 						this.setTextareaValue(current_value);
 
 						if (!bIsSource)
@@ -196,14 +196,14 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$.sceditor.setCommand(
 					\'glow\',
 					function () {
-						this.wysiwygEditorInsertText(\'[glow=red,2,300][/glow]\');
+						this.wysiwygEditorInsertHtml(\'[glow=red,2,300]\', \'[/glow]\');
 					},
 					', javaScriptEscape($txt['glow']), '
 				);
 				$.sceditor.setCommand(
 					\'shadow\',
 					function () {
-						this.wysiwygEditorInsertText(\'[shadow=red,left][/shadow]\');
+						this.wysiwygEditorInsertHtml(\'[shadow=red,left]\', \'[/shadow]\');
 					},
 					', javaScriptEscape($txt['shadow']), '
 				);
@@ -277,30 +277,30 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			echo ',
 					toolbar: "emoticon,source",';
 
-/*
-// 		// Now it's all drawn out we'll actually setup the box.
-// 		echo '
-// 				var oEditorHandle_', $editor_id, ' = new smc_Editor({
-// 					sSessionId: smf_session_id,
-// 					sSessionVar: smf_session_var,
-// 					sFormId: ', JavaScriptEscape($editor_context['form']), ',
-// 					sUniqueId: ', JavaScriptEscape($editor_id), ',
-// 					bRTL: ', $txt['lang_rtl'] ? 'true' : 'false', ',
-// 					bWysiwyg: ', $editor_context['rich_active'] ? 'true' : 'false', ',
-// 					sText: ', JavaScriptEscape($editor_context['rich_active'] ? $editor_context['rich_value'] : ''), ',
-// 					sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
-// 					sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
-// 					bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
-// 					oSmileyBox: ', !empty($context['smileys']['postform']) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null ? 'oSmileyBox_' . $editor_id : 'null', ',
-// 					oBBCBox: ', $context['show_bbc'] && $bbcContainer !== null ? 'oBBCBox_' . $editor_id : 'null', '
-// 				});
-// 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';';
-*/
 		echo '
 				})
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
-				$(".sceditor-container").width("100%").height("100%");
-			});
+				$(".sceditor-container").width("100%").height("100%");', 
+				/*$editor_context['rich_active'] ? '$("#' . $editor_id . '").toggleTextMode();' :*/ '', '
+			});';
+
+		// Now for backward compatibility let's collect few infos in the good ol' style
+		echo '
+				var oEditorHandle_', $editor_id, ' = new smc_Editor({
+					sSessionId: smf_session_id,
+					sSessionVar: smf_session_var,
+					sFormId: ', JavaScriptEscape($editor_context['form']), ',
+					sUniqueId: ', JavaScriptEscape($editor_id), ',
+					bRTL: ', $txt['lang_rtl'] ? 'true' : 'false', ',
+					bWysiwyg: ', $editor_context['rich_active'] ? 'true' : 'false', ',
+					sText: ', JavaScriptEscape($editor_context['rich_active'] ? $editor_context['rich_value'] : ''), ',
+					sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
+					sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
+					bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
+					oSmileyBox: null,
+					oBBCBox: null
+				});
+// 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
 			// ]]></script>';
 }
 

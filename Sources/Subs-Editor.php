@@ -1459,6 +1459,7 @@ function create_control_richedit($editorOptions)
 				prompt_text_img: \'' . addcslashes($txt['prompt_text_img'], "'") . '\'
 			}
 		// ]]></script>
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/editor.js?alp21"></script>
 		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>';
@@ -1539,7 +1540,7 @@ function create_control_richedit($editorOptions)
 			),
 			array(
 				'image' => 'underline',
-				'code' => 'uunderline',
+				'code' => 'underline',
 				'before' => '[u]',
 				'after' => '[/u]',
 				'description' => $txt['underline']
