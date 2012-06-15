@@ -1781,7 +1781,7 @@ function create_control_richedit($editorOptions)
 				if (!isset($context['disabled_tags']['color']))
 					$tagsRow[] = 'color';
 			}
-			elseif ($row == 1)
+			elseif ($row == 1 && empty($modSettings['disable_wysiwyg']))
 			{
 				$tmp = array();
 				$tagsRow[] = 'removeformat';

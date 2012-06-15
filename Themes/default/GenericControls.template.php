@@ -76,7 +76,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 									}
 
 									if (base.inSourceMode())
-										base.textEditorInsertText(start +  + end);
+										base.textEditorInsertText(\' \' + $(this).attr(\'alt\') + \' \');
 									else
 										base.wysiwygEditorInsertHtml(start + \'<img src="\' + $(this).attr("src") +
 											\'" data-sceditor-emoticon="\' + $(this).attr(\'alt\') + \'" />\' + end);
@@ -266,7 +266,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		if ($context['show_bbc'] && $bbcContainer !== null)
 		{
 			echo ',
-					toolbar: "';
+					toolbar: "emoticon,';
 			$count_tags = count($context['bbc_tags']);
 			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
 			{
@@ -278,6 +278,10 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 			echo '",';
 		}
+		else
+			echo ',
+					toolbar: "emoticon,source",';
+
 /*
 // 		// Now it's all drawn out we'll actually setup the box.
 // 		echo '

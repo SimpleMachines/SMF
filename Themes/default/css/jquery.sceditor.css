@@ -219,6 +219,7 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 
 			.sceditor-button-quote div { background: url('../images/bbc/icons/comment.png'); }
 
+			.sceditor-button-emoticon { display:none; }
 			.sceditor-button-emoticon div { background: url('../images/bbc/icons/emoticon_smile.png'); }
 			.sceditor-button-youtube div { background: url('../images/bbc/icons/youtube.png'); }
 			.sceditor-button-date div { background: url('../images/bbc/icons/date_add.png'); }
