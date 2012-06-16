@@ -85,6 +85,10 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 						$(".sceditor-toolbar").append(content);
 					},
+					setTextMode: function () {
+						if (!this.inSourceMode())
+							this.toggleTextMode();
+					},
 					createPermanentDropDown: function() {
 							var	emoticons	= $.extend({}, this.options.emoticons.dropdown);
 							var popup_exists = false;
@@ -224,6 +228,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,
+					supportedWysiwyg: (((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome) && !(is_iphone || is_android)),
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
@@ -284,10 +289,16 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					toolbar: "emoticon,source",';
 
 		echo '
-				})
+				});
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
 				$(".sceditor-container").width("100%").height("100%");', 
-				/*$editor_context['rich_active'] ? '$("#' . $editor_id . '").toggleTextMode();' :*/ '', '
+				$editor_context['rich_active'] ? '' : '
+				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
+				if (!(((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome) && !(is_iphone || is_android)))
+				{
+					$("#' . $editor_id . '").data("sceditor").setTextMode();
+					$(".sceditor-button-source").hide();
+				}
 			});';
 
 		// Now for backward compatibility let's collect few infos in the good ol' style
@@ -306,7 +317,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					oSmileyBox: null,
 					oBBCBox: null
 				});
-// 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
+				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
 			// ]]></script>';
 }
 
