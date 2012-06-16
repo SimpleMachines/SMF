@@ -172,10 +172,18 @@
 
 			// Pass the value though the getTextHandler if it is set so that
 			// BBCode, ect. can be converted
-			if(base.options.getTextHandler)
+			if(base.options.getTextHandler && base.options.supportedWysiwyg)
+			{
 				val = base.options.getTextHandler(val);
 
-			base.setWysiwygEditorValue(val);
+				base.setWysiwygEditorValue(val);
+			}
+			else
+			{
+				base.toggleTextMode();
+				base.setTextareaValue(val);
+			}
+
 			if(base.options.toolbar.indexOf('emoticon') !== -1)
 				preLoadEmoticons();
 		};
@@ -727,6 +735,9 @@
 		 * Gets the WYSIWYG editors HTML which is between the body tags
 		 */
 		base.getWysiwygEditorValue = function (filter) {
+			if (!base.options.supportedWysiwyg)
+				return;
+
 			var	$body = $wysiwygEditor.contents().find("body"),
 				html;
 			
@@ -825,11 +836,11 @@
 		 * Switches between the WYSIWYG and plain text modes
 		 */
 		base.toggleTextMode = function () {
-			if(base.inSourceMode())
+			if(base.inSourceMode() && base.options.supportedWysiwyg)
 				base.setWysiwygEditorValue(base.getTextareaValue());
 			else
 				base.setTextareaValue(base.getWysiwygEditorValue());
-			
+
 			// enable all the buttons
 			$toolbar.find('.sceditor-button').removeClass('disabled');
 
