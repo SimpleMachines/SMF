@@ -87,11 +87,17 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					},
 					createPermanentDropDown: function() {
 							var	emoticons	= $.extend({}, this.options.emoticons.dropdown);
+							var popup_exists = false;
 							content = $(\'<div />\').attr({class: "sceditor-insertemoticon"});
 							line = $(\'<div />\');
 
 							base = this;
-							if (typeof this.options.emoticons.popup !== "undefined")
+							for (smiley_popup in this.options.emoticons.popup)
+							{
+								popup_exists = true;
+								break;
+							}
+							if (popup_exists)
 							{
 								this.options.emoticons.more = this.options.emoticons.popup;
 								moreButton = $(\'<div />\').attr({class: "sceditor-more"}).text(', JavaScriptEscape('[' . $txt['more'] . ']'), ').click(function () {
