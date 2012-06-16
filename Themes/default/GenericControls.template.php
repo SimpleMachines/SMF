@@ -85,6 +85,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 						$(".sceditor-toolbar").append(content);
 					},
+					storeLastState: function (){
+						this.wasSource = this.inSourceMode();
+					},
 					setTextMode: function () {
 						if (!this.inSourceMode())
 							this.toggleTextMode();

@@ -1,4 +1,7 @@
 // *** smc_Editor class.
+/*
+ Kept for compatibility with SMF 2.0 editor
+ */
 function smc_Editor(oOptions)
 {
 	this.opt = oOptions;
@@ -30,18 +33,11 @@ smc_Editor.prototype.spellCheckStart = function()
 	if (!spellCheck)
 		return false;
 
+	$('#' + this.sUniqueId).data("sceditor").storeLastState();
 	// If we're in HTML mode we need to get the non-HTML text.
-	if (this.bRichTextEnabled)
-	{
-		var sText = escape(this.getText(true, 1).php_to8bit());
+	$('#' + this.sUniqueId).data("sceditor").setTextMode()
 
-		this.tmpMethod = sendXMLDocument;
-		this.tmpMethod(smf_prepareScriptUrl(smf_scripturl) + 'action=jseditor;view=0;' + this.opt.sSessionVar + '=' + this.opt.sSessionId + ';xml', 'message=' + sText, this.onSpellCheckDataReceived);
-		delete tmpMethod;
-	}
-	// Otherwise start spellchecking right away.
-	else
-		spellCheck(this.sFormId, this.opt.sUniqueId);
+	spellCheck(false, this.opt.sUniqueId);
 
 	return true;
 }

@@ -1476,16 +1476,6 @@ function create_control_richedit($editorOptions)
 		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
 			<input type="hidden" name="spellstring" value="" />
 		</form>';
-
-			// Also make sure that spell check works with rich edit.
-			$context['html_headers'] .= '
-		<script type="text/javascript"><!-- // --><![CDATA[
-		function spellCheckDone()
-		{
-			for (i = 0; i < smf_editorArray.length; i++)
-				setTimeout("smf_editorArray[" + i + "].spellCheckEnd()", 150);
-		}
-		// ]]></script>';
 		}
 	}
 

@@ -1482,7 +1482,7 @@ function SpellCheck()
 	// Construct a bit of Javascript code.
 	$context['spell_js'] = '
 		var txt = {"done": "' . $txt['spellcheck_done'] . '"};
-		var mispstr = window.opener.document.forms[spell_formname][spell_fieldname].value;
+		var mispstr = window.opener.spellCheckGetText(spell_fieldname);
 		var misps = Array(';
 
 	// Get all the words (Javascript already separated them).
