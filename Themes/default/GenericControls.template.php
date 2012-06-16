@@ -37,7 +37,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						if (!bIsSource)
 							this.toggleTextMode();
 
-						var current_value = bClear ? text : this.getTextareaValue(false) + "\n" + text;
+						var current_value = bClear ? text + "\n" : this.getTextareaValue(false) + "\n" + text + "\n";
 						this.setTextareaValue(current_value);
 
 						if (!bIsSource)

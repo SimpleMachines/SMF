@@ -5,6 +5,7 @@ function smc_Editor(oOptions)
 
 	var editor = $('#' + oOptions.sUniqueId);
 	this.sUniqueId = this.opt.sUniqueId;
+	this.bRichTextEnabled = true;
 }
 
 // Return the current text.
@@ -20,7 +21,7 @@ smc_Editor.prototype.doSubmit = function()
 // Populate the box with text.
 smc_Editor.prototype.insertText = function(sText, bClear, bForceEntityReverse, iMoveCursorBack)
 {
-	$('#' + this.sUniqueId).data("sceditor").InsertText(sText, bClear);
+	$('#' + this.sUniqueId).data("sceditor").InsertText(sText.replace(/<br \/>/gi, ''), bClear);
 }
 
 // Start up the spellchecker!
