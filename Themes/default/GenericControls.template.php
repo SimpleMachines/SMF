@@ -107,7 +107,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 							if (popup_exists)
 							{
 								this.options.emoticons.more = this.options.emoticons.popup;
-								moreButton = $(\'<div />\').attr({class: "sceditor-more"}).text(', JavaScriptEscape('[' . $txt['more'] . ']'), ').click(function () {
+								moreButton = $(\'<div />\').attr({class: "sceditor-more"}).text(\'[\' + this._(\'More\') + \']\').click(function () {
 									if ($(".sceditor-smileyPopup").length > 0)
 									{
 										$(".sceditor-smileyPopup").fadeIn(\'fast\');
@@ -119,7 +119,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 											allowHide = true;
 											popupContent = $(\'<div />\');
 											line = $(\'<div />\');
-											closeButton = $(\'<span />\').text(', JavaScriptEscape('[' . $txt['find_close'] . ']'), ').click(function () {
+											closeButton = $(\'<span />\').text(\'[\' + base._(\'Close\') + \']\').click(function () {
 												$(".sceditor-smileyPopup").fadeOut(\'fast\');
 											});
 
@@ -204,34 +204,36 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 						editor.createDropDown(caller, "insertlink", content);
 					},
-					', javaScriptEscape($txt['ftp']), '
+					\'Insert FTP Link\'
 				);
 				$.sceditor.setCommand(
 					\'glow\',
 					function () {
 						this.wysiwygEditorInsertHtml(\'[glow=red,2,300]\', \'[/glow]\');
 					},
-					', javaScriptEscape($txt['glow']), '
+					\'Glow\'
 				);
 				$.sceditor.setCommand(
 					\'shadow\',
 					function () {
 						this.wysiwygEditorInsertHtml(\'[shadow=red,left]\', \'[/shadow]\');
 					},
-					', javaScriptEscape($txt['shadow']), '
+					\'Shadow\'
 				);
 				$.sceditor.setCommand(
 					\'tt\',
 					function () {
 						this.wysiwygEditorInsertHtml(\'<tt>\', \'</tt>\');
 					},
-					', javaScriptEscape($txt['teletype']), '
+					\'Teletype\'
 				);
+				', !empty($context['bbcodes_hanlders']) ? $context['bbcodes_hanlders'] : '', '
 
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,
 					supportedWysiwyg: (((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome) && !(is_iphone || is_android)),
+					locale: en,
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
@@ -313,7 +315,6 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					sUniqueId: ', JavaScriptEscape($editor_id), ',
 					bRTL: ', $txt['lang_rtl'] ? 'true' : 'false', ',
 					bWysiwyg: ', $editor_context['rich_active'] ? 'true' : 'false', ',
-					sText: ', JavaScriptEscape($editor_context['rich_active'] ? $editor_context['rich_value'] : ''), ',
 					sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
 					sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
 					bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
