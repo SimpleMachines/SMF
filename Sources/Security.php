@@ -754,7 +754,7 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings;
+	global $modSettings, $sourcedir;
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
@@ -782,6 +782,13 @@ function validateToken($action, $type = 'post', $reset = true)
 
 		// I'm back baby.
 		createToken($action, $type);
+
+		// Need to type in a password for that, man.
+		if (!isset($_GET['xml']))
+		{
+			require_once($sourcedir . '/Subs-Auth.php');
+			adminLogin($type, $action);
+		}
 
 		fatal_lang_error('token_verify_fail', false);
 	}
