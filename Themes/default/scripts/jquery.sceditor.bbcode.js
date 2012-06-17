@@ -1133,7 +1133,9 @@
 
 					content = '';
 					$(element).children("cite:first").remove();
-					content = this.elementToBbcode($(element));
+
+					var preserve_newline = $(element).children().last().is("br") && $(element).children().last().last().is("br");
+					content = this.elementToBbcode($(element)) + (preserve_newline ? "\n" : '');
 				}
 				else
 				{
