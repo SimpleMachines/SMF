@@ -232,8 +232,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,
-					supportedWysiwyg: (((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome) && !(is_iphone || is_android)),
-					locale: en,
+					supportedWysiwyg: (((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome) && !(is_iphone || is_android)),',
+					!empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? '
+					locale: \'' . $txt['lang_locale'] . '\',' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.

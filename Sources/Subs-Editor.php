@@ -16,6 +16,45 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
+/**
+ * Creates the javascript code for localization of the editor (SCEditor)
+ */
+function loadLocale()
+{
+	global $context, $txt, $txteditor, $modSettings;
+
+	loadLanguage('Editor');
+
+	$context['template_layers'] = array();
+	// Lets make sure we aren't going to output anything nasty.
+	@ob_end_clean();
+	if (!empty($modSettings['enableCompressedOutput']))
+		@ob_start('ob_gzhandler');
+	else
+		@ob_start();
+
+	// If we don't have any locale better avoit broken js
+	if (empty($txt['lang_locale']))
+		die();
+
+	$file_data = '(function ($) {
+	\'use strict\';
+
+	$.sceditor.locale[' . javaScriptEscape($txt['lang_locale']) . '] = {';
+	foreach ($txteditor as $key => $val)
+		$file_data .= '
+		' . javaScriptEscape($key) . ': ' . javaScriptEscape($val) . ',';
+
+	$file_data .= '
+		dateFormat: "day.month.year"
+	}
+})(jQuery);';
+
+	// Make sure they know what type of file we are.
+	header('Content-Type: text/javascript');
+	echo $file_data;
+	obExit(false);
+}
 
 /**
  * Retrieves a list of message icons.
@@ -159,6 +198,10 @@ function create_control_richedit($editorOptions)
 		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>';
+
+		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
+			$context['html_headers'] .= '
+		<script type="text/javascript" src="' . $scripturl . '?action=loadeditorlocale"></script>';
 
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
