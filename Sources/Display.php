@@ -169,11 +169,10 @@ function Display()
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
-			' . (!empty($topic_tables) ? implode("\n", $topic_tables)) . '
+			' . (!empty($topic_tables) ? implode("\n", $topic_tables) : '') . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 			$topic_parameters
-		)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('not_a_topic', false);
@@ -990,10 +989,10 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, body,
 				smileys_enabled, poster_name, poster_email, approved,
 				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? implode(',', $msg_selects)) . '
+				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:message_list})
-				' . (!empty($msg_tables) ? implode("\n", $msg_tables)) . '
+				' . (!empty($msg_tables) ? implode("\n", $msg_tables) : '') . '
 			ORDER BY id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
 			$msg_parameters
 		);
