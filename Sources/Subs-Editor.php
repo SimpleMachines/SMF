@@ -185,14 +185,9 @@ function create_control_richedit($editorOptions)
 		$context['html_headers'] .= '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
-			var oEditorStrings= {
-				wont_work: \'' . addcslashes($txt['rich_edit_wont_work'], "'") . '\',
-				func_disabled: \'' . addcslashes($txt['rich_edit_function_disabled'], "'") . '\',
-				prompt_text_email: \'' . addcslashes($txt['prompt_text_email'], "'") . '\',
-				prompt_text_ftp: \'' . addcslashes($txt['prompt_text_ftp'], "'") . '\',
-				prompt_text_url: \'' . addcslashes($txt['prompt_text_url'], "'") . '\',
-				prompt_text_img: \'' . addcslashes($txt['prompt_text_img'], "'") . '\'
-			}
+			var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
+			var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
+			var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';
 		// ]]></script>
 		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/editor.js?alp21"></script>
 		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
@@ -233,6 +228,7 @@ function create_control_richedit($editorOptions)
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
+		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
 	);
 
 	// Switch between default images and back... mostly in case you don't have an PersonalMessage template, but do have a Post template.
@@ -259,7 +255,6 @@ function create_control_richedit($editorOptions)
 				'after' => '[/b]',
 				'description' => $txt['bold'],
 			),
-
 		*/
 		$context['bbc_tags'] = array();
 		$context['bbc_tags'][] = array(

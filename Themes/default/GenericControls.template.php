@@ -13,7 +13,7 @@
 // This function displays all the stuff you get with a richedit box - BBC, smileys etc.
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $context, $settings, $options, $txt, $modSettings, $scripturl, $boardurl;
+	global $context, $settings, $modSettings;
 
 	$editor_context = &$context['controls']['richedit'][$editor_id];
 
@@ -23,10 +23,6 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		</div>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0" />
 		<script type="text/javascript"><!-- // --><![CDATA[
-			var bbc_quote_from = \'', $txt['quote_from'], '\'
-			var bbc_quote = \'', $txt['quote'], '\'
-			var bbc_search_on = \'', $txt['search_on'], '\';
-
 			$(document).ready(function() {
 				', !empty($context['bbcodes_hanlders']) ? $context['bbcodes_hanlders'] : '', '
 
@@ -34,8 +30,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,
 					supportedWysiwyg: (((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome) && !(is_iphone || is_android)),',
-					!empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? '
-					locale: \'' . $txt['lang_locale'] . '\',' : '', '
+					!empty($editor_context['locale']) ? '
+					locale: \'' . $editor_context['locale'] . '\',' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
@@ -63,7 +59,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					foreach ($smileyRow['smileys'] as $smiley)
 					{
 						echo '
-								', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape(str_replace($boardurl . '/', '', $settings['smileys_url'] . '/' . $smiley['filename'])), empty($smiley['isLast']) ? ',' : '';
+								', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
 					}
 					if (empty($smileyRow['isLast']) && $numRows != 1)
 						echo ',
