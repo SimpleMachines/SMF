@@ -2539,3 +2539,203 @@
 		});
 	};
 })(jQuery);
+
+(function($) {
+	var extensionMethods = {
+		InsertText: function(text, bClear) {
+			var bIsSource = this.inSourceMode();
+
+			// @TODO make it put the quote close to the current selection
+
+			if (!bIsSource)
+				this.toggleTextMode();
+
+			var current_value = bClear ? text + "\n" : this.getTextareaValue(false) + "\n" + text + "\n";
+			this.setTextareaValue(current_value);
+
+			if (!bIsSource)
+				this.toggleTextMode();
+
+		},
+		getText: function() {
+			if(this.inSourceMode())
+				var current_value = this.getTextareaValue(false);
+			else
+				var current_value = this.getWysiwygEditorValue();
+
+			return current_value;
+		},
+		appendEmoticon: function (code, emoticon) {
+			if (code == '')
+				line.append($('<br />'));
+			else
+				line.append($('<img />')
+					.attr({
+						src: emoticon,
+						alt: code,
+					})
+					.click(function (e) {
+						var	start = '', end = '';
+						
+						if (base.options.emoticonsCompat)
+						{
+							start = '<span> ';
+							end   = ' </span>';
+						}
+
+						if (base.inSourceMode())
+							base.textEditorInsertText(' ' + $(this).attr('alt') + ' ');
+						else
+							base.wysiwygEditorInsertHtml(start + '<img src="' + $(this).attr("src") +
+								'" data-sceditor-emoticon="' + $(this).attr('alt') + '" />' + end);
+
+						e.preventDefault();
+					})
+				);
+
+			if (line.children().length > 0)
+				content.append(line);
+
+			$(".sceditor-toolbar").append(content);
+		},
+		storeLastState: function (){
+			this.wasSource = this.inSourceMode();
+		},
+		setTextMode: function () {
+			if (!this.inSourceMode())
+				this.toggleTextMode();
+		},
+		createPermanentDropDown: function() {
+				var	emoticons	= $.extend({}, this.options.emoticons.dropdown);
+				var popup_exists = false;
+				content = $('<div />').attr({class: "sceditor-insertemoticon"});
+				line = $('<div />');
+
+				base = this;
+				for (smiley_popup in this.options.emoticons.popup)
+				{
+					popup_exists = true;
+					break;
+				}
+				if (popup_exists)
+				{
+					this.options.emoticons.more = this.options.emoticons.popup;
+					moreButton = $('<div />').attr({class: "sceditor-more"}).text('[' + this._('More') + ']').click(function () {
+						if ($(".sceditor-smileyPopup").length > 0)
+						{
+							$(".sceditor-smileyPopup").fadeIn('fast');
+						}
+						else
+						{
+							var emoticons = $.extend({}, base.options.emoticons.popup);
+							var basement = $('<div />').attr({class: "sceditor-popup"});
+								allowHide = true;
+								popupContent = $('<div />');
+								line = $('<div />');
+								closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
+									$(".sceditor-smileyPopup").fadeOut('fast');
+								});
+
+							$.each(emoticons, base.appendEmoticon);
+
+							if (line.children().length > 0)
+								popupContent.append(line);
+							if (typeof closeButton !== "undefined")
+								popupContent.append(closeButton);
+
+							// IE needs unselectable attr to stop it from unselecting the text in the editor.
+							// The editor can cope if IE does unselect the text it's just not nice.
+							if(base.ieUnselectable !== false) {
+								content = $(content);
+								content.find(':not(input,textarea)').filter(function() { return this.nodeType===1; }).attr('unselectable', 'on');
+							}
+
+							$dropdown = $('<div class="sceditor-dropdown sceditor-smileyPopup" />').append(popupContent);
+
+							$dropdown.appendTo($('body'));
+							dropdownIgnoreLastClick = true;
+							$dropdown.css({
+								position: "fixed",
+								top: $(window).height() * 0.2,
+								left: $(window).width() * 0.5 - ($dropdown.width() / 2),
+								"max-width": "50%"
+							});
+
+							// stop clicks within the dropdown from being handled
+							$dropdown.click(function (e) {
+								e.stopPropagation();
+							});
+						}
+					});
+				}
+				$.each(emoticons, base.appendEmoticon);
+				if (typeof moreButton !== "undefined")
+					content.append(moreButton);
+		}
+	};
+
+	$.extend(true, $['sceditor'].prototype, extensionMethods);
+})(jQuery);
+
+$.sceditor.setCommand(
+	'ftp',
+	function (caller) {
+		var	editor  = this,
+			content = $(this._('<form><div><label for="link">{0}</label> <input type="text" id="link" value="ftp://" /></div>' +
+					'<div><label for="des">{1}</label> <input type="text" id="des" value="" /></div></form>',
+				this._("URL:"),
+				this._("Description (optional):")
+			))
+			.submit(function () {return false;});
+
+		content.append($(
+			this._('<div><input type="button" class="button" value="{0}" /></div>',
+				this._("Insert")
+			)).click(function (e) {
+			var val = $(this).parent("form").find("#link").val(),
+				description = $(this).parent("form").find("#des").val();
+
+			if(val !== "" && val !== "ftp://") {
+				// needed for IE to reset the last range
+				editor.focus();
+
+				if(!editor.getRangeHelper().selectedHtml() || description)
+				{
+					if(!description)
+						description = val;
+					
+					editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
+				}
+				else
+					editor.execCommand("createlink", val);
+			}
+
+			editor.closeDropDown(true);
+			e.preventDefault();
+		}));
+
+		editor.createDropDown(caller, "insertlink", content);
+	},
+	'Insert FTP Link'
+);
+$.sceditor.setCommand(
+	'glow',
+	function () {
+		this.wysiwygEditorInsertHtml('[glow=red,2,300]', '[/glow]');
+	},
+	'Glow'
+);
+$.sceditor.setCommand(
+	'shadow',
+	function () {
+		this.wysiwygEditorInsertHtml('[shadow=red,left]', '[/shadow]');
+	},
+	'Shadow'
+);
+$.sceditor.setCommand(
+	'tt',
+	function () {
+		this.wysiwygEditorInsertHtml('<tt>', '</tt>');
+	},
+	'Teletype'
+);
