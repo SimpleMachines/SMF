@@ -130,7 +130,7 @@ function template_options()
 			'options' => array(
 				0 => $txt['display_quick_reply1'],
 				1 => $txt['display_quick_reply2'],
-				2 => $txt['display_quick_reply3']
+				2 => $txt['display_quick_reply3'],
 				3 => $txt['display_quick_reply4']
 			),
 			'default' => true,

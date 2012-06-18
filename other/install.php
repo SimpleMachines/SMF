@@ -912,7 +912,6 @@ function ForumSettings()
 
 	// Check if the database sessions will even work.
 	$incontext['test_dbsession'] = ini_get('session.auto_start') != 1;
-	$incontext['utf8_should_work'] = stripos(PHP_OS, 'win') === false;
 	$incontext['utf8_default'] = $databases[$db_type]['utf8_default'];
 	$incontext['utf8_required'] = $databases[$db_type]['utf8_required'];
 
@@ -2437,19 +2436,14 @@ function template_forum_settings()
 					<input type="checkbox" name="dbsession" id="dbsession_check" checked="checked" class="input_check" /> <label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label><br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
 				</td>
-			</tr>';
-
-	if ($incontext['utf8_should_work'])
-		echo '
+			</tr>
 			<tr>
 				<td valign="top" class="textbox">', $txt['install_settings_utf8'], ':</td>
 				<td>
 					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked="checked"' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled="disabled"' : '', ' /> <label for="utf8_check">', $txt['install_settings_utf8_title'], '</label><br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_utf8_info'], '</div>
 				</td>
-			</tr>';
-
-	echo '
+			</tr>
 			<tr>
 				<td valign="top" class="textbox">', $txt['install_settings_stats'], ':</td>
 				<td>

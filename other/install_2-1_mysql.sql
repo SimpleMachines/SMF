@@ -989,7 +989,7 @@ CREATE TABLE {$db_prefix}log_reported (
   id_member mediumint(8) unsigned NOT NULL default '0',
   membername varchar(255) NOT NULL default '',
   subject varchar(255) NOT NULL default '',
-  body text NOT NULL,
+  body mediumtext NOT NULL,
   time_started int(10) NOT NULL default '0',
   time_updated int(10) NOT NULL default '0',
   num_reports mediumint(6) NOT NULL default '0',
