@@ -132,7 +132,7 @@
 						var	editor    = this,
 							content   = $("<div />"),
 							clickFunc = function (e) {
-								editor.textEditorInsertText("[size=" + sizes[$(this).data('sceditor-fontsize')] + "pt]", "[/font]");
+								editor.textEditorInsertText("[size=" + sizes[$(this).data('sceditor-fontsize')] + "pt]", "[/size]");
 								editor.closeDropDown(true);
 								e.preventDefault();
 							};
