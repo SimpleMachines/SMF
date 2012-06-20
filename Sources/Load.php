@@ -702,7 +702,7 @@ function loadBoard()
 	$context['current_board'] = $board;
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
-	if (!empty($board_info['error']) && ($board_info['error'] != 'access' || !$user_info['is_mod']))
+	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
 	{
 		// The permissions and theme need loading, just to make sure everything goes smoothly.
 		loadPermissions();
