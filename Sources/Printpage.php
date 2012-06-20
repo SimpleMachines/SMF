@@ -35,6 +35,13 @@ function PrintTopic()
 	if (empty($topic))
 		redirectexit();
 
+	if (!empty($modSettings['disable_print_topic']))
+	{
+		unset($_REQUEST['action']);
+		$context['theme_loaded'] = false;
+		fatal_lang_error('feature_disabled', false);
+	}
+
 	// Whatever happens don't index this.
 	$context['robot_no_index'] = true;
 

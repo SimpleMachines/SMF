@@ -357,6 +357,7 @@ function ModifyTopicSettings($return_config = false)
 			array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['oldTopicDays_zero']),
 			array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
 			array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
+			array('check', 'disable_print_topic'),
 		'',
 			// Hot topics (etc)...
 			array('int', 'hotTopicPosts', 'postinput' => $txt['manageposts_posts']),

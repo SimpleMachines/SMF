@@ -526,6 +526,7 @@ $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
 $txt['oldTopicDays_zero'] = '0 to disable';
 $txt['defaultMaxTopics'] = 'Number of topics per page in the message index';
 $txt['defaultMaxMessages'] = 'Number of posts per page in a topic page';
+$txt['disable_print_topic'] = 'Disable print topic feature';
 $txt['hotTopicPosts'] = 'Number of posts for a hot topic';
 $txt['hotTopicVeryPosts'] = 'Number of posts for a very hot topic';
 $txt['enableAllMessages'] = 'Max topic size to show &quot;All&quot; posts';
