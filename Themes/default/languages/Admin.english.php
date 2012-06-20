@@ -659,4 +659,9 @@ $txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
 $txt['hooks_disable_legend_missing'] = 'the hook has not been found';
 $txt['hooks_reset_filter'] = 'Reset filter';
 
+$txt['board_perms_allow'] = 'Allow';
+$txt['board_perms_ignore'] = 'Ignore';
+$txt['board_perms_deny'] = 'Deny';
+$txt['all_boards_in_cat'] = 'All boards in this category';
+
 ?>

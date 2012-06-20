@@ -499,23 +499,30 @@ function AddMembergroup()
 		}
 
 		// Make sure all boards selected are stored in a proper array.
-		$_POST['boardaccess'] = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
-		foreach ($_POST['boardaccess'] as $key => $value)
-			$_POST['boardaccess'][$key] = (int) $value;
+		$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
+		$changed_boards['allow'] = array();
+		$changed_boards['deny'] = array();
+		$changed_boards['ignore'] = array();
+		foreach ($accesses as $group_id => $action)
+			$changed_boards[$action][] = (int) $group_id;
 
-		// Only do this if they have special access requirements.
-		if (!empty($_POST['boardaccess']))
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}boards
-				SET member_groups = CASE WHEN member_groups = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT(member_groups, {string:comma_group}) END
-				WHERE id_board IN ({array_int:board_list})',
-				array(
-					'board_list' => $_POST['boardaccess'],
-					'blank_string' => '',
-					'group_id_string' => (string) $id_group,
-					'comma_group' => ',' . $id_group,
-				)
-			);
+		foreach (array('allow', 'deny') as $board_action)
+		{
+			// Only do this if they have special access requirements.
+			if (!empty($changed_boards[$board_action]))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}boards
+					SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
+					WHERE id_board IN ({array_int:board_list})',
+					array(
+						'board_list' => $changed_boards[$board_action],
+						'blank_string' => '',
+						'group_id_string' => (string) $id_group,
+						'comma_group' => ',' . $id_group,
+						'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
+					)
+				);
+		}
 
 		// If this is joinable then set it to show group membership in people's profiles.
 		if (empty($modSettings['show_group_membership']) && $_POST['group_type'] > 1)
@@ -539,6 +546,9 @@ function AddMembergroup()
 	$context['post_group'] = isset($_REQUEST['postgroup']);
 	$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);
 	$context['allow_protected'] = allowedTo('admin_forum');
+
+	if (!empty($modSettings['deny_boards_access']))
+		loadLanguage('ManagePermissions');
 
 	$result = $smcFunc['db_query']('', '
 		SELECT id_group, group_name
@@ -588,7 +598,8 @@ function AddMembergroup()
 			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'child_level' => $row['child_level'],
-			'selected' => false
+			'allow' => false,
+			'deny' => false
 		);
 
 	}
@@ -647,6 +658,10 @@ function EditMembergroup()
 	global $context, $txt, $sourcedir, $modSettings, $smcFunc;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
+
+	if (!empty($modSettings['deny_boards_access']))
+		loadLanguage('ManagePermissions');
+
 
 	// Make sure this group is editable.
 	if (!empty($_REQUEST['group']))
@@ -744,48 +759,57 @@ function EditMembergroup()
 		// Time to update the boards this membergroup has access to.
 		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 		{
-			$_POST['boardaccess'] = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
-			foreach ($_POST['boardaccess'] as $key => $value)
-				$_POST['boardaccess'][$key] = (int) $value;
+			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
+			$changed_boards['allow'] = array();
+			$changed_boards['deny'] = array();
+			$changed_boards['ignore'] = array();
+			foreach ($accesses as $group_id => $action)
+				$changed_boards[$action][] = (int) $group_id;
 
-			// Find all board this group is in, but shouldn't be in.
-			$request = $smcFunc['db_query']('', '
-				SELECT id_board, member_groups
-				FROM {db_prefix}boards
-				WHERE FIND_IN_SET({string:current_group}, member_groups) != 0' . (empty($_POST['boardaccess']) ? '' : '
-					AND id_board NOT IN ({array_int:board_access_list})'),
-				array(
-					'current_group' => (int) $_REQUEST['group'],
-					'board_access_list' => $_POST['boardaccess'],
-				)
-			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}boards
-					SET member_groups = {string:member_group_access}
-					WHERE id_board = {int:current_board}',
+			foreach (array('allow', 'deny') as $board_action)
+			{
+				// Find all board this group is in, but shouldn't be in.
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board, {raw:column}
+					FROM {db_prefix}boards
+					WHERE FIND_IN_SET({string:current_group}, {raw:column}) != 0' . (empty($changed_boards[$board_action]) ? '' : '
+						AND id_board NOT IN ({array_int:board_access_list})'),
 					array(
-						'current_board' => $row['id_board'],
-						'member_group_access' => implode(',', array_diff(explode(',', $row['member_groups']), array($_REQUEST['group']))),
-					)
-				);
-			$smcFunc['db_free_result']($request);
-
-			// Add the membergroup to all boards that hadn't been set yet.
-			if (!empty($_POST['boardaccess']))
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}boards
-					SET member_groups = CASE WHEN member_groups = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT(member_groups, {string:comma_group}) END
-					WHERE id_board IN ({array_int:board_list})
-						AND FIND_IN_SET({int:current_group}, member_groups) = 0',
-					array(
-						'board_list' => $_POST['boardaccess'],
-						'blank_string' => '',
 						'current_group' => (int) $_REQUEST['group'],
-						'group_id_string' => (string) (int) $_REQUEST['group'],
-						'comma_group' => ',' . $_REQUEST['group'],
+						'board_access_list' => $changed_boards[$board_action],
+						'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
 					)
 				);
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}boards
+						SET {raw:column} = {string:member_group_access}
+						WHERE id_board = {int:current_board}',
+						array(
+							'current_board' => $row['id_board'],
+							'member_group_access' => implode(',', array_diff(explode(',', $row['member_groups']), array($_REQUEST['group']))),
+							'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
+						)
+					);
+				$smcFunc['db_free_result']($request);
+
+				// Add the membergroup to all boards that hadn't been set yet.
+				if (!empty($changed_boards[$board_action]))
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}boards
+						SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
+						WHERE id_board IN ({array_int:board_list})
+							AND FIND_IN_SET({int:current_group}, {raw:column}) = 0',
+						array(
+							'board_list' => $changed_boards[$board_action],
+							'blank_string' => '',
+							'current_group' => (int) $_REQUEST['group'],
+							'group_id_string' => (string) (int) $_REQUEST['group'],
+							'comma_group' => ',' . $_REQUEST['group'],
+							'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
+						)
+					);
+			}
 		}
 
 		// Remove everyone from this group!
@@ -1032,7 +1056,8 @@ function EditMembergroup()
 	if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level, FIND_IN_SET({string:current_group}, b.member_groups) != 0 AS can_access
+			SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level,
+			FIND_IN_SET({string:current_group}, b.member_groups) != 0 AS can_access, FIND_IN_SET({string:current_group}, b.deny_member_groups) != 0 AS cannot_access
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			ORDER BY board_order',
@@ -1056,7 +1081,8 @@ function EditMembergroup()
 				'id' => $row['id_board'],
 				'name' => $row['name'],
 				'child_level' => $row['child_level'],
-				'selected' => !(empty($row['can_access']) || $row['can_access'] == 'f'),
+				'allow' => !(empty($row['can_access']) || $row['can_access'] == 'f'),
+				'deny' => !(empty($row['cannot_access']) || $row['cannot_access'] == 'f'),
 			);
 		}
 		$smcFunc['db_free_result']($request);
