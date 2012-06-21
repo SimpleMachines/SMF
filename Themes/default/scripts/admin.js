@@ -604,7 +604,7 @@ function repeatString(sString, iTime)
 function select_in_category(cat_id, elem, brd_list)
 {
 	for (var brd in brd_list)
-	{
 		document.getElementById(elem.value + '_brd' + brd_list[brd]).checked = true;
-	}
+
+	elem.selectedIndex = 0;
 }

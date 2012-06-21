@@ -288,6 +288,9 @@ pre.file_content {
 	border-bottom: 1px dotted #000;
 	cursor: help;
 }
+.select_all_box {
+	display:none;
+}
 
 /* Styles for the manage members section.
 ------------------------------------------------- */
