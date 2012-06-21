@@ -147,6 +147,7 @@ $txt['loadavg_search'] = 'Threshold to disabling search';
 $txt['loadavg_allunread'] = 'Threshold to disabling all unread topics';
 $txt['loadavg_unreadreplies'] = 'Threshold to disabling unread replies';
 $txt['loadavg_show_posts'] = 'Threshold to disabling showing user posts';
+$txt['loadavg_userstats'] = 'Threshold to disabling showing user statistics';
 $txt['loadavg_bbc'] = 'Threshold to disabling BBC formating when showing posts';
 $txt['loadavg_forum'] = 'Threshold to disabling the forum <strong>completely</strong>';
 $txt['loadavg_disabled_windows'] = '<span class="error">Load balancing support is not available on Windows.</span>';
