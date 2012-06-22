@@ -402,7 +402,7 @@ function EditBoard()
 		// Some things that need to be setup for a new board.
 		$curBoard = array(
 			'member_groups' => array(0, -1),
-			'deny_group' => array(),
+			'deny_groups' => array(),
 			'category' => (int) $_REQUEST['cat']
 		);
 		$context['board_order'] = array();

@@ -526,6 +526,7 @@ $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
 $txt['oldTopicDays_zero'] = '0 to disable';
 $txt['defaultMaxTopics'] = 'Number of topics per page in the message index';
 $txt['defaultMaxMessages'] = 'Number of posts per page in a topic page';
+$txt['disable_print_topic'] = 'Disable print topic feature';
 $txt['hotTopicPosts'] = 'Number of posts for a hot topic';
 $txt['hotTopicVeryPosts'] = 'Number of posts for a very hot topic';
 $txt['enableAllMessages'] = 'Max topic size to show &quot;All&quot; posts';
@@ -658,5 +659,10 @@ $txt['hooks_disable_legend_exists'] = 'the hook exists and is active';
 $txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
 $txt['hooks_disable_legend_missing'] = 'the hook has not been found';
 $txt['hooks_reset_filter'] = 'Reset filter';
+
+$txt['board_perms_allow'] = 'Allow';
+$txt['board_perms_ignore'] = 'Ignore';
+$txt['board_perms_deny'] = 'Deny';
+$txt['all_boards_in_cat'] = 'All boards in this category';
 
 ?>

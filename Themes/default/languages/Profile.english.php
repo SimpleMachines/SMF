@@ -290,6 +290,7 @@ $txt['display_quick_reply'] = 'Use quick reply on topic display: ';
 $txt['display_quick_reply1'] = 'don\'t show at all';
 $txt['display_quick_reply2'] = 'show, off by default';
 $txt['display_quick_reply3'] = 'show, on by default';
+$txt['display_quick_reply4'] = 'show full editor, on by default';
 $txt['display_quick_mod'] = 'Show quick-moderation as ';
 $txt['display_quick_mod_none'] = 'don\'t show.';
 $txt['display_quick_mod_check'] = 'checkboxes.';

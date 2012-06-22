@@ -21,8 +21,6 @@ $txt['results'] = 'Results';
 
 // Board permissions
 $txt['board_perms_permission'] = 'Permission';
-$txt['board_perms_allow'] = 'Allow';
-$txt['board_perms_deny'] = 'Deny';
 $txt['board_perms_name_announce_topic'] = 'Announce topic';
 $txt['board_perms_name_approve_posts'] = 'Approve posts';
 $txt['board_perms_name_delete_any'] = 'Delete any posts';

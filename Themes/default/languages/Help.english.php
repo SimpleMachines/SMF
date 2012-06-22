@@ -17,21 +17,21 @@ $helptxt['manage_boards'] = '
 		<li>
 			<strong>Sports</strong>
 			&nbsp;- A &quot;category&quot;
-		</li>
-		<ul class="normallist">
-			<li>
-				<strong>Baseball</strong>
-				&nbsp;- A board under the category of &quot;Sports&quot;
-			</li>
 			<ul class="normallist">
 				<li>
-					<strong>Stats</strong>
-					&nbsp;- A child board under the board of &quot;Baseball&quot;
+					<strong>Baseball</strong>
+					&nbsp;- A board under the category of &quot;Sports&quot;
+					<ul class="normallist">
+						<li>
+							<strong>Stats</strong>
+							&nbsp;- A child board under the board of &quot;Baseball&quot;
+						</li>
+					</ul>
 				</li>
+				<li><strong>Football</strong>
+				&nbsp;- A board under the category of &quot;Sports&quot;</li>
 			</ul>
-			<li><strong>Football</strong>
-			&nbsp;- A board under the category of &quot;Sports&quot;</li>
-		</ul>
+		</li>
 	</ul>
 	Categories allow you to break down the board into broad topics (&quot;Cars,
 	Sports&quot;), and the &quot;Boards&quot; under them are the actual topics under which

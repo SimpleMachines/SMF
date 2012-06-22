@@ -50,13 +50,13 @@ function template_print_above()
 				padding: 0;
 				list-style: none;
 			}
-			dt.postheader
+			div.postheader, #poll_data
 			{
 				border: solid #000;
 				border-width: 1px 0;
 				padding: 4px 0;
 			}
-			dd.postbody
+			div.postbody
 			{
 				margin: 1em 0 2em 2em;
 			}
@@ -98,27 +98,48 @@ function template_print_above()
 				color: black;
 				background-color: black;
 			}
+			.voted
+			{
+				font-weight: bold;
+			}
 		</style>
 	</head>
 	<body>
 		<h1 id="title">', $context['forum_name_html_safe'], '</h1>
 		<h2 id="linktree">', $context['category_name'], ' => ', (!empty($context['parent_boards']) ? implode(' => ', $context['parent_boards']) . ' => ' : ''), $context['board_name'], ' => ', $txt['topic_started'], ': ', $context['poster_name'], ' ', $txt['search_on'], ' ', $context['post_time'], '</h2>
-		<dl id="posts">';
+		<div id="posts">';
 }
 
 function template_main()
 {
 	global $context, $settings, $options, $txt;
 
+	if (!empty($context['poll']))
+	{
+		echo '
+			<div id="poll_data">', $txt['poll'], '
+				<div class="question">', $txt['poll_question'], ': <strong>', $context['poll']['question'], '</strong>';
+
+		$options = 1;
+		foreach ($context['poll']['options'] as $option)
+			echo '
+					<div class="', $option['voted_this'] ? 'voted' : '', '">', $txt['option'], ' ', $options++, ': <strong>', $option['option'], '</strong>
+						', $context['allow_poll_view'] ? $txt['votes'] . ': ' . $option['votes'] . '' : '', '
+					</div>';
+
+		echo '
+			</div>';
+	}
+
 	foreach ($context['posts'] as $post)
 		echo '
-			<dt class="postheader">
+			<div class="postheader">
 				', $txt['title'], ': <strong>', $post['subject'], '</strong><br />
 				', $txt['post_by'], ': <strong>', $post['member'], '</strong> ', $txt['search_on'], ' <strong>', $post['time'], '</strong>
-			</dt>
-			<dd class="postbody">
+			</div>
+			<div class="postbody">
 				', $post['body'], '
-			</dd>';
+			</div>';
 }
 
 function template_print_below()
@@ -126,7 +147,7 @@ function template_print_below()
 	global $context, $settings, $options;
 
 	echo '
-		</dl>
+		</div>
 		<div id="footer" class="smalltext">
 			', theme_copyright(), '
 		</div>

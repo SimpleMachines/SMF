@@ -1672,24 +1672,24 @@ function loadAllPermissions($loadType = 'classic')
 			}
 		}
 		ksort($context['permissions'][$permissionType]['columns']);
-	}
 
-	// Check we don't leave any empty groups - and mark hidden ones as such.
-	foreach ($context['permissions'][$permissionType]['columns'] as $column => $groups)
-		foreach ($groups as $id => $group)
-		{
-			if (empty($group['permissions']))
-				unset($context['permissions'][$permissionType]['columns'][$column][$id]);
-			else
+		// Check we don't leave any empty groups - and mark hidden ones as such.
+		foreach ($context['permissions'][$permissionType]['columns'] as $column => $groups)
+			foreach ($groups as $id => $group)
 			{
-				$foundNonHidden = false;
-				foreach ($group['permissions'] as $permission)
-					if (empty($permission['hidden']))
-						$foundNonHidden = true;
-				if (!$foundNonHidden)
-					$context['permissions'][$permissionType]['columns'][$column][$id]['hidden'] = true;
+				if (empty($group['permissions']))
+					unset($context['permissions'][$permissionType]['columns'][$column][$id]);
+				else
+				{
+					$foundNonHidden = false;
+					foreach ($group['permissions'] as $permission)
+						if (empty($permission['hidden']))
+							$foundNonHidden = true;
+					if (!$foundNonHidden)
+						$context['permissions'][$permissionType]['columns'][$column][$id]['hidden'] = true;
+				}
 			}
-		}
+	}
 }
 
 /**
