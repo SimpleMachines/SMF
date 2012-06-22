@@ -61,7 +61,6 @@ function ThemesMain()
 		'admin' => 'ThemeAdmin',
 		'list' => 'ThemeList',
 		'reset' => 'SetThemeOptions',
-		'settings' => 'SetThemeSettings',
 		'options' => 'SetThemeOptions',
 		'install' => 'ThemeInstall',
 		'remove' => 'RemoveTheme',
@@ -197,6 +196,9 @@ function ThemeList()
 
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
+
+	if (isset($_REQUEST['th']))
+		return SetThemeSettings();
 
 	if (isset($_POST['save']))
 	{
@@ -693,7 +695,7 @@ function SetThemeOptions()
  * - loads the Admin language file.
  * - calls ThemeAdmin() if no theme is specified. (the theme center.)
  * - requires admin_forum permission.
- * - accessed with ?action=admin;area=theme;sa=settings&th=xx.
+ * - accessed with ?action=admin;area=theme;sa=list&th=xx.
  */
 function SetThemeSettings()
 {
@@ -803,7 +805,7 @@ function SetThemeSettings()
 		// Invalidate the cache.
 		updateSettings(array('settings_updated' => time()));
 
-		redirectexit('action=admin;area=theme;sa=settings;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id']);
+		redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	$context['sub_template'] = 'set_settings';

@@ -405,12 +405,15 @@ function template_modify_board()
 
 	if (empty($modSettings['deny_boards_access']))
 		echo '
-							<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[\');" /><br />
+							<span class="select_all_box">
+								<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[\');" />
+							</span>
+							<br />
 							<br />
 						</dd>';
 	else
 		echo '
-								<tr>
+								<tr class="select_all_box">
 									<td>
 									</td>
 									<td>
@@ -440,6 +443,13 @@ function template_modify_board()
 							<div id="moderator_container"></div>
 						</dd>
 					</dl>
+					<script type="text/javascript"><!-- // --><![CDATA[
+						$(document).ready(function () {
+							$(".select_all_box").each(function () {
+								$(this).removeClass(\'select_all_box\');
+							});
+						});
+					// ]]></script>
 					<hr class="hrcolor" />';
 
 	if (empty($context['board']['is_recycle']) && empty($context['board']['topics']))

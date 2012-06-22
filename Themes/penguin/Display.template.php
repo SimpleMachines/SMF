@@ -159,7 +159,7 @@ function template_main()
 
 	// Build the normal button array.
 	$normal_buttons = array(
-		'print' => array('text' => 'print', 'image' => 'print.png', 'lang' => true, 'custom' => 'rel="new_win nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0'),
+		'print' => array('test' => 'can_print', 'text' => 'print', 'image' => 'print.png', 'lang' => true, 'custom' => 'rel="new_win nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0'),
 		'send' => array('test' => 'can_send_topic', 'text' => 'send_topic', 'image' => 'sendtopic.png', 'lang' => true, 'url' => $scripturl . '?action=emailuser;sa=sendtopic;topic=' . $context['current_topic'] . '.0'),
 		'mark_unread' => array('test' => 'can_mark_unread', 'text' => 'mark_unread', 'image' => 'markunread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=topic;t=' . $context['mark_unread_time'] . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unnotify' : 'notify', 'image' => ($context['is_marked_notify'] ? 'un' : '') . 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_topic'] : $txt['notification_enable_topic']) . '\');"', 'url' => $scripturl . '?action=notify;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
@@ -173,8 +173,6 @@ function template_main()
 
 	// Allow adding new buttons easily.
 	call_integration_hook('integrate_display_buttons', array(&$normal_buttons));
-
-	// Show the page index... "Pages: [1]".
 
 	// Show the topic information - icon, subject, etc.
 	echo '
@@ -519,7 +517,7 @@ function template_main()
 									// Show a checkbox for quick moderation?
 									if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $message['can_remove'])
 										echo '
-											<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"><label for="fukn_pita_bastard_', $message['id'], '">Select post&nbsp;</label></li>';
+											<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"><label for="in_topic_mod_check_', $message['id'], '">Select post&nbsp;</label></li>';
 										echo '
 											<li><a href="', $scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" class="ip_link">', $message['member']['ip'], '</a></li>
 										</ul>
@@ -603,12 +601,12 @@ function template_main()
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<a href="javascript:oQuickReply.swap();" id="QuickReply_swap">
-							<img src="', $settings['images_url'], '/', $options['display_quick_reply'] == 2 ? 'upshrink' : 'upshrink2', '.png" alt="+" id="quickReplyExpand" class="icon floatright" />
+							<img src="', $settings['images_url'], '/', $options['display_quick_reply'] > 1 ? 'upshrink' : 'upshrink2', '.png" alt="+" id="quickReplyExpand" class="icon floatright" />
 						</a>
 						<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
 					</h3>
 				</div>
-				<div id="quickReplyOptions"', $options['display_quick_reply'] == 2 ? '' : ' style="display: none"', '>
+				<div id="quickReplyOptions"', $options['display_quick_reply'] > 1 ? '' : ' style="display: none"', '>
 					<div class="roundframe">
 						<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>
 						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
@@ -627,23 +625,66 @@ function template_main()
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 							<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />';
 
-			// Guests just need more.
-			if ($context['user']['is_guest'])
-				echo '
+		// Guests just need more.
+		if ($context['user']['is_guest'])
+			echo '
 							<strong>', $txt['name'], ':</strong> <input type="text" name="guestname" value="', $context['name'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '" />
 							<strong>', $txt['email'], ':</strong> <input type="text" name="email" value="', $context['email'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '" /><br />';
 
-			// Is visual verification enabled?
-			if ($context['require_verification'])
-				echo '
+		// Is visual verification enabled?
+		if ($context['require_verification'])
+			echo '
 							<strong>', $txt['verification'], ':</strong>', template_control_verification($context['visual_verification_id'], 'quick_reply'), '<br />';
 
+		if ($options['display_quick_reply'] < 3)
+		{
 			echo '
 							<div class="quickReplyContent">
 								<textarea class ="expand_test" cols="" rows="" name="message" tabindex="', $context['tabindex']++, '"></textarea>
-							</div>
+							</div>';
+		}
+		else
+		{
+			// Show the actual posting area...
+			if ($context['show_bbc'])
+			{
+				echo '
+								<div id="bbcBox_message"></div>';
+			}
+
+			// What about smileys?
+			if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
+				echo '
+								<div id="smileyBox_message"></div>';
+
+			echo '
+							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
+								<script type="text/javascript"><!-- // --><![CDATA[
+									function insertQuoteFast(messageid)
+									{
+										if (window.XMLHttpRequest)
+											getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
+										else
+											reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
+										return false;
+									}
+									function onDocReceived(XMLDoc)
+									{
+										var text = \'\';
+										for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
+											text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
+										oEditorHandle_', $context['post_box_name'], '.insertText(text, false, true);
+
+										ajax_indicator(false);
+									}
+								// ]]></script>';
+
+		}
+		echo '
+							<div class="padding">
 								<input type="submit" name="post" value="', $txt['post'], '" onclick="return submitThisOnce(this);" accesskey="s" tabindex="', $context['tabindex']++, '" class="button_submit" />
-								<input type="submit" name="preview" value="', $txt['preview'], '" onclick="return submitThisOnce(this);" accesskey="p" tabindex="', $context['tabindex']++, '" class="button_submit" />';
+								<input type="submit" name="preview" value="', $txt['preview'], '" onclick="return submitThisOnce(this);" accesskey="p" tabindex="', $context['tabindex']++, '" class="button_submit" />
+							</div>';
 
 			if ($context['show_spellchecking'])
 				echo '
@@ -668,10 +709,10 @@ function template_main()
 				<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/topic.js"></script>
 				<script type="text/javascript"><!-- // --><![CDATA[';
 
-/*	if (!empty($options['display_quick_reply']))
+	if (!empty($options['display_quick_reply']))
 		echo '
 					var oQuickReply = new QuickReply({
-						bDefaultCollapsed: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] == 2 ? 'false' : 'true', ',
+						bDefaultCollapsed: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 1 ? 'false' : 'true', ',
 						iTopicId: ', $context['current_topic'], ',
 						iStart: ', $context['start'], ',
 						sScriptUrl: smf_scripturl,
@@ -680,9 +721,10 @@ function template_main()
 						sImageId: "quickReplyExpand",
 						sImageCollapsed: "upshrink.png",
 						sImageExpanded: "upshrink2.png",
-						sJumpAnchor: "quickreply"
+						sJumpAnchor: "quickreply",
+						bIsFull: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'true' : 'false', '
 					});';
-*/
+
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
 		echo '
 					var oInTopicModeration = new InTopicModeration({
@@ -801,15 +843,7 @@ function template_main()
 	}
 
 	echo '
-
 		$(document).ready(function(){
-			$("#quickReplyOptions").hide();
-			$("#QuickReply_swap").show();
-
-			$("#QuickReply_swap").click(function(){
-				$("#quickReplyOptions").slideToggle();
-			});
-
 			$("li a.quote_button, li a.modify_button, li a.modify_inline, a.topic_reply_title").bt(jQuery.bt.options = {positions: "top, bottom"});
 		});
 

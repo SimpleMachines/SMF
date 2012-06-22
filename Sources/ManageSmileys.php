@@ -782,7 +782,7 @@ function EditSmileys()
 	$context[$context['admin_menu_name']]['current_subsection'] = 'editsmileys';
 
 	// Submitting a form?
-	if (isset($_POST['smiley_save']))
+	if (isset($_POST['smiley_save']) || isset($_POST['smiley_action']))
 	{
 		checkSession();
 

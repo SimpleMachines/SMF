@@ -1848,7 +1848,6 @@ img.smiley {
 	width: 635px;
 	max-width: 100%;
 	min-width: 100%;
-	margin: 10px 0;
 }
 /* The jump to box */
 #display_jump_to {
@@ -2672,7 +2671,7 @@ img.centericon {
 .ignoreboards {
 	margin: 0 2%;
 	padding: 0;
-	width: 45%;
+	width: 90%;
 }
 .ignoreboards a {
 	font-weight: bold;

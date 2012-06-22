@@ -1668,6 +1668,7 @@ function template_profile_theme_settings()
 									<option value="0"', empty($context['member']['options']['display_quick_reply']) ? ' selected="selected"' : '', '>', $txt['display_quick_reply1'], '</option>
 									<option value="1"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 1 ? ' selected="selected"' : '', '>', $txt['display_quick_reply2'], '</option>
 									<option value="2"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 2 ? ' selected="selected"' : '', '>', $txt['display_quick_reply3'], '</option>
+									<option value="3"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 3 ? ' selected="selected"' : '', '>', $txt['display_quick_reply4'], '</option>
 								</select>
 							</dd>
 							<dt>

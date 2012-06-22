@@ -359,7 +359,7 @@ function MessageIndex()
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
 				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
-				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time,
+				t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic, ml.poster_time AS last_poster_time,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
 				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,
 				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
@@ -490,8 +490,8 @@ function MessageIndex()
 					'preview' => $row['first_body'],
 					'icon' => $row['first_icon'],
 					'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
-					'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>'
+					'href' => $scripturl . '?topic=' . (empty($row['id_redirect_topic']) ? $row['id_topic'] : $row['id_redirect_topic']) . '.0',
+					'link' => '<a href="' . $scripturl . '?topic=' . (empty($row['id_redirect_topic']) ? $row['id_topic'] : $row['id_redirect_topic']). '.0">' . $row['first_subject'] . '</a>'
 				),
 				'last_post' => array(
 					'id' => $row['id_last_msg'],
@@ -508,8 +508,8 @@ function MessageIndex()
 					'preview' => $row['last_body'],
 					'icon' => $row['last_icon'],
 					'icon_url' => $settings[$context['icon_sources'][$row['last_icon']]] . '/post/' . $row['last_icon'] . '.png',
-					'href' => $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
+					'href' => $scripturl . '?topic=' . (empty($row['id_redirect_topic']) ? $row['id_topic'] : $row['id_redirect_topic']) . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')),
+					'link' => '<a href="' . $scripturl . '?topic=' . (empty($row['id_redirect_topic']) ? $row['id_topic'] : $row['id_redirect_topic']) . ($user_info['is_guest'] ? ('.' . (!empty($options['view_newest_first']) ? 0 : ((int) (($row['num_replies']) / $context['pageindex_multiplier'])) * $context['pageindex_multiplier']) . '#msg' . $row['id_last_msg']) : (($row['num_replies'] == 0 ? '.0' : '.msg' . $row['id_last_msg']) . '#new')) . '" ' . ($row['num_replies'] == 0 ? '' : 'rel="nofollow"') . '>' . $row['last_subject'] . '</a>'
 				),
 				'is_sticky' => !empty($modSettings['enableStickyTopics']) && !empty($row['is_sticky']),
 				'is_locked' => !empty($row['locked']),
@@ -523,7 +523,7 @@ function MessageIndex()
 				'new' => $row['new_from'] <= $row['id_msg_modified'],
 				'new_from' => $row['new_from'],
 				'newtime' => $row['new_from'],
-				'new_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . '#new',
+				'new_href' => $scripturl . '?topic=' . (empty($row['id_redirect_topic']) ? $row['id_topic'] : $row['id_redirect_topic']) . '.msg' . $row['new_from'] . '#new',
 				'pages' => $pages,
 				'replies' => comma_format($row['num_replies']),
 				'views' => comma_format($row['num_views']),
