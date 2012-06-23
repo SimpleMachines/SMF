@@ -406,7 +406,7 @@ function MessageIndex()
 				$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br />' => '&#10;')));
 				if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
 					$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
-				
+
 				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br />' => '&#10;')));
 				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
 					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
@@ -684,17 +684,7 @@ function QuickModeration()
 		 * @todo Ugly. There's no getting around this, is there?
 		 * @todo Maybe just do this on the actions people want to use?
 		 */
-		$boards_can = array(
-			'make_sticky' => boardsAllowedTo('make_sticky'),
-			'move_any' => boardsAllowedTo('move_any'),
-			'move_own' => boardsAllowedTo('move_own'),
-			'remove_any' => boardsAllowedTo('remove_any'),
-			'remove_own' => boardsAllowedTo('remove_own'),
-			'lock_any' => boardsAllowedTo('lock_any'),
-			'lock_own' => boardsAllowedTo('lock_own'),
-			'merge_any' => boardsAllowedTo('merge_any'),
-			'approve_posts' => boardsAllowedTo('approve_posts'),
-		);
+		$boards_can = boardsAllowedTo(array('make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'lock_any', 'lock_own', 'merge_any', 'approve_posts'));
 
 		$redirect_url = isset($_POST['redirect_url']) ? $_POST['redirect_url'] : (isset($_SESSION['old_url']) ? $_SESSION['old_url'] : '');
 	}

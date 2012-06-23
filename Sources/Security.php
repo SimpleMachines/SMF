@@ -42,7 +42,7 @@ function validateSession($type = 'admin')
 	// Is the security option off?
 	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
 		return;
-		
+
 	// Or are they already logged in?, Moderator or admin sesssion is need for this area
 	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
 		return;
@@ -1000,18 +1000,36 @@ function isAllowedTo($permission, $boards = null)
  * If check_access is true will also make sure the group has proper access to that board.
  * @param array $permissions
  * @param bool $check_access = true
+ * @param bool $simple = true
  */
-function boardsAllowedTo($permissions, $check_access = true)
+function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
 	global $user_info, $modSettings, $smcFunc;
 
+	// Arrays are nice, most of the time.
+	$permissions = (array) $permissions;
+
+	/*
+	 * Set $simple to true to use this function as it were in SMF 2.0.x.
+	 * Otherwise, the resultant array becomes split into the multiple
+	 * permissions that were passed. Other than that, it's just the normal
+	 * state of play that you're used to.
+	 */
+
 	// Administrators are all powerful, sorry.
 	if ($user_info['is_admin'])
-		return array(0);
+	{
+		if ($simple)
+			return array(0);
+		else
+		{
+			$result = array();
+			foreach ($permissions as $permission)
+				$result[$permission] = array(0);
 
-	// Arrays are nice, most of the time.
-	if (!is_array($permissions))
-		$permissions = array($permissions);
+			return $result;
+		}
+	}
 
 	// All groups the user is in except 'moderator'.
 	$groups = array_diff($user_info['groups'], array(3));
@@ -1032,20 +1050,33 @@ function boardsAllowedTo($permissions, $check_access = true)
 			'permissions' => $permissions,
 		)
 	);
-	$boards = array();
-	$deny_boards = array();
+	$boards = $deny_boards = $result = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (empty($row['add_deny']))
-			$deny_boards[] = $row['id_board'];
+		if ($simple)
+		{
+			if (empty($row['add_deny']))
+				$deny_boards[$row['permission']][] = $row['id_board'];
+			else
+				$boards[$row['permission']][] = $row['id_board'];
+		}
 		else
-			$boards[] = $row['id_board'];
+		{
+			if (empty($row['add_deny']))
+				$deny_boards[$row['permission']][] = $row['id_board'];
+			else
+				$boards[$row['permission']][] = $row['id_board'];
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
-	$boards = array_unique(array_values(array_diff($boards, $deny_boards)));
+	if ($simple)
+		$result = array_unique(array_values(array_diff($boards, $deny_boards)));
+	else
+		foreach ($permissions as $permission)
+			$result[$permission] = array_unique(array_values(array_diff($boards[$permission], $deny_boards[$permission])));
 
-	return $boards;
+	return $result;
 }
 
 /**
@@ -1217,7 +1248,7 @@ else
 }
 
 /**
- * Another helper function that put together the 
+ * Another helper function that put together the
  * @param string $fullip An IP address either IPv6 or not
  * @return string A SQL condition
  */
