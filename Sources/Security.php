@@ -1000,6 +1000,7 @@ function isAllowedTo($permission, $boards = null)
  * If check_access is true will also make sure the group has proper access to that board.
  * @param array $permissions
  * @param bool $check_access = true
+ * @param bool $simple = true
  */
 function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
@@ -1012,7 +1013,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	 * Set $simple to true to use this function as it were in SMF 2.0.x.
 	 * Otherwise, the resultant array becomes split into the multiple
 	 * permissions that were passed. Other than that, it's just the normal
-	 * state of play that yoou're used to.
+	 * state of play that you're used to.
 	 */
 
 	// Administrators are all powerful, sorry.
