@@ -666,7 +666,7 @@ function smf_avatarResize()
 }
 
 
-function hashLoginPassword(doForm, cur_session_id)
+function hashLoginPassword(doForm, cur_session_id, token)
 {
 	// Compatibility.
 	if (cur_session_id == null)
@@ -682,7 +682,7 @@ function hashLoginPassword(doForm, cur_session_id)
 	if (!('opera' in window))
 		doForm.passwrd.autocomplete = 'off';
 
-	doForm.hash_passwrd.value = hex_sha1(hex_sha1(doForm.user.value.php_to8bit().php_strtolower() + doForm.passwrd.value.php_to8bit()) + cur_session_id);
+	doForm.hash_passwrd.value = hex_sha1(hex_sha1(doForm.user.value.php_to8bit().php_strtolower() + doForm.passwrd.value.php_to8bit()) + cur_session_id + token);
 
 	// It looks nicer to fill it with asterisks, but Firefox will try to save that.
 	if (is_ff != -1)

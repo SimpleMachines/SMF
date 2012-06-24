@@ -131,7 +131,7 @@ function Login2()
 
 	// Are you guessing with a script?
 	checkSession('post');
-	validateToken('login');
+	$tk = validateToken('login');
 	spamProtection('login');
 
 	// Set the login_url if it's not already set (but careful not to send us to an attachment).
@@ -257,7 +257,7 @@ function Login2()
 			return;
 		}
 		// Challenge passed.
-		elseif ($_POST['hash_passwrd'] == sha1($user_settings['passwd'] . $sc))
+		elseif ($_POST['hash_passwrd'] == sha1($user_settings['passwd'] . $sc . $tk))
 			$sha_passwd = $user_settings['passwd'];
 		else
 		{

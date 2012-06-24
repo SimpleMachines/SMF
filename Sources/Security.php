@@ -758,6 +758,19 @@ function validateToken($action, $type = 'post', $reset = true)
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
+	// Logins are special: the token is used to has the password with javascript before POST it
+	if ($action == 'login')
+	{
+		if (isset($_SESSION['token'][$type . '-' . $action]))
+		{
+			$return = $_SESSION['token'][$type . '-' . $action][3];
+			unset($_SESSION['token'][$type . '-' . $action]);
+			return $return;
+		}
+		else
+			return '';
+	}
+
 	// This nasty piece of code validates a token.
 	/*
 		1. The token exists in session.
