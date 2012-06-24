@@ -26,7 +26,7 @@ if (!defined('SMF'))
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  */
-function Post()
+function Post($post_errors = array())
 {
 	global $txt, $scripturl, $topic, $modSettings, $board;
 	global $user_info, $sc, $board_info, $context, $settings;
@@ -316,9 +316,6 @@ function Post()
 		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
 	}
 
-	if (empty($context['post_errors']))
-		$context['post_errors'] = array();
-
 	// See if any new replies have come along.
 	// Huh, $_REQUEST['msg'] is set upon submit, so this doesn't get executed at submit
 	// only at preview
@@ -353,7 +350,7 @@ function Post()
 				if (isset($_GET['last_msg']))
 					$newRepliesError = $context['new_replies'];
 				else
-					$context['post_error'][$context['new_replies'] == 1 ? 'new_reply' : 'new_replies'] = true;
+					$post_errors[] = $context['new_replies'] == 1 ? 'new_reply' : 'new_replies';
 
 				$modSettings['topicSummaryPosts'] = $context['new_replies'] > $modSettings['topicSummaryPosts'] ? max($modSettings['topicSummaryPosts'], 5) : $modSettings['topicSummaryPosts'];
 			}
@@ -385,11 +382,11 @@ function Post()
 		if (empty($context['post_error']))
 		{
 			if (htmltrim__recursive(htmlspecialchars__recursive($_REQUEST['subject'])) == '')
-				$context['post_error']['no_subject'] = true;
+				$post_errors[] = 'no_subject';
 			if (htmltrim__recursive(htmlspecialchars__recursive($_REQUEST['message'])) == '')
-				$context['post_error']['no_message'] = true;
+				$post_errors[] = 'no_message';
 			if (!empty($modSettings['max_messageLength']) && $smcFunc['strlen']($_REQUEST['message']) > $modSettings['max_messageLength'])
-				$context['post_error']['long_message'] = true;
+				$post_errors[] = 'long_message';
 
 			// Are you... a guest?
 			if ($user_info['is_guest'])
@@ -399,28 +396,28 @@ function Post()
 
 				// Validate the name and email.
 				if (!isset($_REQUEST['guestname']) || trim(strtr($_REQUEST['guestname'], '_', ' ')) == '')
-					$context['post_error']['no_name'] = true;
+					$post_errors[] = 'no_name';
 				elseif ($smcFunc['strlen']($_REQUEST['guestname']) > 25)
-					$context['post_error']['long_name'] = true;
+					$post_errors[] = 'long_name';
 				else
 				{
 					require_once($sourcedir . '/Subs-Members.php');
 					if (isReservedName(htmlspecialchars($_REQUEST['guestname']), 0, true, false))
-						$context['post_error']['bad_name'] = true;
+						$post_errors[] = 'bad_name';
 				}
 
 				if (empty($modSettings['guest_post_no_email']))
 				{
 					if (!isset($_REQUEST['email']) || $_REQUEST['email'] == '')
-						$context['post_error']['no_email'] = true;
+						$post_errors[] = 'no_email';
 					elseif (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_REQUEST['email']) == 0)
-						$context['post_error']['bad_email'] = true;
+						$post_errors[] = 'bad_email';
 				}
 			}
 
 			// This is self explanatory - got any questions?
 			if (isset($_REQUEST['question']) && trim($_REQUEST['question']) == '')
-				$context['post_error']['no_question'] = true;
+				$post_errors[] = 'no_question';
 
 			// This means they didn't click Post and get an error.
 			$really_previewing = true;
@@ -453,30 +450,44 @@ function Post()
 
 		// Have we inadvertently trimmed off the subject of useful information?
 		if ($smcFunc['htmltrim']($form_subject) === '')
-			$context['post_error']['no_subject'] = true;
+			$post_errors[] = 'no_subject';
+
+		$context['post_error'] = array('messages' => array());
+
+		/*
+		 * There are two error types: serious and miinor. Serious errors
+		 * actually tell the user that a real error has occurred, while minor
+		 * errors are like warnings that let them know that something with
+		 * their post isn't right.
+		 */
+		$minor_errors = array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
+
+		call_integration_hook('integrate_post_errors', array($post_errors, $minor_errors));
 
 		// Any errors occurred?
-		if (!empty($context['post_error']))
+		if (!empty($post_errors))
 		{
 			loadLanguage('Errors');
-
 			$context['error_type'] = 'minor';
+			foreach ($post_errors as $post_error)
+				if (is_array($post_error))
+				{
+					$post_error_id = $post_error[0];
+					$context['post_error'][$post_error_id] = true;
+					$context['post_error']['messages'][] = sprintf($txt['error_' . $post_error_id], $post_error[1]);
+				}
+				else
+				{
+					$context['post_error'][$post_error] = true;
+					if ($post_error == 'long_message')
+						$txt['error_' . $post_error] = sprintf($txt['error_' . $post_error], $modSettings['max_messageLength']);
 
-			$context['post_error']['messages'] = array();
-			foreach ($context['post_error'] as $post_error => $dummy)
-			{
-				if ($post_error == 'messages')
-					continue;
+					$context['post_error']['messages'][] = $txt['error_' . $post_error];
 
-				if ($post_error == 'long_message')
-					$txt['error_' . $post_error] = sprintf($txt['error_' . $post_error], $modSettings['max_messageLength']);
-
-				$context['post_error']['messages'][] = $txt['error_' . $post_error];
-
-				// If it's not a minor error flag it as such.
-				if (!in_array($post_error, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
-					$context['error_type'] = 'serious';
-			}
+					// If it's not a minor error flag it as such.
+					if (!in_array($post_error, $minor_errors))
+						$context['error_type'] = 'serious';
+				}
 		}
 
 		if (isset($_REQUEST['poll']))
@@ -546,7 +557,7 @@ function Post()
 			// Do all bulletin board code tags, with or without smileys.
 			$context['preview_message'] = parse_bbc($context['preview_message'], isset($_REQUEST['ns']) ? 0 : 1);
 			censorText($context['preview_message']);
-			
+
 			if ($form_subject != '')
 			{
 				$context['preview_subject'] = $form_subject;
@@ -632,7 +643,7 @@ function Post()
 						'attachment_type' => 0,
 					)
 				);
-				
+
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
 					if ($row['filesize'] <= 0)
@@ -742,7 +753,7 @@ function Post()
 		// Show an "approve" box if the user can approve it, and the message isn't approved.
 		if (!$row['approved'] && !$context['show_approval'])
 			$context['show_approval'] = allowedTo('approve_posts');
-		
+
 		// Sort the attachments so they are in the order saved
 		$temp = array();
 		foreach ($attachment_stuff as $attachment)
@@ -752,7 +763,7 @@ function Post()
 
 		}
 		ksort($temp);
-		
+
 		// Load up 'em attachments!
 		foreach ($temp as $attachment)
 		{
@@ -1100,12 +1111,12 @@ function Post()
 
 	if (!empty($context['icons']))
 		$context['icons'][count($context['icons']) - 1]['is_last'] = true;
-	
+
 	// Are we starting a poll? if set the poll icon as selected if its available
 	if (isset($_REQUEST['poll']))
 	{
 	    foreach ($context['icons'] as $icons)
-		{  
+		{
 			if (isset($icons['value']) && $icons['value'] == 'poll')
 			{
 				// if found we are done
@@ -1816,21 +1827,10 @@ function Post2()
 	// Any mistakes?
 	if (!empty($post_errors))
 	{
-		loadLanguage('Errors');
 		// Previewing.
 		$_REQUEST['preview'] = true;
 
-		$context['post_error'] = array('messages' => array());
-		foreach ($post_errors as $post_error)
-		{
-			$context['post_error'][$post_error] = true;
-			if ($post_error == 'long_message')
-				$txt['error_' . $post_error] = sprintf($txt['error_' . $post_error], $modSettings['max_messageLength']);
-
-			$context['post_error']['messages'][] = $txt['error_' . $post_error];
-		}
-
-		return Post();
+		return Post($post_errors);
 	}
 
 	// Make sure the user isn't spamming the board.
@@ -1894,7 +1894,6 @@ function Post2()
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
 		$_POST['options'] = htmlspecialchars__recursive($_POST['options']);
 	}
-
 
 	// ...or attach a new file...
 	if (empty($ignore_temp) && $context['can_post_attachment'] && !empty($_SESSION['temp_attachments']) && empty($_POST['from_qr']))
