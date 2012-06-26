@@ -432,6 +432,8 @@ function UnreadTopics()
 		header('HTTP/1.1 403 Forbidden');
 		die;
 	}
+	
+	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
 
 	$context['showing_all_topics'] = isset($_GET['all']);
 	$context['start'] = (int) $_REQUEST['start'];
@@ -1316,8 +1318,6 @@ function UnreadTopics()
 
 	$context['querystring_board_limits'] = sprintf($context['querystring_board_limits'], $_REQUEST['start']);
 	$context['topics_to_mark'] = implode('-', $topic_ids);
-	
-	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
 	
 	if ($settings['show_mark_read'])
 	{
