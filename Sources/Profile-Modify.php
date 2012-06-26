@@ -670,6 +670,8 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 		),
 	);
+	
+	call_integration_hook('integrate_profile_fields', array(&$profile_fields));
 
 	$disabled_fields = !empty($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
 	// For each of the above let's take out the bits which don't apply - to save memory and security!
@@ -1339,6 +1341,8 @@ function editBuddies($memID)
 	if (isset($_GET['remove']))
 	{
 		checkSession('get');
+		
+		call_integration_hook('integrate_remove_buddy', array($memID));
 
 		// Heh, I'm lazy, do it the easy way...
 		foreach ($buddiesArray as $key => $buddy)
@@ -1368,6 +1372,8 @@ function editBuddies($memID)
 			if (strlen($new_buddies[$k]) == 0 || in_array($new_buddies[$k], array($user_profile[$memID]['member_name'], $user_profile[$memID]['real_name'])))
 				unset($new_buddies[$k]);
 		}
+		
+		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
 		if (!empty($new_buddies))
 		{
@@ -1430,6 +1436,8 @@ function editBuddies($memID)
 		loadMemberContext($buddy);
 		$context['buddies'][$buddy] = $memberContext[$buddy];
 	}
+	
+	call_integration_hook('integrate_view_buddies', array($memID));
 }
 
 /**

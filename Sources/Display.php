@@ -756,6 +756,9 @@ function Display()
 			);
 		}
 	}
+	
+	// Editing poll output, eh?
+	call_integration_hook('integrate_view_poll', array(&$context['poll']));
 
 	// Calculate the fastest way to get the messages!
 	$ascending = empty($options['view_newest_first']);
@@ -946,6 +949,9 @@ function Display()
 			foreach ($temp as $row)
 				$attachments[$row['id_msg']][] = $row;
 		}
+		
+		// Any custom stuff that might need to be loaded if there are messages to show
+		call_integration_hook('integrate_pre_message_load', array(&$messages));
 
 		// What?  It's not like it *couldn't* be only guests in this topic...
 		if (!empty($posters))
@@ -1225,6 +1231,9 @@ function prepareDisplayContext($reset = false)
 		$counter++;
 	else
 		$counter--;
+		
+	// Add new data to messages?
+	call_integration_hook('integrate_display_context', array(&$output));
 
 	return $output;
 }

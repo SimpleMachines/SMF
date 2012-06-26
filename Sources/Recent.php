@@ -1316,6 +1316,9 @@ function UnreadTopics()
 
 	$context['querystring_board_limits'] = sprintf($context['querystring_board_limits'], $_REQUEST['start']);
 	$context['topics_to_mark'] = implode('-', $topic_ids);
+	
+	// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)
+ 	call_integration_hook('integrate_unread_list');
 }
 
 ?>
