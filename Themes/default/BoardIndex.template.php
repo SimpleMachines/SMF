@@ -234,11 +234,6 @@ function template_main()
 		echo '
 	<div id="posting_icons" class="floatleft">';
 
-		// Mark read button.
-		$mark_read_button = array(
-			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=all;' . $context['session_var'] . '=' . $context['session_id']),
-		);
-
 		echo '
 		<ul class="reset">
 			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_some.png" alt="" /> ', $txt['new_posts'], '</li>
@@ -249,7 +244,7 @@ function template_main()
 
 		// Show the mark all as read button?
 		if ($settings['show_mark_read'] && !empty($context['categories']))
-			echo '<div class="mark_read">', template_button_strip($mark_read_button, 'right'), '</div>';
+			echo '<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 	}
 	else
 	{

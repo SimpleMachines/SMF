@@ -1317,6 +1317,47 @@ function UnreadTopics()
 	$context['querystring_board_limits'] = sprintf($context['querystring_board_limits'], $_REQUEST['start']);
 	$context['topics_to_mark'] = implode('-', $topic_ids);
 	
+	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
+	
+	if ($settings['show_mark_read'])
+	{
+		// Build the recent button array.
+		if ($is_topics)
+		{
+			$context['recent_buttons'] = array(
+				'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+			);
+
+			if ($context['showCheckboxes'])
+				$context['recent_buttons']['markselectread'] = array(
+					'text' => 'quick_mod_markread',
+					'image' => 'markselectedread.png',
+					'lang' => true,
+					'url' => 'javascript:document.quickModForm.submit();',
+				);
+				
+			if (!empty($context['topics']) && !$context['showing_all_topics'])
+				$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);	
+		}
+		elseif (!$is_topics && isset($context['topics_to_mark']))
+		{
+			$context['recent_buttons'] = array(
+				'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+			);
+
+			if ($context['showCheckboxes'])
+				$context['recent_buttons']['markselectread'] = array(
+					'text' => 'quick_mod_markread',
+					'image' => 'markselectedread.png',
+					'lang' => true,
+					'url' => 'javascript:document.quickModForm.submit();',
+				);
+		}
+
+		// Allow mods to add additional buttons here
+		call_integration_hook('integrate_recent_buttons', array(&$context['recent_buttons']));
+	}
+	
 	// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)
  	call_integration_hook('integrate_unread_list');
 }

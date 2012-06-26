@@ -121,27 +121,16 @@ function template_main()
 		echo '
 	<p class="description_board">', $context['description'], '</p>';
 
-	// Create the button set...
-	$normal_buttons = array(
-		'new_topic' => array('test' => 'can_post_new', 'text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true),
-		'post_poll' => array('test' => 'can_post_poll', 'text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll'),
-		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unnotify' : 'notify', 'image' => ($context['is_marked_notify'] ? 'un' : ''). 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_board'] : $txt['notification_enable_board']) . '\');"', 'url' => $scripturl . '?action=notifyboard;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';board=' . $context['current_board'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-		'markread' => array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']),
-	);
-
 	// They can only mark read if they are logged in and it's enabled!
 	if (!$context['user']['is_logged'] || !$settings['show_mark_read'])
-		unset($normal_buttons['markread']);
-
-	// Allow adding new buttons easily.
-	call_integration_hook('integrate_messageindex_buttons', array(&$normal_buttons));
+		unset($context['normal_buttons']['markread']);
 
 	if (!$context['no_topic_listing'])
 	{
 		echo '
 	<div class="pagesection">
 		<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '&nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
-		', template_button_strip($normal_buttons, 'right'), '
+		', template_button_strip($context['normal_buttons'], 'right'), '
 	</div>';
 
 		// If Quick Moderation is enabled start the form.
@@ -362,7 +351,7 @@ function template_main()
 
 		echo '
 	<div class="pagesection">
-		', template_button_strip($normal_buttons, 'right'), '
+		', template_button_strip($context['normal_buttons'], 'right'), '
 		<div class="pagelinks">', $txt['pages'], ': ', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '&nbsp;&nbsp;<a href="#top"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
 	</div>';
 	}
