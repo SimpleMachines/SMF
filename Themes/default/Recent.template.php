@@ -89,38 +89,20 @@ function template_unread()
 	echo '
 	<div id="recent" class="main_content">';
 
-	$showCheckboxes = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
-
-	if ($showCheckboxes)
+	if ($context['showCheckboxes'])
 		echo '
 		<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" style="margin: 0;">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="qaction" value="markread" />
 			<input type="hidden" name="redirect_url" value="action=unread', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '" />';
 
-	if ($settings['show_mark_read'])
-	{
-		// Generate the button strip.
-		$mark_read = array(
-			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
-		);
-
-		if ($showCheckboxes)
-			$mark_read['markselectread'] = array(
-				'text' => 'quick_mod_markread',
-				'image' => 'markselectedread.png',
-				'lang' => true,
-				'url' => 'javascript:document.quickModForm.submit();',
-			);
-	}
-
 	if (!empty($context['topics']))
 	{
 		echo '
 			<div class="pagesection">';
 
-		if (!empty($mark_read) && !empty($settings['use_tabs']))
-			template_button_strip($mark_read, 'right');
+		if (!empty($context['recent_buttons']) && !empty($settings['use_tabs']))
+			template_button_strip($context['recent_buttons'], 'right');
 
 		echo '
 				<span>', $txt['pages'], ': ', $context['page_index'], '</span>
@@ -140,7 +122,7 @@ function template_unread()
 							</th>';
 
 		// Show a "select all" box for quick moderation?
-		if ($showCheckboxes)
+		if ($context['showCheckboxes'])
 			echo '
 							<th scope="col" width="22%">
 								<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] == 'last_post' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] == 'last_post' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a>
@@ -198,7 +180,7 @@ function template_unread()
 								', $txt['by'], ' ', $topic['last_post']['member']['link'], '
 							</td>';
 
-			if ($showCheckboxes)
+			if ($context['showCheckboxes'])
 				echo '
 							<td class="' . (!empty($color_class) ? $color_class : 'windowbg2') . '" valign="middle" align="center">
 								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
@@ -207,14 +189,11 @@ function template_unread()
 						</tr>';
 		}
 
-		if (!empty($context['topics']) && !$context['showing_all_topics'])
-			$mark_read['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
-
-		if (empty($settings['use_tabs']) && !empty($mark_read))
+		if (empty($settings['use_tabs']) && !empty($context['recent_buttons']))
 			echo '
 						<tr class="catbg">
-							<td colspan="', $showCheckboxes ? '6' : '5', '" align="right">
-								', template_button_strip($mark_read, 'top'), '
+							<td colspan="', $context['showCheckboxes'] ? '6' : '5', '" align="right">
+								', template_button_strip($context['recent_buttons'], 'top'), '
 							</td>
 						</tr>';
 
@@ -228,8 +207,8 @@ function template_unread()
 			</div>
 			<div class="pagesection" id="readbuttons">';
 
-		if (!empty($settings['use_tabs']) && !empty($mark_read))
-			template_button_strip($mark_read, 'right');
+		if (!empty($settings['use_tabs']) && !empty($context['recent_buttons']))
+			template_button_strip($context['recent_buttons'], 'right');
 
 		echo '
 				<span>', $txt['pages'], ': ', $context['page_index'], '</span>
@@ -243,7 +222,7 @@ function template_unread()
 				</h3>
 			</div>';
 
-	if ($showCheckboxes)
+	if ($context['showCheckboxes'])
 		echo '
 		</form>';
 
@@ -272,38 +251,20 @@ function template_replies()
 	echo '
 	<div id="recent">';
 
-	$showCheckboxes = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
-
-	if ($showCheckboxes)
+	if ($context['showCheckboxes'])
 		echo '
 		<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" style="margin: 0;">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="qaction" value="markread" />
 			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '" />';
 
-	if (isset($context['topics_to_mark']) && !empty($settings['show_mark_read']))
-	{
-		// Generate the button strip.
-		$mark_read = array(
-			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-		);
-
-		if ($showCheckboxes)
-			$mark_read['markselectread'] = array(
-				'text' => 'quick_mod_markread',
-				'image' => 'markselectedread.png',
-				'lang' => true,
-				'url' => 'javascript:document.quickModForm.submit();',
-			);
-	}
-
 	if (!empty($context['topics']))
 	{
 		echo '
 			<div class="pagesection">';
 
-		if (!empty($mark_read) && !empty($settings['use_tabs']))
-			template_button_strip($mark_read, 'right');
+		if (!empty($context['recent_buttons']) && !empty($settings['use_tabs']))
+			template_button_strip($context['recent_buttons'], 'right');
 
 		echo '
 				<span>', $txt['pages'], ': ', $context['page_index'], '</span>
@@ -323,7 +284,7 @@ function template_replies()
 							</th>';
 
 		// Show a "select all" box for quick moderation?
-		if ($showCheckboxes)
+		if ($context['showCheckboxes'])
 				echo '
 							<th scope="col" width="22%">
 								<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] === 'last_post' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] === 'last_post' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a>
@@ -381,7 +342,7 @@ function template_replies()
 								', $txt['by'], ' ', $topic['last_post']['member']['link'], '
 							</td>';
 
-			if ($showCheckboxes)
+			if ($context['showCheckboxes'])
 				echo '
 							<td class="' . (!empty($color_class) ? $color_class : 'windowbg2') . '" valign="middle" align="center">
 								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
@@ -390,11 +351,11 @@ function template_replies()
 						</tr>';
 		}
 
-		if (empty($settings['use_tabs']) && !empty($mark_read))
+		if (empty($settings['use_tabs']) && !empty($context['recent_buttons']))
 			echo '
 						<tr class="catbg">
-							<td colspan="', $showCheckboxes ? '6' : '5', '" align="right">
-								', template_button_strip($mark_read, 'top'), '
+							<td colspan="', $context['showCheckboxes'] ? '6' : '5', '" align="right">
+								', template_button_strip($context['recent_buttons'], 'top'), '
 							</td>
 						</tr>';
 
@@ -404,8 +365,8 @@ function template_replies()
 			</div>
 			<div class="pagesection">';
 
-		if (!empty($settings['use_tabs']) && !empty($mark_read))
-			template_button_strip($mark_read, 'right');
+		if (!empty($settings['use_tabs']) && !empty($context['recent_buttons']))
+			template_button_strip($context['recent_buttons'], 'right');
 
 		echo '
 				<span>', $txt['pages'], ': ', $context['page_index'], '</span>
@@ -419,7 +380,7 @@ function template_replies()
 				</h3>
 			</div>';
 
-	if ($showCheckboxes)
+	if ($context['showCheckboxes'])
 		echo '
 		</form>';
 

@@ -84,6 +84,9 @@ function ShowAdminHelp()
 		loadLanguage('ManagePermissions');
 
 	loadTemplate('Help');
+	
+	// Allow mods to load their own language file here
+ 	call_integration_hook('integrate_helpadmin');
 
 	// Set the page title to something relevant.
 	$context['page_title'] = $context['forum_name'] . ' - ' . $txt['help'];

@@ -144,6 +144,14 @@ function CalendarMain()
 			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
 			'name' => $txt['calendar_week'] . ' ' . $context['calendar_grid_main']['week_number']
 		);
+		
+	// Build the calendar button array.
+	$context['calendar_buttons'] = array(
+		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+	);
+	
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_calendar_buttons', array(&$context['calendar_buttons']));
 }
 
 /**

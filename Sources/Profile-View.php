@@ -801,6 +801,9 @@ function statPanel($memID)
 
 	// Put it in the right order.
 	ksort($context['posts_by_time']);
+	
+	// Custom stats (just add a template_layer to add it to the template!)
+ 	call_integration_hook('integrate_profile_stats', array($memID));
 }
 
 /**
