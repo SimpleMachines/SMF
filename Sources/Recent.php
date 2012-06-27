@@ -1355,7 +1355,7 @@ function UnreadTopics()
 		}
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_recent_buttons', array(&$context['recent_buttons']));
+		call_integration_hook('integrate_recent_buttons');
 	}
 	
 	// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)

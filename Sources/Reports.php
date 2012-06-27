@@ -111,7 +111,7 @@ function ReportsMain()
 	);
 	
 	// Allow mods to add additional buttons here
-	call_integration_hook('integrate_report_buttons', array(&$context['report_buttons']));	
+	call_integration_hook('integrate_report_buttons');	
 	
 	// Now generate the data.
 	$context['report_types'][$context['report_type']]['function']();

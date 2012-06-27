@@ -183,7 +183,7 @@ function Memberlist()
 	);
 	
 	// Allow mods to add additional buttons here
-	call_integration_hook('integrate_memberlist_buttons', array(&$context['memberlist_buttons']));	
+	call_integration_hook('integrate_memberlist_buttons');	
 
 	// Jump to the sub action.
 	if (isset($subActions[$context['listing_by']]))

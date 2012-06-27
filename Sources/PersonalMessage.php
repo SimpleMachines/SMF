@@ -852,7 +852,7 @@ function MessageFolder()
 		);
 		
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_conversation_buttons', array(&$context['conversation_buttons']));
+		call_integration_hook('integrate_conversation_buttons');
 	}
 }
 
