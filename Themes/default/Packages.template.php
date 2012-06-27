@@ -42,7 +42,8 @@ function template_view_package()
 		echo '
 		<div class="errorbox">
 			', $txt['package_will_fail_title'], '<br />
-			', $txt['package_will_fail_warning'], '
+			', $txt['package_will_fail_warning'], 
+			!empty($context['failure_details']) ? '<br /><br /><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
 	}
 
