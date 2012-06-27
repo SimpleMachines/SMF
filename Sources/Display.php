@@ -767,11 +767,8 @@ function Display()
 		);
 		
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_poll_buttons', array(&$context['poll_buttons']));
+		call_integration_hook('integrate_poll_buttons');
 	}
-	
-	// Editing poll output, eh?
-	call_integration_hook('integrate_view_poll', array(&$context['poll']));
 
 	// Calculate the fastest way to get the messages!
 	$ascending = empty($options['view_newest_first']);
@@ -962,9 +959,6 @@ function Display()
 			foreach ($temp as $row)
 				$attachments[$row['id_msg']][] = $row;
 		}
-		
-		// Any custom stuff that might need to be loaded if there are messages to show
-		call_integration_hook('integrate_pre_message_load', array(&$messages));
 
 		// What?  It's not like it *couldn't* be only guests in this topic...
 		if (!empty($posters))
@@ -1126,9 +1120,6 @@ function Display()
 		'send' => array('test' => 'can_send_topic', 'text' => 'send_topic', 'image' => 'sendtopic.png', 'lang' => true, 'url' => $scripturl . '?action=emailuser;sa=sendtopic;topic=' . $context['current_topic'] . '.0'),
 		'print' => array('test' => 'can_print', 'text' => 'print', 'image' => 'print.png', 'lang' => true, 'custom' => 'rel="new_win nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0'),
 	);
-
-	// Allow adding new buttons easily.
-	call_integration_hook('integrate_display_buttons', array(&$context['normal_buttons']));	
 	
 	// Build the mod button array
 	$context['mod_buttons'] = array(
@@ -1145,7 +1136,7 @@ function Display()
 		$context['mod_buttons'][] = array('text' => 'restore_topic', 'image' => '', 'lang' => true, 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Allow adding new mod buttons easily.
-	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
+	call_integration_hook('integrate_display_buttons');
 }
 
 /**
@@ -1274,9 +1265,6 @@ function prepareDisplayContext($reset = false)
 		$counter++;
 	else
 		$counter--;
-		
-	// Add new data to messages?
-	call_integration_hook('integrate_display_context', array(&$output));
 
 	return $output;
 }

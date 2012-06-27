@@ -115,7 +115,7 @@ function BoardIndex()
 	);
 	
 	// Allow mods to add additional buttons here
-	call_integration_hook('integrate_mark_read_button', array(&$context['mark_read_button'])); 
+	call_integration_hook('integrate_mark_read_button'); 
 }
 
 /**

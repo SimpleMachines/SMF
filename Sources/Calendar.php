@@ -151,7 +151,7 @@ function CalendarMain()
 	);
 	
 	// Allow mods to add additional buttons here
-	call_integration_hook('integrate_calendar_buttons', array(&$context['calendar_buttons']));
+	call_integration_hook('integrate_calendar_buttons');
 }
 
 /**

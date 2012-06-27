@@ -642,7 +642,7 @@ function MessageIndex()
 	);
 	
 	// Allow adding new buttons easily.
-	call_integration_hook('integrate_messageindex_buttons', array(&$context['normal_buttons']));
+	call_integration_hook('integrate_messageindex_buttons');
 }
 
 /**
