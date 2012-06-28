@@ -364,7 +364,7 @@ function template_unapproved_posts()
 	foreach ($context['unapproved_items'] as $item)
 	{
 		echo '
-		<div class="topic">
+		<div class="topic clear">
 			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
 				<span class="topslice"><span></span></span>
 				<div class="content">
