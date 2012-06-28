@@ -370,7 +370,7 @@ function template_unapproved_posts()
 				<div class="content">
 					<div class="counter">', $item['counter'], '</div>
 					<div class="topic_details">
-						<h5><strong><a href="', $scripturl, '#c', $item['category']['id'], '">', $item['category']['name'], '</a> / <a href="', $scripturl, '?board=', $item['board']['id'], '.0">', $item['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $item['topic'], '.', $item['start'], '#msg', $item['id'], '">', $item['subject'], '</a></strong></h5>
+						<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
 						<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
 					</div>
 					<div class="list_posts">
