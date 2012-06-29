@@ -691,7 +691,7 @@ function hashLoginPassword(doForm, cur_session_id, token)
 		doForm.passwrd.value = doForm.passwrd.value.replace(/./g, '*');
 }
 
-function hashAdminPassword(doForm, username, cur_session_id)
+function hashAdminPassword(doForm, username, cur_session_id, token)
 {
 	// Compatibility.
 	if (cur_session_id == null)
@@ -700,16 +700,16 @@ function hashAdminPassword(doForm, username, cur_session_id)
 	if (typeof(hex_sha1) == 'undefined')
 		return;
 
-	doForm.admin_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.admin_pass.value.php_to8bit()) + cur_session_id);
+	doForm.admin_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.admin_pass.value.php_to8bit()) + cur_session_id + token);
 	doForm.admin_pass.value = doForm.admin_pass.value.replace(/./g, '*');
 }
 
-function hashModeratePassword(doForm, username, cur_session_id)
+function hashModeratePassword(doForm, username, cur_session_id, token)
 {
 	if (typeof(hex_sha1) == 'undefined')
 		return;
 
-	doForm.moderate_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.moderate_pass.value.php_to8bit()) + cur_session_id);
+	doForm.moderate_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.moderate_pass.value.php_to8bit()) + cur_session_id + token);
 	doForm.moderate_pass.value = doForm.moderate_pass.value.replace(/./g, '*');
 }
 
