@@ -1061,7 +1061,7 @@ function ModifyLanguage()
 					$multiline_cache = '';
 				}
 			}
-			$multiline_cache .= $line . "\n";
+			$multiline_cache .= $line;
 		}
 		// Last entry to add?
 		if ($multiline_cache)
