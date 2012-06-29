@@ -236,9 +236,7 @@ function smf_main()
 		{
 			$call = 'BoardIndex';
 			call_integration_hook('integrate_default_action', $call);
-
-			if ($call == 'BoardIndex')
-				require_once($sourcedir . '/BoardIndex.php');
+			require_once($sourcedir . '/' . $call . '.php');
 
 			return $call;
 		}
