@@ -89,7 +89,7 @@ function template_html_above()
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
 
 	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
-	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
+	foreach (array('ie7', 'ie6', 'ie8', 'webkit') as $cssfix)
 		if ($context['browser']['is_' . $cssfix])
 			echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/', $cssfix, '.css" />';
@@ -497,9 +497,13 @@ function template_menu()
 		<div id="main_menu">
 			<ul class="dropmenu" id="menu_nav">';
 
-	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes. 
+	// Start looping through the menu buttons
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
+		// Hack for backwards compatibility, remove the brackets from the PM buttons
+		if($act == 'pm')
+			$button['title'] = str_replace(array('[',']'),'',$button['title']);
+		
 		echo '
 				<li id="button_', $act, '">
 					<a class="', $button['active_button'] ? 'active' : '', !empty($button['is_last']) ? ' last' : '', '" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
