@@ -1570,6 +1570,15 @@ function loadAllPermissions($loadType = 'classic')
 		$relabelPermissions['post_attachment'] = 'auto_approve_attachments';
 	}
 
+	// Are attachments enabled?
+	if (empty($modSettings['attachmentEnable']))
+	{
+		$hiddenPermissions[] = 'manage_attachments';
+		$hiddenPermissions[] = 'view_attachments';
+		$hiddenPermissions[] = 'post_unapproved_attachments';
+		$hiddenPermissions[] = 'post_attachment';
+	}
+
 	// Provide a practical way to modify permissions.
 	call_integration_hook('integrate_load_permissions', array(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions));
 
