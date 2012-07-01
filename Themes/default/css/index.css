@@ -1082,21 +1082,19 @@ span.lowerframe span {
 	position: absolute;
 	top: 2.3em;
 	left: -9999px;
-	width: 17em;
+	width: 20em;
 	font-weight: normal;
 	border: 1px solid #c9c9c9;
 	box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255, 0.8);
 	padding: 0;
 	margin-top: 5px;
+	/* Fallback for old-timers */
+	background: #edeff2;
 	background: -moz-linear-gradient(top, #dbdfeb 0%, #ffffff 100%);
 	background: -webkit-linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
 	background: -o-linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
 	background: -ms-linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
-	background: linear-gradient(to bottom, #dbdfeb 0%,#ffffff 100%);
-	/* Not pretty but required to make it look good in I9 */
-	background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2RiZGZlYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZmZmZmYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+');
-	/* Fallback for old-timers */
-	background-color: #edeff2;
+	background: linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
 }
 .dropmenu li ul:before
 {
@@ -1104,7 +1102,7 @@ span.lowerframe span {
 	display: block;
 	height: 10px;
 	width: 10px;
-	background: #dbdfeb; 
+	background: #edeff2; 
 	-webkit-transform: rotate(45deg);
 	-moz-transform: rotate(45deg);
 	-ms-transform: rotate(45deg);
@@ -1116,6 +1114,12 @@ span.lowerframe span {
 	margin-top: -6px;
 	margin-left: 10px;
 	margin-bottom: -4px;
+	/* We do this so we don't have to bother working around IE9, which doesn't properly support gradients */
+	background: -moz-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: -webkit-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: -o-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: -ms-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
 }
 
 /* Position drop menu icons */
@@ -1191,14 +1195,14 @@ span.lowerframe span {
 }
 /* For no-js background. */
 .dropmenu li li.subsections a:focus {
-	background: #fff url(../images/admin/subsection.png) no-repeat 99% 40%;
+	background: url(../images/admin/subsection.png) no-repeat 99% 40%;
 }
 /* Stops inheritance of indicator icon if there is no fourth level. */
 .dropmenu li li.subsections li a {
 	background: none;
 }
 .dropmenu li li.subsections li a:focus {
-	background: #fff;
+	background: none;
 }
 /* Highlighting of current section */
 .dropmenu li li a.chosen {

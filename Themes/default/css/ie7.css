@@ -84,3 +84,9 @@ h3.catbg input.input_check {
 .list_posts {
 	word-wrap: break-word;
 }
+
+/* Overrides the drop down menu arrows (broken without CSS3 rotate)
+------------------------------------------------------- */
+.dropmenu li ul:before {
+	display: none;
+}
