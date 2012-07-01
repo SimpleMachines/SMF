@@ -231,14 +231,17 @@ function smf_main()
 	}
 	elseif (empty($_REQUEST['action']))
 	{
-		// Action and board are both empty... BoardIndex!
+		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 		if (empty($board) && empty($topic))
 		{
-			$call = 'BoardIndex';
+			$call = '';
 			call_integration_hook('integrate_default_action', $call);
-			require_once($sourcedir . '/' . $call . '.php');
+			if (!empty($call) && function_exists($call))
+				return $call;
 
-			return $call;
+			require_once($sourcedir . '/BoardIndex.php');
+
+			return 'BoardIndex';
 		}
 		// Topic is empty, and action is empty.... MessageIndex!
 		elseif (empty($topic))
