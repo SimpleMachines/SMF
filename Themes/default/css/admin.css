@@ -71,10 +71,10 @@ ol.search_results li {
 }
 #version_details {
 	overflow: auto;
-	height: 9.5em;
+	height: 12em;
 }
 #smfAnnouncements {
-	height: 13.5em;
+	height: 16.5em;
 	padding: 0 0.5em;
 	overflow: auto;
 }

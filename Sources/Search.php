@@ -248,7 +248,7 @@ function PlushSearch2()
 	global $scripturl, $modSettings, $sourcedir, $txt, $db_connection;
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc;
-	
+
 	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
 		redirectexit($scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
@@ -296,7 +296,7 @@ function PlushSearch2()
 
 	// Number of pages hard maximum - normally not set at all.
 	$modSettings['search_max_results'] = empty($modSettings['search_max_results']) ? 200 * $modSettings['search_results_per_page'] : (int) $modSettings['search_max_results'];
-	
+
 	// Maximum length of the string.
 	$context['search_string_limit'] = 100;
 
@@ -327,7 +327,7 @@ function PlushSearch2()
 	{
 		// Due to IE's 2083 character limit, we have to compress long search strings
 		$temp_params = base64_decode(str_replace(array('-', '_', '.'), array('+', '/', '='), $_REQUEST['params']));
-		
+
 		// Test for gzuncompress failing
 		$temp_params2 = @gzuncompress($temp_params);
 		$temp_params = explode('|"|', (!empty($temp_params2) ? $temp_params2 : $temp_params));
@@ -337,7 +337,7 @@ function PlushSearch2()
 			@list($k, $v) = explode('|\'|', $data);
 			$search_params[$k] = $v;
 		}
-		
+
 		if (isset($search_params['brd']))
 			$search_params['brd'] = empty($search_params['brd']) ? array() : explode(',', $search_params['brd']);
 	}
@@ -360,7 +360,7 @@ function PlushSearch2()
 
 	// Searching a specific topic?
 	if (!empty($_REQUEST['topic']) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'topic'))
-	{	
+	{
 		$search_params['topic'] = empty($_REQUEST['search_selection']) ? (int) $_REQUEST['topic'] : (isset($_REQUEST['sd_topic']) ? (int) $_REQUEST['sd_topic'] : '');
 		$search_params['show_complete'] = true;
 	}
@@ -1252,7 +1252,7 @@ function PlushSearch2()
 							if (in_array($subjectWord, $excludedSubjectWords))
 							{
 								if (($subject_query['from'] != '{db_prefix}messages AS m') && !$excluded)
-								{ 
+								{
 									$subject_query['inner_join'][] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 									$excluded = true;
 								}
@@ -1319,7 +1319,7 @@ function PlushSearch2()
 						// Nothing to search for?
 						if (empty($subject_query['where']))
 							continue;
-						
+
 						$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_topics', ($smcFunc['db_support_ignore'] ? ( '
 							INSERT IGNORE INTO {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics
 								(' . ($createTemporary ? '' : 'id_search, ') . 'id_topic)') : '') . '
@@ -1701,23 +1701,12 @@ function PlushSearch2()
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
-		$boards_can = array(
-			'post_reply_own' => boardsAllowedTo('post_reply_own'),
-			'post_reply_any' => boardsAllowedTo('post_reply_any'),
-			'mark_any_notify' => boardsAllowedTo('mark_any_notify')
-		);
+		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify', true, false));
 
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
 		{
-			$boards_can['lock_any'] = boardsAllowedTo('lock_any');
-			$boards_can['lock_own'] = boardsAllowedTo('lock_own');
-			$boards_can['make_sticky'] = boardsAllowedTo('make_sticky');
-			$boards_can['move_any'] = boardsAllowedTo('move_any');
-			$boards_can['move_own'] = boardsAllowedTo('move_own');
-			$boards_can['remove_any'] = boardsAllowedTo('remove_any');
-			$boards_can['remove_own'] = boardsAllowedTo('remove_own');
-			$boards_can['merge_any'] = boardsAllowedTo('merge_any');
+			$boards_can = boardsAllowedTo(array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any', true, false));
 
 			$context['can_lock'] = in_array(0, $boards_can['lock_any']);
 			$context['can_sticky'] = in_array(0, $boards_can['make_sticky']) && !empty($modSettings['enableStickyTopics']);

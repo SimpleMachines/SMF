@@ -70,6 +70,9 @@ function RemindPick()
 	// You must enter a username/email address.
 	if (empty($where))
 		fatal_lang_error('username_no_exist', false);
+		
+	// Make sure we are not being slammed
+	spamProtection('remind');
 
 	// Find the user!
 	$request = $smcFunc['db_query']('', '

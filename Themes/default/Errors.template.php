@@ -33,7 +33,8 @@ function template_fatal_error()
 			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
 			<span class="botslice"><span></span></span>
 		</div>
-	</div>';
+	</div>
+	<br class="clear" />';
 
 	// Show a back button (using javascript.)
 	echo '
