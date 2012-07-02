@@ -103,6 +103,16 @@ function ReportsMain()
 
 	// Make the page title more descriptive.
 	$context['page_title'] .= ' - ' . (isset($txt['gr_type_' . $context['report_type']]) ? $txt['gr_type_' . $context['report_type']] : $context['report_type']);
+	
+	// Build the reports button array.
+	$context['report_buttons'] = array(
+		'generate_reports' => array('text' => 'generate_reports', 'image' => 'print.png', 'lang' => true, 'url' => $scripturl . '?action=admin;area=reports', 'active' => true),
+		'print' => array('text' => 'print', 'image' => 'print.png', 'lang' => true, 'url' => $scripturl . '?action=admin;area=reports;rt=' . $context['report_type']. ';st=print', 'custom' => 'target="_blank"'),
+	);
+	
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_report_buttons');	
+	
 	// Now generate the data.
 	$context['report_types'][$context['report_type']]['function']();
 

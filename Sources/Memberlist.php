@@ -175,6 +175,15 @@ function Memberlist()
 
 	$context['can_send_pm'] = allowedTo('pm_send');
 	$context['can_send_email'] = allowedTo('send_email_to_members');
+	
+	// Build the memberlist button array.
+	$context['memberlist_buttons'] = array(
+		'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=all', 'active'=> true),
+		'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=search'),
+	);
+	
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_memberlist_buttons');	
 
 	// Jump to the sub action.
 	if (isset($subActions[$context['listing_by']]))
@@ -565,6 +574,10 @@ function MLSearch()
 		'url' => $scripturl . '?action=mlist;sa=search',
 		'name' => &$context['page_title']
 	);
+	
+	// Highlight the correct button, too!
+	unset($context['memberlist_buttons']['view_all_members']['active']);
+	$context['memberlist_buttons']['mlist_search']['active'] = true;
 }
 
 /**

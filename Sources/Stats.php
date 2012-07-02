@@ -627,6 +627,9 @@ function DisplayStats()
 		return;
 
 	getDailyStats(implode(' OR ', $condition_text), $condition_params);
+	
+	// Custom stats (just add a template_layer to add it to the template!)
+ 	call_integration_hook('integrate_forum_stats');
 }
 
 /**

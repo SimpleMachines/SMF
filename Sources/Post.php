@@ -2001,6 +2001,8 @@ function Post2()
 			$pollOptions,
 			array('id_poll', 'id_choice')
 		);
+		
+		call_integration_hook('integrate_poll_add_edit', array($id_poll, false));
 	}
 	else
 		$id_poll = 0;

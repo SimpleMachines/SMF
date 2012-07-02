@@ -885,6 +885,8 @@ function insertEvent(&$eventOptions)
 
 	// Store the just inserted id_event for future reference.
 	$eventOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}calendar', 'id_event');
+	
+	call_integration_hook('integrate_insert_event', array($eventOptions));
 
 	// Update the settings to show something calendarish was updated.
 	updateSettings(array(
@@ -914,6 +916,9 @@ function modifyEvent($event_id, &$eventOptions)
 	if (!isset($eventOptions['end_date']))
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
+	
+	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions));		
+		
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}calendar
 		SET
@@ -953,6 +958,8 @@ function removeEvent($event_id)
 			'id_event' => $event_id,
 		)
 	);
+	
+	call_integration_hook('integrate_remove_event', array($event_id));
 
 	updateSettings(array(
 		'calendar_updated' => time(),

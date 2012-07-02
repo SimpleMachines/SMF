@@ -25,12 +25,7 @@ function template_main()
 			<div id="main_grid" style="', isBrowser('is_ie') && !isBrowser('is_ie8') ? 'float: ' . ($context['right_to_left'] ? 'right; padding-right' : 'left; padding-left') . ': 20px;' : 'margin-' . ($context['right_to_left'] ? 'right' : 'left') . ': 220px; ', '">
 				', $context['view_week'] ? template_show_week_grid('main') : template_show_month_grid('main');
 
-	// Build the calendar button array.
-	$calendar_buttons = array(
-		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-	);
-
-	template_button_strip($calendar_buttons, 'right');
+	template_button_strip($context['calendar_buttons'], 'right');
 
 	// Show some controls to allow easy calendar navigation.
 	echo '

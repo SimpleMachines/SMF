@@ -63,12 +63,6 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
-	// Build the reports button array.
-	$report_buttons = array(
-			'generate_reports' => array('text' => 'generate_reports', 'image' => 'print.png', 'lang' => true, 'url' => $scripturl . '?action=admin;area=reports', 'active' => true),
-			'print' => array('text' => 'print', 'image' => 'print.png', 'lang' => true, 'url' => $scripturl . '?action=admin;area=reports;rt=' . $context['report_type']. ';st=print', 'custom' => 'target="_blank"'),
-		);
-
 	echo '
 	<div id="admincenter">
 		<div class="title_bar">
@@ -76,8 +70,8 @@ function template_main()
 		</div>
 		<div id="report_buttons">';
 
-	if (!empty($report_buttons) && !empty($settings['use_tabs']))
-		template_button_strip($report_buttons, 'right');
+	if (!empty($context['report_buttons']) && !empty($settings['use_tabs']))
+		template_button_strip($context['report_buttons'], 'right');
 
 	echo '
 		</div>';
