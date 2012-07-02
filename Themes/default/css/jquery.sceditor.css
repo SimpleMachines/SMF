@@ -183,52 +183,21 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 			text-indent: -9999px;
 		}
 		.sceditor-button:hover { background: #eee; }
-			.sceditor-button-bold div { background: url('../images/bbc/icons/text_bold.png'); }
-			.sceditor-button-italic div { background: url('../images/bbc/icons/text_italic.png'); }
-			.sceditor-button-underline div { background: url('../images/bbc/icons/text_underline.png'); }
-			.sceditor-button-strike div { background: url('../images/bbc/icons/text_strikethrough.png'); }
-			.sceditor-button-subscript div { background: url('../images/bbc/icons/text_subscript.png'); }
-			.sceditor-button-superscript div { background: url('../images/bbc/icons/text_superscript.png'); }
-
-			.sceditor-button-left div { background: url('../images/bbc/icons/text_align_left.png'); }
-			.sceditor-button-center div { background: url('../images/bbc/icons/text_align_center.png'); }
-			.sceditor-button-right div { background: url('../images/bbc/icons/text_align_right.png'); }
-			.sceditor-button-justify div { background: url('../images/bbc/icons/text_align_justify.png'); }
-
-			.sceditor-button-font div { background: url('../images/bbc/icons/font.png'); }
-			.sceditor-button-size div { background: url('../images/bbc/icons/font_size.png'); }
-			.sceditor-button-color div { background: url('../images/bbc/icons/color_swatch.png'); }
-			.sceditor-button-removeformat div { background: url('../images/bbc/icons/font_delete.png'); }
-
-			.sceditor-button-cut div { background: url('../images/bbc/icons/cut.png'); }
-			.sceditor-button-copy div { background: url('../images/bbc/icons/page_copy.png'); }
-			.sceditor-button-paste div { background: url('../images/bbc/icons/page_white_paste.png'); }
-			.sceditor-button-pastetext div { background: url('../images/bbc/icons/paste_plain.png'); }
-
-			.sceditor-button-bulletlist div { background: url('../images/bbc/icons/text_list_bullets.png'); }
-			.sceditor-button-orderedlist div { background: url('../images/bbc/icons/text_list_numbers.png'); }
-
-			.sceditor-button-table div { background: url('../images/bbc/icons/table_add.png'); }
-
-			.sceditor-button-horizontalrule div { background: url('../images/bbc/icons/text_horizontalrule.png'); }
-			.sceditor-button-image div { background: url('../images/bbc/icons/image_add.png'); }
-			.sceditor-button-code div { background: url('../images/bbc/icons/script_code.png'); }
-			.sceditor-button-email div { background: url('../images/bbc/icons/email_add.png'); }
-			.sceditor-button-link div { background: url('../images/bbc/icons/link_add.png'); }
-			.sceditor-button-unlink div { background: url('../images/bbc/icons/link_break.png'); }
-
-			.sceditor-button-quote div { background: url('../images/bbc/icons/comment.png'); }
-
 			.sceditor-button-emoticon { display:none; }
-			.sceditor-button-emoticon div { background: url('../images/bbc/icons/emoticon_smile.png'); }
-			.sceditor-button-youtube div { background: url('../images/bbc/icons/youtube.png'); }
-			.sceditor-button-date div { background: url('../images/bbc/icons/date_add.png'); }
-			.sceditor-button-time div { background: url('../images/bbc/icons/time_add.png'); }
-
-			.sceditor-button-print div { background: url('../images/bbc/icons/printer.png'); }
-			.sceditor-button-source div { background: url('../images/bbc/icons/page_white_text.png'); }
 
 /* SMF buttons styles */
+.sceditor-button-font div {
+	background: url('../images/bbc/font.png');
+}
+.sceditor-button-size div {
+	background: url('../images/bbc/font_size.png');
+}
+.sceditor-button-color div {
+	background: url('../images/bbc/color_swatch.png');
+}
+.sceditor-button-removeformat div {
+	background: url('../images/bbc/font_delete.png');
+}
 .sceditor-button-bold div {
 	background: url('../images/bbc/bold.png');
 }
