@@ -63,11 +63,21 @@ body {
 a:link, a:hover, a:visited {
 	text-decoration: underline;
 }
-.progress {
-	position: relative;
-	margin: -16px 3px 0 3px;
+.progress_bar {
+	width: 40%;
+	margin: 0 42px;
+	height: 40px;
 }
-.overall_progress {
-	position: relative;
-	margin: -25px 3px 0 3px;
+.progress_bar div {
+	height: 40px;
+	background-size: 40px 40px;
+	
 }
+.progress_bar div.full_bar {
+	line-height: 42px;
+}
+
+@-webkit-keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 40px 0px; } }
+@-moz-keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 40px 0px; } }
+@-o-keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 40px 0px; } }
+@keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 40px 0px; } }

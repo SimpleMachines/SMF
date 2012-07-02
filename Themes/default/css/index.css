@@ -3178,48 +3178,66 @@ span.hidelink {
 	box-shadow: 1px 2px 4px rgba(0,0,0,0.2), 0 0px 10px rgba(0,0,0,0.05) inset;
 }
 
-/* Styles for the progress bar 
+/* Styles for the progress bar
 -------------------------------------------------- */
 .progress_bar {
-	height: 15pt;
-	border: 1px solid black;
-	background-color: white;
-	padding: 3px;
+	height: 20px;
+	border: 1px solid #9e9d9d;
+	background-color: #d9d8d8;
 	width: 80%;
 	margin: 0 auto;
 	position: relative;
 	border-radius: 5px;
-	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+	box-shadow: inset 0 0 10px rgba(0,0,0,0.18);
+	margin-bottom: 30px;
+}
+.progress_bar div {
+	height: 20px;
+	background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, .08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .08) 75%, transparent 75%, transparent), -webkit-linear-gradient(top, rgba(255,255,255,0.28) 0%, rgba(0,0,0,0.18) 100%);
+	background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, .08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .08) 75%, transparent 75%, transparent), -moz-linear-gradient(top, rgba(255,255,255,0.28) 0%, rgba(0,0,0,0.18) 100%);
+	background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, .08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .08) 75%, transparent 75%, transparent), -ms-linear-gradient(top, rgba(255,255,255,0.28) 0%, rgba(0,0,0,0.18) 100%);
+	background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, .08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .08) 75%, transparent 75%, transparent), -o-linear-gradient(top, rgba(255,255,255,0.28) 0%, rgba(0,0,0,0.18) 100%);
+	background-image: linear-gradient(-45deg, rgba(255, 255, 255, .08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .08) 75%, transparent 75%, transparent), linear-gradient(top, rgba(255,255,255,0.28) 0%, rgba(0,0,0,0.18) 100%);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 0 19px rgba(255,255,255,0.2);
+	border-radius: 5px;
+	z-index: 1;
+	margin: -1px 0 0 -1px;
+	background-size: 30px 30px;
+	-webkit-animation: progress 2s linear infinite;
+	-moz-animation: progress 2s linear infinite;
+	-o-animation: progress 2s linear infinite;
+	animation: progress 2s linear infinite;
 }
 .progress_bar div.full_bar {
-	padding-top: 1pt;
 	width: 100%;
-	color: black;
+	font-size: 0.9em;
 	position: absolute;
 	text-align: center;
 	font-weight: bold;
-	border-radius: 3px;
 	z-index: 2;
+	line-height: 22px;
+	background: none;
+	box-shadow: none;
 }
 .progress_bar div.green_percent {
-	height: 15pt;
-	background-color: #c1ffc1;
-	background-image: -webkit-linear-gradient(top, #c1ffc1, green);
-	background-image: -moz-linear-gradient(top, #c1ffc1, green);
-	background-image: -ms-linear-gradient(top, #c1ffc1, green);
-	background-image: -o-linear-gradient(top, #c1ffc1, green);
-	background-image: linear-gradient(top, #c1ffc1, green);
-	border-radius: 3px;
-	z-index: 1;
+	background-color: #a6d350;
+	border: 1px solid #779e2b;
 }
 .progress_bar div.blue_percent {
-	height: 15pt;
-	background-color: #98b8f4;
-	background-image: -webkit-linear-gradient(top, #98b8f4, blue);
-	background-image: -moz-linear-gradient(top, #98b8f4, blue);
-	background-image: -ms-linear-gradient(top, #98b8f4, blue);
-	background-image: -o-linear-gradient(top, #98b8f4, blue);
-	background-image: linear-gradient(top, #98b8f4, blue);
-	border-radius: 3px;
-	z-index: 1;
+	background-color: #87c9d8;
+	border: 1px solid #6aa4b1;
+}
+
+/* Animated progress bars (compressed since we don't want something tiny take up too much space) */
+@-webkit-keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 30px 0px; } }
+@-moz-keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 30px 0px; } }
+@-o-keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 30px 0px; } }
+@keyframes progress { 0% { background-position: 0 0; } 100% { background-position: 30px 0px; } }
+
+/* Disable animation (if a mods wants to use 'em differently?) */
+.progress_bar.frozen div {
+	-webkit-animation: none;
+	-moz-animation: none;
+	-o-animation: none;
+	animation: none;
 }

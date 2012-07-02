@@ -3462,53 +3462,43 @@ function template_upgrade_above()
 		// ]]></script>
 	</head>
 	<body>
-	<div id="header"><div class="frame">
-		<div id="top_section">
-			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
-			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
-		</div>
-		<div id="upper_section" class="middletext flow_hidden">
-			<div class="user"></div>
-			<div class="news normaltext">
+	<div id="wrapper">
+		<div id="header"><div class="frame">
+			<div id="top_section">
+				<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
 			</div>
-		</div>
-	</div></div>
-	<div id="content_section"><div class="frame">
-		<div id="main_content_section">
-			<div id="main-steps">
-				<h2>', $txt['upgrade_progress'], '</h2>
-				<ul>';
+			<div id="upper_section" class="middletext flow_hidden">
+				<div class="user"></div>
+				<div class="news normaltext">
+				</div>
+			</div>
+		</div></div>
+		<div id="content_section"><div class="frame">
+			<div id="main_content_section">
+				<div id="main-steps">
+					<h2>', $txt['upgrade_progress'], '</h2>
+					<ul>';
 
 	foreach ($upcontext['steps'] as $num => $step)
 		echo '
-						<li class="', $num < $upcontext['current_step'] ? 'stepdone' : ($num == $upcontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
+							<li class="', $num < $upcontext['current_step'] ? 'stepdone' : ($num == $upcontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
 
 	echo '
-					</ul>
-			</div>
-			<div style="float: left; width: 40%;">
-				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: auto;">
-					<div id="overall_text" style="color: #000; position: absolute; margin-left: -5em;">', $upcontext['overall_percent'], '%</div>
-					<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%; height: 12pt; z-index: 1; background-color: lime;">&nbsp;</div>
-					<div class="progress">', $txt['upgrade_overall_progress'], '</div>
+						</ul>
 				</div>
-				';
+				<div class="progress_bar', ($upcontext['overall_percent'] == 100 ? ' frozen' : ''), '">
+					<div id="overall_text" class="full_bar">', $txt['upgrade_overall_progress'], ' ', $upcontext['overall_percent'], '%</div>
+					<div id="overall_progress" class="green_percent" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
+				</div>';
 
 	if (isset($upcontext['step_progress']))
 		echo '
-				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: 5px auto; ">
-					<div id="step_text" style="color: #000; position: absolute; margin-left: -5em;">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%; height: 12pt; z-index: 1; background-color: #ffd000;">&nbsp;</div>
-					<div class="progress">', $txt['upgrade_step_progress'], '</div>
-				</div>
-				';
-
-	echo '
-				<div id="substep_bar_div" class="smalltext" style="display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
-				<div id="substep_bar_div2" style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: 5px auto; display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
-					<div id="substep_text" style="color: #000; position: absolute; margin-left: -5em;">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</div>
-				<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
-								</div>';
+				<br class="clear" />
+				<div class="progress_bar">
+					<div id="step_text" class="full_bar">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : $txt['upgrade_step_progress'], ' ', $upcontext['step_progress'], '%</div>
+					<div id="step_progress" class="blue_percent" style="width: ', $upcontext['step_progress'], '%;">&nbsp;</div>
+				</div>';
 
 	// How long have we been running this?
 	$elapsed = time() - $upcontext['started'];
@@ -3558,16 +3548,17 @@ function template_upgrade_below()
 									<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button_submit" />';
 
 	echo '
-								</div>
-							</form>
-						</div>
+									</div>
+								</form>
+							</div>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div></div>
-	<div id="footer_section"><div class="frame" style="height: 40px;">
-		<div class="smalltext"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy;2011, Simple Machines</a></div>
-	</div></div>
+		</div></div>
+		<div id="footer_section"><div class="frame" style="height: 40px;">
+			<div class="smalltext"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy;2011, Simple Machines</a></div>
+		</div></div>
+	</div>
 	</body>
 </html>';
 
