@@ -561,7 +561,7 @@ function ModifyProfile($post_errors = array())
 		{
 			if (empty($post_errors))
 			{
-				deleteAccount2($profile_vars, $post_errors, $memID);
+				deleteAccount2($memID);
 				redirectexit();
 			}
 		}
@@ -586,6 +586,8 @@ function ModifyProfile($post_errors = array())
 			require_once($sourcedir . '/Profile-Modify.php');
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
+
+		call_integration_hook('integrate_profile_save', array($profile_vars, $post_errors, $memID));
 
 		// There was a problem, let them try to re-enter.
 		if (!empty($post_errors))
@@ -620,7 +622,16 @@ function ModifyProfile($post_errors = array())
 				$log_changes = array();
 				require_once($sourcedir . '/Logging.php');
 				foreach ($context['log_changes'] as $k => $v)
-					logAction($k, array_merge($v, array('applicator' => $user_info['id'], 'member_affected' => $memID)), 'user');
+					$log_changes[] = array(
+						'action' => $k,
+						'log_type' => 'user',
+						'extra' => array_merge($v, array(
+							'applicator' => $user_info['id'],
+							'member_affected' => $memID,
+						)),
+					);
+
+				logActions($log_changes);
 			}
 
 			// Have we got any post save functions to execute?
@@ -782,6 +793,8 @@ function loadCustomFields($memID, $area = 'summary')
 		);
 	}
 	$smcFunc['db_free_result']($request);
+
+	call_integration_hook('integrate_load_custom_profile_fields', array($memID, $area));
 }
 
 ?>
