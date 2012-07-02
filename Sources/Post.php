@@ -509,16 +509,18 @@ function Post($post_errors = array())
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 					IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-					m.poster_time
+					m.poster_time, log.id_action
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
+					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 				WHERE m.id_msg = {int:id_msg}
 					AND m.id_topic = {int:current_topic}',
 				array(
 					'current_topic' => $topic,
 					'attachment_type' => 0,
 					'id_msg' => $_REQUEST['msg'],
+					'announce_action' => 'announce_topic',
 				)
 			);
 			// The message they were trying to edit was most likely deleted.
@@ -575,6 +577,12 @@ function Post($post_errors = array())
 				$smcFunc['db_free_result']($request);
 			}
 
+			if ($context['can_announce'] && !empty($row['id_action']))
+			{
+				loadLanguage('Errors');
+				$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+			}
+
 			// Allow moderators to change names....
 			if (allowedTo('moderate_forum') && !empty($topic))
 			{
@@ -615,16 +623,18 @@ function Post($post_errors = array())
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-				m.poster_time
+				m.poster_time, log.id_action
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
+					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 			WHERE m.id_msg = {int:id_msg}
 				AND m.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
 				'attachment_type' => 0,
 				'id_msg' => $_REQUEST['msg'],
+				'announce_action' => 'announce_topic',
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
@@ -652,6 +662,12 @@ function Post($post_errors = array())
 			isAllowedTo('modify_replies');
 		else
 			isAllowedTo('modify_any');
+
+		if ($context['can_announce'] && !empty($row['id_action']))
+		{
+			loadLanguage('Errors');
+			$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+		}
 
 		// When was it last modified?
 		if (!empty($row['modified_time']))
@@ -2394,6 +2410,7 @@ function AnnouncementSend()
 	// All members have received a mail. Go to the next screen.
 	if ($smcFunc['db_num_rows']($request) == 0)
 	{
+		logAction('announce_topic', array(), 'user');
 		if (!empty($_REQUEST['move']) && allowedTo('move_any'))
 			redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		elseif (!empty($_REQUEST['goback']))
