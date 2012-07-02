@@ -108,6 +108,14 @@ function BoardIndex()
 		$context['show_calendar'] = false;
 
 	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);
+	
+	// Mark read button
+	$context['mark_read_button'] = array(
+		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=all;' . $context['session_var'] . '=' . $context['session_id']),
+	);
+	
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_mark_read_button'); 
 }
 
 /**

@@ -15,12 +15,6 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
-	// Build the memberlist button array.
-	$memberlist_buttons = array(
-			'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=all', 'active'=> true),
-			'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=search'),
-		);
-
 	echo '
 	<div class="main_section" id="memberlist">
 		<div class="cat_bar">
@@ -33,7 +27,7 @@ function template_main()
 			</h4>
 		</div>
 		<div class="pagesection">
-			', template_button_strip($memberlist_buttons, 'right'), '
+			', template_button_strip($context['memberlist_buttons'], 'right'), '
 			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
 		</div>';
 
@@ -165,12 +159,6 @@ function template_search()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
-	// Build the memberlist button array.
-	$memberlist_buttons = array(
-			'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=all'),
-			'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=search', 'active' => true),
-		);
-
 	// Start the submission form for the search!
 	echo '
 	<form action="', $scripturl, '?action=mlist;sa=search" method="post" accept-charset="', $context['character_set'], '">
@@ -181,7 +169,7 @@ function template_search()
 				</h3>
 			</div>
 			<div class="pagesection">
-				', template_button_strip($memberlist_buttons, 'right'), '
+				', template_button_strip($context['memberlist_buttons'], 'right'), '
 			</div>';
 	
 	// Display the input boxes for the form.
