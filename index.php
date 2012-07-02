@@ -236,7 +236,8 @@ function smf_main()
 		{
 			$call = '';
 			call_integration_hook('integrate_default_action', $call);
-			if (!empty($call) && function_exists($call))
+			$call = strpos($call, '::') !== false ? explode('::', $call) : $call;
+			if (!empty($call) && is_callable($call))
 				return $call;
 
 			require_once($sourcedir . '/BoardIndex.php');
