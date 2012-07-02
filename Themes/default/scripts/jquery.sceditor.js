@@ -2739,3 +2739,10 @@ $.sceditor.setCommand(
 	},
 	'Teletype'
 );
+$.sceditor.setCommand(
+	'pre',
+	function () {
+		this.wysiwygEditorInsertHtml('<pre>', '</pre>');
+	},
+	'Pre'
+);

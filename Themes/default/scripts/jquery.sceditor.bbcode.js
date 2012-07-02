@@ -104,6 +104,7 @@
 				tt: { txtExec: ["[tt]", "[/tt]"] },
 				glow: { txtExec: ["[glow=red,2,300]", "[/glow]"] },
 				shadow: { txtExec: ["[shadow=red,left]", "[/shadow]"] },
+				pre: { txtExec: ["[pre]", "[/pre]"] },
 				font: {
 					txtExec: function (caller) {
 						var	editor  = this,
@@ -1301,7 +1302,7 @@
 				'" data-youtube-id="{0}" frameborder="0" allowfullscreen></iframe>'
 		},
 		// END_COMMAND
-		
+
 		abbr: {
 			tags: {
 				abbr: {
@@ -1363,8 +1364,9 @@
 			tags: {
 				pre: null
 			},
+			isBlock: true,
 			format: "[pre]{0}[/pre]",
-			html: '<pre>{0}</pre>'
+			html: "<pre>{0}</pre>\n"
 		},
 		move: {
 			tags: {
@@ -1373,7 +1375,7 @@
 			format: "[move]{0}[/move]",
 			html: '<marquee>{0}</marquee>'
 		},
-		
+
 		// this is here so that commands above can be removed
 		// without having to remove the , after the last one.
 		// Needed for IE.
