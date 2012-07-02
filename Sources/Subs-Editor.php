@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function loadLocale()
 {
-	global $context, $txt, $txteditor, $modSettings;
+	global $context, $txt, $editortxt, $modSettings;
 
 	loadLanguage('Editor');
 
@@ -41,7 +41,7 @@ function loadLocale()
 	\'use strict\';
 
 	$.sceditor.locale[' . javaScriptEscape($txt['lang_locale']) . '] = {';
-	foreach ($txteditor as $key => $val)
+	foreach ($editortxt as $key => $val)
 		$file_data .= '
 		' . javaScriptEscape($key) . ': ' . javaScriptEscape($val) . ',';
 
