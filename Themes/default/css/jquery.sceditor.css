@@ -90,6 +90,9 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 		div.sceditor-insertemail {
 			padding: 5px;
 		}
+		div.sceditor-dropdown {
+			margin: 0;
+		}
 		.sceditor-insertemoticon img, .sceditor-smileyPopup img {
 			cursor: pointer;
 			margin: 2px;
@@ -185,7 +188,15 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 		.sceditor-button:hover { background: #eee; }
 			.sceditor-button-emoticon { display:none; }
 
+.sceditor-popup-grip {
+	display: block;
+	height: 15px;
+}
+
 /* SMF buttons styles */
+.sceditor-button-source div {
+	background: url('../images/bbc/toggle.png');
+}
 .sceditor-button-font div {
 	background: url('../images/bbc/font.png');
 }
