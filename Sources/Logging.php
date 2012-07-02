@@ -162,22 +162,22 @@ function writeLog($force = false)
 function logLastDatabaseError()
 {
 	global $boarddir;
-	
+
 	// Make a note of the last modified time in case someone does this before us
 	$last_db_error_change = @filemtime($boarddir . '/db_last_error.php');
-	
+
 	// save the old file before we do anything
 	$file = $boarddir . '/db_last_error.php';
 	$dberror_backup_fail = !@is_writable($boarddir . '/db_last_error_bak.php') || !@copy($file, $boarddir . '/db_last_error_bak.php');
 	$dberror_backup_fail = !$dberror_backup_fail ? (!file_exists($boarddir . '/db_last_error_bak.php') || filesize($boarddir . '/db_last_error_bak.php') === 0) : $dberror_backup_fail;
-	
+
 	clearstatcache();
 	if (filemtime($boarddir . '/db_last_error.php') === $last_db_error_change)
 	{
-		// Write the change 
+		// Write the change
 		$write_db_change =  '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
 		$written_bytes = file_put_contents($boarddir . '/db_last_error.php', $write_db_change, LOCK_EX);
-		
+
 		// survey says ...
 		if ($written_bytes !== strlen($write_db_change) && !$dberror_backup_fail)
 		{
@@ -248,14 +248,14 @@ function displayDebug()
 	', $txt['debug_language_files'], count($context['debug']['language_files']), ': <em>', implode('</em>, <em>', $context['debug']['language_files']), '</em>.<br />
 	', $txt['debug_stylesheets'], count($context['debug']['sheets']), ': <em>', implode('</em>, <em>', $context['debug']['sheets']), '</em>.<br />
 	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br />';
-	
+
 	// What tokens are active?
 	if (isset($_SESSION['token']))
 	{
 		$token_list = array();
 		foreach ($_SESSION['token'] as $key => $data)
 			$token_list[] = $key;
-		
+
 		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', $token_list), '</em>.<br />';
 	}
 
@@ -400,6 +400,8 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 		'admin' => 3,
 	);
 
+	call_integration_hook('integrate_log_types', array($log_types));
+
 	// No point in doing anything, if the log isn't even enabled.
 	if (empty($modSettings['modlog_enabled']) || !isset($log_types[$log_type]))
 		return false;
@@ -412,21 +414,21 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 	{
 		if (!is_numeric($extra['topic']))
 			trigger_error('logAction(): data\'s topic is not a number', E_USER_NOTICE);
-		$topic_id = empty($extra['topic']) ? '0' : (int)$extra['topic'];
+		$topic_id = empty($extra['topic']) ? 0 : (int) $extra['topic'];
 		unset($extra['topic']);
 	}
 	else
-		$topic_id = '0';
+		$topic_id = 0;
 
 	if (isset($extra['message']))
 	{
 		if (!is_numeric($extra['message']))
 			trigger_error('logAction(): data\'s message is not a number', E_USER_NOTICE);
-		$msg_id = empty($extra['message']) ? '0' : (int)$extra['message'];
+		$msg_id = empty($extra['message']) ? 0 : (int) $extra['message'];
 		unset($extra['message']);
 	}
 	else
-		$msg_id = '0';
+		$msg_id = 0;
 
 	// @todo cache this?
 	// Is there an associated report on this?
@@ -459,11 +461,11 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 	{
 		if (!is_numeric($extra['board']))
 			trigger_error('logAction(): data\'s board is not a number', E_USER_NOTICE);
-		$board_id = empty($extra['board']) ? '0' : (int)$extra['board'];
+		$board_id = empty($extra['board']) ? 0 : (int) $extra['board'];
 		unset($extra['board']);
 	}
 	else
-		$board_id = '0';
+		$board_id = 0;
 
 	if (isset($extra['board_to']))
 	{
@@ -471,7 +473,7 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 			trigger_error('logAction(): data\'s board_to is not a number', E_USER_NOTICE);
 		if (empty($board_id))
 		{
-			$board_id = empty($extra['board_to']) ? '0' : (int)$extra['board_to'];
+			$board_id = empty($extra['board_to']) ? 0 : (int) $extra['board_to'];
 			unset($extra['board_to']);
 		}
 	}
@@ -491,6 +493,129 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
 			time(), $log_types[$log_type], $memID, $user_info['ip'], $action,
 			$board_id, $topic_id, $msg_id, serialize($extra),
 		),
+		array('id_action')
+	);
+
+	return $smcFunc['db_insert_id']('{db_prefix}log_actions', 'id_action');
+}
+
+/**
+ * A mmirror of {@link logAction()}, but designed to log multiple actions at once.
+ *
+ * @param array $logs
+ */
+function logActions($logs)
+{
+	global $modSettings, $user_info, $smcFunc, $sourcedir;
+
+	$inserts = array();
+	$log_types = array(
+		'moderate' => 1,
+		'user' => 2,
+		'admin' => 3,
+	);
+
+	call_integration_hook('integrate_log_types', array($log_types));
+
+	// No point in doing anything, if the log isn't even enabled.
+	if (empty($modSettings['modlog_enabled']))
+		return false;
+
+	foreach ($logs as $log)
+	{
+		if (!isset($log_types[$log['log_type']]))
+			return false;
+
+		if (!is_array($log['extra']))
+			trigger_error('logActions(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
+
+		// Pull out the parts we want to store separately, but also make sure that the data is proper
+		if (isset($log['extra']['topic']))
+		{
+			if (!is_numeric($log['extra']['topic']))
+				trigger_error('logActions(): data\'s topic is not a number', E_USER_NOTICE);
+			$topic_id = empty($log['extra']['topic']) ? 0 : (int) $log['extra']['topic'];
+			unset($log['extra']['topic']);
+		}
+		else
+			$topic_id = 0;
+
+		if (isset($log['extra']['message']))
+		{
+			if (!is_numeric($log['extra']['message']))
+				trigger_error('logActions(): data\'s message is not a number', E_USER_NOTICE);
+			$msg_id = empty($log['extra']['message']) ? 0 : (int) $log['extra']['message'];
+			unset($log['extra']['message']);
+		}
+		else
+			$msg_id = 0;
+
+		// @todo cache this?
+		// Is there an associated report on this?
+		if (in_array($log['action'], array('move', 'remove', 'split', 'merge')))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_report
+				FROM {db_prefix}log_reported
+				WHERE {raw:column_name} = {int:reported}
+				LIMIT 1',
+				array(
+					'column_name' => !empty($msg_id) ? 'id_msg' : 'id_topic',
+					'reported' => !empty($msg_id) ? $msg_id : $topic_id,
+			));
+
+			// Alright, if we get any result back, update open reports.
+			if ($smcFunc['db_num_rows']($request) > 0)
+			{
+				require_once($sourcedir . '/ModerationCenter.php');
+				updateSettings(array('last_mod_report_action' => time()));
+				recountOpenReports();
+			}
+			$smcFunc['db_free_result']($request);
+		}
+
+		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
+			trigger_error('logActions(): data\'s member is not a number', E_USER_NOTICE);
+
+		if (isset($log['extra']['board']))
+		{
+			if (!is_numeric($log['extra']['board']))
+				trigger_error('logActions(): data\'s board is not a number', E_USER_NOTICE);
+			$board_id = empty($log['extra']['board']) ? 0 : (int) $log['extra']['board'];
+			unset($log['extra']['board']);
+		}
+		else
+			$board_id = 0;
+
+		if (isset($log['extra']['board_to']))
+		{
+			if (!is_numeric($log['extra']['board_to']))
+				trigger_error('logActions(): data\'s board_to is not a number', E_USER_NOTICE);
+			if (empty($board_id))
+			{
+				$board_id = empty($log['extra']['board_to']) ? 0 : (int) $log['extra']['board_to'];
+				unset($log['extra']['board_to']);
+			}
+		}
+
+		if (isset($log['extra']['member_affected']))
+			$memID = $log['extra']['member_affected'];
+		else
+			$memID = $user_info['id'];
+
+		$inserts[] = array(
+			time(), $log_types[$log['log_type']], $memID, $user_info['ip'], $log['action'],
+			$board_id, $topic_id, $msg_id, serialize($log['extra']),
+		);
+	}
+
+	$smcFunc['db_insert']('',
+		'{db_prefix}log_actions',
+		array(
+			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
+			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
+		),
+		$inserts,
 		array('id_action')
 	);
 
