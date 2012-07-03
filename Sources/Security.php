@@ -1035,7 +1035,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	$groups = array_diff($user_info['groups'], array(3));
 
 	$request = $smcFunc['db_query']('', '
-		SELECT b.id_board, bp.add_deny
+		SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
 		FROM {db_prefix}board_permissions AS bp
 			INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
@@ -1056,9 +1056,9 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 		if ($simple)
 		{
 			if (empty($row['add_deny']))
-				$deny_boards[$row['permission']][] = $row['id_board'];
+				$deny_boards[] = $row['id_board'];
 			else
-				$boards[$row['permission']][] = $row['id_board'];
+				$boards[] = $row['id_board'];
 		}
 		else
 		{
