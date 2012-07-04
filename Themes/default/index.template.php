@@ -137,12 +137,16 @@ function template_html_above()
 		var smf_member_id = "', $context['user']['id'], '";', $context['show_pm_popup'] ? '
 		var fPmPopup = function ()
 		{
-			if (confirm("' . $txt['show_personal_messages'] . '"))
-				window.open(smf_prepareScriptUrl(smf_scripturl) + "action=pm");
+			new smc_Popup({
+				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
+				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
+				icon: smf_images_url + \'/im_sm_newmsg.png\'
+			});
 		}
 		addLoadEvent(fPmPopup);' : '', '
 		var ajax_notification_text = "', $txt['ajax_in_progress'], '";
 		var ajax_notification_cancel_text = "', $txt['modify_cancel'], '";
+		var help_popup_heading_text = "', $txt['help_popup'], '";
 	// ]]></script>';
 
 	echo '

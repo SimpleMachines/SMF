@@ -317,22 +317,63 @@ String.prototype.easyReplace = function (oReplacements)
 	return sResult;
 }
 
-
-// Open a new window.
+// Open a new window (only exists for backwards compatibility) - DEPRECATED
 function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 {
-	if ((alternateWidth && self.screen.availWidth * 0.8 < alternateWidth) || (alternateHeight && self.screen.availHeight * 0.8 < alternateHeight))
-	{
-		noScrollbars = false;
-		alternateWidth = Math.min(alternateWidth, self.screen.availWidth * 0.8);
-		alternateHeight = Math.min(alternateHeight, self.screen.availHeight * 0.8);
-	}
-	else
-		noScrollbars = typeof(noScrollbars) == 'boolean' && noScrollbars == true;
+	// Load the help page content (we just want the text to show)
+	ajax_indicator(true);
+	$.ajax({
+		url: desktopURL,
+		success: function(help_html){
+			var help_content = $('<div id="temp_help">').html(help_html).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
+			
+			ajax_indicator(false);
+			
+			// Reroute to the new function
+			return new smc_Popup({heading: help_popup_heading_text, content: help_content, icon: smf_images_url + '/helptopics.png'});
+		}
+	});
+	return false;
+}
 
-	window.open(desktopURL, 'requested_popup', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=' + (noScrollbars ? 'no' : 'yes') + ',width=' + (alternateWidth ? alternateWidth : 480) + ',height=' + (alternateHeight ? alternateHeight : 220) + ',resizable=no');
+// *** smc_Popup class.
+function smc_Popup(oOptions)
+{
+	this.opt = oOptions;
+	this.popup_id = this.opt.custom_id ? this.opt.custom_id : 'smf_popup';
+	this.show();
+}
 
-	// Return false so the click won't follow the link ;).
+smc_Popup.prototype.show = function ()
+{
+	popup_class = 'popup_window ' + (this.opt.custom_class ? this.opt.custom_class : 'description');
+	icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt="" /> ' : '';
+
+	// Create it
+	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
+
+	// Show it
+	this.popup_body = $('#' + this.popup_id).children('.popup_window');
+	this.popup_body.css({top:'25%',left:'50%',margin:'-'+($(this.popup_body).height() / 2)+'px 0 0 -'+($(this.popup_body).width() / 2)+'px'}).parent().fadeIn(300);
+
+	// Trigger hide
+	var popup_instance = this;
+	$(document).mouseup(function (e){
+		if ($('#' + popup_instance.popup_id).has(e.target).length === 0)
+			popup_instance.hide();
+	}).keyup(function(e){
+		if(e.keyCode == 27)
+			popup_instance.hide();
+	});
+	$('#' + this.popup_id).find('.hide_popup').click(function (){ return popup_instance.hide(); });
+	
+	return false;
+}
+
+smc_Popup.prototype.hide = function ()
+{
+	$('#' + this.popup_id).fadeOut(300, function(){ $(this).remove(); });
+	
 	return false;
 }
 
