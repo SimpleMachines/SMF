@@ -495,10 +495,6 @@ function CheckFilesWritable()
 		'Settings.php',
 		'Settings_bak.php'
 	);
-	$extra_files = array(
-		'Themes/classic/index.template.php',
-		'Themes/classic/style.css'
-	);
 	foreach ($incontext['detected_languages'] as $lang => $temp)
 		$extra_files[] = 'Themes/default/languages/' . $lang;
 
