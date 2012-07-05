@@ -386,7 +386,7 @@ function Post($post_errors = array())
 			if (htmltrim__recursive(htmlspecialchars__recursive($_REQUEST['message'])) == '')
 				$post_errors[] = 'no_message';
 			if (!empty($modSettings['max_messageLength']) && $smcFunc['strlen']($_REQUEST['message']) > $modSettings['max_messageLength'])
-				$post_errors[] = 'long_message';
+				$post_errors[] = array('long_message', $modSettings['max_messageLength']);
 
 			// Are you... a guest?
 			if ($user_info['is_guest'])
@@ -475,13 +475,14 @@ function Post($post_errors = array())
 					$post_error_id = $post_error[0];
 					$context['post_error'][$post_error_id] = true;
 					$context['post_error']['messages'][] = sprintf($txt['error_' . $post_error_id], $post_error[1]);
+
+					// If it's not a minor error flag it as such.
+					if (!in_array($post_error_id, $minor_errors))
+						$context['error_type'] = 'serious';
 				}
 				else
 				{
 					$context['post_error'][$post_error] = true;
-					if ($post_error == 'long_message')
-						$txt['error_' . $post_error] = sprintf($txt['error_' . $post_error], $modSettings['max_messageLength']);
-
 					$context['post_error']['messages'][] = $txt['error_' . $post_error];
 
 					// If it's not a minor error flag it as such.
