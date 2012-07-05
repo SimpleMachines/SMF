@@ -1119,6 +1119,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'karma_edit',
 		'pm_read',
 		'pm_send',
+		'send_email_to_members',
 		'profile_view_any',
 		'profile_extra_own',
 		'profile_server_avatar',
@@ -1462,6 +1463,7 @@ function loadAllPermissions($loadType = 'classic')
 			'disable_censor' => array(false, 'general', 'disable_censor'),
 			'pm_read' => array(false, 'pm', 'use_pm_system'),
 			'pm_send' => array(false, 'pm', 'use_pm_system'),
+			'send_email_to_members' => array(false, 'pm', 'use_pm_system'),
 			'calendar_view' => array(false, 'calendar', 'view_basic_info'),
 			'calendar_post' => array(false, 'calendar', 'post_calendar'),
 			'calendar_edit' => array(true, 'calendar', 'post_calendar', 'moderate_general'),
@@ -1568,6 +1570,15 @@ function loadAllPermissions($loadType = 'classic')
 
 		// Relabel the attachment permissions
 		$relabelPermissions['post_attachment'] = 'auto_approve_attachments';
+	}
+
+	// Are attachments enabled?
+	if (empty($modSettings['attachmentEnable']))
+	{
+		$hiddenPermissions[] = 'manage_attachments';
+		$hiddenPermissions[] = 'view_attachments';
+		$hiddenPermissions[] = 'post_unapproved_attachments';
+		$hiddenPermissions[] = 'post_attachment';
 	}
 
 	// Provide a practical way to modify permissions.
