@@ -75,7 +75,7 @@ function deleteMembers($users, $check_not_admin = false)
 
 	// Get their names for logging purposes.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, real_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
+		SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:user_list})
 		LIMIT ' . count($users),
@@ -90,7 +90,7 @@ function deleteMembers($users, $check_not_admin = false)
 	{
 		if ($row['is_admin'])
 			$admins[] = $row['id_member'];
-		$user_log_details[$row['id_member']] = array($row['id_member'], $row['real_name']);
+		$user_log_details[$row['id_member']] = array($row['id_member'], $row['member_name']);
 	}
 	$smcFunc['db_free_result']($request);
 
