@@ -591,49 +591,4 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		</div>';
 }
 
-/**
- * Output the Javascript files
- */
-function template_javascript($do_defered = false)
-{
-	global $context;
-
-	// Use this hook to minify/optimize Javascript files
-	call_integration_hook('pre_javascript_output');
-
-	foreach ($context['javascript_files'] as $filename => $options)
-		if ((!$do_defered && empty($options['defer'])) || ($do_defered && !empty($options['defer'])))
-			echo '
-		<script type="text/javascript" src="', $filename, '"></script>';
-}
-
-/**
- * Output the Javascript vars
- */
-function template_javascript_vars()
-{
-	global $context;
-
-	call_integration_hook('pre_javascript_vars_output');
-
-	foreach ($context['javascript_vars'] as $key => $value)
-		echo '
-		var ', $key, ' = ', $value;
-}
-
-/**
- * Output the CSS files
- */
-function template_css()
-{
-	global $context;
-
-	// Use this hook to minify/optimize CSS files
-	call_integration_hook('pre_css_output');
-
-	foreach ($context['css_files'] as $filename => $options)
-		echo '
-	<link rel="stylesheet" type="text/css" href="', $filename, '" />';
-}
-
 ?>
