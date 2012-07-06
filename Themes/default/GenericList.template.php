@@ -39,9 +39,6 @@ function template_show_list($list_id = null)
 	if (empty($settings['use_tabs']) && isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'top'))
 		template_create_list_menu($cur_list['list_menu'], 'top');
 
-	if (isset($cur_list['additional_rows']['top_of_list']))
-		template_additional_rows('top_of_list', $cur_list);
-
 	if (isset($cur_list['additional_rows']['after_title']))
 	{
 		echo '
@@ -50,6 +47,9 @@ function template_show_list($list_id = null)
 		echo '
 			</div>';
 	}
+
+	if (isset($cur_list['additional_rows']['top_of_list']))
+		template_additional_rows('top_of_list', $cur_list);
 
 	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['above_column_headers']))
 	{
@@ -64,15 +64,7 @@ function template_show_list($list_id = null)
 				</div>';
 
 		if (isset($cur_list['additional_rows']['above_column_headers']))
-		{
-			echo '
-				<div class="floatright">';
-
 			template_additional_rows('above_column_headers', $cur_list);
-
-			echo '
-				</div>';
-		}
 
 		echo '
 			</div>';
@@ -106,7 +98,7 @@ function template_show_list($list_id = null)
 		echo '
 				</tr>
 			</thead>';
-	} 
+	}
 
 		echo '
 			<tbody>';
@@ -142,7 +134,7 @@ function template_show_list($list_id = null)
 			</tbody>
 			</table>';
 
-	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['below_table_data']) || isset($cur_list['additional_rows']['bottom_of_list']))
+	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['below_table_data']))
 	{
 		echo '
 			<div class="flow_auto">';
@@ -155,30 +147,14 @@ function template_show_list($list_id = null)
 				</div>';
 
 		if (isset($cur_list['additional_rows']['below_table_data']))
-		{
-			echo '
-				<div class="floatright">';
-
 			template_additional_rows('below_table_data', $cur_list);
-
-			echo '
-				</div>';
-		}
-
-		if (isset($cur_list['additional_rows']['bottom_of_list']))
-		{
-			echo '
-				<div class="floatright">';
-
-			template_additional_rows('bottom_of_list', $cur_list);
-
-			echo '
-				</div>';
-		}
 
 		echo '
 			</div>';
 	}
+
+	if (isset($cur_list['additional_rows']['bottom_of_list']))
+		template_additional_rows('bottom_of_list', $cur_list);
 
 	if (isset($cur_list['form']))
 	{
