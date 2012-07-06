@@ -2,7 +2,7 @@
 
 /**
  * This file has all the main functions in it that relate to, well, everything.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -18,8 +18,8 @@ if (!defined('SMF'))
 
 /**
  * Update some basic statistics.
- * 
- * 'member' statistic updates the latest member, the total member 
+ *
+ * 'member' statistic updates the latest member, the total member
  *  count, and the number of unapproved members.
  * 'member' also only counts approved members when approval is on, but
  *  is much more efficient with it off.
@@ -31,12 +31,12 @@ if (!defined('SMF'))
  * 'topic' updates the total number of topics, or if parameter1 is true
  *  simply increments them.
  *
- * 'subject' updateds the log_search_subjects in the event of a topic being 
+ * 'subject' updateds the log_search_subjects in the event of a topic being
  *  moved, removed or split.  parameter1 is the topicid, parameter2 is the new subject
- * 
+ *
  * 'postgroups' case updates those members who match condition's
  *  post-based membergroups in the database (restricted by parameter1).
- * 
+ *
  * @param string $type Stat type - can be 'member', 'message', 'topic', 'subject' or 'postgroups'
  * @param mixed $parameter1 = null
  * @param mixed $parameter2 = null
@@ -249,10 +249,10 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 /**
  * Updates the columns in the members table.
- * Assumes the data has been htmlspecialchar'd. 
+ * Assumes the data has been htmlspecialchar'd.
  * this function should be used whenever member data needs to be
  * updated in place of an UPDATE query.
- * 
+ *
  * id_member is either an int or an array of ints to be updated.
  *
  * data is an associative array of the columns to be updated and their respective values.
@@ -405,7 +405,7 @@ function updateMemberData($members, $data)
 
 /**
  * Updates the settings table as well as $modSettings... only does one at a time if $update is true.
- * 
+ *
  * - updates both the settings table and $modSettings array.
  * - all of changeArray's indexes and values are assumed to have escaped apostrophes (')!
  * - if a variable is already set to what you want to change it to, that
@@ -413,7 +413,7 @@ function updateMemberData($members, $data)
  * - When use_update is true, UPDATEs will be used instead of REPLACE.
  * - when use_update is true, the value can be true or false to increment
  *  or decrement it, respectively.
- * 
+ *
  * @param array $changeArray
  * @param bool $update = false
  * @param bool $debug = false
@@ -492,7 +492,7 @@ function updateSettings($changeArray, $update = false, $debug = false)
  *
  * an example is available near the function definition.
  * $pageindex = constructPageIndex($scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
- * 
+ *
  * @param string $base_url
  * @param int $start
  * @param int $max_value
@@ -605,7 +605,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
  * - uses the format of number_format to decide how to format the number.
  *   for example, it might display "1 234,50".
  * - caches the formatting data from the setting for optimization.
- * 
+ *
  * @param float $number
  * @param bool $override_decimal_count = false
  */
@@ -636,13 +636,13 @@ function comma_format($number, $override_decimal_count = false)
 
 /**
  * Format a time to make it look purdy.
- * 
+ *
  * - returns a pretty formated version of time based on the user's format in $user_info['time_format'].
  * - applies all necessary time offsets to the timestamp, unless offset_type is set.
  * - if todayMod is set and show_today was not not specified or true, an
  *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
  * - performs localization (more than just strftime would do alone.)
- * 
+ *
  * @param int $log_time
  * @param bool $show_today = true
  * @param string $offset_type = false
@@ -731,7 +731,7 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  *
  * - removes the base entities (&lt;, &quot;, etc.) from text.
  * - additionally converts &nbsp; and &#039;.
- * 
+ *
  * @param string $string
  * @return the string without entities
  */
@@ -747,12 +747,12 @@ function un_htmlspecialchars($string)
 
 /**
  * Shorten a subject + internationalization concerns.
- * 
+ *
  * - shortens a subject so that it is either shorter than length, or that length plus an ellipsis.
  * - respects internationalization characters and entities as one character.
  * - avoids trailing entities.
  * - returns the shortened string.
- * 
+ *
  * @param string $subject
  * @param int $len
  */
@@ -793,7 +793,7 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * Calculates all the possible permutations (orders) of array.
  * should not be called on huge arrays (bigger than like 10 elements.)
  * returns an array containing each permutation.
- * 
+ *
  * @param array $array
  * @return array
  */
@@ -832,7 +832,7 @@ function permute($array)
  * - applies the fixLongWords magic if the setting is set to on.
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
  *  -returns the modified message.
- * 
+ *
  * @param string $message
  * @param bool $smileys = true
  * @param string $cache_id = ''
@@ -852,7 +852,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	// Just in case it wasn't determined yet whether UTF-8 is enabled.
 	if (!isset($context['utf8']))
 		$context['utf8'] = (empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set']) === 'UTF-8';
-		
+
 	// Clean up any cut/paste issues we may have
 	$message = sanitizeMSCutPaste($message);
 
@@ -883,10 +883,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$temp_bbc = $bbc_codes;
 		$bbc_codes = array();
 	}
-	
+
 	// Allow mods access before entering the main parse_bbc loop
 	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
-	
+
 	// Sift out the bbc for a performance improvement.
 	if (empty($bbc_codes) || $message === false || !empty($parse_tags))
 	{
@@ -2393,7 +2393,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 	// Allow mods access to what parse_bbc created
 	call_integration_hook('integrate_post_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
-	
+
 	// Cache the output if it took some time...
 	if (isset($cache_key, $cache_t) && array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.05)
 		cache_put_data($cache_key, $message, 240);
@@ -2421,7 +2421,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
  * These are specifically not parsed in code tags [url=mailto:Dad@blah.com]
  * Caches the smileys from the database or array in memory.
  * Doesn't return anything, but rather modifies message directly.
- * 
+ *
  * @param string &$message
  */
 function parsesmileys(&$message)
@@ -2571,7 +2571,7 @@ function redirectexit($setLocation = '', $refresh = false)
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
-			$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$/e', "\$scripturl . '/' . strtr('\$1', '&;=', '//,') . '.html?' . SID . '\$2'", $setLocation);
+			$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$/e', "\$scripturl . '/' . strtr('\$1', '&;=', '//,') . '.html\$2?' . SID", $setLocation);
 		else
 			$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$/e', "\$scripturl . '/' . strtr('\$1', '&;=', '//,') . '.html\$2'", $setLocation);
 	}
@@ -2720,7 +2720,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 function url_image_size($url)
 {
 	global $sourcedir;
-	
+
 	// Make sure it is a proper URL.
 	$url = str_replace(' ', '%20', $url);
 
@@ -2999,7 +2999,7 @@ function setMemoryLimit($needed, $in_use = false)
 	$memory_used = 0;
 	$memory_current = memoryReturnBytes(ini_get('memory_limit'));
 	$memory_needed = memoryReturnBytes($needed);
-	
+
 	// should we account for how much is currently being used?
 	if ($in_use)
 		$memory_needed += function_exists('memory_get_usage') ? memory_get_usage() : (2 * 1048576);
@@ -3027,12 +3027,12 @@ function memoryReturnBytes($val)
 {
 	if (is_integer($val))
 		return $val;
-	
+
 	// Separate the number from the designator
 	$val = trim($val);
 	$num = intval(substr($val, 0, strlen($val) - 1));
 	$last = strtolower(substr($val, -1));
-	
+
 	// convert to bytes
 	switch ($last)
 	{
@@ -3057,7 +3057,7 @@ function template_rawdata()
 }
 
 /**
- * 
+ *
  */
 function template_header()
 {
@@ -3200,7 +3200,7 @@ function theme_copyright()
 }
 
 /**
- * 
+ *
  */
 function template_footer()
 {
@@ -3499,7 +3499,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 
 /**
  * Creates an image/text button
- * 
+ *
  * @param string $filename
  * @param string $alt
  * @param string $label = ''
@@ -3533,12 +3533,12 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  *  - If no type is specified will perfom a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
- * @param string $type = '' 
+ * @param string $type = ''
  */
 function clean_cache($type = '')
 {
 	global $cachedir, $sourcedir, $cache_accelerator, $modSettings, $memcached;
-	
+
 	switch ($cache_accelerator)
 	{
 		case 'memcached':
@@ -3559,11 +3559,11 @@ function clean_cache($type = '')
 			break;
 		case 'eaccelerator':
 			if (function_exists('eaccelerator_clear') && function_exists('eaccelerator_clean') )
-			{ 
+			{
 				// Clean out the already expired items
 				@eaccelerator_clean();
-				
-				// Remove all unused scripts and data from shared memory and disk cache, 
+
+				// Remove all unused scripts and data from shared memory and disk cache,
 				// e.g. all data that isn't used in the current requests.
 				eaccelerator_clear();
 			}
@@ -3595,7 +3595,7 @@ function clean_cache($type = '')
 		case 'xcache':
 			if (function_exists('xcache_clear_cache'))
 			{
-				// 
+				//
 				if ($type === '')
 				{
 					xcache_clear_cache(XC_TYPE_VAR, 0);
@@ -3648,7 +3648,7 @@ function loadClassFile($filename)
 }
 
 /**
- * 
+ *
  */
 function setupMenuContext()
 {
@@ -4090,10 +4090,10 @@ function remove_integration_function($hook, $function)
 function sanitizeMSCutPaste($string)
 {
 	global $context;
-	
+
 	if (empty($string))
 		return $string;
-		
+
 	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(
 		"\xe2\80\x9a",	// single low-9 quotation mark
@@ -4106,7 +4106,7 @@ function sanitizeMSCutPaste($string)
 		"\xe2\x80\x93",	// en dash
 		"\xe2\x80\x94",	// em dash
 	);
-	
+
 	// windows 1252 / iso equivalents
 	$findchars_iso = array(
 		chr(130),
@@ -4132,7 +4132,7 @@ function sanitizeMSCutPaste($string)
 		'-',	// &ndash;
 		'--',	// &mdash;
 	);
-	
+
 	if ($context['utf8'])
 		$string = str_replace($findchars_utf8, $replacechars, $string);
 	else
