@@ -201,15 +201,15 @@ $txt['who_off'] = 'You cannot access Who\'s Online right now because it is disab
 $txt['merge_create_topic_failed'] = 'Error creating a new topic.';
 $txt['merge_need_more_topics'] = 'Merge topics require at least two topics to merge.';
 
-$txt['postWaitTime_broken'] = 'The last posting from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['registerWaitTime_broken'] = 'You already registered just %1$d seconds ago!';
-$txt['loginWaitTime_broken'] = 'You will have to wait about %1$d seconds to login again, sorry.';
-$txt['pmWaitTime_broken'] = 'The last personal message from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['reporttmWaitTime_broken'] = 'The last topic report from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['sendtopicWaitTime_broken'] = 'The last topic sent from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['sendmailWaitTime_broken'] = 'The last email sent from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['searchWaitTime_broken'] = 'Your last search was less than %1$d seconds ago. Please try again later.';
-$txt['remindWaitTime_broken'] = 'Your last reminder was less than %1$d seconds ago. Please try again later.';
+$txt['post_WaitTime_broken'] = 'The last posting from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['register_WaitTime_broken'] = 'You already registered just %1$d seconds ago!';
+$txt['login_WaitTime_broken'] = 'You will have to wait about %1$d seconds to login again, sorry.';
+$txt['pm_WaitTime_broken'] = 'The last personal message from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['reporttm_WaitTime_broken'] = 'The last topic report from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['sendtopic_WaitTime_broken'] = 'The last topic sent from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['sendmail_WaitTime_broken'] = 'The last email sent from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['search_WaitTime_broken'] = 'Your last search was less than %1$d seconds ago. Please try again later.';
+$txt['remind_WaitTime_broken'] = 'Your last reminder was less than %1$d seconds ago. Please try again later.';
 
 $txt['email_missing_data'] = 'You must enter something in both the subject and message boxes.';
 
@@ -346,7 +346,6 @@ $txt['loadavg_allunread_disabled'] = 'The server\'s resources are temporarily un
 $txt['loadavg_unreadreplies_disabled'] = 'The server is currently under high stress.  Please try again shortly.';
 $txt['loadavg_show_posts_disabled'] = 'Please try again later.  This member\'s posts are not currently available due to high load on the server.';
 $txt['loadavg_unread_disabled'] = 'The server\'s resources are temporarily under too high a demand to list out the topics you have not read.';
-$txt['loadavg_userstats_disabled'] = 'Please try again later.  This member\'s statistics are not currently available due to high load on the server.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
 
