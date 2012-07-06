@@ -678,7 +678,7 @@ function loadBoard()
 
 		if (count(array_intersect($user_info['groups'], $board_info['groups'])) == 0 && !$user_info['is_admin'])
 			$board_info['error'] = 'access';
-		if (count(array_intersect($user_info['groups'], $board_info['deny_groups'])) != 0 && !$user_info['is_admin'])
+		if (!empty($modSettings['deny_boards_access']) && count(array_intersect($user_info['groups'], $board_info['deny_groups'])) != 0 && !$user_info['is_admin'])
 			$board_info['error'] = 'access';
 
 		// Build up the linktree.
@@ -702,7 +702,7 @@ function loadBoard()
 	$context['current_board'] = $board;
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
-	if (!empty($board_info['error']) && ($board_info['error'] != 'access' || !$user_info['is_mod']))
+	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
 	{
 		// The permissions and theme need loading, just to make sure everything goes smoothly.
 		loadPermissions();
@@ -940,7 +940,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Allow mods to easily add to the selected member data
 	call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables));
-
+	
 	if (!empty($users))
 	{
 		// Load the member's data.
@@ -1644,7 +1644,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
-
+	
 		// Do this to keep things easier in the templates.
 		$context['theme_variant'] = '_' . $context['theme_variant'];
 		$context['theme_variant_url'] = $context['theme_variant'] . '/';
@@ -1813,7 +1813,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 			loadLanguage('Errors');
 			echo '
 <div class="alert errorbox">
-	<a href="', $scripturl . '?action=admin;area=theme;sa=settings;th=1;' . $context['session_var'] . '=' . $context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
+	<a href="', $scripturl . '?action=admin;area=theme;sa=list;th=1;' . $context['session_var'] . '=' . $context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
 </div>';
 		}
 
@@ -2496,7 +2496,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 /**
  * Puts value in the cache under key for ttl seconds.
  *
- * - It may "miss" so shouldn't be depended on
+ * - It may "miss" so shouldn't be depended on 
  * - Uses the cahce engine chosen in the ACP and saved in settings.php
  * - It supports:
  *     Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
