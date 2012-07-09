@@ -4097,7 +4097,7 @@ function add_integration_function($hook, $function, $file, $permanent = true)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = $function . ':' . $file;
+	$integration_call = (!empty($file) && $file !== true) ? $function . ':' . $file : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
@@ -4151,7 +4151,7 @@ function remove_integration_function($hook, $function, $file)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = $function . ':' . $file;
+	$integration_call = (!empty($file)) ? $function . ':' . $file : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
