@@ -4074,6 +4074,15 @@ function call_integration_hook($hook, $parameters = array())
 		else
 		{
 			$call = $function;
+			if (strpos($function, ':') !== false)
+			{
+				list($func, $file) = explode(':', $function);
+				if (!empty($settings['theme_dir']))
+					include_once(strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir)));
+				else
+					include_once(strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+				$call = $function;
+			}
 		}
 
 		// Is it valid?
