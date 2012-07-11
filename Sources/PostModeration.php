@@ -274,6 +274,7 @@ function UnapprovedPosts()
 			'alternate' => $i % 2,
 			'counter' => $context['start'] + $i,
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 			'subject' => $row['subject'],
 			'body' => parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']),
 			'time' => timeformat($row['poster_time']),
@@ -289,10 +290,12 @@ function UnapprovedPosts()
 			'board' => array(
 				'id' => $row['id_board'],
 				'name' => $row['board_name'],
+				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>',
 			),
 			'category' => array(
 				'id' => $row['id_cat'],
 				'name' => $row['cat_name'],
+				'link' => '<a href="', $scripturl, '#c', $row['id_cat'], '">', $row['cat_name'], '</a>',
 			),
 			'can_delete' => $can_delete,
 		);

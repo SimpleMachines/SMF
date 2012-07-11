@@ -364,13 +364,13 @@ function template_unapproved_posts()
 	foreach ($context['unapproved_items'] as $item)
 	{
 		echo '
-		<div class="topic">
+		<div class="topic clear">
 			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
 				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="counter">', $item['counter'], '</div>
 					<div class="topic_details">
-						<h5><strong><a href="', $scripturl, '#c', $item['category']['id'], '">', $item['category']['name'], '</a> / <a href="', $scripturl, '?board=', $item['board']['id'], '.0">', $item['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $item['topic'], '.', $item['start'], '#msg', $item['id'], '">', $item['subject'], '</a></strong></h5>
+						<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
 						<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
 					</div>
 					<div class="list_posts">

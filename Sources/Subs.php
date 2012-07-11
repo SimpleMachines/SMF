@@ -3224,6 +3224,51 @@ function template_footer()
 }
 
 /**
+ * Output the Javascript files
+ */
+function template_javascript($do_defered = false)
+{
+	global $context;
+
+	// Use this hook to minify/optimize Javascript files
+	call_integration_hook('pre_javascript_output');
+
+	foreach ($context['javascript_files'] as $filename => $options)
+		if ((!$do_defered && empty($options['defer'])) || ($do_defered && !empty($options['defer'])))
+			echo '
+		<script type="text/javascript" src="', $filename, '"></script>';
+
+	if (!empty($context['javascript_vars']))
+	{
+		echo '
+		<script type="text/javascript"><!-- // --><![CDATA[';
+
+		foreach ($context['javascript_vars'] as $key => $value)
+			echo '
+			var ', $key, ' = ', $value;
+
+		echo '
+		// ]]></script>';
+
+	}
+}
+
+/**
+ * Output the CSS files
+ */
+function template_css()
+{
+	global $context;
+
+	// Use this hook to minify/optimize CSS files
+	call_integration_hook('pre_css_output');
+
+	foreach ($context['css_files'] as $filename => $options)
+		echo '
+	<link rel="stylesheet" type="text/css" href="', $filename, '" />';
+}
+
+/**
  * Get an attachment's encrypted filename. If $new is true, won't check for file existence.
  * @todo this currently returns the hash if new, and the full filename otherwise.
  * Something messy like that.

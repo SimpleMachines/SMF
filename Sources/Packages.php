@@ -338,7 +338,13 @@ function PackageInstallTest()
 		elseif ($action['type'] == 'redirect')
 			continue;
 		elseif ($action['type'] == 'error')
+		{
 			$context['has_failure'] = true;
+			if (isset($action['error_msg']) && isset($action['error_var']))
+				$context['failure_details'] = sprintf($txt['package_will_fail_' . $action['error_msg']], $action['error_var']);
+			elseif (isset($action['error_msg']))
+				$context['failure_details'] = isset($txt['package_will_fail_' . $action['error_msg']]) ? $txt['package_will_fail_' . $action['error_msg']] : $action['error_msg'];
+		}
 		elseif ($action['type'] == 'modification')
 		{
 			if (!file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
