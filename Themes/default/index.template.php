@@ -99,71 +99,10 @@ function template_html_above()
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css" />';
 
-	// load in any css from mods or themes so they can overwrite if wanted
+	// Load in any css from mods
 	template_css();
-
-	// Jquery Librarys
-	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		echo '
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>';
-	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		echo '
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"></script>';
-	else
-		echo '
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
-		window.jQuery || document.write(\'<script src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"><\/script>\');
-	// ]]></script>';
-
-	// Note that the Superfish function seems to like being called by the full syntax.
-	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
-	echo '
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/smf_jquery_plugins.js"></script>';
 	
-	// Here comes the JavaScript bits!
-	echo '
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?alp21"></script>
-	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?alp21"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
-		var smf_theme_url = "', $settings['theme_url'], '";
-		var smf_default_theme_url = "', $settings['default_theme_url'], '";
-		var smf_images_url = "', $settings['images_url'], '";
-		var smf_scripturl = "', $scripturl, '";
-		var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
-		var smf_charset = "', $context['character_set'], '";
-		var smf_session_id = "', $context['session_id'], '";
-		var smf_session_var = "', $context['session_var'], '";
-		var smf_member_id = "', $context['user']['id'], '";', $context['show_pm_popup'] ? '
-		var fPmPopup = function ()
-		{
-			new smc_Popup({
-				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
-				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
-				icon: smf_images_url + \'/im_sm_newmsg.png\'
-			});
-		}
-		addLoadEvent(fPmPopup);' : '', '
-		var ajax_notification_text = "', $txt['ajax_in_progress'], '";
-		var ajax_notification_cancel_text = "', $txt['modify_cancel'], '";
-		var help_popup_heading_text = "', $txt['help_popup'], '";
-	// ]]></script>';
-
-	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		$(document).ready(function() {
-			// menu drop downs
-			$("ul.dropmenu").superfish();
-			
-			// tooltips
-			$(".preview").SMFtooltip();
-
-			// find all nested linked images and turn off the border
-			$("a.bbc_link img.bbc_img").parent().css("border", "0");
-		});
-	// ]]></script>';
-
-	// load in any javascript files from mods and themes
+	// Load in default Javascript variables as well as stuff added by mods (new in 2.1, so themers won't have to bother with it)
 	template_javascript();
 		
 	echo '

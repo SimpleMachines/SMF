@@ -1,3 +1,14 @@
+$(document).ready(function() {
+	// menu drop downs
+	$('ul.dropmenu').superfish();
+	
+	// tooltips
+	$('.preview').SMFtooltip();
+
+	// find all nested linked images and turn off the border
+	$('a.bbc_link img.bbc_img').parent().css('border', '0');
+});
+
 // The purpose of this code is to fix the height of overflow: auto blocks, because some browsers can't figure it out for themselves.
 function smf_codeBoxFix()
 {
