@@ -1434,17 +1434,6 @@ function getMessageIcons($board_id)
 }
 
 /**
- * A help function for legalise_bbc for sorting arrays based on length.
- * @param string $a
- * @param string $b
- * @return int 1 or -1
- */
-function sort_array_length($a, $b)
-{
-	return strlen($a) < strlen($b) ? 1 : -1;
-}
-
-/**
  * Compatibility function - used in 1.1 for showing a post box.
  * 
  * @param string $msg
