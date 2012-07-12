@@ -46,8 +46,7 @@ function template_main()
 	<script type="text/javascript"><!-- // --><![CDATA[
 
 		// Create a news fader object.
-		var oNewsFader = new smf_NewsFader({
-			sSelf: \'oNewsFader\',
+		var oNewsFader = new smc_NewsFader({
 			sFaderControlId: \'smfFadeScroller\',
 			sItemTemplate: ', JavaScriptEscape('<strong>%1$s</strong>'), ',
 			iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
@@ -348,27 +347,27 @@ function template_info_center()
 		{
 			echo '
 				<span class="birthday">', $context['calendar_only_today'] ? $txt['birthdays'] : $txt['birthdays_upcoming'], '</span> ';
-			
+
 			// Each member in calendar_birthdays has:
-			//		id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?) 
+			//		id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?)
 			foreach ($context['calendar_birthdays'] as $member)
 				echo '
 				<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['is_today'] ? '<strong class="fix_rtl_names">' : '', $member['name'], $member['is_today'] ? '</strong>' : '', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '<br />' : ', ';
 		}
-		
+
 		// Events like community get-togethers.
 		if (!empty($context['calendar_events']))
 		{
 			echo '
 				<span class="event">', $context['calendar_only_today'] ? $txt['events'] : $txt['events_upcoming'], '</span> ';
-			
+
 			// Each event in calendar_events should have:
 			//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 			foreach ($context['calendar_events'] as $event)
 				echo '
 					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" class="centericon" /></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br />' : ', ';
 		}
-		
+
 		echo '
 			</p>';
 	}
