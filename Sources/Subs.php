@@ -3243,7 +3243,22 @@ function template_javascript($do_defered = false)
 
 	// Use this hook to minify/optimize Javascript files and vars
 	call_integration_hook('pre_javascript_output');
+	
+	// Javascript variables.
+	if (!empty($context['javascript_vars']) && !$do_defered)
+	{
+		echo '
+	<script type="text/javascript"><!-- // --><![CDATA[';
 
+		foreach ($context['javascript_vars'] as $key => $value)
+			echo '
+		var ', $key, ' = ', $value, ';';
+
+		echo '
+	// ]]></script>';
+	}
+
+	// Javascript files
 	foreach ($context['javascript_files'] as $id => $file)
 	{
 		if ((!$do_defered && empty($file['options']['defer'])) || ($do_defered && !empty($file['options']['defer'])))
@@ -3257,20 +3272,6 @@ function template_javascript($do_defered = false)
 		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
 	// ]]></script>';
 
-	}
-
-	// Javascript variables.
-	if (!empty($context['javascript_vars']) && !$do_defered)
-	{
-		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[';
-
-		foreach ($context['javascript_vars'] as $key => $value)
-			echo '
-		var ', $key, ' = ', $value, ';';
-
-		echo '
-	// ]]></script>';
 	}
 	
 	// Inline JavaScript - Actually useful some times!
