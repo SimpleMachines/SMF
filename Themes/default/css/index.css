@@ -1004,14 +1004,14 @@ span.lowerframe span {
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
 #main_menu {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	margin: 0;
+	padding: 0;
 	float: left;
 	width: 100%;
 }
 .dropmenu {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	margin: 0;
+	padding: 0;
 	float: left;
 }
 /* Level 1 button background. */
@@ -1020,28 +1020,46 @@ span.lowerframe span {
 	padding: 0 0 0.4em 0;
 	list-style: none;
 	float: left;
-	font-size: 1em;
+	font-size: 0.9em;
 	line-height: 1.9em;
 	position: relative;
 }
-/* Needed for new PM notifications. */
+/* PM notifications. */
 .dropmenu li strong {
-	color: #000;
+	color: #fff;
+	font-size: 0.8em;
+	display: inline-block;
+	background: #597b9f;
+	width: 18px;
+	height: 17px;
+	text-align: center;
+	line-height: 17px;
+	border-radius: 2px;
+	padding: 0 1px;
+	position: relative;
+	left: 2px;
+	bottom: 1px;
 }
+.dropmenu li a:hover strong {
+	background: rgba(0,0,0,0.5);
+}
+.dropmenu li a.active strong {
+	background: rgba(0,0,0,0.2);
+}
+
 .dropmenu li a {
-	padding: 0 4px 0 4px;
-	margin: 0 0 0 0;
+	padding: 1px 5px;
+	margin: 0;
 	display: block;
 	border: 1px solid rgba(255,255,255,0);
-	border-radius: 4px;
+	border-radius: 5px;
 }
 /* Level 1 active button. */
 .dropmenu li a.active {
 	background: orange;
 	color: #fff;
 	font-weight: bold;
-	border: 1px solid rgba(255,255,255,0);
-	box-shadow: 0 -5px 5px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.1) inset;
+	box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
 }
 /* Level 1 hover effects. */
 .dropmenu li a:hover, .dropmenu li a:focus {
@@ -1049,15 +1067,12 @@ span.lowerframe span {
 	color: #fff;
 	cursor: pointer;
 	text-decoration: none;
-	box-shadow: 0 -4px 4px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.13) inset;
-	border: 1px solid /*#9ba1cf*/rgba(255,255,255,0.2);
+	box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
+	border: 1px solid rgba(255,255,255,0.2);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover {
 	background: orange;
-	box-shadow: 0 -5px 5px rgba(255,255,255,0.1) inset, 0 5px 5px rgba(0,0,0,0.1) inset;
-	border: 1px solid #ffa43d;
-	border-top: 1px solid #e07700;
 }
 /* If we feel like styling the active state separately. */
 .dropmenu li a:active {}
@@ -1065,32 +1080,64 @@ span.lowerframe span {
 .dropmenu li ul {
 	z-index: 90;
 	position: absolute;
-	top: 2.2em;
+	top: 2.3em;
 	left: -9999px;
-	width: 17em;
+	width: 20em;
 	font-weight: normal;
-
-	background: #fff;
-	border: solid 1px #888;
-	border-left: solid 1px #999;
-	border-top: solid 1px #999;
-	border-radius: 0 5px 0 5px;
-	box-shadow: 2px 2px 2px rgba(0,0,0,0.3), 0 0 16px rgba(99,129,159,0.15) inset;
-	padding: 5px 0 7px 0;
+	border: 1px solid #c9c9c9;
+	box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255, 0.8);
+	padding: 0;
+	margin-top: 5px;
+	/* Fallback for old-timers */
+	background: #edeff2;
+	background: -moz-linear-gradient(top, #dbdfeb 0%, #ffffff 100%);
+	background: -webkit-linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
+	background: -o-linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
+	background: -ms-linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
+	background: linear-gradient(top, #dbdfeb 0%,#ffffff 100%);
 }
+.dropmenu li ul:before
+{
+	content: "";
+	display: block;
+	height: 10px;
+	width: 10px;
+	background: #edeff2; 
+	-webkit-transform: rotate(45deg);
+	-moz-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	-o-transform: rotate(45deg);
+	transform: rotate(45deg);
+	border: 1px solid #c9c9c9;
+	border-width: 1px 0 0 1px;
+	box-shadow: inset 1px 1px 0 rgba(255,255,255, 0.8);
+	margin-top: -6px;
+	margin-left: 10px;
+	margin-bottom: -4px;
+	/* We do this so we don't have to bother working around IE9, which doesn't properly support gradients */
+	background: -moz-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: -webkit-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: -o-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: -ms-linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+	background: linear-gradient(bottom, #dbdfeb 100%,#ffffff 0%);
+}
+
+/* Position drop menu icons */
+.dropmenu img
+{
+	vertical-align: middle;
+}
+
 /* Level 2 link background. */
 .dropmenu li li {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	margin: 0;
+	padding: 6px;
 	position: relative;
 	overflow: visible;
-	border-top: 1px solid rgba(0,0,0,0);
-	border-bottom: 1px solid rgba(0,0,0,0);
 	float: none;
 }
 .dropmenu li li a {
-	padding: 0 0 0 2px;
-	font-size: 0.85em;
+	font-size: 1.1em;
 	line-height: 1.7em;
 }
 /* Note: The next two declarations are for keyboard access with js disabled. */
@@ -1098,13 +1145,13 @@ span.lowerframe span {
 	margin-left: 9999px;
 	min-width: 17em;
 	background: #fff;
-	border-radius: 0 0 0 0;
+	border-radius: 0;
 }
 .dropmenu ul ul a:focus {
 	margin-left: 19950px;
 }
 .dropmenu li:hover li a, .dropmenu li.sfhover li a {
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 0 5px 0 5px;
 	display: block;
 	border: none;
@@ -1116,23 +1163,18 @@ span.lowerframe span {
 }
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul, .dropmenu li.sfhover ul ul {
-	margin: -2.5em 0 0 15.8em;
+	margin: -0.6em 0 0 14.8em;
 }
 /* Level 3 maintains font-size the same as Level 2. */
 .dropmenu li li li a {
-	font-size: 0.85em;
+	font-size: 1.1em;
 }
 /* Levels 2 and 3 hover effects. */
 .dropmenu li li:hover, .dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li.subsections a:focus {
-	background: none;
-	color: #333;
 	text-decoration: none;
+	background: #d4dbe4;
 }
-.dropmenu li li:hover {
-	border-top: 1px solid #999;
-	border-bottom: 1px solid #888;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
-}
+.dropmenu li li:hover {}
 /* If we feel like styling the active state separately. */
 .dropmenu li li a:active, .dropmenu li li:hover>a:active {}
 /* Reposition Level 2 submenu as visible on hover. */
@@ -1153,14 +1195,14 @@ span.lowerframe span {
 }
 /* For no-js background. */
 .dropmenu li li.subsections a:focus {
-	background: #fff url(../images/admin/subsection.png) no-repeat 99% 40%;
+	background: url(../images/admin/subsection.png) no-repeat 99% 40%;
 }
 /* Stops inheritance of indicator icon if there is no fourth level. */
 .dropmenu li li.subsections li a {
 	background: none;
 }
 .dropmenu li li.subsections li a:focus {
-	background: #fff;
+	background: none;
 }
 /* Highlighting of current section */
 .dropmenu li li a.chosen {
@@ -1172,21 +1214,15 @@ span.lowerframe span {
 	float: right;
 	margin-right: 2px;
 	padding: 7px 9px 4px 9px;
-	border: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	border-radius: 2px;
+	border: 1px solid #d2d2d2;
+	border-radius: 3px;
 	line-height: 1.9em;
 	overflow: visible;
 	box-shadow: 0 5px 10px rgba(244,247,255,1) inset, 0 -4px 8px rgba(0,0,0,0.1) inset, 1px 1px 1px rgba(0,0,0,0.1);
 }
 #menu_toggle:hover {
 	background: #f4f4f4;
-	padding: 8px 9px 4px 9px;
-	border-top: none;
-	border-left: none;
-	border-right: 1px solid #ccc; 
-	border-bottom: 1px solid #ccc; 
-	box-shadow: 1px 2px 6px rgba(14,39,61,0.2) inset, 1px 1px 1px rgba(0,0,0,0.6) inset, -4px -4px 4px rgba(255,255,255,0.8) inset;
+	border: 1px solid #ccc; 
 }
 #menu_toggle span {
 	position: relative;

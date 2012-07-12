@@ -1,0 +1,7 @@
+/*
+	Special styles for IE8, needed to fix the drop down menus
+*/
+
+.dropmenu li ul:before {
+	display: none;
+}
