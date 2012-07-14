@@ -1138,6 +1138,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		'SUBJECT' => $subject,
 		'MESSAGE' => $message,
 		'SENDER' => un_htmlspecialchars($from['name']),
+		'READLINK' => $scripturl . '?action=pm;pmsg=' . $id_pm,
 		'REPLYLINK' => $scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
 		'TOLIST' => implode(', ', $to_names),
 	);
