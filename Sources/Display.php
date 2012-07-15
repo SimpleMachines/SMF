@@ -148,12 +148,9 @@ function Display()
 		'current_topic' => $topic,
 		'current_board' => $board,
 	);
-	if (!empty($modSettings['integrate_display_topic']))
-	{
-		$topic_selects = array();
-		$topic_tables = array();
-		call_integration_hook('integrate_display_topic', array(&$topic_selects, &$topic_tables, &$topic_parameters));
-	}
+	$topic_selects = array();
+	$topic_tables = array();
+	call_integration_hook('integrate_display_topic', array(&$topic_selects, &$topic_tables, &$topic_parameters));
 
 	// @todo Why isn't this cached?
 	// @todo if we get id_board in this query and cache it, we can save a query on posting
@@ -169,7 +166,7 @@ function Display()
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
-			' . (!empty($topic_tables) ? implode("\n", $topic_tables) : '') . '
+			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
 			$topic_parameters
@@ -777,7 +774,7 @@ function Display()
 		);
 		
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_poll_buttons');
+		call_integration_hook('integrate_display_poll');
 	}
 
 	// Calculate the fastest way to get the messages!
@@ -974,12 +971,9 @@ function Display()
 			'message_list' => $messages,
 			'new_from' => $topicinfo['new_from'],
 		);
-		if (!empty($modSettings['integrate_query_message']))
-		{
-			$msg_selects = array();
-			$msg_tables = array();
-			call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
-		}
+		$msg_selects = array();
+		$msg_tables = array();
+		call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
 
 		// What?  It's not like it *couldn't* be only guests in this topic...
 		if (!empty($posters))
@@ -991,8 +985,8 @@ function Display()
 				id_msg_modified < {int:new_from} AS is_read
 				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
 			FROM {db_prefix}messages
+				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
-				' . (!empty($msg_tables) ? implode("\n", $msg_tables) : '') . '
 			ORDER BY id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
 			$msg_parameters
 		);
@@ -1281,8 +1275,7 @@ function prepareDisplayContext($reset = false)
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 
-	if (!empty($modSettings['integrate_prepare_context']))
-		call_integration_hook('integrate_prepare_context', array(&$output, &$message));
+	call_integration_hook('integrate_prepare_context', array(&$output, &$message));
 
 	if (empty($options['view_newest_first']))
 		$counter++;
