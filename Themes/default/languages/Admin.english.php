@@ -500,6 +500,7 @@ $txt['enableSpellChecking_warning'] = 'this does not work on all servers!';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
+$txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then came back to increase the maximum allowed post size.';
 $txt['fixLongWords'] = 'Break up words with more letters than';
 $txt['fixLongWords_zero'] = '0 to disable.';
 $txt['fixLongWords_warning'] = 'this does not work on all servers!';
