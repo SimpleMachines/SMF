@@ -686,7 +686,7 @@ function loadCustomFields($memID, $area = 'summary')
 	// Load all the relevant fields - and data.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			col_name, field_name, field_desc, field_type, field_length, field_options,
+			col_name, field_name, field_desc, field_type, show_reg, field_length, field_options,
 			default_value, bbc, enclose, placement
 		FROM {db_prefix}custom_fields
 		WHERE ' . $where,
@@ -695,6 +695,7 @@ function loadCustomFields($memID, $area = 'summary')
 		)
 	);
 	$context['custom_fields'] = array();
+	$context['custom_fields_required'] = false;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Shortcut.
@@ -779,7 +780,9 @@ function loadCustomFields($memID, $area = 'summary')
 			'placement' => $row['placement'],
 			'colname' => $row['col_name'],
 			'value' => $value,
+			'show_reg' => $row['show_reg'],
 		);
+		$context['custom_fields_required'] = $context['custom_fields_required'] || $row['show_reg'];
 	}
 	$smcFunc['db_free_result']($request);
 }
