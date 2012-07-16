@@ -384,125 +384,29 @@ function trackStats($stats = array())
 
 /**
  * This function logs an action in the respective log. (database log)
+ * You should use {@link logActions()} instead.
  * @example logAction('remove', array('starter' => $id_member_started));
  *
+ * @deprecated deprecated since version 2.1
  * @param string $action
  * @param array $extra = array()
  * @param string $log_type, options 'moderate', 'admin', ...etc.
  */
 function logAction($action, $extra = array(), $log_type = 'moderate')
 {
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
-
-	$log_types = array(
-		'moderate' => 1,
-		'user' => 2,
-		'admin' => 3,
-	);
-
-	call_integration_hook('integrate_log_types', array($log_types));
-
-	// No point in doing anything, if the log isn't even enabled.
-	if (empty($modSettings['modlog_enabled']) || !isset($log_types[$log_type]))
-		return false;
-
-	if (!is_array($extra))
-		trigger_error('logAction(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
-
-	// Pull out the parts we want to store separately, but also make sure that the data is proper
-	if (isset($extra['topic']))
-	{
-		if (!is_numeric($extra['topic']))
-			trigger_error('logAction(): data\'s topic is not a number', E_USER_NOTICE);
-		$topic_id = empty($extra['topic']) ? 0 : (int) $extra['topic'];
-		unset($extra['topic']);
-	}
-	else
-		$topic_id = 0;
-
-	if (isset($extra['message']))
-	{
-		if (!is_numeric($extra['message']))
-			trigger_error('logAction(): data\'s message is not a number', E_USER_NOTICE);
-		$msg_id = empty($extra['message']) ? 0 : (int) $extra['message'];
-		unset($extra['message']);
-	}
-	else
-		$msg_id = 0;
-
-	// @todo cache this?
-	// Is there an associated report on this?
-	if (in_array($action, array('move', 'remove', 'split', 'merge')))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_report
-			FROM {db_prefix}log_reported
-			WHERE {raw:column_name} = {int:reported}
-			LIMIT 1',
-			array(
-				'column_name' => !empty($msg_id) ? 'id_msg' : 'id_topic',
-				'reported' => !empty($msg_id) ? $msg_id : $topic_id,
-		));
-
-		// Alright, if we get any result back, update open reports.
-		if ($smcFunc['db_num_rows']($request) > 0)
-		{
-			require_once($sourcedir . '/ModerationCenter.php');
-			updateSettings(array('last_mod_report_action' => time()));
-			recountOpenReports();
-		}
-		$smcFunc['db_free_result']($request);
-	}
-
-	if (isset($extra['member']) && !is_numeric($extra['member']))
-		trigger_error('logAction(): data\'s member is not a number', E_USER_NOTICE);
-
-	if (isset($extra['board']))
-	{
-		if (!is_numeric($extra['board']))
-			trigger_error('logAction(): data\'s board is not a number', E_USER_NOTICE);
-		$board_id = empty($extra['board']) ? 0 : (int) $extra['board'];
-		unset($extra['board']);
-	}
-	else
-		$board_id = 0;
-
-	if (isset($extra['board_to']))
-	{
-		if (!is_numeric($extra['board_to']))
-			trigger_error('logAction(): data\'s board_to is not a number', E_USER_NOTICE);
-		if (empty($board_id))
-		{
-			$board_id = empty($extra['board_to']) ? 0 : (int) $extra['board_to'];
-			unset($extra['board_to']);
-		}
-	}
-
-	if (isset($extra['member_affected']))
-		$memID = $extra['member_affected'];
-	else
-		$memID = $user_info['id'];
-
-	$smcFunc['db_insert']('',
-		'{db_prefix}log_actions',
-		array(
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'string-16', 'action' => 'string',
-			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
-		),
-		array(
-			time(), $log_types[$log_type], $memID, $user_info['ip'], $action,
-			$board_id, $topic_id, $msg_id, serialize($extra),
-		),
-		array('id_action')
-	);
-
-	return $smcFunc['db_insert_id']('{db_prefix}log_actions', 'id_action');
+	return logActions(array(array(
+		'action' => $action,
+		'log_type' => $log_type,
+		'extra' => $extra,
+	)));
 }
 
 /**
- * A mmirror of {@link logAction()}, but designed to log multiple actions at once.
+ * Log changes to the forum, such as moderation events or administrative changes.
+ * This behaves just like logAction() in SMF 2.0, except that it is designed to log multiple actions at once.
  *
  * @param array $logs
+ * @return the last logged ID
  */
 function logActions($logs)
 {
