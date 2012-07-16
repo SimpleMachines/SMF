@@ -884,32 +884,7 @@ function template_main()
 	if (!empty($ignoredMsgs))
 	{
 		echo '
-					var aIgnoreToggles = new Array();';
-
-		foreach ($ignoredMsgs as $msgid)
-		{
-			echo '
-					aIgnoreToggles[', $msgid, '] = new smc_Toggle({
-						bToggleEnabled: true,
-						bCurrentlyCollapsed: true,
-						aSwappableContainers: [
-							\'msg_', $msgid, '_extra_info\',
-							\'msg_', $msgid, '\',
-							\'msg_', $msgid, '_footer\',
-							\'msg_', $msgid, '_quick_mod\',
-							\'modify_button_', $msgid, '\',
-							\'msg_', $msgid, '_signature\'
-
-						],
-						aSwapLinks: [
-							{
-								sId: \'msg_', $msgid, '_ignored_link\',
-								msgExpanded: \'\',
-								msgCollapsed: ', JavaScriptEscape($txt['show_ignore_user_post']), '
-							}
-						]
-					});';
-		}
+					ignore_toggles([', implode(', ', $ignoredMsgs), '], ', JavaScriptEscape($txt['show_ignore_user_post']), ');';
 	}
 
 	echo '
