@@ -1275,7 +1275,7 @@ function prepareDisplayContext($reset = false)
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 
-	call_integration_hook('integrate_prepare_context', array(&$output, &$message));
+	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 
 	if (empty($options['view_newest_first']))
 		$counter++;
