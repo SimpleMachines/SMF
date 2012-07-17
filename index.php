@@ -283,6 +283,7 @@ function smf_main()
 		'im' => array('PersonalMessage.php', 'MessageMain'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
+		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
