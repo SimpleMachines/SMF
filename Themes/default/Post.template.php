@@ -465,7 +465,7 @@ function template_main()
 		}
 
 		// Add any template changes for an alternative upload system here.
-		call_integration_hook('integrate_upload_template', array());
+		call_integration_hook('integrate_upload_template');
 
 		echo '
 						<dd class="smalltext">';

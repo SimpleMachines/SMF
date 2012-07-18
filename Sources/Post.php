@@ -1463,7 +1463,7 @@ function Post2()
 	//   type => MIME type (optional if not available on upload).
 	//   errors => An array of errors (use the index of the $txt variable for that error).
 	// Template changes can be done using "integrate_upload_template".
-	call_integration_hook('integrate_attachment_upload', array());
+	call_integration_hook('integrate_attachment_upload');
 
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
