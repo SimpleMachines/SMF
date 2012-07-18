@@ -107,8 +107,9 @@ $txt['started_by'] = 'Started by';
 $txt['topic_started_by'] = 'Started by  <strong>%1$s</strong> in <em>%2$s</em>';
 $txt['replies'] = 'Replies';
 $txt['last_post'] = 'Last post';
-$txt['last_post_message'] = '<strong>Last post</strong> by %1$s<br />in %2$s<br />on %3$s';
-$txt['boardindex_total_posts'] = '%1$d Posts in %2$d Topics by %3$d Members.';
+//$txt['last_post_message'] = '<strong>Last post</strong> by %1$s<br />in %2$s<br />on %3$s';
+$txt['last_post_message'] = '<strong>Last post: </strong>%3$s<br />%2$s by %1$s';
+$txt['boardindex_total_posts'] = '%1$d Posts in %2$d Topics by %3$d Members';
 $txt['show'] = 'Show';
 $txt['hide'] = 'Hide';
 
@@ -145,7 +146,7 @@ $txt['remove_message'] = 'Remove this message';
 $txt['online_users'] = 'Users Online';
 $txt['personal_message'] = 'Personal Message';
 $txt['jump_to'] = 'Jump to';
-$txt['go'] = 'go';
+$txt['go'] = 'Go!';
 $txt['are_sure_remove_topic'] = 'Are you sure you want to remove this topic?';
 $txt['yes'] = 'Yes';
 $txt['no'] = 'No';
@@ -187,7 +188,8 @@ $txt['error_invalid_characters_username'] = 'Invalid character used in Username.
 
 $txt['welcome_guest'] = 'Welcome, <strong>%1$s</strong>. Please <a href="%2$s">login</a>.';
 
-$txt['welcome_guest_register'] = 'Welcome, <strong>%1$s</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
+//$txt['welcome_guest_register'] = 'Welcome, <strong>%1$s</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>'. $context['forum_name']. '</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
 
 $txt['please_login'] = 'Please <a href="' . $scripturl . '?action=login">login</a>.';
 $txt['login_or_register'] = 'Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
@@ -475,7 +477,7 @@ $txt['events'] = 'Events:';
 $txt['birthdays_upcoming'] = 'Upcoming Birthdays:';
 $txt['events_upcoming'] = 'Upcoming Events:';
 // Prompt for holidays in the calendar, leave blank to just display the holiday's name.
-$txt['calendar_prompt'] = '';
+$txt['calendar_prompt'] = 'Holidays:';
 $txt['calendar_month'] = 'Month:';
 $txt['calendar_year'] = 'Year:';
 $txt['calendar_day'] = 'Day:';

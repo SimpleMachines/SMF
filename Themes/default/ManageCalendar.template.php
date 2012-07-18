@@ -51,7 +51,6 @@ function template_edit_holiday()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt class="small_caption">
@@ -109,7 +108,6 @@ function template_edit_holiday()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

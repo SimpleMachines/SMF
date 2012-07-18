@@ -86,18 +86,23 @@ function template_html_above()
 
 	// The ?alp21 part of this link is just here to make sure browsers don't cache it wrongly.
 	echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
+	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css?alp21" />';
 
-	// Some browsers need an extra stylesheet due to bugs/compatibility issues.
-	foreach (array('ie7', 'ie6', 'webkit') as $cssfix)
-		if ($context['browser']['is_' . $cssfix])
-			echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/', $cssfix, '.css" />';
+	// The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
+	if (!empty($context['theme_variant']))
+		echo '
+	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
 
 	// RTL languages require an additional stylesheet.
 	if ($context['right_to_left'])
+	{
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css" />';
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
+
+	if (!empty($context['theme_variant']))
+		echo '
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
+	}
 
 	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
@@ -195,10 +200,14 @@ function template_html_above()
 	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['atom'], '" href="', $scripturl, '?type=atom;action=.xml" />';
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
-	if (!empty($context['current_topic']))
-		echo '
-	<link rel="prev" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=prev" />
-	<link rel="next" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=next" />';
+	if (!empty($context['links']['next']))
+		echo '<link rel="next" href="', $context['links']['next'], '" />';
+	else if (!empty($context['current_topic']))
+		echo '<link rel="next" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=next" />';
+	if (!empty($context['links']['prev']))
+		echo '<link rel="prev" href="', $context['links']['prev'], '" />';
+	else if (!empty($context['current_topic']))
+		echo '<link rel="prev" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=prev" />';
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
 	if (!empty($context['current_board']))
@@ -210,150 +219,151 @@ function template_html_above()
 
 	echo '
 </head>
-<body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ? 'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')),
-	!empty($context['current_board']) ? ' board_' . htmlspecialchars($context['current_board']) : '',
-	'">';
+<body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? htmlspecialchars($context['current_action']) : (!empty($context['current_board']) ?
+		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . htmlspecialchars($context['current_board']) : '', '">';
 }
 
 function template_body_above()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
-	echo !empty($settings['forum_width']) ? '
-<div id="wrapper" style="width: ' . $settings['forum_width'] . '">' : '', '
-	<div id="header"><div class="frame">
-		<div id="top_section">
-			<h1 class="forumtitle">
-				<a href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '" />', '</a>
-			</h1>';
+	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
+	echo '
+<div id="wrapper" ', !empty($settings['forum_width']) ? 'style="width: ' . $settings['forum_width'] . '"' : '', '>
+	<div id="header">
+		<div class="frame">
+			<div id="top_section">
+				<h1 class="forumtitle">
+					<a href="', $scripturl, '" id="top">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '" />', '</a>
+				</h1>';
 
 	// the upshrink image, right-floated
 	echo '
-			<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />';
+				<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />';
 	echo '
 			', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '
-		</div>
-		<div id="upper_section" class="middletext"', empty($options['collapse_header']) ? '' : ' style="display: none;"', '>
-			<div class="user">';
+			</div>
+			<div id="upper_wrap">
+				<div id="upper_section" ', empty($options['collapse_header']) ? '' : ' style="display: none;"', '>
+					<div class="user">';
 
 	// If the user is logged in, display stuff like their name, new messages, etc.
 	if ($context['user']['is_logged'])
 	{
 		if (!empty($context['user']['avatar']))
 			echo '
-				<p class="avatar">', $context['user']['avatar']['image'], '</p>';
-		echo '
-				<ul class="reset">
-					<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>
-					<li><a href="', $scripturl, '?action=unread">', $txt['unread_since_visit'], '</a></li>
-					<li><a href="', $scripturl, '?action=unreadreplies">', $txt['show_unread_replies'], '</a></li>';
+				<p class="avatar"><a href="', $scripturl, '?action=profile">', $context['user']['avatar']['image'], '</a></p>';
+			echo '
+						<ul class="reset">
+							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>
+							<li><a href="', $scripturl, '?action=unread">', $txt['unread_since_visit'], '</a></li>
+							<li><a href="', $scripturl, '?action=unreadreplies">', $txt['show_unread_replies'], '</a></li>';
 
 		// Is the forum in maintenance mode?
 		if ($context['in_maintenance'] && $context['user']['is_admin'])
 			echo '
-					<li class="notice">', $txt['maintain_mode_on'], '</li>';
+							<li class="notice">', $txt['maintain_mode_on'], '</li>';
 
 		// Are there any members waiting for approval?
 		if (!empty($context['unapproved_members']))
 			echo '
-					<li>', $context['unapproved_members'] == 1 ? $txt['approve_thereis'] : $txt['approve_thereare'], ' <a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $context['unapproved_members'] == 1 ? $txt['approve_member'] : $context['unapproved_members'] . ' ' . $txt['approve_members'], '</a> ', $txt['approve_members_waiting'], '</li>';
+							<li>', $context['unapproved_members'] == 1 ? $txt['approve_thereis'] : $txt['approve_thereare'], ' <a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $context['unapproved_members'] == 1 ? $txt['approve_member'] : $context['unapproved_members'] . ' ' . $txt['approve_members'], '</a> ', $txt['approve_members_waiting'], '</li>';
 
 		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
 			echo '
-					<li><a href="', $scripturl, '?action=moderate;area=reports">', sprintf($txt['mod_reports_waiting'], $context['open_mod_reports']), '</a></li>';
+							<li><a href="', $scripturl, '?action=moderate;area=reports">', sprintf($txt['mod_reports_waiting'], $context['open_mod_reports']), '</a></li>';
 
 		echo '
-					<li>', $context['current_time'], '</li>
-				</ul>';
+							<li>', $context['current_time'], '</li>
+						</ul>';
 	}
 	// Otherwise they're a guest - this time ask them to either register or login - lazy bums...
 	elseif (!empty($context['show_login_bar']))
 	{
 		echo '
-				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
-				<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
-					<div class="info">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</div>
-					<input type="text" name="user" size="10" class="input_text" />
-					<input type="password" name="passwrd" size="10" class="input_password" />
-					<select name="cookielength">
-						<option value="60">', $txt['one_hour'], '</option>
-						<option value="1440">', $txt['one_day'], '</option>
-						<option value="10080">', $txt['one_week'], '</option>
-						<option value="43200">', $txt['one_month'], '</option>
-						<option value="-1" selected="selected">', $txt['forever'], '</option>
-					</select>
-					<input type="submit" value="', $txt['login'], '" class="button_submit" /><br />
-					<div class="info">', $txt['quick_login_dec'], '</div>';
+					<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
+						<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
+							<div class="info">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</div>
+							<input type="text" name="user" size="10" class="input_text" />
+							<input type="password" name="passwrd" size="10" class="input_password" />
+							<select name="cookielength">
+								<option value="60">', $txt['one_hour'], '</option>
+								<option value="1440">', $txt['one_day'], '</option>
+								<option value="10080">', $txt['one_week'], '</option>
+								<option value="43200">', $txt['one_month'], '</option>
+								<option value="-1" selected="selected">', $txt['forever'], '</option>
+							</select>
+							<input type="submit" value="', $txt['login'], '" class="button_submit" /><br />
+							<div class="info">', $txt['quick_login_dec'], '</div>';
 
 		if (!empty($modSettings['enableOpenID']))
 			echo '
-					<br /><input type="text" name="openid_identifier" size="25" class="input_text openid_login" />';
+							<br /><input type="text" name="openid_identifier" size="25" class="input_text openid_login" />';
 
 		echo '
-					<input type="hidden" name="hash_passwrd" value="" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
-				</form>';
+							<input type="hidden" name="hash_passwrd" value="" />
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+							<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
+						</form>';
 	}
 
 	echo '
-			</div>
-			<div class="news normaltext">';
-	
+					</div>
+					<div class="news">';
+
 	if ($context['allow_search'])
 	{
 		echo '
-			<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="search" value="" class="input_text" />&nbsp;';
-		
+						<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+							<input type="text" name="search" value="" class="input_text" />&nbsp;';
+
 		// Using the quick search dropdown?
 		if (!empty($modSettings['search_dropdown']))
 		{
 			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
-			
-			echo '
-				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
-				
-				// Can't limit it to a specific topic if we are not in one
-				if (!empty($context['current_topic']))
-					echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
 
-				// Can't limit it to a specific board if we are not in one
-				if (!empty($context['current_board']))
-					echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected="selected"' : ''), '>', $txt['search_thisbrd'], '</option>';
 			echo '
-					<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
-				</select>';
+							<select name="search_selection">
+								<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
+
+		// Can't limit it to a specific topic if we are not in one
+		if (!empty($context['current_topic']))
+			echo '
+								<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
+
+		// Can't limit it to a specific board if we are not in one
+		if (!empty($context['current_board']))
+			echo '
+								<option value="board"', ($selected == 'current_board' ? ' selected="selected"' : ''), '>', $txt['search_thisbrd'], '</option>';
+			echo '
+								<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
+							</select>';
 		}
-		
+
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '" />';
+							<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '" />';
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '" />';
+							<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '" />';
 
 		echo '
-				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
-				<input type="hidden" name="advanced" value="0" />
-			</form>';	
+							<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
+							<input type="hidden" name="advanced" value="0" />
+						</form>';
 	}
 
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty($settings['enable_news']))
 		echo '
-				<h2>', $txt['news'], ': </h2>
-				<p>', $context['random_news_line'], '</p>';
+						<h2>', $txt['news'], ': </h2>
+						<p>', $context['random_news_line'], '</p>';
 
 	echo '
-			</div>
-		</div>
-		<br class="clear" />';
+					</div>
+				</div>';
 
 	// Define the upper_section toggle in JavaScript.
 	echo '
@@ -389,19 +399,20 @@ function template_body_above()
 	// Show the menu here, according to the menu sub template.
 	template_menu();
 
-	echo '
-		<br class="clear" />
-	</div></div>';
-
-	// The main content should go here.
-	echo '
-	<div id="content_section"><div class="frame">
-		<div id="main_content_section">';
-
 	// Custom banners and shoutboxes should be placed here, before the linktree.
 
 	// Show the navigation tree.
 	theme_linktree();
+
+	echo '
+			</div>
+		</div>
+	</div>';
+
+	// The main content should go here.
+	echo '
+	<div id="content_section">
+		<div id="main_content_section">';
 }
 
 function template_body_below()
@@ -410,26 +421,41 @@ function template_body_below()
 
 	echo '
 		</div>
-	</div></div>';
+	</div>';
+
+	// This markup gives the looks of the Curve theme without huge images.
+	// The new "Go Down" target is here. Any added content will display globally.
+	echo '
+	<div id="lower_section">
+		<div class="frame"><a id="bot"></a></div>
+	</div>
+</div>';
 
 	// Show the "Powered by" and "Valid" logos, as well as the copyright. Remember, the copyright must be somewhere!
+	// Footer is now full-width by default. Frame inside it will match theme wrapper width automatically.
 	echo '
-	<div id="footer_section"><div class="frame">
-		<ul class="reset">
-			<li class="copyright">', theme_copyright(), '</li>
-			<li><a id="button_xhtml" href="http://validator.w3.org/check?uri=referer" target="_blank" class="new_win" title="', $txt['valid_xhtml'], '"><span>', $txt['xhtml'], '</span></a></li>
-			', !empty($modSettings['xmlnews_enable']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']) ? '<li><a id="button_rss" href="' . $scripturl . '?action=.xml;type=rss" class="new_win"><span>' . $txt['rss'] . '</span></a></li>' : '', '
-			<li class="last"><a id="button_wap2" href="', $scripturl , '?wap2" class="new_win"><span>', $txt['wap2'], '</span></a></li>
-		</ul>';
+	<div id="footer_section">
+		<div class="frame" ', !empty($settings['forum_width']) ? 'style="width: ' . $settings['forum_width'] . '"' : '', '>';
+
+	// Thee is now a global "Go to top" link above the copyright.
+		echo '
+			<a href="#top" id="footer_uplink"><img src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['go_up'], '" /></a>
+			<ul class="reset">
+				<li class="copyright">', theme_copyright(), '</li>
+				<li><a id="button_xhtml" href="http://validator.w3.org/check?uri=referer" target="_blank" class="new_win" title="', $txt['valid_xhtml'], '"><span>', $txt['xhtml'], '</span></a></li>
+				', !empty($modSettings['xmlnews_enable']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']) ? '<li><a id="button_rss" href="' . $scripturl . '?action=.xml;type=rss" class="new_win"><span>' . $txt['rss'] . '</span></a></li>' : '', '
+				<li class="last"><a id="button_wap2" href="', $scripturl , '?wap2" class="new_win"><span>', $txt['wap2'], '</span></a></li>
+			</ul>';
 
 	// Show the load time?
 	if ($context['show_load_time'])
 		echo '
-		<p>', $txt['page_created'], $context['load_time'], $txt['seconds_with'], $context['load_queries'], $txt['queries'], '</p>';
+			<p>', $txt['page_created'], $context['load_time'], $txt['seconds_with'], $context['load_queries'], $txt['queries'], '</p>';
 
 	echo '
-	</div></div>', !empty($settings['forum_width']) ? '
-</div>' : '';
+		</div>
+	</div>';
+
 }
 
 function template_html_below()
@@ -439,7 +465,8 @@ function template_html_below()
 	template_javascript(true);
 
 	echo '
-</body></html>';
+</body>
+</html>';
 }
 
 /**
@@ -448,7 +475,7 @@ function template_html_below()
  */
 function theme_linktree($force_show = false)
 {
-	global $context, $settings, $options, $shown_linktree;
+	global $context, $settings, $options, $shown_linktree, $scripturl, $txt;
 
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
@@ -483,6 +510,14 @@ function theme_linktree($force_show = false)
 		echo '
 			</li>';
 	}
+
+	if ($context['user']['is_logged'])
+	echo '
+		<li class="unread_links">
+			<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a> -
+			<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
+		</li>';
+
 	echo '
 		</ul>
 	</div>';
@@ -506,7 +541,7 @@ function template_menu()
 	{
 		echo '
 				<li id="button_', $act, '">
-					<a class="', $button['active_button'] ? 'active' : '', !empty($button['is_last']) ? ' last' : '', '" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
+					<a class="', $button['active_button'] ? 'active' : '', '" href="', $button['href'], '" ', isset($button['target']) ? 'target="' . $button['target'] . '"' : '', '>
 						', $button['title'], '
 					</a>';
 		if (!empty($button['sub_buttons']))
@@ -518,7 +553,7 @@ function template_menu()
 			{
 				echo '
 						<li>
-							<a href="', $childbutton['href'], '" ', isset($childbutton['is_last']) ? 'class="last"' : '' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+							<a href="', $childbutton['href'], '" ' , isset($childbutton['target']) ? 'target="' . $childbutton['target'] . '"' : '', '>
 								', $childbutton['title'], '
 							</a>';
 				// 3rd level menus :)
@@ -530,7 +565,7 @@ function template_menu()
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
 								<li>
-									<a href="', $grandchildbutton['href'], '" ', isset($grandchildbutton['is_last']) ? ' class="last"' : '' , isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
+									<a href="', $grandchildbutton['href'], '" ' , isset($grandchildbutton['target']) ? 'target="' . $grandchildbutton['target'] . '"' : '', '>
 										', $grandchildbutton['title'], '
 									</a>
 								</li>';
@@ -583,9 +618,6 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 	// No buttons? No button strip either.
 	if (empty($buttons))
 		return;
-
-	// Make the last one, as easy as possible.
-	$buttons[count($buttons) - 1] = str_replace('<span>', '<span class="last">', $buttons[count($buttons) - 1]);
 
 	echo '
 		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"': ''), '>

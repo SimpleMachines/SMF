@@ -30,7 +30,6 @@ function template_modify_subscription()
 			';
 	echo '
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -191,7 +190,6 @@ function template_modify_subscription()
 					<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -210,7 +208,6 @@ function template_delete_subscription()
 				<h3 class="catbg">', $txt['paid_delete_subscription'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['paid_mod_delete_warning'], '</p>
 
@@ -218,7 +215,6 @@ function template_delete_subscription()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-pmsd_token_var'], '" value="', $context['admin-pmsd_token'], '" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -247,7 +243,6 @@ function template_modify_user_subscription()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">';
 
@@ -344,7 +339,6 @@ function template_modify_user_subscription()
 					</fieldset>
 					<input type="submit" name="save_sub" value="', $txt['paid_settings_save'], '" class="button_submit" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
@@ -375,7 +369,6 @@ function template_modify_user_subscription()
 			<h3 class="catbg">', $txt['pending_payments_value'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<ul class="pending_payments">';
 
@@ -392,7 +385,6 @@ function template_modify_user_subscription()
 		echo '
 				</ul>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 	}
 
@@ -442,7 +434,6 @@ function template_user_subscription()
 				<h3 class="catbg">', $subscription['name'], '</h3>
 			</div>
 			<div class="windowbg', $alternate ? '' : '2', '">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p><strong>', $subscription['name'], '</strong></p>
 					<p class="smalltext">', $subscription['desc'], '</p>';
@@ -484,7 +475,6 @@ function template_user_subscription()
 
 			echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 		}
 	}
@@ -557,7 +547,6 @@ function template_choose_payment()
 			', $txt['paid_confirm_desc'], '
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">
 					<dt>
@@ -574,7 +563,6 @@ function template_choose_payment()
 					</dd>
 				</dl>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	// Do all the gateway options.
@@ -585,7 +573,6 @@ function template_choose_payment()
 			<h3 class="catbg">', $gateway['title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				', $gateway['desc'], '<br />
 					<form action="', $gateway['form'], '" method="post">';
@@ -604,7 +591,6 @@ function template_choose_payment()
 						<br /><input type="submit" value="', $gateway['submit'], '" class="button_submit" />
 					</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 	}
 
@@ -624,13 +610,11 @@ function template_paid_done()
 			<h3 class="titlebg">', $txt['paid_done'], '</h3>
 		</div>
 		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['paid_done_desc'], '</p>
 				<br />
 				<a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=subscriptions">', $txt['paid_sub_return'], '</a>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';

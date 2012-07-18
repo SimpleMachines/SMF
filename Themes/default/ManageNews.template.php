@@ -24,7 +24,6 @@ function template_email_members()
 				', $txt['admin_news_select_recipients'], '
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -45,7 +44,6 @@ function template_email_members()
 						</dd>
 					</dl><br class="clear" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />
 
@@ -57,7 +55,6 @@ function template_email_members()
 			</div>
 
 			<div id="advanced_panel_div" class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -112,7 +109,6 @@ function template_email_members()
 						</dd>
 					</dl><br class="clear" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<div class="righttext">
 				<input type="submit" value="', $txt['admin_next'], '" class="button_submit" />
@@ -201,13 +197,11 @@ function template_email_members_compose()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="post" id="preview_body">
 						', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div><br />';
 
@@ -223,7 +217,6 @@ function template_email_members_compose()
 				', $txt['email_variables'], '
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
@@ -267,7 +260,6 @@ function template_email_members_compose()
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</p>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="email_force" value="', $context['email_force'], '" />
@@ -420,7 +412,6 @@ function template_email_members_send()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="progress_bar">
 						<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
@@ -446,7 +437,6 @@ function template_email_members_send()
 	echo '
 				<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
