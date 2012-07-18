@@ -381,44 +381,6 @@ function Post($post_errors = array())
 		// Validate inputs.
 		if (empty($context['post_error']))
 		{
-			if (htmltrim__recursive(htmlspecialchars__recursive($_REQUEST['subject'])) == '')
-				$post_errors[] = 'no_subject';
-			if (htmltrim__recursive(htmlspecialchars__recursive($_REQUEST['message'])) == '')
-				$post_errors[] = 'no_message';
-			if (!empty($modSettings['max_messageLength']) && $smcFunc['strlen']($_REQUEST['message']) > $modSettings['max_messageLength'])
-				$post_errors[] = array('long_message', $modSettings['max_messageLength']);
-
-			// Are you... a guest?
-			if ($user_info['is_guest'])
-			{
-				$_REQUEST['guestname'] = !isset($_REQUEST['guestname']) ? '' : trim($_REQUEST['guestname']);
-				$_REQUEST['email'] = !isset($_REQUEST['email']) ? '' : trim($_REQUEST['email']);
-
-				// Validate the name and email.
-				if (!isset($_REQUEST['guestname']) || trim(strtr($_REQUEST['guestname'], '_', ' ')) == '')
-					$post_errors[] = 'no_name';
-				elseif ($smcFunc['strlen']($_REQUEST['guestname']) > 25)
-					$post_errors[] = 'long_name';
-				else
-				{
-					require_once($sourcedir . '/Subs-Members.php');
-					if (isReservedName(htmlspecialchars($_REQUEST['guestname']), 0, true, false))
-						$post_errors[] = 'bad_name';
-				}
-
-				if (empty($modSettings['guest_post_no_email']))
-				{
-					if (!isset($_REQUEST['email']) || $_REQUEST['email'] == '')
-						$post_errors[] = 'no_email';
-					elseif (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_REQUEST['email']) == 0)
-						$post_errors[] = 'bad_email';
-				}
-			}
-
-			// This is self explanatory - got any questions?
-			if (isset($_REQUEST['question']) && trim($_REQUEST['question']) == '')
-				$post_errors[] = 'no_question';
-
 			// This means they didn't click Post and get an error.
 			$really_previewing = true;
 		}
@@ -447,10 +409,6 @@ function Post($post_errors = array())
 		// Make sure the subject isn't too long - taking into account special characters.
 		if ($smcFunc['strlen']($form_subject) > 100)
 			$form_subject = $smcFunc['substr']($form_subject, 0, 100);
-
-		// Have we inadvertently trimmed off the subject of useful information?
-		if ($smcFunc['htmltrim']($form_subject) === '')
-			$post_errors[] = 'no_subject';
 
 		$context['post_error'] = array('messages' => array());
 
@@ -1260,10 +1218,6 @@ function Post2()
 		// We need this for everything else.
 		$_POST['message'] = $_REQUEST['message'];
 	}
-
-	// Previewing? Go back to start.
-	if (isset($_REQUEST['preview']))
-		return Post();
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');

@@ -426,7 +426,7 @@ function template_main()
 	{
 		echo '
 					<dl id="postAttachment2">';
-		
+
 		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
 		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
 		{
@@ -569,7 +569,7 @@ function template_main()
 					}
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
+					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', ', JavaScriptEscape($context['session_var']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
 					var numericFields = [
 						\'board\', \'topic\', \'last_msg\',
 						\'eventid\', \'calendar\', \'year\', \'month\', \'day\',
