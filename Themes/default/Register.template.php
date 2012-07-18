@@ -22,11 +22,9 @@ function template_registration_agreement()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<p>', $context['agreement'], '</p>
 			</div>
-			<span class="lowerframe"><span></span></span>
 			<div id="confirm_buttons">';
 
 	// Age restriction in effect?
@@ -96,7 +94,6 @@ function template_registration_form()
 				<h4 class="titlebg">', $txt['required_info'], '</h4>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<fieldset class="content">
 					<dl class="register_form">
 						<dt><strong><label for="smf_autov_username">', $txt['username'], ':</label></strong></dt>
@@ -176,7 +173,6 @@ function template_registration_form()
 
 	echo '
 				</fieldset>
-				<span class="botslice"><span></span></span>
 			</div>';
 
 	// If we have either of these, show the extra group.
@@ -187,7 +183,6 @@ function template_registration_form()
 				<h4 class="titlebg">', $txt['additional_information'], '</h4>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<fieldset class="content">
 					<dl class="register_form" id="custom_group">';
 	}
@@ -291,7 +286,6 @@ function template_registration_form()
 		echo '
 					</dl>
 				</fieldset>
-				<span class="botslice"><span></span></span>
 			</div>';
 	}
 
@@ -302,11 +296,9 @@ function template_registration_form()
 				<h4 class="titlebg">', $txt['verification'], '</h4>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<fieldset class="content centertext">
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</fieldset>
-				<span class="botslice"><span></span></span>
 			</div>';
 	}
 
@@ -357,9 +349,7 @@ function template_after()
 				<h3 class="catbg">', $context['title'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<p class="content">', $context['description'], '</p>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>';
 }
@@ -375,7 +365,6 @@ function template_coppa()
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $context['coppa']['body'], '</p>
 					<p>
@@ -411,7 +400,6 @@ function template_coppa()
 	}
 	echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 }
 
@@ -497,7 +485,6 @@ function template_admin_register()
 			<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
 		</div>
 		<form class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm" id="postForm">
-			<span class="topslice"><span></span></span>
 			<div class="content" id="register_screen">';
 
 	if (!empty($context['registration_done']))
@@ -569,7 +556,6 @@ function template_admin_register()
 				<input type="hidden" name="sa" value="register" />
 				<br class="clear_right" />
 			</div>
-			<span class="botslice"><span></span></span>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '" />
 		</form>
@@ -595,7 +581,6 @@ function template_edit_agreement()
 
 	echo '
 		<div class="windowbg2" id="registration_agreement">
-			<span class="topslice"><span></span></span>
 			<div class="content">';
 
 	// Is there more than one language to choose from?
@@ -642,7 +627,6 @@ function template_edit_agreement()
 					<br class="clear_right" />
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<br class="clear" />';
 }
@@ -656,7 +640,6 @@ function template_edit_reserved_words()
 			<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
 		</div>
 		<form id="registration_agreement" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<h4>', $txt['admin_reserved_line'], '</h4>
 				<p class="reserved_names">
@@ -692,7 +675,6 @@ function template_edit_reserved_words()
 				<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit" />
 				<br class="clear_right" />
 			</div>
-			<span class="botslice"><span></span></span>
 			<input type="hidden" name="sa" value="reservednames" />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '" />

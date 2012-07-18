@@ -58,7 +58,6 @@ function template_main()
 
 	echo '
 			<div>
-			<span class="upperframe"><span></span></span>
 				<div class="roundframe">
 					<input type="hidden" name="poll" value="', $context['poll']['id'], '" />
 					<fieldset id="poll_main">
@@ -147,7 +146,6 @@ function template_main()
 					</div>
 					<br class="clear" />
 				</div>
-				<span class="lowerframe"><span></span></span>
 			</div>
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />
 			<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />

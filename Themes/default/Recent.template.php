@@ -18,7 +18,7 @@ function template_main()
 	<div id="recent" class="main_section">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/post/xx.png" alt="" class="icon" />',$txt['recent_posts'],'</span>
+				<img src="', $settings['images_url'], '/post/xx.png" alt="" class="icon" />',$txt['recent_posts'],'
 			</h3>
 		</div>
 		<div class="pagesection">
@@ -28,9 +28,7 @@ function template_main()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<span class="topslice"><span></span></span>
-				<div class="content">
+			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">ent">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
@@ -70,7 +68,6 @@ function template_main()
 				</div>';
 
 		echo '
-				<span class="botslice clear"><span></span></span>
 			</div>';
 
 	}

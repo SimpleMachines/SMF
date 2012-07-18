@@ -67,3 +67,8 @@
  
  3/ Oh yeah, the stuff I don't know about yet. You get that. Hey ho.
  
+ ===================================================================
+ 
+ Later: got rid of all the old spans and ie6 header stuff in the rest of the templates.
+ Also ditched the remaining middletext and normaltext classes. Yay! Less crap.
+ 

@@ -24,7 +24,6 @@ function template_main()
 				<h3 class="catbg">', $txt['move_topic'], '</h3>
 			</div>
 			<div class="windowbg centertext">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="move_topic">
 						<dl class="settings">
@@ -95,7 +94,6 @@ function template_main()
 						<br class="clear_right" />
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 
 	if ($context['back_to_topic'])

@@ -29,7 +29,6 @@ function template_ban_edit()
 
 	echo '
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=ban;sa=edit" method="post" accept-charset="', $context['character_set'], '" onsubmit="if (this.ban_name.value == \'\') {alert(\'', $txt['ban_name_empty'], '\'); return false;} if (this.partial_ban.checked &amp;&amp; !(this.cannot_post.checked || this.cannot_register.checked || this.cannot_login.checked)) {alert(\'', $txt['ban_restriction_empty'], '\'); return false;}">
 					<dl class="settings">
@@ -173,7 +172,6 @@ function template_ban_edit()
 						<br class="clear_right" />
 					</form>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 
 	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))
@@ -292,7 +290,6 @@ function template_ban_edit_trigger()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<fieldset>
 						<legend>
@@ -335,7 +332,6 @@ function template_ban_edit_trigger()
 					<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '" />
 			<input type="hidden" name="bg" value="' . $context['ban_trigger']['group'] . '" />
