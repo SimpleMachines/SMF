@@ -21,15 +21,12 @@ function template_main()
 		</div>
 		<div class="title_bar">
 			<h4 class="titlebg">
-				<span class="ie6_header floatleft">
-					<img src="', $settings['images_url'], '/stats_info.png" class="icon" alt="" /> ', $txt['general_stats'], '
-				</span>
+				<img src="', $settings['images_url'], '/stats_info.png" class="icon" alt="" /> ', $txt['general_stats'], '
 			</h4>
 		</div>
 		<div class="flow_hidden">
 			<div id="stats_left">
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content top_row">
 						<dl class="stats">
 							<dt>', $txt['total_members'], ':</dt>
@@ -54,14 +51,11 @@ function template_main()
 
 	echo '
 						</dl>
-						<div class="clear"></div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 			<div id="stats_right">
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content top_row">
 						<dl class="stats">
 							<dt>', $txt['average_members'], ':</dt>
@@ -86,9 +80,7 @@ function template_main()
 
 	echo '
 						</dl>
-						<div class="clear"></div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 		</div>
@@ -96,13 +88,10 @@ function template_main()
 			<div id="top_posters">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft">
-							<img src="', $settings['images_url'], '/stats_posters.png" class="icon" alt="" /> ', $txt['top_posters'], '
-						</span>
+						<img src="', $settings['images_url'], '/stats_posters.png" class="icon" alt="" /> ', $txt['top_posters'], '
 					</h4>
 				</div>
 					<div class="windowbg2">
-						<span class="topslice"><span></span></span>
 						<div class="content">
 							<dl class="stats">';
 
@@ -127,21 +116,16 @@ function template_main()
 
 	echo '
 							</dl>
-							<div class="clear"></div>
 						</div>
-						<span class="botslice"><span></span></span>
 					</div>
 			</div>
 			<div id="top_boards">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft">
-							<img src="', $settings['images_url'], '/stats_board.png" class="icon" alt="" /> ', $txt['top_boards'], '
-						</span>
+						<img src="', $settings['images_url'], '/stats_board.png" class="icon" alt="" /> ', $txt['top_boards'], '
 					</h4>
 				</div>
 					<div class="windowbg2">
-						<span class="topslice"><span></span></span>
 						<div class="content">
 							<dl class="stats">';
 
@@ -165,9 +149,7 @@ function template_main()
 
 	echo '
 							</dl>
-							<div class="clear"></div>
 						</div>
-						<span class="botslice"><span></span></span>
 					</div>
 			</div>
 		</div>
@@ -175,13 +157,10 @@ function template_main()
 			<div id="top_topics_replies">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft">
-							<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_topics_replies'], '
-						</span>
+						<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_topics_replies'], '
 					</h4>
 				</div>
 					<div class="windowbg2">
-						<span class="topslice"><span></span></span>
 						<div class="content">
 							<dl class="stats">';
 
@@ -204,22 +183,17 @@ function template_main()
 	}
 	echo '
 							</dl>
-							<div class="clear"></div>
 						</div>
-						<span class="botslice"><span></span></span>
 					</div>
 			</div>
 
 			<div id="top_topics_views">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft">
-							<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['top_topics_views'], '
-						</span>
+						<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['top_topics_views'], '
 					</h4>
 				</div>
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<dl class="stats">';
 
@@ -242,9 +216,7 @@ function template_main()
 
 	echo '
 						</dl>
-						<div class="clear"></div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 		</div>
@@ -252,13 +224,10 @@ function template_main()
 			<div id="top_topics_starter">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft">
-							<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_starters'], '
-						</span>
+						<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_starters'], '
 					</h4>
 				</div>
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<dl class="stats">';
 
@@ -283,21 +252,16 @@ function template_main()
 
 	echo '
 						</dl>
-						<div class="clear"></div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 			<div id="most_online">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatleft">
-							<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['most_time_online'], '
-						</span>
+						<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['most_time_online'], '
 					</h4>
 				</div>
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<dl class="stats">';
 
@@ -322,9 +286,7 @@ function template_main()
 
 	echo '
 						</dl>
-						<div class="clear"></div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 		</div>
@@ -332,9 +294,7 @@ function template_main()
 		<div class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft">
-						<img src="', $settings['images_url'], '/stats_history.png" class="icon" alt="" /> ', $txt['forum_history'], '
-					</span>
+					<img src="', $settings['images_url'], '/stats_history.png" class="icon" alt="" /> ', $txt['forum_history'], '
 				</h3>
 			</div>';
 

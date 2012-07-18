@@ -25,7 +25,7 @@ function template_main()
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
-			<a id="top"></a>
+			
 			<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
@@ -151,7 +151,7 @@ function template_main()
 	echo '
 			<div class="pagesection">
 				<div class="nextlinks">', $context['previous_next'], '</div>', template_button_strip($context['normal_buttons'], 'right'), '
-				<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#lastPost"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
+				<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
 			</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -635,8 +635,7 @@ function template_main()
 
 	echo '
 				</form>
-			</div>
-			<a id="lastPost"></a>';
+			</div>';
 
 	// Show the page index... "Pages: [1]".
 	echo '
