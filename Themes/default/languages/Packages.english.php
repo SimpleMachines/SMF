@@ -4,6 +4,7 @@
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
 $txt['package_run'] = 'Run';
+$txt['package_id'] = 'ID';
 $txt['package_read'] = 'Read';
 $txt['script_output'] = 'Script output:';
 $txt['additional_notes'] = 'Additional notes';
