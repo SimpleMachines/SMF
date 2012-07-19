@@ -227,9 +227,7 @@ function ManageAvatarSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// We need these files for the inline permission settings, and the settings template.
-	// @todo is this really needed?
-	require_once($sourcedir . '/ManagePermissions.php');
+	// We need this file for the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
 	// Saving avatar settings?

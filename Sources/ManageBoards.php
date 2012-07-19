@@ -808,9 +808,7 @@ function EditBoardSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Needed for the settings template and inline permission functions.
-	// @todo is this file really needed?
-	require_once($sourcedir . '/ManagePermissions.php');
+	// Needed for the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
 	// Don't let guests have these permissions.
