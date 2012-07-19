@@ -86,7 +86,7 @@ function Post($post_errors = array())
 		$smcFunc['db_free_result']($request);
 	}
 
-	// Check if it's locked.  It isn't locked if no topic is specified.
+	// Check if it's locked. It isn't locked if no topic is specified.
 	if (!empty($topic))
 	{
 		$request = $smcFunc['db_query']('', '
@@ -342,23 +342,20 @@ function Post($post_errors = array())
 			if (!empty($context['new_replies']))
 			{
 				if ($context['new_replies'] == 1)
-					$txt['error_new_reply'] = isset($_GET['last_msg']) ? $txt['error_new_reply_reading'] : $txt['error_new_reply'];
+					$txt['error_new_replies'] = isset($_GET['last_msg']) ? $txt['error_new_reply_reading'] : $txt['error_new_reply'];
 				else
 					$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? $txt['error_new_replies_reading'] : $txt['error_new_replies'], $context['new_replies']);
 
-				// If they've come from the display page then we treat the error differently....
-				if (isset($_GET['last_msg']))
-					$newRepliesError = $context['new_replies'];
-				else
-					$post_errors[] = $context['new_replies'] == 1 ? 'new_reply' : 'new_replies';
+				$post_errors[] = 'new_replies';
 
 				$modSettings['topicSummaryPosts'] = $context['new_replies'] > $modSettings['topicSummaryPosts'] ? max($modSettings['topicSummaryPosts'], 5) : $modSettings['topicSummaryPosts'];
 			}
 		}
-		// Check whether this is a really old post being bumped...
-		if (!empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !isset($_REQUEST['subject']))
-			$oldTopicError = true;
 	}
+
+	// Check whether this is a really old post being bumped...
+	if (!empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !isset($_REQUEST['subject']))
+		$post_errors[] = array('old_topic', array($modSettings['oldTopicDays']));
 
 	// Get a response prefix (like 'Re:') in the default forum language.
 	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
@@ -416,7 +413,7 @@ function Post($post_errors = array())
 		 * errors are like warnings that let them know that something with
 		 * their post isn't right.
 		 */
-		$minor_errors = array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
+		$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
 
 		call_integration_hook('integrate_post_errors', array($post_errors, $minor_errors));
 
@@ -548,7 +545,7 @@ function Post($post_errors = array())
 					IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
 					m.poster_time
-			FROM {db_prefix}messages AS m
+				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
 				WHERE m.id_msg = {int:id_msg}
@@ -990,20 +987,7 @@ function Post($post_errors = array())
 	if (!empty($context['post_error']['messages']) && (isset($newRepliesError) || isset($oldTopicError)))
 		$context['post_error']['messages'][] = '<br />';
 
-	// If we are coming here to make a reply, and someone has already replied... make a special warning message.
-	if (isset($newRepliesError))
-	{
-		$context['post_error']['messages'][] = $newRepliesError == 1 ? $txt['error_new_reply'] : $txt['error_new_replies'];
-		$context['error_type'] = 'minor';
-	}
-
-	if (isset($oldTopicError))
-	{
-		$context['post_error']['messages'][] = sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']);
-		$context['error_type'] = 'minor';
-	}
-
-	// What are you doing?  Posting a poll, modifying, previewing, new post, or reply...
+	// What are you doing? Posting a poll, modifying, previewing, new post, or reply...
 	if (isset($_REQUEST['poll']))
 		$context['page_title'] = $txt['new_poll'];
 	elseif ($context['make_event'])
@@ -2814,24 +2798,24 @@ function JavaScriptModify()
 
 	// Assume the first message if no message ID was given.
 	$request = $smcFunc['db_query']('', '
-			SELECT
-				t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
-				m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
-				m.modified_time, m.modified_name, m.approved
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
-			WHERE m.id_msg = {raw:id_msg}
-				AND m.id_topic = {int:current_topic}' . (allowedTo('modify_any') || allowedTo('approve_posts') ? '' : (!$modSettings['postmod_active'] ? '
-				AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
-				AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-				'id_msg' => empty($_REQUEST['msg']) ? 't.id_first_msg' : (int) $_REQUEST['msg'],
-				'is_approved' => 1,
-				'guest_id' => 0,
-			)
-		);
+		SELECT
+			t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
+			m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
+			m.modified_time, m.modified_name, m.approved
+		FROM {db_prefix}messages AS m
+			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
+		WHERE m.id_msg = {raw:id_msg}
+			AND m.id_topic = {int:current_topic}' . (allowedTo('modify_any') || allowedTo('approve_posts') ? '' : (!$modSettings['postmod_active'] ? '
+			AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
+			AND (m.approved = {int:is_approved} OR (m.id_member != {int:guest_id} AND m.id_member = {int:current_member}))')),
+		array(
+			'current_member' => $user_info['id'],
+			'current_topic' => $topic,
+			'id_msg' => empty($_REQUEST['msg']) ? 't.id_first_msg' : (int) $_REQUEST['msg'],
+			'is_approved' => 1,
+			'guest_id' => 0,
+		)
+	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_board', false);
 	$row = $smcFunc['db_fetch_assoc']($request);
