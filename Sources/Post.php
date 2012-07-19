@@ -407,41 +407,6 @@ function Post($post_errors = array())
 		if ($smcFunc['strlen']($form_subject) > 100)
 			$form_subject = $smcFunc['substr']($form_subject, 0, 100);
 
-		/*
-		 * There are two error types: serious and miinor. Serious errors
-		 * actually tell the user that a real error has occurred, while minor
-		 * errors are like warnings that let them know that something with
-		 * their post isn't right.
-		 */
-		$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
-
-		call_integration_hook('integrate_post_errors', array($post_errors, $minor_errors));
-
-		// Any errors occurred?
-		if (!empty($post_errors))
-		{
-			loadLanguage('Errors');
-			$context['error_type'] = 'minor';
-			foreach ($post_errors as $post_error)
-				if (is_array($post_error))
-				{
-					$post_error_id = $post_error[0];
-					$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], $post_error[1]);
-
-					// If it's not a minor error flag it as such.
-					if (!in_array($post_error_id, $minor_errors))
-						$context['error_type'] = 'serious';
-				}
-				else
-				{
-					$context['post_error'][$post_error] = $txt['error_' . $post_error];
-
-					// If it's not a minor error flag it as such.
-					if (!in_array($post_error, $minor_errors))
-						$context['error_type'] = 'serious';
-				}
-		}
-
 		if (isset($_REQUEST['poll']))
 		{
 			$context['question'] = isset($_REQUEST['question']) ? $smcFunc['htmlspecialchars'](trim($_REQUEST['question'])) : '';
@@ -869,7 +834,7 @@ function Post($post_errors = array())
 						if (file_exists($attachment['tmp_name']))
 							unlink($attachment['tmp_name']);
 				}
-				$context['post_error']['messages'][] = $txt['error_temp_attachments_gone'];
+				$post_errors[] = 'temp_attachments_gone';
 				$_SESSION['temp_attachments'] = array();
 			}
 			// Hmm, coming in fresh and there are files in session.
@@ -886,7 +851,7 @@ function Post($post_errors = array())
 
 						if (file_exists($attachment['tmp_name']))
 						{
-							$context['post_error']['messages'][] = $txt['error_temp_attachments_new'];
+							$post_errors[] = 'temp_attachments_new';
 							$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 							unset($_SESSION['temp_attachments']['post']['files']);
 							break;
@@ -915,19 +880,19 @@ function Post($post_errors = array())
 						// We have a message id, so we can link back to the old topic they were trying to edit..
 						$goback_link = '<a href="' . $scripturl . '?action=post' .(!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions">' . $txt['here'] . '</a>';
 
-						$context['post_error']['messages'][] = vsprintf($txt['error_temp_attachments_found'], array($delete_link, $goback_link, $file_list));
+						$post_errors[] = array('temp_attachments_found', array($delete_link, $goback_link, $file_list));
 						$context['ignore_temp_attachments'] = true;
 					}
 					else
 					{
-						$context['post_error']['messages'][] = vsprintf($txt['error_temp_attachments_lost'], array($delete_link, $file_list));
+						$post_errors[] = array('temp_attachments_lost', array($delete_link, $file_list));
 						$context['ignore_temp_attachments'] = true;
 					}
 				}
 			}
 
 			if (!empty($context['we_are_history']))
-				$context['post_error']['messages'][] = '<br />' . $context['we_are_history'];
+				$post_errors[] = $context['we_are_history'];
 
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 			{
@@ -939,7 +904,8 @@ function Post($post_errors = array())
 
 				if ($attachID == 'initial_error')
 				{
-					$context['post_error']['messages'][] = '<br />' . $txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], $attachment[1]) : $txt[$attachment]) . '</div>';
+					$txt['error_attach_initial_error'] = $txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], $attachment[1]) : $txt[$attachment]) . '</div>';
+					$post_errors[] = 'attach_initial_error';
 					unset($_SESSION['temp_attachments']);
 					break;
 				}
@@ -947,12 +913,12 @@ function Post($post_errors = array())
 				// Show any errors which might of occured.
 				if (!empty($attachment['errors']))
 				{
-					$errors = empty($errors) ? '<br />' : '';
-					$errors .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
-					foreach($attachment['errors'] as $error)
-						$errors .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br  />';
-					$errors .= '</div>';
-					$context['post_error']['messages'][] = $errors;
+					$txt['error_attach_errrors'] = empty($txt['error_attach_errrors']) ? '<br />' : '';
+					$txt['error_attach_errrors'] .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+					foreach ($attachment['errors'] as $error)
+						$txt['error_attach_errrors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br  />';
+					$txt['error_attach_errrors'] .= '</div>';
+					$post_errors[] = 'attach_errrors';
 
 					// Take out the trash.
 					unset($_SESSION['temp_attachments'][$attachID]);
@@ -984,8 +950,56 @@ function Post($post_errors = array())
 		}
 	}
 
-	if (!empty($context['post_error']['messages']) && (isset($newRepliesError) || isset($oldTopicError)))
-		$context['post_error']['messages'][] = '<br />';
+	// Do we need to show the visual verification image?
+	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
+	if ($context['require_verification'])
+	{
+		require_once($sourcedir . '/Subs-Editor.php');
+		$verificationOptions = array(
+			'id' => 'post',
+		);
+		$context['require_verification'] = create_control_verification($verificationOptions);
+		$context['visual_verification_id'] = $verificationOptions['id'];
+	}
+
+	// If they came from quick reply, and have to enter verification details, give them some notice.
+	if (!empty($_REQUEST['from_qr']) && !empty($context['require_verification']))
+		$post_errors[] = 'need_qr_verification';
+
+	/*
+	 * There are two error types: serious and miinor. Serious errors
+	 * actually tell the user that a real error has occurred, while minor
+	 * errors are like warnings that let them know that something with
+	 * their post isn't right.
+	 */
+	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
+
+	call_integration_hook('integrate_post_errors', array($post_errors, $minor_errors));
+
+	// Any errors occurred?
+	if (!empty($post_errors))
+	{
+		loadLanguage('Errors');
+		$context['error_type'] = 'minor';
+		foreach ($post_errors as $post_error)
+			if (is_array($post_error))
+			{
+				$post_error_id = $post_error[0];
+				$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], $post_error[1]);
+
+				// If it's not a minor error flag it as such.
+				if (!in_array($post_error_id, $minor_errors))
+					$context['error_type'] = 'serious';
+			}
+			else
+			{
+				$context['post_error'][$post_error] = $txt['error_' . $post_error];
+
+				// If it's not a minor error flag it as such.
+				if (!in_array($post_error, $minor_errors))
+					$context['error_type'] = 'serious';
+			}
+	}
 
 	// What are you doing? Posting a poll, modifying, previewing, new post, or reply...
 	if (isset($_REQUEST['poll']))
@@ -1114,25 +1128,6 @@ function Post($post_errors = array())
 	$context['is_new_topic'] = empty($topic);
 	$context['is_new_post'] = !isset($_REQUEST['msg']);
 	$context['is_first_post'] = $context['is_new_topic'] || (isset($_REQUEST['msg']) && $_REQUEST['msg'] == $id_first_msg);
-
-	// Do we need to show the visual verification image?
-	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
-	if ($context['require_verification'])
-	{
-		require_once($sourcedir . '/Subs-Editor.php');
-		$verificationOptions = array(
-			'id' => 'post',
-		);
-		$context['require_verification'] = create_control_verification($verificationOptions);
-		$context['visual_verification_id'] = $verificationOptions['id'];
-	}
-
-	// If they came from quick reply, and have to enter verification details, give them some notice.
-	if (!empty($_REQUEST['from_qr']) && !empty($context['require_verification']))
-	{
-		$context['post_error']['messages'][] = $txt['enter_verification_details'];
-		$context['error_type'] = 'minor';
-	}
 
 	// WYSIWYG only works if BBC is enabled
 	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
@@ -1342,7 +1337,7 @@ function Post2()
 					if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
 						unlink($attachment['tmp_name']);
 
-				$context['we_are_history'] = $txt['error_temp_attachments_flushed'];
+				$context['we_are_history'] = 'temp_attachments_flushed';
 				$_SESSION['temp_attachments'] = array();
 			}
 		}
