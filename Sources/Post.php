@@ -410,8 +410,6 @@ function Post($post_errors = array())
 		if ($smcFunc['strlen']($form_subject) > 100)
 			$form_subject = $smcFunc['substr']($form_subject, 0, 100);
 
-		$context['post_error'] = array('messages' => array());
-
 		/*
 		 * There are two error types: serious and miinor. Serious errors
 		 * actually tell the user that a real error has occurred, while minor
@@ -431,8 +429,7 @@ function Post($post_errors = array())
 				if (is_array($post_error))
 				{
 					$post_error_id = $post_error[0];
-					$context['post_error'][$post_error_id] = true;
-					$context['post_error']['messages'][] = sprintf($txt['error_' . $post_error_id], $post_error[1]);
+					$context['post_error'][$post_error_id] = vsprintf($txt['error_' . $post_error_id], $post_error[1]);
 
 					// If it's not a minor error flag it as such.
 					if (!in_array($post_error_id, $minor_errors))
@@ -440,8 +437,7 @@ function Post($post_errors = array())
 				}
 				else
 				{
-					$context['post_error'][$post_error] = true;
-					$context['post_error']['messages'][] = $txt['error_' . $post_error];
+					$context['post_error'][$post_error] = $txt['error_' . $post_error];
 
 					// If it's not a minor error flag it as such.
 					if (!in_array($post_error, $minor_errors))
@@ -1711,7 +1707,7 @@ function Post2()
 	if (!isset($_POST['message']) || $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_POST['message']), ENT_QUOTES) === '')
 		$post_errors[] = 'no_message';
 	elseif (!empty($modSettings['max_messageLength']) && $smcFunc['strlen']($_POST['message']) > $modSettings['max_messageLength'])
-		$post_errors[] = 'long_message';
+		$post_errors[] = array('long_message', array($modSettings['max_messageLength']));
 	else
 	{
 		// Prepare the message a bit for some additional testing.

@@ -98,8 +98,8 @@ function template_post()
 		<body><![CDATA[', $context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '" topic_locked="', $context['locked'] ? '1' : '0', '">';
-	if (!empty($context['post_error']['messages']))
-		foreach ($context['post_error']['messages'] as $message)
+	if (!empty($context['post_error']))
+		foreach ($context['post_error'] as $message)
 			echo '
 		<error><![CDATA[', cleanXml($message), ']]></error>';
 	echo '
