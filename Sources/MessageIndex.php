@@ -571,7 +571,8 @@ function MessageIndex()
 	// Is Quick Moderation active/needed?
 	if (!empty($options['display_quick_mod']) && !empty($context['topics']))
 	{
-		$context['can_lock'] = allowedTo('lock_any');
+		$context['can_markread'] = $context['user']['is_logged'];
+		$context['can_lopck'] = allowedTo('lock_any');
 		$context['can_sticky'] = allowedTo('make_sticky') && !empty($modSettings['enableStickyTopics']);
 		$context['can_move'] = allowedTo('move_any');
 		$context['can_remove'] = allowedTo('remove_any');
@@ -630,9 +631,15 @@ function MessageIndex()
 			$context['can_quick_mod'] = $context['can_remove'] || $context['can_lock'] || $context['can_sticky'] || $context['can_move'];
 	}
 
+	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
+	{
+		$context['qmod_actions'] = array('approve', 'remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
+		call_integration_hook('integrate_quick_mod_actions', array($qmod_actions));
+	}
+
 	// If there are children, but no topics and no ability to post topics...
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
-	
+
 	// Build the message index button array.
 	$context['normal_buttons'] = array(
 		'new_topic' => array('test' => 'can_post_new', 'text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true),
@@ -640,7 +647,7 @@ function MessageIndex()
 		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unnotify' : 'notify', 'image' => ($context['is_marked_notify'] ? 'un' : ''). 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_board'] : $txt['notification_enable_board']) . '\');"', 'url' => $scripturl . '?action=notifyboard;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';board=' . $context['current_board'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'markread' => array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']),
 	);
-	
+
 	// Allow adding new buttons easily.
 	call_integration_hook('integrate_messageindex_buttons');
 }

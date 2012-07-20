@@ -300,15 +300,14 @@ function template_main()
 				<tr class="titlebg">
 					<td colspan="6" align="right">
 						<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.moveItTo.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
-							<option value="">--------</option>', $context['can_remove'] ? '
-							<option value="remove">' . $txt['quick_mod_remove'] . '</option>' : '', $context['can_lock'] ? '
-							<option value="lock">' . $txt['quick_mod_lock'] . '</option>' : '', $context['can_sticky'] ? '
-							<option value="sticky">' . $txt['quick_mod_sticky'] . '</option>' : '', $context['can_move'] ? '
-							<option value="move">' . $txt['quick_mod_move'] . ': </option>' : '', $context['can_merge'] ? '
-							<option value="merge">' . $txt['quick_mod_merge'] . '</option>' : '', $context['can_restore'] ? '
-							<option value="restore">' . $txt['quick_mod_restore'] . '</option>' : '', $context['can_approve'] ? '
-							<option value="approve">' . $txt['quick_mod_approve'] . '</option>' : '', $context['user']['is_logged'] ? '
-							<option value="markread">' . $txt['quick_mod_markread'] . '</option>' : '', '
+							<option value="">--------</option>';
+
+			foreach ($context['qmod_actions'] as $qmod_action)
+				if ($context['can_' . $qmod_action])
+					echo '
+							<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
+
+			echo '
 						</select>';
 
 			// Show a list of boards they can move the topic to.
