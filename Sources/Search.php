@@ -1707,7 +1707,7 @@ function PlushSearch2()
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify', true, false));
+		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify'), true, false);
 
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
