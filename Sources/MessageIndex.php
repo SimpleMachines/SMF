@@ -634,7 +634,7 @@ function MessageIndex()
 	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 	{
 		$context['qmod_actions'] = array('approve', 'remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
-		call_integration_hook('integrate_quick_mod_actions', array($qmod_actions));
+		call_integration_hook('integrate_quick_mod_actions');
 	}
 
 	// If there are children, but no topics and no ability to post topics...
