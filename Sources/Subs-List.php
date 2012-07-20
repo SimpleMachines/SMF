@@ -151,9 +151,9 @@ function createList($listOptions)
 
 			// Allow for basic formatting.
 			if (!empty($column['data']['comma_format']))
-				$cur_data['value'] = comma_format($cur_data['value']);
+				$cur_data['value'] = comma_format($list_item[$column['data']['comma_format']]);
 			elseif (!empty($column['data']['timeformat']))
-				$cur_data['value'] = timeformat($cur_data['value']);
+				$cur_data['value'] = timeformat($list_item[$column['data']['timeformat']]);
 
 			// Set a style class for this column?
 			if (isset($column['data']['class']))
