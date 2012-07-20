@@ -71,11 +71,11 @@ function template_main()
 					</dt>
 					<dd>
 						<input type="text" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />';
-		
+
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
 				<em class="smalltext">', $txt['search_example'], '</em>';
-				
+
 		echo '
 					</dd>
 
@@ -94,7 +94,7 @@ function template_main()
 					<dd>
 						<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text" />
 					</dd>
-					<dt class="righttext"><label for="sort">', 
+					<dt class="righttext"><label for="sort">',
 						$txt['search_order'], ':</label>
 					</dt>
 					<dd>
@@ -106,7 +106,7 @@ function template_main()
 							<option value="id_msg|asc">', $txt['search_orderby_old_first'], '</option>
 						</select>
 					</dd>
-					<dt class="righttext options">', 
+					<dt class="righttext options">',
 						$txt['search_options'], ':
 					</dt>
 					<dd class="options">
@@ -117,10 +117,10 @@ function template_main()
 							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked="checked"' : '', ' class="input_check" />
 						</label>
 					</dd>
-					<dt class="righttext between">', 
+					<dt class="righttext between">',
 						$txt['search_post_age'], ':
 					</dt>
-					<dd><label for="minage">', 
+					<dd><label for="minage">',
 						$txt['search_between'], '</label><input type="text" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="text" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
 					</dd>
 				</dl>
@@ -269,7 +269,7 @@ function template_results()
 						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />
 					</dd>
 				</dl>
-				
+
 				<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button_submit" />
 				<br class="clear_right" />
 				<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '" />
@@ -311,7 +311,7 @@ function template_results()
 				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
 			</h3>
 		</div>';
-		
+
 		// was anything even found?
 		if (!empty($context['topics']))
 		echo'
@@ -410,13 +410,14 @@ function template_results()
 			<div class="middletext titlebg2" style="padding: 4px;">
 				<div class="floatright">
 					<select name="qaction"', $context['can_move'] ? ' onchange="this.form.moveItTo.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
-						<option value="">--------</option>', $context['can_remove'] ? '
-						<option value="remove">' . $txt['quick_mod_remove'] . '</option>' : '', $context['can_lock'] ? '
-						<option value="lock">' . $txt['quick_mod_lock'] . '</option>' : '', $context['can_sticky'] ? '
-						<option value="sticky">' . $txt['quick_mod_sticky'] . '</option>' : '',	$context['can_move'] ? '
-						<option value="move">' . $txt['quick_mod_move'] . ': </option>' : '', $context['can_merge'] ? '
-						<option value="merge">' . $txt['quick_mod_merge'] . '</option>' : '', '
-						<option value="markread">', $txt['quick_mod_markread'], '</option>
+						<option value="">--------</option>';
+
+			foreach ($context['qmod_actions'] as $qmod_action)
+				if ($context['can_' . $qmod_action])
+					echo '
+							<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
+
+			echo '
 					</select>';
 
 			if ($context['can_move'])
