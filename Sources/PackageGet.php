@@ -649,6 +649,17 @@ function PackageUpload()
 	if (file_exists($destination))
 		fatal_lang_error('package_upload_error_exists');
 
+	// First let's check if by any chance it's a theme
+	$extracted = read_tgz_file($_FILES['package']['tmp_name'], $destination . 'tmp_extr', false, true);
+	if (file_exists($destination . 'tmp_extr' . '/theme_info.xml') && !file_exists($destination . 'tmp_extr' . '/package_info.xml'))
+	{
+		deltree($destination . 'tmp_extr');
+		require_once($sourcedir . '/Themes.php');
+		return ThemeInstall();
+	}
+	else
+		deltree($destination . 'tmp_extr');
+
 	// Now move the file.
 	move_uploaded_file($_FILES['package']['tmp_name'], $destination);
 	@chmod($destination, 0777);

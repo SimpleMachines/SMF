@@ -22,8 +22,8 @@ $txt['theme_install_go'] = 'Install!';
 $txt['theme_install_new'] = 'Create a copy of Default named';
 $txt['theme_install_new_confirm'] = 'Are you sure you want to install this new theme?';
 $txt['theme_install_writable'] = 'Warning - you cannot create or install a new theme as your themes directory is not currently writable!';
-$txt['theme_installed'] = 'Installed Successfully';
-$txt['theme_installed_message'] = 'was installed successfully.';
+$txt['theme_installed'] = 'Theme Installed Successfully';
+$txt['theme_installed_message'] = 'The theme %1$s was installed successfully.';
 
 $txt['theme_latest'] = 'Latest and Greatest Themes';
 $txt['theme_latest_fetch'] = 'Fetching latest themes from www.simplemachines.org...';

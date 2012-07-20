@@ -11,7 +11,7 @@
  */
 
 // The main sub template - for theme administration.
-function template_main()
+function template_theme_admin()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
@@ -136,14 +136,14 @@ function template_main()
 					<dl class="settings">';
 
 	// Here's a little box for installing a new theme.
-	// @todo Should the value="theme_gz" be there?!
+	// @todo Should the value="package" be there?!
 	if ($context['can_create_new'])
 		echo '
 						<dt>
-							<label for="theme_gz">', $txt['theme_install_file'], '</label>:
+							<label for="package">', $txt['theme_install_file'], '</label>:
 						</dt>
 						<dd>
-							<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
+							<input type="file" name="package" id="package" value="package" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
 						</dd>';
 
 	echo '
@@ -761,7 +761,7 @@ function template_pick()
 function template_installed()
 {
 	global $context, $settings, $options, $scripturl, $txt;
-
+isset($context['theme_from_pacman']) ? : 
 	// Not much to show except a link back...
 	echo '
 	<div id="admincenter">
@@ -772,7 +772,7 @@ function template_installed()
 			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>
-					<a href="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['installed_theme']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $context['installed_theme']['name'], '</a> ', $txt['theme_installed_message'], '
+					', $context['theme_installed_message'], '
 				</p>
 				<p>
 					<a href="', $scripturl, '?action=admin;area=theme;sa=admin;', $context['session_var'], '=', $context['session_id'], '">', $txt['back'], '</a>
