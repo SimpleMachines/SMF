@@ -169,7 +169,7 @@ function MaintainDatabase()
 	//  * safe_mode enable OR
 	//  * cannot change the execution time OR
 	//  * cannot reset timeout
-	if ($context['safe_mode_enable'] || empty($new_time_limit) || $current_time_limit == $new_time_limit || !function_exists('apache_reset_timeout'))
+	if ($context['safe_mode_enable'] || empty($new_time_limit) || ($current_time_limit == $new_time_limit && !function_exists('apache_reset_timeout')))
 		$context['suggested_method'] = 'use_external_tool';
 	elseif ($zip_limit < $plain_limit && $messages < $zip_limit)
 		$context['suggested_method'] = 'zipped_file';

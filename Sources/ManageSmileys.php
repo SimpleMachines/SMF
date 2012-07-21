@@ -323,6 +323,9 @@ function EditSmileySets()
 				}
 				$dir->close();
 
+				if (empty($smileys))
+					fatal_lang_error('smiley_set_dir_not_found', false, array($context['current_set']['name']));
+
 				// Exclude the smileys that are already in the database.
 				$request = $smcFunc['db_query']('', '
 					SELECT filename

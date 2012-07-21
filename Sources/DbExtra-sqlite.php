@@ -196,34 +196,25 @@ function smf_db_list_tables($db = false, $filter = false)
  */
 function smf_db_insert_sql($tableName, $new_table = false)
 {
-	global $smcFunc, $db_prefix, $detected_id;
-	static $start = 0, $num_rows, $fields, $limit, $last_id;
+	global $smcFunc, $db_prefix;
+	static $start = 0, $num_rows, $fields, $limit;
 
 	if ($new_table)
 	{
 		$limit = strstr($tableName, 'log_') !== false ? 500 : 250;
 		$start = 0;
-		$last_id = 0;
 	}
 
 	$data = '';
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
 
-	if ($tableName != $db_prefix . 'messages' || $tableName != $db_prefix . 'topics')
-		$detected_id = 0;
-
 	// This will be handy...
 	$crlf = "\r\n";
 
-	// This is done this way because retrieve data only with LIMIT will become slower after each query
-	// and for long tables (e.g. {db_prefix}messages) it could be a pain...
-	// Instead using WHERE speeds up thing *a lot* (especially after the first 50'000 records)
 	$result = $smcFunc['db_query']('', '
 		SELECT *
-		FROM ' . $tableName .
-		(!empty($last_id) && !empty($detected_id) ? '
-		WHERE ' . $detected_id . ' > ' . $last_id : '') . '
-		LIMIT ' . (empty($last_id) ? $start . ', ' : '') . $limit,
+		FROM ' . $tableName . '
+		LIMIT ' . $start . ', ' . $limit,
 		array(
 			'security_override' => true,
 		)
@@ -267,8 +258,6 @@ function smf_db_insert_sql($tableName, $new_table = false)
 			else
 				$field_list[] = '\'' . $smcFunc['db_escape_string']($item) . '\'';
 		}
-		if (!empty($detected_id) && isset($row[$detected_id]))
-			$last_id = $row[$detected_id];
 
 		// 'Insert' the data.
 		$data .= $insert_msg . '(' . implode(', ', $field_list) . ');' . $crlf;
@@ -290,10 +279,9 @@ function smf_db_insert_sql($tableName, $new_table = false)
  */
 function smf_db_table_sql($tableName)
 {
-	global $smcFunc, $db_prefix, $detected_id;
+	global $smcFunc, $db_prefix;
 
 	$tableName = str_replace('{db_prefix}', $db_prefix, $tableName);
-	$detected_id = '';
 
 	// This will be needed...
 	$crlf = "\r\n";

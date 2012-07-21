@@ -1377,23 +1377,33 @@ function PackageBrowse()
 				'function' => 'list_getPackages',
 				'params' => array('type' => $type, 'installed' => $installed),
 			),
+			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
+			'default_sort_col' => 'id' . $type,
 			'columns' => array(
-				'id' => array(
+				'id' . $type => array(
 					'header' => array(
-						'value' => '',
+						'value' => $txt['package_id'],
 						'style' => 'width: 32px;',
 					),
 					'data' => array(
-						'function' => create_function('$packages', '
-							static $packageCounter;
+						'function' => create_function('$package_md5', '
+							global $context;
+
+							if (isset($context[\'available_' . $type . '\'][$package_md5]))
+								return $context[\'available_' . $type . '\'][$package_md5][\'sort_id\'];
+							return $context[\'sort_id\'];
 							if (empty($packageCounter))
 								$packageCounter = 1;
 
 							return $packageCounter++ . \'.\';
 						'),
 					),
+					'sort' => array(
+						'default' => 'sort_id',
+						'reverse' => 'sort_id'
+					),
 				),
-				'mod_name' => array(
+				'mod_name' . $type => array(
 					'header' => array(
 						'value' => $txt['mod_name'],
 						'style' => 'width: 25%;',
@@ -1406,8 +1416,12 @@ function PackageBrowse()
 								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];'
 						),
 					),
+					'sort' => array(
+						'default' => 'name',
+						'reverse' => 'name',
+					),
 				),
-				'version' => array(
+				'version' . $type => array(
 					'header' => array(
 						'value' => $txt['mod_version'],
 						'style' => 'width: 25%;',
@@ -1420,8 +1434,12 @@ function PackageBrowse()
 								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];'
 						),
 					),
+					'sort' => array(
+						'default' => 'version',
+						'reverse' => 'version',
+					),
 				),
-				'operations' => array(
+				'operations' . $type => array(
 					'header' => array(
 						'value' => '',
 					),
@@ -1487,7 +1505,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 {
 	global $boarddir, $scripturl, $context, $forum_version;
 	static $instmods, $packages;
-	
+
 	// Start things up
 	if (!isset($packages[$params]))
 		$packages[$params] = array();
@@ -1553,6 +1571,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 	if ($dir = @opendir($boarddir . '/Packages'))
 	{
 		$dirs = array();
+		$sort_id = 1;
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($boarddir . '/Packages/' . $package) && file_exists($boarddir . '/Packages/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
@@ -1594,6 +1613,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 			{
 				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
 
+				$packageInfo['sort_id'] = $sort_id++;
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
 				$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
 				$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
@@ -1681,31 +1701,40 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				// Modification.
 				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
 				{
-					$packages['modification'][] = md5($package);
+					$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_modification'][md5($package)] = $packageInfo;
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')
 				{
-					$packages['avatar'][] = md5($package);
+					$packages['avatar'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_avatar'][md5($package)] = $packageInfo;
 				}
 				// Language package.
 				elseif ($packageInfo['type'] == 'language')
 				{
-					$packages['language'][] = md5($package);
+					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_language'][md5($package)] = $packageInfo;
 				}
 				// Other stuff.
 				else
 				{
-					$packages['unknown'][] = md5($package);
+					$packages['unknown'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_unknown'][md5($package)] = $packageInfo;
 				}
 			}
 		}
 		closedir($dir);
 	}
+
+	if (isset($_GET['type']) && $_GET['type'] == $params)
+	{
+		if (isset($_GET['desc']))
+			krsort($packages[$params]);
+		else
+			ksort($packages[$params]);
+	}
+
 	return $packages[$params];
 }
 
