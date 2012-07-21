@@ -358,6 +358,9 @@ function Login2()
 			$other_passwords[] = sha1_smf(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 		}
 
+		// Allows mods to easily extend the $other_passwords array
+		call_integration_hook('integrate_other_passwords');
+
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
