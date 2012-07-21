@@ -161,7 +161,7 @@ function template_main()
 					</dl>
 					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
-					</br class="clear_right" />
+					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />

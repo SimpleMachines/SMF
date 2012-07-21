@@ -866,7 +866,6 @@ function AdminSearchMember()
 
 /**
  * This file allows the user to search the SM online manual for a little of help.
- * @todo wiki search
  */
 function AdminSearchOM()
 {

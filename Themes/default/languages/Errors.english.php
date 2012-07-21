@@ -259,6 +259,7 @@ $txt['smiley_has_no_filename'] = 'No filename for this smiley was given.';
 $txt['smiley_not_unique'] = 'A smiley with that code already exists.';
 $txt['smiley_set_already_exists'] = 'A smiley set with that URL already exists';
 $txt['smiley_set_not_found'] = 'Smiley set not found';
+$txt['smiley_set_dir_not_found'] = 'The directory of the smiley set %1$s is either invalid or cannot be accessed';
 $txt['smiley_set_path_already_used'] = 'The URL of the smiley set is already being used by another smiley set.';
 $txt['smiley_set_unable_to_import'] = 'Unable to import smiley set. Either the directory is invalid or cannot be accessed.';
 

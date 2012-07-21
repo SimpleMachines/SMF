@@ -754,9 +754,22 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings;
+	global $modSettings, $sourcedir;
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
+
+	// Logins are special: the token is used to has the password with javascript before POST it
+	if ($action == 'login')
+	{
+		if (isset($_SESSION['token'][$type . '-' . $action]))
+		{
+			$return = $_SESSION['token'][$type . '-' . $action][3];
+			unset($_SESSION['token'][$type . '-' . $action]);
+			return $return;
+		}
+		else
+			return '';
+	}
 
 	// This nasty piece of code validates a token.
 	/*
@@ -782,6 +795,13 @@ function validateToken($action, $type = 'post', $reset = true)
 
 		// I'm back baby.
 		createToken($action, $type);
+
+		// Need to type in a password for that, man.
+		if (!isset($_GET['xml']))
+		{
+			require_once($sourcedir . '/Subs-Auth.php');
+			adminLogin($type, $action);
+		}
 
 		fatal_lang_error('token_verify_fail', false);
 	}

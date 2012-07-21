@@ -1049,9 +1049,7 @@ function ModifyNewsSettings($return_config = false)
 	$context['page_title'] = $txt['admin_edit_news'] . ' - ' . $txt['settings'];
 	$context['sub_template'] = 'show_settings';
 
-	// Needed for the inline permission functions, and the settings template.
-	// @todo is this really needed?
-	require_once($sourcedir . '/ManagePermissions.php');
+	// Needed for the settings template.
 	require_once($sourcedir . '/ManageServer.php');
 
 	// Wrap it all up nice and warm...
