@@ -926,6 +926,7 @@ The following error occurred when processing a paid subscription
 	@additional_params: new_pm
 		SUBJECT: The personal message subject.
 		SENDER:  The user name for the member sending the personal message.
+		READLINK:  The link to directly access the read page.
 		REPLYLINK:  The link to directly access the reply page.
 	@description: A notification email sent to the receivers of a personal message
 */
@@ -933,6 +934,8 @@ $txt['new_pm_subject'] = 'New Personal Message: {SUBJECT}';
 $txt['new_pm_body'] = 'You have just been sent a personal message by {SENDER} on {FORUMNAME}
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
+
+Read this Personal Message here: {READLINK}
 
 Reply to this Personal Message here: {REPLYLINK}';
 
@@ -959,6 +962,7 @@ Reply to this Personal Message here: {REPLYLINK}';
 	@additional_params: new_pm_tolist
 		SUBJECT: The personal message subject.
 		SENDER:  The user name for the member sending the personal message.
+		READLINK:  The link to directly access the read page.
 		REPLYLINK:  The link to directly access the reply page.
 		TOLIST:  The list of users that will receive the personal message.
 	@description: A notification email sent to the receivers of a personal message
@@ -967,6 +971,8 @@ $txt['new_pm_tolist_subject'] = 'New Personal Message: {SUBJECT}';
 $txt['new_pm_tolist_body'] = 'You and {TOLIST} have just been sent a personal message by {SENDER} on {FORUMNAME}
 
 IMPORTANT: Remember, this is just a notification. Please do not reply to this email.
+
+Read this Personal Message here: {READLINK}
 
 Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
 
