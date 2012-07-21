@@ -2,15 +2,26 @@
 ------------------------------------------------------- */
 
 h3.catbg #quick_search form {
-	padding: .8em;
+	margin: -1px 0 -3px 0;
+	padding: 0;
 	line-height: 0.9em;
 	font-size: 0.8em !important;
 }
+h3.catbg #quick_search form input {
+	padding: 3px 3px 3px 3px;
+}
 h3.catbg #quick_search form select {
-	height: 1.65em;
-	line-height: 0.9em;
-	font-size: 1em;
+	height: 2.2em; 
+	line-height: 1.2em;
+	font-size: 0.9em;
 	margin: 0 0.2em 0 0;
+	padding: 3px 3px 3px 3px;
+}
+h3.catbg #quick_search form select option {
+	padding: 3px 8px 3px 3px;
+}
+h3.catbg #quick_search form .button_submit {
+	padding: 2px 3px 2px 3px;
 }
 ol.search_results {
 	margin-top: 0;

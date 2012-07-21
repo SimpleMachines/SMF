@@ -29,11 +29,9 @@ function template_download_language()
 			</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				', $context['install_complete'], '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -57,7 +55,6 @@ function template_download_language()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						', $txt['languages_download_note'], '
@@ -66,7 +63,6 @@ function template_download_language()
 						', $txt['languages_download_info'], '
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 
 	// Show the main files.
@@ -153,7 +149,6 @@ function template_download_language()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['package_ftp_why'],'</p>
 					<dl class="settings">
@@ -187,7 +182,6 @@ function template_download_language()
 						</dd>
 					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 	}
 
@@ -269,7 +263,6 @@ function template_modify_language_entries()
 	// Show the language entries
 	echo '
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<fieldset>
 						<legend>', $context['primary_settings']['name'], '</legend>
@@ -321,7 +314,6 @@ function template_modify_language_entries()
 	echo '
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 
@@ -366,7 +358,6 @@ function template_modify_language_entries()
 	{
 		echo '
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">';
 
@@ -424,7 +415,6 @@ function template_modify_language_entries()
 		echo '
 				</div>
 				<br class="clear" />
-				<span class="botslice"><span></span></span>
 			</div>';
 	}
 	echo '
@@ -449,7 +439,6 @@ function template_add_language()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<fieldset>
 						<legend>', $txt['add_language_smf'], '</legend>
@@ -469,7 +458,6 @@ function template_add_language()
 					<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button_submit" />
 					<br />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		';
 

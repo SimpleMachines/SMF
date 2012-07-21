@@ -25,7 +25,7 @@ function template_main()
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
-			<a id="top"></a>
+			
 			<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
@@ -35,11 +35,10 @@ function template_main()
 			<div id="poll">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/topic/', $context['poll']['is_locked'] ? 'normal_poll_locked' : 'normal_poll', '.png" alt="" class="icon" /> ', $txt['poll'], '</span>
+						<img src="', $settings['images_url'], '/topic/', $context['poll']['is_locked'] ? 'normal_poll_locked' : 'normal_poll', '.png" alt="" class="icon" /> ', $txt['poll'], '
 					</h3>
 				</div>
 				<div class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content" id="poll_options">
 						<h4 id="pollquestion">
 							', $context['poll']['question'], '
@@ -55,8 +54,8 @@ function template_main()
 			foreach ($context['poll']['options'] as $option)
 			{
 				echo '
-						<dt class="middletext', $option['voted_this'] ? ' voted' : '', '">', $option['option'], '</dt>
-						<dd class="middletext statsbar', $option['voted_this'] ? ' voted' : '', '">';
+						<dt class="', $option['voted_this'] ? ' voted' : '', '">', $option['option'], '</dt>
+						<dd class="statsbar', $option['voted_this'] ? ' voted' : '', '">';
 
 				if ($context['allow_poll_view'])
 					echo '
@@ -91,7 +90,7 @@ function template_main()
 			// Show each option with its button - a radio likely.
 			foreach ($context['poll']['options'] as $option)
 				echo '
-								<li class="middletext">', $option['vote_button'], ' <label for="', $option['id'], '">', $option['option'], '</label></li>';
+								<li>', $option['vote_button'], ' <label for="', $option['id'], '">', $option['option'], '</label></li>';
 
 			echo '
 							</ul>
@@ -109,7 +108,6 @@ function template_main()
 
 		echo '
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 			<div id="pollmoderation">';
@@ -129,7 +127,6 @@ function template_main()
 					<h3 class="titlebg headerpadding">', $txt['calendar_linked_events'], '</h3>
 				</div>
 				<div class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<ul class="reset">';
 
@@ -142,7 +139,6 @@ function template_main()
 		echo '
 						</ul>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>';
 	}
@@ -151,7 +147,7 @@ function template_main()
 	echo '
 			<div class="pagesection">
 				<div class="nextlinks">', $context['previous_next'], '</div>', template_button_strip($context['normal_buttons'], 'right'), '
-				<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#lastPost"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
+				<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
 			</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -211,7 +207,6 @@ function template_main()
 
 		echo '
 				<div class="', $message['approved'] ? ($message['alternate'] == 0 ? 'windowbg' : 'windowbg2') : 'approvebg', '">
-					<span class="topslice"><span></span></span>
 					<div class="post_wrapper">';
 
 		// Show information about the poster of this message.
@@ -628,15 +623,13 @@ function template_main()
 		echo '
 						</div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 				<hr class="post_separator" />';
 	}
 
 	echo '
 				</form>
-			</div>
-			<a id="lastPost"></a>';
+			</div>';
 
 	// Show the page index... "Pages: [1]".
 	echo '
@@ -663,16 +656,11 @@ function template_main()
 			<div class="tborder" id="quickreplybox">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="ie6_header floatright">
-							<a href="javascript:oQuickReply.swap();"><img src="', $settings['images_url'], '/', $options['display_quick_reply'] > 1 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" /></a>
-						</span>
-						<span>
-							<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
-						</span>
+						<a href="javascript:oQuickReply.swap();"><img src="', $settings['images_url'], '/', $options['display_quick_reply'] > 1 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" /></a>
+						<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
 					</h3>
 				</div>
 				<div id="quickReplyOptions"', $options['display_quick_reply'] > 1 ? '' : ' style="display: none"', '>
-					<span class="upperframe"><span></span></span>
 					<div class="roundframe">
 						<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>
 						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
@@ -761,7 +749,6 @@ function template_main()
 							</div>
 						</form>
 					</div>
-					<span class="lowerframe"><span></span></span>
 				</div>
 			</div>';
 	}

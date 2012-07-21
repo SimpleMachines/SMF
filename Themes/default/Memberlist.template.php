@@ -165,18 +165,13 @@ function template_search()
 		<div id="memberlist">
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					<span class="ie6_header floatleft">', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '</span>
+					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
 				</h3>
 			</div>
 			<div class="pagesection">
 				', template_button_strip($context['memberlist_buttons'], 'right'), '
-			</div>';
-	
-	// Display the input boxes for the form.
-	echo '	<div id="memberlist_search" class="clear">
-				<span class="upperframe"><span></span></span>';
-	
-	echo '
+			</div>
+			<div id="memberlist_search" class="clear">
 				<div class="roundframe">
 					<dl id="mlist_search" class="settings">
 						<dt>
@@ -201,9 +196,7 @@ function template_search()
 					<hr class="hrcolor" />
 					<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
 					<br class="clear_right" />
-				</div>';	
-	echo '
-				<span class="lowerframe"><span></span></span>
+				</div>
 			</div>
 		</div>
 	</form>';

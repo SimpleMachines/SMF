@@ -52,12 +52,11 @@ function template_summary()
 <div id="profileview" class="flow_auto">
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '</span>
+			<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
 		</h3>
 	</div>
 	<div id="basicinfo">
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content flow_auto">
 				<div class="username"><h4>', $context['member']['name'], ' <span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4></div>
 				', $context['member']['avatar']['image'], '
@@ -111,12 +110,10 @@ function template_summary()
 
 	echo '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<div id="detailedinfo">
 		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl>';
 
@@ -321,7 +318,6 @@ function template_summary()
 
 	echo '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 <div class="clear"></div>
@@ -358,7 +354,6 @@ function template_showPosts()
 			echo '
 		<div class="topic">
 			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
@@ -410,7 +405,6 @@ function template_showPosts()
 
 			echo '
 				<br class="clear" />
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>';
 		}
@@ -494,7 +488,7 @@ function template_editBuddies()
 	echo '
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '</span>
+				<img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '
 			</h3>
 		</div>
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
@@ -562,7 +556,6 @@ function template_editBuddies()
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['buddy_add'], '</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<dl class="settings">
 					<dt>
@@ -582,7 +575,6 @@ function template_editBuddies()
 				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit" />
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
@@ -608,7 +600,7 @@ function template_editIgnoreList()
 	echo '
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['editIgnoreList'], '</span>
+				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['editIgnoreList'], '
 			</h3>
 		</div>
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
@@ -666,7 +658,6 @@ function template_editIgnoreList()
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['ignore_add'], '</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<dl class="settings">
 					<dt>
@@ -686,7 +677,6 @@ function template_editIgnoreList()
 				<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit" />
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
@@ -718,7 +708,6 @@ function template_trackActivity()
 	// The last IP the user used.
 	echo '
 			<div id="tracking" class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="noborder">
 						<dt>', $txt['most_recent_ip'], ':
@@ -755,7 +744,6 @@ function template_trackActivity()
 						</dd>
 					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br class="clear" />';
 
@@ -775,7 +763,6 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<span class="upperframe"><span></span></span>
 		<div class="roundframe">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
@@ -790,7 +777,6 @@ function template_trackIP()
 				<br class="clear_right" />
 			</form>
 		</div>
-		<span class="lowerframe"><span></span></span>
 	</div>
 	<br class="clear" />';
 
@@ -802,14 +788,12 @@ function template_trackIP()
 				<h3 class="titlebg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="padding">';
 			foreach ($context['whois_servers'] as $server)
 				echo '
 					<a href="', $server['url'], '" target="_blank" class="new_win"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br />';
 			echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		<br class="clear" />';
 	}
@@ -862,7 +846,7 @@ function template_showPermissions()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['showPermissions'], '</span>
+				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['showPermissions'], '
 			</h3>
 		</div>';
 
@@ -884,14 +868,12 @@ function template_showPermissions()
 					<h3 class="catbg">', $txt['showPermissions_restricted_boards'], '</h3>
 				</div>
 				<div class="windowbg smalltext">
-					<span class="topslice"><span></span></span>
 					<div class="content">', $txt['showPermissions_restricted_boards_desc'], ':<br />';
 				foreach ($context['no_access_boards'] as $no_access_board)
 					echo '
 						<a href="', $scripturl, '?board=', $no_access_board['id'], '.0">', $no_access_board['name'], '</a>', $no_access_board['is_last'] ? '' : ', ';
 				echo '
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>';
 		}
 
@@ -947,7 +929,7 @@ function template_showPermissions()
 			<div class="tborder">
 				<form action="' . $scripturl . '?action=profile;u=', $context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', $context['character_set'], '">
 					<div class="cat_bar">
-						<h3 class="catbg"><span class="ie6_header floatleft">
+						<h3 class="catbg">
 							<a id="board_permissions"></a>', $txt['showPermissions_select'], ':
 							<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
 								<option value="0"', $context['board'] == 0 ? ' selected="selected"' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
@@ -961,7 +943,7 @@ function template_showPermissions()
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
 
 				echo '
-							</select></span>
+							</select>
 						</h3>
 					</div>
 				</form>';
@@ -1023,13 +1005,11 @@ function template_statPanel()
 		<div id="generalstats">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
+					<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
 					', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
-					</span>
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl>
 						<dt>', $txt['statPanel_total_time_online'], ':</dt>
@@ -1044,7 +1024,6 @@ function template_statPanel()
 						<dd>', $context['num_votes'], ' ', $txt['statPanel_votes'], '</dd>
 					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>';
 
@@ -1053,11 +1032,10 @@ function template_statPanel()
 		<div id="activitytime" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/stats_history.png" alt="" class="icon" />', $txt['statPanel_activityTime'], '</span>
+				<img src="', $settings['images_url'], '/stats_history.png" alt="" class="icon" />', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">';
 
 	// If they haven't post at all, don't draw the graph.
@@ -1092,7 +1070,6 @@ function template_statPanel()
 	echo '
 					<span class="clear" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>';
 
@@ -1102,11 +1079,10 @@ function template_statPanel()
 			<div id="popularposts">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoards'], '</span>
+						<img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content">';
 
 	if (empty($context['popular_boards']))
@@ -1136,18 +1112,16 @@ function template_statPanel()
 	}
 	echo '
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>';
 	echo '
 			<div id="popularactivity">
 				<div class="cat_bar">
 					<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoardsActivity'], '</span>
+						<img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>
 				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
 					<div class="content">';
 
 	if (empty($context['board_activity']))
@@ -1176,7 +1150,6 @@ function template_statPanel()
 	}
 	echo '
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 		</div>';
@@ -1196,7 +1169,7 @@ function template_edit_options()
 		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />';
+					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />';
 
 		// Don't say "Profile" if this isn't the profile...
 		if (!empty($context['profile_header_text']))
@@ -1207,7 +1180,6 @@ function template_edit_options()
 					', $txt['profile'];
 
 		echo '
-					</span>
 				</h3>
 			</div>';
 
@@ -1218,7 +1190,6 @@ function template_edit_options()
 
 	echo '
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">';
 
 	// Any bits at the start?
@@ -1392,7 +1363,6 @@ function template_edit_options()
 					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />
 		</form>';
@@ -1692,12 +1662,11 @@ function template_notification()
 		<form action="', $scripturl, '?action=profile;area=notification;save" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '</span>
+					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="windowbg description">', $txt['notification_info'], '</p>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">';
 
@@ -1765,7 +1734,6 @@ function template_notification()
 					</div>
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 		<br />';
@@ -1788,7 +1756,7 @@ function template_groupMembership()
 		<form action="', $scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '</span>
+					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['groupMembership_info'], '</p>';
@@ -1808,16 +1776,14 @@ function template_groupMembership()
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['request_group_membership'], '</h3>
 				</div>
-				<span class="upperframe"><span></span></span>
-				<div class="roundframe"><div class="innerframe">
+				<div class="roundframe">
 					', $txt['request_group_membership_desc'], ':
 					<textarea name="reason" rows="4" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';"></textarea>
 					<div class="righttext" style="margin: 0.5em 0.5% 0 0.5%;">
 						<input type="hidden" name="gid" value="', $context['group_request']['id'], '" />
 						<input type="submit" name="req" value="', $txt['submit_request'], '" class="button_submit" />
 					</div>
-				</div></div>
-				<span class="lowerframe"><span></span></span>
+				</div>
 			</div>';
 	}
 	else
@@ -1959,12 +1925,11 @@ function template_ignoreboards()
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '</span>
+				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
 			</h3>
 		</div>
 		<p class="description">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
 			<div class="content flow_hidden">
 				<ul class="ignoreboards floatleft">';
 
@@ -2019,7 +1984,6 @@ function template_ignoreboards()
 
 	echo '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</form>
 	<br />';
@@ -2056,14 +2020,12 @@ function template_viewWarning()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
+				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
 				', sprintf($txt['profile_viewwarning_for_user'], $context['member']['name']), '
-				</span>
 			</h3>
 		</div>
 		<p class="description">', $txt['viewWarning_help'], '</p>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">
 					<dt>
@@ -2099,7 +2061,6 @@ function template_viewWarning()
 		echo '
 				</dl>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	template_show_list('view_warnings');
@@ -2245,9 +2206,8 @@ function template_issueWarning()
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
+				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
 				', $context['user']['is_owner'] ? $txt['profile_warning_level'] : $txt['profile_issue_warning'], '
-				</span>
 			</h3>
 		</div>';
 
@@ -2257,7 +2217,6 @@ function template_issueWarning()
 
 	echo '
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">';
 
@@ -2376,7 +2335,6 @@ function template_issueWarning()
 				</div>
 				<br class="clear" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</form>';
 
@@ -2445,7 +2403,7 @@ function template_deleteAccount()
 		<form action="', $scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['deleteAccount'], '</span>
+					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['deleteAccount'], '
 				</h3>
 			</div>';
 
@@ -2455,7 +2413,6 @@ function template_deleteAccount()
 			<p class="windowbg2 description">', $txt['deleteAccount_desc'], '</p>';
 	echo '
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">';
 
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
@@ -2520,7 +2477,6 @@ function template_deleteAccount()
 	}
 	echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />
 		</form>';
@@ -2923,12 +2879,11 @@ function template_authentication_method()
 		<form action="', $scripturl, '?action=profile;area=authentication;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['authentication'], '</span>
+					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['authentication'], '
 				</h3>
 			</div>
 			<p class="windowbg description">', $txt['change_authentication'], '</p>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl>
 						<dt>
@@ -2990,7 +2945,6 @@ function template_authentication_method()
 					<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>';
 

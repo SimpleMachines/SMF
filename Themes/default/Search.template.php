@@ -18,7 +18,7 @@ function template_main()
 	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft">', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : ' ', $txt['set_parameters'], '</span>
+				', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : ' ', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
@@ -31,7 +31,6 @@ function template_main()
 	{
 		echo '
 		<fieldset id="simple_search">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div id="search_term_input">
 					<strong>', $txt['search_for'], ':</strong>
@@ -55,7 +54,6 @@ function template_main()
 				<a href="', $scripturl, '?action=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 	}
 
@@ -63,7 +61,6 @@ function template_main()
 	else
 	{
 		echo '
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<dl class="settings" id="search_options">
 					<dt class="righttext">
@@ -149,20 +146,16 @@ function template_main()
 
 		echo '
 			</div>
-			<span class="lowerframe"><span></span></span>
 		';
 
 		if (empty($context['search_params']['topic']))
 		{
 			echo '
 		<fieldset class="flow_hidden">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatright">
-							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/></a>
-						</span>
+						<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/></a>
 						<span>
 							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><strong>', $txt['choose_board'], '</strong></a>
 						</span>
@@ -217,7 +210,6 @@ function template_main()
 				</div>
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 		}
 	echo '
@@ -251,7 +243,6 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<span class="upperframe"><span></span></span>
 		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
@@ -288,7 +279,6 @@ function template_results()
 		echo '
 			</form>
 		</div>
-		<span class="lowerframe"><span></span></span>
 	</div><br />';
 	}
 
@@ -308,7 +298,7 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" />';
 				echo '
 				</span>
-				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>';
 		
@@ -320,9 +310,7 @@ function template_results()
 		</div>';
 		else
 			echo '
-		<span class="upperframe"><span></span></span>
-			<div class="roundframe">', $txt['find_no_results'], '</div>
-		<span class="lowerframe"><span></span></span>';
+			<div class="roundframe">', $txt['find_no_results'], '</div>';
 
 		// while we have results to show ...
 		while ($topic = $context['get_topics']())
@@ -336,7 +324,6 @@ function template_results()
 			echo '
 			<div class="search_results_posts">
 			<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<span class="topslice"><span></span></span>
 				<div class="content flow_auto">';
 
 			foreach ($topic['matches'] as $message)
@@ -393,7 +380,6 @@ function template_results()
 
 			echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>';
 
@@ -407,7 +393,7 @@ function template_results()
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
 			echo '
-			<div class="middletext titlebg2" style="padding: 4px;">
+			<div class="titlebg2" style="padding: 4px;">
 				<div class="floatright">
 					<select name="qaction"', $context['can_move'] ? ' onchange="this.form.moveItTo.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 						<option value="">--------</option>', $context['can_remove'] ? '
@@ -458,7 +444,7 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img class="centericon" src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<img class="centericon" src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>
 		<div class="pagesection">
@@ -476,7 +462,6 @@ function template_results()
 				echo '
 			<div class="search_results_posts">
 				<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<div class="counter">', $message['counter'], '</div>
 						<div class="topic_details">
@@ -512,7 +497,6 @@ function template_results()
 				echo '
 						<br class="clear" />
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>';
 			}
