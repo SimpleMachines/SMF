@@ -46,11 +46,10 @@ function template_main()
 		<form action="', $scripturl, '?action=emailuser;sa=sendtopic;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/email_sm.png" alt="" class="icon" />', $context['page_title'], '</span>
+					<img src="', $settings['images_url'], '/email_sm.png" alt="" class="icon" />', $context['page_title'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
-			<span class="topslice"><span></span></span>
 				<div class="content">
 					<fieldset id="sender" class="send_topic">
 						<dl class="settings send_topic">
@@ -94,7 +93,6 @@ function template_main()
 						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
@@ -112,11 +110,10 @@ function template_custom_email()
 		<form action="', $scripturl, '?action=emailuser;sa=email" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/email_sm.png" alt="" class="icon" />', $context['page_title'], '</span>
+					<img src="', $settings['images_url'], '/email_sm.png" alt="" class="icon" />', $context['page_title'], '
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings send_mail">
 						<dt>
@@ -184,7 +181,6 @@ function template_custom_email()
 					<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 
 	foreach ($context['form_hidden_vars'] as $key => $value)
@@ -210,7 +206,6 @@ function template_report()
 					<h3 class="catbg">', $txt['report_to_mod'], '</h3>
 				</div>
 				<div class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content">';
 
 	if (!empty($context['post_errors']))
@@ -270,7 +265,6 @@ function template_report()
 						</div>
 					</div>
 					<br class="clear" />
-					<span class="botslice"><span></span></span>
 				</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>

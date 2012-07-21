@@ -74,13 +74,11 @@ function template_main()
 					</h3>
 				</div>
 				<div class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<div class="post" id="preview_body">
 							', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 						</div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div><br />';
 
@@ -94,7 +92,6 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div>
-				<span class="upperframe"><span></span></span>
 				<div class="roundframe">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '" />' : '';
 
@@ -522,7 +519,6 @@ function template_main()
 					</span>
 					<br class="clear_right" />
 				</div>
-				<span class="lowerframe"><span></span></span>
 			</div>
 			<br class="clear" />';
 
@@ -680,7 +676,7 @@ function template_main()
 						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
 							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
 
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><span class="topslice"><span></span></span><div class="content" id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><div class="content" id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
 
 	if ($context['can_quote'])
 		echo '
@@ -692,7 +688,7 @@ function template_main()
 						if (ignoring)
 							newPostsHTML += \'<div id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_prompt" class="smalltext">', $txt['ignoring_user'], '<a href="#" id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a></div>\';
 
-						newPostsHTML += \'<div class="list_posts smalltext" id="msg_\' + newPosts[i].getAttribute("id") + \'_body">\' + newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue + \'<\' + \'/div></div><span class="botslice"><span></span></span></div>\';
+						newPostsHTML += \'<div class="list_posts smalltext" id="msg_\' + newPosts[i].getAttribute("id") + \'_body">\' + newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue + \'<\' + \'/div></div></div>\';
 					}
 					setOuterHTML(document.getElementById(\'new_replies\'), newPostsHTML);
 				}
@@ -784,7 +780,6 @@ function template_main()
 
 			echo '
 				<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<span class="topslice"><span></span></span>
 				<div class="content" id="msg', $post['id'], '">
 					<div class="floatleft">
 						<h5>', $txt['posted_by'], ': ', $post['poster'], '</h5>
@@ -814,7 +809,6 @@ function template_main()
 			echo '
 					<div class="list_posts smalltext" id="msg_', $post['id'], '_body">', $post['message'], '</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 		}
 
@@ -1003,7 +997,6 @@ function template_announce()
 				', $txt['announce_desc'], '
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
@@ -1031,7 +1024,6 @@ function template_announce()
 					</div>
 				</div>
 				<br class="clear_right" />
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -1046,7 +1038,6 @@ function template_announcement_send()
 	<div id="announcement">
 		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" class="new_win">', $context['topic_subject'], '</a></p>
 					<div class="progress_bar">
@@ -1065,7 +1056,6 @@ function template_announcement_send()
 					</div>
 				</div>
 				<br class="clear_right" />
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

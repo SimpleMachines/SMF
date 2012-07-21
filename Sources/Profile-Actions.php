@@ -538,11 +538,9 @@ function deleteAccount($memID)
 /**
  * Actually delete an account.
  *
- * @param $profile_vars
- * @param $post_errors
  * @param int $memID, the member ID
  */
-function deleteAccount2($profile_vars, $post_errors, $memID)
+function deleteAccount2($memID)
 {
 	global $user_info, $sourcedir, $context, $cur_profile, $modSettings, $smcFunc;
 
@@ -648,7 +646,7 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 			deleteMembers($memID);
 	}
 	// Do they need approval to delete?
-	elseif (empty($post_errors) && !empty($modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum'))
+	elseif (!empty($modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum'))
 	{
 		// Setup their account for deletion ;)
 		updateMemberData($memID, array('is_activated' => 4));
@@ -656,7 +654,7 @@ function deleteAccount2($profile_vars, $post_errors, $memID)
 		updateSettings(array('unapprovedMembers' => true), true);
 	}
 	// Also check if you typed your password correctly.
-	elseif (empty($post_errors))
+	else
 	{
 		deleteMembers($memID);
 

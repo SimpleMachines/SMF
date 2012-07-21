@@ -29,9 +29,7 @@ function template_fatal_error()
 			</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -51,9 +49,7 @@ function template_error_log()
 	echo '
 			<div class="title_bar clear_right">
 				<h3 class="titlebg">
-					<span class="ie6_header floatleft">
-						<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['errlog'], '
-					</span>
+					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['errlog'], '
 				</h3>
 			</div>
 			<div class="pagesection">
@@ -224,7 +220,6 @@ function template_attachment_errors()
 			</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="padding">
 				<div class="noticebox" />', 
 					$context['error_message'], '
@@ -235,7 +230,6 @@ function template_attachment_errors()
 				<a class="button_link" href="', $scripturl, $context['redirect_link'], '">', $txt['attach_continue'], '</a>
 				<br class="clear_right" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>';
 }

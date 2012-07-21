@@ -14,25 +14,27 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
-	echo '
-	<a id="top"></a>';
-
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
 		echo '
-	<div class="tborder childboards" id="board_', $context['current_board'], '_childboards">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['parent_boards'], '</h3>
-		</div>
-		<div class="table_frame">
-			<table class="table_list">
-				<tbody id="board_', $context['current_board'], '_children" class="content">';
+	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table">
+		<table class="table_list">
+			<tbody class="header">
+				<tr>
+					<td colspan="4">
+						<div class="cat_bar">
+							<h3 class="catbg">', $txt['parent_boards'], '</h3>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+			<tbody id="board_', $context['current_board'], '_children" class="content">';
 
 		foreach ($context['boards'] as $board)
 		{
 			echo '
 				<tr id="board_', $board['id'], '" class="windowbg2">
-					<td class="icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
+					<td class="windowbg icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">';
 
 			// If the board or children is new, show an indicator.
@@ -71,7 +73,7 @@ function template_main()
 			// Show some basic information about the number of posts, etc.
 			echo '
 					</td>
-					<td class="stats windowbg">
+					<td class="windowbg stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br />
 						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
@@ -81,7 +83,6 @@ function template_main()
 			if (!empty($board['last_post']['id']))
 				echo '
 						<p>', $board['last_post']['last_post_message'], '</p>';
-
 			echo '
 					</td>
 				</tr>';
@@ -106,14 +107,18 @@ function template_main()
 
 					$children[] = $child['new'] ? '<strong>' . $child['link'] . '</strong>' : $child['link'];
 				}
-				echo '
-				<tr id="board_', $board['id'], '_children"><td colspan="3" class="children windowbg"><strong>', $txt['parent_boards'], '</strong>: ', implode(', ', $children), '</td></tr>';
+
+			echo '
+				<tr id="board_', $board['id'], '_children" class="windowbg2">
+					<td colspan="3" class="windowbg children">
+						<p><strong>', $txt['parent_boards'], '</strong>: ', implode(', ', $children), '</p>
+					</td>
+				</tr>';
 			}
 		}
 		echo '
-				</tbody>
-			</table>
-		</div>
+			</tbody>
+		</table>
 	</div>';
 	}
 
@@ -145,10 +150,11 @@ function template_main()
 				<tr class="catbg">';
 
 		// Are there actually any topics to show?
+		// [WIP] There is trial code here to hide the topic icon column. Colspan can be cleaned up later.
 		if (!empty($context['topics']))
 		{
 			echo '
-					<th scope="col" class="first_th" width="8%" colspan="2">&nbsp;</th>
+					<th scope="col" class="first_th" width="6%" colspan="1">&nbsp;</th>
 					<th scope="col" class="lefttext"><a href="', $scripturl, '?board=', $context['current_board'], '.', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a> / <a href="', $scripturl, '?board=', $context['current_board'], '.', $context['start'], ';sort=starter', $context['sort_by'] == 'starter' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['started_by'],  $context['sort_by'] == 'starter' ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>
 					<th scope="col" width="14%"><a href="', $scripturl, '?board=', $context['current_board'], '.', $context['start'], ';sort=replies', $context['sort_by'] == 'replies' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] == 'replies' ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a> / <a href="', $scripturl, '?board=', $context['current_board'], '.', $context['start'], ';sort=views', $context['sort_by'] == 'views' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['views'], $context['sort_by'] == 'views' ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>';
 			// Show a "select all" box for quick moderation?
@@ -227,24 +233,31 @@ function template_main()
 			// Some columns require a different shade of the color class.
 			$alternate_class = $color_class . '2';
 
+			// [WIP] There is trial code here to hide the topic icon column. Hardly anyone will miss it.
+			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 				<tr>
-					<td class="icon1 ', $color_class, '">
+					<td class="icon1 ', $color_class, '" style="display: none;">
 						<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
 					</td>
 					<td class="icon2 ', $color_class, '">
-						<img src="', $topic['first_post']['icon_url'], '" alt="" />
+						<div style="position: relative; width: 40px; margin: auto;">
+							<img src="', $topic['first_post']['icon_url'], '" alt="" />
+							', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
+						</div>
 					</td>
 					<td class="subject ', $alternate_class, '">
-						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '" onmouseout="mouse_on_div = 0;" onmouseover="mouse_on_div = 1;" ondblclick="modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>
-							', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span></span>', $topic['is_sticky'] ? '</strong>' : '';
+						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '" onmouseout="mouse_on_div = 0;" onmouseover="mouse_on_div = 1;" ondblclick="modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
 
+			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
 			// Is this topic new? (assuming they are logged in!)
 			if ($topic['new'] && $context['user']['is_logged'])
 					echo '
 							<a href="', $topic['new_href'], '" id="newicon' . $topic['first_post']['id'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>';
 
 			echo '
+							', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
+
 							<p>', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 								<small id="pages' . $topic['first_post']['id'] . '">', $topic['pages'], '</small>
 							</p>
@@ -340,8 +353,7 @@ function template_main()
 		echo '
 			</tbody>
 		</table>
-	</div>
-	<a id="bot"></a>';
+	</div>';
 
 		// Finish off the form - again.
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty($context['topics']))

@@ -41,7 +41,6 @@ function template_edit_scheduled_tasks()
 				<em>', sprintf($txt['scheduled_task_time_offset'], $context['server_time']), ' </em>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -86,7 +85,6 @@ function template_edit_scheduled_tasks()
 						<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button_submit" />
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

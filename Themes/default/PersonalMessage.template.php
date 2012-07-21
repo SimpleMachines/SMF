@@ -174,7 +174,6 @@ function template_folder()
 
 			echo '
 	<div class="', $window_class, ' clear">
-		<span class="topslice"><span></span></span>
 		<div class="poster">
 			<a id="msg', $message['id'], '"></a>
 			<h4>';
@@ -485,7 +484,6 @@ function template_folder()
 		</div>
 		<div class="moderatorbar">
 		</div>
-		<span class="botslice"><span></span></span>
 	</div>';
 		}
 
@@ -664,7 +662,6 @@ function template_search()
 	{
 		echo '
 		<fieldset id="simple_search">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div id="search_term_input">
 					<strong>', $txt['pm_search_text'], ':</strong>
@@ -674,7 +671,6 @@ function template_search()
 				<a href="', $scripturl, '?action=pm;sa=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['pm_search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 	}
 
@@ -683,7 +679,6 @@ function template_search()
 	{
 		echo '
 		<fieldset id="advanced_search">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<input type="hidden" name="advanced" value="1" />
 				<span class="enhanced">
@@ -723,7 +718,6 @@ function template_search()
 			echo '
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 
 		// Do we have some labels setup? If so offer to search by them!
@@ -731,7 +725,6 @@ function template_search()
 		{
 			echo '
 		<fieldset class="labels">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
@@ -756,7 +749,6 @@ function template_search()
 					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
 				</p><br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 
 			// Some javascript for the advanced toggling
@@ -854,10 +846,9 @@ function template_search_results()
 				</h3>
 			</div>
 			<div class="windowbg', $alternate ? '2': '', '">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					', $message['body'], '
-					<p class="pm_reply righttext middletext">';
+					<p class="pm_reply righttext">';
 
 				if ($context['can_send_pm'])
 				{
@@ -877,7 +868,6 @@ function template_search_results()
 				echo '
 					</p>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 		}
 		// Otherwise just a simple list!
@@ -905,11 +895,9 @@ function template_search_results()
 	if (empty($context['personal_messages']))
 		echo '
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p class="centertext">', $txt['pm_search_none_found'], '</p>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	echo '
@@ -931,7 +919,6 @@ function template_send()
 				<h3 class="catbg">', $txt['pm_send_report'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">';
 				if (!empty($context['send_log']['sent']))
 					foreach ($context['send_log']['sent'] as $log_entry)
@@ -941,7 +928,6 @@ function template_send()
 						echo '<span class="error">', $log_entry, '</span><br />';
 				echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />';
 	}
@@ -955,13 +941,11 @@ function template_send()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="post" id="preview_body">
 						', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div><br />';
 
@@ -969,14 +953,13 @@ function template_send()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/im_newmsg.png" class="icon" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '</span>
+					<img src="', $settings['images_url'], '/icons/im_newmsg.png" class="icon" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '
 			</h3>
 		</div>';
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
 		<div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe"><br class="clear" />';
 
 	// If there were errors for sending the PM, show them.
@@ -1083,7 +1066,6 @@ function template_send()
 				<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '" />
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>';
 
@@ -1206,7 +1188,6 @@ function template_send()
 		<h3 class="catbg">', $txt['subject'], ': ', $context['quoted_message']['subject'], '</h3>
 	</div>
 	<div class="windowbg2">
-		<span class="topslice"><span></span></span>
 		<div class="content">
 			<div class="clear">
 				<span class="smalltext floatright">', $txt['on'], ': ', $context['quoted_message']['time'], '</span>
@@ -1214,7 +1195,6 @@ function template_send()
 			</div><hr />
 			', $context['quoted_message']['body'], '
 		</div>
-		<span class="botslice"><span></span></span>
 	</div><br class="clear" />';
 
 	echo '
@@ -1273,12 +1253,10 @@ function template_ask_delete()
 			<h3 class="catbg">', ($context['delete_all'] ? $txt['delete_message'] : $txt['delete_all']), '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['delete_all_confirm'], '</p><br />
 				<strong><a href="', $scripturl, '?action=pm;sa=removeall2;f=', $context['folder'], ';', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="javascript:history.go(-1);">', $txt['no'], '</a></strong>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 }
 
@@ -1293,7 +1271,6 @@ function template_prune()
 			<h3 class="catbg">', $txt['pm_prune'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14" class="input_text" /> ', $txt['pm_prune_desc2'], '</p>
 				<div class="righttext">
@@ -1301,7 +1278,6 @@ function template_prune()
 				</div>
 				<br class="clear" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form>';
@@ -1381,7 +1357,6 @@ function template_labels()
 			<h3 class="catbg">', $txt['pm_label_add_new'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">
 					<dt>
@@ -1395,7 +1370,6 @@ function template_labels()
 				<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button_submit" />
 				<br class="clear_right" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form><br />';
@@ -1416,7 +1390,6 @@ function template_report_message()
 			', $txt['pm_report_desc'], '
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">';
 
@@ -1451,7 +1424,6 @@ function template_report_message()
 					<input type="submit" name="report" value="', $txt['pm_report_message'], '" class="button_submit" />
 				</div>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form>';
@@ -1467,12 +1439,10 @@ function template_report_message_complete()
 			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['pm_report_done'], '</p>
 				<a href="', $scripturl, '?action=pm;l=', $context['current_label_id'], '">', $txt['pm_report_return'], '</a>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 }
 
@@ -1700,7 +1670,6 @@ function template_add_rule()
 			<h3 class="catbg">', $context['rid'] == 0 ? $txt['pm_add_rule'] : $txt['pm_edit_rule'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="addrules">
 					<dt class="floatleft">
@@ -1811,7 +1780,6 @@ function template_add_rule()
 					<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', $txt['pm_rule_add_action'], ')</a>
 				</fieldset>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div><br class="clear" />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_rule_description'], '</h3>
