@@ -97,13 +97,13 @@ function template_main()
 
 	// If an error occurred, explain what happened.
 	echo '
-					<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+					<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']) ? ' style="display: none"' : '', ' id="errors">
 						<dl>
 							<dt>
 								<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 							</dt>
 							<dd class="error" id="error_list">
-								', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
+								', empty($context['post_error']) ? '' : implode('<br />', $context['post_error']), '
 							</dd>
 						</dl>
 					</div>';
@@ -423,7 +423,7 @@ function template_main()
 	{
 		echo '
 					<dl id="postAttachment2">';
-		
+
 		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
 		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
 		{
@@ -462,7 +462,7 @@ function template_main()
 		}
 
 		// Add any template changes for an alternative upload system here.
-		call_integration_hook('integrate_upload_template', array());
+		call_integration_hook('integrate_upload_template');
 
 		echo '
 						<dd class="smalltext">';
@@ -565,7 +565,7 @@ function template_main()
 					}
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
+					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', ', JavaScriptEscape($context['session_var']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
 					var numericFields = [
 						\'board\', \'topic\', \'last_msg\',
 						\'eventid\', \'calendar\', \'year\', \'month\', \'day\',
