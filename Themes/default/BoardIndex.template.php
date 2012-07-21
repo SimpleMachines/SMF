@@ -46,8 +46,7 @@ function template_main()
 	<script type="text/javascript"><!-- // --><![CDATA[
 
 		// Create a news fader object.
-		var oNewsFader = new smf_NewsFader({
-			sSelf: \'oNewsFader\',
+		var oNewsFader = new smc_NewsFader({
 			sFaderControlId: \'smfFadeScroller\',
 			sItemTemplate: ', JavaScriptEscape('<strong>%1$s</strong>'), ',
 			iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
