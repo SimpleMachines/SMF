@@ -120,7 +120,7 @@ function template_html_above()
 	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
 	echo '
 	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/smf_jquery_plugins.js"></script>';
-	
+
 	// Here comes the JavaScript bits!
 	echo '
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?alp21"></script>
@@ -154,7 +154,7 @@ function template_html_above()
 		$(document).ready(function() {
 			// menu drop downs
 			$("ul.dropmenu").superfish();
-			
+
 			// tooltips
 			$(".preview").SMFtooltip();
 
@@ -165,7 +165,7 @@ function template_html_above()
 
 	// load in any javascript files from mods and themes
 	template_javascript();
-		
+
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 	<meta name="description" content="', $context['page_title_html_safe'], '" />', !empty($context['meta_keywords']) ? '
@@ -299,22 +299,22 @@ function template_body_above()
 	echo '
 			</div>
 			<div class="news normaltext">';
-	
+
 	if ($context['allow_search'])
 	{
 		echo '
 			<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
 				<input type="text" name="search" value="" class="input_text" />&nbsp;';
-		
+
 		// Using the quick search dropdown?
 		if (!empty($modSettings['search_dropdown']))
 		{
 			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
-			
+
 			echo '
 				<select name="search_selection">
 					<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
-				
+
 				// Can't limit it to a specific topic if we are not in one
 				if (!empty($context['current_topic']))
 					echo '
@@ -328,7 +328,7 @@ function template_body_above()
 					<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
 				</select>';
 		}
-		
+
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
@@ -341,7 +341,7 @@ function template_body_above()
 		echo '
 				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
 				<input type="hidden" name="advanced" value="0" />
-			</form>';	
+			</form>';
 	}
 
 	// Show a random news item? (or you could pick one from news_lines...)
@@ -501,7 +501,7 @@ function template_menu()
 		<div id="main_menu">
 			<ul class="dropmenu" id="menu_nav">';
 
-	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes. 
+	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '

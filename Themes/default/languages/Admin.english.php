@@ -351,9 +351,8 @@ $txt['attachmentCheckExtensions'] = 'Check attachment\'s extension';
 $txt['attachmentExtensions'] = 'Allowed attachment extensions';
 $txt['attachmentRecodeLineEndings'] = 'Recode line endings in textual attachments';
 $txt['attachmentShowImages'] = 'Display image attachments as pictures under post';
-$txt['attachmentEncryptFilenames'] = 'Encrypt stored filenames';
-$txt['attachmentUploadDir'] = 'Attachments directory';
-$txt['attachmentUploadDir_multiple'] = 'Attachments directory';
+$txt['attachmentUploadDir'] = 'Current attachments directory';
+$txt['attachmentUploadDir_multiple'] = 'Current attachments directory';
 $txt['attachmentUploadDir_multiple_configure'] = 'Configure multiple attachment directories';
 $txt['attachmentDirSizeLimit'] = 'Max attachment folder space';
 $txt['attachmentPostLimit'] = 'Max attachment size per post';
@@ -391,6 +390,24 @@ $txt['attach_num_files'] = 'Files';
 $txt['attach_dir_status'] = 'Status';
 $txt['attach_add_path'] = 'Add Path';
 $txt['attach_path_current_bad'] = 'Invalid current attachment path.';
+$txt['attachmentDirFileLimit'] = 'Maximum number of files per directory';
+
+$txt['automanage_attachments'] = 'Choose the method for the management of the attachment directories';
+$txt['attachments_normal'] = '(Manual) SMF default behaviour';
+$txt['attachments_auto_years'] = '(Auto) Subdivide by years';
+$txt['attachments_auto_months'] = '(Auto) Subdivide by years and months';
+$txt['attachments_auto_days'] = '(Auto) Subdivide by years, months and days';
+$txt['attachments_auto_16'] = '(Auto) 16 random folders';
+$txt['attachments_auto_16x16'] = '(Auto) 16 random folders with 16 random sub-folders';
+$txt['attachments_auto_space'] = '(Auto) When either directory space limit is reached';
+//$txt['attachments_auto_files'] = 'Change directory when file limit is reached';
+
+$txt['use_subdirectories_for_attachments'] = 'Create new directories within this directory';
+$txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
+//$txt['use_subdirectories_for_attachments_note'] = '<span class="smalltext">Otherwise any new directories will be created within the forum\'s main directory</span>';
+
+$txt['basedirectory_for_attachments'] = 'Base directory for attachments';
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. SMF will use the last directory used before this was introduced</div>';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';

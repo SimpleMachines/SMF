@@ -78,7 +78,7 @@ function ManageAttachments()
 /**
  * Allows to show/change attachment settings.
  * This is the default sub-action of the 'Attachments and Avatars' center.
- * Called by index.php?action=admin;area=manageattachments;sa=attachements.
+ * Called by index.php?action=admin;area=manageattachments;sa=attachments.
  *
  * @param bool $return_config = false
  * @uses 'attachments' sub template.
@@ -88,12 +88,41 @@ function ManageAttachmentSettings($return_config = false)
 {
 	global $txt, $modSettings, $scripturl, $context, $options, $sourcedir;
 
-	$context['valid_upload_dir'] = is_dir($modSettings['attachmentUploadDir']) && is_writable($modSettings['attachmentUploadDir']);
+	require_once($sourcedir . '/Attachments.php');
+
+	// Get the current attachment directory.
+	if (!empty($modSettings['currentAttachmentUploadDir']))
+	{
+		if (!is_array($modSettings['attachmentUploadDir']))
+			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+		$context['attachmentUploadDir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
+	}
+	else
+		$context['attachmentUploadDir'] = $modSettings['attachmentUploadDir'];
+
+	// If not set, show a default path for the base directory
+	if (!isset($_GET['save']) && empty($modSettings['basedirectory_for_attachments']))
+		if (!empty($modSettings['currentAttachmentUploadDir']))
+			$modSettings['basedirectory_for_attachments'] = $modSettings['attachmentUploadDir'][1];
+		else
+			$modSettings['basedirectory_for_attachments'] = $context['attachmentUploadDir'];
+
+	if (!empty($modSettings['automanage_attachments']))
+		automanage_attachments_check_directory();
+
+	$context['valid_upload_dir'] = is_dir($context['attachmentUploadDir']) && is_writable($context['attachmentUploadDir']);
+
+	if (!empty($modSettings['automanage_attachments']))
+		$context['valid_basedirectory'] =  !empty($modSettings['basedirectory_for_attachments']) && is_writable($modSettings['basedirectory_for_attachments']);
+	else
+		$context['valid_basedirectory'] = true;
+
+	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
+	$txt['basedirectory_for_attachments_warning'] = $txt['basedirectory_for_attachments'] . $txt['basedirectory_for_attachments_warning'];
 
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
-	$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . $txt['attachmentUploadDir_multiple_configure'] . ']</a>';
-	
+
 	// See if we can find if the server is set up to support the attacment limits
 	$post_max_size = ini_get('post_max_size');
 	$upload_max_filesize = ini_get('upload_max_filesize');
@@ -109,15 +138,21 @@ function ManageAttachmentSettings($return_config = false)
 			array('check', 'attachmentRecodeLineEndings'),
 		'',
 			// Directory and size limits.
-			empty($modSettings['currentAttachmentUploadDir']) ? array('text', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' => 'attachmentUploadDir_multiple_configure'),
+			array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'], 5 => $txt['attachments_auto_16x16'])),
+			array('text', 'basedirectory_for_attachments', 40, 'invalid' => empty($context['valid_basedirectory']),	'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments'] : $txt['basedirectory_for_attachments_warning'])),
+			array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
+			(empty($modSettings['currentAttachmentUploadDir'])) ? array('text', 'attachmentUploadDir', 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attachmentUploadDir_multiple', 'message' =>  'attachmentUploadDir_multiple_configure'),
+			array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
+		'',
+			// Posting limits
 			array('int', 'attachmentPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 			array('warning', empty($testPM) ? 'attachment_postsize_warning' : ''),
 			array('int', 'attachmentSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 			array('warning', empty($testUM) ? 'attachment_filesize_warning' : ''),
 			array('int', 'attachmentNumPerPostLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			// Security Items
-		array('title', 'attachment_security_settings'),
+			array('title', 'attachment_security_settings'),
 			// Extension checks etc.
 			array('check', 'attachmentCheckExtensions'),
 			array('text', 'attachmentExtensions', 40),
@@ -139,6 +174,40 @@ function ManageAttachmentSettings($return_config = false)
 			array('text', 'attachmentThumbHeight', 6),
 	);
 
+	$context['settings_post_javascript'] = '
+	var storing_type = document.getElementById(\'automanage_attachments\');
+	var base_dir = document.getElementById(\'use_subdirectories_for_attachments\');
+
+	mod_addEvent(storing_type, \'change\', mod_toggleSubDir);
+	mod_addEvent(base_dir, \'change\', mod_toggleBaseDir);
+	mod_toggleSubDir();
+
+	function mod_addEvent(control, ev, fn){
+		if (control.addEventListener){
+			control.addEventListener(ev, fn, false);
+		} else if (control.attachEvent){
+			control.attachEvent(\'on\'+ev, fn);
+		}
+	}
+
+	function mod_toggleSubDir(){
+		var select_elem = document.getElementById(\'automanage_attachments\');
+		var use_sub_dir = document.getElementById(\'use_subdirectories_for_attachments\');
+
+		use_sub_dir.disabled = !Boolean(select_elem.selectedIndex);
+		mod_toggleBaseDir();
+	}
+	function mod_toggleBaseDir(){
+		var select_elem = document.getElementById(\'automanage_attachments\');
+		var sub_dir = document.getElementById(\'use_subdirectories_for_attachments\');
+		var dir_elem = document.getElementById(\'basedirectory_for_attachments\');
+		if(select_elem.selectedIndex==0){
+			dir_elem.disabled = 1;
+		} else {
+			dir_elem.disabled = !sub_dir.checked;
+		}
+	}';
+
 	call_integration_hook('integrate_modify_attachment_settings', array(&$config_vars));
 
 	if ($return_config)
@@ -152,6 +221,37 @@ function ManageAttachmentSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		// Is this needed now ???
+		if(isset($_POST['use_subdirectories_for_attachments']) && empty($_POST['basedirectory_for_attachments']))
+			$_POST['basedirectory_for_attachments'] = (!empty($modSettings['use_subdirectories_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
+
+		// @Todo add "basedirectory_for_attachments" to install & upgrade scripts
+		if (!isset($modSettings['basedirectory_for_attachments']))
+			$modSettings['basedirectory_for_attachments'] = '';
+
+		// Create a new base directory if that's being changed and not there.
+		if (!empty($_POST['basedirectory_for_attachments']) && !is_dir($_POST['basedirectory_for_attachments']))
+		{
+			if (!automanage_attachments_create_directory($_POST['basedirectory_for_attachments'], true))
+				// Some sort of an error here also maybe??
+				$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];
+		}
+
+		// Build an array of knowm base directories.
+		if (empty($modSettings['attachment_basedirectories']))
+			$modSettings['attachment_basedirectories'] = array();
+		else
+			$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+
+		if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
+		{
+			$modSettings['attachment_basedirectories'][] = $_POST['basedirectory_for_attachments'];
+			updateSettings(array(
+				'attachment_basedirectories' => serialize($modSettings['attachment_basedirectories']),
+			));
+		}
+
 
 		call_integration_hook('integrate_save_attachment_settings');
 
@@ -1874,7 +1974,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \'checked="checked"\' : \'\') . \' class="input_radio" />\';
+						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . ($rowData[\'automanage_attachments\'] ? \' disabled="disabled""\' : \'\') . \' class="input_radio" />\';
 					'),
 					'style' => 'text-align: center; width: 15%;',
 				),
@@ -1885,7 +1985,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="text" size="30" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'" class="input_text" style="width: 100%" />\';
+						return \'<input type="text" size="40" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'" class="input_text" style="width: 100%" />\';
 					'),
 					'style' => 'text-align: center; width: 30%;',
 				),
@@ -1978,6 +2078,7 @@ function list_getAttachDirs()
 		$attachdirs[] = array(
 			'id' => $id,
 			'current' => $id == $modSettings['currentAttachmentUploadDir'],
+			'automanage_attachments' => isset($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] > 1 ? true : false,
 			'path' => $dir,
 			'current_size' => $size,
 			'num_files' => $expected_files[$id],
