@@ -354,7 +354,7 @@ function Post($post_errors = array())
 	}
 
 	// Check whether this is a really old post being bumped...
-	if (!empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !isset($_REQUEST['subject']))
+	if (!empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !empty($topic) && !isset($_REQUEST['subject']))
 		$post_errors[] = array('old_topic', array($modSettings['oldTopicDays']));
 
 	// Get a response prefix (like 'Re:') in the default forum language.
