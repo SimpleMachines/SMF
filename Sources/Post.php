@@ -1194,6 +1194,10 @@ function Post2()
 		$_POST['message'] = $_REQUEST['message'];
 	}
 
+	// Previewing? Go back to start.
+	if (isset($_REQUEST['preview']))
+		return Post();
+
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
 
