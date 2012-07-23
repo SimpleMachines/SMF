@@ -746,6 +746,7 @@ function rebuildModCache()
 		'mb' => $boards_mod,
 		'mq' => $mod_query,
 	);
+	call_integration_hook('integrate_mod_cache');
 
 	$user_info['mod_cache'] = $_SESSION['mc'];
 
@@ -773,6 +774,9 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 		$httponly = !empty($modSettings['httponlyCookies']);
 	if ($secure === null)
 		$secure = !empty($modSettings['secureCookies']);
+
+	// Intercept cookie?
+	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly));
 
 	// This function is pointless if we have PHP >= 5.2.
 	if (version_compare(PHP_VERSION, '5.2', '>='))

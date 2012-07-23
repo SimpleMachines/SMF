@@ -168,7 +168,7 @@ function Display()
 		fatal_lang_error('not_a_topic', false);
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
-	
+
 	// Is this a moved topic that we are redirecting to?
 	if (!empty($topicinfo['id_redirect_topic']))
 		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0');
@@ -755,7 +755,7 @@ function Display()
 				'vote_button' => '<input type="' . ($pollinfo['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($pollinfo['max_votes'] > 1 ? 'check' : 'radio') . '" />'
 			);
 		}
-		
+
 		// Build the poll moderation button array.
 		$context['poll_buttons'] = array(
 			'vote' => array('test' => 'allow_return_vote', 'text' => 'poll_return_vote', 'image' => 'poll_options.png', 'lang' => true, 'url' => $scripturl . '?topic=' . $context['current_topic'] . '.' . $context['start']),
@@ -765,7 +765,7 @@ function Display()
 			'edit' => array('test' => 'allow_edit_poll', 'text' => 'poll_edit', 'image' => 'poll_edit.png', 'lang' => true, 'url' => $scripturl . '?action=editpoll;topic=' . $context['current_topic'] . '.' . $context['start']),
 			'remove_poll' => array('test' => 'can_remove_poll', 'text' => 'poll_remove', 'image' => 'admin_remove_poll.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['poll_remove_warn'] . '\');"', 'url' => $scripturl . '?action=removepoll;topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		);
-		
+
 		// Allow mods to add additional buttons here
 		call_integration_hook('integrate_poll_buttons');
 	}
@@ -810,6 +810,8 @@ function Display()
 	}
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
+
+	call_integration_hook('integrate_display_message_list', array($messages, $posters));
 
 	// Guests can't mark topics read or for notifications, just can't sorry.
 	if (!$user_info['is_guest'] && !empty($messages))
@@ -1110,7 +1112,7 @@ function Display()
 				$context['icons'][count($context['icons']) - 1]['is_last'] = true;
 		}
 	}
-	
+
 	// Build the normal button array.
 	$context['normal_buttons'] = array(
 		'reply' => array('test' => 'can_reply', 'text' => 'reply', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=post;topic=' . $context['current_topic'] . '.' . $context['start'] . ';last_msg=' . $context['topic_last_message'], 'active' => true),
@@ -1120,7 +1122,7 @@ function Display()
 		'send' => array('test' => 'can_send_topic', 'text' => 'send_topic', 'image' => 'sendtopic.png', 'lang' => true, 'url' => $scripturl . '?action=emailuser;sa=sendtopic;topic=' . $context['current_topic'] . '.0'),
 		'print' => array('test' => 'can_print', 'text' => 'print', 'image' => 'print.png', 'lang' => true, 'custom' => 'rel="new_win nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0'),
 	);
-	
+
 	// Build the mod button array
 	$context['mod_buttons'] = array(
 		'move' => array('test' => 'can_move', 'text' => 'move_topic', 'image' => 'admin_move.png', 'lang' => true, 'url' => $scripturl . '?action=movetopic;current_board=' . $context['current_board'] . ';topic=' . $context['current_topic'] . '.0'),
@@ -1450,7 +1452,7 @@ function Download()
 
 	elseif (isBrowser('ie'))
 		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)) . '"');
-	
+
 	else
 		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');
 
