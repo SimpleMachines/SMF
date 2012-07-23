@@ -1202,7 +1202,7 @@
 			isBlock: true,
 			format: function(element, content) {
 				if ($(element[0]).hasClass('php'))
-					return '[php]' + content + '[/php]';
+					return '[php]' + content.replace('&#91;', '[') + '[/php]';
 
 				var from = '';
 				if ($(element).children("cite:first").length === 1)
@@ -1224,14 +1224,14 @@
 					}
 				}
 
-				return '[code' + from + ']' + content + '[/code]';
+				return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 			},
 			html:  function(element, attrs, content) {
 				var from = '';
 				if(typeof attrs.defaultAttr !== "undefined")
 					from = '<cite>' + attrs.defaultAttr + '</cite>';
 
-				return '<code>' + from + content + '</code>'
+				return '<code>' + from + content.replace('[', '&#91;') + '</code>'
 			}
 		},
 		php: {
