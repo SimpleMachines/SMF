@@ -36,7 +36,7 @@
 
 		fontOpt:	'<a class="sceditor-font-option" href="#" data-font="{font}"><font face="{font}">{font}</font></a>',
 
-		sizeOpt:	'<a class="sceditor-fontsize-option" data-size="{size}" href="#"><font size="{size}">{size}</font></a>',
+		sizeOpt:	'<a class="sceditor-fontsize-option" data-size="{size}" style="line-height:{points}pt" href="#"><font size="{size}">{size}</font></a>',
 
 		pastetext:	'<div><label for="txt">{label}</label> ' +
 				'<textarea cols="20" rows="7" id="txt"></textarea></div>' +
@@ -1793,9 +1793,9 @@
 		// END_COMMAND
 		// START_COMMAND: Size
 		size: {
-			// @todo var sizes = [0, 8, 10, 12, 14, 18, 24, 36];
 			// In other words remember to check if the entries of font-size dropdown overlap
 			_dropDown: function(editor, caller, callback) {
+				var sizes = [0, 8, 10, 12, 14, 18, 24, 36];
 				var	content   = $("<div />"),
 					/** @private */
 					clickFunc = function (e) {
@@ -1805,7 +1805,7 @@
 					};
 
 				for (var i=1; i<= 7; i++)
-					content.append(_tmpl('sizeOpt', {size: i}, true).click(clickFunc));
+					content.append(_tmpl('sizeOpt', {size: i, points: sizes[i]}, true).click(clickFunc));
 
 				editor.createDropDown(caller, "fontsize-picker", content);
 			},
