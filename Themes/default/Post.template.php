@@ -345,17 +345,6 @@ function template_main()
 	}
 
 	// Show the actual posting area...
-	if ($context['show_bbc'])
-	{
-		echo '
-					<div id="bbcBox_message"></div>';
-	}
-
-	// What about smileys?
-	if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
-		echo '
-					<div id="smileyBox_message"></div>';
-
 	echo '
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
@@ -579,8 +568,8 @@ function template_main()
 						if (textFields[i] in document.forms.postmodify)
 						{
 							// Handle the WYSIWYG editor.
-							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
-								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && $("#', $context['post_box_name'], '").data("sceditor") != undefined)
+								x[x.length] = textFields[i] + \'=\' + $("#', $context['post_box_name'], '").data("sceditor").getText().replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
 						}
@@ -841,17 +830,23 @@ function template_main()
 			function insertQuoteFast(messageid)
 			{
 				if (window.XMLHttpRequest)
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
+					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=0\', onDocReceived);
 				else
-					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
+					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=0\', 240, 90);
+
 				return true;
 			}
 			function onDocReceived(XMLDoc)
 			{
 				var text = \'\';
+
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				oEditorHandle_', $context['post_box_name'], '.insertText(text, false, true);
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+			}
+			function onReceiveOpener(text)
+			{
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 			}
 		// ]]></script>';
 	}
@@ -972,7 +967,7 @@ function template_quotefast()
 			if (\'opera\' in window)
 				quote = quote.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, \'"\').replace(/&amp;/g, "&");
 
-			window.opener.oEditorHandle_', $context['post_box_name'], '.InsertText(quote);
+			window.opener.onReceiveOpener(quote);
 
 			window.focus();
 			setTimeout("window.close();", 400);';

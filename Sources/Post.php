@@ -1046,7 +1046,7 @@ function Post($post_errors = array())
 			'post_button' => $context['submit_label'],
 		),
 		// add height and width for the editor
-		'height' => '175px',
+		'height' => '275px',
 		'width' => '100%',
 		// We do XML preview here.
 		'preview_type' => 2,
@@ -1180,19 +1180,9 @@ function Post2()
 		}
 	}
 
-	// If we came from WYSIWYG then turn it back into BBC regardless.
-	if (!empty($_REQUEST['message_mode']) && isset($_REQUEST['message']))
-	{
-		require_once($sourcedir . '/Subs-Editor.php');
-
-		$_REQUEST['message'] = html_to_bbc($_REQUEST['message']);
-
-		// We need to unhtml it now as it gets done shortly.
-		$_REQUEST['message'] = un_htmlspecialchars($_REQUEST['message']);
-
-		// We need this for everything else.
-		$_POST['message'] = $_REQUEST['message'];
-	}
+	// Previewing? Go back to start.
+	if (isset($_REQUEST['preview']))
+		return Post();
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
@@ -2744,16 +2734,7 @@ function QuoteFast()
 		if (!empty($modSettings['removeNestedQuotes']))
 			$row['body'] = preg_replace(array('~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'), '', $row['body']);
 
-		// Make the body HTML if need be.
-		if (!empty($_REQUEST['mode']))
-		{
-			require_once($sourcedir . '/Subs-Editor.php');
-			$row['body'] = strtr($row['body'], array('&lt;' => '#smlt#', '&gt;' => '#smgt#', '&amp;' => '#smamp#'));
-			$row['body'] = bbc_to_html($row['body']);
-			$lb = '<br />';
-		}
-		else
-			$lb = "\n";
+		$lb = "\n";
 
 		// Add a quote string on the front and end.
 		$context['quote']['xml'] = '[quote author=' . $row['poster_name'] . ' link=topic=' . $row['id_topic'] . '.msg' . (int) $_REQUEST['quote'] . '#msg' . (int) $_REQUEST['quote'] . ' date=' . $row['poster_time'] . ']' . $lb . $row['body'] . $lb . '[/quote]';
