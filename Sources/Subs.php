@@ -341,9 +341,6 @@ function updateMemberData($members, $data)
 	$knownFloats = array(
 		'time_offset',
 	);
-	
-	// Allow mods access for knownInts and knownFloats
-	call_integration_hook('integrate_known_numbers', array(&$knownInts, &$knownFloats));
 
 	$setString = '';
 	foreach ($data as $var => $val)
