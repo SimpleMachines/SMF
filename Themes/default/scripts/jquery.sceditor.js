@@ -1,11 +1,16 @@
 /**
- * SCEditor v1.3.4
- * http://www.samclarke.com/2011/07/sceditor/ 
+ * SCEditor
+ * http://www.samclarke.com/2011/07/sceditor/
  *
  * Copyright (C) 2011-2012, Sam Clarke (samclarke.com)
  *
  * SCEditor is licensed under the MIT license:
  *	http://www.opensource.org/licenses/mit-license.php
+ *
+ * @fileoverview SCEditor - A lightweight WYSIWYG BBCode and HTML editor
+ * @author Sam Clarke
+ * @version 1.3.7
+ * @requires jQuery
  */
 
 // ==ClosureCompiler==
@@ -16,7 +21,7 @@
 /*jshint smarttabs: true, scripturl: true, jquery: true, devel:true, eqnull:true, curly: false */
 /*global XMLSerializer: true*/
 
-(function ($) {
+;(function ($, window, document) {
 	'use strict';
 
 	var _templates = {
@@ -714,6 +719,7 @@
 				emoticon;
 
 			$.each(emoticons, function (key, url) {
+				// @todo Why did I (emanuele) add this?
 				if (key == '')
 					emoticon = document.createElement('br');
 				else
@@ -742,26 +748,28 @@
 			// IE needs unselectable attr to stop it from unselecting the text in the editor.
 			// The editor can cope if IE does unselect the text it's just not nice.
 			if(ieUnselectable !== false) {
-				content = $(content);
-				content.find(':not(input,textarea)').filter(function() { return this.nodeType===1; }).attr('unselectable', 'on');
+				$(content).find(':not(input,textarea)')
+					.filter(function() {
+						return this.nodeType===1;
+					})
+					.attr('unselectable', 'on');
 			}
 
-			var o_css = {
+			var css = {
 				top: menuItem.offset().top,
 				left: menuItem.offset().left
 			};
 
-			$.extend(o_css, base.options.dropDownCss);
+			$.extend(css, base.options.dropDownCss);
 
-			$dropdown = $('<div class="sceditor-dropdown sceditor-' + dropDownName + '" />').css(o_css).append(content);
-
-			//$editorContainer.after($dropdown);
-			$dropdown.appendTo($('body'));
-
-			// stop clicks within the dropdown from being handled
-			$dropdown.click(function (e) {
-				e.stopPropagation();
-			});
+			$dropdown = $('<div class="sceditor-dropdown sceditor-' + dropDownName + '" />')
+				.css(css)
+				.append(content)
+				.appendTo($('body'))
+				.click(function (e) {
+					// stop clicks within the dropdown from being handled
+					e.stopPropagation();
+				});
 		};
 
 		/**
@@ -1235,6 +1243,7 @@
 			var emoticons = $.extend({}, base.options.emoticons.more, base.options.emoticons.dropdown, base.options.emoticons.hidden);
 
 			$.each(emoticons, function (key, url) {
+				// @todo Why did I (emanuele) add this?
 				if (key == '')
 					return;
 				// escape the key before using it as a regex
@@ -1415,7 +1424,7 @@
 			// Must use an element that isn't display:hidden or visibility:hidden for iOS
 			// so create a special blur element to use
 			if(!$blurElm)
-				$blurElm = $('<input style="width:0; height:0; opacity:0" type="text" />').appendTo($editorContainer);
+				$blurElm = $('<input style="width:0; height:0; opacity:0; filter: alpha(opacity=0)" type="text" />').appendTo($editorContainer);
 
 			$blurElm.removeAttr("disabled")
 				.focus()
@@ -1793,7 +1802,6 @@
 		// END_COMMAND
 		// START_COMMAND: Size
 		size: {
-			// In other words remember to check if the entries of font-size dropdown overlap
 			_dropDown: function(editor, caller, callback) {
 				var sizes = [0, 8, 10, 12, 14, 18, 24, 36];
 				var	content   = $("<div />"),
@@ -1915,14 +1923,19 @@
 		// START_COMMAND: Paste Text
 		pastetext: {
 			exec: function (caller) {
-				var	editor = this,
-					content = _tmpl("pastetext", {
+				var	val,
+					editor	= this,
+					content	= _tmpl("pastetext", {
 						label: editor._("Paste your text inside the following box:"),
 						insert: editor._("Insert")
 					}, true);
 
 				content.find('.button').click(function (e) {
-					editor.wysiwygEditorInsertText(content.find("#txt").val());
+					val = content.find("#txt").val();
+
+					if(val)
+						editor.wysiwygEditorInsertText(val);
+
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
@@ -2145,6 +2158,7 @@
 			exec: function (caller) {
 				var	appendEmoticon,
 					editor  = this,
+					end	= (editor.options.emoticonsCompat ? ' ' : ''),
 					content = $('<div />'),
 					line    = $('<div />');
 
@@ -2155,11 +2169,6 @@
 								alt: code
 							})
 							.click(function (e) {
-								var end = '';
-
-								if(editor.options.emoticonsCompat)
-									end   = ' ';
-
 								editor.insert($(this).attr('alt') + end);
 								editor.closeDropDown(true);
 								e.preventDefault();
@@ -2177,11 +2186,12 @@
 				if(line.children().length > 0)
 					content.append(line);
 
-				if(typeof editor.options.emoticons.more !== "undefined") {
-					var more = $(this._('<a class="sceditor-more">{0}</a>', this._("More"))).click(function () {
+				if(editor.options.emoticons.more) {
+					var more = $(
+						this._('<a class="sceditor-more">{0}</a>', this._("More"))
+					).click(function () {
 						var	emoticons	= $.extend({}, editor.options.emoticons.dropdown, editor.options.emoticons.more);
 							content		= $('<div />');
-							line		= $('<div />');
 
 						$.each(emoticons, appendEmoticon);
 
@@ -2189,12 +2199,16 @@
 							content.append(line);
 
 						editor.createDropDown(caller, "insertemoticon", content);
+						return false;
 					});
 
 					content.append(more);
 				}
 
 				editor.createDropDown(caller, "insertemoticon", content);
+			},
+			txtExec: function(caller) {
+				$.sceditor.command.get('emoticon').exec.call(this, caller);
 			},
 			keyPress: function (e)
 			{

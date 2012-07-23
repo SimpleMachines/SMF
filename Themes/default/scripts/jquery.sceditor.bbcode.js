@@ -8,7 +8,7 @@
  *	http://www.opensource.org/licenses/mit-license.php
  *
  * @author Sam Clarke
- * @version 1.3.6
+ * @version 1.3.7
  * @requires jQuery
  */
 
