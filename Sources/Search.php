@@ -231,6 +231,8 @@ function PlushSearch1()
 	// Simple or not?
 	$context['simple_search'] = isset($context['search_params']['advanced']) ? empty($context['search_params']['advanced']) : !empty($modSettings['simpleSearch']) && !isset($_REQUEST['advanced']);
 	$context['page_title'] = $txt['set_parameters'];
+
+	call_integration_hook('integrate_search');
 }
 
 /**
@@ -265,17 +267,19 @@ function PlushSearch2()
 	}
 
 	$weight_factors = array(
-		'frequency',
-		'age',
-		'length',
-		'subject',
-		'first_message',
-		'sticky',
+		'frequency' => 'COUNT(*) / (MAX(t.num_replies) + 1)',
+		'age' => 'CASE WHEN MAX(m.id_msg) < {int:min_msg} THEN 0 ELSE (MAX(m.id_msg) - {int:min_msg}) / {int:recent_message} END',
+		'length' => 'CASE WHEN MAX(t.num_replies) < {int:huge_topic_posts} THEN MAX(t.num_replies) / {int:huge_topic_posts} ELSE 1 END',
+		'subject' => '0',
+		'first_message' => 'CASE WHEN MIN(m.id_msg) = MAX(t.id_first_msg) THEN 1 ELSE 0 END',
+		'sticky' => 'MAX(t.is_sticky)',
 	);
+
+	call_integration_hook('integrate_search_weights', array($weight_factors));
 
 	$weight = array();
 	$weight_total = 0;
-	foreach ($weight_factors as $weight_factor)
+	foreach ($weight_factors as $weight_factor => $value)
 	{
 		$weight[$weight_factor] = empty($modSettings['search_weight_' . $weight_factor]) ? 0 : (int) $modSettings['search_weight_' . $weight_factor];
 		$weight_total += $weight[$weight_factor];
@@ -570,6 +574,7 @@ function PlushSearch2()
 		'num_replies',
 		'id_msg',
 	);
+	call_integration_hook('integrate_search_sort_columns', array($sort_columns));
 	if (empty($search_params['sort']) && !empty($_REQUEST['sort']))
 		list ($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 	$search_params['sort'] = !empty($search_params['sort']) && in_array($search_params['sort'], $sort_columns) ? $search_params['sort'] : 'relevance';
@@ -584,6 +589,7 @@ function PlushSearch2()
 	$recentMsg = $modSettings['maxMsgID'] - $minMsg;
 
 	// *** Parse the search query
+	call_integration_hook('integrate_search_params', array($search_params));
 
 	/*
 	 * Unfortunately, searching for words like this is going to be slow, so we're blacklisting them.
@@ -592,6 +598,7 @@ function PlushSearch2()
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
 	 */
 	$blacklisted_words = array('img', 'url', 'quote', 'www', 'http', 'the', 'is', 'it', 'are', 'if');
+	call_integration_hook('integrate_search_blacklisted_words', array($blacklisted_words));
 
 	// What are we searching for?
 	if (empty($search_params['search']))
@@ -940,6 +947,7 @@ function PlushSearch2()
 	);
 
 	// *** A last error check
+	call_integration_hook('integrate_search_errors');
 
 	// One or more search errors? Go back to the first search screen.
 	if (!empty($context['search_errors']))
@@ -1063,6 +1071,18 @@ function PlushSearch2()
 							$subject_query_params['excluded_phrases_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
 						}
 					}
+					call_integration_hook('integrate_subject_only_search_query', array($subject_query, $subject_query_params));
+
+					$relevance = '1000 * (';
+					foreach ($weight_factors as $type => $value)
+					{
+						$relevance .= $weight[$type];
+						if (!empty($value))
+							$relevance .= ' * ' . $value;
+						$relevance .= ' +
+							';
+					}
+					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
 					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_subject',
 						($smcFunc['db_support_ignore'] ? '
@@ -1071,13 +1091,7 @@ function PlushSearch2()
 						SELECT
 							{int:id_search},
 							t.id_topic,
-							1000 * (
-								{int:weight_frequency} / (t.num_replies + 1) +
-								{int:weight_age} * CASE WHEN t.id_first_msg < {int:min_msg} THEN 0 ELSE (t.id_first_msg - {int:min_msg}) / {int:recent_message} END +
-								{int:weight_length} * CASE WHEN t.num_replies < {int:huge_topic_posts} THEN t.num_replies / {int:huge_topic_posts} ELSE 1 END +
-								{int:weight_subject} +
-								{int:weight_sticky} * t.is_sticky
-							) / {int:weight_total} AS relevance,
+							' . $relevance. ',
 							' . (empty($userQuery) ? 't.id_first_msg' : 'm.id_msg') . ',
 							1
 						FROM ' . $subject_query['from'] . (empty($subject_query['inner_join']) ? '' : '
@@ -1090,12 +1104,6 @@ function PlushSearch2()
 						LIMIT ' . ($modSettings['search_max_results'] - $numSubjectResults)),
 						array_merge($subject_query_params, array(
 							'id_search' => $_SESSION['search_cache']['id_search'],
-							'weight_age' => $weight['age'],
-							'weight_frequency' => $weight['frequency'],
-							'weight_length' => $weight['length'],
-							'weight_sticky' => $weight['sticky'],
-							'weight_subject' => $weight['subject'],
-							'weight_total' => $weight_total,
 							'min_msg' => $minMsg,
 							'recent_message' => $recentMsg,
 							'huge_topic_posts' => $humungousTopicPosts,
@@ -1167,14 +1175,7 @@ function PlushSearch2()
 					$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
 					$main_query['select']['num_matches'] = 'COUNT(*) AS num_matches';
 
-					$main_query['weights'] = array(
-						'frequency' => 'COUNT(*) / (MAX(t.num_replies) + 1)',
-						'age' => 'CASE WHEN MAX(m.id_msg) < {int:min_msg} THEN 0 ELSE (MAX(m.id_msg) - {int:min_msg}) / {int:recent_message} END',
-						'length' => 'CASE WHEN MAX(t.num_replies) < {int:huge_topic_posts} THEN MAX(t.num_replies) / {int:huge_topic_posts} ELSE 1 END',
-						'subject' => '0',
-						'first_message' => 'CASE WHEN MIN(m.id_msg) = MAX(t.id_first_msg) THEN 1 ELSE 0 END',
-						'sticky' => 'MAX(t.is_sticky)',
-					);
+					$main_query['weights'] = $weight_factors;
 
 					$main_query['group_by'][] = 't.id_topic';
 				}
@@ -1315,6 +1316,7 @@ function PlushSearch2()
 								$subject_query['params']['exclude_phrase_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
 							}
 						}
+						call_integration_hook('integrate_subject_search_query', array($subject_query));
 
 						// Nothing to search for?
 						if (empty($subject_query['where']))
@@ -1532,6 +1534,7 @@ function PlushSearch2()
 						$main_query['parameters']['board_query'] = $boardQuery;
 					}
 				}
+				call_integration_hook('integrate_main_search_query', array($main_query));
 
 				// Did we either get some indexed results, or otherwise did not do an indexed query?
 				if (!empty($indexedResults) || !$searchAPI->supportsMethod('indexedWordQuery', $query_params))
@@ -1540,7 +1543,11 @@ function PlushSearch2()
 					$new_weight_total = 0;
 					foreach ($main_query['weights'] as $type => $value)
 					{
-						$relevance .= $weight[$type] . ' * ' . $value . ' + ';
+						$relevance .= $weight[$type];
+						if (!empty($value))
+							$relevance .= ' * ' . $value;
+						$relevance .= ' +
+							';
 						$new_weight_total += $weight[$type];
 					}
 					$main_query['select']['relevance'] = substr($relevance, 0, -3) . ') / ' . $new_weight_total . ' AS relevance';
@@ -1601,6 +1608,17 @@ function PlushSearch2()
 				// Insert subject-only matches.
 				if ($_SESSION['search_cache']['num_results'] < $modSettings['search_max_results'] && $numSubjectResults !== 0)
 				{
+					$relevance = '1000 * (';
+					foreach ($main_query['weights'] as $type => $value)
+					{
+						$relevance .= $weight[$type];
+						if (!empty($value))
+							$relevance .= ' * ' . $value;
+						$relevance .= ' +
+							';
+					}
+					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
+
 					$usedIDs = array_flip(empty($inserts) ? array() : array_keys($inserts));
 					$ignoreRequest = $smcFunc['db_search_query']('insert_log_search_results_sub_only', ($smcFunc['db_support_ignore'] ? ( '
 						INSERT IGNORE INTO {db_prefix}log_search_results
@@ -1608,13 +1626,7 @@ function PlushSearch2()
 						SELECT
 							{int:id_search},
 							t.id_topic,
-							1000 * (
-								{int:weight_frequency} / (t.num_replies + 1) +
-								{int:weight_age} * CASE WHEN t.id_first_msg < {int:min_msg} THEN 0 ELSE (t.id_first_msg - {int:min_msg}) / {int:recent_message} END +
-								{int:weight_length} * CASE WHEN t.num_replies < {int:huge_topic_posts} THEN t.num_replies / {int:huge_topic_posts} ELSE 1 END +
-								{int:weight_subject} +
-								{int:weight_sticky} * t.is_sticky
-							) / {int:weight_total} AS relevance,
+							' . $relevance. ',
 							t.id_first_msg,
 							1
 						FROM {db_prefix}topics AS t
@@ -1624,12 +1636,6 @@ function PlushSearch2()
 						LIMIT ' . ($modSettings['search_max_results'] - $_SESSION['search_cache']['num_results'])),
 						array(
 							'id_search' => $_SESSION['search_cache']['id_search'],
-							'weight_age' => $weight['age'],
-							'weight_frequency' => $weight['frequency'],
-							'weight_length' => $weight['frequency'],
-							'weight_sticky' => $weight['frequency'],
-							'weight_subject' => $weight['frequency'],
-							'weight_total' => $weight_total,
 							'min_msg' => $minMsg,
 							'recent_message' => $recentMsg,
 							'huge_topic_posts' => $humungousTopicPosts,
@@ -1701,12 +1707,12 @@ function PlushSearch2()
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify', true, false));
+		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify'), true, false);
 
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
 		{
-			$boards_can = boardsAllowedTo(array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any', true, false));
+			$boards_can = array_merge($boards_can, boardsAllowedTo(array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'), true, false));
 
 			$context['can_lock'] = in_array(0, $boards_can['lock_any']);
 			$context['can_sticky'] = in_array(0, $boards_can['make_sticky']) && !empty($modSettings['enableStickyTopics']);
@@ -1737,6 +1743,8 @@ function PlushSearch2()
 
 		if (!empty($posters))
 			loadMemberData(array_unique($posters));
+
+		call_integration_hook('integrate_search_message_list', array($messages, $posters));
 
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = $smcFunc['db_query']('', '
@@ -2046,6 +2054,7 @@ function prepareSearchContext($reset = false)
 		$context['can_move'] |= $output['quick_mod']['move'];
 		$context['can_remove'] |= $output['quick_mod']['remove'];
 		$context['can_merge'] |= in_array($output['board']['id'], $boards_can['merge_any']);
+		$context['can_markread'] = $context['user']['is_logged'];
 
 		// If we've found a message we can move, and we don't already have it, load the destinations.
 		if ($options['display_quick_mod'] == 1 && !isset($context['move_to_boards']) && $context['can_move'])
@@ -2058,6 +2067,9 @@ function prepareSearchContext($reset = false)
 			);
 			$context['move_to_boards'] = getBoardList($boardListOptions);
 		}
+
+		$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
+		call_integration_hook('integrate_quick_mod_actions_search');
 	}
 
 	foreach ($context['key_words'] as $query)
@@ -2093,6 +2105,8 @@ function prepareSearchContext($reset = false)
 		'start' => 'msg' . $message['id_msg']
 	);
 	$counter++;
+
+	call_integration_hook('integrate_search_message_context', array($counter, $output));
 
 	return $output;
 }
