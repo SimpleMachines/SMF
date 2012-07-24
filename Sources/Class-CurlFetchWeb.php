@@ -87,6 +87,8 @@ class curl_fetch_web_data
 		// set the options and get it
 		$this->set_options();
 		$this->curl_request(str_replace(' ', '%20', $url));
+
+		return $this;
 	}
 
 	/**
