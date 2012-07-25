@@ -2934,6 +2934,17 @@ function setupThemeContext($forceload = false)
 	// This is done to allow theme authors to customize it as they want.
 	$context['show_pm_popup'] = $context['user']['popup_messages'] && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
 
+	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
+	if($context['show_pm_popup'])
+		addInlineJavascript('
+		$(document).ready(function(){
+			new smc_Popup({
+				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
+				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
+				icon: smf_images_url + \'/im_sm_newmsg.png\'
+			});
+		});');
+
 	// Resize avatars the fancy, but non-GD requiring way.
 	if ($modSettings['avatar_action_too_large'] == 'option_js_resize' && (!empty($modSettings['avatar_max_width_external']) || !empty($modSettings['avatar_max_height_external'])))
 	{
@@ -3224,32 +3235,73 @@ function template_footer()
 }
 
 /**
- * Output the Javascript files
+ * Output the Javascript files (messed up tabbing in this function is to make the HTML source look good)
  */
 function template_javascript($do_defered = false)
 {
-	global $context;
+	global $context, $modSettings, $settings;
 
-	// Use this hook to minify/optimize Javascript files
+	// Use this hook to minify/optimize Javascript files and vars
 	call_integration_hook('pre_javascript_output');
-
-	foreach ($context['javascript_files'] as $filename => $options)
-		if ((!$do_defered && empty($options['defer'])) || ($do_defered && !empty($options['defer'])))
-			echo '
-		<script type="text/javascript" src="', $filename, '"></script>';
-
-	if (!empty($context['javascript_vars']))
+	
+	// Javascript variables.
+	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[';
+	<script type="text/javascript"><!-- // --><![CDATA[';
 
 		foreach ($context['javascript_vars'] as $key => $value)
 			echo '
-			var ', $key, ' = ', $value;
+		var ', $key, ' = ', $value, ';';
 
 		echo '
-		// ]]></script>';
+	// ]]></script>';
+	}
 
+	// Javascript files
+	foreach ($context['javascript_files'] as $id => $file)
+	{
+		if ((!$do_defered && empty($file['options']['defer'])) || ($do_defered && !empty($file['options']['defer'])))
+			echo '
+	<script type="text/javascript" src="', $file['filename'], '" id="', $id,'"' , !empty($file['options']['async']) ? ' async="async"' : '' ,'></script>';
+	
+		// If this was JQuery being loaded and we are set to 'auto' load it, add the inline JS stuff here
+		if($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'],array('local', 'cdn'))))
+		echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
+	// ]]></script>';
+
+	}
+	
+	// Inline JavaScript - Actually useful some times!
+	if (!empty($context['javascript_inline']))
+	{
+		if(!empty($context['javascript_inline']['defer']) && $do_defered)
+		{
+			echo '
+<script type="text/javascript"><!-- // --><![CDATA[
+	';
+
+			foreach ($context['javascript_inline']['defer'] as $code)
+				echo $code;
+					
+			echo'
+// ]]></script>';
+		}
+
+		if(!empty($context['javascript_inline']['standard']) && !$do_defered)
+		{
+			echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+		';
+
+			foreach ($context['javascript_inline']['standard'] as $code)
+				echo $code;
+					
+			echo'
+	// ]]></script>';
+		}
 	}
 }
 
@@ -3263,9 +3315,9 @@ function template_css()
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('pre_css_output');
 
-	foreach ($context['css_files'] as $filename => $options)
+	foreach ($context['css_files'] as $id => $file)
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $filename, '" />';
+	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" id="', $id,'" />';
 }
 
 /**

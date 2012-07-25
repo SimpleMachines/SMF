@@ -1517,6 +1517,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Some basic information...
 	if (!isset($context['html_headers']))
 		$context['html_headers'] = '';
+	if(!isset($context['javascript_files']))
+		$context['javascript_files'] = array();
+	if(!isset($context['css_files']))
+		$context['css_files'] = array();
+	if(!isset($context['javascript_inline']))
+		$context['javascript_inline'] = array('standard' => array(), 'defer' => array());
+	if(!isset($context['javascript_vars']))
+		$context['javascript_vars'] = array();
 
 	$context['menu_separator'] = !empty($settings['use_image_buttons']) ? ' ' : ' | ';
 	$context['session_var'] = $_SESSION['session_var'];
@@ -1568,9 +1576,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'quotefast',
 		'spellcheck',
 	);
-
-	$context['javascript_files'] = array();
-	$context['css_files'] = array();
 
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
@@ -1682,6 +1687,40 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// This allows us to change the way things look for the admin.
 	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('cd,cp,k,w,rg,ml,pm');
 
+	// Default JS variables for use in every theme
+	loadLanguage('index');
+	$context['javascript_vars'] = array(
+		'smf_theme_url' => '"' . $settings['theme_url'] . '"',
+		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
+		'smf_images_url' => '"' . $settings['images_url'] . '"',
+		'smf_scripturl' => '"' . $scripturl . '"',
+		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
+		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
+		'smf_charset' => '"' . $context['character_set'] . '"',
+		'smf_session_id' => '"' . $context['session_id'] . '"',
+		'smf_session_var' => '"' . $context['session_var'] . '"',
+		'smf_member_id' => $context['user']['id'],
+		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
+		'ajax_notification_cancel_text' => JavaScriptEscape($txt['modify_cancel']),
+		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
+	);
+	
+	// Add the JQuery library to the list of files to load.
+	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
+	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
+		loadJavascriptFile('jquery-1.7.1.min.js', array('default_theme' => true), 'jquery');
+	// Auto load, eh? template_javascript() will take care of the inline half of this.
+	else
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
+	
+	// Queue our JQuery plugins!
+	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true), 'jquery_plugins');
+	
+	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
+	loadJavascriptFile('script.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('theme.js', array(), 'theme_scripts');
+	
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
 	{
@@ -1701,15 +1740,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$type = empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() ? 'task' : 'mailq';
 			$ts = $type == 'mailq' ? $modSettings['mail_next_send'] : $modSettings['next_task_time'];
 
-			$context['html_headers'] .= '
-	<script type="text/javascript">
+			addInlineJavascript('
 		function smfAutoTask()
 		{
 			var tempImage = new Image();
 			tempImage.src = smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '";
 		}
-		window.setTimeout("smfAutoTask();", 1);
-	</script>';
+		window.setTimeout("smfAutoTask();", 1);');
+
 		}
 	}
 
@@ -1748,26 +1786,14 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
 	global $context, $settings, $txt, $scripturl, $boarddir, $db_show_debug;
 
-	// Do any style sheets first, cause we're easy with those.
+	// Do any style sheets first (reroute to the new function to do this!)
 	if (!empty($style_sheets))
 	{
 		if (!is_array($style_sheets))
 			$style_sheets = array($style_sheets);
 
 		foreach ($style_sheets as $sheet)
-		{
-			// Prevent the style sheet from being included twice.
-			if (strpos($context['html_headers'], 'id="' . $sheet . '_css"') !== false)
-				continue;
-
-			$sheet_path = file_exists($settings['theme_dir']. '/css/' . $sheet . '.css') ? 'theme_url' : (file_exists($settings['default_theme_dir']. '/css/' . $sheet . '.css') ? 'default_theme_url' : '');
-			if ($sheet_path)
-			{
-				$context['html_headers'] .= "\n\t" . '<link rel="stylesheet" type="text/css" id="' . $sheet . '_css" href="' . $settings[$sheet_path] . '/css/' . $sheet . '.css?alp21" />';
-				if ($db_show_debug === true)
-					$context['debug']['sheets'][] = $sheet . ' (' . basename($settings[$sheet_path]) . ')';
-			}
-		}
+			loadCSSFile($sheet . '.css', array(), $sheet);
 	}
 
 	// No template to load?
@@ -1866,15 +1892,36 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *
  * @param string $filename
  * @param array $options
+ * 	- local (true/false): define if the file is local
+ * 	- default_theme (true/false): force use of default theme url
+ * 	- force_current (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
+ * @param string $id
  */
-function loadCSSFile($filename, $options = array())
+function loadCSSFile($filename, $options = array(), $id = '')
 {
 	global $settings, $context;
 
-	if (strpos($filename, 'http://') === false || !empty($options['local']))
-		$filename = $settings['theme_url'] . '/' . $filename;
+	$theme = !empty($options['default_theme']) ? 'default_theme' : 'theme';
+	$options['force_current'] = !empty($options['force_current']) ? $options['force_current'] : false;
 
-	$context['css_files'][$filename] = $options;
+	// Is this a local file?
+	if (strpos($filename, 'http') === false || !empty($options['local']))
+	{
+		// Make sure it exists, too!
+		if(!file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
+		{
+			// Maybe the default theme has it?
+			if($theme == 'theme' && file_exists($settings['default_theme_dir'] . '/' . $filename) && !$options['force_current'])
+				$filename = $settings['default_theme_url'] . '/css/' . $filename;
+			else
+				$filename = false;
+		}
+		else
+			$filename = $settings[$theme . '_url'] . '/css/' . $filename;
+	}
+
+	if(!empty($filename))
+		$context['css_files'][(empty($id) ? basename($filename) : $id)] = array('filename' => $filename, 'options' => $options);
 }
 
 /**
@@ -1884,18 +1931,69 @@ function loadCSSFile($filename, $options = array())
  * @param array $options, possible parameters:
  * 	- local (true/false): define if the file is local
  * 	- default_theme (true/false): force use of default theme url
- * 	- defer (true/false): define if the file should be load in head or before the closing <html> tag
+ * 	- force_current (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
+ * 	- defer (true/false): define if the file should load in <head> or before the closing <html> tag
+ *	- async (true/false): if the script should be loaded asynchronously (HTML5)
+ * @param string $id
  */
-function loadJavascriptFile($filename, $options = array())
+function loadJavascriptFile($filename, $options = array(), $id = '')
 {
 	global $settings, $context;
 
-	$theme = !empty($options['default_theme']) ? 'default_theme_url' : 'theme_url';
+	$theme = !empty($options['default_theme']) ? 'default_theme' : 'theme';
+	$options['force_current'] = !empty($options['force_current']) ? $options['force_current'] : false;
 
+	// Is this a local file?
 	if (strpos($filename, 'http') === false || !empty($options['local']))
-		$filename = $settings[$theme] . '/' . $filename;
+	{
+		// Make sure it exists, too!
+		if(!file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
+		{
+			// Maybe the default theme has it?
+			if($theme == 'theme' && file_exists($settings['default_theme_dir'] . '/' . $filename) && !$options['force_current'])
+				$filename = $settings['default_theme_url'] . '/scripts/' . $filename;
+			else
+				$filename = false;
+		}
+		else
+			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename;
+	}
 
-	$context['javascript_files'][$filename] = $options;
+	if(!empty($filename))
+		$context['javascript_files'][(empty($id) ? basename($filename) : $id)] = array('filename' => $filename, 'options' => $options);
+}
+
+/**
+ * Add a Javascript variable for output later (for feeding text strings and similar to JS)
+ * Cleaner and easier (for modders) than to use the function below.
+ *
+ * @param string $key
+ * @param string $value
+ * @param bool $escape = false, whether or not to escape the value
+ */
+function addJavascriptVar($key, $value, $escape = false)
+{
+	global $context;
+
+	if(!empty($key) && !empty($value))
+		$context['javascript_vars'][$key] = $escape ? JavaScriptEscape($value) : $value;
+}
+
+/**
+ * Add a block of inline Javascript code to be executed later
+ * Only use this if you have to, generally external JS files are better, but for very small scripts
+ * or for scripts that require help from PHP/whatever, this can be useful.
+ * Do note that all code added with this function is added to the same <script> tag so do make sure your JS is clean!
+ *
+ * @param string $javascript
+ * @param bool $defer = false, define if the script should load in <head> or before the closing <html> tag
+ */
+function addInlineJavascript($javascript, $defer = false)
+{
+	global $context;
+
+	if(!empty($javascript))
+		$context['javascript_inline'][$defer ? 'defer' : 'standard'][] = $javascript;
 }
 
 /**
