@@ -572,7 +572,7 @@ function MessageIndex()
 	if (!empty($options['display_quick_mod']) && !empty($context['topics']))
 	{
 		$context['can_markread'] = $context['user']['is_logged'];
-		$context['can_lopck'] = allowedTo('lock_any');
+		$context['can_lock'] = allowedTo('lock_any');
 		$context['can_sticky'] = allowedTo('make_sticky') && !empty($modSettings['enableStickyTopics']);
 		$context['can_move'] = allowedTo('move_any');
 		$context['can_remove'] = allowedTo('remove_any');
