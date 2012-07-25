@@ -65,7 +65,7 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 		bottom: 0;
 		right: 0;
 		z-index: 3;
-		background: url('../images/bbc/icons/grip.png');
+		background: url('../images/bbc/grip.png');
 	}
 	div.sceditor-dropdown {
 		position: absolute;

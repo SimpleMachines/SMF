@@ -1050,7 +1050,7 @@ function ModifyLanguage()
 			// Got a new entry?
 			if ($line[0] == '$' && !empty($multiline_cache))
 			{
-				preg_match('~\$(helptxt|txt|editortxt)\[\'(.+)\'\]\s?=\s?(.+);~', strtr($multiline_cache, array("\n" => '', "\t" => '')), $matches);
+				preg_match('~\$(helptxt|txt|editortxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 				if (!empty($matches[3]))
 				{
 					$entries[$matches[2]] = array(
@@ -1061,12 +1061,12 @@ function ModifyLanguage()
 					$multiline_cache = '';
 				}
 			}
-			$multiline_cache .= $line . "\n";
+			$multiline_cache .= $line;
 		}
 		// Last entry to add?
 		if ($multiline_cache)
 		{
-			preg_match('~\$(helptxt|txt|editortxt)\[\'(.+)\'\]\s?=\s?(.+);~', strtr($multiline_cache, array("\n" => '', "\t" => '')), $matches);
+			preg_match('~\$(helptxt|txt|editortxt)\[\'(.+)\'\]\s?=\s?(.+);~ms', strtr($multiline_cache, array("\r" => '')), $matches);
 			if (!empty($matches[3]))
 				$entries[$matches[2]] = array(
 					'type' => $matches[1],
@@ -1087,7 +1087,7 @@ function ModifyLanguage()
 				continue;
 
 			// These are arrays that need breaking out.
-			$arrays = array('days', 'days_short', 'months', 'months_titles', 'months_short');
+			$arrays = array('days', 'days_short', 'months', 'months_titles', 'months_short', 'happy_birthday_author', 'karlbenson1_author', 'nite0859_author', 'zwaldowski_author', 'geezmo_author', 'karlbenson2_author');
 			if (in_array($entryKey, $arrays))
 			{
 				// Get off the first bits.
@@ -1193,7 +1193,7 @@ function ModifyLanguage()
 
 			// Save the actual changes.
 			$fp = fopen($current_file, 'w+');
-			fwrite($fp, $file_contents);
+			fwrite($fp, strtr($file_contents, array("\r" => '')));
 			fclose($fp);
 
 			$madeSave = true;
@@ -1316,7 +1316,7 @@ function cleanLangString($string, $to_display = true)
 		}
 
 		// Unhtml then rehtml the whole thing!
-		$new_string = htmlspecialchars(un_htmlspecialchars($new_string));
+		$new_string = $smcFunc['htmlspecialchars'](un_htmlspecialchars($new_string));
 	}
 	else
 	{
@@ -1326,26 +1326,8 @@ function cleanLangString($string, $to_display = true)
 		$in_html = false;
 		for ($i = 0; $i < strlen($string); $i++)
 		{
-			// Handle line breaks!
-			if ($string{$i} == "\n" || $string{$i} == "\t")
-			{
-				// Are we in a string? Is it the right type?
-				if ($in_string == 1)
-				{
-					// Change type!
-					$new_string .= '\' . "\\' . ($string{$i} == "\n" ? 'n' : 't');
-					$in_string = 2;
-				}
-				elseif ($in_string == 2)
-					$new_string .= '\\' . ($string{$i} == "\n" ? 'n' : 't');
-				// Otherwise start one off - joining if required.
-				else
-					$new_string .= ($new_string ? ' . ' : '') . '"\\' . ($string{$i} == "\n" ? 'n' : 't');
-
-				continue;
-			}
 			// We don't do parsed strings apart from for breaks.
-			elseif ($in_string == 2)
+			if ($in_string == 2)
 			{
 				$in_string = 0;
 				$new_string .= '"';
