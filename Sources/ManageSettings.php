@@ -249,6 +249,12 @@ function ModifyCoreFeatures($return_config = false)
 					)
 				);
 			'),
+		// ih = Integration Hooks Handling.
+		'ih' => array(
+			'url' => 'action=admin;area=modsettings;sa=hooks',
+			'settings' => array(
+				'handlinghooks_enabled' => 1,
+			),
 		),
 		// k = karma.
 		'k' => array(
@@ -2303,24 +2309,6 @@ function list_integration_hooks()
 					'reverse' => 'status DESC',
 				),
 			),
-			'check' => array(
-				'header' => array(
-					'value' => $txt['hooks_button_remove'],
-					'style' => 'width:3%',
-				),
-				'data' => array(
-					'function' => create_function('$data', '
-						global $txt, $settings, $scripturl, $context;
-
-						if (!$data[\'hook_exists\'])
-							return \'
-							<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
-								<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="\' . $txt[\'hooks_button_remove\'] . \'" title="\' . $txt[\'hooks_button_remove\'] . \'" />
-							</a>\';
-					'),
-					'class' => 'centertext',
-				),
-			),
 		),
 		'form' => array(
 			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
@@ -2339,6 +2327,27 @@ function list_integration_hooks()
 			),
 		),
 	);
+
+	if (!empty($modSettings['handlinghooks_enabled']))
+		$list_options['columns']['remove'] = array(
+			'header' => array(
+				'value' => $txt['hooks_button_remove'],
+				'style' => 'width:3%',
+			),
+			'data' => array(
+				'function' => create_function('$data', '
+					global $txt, $settings, $scripturl, $context;
+
+					if (!$data[\'hook_exists\'])
+						return \'
+						<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
+							<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="\' . $txt[\'hooks_button_remove\'] . \'" title="\' . $txt[\'hooks_button_remove\'] . \'" />
+						</a>\';
+				'),
+				'class' => 'centertext',
+			),
+		);
+
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($list_options);
@@ -2372,7 +2381,7 @@ function get_files_recursive($dir_path)
 
 function get_integration_hooks_data($start, $per_page, $sort)
 {
-	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl;
+	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl, $modSettings;
 
 	$hooks = $temp_hooks = get_integration_hooks();
 	$hooks_data = $temp_data = $hook_status = array();
@@ -2474,7 +2483,6 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				$function = str_replace(']', '', $function);
 				$hook_exists = !empty($hook_status[$hook][$function]['exists']);
 				$file_name = isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ((substr($hook, -8) === '_include') ? 'zzzzzzzzz' : 'zzzzzzzza');
-				$status = $hook_exists ? ($enabled ? 'a' : 'b') : 'c';
 				$sort[] = $$sort_options[0];
 				$temp_data[] = array(
 					'id' => 'hookid_' . $id++,
@@ -2485,7 +2493,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
 					'img_text' => $txt['hooks_' . ($hook_exists ? ($enabled ? 'active' : 'disabled') : 'missing')],
 					'enabled' => $enabled,
-					'can_be_disabled' => !isset($hook_status[$hook][$function]['enabled']),
+					'can_be_disabled' => !empty($modSettings['handlinghooks_enabled']) && !isset($hook_status[$hook][$function]['enabled']),
 				);
 			}
 		}
