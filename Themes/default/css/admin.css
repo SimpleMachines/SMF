@@ -40,7 +40,7 @@ ol.search_results li {
 }
 .features_image {
 	float: left;
-	margin: 0 2em 0.5em 1em;
+	margin: 1.5em 2em .5em 1em;
 }
 .features_switch {
 	margin: 0.2em 1em 1em 1em;
