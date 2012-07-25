@@ -2211,20 +2211,26 @@ function list_integration_hooks()
 
 			if ($_REQUEST['do'] == 'remove')
 				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-			elseif ($_REQUEST['do'] == 'disable')
+			else
 			{
-				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-				// It's a hack I know...but I'm way too lazy!!!
-				add_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']) . ']');
-			}
-			elseif ($_REQUEST['do'] == 'enable')
-			{
-				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']) . ']');
-				// It's a hack I know...but I'm way too lazy!!!
-				add_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-			}
+				if ($_REQUEST['do'] == 'disable')
+				{
+					// It's a hack I know...but I'm way too lazy!!!
+					$function_remove = $_REQUEST['function'];
+					$function_add = $_REQUEST['function'] . ']';
+				}
+				else
+				{
+					$function_remove = $_REQUEST['function'] . ']';
+					$function_add = $_REQUEST['function'];
+				}
+				$file = !empty($_REQUEST['includedfile']) ? urldecode($_REQUEST['includedfile']) : '';
 
-			redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter']);
+				remove_integration_function($_REQUEST['hook'], $function_remove, $file);
+				add_integration_function($_REQUEST['hook'], $function_add, $file);
+
+				redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter']);
+			}
 		}
 	}
 
@@ -2262,11 +2268,10 @@ function list_integration_hooks()
 					'function' => create_function('$data', '
 						global $txt;
 
-						$hook = explode(\':\', $data[\'function_name\']);
-						if (isset($hook[1]))
-							return $txt[\'hooks_field_function\'] . \': \' . $hook[0] . \'<br />\' . $txt[\'hooks_field_included_file\'] . \': \' . $hook[1];
+						if (isset($data[\'included_file\']))
+							return $txt[\'hooks_field_function\'] . \': \' . $data[\'real_function\'] . \'<br />\' . $txt[\'hooks_field_included_file\'] . \': \' . $data[\'included_file\'];
 						else
-							return $hook[0];
+							return $data[\'real_function\'];
 					'),
 				),
 				'sort' =>  array(
@@ -2298,7 +2303,7 @@ function list_integration_hooks()
 						$change_status = array(\'before\' => \'\', \'after\' => \'\');
 						if ($data[\'can_be_disabled\'] && $data[\'status\'] != \'deny\')
 						{
-							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
+							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'real_function\'] . (!empty($data[\'included_file\']) ? \';includedfile=\' . urlencode($data[\'included_file\']) : \'\') . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
 							$change_status[\'after\'] = \'</a>\';
 						}
 						return $change_status[\'before\'] . \'<img src="\' . $settings[\'images_url\'] . \'/admin/post_moderation_\' . $data[\'status\'] . \'.png" alt="\' . $data[\'img_text\'] . \'" title="\' . $data[\'img_text\'] . \'" />\' . $change_status[\'after\'];
@@ -2489,10 +2494,13 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				$hook_exists = !empty($hook_status[$hook][$function]['exists']);
 				$file_name = isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ((substr($hook, -8) === '_include') ? 'zzzzzzzzz' : 'zzzzzzzza');
 				$sort[] = $$sort_options[0];
+				$exploded = explode(':', $function);
 				$temp_data[] = array(
 					'id' => 'hookid_' . $id++,
 					'hook_name' => $hook,
 					'function_name' => $function,
+					'real_function' => $exploded[0],
+					'included_file' => isset($exploded[1]) ? $exploded[1] : '',
 					'file_name' => (isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ''),
 					'hook_exists' => $hook_exists,
 					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
