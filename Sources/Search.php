@@ -1546,8 +1546,7 @@ function PlushSearch2()
 						$relevance .= $weight[$type];
 						if (!empty($value))
 							$relevance .= ' * ' . $value;
-						$relevance .= ' +
-							';
+						$relevance .= ' + ';
 						$new_weight_total += $weight[$type];
 					}
 					$main_query['select']['relevance'] = substr($relevance, 0, -3) . ') / ' . $new_weight_total . ' AS relevance';
