@@ -2032,19 +2032,6 @@ function MessagePost2()
 		}
 	}
 
-	// If we came from WYSIWYG then turn it back into BBC regardless.
-	if (!empty($_POST['message_mode']) && isset($_POST['message']))
-	{
-		require_once($sourcedir . '/Subs-Editor.php');
-		$_POST['message'] = html_to_bbc($_POST['message']);
-
-		// We need to unhtml it now as it gets done shortly.
-		$_POST['message'] = un_htmlspecialchars($_POST['message']);
-
-		// We need this in case of errors etc.
-		$_REQUEST['message'] = $_POST['message'];
-	}
-
 	// If your session timed out, show an error, but do allow to re-submit.
 	if (!isset($_REQUEST['xml']) && checkSession('post', '', false) != '')
 		$post_errors[] = 'session_timeout';

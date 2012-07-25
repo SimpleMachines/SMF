@@ -180,8 +180,7 @@
  * <http://cherne.net/brian/resources/jquery.hoverIntent.html>
  * 
  * hoverIntent is currently available for use in all personal or commercial 
- * projects under both MIT and GPL licenses. This means that you can choose 
- * the license that best suits your project, and use it accordingly.
+ * projects under MIT license.
  * 
  * // basic usage (just like .hover) receives onMouseOver and onMouseOut functions
  * $("ul li").hoverIntent( showNav , hideNav );
@@ -303,9 +302,8 @@
  * Superfish v1.4.8 - jQuery menu widget
  * Copyright (c) 2008 Joel Birch
  *
- * Dual licensed under the MIT and GPL licenses:
+ * Licensed under the MIT license:
  * 	http://www.opensource.org/licenses/mit-license.php
- * 	http://www.gnu.org/licenses/gpl.html
  *
  * CHANGELOG: http://users.tpg.com.au/j_birch/plugins/superfish/changelog.txt
  */
