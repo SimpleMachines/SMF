@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Contains all the functionality required to be able to edit the core server 
+ * Contains all the functionality required to be able to edit the core server
  * settings. This includes anything from which an error may result in the forum
  * destroying itself in a firey fury.
  *
@@ -104,7 +104,7 @@ function ModifySettings()
 	// By default we're editing the core settings
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 	$context['sub_action'] = $_REQUEST['sa'];
-	
+
 	// Any messages to speak of?
 	$context['settings_message'] = (isset($_REQUEST['msg']) && isset($txt[$_REQUEST['msg']])) ? $txt[$_REQUEST['msg']] : '';
 
@@ -323,7 +323,7 @@ function ModifyCookieSettings($return_config = false)
 function ModifyCacheSettings($return_config = false)
 {
 	global $context, $scripturl, $txt, $helptxt, $cache_enable;
-	
+
 	// Detect all available optimizers
 	$detected = array();
 	if (function_exists('eaccelerator_put'))
@@ -338,13 +338,13 @@ function ModifyCacheSettings($return_config = false)
 		$detected['memcached'] = $txt['memcached_cache'];
 	if (function_exists('xcache_set'))
 		$detected['xcache'] = $txt['xcache_cache'];
-		
+
 	// set a message to show what, if anything, we found
 	if (empty($detected))
 		$txt['cache_settings_message'] = $txt['detected_no_caching'];
 	else
 		$txt['cache_settings_message'] = sprintf($txt['detected_accelerators'], implode(', ', $detected));
-	
+
 	// This is always an option
 	$detected['smf'] = $txt['default_cache'];
 
@@ -357,7 +357,7 @@ function ModifyCacheSettings($return_config = false)
 		array('cache_memcached', $txt['cache_memcached'], 'file', 'text', $txt['cache_memcached'], 'cache_memcached'),
 		array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir'),
 	);
-	
+
 	// some javascript to enable / disable certain settings if the option is not selected
 	$context['settings_post_javascript'] = '
 		var cache_type = document.getElementById(\'cache_accelerator\');
@@ -368,8 +368,8 @@ function ModifyCacheSettings($return_config = false)
 		{
 			if (control.addEventListener)
 			{
-				control.addEventListener(ev, fn, false); 
-			} 
+				control.addEventListener(ev, fn, false);
+			}
 			else if (control.attachEvent)
 			{
 				control.attachEvent(\'on\'+ev, fn);
@@ -395,14 +395,14 @@ function ModifyCacheSettings($return_config = false)
 		call_integration_hook('integrate_save_cache_settings');
 
 		saveSettings($config_vars);
-		
+
 		// we need to save the $cache_enable to $modSettings as well
 		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
 
 		// exit so we reload our new settings on the page
 		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
 	}
-	
+
 	// if its off, allow them to clear it as well
 	// @todo why only when its off ?
 	if (empty($cache_enable))
@@ -507,7 +507,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
 	}
-	
+
 	createToken('admin-ssc');
 	createToken('admin-dbsc');
 	prepareDBSettingContext($config_vars);
@@ -570,7 +570,7 @@ function prepareServerSettingsContext(&$config_vars)
 				'preinput' => !empty($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => !empty($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
-			
+
 			// If this is a select box handle any data.
 			if (!empty($config_var[4]) && is_array($config_var[4]))
 			{
@@ -654,14 +654,7 @@ function prepareDBSettingContext(&$config_vars)
 					$context['config_vars'][$config_var[1]]['value'] = unserialize($context['config_vars'][$config_var[1]]['value']);
 				}
 
-				// If it's associative
-				if (isset($config_var[2][0]) && is_array($config_var[2][0]))
-					$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
-				else
-				{
-					foreach ($config_var[2] as $key => $item)
-						$context['config_vars'][$config_var[1]]['data'][] = array($key, $item);
-				}
+				$context['config_vars'][$config_var[1]]['data'] = $config_var[2];
 			}
 
 			// Finally allow overrides - and some final cleanups.
@@ -794,15 +787,15 @@ function saveSettings(&$config_vars)
 		'cookiename',
 		'webmaster_email',
 		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
-		'boarddir', 'sourcedir', 
+		'boarddir', 'sourcedir',
 		'cachedir', 'cache_accelerator', 'cache_memcached',
 	);
-	
+
 	// All the numeric variables.
 	$config_ints = array(
 		'cache_enable',
 	);
-	
+
 	// All the checkboxes.
 	$config_bools = array(
 		'db_persist', 'db_error_send',
@@ -944,7 +937,7 @@ function saveDBSettings(&$config_vars)
 function ShowPHPinfoSettings()
 {
 	global $context, $txt;
-	
+
 	$info_lines = array();
 	$category = $txt['phpinfo_settings'];
 
@@ -956,7 +949,7 @@ function ShowPHPinfoSettings()
 	$info_lines = preg_replace('~^.*<body>(.*)</body>.*$~', '$1', ob_get_contents());
 	$info_lines = explode("\n", strip_tags($info_lines, "<tr><td><h2>"));
 	ob_end_clean();
-	
+
 	// remove things that could be considered sensative
 	$remove = '_COOKIE|Cookie|_GET|_REQUEST|REQUEST_URI|QUERY_STRING|REQUEST_URL|HTTP_REFERER';
 
