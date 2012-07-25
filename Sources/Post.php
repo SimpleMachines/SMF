@@ -142,6 +142,10 @@ function Post($post_errors = array())
 
 		$context['notify'] = !empty($context['notify']);
 		$context['sticky'] = isset($_REQUEST['sticky']) ? !empty($_REQUEST['sticky']) : $sticky;
+
+		// Check whether this is a really old post being bumped...
+		if (!empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($sticky) && !isset($_REQUEST['subject']))
+			$post_errors[] = array('old_topic', array($modSettings['oldTopicDays']));
 	}
 	else
 	{
