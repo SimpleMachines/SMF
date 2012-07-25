@@ -222,36 +222,48 @@ function ManageAttachmentSettings($return_config = false)
 	{
 		checkSession();
 
-		// Is this needed now ???
 		if(isset($_POST['use_subdirectories_for_attachments']) && empty($_POST['basedirectory_for_attachments']))
-			$_POST['basedirectory_for_attachments'] = (!empty($modSettings['use_subdirectories_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
+			$_POST['basedirectory_for_attachments'] = (!empty($modSettings['basedirectory_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
 
-		// @Todo add "basedirectory_for_attachments" to install & upgrade scripts
-		if (!isset($modSettings['basedirectory_for_attachments']))
+		// @todo add "basedirectory_for_attachments" to install & upgrade scripts
+		if (empty($modSettings['basedirectory_for_attachments']))
 			$modSettings['basedirectory_for_attachments'] = '';
 
 		// Create a new base directory if that's being changed and not there.
 		if (!empty($_POST['basedirectory_for_attachments']) && !is_dir($_POST['basedirectory_for_attachments']))
 		{
+			// First time? Gotta setup the base directory array.
+			if (empty($modSettings['attachment_basedirectories']))
+			{
+				if (empty($modSettings['currentAttachmentUploadDir']))
+					$modSettings['attachmentUploadDir'] = array(1 => $modSettings['attachmentUploadDir']);
+				elseif (!is_array($modSettings['attachmentUploadDir']))
+					$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+
+				$modSettings['currentAttachmentUploadDir'] = 1;
+				$modSettings['attachment_basedirectories'] = array(1 => $modSettings['attachmentUploadDir'][1]);
+				$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
+			}
+
 			if (!automanage_attachments_create_directory($_POST['basedirectory_for_attachments'], true))
-				// Some sort of an error here also maybe??
+				// @todo Some sort of an error here also maybe??
 				$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];
+
+			if (isset($_POST['attachmentUploadDir']))
+				$_POST['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
+
+			// Add to the array of known base directories.
+			if (!is_array($modSettings['attachment_basedirectories']))
+				$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+			if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
+			{
+				$modSettings['attachment_basedirectories'][$modSettings['currentAttachmentUploadDir']] = $_POST['basedirectory_for_attachments'];
+				updateSettings(array(
+					'attachment_basedirectories' => serialize($modSettings['attachment_basedirectories']),
+				));
+				$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+			}
 		}
-
-		// Build an array of knowm base directories.
-		if (empty($modSettings['attachment_basedirectories']))
-			$modSettings['attachment_basedirectories'] = array();
-		else
-			$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
-
-		if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
-		{
-			$modSettings['attachment_basedirectories'][] = $_POST['basedirectory_for_attachments'];
-			updateSettings(array(
-				'attachment_basedirectories' => serialize($modSettings['attachment_basedirectories']),
-			));
-		}
-
 
 		call_integration_hook('integrate_save_attachment_settings');
 
@@ -2075,14 +2087,25 @@ function list_getAttachDirs()
 		// Check if the directory is doing okay.
 		list ($status, $error, $size) = attachDirStatus($dir, $expected_files[$id]);
 
+		// If it is, let's show that it's a base directory.
+		if (!empty($modSettings['attachment_basedirectories']))
+		{
+			if (!is_array($modSettings['attachment_basedirectories']))
+				$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+
+			$is_base_dir = in_array($dir, $modSettings['attachment_basedirectories']) ? true : false;
+		}
+		else
+			$is_base_dir = false;
+
 		$attachdirs[] = array(
 			'id' => $id,
 			'current' => $id == $modSettings['currentAttachmentUploadDir'],
-			'automanage_attachments' => isset($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] > 1 ? true : false,
+			'automanage_attachments' => isset($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] > 0 ? true : false,
 			'path' => $dir,
 			'current_size' => $size,
 			'num_files' => $expected_files[$id],
-			'status' => ($error ? '<span class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</span>' : ''),
+			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '/' : '') . ($error ? '<span class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</span>' : ''),
 		);
 	}
 
@@ -2110,6 +2133,13 @@ function list_getAttachDirs()
  */
 function attachDirStatus($dir, $expected_files)
 {
+	// If there's a problem. Let's try to fix it first.
+	if (!is_dir($dir) || !is_writable($dir))
+	{
+		require_once($sourcedir . '/Attachments.php');
+		automanage_attachments_create_directory($dir, true);
+	}
+
 	if (!is_dir($dir))
 		return array('does_not_exist', true, '');
 	elseif (!is_writable($dir))

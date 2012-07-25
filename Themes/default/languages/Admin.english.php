@@ -380,6 +380,7 @@ $txt['attach_dir_not_writable'] = 'Not Writable';
 $txt['attach_dir_files_missing'] = 'Files Missing (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
 $txt['attach_dir_unused'] = 'Unused';
 $txt['attach_dir_ok'] = 'OK';
+$txt['attach_dir_basedir'] = 'Base directory';
 
 $txt['attach_path_manage'] = 'Manage Attachment Paths';
 $txt['attach_paths'] = 'Attachment Paths';
