@@ -1743,7 +1743,7 @@ function PlushSearch2()
 		if (!empty($posters))
 			loadMemberData(array_unique($posters));
 
-		call_integration_hook('integrate_search_message_list', array($messages, $posters));
+		call_integration_hook('integrate_search_message_list', array($msg_list, $posters));
 
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = $smcFunc['db_query']('', '
@@ -1821,6 +1821,7 @@ function PlushSearch2()
 	$context['get_topics'] = 'prepareSearchContext';
 	$context['can_send_pm'] = allowedTo('pm_send');
 	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
