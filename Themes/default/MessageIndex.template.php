@@ -312,7 +312,7 @@ function template_main()
 			echo '
 				<tr class="titlebg">
 					<td colspan="6" align="right">
-						<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.moveItTo.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
+						<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 							<option value="">--------</option>';
 
 			foreach ($context['qmod_actions'] as $qmod_action)
@@ -325,23 +325,8 @@ function template_main()
 
 			// Show a list of boards they can move the topic to.
 			if ($context['can_move'])
-			{
-					echo '
-						<select class="qaction" id="moveItTo" name="move_to" disabled="disabled">';
-
-					foreach ($context['move_to_boards'] as $category)
-					{
-						echo '
-							<optgroup label="', $category['name'], '">';
-						foreach ($category['boards'] as $board)
-								echo '
-								<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
-						echo '
-							</optgroup>';
-					}
-					echo '
-						</select>';
-			}
+				echo '
+			<span id="quick_mod_jump_to">&nbsp;</span>';
 
 			echo '
 						<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit qaction" />
@@ -390,7 +375,28 @@ function template_main()
 			</p>';
 
 	echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script type="text/javascript"><!-- // --><![CDATA[';
+
+	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
+		echo '
+				if (typeof(window.XMLHttpRequest) != "undefined")
+					aJumpTo[aJumpTo.length] = new JumpTo({
+						sContainerId: "quick_mod_jump_to",
+						sClassName: "qaction",
+						sJumpToTemplate: "%dropdown_list%",
+						iCurBoardId: ', $context['current_board'], ',
+						iCurBoardChildLevel: ', $context['jump_to']['child_level'], ',
+						sCurBoardName: "', $context['jump_to']['board_name'], '",
+						sBoardChildLevelIndicator: "==",
+						sBoardPrefix: "=> ",
+						sCatSeparator: "-----------------------------",
+						sCatPrefix: "",
+						bNoRedirect: true,
+						bDisabled: true,
+						sCustomName: "move_to"
+					});';
+
+	echo '
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "message_index_jump_to",
