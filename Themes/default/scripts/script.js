@@ -317,20 +317,49 @@ String.prototype.easyReplace = function (oReplacements)
 	return sResult;
 }
 
-// Open a new window (only exists for backwards compatibility) - DEPRECATED
+// Open a new window
 function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 {
+	if ((alternateWidth && self.screen.availWidth * 0.8 < alternateWidth) || (alternateHeight && self.screen.availHeight * 0.8 < alternateHeight))
+	{
+		noScrollbars = false;
+		alternateWidth = Math.min(alternateWidth, self.screen.availWidth * 0.8);
+		alternateHeight = Math.min(alternateHeight, self.screen.availHeight * 0.8);
+	}
+	else
+		noScrollbars = typeof(noScrollbars) == 'boolean' && noScrollbars == true;
+
+	window.open(desktopURL, 'requested_popup', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=' + (noScrollbars ? 'no' : 'yes') + ',width=' + (alternateWidth ? alternateWidth : 480) + ',height=' + (alternateHeight ? alternateHeight : 220) + ',resizable=no');
+
+	// Return false so the click won't follow the link ;).
+	return false;
+}
+
+// Open a overlay div
+function reqOverlayDiv(desktopURL, sHeader, sIcon)
+{
+	// Set up our div details
+	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading.gif" ></div>';
+	var sIcon = smf_images_url + '/' + typeof(sIcon) == 'string' ? sIcon : 'helptopics.png';
+	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
+	
+	// Create the div that we are going to load
+	var oContainer = new smc_Popup({heading: sHeader, content: sAjax_indicator, icon: sIcon});
+	var oPopup_body = $('#' + oContainer.popup_id).find('.popup_content');
+
 	// Load the help page content (we just want the text to show)
-	ajax_indicator(true);
 	$.ajax({
 		url: desktopURL,
-		success: function(help_html){
-			var help_content = $('<div id="temp_help">').html(help_html).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
-			
-			ajax_indicator(false);
-			
-			// Reroute to the new function
-			return new smc_Popup({heading: help_popup_heading_text, content: help_content, icon: smf_images_url + '/helptopics.png'});
+        type: "GET",
+        dataType: "html",
+		beforeSend: function () {
+		},
+		success: function (data, textStatus, xhr) {
+			var help_content = $('<div id="temp_help">').html(data).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
+			oPopup_body.html(help_content);
+		},
+		error: function (xhr, textStatus, errorThrown) {
+			oPopup_body.html(textStatus);
 		}
 	});
 	return false;
@@ -349,16 +378,16 @@ smc_Popup.prototype.show = function ()
 	popup_class = 'popup_window ' + (this.opt.custom_class ? this.opt.custom_class : 'description');
 	icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt="" /> ' : '';
 
-	// Create it
+	// Create the div that will be shown
 	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
-	this.popup_body.css({top:'25%',left:'50%',margin:'-'+($(this.popup_body).height() / 2)+'px 0 0 -'+($(this.popup_body).width() / 2)+'px'}).parent().fadeIn(300);
+	this.popup_body.css({top: '25%', left: '50%', margin: '-' + ($(this.popup_body).height() / 2) + 'px 0 0 -' + ($(this.popup_body).width() / 2) + 'px'}).parent().fadeIn(300);
 
-	// Trigger hide
+	// Trigger hide on escape or mouse click
 	var popup_instance = this;
-	$(document).mouseup(function (e){
+	$(document).mouseup(function (e) {
 		if ($('#' + popup_instance.popup_id).has(e.target).length === 0)
 			popup_instance.hide();
 	}).keyup(function(e){

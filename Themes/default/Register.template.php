@@ -122,7 +122,7 @@ function template_registration_form()
 					<dl class="register_form" id="authentication_group">
 						<dt>
 							<strong>', $txt['authenticate_label'], ':</strong>
-							<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqWin(this.href);" class="help">(?)</a>
+							<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
 						</dt>
 						<dd>
 							<label for="auth_pass" id="option_auth_pass">

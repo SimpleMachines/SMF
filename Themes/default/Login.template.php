@@ -50,7 +50,7 @@ function template_login()
 		echo '<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
 				<dl>
 					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon" /></a></dd>
+					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon" /></a></dd>
 				</dl>
 				<hr />';
 
@@ -220,7 +220,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password" />
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><br />
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><br />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '" />
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit" />';
