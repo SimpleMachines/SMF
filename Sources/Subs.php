@@ -4105,7 +4105,7 @@ function call_integration_hook($hook, $parameters = array())
  * @param string $file
  * @param bool $permanent = true if true, updates the value in settings table
  */
-function add_integration_function($hook, $function, $file, $permanent = true)
+function add_integration_function($hook, $function, $file = '', $permanent = true)
 {
 	global $smcFunc, $modSettings;
 
@@ -4159,7 +4159,7 @@ function add_integration_function($hook, $function, $file, $permanent = true)
  * @param string $function
  * @param string $file
  */
-function remove_integration_function($hook, $function, $file)
+function remove_integration_function($hook, $function, $file = '')
 {
 	global $smcFunc, $modSettings;
 
