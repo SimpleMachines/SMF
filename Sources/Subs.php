@@ -4053,7 +4053,6 @@ function call_integration_hook($hook, $parameters = array())
 		return $results;
 
 	$functions = explode(',', $modSettings[$hook]);
-
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
@@ -4064,10 +4063,12 @@ function call_integration_hook($hook, $parameters = array())
 			if (strpos($call[1], ':') !== false)
 			{
 				list($func, $file) = explode(':', $call[1]);
-				if (!empty($settings['theme_dir']))
-					include_once(strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir)));
+				if (empty($settings['theme_dir']))
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
 				else
-					include_once(strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+				if (file_exists($absPath))
+					require_once($absPath);
 				$call = array($call[0], $func);
 			}
 		}
@@ -4077,10 +4078,12 @@ function call_integration_hook($hook, $parameters = array())
 			if (strpos($function, ':') !== false)
 			{
 				list($func, $file) = explode(':', $function);
-				if (!empty($settings['theme_dir']))
-					include_once(strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir)));
+				if (empty($settings['theme_dir']))
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
 				else
-					include_once(strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+				if (file_exists($absPath))
+					require_once($absPath);
 				$call = $function;
 			}
 		}
