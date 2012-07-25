@@ -2202,30 +2202,31 @@ function list_integration_hooks()
 	if (isset($_GET['filter']) && in_array($_GET['filter'], array_keys($currentHooks)))
 		$context['filter'] = ';filter=' . $_GET['filter'];
 
-	if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
+	if (!empty($modSettings['handlinghooks_enabled']))
 	{
-		checkSession('request');
-		validateToken('admin-hook', 'request');
-
-		if ($_REQUEST['do'] == 'remove')
-			remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-		elseif ($_REQUEST['do'] == 'disable')
+		if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
 		{
-			remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-			// It's a hack I know...but I'm way too lazy!!!
-			add_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']) . ']');
-		}
-		elseif ($_REQUEST['do'] == 'enable')
-		{
-			remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']) . ']');
-			// It's a hack I know...but I'm way too lazy!!!
-			add_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-		}
+			checkSession('request');
+			validateToken('admin-hook', 'request');
 
-		redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter']);
+			if ($_REQUEST['do'] == 'remove')
+				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
+			elseif ($_REQUEST['do'] == 'disable')
+			{
+				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
+				// It's a hack I know...but I'm way too lazy!!!
+				add_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']) . ']');
+			}
+			elseif ($_REQUEST['do'] == 'enable')
+			{
+				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']) . ']');
+				// It's a hack I know...but I'm way too lazy!!!
+				add_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
+			}
+
+			redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter']);
+		}
 	}
-
-	createToken('admin-hook', 'request');
 
 	$list_options = array(
 		'id' => 'list_integration_hooks',
@@ -2310,10 +2311,6 @@ function list_integration_hooks()
 				),
 			),
 		),
-		'form' => array(
-			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-			'name' => 'list_integration_hooks',
-		),
 		'additional_rows' => array(
 			array(
 				'position' => 'after_title',
@@ -2329,6 +2326,9 @@ function list_integration_hooks()
 	);
 
 	if (!empty($modSettings['handlinghooks_enabled']))
+	{
+		createToken('admin-hook', 'request');
+
 		$list_options['columns']['remove'] = array(
 			'header' => array(
 				'value' => $txt['hooks_button_remove'],
@@ -2347,6 +2347,11 @@ function list_integration_hooks()
 				'class' => 'centertext',
 			),
 		);
+		$list_options['form'] = array(
+			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+			'name' => 'list_integration_hooks',
+		);
+	}
 
 
 	require_once($sourcedir . '/Subs-List.php');
