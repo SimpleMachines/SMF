@@ -334,9 +334,6 @@ function template_showPosts()
 			<h3 class="catbg">
 				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), ' - ', $context['member']['name'], '
 			</h3>
-		</div>
-		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
 		</div>';
 
 	// Button shortcuts
@@ -348,6 +345,11 @@ function template_showPosts()
 	// Are we displaying posts or attachments?
 	if (!isset($context['attachments']))
 	{
+		echo '
+		<div class="pagesection">
+			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		</div>';
+
 		// For every post to be displayed, give it its own div, and show the important details of the post.
 		foreach ($context['posts'] as $post)
 		{
@@ -408,54 +410,15 @@ function template_showPosts()
 			</div>
 		</div>';
 		}
+
+		// Show more page numbers.
+		echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		</div>';
 	}
 	else
-	{
-		echo '
-		<table border="0" width="100%" cellspacing="1" cellpadding="2" class="table_grid" align="center">
-			<thead>
-				<tr class="titlebg">
-					<th class="first_th lefttext" scope="col" width="25%">
-						<a href="', $scripturl, '?action=profile;u=', $context['current_member'], ';area=showposts;sa=attach;sort=filename', ($context['sort_direction'] == 'down' && $context['sort_order'] == 'filename' ? ';asc' : ''), '">
-							', $txt['show_attach_filename'], '
-							', ($context['sort_order'] == 'filename' ? '<img src="' . $settings['images_url'] . '/sort_' . ($context['sort_direction'] == 'down' ? 'down' : 'up') . '.png" alt="" />' : ''), '
-						</a>
-					</th>
-					<th scope="col" width="12%">
-						<a href="', $scripturl, '?action=profile;u=', $context['current_member'], ';area=showposts;sa=attach;sort=downloads', ($context['sort_direction'] == 'down' && $context['sort_order'] == 'downloads' ? ';asc' : ''), '">
-							', $txt['show_attach_downloads'], '
-							', ($context['sort_order'] == 'downloads' ? '<img src="' . $settings['images_url'] . '/sort_' . ($context['sort_direction'] == 'down' ? 'down' : 'up') . '.png" alt="" />' : ''), '
-						</a>
-					</th>
-					<th class="lefttext" scope="col" width="30%">
-						<a href="', $scripturl, '?action=profile;u=', $context['current_member'], ';area=showposts;sa=attach;sort=subject', ($context['sort_direction'] == 'down' && $context['sort_order'] == 'subject' ? ';asc' : ''), '">
-							', $txt['message'], '
-							', ($context['sort_order'] == 'subject' ? '<img src="' . $settings['images_url'] . '/sort_' . ($context['sort_direction'] == 'down' ? 'down' : 'up') . '.png" alt="" />' : ''), '
-						</a>
-					</th>
-					<th class="last_th lefttext" scope="col">
-						<a href="', $scripturl, '?action=profile;u=', $context['current_member'], ';area=showposts;sa=attach;sort=posted', ($context['sort_direction'] == 'down' && $context['sort_order'] == 'posted' ? ';asc' : ''), '">
-						', $txt['show_attach_posted'], '
-						', ($context['sort_order'] == 'posted' ? '<img src="' . $settings['images_url'] . '/sort_' . ($context['sort_direction'] == 'down' ? 'down' : 'up') . '.png" alt="" />' : ''), '
-						</a>
-					</th>
-				</tr>
-			</thead>
-			<tbody>';
-
-		// Looks like we need to do all the attachments instead!
-		$alternate = false;
-		foreach ($context['attachments'] as $attachment)
-		{
-			echo '
-				<tr class="', $attachment['approved'] ? ($alternate ? 'windowbg' : 'windowbg2') : 'approvebg', '">
-					<td><a href="', $scripturl, '?action=dlattach;topic=', $attachment['topic'], '.0;attach=', $attachment['id'], '">',	$attachment['filename'], '</a>', !$attachment['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : '', '</td>
-					<td align="center">', $attachment['downloads'], '</td>
-					<td><a href="', $scripturl, '?topic=', $attachment['topic'], '.msg', $attachment['msg'], '#msg', $attachment['msg'], '" rel="nofollow">', $attachment['subject'], '</a></td>
-					<td>', $attachment['posted'], '</td>
-				</tr>';
-			$alternate = !$alternate;
-		}
+		template_show_list('attachments');
 
 	// No posts? Just end the table with a informative message.
 	if ((isset($context['attachments']) && empty($context['attachments'])) || (!isset($context['attachments']) && empty($context['posts'])))
@@ -469,12 +432,6 @@ function template_showPosts()
 		echo '
 			</tbody>
 		</table>';
-	}
-	// Show more page numbers.
-	echo '
-		<div class="pagesection" style="margin-bottom: 0;">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
-		</div>';
 }
 
 // Template for showing all the buddies of the current user.
