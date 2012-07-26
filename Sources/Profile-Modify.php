@@ -670,8 +670,6 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 		),
 	);
-	
-	call_integration_hook('integrate_profile_fields', array(&$profile_fields));
 
 	call_integration_hook('integrate_load_profile_fields', array($profile_fields));
 
