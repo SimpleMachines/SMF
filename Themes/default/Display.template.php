@@ -394,9 +394,9 @@ function template_main()
 								<ul class="reset smalltext quickbuttons">';
 
 		// Maybe we can approve it, maybe we should?
-		if ($message['can_approve'])
+		if ($message['can_approve'] || $message['can_unapprove'])
 			echo '
-									<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="approve_button">', $txt['approve'], '</a></li>';
+									<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="', $message['can_unapprove'] ? 'un' : '', 'approve_button">', $txt[($message['can_unapprove'] ? 'un' : '') . 'approve'], '</a></li>';
 
 		// Can they reply? Have they turned on quick reply?
 		if ($context['can_quote'] && !empty($options['display_quick_reply']))
