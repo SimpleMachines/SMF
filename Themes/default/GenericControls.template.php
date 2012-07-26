@@ -101,7 +101,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				{
 					$("#' . $editor_id . '").data("sceditor").setTextMode();
 					$(".sceditor-button-source").hide();
-				}
+				}', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
+				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';
 
 		// Now for backward compatibility let's collect few infos in the good ol' style
