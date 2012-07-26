@@ -478,7 +478,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Number formatting, timezones.
 			array('text', 'time_format'),
-			array('select', 'number_format', array(array('', '','Custom'), '1234.00' => '1234.00', '1,234.00' => '1,234.00', '1.234,00' => '1.234,00', '1 234,00' => '1 234,00', '1234,00' => '1234,00')),
+			array('select', 'number_format', array('1234.00' => '1234.00', '1,234.00' => '1,234.00', '1.234,00' => '1.234,00', '1 234,00' => '1 234,00', '1234,00' => '1234,00')),
 			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours']),
 			'default_timezone' => array('select', 'default_timezone', array()),
 		'',
@@ -1737,7 +1737,7 @@ function EditCustomProfiles()
 		// Regex you say?  Do a very basic test to see if the pattern is valid
 		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
-
+			
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
 
@@ -2088,9 +2088,9 @@ function ModifyPruningSettings($return_config = false)
 				if (!is_array($dummy) || $index == 'pruningOptions')
 					continue;
 
-				$vals += array($dummy[1] => empty($_POST[$dummy[1]]) || $_POST[$dummy[1]] < 0 ? 0 : (int) $_POST[$dummy[1]]);
+				$vals[] = empty($_POST[$dummy[1]]) || $_POST[$dummy[1]] < 0 ? 0 : (int) $_POST[$dummy[1]];
 			}
-			$_POST['pruningOptions'] = serialize($vals);
+			$_POST['pruningOptions'] = implode(',', $vals);
 		}
 		else
 			$_POST['pruningOptions'] = '';
@@ -2104,15 +2104,10 @@ function ModifyPruningSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 
 	// Get the actual values
-	$pruningOptions = @unserialize($modSettings['pruningOptions']);
-	$vals = array();
-	foreach ($config_vars as $index => $dummy)
-	{
-		if (!is_array($dummy) || $index == 'pruningOptions')
-			continue;
-
-		$modSettings[$dummy[1]] = empty($pruningOptions[$dummy[1]]) ? 0 : (int) $pruningOptions[$dummy[1]];
-	}
+	if (!empty($modSettings['pruningOptions']))
+		@list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
+	else
+		$modSettings['pruneErrorLog'] = $modSettings['pruneModLog'] = $modSettings['pruneBanLog'] = $modSettings['pruneReportLog'] = $modSettings['pruneScheduledTaskLog'] = $modSettings['pruneSpiderHitLog'] = 0;
 
 	prepareDBSettingContext($config_vars);
 }
