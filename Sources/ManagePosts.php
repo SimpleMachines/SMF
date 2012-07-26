@@ -176,7 +176,7 @@ function SetCensor()
  */
 function ModifyPostSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $db_prefix;
+	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $db_prefix, $db_type;
 
 	// All the settings...
 	$config_vars = array(
@@ -218,8 +218,8 @@ function ModifyPostSettings($return_config = false)
 	{
 		checkSession();
 
-		// If we're changing the message length let's check the column is big enough.
-		if (!empty($_POST['max_messageLength']) && $_POST['max_messageLength'] != $modSettings['max_messageLength'])
+		// If we're changing the message length (and we are using MySQL) let's check the column is big enough.
+		if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != $modSettings['max_messageLength'] && $db_type == 'mysql')
 		{
 			db_extend('packages');
 
@@ -228,30 +228,9 @@ function ModifyPostSettings($return_config = false)
 				if ($column['name'] == 'body')
 					$body_type = $column['type'];
 
-			$indData = $smcFunc['db_list_indexes']('{db_prefix}messages', true);
-			foreach ($indData as $index)
-				foreach ($index['columns'] as $column)
-					if ($column == 'body' && $index['type'] == 'fulltext')
-						$fulltext = true;
-
 			if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text')
-			{
-				// @todo Show an error message?!
-				// MySQL only likes fulltext indexes on text columns... for now?
-				if (!empty($fulltext))
-					$_POST['max_messageLength'] = 65535;
-				else
-				{
-					// Make it longer so we can do their limit.
-					$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'mediumtext'));
-				}
-			}
-			elseif (isset($body_type) && $_POST['max_messageLength'] <= 65535 && $body_type != 'text')
-			{
-				// @TODO shouldn't we warn that reducing the size of the column something could be lost?
-				// Shorten the column so we can have the benefit of fulltext searching again!
-				$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'text'));
-			}
+				fatal_lang_error('convert_to_mediumtext', false, array($scripturl . '?action=admin;area=maintain;sa=database'));
+
 		}
 		
 		// If we're changing the post preview length let's check its valid

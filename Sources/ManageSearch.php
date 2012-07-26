@@ -235,20 +235,6 @@ function EditSearchMethod()
 				$context['fulltext_index'] = array_unique($context['fulltext_index']);
 		}
 
-		$request = $smcFunc['db_query']('', '
-			SHOW COLUMNS
-			FROM {db_prefix}messages',
-			array(
-			)
-		);
-		if ($request !== false)
-		{
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				if ($row['Field'] == 'body' && $row['Type'] == 'mediumtext')
-					$context['cannot_create_fulltext'] = true;
-			$smcFunc['db_free_result']($request);
-		}
-
 		if (preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) !== 0)
 			$request = $smcFunc['db_query']('', '
 				SHOW TABLE STATUS

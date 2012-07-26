@@ -90,6 +90,29 @@ function template_maintain_database()
 			</div>
 		</div>';
 
+	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
+	if (isset($context['convert_to']))
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['mediumtext_introduction'], '</p>',
+					$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
+					<hr class="hrcolor" />
+					<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit" /><br class="clear_right" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				</form>
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>';
+	}
+
 	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
 	if ($context['convert_utf8'])
 	{
@@ -662,4 +685,48 @@ function template_convert_entities()
 	<br class="clear" />';
 }
 
+function template_convert_msgbody()
+{
+	global $context, $txt, $settings, $scripturl;
+
+	echo '
+	<div id="manage_maintenance">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<span class="topslice"><span></span></span>
+			<div class="content">
+				<p>', $txt['body_checking_introduction'], '</p>';
+	if (!empty($context['exceeding_messages']))
+	{
+		echo '
+				<p class="noticebox">', $txt['exceeding_messages'], '
+				<ul>
+					<li>
+					', implode('</li><li>', $context['exceeding_messages']), '
+					</li>
+				</ul>';
+		if (!empty($context['exceeding_messages_morethan']))
+			echo '
+				<p>', $context['exceeding_messages_morethan'], '</p>';
+	}
+	else
+		echo '
+				<p class="infobox">', $txt['convert_to_text'], '</p>';
+
+	echo '
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
+				<hr class="hrcolor" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				<input type="submit" name="do_conversion" value="', $txt['entity_convert_proceed'], '" class="button_submit" />
+				<br class="clear_right" />
+				</form>
+			</div>
+			<span class="botslice"><span></span></span>
+		</div>
+	</div>
+	<br class="clear" />';
+}
 ?>
