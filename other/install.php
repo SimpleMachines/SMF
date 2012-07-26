@@ -1023,6 +1023,14 @@ function DatabasePopulation()
 		'{$smf_version}' => $GLOBALS['current_smf_version'],
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
+		'{$pruning_options}' => serialize(array(
+			'pruneErrorLog' => 30,
+			'pruneModLog' => 180,
+			'pruneBanLog' => 180,
+			'pruneReportLog' => 180,
+			'pruneScheduledTaskLog' => 30,
+			'pruneSpiderHitLog' => 0,
+		)),
 	);
 
 	foreach ($txt as $key => $value)
@@ -1962,11 +1970,11 @@ function updateSettingsFile($vars)
 	return true;
 }
 
-function updateDbLastError() 
+function updateDbLastError()
 {
-	// Write out the db_last_error file with the error timestamp 
+	// Write out the db_last_error file with the error timestamp
 	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	
+
 	return true;
 }
 
