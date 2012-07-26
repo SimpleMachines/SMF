@@ -492,7 +492,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
-			array('check', 'disallow_sendBody'),	
+			array('check', 'disallow_sendBody'),
 	);
 
 	// Get all the time zones.
@@ -1737,7 +1737,7 @@ function EditCustomProfiles()
 		// Regex you say?  Do a very basic test to see if the pattern is valid
 		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
-			
+
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
 
@@ -2104,10 +2104,15 @@ function ModifyPruningSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 
 	// Get the actual values
-	if (!empty($modSettings['pruningOptions']))
-		@list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
-	else
-		$modSettings['pruneErrorLog'] = $modSettings['pruneModLog'] = $modSettings['pruneBanLog'] = $modSettings['pruneReportLog'] = $modSettings['pruneScheduledTaskLog'] = $modSettings['pruneSpiderHitLog'] = 0;
+	$pruningOptions = @unserialize($modSettings['pruningOptions']);
+	$vals = array();
+	foreach ($config_vars as $index => $dummy)
+	{
+		if (!is_array($dummy) || $index == 'pruningOptions')
+			continue;
+
+		$modSettings[$dummy[1]] = empty($pruningOptions[$dummy[1]]) ? 0 : (int) $pruningOptions[$dummy[1]];
+	}
 
 	prepareDBSettingContext($config_vars);
 }
