@@ -1651,7 +1651,7 @@ function MaintainPurgeInactiveMembers()
 			$where_vars['is_activated'] = 0;
 		}
 		else
-			$where = 'mem.last_login < {int:time_limit}';
+			$where = 'mem.last_login < {int:time_limit} AND (mem.last_login != 0 OR mem.date_registered < {int:time_limit})';
 
 		// Need to get *all* groups then work out which (if any) we avoid.
 		$request = $smcFunc['db_query']('', '
