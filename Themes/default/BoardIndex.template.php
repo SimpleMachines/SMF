@@ -29,7 +29,7 @@ function template_main()
 	<div id="newsfader">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" align="bottom" style="display: none;" />
+				<img id="newsupshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" align="bottom" style="display: none;" />
 				', $txt['news'], '
 			</h3>
 		</div>
@@ -62,7 +62,7 @@ function template_main()
 			aSwapImages: [
 				{
 					sId: \'newsupshrink\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
+					srcExpanded: smf_images_url + \'/upshrink.png\',
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
@@ -269,7 +269,7 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />
+				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
@@ -456,7 +456,7 @@ function template_info_center()
 			aSwapImages: [
 				{
 					sId: \'upshrink_ic\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
+					srcExpanded: smf_images_url + \'/upshrink.png\',
 					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
