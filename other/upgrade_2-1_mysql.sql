@@ -222,5 +222,6 @@ if (mysql_num_rows($request) != 0)
 			WHERE variable = 'pruningOptions'");
 	}
 }
+mysql_free_result($request);
 ---}
 ---#

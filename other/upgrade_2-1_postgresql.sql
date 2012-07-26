@@ -252,7 +252,7 @@ $request = upgrade_query("
 	SELECT value
 	FROM {$db_prefix}settings
 	WHERE variable = 'pruningOptions'");
-if (mysql_num_rows($request) != 0)
+if (pg_num_rows($request) != 0)
 {
 	list ($oldValue) = mysql_fetch_row($request);
 	if (!empty($oldValue) && strpos($oldValue, ',') !== false)
@@ -274,5 +274,6 @@ if (mysql_num_rows($request) != 0)
 			WHERE variable = 'pruningOptions'");
 	}
 }
+pg_free_result($request);
 ---}
 ---#
