@@ -190,3 +190,37 @@ CHANGE body body mediumtext NOT NULL;
 ALTER TABLE {$db_prefix}membergroups
 CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Updating settings
+/******************************************************************************/
+---# Pruning options to use our new formmat
+---{
+$request = upgrade_query("
+	SELECT value
+	FROM {$db_prefix}settings
+	WHERE variable = 'pruningOptions'");
+if (mysql_num_rows($request) != 0)
+{
+	list ($oldValue) = mysql_fetch_row($request);
+	if (!empty($oldValue) && strpos($oldValue, ',') !== false)
+	{
+		list ($pruneErrorLog, $pruneModLog, $pruneBanLog, $pruneReportLog, $pruneScheduledTaskLog, $pruneSpiderHitLog) = explode(',', $oldValue);
+
+		$pruning_options => serialize(array(
+			'pruneErrorLog' => $pruneErrorLog,
+			'pruneModLog' => $pruneModLog,
+			'pruneBanLog' => $pruneBanLog,
+			'pruneReportLog' => $pruneReportLog,
+			'pruneScheduledTaskLog' => $pruneScheduledTaskLog,
+			'pruneSpiderHitLog' => $pruneSpiderHitLog,
+		));
+
+		upgrade_query("
+			UPDATE {$db_prefix}settings
+			SET value = '$pruning_options'
+			WHERE variable = 'pruningOptions'");
+	}
+}
+---}
+---#
