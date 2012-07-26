@@ -55,6 +55,7 @@ function Packages()
 		'flush' => 'FlushInstall',
 		'examine' => 'ExamineFile',
 		'showoperations' => 'ViewOperations',
+		'theme' => 'RedirectThemes',
 	);
 
 	// Work out exactly who it is we are calling.
@@ -1857,6 +1858,11 @@ function ViewOperations()
 	// No layers
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'view_operations';
+}
+
+function RedirectThemes()
+{
+	redirectexit('action=admin;area=theme');
 }
 
 /**

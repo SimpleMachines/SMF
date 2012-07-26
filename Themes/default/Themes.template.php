@@ -761,7 +761,7 @@ function template_pick()
 function template_installed()
 {
 	global $context, $settings, $options, $scripturl, $txt;
-isset($context['theme_from_pacman']) ? : 
+
 	// Not much to show except a link back...
 	echo '
 	<div id="admincenter">
