@@ -1653,7 +1653,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Allow overriding the board wide time/number formats.
 	if (empty($user_settings['time_format']) && !empty($txt['time_format']))
 		$user_info['time_format'] = $txt['time_format'];
-	$txt['number_format'] = empty($txt['number_format']) ? empty($modSettings['number_format']) ? '' : $modSettings['number_format'] : $txt['number_format'];
 
 	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'always')
 	{
