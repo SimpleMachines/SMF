@@ -37,6 +37,7 @@ $txt['feature_disabled'] = 'Sorry, this feature is disabled.';
 $txt['feature_no_exists'] = 'Sorry, this feature doesn\'t exist.';
 $txt['couldnt_connect'] = 'Could not connect to server or could not find file';
 $txt['no_board'] = 'The board you specified doesn\'t exist';
+$txt['no_message'] = 'The message is no longer available';
 $txt['cant_split'] = 'You are not allowed to split topics';
 $txt['cant_merge'] = 'You are not allowed to merge topics';
 $txt['no_topic_id'] = 'You specified an invalid topic ID.';

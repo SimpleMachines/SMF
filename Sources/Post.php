@@ -628,9 +628,8 @@ function Post($post_errors = array())
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
-		//@todo Change this error message?
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('no_board', false);
+			fatal_lang_error('no_message', false);
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		$attachment_stuff = array($row);
