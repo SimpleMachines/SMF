@@ -22,7 +22,6 @@ $txt['titlesEnable'] = 'Enable custom titles';
 $txt['enable_buddylist'] = 'Enable buddy/ignore lists';
 $txt['default_personal_text'] = 'Default personal text';
 $txt['default_personal_text_note'] = 'Personal text to assign to newly registered members.';
-$txt['number_format'] = 'Default number format';
 $txt['time_format'] = 'Default time format';
 $txt['setting_time_offset'] = 'Overall time offset';
 $txt['setting_time_offset_note'] = '(added to the member specific option)';
