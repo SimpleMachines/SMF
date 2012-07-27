@@ -187,6 +187,15 @@ $txt['utf8_utf8'] = 'UTF-8';
 $txt['utf8_db_version_too_low'] = 'The version of MySQL that your database server is using is not high enough to support UTF-8 properly. A minimum version of 4.1.2 is required.';
 $txt['utf8_cannot_convert_fulltext'] = 'Your messages table is using a fulltext index for use when searching.  You cannot proceed in converting to UTF-8 until that index is removed. You can re-create it after the conversion has been completed.';
 
+$txt['text_title'] = 'Convert to TEXT';
+$txt['mediumtext_title'] = 'Convert to MEDIUMTEXT';
+$txt['mediumtext_introduction'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". It is also possible to revert the column back to TEXT (that operation would reduce the space occupied), but <strong>only if</strong> none of the posts in your database exceed the size of 65535 characters. This condition will be verified before the conversion.';
+$txt['body_checking_introduction'] = 'This function will convert the column of your database that contains the text of the messages into a "TEXT" format (currently is "MEDIUMTEXT". This operation will allow to slightly reduce the amount of space occupied by each message (1 byte per message). If any message stored into the database is longer than 65535 characters it will be truncated and part of the text will be lost.';
+$txt['exceeding_messages'] = 'The following messages are longer than 65535 characters and will be truncated by the process:';
+$txt['exceeding_messages_morethan'] = 'And other %1$d';
+$txt['convert_to_text'] = 'No messages are longer than 65535 characters. You can safely proceed with the conversion without losing any part of the text.';
+$txt['convert_to_suggest_text'] = 'The messages body column in your database is currently set as MEDIUMTEXT, but the maximum allowed length set for the messages is lower than 65535 characters. You may free some space converting the column to TEXT.';
+
 $txt['entity_convert_title'] = 'Convert HTML-entities to UTF-8 characters';
 $txt['entity_convert_only_utf8'] = 'The database needs to be in UTF-8 format before HTML-entities can be converted to UTF-8';
 $txt['entity_convert_introduction'] = 'This function will convert all characters that are stored in the database as HTML-entities to UTF-8 characters. This is especially useful when you have just converted your forum from a character set like ISO-8859-1 while non-latin characters were used on the forum. The browser then sends all characters as HTML-entities. For example, the HTML-entity &amp;#945; represents the greek letter &#945; (alpha). Converting entities to UTF-8 will improve searching and sorting of text and reduce storage size.';
