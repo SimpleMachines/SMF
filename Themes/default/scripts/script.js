@@ -953,7 +953,12 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 
 		var oContainer = document.getElementById(this.opt.aSwappableContainers[i]);
 		if (typeof(oContainer) == 'object' && oContainer != null)
-			oContainer.style.display = bCollapse ? 'none' : '';
+		{
+			if (bCollapse)
+				$(oContainer).slideUp();
+			else
+				$(oContainer).slideDown();
+		}
 	}
 
 	// Update the new state.
@@ -1588,7 +1593,7 @@ function expandCollapseBoards()
 {
 	var current = document.getElementById("searchBoardsExpand").style.display != "none";
 
-	document.getElementById("searchBoardsExpand").style.display = current ? "none" : "";
+	$("#searchBoardsExpand").slideToggle(300);
 	document.getElementById("expandBoardsIcon").src = smf_images_url + (current ? "/expand.png" : "/collapse.png");
 }
 
@@ -1596,7 +1601,7 @@ function expandCollapseLabels()
 {
 	var current = document.getElementById("searchLabelsExpand").style.display != "none";
 
-	document.getElementById("searchLabelsExpand").style.display = current ? "none" : "";
+	$("#searchLabelsExpand").slideToggle();
 	document.getElementById("expandLabelsIcon").src = smf_images_url + (current ? "/expand.png" : "/collapse.png");
 }
 
