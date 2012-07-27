@@ -251,10 +251,11 @@ function template_maintain_members()
 		{
 			membersSwap = !membersSwap;
 			var membersForm = document.getElementById(\'membersForm\');
-
+			
+			$("#membersPanel").slideToggle(300);
+			
 			document.getElementById("membersIcon").src = smf_images_url + (membersSwap ? "/selected_open.png" : "/selected.png");
 			setInnerHTML(document.getElementById("membersText"), membersSwap ? "', $txt['maintain_members_choose'], '" : "', $txt['maintain_members_all'], '");
-			document.getElementById("membersPanel").style.display = (membersSwap ? "block" : "none");
 
 			for (var i = 0; i < membersForm.length; i++)
 			{
@@ -426,7 +427,7 @@ function template_maintain_topics()
 				setInnerHTML(document.getElementById("rotText"), rotSwap ? ', JavaScriptEscape($txt['maintain_old_choose']), ' : ', JavaScriptEscape($txt['maintain_old_all']), ');
 
 				// Toggle panel
-				document.getElementById("rotPanel").style.display = !rotSwap ? "none" : "";
+				$("#rotPanel").slideToggle(300);
 
 				// Toggle checkboxes
 				var rotPanel = document.getElementById(\'rotPanel\');
