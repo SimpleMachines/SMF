@@ -844,7 +844,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	global $txt, $scripturl, $context, $modSettings, $user_info, $smcFunc;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
-
+	
 	// Don't waste cycles
 	if ($message === '')
 		return '';
@@ -1074,12 +1074,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						// Fix the PHP code stuff...
 						$data = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode(\'\', $php_parts));
-
-						// Older browsers are annoying, aren\'t they?
-						if ($context[\'browser\'][\'is_ie4\'] || $context[\'browser\'][\'is_ie5\'] || $context[\'browser\'][\'is_ie5.5\'])
-							$data = str_replace("\t", "<pre style=\"display: inline;\">\t</pre>", $data);
-						else
-							$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
+						$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
 						if ($context[\'browser\'][\'is_opera\'])
@@ -1116,12 +1111,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						// Fix the PHP code stuff...
 						$data[0] = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode(\'\', $php_parts));
-
-						// Older browsers are annoying, aren\'t they?
-						if ($context[\'browser\'][\'is_ie4\'] || $context[\'browser\'][\'is_ie5\'] || $context[\'browser\'][\'is_ie5.5\'])
-							$data[0] = str_replace("\t", "<pre style=\"display: inline;\">\t</pre>", $data[0]);
-						else
-							$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
+						$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
 						if ($context[\'browser\'][\'is_opera\'])
