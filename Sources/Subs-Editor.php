@@ -1332,7 +1332,7 @@ function loadLocale()
 	else
 		@ob_start();
 
-	// If we don't have any locale better avoit broken js
+	// If we don't have any locale better avoid broken js
 	if (empty($txt['lang_locale']))
 		die();
 
@@ -1470,27 +1470,25 @@ function create_control_richedit($editorOptions)
 
 		// This really has some WYSIWYG stuff.
 		loadTemplate('GenericControls', isBrowser('ie') ? 'editor_ie' : 'editor');
-		$context['html_headers'] .= '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
-			var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
-			var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
-			var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';
-		// ]]></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/editor.js?alp21"></script>
-		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>';
 
+		// Css and JS make the editor go round
+		loadCSSFile( $settings['default_theme_url'] . '/css/jquery.sceditor.css', array());
+		loadJavascriptFile($settings['default_theme_url'] . '/scripts/editor.js?alp21', array(), 'editor.js');
+		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.js?alp21', array());
+		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js?alp21', array());
+		addInlineJavascript('	
+		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
+		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
+		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
+		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
+		// editor language file
 		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
-			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $scripturl . '?action=loadeditorlocale"></script>';
+			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array(), 'sceditor_language');
 
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
 		{
-			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js?alp21"></script>';
+			loadJavascriptFile($settings['default_theme_url'] . '/scripts/spellcheck.js?alp21', array());
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
