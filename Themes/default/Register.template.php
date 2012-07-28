@@ -703,5 +703,3 @@ function template_edit_reserved_words()
 		</form>
 		<br class="clear" />';
 }
-
-?>

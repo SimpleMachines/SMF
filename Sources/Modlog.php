@@ -624,5 +624,3 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 	// Back we go!
 	return $entries;
 }
-
-?>

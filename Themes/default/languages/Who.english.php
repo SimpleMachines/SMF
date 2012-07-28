@@ -162,4 +162,3 @@ $txt['credits_groups_orignal_pm'] = 'Original Project Managers';
 
 // List of people who have made more than a token contribution to this translation. (blank for English)
 $txt['translation_credits'] = array();
-?>

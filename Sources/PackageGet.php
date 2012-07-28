@@ -758,5 +758,3 @@ function PackageServerRemove()
 
 	redirectexit('action=admin;area=packages;get');
 }
-
-?>

@@ -694,5 +694,3 @@ function template_group_request_reason()
 	</div>
 	<br class="clear" />';
 }
-
-?>

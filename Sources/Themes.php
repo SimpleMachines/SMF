@@ -2191,5 +2191,3 @@ function CopyTemplate()
 
 	$context['sub_template'] = 'copy_template';
 }
-
-?>

@@ -576,5 +576,3 @@ function list_getNumTaskLogEntries()
 
 	return $num_entries;
 }
-
-?>

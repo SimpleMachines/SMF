@@ -56,5 +56,3 @@ $txt['scheduled_log_time_taken'] = 'Time taken';
 $txt['scheduled_log_time_taken_seconds'] = '%1$d seconds';
 $txt['scheduled_log_empty_log'] = 'Clear Log';
 $txt['scheduled_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log?';
-
-?>

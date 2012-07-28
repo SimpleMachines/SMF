@@ -1517,5 +1517,3 @@ function template_wap2_below()
 	</body>
 </html>';
 }
-
-?>

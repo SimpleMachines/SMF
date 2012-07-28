@@ -623,5 +623,3 @@ function printMemberListRows($request)
 		$context['members'][$member]['registered_date'] = strftime('%Y-%m-%d', $context['members'][$member]['registered_timestamp']);
 	}
 }
-
-?>

@@ -219,5 +219,3 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 	if ($display_type == 'single')
 		return true;
 }
-
-?>

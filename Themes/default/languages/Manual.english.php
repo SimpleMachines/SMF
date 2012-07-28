@@ -32,5 +32,3 @@ $txt['manual_section_personal_messages_desc'] = 'Users can send personal message
 $txt['manual_section_memberlist_desc'] = 'The memberlist shows all the members of a forum.';
 $txt['manual_section_calendar_desc'] = 'Users can keep track of events, holidays, and birthdays with the calendar.';
 $txt['manual_section_features_desc'] = 'Here is a list of the most popular features in SMF.';
-
-?>

@@ -855,5 +855,3 @@ function RegisterCheckUsername()
 		$context['valid_username'] &= isReservedName($context['checked_username'], 0, false, false) ? 0 : 1;
 	}
 }
-
-?>

@@ -346,5 +346,3 @@ $txt['permissions_post_moderation_group'] = 'Group';
 $txt['auto_approve_topics'] = 'Post new topics, without requiring approval';
 $txt['auto_approve_replies'] = 'Post replies to topics, without requiring approval';
 $txt['auto_approve_attachments'] = 'Post attachments, without requiring approval';
-
-?>

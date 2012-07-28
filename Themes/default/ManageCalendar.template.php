@@ -113,5 +113,3 @@ function template_edit_holiday()
 	</div>
 	<br class="clear" />';
 }
-
-?>

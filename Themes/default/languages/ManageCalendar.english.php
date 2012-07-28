@@ -42,5 +42,3 @@ $txt['holidays_button_edit'] = 'Edit';
 $txt['holidays_button_remove'] = 'Remove';
 $txt['holidays_no_entries'] = 'There are currently no holidays configured.';
 $txt['every_year'] = 'Every Year';
-
-?>

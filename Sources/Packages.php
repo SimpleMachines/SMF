@@ -2592,5 +2592,3 @@ function PackageFTPTest()
 		),
 	);
 }
-
-?>

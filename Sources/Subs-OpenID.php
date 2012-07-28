@@ -635,5 +635,3 @@ function binary_xor($num1, $num2)
 
 	return $return;
 }
-
-?>

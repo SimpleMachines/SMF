@@ -153,5 +153,3 @@ function template_main()
 	</div>
 ';
 }
-
-?>

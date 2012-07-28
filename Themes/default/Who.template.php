@@ -269,5 +269,3 @@ function template_credits()
 		</div>
 	</div>';
 }
-
-?>

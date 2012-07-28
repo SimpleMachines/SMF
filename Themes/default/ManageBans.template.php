@@ -361,5 +361,3 @@ function template_ban_edit_trigger()
 		oAddMemberSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateName\');
 	// ]]></script>';
 }
-
-?>

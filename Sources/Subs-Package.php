@@ -3152,5 +3152,3 @@ if (!function_exists('smf_crc32'))
 		return $crc;
 	}
 }
-
-?>

@@ -1306,5 +1306,3 @@ function constructBanQueryIP($fullip)
 
 	return $ban_query;
 }
-
-?>

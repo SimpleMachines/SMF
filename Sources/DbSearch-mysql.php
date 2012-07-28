@@ -72,5 +72,3 @@ function smf_db_create_word_search($size)
 		)
 	);
 }
-
-?>

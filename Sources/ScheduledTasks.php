@@ -1719,5 +1719,3 @@ function scheduled_remove_topic_redirect()
 
 	return true;
 }
-
-?>

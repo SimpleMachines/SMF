@@ -805,5 +805,3 @@ function smf_db_alter_table($table_name, $columns)
 	// We got here so we're good.  The temp table should be deleted, if not it will be gone later on >:D.
 	return true;
 }
-
-?>

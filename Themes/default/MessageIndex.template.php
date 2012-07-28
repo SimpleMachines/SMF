@@ -423,5 +423,3 @@ function template_main()
 	var mouse_on_div;
 // ]]></script>';
 }
-
-?>

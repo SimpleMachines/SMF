@@ -729,4 +729,3 @@ function template_convert_msgbody()
 	</div>
 	<br class="clear" />';
 }
-?>

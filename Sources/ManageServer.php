@@ -983,5 +983,3 @@ function ShowPHPinfoSettings()
 	$context['sub_template'] = 'php_info';
 	return;
 }
-
-?>

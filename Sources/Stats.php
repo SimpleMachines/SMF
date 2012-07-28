@@ -744,5 +744,3 @@ function SMStats()
 	// Die.
 	die('OK');
 }
-
-?>

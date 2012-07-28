@@ -2174,7 +2174,7 @@ function changeSettings($config_vars)
 function updateLastError() 
 {
 	// clear out the db_last_error file
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;');
 }
 
 function php_version_check()
@@ -4519,5 +4519,3 @@ function template_upgrade_complete()
 			Best of luck,<br />
 			Simple Machines';
 }
-
-?>

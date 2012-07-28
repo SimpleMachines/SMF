@@ -201,5 +201,3 @@ function template_search()
 		</div>
 	</form>';
 }
-
-?>

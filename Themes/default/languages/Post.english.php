@@ -228,5 +228,3 @@ $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot 
 $txt['ran_out_of_space'] = 'The upload folder is full. Please try a smaller file and/or contact an administrator.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
-
-?>

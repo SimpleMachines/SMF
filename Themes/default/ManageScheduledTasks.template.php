@@ -90,5 +90,3 @@ function template_edit_scheduled_tasks()
 	</div>
 	<br class="clear" />';
 }
-
-?>

@@ -264,5 +264,3 @@ class fulltext_search
 		return $ignoreRequest;
 	}
 }
-
-?>

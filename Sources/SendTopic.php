@@ -580,5 +580,3 @@ function ReportToModerator2()
 	// Back to the post we reported!
 	redirectexit('reportsent;topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
 }
-
-?>

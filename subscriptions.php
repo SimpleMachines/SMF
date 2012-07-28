@@ -285,5 +285,3 @@ function generateSubscriptionError($text)
 
 	exit;
 }
-
-?>

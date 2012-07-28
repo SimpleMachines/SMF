@@ -1138,5 +1138,3 @@ function template_edit_file()
 	</div>
 	<br class="clear" />';
 }
-
-?>

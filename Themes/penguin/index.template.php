@@ -662,5 +662,3 @@ function template_css()
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $filename, '" />';
 }
-
-?>

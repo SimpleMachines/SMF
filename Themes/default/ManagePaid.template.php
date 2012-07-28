@@ -619,5 +619,3 @@ function template_paid_done()
 	</div>
 	<br class="clear" />';
 }
-
-?>

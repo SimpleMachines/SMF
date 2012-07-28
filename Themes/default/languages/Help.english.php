@@ -619,5 +619,3 @@ $helptxt['custom_mask'] = 'The input mask is important for your forum\'s securit
 		\ - Escapes the next character.<br />
 	</div><br /><br />
 	More information and advanced techniques may be found on the internet.';
-
-?>

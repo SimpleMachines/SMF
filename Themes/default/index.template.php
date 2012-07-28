@@ -565,5 +565,3 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 			</ul>
 		</div>';
 }
-
-?>

@@ -441,5 +441,3 @@ function set_fatal_error_headers()
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 3600');
 }
-
-?>

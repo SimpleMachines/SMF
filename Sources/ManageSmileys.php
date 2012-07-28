@@ -1836,4 +1836,3 @@ function sortSmileyTable()
 	$smcFunc['db_remove_column']('{db_prefix}smileys', 'temp_order');
 }
 
-?>

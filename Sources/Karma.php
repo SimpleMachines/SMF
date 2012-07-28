@@ -197,5 +197,3 @@ function BookOfUnknown()
 
 	obExit(false);
 }
-
-?>

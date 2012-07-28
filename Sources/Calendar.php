@@ -535,5 +535,3 @@ function clock()
 			}
 	}
 }
-
-?>

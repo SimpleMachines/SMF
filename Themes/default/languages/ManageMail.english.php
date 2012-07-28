@@ -47,4 +47,3 @@ $txt['mq_mpriority_1'] = 'Very High';
 $txt['birthday_email'] = 'Birthday Message to use';
 $txt['birthday_body'] = 'Email Body';
 $txt['birthday_subject'] = 'Email Subject';
-?>

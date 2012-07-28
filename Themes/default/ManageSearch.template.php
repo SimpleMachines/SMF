@@ -442,5 +442,3 @@ function template_show_spider_stats()
 	</div>
 	<br class="clear" />';
 }
-
-?>

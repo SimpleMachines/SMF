@@ -540,5 +540,3 @@ function template_editicon()
 	</div>
 	<br class="clear" />';
 }
-
-?>
