@@ -305,32 +305,17 @@ function updateSettingsFile($config_vars)
 				unset($config_vars[$var]);
 			}
 		}
-
-		// End of the file ... maybe
-		if (substr(trim($settingsArray[$i]), 0, 2) == '?' . '>')
-			$end = $i;
 	}
-
-	// This should never happen, but apparently it is happening.
-	if (empty($end) || $end < 10)
-		$end = count($settingsArray) - 1;
 
 	// Still more variables to go?  Then lets add them at the end.
 	if (!empty($config_vars))
-	{
-		if (trim($settingsArray[$end]) == '?' . '>')
-			$settingsArray[$end++] = '';
-		else
-			$end++;
-		
+	{		
 		// Add in any newly defined vars that were passed
 		foreach ($config_vars as $var => $val)
-			$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
-		
-		$settingsArray[$end] = '?' . '>';
+			$settingsArray[$i++] = '$' . $var . ' = ' . $val . ';' . "\n";
 	}
 	else
-		$settingsArray[$end] = trim($settingsArray[$end]);
+		$settingsArray[$i] = trim($settingsArray[$i]);
 
 	// Sanity error checking: the file needs to be at least 12 lines.
 	if (count($settingsArray) < 12)
