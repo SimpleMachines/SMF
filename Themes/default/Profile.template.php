@@ -49,12 +49,12 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
+<div class="cat_bar">
+	<h3 class="catbg">
+		<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
+	</h3>
+</div>
 <div id="profileview" class="flow_auto">
-	<div class="cat_bar">
-		<h3 class="catbg">
-			<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
-		</h3>
-	</div>
 	<div id="basicinfo">
 		<div class="windowbg">
 			<div class="content flow_auto">
@@ -336,7 +336,7 @@ function template_showPosts()
 			</h3>
 		</div>
 		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Button shortcuts
@@ -352,26 +352,24 @@ function template_showPosts()
 		foreach ($context['posts'] as $post)
 		{
 			echo '
-		<div class="topic">
 			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
 				<div class="content">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $post['time'], '&nbsp;&#187;</span>
+						<span class="smalltext">', $post['time'], '</span>
 					</div>
 					<div class="list_posts">';
 
 			if (!$post['approved'])
 				echo '
-					<div class="approve_post">
-						<em>', $txt['post_awaiting_approval'], '</em>
-					</div>';
+						<div class="approve_post">
+							<em>', $txt['post_awaiting_approval'], '</em>
+						</div>';
 
 			echo '
 					', $post['body'], '
-					</div>
-				</div>';
+					</div>';
 
 			if ($post['can_reply'] || $post['can_mark_notify'] || $post['can_delete'])
 				echo '
@@ -404,14 +402,14 @@ function template_showPosts()
 				</div>';
 
 			echo '
-				<br class="clear" />
-			</div>
-		</div>';
+				</div>
+			</div>';
 		}
 	}
 	else
 	{
 		echo '
+	<div class="generic_list_wrapper" id="show_attachments">
 		<table border="0" width="100%" cellspacing="1" cellpadding="2" class="table_grid" align="center">
 			<thead>
 				<tr class="titlebg">
@@ -468,12 +466,13 @@ function template_showPosts()
 
 		echo '
 			</tbody>
-		</table>';
+		</table>
+	</div>';
 	}
 	// Show more page numbers.
 	echo '
-		<div class="pagesection" style="margin-bottom: 0;">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 }
 
@@ -486,6 +485,7 @@ function template_editBuddies()
 	$buddy_fields = array('icq', 'aim', 'yim', 'msn');
 
 	echo '
+	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="title_bar">
 			<h3 class="titlebg">
 				<img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '
@@ -546,11 +546,11 @@ function template_editBuddies()
 	}
 
 	echo '
-		</table>';
+		</table>
+	</div>';
 
 	// Add a new buddy?
 	echo '
-	<br />
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder add_buddy">
 			<div class="title_bar">
@@ -573,7 +573,6 @@ function template_editBuddies()
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit" />
-				<br class="clear_right" />
 			</div>
 		</div>
 	</form>
@@ -598,6 +597,7 @@ function template_editIgnoreList()
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
 	echo '
+	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="title_bar">
 			<h3 class="titlebg">
 				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['editIgnoreList'], '
@@ -648,11 +648,11 @@ function template_editIgnoreList()
 	}
 
 	echo '
-		</table>';
+		</table>
+	</div>';
 
 	// Add to the ignore list?
 	echo '
-	<br />
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder add_buddy">
 			<div class="title_bar">
@@ -675,7 +675,6 @@ function template_editIgnoreList()
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit" />
-				<br class="clear_right" />
 			</div>
 		</div>
 	</form>
@@ -701,6 +700,7 @@ function template_trackActivity()
 
 	// The first table shows IP information about the user.
 	echo '
+		<div class="generic_list_wrapper">
 			<div class="title_bar">
 				<h3 class="titlebg"><strong>', $txt['view_ips_by'], ' ', $context['member']['name'], '</strong></h3>
 			</div>';
@@ -745,7 +745,7 @@ function template_trackActivity()
 					</dl>
 				</div>
 			</div>
-			<br class="clear" />';
+		</div>';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -774,11 +774,10 @@ function template_trackIP()
 					</dd>
 				</dl>
 				<input type="submit" value="', $txt['trackIP'], '" class="button_submit" />
-				<br class="clear_right" />
 			</form>
 		</div>
 	</div>
-	<br class="clear" />';
+	<div class="generic_list_wrapper">';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
 	if ($context['single_ip'])
@@ -794,8 +793,7 @@ function template_trackIP()
 					<a href="', $server['url'], '" target="_blank" class="new_win"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br />';
 			echo '
 				</div>
-			</div>
-		<br class="clear" />';
+			</div>';
 	}
 
 	// The second table lists all the members who have been logged as using this IP address.
@@ -828,9 +826,11 @@ function template_trackIP()
 
 		echo '
 			</tbody>
-		</table>
-		<br />';
+		</table>';
 	}
+
+	echo '
+	</div>';
 
 	template_show_list('track_message_list');
 
@@ -853,7 +853,7 @@ function template_showPermissions()
 	if ($context['member']['has_all_permissions'])
 	{
 		echo '
-		<p class="windowbg description">', $txt['showPermissions_all'], '</p>';
+		<p class="description">', $txt['showPermissions_all'], '</p>';
 	}
 	else
 	{
@@ -1001,14 +1001,14 @@ function template_statPanel()
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
+	<div class="cat_bar">
+		<h3 class="catbg">
+			<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
+			', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
+		</h3>
+	</div>
 	<div id="profileview">
 		<div id="generalstats">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
-					', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
-				</h3>
-			</div>
 			<div class="windowbg2">
 				<div class="content">
 					<dl>
@@ -1155,8 +1155,7 @@ function template_statPanel()
 		</div>';
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Template for editing profile options.
@@ -1186,7 +1185,7 @@ function template_edit_options()
 	// Have we some description?
 	if ($context['page_desc'])
 		echo '
-			<p class="windowbg description">', $context['page_desc'], '</p>';
+			<p class="description">', $context['page_desc'], '</p>';
 
 	echo '
 			<div class="windowbg2">
@@ -1361,10 +1360,8 @@ function template_edit_options()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="u" value="', $context['id_member'], '" />
 					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
-			<br />
 		</form>';
 
 	// Some javascript!
@@ -1665,7 +1662,7 @@ function template_notification()
 					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
-			<p class="windowbg description">', $txt['notification_info'], '</p>
+			<p class="description">', $txt['notification_info'], '</p>
 			<div class="windowbg2">
 				<div class="content">
 					<dl class="settings">';
@@ -1732,7 +1729,6 @@ function template_notification()
 						<input type="hidden" name="u" value="', $context['id_member'], '" />
 						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
 					</div>
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
@@ -1976,8 +1972,7 @@ function template_ignoreboards()
 	}
 
 	echo '
-				</ul>
-				<br class="clear" />';
+				</ul>';
 
 	// Show the standard "Save Settings" profile button.
 	template_profile_save();
@@ -2333,7 +2328,6 @@ function template_issueWarning()
 					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button_submit" />
 				</div>
-				<br class="clear" />
 			</div>
 		</div>
 	</form>';
@@ -2882,7 +2876,7 @@ function template_authentication_method()
 					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['authentication'], '
 				</h3>
 			</div>
-			<p class="windowbg description">', $txt['change_authentication'], '</p>
+			<p class="description">', $txt['change_authentication'], '</p>
 			<div class="windowbg2">
 				<div class="content">
 					<dl>
@@ -2943,7 +2937,6 @@ function template_authentication_method()
 					<input type="hidden" name="u" value="', $context['id_member'], '" />
 					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
 					<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>';

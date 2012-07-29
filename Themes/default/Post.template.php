@@ -503,7 +503,7 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<hr class="hrcolor" />
+					<br class="clear_right" />
 					<span class="smalltext" >
 						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
 					</span>
@@ -517,7 +517,6 @@ function template_main()
 
 	echo '
 					</span>
-					<br class="clear_right" />
 				</div>
 			</div>
 			<br class="clear" />';
@@ -781,16 +780,13 @@ function template_main()
 			echo '
 				<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
 				<div class="content" id="msg', $post['id'], '">
-					<div class="floatleft">
-						<h5>', $txt['posted_by'], ': ', $post['poster'], '</h5>
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $post['time'], '&nbsp;&#187;</span>
-					</div>';
+						<h5 class="floatleft"><span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '</h5>&nbsp;-&nbsp;', $post['time'];
 
 			if ($context['can_quote'])
 			{
 				echo '
-					<ul class="reset smalltext quickbuttons" id="msg_', $post['id'], '_quote">
-						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button"><span>',$txt['bbc_quote'],'</span></a></li>
+					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
+						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">',$txt['bbc_quote'],'</a></li>
 					</ul>';
 			}
 

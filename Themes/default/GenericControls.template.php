@@ -19,9 +19,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 	echo '
 		<div>
-			<div style="width: 98.8%;">
+			<div>
 				<div>
-					<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" rows="', $editor_context['rows'], '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="height: ', $editor_context['height'], '; ', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '">', $editor_context['value'], '</textarea>
+					<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" rows="" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="height: ', $editor_context['height'], '; ', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '">', $editor_context['value'], '</textarea>
 				</div>
 				<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
 			</div>

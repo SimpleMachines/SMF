@@ -109,10 +109,6 @@ function template_main()
 			echo '
 								<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
 
-		if (!$context['user']['is_guest'] && !empty($category['show_unread']))
-			echo '
-								<a class="unreadlink" href="', $scripturl, '?action=unread;c=', $category['id'], '">', $txt['view_unread_category'], '</a>';
-
 		echo '
 								', $category['link'], '
 							</h3>
@@ -175,8 +171,8 @@ function template_main()
 					echo '
 					</td>
 					<td class="windowbg stats">
-						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br />
-						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
+						', $board['is_redirect'] ? '' : '<br /> '.comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</td>
 					<td class="lastpost">';
@@ -228,35 +224,22 @@ function template_main()
 	}
 	echo '
 		</table>
-	</div>';
+	</div>
+		<ul id="posting_icons">';
 
 	if ($context['user']['is_logged'])
-	{
-		echo '
-	<div id="posting_icons" class="floatleft">';
+	echo '
+			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_some.png" alt="" /> ', $txt['new_posts'], '</li>';
 
-		echo '
-		<ul class="reset">
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_some.png" alt="" /> ', $txt['new_posts'], '</li>
+	echo '
 			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_none.png" alt="" /> ', $txt['old_posts'], '</li>
 			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_redirect.png" alt="" /> ', $txt['redirect_board'], '</li>
-		</ul>
-	</div>';
+		</ul>';
 
-		// Show the mark all as read button?
-		if ($settings['show_mark_read'] && !empty($context['categories']))
-			echo '<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
-	}
-	else
-	{
-		echo '
-	<div id="posting_icons" class="flow_hidden">
-		<ul class="reset">
-			<li class="floatleft"><img src="', $settings['images_url'], '/new_none.png" alt="" /> ', $txt['old_posts'], '</li>
-			<li class="floatleft"><img src="', $settings['images_url'], '/new_redirect.png" alt="" /> ', $txt['redirect_board'], '</li>
-		</ul>
-	</div>';
-	}
+	// Show the mark all as read button?
+	if ($settings['show_mark_read'] && !empty($context['categories']))
+	echo '
+		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 
 	template_info_center();
 }
@@ -304,19 +287,21 @@ function template_info_center()
 		elseif (!empty($context['latest_posts']))
 		{
 			echo '
-				<dl id="ic_recentposts">';
+				<table id="ic_recentposts">';
 
 			/* Each post in latest_posts has:
 					board (with an id, name, and link.), topic (the topic's id.), poster (with id, name, and link.),
 					subject, short_subject (shortened with...), time, link, and href. */
 			foreach ($context['latest_posts'] as $post)
 				echo '
-					<dt>
-						<strong>', $post['link'], '</strong> ', $txt['by'], ' ', $post['poster']['link'], ' (', $post['board']['link'], ')
-					</dt>
-					<dd>', $post['time'], '</dd>';
+					<tr>
+						<td class="recentpost"><strong>', $post['link'], '</strong></td>
+						<td class="recentposter">', $txt['by'], ' ', $post['poster']['link'], '</td>
+						<td class="recentboard">(', $post['board']['link'], ')</td>
+						<td class="recenttime">', $post['time'], '</td>
+					</tr>';
 			echo '
-				</dl>';
+				</table>';
 		}
 		echo '
 			</div>';
@@ -374,13 +359,13 @@ function template_info_center()
 		echo '
 			<div class="title_barIC">
 				<h4 class="titlebg">
-					<a href="', $scripturl, '?action=stats"><img class="icon" src="', $settings['images_url'], '/icons/info.png" alt="" />', $txt['forum_stats'], '</a>
+					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><img class="icon" src="', $settings['images_url'], '/icons/info.png" alt="" />', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
 			<p class="inline">
 				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - '. $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br />
 				', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  ( ' . $context['latest_post']['time'] . ' )<br />' : ''), '
-				<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>', $context['show_stats'] ? '&nbsp;&nbsp;&nbsp;<a href="' . $scripturl . '?action=stats">' . $txt['more_stats'] . '</a>' : '', '
+				<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>
 			</p>';
 	}
 
@@ -406,7 +391,10 @@ function template_info_center()
 	if (!empty($bracketList))
 		echo ' (' . implode(', ', $bracketList) . ')';
 
-	echo $context['show_who'] ? '</a>' : '', '<br />';
+	echo $context['show_who'] ? '</a>' : '', '
+
+				&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp; 
+				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br />';
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
 	if (!empty($context['users_online']))
@@ -421,10 +409,6 @@ function template_info_center()
 	}
 
 	echo '
-			</p>
-			<p class="last">
-				', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>.
-				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')
 			</p>';
 
 	// If they are logged in, but statistical information is off... show a personal message bar.
