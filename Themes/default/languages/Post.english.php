@@ -220,6 +220,7 @@ $txt['error_temp_attachments_found'] = 'The following attachments were found whi
 $txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitedd.<br />Click %1$s to remove these attachments.%2$s';
 $txt['error_temp_attachments_gone'] = 'Those attachments are now removed and you have been returned to the page you were previously on';
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted. Have now been removed.';
+$txt['error_topic_already_announced'] = 'Please note that this topic has already been announced.';
 
 $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
