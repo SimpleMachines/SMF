@@ -561,6 +561,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		'',
 			// Password strength.
 			array('select', 'password_strength', array($txt['setting_password_strength_low'], $txt['setting_password_strength_medium'], $txt['setting_password_strength_high'])),
+			array('check', 'enable_password_conversion'),
 		'',
 			// Reporting of personal messages?
 			array('check', 'enableReportPM'),
