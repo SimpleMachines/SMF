@@ -122,7 +122,7 @@ class browser_detector
 	function isFirefox()
 	{
 		if (!isset($this->_browsers['is_firefox']))
-			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1;
+			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1 && $this->isGecko();
 		return $this->_browsers['is_firefox'];
 	}
 
