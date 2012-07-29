@@ -303,7 +303,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
 	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading.gif" ></div>';
-	var sIcon = smf_images_url + '/' + typeof(sIcon) == 'string' ? sIcon : 'helptopics.png';
+	var sIcon = smf_images_url + '/' + (typeof(sIcon) == 'string' ? sIcon : 'helptopics.png');
 	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
 	
 	// Create the div that we are going to load
