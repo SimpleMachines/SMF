@@ -151,7 +151,7 @@ function EditNews()
 					'function' => create_function('$news', '
 
 						if (is_numeric($news[\'id\']))
-							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
 							<br />
 							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
 						else

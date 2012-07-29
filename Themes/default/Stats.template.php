@@ -19,12 +19,12 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="title_bar">
-			<h4 class="titlebg">
-				<img src="', $settings['images_url'], '/stats_info.png" class="icon" alt="" /> ', $txt['general_stats'], '
-			</h4>
-		</div>
 		<div class="flow_hidden">
+			<div class="title_bar">
+				<h4 class="titlebg">
+					<img src="', $settings['images_url'], '/stats_info.png" class="icon" alt="" /> ', $txt['general_stats'], '
+				</h4>
+			</div>
 			<div id="stats_left">
 				<div class="windowbg2">
 					<div class="content top_row">
@@ -291,12 +291,12 @@ function template_main()
 			</div>
 		</div>
 		<br class="clear" />
-		<div class="flow_hidden">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/stats_history.png" class="icon" alt="" /> ', $txt['forum_history'], '
-				</h3>
-			</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<img src="', $settings['images_url'], '/stats_history.png" class="icon" alt="" /> ', $txt['forum_history'], '
+			</h3>
+		</div>
+		<div class="flow_hidden">';
 
 	if (!empty($context['yearly']))
 	{

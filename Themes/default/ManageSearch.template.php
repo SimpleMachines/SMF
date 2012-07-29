@@ -385,23 +385,20 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
-		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+			</div>
 			<div class="windowbg">
 				<div class="content">
 					<p>
 						', $txt['spider_logs_delete_older'], '
 						<input type="text" name="older" id="older" value="7" size="3" class="input_text" />
 						', $txt['spider_logs_delete_day'], '
-					</p>	
-					<hr class="hrcolor" />
+					</p>
 					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
