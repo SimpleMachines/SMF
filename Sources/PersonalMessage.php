@@ -35,7 +35,7 @@ function MessageMain()
 	// This file contains the basic functions for sending a PM.
 	require_once($sourcedir . '/Subs-Post.php');
 
-	loadLanguage('PersonalMessage');
+	loadLanguage('PersonalMessage+Drafts');
 
 	if (WIRELESS && WIRELESS_PROTOCOL == 'wap')
 		fatal_lang_error('wireless_error_notyet', false);
@@ -197,6 +197,7 @@ function MessageMain()
 		'send' => 'MessagePost',
 		'send2' => 'MessagePost2',
 		'settings' => 'MessageSettings',
+		'showpmdrafts' => 'MessageDrafts',
 	);
 
 	if (!isset($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
@@ -210,7 +211,7 @@ function MessageMain()
 }
 
 /**
- * A sidebar to easily access different areas of the section
+ * A menu to easily access different areas of the PM section
  *
  * @param string $area
  */
@@ -234,6 +235,12 @@ function messageIndexBar($area)
 				'sent' => array(
 					'label' => $txt['sent_items'],
 					'custom_url' => $scripturl . '?action=pm;f=sent',
+				),
+				'drafts' => array(
+					'label' => $txt['drafts_show'],
+					'custom_url' => $scripturl . '?action=pm;sa=showpmdrafts',
+					'permission' => allowedTo('pm_draft'),
+					'enabled' => !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']),
 				),
 			),
 		),
@@ -272,7 +279,7 @@ function messageIndexBar($area)
 			),
 		),
 	);
-
+	
 	// Handle labels.
 	if (empty($context['currently_using_labels']))
 		unset($pm_areas['labels']);
@@ -300,7 +307,7 @@ function messageIndexBar($area)
 		if (!empty($unread_in_labels))
 			$pm_areas['labels']['title'] .= ' (' . $unread_in_labels . ')';
 	}
-
+	
 	$pm_areas['folders']['areas']['inbox']['unread_messages'] = &$context['labels'][-1]['unread_messages'];
 	$pm_areas['folders']['areas']['inbox']['messages'] = &$context['labels'][-1]['messages'];
 	if (!empty($context['labels'][-1]['unread_messages']))
@@ -335,19 +342,24 @@ function messageIndexBar($area)
 		'toggle_url' => $current_page . ';togglebar',
 		'toggle_redirect_url' => $current_page,
 	);
-
+	
 	// Actually create the menu!
 	$pm_include_data = createMenu($pm_areas, $menuOptions);
 	unset($pm_areas);
+	
+	// No menu means no access.
+	if (!$pm_include_data && (!$user_info['is_guest'] || validateSession()))
+		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
 	$context['pm_menu_id'] = $context['max_menu_id'];
 	$context['pm_menu_name'] = 'menu_data_' . $context['pm_menu_id'];
 
 	// Set the selected item.
-	$context['menu_item_selected'] = $pm_include_data['current_area'];
+	$current_area = $pm_include_data['current_area'];
+	$context['menu_item_selected'] = $current_area;
 
-	// obExit will know what to do!
+	// Set the template for this area and add the profile layer.
 	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
 }
@@ -1770,6 +1782,18 @@ function MessagePost()
 	);
 
 	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
+	
+	// Are PM drafts enabled?
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+	
+	// Generate a list of drafts that they can load in to the editor
+	if (!empty($context['drafts_pm_save']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		$pm_seed = isset($_REQUEST['pmsg']) ? $_REQUEST['pmsg'] : (isset($_REQUEST['quote']) ? $_REQUEST['quote'] : 0);
+		ShowDrafts($user_info['id'], $pm_seed, 1);
+	}
 
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -1804,6 +1828,28 @@ function MessagePost()
 
 	// Register this form and get a sequence number in $context.
 	checkSubmitOnce('register');
+}
+
+/**
+ * This function allows the user to view their PM drafts
+ */
+function MessageDrafts()
+{
+	global $context, $sourcedir, $user_info, $modSettings;
+	
+	// Set draft capability
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+	
+	// validate with loadMemberData()
+	$memberResult = loadMemberData($user_info['id'], false);
+	if (!is_array($memberResult))
+		fatal_lang_error('not_a_user', false);
+	list ($memID) = $memberResult;
+	
+	// drafts is where the functions reside
+	require_once($sourcedir . '/Drafts.php');
+	showPMDrafts($memID);
 }
 
 /**
@@ -1945,6 +1991,10 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		if (!in_array($error_type, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
 			$context['error_type'] = 'serious';
 	}
+
+	// Need to reset draft capability once again
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
 
 	// We need to load the editor once more.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -2146,7 +2196,7 @@ function MessagePost2()
 		// Preparse the message.
 		$message = $_REQUEST['message'];
 		preparsecode($message);
-
+		
 		// Make sure there's still some content left without the tags.
 		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($smcFunc['htmlspecialchars']($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($message, '[html]') === false))
 			$post_errors[] = 'no_message';
@@ -2162,15 +2212,13 @@ function MessagePost2()
 		$context['require_verification'] = create_control_verification($verificationOptions, true);
 
 		if (is_array($context['require_verification']))
-		{
 			$post_errors = array_merge($post_errors, $context['require_verification']);
-		}
 	}
 
 	// If they did, give a chance to make ammends.
 	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']) && !isset($_REQUEST['xml']))
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
-
+		
 	// Want to take a second glance before you send?
 	if (isset($_REQUEST['preview']))
 	{
@@ -2206,6 +2254,14 @@ function MessagePost2()
 
 		return messagePostError(array(), $namedRecipientList, $recipientList);
 	}
+	
+	// Want to save this as a draft and think about it some more?
+	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && isset($_POST['save_draft']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		SavePMDraft($post_errors, $recipientList);
+		return messagePostError($post_errors, $namedRecipientList, $recipientList);
+	}
 
 	// Before we send the PM, let's make sure we don't have an abuse of numbers.
 	elseif (!empty($modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > $modSettings['max_pm_recipients'] && !allowedTo(array('moderate_forum', 'send_mail', 'admin_forum')))
@@ -2222,7 +2278,7 @@ function MessagePost2()
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
-
+	
 	// Do the actual sending of the PM.
 	if (!empty($recipientList['to']) || !empty($recipientList['bcc']))
 		$context['send_log'] = sendpm($recipientList, $_REQUEST['subject'], $_REQUEST['message'], !empty($_REQUEST['outbox']), null, !empty($_REQUEST['pm_head']) ? (int) $_REQUEST['pm_head'] : 0);

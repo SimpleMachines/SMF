@@ -464,7 +464,7 @@ function Post($post_errors = array())
 		}
 
 		// Only show the preview stuff if they hit Preview.
-		if ($really_previewing == true || isset($_REQUEST['xml']))
+		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_POST['id_draft']))
 		{
 			// Set up the preview message and subject and censor them...
 			$context['preview_message'] = $form_message;
@@ -1050,6 +1050,17 @@ function Post($post_errors = array())
 	$context['subject'] = addcslashes($form_subject, '"');
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
+	// Are post drafts enabled?
+	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+
+	// Build a list of drafts that they can load in to the editor
+	if (!empty($context['drafts_save']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		ShowDrafts($user_info['id'], $topic);
+	}
+
 	// Needed for the editor and message icons.
 	require_once($sourcedir . '/Subs-Editor.php');
 
@@ -1227,6 +1238,10 @@ function Post2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
+
+	// Drafts enabled?
+	if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))
@@ -1527,6 +1542,13 @@ function Post2()
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || $_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
+		// If drafts are enabled, then pass this off
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
+
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
 		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
@@ -1564,6 +1586,13 @@ function Post2()
 
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || empty($_POST['sticky']) || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
+
+		// Saving your new topic as a draft first?
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
 
 		$posterIsGuest = $user_info['is_guest'];
 	}
@@ -1639,6 +1668,13 @@ function Post2()
 			// Log it, assuming you're not modifying your own post.
 			if ($row['id_member'] != $user_info['id'])
 				$moderationAction = true;
+		}
+
+		// If drafts are enabled, then lets send this off to save
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
 		}
 
 		$posterIsGuest = empty($row['id_member']);

@@ -466,7 +466,10 @@ function surroundText(text1, text2, oTextHandle)
 function isEmptyText(theField)
 {
 	// Copy the value so changes can be made..
-	var theValue = theField.value;
+	if (typeof(theField) == 'string')
+		var theValue = theField;
+	else
+		var theValue = theField.value;
 
 	// Strip whitespace off the left side.
 	while (theValue.length > 0 && (theValue.charAt(0) == ' ' || theValue.charAt(0) == '\t'))

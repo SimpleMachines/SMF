@@ -514,6 +514,20 @@ function template_maintain_topics()
 				</form>
 			</div>
 		</div>
+
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['maintain_old_drafts'], '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['maintain_old_drafts_days'], '&nbsp;<input type="text" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3" />&nbsp;', $txt['days_word'], '</p>
+					<input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_old_drafts_confirm'], '\');" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				</form>
+			</div>
+		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['move_topics_maintenance'], '</h3>
 		</div>
