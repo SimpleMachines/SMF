@@ -37,3 +37,4 @@
 	cursor: s-resize;
 	width: 100%;
 }
+div#message_resizer, div.richedit_resize {display: visible;}

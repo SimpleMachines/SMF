@@ -16,9 +16,9 @@ function template_email_members()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
+				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>',$bat_poo,'
 			</div>
 			<div class="information">
 				', $txt['admin_news_select_recipients'], '
@@ -47,7 +47,7 @@ function template_email_members()
 			</div>
 			<br />
 
-			<div class="cat_bar">
+			<div id="advanced_panel_header" class="cat_bar">
 				<h3 class="catbg">
 					<img id="advanced_panel_toggle" class="panel_toggle" style="display: none; src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" alt="*" />
 					<a href="#" id="advanced_panel_link" >', $txt['advanced'], '</a>
@@ -107,7 +107,7 @@ function template_email_members()
 						<dd>
 							<input type="checkbox" name="email_force" id="email_force" value="1" class="input_check" />
 						</dd>
-					</dl><br class="clear" />
+					</dl>
 				</div>
 			</div>
 			<div class="righttext">
@@ -115,8 +115,7 @@ function template_email_members()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '

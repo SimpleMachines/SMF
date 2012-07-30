@@ -104,10 +104,80 @@ function template_html_above()
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
 	}
 
-	// Load in any css from mods
+	// Save some database hits, if a width for multiple wrappers is set in admin.
+	if(!empty($settings['forum_width']))
+		echo '
+	<style type="text/css">#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
+
+	// Quick and dirty testing of RTL horrors. Remove before production build.
+	//echo '
+	//<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
+
+	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
+
+	// Jquery Librarys
+	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
+		echo '
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>';
+	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
+		echo '
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"></script>';
+	else
+		echo '
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript"><!-- // --><![CDATA[
+		window.jQuery || document.write(\'<script src="', $settings['theme_url'], '/scripts/jquery-1.7.1.min.js"><\/script>\');
+	// ]]></script>';
+
+	// Note that the Superfish function seems to like being called by the full syntax.
+	// It doesn't appear to like being called by short syntax. Please test if contemplating changes.
+	echo '
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/smf_jquery_plugins.js"></script>';
 	
-	// Load in default Javascript variables as well as stuff added by mods (new in 2.1, so themers won't have to bother with it)
+	// Here comes the JavaScript bits!
+	echo '
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?alp21"></script>
+	<script type="text/javascript" src="', $settings['theme_url'], '/scripts/theme.js?alp21"></script>
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var smf_theme_url = "', $settings['theme_url'], '";
+		var smf_default_theme_url = "', $settings['default_theme_url'], '";
+		var smf_images_url = "', $settings['images_url'], '";
+		var smf_scripturl = "', $scripturl, '";
+		var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
+		var smf_charset = "', $context['character_set'], '";
+		var smf_session_id = "', $context['session_id'], '";
+		var smf_session_var = "', $context['session_var'], '";
+		var smf_member_id = "', $context['user']['id'], '";', $context['show_pm_popup'] ? '
+		var fPmPopup = function ()
+		{
+			new smc_Popup({
+				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
+				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
+				icon: smf_images_url + \'/im_sm_newmsg.png\'
+			});
+		}
+		addLoadEvent(fPmPopup);' : '', '
+		var ajax_notification_text = "', $txt['ajax_in_progress'], '";
+		var ajax_notification_cancel_text = "', $txt['modify_cancel'], '";
+		var help_popup_heading_text = "', $txt['help_popup'], '";
+	// ]]></script>';
+
+	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+		$(document).ready(function() {
+			// menu drop downs
+			$("ul.dropmenu").superfish();
+			
+			// tooltips
+			$(".preview").SMFtooltip();
+
+			// find all nested linked images and turn off the border
+			$("a.bbc_link img.bbc_img").parent().css("border", "0");
+		});
+	// ]]></script>';
+
+	// load in any javascript files from mods and themes
 	template_javascript();
 		
 	echo '
@@ -168,61 +238,102 @@ function template_body_above()
 
 	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
 	echo '
-<div id="wrapper" ', !empty($settings['forum_width']) ? 'style="width: ' . $settings['forum_width'] . '"' : '', '>
-	<div id="header">
+	<div id="top_section">
 		<div class="frame">
-			<div id="top_section">
-				<h1 class="forumtitle">
-					<a href="', $scripturl, '" id="top">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '" />', '</a>
-				</h1>';
+			<ul class="floatleft">';
 
-	// the upshrink image, right-floated
-	echo '
-				<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />';
-	echo '
-			', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '
-			</div>
-			<div id="upper_wrap">
-				<div id="upper_section" ', empty($options['collapse_header']) ? '' : ' style="display: none;"', '>
-					<div class="user">';
-
-	// If the user is logged in, display stuff like their name, new messages, etc.
+	// If the user is logged in, display the time, or a maintenance warning for admins.
 	if ($context['user']['is_logged'])
 	{
-		if (!empty($context['user']['avatar']))
-			echo '
-				<p class="avatar"><a href="', $scripturl, '?action=profile">', $context['user']['avatar']['image'], '</a></p>';
-			echo '
-						<ul class="reset">
-							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>
-							<li><a href="', $scripturl, '?action=unread">', $txt['unread_since_visit'], '</a></li>
-							<li><a href="', $scripturl, '?action=unreadreplies">', $txt['show_unread_replies'], '</a></li>';
-
 		// Is the forum in maintenance mode?
 		if ($context['in_maintenance'] && $context['user']['is_admin'])
 			echo '
-							<li class="notice">', $txt['maintain_mode_on'], '</li>';
-
-		// Are there any members waiting for approval?
-		if (!empty($context['unapproved_members']))
+				<li class="notice">', $txt['maintain_mode_on'], '</li>';
+		else
 			echo '
-							<li>', $context['unapproved_members'] == 1 ? $txt['approve_thereis'] : $txt['approve_thereare'], ' <a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $context['unapproved_members'] == 1 ? $txt['approve_member'] : $context['unapproved_members'] . ' ' . $txt['approve_members'], '</a> ', $txt['approve_members_waiting'], '</li>';
-
-		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
-			echo '
-							<li><a href="', $scripturl, '?action=moderate;area=reports">', sprintf($txt['mod_reports_waiting'], $context['open_mod_reports']), '</a></li>';
-
-		echo '
-							<li>', $context['current_time'], '</li>
-						</ul>';
+				<li>', $context['current_time'], '</li>';
 	}
-	// Otherwise they're a guest - this time ask them to either register or login - lazy bums...
-	elseif (!empty($context['show_login_bar']))
+	// Otherwise they're a guest. Ask them to either register or login.
+	else
+		echo '
+				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</li>';
+
+	echo '
+			</ul>';
+
+	if ($context['allow_search'])
 	{
 		echo '
-					<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
+			<form id="search_form" class="floatright" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
+				<input type="text" name="search" value="" class="input_text" />&nbsp;';
+
+		// Using the quick search dropdown?
+		if (!empty($modSettings['search_dropdown']))
+		{
+			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
+
+			echo '
+				<select name="search_selection">
+					<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
+
+		// Can't limit it to a specific topic if we are not in one
+		if (!empty($context['current_topic']))
+			echo '
+					<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
+
+		// Can't limit it to a specific board if we are not in one
+		if (!empty($context['current_board']))
+			echo '
+					<option value="board"', ($selected == 'current_board' ? ' selected="selected"' : ''), '>', $txt['search_thisbrd'], '</option>';
+			echo '
+					<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
+				</select>';
+		}
+
+		// Search within current topic?
+		if (!empty($context['current_topic']))
+			echo '
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '" />';
+		// If we're on a certain board, limit it to this board ;).
+		elseif (!empty($context['current_board']))
+			echo '
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '" />';
+
+		echo '
+				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
+				<input type="hidden" name="advanced" value="0" />
+			</form>';
+	}
+
+	echo '
+		</div>
+	</div>';
+
+	echo '
+	<div id="header">
+		<div class="frame">
+			<h1 class="forumtitle">
+				<a id="top" href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '" />', '</a>
+			</h1>';
+
+	echo '
+			', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '';
+
+	echo'
+		</div>
+	</div>
+	<div id="wrapper">
+		<div id="upper_section">
+			<div id="inner_section">
+				<div id="inner_wrap" ', empty($options['collapse_header']) ? '' : ' style="display: none;"', '>
+					<div class="user floatright">';
+
+	// Otherwise they're a guest - this time ask them to either register or login - lazy bums...
+	if (!empty($context['show_login_bar']))
+	{
+		echo '
+						<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 						<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
-							<div class="info">', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</div>
 							<input type="text" name="user" size="10" class="input_text" />
 							<input type="password" name="passwrd" size="10" class="input_password" />
 							<select name="cookielength">
@@ -232,8 +343,8 @@ function template_body_above()
 								<option value="43200">', $txt['one_month'], '</option>
 								<option value="-1" selected="selected">', $txt['forever'], '</option>
 							</select>
-							<input type="submit" value="', $txt['login'], '" class="button_submit" /><br />
-							<div class="info">', $txt['quick_login_dec'], '</div>';
+							<input type="submit" value="', $txt['login'], '" class="button_submit" />
+							<div>', $txt['quick_login_dec'], '</div>';
 
 		if (!empty($modSettings['enableOpenID']))
 			echo '
@@ -246,112 +357,56 @@ function template_body_above()
 						</form>';
 	}
 
-	echo '
-					</div>
-					<div class="news">';
-
-	if ($context['allow_search'])
+		// If the user is logged in, display stuff like their name, new messages, etc.
+	if ($context['user']['is_logged'])
 	{
-		echo '
-						<form id="search_form" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-							<input type="text" name="search" value="" class="input_text" />&nbsp;';
+		if (!empty($context['user']['avatar']))
+			echo '
+						<a href="', $scripturl, '?action=profile" class="avatar">', $context['user']['avatar']['image'], '</a>';
+			echo '
+						<ul class="floatleft">
+							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>';
 
-		// Using the quick search dropdown?
-		if (!empty($modSettings['search_dropdown']))
-		{
-			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
+		// Are there any members waiting for approval?
+		if (!empty($context['unapproved_members']))
+			echo '
+							<li>', $context['unapproved_members'] == 1 ? $txt['approve_thereis'] : $txt['approve_thereare'], ' <a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $context['unapproved_members'] == 1 ? $txt['approve_member'] : $context['unapproved_members'] . ' ' . $txt['approve_members'], '</a> ', $txt['approve_members_waiting'], '</li>';
 
+		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
 			echo '
-							<select name="search_selection">
-								<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
-
-		// Can't limit it to a specific topic if we are not in one
-		if (!empty($context['current_topic']))
-			echo '
-								<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
-
-		// Can't limit it to a specific board if we are not in one
-		if (!empty($context['current_board']))
-			echo '
-								<option value="board"', ($selected == 'current_board' ? ' selected="selected"' : ''), '>', $txt['search_thisbrd'], '</option>';
-			echo '
-								<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
-							</select>';
-		}
-
-		// Search within current topic?
-		if (!empty($context['current_topic']))
-			echo '
-							<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '" />';
-		// If we're on a certain board, limit it to this board ;).
-		elseif (!empty($context['current_board']))
-			echo '
-							<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '" />';
+							<li><a href="', $scripturl, '?action=moderate;area=reports">', sprintf($txt['mod_reports_waiting'], $context['open_mod_reports']), '</a></li>';
 
 		echo '
-							<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
-							<input type="hidden" name="advanced" value="0" />
-						</form>';
+						</ul>';
 	}
 
+	echo'
+					</div>';
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty($settings['enable_news']))
 		echo '
+					<div class="news">
 						<h2>', $txt['news'], ': </h2>
-						<p>', $context['random_news_line'], '</p>';
+						<p>', $context['random_news_line'], '</p>
+					</div>';
 
 	echo '
-					</div>
+					<hr class="clear" /> 
 				</div>';
 
-	// Define the upper_section toggle in JavaScript.
-	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var oMainHeaderToggle = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', empty($options['collapse_header']) ? 'false' : 'true', ',
-				aSwappableContainers: [
-					\'upper_section\'
-				],
-				aSwapImages: [
-					{
-						sId: \'upshrink\',
-						srcExpanded: smf_images_url + \'/upshrink.png\',
-						altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
-						srcCollapsed: smf_images_url + \'/upshrink2.png\',
-						altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
-					}
-				],
-				oThemeOptions: {
-					bUseThemeSettings: smf_member_id == 0 ? false : true,
-					sOptionName: \'collapse_header\',
-					sSessionVar: smf_session_var,
-					sSessionId: smf_session_id
-				},
-				oCookieOptions: {
-					bUseCookie: smf_member_id == 0 ? true : false,
-					sCookieName: \'upshrink\'
-				}
-			});
-		// ]]></script>';
-
-	// Show the menu here, according to the menu sub template.
+	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	template_menu();
 
-	// Custom banners and shoutboxes should be placed here, before the linktree.
-
-	// Show the navigation tree.
 	theme_linktree();
 
 	echo '
 			</div>
-		</div>
-	</div>';
+		</div>';
 
 	// The main content should go here.
 	echo '
-	<div id="content_section">
-		<div id="main_content_section">';
+		<div id="content_section">
+			<div id="main_content_section">';
 }
 
 function template_body_below()
@@ -359,26 +414,19 @@ function template_body_below()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	echo '
+			</div>
 		</div>
 	</div>';
-
-	// This markup gives the looks of the Curve theme without huge images.
-	// The new "Go Down" target is here. Any added content will display globally.
-	echo '
-	<div id="lower_section">
-		<div class="frame"><a id="bot"></a></div>
-	</div>
-</div>';
 
 	// Show the "Powered by" and "Valid" logos, as well as the copyright. Remember, the copyright must be somewhere!
 	// Footer is now full-width by default. Frame inside it will match theme wrapper width automatically.
 	echo '
 	<div id="footer_section">
-		<div class="frame" ', !empty($settings['forum_width']) ? 'style="width: ' . $settings['forum_width'] . '"' : '', '>';
+		<div class="frame">';
 
 	// Thee is now a global "Go to top" link above the copyright.
 		echo '
-			<a href="#top" id="footer_uplink"><img src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['go_up'], '" /></a>
+			<a href="#top" id="bot"><img src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['go_up'], '" /></a>
 			<ul class="reset">
 				<li class="copyright">', theme_copyright(), '</li>
 				<li><a id="button_xhtml" href="http://validator.w3.org/check?uri=referer" target="_blank" class="new_win" title="', $txt['valid_xhtml'], '"><span>', $txt['xhtml'], '</span></a></li>
@@ -424,6 +472,13 @@ function theme_linktree($force_show = false)
 	<div class="navigate_section">
 		<ul>';
 
+	if ($context['user']['is_logged'])
+	echo '
+			<li class="unread_links">
+				<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a> -
+				<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
+			</li>';
+
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach ($context['linktree'] as $link_num => $tree)
 	{
@@ -434,6 +489,13 @@ function theme_linktree($force_show = false)
 		if (isset($tree['extra_before']))
 			echo $tree['extra_before'];
 
+		// Don't show a separator for the first one.
+		// Better here. Always points to the next level when the linktree breaks to a second line.
+		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
+		if ($link_num != 0)
+			echo '
+				<span class="dividers">',$context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '
 				<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>' : '<span>' . $tree['name'] . '</span>';
@@ -442,20 +504,9 @@ function theme_linktree($force_show = false)
 		if (isset($tree['extra_after']))
 			echo $tree['extra_after'];
 
-		// Don't show a separator for the last one.
-		if ($link_num != count($context['linktree']) - 1)
-			echo ' &#187;';
-
 		echo '
 			</li>';
 	}
-
-	if ($context['user']['is_logged'])
-	echo '
-		<li class="unread_links">
-			<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a> -
-			<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
-		</li>';
 
 	echo '
 		</ul>
@@ -479,7 +530,7 @@ function template_menu()
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-				<li id="button_', $act, '">
+				<li id="button_', $act, '" ', !empty($button['sub_buttons']) ? 'class="subsections"' :'', '>
 					<a class="', $button['active_button'] ? 'active' : '', '" href="', $button['href'], '" ', isset($button['target']) ? 'target="' . $button['target'] . '"' : '', '>
 						', $button['title'], '
 					</a>';
@@ -491,7 +542,7 @@ function template_menu()
 			foreach ($button['sub_buttons'] as $childbutton)
 			{
 				echo '
-						<li>
+						<li ', !empty($childbutton['sub_buttons']) ? 'class="subsections"' :'', '>
 							<a href="', $childbutton['href'], '" ' , isset($childbutton['target']) ? 'target="' . $childbutton['target'] . '"' : '', '>
 								', $childbutton['title'], '
 							</a>';
@@ -523,9 +574,50 @@ function template_menu()
 				</li>';
 	}
 
+	// The upshrink image, right-floated. Yes, I know it takes some space from the menu bar.
+	// Menu bar will still accommodate ten buttons on a 1024, with theme set to 90%. That's more than enough.
+	// If anyone is terrified of losing 40px out of the menu bar, set your theme to 92% instead of 90%. :P 
+	echo '
+				<li style="float: right; position: absolute; top: 0; right: 0;">
+					<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="padding: 4px 9px 3px 9px; display: none;" />
+				</li>';
+
 	echo '
 			</ul>
 		</div>';
+
+	// Define the upper_section toggle in JavaScript.
+	// Note that this definition had to be shifted for the js to work with the new markup.
+	echo '
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oMainHeaderToggle = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: ', empty($options['collapse_header']) ? 'false' : 'true', ',
+				aSwappableContainers: [
+					\'inner_wrap\'
+				],
+				aSwapImages: [
+					{
+						sId: \'upshrink\',
+						srcExpanded: smf_images_url + \'/upshrink.png\',
+						altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+						srcCollapsed: smf_images_url + \'/upshrink2.png\',
+						altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: smf_member_id == 0 ? false : true,
+					sOptionName: \'collapse_header\',
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id
+				},
+				oCookieOptions: {
+					bUseCookie: smf_member_id == 0 ? true : false,
+					sCookieName: \'upshrink\'
+				}
+			});
+		// ]]></script>';
+
 }
 
 /**
