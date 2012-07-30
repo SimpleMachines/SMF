@@ -34,20 +34,8 @@ function template_generic_menu_sidebar_above()
 		echo '
 			<div class="adm_section">
 				<div class="cat_bar">
-					<h4 class="catbg">';
-
-		if ($firstSection && !empty($menu_context['can_toggle_drop_down']))
-		{
-			echo '
-							<a href="', $menu_context['toggle_url'], '">', $section['title'],'<img src="', $context['menu_image_path'], '/change_menu', $context['right_to_left'] ? '' : '2', '.png" alt="!" /></a>';
-		}
-		else
-		{
-			echo '
-						', $section['title'];
-		}
-
-		echo '
+					<h4 class="catbg">
+						', $section['title'], '
 					</h4>
 				</div>
 				<ul class="smalltext left_admmenu">';
@@ -117,11 +105,6 @@ function template_generic_menu_dropdown_above()
 
 	echo '
 <div id="admin_menu">';
-
-	// Allow the toggle to be absolutely positioned inside the div. Easy to keep it tidy that way. :)
-	if (!empty($menu_context['can_toggle_drop_down']))
-		echo '
-	<a href="', $menu_context['toggle_url'], '"><img id="menu_toggle" src="', $context['menu_image_path'], '/change_menu', $context['right_to_left'] ? '2' : '', '.png" alt="*" /></a>';
 
 	echo '
 	<ul class="dropmenu" id="dropdown_menu_', $context['cur_menu_id'], '">';
