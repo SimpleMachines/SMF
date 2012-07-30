@@ -102,7 +102,7 @@ function template_select_search_method()
 				<h3 class="catbg">', $txt['search_method'], '</h3>
 			</div>
 			<div class="information">
-				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqWin(this.href);">', $txt['search_create_index_why'], '</a></div>
+				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
 			</div>
 			<div class="windowbg">
 				<div class="content">
