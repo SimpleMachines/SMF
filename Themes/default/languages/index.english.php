@@ -18,6 +18,8 @@ $txt['lang_character_set'] = 'ISO-8859-1';
 $txt['lang_rtl'] = false;
 // Capitalize day and month names?
 $txt['lang_capitalize_dates'] = true;
+// Number format.
+$txt['number_format'] = '1,234.00';
 
 $txt['days'] = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 $txt['days_short'] = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
@@ -95,8 +97,8 @@ $txt['message_index'] = 'Message Index';
 $txt['news'] = 'News';
 $txt['home'] = 'Home';
 $txt['page'] = 'Page';
-$txt['prev'] = 'previous';
-$txt['next'] = 'next';
+$txt['prev'] = 'previous page';
+$txt['next'] = 'next page';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
@@ -685,8 +687,8 @@ $txt['show_personal_messages'] = 'You have <strong>%1$s</strong> unread personal
 
 $txt['help_popup'] = 'A little lost? Let me explain:';
 
-$txt['previous_next_back'] = '&laquo; previous';
-$txt['previous_next_forward'] = 'next &raquo;';
+$txt['previous_next_back'] = 'previous topic';
+$txt['previous_next_forward'] = 'next topic';
 
 $txt['upshrink_description'] = 'Shrink or expand the header.';
 

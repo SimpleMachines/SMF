@@ -2232,7 +2232,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('edit_disable_time', 
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('autoFixDatabase', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_guestAccess', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('time_format', '{$default_time_format}');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('number_format', '1234.00');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableBBC', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_messageLength', '20000');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('signature_settings', '1,300,0,0,0,0,0,0:');
