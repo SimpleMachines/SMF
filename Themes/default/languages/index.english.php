@@ -97,8 +97,8 @@ $txt['message_index'] = 'Message Index';
 $txt['news'] = 'News';
 $txt['home'] = 'Home';
 $txt['page'] = 'Page';
-$txt['prev'] = 'previous';
-$txt['next'] = 'next';
+$txt['prev'] = 'previous page';
+$txt['next'] = 'next page';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
@@ -687,8 +687,8 @@ $txt['show_personal_messages'] = 'You have <strong>%1$s</strong> unread personal
 
 $txt['help_popup'] = 'A little lost? Let me explain:';
 
-$txt['previous_next_back'] = '&laquo; previous';
-$txt['previous_next_forward'] = 'next &raquo;';
+$txt['previous_next_back'] = 'previous topic';
+$txt['previous_next_forward'] = 'next topic';
 
 $txt['upshrink_description'] = 'Shrink or expand the header.';
 
