@@ -93,18 +93,15 @@ function template_maintain_database()
 			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['mediumtext_introduction'], '</p>',
 					$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
-					<hr class="hrcolor" />
 					<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit" /><br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 	}
 
