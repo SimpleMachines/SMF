@@ -232,7 +232,7 @@ function preparsecode(&$message, $previewing = false)
 			// Close any remaining table tags.
 			foreach ($table_array as $tag)
 				$parts[$i] .= '[/' . $tag . ']';
-			
+
 			// Remove empty bbc from the sections outside the code tags
 			$parts[$i] = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $parts[$i]);
 			$parts[$i] = preg_replace('~\[quote\]\s*\[/quote\]~', '', $parts[$i]);
@@ -2423,7 +2423,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if (isset($msgOptions['body']))
 	{
 		$messages_columns['body'] = $msgOptions['body'];
-		
+
 		// using a custom search index, then lets get the old message so we can update our index as needed
 		if (!empty($modSettings['search_custom_index_config']))
 		{

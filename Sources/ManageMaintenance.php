@@ -2026,7 +2026,7 @@ function MaintainMassMoveTopics()
 /**
  * Recalculate all members post counts
  * it requires the admin_forum permission.
- * 
+ *
  * - recounts all posts for members found in the message table
  * - updates the members post count record in the members talbe
  * - honors the boards post count flag

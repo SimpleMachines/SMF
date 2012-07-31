@@ -33,7 +33,7 @@ function SaveDraft(&$post_errors)
 	// can you be, should you be ... here?
 	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
-		
+
 	// read in what they sent us, if anything
 	$id_draft = (int) $_POST['id_draft'];
 	$draft_info = ReadDraft($id_draft);
@@ -85,7 +85,7 @@ function SaveDraft(&$post_errors)
 		// some items to return to the form
 		$context['draft_saved'] = true;
 		$context['id_draft'] = $id_draft;
-		
+
 		// cleanup
 		unset($_POST['save_draft']);
 	}
@@ -136,7 +136,7 @@ function SaveDraft(&$post_errors)
 		}
 		else
 			$post_errors[] = 'draft_not_saved';
-			
+
 		// cleanup
 		unset($_POST['save_draft']);
 	}
@@ -168,7 +168,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	// PM survey says ... can you stay or must you go
 	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
 		return false;
-		
+
 	// read in what you sent us
 	$id_pm_draft = (int) $_POST['id_pm_draft'];
 	$draft_info = ReadDraft($id_pm_draft, 1);
@@ -436,7 +436,7 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
 		)
 	);
-	
+
 	// add them to the draft array for display
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -493,13 +493,13 @@ function showProfileDrafts($memID, $draft_type = 0)
 	// Some initial context.
 	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 	$context['current_member'] = $memID;
-	
+
 	// If just deleting a draft, do it and then redirect back.
 	if (!empty($_REQUEST['delete']))
 	{
 		checkSession('get');
 		$id_delete = (int) $_REQUEST['delete'];
-		
+
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
@@ -537,7 +537,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	);
 	list ($msgCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
-	
+
 	$maxIndex = (int) $modSettings['defaultMaxMessages'];
 
 	// Make sure the starting place makes sense and construct our friend the page index.
@@ -554,7 +554,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	}
 
 	// Find this user's drafts for the boards they can access
-	// @todo ... do we want to do this?  If they were able to create a draft, do we remove thier access to said draft if they loose 
+	// @todo ... do we want to do this?  If they were able to create a draft, do we remove thier access to said draft if they loose
 	//           access to the board or if the topic moves to a board they can not see?
 	$request = $smcFunc['db_query']('', '
 		SELECT
@@ -635,7 +635,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 function showPMDrafts($memID = -1)
 {
 	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc;
-	
+
 	// init
 	$draft_type = 1;
 
@@ -662,7 +662,7 @@ function showPMDrafts($memID = -1)
 		// now redirect back to the list
 		redirectexit('action=pm;sa=showpmdrafts;start=' . $start);
 	}
-	
+
 	// perhaps a draft was selected for editing? if so pass this off
 	if (!empty($_REQUEST['id_draft']) && !empty($context['drafts_pm_save']) && $memID == $user_info['id'])
 	{
@@ -722,7 +722,7 @@ function showPMDrafts($memID = -1)
 			'time' => (!empty($modSettings['drafts_keep_days']) ? (time() - ($modSettings['drafts_keep_days'] * 86400)) : 0),
 		)
 	);
-	
+
 	// Start counting at the number of the first message displayed.
 	$counter = $reverse ? $context['start'] + $maxIndex + 1 : $context['start'];
 	$context['posts'] = array();
@@ -741,14 +741,14 @@ function showPMDrafts($memID = -1)
 
 		// BBC-ilize the message.
 		$row['body'] = parse_bbc($row['body'], true, 'draft' . $row['id_draft']);
-		
+
 		// Have they provide who this will go to?
 		$recipients = array(
 			'to' => array(),
 			'bcc' => array(),
 		);
 		$recipient_ids = (!empty($row['to_list'])) ? unserialize($row['to_list']) : array();
-		
+
 		// @todo ... this is a bit ugly since it runs an extra query for every message, do we want this?
 		// at least its only for draft PM's and only the user can see them ... so not heavily used .. still
 		if (!empty($recipient_ids['to']) || !empty($recipient_ids['bcc']))
@@ -788,11 +788,11 @@ function showPMDrafts($memID = -1)
 		);
 	}
 	$smcFunc['db_free_result']($request);
-	
+
 	// if the drafts were retrieved in reverse order, then put them in the right order again.
 	if ($reverse)
 		$context['drafts'] = array_reverse($context['drafts'], true);
-		
+
 	// off to the template we go
 	$context['page_title'] = $txt['drafts'];
 	$context['sub_template'] = 'showPMDrafts';

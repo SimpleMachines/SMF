@@ -123,7 +123,7 @@ function template_main()
 
 		echo '
 				</tr>';
-				
+
 			$alternate = !$alternate;
 		}
 	}
@@ -138,7 +138,7 @@ function template_main()
 			</tbody>
 			</table>
 		</div>';
-		
+
 	// Show the page numbers again. (makes 'em easier to find!)
 	echo '
 		<div class="pagesection">

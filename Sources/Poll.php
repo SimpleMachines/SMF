@@ -213,7 +213,7 @@ function Vote()
 		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 		smf_setcookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000, $cookie_url[1], $cookie_url[0], false, false);
 	}
-	
+
 	// Maybe let a social networking mod log this, or something?
 	call_integration_hook('integrate_poll_vote', array(&$row['id_poll'], &$pollOptions));
 
@@ -882,7 +882,7 @@ function EditPoll2()
 			)
 		);
 	}
-	
+
 	call_integration_hook('integrate_poll_add_edit', array($bcinfo['id_poll'], $isEdit));
 
 	// Off we go.
@@ -976,7 +976,7 @@ function RemovePoll()
 			'no_poll' => 0,
 		)
 	);
-	
+
 	// A mod might have logged this (social network?), so let them remove, it too
 	call_integration_hook('integrate_poll_remove', array(&$pollID));
 

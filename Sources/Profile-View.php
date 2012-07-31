@@ -184,7 +184,7 @@ function summary($memID)
 /**
  * Show all posts by the current user
  * @todo This function needs to be split up properly.
- * 
+ *
  * @param int $memID id_member
  */
 function showPosts($memID)
@@ -510,7 +510,7 @@ function showPosts($memID)
 
 /**
  * Show all the attachments of a user.
- * 
+ *
  * @param int $memID id_member
  */
 function showAttachments($memID)
@@ -520,7 +520,7 @@ function showAttachments($memID)
 
 	// OBEY permissions!
 	$boardsAllowed = boardsAllowedTo('view_attachments');
-	
+
 	// Make sure we can't actually see anything...
 	if (empty($boardsAllowed))
 		$boardsAllowed = array(-1);
@@ -699,7 +699,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
 
 /**
  * Gets the user stats for display
- * 
+ *
  * @param int $memID id_member
  */
 function statPanel($memID)
@@ -884,14 +884,14 @@ function statPanel($memID)
 
 	// Put it in the right order.
 	ksort($context['posts_by_time']);
-	
+
 	// Custom stats (just add a template_layer to add it to the template!)
  	call_integration_hook('integrate_profile_stats', array($memID));
 }
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function tracking($memID)
@@ -937,7 +937,7 @@ function tracking($memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function trackActivity($memID)
@@ -1158,7 +1158,7 @@ function trackActivity($memID)
 
 /**
  * Get the number of user errors
- * 
+ *
  * @param string $where
  * @param array $where_vars = array()
  * @return string number of user errors
@@ -1182,7 +1182,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -1225,7 +1225,7 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 
 /**
  * @todo needs a description
- * 
+ *
  * @param string $where
  * @param array $where_vars
  * @return string count of messages matching the IP
@@ -1250,7 +1250,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -1299,7 +1299,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID = 0 id_member
  */
 function TrackIP($memID = 0)
@@ -1582,7 +1582,7 @@ function TrackIP($memID = 0)
 
 /**
  * Tracks a users logins.
- * 
+ *
  * @param int $memID = 0 id_member
  */
 function TrackLogins($memID = 0)
@@ -1661,7 +1661,7 @@ function TrackLogins($memID = 0)
 
 /**
  * Callback for trackLogins for counting history.
- * 
+ *
  * @param string $where
  * @param array $where_vars
  * @return string count of messages matching the IP
@@ -1687,7 +1687,7 @@ function list_getLoginCount($where, $where_vars = array())
 
 /**
  * Callback for trackLogins data.
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -1722,7 +1722,7 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function trackEdits($memID)
@@ -1823,7 +1823,7 @@ function trackEdits($memID)
 
 /**
  * How many edits?
- * 
+ *
  * @param int $memID id_member
  * @return string number of profile edits
  */
@@ -1850,7 +1850,7 @@ function list_getProfileEditCount($memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -1938,7 +1938,7 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 
 /**
  * @todo needs a description
- * 
+ *
  * @param int $memID id_member
  */
 function showPermissions($memID)
@@ -2120,7 +2120,7 @@ function showPermissions($memID)
 
 /**
  * View a members warnings?
- * 
+ *
  * @param int $memID id_member
  */
 function viewWarning($memID)

@@ -189,7 +189,7 @@ function template_credits()
 			</div>
 		</div>';
 	}
-	
+
 	// Other software and graphics
 	if (!empty($context['credits_software_graphics']))
 	{
@@ -199,26 +199,26 @@ function template_credits()
 		</div>
 		<div class="windowbg">
 			<div class="content">';
-		
+
 		if (!empty($context['credits_software_graphics']['graphics']))
 			echo '
 				<dl>
 					<dt><strong>', $txt['credits_graphics'], '</strong></dt>
 					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['graphics']), '</dd>
 				</dl>';
-		
+
 		if (!empty($context['credits_software_graphics']['software']))
 			echo '
 				<dl>
 					<dt><strong>', $txt['credits_software'], '</strong></dt>
 					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['software']), '</dd>
 				</dl>';
-	
+
 		echo '
 			</div>
 		</div>';
 	}
-	
+
 	// How about Modifications, we all love em
 	if (!empty($context['credits_modifications']))
 	{
@@ -228,13 +228,13 @@ function template_credits()
 		</div>
 		<div class="windowbg">
 			<div class="content">';
-				
+
 		echo '
 				<dl>
 					<dt><strong>', $txt['credits_modifications'], '</strong></dt>
 					<dd>', implode('</dd><dd>', $context['credits_modifications']), '</dd>
 				</dl>';
-		
+
 		echo '
 			</div>
 		</div>';
@@ -254,7 +254,7 @@ function template_credits()
 	echo '
 					</dd>
 				</dl>';
-				
+
 	if (!empty($context['copyrights']['mods']))
 	{
 		echo '

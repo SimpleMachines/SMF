@@ -2,7 +2,7 @@
 
 /**
  * Maintains all XML-based interaction (mainly XMLhttp)
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -35,10 +35,10 @@ function XMLhttpMain()
 			'function' => 'RetrievePreview',
 		),
 	);
-	
+
 	// Easy adding of sub actions
  	call_integration_hook('integrate_xmlhttp', array(&$sub_actions));
-	
+
 	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
 

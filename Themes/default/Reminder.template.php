@@ -61,7 +61,7 @@ function template_reminder_pick()
 				<br class="clear" />
 			</div>
 		</div>
-		
+
 		<input type="hidden" name="uid" value="', $context['current_member']['id'], '" />
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '" />

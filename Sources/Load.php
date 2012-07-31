@@ -1675,10 +1675,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	$context['tabindex'] = 1;
 
-	// Fix font size with HTML 4.01, etc.
-	if (isset($settings['doctype']))
-		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && isBrowser('ie6');
-
 	// Compatibility.
 	if (!isset($settings['theme_version']))
 		$modSettings['memberCount'] = $modSettings['totalMembers'];
@@ -2442,9 +2438,7 @@ function template_include($filename, $once = false)
 				$data2 = preg_split('~\<br( /)?\>~', $data2);
 
 				// Fix the PHP code stuff...
-				if (isBrowser('ie4') || isBrowser('ie5') || isBrowser('ie5.5'))
-					$data2 = str_replace("\t", '<pre style="display: inline;">' . "\t" . '</pre>', $data2);
-				elseif (!isBrowser('gecko'))
+				if (!isBrowser('gecko'))
 					$data2 = str_replace("\t", '<span style="white-space: pre;">' . "\t" . '</span>', $data2);
 				else
 					$data2 = str_replace('<pre style="display: inline;">' . "\t" . '</pre>', "\t", $data2);

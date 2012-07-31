@@ -25,7 +25,7 @@ function template_main()
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
-			
+
 			<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
@@ -405,7 +405,7 @@ function template_main()
 		{
 			if(!empty($modSettings['onlineEnable']))
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" ', ($message['member']['online']['is_online']) ? 'title="'. $message['member']['name']. ' is online' : $message['member']['name']. ' is offline', '">Send message <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', ($message['member']['online']['is_online']) ? $message['member']['name']. ' is online' : $message['member']['name']. ' is offline', '">Send message <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
 				echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">Send message</a></li>';
@@ -475,7 +475,7 @@ function template_main()
 			$last_approved_state = 1;
 			$attachments_per_line = 4;
 			$i = 0;
-			
+
 			foreach ($message['attachment'] as $attachment)
 			{
 				// Show a special box for unapproved attachments...
@@ -493,7 +493,7 @@ function template_main()
 					echo '
 									</legend>';
 				}
-				
+
 				echo '
 									<div class="floatleft">';
 
@@ -768,12 +768,12 @@ function template_main()
 		if ($context['show_spellchecking'])
 			echo '
 								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'postmodify\', \'message\');" tabindex="', $context['tabindex']++, '" class="button_submit" />';
-								
+
 		if (($context['drafts_save']) && !empty($options['drafts_show_saved_enabled']))
-			echo '	
+			echo '
 								<input type="submit" name="save_draft" value="', $txt['draft_save'], '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" tabindex="', $context['tabindex']++, '" class="button_submit" />
 								<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';
-								
+
 		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 			echo '
 								<div class="clear righttext padding"><span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span><span id="draft_lastautosave" ></span></div>';
@@ -788,7 +788,7 @@ function template_main()
 	else
 		echo '
 		<br class="clear" />';
-		
+
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 		echo '
 			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
@@ -922,7 +922,7 @@ function template_main()
 
 	echo '
 				// ]]></script>';
-	
+
 }
 
 ?>

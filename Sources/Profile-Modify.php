@@ -1361,7 +1361,7 @@ function editBuddies($memID)
 	if (isset($_GET['remove']))
 	{
 		checkSession('get');
-		
+
 		call_integration_hook('integrate_remove_buddy', array($memID));
 
 		// Heh, I'm lazy, do it the easy way...
@@ -1392,7 +1392,7 @@ function editBuddies($memID)
 			if (strlen($new_buddies[$k]) == 0 || in_array($new_buddies[$k], array($user_profile[$memID]['member_name'], $user_profile[$memID]['real_name'])))
 				unset($new_buddies[$k]);
 		}
-		
+
 		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
 		if (!empty($new_buddies))
@@ -1456,7 +1456,7 @@ function editBuddies($memID)
 		loadMemberContext($buddy);
 		$context['buddies'][$buddy] = $memberContext[$buddy];
 	}
-	
+
 	call_integration_hook('integrate_view_buddies', array($memID));
 }
 
