@@ -252,7 +252,7 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />
+				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" style="display: none;" />
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
@@ -441,9 +441,9 @@ function template_info_center()
 				{
 					sId: \'upshrink_ic\',
 					srcExpanded: smf_images_url + \'/collapse.png\',
-					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
-					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
 			aSwapLinks: [

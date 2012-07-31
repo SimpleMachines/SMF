@@ -232,6 +232,11 @@ function preparsecode(&$message, $previewing = false)
 			// Close any remaining table tags.
 			foreach ($table_array as $tag)
 				$parts[$i] .= '[/' . $tag . ']';
+			
+			// Remove empty bbc from the sections outside the code tags
+			$parts[$i] = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $parts[$i]);
+			$parts[$i] = preg_replace('~\[quote\]\s*\[/quote\]~', '', $parts[$i]);
+			$parts[$i] = preg_replace('~\[color=(?:#[\da-fA-F]{3}|#[\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\(\d{1,3}, ?\d{1,3}, ?\d{1,3}\))\]\s*\[/color\]~', '', $parts[$i]);
 		}
 	}
 
@@ -243,10 +248,6 @@ function preparsecode(&$message, $previewing = false)
 
 	// Now let's quickly clean up things that will slow our parser (which are common in posted code.)
 	$message = strtr($message, array('[]' => '&#91;]', '[&#039;' => '&#91;&#039;'));
-
-	// Remove empty bbc.
-	$message = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $message);
-	$message = preg_replace('~\[quote\]\s*\[/quote\]~', '', $message);
 }
 
 /**
@@ -827,8 +828,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	// This is the one that will go in their inbox.
 	$htmlmessage = $smcFunc['htmlspecialchars']($message, ENT_QUOTES);
-	$htmlsubject = $smcFunc['htmlspecialchars']($subject);
 	preparsecode($htmlmessage);
+	$htmlsubject = strtr($smcFunc['htmlspecialchars']($subject), array("\r" => '', "\n" => '', "\t" => ''));
+	if ($smcFunc['strlen']($htmlsubject) > 100)
+		$htmlsubject = $smcFunc['substr']($htmlsubject, 0, 100);
 
 	// Integrated PMs
 	call_integration_hook('integrate_personal_message', array(&$recipients, &$from['username'], &$subject, &$message));

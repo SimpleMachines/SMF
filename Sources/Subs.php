@@ -841,7 +841,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	global $txt, $scripturl, $context, $modSettings, $user_info, $smcFunc;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
-
+	
 	// Don't waste cycles
 	if ($message === '')
 		return '';
@@ -1071,12 +1071,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						// Fix the PHP code stuff...
 						$data = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode(\'\', $php_parts));
-
-						// Older browsers are annoying, aren\'t they?
-						if ($context[\'browser\'][\'is_ie4\'] || $context[\'browser\'][\'is_ie5\'] || $context[\'browser\'][\'is_ie5.5\'])
-							$data = str_replace("\t", "<pre style=\"display: inline;\">\t</pre>", $data);
-						else
-							$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
+						$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
 						if ($context[\'browser\'][\'is_opera\'])
@@ -1113,12 +1108,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 						// Fix the PHP code stuff...
 						$data[0] = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode(\'\', $php_parts));
-
-						// Older browsers are annoying, aren\'t they?
-						if ($context[\'browser\'][\'is_ie4\'] || $context[\'browser\'][\'is_ie5\'] || $context[\'browser\'][\'is_ie5.5\'])
-							$data[0] = str_replace("\t", "<pre style=\"display: inline;\">\t</pre>", $data[0]);
-						else
-							$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
+						$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
 						if ($context[\'browser\'][\'is_opera\'])
@@ -3232,7 +3222,11 @@ function template_footer()
 }
 
 /**
- * Output the Javascript files (messed up tabbing in this function is to make the HTML source look good)
+ * Output the Javascript files 
+ * 	- tabbing in this function is to make the HTML source look good proper
+ *  - if defered is set function will output all JS (source & inline) set to load at page end
+ *
+ * @param bool $do_defered = false
  */
 function template_javascript($do_defered = false)
 {
@@ -3241,7 +3235,7 @@ function template_javascript($do_defered = false)
 	// Use this hook to minify/optimize Javascript files and vars
 	call_integration_hook('pre_javascript_output');
 	
-	// Javascript variables.
+	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
 		echo '
@@ -3255,15 +3249,15 @@ function template_javascript($do_defered = false)
 	// ]]></script>';
 	}
 
-	// Javascript files
-	foreach ($context['javascript_files'] as $id => $file)
+	// While we have Javascript files to place in the template
+	foreach ($context['javascript_files'] as $id => $js_file)
 	{
-		if ((!$do_defered && empty($file['options']['defer'])) || ($do_defered && !empty($file['options']['defer'])))
+		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
-	<script type="text/javascript" src="', $file['filename'], '" id="', $id,'"' , !empty($file['options']['async']) ? ' async="async"' : '' ,'></script>';
+	<script type="text/javascript" src="', $js_file['filename'], '" id="', $id,'"' , !empty($js_file['options']['async']) ? ' async="async"' : '' ,'></script>';
 	
-		// If this was JQuery being loaded and we are set to 'auto' load it, add the inline JS stuff here
-		if($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'],array('local', 'cdn'))))
+		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
+		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'],array('local', 'cdn'))))
 		echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
@@ -3274,27 +3268,25 @@ function template_javascript($do_defered = false)
 	// Inline JavaScript - Actually useful some times!
 	if (!empty($context['javascript_inline']))
 	{
-		if(!empty($context['javascript_inline']['defer']) && $do_defered)
+		if (!empty($context['javascript_inline']['defer']) && $do_defered)
 		{
 			echo '
-<script type="text/javascript"><!-- // --><![CDATA[
-	';
+<script type="text/javascript"><!-- // --><![CDATA[';
 
-			foreach ($context['javascript_inline']['defer'] as $code)
-				echo $code;
+			foreach ($context['javascript_inline']['defer'] as $js_code)
+				echo $js_code;
 					
 			echo'
 // ]]></script>';
 		}
 
-		if(!empty($context['javascript_inline']['standard']) && !$do_defered)
+		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
 		{
 			echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		';
+	<script type="text/javascript"><!-- // --><![CDATA[';
 
-			foreach ($context['javascript_inline']['standard'] as $code)
-				echo $code;
+			foreach ($context['javascript_inline']['standard'] as $js_code)
+				echo $js_code;
 					
 			echo'
 	// ]]></script>';

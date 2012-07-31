@@ -6,13 +6,13 @@
  * - Detects the following browsers
  * - Opera, Webkit, Firefox, Web_tv, Konqueror, IE, Gecko
  * - Webkit variants: Chrome, iphone, blackberry, android, safari, ipad, ipod
- * - Opera Versions: 6, 7, 8, 9, 10 and mobile mini and mobi
+ * - Opera Versions: 6, 7, 8 ... 10 ... and mobile mini and mobi
  * - Firefox Versions: 1, 2, 3 .... 11 ...
  * - Chrome Versions: 1 ... 18 ...
- * - IE Versions: 4, 5, 5.5, 6, 7, 8, 9, 10 mobile and Mac
- * - Nokia 
+ * - IE Versions: 4, 5, 5.5, 6, 7, 8, 9, 10 ... mobile and Mac
+ * - Nokia
  */
- 
+
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
@@ -53,7 +53,7 @@ class browser_detector
 		// Old friend, old frenemy
 		elseif ($this->isIe())
 			$this->setupIe();
-		
+
 		// Just a few mobile checks
 		$this->isOperaMini();
 		$this->isOperaMobi();
@@ -122,7 +122,7 @@ class browser_detector
 	function isFirefox()
 	{
 		if (!isset($this->_browsers['is_firefox']))
-			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1;
+			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1 && $this->isGecko();
 		return $this->_browsers['is_firefox'];
 	}
 
@@ -319,18 +319,21 @@ class browser_detector
 			$context['browser_body_id'] = 'mobile';
 		else
 		{
+			// add in any specific detection conversions here if you want a special body id e.g. 'is_opera9' => 'opera9'
 			$browser_priority = array(
 				'is_ie6' => 'ie6',
 				'is_ie7' => 'ie7',
+				'is_ie8' => 'ie8',
+				'is_ie9' => 'ie9',
+				'is_ie10' => 'ie10',
 				'is_ie' => 'ie',
-				'is_firefox3' => 'firefox3',
-				'is_firefox4' => 'firefox4',
 				'is_firefox' => 'firefox',
 				'is_chrome' => 'chrome',
 				'is_safari' => 'safari',
-				'is_opera8' => 'opera8',
-				'is_opera9' => 'opera9',
 				'is_opera10' => 'opera10',
+				'is_opera11' => 'opera11',
+				'is_opera12' => 'opera12',
+				'is_opera' => 'opera',
 				'is_konqueror' => 'konqueror',
 			);
 

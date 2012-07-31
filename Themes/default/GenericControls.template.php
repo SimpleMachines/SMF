@@ -34,7 +34,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
 					emoticonsCompat: true,
-					supportedWysiwyg: ((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome),',
+					supportedWysiwyg: (is_ie || is_ff || is_opera95up || is_safari || is_chrome),',
 					!empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
@@ -102,7 +102,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$(".sceditor-container").width("100%").height("100%");', 
 				$editor_context['rich_active'] ? '' : '
 				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
-				if (!((is_ie5up && !is_ie50) || is_ff || is_opera95up || is_safari || is_chrome))
+				if (!(is_ie || is_ff || is_opera95up || is_safari || is_chrome))
 				{
 					$("#' . $editor_id . '").data("sceditor").setTextMode();
 					$(".sceditor-button-source").hide();
@@ -141,6 +141,64 @@ function template_control_richedit_buttons($editor_id)
 	if ($context['show_spellchecking'])
 		echo '
 		<input type="button" value="', $txt['spell_check'], '" tabindex="', $context['tabindex']++, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit" />';
+		
+	if (!empty($context['drafts_save']))
+	{
+		// Show the save draft button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit" />
+		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';
+		
+		// Start an instance of the auto saver if its enabled
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<br />
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
+
+	if (!empty($context['drafts_pm_save']))
+	{
+		// The PM draft save button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit" />
+		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '" />';
+
+		// Load in the PM autosaver if its enabled and the user wants to use it
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_pm_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				bPM: true,
+				iBoard: 0,
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
 }
 
 // What's this, verification?!

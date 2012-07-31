@@ -227,6 +227,14 @@ function AdminMain()
 						'topics' => array($txt['manageposts_topic_settings']),
 					),
 				),
+				'managedrafts' => array(
+					'label' => $txt['manage_drafts'],
+					'file' => 'Drafts.php',
+					'function' => 'ModifyDraftSettings',
+					'icon' => 'logs.png',
+					'permission' => array('admin_forum'),
+					'enabled' => in_array('dr', $context['admin_features']),
+				),
 				'managecalendar' => array(
 					'label' => $txt['manage_calendar'],
 					'file' => 'ManageCalendar.php',
