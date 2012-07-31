@@ -625,7 +625,7 @@ function PackageInstallTest()
 				// Is the action already stated?
 				$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], array('no', 'yes', 'auto')) ? $action['theme_action'] : 'auto';
 				$action['unparsed_destination'] = $action['unparsed_filename'];
-				
+
 				// If it's not auto do we think we have something we can act upon?
 				if ($theme_action != 'auto' && !in_array($matches[1], array('languagedir', 'languages_dir', 'imagesdir', 'themedir')))
 					$theme_action = '';
@@ -689,7 +689,7 @@ function PackageInstallTest()
 				if (isset($theme_data['theme_dir']) && $id != 1)
 				{
 					$real_path = $theme_data['theme_dir'] . $path;
-					
+
 					// Confirm that we don't already have this dealt with by another entry.
 					if (!in_array(strtolower(strtr($real_path, array('\\' => '/'))), $themeFinds['other_themes']))
 					{
@@ -701,7 +701,7 @@ function PackageInstallTest()
 								$temp = dirname($temp);
 							$chmod_files[] = $temp;
 						}
-						
+
 						if ($action_data['type'] == 'require-dir' && !is_writable($real_path) && (file_exists($real_path) || !is_writable(dirname($real_path))))
 							$chmod_files[] = $real_path;
 
@@ -1649,7 +1649,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 					if ($packageInfo['can_install'] === false && $install->exists('@for') && empty($_SESSION['version_emulate']))
 					{
 						$reset = true;
-						
+
 						// Get the highest install version that is available from the package
 						foreach ($installs as $install)
 						{
@@ -1689,12 +1689,12 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 							break;
 						}
 					}
-					
+
 					// no uninstall found for this version, lets see if one exists for another
 					if ($packageInfo['can_uninstall'] === false && $uninstall->exists('@for') && empty($_SESSION['version_emulate']))
 					{
 						$reset = true;
-						
+
 						// Get the highest install version that is available from the package
 						foreach ($uninstalls as $uninstall)
 						{

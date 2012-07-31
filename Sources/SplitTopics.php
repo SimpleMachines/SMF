@@ -2,7 +2,7 @@
 
 /**
  * Handle merging and splitting of topics
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -11,7 +11,7 @@
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
- * 
+ *
  * Original module by Mach8 - We'll never forget you.
  */
 
@@ -181,11 +181,11 @@ function SplitExecute()
 /**
  * allows the user to select the messages to be split.
  * is accessed with ?action=splittopics;sa=selectTopics.
- * uses 'select' sub template of the SplitTopics template or (for 
+ * uses 'select' sub template of the SplitTopics template or (for
  * XMLhttp) the 'split' sub template of the Xml template.
  * supports XMLhttp for adding/removing a message to the selection.
  * uses a session variable to store the selected topics.
- * shows two independent page indexes for both the selected and 
+ * shows two independent page indexes for both the selected and
  * not-selected messages (;topic=1.x;start2=y).
  */
 function SplitSelectTopics()
@@ -965,12 +965,12 @@ function MergeIndex()
 
 /**
  * set merge options and do the actual merge of two or more topics.
- * 
+ *
  * the merge options screen:
  * * shows topics to be merged and allows to set some merge options.
  * * is accessed by ?action=mergetopics;sa=options.and can also internally be called by QuickModeration() (Subs-Boards.php).
  * * uses 'merge_extra_options' sub template of the SplitTopics template.
- * 
+ *
  * the actual merge:
  * * is accessed with ?action=mergetopics;sa=execute.
  * * updates the statistics to reflect the merge.
@@ -1309,7 +1309,7 @@ function MergeExecute($topics = array())
 	while ($row = $smcFunc['db_fetch_row']($request))
 		$affected_msgs[] = $row[0];
 	$smcFunc['db_free_result']($request);
-	
+
 	// Assign the first topic ID to be the merged topic.
 	$id_topic = min($topics);
 

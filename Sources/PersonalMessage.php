@@ -279,7 +279,7 @@ function messageIndexBar($area)
 			),
 		),
 	);
-	
+
 	// Handle labels.
 	if (empty($context['currently_using_labels']))
 		unset($pm_areas['labels']);
@@ -307,7 +307,7 @@ function messageIndexBar($area)
 		if (!empty($unread_in_labels))
 			$pm_areas['labels']['title'] .= ' (' . $unread_in_labels . ')';
 	}
-	
+
 	$pm_areas['folders']['areas']['inbox']['unread_messages'] = &$context['labels'][-1]['unread_messages'];
 	$pm_areas['folders']['areas']['inbox']['messages'] = &$context['labels'][-1]['messages'];
 	if (!empty($context['labels'][-1]['unread_messages']))
@@ -342,11 +342,11 @@ function messageIndexBar($area)
 		'toggle_url' => $current_page . ';togglebar',
 		'toggle_redirect_url' => $current_page,
 	);
-	
+
 	// Actually create the menu!
 	$pm_include_data = createMenu($pm_areas, $menuOptions);
 	unset($pm_areas);
-	
+
 	// No menu means no access.
 	if (!$pm_include_data && (!$user_info['is_guest'] || validateSession()))
 		fatal_lang_error('no_access', false);
@@ -855,7 +855,7 @@ function MessageFolder()
 		elseif (!empty($context['current_pm']))
 			markMessages($display_pms, $context['current_label_id']);
 	}
-	
+
 	// Build the conversation button array.
 	if ($context['display_mode'] == 2)
 	{
@@ -863,7 +863,7 @@ function MessageFolder()
 			'reply' => array('text' => 'reply_to_all', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $context['current_pm'] . ';u=all', 'active' => true),
 			'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_message']) . '?\');"'),
 		);
-		
+
 		// Allow mods to add additional buttons here
 		call_integration_hook('integrate_conversation_buttons');
 	}
@@ -1782,11 +1782,11 @@ function MessagePost()
 	);
 
 	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
-	
+
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
-	
+
 	// Generate a list of drafts that they can load in to the editor
 	if (!empty($context['drafts_pm_save']))
 	{
@@ -1836,17 +1836,17 @@ function MessagePost()
 function MessageDrafts()
 {
 	global $context, $sourcedir, $user_info, $modSettings;
-	
+
 	// Set draft capability
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
-	
+
 	// validate with loadMemberData()
 	$memberResult = loadMemberData($user_info['id'], false);
 	if (!is_array($memberResult))
 		fatal_lang_error('not_a_user', false);
 	list ($memID) = $memberResult;
-	
+
 	// drafts is where the functions reside
 	require_once($sourcedir . '/Drafts.php');
 	showPMDrafts($memID);
@@ -1968,9 +1968,9 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	// Set each of the errors for the template.
 	loadLanguage('Errors');
-	
+
 	$context['error_type'] = 'minor';
-	
+
 	$context['post_error'] = array(
 		'messages' => array(),
 		// @todo error handling: maybe fatal errors can be error_type => serious
@@ -1986,7 +1986,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 				$txt['error_' . $error_type] = sprintf($txt['error_' . $error_type], $modSettings['max_messageLength']);
 			$context['post_error']['messages'][] = $txt['error_' . $error_type];
 		}
-		
+
 		// If it's not a minor error flag it as such.
 		if (!in_array($error_type, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
 			$context['error_type'] = 'serious';
@@ -2196,7 +2196,7 @@ function MessagePost2()
 		// Preparse the message.
 		$message = $_REQUEST['message'];
 		preparsecode($message);
-		
+
 		// Make sure there's still some content left without the tags.
 		if ($smcFunc['htmltrim'](strip_tags(parse_bbc($smcFunc['htmlspecialchars']($message, ENT_QUOTES), false), '<img>')) === '' && (!allowedTo('admin_forum') || strpos($message, '[html]') === false))
 			$post_errors[] = 'no_message';
@@ -2218,7 +2218,7 @@ function MessagePost2()
 	// If they did, give a chance to make ammends.
 	if (!empty($post_errors) && !$is_recipient_change && !isset($_REQUEST['preview']) && !isset($_REQUEST['xml']))
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
-		
+
 	// Want to take a second glance before you send?
 	if (isset($_REQUEST['preview']))
 	{
@@ -2254,7 +2254,7 @@ function MessagePost2()
 
 		return messagePostError(array(), $namedRecipientList, $recipientList);
 	}
-	
+
 	// Want to save this as a draft and think about it some more?
 	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && isset($_POST['save_draft']))
 	{
@@ -2278,7 +2278,7 @@ function MessagePost2()
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
-	
+
 	// Do the actual sending of the PM.
 	if (!empty($recipientList['to']) || !empty($recipientList['bcc']))
 		$context['send_log'] = sendpm($recipientList, $_REQUEST['subject'], $_REQUEST['message'], !empty($_REQUEST['outbox']), null, !empty($_REQUEST['pm_head']) ? (int) $_REQUEST['pm_head'] : 0);

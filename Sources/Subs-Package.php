@@ -369,7 +369,7 @@ function url_exists($url)
  * - gets this information from Packages/installed.list.
  * - returns the array of data.
  * - default sort order is package_installed time
- * 
+ *
  * @return array
  */
 function loadInstalledPackages()

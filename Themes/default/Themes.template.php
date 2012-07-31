@@ -334,7 +334,7 @@ function template_set_options()
 	{
 		echo '
 						<dt ', $context['theme_options_reset'] ? 'style="width:50%"' : '', '>';
-						
+
 		// Show the change option box ?
 		if ($context['theme_options_reset'])
 			echo '
@@ -343,7 +343,7 @@ function template_set_options()
 								<option value="1">', $txt['themeadmin_reset_options_change'], '</option>
 								<option value="2">', $txt['themeadmin_reset_options_default'], '</option>
 							</select>&nbsp;</span>';
-		
+
 		// display checkbox options
 		if ($setting['type'] == 'checkbox')
 		{
@@ -393,12 +393,12 @@ function template_set_options()
 						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
 							<input type="text" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' class="input_text" />';
 		}
-		
-		// end of this defintion 
+
+		// end of this defintion
 		echo '
 						</dd>';
 	}
-	
+
 	// close the option page up
 	echo '
 					</dl>

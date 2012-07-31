@@ -516,7 +516,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
-			array('check', 'disallow_sendBody'),	
+			array('check', 'disallow_sendBody'),
 	);
 
 	// Get all the time zones.
@@ -1761,7 +1761,7 @@ function EditCustomProfiles()
 		// Regex you say?  Do a very basic test to see if the pattern is valid
 		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
-			
+
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
 

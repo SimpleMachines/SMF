@@ -99,7 +99,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		echo '
 				});
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
-				$(".sceditor-container").width("100%").height("100%");', 
+				$(".sceditor-container").width("100%").height("100%");',
 				$editor_context['rich_active'] ? '' : '
 				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
 				if (!(is_ie || is_ff || is_opera95up || is_safari || is_chrome))
@@ -141,14 +141,14 @@ function template_control_richedit_buttons($editor_id)
 	if ($context['show_spellchecking'])
 		echo '
 		<input type="button" value="', $txt['spell_check'], '" tabindex="', $context['tabindex']++, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit" />';
-		
+
 	if (!empty($context['drafts_save']))
 	{
 		// Show the save draft button
 		echo '
 		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit" />
 		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';
-		
+
 		// Start an instance of the auto saver if its enabled
 		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 			echo '

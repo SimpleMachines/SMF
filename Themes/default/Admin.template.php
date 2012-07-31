@@ -223,7 +223,7 @@ function template_credits()
 
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
-			echo 
+			echo
 					' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
 					<br />';
@@ -343,7 +343,6 @@ function template_credits()
 				if (currentVersion != window.smfVersion)
 					setInnerHTML(yourVer, "<span class=\"alert\">" + currentVersion + "</span>");
 			}
-			
 			addLoadEvent(smfCurrentVersion)
 		// ]]></script>';
 }
@@ -724,7 +723,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
-		
+
 	echo '
 	<div id="admincenter">
 		<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
@@ -961,7 +960,7 @@ function template_show_settings()
 function template_show_custom_profile()
 {
 	global $context, $txt, $settings, $scripturl;
-	
+
 	// Standard fields.
 	template_show_list('standard_profile_fields');
 
@@ -987,7 +986,7 @@ function template_edit_profile_field()
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var startOptID = ', count($context['field']['options']), ';
 	// ]]></script>';
-	
+
 	// any errors messages to show?
 	if (isset($_GET['msg']))
 	{
@@ -1345,7 +1344,7 @@ function template_core_features()
 						{
 							$(ajax_infobar).attr(\'class\', \'errorbox\');
 							$(ajax_infobar).html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
-							
+
 						}
 					}
 				});
@@ -1575,7 +1574,7 @@ function template_php_info()
 
 		$alternate = true;
 		$localmaster = true;
-		
+
 		// and for each setting in this category
 		foreach ($php_area as $key => $setting)
 		{
@@ -1593,7 +1592,7 @@ function template_php_info()
 		</tr>';
 					$localmaster = false;
 				}
-					
+
 				echo '
 		<tr>
 			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
@@ -1615,7 +1614,7 @@ function template_php_info()
 			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
 		</tr>';
 			}
-		
+
 			$alternate = !$alternate;
 		}
 		echo '

@@ -245,7 +245,7 @@ function template_email_members_compose()
 	// Show BBC buttons, smileys and textbox.
 	echo '
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
-					
+
 					echo '
 					<ul class="reset">
 						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_pms'], '</label></li>

@@ -208,7 +208,7 @@ function deleteMembers($users, $check_not_admin = false)
 			'users' => $users,
 		)
 	);
-	
+
 	// Delete any drafts...
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}user_drafts
@@ -1196,7 +1196,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 			'memID' => $memID,
 		)
 	);
-	
+
 	// Allow mods with their own post tables to reattribute posts as well :)
  	call_integration_hook('integrate_reattribute_posts', array(&$memID, &$email, &$membername, &$post_count));
 }

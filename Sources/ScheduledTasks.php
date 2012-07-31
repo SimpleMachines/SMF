@@ -1685,16 +1685,16 @@ function scheduled_remove_temp_attachments()
 /**
  * Check for move topic notices that have past their best by date
  */
-function scheduled_remove_topic_redirect() 
+function scheduled_remove_topic_redirect()
 {
 	global $smcFunc, $sourcedir;
-	
+
 	// init
 	$topics = array();
-	
+
 	// We will need this for lanaguage files
 	loadEssentialThemeData();
-	
+
 	// Find all of the old MOVE topic notices that were set to expire
 	$request = $smcFunc['db_query']('', '
 		SELECT id_topic
@@ -1705,11 +1705,11 @@ function scheduled_remove_topic_redirect()
 			'redirect_expires' => time(),
 		)
 	);
-	
+
 	while ($row = $smcFunc['db_fetch_row']($request))
 		$topics[] = $row[0];
 	$smcFunc['db_free_result']($request);
-	
+
 	// Zap, your gone
 	if (count($topics) > 0)
 	{

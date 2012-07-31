@@ -78,7 +78,7 @@ function ManageAttachments()
 /**
  * Allows to show/change attachment settings.
  * This is the default sub-action of the 'Attachments and Avatars' center.
- * Called by index.php?action=admin;area=manageattachments;sa=attachements.
+ * Called by index.php?action=admin;area=manageattachments;sa=attachments.
  *
  * @param bool $return_config = false
  * @uses 'attachments' sub template.

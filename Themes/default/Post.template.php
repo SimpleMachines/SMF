@@ -123,13 +123,13 @@ function template_main()
 					<p class="information"', $context['locked'] ? '' : ' style="display: none"', ' id="lock_warning">
 						', $txt['topic_locked_no_reply'], '
 					</p>';
-	
+
 	if (!empty($modSettings['drafts_post_enabled']))
 		echo '
 				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
 					sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
 				</div>';
-				
+
 	// The post header... important stuff
 	echo '
 					<dl id="post_header">';
@@ -484,7 +484,7 @@ function template_main()
 						</dd>
 					</dl>';
 	}
-	
+
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
@@ -499,7 +499,7 @@ function template_main()
 				<dl class="settings">
 					<dt><strong>', $txt['subject'], '</strong></dt>
 					<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
-				
+
 		foreach ($context['drafts'] as $draft)
 			echo '
 					<dt>', $draft['link'], '</dt>
@@ -776,7 +776,7 @@ function template_main()
 					}
 				]
 			});';
-			
+
 	// Code for showing and hiding drafts
 	if (!empty($context['drafts']))
 		echo '

@@ -118,7 +118,7 @@ function template_html_above()
 
 	// load in any javascript files from mods and themes
 	template_javascript();
-		
+
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 	<meta name="description" content="', $context['page_title_html_safe'], '" />', !empty($context['meta_keywords']) ? '
@@ -330,7 +330,7 @@ function template_body_above()
 					</div>';
 
 	echo '
-					<hr class="clear" /> 
+					<hr class="clear" />
 				</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
@@ -388,6 +388,7 @@ function template_html_below()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
+	// load in any javascipt that could be defered to the end of the page
 	template_javascript(true);
 
 	echo '
@@ -465,7 +466,7 @@ function template_menu()
 		<div id="main_menu">
 			<ul class="dropmenu" id="menu_nav">';
 
-	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes. 
+	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
@@ -515,7 +516,7 @@ function template_menu()
 
 	// The upshrink image, right-floated. Yes, I know it takes some space from the menu bar.
 	// Menu bar will still accommodate ten buttons on a 1024, with theme set to 90%. That's more than enough.
-	// If anyone is terrified of losing 40px out of the menu bar, set your theme to 92% instead of 90%. :P 
+	// If anyone is terrified of losing 40px out of the menu bar, set your theme to 92% instead of 90%. :P
 	echo '
 				<li style="float: right; position: absolute; top: 0; right: 0;">
 					<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="padding: 4px 9px 3px 9px; display: none;" />

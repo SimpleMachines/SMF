@@ -607,23 +607,23 @@ function template_subject_list()
 
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
-					
+
 			foreach ($context['labels'] as $label)
 			{
 				if ($label['id'] != $context['current_label_id'])
 					echo '
 					<option value="add_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 			}
-			
+
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_remove'], ':</option>';
-					
+
 			foreach ($context['labels'] as $label)
 			{
 				echo '
 					<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 			}
-			
+
 			echo '
 				</select>
 				<noscript>
@@ -976,11 +976,11 @@ function template_send()
 				</div>';
 
 	if (!empty($modSettings['drafts_pm_enabled']))
-		echo '			
+		echo '
 				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
 					sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
 				</div>';
-				
+
 	echo '
 				<dl id="post_header">';
 
@@ -1074,7 +1074,7 @@ function template_send()
 			</div>
 		</div>
 	</form>';
-	
+
 	// If the admin enabled the pm drafts feature, show a draft selection box
 	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
@@ -1089,7 +1089,7 @@ function template_send()
 				<dl class="settings">
 					<dt><strong>', $txt['subject'], '</strong></dt>
 					<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
-				
+
 		foreach ($context['drafts'] as $draft)
 			echo '
 					<dt>', $draft['link'], '</dt>
@@ -1205,7 +1205,7 @@ function template_send()
 				}
 				location.hash = \'#\' + \'preview_section\';
 			}';
-			
+
 	// Code for showing and hiding drafts
 	if (!empty($context['drafts']))
 		echo '
@@ -1883,7 +1883,7 @@ function template_add_rule()
 function template_showPMDrafts()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
-	
+
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -1919,7 +1919,7 @@ function template_showPMDrafts()
 					<div class="list_posts">
 						', $draft['body'], '
 					</div>
-				
+
 					<ul class="reset smalltext quickbuttons">
 						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
 						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
