@@ -2,7 +2,7 @@
 
 /**
  * This file is automatically called and handles all manner of scheduled things.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -1412,13 +1412,12 @@ function scheduled_weekly_maintenance()
 	// Ok should we prune the logs?
 	if (!empty($modSettings['pruningOptions']))
 	{
-		if (!empty($modSettings['pruningOptions']) && strpos($modSettings['pruningOptions'], ',') !== false)
-			list ($modSettings['pruneErrorLog'], $modSettings['pruneModLog'], $modSettings['pruneBanLog'], $modSettings['pruneReportLog'], $modSettings['pruneScheduledTaskLog'], $modSettings['pruneSpiderHitLog']) = explode(',', $modSettings['pruningOptions']);
+		$pruningOptions = @unserialize($modSettings['pruningOptions']);
 
-		if (!empty($modSettings['pruneErrorLog']))
+		if (!empty($pruningOptions['pruneErrorLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneErrorLog'] * 86400;
+			$t = time() - $pruningOptions['pruneErrorLog'] * 86400;
 
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_errors
@@ -1429,10 +1428,10 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneModLog']))
+		if (!empty($pruningOptions['pruneModLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneModLog'] * 86400;
+			$t = time() - $pruningOptions['pruneModLog'] * 86400;
 
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_actions
@@ -1445,10 +1444,10 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneBanLog']))
+		if (!empty($pruningOptions['pruneBanLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneBanLog'] * 86400;
+			$t = time() - $pruningOptions['pruneBanLog'] * 86400;
 
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_banned
@@ -1459,10 +1458,10 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneReportLog']))
+		if (!empty($pruningOptions['pruneReportLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneReportLog'] * 86400;
+			$t = time() - $pruningOptions['pruneReportLog'] * 86400;
 
 			// This one is more complex then the other logs.  First we need to figure out which reports are too old.
 			$reports = array();
@@ -1501,10 +1500,10 @@ function scheduled_weekly_maintenance()
 			}
 		}
 
-		if (!empty($modSettings['pruneScheduledTaskLog']))
+		if (!empty($pruningOptions['pruneScheduledTaskLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneScheduledTaskLog'] * 86400;
+			$t = time() - $pruningOptions['pruneScheduledTaskLog'] * 86400;
 
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_scheduled_tasks
@@ -1515,10 +1514,10 @@ function scheduled_weekly_maintenance()
 			);
 		}
 
-		if (!empty($modSettings['pruneSpiderHitLog']))
+		if (!empty($pruningOptions['pruneSpiderHitLog']))
 		{
 			// Figure out when our cutoff time is.  1 day = 86400 seconds.
-			$t = time() - $modSettings['pruneSpiderHitLog'] * 86400;
+			$t = time() - $pruningOptions['pruneSpiderHitLog'] * 86400;
 
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}log_spider_hits
@@ -1530,7 +1529,7 @@ function scheduled_weekly_maintenance()
 		}
 	}
 
-	// Get rid of any paid subscriptions that were never actioned.
+	// Get rid of any paid subscriptions that were never activated.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_subscribed
 		WHERE end_time = {int:no_end_time}
@@ -1685,16 +1684,16 @@ function scheduled_remove_temp_attachments()
 /**
  * Check for move topic notices that have past their best by date
  */
-function scheduled_remove_topic_redirect() 
+function scheduled_remove_topic_redirect()
 {
 	global $smcFunc, $sourcedir;
-	
+
 	// init
 	$topics = array();
-	
+
 	// We will need this for lanaguage files
 	loadEssentialThemeData();
-	
+
 	// Find all of the old MOVE topic notices that were set to expire
 	$request = $smcFunc['db_query']('', '
 		SELECT id_topic
@@ -1705,12 +1704,12 @@ function scheduled_remove_topic_redirect()
 			'redirect_expires' => time(),
 		)
 	);
-	
+
 	while ($row = $smcFunc['db_fetch_row']($request))
 		$topics[] = $row[0];
 	$smcFunc['db_free_result']($request);
-	
-	// Zap, your gone
+
+	// Zap, you're gone
 	if (count($topics) > 0)
 	{
 		require_once($sourcedir . '/RemoveTopic.php');

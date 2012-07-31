@@ -1938,7 +1938,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('warning_moderate', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('warning_mute', '60');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_features', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('last_mod_report_action', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pruningOptions', '30,180,180,180,30,0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pruningOptions', '{$pruning_options}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cache_enable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('reg_verification', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('visual_verification_type', '3');

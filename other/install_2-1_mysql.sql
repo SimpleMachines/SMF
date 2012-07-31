@@ -1617,7 +1617,7 @@ VALUES
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions'),
 	(11, 0, 120, 1, 'd', 1, 'remove_temp_attachments'),
 	(12, 0, 180, 1, 'd', 1, 'remove_topic_redirect');
-	
+
 # --------------------------------------------------------
 
 #
@@ -1793,7 +1793,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('warning_mute', '60'),
 	('admin_features', ''),
 	('last_mod_report_action', '0'),
-	('pruningOptions', '30,180,180,180,30,0'),
+	('pruningOptions', '{$pruning_options}'),
 	('cache_enable', '1'),
 	('reg_verification', '1'),
 	('visual_verification_type', '3'),
