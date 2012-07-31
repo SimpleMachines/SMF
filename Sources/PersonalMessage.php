@@ -339,8 +339,6 @@ function messageIndexBar($area)
 	$menuOptions = array(
 		'current_area' => $area,
 		'disable_url_session_check' => true,
-		'toggle_url' => $current_page . ';togglebar',
-		'toggle_redirect_url' => $current_page,
 	);
 
 	// Actually create the menu!
