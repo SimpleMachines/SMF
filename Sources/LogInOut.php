@@ -115,6 +115,11 @@ function Login2()
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
 			redirectexit();
+		elseif (!empty($_SESSION['login_url']) && (strpos('http://', $_SESSION['login_url']) === false && strpos('https://', $_SESSION['login_url']) === false))
+		{
+			unset ($_SESSION['login_url']);
+			redirectexit();
+		}
 		else
 		{
 			// Best not to clutter the session data too much...
@@ -607,6 +612,11 @@ function Logout($internal = false, $redirect = true)
 	{
 		if (empty($_SESSION['logout_url']))
 			redirectexit('', $context['server']['needs_login_fix']);
+		elseif (!empty($_SESSION['logout_url']) && (strpos('http://', $_SESSION['logout_url']) === false && strpos('https://', $_SESSION['logout_url']) === false))
+		{
+			unset ($_SESSION['logout_url']);
+			redirectexit();
+		}
 		else
 		{
 			$temp = $_SESSION['logout_url'];
