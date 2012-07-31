@@ -30,7 +30,7 @@ function ModifyProfile($post_errors = array())
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
-		loadLanguage('Profile');
+		loadLanguage('Profile+Drafts');
 	loadTemplate('Profile');
 
 	require_once($sourcedir . '/Subs-Menu.php');
@@ -114,6 +114,16 @@ function ModifyProfile($post_errors = array())
 					'permission' => array(
 						'own' => 'profile_view_own',
 						'any' => 'profile_view_any',
+					),
+				),
+				'showdrafts' => array(
+					'label' => $txt['drafts_show'],
+					'file' => 'Drafts.php',
+					'function' => 'showProfileDrafts',
+					'enabled' => !empty($modSettings['drafts_enabled']) && $context['user']['is_owner'],
+					'permission' => array(
+						'own' => 'profile_view_own',
+						'any' =>  array(),
 					),
 				),
 				'permissions' => array(

@@ -27,7 +27,7 @@ function smf_codeBoxFix()
 }
 
 // Add a fix for code stuff?
-if ((is_ie && !is_ie4) || is_webkit || is_ff)
+if (is_ie || is_webkit || is_ff)
 	addLoadEvent(smf_codeBoxFix);
 
 // Toggles the element height and width styles of an image.

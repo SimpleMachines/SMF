@@ -82,6 +82,7 @@ function ManageMaintenance()
 			'activities' => array(
 				'massmove' => 'MaintainMassMoveTopics',
 				'pruneold' => 'MaintainRemoveOldPosts',
+				'olddrafts' => 'MaintainRemoveOldDrafts',
 			),
 		),
 		'destroy' => array(
@@ -163,7 +164,7 @@ function MaintainDatabase()
 	$memory_limit = memoryReturnBytes(ini_get('memory_limit')) / (1024 * 1024);
 	// Zip limit is set to more or less 1/4th the size of the available memory * 1500
 	// 1500 is an estimate of the number of messages that generates a database of 1 MB (yeah I know IT'S AN ESTIMATION!!!)
-	// Why that? Because the only reliable zip package is the one sent out the first time, 
+	// Why that? Because the only reliable zip package is the one sent out the first time,
 	// so when the backup takes 1/5th (just to stay on the safe side) of the memory available
 	$zip_limit = $memory_limit * 1500 / 5;
 	// Here is more tricky: it depends on many factors, but the main idea is that
@@ -243,7 +244,7 @@ function MaintainMembers()
 		);
 	}
 	$smcFunc['db_free_result']($result);
-	
+
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		$context['maintenance_finished'] = $txt['maintain_recountposts'];
 }
@@ -1191,7 +1192,7 @@ function AdminBoardRecount()
 
 	isAllowedTo('admin_forum');
 	checkSession('request');
-	
+
 	// validate the request or the loop
 	if (!isset($_REQUEST['step']))
 		validateToken('admin-maint');
@@ -1882,6 +1883,39 @@ function MaintainRemoveOldPosts()
 }
 
 /**
+ * Removing old drafts
+ */
+function MaintainRemoveOldDrafts()
+{
+	global $sourcedir, $smcFunc;
+
+	validateToken('admin-maint');
+
+	$drafts = array();
+
+	// Find all of the old drafts
+	$request = $smcFunc['db_query']('', '
+		SELECT id_draft
+		FROM {db_prefix}user_drafts
+		WHERE poster_time <= {int:poster_time_old}',
+		array(
+			'poster_time_old' => time() - (86400 * $_POST['draftdays']),
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_row']($request))
+		$drafts[] = $row[0];
+	$smcFunc['db_free_result']($request);
+
+	// If we have old one, remove them
+	if (count($drafts) > 0)
+	{
+		require_once($sourcedir . '/Drafts.php');
+		DeleteDraft($drafts, false);
+	}
+}
+
+/**
  * Moves topics from one board to another.
  *
  * @uses not_done template to pause the process.
@@ -2017,7 +2051,7 @@ function MaintainRecountPosts()
 	$context['continue_countdown'] = 3;
 	$context['continue_get_data'] = '';
 	$context['sub_template'] = 'not_done';
-	
+
 	// init
 	$increment = 200;
 	$_REQUEST['start'] = !isset($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
@@ -2029,7 +2063,7 @@ function MaintainRecountPosts()
 	if (!isset($_SESSION['total_members']))
 	{
 		validateToken('admin-maint');
-		
+
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(DISTINCT m.id_member)
 			FROM ({db_prefix}messages AS m, {db_prefix}boards AS b)
@@ -2087,7 +2121,7 @@ function MaintainRecountPosts()
 		$_REQUEST['start'] += $increment;
 		$context['continue_get_data'] = '?action=admin;area=maintain;sa=members;activity=recountposts;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 		$context['continue_percent'] = round(100 * $_REQUEST['start'] / $_SESSION['total_members']);
-		
+
 		createToken('admin-recountposts');
 		$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-recountposts_token_var'] . '" value="' . $context['admin-recountposts_token'] . '" />';
 
@@ -2095,7 +2129,7 @@ function MaintainRecountPosts()
 			apache_reset_timeout();
 		return;
 	}
-	
+
 	// final steps ... made more difficult since we don't yet support sub-selects on joins
 	// place all members who have posts in the message table in a temp table
 	$createTemporary = $smcFunc['db_query']('', '
@@ -2103,7 +2137,7 @@ function MaintainRecountPosts()
 			id_member mediumint(8) unsigned NOT NULL default {string:string_zero},
 			PRIMARY KEY (id_member)
 		)
-		SELECT m.id_member 
+		SELECT m.id_member
 		FROM ({db_prefix}messages AS m,{db_prefix}boards AS b)
 		WHERE m.id_member != {int:zero}
 			AND b.count_posts = {int:zero}
@@ -2117,7 +2151,7 @@ function MaintainRecountPosts()
 		)
 	) !== false;
 
-	if ($createTemporary) 
+	if ($createTemporary)
 	{
 		// outer join the members table on the temporary table finding the members that have a post count but no posts in the message table
 		$request = $smcFunc['db_query']('', '
@@ -2125,7 +2159,7 @@ function MaintainRecountPosts()
 			FROM {db_prefix}members AS mem
 			LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
 			ON res.id_member = mem.id_member
-			WHERE res.id_member IS null 
+			WHERE res.id_member IS null
 				AND mem.posts != {int:zero}',
 			array(
 				'zero' => 0,
@@ -2147,7 +2181,7 @@ function MaintainRecountPosts()
 		}
 		$smcFunc['db_free_result']($request);
 	}
-	
+
 	// all done
 	unset($_SESSION['total_members']);
 	$context['maintenance_finished'] = $txt['maintain_recountposts'];
