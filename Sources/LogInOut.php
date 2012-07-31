@@ -607,9 +607,6 @@ function Logout($internal = false, $redirect = true)
 	// Empty the cookie! (set it in the past, and for id_member = 0)
 	setLoginCookie(-3600, 0);
 
-$redirect = true;
-$_SESSION['logout_url'] = 'ftp://localhost';
-
 	// Off to the merry board index we go!
 	if ($redirect)
 	{
