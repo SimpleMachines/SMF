@@ -408,11 +408,8 @@ function BrowseFiles()
 					'value' => $txt['downloads'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData','
-						global $txt;
-
-						return comma_format($rowData[\'downloads\']);
-					'),
+					'db' => 'downloads',
+					'comma_format' => true,
 				),
 				'sort' => array(
 					'default' => 'a.downloads',
