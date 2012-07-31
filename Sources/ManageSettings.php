@@ -225,6 +225,31 @@ function ModifyCoreFeatures($return_config = false)
 					return array();
 			'),
 		),
+		// dr = drafts
+		'dr' => array(
+			'url' => 'action=admin;area=managedrafts',
+			'settings' => array(
+				'drafts_enabled' => 1,
+				'drafts_post_enabled' => 2,
+				'drafts_pm_enabled' => 2,
+				'drafts_autosave_enabled' => 2,
+				'drafts_show_saved_enabled' => 2,
+			),
+			'setting_callback' => create_function('$value', '
+				global $smcFunc, $sourcedir;
+
+				// Set the correct disabled value for the scheduled task.
+				$smcFunc[\'db_query\'](\'\', \'
+					UPDATE {db_prefix}scheduled_tasks
+					SET disabled = {int:disabled}
+					WHERE task = {string:task}\',
+					array(
+						\'disabled\' => $value ? 0 : 1,
+						\'task\' => \'remove_old_drafts\',
+					)
+				);
+			'),
+		),
 		// k = karma.
 		'k' => array(
 			'url' => 'action=admin;area=featuresettings;sa=karma',
@@ -478,7 +503,6 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Number formatting, timezones.
 			array('text', 'time_format'),
-			array('select', 'number_format', array('1234.00' => '1234.00', '1,234.00' => '1,234.00', '1.234,00' => '1.234,00', '1 234,00' => '1 234,00', '1234,00' => '1234,00')),
 			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours']),
 			'default_timezone' => array('select', 'default_timezone', array()),
 		'',

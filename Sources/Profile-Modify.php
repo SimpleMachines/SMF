@@ -82,6 +82,9 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 			'input_validate' => create_function('&$value', '
 				$value = strtr($value, \' \', \'+\');
+				if (strlen($value) > 32)
+					return \'aim_too_long\';
+
 				return true;
 			'),
 		),
@@ -433,6 +436,14 @@ function loadProfileFields($force_reload = false)
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
 			'permission' => 'profile_extra',
+			'input_validate' => create_function('&$value', '
+				global $smcFunc;
+
+				if ($smcFunc[\'strlen\']($value) > 50)
+					return \'personal_text_too_long\';
+
+				return true;
+			'),
 		),
 		// This does ALL the pm settings
 		'pm_prefs' => array(
@@ -635,6 +646,14 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_title',
 			'enabled' => !empty($modSettings['titlesEnable']),
+			'input_validate' => create_function('&$value', '
+				global $smcFunc;
+
+				if ($smcFunc[\'strlen\'] > 50)
+					return \'user_title_too_long\';
+
+				return true;
+			'),
 		),
 		'website_title' => array(
 			'type' => 'text',

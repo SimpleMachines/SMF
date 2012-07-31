@@ -16,7 +16,7 @@ function template_search_members()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '" id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">', $txt['search_for'], '</span>
@@ -156,7 +156,6 @@ function template_search_members()
 					</div>
 				</div>
 			</div>
-			<br class="clear" />
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>
@@ -234,8 +233,7 @@ function template_search_members()
 			</div><br />
 			<input type="submit" value="', $txt['search'], '" class="button_submit" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_admin_browse()
@@ -252,7 +250,7 @@ function template_admin_browse()
 	{
 		echo '
 		<br />
-		<form action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="', $context['character_set'], '" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_browse_outstanding'], '</h3>
 			</div>
@@ -319,8 +317,7 @@ function template_admin_browse()
 	}
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

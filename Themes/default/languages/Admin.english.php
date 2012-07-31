@@ -118,9 +118,9 @@ $txt['smileys_manage'] = 'Smileys and Message Icons';
 $txt['smileys_manage_info'] = 'Install new smiley sets, add smileys to existing ones, or manage your message icons.';
 $txt['package_info'] = 'Install new features or modify existing ones with this interface.';
 $txt['theme_admin'] = 'Themes and Layout';
-$txt['theme_admin_info'] = 'Setup and manage your themes and set or reset theme options.';
+$txt['theme_admin_info'] = 'Setup and manage your themes, and set or reset theme options.';
 $txt['registration_center'] = 'Registration';
-$txt['member_center_info'] = 'View the member list, search for members and manage not-yet-approved members and members who haven\'t activated their account yet.';
+$txt['member_center_info'] = 'View the member list, search for members, or manage account approvals and activations.';
 
 $txt['viewmembers_name'] = 'Username (display name)';
 $txt['viewmembers_online'] = 'Last Online';
@@ -291,7 +291,7 @@ $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
 
 $txt['support_credits_title'] = 'Support and Credits';
-$txt['support_credits_info'] = 'Get support on common issues and version information to give if you have problems.';
+$txt['support_credits_info'] = 'Links to support for common issues, and version information to give if you have problems.';
 $txt['support_title'] = 'Support Information';
 $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
@@ -308,7 +308,7 @@ $txt['support_resources_p2'] = 'If you can\'t find the answers to your questions
 $txt['support_latest'] = 'Common Support &amp; Issues';
 $txt['support_latest_fetch'] = 'Retrieving support information...';
 
-$txt['edit_permissions_info'] = 'Change restrictions and available features globally or to specific boards.';
+$txt['edit_permissions_info'] = 'Change restrictions and available features, globally or in specific boards.';
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
 $txt['membergroups_guests_na'] = 'n/a';
@@ -492,6 +492,13 @@ $txt['manageposts_topic_settings'] = 'Topic Settings';
 $txt['manageposts_topic_settings_description'] = 'Here you can set all settings involving topics.';
 $txt['manageposts_topic_settings_submit'] = 'Save';
 
+$txt['managedrafts_settings'] = 'Draft Settings';
+$txt['managedrafts_settings_description'] = 'Here you can set all settings involving drafts.';
+$txt['managedrafts_submit'] = 'Save';
+$txt['manage_drafts'] = 'Drafts';
+$txt['drafts_autosave'] = 'Enable the autosaving of posts as drafts';
+$txt['drafts_autosave_frequency'] = 'How often should drafts be autosaved?';
+
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
 $txt['enableEmbeddedFlash'] = 'Embed flash into posts';
 $txt['enableEmbeddedFlash_warning'] = 'may be a security risk!';
@@ -500,6 +507,7 @@ $txt['enableSpellChecking_warning'] = 'this does not work on all servers!';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
+$txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then came back to increase the maximum allowed post size.';
 $txt['fixLongWords'] = 'Break up words with more letters than';
 $txt['fixLongWords_zero'] = '0 to disable.';
 $txt['fixLongWords_warning'] = 'this does not work on all servers!';

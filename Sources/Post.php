@@ -464,7 +464,7 @@ function Post($post_errors = array())
 		}
 
 		// Only show the preview stuff if they hit Preview.
-		if ($really_previewing == true || isset($_REQUEST['xml']))
+		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_POST['id_draft']))
 		{
 			// Set up the preview message and subject and censor them...
 			$context['preview_message'] = $form_message;
@@ -509,16 +509,18 @@ function Post($post_errors = array())
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 					IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-					m.poster_time
+					m.poster_time, log.id_action
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
+					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 				WHERE m.id_msg = {int:id_msg}
 					AND m.id_topic = {int:current_topic}',
 				array(
 					'current_topic' => $topic,
 					'attachment_type' => 0,
 					'id_msg' => $_REQUEST['msg'],
+					'announce_action' => 'announce_topic',
 				)
 			);
 			// The message they were trying to edit was most likely deleted.
@@ -575,6 +577,12 @@ function Post($post_errors = array())
 				$smcFunc['db_free_result']($request);
 			}
 
+			if ($context['can_announce'] && !empty($row['id_action']))
+			{
+				loadLanguage('Errors');
+				$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+			}
+
 			// Allow moderators to change names....
 			if (allowedTo('moderate_forum') && !empty($topic))
 			{
@@ -615,16 +623,18 @@ function Post($post_errors = array())
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-				m.poster_time
+				m.poster_time, log.id_action
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
+					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 			WHERE m.id_msg = {int:id_msg}
 				AND m.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
 				'attachment_type' => 0,
 				'id_msg' => $_REQUEST['msg'],
+				'announce_action' => 'announce_topic',
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
@@ -651,6 +661,12 @@ function Post($post_errors = array())
 			isAllowedTo('modify_replies');
 		else
 			isAllowedTo('modify_any');
+
+		if ($context['can_announce'] && !empty($row['id_action']))
+		{
+			loadLanguage('Errors');
+			$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+		}
 
 		// When was it last modified?
 		if (!empty($row['modified_time']))
@@ -1034,6 +1050,17 @@ function Post($post_errors = array())
 	$context['subject'] = addcslashes($form_subject, '"');
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
+	// Are post drafts enabled?
+	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+
+	// Build a list of drafts that they can load in to the editor
+	if (!empty($context['drafts_save']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		ShowDrafts($user_info['id'], $topic);
+	}
+
 	// Needed for the editor and message icons.
 	require_once($sourcedir . '/Subs-Editor.php');
 
@@ -1211,6 +1238,10 @@ function Post2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
+
+	// Drafts enabled?
+	if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))
@@ -1511,6 +1542,13 @@ function Post2()
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || $_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
+		// If drafts are enabled, then pass this off
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
+
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
 		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
@@ -1548,6 +1586,13 @@ function Post2()
 
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || empty($_POST['sticky']) || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
+
+		// Saving your new topic as a draft first?
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
 
 		$posterIsGuest = $user_info['is_guest'];
 	}
@@ -1623,6 +1668,13 @@ function Post2()
 			// Log it, assuming you're not modifying your own post.
 			if ($row['id_member'] != $user_info['id'])
 				$moderationAction = true;
+		}
+
+		// If drafts are enabled, then lets send this off to save
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
 		}
 
 		$posterIsGuest = empty($row['id_member']);
@@ -2334,9 +2386,6 @@ function AnnouncementSend()
 
 	checkSession();
 
-	// @todo Might need an interface?
-	$chunkSize = empty($modSettings['mail_queue']) ? 50 : 500;
-
 	$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 	$groups = array_merge($board_info['groups'], array(1));
 
@@ -2376,26 +2425,27 @@ function AnnouncementSend()
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member, mem.email_address, mem.lngfile
 		FROM {db_prefix}members AS mem
-		WHERE mem.id_member != {int:current_member}' . (!empty($modSettings['allow_disableAnnounce']) ? '
+		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)' . (!empty($modSettings['allow_disableAnnounce']) ? '
 			AND mem.notify_announcements = {int:notify_announcements}' : '') . '
 			AND mem.is_activated = {int:is_activated}
-			AND (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)
 			AND mem.id_member > {int:start}
 		ORDER BY mem.id_member
-		LIMIT ' . $chunkSize,
+		LIMIT {int:chunk_size}',
 		array(
-			'current_member' => $user_info['id'],
 			'group_list' => $_POST['who'],
 			'notify_announcements' => 1,
 			'is_activated' => 1,
 			'start' => $context['start'],
 			'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
+			// @todo Might need an interface?
+			'chunk_size' => empty($modSettings['mail_queue']) ? 50 : 500,
 		)
 	);
 
 	// All members have received a mail. Go to the next screen.
 	if ($smcFunc['db_num_rows']($request) == 0)
 	{
+		logAction('announce_topic', array('topic' => $topic), 'user');
 		if (!empty($_REQUEST['move']) && allowedTo('move_any'))
 			redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		elseif (!empty($_REQUEST['goback']))

@@ -601,11 +601,11 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 }
 
 /**
- * - formats a number to display in the style of the admins' choosing.
+ * - Formats a number.
  * - uses the format of number_format to decide how to format the number.
  *   for example, it might display "1 234,50".
  * - caches the formatting data from the setting for optimization.
- * 
+ *
  * @param float $number
  * @param bool $override_decimal_count = false
  */
@@ -613,9 +613,6 @@ function comma_format($number, $override_decimal_count = false)
 {
 	global $txt;
 	static $thousands_separator = null, $decimal_separator = null, $decimal_count = null;
-
-	// @todo Should, perhaps, this just be handled in the language files, and not a mod setting?
-	// (French uses 1 234,00 for example... what about a multilingual forum?)
 
 	// Cache these values...
 	if ($decimal_separator === null)

@@ -19,7 +19,12 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 	echo '
 		<div>
-			<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" rows="', $editor_context['rows'], '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="height: ', $editor_context['height'], '; ', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '">', $editor_context['value'], '</textarea>
+			<div>
+				<div>
+					<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" rows="" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="height: ', $editor_context['height'], '; ', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '">', $editor_context['value'], '</textarea>
+				</div>
+				<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
+			</div>
 		</div>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0" />
 		<script type="text/javascript"><!-- // --><![CDATA[
@@ -101,7 +106,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				{
 					$("#' . $editor_id . '").data("sceditor").setTextMode();
 					$(".sceditor-button-source").hide();
-				}
+				}', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
+				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';
 
 		// Now for backward compatibility let's collect few infos in the good ol' style
@@ -134,6 +141,64 @@ function template_control_richedit_buttons($editor_id)
 	if ($context['show_spellchecking'])
 		echo '
 		<input type="button" value="', $txt['spell_check'], '" tabindex="', $context['tabindex']++, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit" />';
+		
+	if (!empty($context['drafts_save']))
+	{
+		// Show the save draft button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit" />
+		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';
+		
+		// Start an instance of the auto saver if its enabled
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<br />
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
+
+	if (!empty($context['drafts_pm_save']))
+	{
+		// The PM draft save button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit" />
+		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '" />';
+
+		// Load in the PM autosaver if its enabled and the user wants to use it
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_pm_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				bPM: true,
+				iBoard: 0,
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
 }
 
 // What's this, verification?!

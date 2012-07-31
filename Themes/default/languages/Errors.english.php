@@ -253,6 +253,7 @@ $txt['error_wrong_verification_answer'] = 'You did not answer the verification q
 $txt['error_need_verification_code'] = 'Please enter the verification code below to continue to the results.';
 $txt['error_bad_file'] = 'Sorry but the file specified could not be opened: %1$s';
 $txt['error_bad_line'] = 'The line you specified is invalid.';
+$txt['error_draft_not_saved'] = 'There was an error saving the draft';
 
 $txt['smiley_not_found'] = 'Smiley not found.';
 $txt['smiley_has_no_code'] = 'No code for this smiley was given.';
@@ -327,6 +328,9 @@ $txt['profile_error_password_chars'] = 'Your password must contain a mix of uppe
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID authentication URL';
 $txt['profile_error_signature_not_yet_saved'] = 'The signature is not yet saved!';
+$txt['profile_error_aim_too_long'] = 'The AIM nickname is too long.';
+$txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
+$txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
 
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 

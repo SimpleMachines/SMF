@@ -2164,7 +2164,7 @@ function ModEndSession()
 		if (strpos($key, '-mod') !== false)
 			unset($_SESSION['token'][$key]);
 
-	redirectexit('?action=moderate');
+	redirectexit('action=moderate');
 }
 
 ?>

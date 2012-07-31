@@ -151,7 +151,7 @@ function EditNews()
 					'function' => create_function('$news', '
 
 						if (is_numeric($news[\'id\']))
-							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
 							<br />
 							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
 						else
@@ -688,6 +688,7 @@ function SendMailing($clean_only = false)
 	}
 
 	// How many to send at once? Quantity depends on whether we are queueing or not.
+	// @todo Might need an interface? (used in Post.php too with different limits)
 	$num_at_once = empty($modSettings['mail_queue']) ? 60 : 1000;
 
 	// If by PM's I suggest we half the above number.

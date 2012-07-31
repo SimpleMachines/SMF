@@ -828,8 +828,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	// This is the one that will go in their inbox.
 	$htmlmessage = $smcFunc['htmlspecialchars']($message, ENT_QUOTES);
-	$htmlsubject = $smcFunc['htmlspecialchars']($subject);
 	preparsecode($htmlmessage);
+	$htmlsubject = strtr($smcFunc['htmlspecialchars']($subject), array("\r" => '', "\n" => '', "\t" => ''));
+	if ($smcFunc['strlen']($htmlsubject) > 100)
+		$htmlsubject = $smcFunc['substr']($htmlsubject, 0, 100);
 
 	// Integrated PMs
 	call_integration_hook('integrate_personal_message', array(&$recipients, &$from['username'], &$subject, &$message));
