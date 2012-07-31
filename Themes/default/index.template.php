@@ -70,6 +70,9 @@ function template_init()
 
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
+
+	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index
+	$settings['avatars_on_indexes'] = false;
 }
 
 /**
