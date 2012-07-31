@@ -576,6 +576,7 @@ function showAttachments($memID)
 				),
 				'data' => array(
 					'db' => 'downloads',
+					'comma_format' => true,
 				),
 				'sort' => array(
 					'default' => 'a.downloads',
@@ -603,6 +604,7 @@ function showAttachments($memID)
 				),
 				'data' => array(
 					'db' => 'posted',
+					'timeformat' => true,
 				),
 			),
 		),
@@ -651,7 +653,7 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 			'filename' => $row['filename'],
 			'downloads' => $row['downloads'],
 			'subject' => censorText($row['subject']),
-			'posted' => timeformat($row['poster_time']),
+			'posted' => $row['poster_time'],
 			'msg' => $row['id_msg'],
 			'topic' => $row['id_topic'],
 			'board' => $row['id_board'],
