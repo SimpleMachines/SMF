@@ -170,7 +170,7 @@ function ShowXmlFeed()
 	// Show in rss or proprietary format?
 	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf', 'webslice')) ? $_GET['type'] : 'smf';
 
-	// @todo Birthdays? 
+	// @todo Birthdays?
 
 	// List all the different types of data they can pull.
 	$subActions = array(
@@ -179,10 +179,10 @@ function ShowXmlFeed()
 		'members' => array('getXmlMembers', 'member'),
 		'profile' => array('getXmlProfile', null),
 	);
-	
+
 	// Easy adding of sub actions
  	call_integration_hook('integrate_xmlfeeds', array(&$subActions));
-	
+
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
 

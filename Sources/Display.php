@@ -774,7 +774,7 @@ function Display()
 		);
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_display_poll');
+		call_integration_hook('integrate_poll_buttons');
 	}
 
 	// Calculate the fastest way to get the messages!
@@ -1079,13 +1079,13 @@ function Display()
 	// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
 	$context['can_restore_topic'] &= !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board && !empty($topicinfo['id_previous_board']);
 	$context['can_restore_msg'] &= !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board && !empty($topicinfo['id_previous_topic']);
-	
+
 	// Check if the draft functions are enabled and that they have permission to use them (for quick reply.)
 	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $context['can_reply'];
 	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
 	if (!empty($context['drafts_save']))
 		loadLanguage('Drafts');
-	
+
 	// Wireless shows a "more" if you can do anything special.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
 	{
@@ -1430,12 +1430,8 @@ function Download()
 	header('Connection: close');
 	header('ETag: ' . $eTag);
 
-	// IE 6 just doesn't play nice. As dirty as this seems, it works.
-	if (isBrowser('ie6') && isset($_REQUEST['image']))
-		unset($_REQUEST['image']);
-
 	// Make sure the mime type warrants an inline display.
-	elseif (isset($_REQUEST['image']) && !empty($mime_type) && strpos($mime_type, 'image/') !== 0)
+	if (isset($_REQUEST['image']) && !empty($mime_type) && strpos($mime_type, 'image/') !== 0)
 		unset($_REQUEST['image']);
 
 	// Does this have a mime type?

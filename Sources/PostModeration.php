@@ -522,7 +522,7 @@ function UnapprovedAttachments()
 /**
  * Callback function for UnapprovedAttachments
  * retrieve all the attachments waiting for approval the approver can approve
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -602,7 +602,7 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 /**
  * Callback function for UnapprovedAttachments
  * count all the attachments waiting for approval the approver can approve
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort

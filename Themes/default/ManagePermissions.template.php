@@ -349,9 +349,8 @@ function template_by_board()
 			<input type="submit" name="save_changes" value="', $txt['save'], '" class="button_submit" />';
 	else
 		echo '
-			
 			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>';
-
+	
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '" />

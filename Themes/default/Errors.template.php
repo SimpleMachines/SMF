@@ -45,7 +45,7 @@ function template_error_log()
 
 	echo '
 		<form class="generic_list_wrapper" action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">';
-	
+
 	echo '
 			<div class="title_bar clear_right">
 				<h3 class="titlebg">
@@ -157,7 +157,7 @@ function template_error_log()
 			</table>
 			<div class="pagesection floatleft">
 				&nbsp;&nbsp;', $txt['pages'], ': ', $context['page_index'], '
-			</div>';  
+			</div>';
 
 	echo '
 			<div class="floatright" style="margin-top: 1ex">
@@ -169,7 +169,7 @@ function template_error_log()
 	if ($context['sort_direction'] == 'down')
 		echo '
 			<input type="hidden" name="desc" value="1" />';
-		
+
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
 
@@ -221,7 +221,7 @@ function template_attachment_errors()
 		</div>
 		<div class="windowbg">
 			<div class="padding">
-				<div class="noticebox" />', 
+				<div class="noticebox" />',
 					$context['error_message'], '
 				</div>
 				<hr class="hrcolor" />

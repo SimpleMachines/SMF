@@ -2,7 +2,7 @@
 
 /**
  * Handle online users
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -189,7 +189,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 	$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset($modSettings['show_spider_online']) && $modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
 
 	cache_put_data('membersOnlineStats-' . $membersOnlineOptions['sort'], $membersOnlineStats, 240);
-	
+
 	return $membersOnlineStats;
 }
 

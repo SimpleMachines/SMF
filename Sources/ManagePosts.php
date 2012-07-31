@@ -45,7 +45,7 @@ function ManagePostSettings()
 
 	$context['page_title'] = $txt['manageposts_title'];
 
-	// Tabs for browsing the different ban functions.
+	// Tabs for browsing the different post functions.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manageposts_title'],
 		'help' => 'posts_and_topics',
@@ -232,7 +232,7 @@ function ModifyPostSettings($return_config = false)
 				fatal_lang_error('convert_to_mediumtext', false, array($scripturl . '?action=admin;area=maintain;sa=database'));
 
 		}
-		
+
 		// If we're changing the post preview length let's check its valid
 		if (!empty($_POST['preview_characters']))
 			$_POST['preview_characters'] = (int) min(max(0, $_POST['preview_characters']), 512);

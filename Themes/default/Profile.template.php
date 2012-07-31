@@ -105,11 +105,11 @@ function template_summary()
 					<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '">', $txt['profile_sendpm_short'], '</a><br />';
 	echo '
 					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
-	
+
 	if ($context['user']['is_owner'] && !empty($modSettings['drafts_enabled']))
 		echo '
 					<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '">', $txt['drafts_show'], '</a><br />';
-	
+
 	echo '
 					<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '">', $txt['statPanel'], '</a>
 				</p>';
@@ -427,7 +427,7 @@ function template_showPosts()
 		echo '
 			</tbody>
 		</table>';
-		
+
 	// Show more page numbers.
 	echo '
 		<div class="pagesection" style="margin-bottom: 0;">
@@ -439,7 +439,7 @@ function template_showPosts()
 function template_showDrafts()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
-	
+
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -1657,7 +1657,7 @@ function template_profile_theme_settings()
 									<option value="6"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 6 ? ' selected="selected"' : '', '>', $txt['days'][6], '</option>
 								</select>
 							</dd>';
-							
+
 	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_autosave_enabled']))
 		echo '
 							<dt>
@@ -2597,7 +2597,7 @@ function template_profile_group_manage()
 							</dt>
 							<dd>
 								<select name="id_group" ', ($context['user']['is_owner'] && $context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . $txt['deadmin_confirm'] . '\')) this.value = 1;"' : ''), '>';
-		
+
 		// Fill the select box with all primary member groups that can be assigned to a member.
 		foreach ($context['member_groups'] as $member_group)
 			if (!empty($member_group['can_be_primary']))

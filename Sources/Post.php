@@ -19,6 +19,7 @@ if (!defined('SMF'))
 
 /**
  * handles showing the post screen, loading the post to be modified, and loading any post quoted.
+ *
  * - additionally handles previews of posts.
  * - @uses the Post template and language file, main sub template.
  * - allows wireless access using the protocol_post sub template.
@@ -1169,7 +1170,8 @@ function Post($post_errors = array())
 }
 
 /**
- * actually posts or saves the message composed with Post().
+ * Posts or saves the message composed with Post().
+ *
  * requires various permissions depending on the action.
  * handles attachment, post, and calendar saving.
  * sends off notifications, and allows for announcements and moderation.
@@ -1982,7 +1984,7 @@ function Post2()
 			$pollOptions,
 			array('id_poll', 'id_choice')
 		);
-		
+
 		call_integration_hook('integrate_poll_add_edit', array($id_poll, false));
 	}
 	else
@@ -2264,6 +2266,7 @@ function Post2()
 
 /**
  * handle the announce topic function (action=announce).
+ *
  * checks the topic announcement permissions and loads the announcement template.
  * requires the announce_topic permission.
  * uses the ManageMembers template and Post language file.
@@ -2296,6 +2299,7 @@ function AnnounceTopic()
 
 /**
  * Allow a user to chose the membergroups to send the announcement to.
+ *
  * lets the user select the membergroups that will receive the topic announcement.
  */
 function AnnouncementSelectMembergroup()
@@ -2374,6 +2378,7 @@ function AnnouncementSelectMembergroup()
 
 /**
  * Send the announcement in chunks.
+ *
  * splits the members to be sent a topic announcement into chunks.
  * composes notification messages in all languages needed.
  * does the actual sending of the topic announcements in chunks.
@@ -2500,8 +2505,8 @@ function AnnouncementSend()
 }
 
 /**
- * notifies members who have requested notification for new topics
- * * posted on a board of said posts.
+ * Notifies members who have requested notification for new topics posted on a board of said posts.
+ *
  * receives data on the topics to send out notifications to by the passed in array.
  * only sends notifications to those who can *currently* see the topic (it doesn't matter if they could when they requested notification.)
  * loads the Post language file multiple times for each language if the userLanguage setting is set.
@@ -2659,6 +2664,7 @@ function notifyMembersBoard(&$topicData)
 
 /**
  * Get the topic for display purposes.
+ *
  * gets a summary of the most recent posts in a topic.
  * depends on the topicSummaryPosts setting.
  * if you are editing a post, only shows posts previous to that post.
@@ -2821,6 +2827,10 @@ function QuoteFast()
 		);
 }
 
+/**
+ * Used to edit the body or subject of a message inline
+ * called from action=jsmodify from script and topic js
+ */
 function JavaScriptModify()
 {
 	global $sourcedir, $modSettings, $board, $topic, $txt;
