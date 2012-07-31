@@ -2164,6 +2164,8 @@ function AutoSuggestHandler($checkRegistered = null)
 		'versions' => 'SMFVersions',
 	);
 
+	call_integration_hook('integrate_autosuggest', array($searchTypes));
+
 	// If we're just checking the callback function is registered return true or false.
 	if ($checkRegistered != null)
 		return isset($searchTypes[$checkRegistered]) && function_exists('AutoSuggest_Search_' . $checkRegistered);
