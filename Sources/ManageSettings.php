@@ -2268,7 +2268,7 @@ function list_integration_hooks()
 					'function' => create_function('$data', '
 						global $txt;
 
-						if (isset($data[\'included_file\']))
+						if (!empty($data[\'included_file\']))
 							return $txt[\'hooks_field_function\'] . \': \' . $data[\'real_function\'] . \'<br />\' . $txt[\'hooks_field_included_file\'] . \': \' . $data[\'included_file\'];
 						else
 							return $data[\'real_function\'];
@@ -2412,7 +2412,12 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					foreach ($functions as $function_o)
 					{
 						$hook_name = str_replace(']', '', $function_o);
-						$function = explode(':', $hook_name);
+						if (strpos($hook_name, '::') !== false)
+						{
+							$function = explode('::', $hook_name);
+							$function = $function[1];
+						}
+						$function = explode(':', $function);
 						$function = $function[0];
 
 						if (substr($hook, -8) === '_include')
@@ -2494,13 +2499,20 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				$hook_exists = !empty($hook_status[$hook][$function]['exists']);
 				$file_name = isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ((substr($hook, -8) === '_include') ? 'zzzzzzzzz' : 'zzzzzzzza');
 				$sort[] = $$sort_options[0];
+
+				if (strpos($function, '::') !== false)
+				{
+					$function = explode('::', $function);
+					$function = $function[1];
+				}
 				$exploded = explode(':', $function);
+
 				$temp_data[] = array(
 					'id' => 'hookid_' . $id++,
 					'hook_name' => $hook,
 					'function_name' => $function,
 					'real_function' => $exploded[0],
-					'included_file' => isset($exploded[1]) ? $exploded[1] : '',
+					'included_file' => isset($exploded[1]) ? strtr(trim($exploded[1]), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])) : '',
 					'file_name' => (isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ''),
 					'hook_exists' => $hook_exists,
 					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
