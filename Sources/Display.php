@@ -774,7 +774,7 @@ function Display()
 		);
 
 		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_display_poll');
+		call_integration_hook('integrate_poll_buttons');
 	}
 
 	// Calculate the fastest way to get the messages!
