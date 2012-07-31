@@ -940,7 +940,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Allow mods to easily add to the selected member data
 	call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables));
-	
+
 	if (!empty($users))
 	{
 		// Load the member's data.
@@ -1645,7 +1645,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	
+
 		// Do this to keep things easier in the templates.
 		$context['theme_variant'] = '_' . $context['theme_variant'];
 		$context['theme_variant_url'] = $context['theme_variant'] . '/';
@@ -1675,10 +1675,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	$context['tabindex'] = 1;
 
-	// Fix font size with HTML 4.01, etc.
-	if (isset($settings['doctype']))
-		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && isBrowser('ie6');
-
 	// Compatibility.
 	if (!isset($settings['theme_version']))
 		$modSettings['memberCount'] = $modSettings['totalMembers'];
@@ -1703,23 +1699,23 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'ajax_notification_cancel_text' => JavaScriptEscape($txt['modify_cancel']),
 		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
 	);
-	
+
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
 		loadJavascriptFile('jquery-1.7.1.min.js', array('default_theme' => true), 'jquery');
-	// Auto load, eh? template_javascript() will take care of the inline half of this.
+	// Auto loading? template_javascript() will take care of the local half of this.
 	else
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
-	
+
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true), 'jquery_plugins');
-	
+	loadJavascriptFile('smf_jquery_plugins.js?alp21', array('default_theme' => true), 'jquery_plugins');
+
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true), 'smf_scripts');
-	loadJavascriptFile('theme.js', array(), 'theme_scripts');
-	
+	loadJavascriptFile('script.js?alp21', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('theme.js?alp21', array(), 'theme_scripts');
+
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
 	{
@@ -1785,7 +1781,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
 	global $context, $settings, $txt, $scripturl, $boarddir, $db_show_debug;
 
-	// Do any style sheets first (reroute to the new function to do this!)
+	// Do any style sheets first, cause we're easy with those.
 	if (!empty($style_sheets))
 	{
 		if (!is_array($style_sheets))
@@ -1889,28 +1885,32 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 /**
  * Add a CSS file for output later
  *
- * @param string $filename
- * @param array $options
+ * Options are the following:
  * 	- local (true/false): define if the file is local
  * 	- default_theme (true/false): force use of default theme url
  * 	- force_current (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
+ *  - validate (true/false): if true script will validate the local file exists
+ *
+ * @param string $filename
+ * @param array $options
  * @param string $id
  */
 function loadCSSFile($filename, $options = array(), $id = '')
 {
 	global $settings, $context;
 
-	$theme = !empty($options['default_theme']) ? 'default_theme' : 'theme';
 	$options['force_current'] = !empty($options['force_current']) ? $options['force_current'] : false;
+	$theme = !empty($options['default_theme']) ? 'default_theme' : 'theme';
+	$id = empty($id) ? basename($filename, '.css?alp21') : $id;
 
 	// Is this a local file?
 	if (strpos($filename, 'http') === false || !empty($options['local']))
 	{
-		// Make sure it exists, too!
-		if(!file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
+		// Are we validating the the file exists?
+		if (!empty($options['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
 		{
 			// Maybe the default theme has it?
-			if($theme == 'theme' && file_exists($settings['default_theme_dir'] . '/' . $filename) && !$options['force_current'])
+			if ($theme === 'theme' && !$options['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
 				$filename = $settings['default_theme_url'] . '/css/' . $filename;
 			else
 				$filename = false;
@@ -1919,37 +1919,43 @@ function loadCSSFile($filename, $options = array(), $id = '')
 			$filename = $settings[$theme . '_url'] . '/css/' . $filename;
 	}
 
-	if(!empty($filename))
-		$context['css_files'][(empty($id) ? basename($filename) : $id)] = array('filename' => $filename, 'options' => $options);
+	// Add it to the array for use in the template
+	if (!empty($filename))
+		$context['css_files'][$id] = array('filename' => $filename, 'options' => $options);
 }
 
 /**
  * Add a Javascript file for output later
  *
- * @param string $filename
- * @param array $options, possible parameters:
+ * Options are the following:
  * 	- local (true/false): define if the file is local
  * 	- default_theme (true/false): force use of default theme url
- * 	- force_current (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  * 	- defer (true/false): define if the file should load in <head> or before the closing <html> tag
+ * 	- force_current (true/false): if this is false, we will attempt to load the file from the
+ *    default theme if not found in the current theme
  *	- async (true/false): if the script should be loaded asynchronously (HTML5)
+ *  - validate (true/false): if true script will validate the local file exists
+ *
+ * @param string $filename
+ * @param array $options
  * @param string $id
  */
 function loadJavascriptFile($filename, $options = array(), $id = '')
 {
 	global $settings, $context;
 
-	$theme = !empty($options['default_theme']) ? 'default_theme' : 'theme';
 	$options['force_current'] = !empty($options['force_current']) ? $options['force_current'] : false;
+	$theme = !empty($options['default_theme']) ? 'default_theme' : 'theme';
+	$id = empty($id) ? basename($filename, '.js?alp21') : $id;
 
 	// Is this a local file?
 	if (strpos($filename, 'http') === false || !empty($options['local']))
 	{
-		// Make sure it exists, too!
-		if(!file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
+		// Are we validating it exists on disk?
+		if (!empty($options['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
 		{
-			// Maybe the default theme has it?
-			if($theme == 'theme' && file_exists($settings['default_theme_dir'] . '/' . $filename) && !$options['force_current'])
+			// can't find it in this theme, how about the default?
+			if ($theme === 'theme' && !$options['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
 				$filename = $settings['default_theme_url'] . '/scripts/' . $filename;
 			else
 				$filename = false;
@@ -1958,8 +1964,9 @@ function loadJavascriptFile($filename, $options = array(), $id = '')
 			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename;
 	}
 
-	if(!empty($filename))
-		$context['javascript_files'][(empty($id) ? basename($filename) : $id)] = array('filename' => $filename, 'options' => $options);
+	// Add it to the array for use in the template
+	if (!empty($filename))
+		$context['javascript_files'][$id] = array('filename' => $filename, 'options' => $options);
 }
 
 /**
@@ -1974,15 +1981,16 @@ function addJavascriptVar($key, $value, $escape = false)
 {
 	global $context;
 
-	if(!empty($key) && !empty($value))
-		$context['javascript_vars'][$key] = $escape ? JavaScriptEscape($value) : $value;
+	if (!empty($key) && !empty($value))
+		$context['javascript_vars'][$key] = !empty($escape) ? JavaScriptEscape($value) : $value;
 }
 
 /**
  * Add a block of inline Javascript code to be executed later
- * Only use this if you have to, generally external JS files are better, but for very small scripts
- * or for scripts that require help from PHP/whatever, this can be useful.
- * Do note that all code added with this function is added to the same <script> tag so do make sure your JS is clean!
+ *
+ * - only use this if you have to, generally external JS files are better, but for very small scripts
+ *   or for scripts that require help from PHP/whatever, this can be useful.
+ * - all code added with this function is added to the same <script> tag so do make sure your JS is clean!
  *
  * @param string $javascript
  * @param bool $defer = false, define if the script should load in <head> or before the closing <html> tag
@@ -1991,8 +1999,8 @@ function addInlineJavascript($javascript, $defer = false)
 {
 	global $context;
 
-	if(!empty($javascript))
-		$context['javascript_inline'][$defer ? 'defer' : 'standard'][] = $javascript;
+	if (!empty($javascript))
+		$context['javascript_inline'][(!empty($defer) ? 'defer' : 'standard')][] = $javascript;
 }
 
 /**
@@ -2430,9 +2438,7 @@ function template_include($filename, $once = false)
 				$data2 = preg_split('~\<br( /)?\>~', $data2);
 
 				// Fix the PHP code stuff...
-				if (isBrowser('ie4') || isBrowser('ie5') || isBrowser('ie5.5'))
-					$data2 = str_replace("\t", '<pre style="display: inline;">' . "\t" . '</pre>', $data2);
-				elseif (!isBrowser('gecko'))
+				if (!isBrowser('gecko'))
 					$data2 = str_replace("\t", '<span style="white-space: pre;">' . "\t" . '</span>', $data2);
 				else
 					$data2 = str_replace('<pre style="display: inline;">' . "\t" . '</pre>', "\t", $data2);
@@ -2589,8 +2595,8 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 /**
  * Puts value in the cache under key for ttl seconds.
  *
- * - It may "miss" so shouldn't be depended on 
- * - Uses the cahce engine chosen in the ACP and saved in settings.php
+ * - It may "miss" so shouldn't be depended on
+ * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
  *     Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
  *     Xcache: http://xcache.lighttpd.net/wiki/XcacheApi

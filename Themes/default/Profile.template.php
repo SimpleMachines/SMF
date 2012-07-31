@@ -104,7 +104,13 @@ function template_summary()
 		echo '
 					<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '">', $txt['profile_sendpm_short'], '</a><br />';
 	echo '
-					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />
+					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
+
+	if ($context['user']['is_owner'] && !empty($modSettings['drafts_enabled']))
+		echo '
+					<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '">', $txt['drafts_show'], '</a><br />';
+
+	echo '
 					<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '">', $txt['statPanel'], '</a>
 				</p>';
 
@@ -334,6 +340,9 @@ function template_showPosts()
 			<h3 class="catbg">
 				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), ' - ', $context['member']['name'], '
 			</h3>
+		</div>
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Button shortcuts
@@ -399,15 +408,9 @@ function template_showPosts()
 				</div>';
 
 			echo '
-			</div>
-		</div>';
+				</div>
+			</div>';
 		}
-
-		// Show more page numbers.
-		echo '
-		<div class="pagesection" style="margin-bottom: 0;">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
-		</div>';
 	}
 	else
 		template_show_list('attachments');
@@ -423,8 +426,86 @@ function template_showPosts()
 
 		echo '
 			</tbody>
-		</table>
-	</div>';
+		</table>';
+
+	// Show more page numbers.
+	echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+}
+
+// Template for showing all the drafts of the user.
+function template_showDrafts()
+{
+	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/message_sm.png" alt="" class="icon" />
+					', $txt['drafts_show'], ' - ', $context['member']['name'], '
+				</span>
+			</h3>
+		</div>
+		<div class="pagesection" style="margin-bottom: 0;">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+
+	// Button shortcuts
+	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
+
+	// For every draft to be displayed, give it its own div, and show the important details of the draft.
+	foreach ($context['drafts'] as $draft)
+	{
+		echo '
+		<div class="topic">
+			<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+				<span class="topslice"><span></span></span>
+				<div class="content">
+					<div class="counter">', $draft['counter'], '</div>
+					<div class="topic_details">
+						<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
+
+		if (!empty($draft['sticky']))
+			echo '<img src="', $settings['images_url'], '/icons/quick_sticky.png" alt="', $txt['sticky_topic'], '" title="', $txt['sticky_topic'], '" />';
+
+		if (!empty($draft['locked']))
+			echo '<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="', $txt['locked_topic'], '" title="', $txt['locked_topic'], '" />';
+
+		echo '
+						</h5>
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
+					</div>
+					<div class="list_posts">
+						', $draft['body'], '
+					</div>
+				</div>
+				<div class="floatright">
+					<ul class="reset smalltext quickbuttons">
+						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+					</ul>
+				</div>
+				<br class="clear" />
+				<span class="botslice"><span></span></span>
+			</div>
+		</div>';
+	}
+
+	// No drafts? Just show an informative message.
+	if (empty($context['drafts']))
+		echo '
+		<div class="tborder windowbg2 padding centertext">
+			', $txt['draft_none'], '
+		</div>';
+
+	// Show page numbers.
+	echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
 }
 
 // Template for showing all the buddies of the current user.
@@ -1577,6 +1658,25 @@ function template_profile_theme_settings()
 								</select>
 							</dd>';
 
+	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_autosave_enabled']))
+		echo '
+							<dt>
+								<label for="drafts_autosave_enabled">', $txt['drafts_autosave_enabled'], '</label>
+							</dt>
+							<dd>
+								<input type="hidden" name="default_options[drafts_autosave_enabled]" value="0" />
+								<label for="drafts_autosave_enabled"><input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked="checked"' : '', ' class="input_check" /></label>
+							</dd>';
+	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_show_saved_enabled']))
+		echo '
+							<dt>
+								<label for="drafts_show_saved_enabled">', $txt['drafts_show_saved_enabled'], '</label>
+							</dt>
+							<dd>
+								<input type="hidden" name="default_options[drafts_show_saved_enabled]" value="0" />
+								<label for="drafts_show_saved_enabled"><input type="checkbox" name="default_options[drafts_show_saved_enabled]" id="drafts_show_saved_enabled" value="1"', !empty($context['member']['options']['drafts_show_saved_enabled']) ? ' checked="checked"' : '', ' class="input_check" /></label>
+							</dd>';
+
 	echo '
 							<dt>
 								<label for="display_quick_reply">', $txt['display_quick_reply'], '</label>
@@ -2498,7 +2598,7 @@ function template_profile_group_manage()
 							</dt>
 							<dd>
 								<select name="id_group" ', ($context['user']['is_owner'] && $context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . $txt['deadmin_confirm'] . '\')) this.value = 1;"' : ''), '>';
-		
+
 		// Fill the select box with all primary member groups that can be assigned to a member.
 		foreach ($context['member_groups'] as $member_group)
 			if (!empty($member_group['can_be_primary']))

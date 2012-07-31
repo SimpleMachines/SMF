@@ -124,6 +124,12 @@ function template_main()
 						', $txt['topic_locked_no_reply'], '
 					</p>';
 
+	if (!empty($modSettings['drafts_post_enabled']))
+		echo '
+				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+					sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
+				</div>';
+
 	// The post header... important stuff
 	echo '
 					<dl id="post_header">';
@@ -172,7 +178,8 @@ function template_main()
 							</select>
 							<img src="', $context['icon_url'], '" name="icons" hspace="15" alt="" />
 						</dd>
-					</dl><hr class="clear" />';
+					</dl>
+					<hr class="clear" />';
 
 	// Are you posting a calendar event?
 	if ($context['make_event'])
@@ -344,6 +351,7 @@ function template_main()
 					</div>';
 	}
 
+	// Show the actual posting area...
 	echo '
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
@@ -477,6 +485,30 @@ function template_main()
 					</dl>';
 	}
 
+	// If the admin enabled the drafts feature, show a draft selection box
+	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	{
+		echo '
+			<br />
+			<div id="postDraftOptionsHeader" class="title_bar">
+				<h4 class="titlebg">
+					<img id="postDraftExpand" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png" alt="-" /> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+				</h4>
+			</div>
+			<div id="postDraftOptions" class="load_drafts padding">
+				<dl class="settings">
+					<dt><strong>', $txt['subject'], '</strong></dt>
+					<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
+
+		foreach ($context['drafts'] as $draft)
+			echo '
+					<dt>', $draft['link'], '</dt>
+					<dd>', $draft['poster_time'], '</dd>';
+		echo '
+				</dl>
+			</div>';
+	}
+
 	// Is visual verification enabled?
 	if ($context['require_verification'])
 	{
@@ -492,8 +524,8 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<br class="clear_right" />
-					<span class="smalltext" >
-						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+					<span class="smalltext">
+						', isBrowser('is_firefox') ? ($context['drafts_save'] ? $txt['shortcuts_drafts_firefox'] : $txt['shortcuts_firefox']) : ($context['drafts_save'] ? $txt['shortcuts_drafts'] : $txt['shortcuts']), '
 					</span>
 					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
@@ -745,6 +777,33 @@ function template_main()
 				]
 			});';
 
+	// Code for showing and hiding drafts
+	if (!empty($context['drafts']))
+		echo '
+			var oSwapDraftOptions = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: true,
+				aSwappableContainers: [
+					\'postDraftOptions\',
+				],
+				aSwapImages: [
+					{
+						sId: \'postDraftExpand\',
+						srcExpanded: smf_images_url + \'/collapse.png\',
+						altExpanded: \'-\',
+						srcCollapsed: smf_images_url + \'/expand.png\',
+						altCollapsed: \'+\'
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'postDraftExpandLink\',
+						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+					}
+				]
+			});';
+
 	echo '
 		// ]]></script>';
 
@@ -768,7 +827,9 @@ function template_main()
 			echo '
 				<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
 				<div class="content" id="msg', $post['id'], '">
-						<h5 class="floatleft"><span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '</h5>&nbsp;-&nbsp;', $post['time'];
+					<h5 class="floatleft">
+						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
+					</h5>&nbsp;-&nbsp;', $post['time'];
 
 			if ($context['can_quote'])
 			{

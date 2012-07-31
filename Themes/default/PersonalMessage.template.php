@@ -607,23 +607,23 @@ function template_subject_list()
 
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
-					
+
 			foreach ($context['labels'] as $label)
 			{
 				if ($label['id'] != $context['current_label_id'])
 					echo '
 					<option value="add_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 			}
-			
+
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_remove'], ':</option>';
-					
+
 			foreach ($context['labels'] as $label)
 			{
 				echo '
 					<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 			}
-			
+
 			echo '
 				</select>
 				<noscript>
@@ -975,6 +975,12 @@ function template_send()
 					</dl>
 				</div>';
 
+	if (!empty($modSettings['drafts_pm_enabled']))
+		echo '
+				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+					sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
+				</div>';
+
 	echo '
 				<dl id="post_header">';
 
@@ -1016,7 +1022,7 @@ function template_send()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
 					</dd>
 				</dl><hr class="clear" />';
 
@@ -1068,6 +1074,30 @@ function template_send()
 			</div>
 		</div>
 	</form>';
+
+	// If the admin enabled the pm drafts feature, show a draft selection box
+	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	{
+		echo '
+			<br />
+			<div id="postDraftOptionsHeader" class="title_bar">
+				<h4 class="titlebg">
+					<img id="postDraftExpand" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png" alt="-" /> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+				</h4>
+			</div>
+			<div id="postDraftOptions" class="load_drafts padding">
+				<dl class="settings">
+					<dt><strong>', $txt['subject'], '</strong></dt>
+					<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
+
+		foreach ($context['drafts'] as $draft)
+			echo '
+					<dt>', $draft['link'], '</dt>
+					<dd>', $draft['poster_time'], '</dd>';
+		echo '
+				</dl>
+			</div>';
+	}
 
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[';
@@ -1175,6 +1205,33 @@ function template_send()
 				}
 				location.hash = \'#\' + \'preview_section\';
 			}';
+
+	// Code for showing and hiding drafts
+	if (!empty($context['drafts']))
+		echo '
+			var oSwapDraftOptions = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: true,
+				aSwappableContainers: [
+					\'postDraftOptions\',
+				],
+				aSwapImages: [
+					{
+						sId: \'postDraftExpand\',
+						srcExpanded: smf_images_url + \'/collapse.png\',
+						altExpanded: \'-\',
+						srcCollapsed: smf_images_url + \'/expand.png\',
+						altCollapsed: \'+\'
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'postDraftExpandLink\',
+						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+					}
+				]
+			});';
 
 	echo '
 		// ]]></script>';
@@ -1822,4 +1879,67 @@ function template_add_rule()
 		// ]]></script>';
 }
 
+// Template for showing all the PM drafts of the user.
+function template_showPMDrafts()
+{
+	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<img src="', $settings['images_url'], '/message_sm.png" alt="" class="icon" />
+					', $txt['drafts_show'], '
+			</h3>
+		</div>
+		<div class="pagesection">
+			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		</div>';
+
+	// Button shortcuts
+	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
+
+	// For every draft to be displayed, give it its own div, and show the important details of the draft.
+	foreach ($context['drafts'] as $draft)
+	{
+		echo '
+		<div class="topic">
+			<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+				<div class="content">
+					<div class="counter">', $draft['counter'], '</div>
+					<div class="topic_details">
+						<h5><strong>', $draft['subject'], '</strong>&nbsp;';
+
+		echo '
+						</h5>
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br />
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</span><br />
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</span>
+					</div>
+					<div class="list_posts">
+						', $draft['body'], '
+					</div>
+
+					<ul class="reset smalltext quickbuttons">
+						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>';
+	}
+
+	// No drafts? Just show an informative message.
+	if (empty($context['drafts']))
+		echo '
+		<div class="tborder windowbg2 padding centertext">
+			', $txt['draft_none'], '
+		</div>';
+
+	// Show page numbers.
+	echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		</div>';
+}
 ?>

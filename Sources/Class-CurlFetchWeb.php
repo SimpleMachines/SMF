@@ -18,7 +18,6 @@
  *  - $fetch_data('http://www.simplemachines.org', array('user' => 'name', 'password' => 'password')); // post to a page
  *  - $fetch_data('http://www.simplemachines.org', parameter1&parameter2&parameter3); // post to a page
  *
- *
  * Get the data
  *  - $fetch_data->result('body'); // just the page content
  *  - $fetch_data->result(); // an array of results, body, header, http result codes
@@ -67,7 +66,7 @@ class curl_fetch_web_data
 	}
 
 	/**
-	* Main calling function, 
+	* Main calling function,
 	*  - will request the page data from a given $url
 	*  - optionally will post data to the page form if post data is supplied
 	*  - passed arrays will be converted to a post string joined with &'s
@@ -121,12 +120,12 @@ class curl_fetch_web_data
 		curl_exec($cr);
 
 		// Get what was returned
-		$curl_info		= curl_getinfo($cr);
-		$curl_content	= curl_multi_getcontent($cr);
-		$url			= $curl_info['url']; // Last effective URL
-		$http_code		= $curl_info['http_code']; // Last HTTP code
-		$body			= (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
-		$error			= (curl_error($cr)) ? curl_error($cr) : false;
+		$curl_info = curl_getinfo($cr);
+		$curl_content = curl_multi_getcontent($cr);
+		$url = $curl_info['url']; // Last effective URL
+		$http_code = $curl_info['http_code']; // Last HTTP code
+		$body = (!curl_error($cr)) ? substr($curl_content, $curl_info['header_size']) : false;
+		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
 		// close this request
 		curl_close($cr);
@@ -164,9 +163,9 @@ class curl_fetch_web_data
 
 		// redirect headers are often incomplete or relative so we need to make sure they are fully qualified
 		$new_url_parse['scheme'] = isset($new_url_parse['scheme']) ? $new_url_parse['scheme'] : $last_url_parse['scheme'];
-		$new_url_parse['host']   = isset($new_url_parse['host']) ? $new_url_parse['host'] : $last_url_parse['host'];
-		$new_url_parse['path']   = isset($new_url_parse['path']) ? $new_url_parse['path'] : $last_url_parse['path'];
-		$new_url_parse['query']  = isset($new_url_parse['query']) ? $new_url_parse['query'] : '';
+		$new_url_parse['host'] = isset($new_url_parse['host']) ? $new_url_parse['host'] : $last_url_parse['host'];
+		$new_url_parse['path'] = isset($new_url_parse['path']) ? $new_url_parse['path'] : $last_url_parse['path'];
+		$new_url_parse['query'] = isset($new_url_parse['query']) ? $new_url_parse['query'] : '';
 
 		// Build the new URL that was in the http header
 		return $new_url_parse['scheme'] . '://' . $new_url_parse['host'] . $new_url_parse['path'] . (!empty($new_url_parse['query']) ? '?' . $new_url_parse['query'] : '');
@@ -193,7 +192,7 @@ class curl_fetch_web_data
 
 	/**
 	* Will return all results from all loops (redirects)
-	*  - Can be call as ->result_raw(x) where x is a specific loop results.
+	*  - Can be called as ->result_raw(x) where x is a specific loop results.
 	*  - Call as ->result_raw() for everything.
 	*
 	* @param type $response_number
@@ -223,16 +222,16 @@ class curl_fetch_web_data
 		if (is_array($post_data))
 		{
 			$postvars = array();
-			
+
 			// build the post data, drop ones with leading @'s since those can be used to send files, we don't support that.
 			foreach ($post_data as $name => $value)
 				$postvars[] = $name . '=' . urlencode($value[0] == '@' ? '' : $value);
-			
+
 			return implode('&', $postvars);
 		}
 		else
 			return $post_data;
-		
+
 	}
 
 	/**

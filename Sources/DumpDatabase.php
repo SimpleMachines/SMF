@@ -50,7 +50,7 @@ function DumpDatabase2()
 	@set_time_limit(600);
 	$time_limit = ini_get('max_execution_time');
 	$start_time = time();
-	
+
 	// @todo ... fail on not getting the requested memory?
 	setMemoryLimit('256M');
 	$memory_limit = memoryReturnBytes(ini_get('memory_limit')) / 4;
@@ -113,7 +113,7 @@ function DumpDatabase2()
 	$crlf = "\r\n";
 
 	// SQL Dump Header.
-	$db_chunks = 
+	$db_chunks =
 		'-- ==========================================================' . $crlf .
 		'--' . $crlf .
 		'-- Database dump of tables in `' . $db_name . '`' . $crlf .
@@ -141,7 +141,7 @@ function DumpDatabase2()
 		// Are we dumping the structures?
 		if (isset($_REQUEST['struct']))
 		{
-			$db_chunks .= 
+			$db_chunks .=
 				$crlf .
 				'--' . $crlf .
 				'-- Table structure for table `' . $tableName . '`' . $crlf .
@@ -177,7 +177,7 @@ function DumpDatabase2()
 
 			if ($first_round)
 			{
-				$db_chunks .= 
+				$db_chunks .=
 					$crlf .
 					'--' . $crlf .
 					'-- Dumping data in `' . $tableName . '`' . $crlf .
@@ -185,7 +185,7 @@ function DumpDatabase2()
 					$crlf;
 				$first_round = false;
 			}
-			$db_chunks .= 
+			$db_chunks .=
 				$get_rows;
 			$current_used_memory += $smcFunc['strlen']($db_chunks);
 
@@ -205,11 +205,11 @@ function DumpDatabase2()
 
 		// No rows to get - skip it.
 		if ($close_table)
-			$db_backup .= 
+			$db_backup .=
 			'-- --------------------------------------------------------' . $crlf;
 	}
 
-	$db_backup .= 
+	$db_backup .=
 		$crlf .
 		'-- Done' . $crlf;
 

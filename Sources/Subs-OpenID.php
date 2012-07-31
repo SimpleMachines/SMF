@@ -517,7 +517,7 @@ function smf_openid_generate_private_key()
 }
 
 /**
- * 
+ *
  * Enter description here ...
  * @param string $openid_url
  * @return bool|array

@@ -37,6 +37,7 @@ $txt['feature_disabled'] = 'Sorry, this feature is disabled.';
 $txt['feature_no_exists'] = 'Sorry, this feature doesn\'t exist.';
 $txt['couldnt_connect'] = 'Could not connect to server or could not find file';
 $txt['no_board'] = 'The board you specified doesn\'t exist';
+$txt['no_message'] = 'The message is no longer available';
 $txt['cant_split'] = 'You are not allowed to split topics';
 $txt['cant_merge'] = 'You are not allowed to merge topics';
 $txt['no_topic_id'] = 'You specified an invalid topic ID.';
@@ -252,6 +253,7 @@ $txt['error_wrong_verification_answer'] = 'You did not answer the verification q
 $txt['error_need_verification_code'] = 'Please enter the verification code below to continue to the results.';
 $txt['error_bad_file'] = 'Sorry but the file specified could not be opened: %1$s';
 $txt['error_bad_line'] = 'The line you specified is invalid.';
+$txt['error_draft_not_saved'] = 'There was an error saving the draft';
 
 $txt['smiley_not_found'] = 'Smiley not found.';
 $txt['smiley_has_no_code'] = 'No code for this smiley was given.';

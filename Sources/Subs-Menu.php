@@ -2,7 +2,7 @@
 
 /**
  * This file contains a standard way of displaying side/drop down menus for SMF.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF

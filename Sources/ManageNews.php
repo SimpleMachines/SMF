@@ -201,7 +201,7 @@ function EditNews()
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
 					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" /> 
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" />
 				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
 			),
 		),
@@ -209,7 +209,7 @@ function EditNews()
 					document.getElementById(\'list_news_lists_last\').style.display = "none";
 					document.getElementById("moreNewsItems_link").style.display = "";
 					var last_preview = 0;
-					
+
 					$(document).ready(function () {
 						$("div[id ^= \'preview_\']").each(function () {
 							var preview_id = $(this).attr(\'id\').split(\'_\')[1];

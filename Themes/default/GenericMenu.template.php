@@ -235,19 +235,19 @@ function template_generic_menu_tabs(&$menu_context)
 		// Has a custom URL defined in the main admin structure?
 		if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
 			$tab_context['tabs'][$id]['url'] = $tab['url'];
-		
+
 		// Any additional paramaters for the url?
 		if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
 			$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
-		
+
 		// Has it been deemed selected?
 		if (!empty($tab['is_selected']))
 			$tab_context['tabs'][$id]['is_selected'] = true;
-		
+
 		// Does it have its own help?
 		if (!empty($tab['help']))
 			$tab_context['tabs'][$id]['help'] = $tab['help'];
-		
+
 		// Is this the last one?
 		if (!empty($tab['is_last']) && !isset($tab_context['override_last']))
 			$tab_context['tabs'][$id]['is_last'] = true;

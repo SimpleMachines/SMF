@@ -60,7 +60,7 @@ function template_admin()
 			<div id="live_news" class="floatleft">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['live'], '</span>
+						<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['live'], '
 					</h3>
 				</div>
 				<div class="windowbg nopadding">
@@ -223,7 +223,7 @@ function template_credits()
 
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
-			echo 
+			echo
 					' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
 					<br />';
@@ -327,12 +327,6 @@ function template_credits()
 	// This sets the latest support stuff.
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
-			function smfSetLatestSupport()
-			{
-				if (window.smfLatestSupport)
-					setInnerHTML(document.getElementById("latestSupport"), window.smfLatestSupport);
-			}
-
 			function smfCurrentVersion()
 			{
 				var smfVer, yourVer;
@@ -348,16 +342,8 @@ function template_credits()
 				var currentVersion = getInnerHTML(yourVer);
 				if (currentVersion != window.smfVersion)
 					setInnerHTML(yourVer, "<span class=\"alert\">" + currentVersion + "</span>");
-			}';
-
-	// IE 4 is rather annoying, this wouldn't be necessary...
-	echo '
-			var fSetupCredits = function ()
-			{
-				smfSetLatestSupport();
-				smfCurrentVersion()
 			}
-			addLoadEvent(fSetupCredits);
+			addLoadEvent(smfCurrentVersion)
 		// ]]></script>';
 }
 
@@ -574,7 +560,6 @@ function template_view_versions()
 	   file categories. (sources, languages, and templates.) */
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oViewVersions = new smf_ViewVersions({
 				aKnownLanguages: [
@@ -625,7 +610,6 @@ function template_edit_censored()
 					<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
 						<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br />
 					</div>
-					<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
 					<script type="text/javascript"><!-- // --><![CDATA[
 						document.getElementById("moreCensoredWords_link").style.display = "";
 					// ]]></script>
@@ -739,7 +723,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
-		
+
 	echo '
 	<div id="admincenter">
 		<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
@@ -976,7 +960,7 @@ function template_show_settings()
 function template_show_custom_profile()
 {
 	global $context, $txt, $settings, $scripturl;
-	
+
 	// Standard fields.
 	template_show_list('standard_profile_fields');
 
@@ -1002,7 +986,7 @@ function template_edit_profile_field()
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var startOptID = ', count($context['field']['options']), ';
 	// ]]></script>';
-	
+
 	// any errors messages to show?
 	if (isset($_GET['msg']))
 	{
@@ -1360,7 +1344,7 @@ function template_core_features()
 						{
 							$(ajax_infobar).attr(\'class\', \'errorbox\');
 							$(ajax_infobar).html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
-							
+
 						}
 					}
 				});
@@ -1459,8 +1443,6 @@ function template_callback_question_answer_list()
 		<dt id="add_more_question_placeholder" style="display: none;"></dt><dd></dd>
 		<dt id="add_more_link_div" style="display: none;">
 			<a href="#" onclick="addAnotherQuestion(); return false;">&#171; ', $txt['setup_verification_add_more'], ' &#187;</a>
-			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
-
 		</dt><dd></dd>';
 
 	// The javascript needs to go at the end but we'll put it in this template for looks.
@@ -1592,7 +1574,7 @@ function template_php_info()
 
 		$alternate = true;
 		$localmaster = true;
-		
+
 		// and for each setting in this category
 		foreach ($php_area as $key => $setting)
 		{
@@ -1610,7 +1592,7 @@ function template_php_info()
 		</tr>';
 					$localmaster = false;
 				}
-					
+
 				echo '
 		<tr>
 			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
@@ -1632,7 +1614,7 @@ function template_php_info()
 			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
 		</tr>';
 			}
-		
+
 			$alternate = !$alternate;
 		}
 		echo '

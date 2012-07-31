@@ -57,4 +57,7 @@ $txt['scheduled_log_time_taken_seconds'] = '%1$d seconds';
 $txt['scheduled_log_empty_log'] = 'Clear Log';
 $txt['scheduled_log_empty_log_confirm'] = 'Are you sure you want to completely clear the log?';
 
+$txt['scheduled_task_remove_old_drafts'] = 'Remove old drafts';
+$txt['scheduled_task_desc_remove_old_drafts'] = 'Deletes drafts older than the number of days defined in the draft settings in the admin panel.';
+
 ?>

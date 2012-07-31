@@ -84,7 +84,7 @@ function ShowAdminHelp()
 		loadLanguage('ManagePermissions');
 
 	loadTemplate('Help');
-	
+
 	// Allow mods to load their own language file here
  	call_integration_hook('integrate_helpadmin');
 

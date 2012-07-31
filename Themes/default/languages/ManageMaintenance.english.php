@@ -157,6 +157,9 @@ $txt['maintain_old_choose'] = 'Specific Boards (click to select all)';
 $txt['maintain_old_remove'] = 'Remove now';
 $txt['maintain_old_confirm'] = 'Are you really sure you want to delete old posts now?\\n\\nThis cannot be undone!';
 
+$txt['maintain_old_drafts'] = 'Remove Old Drafts';
+$txt['maintain_old_drafts_days'] = 'Remove all drafts older than';
+$txt['maintain_old_drafts_confirm'] = 'Are you really sure you want to delete old drafts now?\\n\\nThis cannot be undone!';
 $txt['maintain_members'] = 'Remove Inactive Members';
 $txt['maintain_members_ungrouped'] = 'Ungrouped Members <span class="smalltext">(Members with no assigned groups)</span>';
 $txt['maintain_members_since1'] = 'Remove all members who have not';

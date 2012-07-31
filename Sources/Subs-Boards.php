@@ -3,7 +3,7 @@
 /**
  * This file is mainly concerned with minor tasks relating to boards, such as
  * marking them read, collapsing categories, or quick moderation.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF

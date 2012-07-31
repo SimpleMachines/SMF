@@ -93,18 +93,15 @@ function template_maintain_database()
 			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['mediumtext_introduction'], '</p>',
 					$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
-					<hr class="hrcolor" />
 					<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit" /><br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 	}
 
@@ -255,9 +252,10 @@ function template_maintain_members()
 			membersSwap = !membersSwap;
 			var membersForm = document.getElementById(\'membersForm\');
 
+			$("#membersPanel").slideToggle(300);
+
 			document.getElementById("membersIcon").src = smf_images_url + (membersSwap ? "/selected_open.png" : "/selected.png");
 			setInnerHTML(document.getElementById("membersText"), membersSwap ? "', $txt['maintain_members_choose'], '" : "', $txt['maintain_members_all'], '");
-			document.getElementById("membersPanel").style.display = (membersSwap ? "block" : "none");
 
 			for (var i = 0; i < membersForm.length; i++)
 			{
@@ -339,7 +337,7 @@ function template_maintain_members()
 						<input type="checkbox" name="posts" id="posts" checked="checked" class="input_check" />
 						<label for="posts">', $txt['reattribute_increase_posts'], '</label>
 					</p>
-					<input type="submit" id="do_attribute" value="', $txt['reattribute'], '" onclick="if (!checkAttributeValidity()) return false; 
+					<input type="submit" id="do_attribute" value="', $txt['reattribute'], '" onclick="if (!checkAttributeValidity()) return false;
 					return confirm(warningMessage);" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
@@ -431,7 +429,7 @@ function template_maintain_topics()
 				setInnerHTML(document.getElementById("rotText"), rotSwap ? ', JavaScriptEscape($txt['maintain_old_choose']), ' : ', JavaScriptEscape($txt['maintain_old_all']), ');
 
 				// Toggle panel
-				document.getElementById("rotPanel").style.display = !rotSwap ? "none" : "";
+				$("#rotPanel").slideToggle(300);
 
 				// Toggle checkboxes
 				var rotPanel = document.getElementById(\'rotPanel\');
@@ -508,6 +506,20 @@ function template_maintain_topics()
 						</div>
 					</div>
 					<input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_old_confirm'], '\');" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				</form>
+			</div>
+		</div>
+
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['maintain_old_drafts'], '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['maintain_old_drafts_days'], '&nbsp;<input type="text" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3" />&nbsp;', $txt['days_word'], '</p>
+					<input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_old_drafts_confirm'], '\');" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>

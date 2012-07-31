@@ -252,7 +252,7 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" style="display: none;" />
+				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" style="display: none;" />
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
@@ -327,21 +327,21 @@ function template_info_center()
 			echo '
 				<p class="inline">
 					<span class="birthday">', $context['calendar_only_today'] ? $txt['birthdays'] : $txt['birthdays_upcoming'], '</span>';
-			// Each member in calendar_birthdays has: id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?) 
+			// Each member in calendar_birthdays has: id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?)
 			foreach ($context['calendar_birthdays'] as $member)
 				echo '
 					<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['is_today'] ? '<strong class="fix_rtl_names">' : '', $member['name'], $member['is_today'] ? '</strong>' : '', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', $member['is_last'] ? '' : ', ';
 			echo '
 				</p>';
 		}
-		
+
 		// Events like community get-togethers.
 		if (!empty($context['calendar_events']))
 		{
 			echo '
 				<p class="inline">
 					<span class="event">', $context['calendar_only_today'] ? $txt['events'] : $txt['events_upcoming'], '</span> ';
-			
+
 			// Each event in calendar_events should have:
 			//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 			foreach ($context['calendar_events'] as $event)
@@ -392,7 +392,7 @@ function template_info_center()
 
 	echo $context['show_who'] ? '</a>' : '', '
 
-				&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp; 
+				&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
 				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br />';
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
@@ -441,9 +441,9 @@ function template_info_center()
 				{
 					sId: \'upshrink_ic\',
 					srcExpanded: smf_images_url + \'/collapse.png\',
-					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
-					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
 			aSwapLinks: [

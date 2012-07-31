@@ -459,7 +459,7 @@ function EditSpider()
 
 /**
  * Do we think the current user is a spider?
- * 
+ *
  * @todo Should this not be... you know... in a different file?
  * @return int
  */
@@ -538,7 +538,7 @@ function SpiderCheck()
 
 /**
  * Log the spider presence online.
- * 
+ *
  * @todo Different file?
  */
 function logSpider()
@@ -798,7 +798,7 @@ function SpiderLogs()
 
 /**
  * Callback function for createList()
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort

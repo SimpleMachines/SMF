@@ -124,7 +124,7 @@ function smf_db_replacement__callback($matches)
 	global $db_callback, $user_info, $db_prefix;
 
 	list ($values, $connection) = $db_callback;
-	
+
 	// Connection gone???  This should *never* happen at this point, yet it does :'(
 	if (!is_resource($connection))
 		display_db_error();
@@ -390,7 +390,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$ret = @mysql_query($db_string, $connection);
 	else
 		$ret = @mysql_unbuffered_query($db_string, $connection);
-		
+
 	if ($ret === false && empty($db_values['db_error_skip']))
 		$ret = smf_db_error($db_string, $connection);
 

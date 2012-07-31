@@ -19,6 +19,7 @@ if (!defined('SMF'))
 
 /**
  * handles showing the post screen, loading the post to be modified, and loading any post quoted.
+ *
  * - additionally handles previews of posts.
  * - @uses the Post template and language file, main sub template.
  * - allows wireless access using the protocol_post sub template.
@@ -464,7 +465,7 @@ function Post($post_errors = array())
 		}
 
 		// Only show the preview stuff if they hit Preview.
-		if ($really_previewing == true || isset($_REQUEST['xml']))
+		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_POST['id_draft']))
 		{
 			// Set up the preview message and subject and censor them...
 			$context['preview_message'] = $form_message;
@@ -638,9 +639,8 @@ function Post($post_errors = array())
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
-		//@todo Change this error message?
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('no_board', false);
+			fatal_lang_error('no_message', false);
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		$attachment_stuff = array($row);
@@ -1051,6 +1051,17 @@ function Post($post_errors = array())
 	$context['subject'] = addcslashes($form_subject, '"');
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
+	// Are post drafts enabled?
+	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+
+	// Build a list of drafts that they can load in to the editor
+	if (!empty($context['drafts_save']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		ShowDrafts($user_info['id'], $topic);
+	}
+
 	// Needed for the editor and message icons.
 	require_once($sourcedir . '/Subs-Editor.php');
 
@@ -1159,7 +1170,8 @@ function Post($post_errors = array())
 }
 
 /**
- * actually posts or saves the message composed with Post().
+ * Posts or saves the message composed with Post().
+ *
  * requires various permissions depending on the action.
  * handles attachment, post, and calendar saving.
  * sends off notifications, and allows for announcements and moderation.
@@ -1228,6 +1240,10 @@ function Post2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
+
+	// Drafts enabled?
+	if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))
@@ -1528,6 +1544,13 @@ function Post2()
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || $_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
+		// If drafts are enabled, then pass this off
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
+
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
 		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
@@ -1565,6 +1588,13 @@ function Post2()
 
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || empty($_POST['sticky']) || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
+
+		// Saving your new topic as a draft first?
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
 
 		$posterIsGuest = $user_info['is_guest'];
 	}
@@ -1640,6 +1670,13 @@ function Post2()
 			// Log it, assuming you're not modifying your own post.
 			if ($row['id_member'] != $user_info['id'])
 				$moderationAction = true;
+		}
+
+		// If drafts are enabled, then lets send this off to save
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
 		}
 
 		$posterIsGuest = empty($row['id_member']);
@@ -1947,7 +1984,7 @@ function Post2()
 			$pollOptions,
 			array('id_poll', 'id_choice')
 		);
-		
+
 		call_integration_hook('integrate_poll_add_edit', array($id_poll, false));
 	}
 	else
@@ -2229,6 +2266,7 @@ function Post2()
 
 /**
  * handle the announce topic function (action=announce).
+ *
  * checks the topic announcement permissions and loads the announcement template.
  * requires the announce_topic permission.
  * uses the ManageMembers template and Post language file.
@@ -2261,6 +2299,7 @@ function AnnounceTopic()
 
 /**
  * Allow a user to chose the membergroups to send the announcement to.
+ *
  * lets the user select the membergroups that will receive the topic announcement.
  */
 function AnnouncementSelectMembergroup()
@@ -2339,6 +2378,7 @@ function AnnouncementSelectMembergroup()
 
 /**
  * Send the announcement in chunks.
+ *
  * splits the members to be sent a topic announcement into chunks.
  * composes notification messages in all languages needed.
  * does the actual sending of the topic announcements in chunks.
@@ -2465,8 +2505,8 @@ function AnnouncementSend()
 }
 
 /**
- * notifies members who have requested notification for new topics
- * * posted on a board of said posts.
+ * Notifies members who have requested notification for new topics posted on a board of said posts.
+ *
  * receives data on the topics to send out notifications to by the passed in array.
  * only sends notifications to those who can *currently* see the topic (it doesn't matter if they could when they requested notification.)
  * loads the Post language file multiple times for each language if the userLanguage setting is set.
@@ -2624,6 +2664,7 @@ function notifyMembersBoard(&$topicData)
 
 /**
  * Get the topic for display purposes.
+ *
  * gets a summary of the most recent posts in a topic.
  * depends on the topicSummaryPosts setting.
  * if you are editing a post, only shows posts previous to that post.
@@ -2786,6 +2827,10 @@ function QuoteFast()
 		);
 }
 
+/**
+ * Used to edit the body or subject of a message inline
+ * called from action=jsmodify from script and topic js
+ */
 function JavaScriptModify()
 {
 	global $sourcedir, $modSettings, $board, $topic, $txt;

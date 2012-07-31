@@ -18,7 +18,7 @@ function template_email_members()
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>',$bat_poo,'
+				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
 			</div>
 			<div class="information">
 				', $txt['admin_news_select_recipients'], '
@@ -245,7 +245,7 @@ function template_email_members_compose()
 	// Show BBC buttons, smileys and textbox.
 	echo '
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
-					
+
 					echo '
 					<ul class="reset">
 						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_pms'], '</label></li>

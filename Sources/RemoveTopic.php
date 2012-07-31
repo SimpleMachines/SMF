@@ -232,7 +232,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	// Only a single topic.
 	if (is_numeric($topics))
 		$topics = array($topics);
-		
+
 	// Decrease the post counts.
 	if ($decreasePostCount)
 	{
@@ -533,7 +533,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			'topics' => $topics,
 		)
 	);
-	
+
 	// Maybe there's a mod that wants to delete topic related data of its own
  	call_integration_hook('integrate_remove_topics', array($topics));
 
@@ -962,7 +962,7 @@ function removeMessage($message, $decreasePostCount = true)
 			'id_msg' => $message,
 		);
 		removeAttachments($attachmentQuery);
-		
+
 		// Allow mods to remove message related data of their own (likes, maybe?)
 		call_integration_hook('integrate_remove_message', array($message));
 	}

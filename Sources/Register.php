@@ -105,7 +105,7 @@ function Register($reg_errors = array())
 			$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
 		else
 			$context['agreement'] = '';
-		
+
 		// Nothing to show, lets disable registration and inform the admin of this error
 		if (empty($context['agreement']))
 		{

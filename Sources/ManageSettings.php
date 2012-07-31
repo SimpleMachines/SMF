@@ -225,6 +225,31 @@ function ModifyCoreFeatures($return_config = false)
 					return array();
 			'),
 		),
+		// dr = drafts
+		'dr' => array(
+			'url' => 'action=admin;area=managedrafts',
+			'settings' => array(
+				'drafts_enabled' => 1,
+				'drafts_post_enabled' => 2,
+				'drafts_pm_enabled' => 2,
+				'drafts_autosave_enabled' => 2,
+				'drafts_show_saved_enabled' => 2,
+			),
+			'setting_callback' => create_function('$value', '
+				global $smcFunc, $sourcedir;
+
+				// Set the correct disabled value for the scheduled task.
+				$smcFunc[\'db_query\'](\'\', \'
+					UPDATE {db_prefix}scheduled_tasks
+					SET disabled = {int:disabled}
+					WHERE task = {string:task}\',
+					array(
+						\'disabled\' => $value ? 0 : 1,
+						\'task\' => \'remove_old_drafts\',
+					)
+				);
+			'),
+		),
 		// k = karma.
 		'k' => array(
 			'url' => 'action=admin;area=featuresettings;sa=karma',
@@ -491,7 +516,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
-			array('check', 'disallow_sendBody'),	
+			array('check', 'disallow_sendBody'),
 	);
 
 	// Get all the time zones.
@@ -1736,7 +1761,7 @@ function EditCustomProfiles()
 		// Regex you say?  Do a very basic test to see if the pattern is valid
 		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
-			
+
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
 
