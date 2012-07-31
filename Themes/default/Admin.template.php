@@ -327,12 +327,6 @@ function template_credits()
 	// This sets the latest support stuff.
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
-			function smfSetLatestSupport()
-			{
-				if (window.smfLatestSupport)
-					setInnerHTML(document.getElementById("latestSupport"), window.smfLatestSupport);
-			}
-
 			function smfCurrentVersion()
 			{
 				var smfVer, yourVer;
@@ -348,16 +342,9 @@ function template_credits()
 				var currentVersion = getInnerHTML(yourVer);
 				if (currentVersion != window.smfVersion)
 					setInnerHTML(yourVer, "<span class=\"alert\">" + currentVersion + "</span>");
-			}';
-
-	// IE 4 is rather annoying, this wouldn't be necessary...
-	echo '
-			var fSetupCredits = function ()
-			{
-				smfSetLatestSupport();
-				smfCurrentVersion()
 			}
-			addLoadEvent(fSetupCredits);
+			
+			addLoadEvent(smfCurrentVersion)
 		// ]]></script>';
 }
 
