@@ -249,6 +249,7 @@ function ModifyCoreFeatures($return_config = false)
 					)
 				);
 			'),
+		),
 		// ih = Integration Hooks Handling.
 		'ih' => array(
 			'url' => 'action=admin;area=modsettings;sa=hooks',
