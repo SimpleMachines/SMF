@@ -156,6 +156,7 @@ $txt['setting_password_strength'] = 'Required strength for user passwords';
 $txt['setting_password_strength_low'] = 'Low - 4 character minimum';
 $txt['setting_password_strength_medium'] = 'Medium - cannot contain username';
 $txt['setting_password_strength_high'] = 'High - mixture of different characters';
+$txt['setting_enable_password_conversion'] = 'Allow password hash conversion';
 
 $txt['antispam_Settings'] = 'Anti-Spam Verification';
 $txt['antispam_Settings_desc'] = 'This section allows you to setup verification checks to ensure the user is a human (and not a bot), and tweak how and where these apply.';
