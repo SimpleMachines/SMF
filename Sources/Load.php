@@ -1683,7 +1683,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('cd,cp,k,w,rg,ml,pm');
 
 	// Default JS variables for use in every theme
-	loadLanguage('index');
 	$context['javascript_vars'] = array(
 		'smf_theme_url' => '"' . $settings['theme_url'] . '"',
 		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
