@@ -326,7 +326,7 @@ function Login2()
 		elseif (strlen($user_settings['passwd']) == 32)
 		{
 			// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
-			$other_passwords[] = md5(md5($_POST['passwrd']) . $user_settings['password_salt']);
+			$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes($user_settings['password_salt']));
 
 			// Hmm.. p'raps it's Invision 2 style?
 			$other_passwords[] = md5(md5($user_settings['password_salt']) . md5($_POST['passwrd']));
@@ -362,6 +362,9 @@ function Login2()
 			require_once($sourcedir . '/Subs-Compat.php');
 			$other_passwords[] = sha1_smf(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 		}
+
+		// Allows mods to easily extend the $other_passwords array
+		call_integration_hook('integrate_other_passwords');
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array($user_settings['passwd'], $other_passwords))
