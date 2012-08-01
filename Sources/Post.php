@@ -49,18 +49,6 @@ function Post($post_errors = array())
 
 	require_once($sourcedir . '/Subs-Post.php');
 
-	// Any files to include for post?
-	if (!isset($post_includes) && !empty($modSettings['integrate_post_include']))
-	{
-		$post_includes = explode(',', $modSettings['integrate_post_include']);
-		foreach ($post_includes as $include)
-		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-			if (file_exists($include))
-				require_once($include);
-		}
-	}
-
 	if (isset($_REQUEST['xml']))
 	{
 		$context['sub_template'] = 'post';
@@ -1195,22 +1183,6 @@ function Post2()
 
 	// No need!
 	$context['robot_no_index'] = true;
-
-	// Any files to include for post?
-	if (!empty($modSettings['integrate_post_include']))
-	{
-		$post_includes = explode(',', $modSettings['integrate_post_include']);
-		foreach ($post_includes as $include)
-		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-			if (file_exists($include))
-				require_once($include);
-		}
-	}
-
-	// Previewing? Go back to start.
-	if (isset($_REQUEST['preview']))
-		return Post();
 
 	// Previewing? Go back to start.
 	if (isset($_REQUEST['preview']))

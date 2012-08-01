@@ -154,18 +154,6 @@ function ModerationMain($dont_call = false)
 		),
 	);
 
-	// Any files to include for moderation?
-	if (!empty($modSettings['integrate_moderate_include']))
-	{
-		$moderate_includes = explode(',', $modSettings['integrate_moderate_include']);
-		foreach ($moderate_includes as $include)
-		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-			if (file_exists($include))
-				require_once($include);
-		}
-	}
-
 	// Let them modify admin areas easily.
 	call_integration_hook('integrate_moderate_areas', array(&$moderation_areas));
 

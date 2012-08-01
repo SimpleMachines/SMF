@@ -1011,9 +1011,9 @@ function PackageInstall()
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
-					remove_integration_function($action['hook'], $action['function']);
+					remove_integration_function($action['hook'], $action['function'], $action['include_file']);
 				else
-					add_integration_function($action['hook'], $action['function']);
+					add_integration_function($action['hook'], $action['function'], $action['include_file']);
 			}
 			// Only do the database changes on uninstall if requested.
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
