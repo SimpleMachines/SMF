@@ -2139,11 +2139,11 @@ function changeSettings($config_vars)
 
 	if (!empty($config_vars))
 	{
-		$settingsArray[$end++] = '';
+		$settingsArray[$i++] = '';
 		foreach ($config_vars as $var => $val)
 		{
 			if ($val != '#remove#')
-				$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
+				$settingsArray[$i++] = '$' . $var . ' = ' . $val . ';' . "\n";
 		}
 	}
 
