@@ -4046,19 +4046,47 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $modSettings;
+	global $modSettings, $settings, $boarddir, $sourcedir;
 
 	$results = array();
 	if (empty($modSettings[$hook]))
 		return $results;
 
 	$functions = explode(',', $modSettings[$hook]);
-
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
 		$function = trim($function);
-		$call = strpos($function, '::') !== false ? explode('::', $function) : $function;
+		if (strpos($function, '::') !== false)
+		{
+			$call = explode('::', $function);
+			if (strpos($call[1], ':') !== false)
+			{
+				list($func, $file) = explode(':', $call[1]);
+				if (empty($settings['theme_dir']))
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
+				else
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+				if (file_exists($absPath))
+					require_once($absPath);
+				$call = array($call[0], $func);
+			}
+		}
+		else
+		{
+			$call = $function;
+			if (strpos($function, ':') !== false)
+			{
+				list($func, $file) = explode(':', $function);
+				if (empty($settings['theme_dir']))
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
+				else
+					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+				if (file_exists($absPath))
+					require_once($absPath);
+				$call = $function;
+			}
+		}
 
 		// Is it valid?
 		if (is_callable($call))
@@ -4074,11 +4102,14 @@ function call_integration_hook($hook, $parameters = array())
  *
  * @param string $hook
  * @param string $function
+ * @param string $file
  * @param bool $permanent = true if true, updates the value in settings table
  */
-function add_integration_function($hook, $function, $permanent = true)
+function add_integration_function($hook, $function, $file = '', $permanent = true)
 {
 	global $smcFunc, $modSettings;
+
+	$integration_call = (!empty($file) && $file !== true) ? $function . ':' . $file : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
@@ -4097,13 +4128,13 @@ function add_integration_function($hook, $function, $permanent = true)
 		if (!empty($current_functions))
 		{
 			$current_functions = explode(',', $current_functions);
-			if (in_array($function, $current_functions))
+			if (in_array($integration_call, $current_functions))
 				return;
 
-			$permanent_functions = array_merge($current_functions, array($function));
+			$permanent_functions = array_merge($current_functions, array($integration_call));
 		}
 		else
-			$permanent_functions = array($function);
+			$permanent_functions = array($integration_call);
 
 		updateSettings(array($hook => implode(',', $permanent_functions)));
 	}
@@ -4112,10 +4143,10 @@ function add_integration_function($hook, $function, $permanent = true)
 	$functions = empty($modSettings[$hook]) ? array() : explode(',', $modSettings[$hook]);
 
 	// Do nothing, if it's already there.
-	if (in_array($function, $functions))
+	if (in_array($integration_call, $functions))
 		return;
 
-	$functions[] = $function;
+	$functions[] = $integration_call;
 	$modSettings[$hook] = implode(',', $functions);
 }
 
@@ -4126,10 +4157,13 @@ function add_integration_function($hook, $function, $permanent = true)
  *
  * @param string $hook
  * @param string $function
+ * @param string $file
  */
-function remove_integration_function($hook, $function)
+function remove_integration_function($hook, $function, $file = '')
 {
 	global $smcFunc, $modSettings;
+
+	$integration_call = (!empty($file)) ? $function . ':' . $file : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
@@ -4147,18 +4181,18 @@ function remove_integration_function($hook, $function)
 	{
 		$current_functions = explode(',', $current_functions);
 
-		if (in_array($function, $current_functions))
-			updateSettings(array($hook => implode(',', array_diff($current_functions, array($function)))));
+		if (in_array($integration_call, $current_functions))
+			updateSettings(array($hook => implode(',', array_diff($current_functions, array($integration_call)))));
 	}
 
 	// Turn the function list into something usable.
 	$functions = empty($modSettings[$hook]) ? array() : explode(',', $modSettings[$hook]);
 
 	// You can only remove it if it's available.
-	if (!in_array($function, $functions))
+	if (!in_array($integration_call, $functions))
 		return;
 
-	$functions = array_diff($functions, array($function));
+	$functions = array_diff($functions, array($integration_call));
 	$modSettings[$hook] = implode(',', $functions);
 }
 

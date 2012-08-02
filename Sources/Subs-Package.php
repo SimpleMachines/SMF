@@ -1138,6 +1138,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'type' => $actionType,
 				'function' => $action->exists('@function') ? $action->fetch('@function') : '',
 				'hook' => $action->exists('@hook') ? $action->fetch('@hook') : $action->fetch('.'),
+				'include_file' => $action->exists('@file') ? $action->fetch('@file') : '',
 				'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true' ? true : false,
 				'description' => '',
 			);
