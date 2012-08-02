@@ -1469,10 +1469,9 @@ function create_control_richedit($editorOptions)
 		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
 
 		// This really has some WYSIWYG stuff.
-		loadTemplate('GenericControls', isBrowser('ie') ? 'editor_ie' : 'editor');
+		loadTemplate('GenericControls', 'jquery.sceditor');
 
-		// Css and JS make the editor go round
-		loadCSSFile( $settings['default_theme_url'] . '/css/jquery.sceditor.css', array());
+		// JS makes the editor go round
 		loadJavascriptFile($settings['default_theme_url'] . '/scripts/editor.js?alp21', array(), 'editor.js');
 		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.js?alp21', array());
 		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js?alp21', array());
