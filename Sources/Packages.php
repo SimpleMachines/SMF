@@ -1383,7 +1383,7 @@ function PackageBrowse()
 				'id' . $type => array(
 					'header' => array(
 						'value' => $txt['package_id'],
-						'style' => 'width: 32px;',
+						'style' => 'width: 40px;',
 					),
 					'data' => array(
 						'function' => create_function('$package_md5', '
