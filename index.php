@@ -235,7 +235,7 @@ function smf_main()
 		if (empty($board) && empty($topic))
 		{
 			$call = '';
-			call_integration_hook('integrate_default_action', $call);
+			call_integration_hook('integrate_default_action', array(&$call));
 			$call = strpos($call, '::') !== false ? explode('::', $call) : $call;
 			if (!empty($call) && is_callable($call))
 				return $call;
