@@ -216,6 +216,14 @@ function template_attachment_repair()
 
 function template_attachment_paths()
 {
+	global $modSettings;
+
+	if (!empty($modSettings['attachment_basedirectories']))
+	{
+		template_show_list('base_paths');
+		echo '<br />';
+	}
+
 	template_show_list('attach_paths');
 }
 

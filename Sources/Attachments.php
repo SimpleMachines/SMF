@@ -18,14 +18,12 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
-function automanage_attachments_check_directory($return = false)
+function automanage_attachments_check_directory()
 {
 	global $boarddir, $modSettings, $context;
 
 	// Not pretty, but since we don't want folders created for every post. It'll do unless a better solution can be found.
-	if (isset($_GET['action']) && $_GET['action'] == 'admin')
-		$doit = true;
-	elseif (empty($modSettings['automanage_attachments']))
+	if (empty($modSettings['automanage_attachments']))
 		return;
 	elseif (!isset($_FILES) && !isset($doit))
 		return;
@@ -48,12 +46,17 @@ function automanage_attachments_check_directory($return = false)
 	$rand1 = $rand[1];
 	$rand = $rand[0];
 
-	if (!empty($modSettings['attachment_basedirectories']))
+	if (!empty($modSettings['attachment_basedirectories']) && !empty($modSettings['use_subdirectories_for_attachments']))
 	{
-		if (!is_array($modSettings['attachment_basedirectories']))
-			$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
-		$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
+			if (!is_array($modSettings['attachment_basedirectories']))
+				$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+			$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
+	}
+	else
+		$base_dir = 0;
 
+	if ($modSettings['automanage_attachments'] == 1)
+	{
 		if (!isset($modSettings['last_attachments_directory']))
 			$modSettings['last_attachments_directory'] = array();
 		if (!is_array($modSettings['last_attachments_directory']))
@@ -78,10 +81,10 @@ function automanage_attachments_check_directory($return = false)
 			$updir = $basedirectory . DIRECTORY_SEPARATOR . $year . DIRECTORY_SEPARATOR . $month;
 			break;
 		case 4:
-			$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty($modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : '') . $rand;
+			$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty($modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : 'random_') . $rand;
 			break;
 		case 5:
-			$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty($modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : '') . $rand . DIRECTORY_SEPARATOR . $rand1;
+			$updir = $basedirectory . DIRECTORY_SEPARATOR . (empty($modSettings['use_subdirectories_for_attachments']) ? 'attachments-' : 'random_') . $rand . DIRECTORY_SEPARATOR . $rand1;
 			break;
 		default :
 			$updir = '';
@@ -89,15 +92,14 @@ function automanage_attachments_check_directory($return = false)
 
 	if (!is_array($modSettings['attachmentUploadDir']) && !empty($modSettings['currentAttachmentUploadDir']))
 		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
 	if (!is_array($modSettings['attachmentUploadDir']) || (!in_array($updir, $modSettings['attachmentUploadDir']) && !empty($updir)))
-		$outputCreation = automanage_attachments_create_directory($updir, $return);
+		$outputCreation = automanage_attachments_create_directory($updir);
 	elseif (in_array($updir, $modSettings['attachmentUploadDir']))
 		$outputCreation = true;
 
 	if ($outputCreation)
 	{
-		if (!is_array($modSettings['attachmentUploadDir']) && !empty($modSettings['currentAttachmentUploadDir']))
+		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
 
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
@@ -112,14 +114,14 @@ function automanage_attachments_check_directory($return = false)
 	return $outputCreation;
 }
 
-function automanage_attachments_create_directory($updir, $return = false)
+function automanage_attachments_create_directory($updir)
 {
 	global $modSettings, $initial_error, $context;
 
 	$tree = mama_get_directory_tree_elements($updir);
 	$count = count($tree);
 
-	$directory = mama_init_dir($tree, $count, $return);
+	$directory = mama_init_dir($tree, $count);
 	if ($directory === false)
 		return false;
 
@@ -136,11 +138,9 @@ function automanage_attachments_create_directory($updir, $return = false)
 				else
 				{
 					$context['dir_creation_error'] = 'attachments_no_create';
-					if ($return)
-						return false;
+					return false;
 				}
 			}
-			$success = true;
 		}
 
 		$directory .= DIRECTORY_SEPARATOR . array_shift($tree);
@@ -163,8 +163,7 @@ function automanage_attachments_create_directory($updir, $return = false)
 					else
 					{
 						$context['dir_creation_error'] = 'attachments_no_write';
-						if ($return)
-							return false;
+						return false;
 					}
 				}
 			}
@@ -172,29 +171,27 @@ function automanage_attachments_create_directory($updir, $return = false)
 	}
 
 	// Everything seems fine...let's create the .htaccess
-	if (is_writable($directory) && !file_exists($directory . DIRECTORY_SEPARATOR . '.htacess'))
+	if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htacess'))
 		secureDirectory($directory, true);
 
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
 	$directory = rtrim($directory, $sep);
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']) && unserialize($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-	}
-	else
-	{
-		$modSettings['attachmentUploadDir'] = array(
-			1 => $modSettings['attachmentUploadDir']
-		);
-	}
 
-	$modSettings['attachmentUploadDir'][count($modSettings['attachmentUploadDir'])+1] = $updir;
-	updateSettings(array(
-		'attachmentUploadDir' => serialize($modSettings['attachmentUploadDir']),
-		'currentAttachmentUploadDir' => array_search($updir, $modSettings['attachmentUploadDir']),
-	));
-	$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+	if (!is_array($modSettings['attachmentUploadDir']))
+		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+
+	// Only update if it's a new directory
+	if (!in_array($directory, $modSettings['attachmentUploadDir']))
+	{
+		$modSettings['currentAttachmentUploadDir'] = max(array_keys($modSettings['attachmentUploadDir'])) +1;
+		$modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] = $updir;
+
+		updateSettings(array(
+			'attachmentUploadDir' => serialize($modSettings['attachmentUploadDir']),
+			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
+		), true);
+		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+	}
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 	$context['id_folder'] = $modSettings['currentAttachmentUploadDir'];
@@ -206,19 +203,26 @@ function automanage_attachments_by_space()
 {
 	global $modSettings, $boarddir, $context;
 
+	if (!isset($modSettings['automanage_attachments']) || (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] != 1))
+		return;
+
 	$basedirectory = (!empty($modSettings['use_subdirectories_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
 	//Just to be sure: I don't want directory separators at the end
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
 
 	// Get the current base directory
-	if (!is_array($modSettings['attachment_basedirectories']))
-		$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
-	$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
+	if (!empty($modSettings['use_subdirectories_for_attachments']) && !empty($modSettings['attachment_basedirectories']))
+	{
+		if (!is_array($modSettings['attachment_basedirectories']))
+			$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+		$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
+		$base_dir = !empty($modSettings['automanage_attachments']) ? $base_dir : 0;
+	}
+	else
+		$base_dir = 0;
 
 	// Get the last attachment directory for that base directory
-	if (!isset($modSettings['last_attachments_directory']))
-		$modSettings['last_attachments_directory'] = array();
 	if (!is_array($modSettings['last_attachments_directory']))
 		$modSettings['last_attachments_directory'] = unserialize($modSettings['last_attachments_directory']);
 	if (empty($modSettings['last_attachments_directory'][$base_dir]))
@@ -226,8 +230,8 @@ function automanage_attachments_by_space()
 	// And increment it.
 	$modSettings['last_attachments_directory'][$base_dir]++;
 
-	$updir = $basedirectory . '/attachments_' . $modSettings['last_attachments_directory'][$base_dir];
-	if (automanage_attachments_create_directory($updir, true))
+	$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . $modSettings['last_attachments_directory'][$base_dir];
+	if (automanage_attachments_create_directory($updir))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']) && !empty($modSettings['currentAttachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
@@ -262,19 +266,14 @@ function mama_get_directory_tree_elements ($directory)
 	else
 	{
 		if (substr($directory, 0, 1)!=DIRECTORY_SEPARATOR)
-		{
-			if(!$return)
-				//TODO Future development maybe change to a personalized error message
-				fatal_lang_error('attachments_no_write', 'critical');
-			else
-				return false;
-		}
+			return false;
+
 		$tree = explode(DIRECTORY_SEPARATOR, trim($directory,DIRECTORY_SEPARATOR));
 	}
 	return $tree;
 }
 
-function mama_init_dir (&$tree, &$count, $return)
+function mama_init_dir (&$tree, &$count)
 {
 	$directory = '';
 	// If on Windows servers the first part of the path is the drive (e.g. "C:")
@@ -286,13 +285,7 @@ function mama_init_dir (&$tree, &$count, $return)
 		if (preg_match('/^[a-z]:$/i',$tree[0]))
 			$directory = array_shift($tree);
 		else
-		{
-			if (!$return)
-				//TODO Future development maybe change to a personalized error message
-				fatal_lang_error('attachments_no_write', 'critical');
-			else
-				return false;
-		}
+			return false;
 
 		$count--;
 	}
@@ -305,7 +298,7 @@ function processAttachments()
 
 	// Make sure we're uploading to the right place.
 	if (!empty($modSettings['automanage_attachments']))
-		automanage_attachments_check_directory(true);
+		automanage_attachments_check_directory();
 
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{

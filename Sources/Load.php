@@ -175,6 +175,17 @@ function reloadSettings()
 	// Is post moderation alive and well?
 	$modSettings['postmod_active'] = isset($modSettings['admin_features']) ? in_array('pm', explode(',', $modSettings['admin_features'])) : true;
 
+	// Here to justify the name of this function. :P
+	// It should be added to the install and upgrade scripts.
+	// But since the convertors need to be updated also. This is easier.
+	if (empty($modSettings['currentAttachmentUploadDir']))
+	{
+		updateSettings(array(
+			'attachmentUploadDir' => serialize(array(1 => $modSettings['attachmentUploadDir'])),
+			'currentAttachmentUploadDir' => 1,
+		));
+	}
+
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
@@ -940,7 +951,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Allow mods to easily add to the selected member data
 	call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables));
-	
+
 	if (!empty($users))
 	{
 		// Load the member's data.
@@ -1644,7 +1655,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	
+
 		// Do this to keep things easier in the templates.
 		$context['theme_variant'] = '_' . $context['theme_variant'];
 		$context['theme_variant_url'] = $context['theme_variant'] . '/';
@@ -2496,7 +2507,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 /**
  * Puts value in the cache under key for ttl seconds.
  *
- * - It may "miss" so shouldn't be depended on 
+ * - It may "miss" so shouldn't be depended on
  * - Uses the cahce engine chosen in the ACP and saved in settings.php
  * - It supports:
  *     Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api

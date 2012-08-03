@@ -72,8 +72,6 @@ $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
 $txt['queryless_urls'] = 'Search engine friendly URLs';
 $txt['queryless_urls_note'] = 'Apache/Lighttpd only!';
-$txt['max_image_width'] = 'Max width of posted pictures (0 = disable)';
-$txt['max_image_height'] = 'Max height of posted pictures (0 = disable)';
 $txt['enableReportPM'] = 'Enable reporting of personal messages';
 $txt['max_pm_recipients'] = 'Maximum number of recipients allowed in a personal message';
 $txt['max_pm_recipients_note'] = '(0 for no limit, admins are exempt)';

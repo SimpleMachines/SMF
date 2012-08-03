@@ -492,7 +492,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
-			array('check', 'disallow_sendBody'),	
+			array('check', 'disallow_sendBody'),
 	);
 
 	// Get all the time zones.
@@ -612,8 +612,8 @@ function ModifyLayoutSettings($return_config = false)
 			array('check', 'enableVBStyleLogin'),
 		'',
 			// Automagic image resizing.
-			array('int', 'max_image_width'),
-			array('int', 'max_image_height'),
+			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
+			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 		'',
 			// This is like debugging sorta.
 			array('check', 'timeLoadPageEnable'),
@@ -1737,7 +1737,7 @@ function EditCustomProfiles()
 		// Regex you say?  Do a very basic test to see if the pattern is valid
 		if (!empty($_POST['regex']) && @preg_match($_POST['regex'], 'dummy') === false)
 			redirectexit($scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $_GET['fid'] . ';msg=regex_error');
-			
+
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
 

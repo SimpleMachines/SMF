@@ -351,9 +351,8 @@ $txt['attachmentCheckExtensions'] = 'Check attachment\'s extension';
 $txt['attachmentExtensions'] = 'Allowed attachment extensions';
 $txt['attachmentRecodeLineEndings'] = 'Recode line endings in textual attachments';
 $txt['attachmentShowImages'] = 'Display image attachments as pictures under post';
-$txt['attachmentUploadDir'] = 'Current attachments directory';
-$txt['attachmentUploadDir_multiple'] = 'Current attachments directory';
-$txt['attachmentUploadDir_multiple_configure'] = 'Configure multiple attachment directories';
+$txt['attachmentUploadDir'] = 'Attachments directory';
+$txt['attachmentUploadDir_multiple_configure'] = 'Manage attachment directories';
 $txt['attachmentDirSizeLimit'] = 'Max attachment folder space';
 $txt['attachmentPostLimit'] = 'Max attachment size per post';
 $txt['attachmentSizeLimit'] = 'Max size per attachment';
@@ -382,16 +381,25 @@ $txt['attach_dir_unused'] = 'Unused';
 $txt['attach_dir_ok'] = 'OK';
 $txt['attach_dir_basedir'] = 'Base directory';
 
+$txt['attach_last_dir'] = 'Last active attachment directory';
+$txt['attach_current_dir'] = 'Current attachment directory';
+$txt['attach_current'] = 'Current';
 $txt['attach_path_manage'] = 'Manage Attachment Paths';
-$txt['attach_paths'] = 'Attachment Paths';
-$txt['attach_current_dir'] = 'Current Directory';
+$txt['attach_directories'] = 'Attachment Directories';
+$txt['attach_paths'] = 'Attachment Directory Paths';
+$txt['attach_base_paths'] = 'Base Directory Paths';
 $txt['attach_path'] = 'Path';
-$txt['attach_current_size'] = 'Current Size (KB)';
+$txt['attach_current_size'] = 'Size (KB)';
 $txt['attach_num_files'] = 'Files';
 $txt['attach_dir_status'] = 'Status';
 $txt['attach_add_path'] = 'Add Path';
 $txt['attach_path_current_bad'] = 'Invalid current attachment path.';
 $txt['attachmentDirFileLimit'] = 'Maximum number of files per directory';
+
+$txt['attach_base_paths'] = 'Base Directory Paths';
+$txt['attach_num_dirs'] = 'Directories';
+$txt['max_image_width'] = 'Max display width of posted or attached images';
+$txt['max_image_height'] = 'Max display height of posted or attached images';
 
 $txt['automanage_attachments'] = 'Choose the method for the management of the attachment directories';
 $txt['attachments_normal'] = '(Manual) SMF default behaviour';
@@ -401,14 +409,13 @@ $txt['attachments_auto_days'] = '(Auto) Subdivide by years, months and days';
 $txt['attachments_auto_16'] = '(Auto) 16 random folders';
 $txt['attachments_auto_16x16'] = '(Auto) 16 random folders with 16 random sub-folders';
 $txt['attachments_auto_space'] = '(Auto) When either directory space limit is reached';
-//$txt['attachments_auto_files'] = 'Change directory when file limit is reached';
 
-$txt['use_subdirectories_for_attachments'] = 'Create new directories within this directory';
+$txt['use_subdirectories_for_attachments'] = 'Create new directories within a base directory';
 $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
-//$txt['use_subdirectories_for_attachments_note'] = '<span class="smalltext">Otherwise any new directories will be created within the forum\'s main directory</span>';
-
-$txt['basedirectory_for_attachments'] = 'Base directory for attachments';
+$txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
+$txt['basedirectory_for_attachments_current'] = 'Current base directory';
 $txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. SMF will use the last directory used before this was introduced</div>';
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
@@ -461,7 +468,7 @@ $txt['attach_repair_file_size_of_zero'] = '%1$d attachments/avatars have a size 
 $txt['attach_repair_attachment_no_msg'] = '%1$d attachments no longer have a message associated with them';
 $txt['attach_repair_avatar_no_member'] = '%1$d avatars no longer have a member associated with them';
 $txt['attach_repair_wrong_folder'] = '%1$d attachments are in the wrong folder';
-$txt['attach_repair_files_without_attachment'] = '%1$d files doesn\'t have a corresponding entri into the database. (These will be deleted)';
+$txt['attach_repair_files_without_attachment'] = '%1$d files do not have a corresponding entry in the database. (These will be deleted)';
 
 $txt['news_title'] = 'News and Newsletters';
 $txt['news_settings_desc'] = 'Here you can change the settings and permissions related to news and newsletters.';
