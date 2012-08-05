@@ -2056,18 +2056,6 @@ function prepareSearchContext($reset = false)
 		$context['can_merge'] |= in_array($output['board']['id'], $boards_can['merge_any']);
 		$context['can_markread'] = $context['user']['is_logged'];
 
-		// If we've found a message we can move, and we don't already have it, load the destinations.
-		if ($options['display_quick_mod'] == 1 && !isset($context['move_to_boards']) && $context['can_move'])
-		{
-			require_once($sourcedir . '/Subs-MessageIndex.php');
-			$boardListOptions = array(
-				'use_permissions' => true,
-				'not_redirection' => true,
-				'selected_board' => empty($_SESSION['move_to_topic']) ? null : $_SESSION['move_to_topic'],
-			);
-			$context['move_to_boards'] = getBoardList($boardListOptions);
-		}
-
 		$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
 		call_integration_hook('integrate_quick_mod_actions_search');
 	}

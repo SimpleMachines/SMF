@@ -395,7 +395,7 @@ function template_results()
 			echo '
 			<div class="titlebg2" style="padding: 4px;">
 				<div class="floatright">
-					<select name="qaction"', $context['can_move'] ? ' onchange="this.form.moveItTo.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
+					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 						<option value="">--------</option>';
 
 			foreach ($context['qmod_actions'] as $qmod_action)
@@ -407,23 +407,8 @@ function template_results()
 					</select>';
 
 			if ($context['can_move'])
-			{
-					echo '
-					<select id="moveItTo" name="move_to" disabled="disabled">';
-
-					foreach ($context['move_to_boards'] as $category)
-					{
-						echo '
-						<optgroup label="', $category['name'], '">';
-						foreach ($category['boards'] as $board)
-								echo '
-						<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
-						echo '
-						</optgroup>';
-					}
-					echo '
-					</select>';
-			}
+				echo '
+				<span id="quick_mod_jump_to">&nbsp;</span>';
 
 			echo '
 					<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '" />
@@ -513,7 +498,26 @@ function template_results()
 	echo '
 		<br class="clear" />
 		<div class="smalltext righttext" id="search_jump_to">&nbsp;</div>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script type="text/javascript"><!-- // --><![CDATA[';
+
+	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
+		echo '
+				if (typeof(window.XMLHttpRequest) != "undefined")
+					aJumpTo[aJumpTo.length] = new JumpTo({
+						sContainerId: "quick_mod_jump_to",
+						sClassName: "qaction",
+						sJumpToTemplate: "%dropdown_list%",
+						sCurBoardName: "', $context['jump_to']['board_name'], '",
+						sBoardChildLevelIndicator: "==",
+						sBoardPrefix: "=> ",
+						sCatSeparator: "-----------------------------",
+						sCatPrefix: "",
+						bNoRedirect: true,
+						bDisabled: true,
+						sCustomName: "move_to"
+					});';
+
+	echo '
 			if (typeof(window.XMLHttpRequest) != "undefined")
 				aJumpTo[aJumpTo.length] = new JumpTo({
 					sContainerId: "search_jump_to",
