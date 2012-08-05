@@ -209,6 +209,15 @@ function deleteMembers($users, $check_not_admin = false)
 		)
 	);
 
+	// Delete any drafts...
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_drafts
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
 	// Delete the logs...
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_actions
@@ -1187,7 +1196,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 			'memID' => $memID,
 		)
 	);
-	
+
 	// Allow mods with their own post tables to reattribute posts as well :)
  	call_integration_hook('integrate_reattribute_posts', array(&$memID, &$email, &$membername, &$post_count));
 }

@@ -82,6 +82,9 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 			'input_validate' => create_function('&$value', '
 				$value = strtr($value, \' \', \'+\');
+				if (strlen($value) > 32)
+					return \'aim_too_long\';
+
 				return true;
 			'),
 		),
@@ -433,6 +436,14 @@ function loadProfileFields($force_reload = false)
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
 			'permission' => 'profile_extra',
+			'input_validate' => create_function('&$value', '
+				global $smcFunc;
+
+				if ($smcFunc[\'strlen\']($value) > 50)
+					return \'personal_text_too_long\';
+
+				return true;
+			'),
 		),
 		// This does ALL the pm settings
 		'pm_prefs' => array(
@@ -512,7 +523,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_answer'],
 			'subtext' => $txt['secret_desc2'],
 			'size' => 20,
-			'postinput' => '<span class="smalltext" style="margin-left: 4ex;">[<a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqWin(this.href);">' . $txt['secret_why_blank'] . '</a>]</span>',
+			'postinput' => '<span class="smalltext" style="margin-left: 4ex;">[<a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);">' . $txt['secret_why_blank'] . '</a>]</span>',
 			'value' => '',
 			'permission' => 'profile_identity',
 			'input_validate' => create_function('&$value', '
@@ -635,6 +646,14 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_title',
 			'enabled' => !empty($modSettings['titlesEnable']),
+			'input_validate' => create_function('&$value', '
+				global $smcFunc;
+
+				if ($smcFunc[\'strlen\'] > 50)
+					return \'user_title_too_long\';
+
+				return true;
+			'),
 		),
 		'website_title' => array(
 			'type' => 'text',
@@ -670,8 +689,6 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 		),
 	);
-	
-	call_integration_hook('integrate_profile_fields', array(&$profile_fields));
 
 	call_integration_hook('integrate_load_profile_fields', array($profile_fields));
 
@@ -1344,7 +1361,7 @@ function editBuddies($memID)
 	if (isset($_GET['remove']))
 	{
 		checkSession('get');
-		
+
 		call_integration_hook('integrate_remove_buddy', array($memID));
 
 		// Heh, I'm lazy, do it the easy way...
@@ -1375,7 +1392,7 @@ function editBuddies($memID)
 			if (strlen($new_buddies[$k]) == 0 || in_array($new_buddies[$k], array($user_profile[$memID]['member_name'], $user_profile[$memID]['real_name'])))
 				unset($new_buddies[$k]);
 		}
-		
+
 		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
 		if (!empty($new_buddies))
@@ -1439,7 +1456,7 @@ function editBuddies($memID)
 		loadMemberContext($buddy);
 		$context['buddies'][$buddy] = $memberContext[$buddy];
 	}
-	
+
 	call_integration_hook('integrate_view_buddies', array($memID));
 }
 

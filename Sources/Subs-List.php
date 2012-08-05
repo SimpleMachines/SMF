@@ -151,9 +151,9 @@ function createList($listOptions)
 
 			// Allow for basic formatting.
 			if (!empty($column['data']['comma_format']))
-				$cur_data['value'] = comma_format($list_item[$column['data']['comma_format']]);
+				$cur_data['value'] = comma_format($cur_data['value']);
 			elseif (!empty($column['data']['timeformat']))
-				$cur_data['value'] = timeformat($list_item[$column['data']['timeformat']]);
+				$cur_data['value'] = timeformat($cur_data['value']);
 
 			// Set a style class for this column?
 			if (isset($column['data']['class']))
@@ -167,8 +167,19 @@ function createList($listOptions)
 			$cur_row[$column_id] = $cur_data;
 		}
 
+		$list_context['rows'][$item_id]['class'] = '';
+		$list_context['rows'][$item_id]['style'] = '';
+		// Maybe we wat set a custom class for the row based on the data in the row itself
+		if (isset($listOptions['data_check']))
+		{
+			if (isset($listOptions['data_check']['class']))
+				$list_context['rows'][$item_id]['class'] = ' ' . $listOptions['data_check']['class']($list_item);
+			if (isset($listOptions['data_check']['style']))
+				$list_context['rows'][$item_id]['style'] = ' style="' . $listOptions['data_check']['style']($list_item) . '"';
+		}
+
 		// Insert the row into the list.
-		$list_context['rows'][$item_id] = $cur_row;
+		$list_context['rows'][$item_id]['data'] = $cur_row;
 	}
 
 	// The title is currently optional.

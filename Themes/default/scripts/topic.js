@@ -242,11 +242,7 @@ QuickModify.prototype.modifyMsg = function (iMessageId)
 
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
-
-	// For IE 5.0 support, 'call' is not yet used.
-	this.tmpMethod = getXMLDocument;
-	this.tmpMethod(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml', this.onMessageReceived);
-	delete this.tmpMethod;
+	sendXMLDocument.call(this, smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';modify;xml', this.onMessageReceived);
 }
 
 // The callback function used for the XMLhttp request retrieving the message.
@@ -611,4 +607,32 @@ function modify_topic_hide_edit(subject)
 {
 	// Re-template the subject!
 	setInnerHTML(cur_subject_div, '<a href="' + smf_scripturl + '?topic=' + cur_topic_id + '.0">' + subject + '<' +'/a>');
+}
+
+function ignore_toggles(msgids, text)
+{
+	for (i = 0; i < msgids.length; i++)
+	{
+		var msgid = msgids[i];
+		new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: true,
+			aSwappableContainers: [
+				'msg_' + msgid + '_extra_info',
+				'msg_' + msgid,
+				'msg_' + msgid + '_footer',
+				'msg_' + msgid + '_quick_mod',
+				'modify_button_' + msgid,
+				'msg_' + msgid + '_signature'
+
+			],
+			aSwapLinks: [
+				{
+					sId: 'msg_' + msgid + '_ignored_link',
+					msgExpanded: '',
+					msgCollapsed: text
+				}
+			]
+		});
+	}
 }

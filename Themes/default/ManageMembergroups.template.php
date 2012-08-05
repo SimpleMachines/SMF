@@ -126,9 +126,7 @@ function template_new_group()
 	echo '
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['membergroups_add_group'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>';
 	if ($context['undefined_group'])
@@ -148,8 +146,7 @@ function template_new_group()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_edit_group()
@@ -304,17 +301,14 @@ function template_edit_group()
 	}
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button_submit" />', $context['group']['allow_delete'] ? '
 					<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" onclick="return confirm(\'' . $txt['membergroups_confirm_delete'] . '\');" class="button_submit" />' : '', '
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 		</form>
 	</div>
-	<br class="clear" />
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oModeratorSuggest = new smc_AutoSuggest({
@@ -420,8 +414,7 @@ function template_add_edit_group_boards_list($collapse = true)
 	}
 
 	echo '
-							</ul>
-							<br class="clear" />';
+							</ul>';
 
 	if (empty($modSettings['deny_boards_access']))
 		echo '
@@ -462,7 +455,7 @@ function template_group_members()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : '') , ';sa=members;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : '') , ';sa=members;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '" id="view_group">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
@@ -592,24 +585,24 @@ function template_group_members()
 	echo '
 				</tbody>
 			</table>';
-		
+
 	if (!empty($context['group']['assignable']))
 		echo '
 			<div class="floatright">
 				<input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button_submit " />
 			</div>';
-	
+
 	echo '
 			<div class="pagesection flow_hidden">
 				<div class="floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
 			</div>
 			<br />';
-	
+
 	if (!empty($context['group']['assignable']))
 	{
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
+			<div class="cat_bar cat_bar_odd">
+				<h3 class="catbg catbg_odd">', $txt['membergroups_members_add_title'], '</h3>
 			</div>
 			<div class="windowbg">
 				<div class="content">

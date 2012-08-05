@@ -1048,7 +1048,7 @@ function PickTheme()
 		// Change a specific member's theme.
 		else
 		{
-			// The forum's default theme is always 0 and we 
+			// The forum's default theme is always 0 and we
 			if (isset($_GET['th']) && $_GET['th'] == 0)
 					$_GET['th'] = $modSettings['theme_guests'];
 

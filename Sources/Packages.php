@@ -625,7 +625,7 @@ function PackageInstallTest()
 				// Is the action already stated?
 				$theme_action = !empty($action['theme_action']) && in_array($action['theme_action'], array('no', 'yes', 'auto')) ? $action['theme_action'] : 'auto';
 				$action['unparsed_destination'] = $action['unparsed_filename'];
-				
+
 				// If it's not auto do we think we have something we can act upon?
 				if ($theme_action != 'auto' && !in_array($matches[1], array('languagedir', 'languages_dir', 'imagesdir', 'themedir')))
 					$theme_action = '';
@@ -689,7 +689,7 @@ function PackageInstallTest()
 				if (isset($theme_data['theme_dir']) && $id != 1)
 				{
 					$real_path = $theme_data['theme_dir'] . $path;
-					
+
 					// Confirm that we don't already have this dealt with by another entry.
 					if (!in_array(strtolower(strtr($real_path, array('\\' => '/'))), $themeFinds['other_themes']))
 					{
@@ -701,7 +701,7 @@ function PackageInstallTest()
 								$temp = dirname($temp);
 							$chmod_files[] = $temp;
 						}
-						
+
 						if ($action_data['type'] == 'require-dir' && !is_writable($real_path) && (file_exists($real_path) || !is_writable(dirname($real_path))))
 							$chmod_files[] = $real_path;
 
@@ -1011,9 +1011,9 @@ function PackageInstall()
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
-					remove_integration_function($action['hook'], $action['function']);
+					remove_integration_function($action['hook'], $action['function'], $action['include_file']);
 				else
-					add_integration_function($action['hook'], $action['function']);
+					add_integration_function($action['hook'], $action['function'], $action['include_file']);
 			}
 			// Only do the database changes on uninstall if requested.
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
@@ -1571,7 +1571,13 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 	if ($dir = @opendir($boarddir . '/Packages'))
 	{
 		$dirs = array();
-		$sort_id = 1;
+		$sort_id = array(
+			'mod' => 1,
+			'modification' => 1,
+			'avatar' => 1,
+			'language' => 1,
+			'unknown' => 1,
+		);
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($boarddir . '/Packages/' . $package) && file_exists($boarddir . '/Packages/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
@@ -1613,7 +1619,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 			{
 				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
 
-				$packageInfo['sort_id'] = $sort_id++;
+				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
 				$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
 				$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
@@ -1643,7 +1649,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 					if ($packageInfo['can_install'] === false && $install->exists('@for') && empty($_SESSION['version_emulate']))
 					{
 						$reset = true;
-						
+
 						// Get the highest install version that is available from the package
 						foreach ($installs as $install)
 						{
@@ -1683,12 +1689,12 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 							break;
 						}
 					}
-					
+
 					// no uninstall found for this version, lets see if one exists for another
 					if ($packageInfo['can_uninstall'] === false && $uninstall->exists('@for') && empty($_SESSION['version_emulate']))
 					{
 						$reset = true;
-						
+
 						// Get the highest install version that is available from the package
 						foreach ($uninstalls as $uninstall)
 						{
@@ -1701,24 +1707,29 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				// Modification.
 				if ($packageInfo['type'] == 'modification' || $packageInfo['type'] == 'mod')
 				{
+					$sort_id['modification']++;
+					$sort_id['mod']++;
 					$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_modification'][md5($package)] = $packageInfo;
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')
 				{
+					$sort_id[$packageInfo['type']]++;
 					$packages['avatar'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_avatar'][md5($package)] = $packageInfo;
 				}
 				// Language package.
 				elseif ($packageInfo['type'] == 'language')
 				{
+					$sort_id[$packageInfo['type']]++;
 					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_language'][md5($package)] = $packageInfo;
 				}
 				// Other stuff.
 				else
 				{
+					$sort_id['unknown']++;
 					$packages['unknown'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_unknown'][md5($package)] = $packageInfo;
 				}

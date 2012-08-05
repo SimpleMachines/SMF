@@ -684,19 +684,22 @@ function Credits($in_admin = false)
 			),
 		),
 	);
-	
+
 	// Give credit to any graphic library's, software library's, plugins etc
 	$context['credits_software_graphics'] = array(
 		'graphics' => array(
 			'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | &copy; 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
+			'<a href="http://www.oxygen-icons.org/">Oxygen Icons</a> | These icons are licensed under <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a>',
 		),
 		'software' => array(
 			'<a href="http://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="http://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
 			'<a href="http://cherne.net/brian/resources/jquery.hoverIntent.html">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://users.tpg.com.au/j_birch/plugins/superfish/">Superfish</a> | &copy; Joel Birch | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 	);
-	
+
 	// support for mods that use the <credits> tag via the package manager
 	$context['credits_modifications'] = array();
 	if (($mods = cache_get_data('mods_credits', 86400)) === null)
@@ -714,15 +717,15 @@ function Credits($in_admin = false)
 				'empty' => '',
 			)
 		);
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$credit_info = unserialize($row['credits']);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
-			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ' ' . $smcFunc['htmlspecialchars']($credit_info['license']);
-			$version = $txt['credits_version'] . $row['version'];
-			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ' : ' . $version;
+			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . $smcFunc['htmlspecialchars']($credit_info['license']);
+			$version = $txt['credits_version'] . ' ' . $row['version'];
+			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ': ' . $version;
 
 			// build this one out and stash it away
 			$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
@@ -731,7 +734,7 @@ function Credits($in_admin = false)
 		cache_put_data('mods_credits', $mods, 86400);
 	}
 	$context['credits_modifications'] = $mods;
-	
+
 	$context['copyrights'] = array(
 		'smf' => sprintf($forum_copyright, $forum_version),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
@@ -742,10 +745,10 @@ function Credits($in_admin = false)
 		'mods' => array(
 		),
 	);
-	
+
 	// Support for those that want to use a hook as well
 	call_integration_hook('integrate_credits');
-	
+
 	if (!$in_admin)
 	{
 		loadTemplate('Who');

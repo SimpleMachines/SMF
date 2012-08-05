@@ -24,36 +24,35 @@ function template_report_type()
 			<div class="information">
 				', $txt['generate_reports_desc'], '
 			</div>
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
-			</div>
-			<div class="windowbg">
-				<div class="content">
-					<dl class="generate_report">';
+			<div id="generate_reports_type">
+				<div class="cat_bar">
+					<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
+				</div>
+				<div class="windowbg">
+					<div class="content">
+						<dl class="generate_report">';
 
 	// Go through each type of report they can run.
 	foreach ($context['report_types'] as $type)
 	{
 		echo '
-						<dt>
-							<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked="checked"' : '', ' class="input_radio" />
-							<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
-						</dt>';
+							<dt>
+								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked="checked"' : '', ' class="input_radio" />
+								<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
+							</dt>';
 		if (isset($type['description']))
 			echo '
-						<dd>', $type['description'], '</dd>';
+							<dd>', $type['description'], '</dd>';
 	}
 		echo '
-					</dl>
-					<hr class="hrcolor" />
-					<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
+						</dl>
+						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					</div>
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // This is the standard template for showing reports in.
@@ -63,8 +62,8 @@ function template_main()
 
 	echo '
 	<div id="admincenter">
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['results'], '</h3>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['results'], '</h3>
 		</div>
 		<div id="report_buttons">';
 
@@ -72,13 +71,14 @@ function template_main()
 		template_button_strip($context['report_buttons'], 'right');
 
 	echo '
-		</div>';
+		</div>
+		<div class="generic_list_wrapper">';
 
 	// Go through each table!
 	foreach ($context['tables'] as $table)
 	{
 		echo '
-		<table class="table_grid" width="100%">';
+		<table class="table_grid report_results" width="100%">';
 
 		if (!empty($table['title']))
 			echo '
@@ -139,11 +139,12 @@ function template_main()
 		}
 		echo '
 			</tbody>
-		</table>';
+		</table>
+		<br />';
 	}
 	echo '
-	</div>
-	<br class="clear" />';
+		</div>
+	</div>';
 }
 
 // Header of the print page!

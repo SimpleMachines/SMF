@@ -151,7 +151,7 @@ function EditNews()
 					'function' => create_function('$news', '
 
 						if (is_numeric($news[\'id\']))
-							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="65" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
 							<br />
 							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
 						else
@@ -201,7 +201,7 @@ function EditNews()
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
 					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" /> 
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" />
 				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
 			),
 		),
@@ -209,7 +209,7 @@ function EditNews()
 					document.getElementById(\'list_news_lists_last\').style.display = "none";
 					document.getElementById("moreNewsItems_link").style.display = "";
 					var last_preview = 0;
-					
+
 					$(document).ready(function () {
 						$("div[id ^= \'preview_\']").each(function () {
 							var preview_id = $(this).attr(\'id\').split(\'_\')[1];
@@ -688,6 +688,7 @@ function SendMailing($clean_only = false)
 	}
 
 	// How many to send at once? Quantity depends on whether we are queueing or not.
+	// @todo Might need an interface? (used in Post.php too with different limits)
 	$num_at_once = empty($modSettings['mail_queue']) ? 60 : 1000;
 
 	// If by PM's I suggest we half the above number.

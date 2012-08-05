@@ -172,7 +172,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'start_date' => $row['start_date'],
 					'end_date' => $row['end_date'],
 					'is_last' => false,
-					'id_board' => $row['id_board'],	
+					'id_board' => $row['id_board'],
 					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
@@ -885,7 +885,7 @@ function insertEvent(&$eventOptions)
 
 	// Store the just inserted id_event for future reference.
 	$eventOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}calendar', 'id_event');
-	
+
 	call_integration_hook('integrate_insert_event', array($eventOptions));
 
 	// Update the settings to show something calendarish was updated.
@@ -904,7 +904,7 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// Properly sanitize the title.
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
-	
+
 	// Scan the start date for validity and get its components.
 	if (($num_results = sscanf($eventOptions['start_date'], '%d-%d-%d', $year, $month, $day)) !== 3)
 		trigger_error('modifyEvent(): invalid start date format given', E_USER_ERROR);
@@ -916,9 +916,9 @@ function modifyEvent($event_id, &$eventOptions)
 	if (!isset($eventOptions['end_date']))
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
-	
-	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions));		
-		
+
+	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions));
+
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}calendar
 		SET
@@ -958,7 +958,7 @@ function removeEvent($event_id)
 			'id_event' => $event_id,
 		)
 	);
-	
+
 	call_integration_hook('integrate_remove_event', array($event_id));
 
 	updateSettings(array(

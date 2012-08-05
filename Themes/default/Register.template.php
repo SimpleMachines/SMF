@@ -122,7 +122,7 @@ function template_registration_form()
 					<dl class="register_form" id="authentication_group">
 						<dt>
 							<strong>', $txt['authenticate_label'], ':</strong>
-							<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqWin(this.href);" class="help">(?)</a>
+							<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
 						</dt>
 						<dd>
 							<label for="auth_pass" id="option_auth_pass">
@@ -168,7 +168,26 @@ function template_registration_form()
 							<input type="text" name="openid_identifier" id="openid_url" size="30" tabindex="', $context['tabindex']++, '" value="', isset($context['openid']) ? $context['openid'] : '', '" class="input_text openid_login" />
 						</dd>
 					</dl>';
+	}
 
+	// If there is any field marked as required, show it here!
+	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
+	{
+		echo '
+
+					<dl class="register_form">';
+
+		foreach ($context['custom_fields'] as $field)
+			if ($field['show_reg'] > 1)
+				echo '
+						<dt>
+							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
+							<span class="smalltext">', $field['desc'], '</span>
+						</dt>
+						<dd>', $field['input_html'], '</dd>';
+
+		echo '
+					</dl>';
 	}
 
 	echo '
@@ -272,12 +291,15 @@ function template_registration_form()
 	if (!empty($context['custom_fields']))
 	{
 		foreach ($context['custom_fields'] as $field)
-			echo '
+		{
+			if ($field['show_reg'] < 2)
+				echo '
 						<dt>
 							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', $field['input_html'], '</dd>';
+		}
 	}
 
 	// If we have either of these, close the list like a proper gent.

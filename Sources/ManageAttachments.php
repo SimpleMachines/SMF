@@ -78,7 +78,7 @@ function ManageAttachments()
 /**
  * Allows to show/change attachment settings.
  * This is the default sub-action of the 'Attachments and Avatars' center.
- * Called by index.php?action=admin;area=manageattachments;sa=attachements.
+ * Called by index.php?action=admin;area=manageattachments;sa=attachments.
  *
  * @param bool $return_config = false
  * @uses 'attachments' sub template.
@@ -408,11 +408,8 @@ function BrowseFiles()
 					'value' => $txt['downloads'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData','
-						global $txt;
-
-						return comma_format($rowData[\'downloads\']);
-					'),
+					'db' => 'downloads',
+					'comma_format' => true,
 				),
 				'sort' => array(
 					'default' => 'a.downloads',

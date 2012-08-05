@@ -154,18 +154,6 @@ function ModerationMain($dont_call = false)
 		),
 	);
 
-	// Any files to include for moderation?
-	if (!empty($modSettings['integrate_moderate_include']))
-	{
-		$moderate_includes = explode(',', $modSettings['integrate_moderate_include']);
-		foreach ($moderate_includes as $include)
-		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-			if (file_exists($include))
-				require_once($include);
-		}
-	}
-
 	// Let them modify admin areas easily.
 	call_integration_hook('integrate_moderate_areas', array(&$moderation_areas));
 
@@ -225,7 +213,7 @@ function ModerationHome()
 	global $txt, $context, $scripturl, $modSettings, $user_info, $user_settings;
 
 	loadTemplate('ModerationCenter');
-	loadJavascriptFile('scripts/admin.js?alp21', array('default_theme' => true));
+	loadJavascriptFile('admin.js?alp21', array('default_theme' => true));
 
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
@@ -2164,7 +2152,7 @@ function ModEndSession()
 		if (strpos($key, '-mod') !== false)
 			unset($_SESSION['token'][$key]);
 
-	redirectexit('?action=moderate');
+	redirectexit('action=moderate');
 }
 
 ?>

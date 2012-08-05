@@ -55,7 +55,7 @@ function template_latest_news()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
+				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -242,14 +242,14 @@ function template_reported_posts()
 	global $settings, $options, $context, $txt, $scripturl;
 
 	echo '
-	<form action="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
+	<form id="reported_posts" action="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
 			</h3>
 		</div>
-		<div class="pagesection floatleft">
-			', $txt['pages'], ': ', $context['page_index'], '
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Make the buttons.
@@ -261,21 +261,13 @@ function template_reported_posts()
 	foreach ($context['reports'] as $report)
 	{
 		echo '
-		<div class="', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
+		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
 			<div class="content">
-				<div>
-					<div class="floatleft">
-						<strong><a href="', $report['topic_href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
-					</div>
-					<div class="floatright">
-						<a href="', $report['report_href'], '">', $details_button, '</a>
-						<a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a>
-						<a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a>
-						', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check" />' : '', '
-					</div>
-				</div><br />
+				<h5>
+					<strong><a href="', $report['topic_href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+				</h5>
 				<div class="smalltext">
-					&#171; ', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], ' &#187;<br />';
+					', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
 
 		// Prepare the comments...
 		$comments = array();
@@ -283,10 +275,17 @@ function template_reported_posts()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-					&#171; ', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), ' &#187;
+					', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
 				</div>
 				<hr />
 				', $report['body'], '
+				<br />
+				<ul class="quickbuttons">
+					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>
+					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check" />' : '', '</li>
+				</ul>
 			</div>
 		</div>';
 	}
@@ -302,16 +301,13 @@ function template_reported_posts()
 
 	echo '
 		<div class="pagesection">
-			<div class="floatleft">
-				', $txt['pages'], ': ', $context['page_index'], '
-			</div>
+			<div class="pagelinks floatleft">', $context['page_index'], '</div>
 			<div class="floatright">
 				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit" />' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-	</form>
-	<br class="clear" />';
+	</form>';
 }
 
 // Show a list of all the unapproved posts

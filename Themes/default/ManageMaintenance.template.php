@@ -31,18 +31,16 @@ function template_maintain_database()
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=optimize" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['maintain_optimize_info'], '</p>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
-					<br class="clear_right" />
 				</form>
 			</div>
 		</div>
 
 		<div class="cat_bar">
 			<h3 class="catbg">
-			<a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '
+			<a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '
 			</h3>
 		</div>
 
@@ -53,7 +51,6 @@ function template_maintain_database()
 
 	if ($db_type == 'sqlite')
 		echo '
-					<hr class="hrcolor" />
 					<p>
 						<input type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" class="button_submit" />
 						<br class="clear_right" />
@@ -76,10 +73,8 @@ function template_maintain_database()
 						<label for="data"><input type="checkbox" name="data" id="data" onclick="document.getElementById(\'submitDump\').disabled = !document.getElementById(\'struct\').checked &amp;&amp; !document.getElementById(\'data\').checked;" checked="checked" class="input_check" /> ', $txt['maintain_backup_data'], '</label><br />
 						<label for="compress"><input type="checkbox" name="compress" id="compress" value="gzip"', $context['suggested_method'] == 'zipped_file' ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['maintain_backup_gz'], '</label>
 					</p>
-					<hr class="hrcolor" />
 					<p>
 						<input ', $context['use_maintenance'] == 2 ? 'disabled="disabled" ' : '', 'type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" onclick="return document.getElementById(\'struct\').checked || document.getElementById(\'data\').checked;" class="button_submit" />
-						<br class="clear_right" />
 					</p>';
 	}
 
@@ -89,6 +84,26 @@ function template_maintain_database()
 				</form>
 			</div>
 		</div>';
+
+	// Show an option to convert the body column of the post table to MEDIUMTEXT or TEXT
+	if (isset($context['convert_to']))
+	{
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['mediumtext_introduction'], '</p>',
+					$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
+					<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit" /><br class="clear_right" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				</form>
+			</div>
+		</div>';
+	}
 
 	// Show an option to convert to UTF-8 if we're not on UTF-8 yet.
 	if ($context['convert_utf8'])
@@ -102,7 +117,6 @@ function template_maintain_database()
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['utf8_introduction'], '</p>
 					', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<p class="errorbox">' . $txt['utf8_cannot_convert_fulltext'] . '</p>' : '', '
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled="disabled"' : '', '/><br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
@@ -122,9 +136,7 @@ function template_maintain_database()
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['entity_convert_introduction'], '</p>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
@@ -133,8 +145,7 @@ function template_maintain_database()
 	}
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Template for the routine maintenance tasks.
@@ -142,27 +153,28 @@ function template_maintain_routine()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
-	// If maintenance has finished tell the user.
-	if (!empty($context['maintenance_finished']))
-		echo '
-			<div class="maintenance_finished">
-				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
-			</div>';
-
 	// Starts off with general maintenance procedures.
 	echo '
-	<div id="manage_maintenance">
+	<div id="manage_maintenance">';
+
+	// If maintenance has finished tell the user.
+	if (!empty($context['maintenance_finished']))
+	echo '
+		<div class="maintenance_finished">
+			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+		</div>';
+
+	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_version'], '</h3>
 		</div>
 		<div class="windowbg">
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['maintain_version_info'], '</p>
-					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<p>', $txt['maintain_version_info'], '
+						<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					</p>
 				</form>
 			</div>
 		</div>
@@ -172,12 +184,11 @@ function template_maintain_routine()
 		<div class="windowbg2">
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=repairboards" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['maintain_errors_info'], '</p>
-					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					<p>', $txt['maintain_errors_info'], '
+						<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					</p>
 				</form>
 			</div>
 		</div>
@@ -187,12 +198,11 @@ function template_maintain_routine()
 		<div class="windowbg">
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['maintain_recount_info'], '</p>
-					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					<p>', $txt['maintain_recount_info'], '
+						<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					</p>
 				</form>
 			</div>
 		</div>
@@ -202,12 +212,11 @@ function template_maintain_routine()
 		<div class="windowbg2">
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=logs" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['maintain_logs_info'], '</p>
-					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					<p>', $txt['maintain_logs_info'], '
+						<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					</p>
 				</form>
 			</div>
 		</div>
@@ -217,30 +226,21 @@ function template_maintain_routine()
 		<div class="windowbg">
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['maintain_cache_info'], '</p>
-					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					<p>', $txt['maintain_cache_info'], '
+						<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+					</p>
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Template for the member maintenance tasks.
 function template_maintain_members()
 {
 	global $context, $settings, $options, $txt, $scripturl;
-
-	// If maintenance has finished tell the user.
-	if (!empty($context['maintenance_finished']))
-		echo '
-			<div class="maintenance_finished">
-				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
-			</div>';
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -252,9 +252,10 @@ function template_maintain_members()
 			membersSwap = !membersSwap;
 			var membersForm = document.getElementById(\'membersForm\');
 
+			$("#membersPanel").slideToggle(300);
+
 			document.getElementById("membersIcon").src = smf_images_url + (membersSwap ? "/selected_open.png" : "/selected.png");
 			setInnerHTML(document.getElementById("membersText"), membersSwap ? "', $txt['maintain_members_choose'], '" : "', $txt['maintain_members_all'], '");
-			document.getElementById("membersPanel").style.display = (membersSwap ? "block" : "none");
 
 			for (var i = 0; i < membersForm.length; i++)
 			{
@@ -293,7 +294,16 @@ function template_maintain_members()
 		}
 		setTimeout("checkAttributeValidity();", 500);
 	// ]]></script>
-	<div id="manage_maintenance">
+	<div id="manage_maintenance">';
+
+	// If maintenance has finished tell the user.
+	if (!empty($context['maintenance_finished']))
+	echo '
+		<div class="maintenance_finished">
+			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+		</div>';
+
+	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_reattribute_posts'], '</h3>
 		</div>
@@ -327,10 +337,8 @@ function template_maintain_members()
 						<input type="checkbox" name="posts" id="posts" checked="checked" class="input_check" />
 						<label for="posts">', $txt['reattribute_increase_posts'], '</label>
 					</p>
-					<hr class="hrcolor" />
-					<input type="submit" id="do_attribute" value="', $txt['reattribute'], '" onclick="if (!checkAttributeValidity()) return false; 
+					<input type="submit" id="do_attribute" value="', $txt['reattribute'], '" onclick="if (!checkAttributeValidity()) return false;
 					return confirm(warningMessage);" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
@@ -338,7 +346,7 @@ function template_maintain_members()
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_members'], '
+				<a href="', $scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_members'], '
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -360,9 +368,7 @@ function template_maintain_members()
 
 	echo '
 					</div>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_members_confirm'], '\');" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
@@ -375,16 +381,13 @@ function template_maintain_members()
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=members;activity=recountposts" method="post" accept-charset="', $context['character_set'], '" id="membersRecountForm">
 					<p>', $txt['maintain_recountposts_info'], '</p>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
 			</div>
 		</div>
 	</div>
-	<br class="clear" />
 
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -426,7 +429,7 @@ function template_maintain_topics()
 				setInnerHTML(document.getElementById("rotText"), rotSwap ? ', JavaScriptEscape($txt['maintain_old_choose']), ' : ', JavaScriptEscape($txt['maintain_old_all']), ');
 
 				// Toggle panel
-				document.getElementById("rotPanel").style.display = !rotSwap ? "none" : "";
+				$("#rotPanel").slideToggle(300);
 
 				// Toggle checkboxes
 				var rotPanel = document.getElementById(\'rotPanel\');
@@ -502,9 +505,21 @@ function template_maintain_topics()
 	echo '
 						</div>
 					</div>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_old_confirm'], '\');" class="button_submit" />
-					<br class="clear_right" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				</form>
+			</div>
+		</div>
+
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['maintain_old_drafts'], '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', $context['character_set'], '">
+					<p>', $txt['maintain_old_drafts_days'], '&nbsp;<input type="text" name="draftdays" value="', (!empty($modSettings['drafts_keep_days']) ? $modSettings['drafts_keep_days'] : 30), '" size="3" />&nbsp;', $txt['days_word'], '</p>
+					<input type="submit" value="', $txt['maintain_old_remove'], '" onclick="return confirm(\'', $txt['maintain_old_drafts_confirm'], '\');" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
@@ -553,15 +568,12 @@ function template_maintain_topics()
 	}
 	echo '
 					</select></p>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['move_topics_now'], '" onclick="if (document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].disabled || document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_to\').selectedIndex].disabled) return false; var confirmText = \'', $txt['move_topics_confirm'] . '\'; return confirm(confirmText.replace(/%board_from%/, document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')).replace(/%board_to%/, document.getElementById(\'id_board_to\').options[document.getElementById(\'id_board_to\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')));" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Simple template for showing results of our optimization...
@@ -594,8 +606,7 @@ function template_optimize()
 				<p><a href="', $scripturl, '?action=admin;area=maintain">', $txt['maintain_return'], '</a></p>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_convert_utf8()
@@ -626,17 +637,14 @@ function template_convert_utf8()
 						<dt><strong>', $txt['utf8_target_charset'], ': </strong></dt>
 						<dd>', $txt['utf8_utf8'], '</dd>
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['utf8_proceed'], '" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 					<input type="hidden" name="proceed" value="1" />
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_convert_entities()
@@ -652,14 +660,52 @@ function template_convert_entities()
 			<div class="content">
 				<p>', $txt['entity_convert_introduction'], '</p>
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities;start=0;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
-				<hr class="hrcolor" />
 				<input type="submit" value="', $txt['entity_convert_proceed'], '" class="button_submit" />
-				<br class="clear_right" />
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
+}
+
+function template_convert_msgbody()
+{
+	global $context, $txt, $settings, $scripturl;
+
+	echo '
+	<div id="manage_maintenance">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt[$context['convert_to'] . '_title'], '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<p>', $txt['body_checking_introduction'], '</p>';
+	if (!empty($context['exceeding_messages']))
+	{
+		echo '
+				<p class="noticebox">', $txt['exceeding_messages'], '
+				<ul>
+					<li>
+					', implode('</li><li>', $context['exceeding_messages']), '
+					</li>
+				</ul>';
+		if (!empty($context['exceeding_messages_morethan']))
+			echo '
+				<p>', $context['exceeding_messages_morethan'], '</p>';
+	}
+	else
+		echo '
+				<p class="infobox">', $txt['convert_to_text'], '</p>';
+
+	echo '
+				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
+				<hr class="hrcolor" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
+				<input type="submit" name="do_conversion" value="', $txt['entity_convert_proceed'], '" class="button_submit" />
+				</form>
+			</div>
+		</div>
+	</div>';
 }
 
 ?>

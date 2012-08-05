@@ -3,7 +3,7 @@
 /**
  * This file contains those functions specific to the editing box and is
  * generally used for WYSIWYG type functionality.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * !!!Compatibility!!!
  * Since we changed the editor we don't need it any more, but let's keep it if any mod wants to use it
  * Convert only the BBC that can be edited in HTML mode for the editor.
- * 
+ *
  * @param string $text
  * @param boolean $compat_mode if true will convert the text, otherwise not (default false)
  * @return string
@@ -85,9 +85,9 @@ function bbc_to_html($text, $compat_mode = false)
  * !!!Compatibility!!!
  * This is no more needed, but to avoid break mods let's keep it
  * Run it it shouldn't even hurt either, so let's not bother remove it
- * 
+ *
  * The harder one - wysiwyg to BBC!
- * 
+ *
  * @param string $text
  * @return string
  */
@@ -849,9 +849,9 @@ function html_to_bbc($text)
 /**
  * !!!Compatibility!!!
  * This is no more needed, but to avoid break mods let's keep it
- * 
+ *
  * Returns an array of attributes associated with a tag.
- * 
+ *
  * @param string $text
  * @return string
  */
@@ -1332,7 +1332,7 @@ function loadLocale()
 	else
 		@ob_start();
 
-	// If we don't have any locale better avoit broken js
+	// If we don't have any locale better avoid broken js
 	if (empty($txt['lang_locale']))
 		die();
 
@@ -1361,7 +1361,7 @@ function loadLocale()
  *   message icons or a list of custom message icons retrieved from the database.
  * - The board_id is needed for the custom message icons (which can be set for
  *   each board individually).
- * 
+ *
  * @param int $board_id
  * @return array
  */
@@ -1435,7 +1435,7 @@ function getMessageIcons($board_id)
 
 /**
  * Compatibility function - used in 1.1 for showing a post box.
- * 
+ *
  * @param string $msg
  * @return string
  */
@@ -1470,27 +1470,25 @@ function create_control_richedit($editorOptions)
 
 		// This really has some WYSIWYG stuff.
 		loadTemplate('GenericControls', isBrowser('ie') ? 'editor_ie' : 'editor');
-		$context['html_headers'] .= '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
-			var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
-			var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
-			var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';
-		// ]]></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/editor.js?alp21"></script>
-		<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/jquery.sceditor.css" type="text/css" media="all" />
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.js"></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js"></script>';
 
+		// Css and JS make the editor go round
+		loadCSSFile( $settings['default_theme_url'] . '/css/jquery.sceditor.css', array());
+		loadJavascriptFile($settings['default_theme_url'] . '/scripts/editor.js?alp21', array(), 'editor.js');
+		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.js?alp21', array());
+		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js?alp21', array());
+		addInlineJavascript('
+		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
+		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
+		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
+		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
+		// editor language file
 		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
-			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $scripturl . '?action=loadeditorlocale"></script>';
+			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array(), 'sceditor_language');
 
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
 		{
-			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js?alp21"></script>';
+			loadJavascriptFile($settings['default_theme_url'] . '/scripts/spellcheck.js?alp21', array());
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
@@ -2166,6 +2164,8 @@ function AutoSuggestHandler($checkRegistered = null)
 		'versions' => 'SMFVersions',
 	);
 
+	call_integration_hook('integrate_autosuggest', array($searchTypes));
+
 	// If we're just checking the callback function is registered return true or false.
 	if ($checkRegistered != null)
 		return isset($searchTypes[$checkRegistered]) && function_exists('AutoSuggest_Search_' . $checkRegistered);
@@ -2186,7 +2186,7 @@ function AutoSuggestHandler($checkRegistered = null)
 
 /**
  * Search for a member - by real_name or member_name by default.
- * 
+ *
  * @return string
  */
 function AutoSuggest_Search_Member()

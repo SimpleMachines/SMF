@@ -374,12 +374,12 @@ function template_show_month_grid($grid_name)
 						if ($event['can_edit'])
 							echo '
 								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" title="' . $txt['modify'] . '" /></a>';
-						
+
 						if ($event['can_export'])
 							echo '
 								<a class="modify_event" href="', $event['export_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_export.png" alt=">" title="' . $txt['save'] . '"/></a>';
 
-								
+
 						echo '
 								', $event['link'], $event['is_last'] ? '' : '<br />';
 					}

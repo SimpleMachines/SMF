@@ -21,7 +21,7 @@ function template_main()
 			<input type="hidden" value="0" name="options[theme_allow]" />
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
+					<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 					', $txt['themeadmin_title'], '
 				</h3>
 			</div>
@@ -101,7 +101,7 @@ function template_main()
 		<br />
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=latest_themes" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_latest'], '
+				<a href="', $scripturl, '?action=helpadmin;help=latest_themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_latest'], '
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -122,7 +122,7 @@ function template_main()
 		<form action="', $scripturl, '?action=admin;area=theme;sa=install" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" onsubmit="return confirm(\'', $txt['theme_install_new_confirm'], '\');">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_install" onclick="return reqWin(this.href);" class="help" id="theme_install"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_install'], '
+					<a href="', $scripturl, '?action=helpadmin;help=theme_install" onclick="return reqOverlayDiv(this.href);" class="help" id="theme_install"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_install'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -334,7 +334,7 @@ function template_set_options()
 	{
 		echo '
 						<dt ', $context['theme_options_reset'] ? 'style="width:50%"' : '', '>';
-						
+
 		// Show the change option box ?
 		if ($context['theme_options_reset'])
 			echo '
@@ -343,7 +343,7 @@ function template_set_options()
 								<option value="1">', $txt['themeadmin_reset_options_change'], '</option>
 								<option value="2">', $txt['themeadmin_reset_options_default'], '</option>
 							</select>&nbsp;</span>';
-		
+
 		// display checkbox options
 		if ($setting['type'] == 'checkbox')
 		{
@@ -393,12 +393,12 @@ function template_set_options()
 						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
 							<input type="text" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' class="input_text" />';
 		}
-		
-		// end of this defintion 
+
+		// end of this defintion
 		echo '
 						</dd>';
 	}
-	
+
 	// close the option page up
 	echo '
 					</dl>
@@ -422,7 +422,7 @@ function template_set_settings()
 		<form action="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['theme_settings']['theme_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
+					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
 				</h3>
 			</div>';
 

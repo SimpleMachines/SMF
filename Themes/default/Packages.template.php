@@ -42,7 +42,7 @@ function template_view_package()
 		echo '
 		<div class="errorbox">
 			', $txt['package_will_fail_title'], '<br />
-			', $txt['package_will_fail_warning'], 
+			', $txt['package_will_fail_warning'],
 			!empty($context['failure_details']) ? '<br /><br /><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
 	}
@@ -68,7 +68,7 @@ function template_view_package()
 			</div>
 			<br />';
 	}
-	
+
 	// Did they specify a license to display?
 	if (isset($context['package_license']))
 	{
@@ -90,7 +90,7 @@ function template_view_package()
 			</div>
 			<br />';
 	}
-	
+
 	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', $context['ftp_needed'] ? '' : '2', ';package=', $context['filename'], ';pid=', $context['install_id'], '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -366,7 +366,7 @@ function template_view_package()
 
 	echo '
 	// ]]></script>';
-	
+
 	// Get the currently selected item from a select list
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -536,7 +536,7 @@ function template_browse()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
+				<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
 			</h3>
 		</div>
 		<div class="windowbg2">
@@ -624,7 +624,7 @@ function template_browse()
 			<input type="hidden" name="area" value="packages" />
 			<input type="hidden" name="sa" value="', $context['sub_action'], '" />
 		</form>';
-	
+
 	echo '
 	</div>
 	<br class="clear" />
@@ -1585,7 +1585,7 @@ function template_file_permissions()
 							<label for="method_individual"><strong>', $txt['package_file_perms_apply'], '</strong></label>
 						</dt>
 						<dd>
-							<em class="smalltext">', $txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5" class="input_text" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqWin(this.href);" class="help">(?)</a></em>
+							<em class="smalltext">', $txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5" class="input_text" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></em>
 						</dd>
 						<dt>
 							<input type="radio" name="method" value="predefined" id="method_predefined" class="input_radio" />

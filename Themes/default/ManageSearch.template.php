@@ -24,7 +24,7 @@ function template_modify_weights()
 				<div class="content">
 					<dl class="settings">
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight1_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight1_val">
 							', $txt['search_weight_frequency'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -32,7 +32,7 @@ function template_modify_weights()
 							<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight2_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight2_val">
 							', $txt['search_weight_age'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -40,7 +40,7 @@ function template_modify_weights()
 							<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight3_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight3_val">
 							', $txt['search_weight_length'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -48,7 +48,7 @@ function template_modify_weights()
 							<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight4_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight4_val">
 							', $txt['search_weight_subject'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -56,7 +56,7 @@ function template_modify_weights()
 							<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight5_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight5_val">
 							', $txt['search_weight_first_message'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -64,7 +64,7 @@ function template_modify_weights()
 							<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight6_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight6_val">
 							', $txt['search_weight_sticky'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -102,7 +102,7 @@ function template_select_search_method()
 				<h3 class="catbg">', $txt['search_method'], '</h3>
 			</div>
 			<div class="information">
-				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqWin(this.href);">', $txt['search_create_index_why'], '</a></div>
+				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
 			</div>
 			<div class="windowbg">
 				<div class="content">
@@ -385,23 +385,20 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
-		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+			</div>
 			<div class="windowbg">
 				<div class="content">
 					<p>
 						', $txt['spider_logs_delete_older'], '
 						<input type="text" name="older" id="older" value="7" size="3" class="input_text" />
 						', $txt['spider_logs_delete_day'], '
-					</p>	
-					<hr class="hrcolor" />
+					</p>
 					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
