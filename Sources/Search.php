@@ -267,12 +267,29 @@ function PlushSearch2()
 	}
 
 	$weight_factors = array(
-		'frequency' => 'COUNT(*) / (MAX(t.num_replies) + 1)',
-		'age' => 'CASE WHEN MAX(m.id_msg) < {int:min_msg} THEN 0 ELSE (MAX(m.id_msg) - {int:min_msg}) / {int:recent_message} END',
-		'length' => 'CASE WHEN MAX(t.num_replies) < {int:huge_topic_posts} THEN MAX(t.num_replies) / {int:huge_topic_posts} ELSE 1 END',
-		'subject' => '0',
-		'first_message' => 'CASE WHEN MIN(m.id_msg) = MAX(t.id_first_msg) THEN 1 ELSE 0 END',
-		'sticky' => 'MAX(t.is_sticky)',
+		'frequency' => array(
+			'search' => 'COUNT(*) / (MAX(t.num_replies) + 1)',
+			'results' => '(t.num_replies + 1)',
+		),
+		'age' => array(
+			'search' => 'CASE WHEN MAX(m.id_msg) < {int:min_msg} THEN 0 ELSE (MAX(m.id_msg) - {int:min_msg}) / {int:recent_message} END',
+			'results' => 'CASE WHEN t.id_first_msg < {int:min_msg} THEN 0 ELSE (t.id_first_msg - {int:min_msg}) / {int:recent_message} END',
+		),
+		'length' => array(
+			'search' => 'CASE WHEN MAX(t.num_replies) < {int:huge_topic_posts} THEN MAX(t.num_replies) / {int:huge_topic_posts} ELSE 1 END',
+			'results' => 'CASE WHEN t.num_replies < {int:huge_topic_posts} THEN t.num_replies / {int:huge_topic_posts} ELSE 1 END',
+		),
+		'subject' => array(
+			'search' => 0,
+			'results' => 0,
+		),
+		'first_message' => array(
+			'search' => 'CASE WHEN MIN(m.id_msg) = MAX(t.id_first_msg) THEN 1 ELSE 0 END',
+		),
+		'sticky' => array(
+			'search' => 'MAX(t.is_sticky)',
+			'results' => 't.is_sticky',
+		),
 	);
 
 	call_integration_hook('integrate_search_weights', array(&$weight_factors));
@@ -1077,8 +1094,8 @@ function PlushSearch2()
 					foreach ($weight_factors as $type => $value)
 					{
 						$relevance .= $weight[$type];
-						if (!empty($value))
-							$relevance .= ' * ' . $value;
+						if (!empty($value['search']))
+							$relevance .= ' * ' . $value['search'];
 						$relevance .= ' +
 							';
 					}
@@ -1544,8 +1561,8 @@ function PlushSearch2()
 					foreach ($main_query['weights'] as $type => $value)
 					{
 						$relevance .= $weight[$type];
-						if (!empty($value))
-							$relevance .= ' * ' . $value;
+						if (!empty($value['search']))
+							$relevance .= ' * ' . $value['search'];
 						$relevance .= ' + ';
 						$new_weight_total += $weight[$type];
 					}
@@ -1609,13 +1626,14 @@ function PlushSearch2()
 				{
 					$relevance = '1000 * (';
 					foreach ($main_query['weights'] as $type => $value)
-					{
-						$relevance .= $weight[$type];
-						if (!empty($value))
-							$relevance .= ' * ' . $value;
-						$relevance .= ' +
-							';
-					}
+						if (isset($value['results']))
+						{
+							$relevance .= $weight[$type];
+							if (!empty($value['results']))
+								$relevance .= ' * ' . $value['results'];
+							$relevance .= ' +
+								';
+						}
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
 					$usedIDs = array_flip(empty($inserts) ? array() : array_keys($inserts));
