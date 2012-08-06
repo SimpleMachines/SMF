@@ -1096,8 +1096,7 @@ function PlushSearch2()
 						$relevance .= $weight[$type];
 						if (!empty($value['search']))
 							$relevance .= ' * ' . $value['search'];
-						$relevance .= ' +
-							';
+						$relevance .= ' + ';
 					}
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
@@ -1631,8 +1630,7 @@ function PlushSearch2()
 							$relevance .= $weight[$type];
 							if (!empty($value['results']))
 								$relevance .= ' * ' . $value['results'];
-							$relevance .= ' +
-								';
+							$relevance .= ' + ';
 						}
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
