@@ -1203,8 +1203,12 @@ function PlushSearch2()
 					$main_query['select']['num_matches'] = '1 AS num_matches';
 
 					$main_query['weights'] = array(
-						'age' => '((m.id_msg - t.id_first_msg) / CASE WHEN t.id_last_msg = t.id_first_msg THEN 1 ELSE t.id_last_msg - t.id_first_msg END)',
-						'first_message' => 'CASE WHEN m.id_msg = t.id_first_msg THEN 1 ELSE 0 END',
+						'age' => array(
+							'search' => '((m.id_msg - t.id_first_msg) / CASE WHEN t.id_last_msg = t.id_first_msg THEN 1 ELSE t.id_last_msg - t.id_first_msg END)',
+						),
+						'first_message' => array(
+							'search' => 'CASE WHEN m.id_msg = t.id_first_msg THEN 1 ELSE 0 END',
+						),
 					);
 
 					if (!empty($search_params['topic']))
@@ -1387,7 +1391,7 @@ function PlushSearch2()
 
 					if ($numSubjectResults !== 0)
 					{
-						$main_query['weights']['subject'] = 'CASE WHEN MAX(lst.id_topic) IS NULL THEN 0 ELSE 1 END';
+						$main_query['weights']['subject']['search'] = 'CASE WHEN MAX(lst.id_topic) IS NULL THEN 0 ELSE 1 END';
 						$main_query['left_join'][] = '{db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics AS lst ON (' . ($createTemporary ? '' : 'lst.id_search = {int:id_search} AND ') . 'lst.id_topic = t.id_topic)';
 						if (!$createTemporary)
 							$main_query['parameters']['id_search'] = $_SESSION['search_cache']['id_search'];
