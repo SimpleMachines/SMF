@@ -1747,7 +1747,7 @@ function scheduled_remove_old_drafts()
 	);
 
 	while ($row = $smcFunc['db_fetch_row']($request))
-		$drafts[] = $row[0];
+		$drafts[] = (int) $row[0];
 	$smcFunc['db_free_result']($request);
 
 	// If we have old one, remove them

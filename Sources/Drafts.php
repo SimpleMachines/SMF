@@ -384,11 +384,11 @@ function DeleteDraft($id_draft, $check = true)
 
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}user_drafts
-		WHERE draft_id IN ({array_int:draft_id})', ($check ? '
-			AND  id_member = {int:id_member}' : ''), '
+		WHERE id_draft IN ({array_int:id_draft})' . ($check ? '
+			AND  id_member = {int:id_member}' : '') . '
 		LIMIT 1',
 		array (
-			'draft_id' => $id_draft,
+			'id_draft' => $id_draft,
 			'id_member' => empty($user_info['id']) ? -1 : $user_info['id'],
 		)
 	);
@@ -667,8 +667,8 @@ function showPMDrafts($memID = -1)
 	if (!empty($_REQUEST['id_draft']) && !empty($context['drafts_pm_save']) && $memID == $user_info['id'])
 	{
 		checkSession('get');
-		$draft_id = (int) $_REQUEST['id_draft'];
-		redirectexit('action=pm;sa=send;id_draft=' . $draft_id);
+		$id_draft = (int) $_REQUEST['id_draft'];
+		redirectexit('action=pm;sa=send;id_draft=' . $id_draft);
 	}
 
 	// Default to 10.
