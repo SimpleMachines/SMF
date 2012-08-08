@@ -871,17 +871,6 @@ function Post()
 		// If there are attachments, calculate the total size and how many.
 		$context['attachments']['total_size'] = 0;
 		$context['attachments']['quantity'] = 0;
-		if (!empty($context['current_attachments']))
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
-			// Just use the current path for temp files.
-			$current_attach_dir = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$current_attach_dir = $modSettings['attachmentUploadDir'];
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg']))
@@ -1761,14 +1750,11 @@ function Post2()
 						$attachIDs[] = $attachmentOptions['thumb'];
 				}
 			}
+			else
+				$attach_errors[] = '<dt>&nbsp;</dt>';
 
 			if (!empty($attachmentOptions['errors']))
 			{
-				if (isset($br))
-					$attach_errors[] = '<dt>&nbsp;</dt>';
-				else
-					$br = '';
-
 				// Sort out the errors for display and delete any associated files.
 				$attach_errors[] = '<dt>' . vsprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
 				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
@@ -2077,6 +2063,7 @@ function Post2()
 		$context['error_message'] = '<dl>';
 		$context['error_message'] .= implode("\n", $attach_errors);
 		$context['error_message'] .= '</dl>';
+		$context['error_title'] = $txt['attach_error_title'];
 
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.0',

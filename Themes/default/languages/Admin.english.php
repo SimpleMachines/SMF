@@ -378,9 +378,24 @@ $txt['attach_dir_does_not_exist'] = 'Does Not Exist';
 $txt['attach_dir_not_writable'] = 'Not Writable';
 $txt['attach_dir_files_missing'] = 'Files Missing (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
 $txt['attach_dir_unused'] = 'Unused';
+$txt['attach_dir_empty'] = 'Empty';
 $txt['attach_dir_ok'] = 'OK';
 $txt['attach_dir_basedir'] = 'Base directory';
 
+$txt['attach_dir_desc'] = 'Create new directories or change the current directory below. Directories can be renamed as long as they do not contain a sub-directory. If the new directory is to be in the created within the forum directory structure. Just the directory name can be used. To remove a directory, blank the path input field. Directories can not be deleted if they contain either files or sub-directories (shown in brackets next to the file count).';
+$txt['attach_dir_base_desc'] = 'You may use below to change the current base directory or create a new one. New base directories are also added to the Attachment Directory list. You may also designate an existing directory to be a base directory.';
+$txt['attach_dir_save_problem'] = 'Oops, there seems to be a problem.';
+$txt['attachments_no_create'] = 'Unable to create a new attachment directory. Please do so using a FTP client or your site file manager.';
+$txt['attachments_no_write'] = 'This directory has been created but is not writable. Please attempt to do so using a FTP client or your site file manager.';
+$txt['attach_dir_duplicate_msg'] = 'Unable to add. This directory already exists.';
+$txt['attach_dir_exists_msg'] = 'Unable to move. A directory already exists at that path.';
+$txt['attach_dir_base_dupe_msg'] = 'Unable to add. This base directory has already been created.';
+$txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input. Or create this directory using an FTP client or site file manager and re-try.';
+$txt['attach_dir_no_rename'] = 'Unable to move or rename. Please verify that the path is correct or that this directory does not contain any sub-directories.';
+$txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do so using a FTP client or site file manager.';
+$txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and can not be deleted.';
+$txt['attach_dir_is_current'] = 'Unable to remove while it is selected as the current directory.';
+$txt['attach_dir_is_current_bd'] = 'Unable to remove while it is selected as the current base directory.';
 $txt['attach_last_dir'] = 'Last active attachment directory';
 $txt['attach_current_dir'] = 'Current attachment directory';
 $txt['attach_current'] = 'Current';
@@ -414,8 +429,8 @@ $txt['use_subdirectories_for_attachments'] = 'Create new directories within a ba
 $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
-$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. SMF will use the last directory used before this was introduced</div>';
-$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';

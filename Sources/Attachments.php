@@ -90,21 +90,17 @@ function automanage_attachments_check_directory()
 			$updir = '';
 	}
 
-	if (!is_array($modSettings['attachmentUploadDir']) && !empty($modSettings['currentAttachmentUploadDir']))
+	if (!is_array($modSettings['attachmentUploadDir']))
 		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-	if (!is_array($modSettings['attachmentUploadDir']) || (!in_array($updir, $modSettings['attachmentUploadDir']) && !empty($updir)))
+	if (!in_array($updir, $modSettings['attachmentUploadDir']) && !empty($updir))
 		$outputCreation = automanage_attachments_create_directory($updir);
 	elseif (in_array($updir, $modSettings['attachmentUploadDir']))
 		$outputCreation = true;
 
 	if ($outputCreation)
 	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
 		$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		$context['id_folder'] = $modSettings['currentAttachmentUploadDir'];
 
 		updateSettings(array(
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
@@ -116,14 +112,22 @@ function automanage_attachments_check_directory()
 
 function automanage_attachments_create_directory($updir)
 {
-	global $modSettings, $initial_error, $context;
+	global $modSettings, $initial_error, $context, $boarddir;
 
 	$tree = mama_get_directory_tree_elements($updir);
 	$count = count($tree);
 
 	$directory = mama_init_dir($tree, $count);
 	if ($directory === false)
-		return false;
+	{
+		// Maybe it's just the folder name
+		$tree = mama_get_directory_tree_elements($boarddir . DIRECTORY_SEPARATOR . $updir);
+		$count = count($tree);
+	
+		$directory = mama_init_dir($tree, $count);
+		if ($directory === false)
+			return false;
+	}
 
 	$directory .= DIRECTORY_SEPARATOR . array_shift($tree);
 
@@ -133,13 +137,8 @@ function automanage_attachments_create_directory($updir)
 		{
 			if (!@mkdir($directory,0755))
 			{
-				if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin')
-					fatal_lang_error('attachments_no_create', 'critical');
-				else
-				{
-					$context['dir_creation_error'] = 'attachments_no_create';
-					return false;
-				}
+				$context['dir_creation_error'] = 'attachments_no_create';
+				return false;
 			}
 		}
 
@@ -158,13 +157,8 @@ function automanage_attachments_create_directory($updir)
 				chmod($directory, 0777);
 				if (!is_writable($directory))
 				{
-					if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin')
-						fatal_lang_error('attachments_no_write', 'critical');
-					else
-					{
-						$context['dir_creation_error'] = 'attachments_no_write';
-						return false;
-					}
+					$context['dir_creation_error'] = 'attachments_no_write';
+					return false;
 				}
 			}
 		}
@@ -172,16 +166,13 @@ function automanage_attachments_create_directory($updir)
 
 	// Everything seems fine...let's create the .htaccess
 	if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htacess'))
-		secureDirectory($directory, true);
+		secureDirectory($updir, true);
 
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
-	$directory = rtrim($directory, $sep);
-
-	if (!is_array($modSettings['attachmentUploadDir']))
-		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+	$updir = rtrim($updir, $sep);
 
 	// Only update if it's a new directory
-	if (!in_array($directory, $modSettings['attachmentUploadDir']))
+	if (!in_array($updir, $modSettings['attachmentUploadDir']))
 	{
 		$modSettings['currentAttachmentUploadDir'] = max(array_keys($modSettings['attachmentUploadDir'])) +1;
 		$modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] = $updir;
@@ -194,8 +185,6 @@ function automanage_attachments_create_directory($updir)
 	}
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-	$context['id_folder'] = $modSettings['currentAttachmentUploadDir'];
-
 	return true;
 }
 
@@ -214,8 +203,6 @@ function automanage_attachments_by_space()
 	// Get the current base directory
 	if (!empty($modSettings['use_subdirectories_for_attachments']) && !empty($modSettings['attachment_basedirectories']))
 	{
-		if (!is_array($modSettings['attachment_basedirectories']))
-			$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
 		$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
 		$base_dir = !empty($modSettings['automanage_attachments']) ? $base_dir : 0;
 	}
@@ -223,8 +210,6 @@ function automanage_attachments_by_space()
 		$base_dir = 0;
 
 	// Get the last attachment directory for that base directory
-	if (!is_array($modSettings['last_attachments_directory']))
-		$modSettings['last_attachments_directory'] = unserialize($modSettings['last_attachments_directory']);
 	if (empty($modSettings['last_attachments_directory'][$base_dir]))
 		$modSettings['last_attachments_directory'][$base_dir] = 0;
 	// And increment it.
@@ -233,13 +218,7 @@ function automanage_attachments_by_space()
 	$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . $modSettings['last_attachments_directory'][$base_dir];
 	if (automanage_attachments_create_directory($updir))
 	{
-		if (!is_array($modSettings['attachmentUploadDir']) && !empty($modSettings['currentAttachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
-		$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		$context['id_folder'] = $modSettings['currentAttachmentUploadDir'];
-
 		updateSettings(array(
 			'last_attachments_directory' => serialize($modSettings['last_attachments_directory']),
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
@@ -300,18 +279,10 @@ function processAttachments()
 	if (!empty($modSettings['automanage_attachments']))
 		automanage_attachments_check_directory();
 
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-		$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		$context['id_folder'] = $modSettings['currentAttachmentUploadDir'];
-	}
-	else
-	{
-		$context['attach_dir'] = $modSettings['attachmentUploadDir'];
-		$context['id_folder'] = 1;
-	}
+	if (!is_array($modSettings['attachmentUploadDir']))
+		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+
+	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
 	// Is the attachments folder actualy there?
 	if (!empty($context['dir_creation_error']))
@@ -320,22 +291,6 @@ function processAttachments()
 	{
 		$initial_error = 'attach_folder_warning';
 		log_error(sprintf($txt['attach_folder_admin_warning'], $context['attach_dir']), 'critical');
-	}
-
-	// Check that the attachments folder is writable. No sense in proceeding if it isn't.
-	if (empty($initial_error) && !is_writable($context['attach_dir']))
-	{
-		chmod($context['attach_dir'], 0755);
-		if (!is_writable($context['attach_dir']))
-		{
-			chmod($context['attach_dir'], 0775);
-			if (!is_writable($context['attach_dir']))
-			{
-				chmod($context['attach_dir'], 0777);
-				if (!is_writable($context['attach_dir']))
-					$initial_error = 'attachments_no_write';
-			}
-		}
 	}
 
 	if (!isset($initial_error) && !isset($context['attachments']))
@@ -447,7 +402,7 @@ function processAttachments()
 				'tmp_name' => $destName,
 				'size' => $_FILES['attachment']['size'][$n],
 				'type' => $_FILES['attachment']['type'][$n],
-				'id_folder' => $context['id_folder'],
+				'id_folder' => $modSettings['currentAttachmentUploadDir'],
 				'errors' => array(),
 			);
 
@@ -483,7 +438,7 @@ function processAttachments()
 	//   tmp_name => Path to the temp file ($context['attach_dir'] . '/' . $attachID).
 	//   size => File size (required).
 	//   type => MIME type (optional if not available on upload).
-	//   id_folder =>
+	//   id_folder => $modSettings['currentAttachmentUploadDir']
 	//   errors => An array of errors (use the index of the $txt variable for that error).
 	// Template changes can be done using "integrate_upload_template".
 	call_integration_hook('integrate_attachment_upload', array());
@@ -599,16 +554,18 @@ function attachmentChecks($attachID)
 				{
 					rename($_SESSION['temp_attachments'][$attachID]['tmp_name'], $context['attach_dir'] . '/' . $attachID);
 					$_SESSION['temp_attachments'][$attachID]['tmp_name'] = $context['attach_dir'] . '/' . $attachID;
-					$_SESSION['temp_attachments'][$attachID]['id_folder'] = $context['id_folder'];
+					$_SESSION['temp_attachments'][$attachID]['id_folder'] = $modSettings['currentAttachmentUploadDir'];
 					$context['dir_size'] = $_SESSION['temp_attachments'][$attachID]['size'];
 					$context['dir_files'] = 1;
-
-					if (isset($context['dir_creation_error']))
-						$_SESSION['temp_attachments'][$attachID]['errors'][] = $context['dir_creation_error'];
 				}
 				// Or, let the user know that it ain't gonna happen.
 				else
-					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'ran_out_of_space';
+				{
+					if (isset($context['dir_creation_error']))
+						$_SESSION['temp_attachments'][$attachID]['errors'][] = $context['dir_creation_error'];
+					else
+						$_SESSION['temp_attachments'][$attachID]['errors'][] = 'ran_out_of_space';
+				}
 			}
 			else
 				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'ran_out_of_space';
@@ -651,8 +608,10 @@ function attachmentChecks($attachID)
 	// Undo the math if there's an error
 	if (!empty($_SESSION['temp_attachments'][$attachID]['errors']))
 	{
-		$context['dir_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
-		$context['dir_files']--;
+		if (isset($context['dir_size']))
+			$context['dir_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
+		if (isset($context['dir_files']))
+			$context['dir_files']--;
 		$context['attachments']['total_size'] -= $_SESSION['temp_attachments'][$attachID]['size'];
 		$context['attachments']['quantity']--;
 		return false;
@@ -781,8 +740,9 @@ function createAttachment(&$attachmentOptions)
 			// We should check the file size and count here since thumbs are added to the existing totals.
 			if (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] == 1 && !empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit']))
 			{
-				$context['dir_size'] += $thumb_size;
-				$context['dir_files']++;
+				$context['dir_size'] = isset($context['dir_size']) ? $context['dir_size'] += $thumb_size : $context['dir_size'] = 0;
+				$context['dir_files'] = isset($context['dir_files']) ? $context['dir_files']++ : $context['dir_files'] = 0;
+
 				// If the folder is full, try to create a new one and move the thumb to it.
 				if ($context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024 || $context['dir_files'] + 2 > $modSettings['attachmentDirFileLimit'])
 				{
@@ -796,7 +756,7 @@ function createAttachment(&$attachmentOptions)
 				}
 			}
 			// If a new folder has been already created. Gotta move this thumb there then.
-			if ($context['id_folder'] != $attachmentOptions['id_folder'])
+			if ($modSettings['currentAttachmentUploadDir'] != $attachmentOptions['id_folder'])
 			{
 				rename($thumb_path, $context['attach_dir'] . '/' . $thumb_filename);
 				$thumb_path = $context['attach_dir'] . '/' . $thumb_filename;
@@ -810,7 +770,7 @@ function createAttachment(&$attachmentOptions)
 					'size' => 'int', 'width' => 'int', 'height' => 'int', 'mime_type' => 'string-20', 'approved' => 'int',
 				),
 				array(
-					(int) $context['id_folder'], (int) $attachmentOptions['post'], 3, $thumb_filename, $thumb_file_hash, $attachmentOptions['fileext'],
+					$modSettings['currentAttachmentUploadDir'], (int) $attachmentOptions['post'], 3, $thumb_filename, $thumb_file_hash, $attachmentOptions['fileext'],
 					$thumb_size, $thumb_width, $thumb_height, $thumb_mime, (int) $attachmentOptions['approved'],
 				),
 				array('id_attach')
@@ -829,7 +789,7 @@ function createAttachment(&$attachmentOptions)
 					)
 				);
 
-				rename($thumb_path, getAttachmentFilename($thumb_filename, $attachmentOptions['thumb'], $context['id_folder'], false, $thumb_file_hash));
+				rename($thumb_path, getAttachmentFilename($thumb_filename, $attachmentOptions['thumb'], $modSettings['currentAttachmentUploadDir'], false, $thumb_file_hash));
 			}
 		}
 	}
