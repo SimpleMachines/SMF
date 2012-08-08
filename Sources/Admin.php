@@ -30,7 +30,7 @@ function AdminMain()
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin', 'admin');
-	loadJavascriptFile('admin.js?alp21', array('default_theme' => true), 'admin.js');
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
