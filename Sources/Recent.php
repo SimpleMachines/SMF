@@ -660,7 +660,7 @@ function UnreadTopics()
 		$context['icon_sources'][$icon] = 'images_url';
 
 	$is_topics = $_REQUEST['action'] == 'unread';
-	$handle_unapproved = $modSettings['postmod_active'] && !allowedTo('approve_posts');
+	$can_see_unapproved = !empty($modSettings['postmod_active']) && allowedTo('approve_posts');
 
 	// This part is the same for each query.
 	$select_clause = '
@@ -757,8 +757,8 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic)
 			WHERE lt.id_member = {int:current_member}
 				AND t.' . $query_this_board . (empty($earliest_msg) ? '' : '
-				AND t.id_last_msg > {int:earliest_msg}') . ($handle_unapproved ? '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})' : ''),
+				AND t.id_last_msg > {int:earliest_msg}') . ($can_see_unapproved ? '' : '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => 1,
@@ -779,8 +779,8 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($handle_unapproved ? '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})' : ''),
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($can_see_unapproved ? '' : '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -859,8 +859,8 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . ($context['showing_all_topics'] && !empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : (!$context['showing_all_topics'] && empty($_SESSION['first_login']) ? '
 				AND t.id_last_msg > {int:id_msg_last_visit}' : '')) . '
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($handle_unapproved ? '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})' : ''),
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($can_see_unapproved ? '' : '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -973,8 +973,8 @@ function UnreadTopics()
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
-					AND t.id_board = {int:current_board}' : '') . ($handle_unapproved ? '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})' : '') . '
+					AND t.id_board = {int:current_board}' : '') . ($can_see_unapproved ? '' : '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})') . '
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
@@ -1026,8 +1026,8 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 				WHERE t.' . $query_this_board . '
 					AND m.id_member = {int:current_member}
-					AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($handle_unapproved ? '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})' : ''),
+					AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($can_see_unapproved ? '' : '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
 					'is_approved' => 1,
@@ -1089,8 +1089,8 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 				WHERE t.' . $query_this_board . '
 					AND t.id_last_msg >= {int:min_message}
-					AND (IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0))) < t.id_last_msg' . ($handle_unapproved ? '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})' : '') . '
+					AND (IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0))) < t.id_last_msg' . ($can_see_unapproved ? '' : '
+				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})') . '
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
