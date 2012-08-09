@@ -361,28 +361,9 @@ function ModifyCacheSettings($return_config = false)
 	// some javascript to enable / disable certain settings if the option is not selected
 	$context['settings_post_javascript'] = '
 		var cache_type = document.getElementById(\'cache_accelerator\');
-		mod_addEvent(cache_type, \'change\', toggleCache);
-		toggleCache();
-
-		function mod_addEvent(control, ev, fn)
-		{
-			if (control.addEventListener)
-			{
-				control.addEventListener(ev, fn, false);
-			}
-			else if (control.attachEvent)
-			{
-				control.attachEvent(\'on\'+ev, fn);
-			}
-		}
-		function toggleCache()
-		{
-			var select_elem1 = document.getElementById(\'cache_memcached\');
-			var select_elem2 = document.getElementById(\'cachedir\');
-			select_elem1.disabled = cache_type.value != "memcached";
-			select_elem2.disabled = cache_type.value != "smf";
-		}
-	';
+		createEventListener(cache_type);
+		cache_type.addEventListener("change", toggleCache);
+		toggleCache();';
 
 	call_integration_hook('integrate_modify_cache_settings', array(&$config_vars));
 
@@ -956,6 +937,7 @@ function ShowPHPinfoSettings()
 	$info_lines = preg_replace('~^.*<body>(.*)</body>.*$~', '$1', ob_get_contents());
 	$info_lines = explode("\n", strip_tags($info_lines, "<tr><td><h2>"));
 	ob_end_clean();
+
 	// remove things that could be considered sensitive
 	$remove = '_COOKIE|Cookie|_GET|_REQUEST|REQUEST_URI|QUERY_STRING|REQUEST_URL|HTTP_REFERER';
 

@@ -284,6 +284,7 @@ function AdminMain()
 						'browse' => array($txt['attachment_manager_browse']),
 						'attachments' => array($txt['attachment_manager_settings']),
 						'avatars' => array($txt['attachment_manager_avatar_settings']),
+						'attachpaths' => array($txt['attach_directories']),
 						'maintenance' => array($txt['attachment_manager_maintenance']),
 					),
 				),

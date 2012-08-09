@@ -175,6 +175,17 @@ function reloadSettings()
 	// Is post moderation alive and well?
 	$modSettings['postmod_active'] = isset($modSettings['admin_features']) ? in_array('pm', explode(',', $modSettings['admin_features'])) : true;
 
+	// Here to justify the name of this function. :P
+	// It should be added to the install and upgrade scripts.
+	// But since the convertors need to be updated also. This is easier.
+	if (empty($modSettings['currentAttachmentUploadDir']))
+	{
+		updateSettings(array(
+			'attachmentUploadDir' => serialize(array(1 => $modSettings['attachmentUploadDir'])),
+			'currentAttachmentUploadDir' => 1,
+		));
+	}
+
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{

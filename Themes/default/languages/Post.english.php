@@ -198,7 +198,6 @@ $txt['digest_mod_act_split'] = '"%1$s" was split';
 $txt['attach_error_title'] = 'Error uploading attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
-$txt['attach_continue'] = 'Continue';
 $txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s kB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
@@ -228,8 +227,10 @@ $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
-$txt['ran_out_of_space'] = 'The upload folder is full. Please try a smaller file and/or contact an administrator.';
+$txt['ran_out_of_space'] = 'The upload folder is full. Please contact an administrator about this problem.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
+$txt['attachments_no_create'] = 'Unable to create a new attachment directory.  Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
+
 
 ?>
