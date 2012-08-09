@@ -165,6 +165,7 @@ $txt['search_thistopic'] = 'This topic';
 $txt['search_members'] = 'Members';
 
 $txt['back'] = 'Back';
+$txt['continue'] = 'Continue';
 $txt['password_reminder'] = 'Password reminder';
 $txt['topic_started'] = 'Topic started by';
 $txt['title'] = 'Title';

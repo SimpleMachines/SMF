@@ -2180,6 +2180,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentEncryptFil
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbnails', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbWidth', '150');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbHeight', '150');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('use_subdirectories_for_attachments', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('censorIgnoreCase', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mostOnline', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mostOnlineToday', '1');

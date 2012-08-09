@@ -623,3 +623,58 @@ function select_in_category(cat_id, elem, brd_list)
 
 	elem.selectedIndex = 0;
 }
+
+/*
+* Server Settings > Caching
+*/
+function toggleCache ()
+{
+	var memcache = document.getElementById('cache_memcached');
+	var cachedir = document.getElementById('cachedir');
+	memcache.disabled = cache_type.value != "memcached";
+	cachedir.disabled = cache_type.value != "smf";
+}
+
+/*
+* Attachments Settings
+*/
+function toggleSubDir ()
+{
+	var auto_attach = document.getElementById('automanage_attachments');
+	var use_sub_dir = document.getElementById('use_subdirectories_for_attachments');
+	var dir_elem = document.getElementById('basedirectory_for_attachments');
+
+	use_sub_dir.disabled = !Boolean(auto_attach.selectedIndex);
+	if (use_sub_dir.disabled)
+	{
+		use_sub_dir.style.display = "none";
+		document.getElementById('setting_use_subdirectories_for_attachments').parentNode.style.display = "none";
+		dir_elem.style.display = "none";
+		document.getElementById('setting_basedirectory_for_attachments').parentNode.style.display = "none";
+		document.getElementById('attachmentUploadDir').parentNode.style.display = "";
+		document.getElementById('setting_attachmentUploadDir').parentNode.style.display = "";
+	}
+	else
+	{
+		use_sub_dir.style.display = "";
+		document.getElementById('setting_use_subdirectories_for_attachments').parentNode.style.display = "";
+		dir_elem.style.display = "";
+		document.getElementById('setting_basedirectory_for_attachments').parentNode.style.display = "";
+		document.getElementById('attachmentUploadDir').parentNode.style.display = "none";
+		document.getElementById('setting_attachmentUploadDir').parentNode.style.display = "none";
+	}
+		toggleBaseDir();
+}
+function toggleBaseDir ()
+{
+	var auto_attach = document.getElementById('automanage_attachments');
+	var sub_dir = document.getElementById('use_subdirectories_for_attachments');
+	var dir_elem = document.getElementById('basedirectory_for_attachments');
+
+	if (auto_attach.selectedIndex == 0)
+	{
+		dir_elem.disabled = 1;
+	}
+	else
+		dir_elem.disabled = !sub_dir.checked;
+}

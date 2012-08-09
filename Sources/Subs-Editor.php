@@ -1469,13 +1469,12 @@ function create_control_richedit($editorOptions)
 		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
 
 		// This really has some WYSIWYG stuff.
-		loadTemplate('GenericControls', isBrowser('ie') ? 'editor_ie' : 'editor');
+		loadTemplate('GenericControls', 'jquery.sceditor');
 
-		// Css and JS make the editor go round
-		loadCSSFile( $settings['default_theme_url'] . '/css/jquery.sceditor.css', array());
-		loadJavascriptFile($settings['default_theme_url'] . '/scripts/editor.js?alp21', array(), 'editor.js');
-		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.js?alp21', array());
-		loadJavascriptFile($settings['default_theme_url'] . '/scripts/jquery.sceditor.bbcode.js?alp21', array());
+		// JS makes the editor go round
+		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
+		loadJavascriptFile('jquery.sceditor.js', array('default_theme' => true));
+		loadJavascriptFile('jquery.sceditor.bbcode.js', array('default_theme' => true));
 		addInlineJavascript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1488,7 +1487,7 @@ function create_control_richedit($editorOptions)
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
 		{
-			loadJavascriptFile($settings['default_theme_url'] . '/scripts/spellcheck.js?alp21', array());
+			loadJavascriptFile('spellcheck.js', array('default_theme' => true));
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))

@@ -636,15 +636,6 @@ function MessageIndex()
 				'use_permissions' => true,
 				'selected_board' => empty($_SESSION['move_to_topic']) ? null : $_SESSION['move_to_topic'],
 			);
-			$context['move_to_boards'] = getBoardList($boardListOptions);
-
-			// Make the boards safe for display.
-			foreach ($context['move_to_boards'] as $id_cat => $cat)
-			{
-				$context['move_to_boards'][$id_cat]['name'] = strip_tags($cat['name']);
-				foreach ($cat['boards'] as $id_board => $aboard)
-					$context['move_to_boards'][$id_cat]['boards'][$id_board]['name'] = strip_tags($aboard['name']);
-			}
 
 			// With no other boards to see, it's useless to move.
 			if (empty($context['move_to_boards']))

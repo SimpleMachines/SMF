@@ -218,9 +218,9 @@ function template_body_above()
 				<select name="search_selection">
 					<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
 
-		// Can't limit it to a specific topic if we are not in one
-		if (!empty($context['current_topic']))
-			echo '
+			// Can't limit it to a specific topic if we are not in one
+			if (!empty($context['current_topic']))
+				echo '
 					<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
 
 		// Can't limit it to a specific board if we are not in one

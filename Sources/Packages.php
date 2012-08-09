@@ -645,7 +645,7 @@ function PackageInstallTest()
 		if (empty($thisAction))
 			continue;
 
-		if (!file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
+		if (isset($action['filename']) && !!file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
 		{
 			$context['has_failure'] = true;
 
@@ -1383,7 +1383,7 @@ function PackageBrowse()
 				'id' . $type => array(
 					'header' => array(
 						'value' => $txt['package_id'],
-						'style' => 'width: 32px;',
+						'style' => 'width: 40px;',
 					),
 					'data' => array(
 						'function' => create_function('$package_md5', '
