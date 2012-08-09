@@ -217,7 +217,7 @@ function ManageAttachmentSettings($return_config = false)
 
 				if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachmentUploadDir']))
 					if (!automanage_attachments_create_directory($_POST['basedirectory_for_attachments']))
-						$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];				}
+						$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];
 
 				if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
 				{
