@@ -1082,7 +1082,7 @@ function RepairAttachments()
 	@set_time_limit(600);
 
 	$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
-	$_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
+	$_SESSION['starting_substep'] = $_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 	// Don't recall the session just in case.
 	if ($_GET['step'] == 0 && $_GET['substep'] == 0)
@@ -1578,7 +1578,7 @@ function RepairAttachments()
 								);
 								if ($smcFunc['db_num_rows']($request) == 0)
 								{
-									if ($fix_errors)
+									if ($fix_errors && in_array('files_without_attachment', $to_fix))
 									{
 										@unlink($attach_dir . '/' . $file);
 									}
@@ -1591,8 +1591,21 @@ function RepairAttachments()
 								$smcFunc['db_free_result']($request);
 							}
 						}
+						elseif ($file != 'index.php')
+						{
+							if ($fix_errors && in_array('files_without_attachment', $to_fix))
+							{
+								@unlink($attach_dir . '/' . $file);
+							}
+							else
+							{
+								$context['repair_errors']['files_without_attachment']++;
+								$to_fix[] = 'files_without_attachment';
+							}
+						}
 					}
 					$current_check++;
+					$_GET['substep'] = $current_check;
 					if ($current_check - $files_checked >= $max_checks)
 						pauseAttachmentMaintenance($to_fix);
 				}
@@ -1634,7 +1647,7 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 		@apache_reset_timeout();
 
 	// Have we already used our maximum time?
-	if (time() - array_sum(explode(' ', $time_start)) < 3)
+	if (time() - array_sum(explode(' ', $time_start)) < 3 || $_SESSION['starting_substep'] == $_GET['substep'])
 		return;
 
 	$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . $context['session_var'] . '=' . $context['session_id'];
