@@ -52,3 +52,5 @@ $editortxt['Insert current time'] = 'Insert current time';
 $editortxt['Print'] = 'Print';
 $editortxt['Preformatted Text'] = 'Preformatted Text';
 $editortxt['View source'] = 'View source';
+
+?>
