@@ -247,17 +247,17 @@ function RecentPosts()
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-				WHERE ' . $query_this_board . ($modSettings['postmod_active'] ? '
+				WHERE ' . $query_this_board . ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']) && $user_info['mod_cache']['ap'] != array(0) ? '
 				AND (m.approved = {int:is_approved}
 					AND t.approved = {int:is_approved}
-					OR {raw:boards_moderated})' : '') . '
+					OR b.id_board IN ({array_int:can_approve}))' : '') . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
 					'is_approved' => 1,
 					'offset' => $_REQUEST['start'],
 					'limit' => 10,
-					'boards_moderated' => !empty($user_info['mod_cache']['mq']) ? $user_info['mod_cache']['mq'] : '0=1',
+					'can_approve' => $user_info['mod_cache']['ap']
 				))
 			);
 			// If we don't have 10 results, try again with an unoptimized version covering all rows, and cache the result.
@@ -292,7 +292,7 @@ function RecentPosts()
 			m.id_msg, m.subject, m.smileys_enabled, m.poster_time, m.body, m.id_topic, t.id_board, b.id_cat,
 			b.name AS bname, c.name AS cname, t.num_replies, m.id_member, m2.id_member AS id_first_member,
 			IFNULL(mem2.real_name, m2.poster_name) AS first_poster_name, t.id_first_msg,
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, t.id_last_msg
+			IFNULL(mem.real_name, m.poster_name) AS poster_name, t.id_last_msg, m.approved
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -356,9 +356,11 @@ function RecentPosts()
 				'link' => empty($row['id_member']) ? $row['poster_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>'
 			),
 			'message' => $row['body'],
+			'is_approved' => $row['approved'],
 			'can_reply' => false,
 			'can_mark_notify' => false,
 			'can_delete' => false,
+			'can_approve' => $modSettings['postmod_active'] && (in_array($row['id_board'], $user_info['mod_cache']['ap']) || $user_info['mod_cache']['ap'] == array(0)),
 			'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty($modSettings['edit_disable_time']) || $row['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()),
 		);
 
@@ -926,18 +928,18 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < ml.id_msg' . ($modSettings['postmod_active'] ? '
-				AND (ms.approved = {int:is_approved} || {raw:boards_moderated})' : '') . '
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < ml.id_msg' . ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']) && $user_info['mod_cache']['ap'] != array(0) ? '
+				AND (ms.approved = {int:is_approved} || b.id_board IN ({array_int:can_approve}))' : '') . '
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'min_message' => $min_message,
 				'is_approved' => 1,
-				'boards_moderated' => !empty($user_info['mod_cache']['mq']) ? $user_info['mod_cache']['mq'] : '0=1',
 				'order' => $_REQUEST['sort'] . ($ascending ? '' : ' DESC'),
 				'offset' => $_REQUEST['start'],
 				'limit' => $context['topics_per_page'],
+				'can_approve' => $user_info['mod_cache']['ap']
 			))
 		);
 	}

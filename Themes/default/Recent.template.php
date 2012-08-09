@@ -28,7 +28,7 @@ function template_main()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+			<div class="', $post['is_approved'] ? 'windowbg' : 'approvebg', $post['alternate'] == 0 ? '' : '2', ' core_posts">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
