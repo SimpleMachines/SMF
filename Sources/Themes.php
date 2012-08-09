@@ -1048,7 +1048,7 @@ function PickTheme()
 		// Change a specific member's theme.
 		else
 		{
-			// The forum's default theme is always 0 and we 
+			// The forum's default theme is always 0 and we
 			if (isset($_GET['th']) && $_GET['th'] == 0)
 					$_GET['th'] = $modSettings['theme_guests'];
 
@@ -1435,7 +1435,9 @@ function ThemeInstall()
 		if (!is_writable($boarddir . '/Themes'))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
-		require_once($sourcedir . '/Subs-Package.php');
+		// This happens when the admin session is gone and the user has to login again
+		if (empty($_FILES['theme_gz']) && empty($_REQUEST['theme_gz']))
+			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 
 		// Set the default settings...
 		$theme_name = strtok(basename(isset($_FILES['theme_gz']) ? $_FILES['theme_gz']['name'] : $_REQUEST['theme_gz']), '.');
@@ -1470,6 +1472,15 @@ function ThemeInstall()
 		if (file_exists($theme_dir . '/theme_info.xml'))
 		{
 			$theme_info = file_get_contents($theme_dir . '/theme_info.xml');
+			// Parse theme-info.xml into an xmlArray.
+			require_once($sourcedir . '/Class-Package.php');
+			$theme_info_xml = new xmlArray($theme_info);
+			// @todo Error message of some sort?
+			if (!$theme_info_xml->exists('theme-info[0]'))
+				return 'package_get_error_packageinfo_corrupt';
+
+			$theme_info_xml = $theme_info_xml->path('theme-info[0]');
+			$theme_info_xml = $theme_info_xml->to_array();
 
 			$xml_elements = array(
 				'name' => 'name',
@@ -1479,17 +1490,18 @@ function ThemeInstall()
 			);
 			foreach ($xml_elements as $var => $name)
 			{
-				if (preg_match('~<' . $name . '>(?:<!\[CDATA\[)?(.+?)(?:\]\]>)?</' . $name . '>~', $theme_info, $match) == 1)
-					$install_info[$var] = $match[1];
+				if (!empty($theme_info_xml[$name]))
+					$install_info[$var] = $theme_info_xml[$name];
 			}
 
-			if (preg_match('~<images>(?:<!\[CDATA\[)?(.+?)(?:\]\]>)?</images>~', $theme_info, $match) == 1)
+			if (!empty($theme_info_xml['images']))
 			{
-				$install_info['images_url'] = $install_info['theme_url'] . '/' . $match[1];
+				$install_info['images_url'] = $install_info['theme_url'] . '/' . $theme_info_xml['images'];
 				$explicit_images = true;
 			}
-			if (preg_match('~<extra>(?:<!\[CDATA\[)?(.+?)(?:\]\]>)?</extra>~', $theme_info, $match) == 1)
-				$install_info += unserialize($match[1]);
+
+			if (!empty($theme_info_xml['extra']))
+				$install_info += unserialize($theme_info_xml['extra']);
 		}
 
 		if (isset($install_info['based_on']))

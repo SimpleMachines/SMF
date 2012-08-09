@@ -42,7 +42,8 @@ function template_view_package()
 		echo '
 		<div class="errorbox">
 			', $txt['package_will_fail_title'], '<br />
-			', $txt['package_will_fail_warning'], '
+			', $txt['package_will_fail_warning'],
+			!empty($context['failure_details']) ? '<br /><br /><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
 	}
 
@@ -54,7 +55,6 @@ function template_view_package()
 				<h3 class="catbg">', $txt['package_' . ($context['uninstalling'] ? 'un' : '') . 'install_readme'], '</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					', $context['package_readme'], '
 					<span class="floatright">', $txt['package_available_readme_language'], '
@@ -65,11 +65,10 @@ function template_view_package()
 						</select>
 					</span>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />';
 	}
-	
+
 	// Did they specify a license to display?
 	if (isset($context['package_license']))
 	{
@@ -78,7 +77,6 @@ function template_view_package()
 				<h3 class="catbg">', $txt['package_install_license'], '</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					', $context['package_license'], '
 					<span class="floatright">', $txt['package_available_license_language'], '
@@ -89,11 +87,10 @@ function template_view_package()
 						</select>
 					</span>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />';
 	}
-	
+
 	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', $context['ftp_needed'] ? '' : '2', ';package=', $context['filename'], ';pid=', $context['install_id'], '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -107,7 +104,6 @@ function template_view_package()
 	{
 		echo '
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<label for="do_db_changes"><input type="checkbox" name="do_db_changes" id="do_db_changes" class="input_check" />', $txt['package_db_uninstall'], '</label> [<a href="#" onclick="return swap_database_changes();">', $txt['package_db_uninstall_details'], '</a>]
 					<div id="db_changes_div">
@@ -121,7 +117,6 @@ function template_view_package()
 						</ul>
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 	}
 
@@ -371,7 +366,7 @@ function template_view_package()
 
 	echo '
 	// ]]></script>';
-	
+
 	// Get the currently selected item from a select list
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -433,7 +428,6 @@ function template_extract_package()
 
 	echo '
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">';
 
 	// If we are going to redirect we have a slightly different agenda.
@@ -464,7 +458,6 @@ function template_extract_package()
 
 	echo '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	// Show the "restore permissions" screen?
@@ -492,7 +485,6 @@ function template_list()
 			<h3 class="titlebg">', $txt['files_archive'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<ol>';
 
@@ -505,7 +497,6 @@ function template_list()
 				<br />
 				<a href="', $scripturl, '?action=admin;area=packages">[ ', $txt['back'], ' ]</a>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -524,12 +515,10 @@ function template_examine()
 			<h3 class="titlebg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<pre class="file_content">', $context['filedata'], '</pre>
 				<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $context['package'], '">[ ', $txt['list_files'], ' ]</a>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -547,15 +536,13 @@ function template_browse()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '</span>
+				<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
 			</h3>
 		</div>
 		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
 			</div>
-			<span class="botslice clear_right"><span></span></span>
 		</div>
 
 		<script type="text/javascript"><!-- // --><![CDATA[
@@ -612,7 +599,6 @@ function template_browse()
 					</h3>
 				</div>
 				<div id="advanced_panel_div" class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<p>
 							', $txt['package_emulate_desc'], '
@@ -632,14 +618,13 @@ function template_browse()
 							<input type="submit" value="', $txt['package_apply'], '" class="button_submit" />
 						</div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 			<input type="hidden" name="action" value="admin" />
 			<input type="hidden" name="area" value="packages" />
 			<input type="hidden" name="sa" value="', $context['sub_action'], '" />
 		</form>';
-	
+
 	echo '
 	</div>
 	<br class="clear" />
@@ -711,7 +696,6 @@ function template_servers()
 			<h3 class="titlebg">', $txt['package_ftp_necessary'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>
 					', $txt['package_ftp_why_download'], '
@@ -749,13 +733,11 @@ function template_servers()
 					</div>
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 	}
 
 	echo '
 		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<fieldset>
 					<legend>' . $txt['package_servers'] . '</legend>
@@ -817,14 +799,12 @@ function template_servers()
 					</form>
 				</fieldset>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<br />
 		<div class="cat_bar">
 			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<form action="' . $scripturl . '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" style="margin-bottom: 0;">
 					<dl class="settings">
@@ -841,7 +821,6 @@ function template_servers()
 					<br class="clear_right" />
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -857,12 +836,10 @@ function template_package_confirm()
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $context['confirm_message'], '</p>
 				<a href="', $context['proceed_href'], '">[ ', $txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', $txt['package_confirm_go_back'], ' ]</a>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -878,7 +855,6 @@ function template_package_list()
 			<h3 class="catbg">' . $context['page_title'] . '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">';
 
 	// No packages, as yet.
@@ -985,7 +961,6 @@ function template_package_list()
 
 	echo '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<div class="padding smalltext floatleft">
 			', $txt['package_installed_key'], '
@@ -1059,7 +1034,6 @@ function template_downloaded()
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', (empty($context['package_server']) ? $txt['package_uploaded_successfully'] : $txt['package_downloaded_successfully']), '</p>
 				<ul class="reset">
@@ -1071,7 +1045,6 @@ function template_downloaded()
 				<br /><br />
 				<p><a href="', $scripturl, '?action=admin;area=packages;get', (isset($context['package_server']) ? ';sa=browse;server=' . $context['package_server'] : ''), '">[ ', $txt['back'], ' ]</a></p>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -1091,7 +1064,6 @@ function template_install_options()
 		</div>
 
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<form action="', $scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="', $context['character_set'], '">
 					<dl class="settings">
@@ -1132,7 +1104,6 @@ function template_install_options()
 					<br class="clear_right" />
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -1606,7 +1577,6 @@ function template_file_permissions()
 			<h3 class="catbg">', $txt['package_file_perms_change'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<fieldset>
 					<dl>
@@ -1615,7 +1585,7 @@ function template_file_permissions()
 							<label for="method_individual"><strong>', $txt['package_file_perms_apply'], '</strong></label>
 						</dt>
 						<dd>
-							<em class="smalltext">', $txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5" class="input_text" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqWin(this.href);" class="help">(?)</a></em>
+							<em class="smalltext">', $txt['package_file_perms_custom'], ': <input type="text" name="custom_value" value="0755" maxlength="4" size="5" class="input_text" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=chmod_flags" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a></em>
 						</dd>
 						<dt>
 							<input type="radio" name="method" value="predefined" id="method_predefined" class="input_radio" />
@@ -1648,7 +1618,6 @@ function template_file_permissions()
 				<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit" />
 				<br class="clear_right" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	// Any looks fors we've already done?
@@ -1768,7 +1737,6 @@ function template_action_permissions()
 
 	echo '
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div>
 						<strong>', $progress_message, '</strong><br /><br />
@@ -1829,7 +1797,6 @@ function template_action_permissions()
 						<input type="submit" name="go" id="cont" value="', $txt['not_done_continue'], '" class="button_submit" />
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

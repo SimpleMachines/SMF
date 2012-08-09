@@ -31,7 +31,6 @@ function template_new_group()
 				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -114,51 +113,21 @@ function template_new_group()
 							</fieldset>
 						</dd>';
 	}
+
 	echo '
 						<dt>
 							<strong>', $txt['membergroups_new_board'], ':</strong>', $context['post_group'] ? '<br />
 							<span class="smalltext" style="font-weight: normal">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 						</dt>
-						<dd>
-							<fieldset id="visible_boards">
-								<legend>', $txt['membergroups_new_board_desc'], '</legend>
-								<ul class="ignoreboards floatleft">';
+						<dd>';
 
-	foreach ($context['categories'] as $category)
-	{
-		echo '
-									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;">', $category['name'], '</a>
-									<ul>';
-
-		foreach ($category['boards'] as $board)
-		{
-			echo '
-										<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-											<input type="checkbox" name="boardaccess[]" id="brd', $board['id'], '" value="', $board['id'], '" ', $board['selected'] ? ' checked="checked" disabled="disabled"' : '', ' class="input_check" /> <label for="brd', $board['id'], '">', $board['name'], '</label>
-										</li>';
-		}
-
-		echo '
-									</ul>
-								</li>';
-	}
+	template_add_edit_group_boards_list(false);
 
 	echo '
-							</ul>
-							<br class="clear" />';
-
-	echo '
-								<br />
-								<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'boardaccess\');" /> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
-							</fieldset>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['membergroups_add_group'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 	if ($context['undefined_group'])
 	{
@@ -177,8 +146,7 @@ function template_new_group()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_edit_group()
@@ -193,7 +161,6 @@ function template_edit_group()
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -327,60 +294,21 @@ function template_edit_group()
 							<strong>', $txt['membergroups_new_board'], ':</strong>', $context['group']['is_post_group'] ? '<br />
 							<span class="smalltext">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 						</dt>
-						<dd>
-							<fieldset id="visible_boards" style="width: 95%;">
-								<legend><a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'none\';document.getElementById(\'visible_boards_link\').style.display = \'block\'; return false;">', $txt['membergroups_new_board_desc'], '</a></legend>
-								<ul class="ignoreboards floatleft">';
-
-		foreach ($context['categories'] as $category)
-		{
-			echo '
-									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'groupForm\'); return false;">', $category['name'], '</a>
-										<ul>';
-
-			foreach ($category['boards'] as $board)
-			{
-				echo '
-											<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-												<input type="checkbox" name="boardaccess[]" id="brd', $board['id'], '" value="', $board['id'], '" ', $board['selected'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="brd', $board['id'], '">', $board['name'], '</label>
-											</li>';
-			}
-
-			echo '
-										</ul>
-									</li>';
-		}
-
+						<dd>';
+		template_add_edit_group_boards_list();
 		echo '
-								</ul>
-								<br class="clear" />';
-
-		echo '
-								<br />
-								<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'boardaccess\');" /> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
-							</fieldset>
-							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
-							<script type="text/javascript"><!-- // --><![CDATA[
-								document.getElementById("visible_boards_link").style.display = "";
-								document.getElementById("visible_boards").style.display = "none";
-							// ]]></script>
 						</dd>';
 	}
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button_submit" />', $context['group']['allow_delete'] ? '
 					<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" onclick="return confirm(\'' . $txt['membergroups_confirm_delete'] . '\');" class="button_submit" />' : '', '
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 		</form>
 	</div>
-	<br class="clear" />
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oModeratorSuggest = new smc_AutoSuggest({
@@ -431,6 +359,95 @@ function template_edit_group()
 		// ]]></script>';
 }
 
+function template_add_edit_group_boards_list($collapse = true)
+{
+	global $context, $txt, $modSettings;
+	echo '
+							<fieldset id="visible_boards">
+								<legend>', $txt['membergroups_new_board_desc'], '</legend>
+								<ul class="ignoreboards floatleft">';
+
+	foreach ($context['categories'] as $category)
+	{
+		if (empty($modSettings['deny_boards_access']))
+			echo '
+									<li class="category">
+										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;"><strong>', $category['name'], '</strong></a>
+									<ul style="width:100%">';
+		else
+			echo '
+									<li class="category">
+										<strong>', $category['name'], '</strong>
+										<span class="select_all_box">
+											<em style="margin-left:5em;">', $txt['all_boards_in_cat'], ': </em>
+											<select onchange="select_in_category(', $category['id'], ', this, [', implode(',', array_keys($category['boards'])), ']);">
+												<option>---</option>
+												<option value="allow">', $txt['board_perms_allow'], '</option>
+												<option value="ignore">', $txt['board_perms_ignore'], '</option>
+												<option value="deny">', $txt['board_perms_deny'], '</option>
+											</select>
+										</span>
+										<ul style="width:100%" id="boards_list_', $category['id'], '">';
+
+		foreach ($category['boards'] as $board)
+		{
+			if (empty($modSettings['deny_boards_access']))
+				echo '
+										<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+											<input type="checkbox" name="boardaccess[', $board['id'], ']" id="brd', $board['id'], '" value="\'allow\'" ', $board['allow'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="brd', $board['id'], '">', $board['name'], '</label>
+										</li>';
+			else
+				echo '
+											<li class="board" style="width:100%">
+												<span style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">', $board['name'], ': </span>
+												<span style="width:50%;float:right">
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow" ', $board['allow'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="allow_brd', $board['id'], '">', $txt['permissions_option_on'], '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore" ', !$board['allow'] && !$board['deny'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="ignore_brd', $board['id'], '">', $txt['permissions_option_off'], '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="deny_brd', $board['id'], '" value="deny" ', $board['deny'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="deny_brd', $board['id'], '">', $txt['permissions_option_deny'], '</label>
+												</span>
+											</li>';
+		}
+
+		echo '
+									</ul>
+								</li>';
+	}
+
+	echo '
+							</ul>';
+
+	if (empty($modSettings['deny_boards_access']))
+		echo '
+								<br />
+								<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'boardaccess\');" /> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+							</fieldset>';
+	else
+		echo '
+								<br />
+								<span class="select_all_box">
+									<em>', $txt['all'], ': </em>
+									<input type="radio" name="select_all" id="allow_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');" /> <label for="allow_all">', $txt['board_perms_allow'], '</label>
+									<input type="radio" name="select_all" id="ignore_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');" /> <label for="ignore_all">', $txt['board_perms_ignore'], '</label>
+									<input type="radio" name="select_all" id="deny_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');" /> <label for="deny_all">', $txt['board_perms_deny'], '</label>
+								</span>
+							</fieldset>
+							<script type="text/javascript"><!-- // --><![CDATA[
+								$(document).ready(function () {
+									$(".select_all_box").each(function () {
+										$(this).removeClass(\'select_all_box\');
+									});
+								});
+							// ]]></script>';
+
+	if ($collapse)
+		echo '
+							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
+							<script type="text/javascript"><!-- // --><![CDATA[
+								document.getElementById("visible_boards_link").style.display = "";
+								document.getElementById("visible_boards").style.display = "none";
+							// ]]></script>';
+}
+
 // Templating for viewing the members of a group.
 function template_group_members()
 {
@@ -438,12 +455,11 @@ function template_group_members()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : '') , ';sa=members;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : '') , ';sa=members;group=', $context['group']['id'], '" method="post" accept-charset="', $context['character_set'], '" id="view_group">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -488,7 +504,6 @@ function template_group_members()
 	echo '
 					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 
 			<br />
@@ -570,27 +585,26 @@ function template_group_members()
 	echo '
 				</tbody>
 			</table>';
-		
+
 	if (!empty($context['group']['assignable']))
 		echo '
 			<div class="floatright">
 				<input type="submit" name="remove" value="', $txt['membergroups_members_remove'], '" class="button_submit " />
 			</div>';
-	
+
 	echo '
 			<div class="pagesection flow_hidden">
 				<div class="floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
 			</div>
 			<br />';
-	
+
 	if (!empty($context['group']['assignable']))
 	{
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
+			<div class="cat_bar cat_bar_odd">
+				<h3 class="catbg catbg_odd">', $txt['membergroups_members_add_title'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -604,7 +618,6 @@ function template_group_members()
 					<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 	}
 
@@ -648,7 +661,6 @@ function template_group_request_reason()
 				<h3 class="catbg">', $txt['mc_groups_reason_title'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">';
 
@@ -670,7 +682,6 @@ function template_group_request_reason()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

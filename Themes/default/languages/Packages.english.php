@@ -4,6 +4,7 @@
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
 $txt['package_run'] = 'Run';
+$txt['package_id'] = 'ID';
 $txt['package_read'] = 'Read';
 $txt['script_output'] = 'Script output:';
 $txt['additional_notes'] = 'Additional notes';
@@ -110,6 +111,7 @@ $txt['package_will_fail_title'] = 'Error in Package Installation';
 $txt['package_will_fail_warning'] = 'At least one error was encountered during a test installation of this package.
 	It is <strong>strongly</strong> recommended that you do not continue with installation unless you know what you are doing, and have made a backup very recently.<br />
 	This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you don\'t have installed yet, or a package designed for another version of SMF.';
+$txt['package_will_fail_unknown_action'] = 'The package is trying to perform an unknown action: %1$s';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
 $txt['package_will_fail_popup_uninstall'] = 'Are you sure you wish to continue uninstalling this modification, even though it will not uninstall successfully?';

@@ -94,6 +94,8 @@ $txt['permissionname_pm_read'] = 'Read personal messages';
 $txt['permissionhelp_pm_read'] = 'This permission allows users to access the Personal Messages section and read their Personal Messages. Without this permission a user is unable to send Personal Messages.';
 $txt['permissionname_pm_send'] = 'Send personal messages';
 $txt['permissionhelp_pm_send'] = 'Send personal messages to other registered members. Requires the \'Read personal messages\' permission.';
+$txt['permissionname_send_email_to_members'] = 'Send emails';
+$txt['permissionhelp_send_email_to_members'] = 'Send emails to other registered members.';
 
 $txt['permissiongroup_calendar'] = 'Calendar';
 $txt['permissionname_calendar_view'] = 'View the calendar';
@@ -234,6 +236,23 @@ $txt['permissionname_poll_remove'] = 'Remove polls';
 $txt['permissionhelp_poll_remove'] = 'This permission allows removal of polls.';
 $txt['permissionname_poll_remove_own'] = 'Own poll';
 $txt['permissionname_poll_remove_any'] = 'Any poll';
+
+$txt['permissionname_post_draft'] = 'Save drafts of new posts';
+$txt['permissionname_simple_post_draft'] = 'Save drafts of new posts';
+$txt['permissionhelp_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
+$txt['permissionhelp_simple_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
+$txt['permissionname_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
+$txt['permissionname_simple_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
+$txt['permissionhelp_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
+$txt['permissionhelp_simple_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
+$txt['permissionname_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
+$txt['permissionname_simple_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
+$txt['permissionhelp_pm_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
+$txt['permissionhelp_simple_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
+$txt['permissionname_pm_draft'] = 'Save drafts of personal messages';
+$txt['permissionname_simple_pm_draft'] = 'Save drafts of personal messages';
+$txt['permissionhelp_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
+$txt['permissionhelp_simple_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
 
 $txt['permissiongroup_approval'] = 'Post Moderation';
 $txt['permissionname_approve_posts'] = 'Approve items awaiting moderation';

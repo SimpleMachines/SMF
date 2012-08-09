@@ -70,70 +70,63 @@ function template_find_members()
 	</head>
 	<body id="help_popup">
 		<form action="', $scripturl, '?action=findmember;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '" class="padding description">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
-				<div class="innerframe">
-					<div class="cat_bar">
-						<h3 class="catbg">', $txt['find_members'], '</h3>
-					</div>
-					<div class="padding">
-						<strong>', $txt['find_username'], ':</strong><br />
-						<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text" /><br />
-						<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br />';
+				<div class="cat_bar">
+					<h3 class="catbg">', $txt['find_members'], '</h3>
+				</div>
+				<div class="padding">
+					<strong>', $txt['find_username'], ':</strong><br />
+					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text" /><br />
+					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br />';
 
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
-						<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked="checked"' : '', ' /> ', $txt['find_buddies'], '</label></span><br />';
+					<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked="checked"' : '', ' /> ', $txt['find_buddies'], '</label></span><br />';
 
 	echo '
-						<div class="padding righttext">
-							<input type="submit" value="', $txt['search'], '" class="button_submit" />
-							<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit" />
-						</div>
+					<div class="padding righttext">
+						<input type="submit" value="', $txt['search'], '" class="button_submit" />
+						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit" />
 					</div>
 				</div>
 			</div>
-			<span class="lowerframe"><span></span></span>
 			<br />
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
-				<div class="innerframe">
-					<div class="cat_bar">
-						<h3 class="catbg">', $txt['find_results'], '</h3>
-					</div>';
+				<div class="cat_bar">
+					<h3 class="catbg">', $txt['find_results'], '</h3>
+				</div>';
 
 	if (empty($context['results']))
 		echo '
-					<p class="error">', $txt['find_no_results'], '</p>';
+				<p class="error">', $txt['find_no_results'], '</p>';
 	else
 	{
 		echo '
-					<ul class="reset padding">';
+				<ul class="reset padding">';
 
 		$alternate = true;
 		foreach ($context['results'] as $result)
 		{
 			echo '
-						<li class="', $alternate ? 'windowbg2' : 'windowbg', '">
-							<a href="', $result['href'], '" target="_blank" class="new_win"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="', $txt['view_profile'], '" title="', $txt['view_profile'], '" /></a>
-							<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
-						</li>';
+					<li class="', $alternate ? 'windowbg2' : 'windowbg', '">
+						<a href="', $result['href'], '" target="_blank" class="new_win"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="', $txt['view_profile'], '" title="', $txt['view_profile'], '" /></a>
+						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
+					</li>';
 
 			$alternate = !$alternate;
 		}
 
 		echo '
-					</ul>
-					<div class="pagesection">
-						', $txt['pages'], ': ', $context['page_index'], '
-					</div>';
+				</ul>
+				<div class="pagesection">
+					', $txt['pages'], ': ', $context['page_index'], '
+				</div>';
 	}
 
 	echo '
-				</div>
+
 			</div>
-			<span class="lowerframe"><span></span></span>
 			<input type="hidden" name="input" value="', $context['input_box_name'], '" />
 			<input type="hidden" name="delim" value="', $context['delimiter'], '" />
 			<input type="hidden" name="quote" value="', $context['quote_results'] ? '1' : '0', '" />
@@ -160,27 +153,22 @@ function template_manual()
 				<h3 class="catbg">', $txt['manual_smf_user_help'], '</h3>
 			</div>
 			<div id="help_container">
-				<div class="windowbg2">
-					<span class="topslice"><span></span></span>
-					<div id="helpmain" class="content">
-						<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
-						<p>', $txt['manual_introduction'], '</p>
-						<ul>';
+				<div id="helpmain" class="windowbg2 content">
+					<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
+					<p>', $txt['manual_introduction'], '</p>
+					<ul>';
 
 	foreach ($context['manual_sections'] as $section_id => $wiki_id)
 	{
 		echo '
-							<li><a href="', $context['wiki_url'], '/', $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', $context['wiki_url'], '/', $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
 	}
 
 	echo '
-						</ul>
-						<p>', sprintf($txt['manual_docs_and_credits'], $context['wiki_url'], $scripturl . '?action=credits'), '</p>
-					</div>
-					<span class="botslice"><span></span></span>
+					</ul>
+					<p>', sprintf($txt['manual_docs_and_credits'], $context['wiki_url'], $scripturl . '?action=credits'), '</p>
 				</div>
-			</div>
-			<br class="clear" />';
+			</div>';
 }
 
 ?>

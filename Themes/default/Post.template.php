@@ -74,13 +74,11 @@ function template_main()
 					</h3>
 				</div>
 				<div class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<div class="post" id="preview_body">
 							', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 						</div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div><br />';
 
@@ -94,19 +92,18 @@ function template_main()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div>
-				<span class="upperframe"><span></span></span>
 				<div class="roundframe">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '" />' : '';
 
 	// If an error occurred, explain what happened.
 	echo '
-					<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
+					<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']) ? ' style="display: none"' : '', ' id="errors">
 						<dl>
 							<dt>
 								<strong id="error_serious">', $txt['error_while_submitting'], '</strong>
 							</dt>
 							<dd class="error" id="error_list">
-								', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
+								', empty($context['post_error']) ? '' : implode('<br />', $context['post_error']), '
 							</dd>
 						</dl>
 					</div>';
@@ -126,6 +123,12 @@ function template_main()
 					<p class="information"', $context['locked'] ? '' : ' style="display: none"', ' id="lock_warning">
 						', $txt['topic_locked_no_reply'], '
 					</p>';
+
+	if (!empty($modSettings['drafts_post_enabled']))
+		echo '
+				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+					sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
+				</div>';
 
 	// The post header... important stuff
 	echo '
@@ -175,7 +178,8 @@ function template_main()
 							</select>
 							<img src="', $context['icon_url'], '" name="icons" hspace="15" alt="" />
 						</dd>
-					</dl><hr class="clear" />';
+					</dl>
+					<hr class="clear" />';
 
 	// Are you posting a calendar event?
 	if ($context['make_event'])
@@ -348,17 +352,6 @@ function template_main()
 	}
 
 	// Show the actual posting area...
-	if ($context['show_bbc'])
-	{
-		echo '
-					<div id="bbcBox_message"></div>';
-	}
-
-	// What about smileys?
-	if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
-		echo '
-					<div id="smileyBox_message"></div>';
-
 	echo '
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
@@ -426,7 +419,7 @@ function template_main()
 	{
 		echo '
 					<dl id="postAttachment2">';
-		
+
 		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
 		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
 		{
@@ -436,7 +429,7 @@ function template_main()
 						</dt>
 						<dd class="smalltext">
 							', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '" />'), '
-							<input type="file" size="60" name="attachment[]" id="attachment1" class="input_file" /> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+							<input type="file" size="60" multiple="multiple" name="attachment[]" id="attachment1" class="input_file" /> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
 
 			// Show more boxes if they aren't approaching that limit.
 			if ($context['num_allowed_attachments'] > 1)
@@ -465,7 +458,7 @@ function template_main()
 		}
 
 		// Add any template changes for an alternative upload system here.
-		call_integration_hook('integrate_upload_template', array());
+		call_integration_hook('integrate_upload_template');
 
 		echo '
 						<dd class="smalltext">';
@@ -492,6 +485,30 @@ function template_main()
 					</dl>';
 	}
 
+	// If the admin enabled the drafts feature, show a draft selection box
+	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	{
+		echo '
+			<br />
+			<div id="postDraftOptionsHeader" class="title_bar">
+				<h4 class="titlebg">
+					<img id="postDraftExpand" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png" alt="-" /> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+				</h4>
+			</div>
+			<div id="postDraftOptions" class="load_drafts padding">
+				<dl class="settings">
+					<dt><strong>', $txt['subject'], '</strong></dt>
+					<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
+
+		foreach ($context['drafts'] as $draft)
+			echo '
+					<dt>', $draft['link'], '</dt>
+					<dd>', $draft['poster_time'], '</dd>';
+		echo '
+				</dl>
+			</div>';
+	}
+
 	// Is visual verification enabled?
 	if ($context['require_verification'])
 	{
@@ -506,9 +523,9 @@ function template_main()
 
 	// Finally, the submit buttons.
 	echo '
-					<hr class="hrcolor" />
-					<span class="smalltext" >
-						', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
+					<br class="clear_right" />
+					<span class="smalltext">
+						', isBrowser('is_firefox') ? ($context['drafts_save'] ? $txt['shortcuts_drafts_firefox'] : $txt['shortcuts_firefox']) : ($context['drafts_save'] ? $txt['shortcuts_drafts'] : $txt['shortcuts']), '
 					</span>
 					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
@@ -520,9 +537,7 @@ function template_main()
 
 	echo '
 					</span>
-					<br class="clear_right" />
 				</div>
-				<span class="lowerframe"><span></span></span>
 			</div>
 			<br class="clear" />';
 
@@ -569,7 +584,7 @@ function template_main()
 					}
 					// @todo Currently not sending poll options and option checkboxes.
 					var x = new Array();
-					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
+					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', ', JavaScriptEscape($context['session_var']), ', \'icon\', \'guestname\', \'email\', \'evtitle\', \'question\', \'topic\'];
 					var numericFields = [
 						\'board\', \'topic\', \'last_msg\',
 						\'eventid\', \'calendar\', \'year\', \'month\', \'day\',
@@ -583,8 +598,8 @@ function template_main()
 						if (textFields[i] in document.forms.postmodify)
 						{
 							// Handle the WYSIWYG editor.
-							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && ', JavaScriptEscape('oEditorHandle_' . $context['post_box_name']), ' in window && oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled)
-								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', $context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
+							if (textFields[i] == ', JavaScriptEscape($context['post_box_name']), ' && $("#', $context['post_box_name'], '").data("sceditor") != undefined)
+								x[x.length] = textFields[i] + \'=\' + $("#', $context['post_box_name'], '").data("sceditor").getText().replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.postmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
 						}
@@ -680,7 +695,7 @@ function template_main()
 						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
 							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
 
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><span class="topslice"><span></span></span><div class="content" id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><div class="content" id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
 
 	if ($context['can_quote'])
 		echo '
@@ -692,7 +707,7 @@ function template_main()
 						if (ignoring)
 							newPostsHTML += \'<div id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_prompt" class="smalltext">', $txt['ignoring_user'], '<a href="#" id="msg_\' + newPosts[i].getAttribute("id") + \'_ignored_link" style="display: none;">', $txt['show_ignore_user_post'], '</a></div>\';
 
-						newPostsHTML += \'<div class="list_posts smalltext" id="msg_\' + newPosts[i].getAttribute("id") + \'_body">\' + newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue + \'<\' + \'/div></div><span class="botslice"><span></span></span></div>\';
+						newPostsHTML += \'<div class="list_posts smalltext" id="msg_\' + newPosts[i].getAttribute("id") + \'_body">\' + newPosts[i].getElementsByTagName("message")[0].firstChild.nodeValue + \'<\' + \'/div></div></div>\';
 					}
 					setOuterHTML(document.getElementById(\'new_replies\'), newPostsHTML);
 				}
@@ -762,6 +777,33 @@ function template_main()
 				]
 			});';
 
+	// Code for showing and hiding drafts
+	if (!empty($context['drafts']))
+		echo '
+			var oSwapDraftOptions = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: true,
+				aSwappableContainers: [
+					\'postDraftOptions\',
+				],
+				aSwapImages: [
+					{
+						sId: \'postDraftExpand\',
+						srcExpanded: smf_images_url + \'/collapse.png\',
+						altExpanded: \'-\',
+						srcCollapsed: smf_images_url + \'/expand.png\',
+						altCollapsed: \'+\'
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'postDraftExpandLink\',
+						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+					}
+				]
+			});';
+
 	echo '
 		// ]]></script>';
 
@@ -784,18 +826,16 @@ function template_main()
 
 			echo '
 				<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<span class="topslice"><span></span></span>
 				<div class="content" id="msg', $post['id'], '">
-					<div class="floatleft">
-						<h5>', $txt['posted_by'], ': ', $post['poster'], '</h5>
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $post['time'], '&nbsp;&#187;</span>
-					</div>';
+					<h5 class="floatleft">
+						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
+					</h5>&nbsp;-&nbsp;', $post['time'];
 
 			if ($context['can_quote'])
 			{
 				echo '
-					<ul class="reset smalltext quickbuttons" id="msg_', $post['id'], '_quote">
-						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button"><span>',$txt['bbc_quote'],'</span></a></li>
+					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
+						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">',$txt['bbc_quote'],'</a></li>
 					</ul>';
 			}
 
@@ -814,7 +854,6 @@ function template_main()
 			echo '
 					<div class="list_posts smalltext" id="msg_', $post['id'], '_body">', $post['message'], '</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 		}
 
@@ -847,17 +886,23 @@ function template_main()
 			function insertQuoteFast(messageid)
 			{
 				if (window.XMLHttpRequest)
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
+					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=0\', onDocReceived);
 				else
-					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
+					reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=0\', 240, 90);
+
 				return true;
 			}
 			function onDocReceived(XMLDoc)
 			{
 				var text = \'\';
+
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				oEditorHandle_', $context['post_box_name'], '.insertText(text, false, true);
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+			}
+			function onReceiveOpener(text)
+			{
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 			}
 		// ]]></script>';
 	}
@@ -978,7 +1023,7 @@ function template_quotefast()
 			if (\'opera\' in window)
 				quote = quote.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, \'"\').replace(/&amp;/g, "&");
 
-			window.opener.oEditorHandle_', $context['post_box_name'], '.InsertText(quote);
+			window.opener.onReceiveOpener(quote);
 
 			window.focus();
 			setTimeout("window.close();", 400);';
@@ -1003,7 +1048,6 @@ function template_announce()
 				', $txt['announce_desc'], '
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
@@ -1031,7 +1075,6 @@ function template_announce()
 					</div>
 				</div>
 				<br class="clear_right" />
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -1046,7 +1089,6 @@ function template_announcement_send()
 	<div id="announcement">
 		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" class="new_win">', $context['topic_subject'], '</a></p>
 					<div class="progress_bar">
@@ -1065,7 +1107,6 @@ function template_announcement_send()
 					</div>
 				</div>
 				<br class="clear_right" />
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

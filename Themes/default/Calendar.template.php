@@ -22,15 +22,10 @@ function template_main()
 				', template_show_month_grid('current'), '
 				', template_show_month_grid('next'), '
 			</div>
-			<div id="main_grid" style="', isBrowser('is_ie') && !isBrowser('is_ie8') ? 'float: ' . ($context['right_to_left'] ? 'right; padding-right' : 'left; padding-left') . ': 20px;' : 'margin-' . ($context['right_to_left'] ? 'right' : 'left') . ': 220px; ', '">
+			<div id="main_grid">
 				', $context['view_week'] ? template_show_week_grid('main') : template_show_month_grid('main');
 
-	// Build the calendar button array.
-	$calendar_buttons = array(
-		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-	);
-
-	template_button_strip($calendar_buttons, 'right');
+	template_button_strip($context['calendar_buttons'], 'right');
 
 	// Show some controls to allow easy calendar navigation.
 	echo '
@@ -55,7 +50,6 @@ function template_main()
 
 	echo '
 				</form>
-				<br class="clear_right" />
 			</div>
 		</div>';
 }
@@ -124,115 +118,111 @@ function template_event_post()
 	}
 
 	echo '
-			<div class="windowbg">
-				<span class="upperframe"><span></span></span>
-				<div class="roundframe">
-					<fieldset id="event_main">
-						<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
-						<input type="text" name="evtitle" maxlength="255" size="70" value="', $context['event']['title'], '" class="input_text" />
-						<div class="smalltext" style="white-space: nowrap;">
-							<input type="hidden" name="calendar" value="1" />', $txt['calendar_year'], '
-							<select name="year" id="year" onchange="generateDays();">';
+			<div class="roundframe">
+				<fieldset id="event_main">
+					<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
+					<input type="text" name="evtitle" maxlength="255" size="70" value="', $context['event']['title'], '" class="input_text" />
+					<div class="smalltext" style="white-space: nowrap;">
+						<input type="hidden" name="calendar" value="1" />', $txt['calendar_year'], '
+						<select name="year" id="year" onchange="generateDays();">';
 
 	// Show a list of all the years we allow...
 	for ($year = $modSettings['cal_minyear']; $year <= $modSettings['cal_maxyear']; $year++)
 		echo '
-								<option value="', $year, '"', $year == $context['event']['year'] ? ' selected="selected"' : '', '>', $year, '&nbsp;</option>';
+							<option value="', $year, '"', $year == $context['event']['year'] ? ' selected="selected"' : '', '>', $year, '&nbsp;</option>';
 
 	echo '
-							</select>
-							', $txt['calendar_month'], '
-							<select name="month" id="month" onchange="generateDays();">';
+						</select>
+						', $txt['calendar_month'], '
+						<select name="month" id="month" onchange="generateDays();">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-								<option value="', $month, '"', $month == $context['event']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '&nbsp;</option>';
+							<option value="', $month, '"', $month == $context['event']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '&nbsp;</option>';
 
 	echo '
-							</select>
-							', $txt['calendar_day'], '
-							<select name="day" id="day">';
+						</select>
+						', $txt['calendar_day'], '
+						<select name="day" id="day">';
 
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
 	for ($day = 1; $day <= $context['event']['last_day']; $day++)
 		echo '
-								<option value="', $day, '"', $day == $context['event']['day'] ? ' selected="selected"' : '', '>', $day, '&nbsp;</option>';
+							<option value="', $day, '"', $day == $context['event']['day'] ? ' selected="selected"' : '', '>', $day, '&nbsp;</option>';
 
 	echo '
-							</select>
-						</div>
-					</fieldset>';
+						</select>
+					</div>
+				</fieldset>';
 
 	if (!empty($modSettings['cal_allowspan']) || $context['event']['new'])
 		echo '
-					<fieldset id="event_options">
-						<legend>', $txt['calendar_event_options'], '</legend>
-						<div class="event_options smalltext">
-							<ul class="event_options">';
+				<fieldset id="event_options">
+					<legend>', $txt['calendar_event_options'], '</legend>
+					<div class="event_options smalltext">
+						<ul class="event_options">';
 
 	// If events can span more than one day then allow the user to select how long it should last.
 	if (!empty($modSettings['cal_allowspan']))
 	{
 		echo '
-								<li>
-									', $txt['calendar_numb_days'], '
-									<select name="span">';
+							<li>
+								', $txt['calendar_numb_days'], '
+								<select name="span">';
 
 		for ($days = 1; $days <= $modSettings['cal_maxspan']; $days++)
 			echo '
-										<option value="', $days, '"', $context['event']['span'] == $days ? ' selected="selected"' : '', '>', $days, '&nbsp;</option>';
+									<option value="', $days, '"', $context['event']['span'] == $days ? ' selected="selected"' : '', '>', $days, '&nbsp;</option>';
 
 		echo '
-									</select>
-								</li>';
+								</select>
+							</li>';
 	}
 
 	// If this is a new event let the user specify which board they want the linked post to be put into.
 	if ($context['event']['new'])
 	{
 		echo '
-								<li>
-									', $txt['calendar_link_event'], '
-									<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked="checked" onclick="toggleLinked(this.form);" />
-								</li>
-								<li>
-									', $txt['calendar_post_in'], '
-									<select id="board" name="board" onchange="this.form.submit();">';
+							<li>
+								', $txt['calendar_link_event'], '
+								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked="checked" onclick="toggleLinked(this.form);" />
+							</li>
+							<li>
+								', $txt['calendar_post_in'], '
+								<select id="board" name="board" onchange="this.form.submit();">';
 		foreach ($context['event']['categories'] as $category)
 		{
 			echo '
-										<optgroup label="', $category['name'], '">';
+									<optgroup label="', $category['name'], '">';
 			foreach ($category['boards'] as $board)
 				echo '
-											<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 			echo '
-										</optgroup>';
+									</optgroup>';
 		}
 		echo '
-									</select>
-								</li>';
+								</select>
+							</li>';
 	}
 
 	if (!empty($modSettings['cal_allowspan']) || $context['event']['new'])
 		echo '
-							</ul>
-						</div>
-					</fieldset>';
+						</ul>
+					</div>
+				</fieldset>';
 
 	echo '
-						<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit" />';
+				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit" />';
 	// Delete button?
 	if (empty($context['event']['new']))
 		echo '
-						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['calendar_confirm_delete'], '\');" class="button_submit" />';
+				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['calendar_confirm_delete'], '\');" class="button_submit" />';
 
 	echo '
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="eventid" value="', $context['event']['eventid'], '" />
-						<br class="clear" />
-				</div>
-				<span class="lowerframe"><span></span></span>
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="eventid" value="', $context['event']['eventid'], '" />
+
 			</div>
 		</div>
 		</form>';
@@ -384,12 +374,12 @@ function template_show_month_grid($grid_name)
 						if ($event['can_edit'])
 							echo '
 								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" title="' . $txt['modify'] . '" /></a>';
-						
+
 						if ($event['can_export'])
 							echo '
 								<a class="modify_event" href="', $event['export_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_export.png" alt=">" title="' . $txt['save'] . '"/></a>';
 
-								
+
 						echo '
 								', $event['link'], $event['is_last'] ? '' : '<br />';
 					}
@@ -444,32 +434,25 @@ function template_show_week_grid($grid_name)
 		$done_title = true;
 
 		echo '
-				<table width="100%" class="calendar_table weeklist" cellspacing="1" cellpadding="0">';
+				<ul class="weeklist">';
 
 		foreach ($month_data['days'] as $day)
 		{
 			echo '
-					<tr>
-						<td colspan="2">
-							<div class="title_bar">
-								<h4 class="titlebg">', $txt['days'][$day['day_of_week']], '</h4>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="windowbg">';
+					<li class="windowbg">
+						<h4>';
 
 			// Should the day number be a link?
 			if (!empty($modSettings['cal_daysaslink']) && $context['can_post'])
 				echo '
-							<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $day['day'], '</a>';
+							<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['days'][$day['day_of_week']], ' - ', $day['day'], '</a>';
 			else
 				echo '
-							', $day['day'];
+							', $txt['days'][$day['day_of_week']], ' - ', $day['day'];
 
 			echo '
-						</td>
-						<td class="', $day['is_today'] ? 'calendar_today' : 'windowbg2', ' weekdays">';
+						</h4>
+						<div class="', $day['is_today'] ? 'calendar_today' : 'windowbg2', ' weekdays">';
 
 			// Are there any holidays?
 			if (!empty($day['holidays']))
@@ -517,12 +500,12 @@ function template_show_week_grid($grid_name)
 			}
 
 			echo '
-						</td>
-					</tr>';
+						</div>
+					</li>';
 		}
 
 		echo '
-				</table>';
+				</ul>';
 	}
 }
 

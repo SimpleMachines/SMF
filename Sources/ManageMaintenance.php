@@ -64,6 +64,7 @@ function ManageMaintenance()
 				'backup' => 'MaintainDownloadBackup',
 				'convertentities' => 'ConvertEntities',
 				'convertutf8' => 'ConvertUtf8',
+				'convertmsgbody' => 'ConvertMsgBody',
 			),
 		),
 		'members' => array(
@@ -81,6 +82,7 @@ function ManageMaintenance()
 			'activities' => array(
 				'massmove' => 'MaintainMassMoveTopics',
 				'pruneold' => 'MaintainRemoveOldPosts',
+				'olddrafts' => 'MaintainRemoveOldDrafts',
 			),
 		),
 		'destroy' => array(
@@ -132,6 +134,19 @@ function MaintainDatabase()
 	$context['convert_utf8'] = $db_type == 'mysql' && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
 	$context['convert_entities'] = $db_type == 'mysql' && isset($db_character_set, $modSettings['global_character_set']) && $db_character_set === 'utf8' && $modSettings['global_character_set'] === 'UTF-8';
 
+	if ($db_type == 'mysql')
+	{
+		db_extend('packages');
+
+		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
+		foreach ($colData as $column)
+			if ($column['name'] == 'body')
+				$body_type = $column['type'];
+
+		$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
+		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
+	}
+
 	// Check few things to give advices before make a backup
 	// If safe mod is enable the external tool is *always* the best (and probably the only) solution
 	$context['safe_mode_enable'] = @ini_get('safe_mode');
@@ -149,7 +164,7 @@ function MaintainDatabase()
 	$memory_limit = memoryReturnBytes(ini_get('memory_limit')) / (1024 * 1024);
 	// Zip limit is set to more or less 1/4th the size of the available memory * 1500
 	// 1500 is an estimate of the number of messages that generates a database of 1 MB (yeah I know IT'S AN ESTIMATION!!!)
-	// Why that? Because the only reliable zip package is the one sent out the first time, 
+	// Why that? Because the only reliable zip package is the one sent out the first time,
 	// so when the backup takes 1/5th (just to stay on the safe side) of the memory available
 	$zip_limit = $memory_limit * 1500 / 5;
 	// Here is more tricky: it depends on many factors, but the main idea is that
@@ -169,7 +184,7 @@ function MaintainDatabase()
 	//  * safe_mode enable OR
 	//  * cannot change the execution time OR
 	//  * cannot reset timeout
-	if ($context['safe_mode_enable'] || empty($new_time_limit) || $current_time_limit == $new_time_limit || !function_exists('apache_reset_timeout'))
+	if ($context['safe_mode_enable'] || empty($new_time_limit) || ($current_time_limit == $new_time_limit && !function_exists('apache_reset_timeout')))
 		$context['suggested_method'] = 'use_external_tool';
 	elseif ($zip_limit < $plain_limit && $messages < $zip_limit)
 		$context['suggested_method'] = 'zipped_file';
@@ -229,7 +244,7 @@ function MaintainMembers()
 		);
 	}
 	$smcFunc['db_free_result']($result);
-	
+
 	if (isset($_GET['done']) && $_GET['done'] == 'recountposts')
 		$context['maintenance_finished'] = $txt['maintain_recountposts'];
 }
@@ -734,6 +749,148 @@ function ConvertUtf8()
 }
 
 /**
+ * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT and vice versa.
+ * It requires the admin_forum permission.
+ * This is needed only for MySQL.
+ * During the convertion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
+ * This action is linked from the maintenance screen (if it's applicable).
+ * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
+ *
+ * @uses the convert_msgbody sub template of the Admin template.
+ */
+function ConvertMsgBody()
+{
+	global $scripturl, $context, $txt, $language, $db_character_set, $db_type;
+	global $modSettings, $user_info, $sourcedir, $smcFunc, $db_prefix, $time_start;
+
+	// Show me your badge!
+	isAllowedTo('admin_forum');
+
+	if ($db_type != 'mysql')
+		return;
+
+	db_extend('packages');
+
+	$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
+	foreach ($colData as $column)
+		if ($column['name'] == 'body')
+			$body_type = $column['type'];
+
+	$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
+
+	if ($body_type == 'text' || ($body_type != 'text' && isset($_POST['do_conversion'])))
+	{
+		checkSession();
+		validateToken('admin-maint');
+
+		// Make it longer so we can do their limit.
+		if ($body_type == 'text')
+			$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'mediumtext'));
+		// Shorten the column so we can have a bit (literally per record) less space occupied
+		else
+			$smcFunc['db_change_column']('{db_prefix}messages', 'body', array('type' => 'text'));
+
+		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
+		foreach ($colData as $column)
+			if ($column['name'] == 'body')
+				$body_type = $column['type'];
+
+		$context['maintenance_finished'] = $txt[$context['convert_to'] . '_title'];
+		$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
+		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
+
+		return;
+		redirectexit('action=admin;area=maintain;sa=database');
+	}
+	elseif ($body_type != 'text' && (!isset($_POST['do_conversion']) || isset($_POST['cont'])))
+	{
+		checkSession();
+		if (empty($_REQUEST['start']))
+			validateToken('admin-maint');
+		else
+			validateToken('admin-convertMsg');
+
+		$context['page_title'] = $txt['not_done_title'];
+		$context['continue_post_data'] = '';
+		$context['continue_countdown'] = 3;
+		$context['sub_template'] = 'not_done';
+		$increment = 500;
+		$id_msg_exceeding = isset($_POST['id_msg_exceeding']) ? explode(',', $_POST['id_msg_exceeding']) : array();
+
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(*) as count
+			FROM {db_prefix}messages',
+			array()
+		);
+		list($max_msgs) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Try for as much time as possible.
+		@set_time_limit(600);
+
+		while ($_REQUEST['start'] < $max_msgs)
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT /*!40001 SQL_NO_CACHE */ id_msg
+				FROM {db_prefix}messages
+				WHERE id_msg BETWEEN {int:start} AND {int:start} + {int:increment}
+					AND LENGTH(body) > 65535',
+				array(
+					'start' => $_REQUEST['start'],
+					'increment' => $increment - 1,
+				)
+			);
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+				$id_msg_exceeding[] = $row['id_msg'];
+			$smcFunc['db_free_result']($request);
+
+			$_REQUEST['start'] += $increment;
+
+			if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 3)
+			{
+				createToken('admin-convertMsg');
+				$context['continue_post_data'] = '
+					<input type="hidden" name="' . $context['admin-convertMsg_token_var'] . '" value="' . $context['admin-convertMsg_token'] . '" />
+					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+					<input type="hidden" name="id_msg_exceeding" value="' . implode(',', $id_msg_exceeding) . '" />';
+
+				$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=convertmsgbody;start=' . $_REQUEST['start'];
+				$context['continue_percent'] = round(100 * $_REQUEST['start'] / $max_msgs);
+
+				return;
+			}
+		}
+		createToken('admin-maint');
+		$context['page_title'] = $txt[$context['convert_to'] . '_title'];
+		$context['sub_template'] = 'convert_msgbody';
+
+		if (!empty($id_msg_exceeding))
+		{
+			if (count($id_msg_exceeding) > 100)
+			{
+				$query_msg = array_slice($id_msg_exceeding, 0, 100);
+				$context['exceeding_messages_morethan'] = sprintf($txt['exceeding_messages_morethan'], count($id_msg_exceeding));
+			}
+			else
+				$query_msg = $id_msg_exceeding;
+
+			$context['exceeding_messages'] = array();
+			$request = $smcFunc['db_query']('', '
+				SELECT id_msg, id_topic, subject
+				FROM {db_prefix}messages
+				WHERE id_msg IN ({array_int:messages})',
+				array(
+					'messages' => $query_msg,
+				)
+			);
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+				$context['exceeding_messages'][] = '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
+			$smcFunc['db_free_result']($request);
+		}
+	}
+}
+
+/**
  * Converts HTML-entities to their UTF-8 character equivalents.
  * This requires the admin_forum permission.
  * Pre-condition: UTF-8 has been set as database and global character set.
@@ -1035,7 +1192,7 @@ function AdminBoardRecount()
 
 	isAllowedTo('admin_forum');
 	checkSession('request');
-	
+
 	// validate the request or the loop
 	if (!isset($_REQUEST['step']))
 		validateToken('admin-maint');
@@ -1651,7 +1808,7 @@ function MaintainPurgeInactiveMembers()
 			$where_vars['is_activated'] = 0;
 		}
 		else
-			$where = 'mem.last_login < {int:time_limit}';
+			$where = 'mem.last_login < {int:time_limit} AND (mem.last_login != 0 OR mem.date_registered < {int:time_limit})';
 
 		// Need to get *all* groups then work out which (if any) we avoid.
 		$request = $smcFunc['db_query']('', '
@@ -1723,6 +1880,39 @@ function MaintainRemoveOldPosts()
 	// Actually do what we're told!
 	require_once($sourcedir . '/RemoveTopic.php');
 	RemoveOldTopics2();
+}
+
+/**
+ * Removing old drafts
+ */
+function MaintainRemoveOldDrafts()
+{
+	global $sourcedir, $smcFunc;
+
+	validateToken('admin-maint');
+
+	$drafts = array();
+
+	// Find all of the old drafts
+	$request = $smcFunc['db_query']('', '
+		SELECT id_draft
+		FROM {db_prefix}user_drafts
+		WHERE poster_time <= {int:poster_time_old}',
+		array(
+			'poster_time_old' => time() - (86400 * $_POST['draftdays']),
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_row']($request))
+		$drafts[] = (int) $row[0];
+	$smcFunc['db_free_result']($request);
+
+	// If we have old drafts, remove them
+	if (count($drafts) > 0)
+	{
+		require_once($sourcedir . '/Drafts.php');
+		DeleteDraft($drafts, false);
+	}
 }
 
 /**
@@ -1836,7 +2026,7 @@ function MaintainMassMoveTopics()
 /**
  * Recalculate all members post counts
  * it requires the admin_forum permission.
- * 
+ *
  * - recounts all posts for members found in the message table
  * - updates the members post count record in the members talbe
  * - honors the boards post count flag
@@ -1861,7 +2051,7 @@ function MaintainRecountPosts()
 	$context['continue_countdown'] = 3;
 	$context['continue_get_data'] = '';
 	$context['sub_template'] = 'not_done';
-	
+
 	// init
 	$increment = 200;
 	$_REQUEST['start'] = !isset($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
@@ -1873,7 +2063,7 @@ function MaintainRecountPosts()
 	if (!isset($_SESSION['total_members']))
 	{
 		validateToken('admin-maint');
-		
+
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(DISTINCT m.id_member)
 			FROM ({db_prefix}messages AS m, {db_prefix}boards AS b)
@@ -1931,7 +2121,7 @@ function MaintainRecountPosts()
 		$_REQUEST['start'] += $increment;
 		$context['continue_get_data'] = '?action=admin;area=maintain;sa=members;activity=recountposts;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 		$context['continue_percent'] = round(100 * $_REQUEST['start'] / $_SESSION['total_members']);
-		
+
 		createToken('admin-recountposts');
 		$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-recountposts_token_var'] . '" value="' . $context['admin-recountposts_token'] . '" />';
 
@@ -1939,7 +2129,7 @@ function MaintainRecountPosts()
 			apache_reset_timeout();
 		return;
 	}
-	
+
 	// final steps ... made more difficult since we don't yet support sub-selects on joins
 	// place all members who have posts in the message table in a temp table
 	$createTemporary = $smcFunc['db_query']('', '
@@ -1947,7 +2137,7 @@ function MaintainRecountPosts()
 			id_member mediumint(8) unsigned NOT NULL default {string:string_zero},
 			PRIMARY KEY (id_member)
 		)
-		SELECT m.id_member 
+		SELECT m.id_member
 		FROM ({db_prefix}messages AS m,{db_prefix}boards AS b)
 		WHERE m.id_member != {int:zero}
 			AND b.count_posts = {int:zero}
@@ -1961,7 +2151,7 @@ function MaintainRecountPosts()
 		)
 	) !== false;
 
-	if ($createTemporary) 
+	if ($createTemporary)
 	{
 		// outer join the members table on the temporary table finding the members that have a post count but no posts in the message table
 		$request = $smcFunc['db_query']('', '
@@ -1969,7 +2159,7 @@ function MaintainRecountPosts()
 			FROM {db_prefix}members AS mem
 			LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
 			ON res.id_member = mem.id_member
-			WHERE res.id_member IS null 
+			WHERE res.id_member IS null
 				AND mem.posts != {int:zero}',
 			array(
 				'zero' => 0,
@@ -1991,7 +2181,7 @@ function MaintainRecountPosts()
 		}
 		$smcFunc['db_free_result']($request);
 	}
-	
+
 	// all done
 	unset($_SESSION['total_members']);
 	$context['maintenance_finished'] = $txt['maintain_recountposts'];

@@ -22,7 +22,6 @@ function template_ask()
 				<h3 class="catbg">', $txt['split'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p class="split_topics">
 						<strong><label for="subname">', $txt['subject_new_topic'], '</label>:</strong>
@@ -43,7 +42,6 @@ function template_ask()
 					<input type="submit" value="', $txt['split'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
 		</form>
@@ -60,7 +58,6 @@ function template_main()
 			<h3 class="catbg">', $txt['split'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['split_successful'], '</p>
 				<ul class="reset">
@@ -75,7 +72,6 @@ function template_main()
 					</li>
 				</ul>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>';
 }
@@ -102,7 +98,6 @@ function template_select()
 	foreach ($context['not_selected']['messages'] as $message)
 		echo '
 					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="not_selected_', $message['id'], '">
-						<span class="topslice"><span></span></span>
 						<div class="content">
 							<div class="message_header">
 								<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_select.png" alt="-&gt;" /></a>
@@ -111,7 +106,6 @@ function template_select()
 							</div>
 							<div class="post">', $message['body'], '</div>
 						</div>
-						<span class="botslice"><span></span></span>
 					</li>';
 
 	echo '
@@ -136,7 +130,6 @@ function template_select()
 		foreach ($context['selected']['messages'] as $message)
 			echo '
 					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="selected_', $message['id'], '">
-						<span class="topslice"><span></span></span>
 						<div class="content">
 							<div class="message_header">
 								<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_deselect.png" alt="&lt;-" /></a>
@@ -145,7 +138,6 @@ function template_select()
 							</div>
 							<div class="post">', $message['body'], '</div>
 						</div>
-						<span class="botslice"><span></span></span>
 					</li>';
 
 	echo '
@@ -219,7 +211,7 @@ function template_select()
 						newItem = document.createElement("LI");
 						newItem.className = "windowbg2";
 						newItem.id = curSection + "_" + curId;
-						newItem.innerHTML = "<span class=\\"topslice\\"><span></span></span><div class=\\"content\\"><div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><img src=\\"', $settings['images_url'], '/split_" + (curSection == "selected" ? "de" : "") + "select.png\\" alt=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\" /></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br /><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div><span class=\\"botslice\\"><span></span></span>";
+						newItem.innerHTML = "<div class=\\"content\\"><div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><img src=\\"', $settings['images_url'], '/split_" + (curSection == "selected" ? "de" : "") + "select.png\\" alt=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\" /></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br /><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div>";
 
 						// So, where do we insert it?
 						if (typeof sInsertBeforeId == "string")
@@ -245,7 +237,6 @@ function template_merge_done()
 				<h3 class="catbg">', $txt['merge'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['merge_successful'], '</p>
 					<br />
@@ -258,7 +249,6 @@ function template_merge_done()
 						</li>
 					</ul>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>
 	<br class="clear" />';
@@ -277,7 +267,6 @@ function template_merge()
 				', $txt['merge_desc'], '
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings merge_topic">
 						<dt>
@@ -326,7 +315,6 @@ function template_merge()
 		echo '
 					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div><br />
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
@@ -335,7 +323,6 @@ function template_merge()
 				<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<ul class="reset merge_topics">';
 
@@ -351,7 +338,6 @@ function template_merge()
 		echo '
 					</ul>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<div class="pagesection">
 				<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
@@ -407,7 +393,6 @@ function template_merge_extra_options()
 			</table>
 			<br />
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">';
 
 	echo '
@@ -464,7 +449,6 @@ function template_merge_extra_options()
 					<input type="hidden" name="sa" value="execute" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

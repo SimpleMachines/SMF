@@ -18,21 +18,19 @@ function template_login()
 	echo '
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 
-		<form action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
+		<form action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '</span>
+					<img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '
 				</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe"><br class="clear" />';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
-		foreach ($context['login_errors'] as $error)
-			echo '
-				<p class="error">', $error, '</p>';
+		echo '
+			<p class="errorbox">', implode('<br />', $context['login_errors']), '</p><br />';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
@@ -52,8 +50,9 @@ function template_login()
 		echo '<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
 				<dl>
 					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17" />&nbsp;<em><a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqWin(this.href);" class="help">(?)</a></em></dd>
-				</dl><hr />';
+					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17" />&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon" /></a></dd>
+				</dl>
+				<hr />';
 
 	echo '
 				<dl>
@@ -74,8 +73,8 @@ function template_login()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 			</div>
-			<span class="lowerframe"><span></span></span>
-		</div></form>';
+		</div>
+		</form>';
 
 	// Focus on the correct input - username or password.
 	echo '
@@ -92,7 +91,7 @@ function template_kick_guest()
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
-	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
+	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
@@ -116,7 +115,6 @@ function template_kick_guest()
 					<img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '
 				</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<dl>
 					<dt>', $txt['username'], ':</dt>
@@ -144,7 +142,6 @@ function template_kick_guest()
 				<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button_submit" /></p>
 				<p class="centertext smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
 			</div>
-			<span class="lowerframe"><span></span></span>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 			<input type="hidden" name="hash_passwrd" value="" />
@@ -166,7 +163,7 @@ function template_maintenance()
 	// Display the administrator's message at the top.
 	echo '
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
-<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\');"' : '', '>
+<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
 	<div class="tborder login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
@@ -178,7 +175,6 @@ function template_maintenance()
 		<div class="title_bar">
 			<h4 class="titlebg">', $txt['admin_login'], '</h4>
 		</div>
-		<span class="upperframe"><span></span></span>
 		<div class="roundframe">
 			<dl>
 				<dt>', $txt['username'], ':</dt>
@@ -192,7 +188,6 @@ function template_maintenance()
 			</dl>
 			<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button_submit" /></p>
 		</div>
-		<span class="lowerframe"><span></span></span>
 		<input type="hidden" name="hash_passwrd" value="" />
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
@@ -209,14 +204,13 @@ function template_admin_login()
 	echo '
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 
-<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin" onsubmit="hash', ucfirst($context['sessionCheckType']), 'Password(this, \'', $context['user']['username'], '\', \'', $context['session_id'], '\');">
+<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin" onsubmit="hash', ucfirst($context['sessionCheckType']), 'Password(this, \'', $context['user']['username'], '\', \'', $context['session_id'], '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');">
 	<div class="tborder login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '</span>
+				<img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '
 			</h3>
 		</div>
-		<span class="upperframe"><span></span></span>
 		<div class="roundframe centertext">';
 
 	if (!empty($context['incorrect_password']))
@@ -226,7 +220,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password" />
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqWin(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><br />
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><br />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '" />
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit" />';
@@ -234,7 +228,6 @@ function template_admin_login()
 	// Make sure to output all the old post data.
 	echo $context['post_data'], '
 		</div>
-		<span class="lowerframe"><span></span></span>
 	</div>
 	<input type="hidden" name="', $context['sessionCheckType'], '_hash_pass" value="" />
 </form>';
@@ -257,7 +250,6 @@ function template_retry_activate()
 			<div class="title_bar">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">';
 
 	// You didn't even have an ID?
@@ -273,7 +265,6 @@ function template_retry_activate()
 				</dl>
 				<p><input type="submit" value="', $txt['invalid_activation_submit'], '" class="button_submit" /></p>
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</form>';
 }
 
@@ -288,7 +279,6 @@ function template_resend()
 			<div class="title_bar">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<dl>
 					<dt>', $txt['invalid_activation_username'], ':</dt>
@@ -313,7 +303,6 @@ function template_resend()
 	echo '
 				<p><input type="submit" value="', $txt['invalid_activation_resend'], '" class="button_submit" /></p>
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</form>';
 }
 

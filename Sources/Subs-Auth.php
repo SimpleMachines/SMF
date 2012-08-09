@@ -193,7 +193,7 @@ function InMaintenance()
  *
  * @param string $type = 'admin'
  */
-function adminLogin($type = 'admin')
+function adminLogin($type = 'admin', $additionalToken = false)
 {
 	global $context, $scripturl, $txt, $user_info, $user_settings;
 
@@ -229,6 +229,9 @@ function adminLogin($type = 'admin')
 	$_POST[$context['session_var']] = $context['session_id'];
 	foreach ($_POST as $k => $v)
 		$context['post_data'] .= adminLogin_outputPostVars($k, $v);
+
+	if (!empty($additionalToken))
+		$context['post_data'] .= adminLogin_outputPostVars($context[$additionalToken . '_token_var'], $context[$additionalToken . '_token']);
 
 	// Now we'll use the admin_login sub template of the Login template.
 	$context['sub_template'] = 'admin_login';
@@ -743,6 +746,7 @@ function rebuildModCache()
 		'mb' => $boards_mod,
 		'mq' => $mod_query,
 	);
+	call_integration_hook('integrate_mod_cache');
 
 	$user_info['mod_cache'] = $_SESSION['mc'];
 
@@ -770,6 +774,9 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 		$httponly = !empty($modSettings['httponlyCookies']);
 	if ($secure === null)
 		$secure = !empty($modSettings['secureCookies']);
+
+	// Intercept cookie?
+	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly));
 
 	// This function is pointless if we have PHP >= 5.2.
 	if (version_compare(PHP_VERSION, '5.2', '>='))

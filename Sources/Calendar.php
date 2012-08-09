@@ -144,6 +144,14 @@ function CalendarMain()
 			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
 			'name' => $txt['calendar_week'] . ' ' . $context['calendar_grid_main']['week_number']
 		);
+
+	// Build the calendar button array.
+	$context['calendar_buttons'] = array(
+		'post_event' => array('test' => 'can_post', 'text' => 'calendar_post_event', 'image' => 'calendarpe.png', 'lang' => true, 'url' => $scripturl . '?action=calendar;sa=post;month=' . $context['current_month'] . ';year=' . $context['current_year'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+	);
+
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_calendar_buttons');
 }
 
 /**
@@ -226,7 +234,7 @@ function CalendarPost()
 				list ($id_board, $id_topic) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 			}
-			
+
 			$eventOptions = array(
 				'title' => substr($_REQUEST['evtitle'], 0, 60),
 				'span' => empty($modSettings['cal_allowspan']) || empty($_POST['span']) || $_POST['span'] == 1 || empty($modSettings['cal_maxspan']) || $_POST['span'] > $modSettings['cal_maxspan'] ? 0 : min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1),
@@ -334,7 +342,7 @@ function iCalDownload()
 	// You can't export if the calendar export feature is off.
 	if (empty($modSettings['cal_export']))
 		fatal_lang_error('calendar_export_off', false);
-	
+
 	// Goes without saying that this is required.
 	if (!isset($_REQUEST['eventid']))
 		fatal_lang_error('no_access', false);
@@ -344,7 +352,7 @@ function iCalDownload()
 
 	// Load up the event in question and check it exists.
 	$event = getEventProperties($_REQUEST['eventid']);
-	
+
 	if ($event === false)
 		fatal_lang_error('no_access', false);
 
@@ -379,15 +387,15 @@ function iCalDownload()
 	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
 	$filecontents .= 'DTSTART;VALUE=DATE:' . $datestart . "\n";
-	
+
 	// more than one day
 	if ($event['span'] > 1)
 		$filecontents .= 'DTEND;VALUE=DATE:' . $dateend . "\n";
-	
+
 	// event has changed? advance the sequence for this UID
 	if ($event['sequence'] > 0)
 		$filecontents .= 'SEQUENCE:' . $event['sequence'] . "\n";
-	
+
 	$filecontents .= 'SUMMARY:' . implode('', $title);
 	$filecontents .= 'UID:' . $event['eventid'] . '@' . str_replace(' ', '-', $mbname) . "\n";
 	$filecontents .= 'END:VEVENT' . "\n";
@@ -399,7 +407,7 @@ function iCalDownload()
 		@ob_start('ob_gzhandler');
 	else
 		ob_start();
-	
+
 	// Send the file headers
 	header('Pragma: ');
 	header('Cache-Control: no-cache');
@@ -412,7 +420,7 @@ function iCalDownload()
 	header('Content-Disposition: attachment; filename="' . $event['title'] . '.ics"');
 	if (empty($modSettings['enableCompressedOutput']))
 		header('Content-Length: ' . $smcFunc['strlen']($filecontents));
-	
+
 	// This is a calendar item!
 	header('Content-Type: text/calendar');
 

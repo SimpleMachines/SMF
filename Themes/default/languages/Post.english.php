@@ -4,7 +4,6 @@
 global $context;
 
 $txt['post_reply'] = 'Post reply';
-$txt['enter_verification_details'] = 'Complete verification details';
 $txt['message_icon'] = 'Message icon';
 $txt['subject_not_filled'] = 'The Subject field was not filled out. It is required.';
 $txt['message_body_not_filled'] = 'The Message Body was not filled out. It is required.';
@@ -84,8 +83,10 @@ $txt['notifyUnsubscribe'] = 'Unsubscribe to this topic by clicking here';
 $txt['lock_after_post'] = 'Lock after Post';
 $txt['notify_replies'] = 'Notify me of replies.';
 $txt['lock_topic'] = 'Lock this topic.';
-$txt['shortcuts'] = 'shortcuts: hit alt+s to submit/post or alt+p to preview';
-$txt['shortcuts_firefox'] = 'shortcuts: hit shift+alt+s to submit/post or shift+alt+p to preview';
+$txt['shortcuts'] = 'shortcuts: alt+s submit/post or alt+p preview';
+$txt['shortcuts_drafts'] = 'shortcuts: alt+s submit/post, alt+p preview or alt+d save draft';
+$txt['shortcuts_firefox'] = 'shortcuts: shift+alt+s submit/post or shift+alt+p preview';
+$txt['shortcuts_drafts_firefox'] = 'shortcuts: shift+alt+s submit/post, shift+alt+p preview or shift+alt+d save draft';
 $txt['option'] = 'Option';
 $txt['reset_votes'] = 'Reset Vote Count';
 $txt['reset_votes_check'] = 'Check this if you want to reset all vote counts to 0.';
@@ -194,40 +195,42 @@ $txt['digest_mod_act_move'] = '"%1$s" was moved';
 $txt['digest_mod_act_merge'] = '"%1$s" was merged';
 $txt['digest_mod_act_split'] = '"%1$s" was split';
 
-$txt['attach_error_title'] = 'Error uploading your attachments.';
+$txt['attach_error_title'] = 'Error uploading attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
-$txt['attach_continue'] = 'Continue';
 $txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s kB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
-$txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings.';
-$txt['attach_limit_nag'] = 'Sorry, but you have reached the maximum number of attachments allowed per post.';
+$txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
+$txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
 $txt['attach_no_upload'] = 'There was a problem and your attachments could not be uploaded';
 $txt['attach_remaining'] = '%1$d remaining';
 $txt['attach_available'] = '%1$s KB available';
 $txt['attach_kb'] = ' (%1$s KB)';
-$txt['attach_0_byte_file'] = 'This file appears to be empty. Please contact your forum administrator if this continues to be a problem';
+$txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your forum administrator if this continues to be a problem';
 $txt['attached_files_in_session'] = '<em>The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.</em>';
 
-$txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this continues to be a problem.';
-$txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if unable to rectify.';
+$txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
+$txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';
 $txt['php_upload_error_3'] = 'The uploaded file was only partially uploaded. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_4'] = 'No file was uploaded. This is a PHP related error. Please contact your host if this problem continues.';
-$txt['php_upload_error_6'] = 'Unable to save. Missing a temporary folder. Please contact your host if unable to rectify.';
+$txt['php_upload_error_6'] = 'Unable to save. Missing a temporary folder. Please contact your host if you are unable to correct this problem.';
 $txt['php_upload_error_7'] = 'Failed to write file to disk. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_8'] = 'A PHP extension stopped the file upload. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['error_temp_attachments_new'] = 'There are attachments which you had previously attached but not posted. These attachments are still attached to this post. This post does need to be submitted before these attachments are either saved or removed. You can do that <a href="#postAttachment">here</a>';
 $txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submited.<br />Click %1$s to remove those attachments. Or %2$s to return to that post.%3$s';
 $txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitedd.<br />Click %1$s to remove these attachments.%2$s';
-$txt['error_temp_attachments_gone'] = 'Those attachments are now removed and you have been returned to the page you were previously on';
+$txt['error_temp_attachments_gone'] = 'Those attachments have now been removed and you have been returned to the page you were previously on';
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted. Have now been removed.';
+$txt['error_topic_already_announced'] = 'Please note that this topic has already been announced.';
 
 $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
-$txt['ran_out_of_space'] = 'The upload folder is full. Please try a smaller file and/or contact an administrator.';
+$txt['ran_out_of_space'] = 'The upload folder is full. Please contact an administrator about this problem.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
+$txt['attachments_no_create'] = 'Unable to create a new attachment directory.  Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
+
 
 ?>

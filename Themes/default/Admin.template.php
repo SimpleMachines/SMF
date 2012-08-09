@@ -20,7 +20,7 @@ function template_admin()
 	// Welcome message for the admin.
 	echo '
 	<div id="admincenter">
-		<div class="cat_bar">
+		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">';
 
 	if ($context['user']['is_admin'])
@@ -41,14 +41,12 @@ function template_admin()
 	echo $txt['admin_center'], '
 			</h3>
 		</div>
-		<span class="upperframe"><span></span></span>
 		<div class="roundframe">
 			<div id="welcome">
 				<strong>', $txt['hello_guest'], ' ', $context['user']['name'], '!</strong>
 				', sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']), '
 			</div>
-		</div>
-		<span class="lowerframe"><span></span></span>';
+		</div>';
 
 	// Is there an update available?
 	echo '
@@ -62,15 +60,13 @@ function template_admin()
 			<div id="live_news" class="floatleft">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['live'], '</span>
+						<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['live'], '
 					</h3>
 				</div>
 				<div class="windowbg nopadding">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<div id="smfAnnouncements">', $txt['lfyi'], '</div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>';
 
@@ -83,7 +79,6 @@ function template_admin()
 					</h3>
 				</div>
 				<div class="windowbg nopadding">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<div id="version_details">
 							<strong>', $txt['support_versions'], ':</strong><br />
@@ -106,14 +101,12 @@ function template_admin()
 	echo '
 						</div>
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>
 		</div>';
 
 	echo '
-		<div class="windowbg2 clear_right">
-			<span class="topslice"><span></span></span>
+		<div class="windowbg2 quick_tasks">
 			<div class="content">
 				<ul id="quick_tasks" class="flow_hidden">';
 
@@ -128,10 +121,8 @@ function template_admin()
 	echo '
 				</ul>
 			</div>
-			<span class="botslice clear"><span></span></span>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty($modSettings['disable_smf_js']))
@@ -204,117 +195,115 @@ function template_credits()
 	echo '
 
 	<div id="admincenter">
-		<div class="cat_bar">
+		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">
-				', $txt['support_title'], '
+				', $txt['support_credits_title'], '
 			</h3>
 		</div>
-		<div class="windowbg">
-			<span class="topslice"><span></span></span>
-			<div class="content">
-				<strong>', $txt['support_versions'], ':</strong><br />
-					', $txt['support_versions_forum'], ':
-				<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br />
-					', $txt['support_versions_current'], ':
-				<em id="smfVersion" style="white-space: nowrap;">??</em><br />';
+		<div id="support_credits">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.png" id="credits_logo" alt="" />
+				</h3>
+			</div>
+			<div class="windowbg">
+				<div class="content">
+					<strong>', $txt['support_versions'], ':</strong><br />
+						', $txt['support_versions_forum'], ':
+					<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br />
+						', $txt['support_versions_current'], ':
+					<em id="smfVersion" style="white-space: nowrap;">??</em><br />';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
 	{
 		echo '
-					', $version['title'], ':
-				<em>', $version['version'], '</em>';
-		
+						', $version['title'], ':
+					<em>', $version['version'], '</em>';
+
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
-			echo 
-				' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+			echo
+					' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
-				<br />';
+					<br />';
 	}
 
 	echo '
-			</div>
-			<span class="botslice"><span></span></span>
-		</div>';
+				</div>
+			</div>';
 
 	// Point the admin to common support resources.
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['support_resources'], '
-			</h3>
-		</div>
-		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
-			<div class="content">
-				<p>', $txt['support_resources_p1'], '</p>
-				<p>', $txt['support_resources_p2'], '</p>
+			<div id="support_resources" class="cat_bar">
+				<h3 class="catbg">
+					', $txt['support_resources'], '
+				</h3>
 			</div>
-			<span class="botslice"><span></span></span>
-		</div>';
+			<div class="windowbg2">
+				<div class="content">
+					<p>', $txt['support_resources_p1'], '</p>
+					<p>', $txt['support_resources_p2'], '</p>
+				</div>
+			</div>';
 
 	// Display latest support questions from simplemachines.org.
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="ie6_header floatleft"><a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '</span>
-			</h3>
-		</div>
-		<div class="windowbg">
-			<span class="topslice"><span></span></span>
-			<div class="content">
-				<div id="latestSupport">', $txt['support_latest_fetch'], '</div>
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '
+				</h3>
 			</div>
-			<span class="botslice"><span></span></span>
-		</div>';
+			<div class="windowbg">
+				<div class="content">
+					<div id="latestSupport">', $txt['support_latest_fetch'], '</div>
+				</div>
+			</div>';
 
 	// The most important part - the credits :P.
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['admin_credits'], '
-			</h3>
-		</div>
-		<div class="windowbg2">
-			<span class="topslice"><span></span></span>
-			<div class="content">';
+			<div id="credits_sections" class="cat_bar">
+				<h3 class="catbg">
+					', $txt['admin_credits'], '
+				</h3>
+			</div>
+			<div class="windowbg2">
+				<div class="content">';
 
 	foreach ($context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
 			echo '
-				<p>', $section['pretext'], '</p>';
+					<p>', $section['pretext'], '</p><hr />';
 
 		echo '
-				<dl>';
+					<dl>';
 
 		foreach ($section['groups'] as $group)
 		{
 			if (isset($group['title']))
 				echo '
-					<dt>
-						<strong>', $group['title'], ':</strong>
-					</dt>';
+						<dt>
+							<strong>', $group['title'], ':</strong>
+						</dt>';
 
 			echo '
-					<dd>', implode(', ', $group['members']), '</dd>';
+						<dd>', implode(', ', $group['members']), '</dd>';
 		}
 
 		echo '
-				</dl>';
+					</dl>';
 
 		if (isset($section['posttext']))
 			echo '
-				<p>', $section['posttext'], '</p>';
+					<hr /><p>', $section['posttext'], '</p>';
 	}
 
 	echo '
+				</div>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// This makes all the support information available to the support script...
 	echo '
@@ -338,12 +327,6 @@ function template_credits()
 	// This sets the latest support stuff.
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[
-			function smfSetLatestSupport()
-			{
-				if (window.smfLatestSupport)
-					setInnerHTML(document.getElementById("latestSupport"), window.smfLatestSupport);
-			}
-
 			function smfCurrentVersion()
 			{
 				var smfVer, yourVer;
@@ -359,16 +342,8 @@ function template_credits()
 				var currentVersion = getInnerHTML(yourVer);
 				if (currentVersion != window.smfVersion)
 					setInnerHTML(yourVer, "<span class=\"alert\">" + currentVersion + "</span>");
-			}';
-
-	// IE 4 is rather annoying, this wouldn't be necessary...
-	echo '
-			var fSetupCredits = function ()
-			{
-				smfSetLatestSupport();
-				smfCurrentVersion()
 			}
-			addLoadEvent(fSetupCredits);
+			addLoadEvent(smfCurrentVersion)
 		// ]]></script>';
 }
 
@@ -381,7 +356,7 @@ function template_view_versions()
 
 	echo '
 	<div id="admincenter">
-		<div class="cat_bar">
+		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">
 				', $txt['admin_version_check'], '
 			</h3>
@@ -577,8 +552,7 @@ function template_view_versions()
 	}
 
 	echo '
-		</div>
-	<br class="clear" />';
+		</div>';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
 	   held at simplemachines.org and works out if they are up to date.  If they aren't it colors that files number
@@ -586,7 +560,6 @@ function template_view_versions()
 	   file categories. (sources, languages, and templates.) */
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oViewVersions = new smf_ViewVersions({
 				aKnownLanguages: [
@@ -613,13 +586,12 @@ function template_edit_censored()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
+			<div id="section_header" class="cat_bar">
 				<h3 class="catbg">
 					', $txt['admin_censored_words'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['admin_censored_where'], '</p>';
 
@@ -638,7 +610,6 @@ function template_edit_censored()
 					<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
 						<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br />
 					</div>
-					<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
 					<script type="text/javascript"><!-- // --><![CDATA[
 						document.getElementById("moreCensoredWords_link").style.display = "";
 					// ]]></script>
@@ -657,11 +628,8 @@ function template_edit_censored()
 							<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked="checked"', ' class="input_check" />
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />';
 
@@ -673,21 +641,18 @@ function template_edit_censored()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p class="centertext">
 						<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '" class="input_text" />
 						<input type="submit" value="', $txt['censor_test_save'], '" class="button_submit" />
 					</p>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Maintenance is a lovely thing, isn't it?
@@ -697,19 +662,17 @@ function template_not_done()
 
 	echo '
 	<div id="admincenter">
-		<div class="cat_bar">
+		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">
 				', $txt['not_done_title'], '
 			</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				', $txt['not_done_reason'];
 
 	if (!empty($context['continue_percent']))
 		echo '
-				<br /><br />
 				<div class="progress_bar">
 					<div class="full_bar">', $context['continue_percent'], '%</div>
 					<div class="green_percent" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
@@ -717,24 +680,19 @@ function template_not_done()
 
 	if (!empty($context['substep_enabled']))
 		echo '
-				<br /><br />
-				<div class="progress_bar">
+					<div class="progress_bar">
 					<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
 					<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
 				</div>';
 
 	echo '
 				<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" style="margin: 0;" name="autoSubmit" id="autoSubmit">
-					<hr class="hrcolor" />
 					<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit" />
 					', $context['continue_post_data'], '
-					<br class="clear_right" />
 				</form>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
-	<br class="clear" />
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var countdown = ', $context['continue_countdown'], ';
 		doAutoSubmit();
@@ -765,17 +723,17 @@ function template_show_settings()
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
-		
+
 	echo '
 	<div id="admincenter">
-		<form action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
+		<form id="admin_form_wrapper" action="', $context['post_url'], '" method="post" accept-charset="', $context['character_set'], '"', !empty($context['force_form_onsubmit']) ? ' onsubmit="' . $context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
 	if (isset($context['settings_title']))
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $context['settings_title'], '
+					', $context['settings_title'], ' - Bar 1
 				</h3>
 			</div>';
 
@@ -798,7 +756,6 @@ function template_show_settings()
 				echo '
 					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 			}
 
@@ -808,8 +765,8 @@ function template_show_settings()
 				echo '
 					<div class="cat_bar">
 						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqWin(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
-							', $config_var['label'], '
+							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
+							', $config_var['label'], ' - Bar 2
 						</h3>
 					</div>';
 			}
@@ -831,7 +788,6 @@ function template_show_settings()
 			$is_open = true;
 			echo '
 			<div class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">';
 		}
@@ -869,7 +825,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-							<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a><span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br /><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
+							<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a><span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br /><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
 						</dt>';
 				else
 					echo '
@@ -920,7 +876,7 @@ function template_show_settings()
 						foreach ($bbcColumn as $bbcTag)
 							echo '
 										<li class="list_bbc floatleft">
-											<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], $context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked="checked"' : '', ' class="input_check" /> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' (<a href="' . $scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqWin(this.href);">?</a>)' : '', '
+											<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], $context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked="checked"' : '', ' class="input_check" /> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' (<a href="' . $scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqOverlayDiv(this.href);">?</a>)' : '', '
 										</li>';
 					}
 					echo '			</ul>
@@ -964,14 +920,11 @@ function template_show_settings()
 
 	if (empty($context['settings_save_dont_show']))
 		echo '
-					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled="disabled"' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit" />
-					<br class="clear_right" />';
+					<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled="disabled"' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit" />';
 
 	if ($is_open)
 		echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 
 
@@ -991,8 +944,7 @@ function template_show_settings()
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
@@ -1008,7 +960,7 @@ function template_show_settings()
 function template_show_custom_profile()
 {
 	global $context, $txt, $settings, $scripturl;
-	
+
 	// Standard fields.
 	template_show_list('standard_profile_fields');
 
@@ -1034,7 +986,7 @@ function template_edit_profile_field()
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var startOptID = ', count($context['field']['options']), ';
 	// ]]></script>';
-	
+
 	// any errors messages to show?
 	if (isset($_GET['msg']))
 	{
@@ -1049,13 +1001,12 @@ function template_edit_profile_field()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', $context['fid'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
+			<div id="section_header" class="cat_bar">
 				<h3 class="catbg">
 					', $context['page_title'], '
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<fieldset>
 						<legend>', $txt['custom_edit_general'], '</legend>
@@ -1113,7 +1064,7 @@ function template_edit_profile_field()
 								</select>
 							</dd>
 							<dt>
-								<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
+								<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 								<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 							</dt>
@@ -1158,7 +1109,7 @@ function template_edit_profile_field()
 								<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 							<dt id="options_dt">
-								<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
+								<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 								<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 							</dt>
@@ -1187,7 +1138,7 @@ function template_edit_profile_field()
 						<legend>', $txt['custom_edit_advanced'], '</legend>
 						<dl class="settings">
 							<dt id="mask_dt">
-								<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
+								<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
 								<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br />
 								<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 							</dt>
@@ -1231,7 +1182,6 @@ function template_edit_profile_field()
 							</dd>
 						</dl>
 					</fieldset>
-					<hr class="hrcolor" />
 						<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />';
 
 	if ($context['fid'])
@@ -1239,15 +1189,12 @@ function template_edit_profile_field()
 						<input type="submit" name="delete" value="', $txt['delete'], '" onclick="return confirm(\'', $txt['custom_edit_delete_sure'], '\');" class="button_submit" />';
 
 	echo '
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// Get the javascript bits right!
 	echo '
@@ -1262,7 +1209,7 @@ function template_admin_search_results()
 	global $context, $txt, $settings, $options, $scripturl;
 
 	echo '
-		<div class="cat_bar">
+		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">
 				<object id="quick_search">
 					<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
@@ -1271,11 +1218,10 @@ function template_admin_search_results()
 						<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit" />
 					</form>
 				</object>
-				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="" />&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '</span>
+				<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" />&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 			</h3>
 		</div>
-	<div class="windowbg nopadding">
-		<span class="topslice"><span></span></span>
+	<div class="windowbg2 generic_list_wrapper">
 		<div class="content">';
 
 	if (empty($context['search_results']))
@@ -1306,7 +1252,7 @@ function template_admin_search_results()
 			else
 			{
 				echo '
-				<li class="windowbg">
+				<li class="windowbg2">
 					<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', isset($txt['admin_search_section_' . $result['type']]) ? $txt['admin_search_section_' . $result['type']] : $result['type'] , ']';
 
 				if ($result['help'])
@@ -1323,9 +1269,7 @@ function template_admin_search_results()
 
 	echo '
 		</div>
-		<span class="botslice"><span></span></span>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Turn on and off certain key features.
@@ -1400,7 +1344,7 @@ function template_core_features()
 						{
 							$(ajax_infobar).attr(\'class\', \'errorbox\');
 							$(ajax_infobar).html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
-							
+
 						}
 					}
 				});
@@ -1411,7 +1355,7 @@ function template_core_features()
 	if ($context['is_new_install'])
 	{
 		echo '
-			<div class="cat_bar">
+			<div id="section_header" class="cat_bar">
 				<h3 class="catbg">
 					', $txt['core_settings_welcome_msg'], '
 				</h3>
@@ -1422,12 +1366,12 @@ function template_core_features()
 	}
 
 	echo '
-		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
+			<div id="section_header" class="cat_bar">
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
 				</h3>
 			</div>
+		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
 			<div style="display:none" id="activation_message" class="errorbox"></div>';
 
 	$alternate = true;
@@ -1437,18 +1381,15 @@ function template_core_features()
 	{
 		$num++;
 		echo '
-			<div class="windowbg', $alternate ? '2' : '', '">
-				<span class="topslice"><span></span></span>
-				<div class="content features">
-					<img class="features_image" src="', $feature['image'], '" alt="', $feature['title'], '" />
-					<div class="features_switch" id="js_feature_', $id, '">
-							<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
-							<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;display:none" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
-					</div>
-					<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
-					<p>', $feature['desc'], '</p>
+			<div class="content features">
+				<img class="features_image" src="', $feature['image'], '" alt="', $feature['title'], '" />
+				<div class="features_switch" id="js_feature_', $id, '">
+					<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
+					<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;display:none" alt="', $txt['core_settings_switch_' . $feature['state']], '" title="', $txt['core_settings_switch_' . $feature['state']], '" />
 				</div>
-				<span class="botslice clear_right"><span></span></span>
+				<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
+				<p>', $feature['desc'], '</p>
+				<hr />
 			</div>';
 
 		$alternate = !$alternate;
@@ -1461,8 +1402,7 @@ function template_core_features()
 				<input id="core_features_submit" type="submit" value="', $txt['save'], '" name="save" class="button_submit" />
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 
@@ -1503,8 +1443,6 @@ function template_callback_question_answer_list()
 		<dt id="add_more_question_placeholder" style="display: none;"></dt><dd></dd>
 		<dt id="add_more_link_div" style="display: none;">
 			<a href="#" onclick="addAnotherQuestion(); return false;">&#171; ', $txt['setup_verification_add_more'], ' &#187;</a>
-			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
-
 		</dt><dd></dd>';
 
 	// The javascript needs to go at the end but we'll put it in this template for looks.
@@ -1521,13 +1459,12 @@ function template_repair_boards()
 
 	echo '
 	<div id="admincenter">
-		<div class="cat_bar">
+		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">',
 				$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'] , '
 			</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">';
 
 	// Are we actually fixing them, or is this just a prompt?
@@ -1587,10 +1524,8 @@ function template_repair_boards()
 
 	echo '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	if (!empty($context['redirect_to_recount']))
 	{
@@ -1620,6 +1555,9 @@ function template_php_info()
 {
 	global $context, $txt;
 
+	echo '
+	<div class="generic_list_wrapper" id="phpinfo">';
+
 	// for each php info area
 	foreach ($context['pinfo'] as $area => $php_area)
 	{
@@ -1636,7 +1574,7 @@ function template_php_info()
 
 		$alternate = true;
 		$localmaster = true;
-		
+
 		// and for each setting in this category
 		foreach ($php_area as $key => $setting)
 		{
@@ -1654,7 +1592,7 @@ function template_php_info()
 		</tr>';
 					$localmaster = false;
 				}
-					
+
 				echo '
 		<tr>
 			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
@@ -1676,14 +1614,16 @@ function template_php_info()
 			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
 		</tr>';
 			}
-		
+
 			$alternate = !$alternate;
 		}
 		echo '
 		</tbody>
-	</table>
-	<br class="clear" />';
+	</table><br />';
 	}
+
+	echo '
+	</div>';
 }
 
 function template_clean_cache_button_above()
@@ -1699,7 +1639,6 @@ function template_clean_cache_button_below()
 		<h3 class="catbg">', $txt['maintain_cache'], '</h3>
 	</div>
 	<div class="windowbg">
-		<span class="topslice"><span></span></span>
 		<div class="content">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['maintain_cache_info'], '</p>
@@ -1708,8 +1647,6 @@ function template_clean_cache_button_below()
 				<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 			</form>
 		</div>
-		<br class="clear" />
-		<span class="botslice"><span></span></span>
 	</div>';
 }
 

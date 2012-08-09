@@ -134,7 +134,10 @@ smf_ViewVersions.prototype.swapOption = function (oSendingElement, sName)
 {
 	// If it is undefined, or currently off, turn it on - otherwise off.
 	this.oSwaps[sName] = !(sName in this.oSwaps) || !this.oSwaps[sName];
-	document.getElementById(sName).style.display = this.oSwaps[sName] ? '' : 'none';
+	if (this.oSwaps[sName])
+		$("#" + sName).show(300);
+	else
+		$("#" + sName).hide(300);
 
 	// Unselect the link and return false.
 	oSendingElement.blur();
@@ -477,12 +480,24 @@ function toggleBreakdown(id_group, forcedisplayType)
 	if (typeof(forcedisplayType) != "undefined")
 		displayType = forcedisplayType;
 
+	// swap the image
+	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "selected_open") + ".png";
+
+	// show or hide the elements
+	var aContainer = new Array();
 	for (i = 0; i < groupPermissions[id_group].length; i++)
 	{
-		document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]).style.display = displayType
+		var oContainerTemp = document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]);
+		if (typeof(oContainerTemp) == 'object' && oContainerTemp != null)
+			aContainer[i] = oContainerTemp;
 	}
+	if (displayType == "none")
+		$(aContainer).fadeOut();
+	else
+		$(aContainer).show();
+		
+	// remove or add the separators
 	document.getElementById("group_hr_div_" + id_group).style.display = displayType
-	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "selected_open") + ".png";
 
 	return false;
 }
@@ -599,4 +614,67 @@ function repeatString(sString, iTime)
 		return '';
 	else
 		return sString + repeatString(sString, iTime - 1);
+}
+
+function select_in_category(cat_id, elem, brd_list)
+{
+	for (var brd in brd_list)
+		document.getElementById(elem.value + '_brd' + brd_list[brd]).checked = true;
+
+	elem.selectedIndex = 0;
+}
+
+/*
+* Server Settings > Caching
+*/
+function toggleCache ()
+{
+	var memcache = document.getElementById('cache_memcached');
+	var cachedir = document.getElementById('cachedir');
+	memcache.disabled = cache_type.value != "memcached";
+	cachedir.disabled = cache_type.value != "smf";
+}
+
+/*
+* Attachments Settings
+*/
+function toggleSubDir ()
+{
+	var auto_attach = document.getElementById('automanage_attachments');
+	var use_sub_dir = document.getElementById('use_subdirectories_for_attachments');
+	var dir_elem = document.getElementById('basedirectory_for_attachments');
+
+	use_sub_dir.disabled = !Boolean(auto_attach.selectedIndex);
+	if (use_sub_dir.disabled)
+	{
+		use_sub_dir.style.display = "none";
+		document.getElementById('setting_use_subdirectories_for_attachments').parentNode.style.display = "none";
+		dir_elem.style.display = "none";
+		document.getElementById('setting_basedirectory_for_attachments').parentNode.style.display = "none";
+		document.getElementById('attachmentUploadDir').parentNode.style.display = "";
+		document.getElementById('setting_attachmentUploadDir').parentNode.style.display = "";
+	}
+	else
+	{
+		use_sub_dir.style.display = "";
+		document.getElementById('setting_use_subdirectories_for_attachments').parentNode.style.display = "";
+		dir_elem.style.display = "";
+		document.getElementById('setting_basedirectory_for_attachments').parentNode.style.display = "";
+		document.getElementById('attachmentUploadDir').parentNode.style.display = "none";
+		document.getElementById('setting_attachmentUploadDir').parentNode.style.display = "none";
+	}
+		toggleBaseDir();
+}
+function toggleBaseDir ()
+{
+	var auto_attach = document.getElementById('automanage_attachments');
+	var sub_dir = document.getElementById('use_subdirectories_for_attachments');
+	var dir_elem = document.getElementById('basedirectory_for_attachments');
+
+	if (auto_attach.selectedIndex == 0)
+	{
+		dir_elem.disabled = 1;
+	}
+	else
+		dir_elem.disabled = !sub_dir.checked;
 }

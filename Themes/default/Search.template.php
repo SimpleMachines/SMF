@@ -18,7 +18,7 @@ function template_main()
 	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft">', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : ' ', $txt['set_parameters'], '</span>
+				', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : ' ', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
@@ -31,7 +31,6 @@ function template_main()
 	{
 		echo '
 		<fieldset id="simple_search">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div id="search_term_input">
 					<strong>', $txt['search_for'], ':</strong>
@@ -55,7 +54,6 @@ function template_main()
 				<a href="', $scripturl, '?action=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 	}
 
@@ -63,7 +61,6 @@ function template_main()
 	else
 	{
 		echo '
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<dl class="settings" id="search_options">
 					<dt class="righttext">
@@ -71,11 +68,11 @@ function template_main()
 					</dt>
 					<dd>
 						<input type="text" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />';
-		
+
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
 				<em class="smalltext">', $txt['search_example'], '</em>';
-				
+
 		echo '
 					</dd>
 
@@ -94,7 +91,7 @@ function template_main()
 					<dd>
 						<input id="userspec" type="text" name="userspec" value="', empty($context['search_params']['userspec']) ? '*' : $context['search_params']['userspec'], '" size="40" class="input_text" />
 					</dd>
-					<dt class="righttext"><label for="sort">', 
+					<dt class="righttext"><label for="sort">',
 						$txt['search_order'], ':</label>
 					</dt>
 					<dd>
@@ -106,7 +103,7 @@ function template_main()
 							<option value="id_msg|asc">', $txt['search_orderby_old_first'], '</option>
 						</select>
 					</dd>
-					<dt class="righttext options">', 
+					<dt class="righttext options">',
 						$txt['search_options'], ':
 					</dt>
 					<dd class="options">
@@ -117,10 +114,10 @@ function template_main()
 							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked="checked"' : '', ' class="input_check" />
 						</label>
 					</dd>
-					<dt class="righttext between">', 
+					<dt class="righttext between">',
 						$txt['search_post_age'], ':
 					</dt>
-					<dd><label for="minage">', 
+					<dd><label for="minage">',
 						$txt['search_between'], '</label><input type="text" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="text" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
 					</dd>
 				</dl>
@@ -149,20 +146,16 @@ function template_main()
 
 		echo '
 			</div>
-			<span class="lowerframe"><span></span></span>
 		';
 
 		if (empty($context['search_params']['topic']))
 		{
 			echo '
 		<fieldset class="flow_hidden">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="ie6_header floatright">
-							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/></a>
-						</span>
+						<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/></a>
 						<span>
 							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><strong>', $txt['choose_board'], '</strong></a>
 						</span>
@@ -217,7 +210,6 @@ function template_main()
 				</div>
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 		}
 	echo '
@@ -251,7 +243,6 @@ function template_results()
 				', $txt['search_adjust_query'], '
 			</h3>
 		</div>
-		<span class="upperframe"><span></span></span>
 		<div class="roundframe">';
 
 		// Did they make any typos or mistakes, perhaps?
@@ -269,7 +260,7 @@ function template_results()
 						<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text" />
 					</dd>
 				</dl>
-				
+
 				<input type="submit" name="edit_search" value="', $txt['search_adjust_submit'], '" class="button_submit" />
 				<br class="clear_right" />
 				<input type="hidden" name="searchtype" value="', !empty($context['search_params']['searchtype']) ? $context['search_params']['searchtype'] : 0, '" />
@@ -288,7 +279,6 @@ function template_results()
 		echo '
 			</form>
 		</div>
-		<span class="lowerframe"><span></span></span>
 	</div><br />';
 	}
 
@@ -308,10 +298,10 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" />';
 				echo '
 				</span>
-				<span class="ie6_header floatleft"><img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>';
-		
+
 		// was anything even found?
 		if (!empty($context['topics']))
 		echo'
@@ -320,9 +310,7 @@ function template_results()
 		</div>';
 		else
 			echo '
-		<span class="upperframe"><span></span></span>
-			<div class="roundframe">', $txt['find_no_results'], '</div>
-		<span class="lowerframe"><span></span></span>';
+			<div class="roundframe">', $txt['find_no_results'], '</div>';
 
 		// while we have results to show ...
 		while ($topic = $context['get_topics']())
@@ -336,7 +324,6 @@ function template_results()
 			echo '
 			<div class="search_results_posts">
 			<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<span class="topslice"><span></span></span>
 				<div class="content flow_auto">';
 
 			foreach ($topic['matches'] as $message)
@@ -393,7 +380,6 @@ function template_results()
 
 			echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div>';
 
@@ -407,36 +393,22 @@ function template_results()
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
 			echo '
-			<div class="middletext titlebg2" style="padding: 4px;">
+			<div class="titlebg2" style="padding: 4px;">
 				<div class="floatright">
-					<select name="qaction"', $context['can_move'] ? ' onchange="this.form.moveItTo.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
-						<option value="">--------</option>', $context['can_remove'] ? '
-						<option value="remove">' . $txt['quick_mod_remove'] . '</option>' : '', $context['can_lock'] ? '
-						<option value="lock">' . $txt['quick_mod_lock'] . '</option>' : '', $context['can_sticky'] ? '
-						<option value="sticky">' . $txt['quick_mod_sticky'] . '</option>' : '',	$context['can_move'] ? '
-						<option value="move">' . $txt['quick_mod_move'] . ': </option>' : '', $context['can_merge'] ? '
-						<option value="merge">' . $txt['quick_mod_merge'] . '</option>' : '', '
-						<option value="markread">', $txt['quick_mod_markread'], '</option>
+					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
+						<option value="">--------</option>';
+
+			foreach ($context['qmod_actions'] as $qmod_action)
+				if ($context['can_' . $qmod_action])
+					echo '
+							<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
+
+			echo '
 					</select>';
 
 			if ($context['can_move'])
-			{
-					echo '
-					<select id="moveItTo" name="move_to" disabled="disabled">';
-
-					foreach ($context['move_to_boards'] as $category)
-					{
-						echo '
-						<optgroup label="', $category['name'], '">';
-						foreach ($category['boards'] as $board)
-								echo '
-						<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
-						echo '
-						</optgroup>';
-					}
-					echo '
-					</select>';
-			}
+				echo '
+				<span id="quick_mod_jump_to">&nbsp;</span>';
 
 			echo '
 					<input type="hidden" name="redirect_url" value="', $scripturl . '?action=search2;params=' . $context['params'], '" />
@@ -458,7 +430,7 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img class="centericon" src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'</span>
+				<img class="centericon" src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>
 		<div class="pagesection">
@@ -476,7 +448,6 @@ function template_results()
 				echo '
 			<div class="search_results_posts">
 				<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<div class="counter">', $message['counter'], '</div>
 						<div class="topic_details">
@@ -512,7 +483,6 @@ function template_results()
 				echo '
 						<br class="clear" />
 					</div>
-					<span class="botslice"><span></span></span>
 				</div>
 			</div>';
 			}
@@ -528,7 +498,26 @@ function template_results()
 	echo '
 		<br class="clear" />
 		<div class="smalltext righttext" id="search_jump_to">&nbsp;</div>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script type="text/javascript"><!-- // --><![CDATA[';
+
+	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
+		echo '
+				if (typeof(window.XMLHttpRequest) != "undefined")
+					aJumpTo[aJumpTo.length] = new JumpTo({
+						sContainerId: "quick_mod_jump_to",
+						sClassName: "qaction",
+						sJumpToTemplate: "%dropdown_list%",
+						sCurBoardName: "', $context['jump_to']['board_name'], '",
+						sBoardChildLevelIndicator: "==",
+						sBoardPrefix: "=> ",
+						sCatSeparator: "-----------------------------",
+						sCatPrefix: "",
+						bNoRedirect: true,
+						bDisabled: true,
+						sCustomName: "move_to"
+					});';
+
+	echo '
 			if (typeof(window.XMLHttpRequest) != "undefined")
 				aJumpTo[aJumpTo.length] = new JumpTo({
 					sContainerId: "search_jump_to",

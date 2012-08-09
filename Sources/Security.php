@@ -22,6 +22,7 @@ if (!defined('SMF'))
  * Makes sure the user is who they claim to be by requiring a password to be typed in every hour.
  * Is turned on and off by the securityDisable setting.
  * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
+ *
  * @param string $type = admin
  */
 function validateSession($type = 'admin')
@@ -42,7 +43,7 @@ function validateSession($type = 'admin')
 	// Is the security option off?
 	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
 		return;
-		
+
 	// Or are they already logged in?, Moderator or admin sesssion is need for this area
 	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
 		return;
@@ -97,6 +98,7 @@ function validateSession($type = 'admin')
  * Require a user who is logged in. (not a guest.)
  * Checks if the user is currently a guest, and if so asks them to login with a message telling them why.
  * Message is what to tell them when asking them to login.
+ *
  * @param string $message = ''
  */
 function is_not_guest($message = '')
@@ -162,6 +164,7 @@ function is_not_guest($message = '')
  * Checks if the user is banned, and if so dies with an error.
  * Caches this information for optimization purposes.
  * Forces a recheck if force_check is true.
+ *
  * @param bool $forceCheck = false
  */
 function is_not_banned($forceCheck = false)
@@ -441,6 +444,7 @@ function banPermissions()
 			'remove_own', 'remove_any',
 			'post_unapproved_topics', 'post_unapproved_replies_own', 'post_unapproved_replies_any',
 		);
+		call_integration_hook('integrate_post_ban_permissions', array($denied_permissions));
 		$user_info['permissions'] = array_diff($user_info['permissions'], $denied_permissions);
 	}
 	// Are they absolutely under moderation?
@@ -453,6 +457,7 @@ function banPermissions()
 			'post_reply_any' => 'post_unapproved_replies_any',
 			'post_attachment' => 'post_unapproved_attachments',
 		);
+		call_integration_hook('integrate_warn_permissions', array($permission_change));
 		foreach ($permission_change as $old => $new)
 		{
 			if (!in_array($old, $user_info['permissions']))
@@ -489,6 +494,7 @@ function banPermissions()
  * Log a ban in the database.
  * Log the current user in the ban logs.
  * Increment the hit counters for the specified ban ID's (if any.)
+ *
  * @param array $ban_ids = array()
  * @param string $email = null
  */
@@ -523,6 +529,7 @@ function log_ban($ban_ids = array(), $email = null)
  * Checks if a given email address might be banned.
  * Check if a given email is banned.
  * Performs an immediate ban if the turns turns out positive.
+ *
  * @param string $email
  * @param string $restriction
  * @param string $error
@@ -592,6 +599,7 @@ function isBannedEmail($email, $restriction, $error)
  * Depends on the disableCheckUA setting, which is usually missing.
  * Will check GET, POST, or REQUEST depending on the passed type.
  * Also optionally checks the referring action if passed. (note that the referring action must be by GET.)
+ *
  * @param string $type = 'post' (post, get, request)
  * @param string $from_action = ''
  * @param bool $is_fatal = true
@@ -705,6 +713,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 
 /**
  * Check if a specific confirm parameter was given.
+ *
  * @param string $action
  */
 function checkConfirm($action)
@@ -725,6 +734,7 @@ function checkConfirm($action)
 
 /**
  * Lets give you a token of our appreciation.
+ *
  * @param string $action
  * @param string $type = 'post'
  * @return array
@@ -754,9 +764,22 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings;
+	global $modSettings, $sourcedir;
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
+
+	// Logins are special: the token is used to has the password with javascript before POST it
+	if ($action == 'login')
+	{
+		if (isset($_SESSION['token'][$type . '-' . $action]))
+		{
+			$return = $_SESSION['token'][$type . '-' . $action][3];
+			unset($_SESSION['token'][$type . '-' . $action]);
+			return $return;
+		}
+		else
+			return '';
+	}
 
 	// This nasty piece of code validates a token.
 	/*
@@ -783,6 +806,13 @@ function validateToken($action, $type = 'post', $reset = true)
 		// I'm back baby.
 		createToken($action, $type);
 
+		// Need to type in a password for that, man.
+		if (!isset($_GET['xml']))
+		{
+			require_once($sourcedir . '/Subs-Auth.php');
+			adminLogin($type, $action);
+		}
+
 		fatal_lang_error('token_verify_fail', false);
 	}
 	// Remove this token as its useless
@@ -797,7 +827,10 @@ function validateToken($action, $type = 'post', $reset = true)
 }
 
 /**
- * Clean up a little.
+ * Removes old unused tokens from session
+ * defaults to 3 hours before a token is considered expired
+ * if $complete = true will remove all tokens
+ *
  * @param bool $complete = false
  */
 function cleanTokens($complete = false)
@@ -865,6 +898,7 @@ function checkSubmitOnce($action, $is_fatal = true)
  * checks whether the user is allowed to do permission. (ie. post_new.)
  * If boards is specified, checks those boards instead of the current one.
  * Always returns true if the user is an administrator.
+ *
  * @param string $permission
  * @param array $boards = null
  * @return bool if the user can do the permission
@@ -939,6 +973,7 @@ function allowedTo($permission, $boards = null)
  * Checks the passed boards or current board for the permission.
  * If they are not, it loads the Errors language file and shows an error using $txt['cannot_' . $permission].
  * If they are a guest and cannot do it, this calls is_not_guest().
+ *
  * @param string $permission
  * @param array $boards = null
  */
@@ -998,26 +1033,45 @@ function isAllowedTo($permission, $boards = null)
  * Returns an array with only a 0 in it if the user has permission to do this on every board.
  * Returns an empty array if he or she cannot do this on any board.
  * If check_access is true will also make sure the group has proper access to that board.
+ *
  * @param array $permissions
  * @param bool $check_access = true
+ * @param bool $simple = true
  */
-function boardsAllowedTo($permissions, $check_access = true)
+function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
 	global $user_info, $modSettings, $smcFunc;
 
+	// Arrays are nice, most of the time.
+	$permissions = (array) $permissions;
+
+	/*
+	 * Set $simple to true to use this function as it were in SMF 2.0.x.
+	 * Otherwise, the resultant array becomes split into the multiple
+	 * permissions that were passed. Other than that, it's just the normal
+	 * state of play that you're used to.
+	 */
+
 	// Administrators are all powerful, sorry.
 	if ($user_info['is_admin'])
-		return array(0);
+	{
+		if ($simple)
+			return array(0);
+		else
+		{
+			$result = array();
+			foreach ($permissions as $permission)
+				$result[$permission] = array(0);
 
-	// Arrays are nice, most of the time.
-	if (!is_array($permissions))
-		$permissions = array($permissions);
+			return $result;
+		}
+	}
 
 	// All groups the user is in except 'moderator'.
 	$groups = array_diff($user_info['groups'], array(3));
 
 	$request = $smcFunc['db_query']('', '
-		SELECT b.id_board, bp.add_deny
+		SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
 		FROM {db_prefix}board_permissions AS bp
 			INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
@@ -1032,20 +1086,33 @@ function boardsAllowedTo($permissions, $check_access = true)
 			'permissions' => $permissions,
 		)
 	);
-	$boards = array();
-	$deny_boards = array();
+	$boards = $deny_boards = $result = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (empty($row['add_deny']))
-			$deny_boards[] = $row['id_board'];
+		if ($simple)
+		{
+			if (empty($row['add_deny']))
+				$deny_boards[] = $row['id_board'];
+			else
+				$boards[] = $row['id_board'];
+		}
 		else
-			$boards[] = $row['id_board'];
+		{
+			if (empty($row['add_deny']))
+				$deny_boards[$row['permission']][] = $row['id_board'];
+			else
+				$boards[$row['permission']][] = $row['id_board'];
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
-	$boards = array_unique(array_values(array_diff($boards, $deny_boards)));
+	if ($simple)
+		$result = array_unique(array_values(array_diff($boards, $deny_boards)));
+	else
+		foreach ($permissions as $permission)
+			$result[$permission] = array_unique(array_values(array_diff($boards[$permission], $deny_boards[$permission])));
 
-	return $boards;
+	return $result;
 }
 
 /**
@@ -1057,6 +1124,7 @@ function boardsAllowedTo($permissions, $check_access = true)
  *  'no_through_forum': don't show the email address, but do allow
  *    things to be mailed using the built-in forum mailer.
  *  'no': keep the email address hidden.
+ *
  * @param bool $userProfile_hideEmail
  * @param int $userProfile_id
  * @return string (yes, yes_permission_override, no_through_forum, no)
@@ -1101,11 +1169,13 @@ function spamProtection($error_type)
 	$timeOverrides = array(
 		'login' => 2,
 		'register' => 2,
-		'sendtopc' => $modSettings['spamWaitTime'] * 4,
+		'remind' => 30,
+		'sendtopic' => $modSettings['spamWaitTime'] * 4,
 		'sendmail' => $modSettings['spamWaitTime'] * 5,
 		'reporttm' => $modSettings['spamWaitTime'] * 4,
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
+	call_integration_hook('integrate_spam_protection', array($timeOverrides));
 
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
@@ -1136,7 +1206,7 @@ function spamProtection($error_type)
 	if ($smcFunc['db_affected_rows']() != 1)
 	{
 		// Spammer!  You only have to wait a *few* seconds!
-		fatal_lang_error($error_type . 'WaitTime_broken', false, array($timeLimit));
+		fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
 		return true;
 	}
 
@@ -1146,6 +1216,7 @@ function spamProtection($error_type)
 
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
+ *
  * @param string $path, the (absolute) directory path
  * @param boolean $attachments, if the directory is an attachments directory or not
  * @return true on success, error string if anything fails
@@ -1216,7 +1287,9 @@ else
 }
 
 /**
- * Another helper function that put together the 
+ * Helper function that puts together a ban query for a given ip
+ * builds the query for ipv6, ipv4 or 255.255.255.255 depending on whats supplied
+ *
  * @param string $fullip An IP address either IPv6 or not
  * @return string A SQL condition
  */

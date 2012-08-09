@@ -1,146 +1,289 @@
-/* Styles for the admin quick search.
+/* Experimental code to hide header content in admin. Will not be used in deafult.
+/* Not checked since main theme was rewritten for the new look. Beware.
+/* Commenting out the entire block sets admin back to the default header.
 ------------------------------------------------------- */
+/*
+body.action_admin #header {
+	padding: 2px 2px 0 2px;
+}
+body.action_admin #header .frame {
+	padding: 0 0 50px 0;
+	background:  url(../images/theme/bars.png) 0 -560px repeat-x;
+}
+body.action_admin #top_section, body.action_admin #upper_section {
+	display: none;
+}
+body.action_admin #upper_wrap {
+	background: none;
+	padding: 4px 8px 0 8px;
+}
+body.action_admin #main_content_section {
+	margin: -45px 0 0 0;
+}
+body.action_admin .navigate_section ul {
+	padding: 5px 8px;
+	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+	border: 1px solid #b8b8b8;
+	border-radius: 5px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+body.action_admin .navigate_section ul li.unread_links {
+	display: none;
+}
+body.action_admin .navigate_section ul li a {
+	font-weight: bold;
+}*/
+/* End experimental header hiding stuffz. */
 
-h3.catbg #quick_search form {
-	padding: .8em;
-	line-height: 0.9em;
-	font-size: 0.8em !important;
-}
-h3.catbg #quick_search form select {
-	height: 1.65em;
-	line-height: 0.9em;
-	font-size: 1em;
-	margin: 0 0.2em 0 0;
-}
-ol.search_results {
-	margin-top: 0;
-	padding-top: 0;
-}
-ol.search_results li {
-	padding-top: 1em;
-	border-bottom: 1px solid #ccc;
-}
-
-/* Styles for the core features screen.
-------------------------------------------------------- */
-.features {
-	padding: 0 1em !important;
-	overflow: auto;
-}
-.features_image {
-	float: left;
-	margin: 0 2em 0.5em 1em;
-}
-.features_switch {
-	margin: 0.2em 1em 1em 1em;
-	float: right;
-}
-.features h4 {
-	padding: 1em 0 0.5em 0.5em;
-	margin: 0;
-	font-size: 1.1em;
-}
-.features p {
-	padding: 0 1em;
-	margin: 0;
-}
-
-/* Styles for the admin home screen bar.
-------------------------------------------------------- */
-#admin_main_section {
-	overflow: hidden;
-	margin: 1em 0;
-}
-#admincenter .content {
-	padding: 1em;
-}
-
-#live_news {
-	width: 64%;
-}
-#live_news div.content {
-	padding: 0;
-	font-size: 0.85em;
-}
-#live_news div.content dl {
-	padding: 0.5em 0 0 0.5em;
-}
-
-#supportVersionsTable {
-	width: 34%;
-}
-#version_details {
-	overflow: auto;
-	height: 9.5em;
-}
-#smfAnnouncements {
-	height: 13.5em;
-	padding: 0 0.5em;
-	overflow: auto;
-}
-#smfAnnouncements dt {
-	border-bottom: 1px dashed #000;
-}
-#smfAnnouncements dd {
-	padding: 0;
-	margin: 0 0 1em 1.5em;
-}
-#update_section {
-	margin: 0.5em 0 0;
-}
-
-#quick_tasks, #quick_tasks ul {
-	margin: 0;
-	padding: 0;
-}
-#quick_tasks li {
-	float: left;
-	list-style-type: none;
-	margin: 0;
-	padding: 0.5em 0;
-	width: 49.5%;
-	height: 4.5em;
-}
-.quick_task {
-	display: block;
-	width: 100%;
-	margin: 0 1em;
-	padding: 0;
-}
-.home_image {
-	float: left;
-	margin: 0 1em 1em 1em;
-}
 
 /* Common admin center classes.
 ------------------------------------------------------- */
-hr.hrcolor {
-	margin: 10px 0;
+/* [WIP]
+/* The CSS targeting for all this gets a bit convoluted and requires a good clean up.
+/* It's left over from when I started theming admin independently over a Curve forum.
+/* Can be simplified quite a lot before production builds. */
+
+/* Re-style default cat bars to get rid of header bar mania. */
+#manage_maintenance .cat_bar, #core_features .cat_bar, #support_credits .cat_bar {
+	border: none;
+	border-top: 1px solid #bbb;
+}
+#manage_maintenance .cat_bar .catbg, #manage_boards .cat_bar .catbg, #core_features .cat_bar .catbg,
+#support_credits .cat_bar .catbg, .generic_list_wrapper .cat_bar .catbg {
+	border: none;
+	border-top: 1px solid #fff;
+	text-shadow: none;
+}
+#admin_main_section .cat_bar:first-child, #admin_main_section .cat_bar:first-child h3.catbg,
+#support_credits .cat_bar, #support_credits .cat_bar:first-child,
+#support_credits .cat_bar h3.catbg, #support_credits .cat_bar:first-child h3.catbg,
+#manage_maintenance .cat_bar, #manage_maintenance .cat_bar:first-child,
+#manage_maintenance .cat_bar h3.catbg, #manage_maintenance .cat_bar:first-child h3.catbg {
+	color: #444;
+	font-size: 1.1em;
+	background: none;
+	border-radius: 0;
+	text-shadow: none;
+}
+#admin_main_section .cat_bar:first-child, #admin_main_section .cat_bar:first-child h3.catbg,
+#support_credits .cat_bar:first-child, #support_credits .cat_bar:first-child h3.catbg,
+#manage_maintenance .cat_bar:first-child, #manage_maintenance .cat_bar:first-child h3.catbg {
+	border: none;
+}
+
+/* Special styling for admin descriptions. */
+.action_admin p.description, .action_admin  .information {
+	overflow: auto;
+	background: none;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0 0 7px 7px;
+	margin: 0 0 0 0;
+	padding: 12px 9px 8px 9px;
+}
+.action_admin p.description a {
+	font-weight: bold;
+}
+.action_admin p.description  img {
+	vertical-align: middle;
+}
+.action_admin .generic_list_wrapper .information {
+	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+	margin: 8px 0;
+	padding: 4px 12px 2px 12px;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+}
+.action_admin .generic_list_wrapper .information div {
+	background: none;
+}
+.information a {
+	font-weight: bold;
+}
+.action_admin .generic_list {
+	overflow: auto;
+}
+#admin_content .windowbg, #admin_content .windowbg2 {
+	margin-bottom: 5px;
+}
+#admincenter .content {
+	padding: 12px;
+}
+
+/* Secondary menu corrections. */
+.action_admin #adm_submenus {
+	margin: 0 0 -18px 0;
+	padding: 10px 15px 0 15px;
+	overflow: hidden;
+}
+
+/* A general admin wrapper class. */
+#admin_main_section, div.quick_tasks,
+#support_credits, #admin_newsletters,
+#core_features, #generate_reports_type,
+#groupForm, #mailqueue_stats, #manage_maintenance,
+#new_group, #view_group, #admin_form_wrapper, .action_admin .generic_list_wrapper{
+	background: #f0f4f7;
+	margin: 12px 0 0 0;
+	padding: 8px 8px 16px 8px;
+	border: 1px solid #ccc;
+	border-radius: 7px;
+	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	overflow: auto;
+}
+div.quick_tasks {
+	margin: -8px 0 0 0;
+}
+#admin_form_wrapper div.windowbg, #support_credits div.windowbg,
+#generate_reports_type div.windowbg, #new_group div.windowbg,
+#view_group  div.windowbg, #admin_newsletters .windowbg {
+	background: none;
+	padding: 0;
+	margin: 0 4px;
+}
+#mailqueue_stats {
+	padding: 8px 8px 0 8px;
+}
+#mailqueue_stats .windowbg {
+	background: none;
+	padding: 0;
+}
+#mailqueue_stats .windowbg .content {
+	padding: 12px 9px 0 9px;
+}
+#admin_form_wrapper div.cat_bar:first-child, #admin_newsletters div.cat_bar:first-child,
+#generate_reports_type div.cat_bar:first-child, #groupForm div.cat_bar:first-child,
+#admin_form_wrapper div.title_bar, #mailqueue_stats div.cat_bar:first-child,
+#new_group div.cat_bar:first-child, #view_group div.cat_bar, #view_group div.cat_bar:first-child {
+	background: none;
+	border: none;
+	border-bottom: 1px solid #fff;
+	box-shadow: none;
+}
+#admin_form_wrapper div.cat_bar:first-child h3.catbg, #admin_newsletters div.cat_bar:first-child h3.catbg,
+#generate_reports_type div.cat_bar:first-child h3.catbg, #groupForm div.cat_bar:first-child h3.catbg,
+#admin_form_wrapper h3.titlebg, #mailqueue_stats div.cat_bar:first-child  h3.catbg,
+#new_group div.cat_bar:first-child  h3.catbg, #view_group div.cat_bar  h3.catbg, #view_group div.cat_bar:first-child  h3.catbg {
+	color: #444;
+	text-shadow: none;
+	padding: 3px 1px 5px 1px;
+	margin: 0;
+	border-bottom: 1px solid #bbb;
+}
+#admin_form_wrapper div.title_bar {
+	background: #fff url(../images/theme/lower_section.png) 0 0 repeat-x;
+	border: 1px solid #ccc;
+	border-radius: 2px 2px 0 0;
+	margin: 0;
+}
+.action_admin .generic_list_wrapper .title_bar {
+	background: none;
+	border-bottom: 1px solid #fff;
+}
+.action_admin .generic_list_wrapper .titlebg {
+	border-bottom: 1px solid #bbb;
+}
+#admin_form_wrapper h3.titlebg {
+	color: #666;
+	border-bottom: none;
+	padding: 8px 6px 5px 6px;
+}
+#view_group .title_bar {
+	background: none;
+	border-bottom: none;
+	border-top: 1px solid #bbb;
+	margin: -12px 0;
+}
+#view_group .titlebg {
+	border-top: 1px solid #fff;
+	border-bottom: none;
+}
+#view_group .table_grid {
+	margin: 4px 0 8px 0;
+}
+.action_admin .table_grid th, .action_admin .table_grid .first_th, .action_admin .table_grid .last_th {
+	border-radius: 0;
+	border-top: 2px solid #ff9400;
+	border-bottom: 2px solid #bf6900;
+	padding: 6px 6px 5px 6px;
+	background: #fff;
+	color: #666;
+}
+.action_admin .table_grid tr.catbg th a:link {
+	color: #666;
+}
+.action_admin .table_grid .first_th, .action_admin .table_grid  td:first-child {
+	border-left: 1px solid #ccc;
+}
+.action_admin .table_grid .last_th, .action_admin .table_grid td {
+	border-right: 1px solid #ccc;
+}
+.action_admin .table_grid td {
+	border-bottom: 1px solid #ccc;
+}
+.action_admin .table_grid tr:nth-child(even) td {
+	background: #fdfdfd;
+}
+.action_admin .table_grid tr:nth-child(odd) td {
+	background: #f8f8f8;
+}
+/*-------------------------------------------*/
+
+/* Newsletters screen.
+---------------------------------------------*/
+#admin_newsletters .information {
+	background: #fff url(../images/theme/lower_section.png) 0 50% repeat-x;
+	margin: 8px 0;
+	padding: 8px 12px 6px 12px;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+}
+#advanced_panel_header {
+	margin-bottom: 8px;
+	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+	border: 1px solid #ccc;
+	border-radius: 2px;
+}
+#advanced_panel_header a {
+	color: #444;
+}
+/*-------------------------------------------*/
+.action_admin .generic_list .flow_auto {
+	padding: 4px 2px;
 }
 h3.titlebg form {
 	font-size: 80%;
 }
 .windowbg.nopadding {
-	margin: 0.3em 0 0 0;
+	margin: 4px 0 0 0;
 	padding: 0;
 }
 .windowbg ol {
 	margin-top: 0;
 	margin-bottom: 0;
 }
-
+a.help .icon {
+	margin: 0 0 0 0;
+	padding: 0 4px 0 0;
+}
+.catbg a.help .icon {
+	margin: -4px 0 0 0;
+}
 .table_caption, tr.table_caption td {
 	color: #000;
 	font-size: 10px;
 	font-weight: bold;
 }
 .additional_row div.floatleft {
-	padding: 0 0.8em;
+	padding: 0 10px;
 }
 fieldset {
-	margin-bottom: 0.5em;
+	margin-bottom: 6px;
 	border: 1px solid #cacdd3;
-	padding: 0.5em;
+	padding: 6px;
 }
 fieldset dl {
 	margin: 0;
@@ -149,11 +292,301 @@ legend {
 	font-weight: bold;
 	color: #000;
 }
-.information a {
+
+/* Styles for the admin home screen.
+------------------------------------------------------- */
+/* Admin quick search bar, and results page. */
+h3.catbg #quick_search form {
+	padding-top: 2px;
+	font-size: 0.66em;
+}
+h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button_submit {
+	margin: 0 3px;
+	padding: 4px 3px 3px 3px;
+	border-radius: 4px;
+	border: 1px solid #777;
+	vertical-align: top;
+}
+h3.catbg #quick_search form select {
+	font-size: 1.01em;
+	margin: 0;
+	padding: 2px;
+}
+h3.catbg #quick_search form select option {
+	padding: 2px 4px;
+}
+h3.catbg #quick_search form .button_submit {
 	font-weight: bold;
+	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+	padding: 3px 6px 2px 6px;
+}
+h3.catbg #quick_search form .button_submit:hover {
+	background: #fff;
+}
+
+/* Browser tweaks. */
+body#chrome #quick_search form input {
+	padding: 4px 3px;
+}
+body#chrome #quick_search .button_submit, body#ie #quick_search .button_submit, body#opera #quick_search .button_submit {
+	margin: 0 5px;
+	padding: 5px 9px 4px 9px;
+}
+body#chrome  #quick_search .button_submit {
+	margin: -26px 5px 0 5px;
+}
+
+/* The welcome thingy. */
+#admincenter .roundframe {
+	background: none;
+	border: none;
+	box-shadow: none;
+	margin: 0;
+	padding: 0;
+	overflow: visible;
+}
+#welcome {
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0 0 7px 7px;
+	font-size: 0.9em;
+	padding: 12px 9px 8px 9px;
+}
+#welcome a {
+	font-weight: bold;
+}
+#welcome img {
+	vertical-align: middle;
+}
+.search_results {
+	margin: 0 -6px;
+}
+.search_results li {
+	margin: 0;
+	padding: 5px 0;
+	overflow: auto;
+	line-height: 1.7em;
+	border-bottom: double #ccc;
+}
+.search_results li a strong {
+	color: #346;
+}
+.search_results li p {
+	padding: 0 20px;
+	line-height: 1.7em;
+}
+
+/* Cleaned this up a bit for less clutter.
+/* Admin and moderation could generally do with a clean up everywhere.
+/* Live news from smf.org and support information. */
+#admin_main_section {
+	margin: 12px 0 0 0;
+	padding: 8px 12px 4px 12px;
+	border-radius: 7px 7px 0 0;
+	border-bottom: none;
+}
+#admin_main_section .cat_bar {
+	background: none;
+}
+#admin_main_section .catbg, #admin_main_section .catbg a {
+	color: #444;
+	max-height: 1.5em;
+	overflow: hidden;
+}
+#live_news, #supportVersionsTable {
+	width: 70%;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+#supportVersionsTable {
+	width: 30%;
+	padding-left: 6px;
+}
+#admin_main_section .windowbg {
+	padding: 6px 0;
+	border: 1px solid #ccc;
+	border-top: 1px solid #bbb;
+	border-bottom: 1px solid #ddd;
+	border-radius: 0;
+	background: #fff url(../images/theme/upper_section.png) 0 -50px repeat-x;
+	box-shadow:  0 2px 2px rgba(255,255,255,0.5), 0 -1px 2px rgba(0,0,0,0.1);
+	height: 12em;
+	overflow: auto;
+}
+#live_news div.content, #supportVersionsTable  div.content {
+	padding: 0;
+	font-size: 0.9em;
+}
+#supportVersionsTable  div.content {
+	padding: 0 8px;
+}
+#live_news div.content dl {
+	padding: 0;
+	color: #111;
+}
+#smfAnnouncements dt {
+	padding: 4px 6px 2px 6px; 
+	border-top: 1px solid #bf6900;
+}
+#smfAnnouncements dt a {
+	color: #bf6900;
+	font-weight: bold;
+	display: block;
+}
+#smfAnnouncements dd {
+	margin: 0;
+	padding: 6px 12px;
+	border-top: double #ddd;
+}
+
+/* The update warning. */
+#update_section {
+	margin: 6px 0;
+}
+
+/* Links to handy sections of admin.
+----------------------------------*/
+/* The <li>'s here have been set to a height in em with hidden overflow.
+/* Yes, this will clip the blurb when using very large font sizes on a narrowish screen.
+/* However, more than enough content is still available for clarity,
+/* and the advantage is that a clean layout is always maintained.
+/* The <li>'s could be set to auto overflow instead, but that just clutters things up with scrollbars.
+/* Scrollbars here look worse, take up space, and don't really add anything useful in this context. */
+div.quick_tasks {
+	border-radius: 0 0 7px 7px;
+	border-top: none;
+	box-shadow: none;
+	padding: 0 0 16px 0;
+}
+#quick_tasks {
+	border-top: 1px solid #bbb;
+	border-bottom: 1px solid #fff;
+}
+#quick_tasks  li {
+	list-style: none;
+	padding: 10px 6px 10px 6px;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #bbb;
+	float: left;
+	width: 50%;
+	height: 6em;
+	overflow: hidden;
+}
+#quick_tasks  li a  {
+	line-height: 1.6em;
+}
+.home_image {
+	float: left;
+	margin: 2px 10px;
+}
+#quick_tasks  li span {
+	display: block;
+	margin: 0 0 0 70px;
+}
+
+/* Styles for the support and credits page.
+/* Hey, people might actually want to put their names on it now!
+/* Only a couple of trivial markup hacks that wont break any mods or themes.
+/* The older I get, the more devious I get. :D
+/* Nobody ever themes admin anyway. That's why it looked like crap.
+-----------------------------------------------------------------*/
+#support_credits {
+	position: relative;
+	padding: 6px 12px 12px 12px;
+}
+#support_credits h3.catbg, #support_credits .cat_bar:first-child h3.catbg {
+	padding: 12px 6px 6px 6px;
+}
+#support_resources {
+	margin: 16px 0 -24px 0;
+}
+#credits_logo {
+	position: absolute;
+	right: 10px;
+	top: 9px;
+}
+#support_credits .content {
+	padding: 0 18px;
+	line-height: 1.6em;
+}
+#support_credits .content p {
+	margin: 12px 0 0 0;
+	padding: 0;
+}
+#support_credits a {
+	border-bottom: 1px solid #d2d2d2;
+}
+#support_credits a:hover {
+	color: #00163d;
+	text-decoration: none;
+	border-bottom: 1px solid #556f82;
+}
+#support_credits img.icon {
+	vertical-align: middle;
+}
+#support_credits .catbg a.help, #support_credits .catbg a.help:hover {
+	border-bottom: none;
+}
+#latestSupport{
+	padding: 0 25px 15px 25px;
+}
+#credits_sections {
+	margin: 0 0 -24px 0;
+}
+#support_credits dl {
+	padding: 0 6px;
+}
+#support_credits dt {
+	float: left;
+	padding: 6px 0.8em 0 0;
+	text-indent: -4px;
+}
+#support_credits dd {
+	padding: 6px 0;
+}
+
+/* Styles for the core features screen.
+/* Cleaned up a  bit for clarity.
+------------------------------------------------------- */
+#core_features {
+	padding: 20px 0;
+}
+#core_features hr {
+	padding: 0;
+	margin: 4px 0 12px 0;
+}
+#core_features .content {
+	padding: 0 12px;
+	overflow: auto;
+}
+/* Keep your enemies close, and your submit buttons if your screen is huge. */
+/* Speaking of which, I can't see the last submit that is in the markup. */
+/* Still works without it if you reload the page, but rather odd that it's hiding. */
+.features_image {
+	float: left;
+	margin: 0 12px 0 0;
+}
+.features_switch {
+	margin: -20px 0 6px 6px;
+	float: right;
+}
+.features h4 {
+	padding: 0;
+	margin-top: 6px;
+	font-size: 1.1em;
+	overflow: hidden;
+	white-space: pre;
+	text-overflow: ellipsis;
+	min-height: 1.6em;
+	max-height: 1.6em;
+}
+.features p {
+	margin: 0 6px 0 105px;
+	padding: 0;
+	min-height: 56px;
 }
 
 /* Styles for the package manager.
+/* Haven't got here yet. :P
 ------------------------------------------------- */
 #package_list .tborder {
 	margin: .25em 0 .25em 26px;
@@ -195,14 +628,18 @@ ul.packages li {
 code#find_code, code#replace_code {
 	display: block;
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
-	font-size: x-small;
+	font-size: 0.9em;
 	background: #eef;
-	line-height: 1.5em;
-	padding: 3px 1em;
+	border-top: 2px solid #999;
+	border-bottom: 2px solid #999;
+	margin: 1px 0 6px 0;
+	padding: 3px 12px;
 	overflow: auto;
-	white-space: pre;
-	/* Show a scrollbar after about 24 lines. */
-	max-height: 24em;
+	white-space: nowrap;
+	/* Show a scrollbar after about 6 lines. */
+	/* This is much better than the old max-height css. */
+	height: 10em;
+	resize: vertical;
 }
 span.package_server {
 	padding: 0 3em;
@@ -258,22 +695,76 @@ pre.file_content {
 
 /* Styles for the manage boards section.
 ------------------------------------------------- */
-#manage_boards ul {
-	padding: 0;
-	margin: 0 0 0.6em 0;
-	max-height: 30em;
+#manage_boards {
+	background: #f0f4f7;
+	margin: 12px 0 0 0;
+	padding: 8px 8px 16px 8px;
+	border: 1px solid #ccc;
+	border-radius: 7px;
+	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
-#manage_boards li {
-	list-style-type: none;
-	border: 1px solid #cacdd3;
-	padding: 0.2em;
-	margin: 1px;
-	clear: right;
+#manage_boards .title_bar {
+	background: none;
+	border-bottom: 1px solid #fff;
+}
+#manage_boards .titlebg {
+	border-bottom: 1px solid #bbb;
+}
+#manage_boards .information {
+	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+	margin: 8px 16px 4px 16px;
+	padding: 4px 12px 2px 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+#manage_boards .cat_bar, #manage_boards .windowbg {
+	background: none;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	border: none;
+	border-radius: 7px 7px 0 0;
+}
+#manage_boards .catbg {
+	padding: 8px 16px 4px 16px;
+	color: #444;
+}
+#manage_boards .catbg a {
+	color: #346;
+}
+#manage_boards .catbg a:hover {
+	border-bottom: 1px solid #346;
+}
+#manage_boards .windowbg {
+	margin: 0;
+	padding: 0;
+}
+#manage_boards ul {
+	padding: 0;
+	margin: 0 0 8px 0;
+	max-height: 30em;
+	overflow: auto;
+	border-top: 1px solid #bbb;
+	border-bottom: 1px solid #fff;
+	border-radius: 2px;
+}
+#manage_boards li, #manage_boards li.windowbg, #manage_boards li.windowbg2 {
+	list-style: none;
+	margin: 0 1px;
+	padding: 8px 0;
+	border: 1px solid #ccc;
+	border-bottom: 1px solid #bbb;
+	border-top: 1px solid #fff;
+	border-radius: 0;
 }
 #manage_boards li img {
 	vertical-align: middle;
-	padding-bottom: 3px;
+	padding: 0 6px 3px 6px;
+}
+#manage_boards li .floatleft {
+	font-weight: bold;
+	padding: 0 6px;
 }
 #manage_boards li#recycle_board {
 	background-color: #dee;
@@ -284,13 +775,53 @@ pre.file_content {
 .modify_boards {
 	padding: 0 0.5em;
 }
+#manage_boards span.modify_boards a {
+	background: #fff url(../images/theme/lower_section.png) 0 0 repeat-x;
+	border: 1px solid #aaa;
+	border-radius: 3px;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+	padding: 3px 6px;
+	font: 95%/115% verdana, Helvetica, sans-serif;
+	color: #222;
+	font-size: 1em;
+}
+#manage_boards span.modify_boards a:hover {
+	background: #fff url(../images/theme/upper_section.png) 0 -40px repeat-x;
+	text-decoration: none;
+	color: #444;
+	box-shadow: -1px -1px 1px rgba(0,0,0,0.1);
+}
+#manage_boards .button_submit {
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.1), 0 -1px 3px rgba(0,0,0,0.1) inset;
+	border-top: 1px solid #bbb;
+	border-left: 1px solid #bbb;
+	background: #dceeff;
+	text-shadow: 0 0 2px #fff;
+	margin: 0 8px;
+}
+#manage_boards  .button_submit:hover {
+	box-shadow: -1px -1px 1px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.1) inset;
+	border-top: 1px solid #999;
+	border-left: 1px solid #999;
+	background: #cde7ff;
+}
+#manage_boards dl {
+	padding: 8px 6px 0 6px;
+}
+#manage_boards dl textarea, #manage_boards dl table{
+	margin: 0 0 8px 0;
+}
 #manage_boards span.post_group, #manage_boards span.regular_members {
 	border-bottom: 1px dotted #000;
 	cursor: help;
 }
+.select_all_box {
+	display:none;
+}
 
 /* Styles for the manage members section.
 ------------------------------------------------- */
+
 .msearch_details {
 	display: block;
 	width: 49%;
@@ -301,15 +832,50 @@ dl.right dt {
 
 /* Styles for the manage maintenance section.
 ------------------------------------------------- */
+#manage_maintenance .catbg {
+	border-top: 1px solid #fff;
+	padding-top: 14px;
+	color: #555;
+}
+#manage_maintenance .cat_bar:first-child, #manage_maintenance .cat_bar:first-child .catbg {
+	border-top: none;
+	margin: 0 0 -4px 0;
+}
+#manage_maintenance div.windowbg, #manage_maintenance div.windowbg2 {
+	background: none;
+	padding: 0 0 12px 0;
+	margin: 0;
+}
+#manage_maintenance p {
+	margin: -5px 0 0 0;
+	padding: 0 0 10px 0;
+	max-width: 70em;
+}
+#manage_maintenance p .button_submit{
+	margin: 10px 10px 0px 10px;
+}
+/* Stop the submit buttons running away on wide screens.*/
+#manage_maintenance form {
+	max-width: 80em;
+}
+#manage_maintenance .settings {
+	margin: 16px 0 0 0;
+}
 .maintenance_finished, #task_completed {
-	background:#B7FCA7 url(../images/warning_watch.png) center no-repeat;
-	background-position:8px 50%;
-	text-align:left;
-	border-top:1px solid green;
-	border-bottom:1px solid green;
-	padding:4px 10px 2px 30px;
+	background: #B7FCA7 url(../images/warning_watch.png) 8px 50% no-repeat;
+	border: 1px solid green;
+	padding: 6px 30px;
 	margin-bottom: 1em;
 }
+#manage_maintenance .maintenance_finished {
+	background: #B7FCA7 url(../images/warning_watch.png) 8px 50% no-repeat;
+	border: 1px solid green;
+	border-radius: 4px 4px 0 0;
+	padding: 6px 30px;
+	margin: 0 0 6px 0;
+}
+/* Didn't get any further last night. */
+
 /* Styles for the manage calendar section.
 ------------------------------------------------- */
 dl.settings dt.small_caption {
@@ -504,25 +1070,139 @@ h3.grid_header {
 	padding: 8px;
 	line-height: 160%;
 }
-#error_log td.half_width {
-	width: 50%;
+#error_log td div {
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 #error_log td.checkbox_column {
 	width: 15px;
 	vertical-align: top;
 	text-align: center;
 }
-#error_log td div.marginleft {
-	margin: 0 0 0 1ex;
+#error_log a img {
+	vertical-align: middle;
+	margin: 0 8px 0 0;
 }
-#manage_boards span.botslice, #manage_maintenance span.botslice, #manage_mail span.botslice {
-	margin-bottom: 4px;
+
+
+/* More error log stuff. Could still be cleaned up a bit.
+--------------------------------------------------*/
+#error_log {
+	margin: 4px 0;
+}
+#error_log tr:first-child td {
+	border-top: 2px solid #ff9400;
+	border-bottom: 2px solid #bf6900;
+	background: #fff;
+	padding: 8px;
 }
 
 /* Styles for the Report generation 
 ------------------------------------------------- */
 #report_buttons {
-    min-height: 2em;
-    padding-left: 0;
-	padding-bottom: 2px;
+	min-height: 2.4em;
+	padding: 3px 0;
 }
+.report_results th {
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+}
+
+/* Try out some nifty small screen friendliness, for the cost of a few more bytes. */
+/*@media screen and (max-width: 85em) {
+	.features p {
+		margin: 0;
+		padding: 0;
+		min-height: 10em;
+		max-height: 10em;
+	}
+
+}*/
+@media screen and (max-width: 490px),(max-width: 32em) {
+	body {
+		padding: 0;
+	}
+	#wrapper, #footer_section div.frame {
+		min-width: 100%;
+	}
+	#main_content_section {
+		padding: 0 10px;
+	}
+	/* Level 1 button background. */
+	.dropmenu li {
+		line-height: 3.2em;
+	}
+	.dropmenu li ul {
+		top: 3.45em;
+	}
+	.dropmenu li li a {
+		line-height: 3.2em;
+	}
+	#menu_toggle {
+		display: none;
+	}
+	h3.catbg #quick_search form {
+		margin: 0 0 8px 0;
+		padding: 0;
+	}
+	h3.catbg #quick_search form input {
+		margin: 0 0 12px 0;
+	}
+	h3.catbg #quick_search form select option {
+		padding: 4px 4px;
+	}
+	h3.catbg #quick_search form .button_submit {
+		margin: 0 3px 0 3px;
+	}
+	#live_news, #supportVersionsTable {
+		width: 100%;
+	}
+	#live_news {
+		margin: 0 0 6px 0;
+	}
+	#supportVersionsTable {
+		padding: 0;
+	}
+	#quick_tasks ul li span {
+		display: block;
+		margin: 0 0 0 50px;
+	}
+	#credits_page {
+		padding-top: 35px;
+	}
+	#credits_page img {
+		right: 6px;
+	}
+	#core_features .features_image {
+		display: none;
+	}
+	#core_features .features_switch {
+		margin: -24px 0 0 5px;
+	}
+	#core_features .features h4 {
+		padding: 0 0 10px 0;
+	}
+	#core_features .features p {
+		margin: 0;
+		padding: 0;
+		min-height: 0;
+		max-height: 5em;
+		overflow: auto;
+	}
+	#manage_boards .catbg {
+	margin-top: 10px;
+}
+	#manage_boards .windowbg {
+		line-height: 3.2em;
+}
+	#manage_boards ul {
+		max-height: 120em;
+		padding: 0 0 10px 0;
+}
+	#manage_boards dd, #manage_boards dt {
+		width: 100%;
+}
+	#manage_boards dt {
+		line-height: 1.6em;
+}
+/* These kids and their new-fangled thingummys. :P */
+/* When I were a lad, things were different! */

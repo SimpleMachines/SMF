@@ -18,7 +18,7 @@ function spellCheck(formName, fieldName)
 	var aWordCharacters = ['-', '\''];
 
 	var aWords = new Array(), aResult = new Array();
-	var sText = document.forms[formName][fieldName].value;
+	var sText = $('#' + fieldName).data("sceditor").getTextareaValue(false);
 	var bInCode = false;
 	var iOffset1, iOffset2;
 
@@ -235,11 +235,7 @@ function nextWord(ignoreall)
 		mispstr = mispstr.replace(/_\|_/g, "\n");
 
 		// Get a handle to the field we need to re-populate.
-		window.opener.document.forms[spell_formname][spell_fieldname].value = mispstr;
-		if (!window.opener.spellCheckDone)
-			window.opener.document.forms[spell_formname][spell_fieldname].focus();
-		else
-			window.opener.spellCheckDone();
+		window.opener.spellCheckSetText(mispstr, spell_fieldname);
 
 		window.close();
 		return true;
@@ -294,4 +290,15 @@ function htmlspecialchars(thetext)
 function openSpellWin(width, height)
 {
 	window.open("", "spellWindow", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=" + width + ",height=" + height);
+}
+
+function spellCheckGetText(editorID)
+{
+	return $("#" + editorID).data("sceditor").getTextareaValue(false);
+}
+function spellCheckSetText(text, editorID)
+{
+	$("#" + editorID).data("sceditor").InsertText(text, true);
+	if (!$("#" + editorID).data("sceditor").wasSource)
+		$("#" + editorID).data("sceditor").toggleTextMode();
 }

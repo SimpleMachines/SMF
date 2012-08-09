@@ -148,7 +148,7 @@ function ViewErrorLog()
 				'file' => $row['file'],
 				'line' => $row['line'],
 				'href' => $scripturl . '?action=admin;area=logs;sa=errorlog;file=' . base64_encode($row['file']) . ';line=' . $row['line'],
-				'link' => $linkfile ? '<a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog;file=' . base64_encode($row['file']) . ';line=' . $row['line'] . '" onclick="return reqWin(this.href, 600, 400, false);">' . $row['file'] . '</a>' : $row['file'],
+				'link' => $linkfile ? '<a href="' . $scripturl . '?action=admin;area=logs;sa=errorlog;file=' . base64_encode($row['file']) . ';line=' . $row['line'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $row['file'] . '</a>' : $row['file'],
 				'search' => base64_encode($row['file']),
 			);
 		}
@@ -324,9 +324,9 @@ function deleteErrors()
 /**
  * View a file specified in $_REQUEST['file'], with php highlighting on it
  * Preconditions:
- * file must be readable,
- * full file path must be base64 encoded,
- * user must have admin_forum permission.
+ *  - file must be readable,
+ *  - full file path must be base64 encoded,
+ *  - user must have admin_forum permission.
  * The line number number is specified by $_REQUEST['line']...
  * The function will try to get the 20 lines before and after the specified line.
  */

@@ -369,7 +369,7 @@ function url_exists($url)
  * - gets this information from Packages/installed.list.
  * - returns the array of data.
  * - default sort order is package_installed time
- * 
+ *
  * @return array
  */
 function loadInstalledPackages()
@@ -1138,6 +1138,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'type' => $actionType,
 				'function' => $action->exists('@function') ? $action->fetch('@function') : '',
 				'hook' => $action->exists('@hook') ? $action->fetch('@hook') : $action->fetch('.'),
+				'include_file' => $action->exists('@file') ? $action->fetch('@file') : '',
 				'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true' ? true : false,
 				'description' => '',
 			);
@@ -1179,142 +1180,152 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'type' => 'error',
 			);
 		}
-
-		$this_action = &$return[];
-		$this_action = array(
-			'type' => $actionType,
-			'filename' => $action->fetch('@name'),
-			'description' => $action->fetch('.')
-		);
-
-		// If there is a destination, make sure it makes sense.
-		if (substr($actionType, 0, 6) != 'remove')
+		elseif (in_array($actionType, array('require-file', 'remove-file', 'require-dir', 'remove-dir', 'move-file', 'move-dir', 'create-file', 'create-dir')))
 		{
-			$this_action['unparsed_destination'] = $action->fetch('@destination');
-			$this_action['destination'] = parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
+			$this_action = &$return[];
+			$this_action = array(
+				'type' => $actionType,
+				'filename' => $action->fetch('@name'),
+				'description' => $action->fetch('.')
+			);
+
+			// If there is a destination, make sure it makes sense.
+			if (substr($actionType, 0, 6) != 'remove')
+			{
+				$this_action['unparsed_destination'] = $action->fetch('@destination');
+				$this_action['destination'] = parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
+			}
+			else
+			{
+				$this_action['unparsed_filename'] = $this_action['filename'];
+				$this_action['filename'] = parse_path($this_action['filename']);
+			}
+
+			// If we're moving or requiring (copying) a file.
+			if (substr($actionType, 0, 4) == 'move' || substr($actionType, 0, 7) == 'require')
+			{
+				if ($action->exists('@from'))
+					$this_action['source'] = parse_path($action->fetch('@from'));
+				else
+					$this_action['source'] = $temp_path . $this_action['filename'];
+			}
+
+			// Check if these things can be done. (chmod's etc.)
+			if ($actionType == 'create-dir')
+			{
+				if (!mktree($this_action['destination'], false))
+				{
+					$temp = $this_action['destination'];
+					while (!file_exists($temp) && strlen($temp) > 1)
+						$temp = dirname($temp);
+
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $temp
+					);
+				}
+			}
+			elseif ($actionType == 'create-file')
+			{
+				if (!mktree(dirname($this_action['destination']), false))
+				{
+					$temp = dirname($this_action['destination']);
+					while (!file_exists($temp) && strlen($temp) > 1)
+						$temp = dirname($temp);
+
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $temp
+					);
+				}
+
+				if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination']))))
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $this_action['destination']
+					);
+			}
+			elseif ($actionType == 'require-dir')
+			{
+				if (!mktree($this_action['destination'], false))
+				{
+					$temp = $this_action['destination'];
+					while (!file_exists($temp) && strlen($temp) > 1)
+						$temp = dirname($temp);
+
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $temp
+					);
+				}
+			}
+			elseif ($actionType == 'require-file')
+			{
+				if ($action->exists('@theme'))
+					$this_action['theme_action'] = $action->fetch('@theme');
+
+				if (!mktree(dirname($this_action['destination']), false))
+				{
+					$temp = dirname($this_action['destination']);
+					while (!file_exists($temp) && strlen($temp) > 1)
+						$temp = dirname($temp);
+
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $temp
+					);
+				}
+
+				if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination']))))
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $this_action['destination']
+					);
+			}
+			elseif ($actionType == 'move-dir' || $actionType == 'move-file')
+			{
+				if (!mktree(dirname($this_action['destination']), false))
+				{
+					$temp = dirname($this_action['destination']);
+					while (!file_exists($temp) && strlen($temp) > 1)
+						$temp = dirname($temp);
+
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $temp
+					);
+				}
+
+				if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination']))))
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $this_action['destination']
+					);
+			}
+			elseif ($actionType == 'remove-dir')
+			{
+				if (!is_writable($this_action['filename']) && file_exists($this_action['filename']))
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $this_action['filename']
+					);
+			}
+			elseif ($actionType == 'remove-file')
+			{
+				if (!is_writable($this_action['filename']) && file_exists($this_action['filename']))
+					$return[] = array(
+						'type' => 'chmod',
+						'filename' => $this_action['filename']
+					);
+			}
 		}
 		else
 		{
-			$this_action['unparsed_filename'] = $this_action['filename'];
-			$this_action['filename'] = parse_path($this_action['filename']);
-		}
-
-		// If we're moving or requiring (copying) a file.
-		if (substr($actionType, 0, 4) == 'move' || substr($actionType, 0, 7) == 'require')
-		{
-			if ($action->exists('@from'))
-				$this_action['source'] = parse_path($action->fetch('@from'));
-			else
-				$this_action['source'] = $temp_path . $this_action['filename'];
-		}
-
-		// Check if these things can be done. (chmod's etc.)
-		if ($actionType == 'create-dir')
-		{
-			if (!mktree($this_action['destination'], false))
-			{
-				$temp = $this_action['destination'];
-				while (!file_exists($temp) && strlen($temp) > 1)
-					$temp = dirname($temp);
-
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $temp
-				);
-			}
-		}
-		elseif ($actionType == 'create-file')
-		{
-			if (!mktree(dirname($this_action['destination']), false))
-			{
-				$temp = dirname($this_action['destination']);
-				while (!file_exists($temp) && strlen($temp) > 1)
-					$temp = dirname($temp);
-
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $temp
-				);
-			}
-
-			if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination']))))
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $this_action['destination']
-				);
-		}
-		elseif ($actionType == 'require-dir')
-		{
-			if (!mktree($this_action['destination'], false))
-			{
-				$temp = $this_action['destination'];
-				while (!file_exists($temp) && strlen($temp) > 1)
-					$temp = dirname($temp);
-
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $temp
-				);
-			}
-		}
-		elseif ($actionType == 'require-file')
-		{
-			if ($action->exists('@theme'))
-				$this_action['theme_action'] = $action->fetch('@theme');
-
-			if (!mktree(dirname($this_action['destination']), false))
-			{
-				$temp = dirname($this_action['destination']);
-				while (!file_exists($temp) && strlen($temp) > 1)
-					$temp = dirname($temp);
-
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $temp
-				);
-			}
-
-			if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination']))))
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $this_action['destination']
-				);
-		}
-		elseif ($actionType == 'move-dir' || $actionType == 'move-file')
-		{
-			if (!mktree(dirname($this_action['destination']), false))
-			{
-				$temp = dirname($this_action['destination']);
-				while (!file_exists($temp) && strlen($temp) > 1)
-					$temp = dirname($temp);
-
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $temp
-				);
-			}
-
-			if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination']))))
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $this_action['destination']
-				);
-		}
-		elseif ($actionType == 'remove-dir')
-		{
-			if (!is_writable($this_action['filename']) && file_exists($this_action['filename']))
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $this_action['filename']
-				);
-		}
-		elseif ($actionType == 'remove-file')
-		{
-			if (!is_writable($this_action['filename']) && file_exists($this_action['filename']))
-				$return[] = array(
-					'type' => 'chmod',
-					'filename' => $this_action['filename']
-				);
+			$return[] = array(
+				'type' => 'error',
+				'error_msg' => 'unknown_action',
+				'error_var' => $actionType
+			);
 		}
 	}
 

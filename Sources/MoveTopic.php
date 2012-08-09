@@ -296,7 +296,7 @@ function MoveTopic2()
 			$txt['movetopic_auto_board'] => '[url=' . $scripturl . '?board=' . $_POST['toboard'] . '.0]' . $board_name . '[/url]',
 			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]'
 		));
-		
+
 		// auto remove this MOVED redirection topic in the future?
 		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
 
@@ -392,7 +392,7 @@ function moveTopics($topics, $toBoard)
 	// Empty array?
 	if (empty($topics))
 		return;
-		
+
 	// Only a single topic.
 	if (is_numeric($topics))
 		$topics = array($topics);

@@ -2,7 +2,7 @@
 
 /**
  * This file is automatically called and handles all manner of scheduled things.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -1685,16 +1685,16 @@ function scheduled_remove_temp_attachments()
 /**
  * Check for move topic notices that have past their best by date
  */
-function scheduled_remove_topic_redirect() 
+function scheduled_remove_topic_redirect()
 {
 	global $smcFunc, $sourcedir;
-	
+
 	// init
 	$topics = array();
-	
+
 	// We will need this for lanaguage files
 	loadEssentialThemeData();
-	
+
 	// Find all of the old MOVE topic notices that were set to expire
 	$request = $smcFunc['db_query']('', '
 		SELECT id_topic
@@ -1705,16 +1705,56 @@ function scheduled_remove_topic_redirect()
 			'redirect_expires' => time(),
 		)
 	);
-	
+
 	while ($row = $smcFunc['db_fetch_row']($request))
 		$topics[] = $row[0];
 	$smcFunc['db_free_result']($request);
-	
+
 	// Zap, your gone
 	if (count($topics) > 0)
 	{
 		require_once($sourcedir . '/RemoveTopic.php');
 		removeTopics($topics, false, true);
+	}
+
+	return true;
+}
+
+/**
+ * Check for old drafts and remove them
+ */
+function scheduled_remove_old_drafts()
+{
+	global $smcFunc, $sourcedir, $modSettings;
+
+	if (empty($modSettings['drafts_keep_days']))
+		return true;
+
+	// init
+	$drafts= array();
+
+	// We need this for lanaguage items
+	loadEssentialThemeData();
+
+	// Find all of the old drafts
+	$request = $smcFunc['db_query']('', '
+		SELECT id_draft
+		FROM {db_prefix}user_drafts
+		WHERE poster_time <= {int:poster_time_old}',
+		array(
+			'poster_time_old' => time() - (86400 * $modSettings['drafts_keep_days']),
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_row']($request))
+		$drafts[] = (int) $row[0];
+	$smcFunc['db_free_result']($request);
+
+	// If we have old one, remove them
+	if (count($drafts) > 0)
+	{
+		require_once($sourcedir . '/Drafts.php');
+		DeleteDraft($drafts, false);
 	}
 
 	return true;

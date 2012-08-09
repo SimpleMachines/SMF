@@ -175,6 +175,17 @@ function reloadSettings()
 	// Is post moderation alive and well?
 	$modSettings['postmod_active'] = isset($modSettings['admin_features']) ? in_array('pm', explode(',', $modSettings['admin_features'])) : true;
 
+	// Here to justify the name of this function. :P
+	// It should be added to the install and upgrade scripts.
+	// But since the convertors need to be updated also. This is easier.
+	if (empty($modSettings['currentAttachmentUploadDir']))
+	{
+		updateSettings(array(
+			'attachmentUploadDir' => serialize(array(1 => $modSettings['attachmentUploadDir'])),
+			'currentAttachmentUploadDir' => 1,
+		));
+	}
+
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
@@ -702,7 +713,7 @@ function loadBoard()
 	$context['current_board'] = $board;
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
-	if (!empty($board_info['error']) && ($board_info['error'] != 'access' || !$user_info['is_mod']))
+	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
 	{
 		// The permissions and theme need loading, just to make sure everything goes smoothly.
 		loadPermissions();
@@ -940,7 +951,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Allow mods to easily add to the selected member data
 	call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables));
-	
+
 	if (!empty($users))
 	{
 		// Load the member's data.
@@ -1517,6 +1528,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Some basic information...
 	if (!isset($context['html_headers']))
 		$context['html_headers'] = '';
+	if(!isset($context['javascript_files']))
+		$context['javascript_files'] = array();
+	if(!isset($context['css_files']))
+		$context['css_files'] = array();
+	if(!isset($context['javascript_inline']))
+		$context['javascript_inline'] = array('standard' => array(), 'defer' => array());
+	if(!isset($context['javascript_vars']))
+		$context['javascript_vars'] = array();
 
 	$context['menu_separator'] = !empty($settings['use_image_buttons']) ? ' ' : ' | ';
 	$context['session_var'] = $_SESSION['session_var'];
@@ -1569,9 +1588,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'spellcheck',
 	);
 
-	$context['javascript_files'] = array();
-	$context['css_files'] = array();
-
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
 	{
@@ -1618,10 +1634,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Initialize the theme.
 	loadSubTemplate('init', 'ignore');
 
-	// Load the compatibility stylesheet if the theme hasn't been updated for 2.0 RC2 (yet).
-	if (isset($settings['theme_version']) && (version_compare($settings['theme_version'], '2.0 RC2', '<') || strpos($settings['theme_version'], '2.0 Beta') !== false))
-		loadTemplate(false, 'compat');
-
 	// Guests may still need a name.
 	if ($context['user']['is_guest'] && empty($context['user']['name']))
 		$context['user']['name'] = $txt['guest_title'];
@@ -1644,7 +1656,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		// If not a user variant, select the default.
 		if ($context['theme_variant'] == '' || !in_array($context['theme_variant'], $settings['theme_variants']))
 			$context['theme_variant'] = !empty($settings['default_variant']) && in_array($settings['default_variant'], $settings['theme_variants']) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	
+
 		// Do this to keep things easier in the templates.
 		$context['theme_variant'] = '_' . $context['theme_variant'];
 		$context['theme_variant_url'] = $context['theme_variant'] . '/';
@@ -1657,7 +1669,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Allow overriding the board wide time/number formats.
 	if (empty($user_settings['time_format']) && !empty($txt['time_format']))
 		$user_info['time_format'] = $txt['time_format'];
-	$txt['number_format'] = empty($txt['number_format']) ? empty($modSettings['number_format']) ? '' : $modSettings['number_format'] : $txt['number_format'];
 
 	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'always')
 	{
@@ -1675,16 +1686,45 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	$context['tabindex'] = 1;
 
-	// Fix font size with HTML 4.01, etc.
-	if (isset($settings['doctype']))
-		$context['browser']['needs_size_fix'] |= $settings['doctype'] == 'html' && isBrowser('ie6');
-
 	// Compatibility.
 	if (!isset($settings['theme_version']))
 		$modSettings['memberCount'] = $modSettings['totalMembers'];
 
 	// This allows us to change the way things look for the admin.
 	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('cd,cp,k,w,rg,ml,pm');
+
+	// Default JS variables for use in every theme
+	$context['javascript_vars'] = array(
+		'smf_theme_url' => '"' . $settings['theme_url'] . '"',
+		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
+		'smf_images_url' => '"' . $settings['images_url'] . '"',
+		'smf_scripturl' => '"' . $scripturl . '"',
+		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
+		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
+		'smf_charset' => '"' . $context['character_set'] . '"',
+		'smf_session_id' => '"' . $context['session_id'] . '"',
+		'smf_session_var' => '"' . $context['session_var'] . '"',
+		'smf_member_id' => $context['user']['id'],
+		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
+		'ajax_notification_cancel_text' => JavaScriptEscape($txt['modify_cancel']),
+		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
+	);
+
+	// Add the JQuery library to the list of files to load.
+	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
+	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
+		loadJavascriptFile('jquery-1.7.1.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
+	// Auto loading? template_javascript() will take care of the local half of this.
+	else
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
+
+	// Queue our JQuery plugins!
+	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
+
+	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
+	loadJavascriptFile('script.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('theme.js', array(), 'theme_scripts');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
@@ -1705,15 +1745,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 			$type = empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time() ? 'task' : 'mailq';
 			$ts = $type == 'mailq' ? $modSettings['mail_next_send'] : $modSettings['next_task_time'];
 
-			$context['html_headers'] .= '
-	<script type="text/javascript">
+			addInlineJavascript('
 		function smfAutoTask()
 		{
 			var tempImage = new Image();
 			tempImage.src = smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '";
 		}
-		window.setTimeout("smfAutoTask();", 1);
-	</script>';
+		window.setTimeout("smfAutoTask();", 1);');
+
 		}
 	}
 
@@ -1759,19 +1798,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 			$style_sheets = array($style_sheets);
 
 		foreach ($style_sheets as $sheet)
-		{
-			// Prevent the style sheet from being included twice.
-			if (strpos($context['html_headers'], 'id="' . $sheet . '_css"') !== false)
-				continue;
-
-			$sheet_path = file_exists($settings['theme_dir']. '/css/' . $sheet . '.css') ? 'theme_url' : (file_exists($settings['default_theme_dir']. '/css/' . $sheet . '.css') ? 'default_theme_url' : '');
-			if ($sheet_path)
-			{
-				$context['html_headers'] .= "\n\t" . '<link rel="stylesheet" type="text/css" id="' . $sheet . '_css" href="' . $settings[$sheet_path] . '/css/' . $sheet . '.css?alp21" />';
-				if ($db_show_debug === true)
-					$context['debug']['sheets'][] = $sheet . ' (' . basename($settings[$sheet_path]) . ')';
-			}
-		}
+			loadCSSFile($sheet . '.css', array(), $sheet);
 	}
 
 	// No template to load?
@@ -1869,37 +1896,130 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * Add a CSS file for output later
  *
  * @param string $filename
- * @param array $options
+ * @param array $params
+ * Keys are the following:
+ * 	- ['local'] (true/false): define if the file is local
+ * 	- ['default_theme'] (true/false): force use of default theme url
+ * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
+ *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
+ * @param string $id
  */
-function loadCSSFile($filename, $options = array())
+function loadCSSFile($filename, $params = array(), $id = '')
 {
 	global $settings, $context;
 
-	if (strpos($filename, 'http://') === false || !empty($options['local']))
-		$filename = $settings['theme_url'] . '/' . $filename;
+	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? '?alph21' : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
+	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	
+	// account for shorthand like admin.css?alp21 filenames
+	$has_seed = strpos($filename, '.css?');
+	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
-	$context['css_files'][$filename] = $options;
+	// Is this a local file?
+	if (strpos($filename, 'http') === false || !empty($params['local']))
+	{
+		// Are we validating the the file exists?
+		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
+		{
+			// Maybe the default theme has it?
+			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
+				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+			else
+				$filename = false;
+		}
+		else
+			$filename = $settings[$theme . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+	}
+
+	// Add it to the array for use in the template
+	if (!empty($filename))
+		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
 }
 
 /**
  * Add a Javascript file for output later
- *
+ 
  * @param string $filename
- * @param array $options, possible parameters:
- * 	- local (true/false): define if the file is local
- * 	- default_theme (true/false): force use of default theme url
- * 	- defer (true/false): define if the file should be load in head or before the closing <html> tag
+ * @param array $params
+ * Keys are the following:
+ * 	- ['local'] (true/false): define if the file is local
+ * 	- ['default_theme'] (true/false): force use of default theme url
+ * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
+ * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
+ *    default theme if not found in the current theme
+ *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
+ *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
+ *
+ * @param string $id
  */
-function loadJavascriptFile($filename, $options = array())
+function loadJavascriptFile($filename, $params = array(), $id = '')
 {
 	global $settings, $context;
 
-	$theme = !empty($options['default_theme']) ? 'default_theme_url' : 'theme_url';
+	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? '?alph21' : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
+	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	
+	// account for shorthand like admin.js?alp21 filenames
+	$has_seed = strpos($filename, '.js?');
+	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
-	if (strpos($filename, 'http') === false || !empty($options['local']))
-		$filename = $settings[$theme] . '/' . $filename;
+	// Is this a local file?
+	if (strpos($filename, 'http') === false || !empty($params['local']))
+	{
+		// Are we validating it exists on disk?
+		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
+		{
+			// can't find it in this theme, how about the default?
+			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
+				$filename = $settings['default_theme_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+			else
+				$filename = false;
+		}
+		else
+			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+	}
 
-	$context['javascript_files'][$filename] = $options;
+	// Add it to the array for use in the template
+	if (!empty($filename))
+		$context['javascript_files'][$id] = array('filename' => $filename, 'options' => $params);
+}
+
+/**
+ * Add a Javascript variable for output later (for feeding text strings and similar to JS)
+ * Cleaner and easier (for modders) than to use the function below.
+ *
+ * @param string $key
+ * @param string $value
+ * @param bool $escape = false, whether or not to escape the value
+ */
+function addJavascriptVar($key, $value, $escape = false)
+{
+	global $context;
+
+	if (!empty($key) && !empty($value))
+		$context['javascript_vars'][$key] = !empty($escape) ? JavaScriptEscape($value) : $value;
+}
+
+/**
+ * Add a block of inline Javascript code to be executed later
+ *
+ * - only use this if you have to, generally external JS files are better, but for very small scripts
+ *   or for scripts that require help from PHP/whatever, this can be useful.
+ * - all code added with this function is added to the same <script> tag so do make sure your JS is clean!
+ *
+ * @param string $javascript
+ * @param bool $defer = false, define if the script should load in <head> or before the closing <html> tag
+ */
+function addInlineJavascript($javascript, $defer = false)
+{
+	global $context;
+
+	if (!empty($javascript))
+		$context['javascript_inline'][(!empty($defer) ? 'defer' : 'standard')][] = $javascript;
 }
 
 /**
@@ -2337,9 +2457,7 @@ function template_include($filename, $once = false)
 				$data2 = preg_split('~\<br( /)?\>~', $data2);
 
 				// Fix the PHP code stuff...
-				if (isBrowser('ie4') || isBrowser('ie5') || isBrowser('ie5.5'))
-					$data2 = str_replace("\t", '<pre style="display: inline;">' . "\t" . '</pre>', $data2);
-				elseif (!isBrowser('gecko'))
+				if (!isBrowser('gecko'))
 					$data2 = str_replace("\t", '<span style="white-space: pre;">' . "\t" . '</span>', $data2);
 				else
 					$data2 = str_replace('<pre style="display: inline;">' . "\t" . '</pre>', "\t", $data2);
@@ -2496,8 +2614,8 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 /**
  * Puts value in the cache under key for ttl seconds.
  *
- * - It may "miss" so shouldn't be depended on 
- * - Uses the cahce engine chosen in the ACP and saved in settings.php
+ * - It may "miss" so shouldn't be depended on
+ * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
  *     Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
  *     Xcache: http://xcache.lighttpd.net/wiki/XcacheApi

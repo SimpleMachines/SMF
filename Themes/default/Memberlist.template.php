@@ -15,14 +15,12 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
-	// Build the memberlist button array.
-	$memberlist_buttons = array(
-			'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=all', 'active'=> true),
-			'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=search'),
-		);
-
 	echo '
 	<div class="main_section" id="memberlist">
+		<div class="pagesection">
+			', template_button_strip($context['memberlist_buttons'], 'right'), '
+			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
+		</div>
 		<div class="cat_bar">
 			<h4 class="catbg">
 				<span class="floatleft">', $txt['members_list'], '</span>';
@@ -31,10 +29,6 @@ function template_main()
 				<span class="floatright">', $context['letter_links'], '</span>';
 		echo '
 			</h4>
-		</div>
-		<div class="pagesection">
-			', template_button_strip($memberlist_buttons, 'right'), '
-			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
 		</div>';
 
 	echo '
@@ -129,7 +123,7 @@ function template_main()
 
 		echo '
 				</tr>';
-				
+
 			$alternate = !$alternate;
 		}
 	}
@@ -144,7 +138,7 @@ function template_main()
 			</tbody>
 			</table>
 		</div>';
-		
+
 	// Show the page numbers again. (makes 'em easier to find!)
 	echo '
 		<div class="pagesection">
@@ -165,30 +159,19 @@ function template_search()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
-	// Build the memberlist button array.
-	$memberlist_buttons = array(
-			'view_all_members' => array('text' => 'view_all_members', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=all'),
-			'mlist_search' => array('text' => 'mlist_search', 'image' => 'mlist.png', 'lang' => true, 'url' => $scripturl . '?action=mlist' . ';sa=search', 'active' => true),
-		);
-
 	// Start the submission form for the search!
 	echo '
 	<form action="', $scripturl, '?action=mlist;sa=search" method="post" accept-charset="', $context['character_set'], '">
 		<div id="memberlist">
+			<div class="pagesection">
+				', template_button_strip($context['memberlist_buttons'], 'right'), '
+			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					<span class="ie6_header floatleft">', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '</span>
+					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
 				</h3>
 			</div>
-			<div class="pagesection">
-				', template_button_strip($memberlist_buttons, 'right'), '
-			</div>';
-	
-	// Display the input boxes for the form.
-	echo '	<div id="memberlist_search" class="clear">
-				<span class="upperframe"><span></span></span>';
-	
-	echo '
+			<div id="memberlist_search" class="clear">
 				<div class="roundframe">
 					<dl id="mlist_search" class="settings">
 						<dt>
@@ -213,9 +196,7 @@ function template_search()
 					<hr class="hrcolor" />
 					<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
 					<br class="clear_right" />
-				</div>';	
-	echo '
-				<span class="lowerframe"><span></span></span>
+				</div>
 			</div>
 		</div>
 	</form>';

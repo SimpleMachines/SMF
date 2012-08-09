@@ -16,7 +16,7 @@ function template_email_members()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
 			</div>
@@ -24,7 +24,6 @@ function template_email_members()
 				', $txt['admin_news_select_recipients'], '
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -45,11 +44,10 @@ function template_email_members()
 						</dd>
 					</dl><br class="clear" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />
 
-			<div class="cat_bar">
+			<div id="advanced_panel_header" class="cat_bar">
 				<h3 class="catbg">
 					<img id="advanced_panel_toggle" class="panel_toggle" style="display: none; src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" alt="*" />
 					<a href="#" id="advanced_panel_link" >', $txt['advanced'], '</a>
@@ -57,7 +55,6 @@ function template_email_members()
 			</div>
 
 			<div id="advanced_panel_div" class="windowbg2">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -110,17 +107,15 @@ function template_email_members()
 						<dd>
 							<input type="checkbox" name="email_force" id="email_force" value="1" class="input_check" />
 						</dd>
-					</dl><br class="clear" />
+					</dl>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<div class="righttext">
 				<input type="submit" value="', $txt['admin_next'], '" class="button_submit" />
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
@@ -201,13 +196,11 @@ function template_email_members_compose()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="post" id="preview_body">
 						', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div><br />';
 
@@ -216,14 +209,13 @@ function template_email_members_compose()
 		<form name="newsmodify" action="', $scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['admin_newsletters'], '
+					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['admin_newsletters'], '
 				</h3>
 			</div>
 			<div class="information">
 				', $txt['email_variables'], '
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
@@ -253,7 +245,7 @@ function template_email_members_compose()
 	// Show BBC buttons, smileys and textbox.
 	echo '
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
-					
+
 					echo '
 					<ul class="reset">
 						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_pms'], '</label></li>
@@ -267,7 +259,6 @@ function template_email_members_compose()
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</p>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="email_force" value="', $context['email_force'], '" />
@@ -416,11 +407,10 @@ function template_email_members_send()
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['admin_newsletters'], '
+					<a href="', $scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['admin_newsletters'], '
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="progress_bar">
 						<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
@@ -446,7 +436,6 @@ function template_email_members_send()
 	echo '
 				<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

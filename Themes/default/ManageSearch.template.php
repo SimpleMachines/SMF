@@ -21,11 +21,10 @@ function template_modify_weights()
 				<h3 class="catbg">', $txt['search_weights'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight1_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight1_val">
 							', $txt['search_weight_frequency'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -33,7 +32,7 @@ function template_modify_weights()
 							<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight2_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight2_val">
 							', $txt['search_weight_age'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -41,7 +40,7 @@ function template_modify_weights()
 							<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight3_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight3_val">
 							', $txt['search_weight_length'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -49,7 +48,7 @@ function template_modify_weights()
 							<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight4_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight4_val">
 							', $txt['search_weight_subject'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -57,7 +56,7 @@ function template_modify_weights()
 							<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight5_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight5_val">
 							', $txt['search_weight_first_message'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -65,7 +64,7 @@ function template_modify_weights()
 							<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqWin(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight6_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight6_val">
 							', $txt['search_weight_sticky'], ':</label>
 						</dt>
 						<dd class="large_caption">
@@ -86,7 +85,6 @@ function template_modify_weights()
 					<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -104,10 +102,9 @@ function template_select_search_method()
 				<h3 class="catbg">', $txt['search_method'], '</h3>
 			</div>
 			<div class="information">
-				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqWin(this.href);">', $txt['search_create_index_why'], '</a></div>
+				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 
@@ -216,7 +213,6 @@ function template_select_search_method()
 					<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice clear"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -234,7 +230,6 @@ function template_create_index()
 				<h3 class="catbg">', $txt['search_create_index'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -253,7 +248,6 @@ function template_create_index()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 	</form>
 	</div>';
@@ -269,7 +263,6 @@ function template_create_index_progress()
 				<h3 class="catbg">', $txt['search_create_index'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div><p>',
 						$txt['search_create_index_not_ready'], '</p>
@@ -282,7 +275,6 @@ function template_create_index_progress()
 					<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<input type="hidden" name="step" value="', $context['step'], '" />
 			<input type="hidden" name="start" value="', $context['start'], '" />
@@ -320,14 +312,12 @@ function template_create_index_done()
 			<h3 class="catbg">', $txt['search_create_index'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['search_create_index_done'], '</p>
 				<p>
 					<strong><a href="', $scripturl, '?action=admin;area=managesearch;sa=method">', $txt['search_create_index_done_link'], '</a></strong>
 				</p>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 	</div>
 	<br class="clear" />';
@@ -347,7 +337,6 @@ function template_spider_edit()
 				', $txt['add_spider_desc'], '
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">
 						<dt>
@@ -378,7 +367,6 @@ function template_spider_edit()
 					<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '" />
 					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -397,26 +385,21 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
-		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						', $txt['spider_logs_delete_older'], '
 						<input type="text" name="older" id="older" value="7" size="3" class="input_text" />
 						', $txt['spider_logs_delete_day'], '
-					</p>	
-					<hr class="hrcolor" />
+					</p>
 					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '" />
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
@@ -441,7 +424,6 @@ function template_show_spider_stats()
 		</div>
 		<form action="', $scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', $context['character_set'], '">
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						', sprintf($txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3" class="input_text" />'), '
@@ -452,7 +434,6 @@ function template_show_spider_stats()
 					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
 					<br />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>

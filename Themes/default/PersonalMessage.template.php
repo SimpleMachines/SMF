@@ -158,17 +158,11 @@ function template_folder()
 		// Show a few buttons if we are in conversation mode and outputting the first message.
 		if ($context['display_mode'] == 2)
 		{
-			// Build the normal button array.
-			$conversation_buttons = array(
-				'reply' => array('text' => 'reply_to_all', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $context['current_pm'] . ';u=all', 'active' => true),
-				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_message']) . '?\');"'),
-			);
-
 			// Show the conversation buttons.
 			echo '
 					<div class="pagesection">';
 
-			template_button_strip($conversation_buttons, 'right');
+			template_button_strip($context['conversation_buttons'], 'right');
 
 			echo '
 					</div>';
@@ -180,7 +174,6 @@ function template_folder()
 
 			echo '
 	<div class="', $window_class, ' clear">
-		<span class="topslice"><span></span></span>
 		<div class="poster">
 			<a id="msg', $message['id'], '"></a>
 			<h4>';
@@ -491,7 +484,6 @@ function template_folder()
 		</div>
 		<div class="moderatorbar">
 		</div>
-		<span class="botslice"><span></span></span>
 	</div>';
 		}
 
@@ -504,13 +496,13 @@ function template_folder()
 	</div>';
 
 		// Show a few buttons if we are in conversation mode and outputting the first message.
-		elseif ($context['display_mode'] == 2 && isset($conversation_buttons))
+		elseif ($context['display_mode'] == 2 && isset($context['conversation_buttons']))
 		{
 			echo '
 
 	<div class="pagesection">';
 
-			template_button_strip($conversation_buttons, 'right');
+			template_button_strip($context['conversation_buttons'], 'right');
 
 			echo '
 	</div>';
@@ -615,23 +607,23 @@ function template_subject_list()
 
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
-					
+
 			foreach ($context['labels'] as $label)
 			{
 				if ($label['id'] != $context['current_label_id'])
 					echo '
 					<option value="add_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 			}
-			
+
 			echo '
 					<option value="" disabled="disabled">', $txt['pm_msg_label_remove'], ':</option>';
-					
+
 			foreach ($context['labels'] as $label)
 			{
 				echo '
 					<option value="rem_', $label['id'], '">&nbsp;', $label['name'], '</option>';
 			}
-			
+
 			echo '
 				</select>
 				<noscript>
@@ -670,7 +662,6 @@ function template_search()
 	{
 		echo '
 		<fieldset id="simple_search">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div id="search_term_input">
 					<strong>', $txt['pm_search_text'], ':</strong>
@@ -680,7 +671,6 @@ function template_search()
 				<a href="', $scripturl, '?action=pm;sa=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['pm_search_advanced'], '</a>
 				<input type="hidden" name="advanced" value="0" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 	}
 
@@ -689,7 +679,6 @@ function template_search()
 	{
 		echo '
 		<fieldset id="advanced_search">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<input type="hidden" name="advanced" value="1" />
 				<span class="enhanced">
@@ -729,7 +718,6 @@ function template_search()
 			echo '
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 
 		// Do we have some labels setup? If so offer to search by them!
@@ -737,7 +725,6 @@ function template_search()
 		{
 			echo '
 		<fieldset class="labels">
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
@@ -762,7 +749,6 @@ function template_search()
 					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
 				</p><br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</fieldset>';
 
 			// Some javascript for the advanced toggling
@@ -860,10 +846,9 @@ function template_search_results()
 				</h3>
 			</div>
 			<div class="windowbg', $alternate ? '2': '', '">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					', $message['body'], '
-					<p class="pm_reply righttext middletext">';
+					<p class="pm_reply righttext">';
 
 				if ($context['can_send_pm'])
 				{
@@ -883,7 +868,6 @@ function template_search_results()
 				echo '
 					</p>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>';
 		}
 		// Otherwise just a simple list!
@@ -911,11 +895,9 @@ function template_search_results()
 	if (empty($context['personal_messages']))
 		echo '
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p class="centertext">', $txt['pm_search_none_found'], '</p>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	echo '
@@ -937,7 +919,6 @@ function template_send()
 				<h3 class="catbg">', $txt['pm_send_report'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">';
 				if (!empty($context['send_log']['sent']))
 					foreach ($context['send_log']['sent'] as $log_entry)
@@ -947,7 +928,6 @@ function template_send()
 						echo '<span class="error">', $log_entry, '</span><br />';
 				echo '
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<br />';
 	}
@@ -961,13 +941,11 @@ function template_send()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<div class="post" id="preview_body">
 						', empty($context['preview_message']) ? '<br />' : $context['preview_message'], '
 					</div>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</div><br />';
 
@@ -975,14 +953,13 @@ function template_send()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-					<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/icons/im_newmsg.png" class="icon" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '</span>
+					<img src="', $settings['images_url'], '/icons/im_newmsg.png" class="icon" alt="', $txt['new_message'], '" title="', $txt['new_message'], '" />&nbsp;', $txt['new_message'], '
 			</h3>
 		</div>';
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
 		<div>
-			<span class="upperframe"><span></span></span>
 			<div class="roundframe"><br class="clear" />';
 
 	// If there were errors for sending the PM, show them.
@@ -996,6 +973,12 @@ function template_send()
 							', empty($context['post_error']['messages']) ? '' : implode('<br />', $context['post_error']['messages']), '
 						</dd>
 					</dl>
+				</div>';
+
+	if (!empty($modSettings['drafts_pm_enabled']))
+		echo '
+				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+					sprintf($txt['draft_pm_saved'], $scripturl . '?action=pm;sa=showpmdrafts'), '
 				</div>';
 
 	echo '
@@ -1039,7 +1022,7 @@ function template_send()
 						<span', (isset($context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', $txt['subject'], ':</span>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="60" maxlength="60"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
+						<input type="text" name="subject" value="', $context['subject'], '" tabindex="', $context['tabindex']++, '" size="80" maxlength="80"',isset($context['post_error']['no_subject']) ? ' class="error"' : ' class="input_text"', '/>
 					</dd>
 				</dl><hr class="clear" />';
 
@@ -1089,9 +1072,32 @@ function template_send()
 				<input type="hidden" name="l" value="', isset($context['current_label_id']) ? $context['current_label_id'] : -1, '" />
 				<br class="clear_right" />
 			</div>
-			<span class="lowerframe"><span></span></span>
 		</div>
 	</form>';
+
+	// If the admin enabled the pm drafts feature, show a draft selection box
+	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	{
+		echo '
+			<br />
+			<div id="postDraftOptionsHeader" class="title_bar">
+				<h4 class="titlebg">
+					<img id="postDraftExpand" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png" alt="-" /> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+				</h4>
+			</div>
+			<div id="postDraftOptions" class="load_drafts padding">
+				<dl class="settings">
+					<dt><strong>', $txt['subject'], '</strong></dt>
+					<dd><strong>', $txt['draft_saved_on'], '</strong></dd>';
+
+		foreach ($context['drafts'] as $draft)
+			echo '
+					<dt>', $draft['link'], '</dt>
+					<dd>', $draft['poster_time'], '</dd>';
+		echo '
+				</dl>
+			</div>';
+	}
 
 	echo '
 		<script type="text/javascript"><!-- // --><![CDATA[';
@@ -1200,6 +1206,33 @@ function template_send()
 				location.hash = \'#\' + \'preview_section\';
 			}';
 
+	// Code for showing and hiding drafts
+	if (!empty($context['drafts']))
+		echo '
+			var oSwapDraftOptions = new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: true,
+				aSwappableContainers: [
+					\'postDraftOptions\',
+				],
+				aSwapImages: [
+					{
+						sId: \'postDraftExpand\',
+						srcExpanded: smf_images_url + \'/collapse.png\',
+						altExpanded: \'-\',
+						srcCollapsed: smf_images_url + \'/expand.png\',
+						altCollapsed: \'+\'
+					}
+				],
+				aSwapLinks: [
+					{
+						sId: \'postDraftExpandLink\',
+						msgExpanded: ', JavaScriptEscape($txt['draft_hide']), ',
+						msgCollapsed: ', JavaScriptEscape($txt['draft_load']), '
+					}
+				]
+			});';
+
 	echo '
 		// ]]></script>';
 
@@ -1212,7 +1245,6 @@ function template_send()
 		<h3 class="catbg">', $txt['subject'], ': ', $context['quoted_message']['subject'], '</h3>
 	</div>
 	<div class="windowbg2">
-		<span class="topslice"><span></span></span>
 		<div class="content">
 			<div class="clear">
 				<span class="smalltext floatright">', $txt['on'], ': ', $context['quoted_message']['time'], '</span>
@@ -1220,7 +1252,6 @@ function template_send()
 			</div><hr />
 			', $context['quoted_message']['body'], '
 		</div>
-		<span class="botslice"><span></span></span>
 	</div><br class="clear" />';
 
 	echo '
@@ -1260,7 +1291,7 @@ function template_send()
 				sBccLinkContainerId: \'bcc_link_container\',
 				bBccShowByDefault: ', empty($context['recipients']['bcc']) && empty($context['bcc_value']) ? 'false' : 'true', ',
 				sShowBccLinkTemplate: ', JavaScriptEscape('
-					<a href="#" id="bcc_link">' . $txt['make_bcc'] . '</a> <a href="' . $scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqWin(this.href);">(?)</a>'
+					<a href="#" id="bcc_link">' . $txt['make_bcc'] . '</a> <a href="' . $scripturl . '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)</a>'
 				), '
 			});
 		';
@@ -1279,12 +1310,10 @@ function template_ask_delete()
 			<h3 class="catbg">', ($context['delete_all'] ? $txt['delete_message'] : $txt['delete_all']), '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['delete_all_confirm'], '</p><br />
 				<strong><a href="', $scripturl, '?action=pm;sa=removeall2;f=', $context['folder'], ';', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="javascript:history.go(-1);">', $txt['no'], '</a></strong>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 }
 
@@ -1299,7 +1328,6 @@ function template_prune()
 			<h3 class="catbg">', $txt['pm_prune'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14" class="input_text" /> ', $txt['pm_prune_desc2'], '</p>
 				<div class="righttext">
@@ -1307,7 +1335,6 @@ function template_prune()
 				</div>
 				<br class="clear" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form>';
@@ -1387,7 +1414,6 @@ function template_labels()
 			<h3 class="catbg">', $txt['pm_label_add_new'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">
 					<dt>
@@ -1401,7 +1427,6 @@ function template_labels()
 				<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button_submit" />
 				<br class="clear_right" />
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form><br />';
@@ -1422,7 +1447,6 @@ function template_report_message()
 			', $txt['pm_report_desc'], '
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="settings">';
 
@@ -1457,7 +1481,6 @@ function template_report_message()
 					<input type="submit" name="report" value="', $txt['pm_report_message'], '" class="button_submit" />
 				</div>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form>';
@@ -1473,12 +1496,10 @@ function template_report_message_complete()
 			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<p>', $txt['pm_report_done'], '</p>
 				<a href="', $scripturl, '?action=pm;l=', $context['current_label_id'], '">', $txt['pm_report_return'], '</a>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 }
 
@@ -1706,7 +1727,6 @@ function template_add_rule()
 			<h3 class="catbg">', $context['rid'] == 0 ? $txt['pm_add_rule'] : $txt['pm_edit_rule'], '</h3>
 		</div>
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content">
 				<dl class="addrules">
 					<dt class="floatleft">
@@ -1817,7 +1837,6 @@ function template_add_rule()
 					<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', $txt['pm_rule_add_action'], ')</a>
 				</fieldset>
 			</div>
-			<span class="botslice"><span></span></span>
 		</div><br class="clear" />
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_rule_description'], '</h3>
@@ -1860,4 +1879,67 @@ function template_add_rule()
 		// ]]></script>';
 }
 
+// Template for showing all the PM drafts of the user.
+function template_showPMDrafts()
+{
+	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<img src="', $settings['images_url'], '/message_sm.png" alt="" class="icon" />
+					', $txt['drafts_show'], '
+			</h3>
+		</div>
+		<div class="pagesection">
+			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		</div>';
+
+	// Button shortcuts
+	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
+
+	// For every draft to be displayed, give it its own div, and show the important details of the draft.
+	foreach ($context['drafts'] as $draft)
+	{
+		echo '
+		<div class="topic">
+			<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+				<div class="content">
+					<div class="counter">', $draft['counter'], '</div>
+					<div class="topic_details">
+						<h5><strong>', $draft['subject'], '</strong>&nbsp;';
+
+		echo '
+						</h5>
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br />
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</span><br />
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</span>
+					</div>
+					<div class="list_posts">
+						', $draft['body'], '
+					</div>
+
+					<ul class="reset smalltext quickbuttons">
+						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>';
+	}
+
+	// No drafts? Just show an informative message.
+	if (empty($context['drafts']))
+		echo '
+		<div class="tborder windowbg2 padding centertext">
+			', $txt['draft_none'], '
+		</div>';
+
+	// Show page numbers.
+	echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+		</div>';
+}
 ?>

@@ -3,7 +3,7 @@
 /**
  * This file contains those functions specific to the editing box and is
  * generally used for WYSIWYG type functionality.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -18,46 +18,20 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * At the moment this is only used for returning WYSIWYG data.
- */
-function EditorMain()
-{
-	global $context, $smcFunc;
-
-	checkSession('get');
-
-	if (!isset($_REQUEST['view']) || !isset($_REQUEST['message']))
-		fatal_lang_error('no_access', false);
-
-	$context['sub_template'] = 'sendbody';
-
-	$context['view'] = (int) $_REQUEST['view'];
-
-	// Return the right thing for the mode.
-	if ($context['view'])
-	{
-		$_REQUEST['message'] = strtr($_REQUEST['message'], array('#smcol#' => ';', '#smlt#' => '&lt;', '#smgt#' => '&gt;', '#smamp#' => '&amp;'));
-		$context['message'] = bbc_to_html($_REQUEST['message']);
-	}
-	else
-	{
-		$_REQUEST['message'] = un_htmlspecialchars($_REQUEST['message']);
-		$_REQUEST['message'] = strtr($_REQUEST['message'], array('#smcol#' => ';', '#smlt#' => '&lt;', '#smgt#' => '&gt;', '#smamp#' => '&amp;'));
-
-		$context['message'] = html_to_bbc($_REQUEST['message']);
-	}
-
-	$context['message'] = $smcFunc['htmlspecialchars']($context['message']);
-}
-
-/**
+ * !!!Compatibility!!!
+ * Since we changed the editor we don't need it any more, but let's keep it if any mod wants to use it
  * Convert only the BBC that can be edited in HTML mode for the editor.
+ *
  * @param string $text
+ * @param boolean $compat_mode if true will convert the text, otherwise not (default false)
  * @return string
  */
-function bbc_to_html($text)
+function bbc_to_html($text, $compat_mode = false)
 {
 	global $modSettings, $smcFunc;
+
+	if (!$compat_mode)
+		return $text;
 
 	// Turn line breaks back into br's.
 	$text = strtr($text, array("\r" => '', "\n" => '<br />'));
@@ -108,8 +82,12 @@ function bbc_to_html($text)
 }
 
 /**
+ * !!!Compatibility!!!
+ * This is no more needed, but to avoid break mods let's keep it
+ * Run it it shouldn't even hurt either, so let's not bother remove it
+ *
  * The harder one - wysiwyg to BBC!
- * 
+ *
  * @param string $text
  * @return string
  */
@@ -869,8 +847,11 @@ function html_to_bbc($text)
 }
 
 /**
+ * !!!Compatibility!!!
+ * This is no more needed, but to avoid break mods let's keep it
+ *
  * Returns an array of attributes associated with a tag.
- * 
+ *
  * @param string $text
  * @return string
  */
@@ -929,84 +910,7 @@ function fetchTagAttributes($text)
 }
 
 /**
- * Retrieves a list of message icons.
- * - Based on the settings, the array will either contain a list of default
- *   message icons or a list of custom message icons retrieved from the database.
- * - The board_id is needed for the custom message icons (which can be set for
- *   each board individually).
- * 
- * @param int $board_id
- * @return array
- */
-function getMessageIcons($board_id)
-{
-	global $modSettings, $context, $txt, $settings, $smcFunc;
-
-	if (empty($modSettings['messageIcons_enable']))
-	{
-		loadLanguage('Post');
-
-		$icons = array(
-			array('value' => 'xx', 'name' => $txt['standard']),
-			array('value' => 'thumbup', 'name' => $txt['thumbs_up']),
-			array('value' => 'thumbdown', 'name' => $txt['thumbs_down']),
-			array('value' => 'exclamation', 'name' => $txt['excamation_point']),
-			array('value' => 'question', 'name' => $txt['question_mark']),
-			array('value' => 'lamp', 'name' => $txt['lamp']),
-			array('value' => 'smiley', 'name' => $txt['icon_smiley']),
-			array('value' => 'angry', 'name' => $txt['icon_angry']),
-			array('value' => 'cheesy', 'name' => $txt['icon_cheesy']),
-			array('value' => 'grin', 'name' => $txt['icon_grin']),
-			array('value' => 'sad', 'name' => $txt['icon_sad']),
-			array('value' => 'wink', 'name' => $txt['icon_wink']),
-			array('value' => 'poll', 'name' => $txt['icon_poll']),
-		);
-
-		foreach ($icons as $k => $dummy)
-		{
-			$icons[$k]['url'] = $settings['images_url'] . '/post/' . $dummy['value'] . '.png';
-			$icons[$k]['is_last'] = false;
-		}
-	}
-	// Otherwise load the icons, and check we give the right image too...
-	else
-	{
-		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
-		{
-			$request = $smcFunc['db_query']('select_message_icons', '
-				SELECT title, filename
-				FROM {db_prefix}message_icons
-				WHERE id_board IN (0, {int:board_id})',
-				array(
-					'board_id' => $board_id,
-				)
-			);
-			$icon_data = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$icon_data[] = $row;
-			$smcFunc['db_free_result']($request);
-
-			$icons = array();
-			foreach ($icon_data as $icon)
-			{
-				$icons[$icon['filename']] = array(
-					'value' => $icon['filename'],
-					'name' => $icon['title'],
-					'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
-					'is_last' => false,
-				);
-			}
-
-			cache_put_data('posting_icons-' . $board_id, $icons, 480);
-		}
-		else
-			$icons = $temp;
-	}
-
-	return array_values($icons);
-}
-
-/**
+ * !!!Compatibility!!!
  * Attempt to clean up illegal BBC caused by browsers like Opera which don't obey the rules
  * @param string $text
  * @return string
@@ -1400,6 +1304,7 @@ function legalise_bbc($text)
 }
 
 /**
+ * !!!Compatibility!!!
  * A help function for legalise_bbc for sorting arrays based on length.
  * @param string $a
  * @param string $b
@@ -1411,8 +1316,126 @@ function sort_array_length($a, $b)
 }
 
 /**
+ * Creates the javascript code for localization of the editor (SCEditor)
+ */
+function loadLocale()
+{
+	global $context, $txt, $editortxt, $modSettings;
+
+	loadLanguage('Editor');
+
+	$context['template_layers'] = array();
+	// Lets make sure we aren't going to output anything nasty.
+	@ob_end_clean();
+	if (!empty($modSettings['enableCompressedOutput']))
+		@ob_start('ob_gzhandler');
+	else
+		@ob_start();
+
+	// If we don't have any locale better avoid broken js
+	if (empty($txt['lang_locale']))
+		die();
+
+	$file_data = '(function ($) {
+	\'use strict\';
+
+	$.sceditor.locale[' . javaScriptEscape($txt['lang_locale']) . '] = {';
+	foreach ($editortxt as $key => $val)
+		$file_data .= '
+		' . javaScriptEscape($key) . ': ' . javaScriptEscape($val) . ',';
+
+	$file_data .= '
+		dateFormat: "day.month.year"
+	}
+})(jQuery);';
+
+	// Make sure they know what type of file we are.
+	header('Content-Type: text/javascript');
+	echo $file_data;
+	obExit(false);
+}
+
+/**
+ * Retrieves a list of message icons.
+ * - Based on the settings, the array will either contain a list of default
+ *   message icons or a list of custom message icons retrieved from the database.
+ * - The board_id is needed for the custom message icons (which can be set for
+ *   each board individually).
+ *
+ * @param int $board_id
+ * @return array
+ */
+function getMessageIcons($board_id)
+{
+	global $modSettings, $context, $txt, $settings, $smcFunc;
+
+	if (empty($modSettings['messageIcons_enable']))
+	{
+		loadLanguage('Post');
+
+		$icons = array(
+			array('value' => 'xx', 'name' => $txt['standard']),
+			array('value' => 'thumbup', 'name' => $txt['thumbs_up']),
+			array('value' => 'thumbdown', 'name' => $txt['thumbs_down']),
+			array('value' => 'exclamation', 'name' => $txt['excamation_point']),
+			array('value' => 'question', 'name' => $txt['question_mark']),
+			array('value' => 'lamp', 'name' => $txt['lamp']),
+			array('value' => 'smiley', 'name' => $txt['icon_smiley']),
+			array('value' => 'angry', 'name' => $txt['icon_angry']),
+			array('value' => 'cheesy', 'name' => $txt['icon_cheesy']),
+			array('value' => 'grin', 'name' => $txt['icon_grin']),
+			array('value' => 'sad', 'name' => $txt['icon_sad']),
+			array('value' => 'wink', 'name' => $txt['icon_wink']),
+			array('value' => 'poll', 'name' => $txt['icon_poll']),
+		);
+
+		foreach ($icons as $k => $dummy)
+		{
+			$icons[$k]['url'] = $settings['images_url'] . '/post/' . $dummy['value'] . '.png';
+			$icons[$k]['is_last'] = false;
+		}
+	}
+	// Otherwise load the icons, and check we give the right image too...
+	else
+	{
+		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
+		{
+			$request = $smcFunc['db_query']('select_message_icons', '
+				SELECT title, filename
+				FROM {db_prefix}message_icons
+				WHERE id_board IN (0, {int:board_id})',
+				array(
+					'board_id' => $board_id,
+				)
+			);
+			$icon_data = array();
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+				$icon_data[] = $row;
+			$smcFunc['db_free_result']($request);
+
+			$icons = array();
+			foreach ($icon_data as $icon)
+			{
+				$icons[$icon['filename']] = array(
+					'value' => $icon['filename'],
+					'name' => $icon['title'],
+					'url' => $settings[file_exists($settings['theme_dir'] . '/images/post/' . $icon['filename'] . '.png') ? 'images_url' : 'default_images_url'] . '/post/' . $icon['filename'] . '.png',
+					'is_last' => false,
+				);
+			}
+
+			cache_put_data('posting_icons-' . $board_id, $icons, 480);
+		}
+		else
+			$icons = $temp;
+	}
+
+	return array_values($icons);
+}
+
+/**
  * Compatibility function - used in 1.1 for showing a post box.
- * 
+ *
  * @param string $msg
  * @return string
  */
@@ -1446,26 +1469,25 @@ function create_control_richedit($editorOptions)
 		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
 
 		// This really has some WYSIWYG stuff.
-		loadTemplate('GenericControls', isBrowser('ie') ? 'editor_ie' : 'editor');
-		$context['html_headers'] .= '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
-			var oEditorStrings= {
-				wont_work: \'' . addcslashes($txt['rich_edit_wont_work'], "'") . '\',
-				func_disabled: \'' . addcslashes($txt['rich_edit_function_disabled'], "'") . '\',
-				prompt_text_email: \'' . addcslashes($txt['prompt_text_email'], "'") . '\',
-				prompt_text_ftp: \'' . addcslashes($txt['prompt_text_ftp'], "'") . '\',
-				prompt_text_url: \'' . addcslashes($txt['prompt_text_url'], "'") . '\',
-				prompt_text_img: \'' . addcslashes($txt['prompt_text_img'], "'") . '\'
-			}
-		// ]]></script>
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/editor.js?alp21"></script>';
+		loadTemplate('GenericControls', 'jquery.sceditor');
+
+		// JS makes the editor go round
+		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
+		loadJavascriptFile('jquery.sceditor.js', array('default_theme' => true));
+		loadJavascriptFile('jquery.sceditor.bbcode.js', array('default_theme' => true));
+		addInlineJavascript('
+		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
+		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
+		var bbc_quote = \'' . addcslashes($txt['quote'], "'") . '\';
+		var bbc_search_on = \'' . addcslashes($txt['search_on'], "'") . '\';');
+		// editor language file
+		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
+			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array(), 'sceditor_language');
 
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
 		{
-			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js?alp21"></script>';
+			loadJavascriptFile('spellcheck.js', array('default_theme' => true));
 
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml']))
@@ -1473,16 +1495,6 @@ function create_control_richedit($editorOptions)
 		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
 			<input type="hidden" name="spellstring" value="" />
 		</form>';
-
-			// Also make sure that spell check works with rich edit.
-			$context['html_headers'] .= '
-		<script type="text/javascript"><!-- // --><![CDATA[
-		function spellCheckDone()
-		{
-			for (i = 0; i < smf_editorArray.length; i++)
-				setTimeout("smf_editorArray[" + i + "].spellCheckEnd()", 150);
-		}
-		// ]]></script>';
 		}
 	}
 
@@ -1490,17 +1502,18 @@ function create_control_richedit($editorOptions)
 	$context['controls']['richedit'][$editorOptions['id']] = array(
 		'id' => $editorOptions['id'],
 		'value' => $editorOptions['value'],
-		'rich_value' => bbc_to_html($editorOptions['value']),
+		'rich_value' => $editorOptions['value'], // 2.0 editor compatibility
 		'rich_active' => empty($modSettings['disable_wysiwyg']) && (!empty($options['wysiwyg_default']) || !empty($editorOptions['force_rich']) || !empty($_REQUEST[$editorOptions['id'] . '_mode'])),
 		'disable_smiley_box' => !empty($editorOptions['disable_smiley_box']),
 		'columns' => isset($editorOptions['columns']) ? $editorOptions['columns'] : 60,
-		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 12,
+		'rows' => isset($editorOptions['rows']) ? $editorOptions['rows'] : 18,
 		'width' => isset($editorOptions['width']) ? $editorOptions['width'] : '70%',
-		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '150px',
+		'height' => isset($editorOptions['height']) ? $editorOptions['height'] : '250px',
 		'form' => isset($editorOptions['form']) ? $editorOptions['form'] : 'postmodify',
 		'bbc_level' => !empty($editorOptions['bbc_level']) ? $editorOptions['bbc_level'] : 'full',
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
+		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
 	);
 
 	// Switch between default images and back... mostly in case you don't have an PersonalMessage template, but do have a Post template.
@@ -1519,8 +1532,7 @@ function create_control_richedit($editorOptions)
 	if (empty($context['bbc_tags']))
 	{
 		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
-		$context['bbc_tags'] = array();
-		$context['bbc_tags'][] = array(
+		/*
 			array(
 				'image' => 'bold',
 				'code' => 'b',
@@ -1528,178 +1540,114 @@ function create_control_richedit($editorOptions)
 				'after' => '[/b]',
 				'description' => $txt['bold'],
 			),
+		*/
+		$context['bbc_tags'] = array();
+		$context['bbc_tags'][] = array(
 			array(
-				'image' => 'italicize',
-				'code' => 'i',
-				'before' => '[i]',
-				'after' => '[/i]',
+				'code' => 'bold',
+				'description' => $txt['bold'],
+			),
+			array(
+				'code' => 'italic',
 				'description' => $txt['italic'],
 			),
 			array(
-				'image' => 'underline',
-				'code' => 'u',
-				'before' => '[u]',
-				'after' => '[/u]',
+				'code' => 'underline',
 				'description' => $txt['underline']
 			),
 			array(
-				'image' => 'strike',
-				'code' => 's',
-				'before' => '[s]',
-				'after' => '[/s]',
+				'code' => 'strike',
 				'description' => $txt['strike']
 			),
 			array(),
 			array(
-				'image' => 'pre',
 				'code' => 'pre',
-				'before' => '[pre]',
-				'after' => '[/pre]',
 				'description' => $txt['preformatted']
 			),
 			array(
-				'image' => 'left',
 				'code' => 'left',
-				'before' => '[left]',
-				'after' => '[/left]',
 				'description' => $txt['left_align']
 			),
 			array(
-				'image' => 'center',
 				'code' => 'center',
-				'before' => '[center]',
-				'after' => '[/center]',
 				'description' => $txt['center']
 			),
 			array(
-				'image' => 'right',
 				'code' => 'right',
-				'before' => '[right]',
-				'after' => '[/right]',
 				'description' => $txt['right_align']
 			),
 		);
 		$context['bbc_tags'][] = array(
 			array(
-				'image' => 'flash',
 				'code' => 'flash',
-				'before' => '[flash=200,200]',
-				'after' => '[/flash]',
 				'description' => $txt['flash']
 			),
 			array(
-				'image' => 'img',
-				'code' => 'img',
-				'before' => '[img]',
-				'after' => '[/img]',
+				'code' => 'image',
 				'description' => $txt['image']
 			),
 			array(
-				'image' => 'url',
-				'code' => 'url',
-				'before' => '[url]',
-				'after' => '[/url]',
+				'code' => 'link',
 				'description' => $txt['hyperlink']
 			),
 			array(
-				'image' => 'email',
 				'code' => 'email',
-				'before' => '[email]',
-				'after' => '[/email]',
 				'description' => $txt['insert_email']
 			),
 			array(
-				'image' => 'ftp',
 				'code' => 'ftp',
-				'before' => '[ftp]',
-				'after' => '[/ftp]',
 				'description' => $txt['ftp']
 			),
 			array(),
 			array(
-				'image' => 'glow',
 				'code' => 'glow',
-				'before' => '[glow=red,2,300]',
-				'after' => '[/glow]',
 				'description' => $txt['glow']
 			),
 			array(
-				'image' => 'shadow',
 				'code' => 'shadow',
-				'before' => '[shadow=red,left]',
-				'after' => '[/shadow]',
 				'description' => $txt['shadow']
 			),
 			array(
-				'image' => 'move',
 				'code' => 'move',
-				'before' => '[move]',
-				'after' => '[/move]',
 				'description' => $txt['marquee']
 			),
 			array(),
 			array(
-				'image' => 'sup',
-				'code' => 'sup',
-				'before' => '[sup]',
-				'after' => '[/sup]',
+				'code' => 'superscript',
 				'description' => $txt['superscript']
 			),
 			array(
-				'image' => 'sub',
-				'code' => 'sub',
-				'before' => '[sub]',
-				'after' => '[/sub]',
+				'code' => 'subscript',
 				'description' => $txt['subscript']
 			),
 			array(
-				'image' => 'tele',
 				'code' => 'tt',
-				'before' => '[tt]',
-				'after' => '[/tt]',
 				'description' => $txt['teletype']
 			),
 			array(),
 			array(
-				'image' => 'table',
 				'code' => 'table',
-				'before' => '[table]\n[tr]\n[td]',
-				'after' => '[/td]\n[/tr]\n[/table]',
 				'description' => $txt['table']
 			),
 			array(
-				'image' => 'code',
 				'code' => 'code',
-				'before' => '[code]',
-				'after' => '[/code]',
 				'description' => $txt['bbc_code']
 			),
 			array(
-				'image' => 'quote',
 				'code' => 'quote',
-				'before' => '[quote]',
-				'after' => '[/quote]',
 				'description' => $txt['bbc_quote']
 			),
 			array(),
 			array(
-				'image' => 'list',
-				'code' => 'list',
-				'before' => '[list]\n[li]',
-				'after' => '[/li]\n[li][/li]\n[/list]',
+				'code' => 'bulletlist',
 				'description' => $txt['list_unordered']
 			),
 			array(
-				'image' => 'orderlist',
-				'code' => 'orderlist',
-				'before' => '[list type=decimal]\n[li]',
-				'after' => '[/li]\n[li][/li]\n[/list]',
+				'code' => 'orderedlist',
 				'description' => $txt['list_ordered']
 			),
 			array(
-				'image' => 'hr',
-				'code' => 'hr',
-				'before' => '[hr]',
+				'code' => 'horizontalrule',
 				'description' => $txt['horizontal_rule']
 			),
 		);
@@ -1712,21 +1660,122 @@ function create_control_richedit($editorOptions)
 		{
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array();
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
-				'image' => 'unformat',
 				'code' => 'unformat',
-				'before' => '',
 				'description' => $txt['unformat_text'],
 			);
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
-				'image' => 'toggle',
 				'code' => 'toggle',
-				'before' => '',
 				'description' => $txt['toggle_view'],
 			);
 		}
 
+		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
+		$disabled_tags = array();
+		if (!empty($modSettings['disabledBBC']))
+			$disabled_tags = explode(',', $modSettings['disabledBBC']);
+		if (empty($modSettings['enableEmbeddedFlash']))
+			$disabled_tags[] = 'flash';
+
+		foreach ($disabled_tags as $tag)
+		{
+			if ($tag == 'list')
+			{
+				$context['disabled_tags']['bulletlist'] = true;
+				$context['disabled_tags']['orderedlist'] = true;
+			}
+			elseif ($tag == 'b')
+				$context['disabled_tags']['bold'] = true;
+			elseif ($tag == 'i')
+				$context['disabled_tags']['italic'] = true;
+			elseif ($tag == 'i')
+				$context['disabled_tags']['underline'] = true;
+			elseif ($tag == 'i')
+				$context['disabled_tags']['strike'] = true;
+			elseif ($tag == 'img')
+				$context['disabled_tags']['image'] = true;
+			elseif ($tag == 'url')
+				$context['disabled_tags']['link'] = true;
+			elseif ($tag == 'sup')
+				$context['disabled_tags']['superscript'] = true;
+			elseif ($tag == 'sub')
+				$context['disabled_tags']['subscript'] = true;
+			elseif ($tag == 'hr')
+				$context['disabled_tags']['horizontalrule'] = true;
+
+			$context['disabled_tags'][trim($tag)] = true;
+		}
+
+		$bbcodes_styles = '';
+		$context['bbcodes_hanlders'] = '';
+		$context['bbc_toolbar'] = array();
 		foreach ($context['bbc_tags'] as $row => $tagRow)
-			$context['bbc_tags'][$row][count($tagRow) - 1]['isLast'] = true;
+		{
+			if (!isset($context['bbc_toolbar'][$row]))
+				$context['bbc_toolbar'][$row] = array();
+			$tagsRow = array();
+			foreach ($tagRow as $tag)
+			{
+			 if (!empty($tag))
+			 {
+					if (empty($context['disabled_tags'][$tag['code']]))
+					{
+						$tagsRow[] = $tag['code'];
+						if (isset($tag['image']))
+							$bbcodes_styles .= '
+			.sceditor-button-' . $tag['code'] . ' div {
+				background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
+			}';
+						if (isset($tag['before']))
+						{
+							$context['bbcodes_hanlders'] = '
+				$.sceditor.setCommand(
+					' . javaScriptEscape($tag['code']) . ',
+					function () {
+						this.wysiwygEditorInsertHtml(' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ');
+					},
+					' . javaScriptEscape($tag['description']) . ',
+					null,
+					[' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ']
+				);';
+						}
+					}
+				}
+				else
+				{
+					$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+					$tagsRow = array();
+				}
+			}
+
+			if ($row == 0)
+			{
+				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+				$tagsRow = array();
+				if (!isset($context['disabled_tags']['font']))
+					$tagsRow[] = 'font';
+				if (!isset($context['disabled_tags']['size']))
+					$tagsRow[] = 'size';
+				if (!isset($context['disabled_tags']['color']))
+					$tagsRow[] = 'color';
+			}
+			elseif ($row == 1 && empty($modSettings['disable_wysiwyg']))
+			{
+				$tmp = array();
+				$tagsRow[] = 'removeformat';
+				$tagsRow[] = 'source';
+				if (!empty($tmp))
+				{
+					$tagsRow[] = '|' . implode(',', $tmp);
+				}
+			}
+
+			if (!empty($tagsRow))
+				$context['bbc_toolbar'][$row][] = implode(',', $tagsRow);
+		}
+		if (!empty($bbcodes_styles))
+			$context['html_headers'] .= '
+		<style type="text/css">' . $bbcodes_styles . '
+		</style>';
 	}
 
 	// Initialize smiley array... if not loaded before.
@@ -1864,21 +1913,6 @@ function create_control_richedit($editorOptions)
 
 	// Set a flag so the sub template knows what to do...
 	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($settings['show_bbc']);
-
-	// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
-	$disabled_tags = array();
-	if (!empty($modSettings['disabledBBC']))
-		$disabled_tags = explode(',', $modSettings['disabledBBC']);
-	if (empty($modSettings['enableEmbeddedFlash']))
-		$disabled_tags[] = 'flash';
-
-	foreach ($disabled_tags as $tag)
-	{
-		if ($tag == 'list')
-			$context['disabled_tags']['orderlist'] = true;
-
-		$context['disabled_tags'][trim($tag)] = true;
-	}
 
 	// Switch the URLs back... now we're back to whatever the main sub template is.  (like folder in PersonalMessage.)
 	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
@@ -2129,6 +2163,8 @@ function AutoSuggestHandler($checkRegistered = null)
 		'versions' => 'SMFVersions',
 	);
 
+	call_integration_hook('integrate_autosuggest', array($searchTypes));
+
 	// If we're just checking the callback function is registered return true or false.
 	if ($checkRegistered != null)
 		return isset($searchTypes[$checkRegistered]) && function_exists('AutoSuggest_Search_' . $checkRegistered);
@@ -2149,7 +2185,7 @@ function AutoSuggestHandler($checkRegistered = null)
 
 /**
  * Search for a member - by real_name or member_name by default.
- * 
+ *
  * @return string
  */
 function AutoSuggest_Search_Member()

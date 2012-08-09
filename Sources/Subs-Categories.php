@@ -2,7 +2,7 @@
 
 /**
  * This file contains the functions to add, modify, remove, collapse and expand categories.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * Edit the position and properties of a category.
  * general function to modify the settings and position of a category.
  * used by ManageBoards.php to change the settings of a category.
- * 
+ *
  * @param int $category_id
  * @param array $catOptions
  */
@@ -117,7 +117,7 @@ function modifyCategory($category_id, $catOptions)
  * general function to create a new category and set its position.
  * allows (almost) the same options as the modifyCat() function.
  * returns the ID of the newly created category.
- * 
+ *
  * @param int $createCategory
  * @param array $catOptions
  */
@@ -163,14 +163,14 @@ function createCategory($catOptions)
 	return $category_id;
 }
 
-/** 
+/**
  * Remove one or more categories.
  * general function to delete one or more categories.
  * allows to move all boards in the categories to a different category before deleting them.
  * if moveChildrenTo is set to null, all boards inside the given categorieswill be deleted.
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
- * 
+ *
  * @param array $categories_to_remove
  * @param int $moveChildrenTo = null
  */
@@ -246,12 +246,12 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	reorderBoards();
 }
 
-/** 
+/**
  * Collapse, expand or toggle one or more categories for one or more members.
  * if members is null, the category is collapsed/expanded for all members.
  * allows three changes to the status: 'expand', 'collapse' and 'toggle'.
  * if check_collapsable is set, only category allowed to be collapsed, will be collapsed.
- * 
+ *
  * @param array $categories
  * @param string $new_status
  * @param array $members = null

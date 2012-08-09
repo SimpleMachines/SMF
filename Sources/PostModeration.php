@@ -274,6 +274,7 @@ function UnapprovedPosts()
 			'alternate' => $i % 2,
 			'counter' => $context['start'] + $i,
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 			'subject' => $row['subject'],
 			'body' => parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']),
 			'time' => timeformat($row['poster_time']),
@@ -289,10 +290,12 @@ function UnapprovedPosts()
 			'board' => array(
 				'id' => $row['id_board'],
 				'name' => $row['board_name'],
+				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['board_name'] . '</a>',
 			),
 			'category' => array(
 				'id' => $row['id_cat'],
 				'name' => $row['cat_name'],
+				'link' => '<a href="', $scripturl, '#c', $row['id_cat'], '">', $row['cat_name'], '</a>',
 			),
 			'can_delete' => $can_delete,
 		);
@@ -519,7 +522,7 @@ function UnapprovedAttachments()
 /**
  * Callback function for UnapprovedAttachments
  * retrieve all the attachments waiting for approval the approver can approve
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -599,7 +602,7 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 /**
  * Callback function for UnapprovedAttachments
  * count all the attachments waiting for approval the approver can approve
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
@@ -667,14 +670,14 @@ function ApproveMessage()
 		approveTopics($topic, !$approved);
 
 		if ($starter != $user_info['id'])
-			logAction('approve_topic', array('topic' => $topic, 'subject' => $subject, 'member' => $starter, 'board' => $board));
+			logAction(($approved ? 'un' : '') . 'approve_topic', array('topic' => $topic, 'subject' => $subject, 'member' => $starter, 'board' => $board));
 	}
 	else
 	{
 		approvePosts($_REQUEST['msg'], !$approved);
 
 		if ($poster != $user_info['id'])
-			logAction('approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
+			logAction(($approved ? 'un' : '') . 'approve', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
 	}
 
 	redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg']. '#msg' . $_REQUEST['msg']);

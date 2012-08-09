@@ -13,244 +13,115 @@
 // This function displays all the stuff you get with a richedit box - BBC, smileys etc.
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
-	global $context, $settings, $options, $txt, $modSettings, $scripturl;
+	global $context, $settings, $modSettings;
 
 	$editor_context = &$context['controls']['richedit'][$editor_id];
 
 	echo '
 		<div>
-			<div style="width: 98.8%;">
+			<div>
 				<div>
-					<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" rows="', $editor_context['rows'], '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="height: ', $editor_context['height'], '; ', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '">', $editor_context['value'], '</textarea>
+					<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" rows="" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="height: ', $editor_context['height'], '; ', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '">', $editor_context['value'], '</textarea>
 				</div>
 				<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
 			</div>
 		</div>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0" />
-		<script type="text/javascript"><!-- // --><![CDATA[';
+		<script type="text/javascript"><!-- // --><![CDATA[
+			$(document).ready(function() {
+				', !empty($context['bbcodes_hanlders']) ? $context['bbcodes_hanlders'] : '', '
+
+				$("#', $editor_id, '").sceditorBBCodePlugin({
+					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
+					emoticonsCompat: true,
+					supportedWysiwyg: (is_ie || is_ff || is_opera || is_safari || is_chrome),',
+					!empty($editor_context['locale']) ? '
+					locale: \'' . $editor_context['locale'] . '\',' : '', '
+					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
 
 		// Show the smileys.
 		if ((!empty($context['smileys']['postform']) || !empty($context['smileys']['popup'])) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null)
 		{
-			echo '
-				var oSmileyBox_', $editor_id, ' = new smc_SmileyBox({
-					sUniqueId: ', JavaScriptEscape('smileyBox_' . $editor_id), ',
-					sContainerDiv: ', JavaScriptEscape($smileyContainer), ',
-					sClickHandler: ', JavaScriptEscape('oEditorHandle_' . $editor_id . '.insertSmiley'), ',
-					oSmileyLocations: {';
-
+			echo ',
+					emoticons:
+					{';
+			$countLocations = count($context['smileys']);
 			foreach ($context['smileys'] as $location => $smileyRows)
 			{
-				echo '
-						', $location, ': [';
+				$countLocations--;
+				if ($location == 'postform')
+					echo '
+						dropdown:
+						{';
+				elseif ($location == 'popup')
+					echo '
+						popup:
+						{';
+
+				$numRows = count($smileyRows);
 				foreach ($smileyRows as $smileyRow)
 				{
-					echo '
-							[';
 					foreach ($smileyRow['smileys'] as $smiley)
+					{
 						echo '
-								{
-									sCode: ', JavaScriptEscape($smiley['code']), ',
-									sSrc: ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), ',
-									sDescription: ', JavaScriptEscape($smiley['description']), '
-								}', empty($smiley['isLast']) ? ',' : '';
-
-				echo '
-							]', empty($smileyRow['isLast']) ? ',' : '';
+								', JavaScriptEscape($smiley['code']), ': ', JavaScriptEscape($settings['smileys_url'] . '/' . $smiley['filename']), empty($smiley['isLast']) ? ',' : '';
+					}
+					if (empty($smileyRow['isLast']) && $numRows != 1)
+						echo ',
+						\'\': \'\',';
 				}
 				echo '
-						]', $location === 'postform' ? ',' : '';
+						}', $countLocations != 0 ? ',' : '';
 			}
 			echo '
-					},
-					sSmileyBoxTemplate: ', JavaScriptEscape('
-						%smileyRows% %moreSmileys%
-					'), ',
-					sSmileyRowTemplate: ', JavaScriptEscape('
-						<div>%smileyRow%</div>
-					'), ',
-					sSmileyTemplate: ', JavaScriptEscape('
-						<img src="%smileySource%" align="bottom" alt="%smileyDescription%" title="%smileyDescription%" id="%smileyId%" />
-					'), ',
-					sMoreSmileysTemplate: ', JavaScriptEscape('
-						<a href="#" id="%moreSmileysId%">[' . (!empty($context['smileys']['postform']) ? $txt['more_smileys'] : $txt['more_smileys_pick']) . ']</a>
-					'), ',
-					sMoreSmileysLinkId: ', JavaScriptEscape('moreSmileys_' . $editor_id), ',
-					sMoreSmileysPopupTemplate: ', JavaScriptEscape('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-						<html>
-							<head>
-								<title>' . $txt['more_smileys_title'] . '</title>
-								<link rel="stylesheet" type="text/css" href="' . $settings['theme_url'] . '/css/index' . $context['theme_variant'] . '.css?alp21" />
-							</head>
-							<body id="help_popup">
-								<div class="padding windowbg">
-									<div class="cat_bar">
-										<h3 class="catbg">
-											' . $txt['more_smileys_pick'] . '
-										</h3>
-									</div>
-									<div class="padding">
-										%smileyRows%
-									</div>
-									<div class="smalltext centertext">
-										<a href="#" id="%moreSmileysCloseLinkId%">' . $txt['more_smileys_close_window'] . '</a>
-									</div>
-								</div>
-							</body>
-						</html>'), '
-				});';
+					}';
 		}
 
 		if ($context['show_bbc'] && $bbcContainer !== null)
 		{
-			echo '
-				var oBBCBox_', $editor_id, ' = new smc_BBCButtonBox({
-					sUniqueId: ', JavaScriptEscape('BBCBox_' . $editor_id), ',
-					sContainerDiv: ', JavaScriptEscape($bbcContainer), ',
-					sButtonClickHandler: ', JavaScriptEscape('oEditorHandle_' . $editor_id . '.handleButtonClick'), ',
-					sSelectChangeHandler: ', JavaScriptEscape('oEditorHandle_' . $editor_id . '.handleSelectChange'), ',
-					aButtonRows: [';
-
-			// Here loop through the array, printing the images/rows/separators!
-			foreach ($context['bbc_tags'] as $i => $buttonRow)
+			echo ',
+					toolbar: "emoticon,';
+			$count_tags = count($context['bbc_tags']);
+			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
 			{
-				echo '
-						[';
-				foreach ($buttonRow as $tag)
-				{
-					// Is there a "before" part for this bbc button? If not, it can't be a button!!
-					if (isset($tag['before']))
-						echo '
-							{
-								sType: \'button\',
-								bEnabled: ', empty($context['disabled_tags'][$tag['code']]) ? 'true' : 'false', ',
-								sImage: ', file_exists($settings['theme_dir'] . '/images/bbc/' . $tag['image'] . '.png') ? JavaScriptEscape($settings['images_url'] . '/bbc/' . $tag['image'] . '.png') : JavaScriptEscape($settings['images_url'] . '/bbc/' . $tag['image'] . '.gif'), ',
-								sCode: ', JavaScriptEscape($tag['code']), ',
-								sBefore: ', JavaScriptEscape($tag['before']), ',
-								sAfter: ', isset($tag['after']) ? JavaScriptEscape($tag['after']) : 'null', ',
-								sDescription: ', JavaScriptEscape($tag['description']), '
-							}', empty($tag['isLast']) ? ',' : '';
-
-					// Must be a divider then.
-					else
-						echo '
-							{
-								sType: \'divider\'
-							}', empty($tag['isLast']) ? ',' : '';
-				}
-
-				// Add the select boxes to the first row.
-				if ($i == 0)
-				{
-					// Show the font drop down...
-					if (!isset($context['disabled_tags']['font']))
-						echo ',
-							{
-								sType: \'select\',
-								sName: \'sel_face\',
-								oOptions: {
-									\'\': ', JavaScriptEscape($txt['font_face']), ',
-									\'courier\': \'Courier\',
-									\'arial\': \'Arial\',
-									\'arial black\': \'Arial Black\',
-									\'impact\': \'Impact\',
-									\'verdana\': \'Verdana\',
-									\'times new roman\': \'Times New Roman\',
-									\'georgia\': \'Georgia\',
-									\'andale mono\': \'Andale Mono\',
-									\'trebuchet ms\': \'Trebuchet MS\',
-									\'comic sans ms\': \'Comic Sans MS\'
-								}
-							}';
-
-					// Font sizes anyone?
-					if (!isset($context['disabled_tags']['size']))
-						echo ',
-							{
-								sType: \'select\',
-								sName: \'sel_size\',
-								oOptions: {
-									\'\': ', JavaScriptEscape($txt['font_size']), ',
-									\'1\': \'8pt\',
-									\'2\': \'10pt\',
-									\'3\': \'12pt\',
-									\'4\': \'14pt\',
-									\'5\': \'18pt\',
-									\'6\': \'24pt\',
-									\'7\': \'36pt\'
-								}
-							}';
-
-					// Print a drop down list for all the colors we allow!
-					if (!isset($context['disabled_tags']['color']))
-						echo ',
-							{
-								sType: \'select\',
-								sName: \'sel_color\',
-								oOptions: {
-									\'\': ', JavaScriptEscape($txt['change_color']), ',
-									\'black\': ', JavaScriptEscape($txt['black']), ',
-									\'red\': ', JavaScriptEscape($txt['red']), ',
-									\'yellow\': ', JavaScriptEscape($txt['yellow']), ',
-									\'pink\': ', JavaScriptEscape($txt['pink']), ',
-									\'green\': ', JavaScriptEscape($txt['green']), ',
-									\'orange\': ', JavaScriptEscape($txt['orange']), ',
-									\'purple\': ', JavaScriptEscape($txt['purple']), ',
-									\'blue\': ', JavaScriptEscape($txt['blue']), ',
-									\'beige\': ', JavaScriptEscape($txt['beige']), ',
-									\'brown\': ', JavaScriptEscape($txt['brown']), ',
-									\'teal\': ', JavaScriptEscape($txt['teal']), ',
-									\'navy\': ', JavaScriptEscape($txt['navy']), ',
-									\'maroon\': ', JavaScriptEscape($txt['maroon']), ',
-									\'limegreen\': ', JavaScriptEscape($txt['lime_green']), ',
-									\'white\': ', JavaScriptEscape($txt['white']), '
-								}
-							}';
-				}
-				echo '
-						]', $i == count($context['bbc_tags']) - 1 ? '' : ',';
+				echo implode('|', $buttonRow);
+				$count_tags--;
+				if (!empty($count_tags))
+					echo '||';
 			}
-			echo '
-					],
-					sButtonTemplate: ', JavaScriptEscape('
-						<img id="%buttonId%" src="%buttonSrc%" align="bottom" width="23" height="22" alt="%buttonDescription%" title="%buttonDescription%" />
-					'), ',
-					sButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_bg.png'), ',
-					sButtonBackgroundImageHover: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.png'), ',
-					sActiveButtonBackgroundImage: ', JavaScriptEscape($settings['images_url'] . '/bbc/bbc_hoverbg.png'), ',
-					sDividerTemplate: ', JavaScriptEscape('
-						<img src="' . $settings['images_url'] . '/bbc/divider.png" alt="|" style="margin: 0 3px;" />
-					'), ',
-					sSelectTemplate: ', JavaScriptEscape('
-						<select name="%selectName%" id="%selectId%" style="margin-bottom: 1ex; font-size: x-small;">
-							%selectOptions%
-						</select>
-					'), ',
-					sButtonRowTemplate: ', JavaScriptEscape('
-						<div>%buttonRow%</div>
-					'), '
-				});';
-		}
 
-		// Now it's all drawn out we'll actually setup the box.
+			echo '",';
+		}
+		else
+			echo ',
+					toolbar: "emoticon,source",';
+
+		echo '
+				});
+				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
+				$(".sceditor-container").width("100%").height("100%");',
+				$editor_context['rich_active'] ? '' : '
+				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
+				if (!(is_ie || is_ff || is_opera || is_safari || is_chrome))
+				{
+					$("#' . $editor_id . '").data("sceditor").setTextMode();
+					$(".sceditor-button-source").hide();
+				}', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
+				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
+			});';
+
+		// Now for backward compatibility let's collect few infos in the good ol' style
 		echo '
 				var oEditorHandle_', $editor_id, ' = new smc_Editor({
-					sSessionId: smf_session_id,
-					sSessionVar: smf_session_var,
-					sFormId: ', JavaScriptEscape($editor_context['form']), ',
 					sUniqueId: ', JavaScriptEscape($editor_id), ',
-					bRTL: ', $txt['lang_rtl'] ? 'true' : 'false', ',
-					bWysiwyg: ', $editor_context['rich_active'] ? 'true' : 'false', ',
-					sText: ', JavaScriptEscape($editor_context['rich_active'] ? $editor_context['rich_value'] : ''), ',
 					sEditWidth: ', JavaScriptEscape($editor_context['width']), ',
 					sEditHeight: ', JavaScriptEscape($editor_context['height']), ',
 					bRichEditOff: ', empty($modSettings['disable_wysiwyg']) ? 'false' : 'true', ',
-					oSmileyBox: ', !empty($context['smileys']['postform']) && !$editor_context['disable_smiley_box'] && $smileyContainer !== null ? 'oSmileyBox_' . $editor_id : 'null', ',
-					oBBCBox: ', $context['show_bbc'] && $bbcContainer !== null ? 'oBBCBox_' . $editor_id : 'null', '
+					oSmileyBox: null,
+					oBBCBox: null
 				});
-				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';';
-
-		echo '
+				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
 			// ]]></script>';
 }
 
@@ -270,6 +141,64 @@ function template_control_richedit_buttons($editor_id)
 	if ($context['show_spellchecking'])
 		echo '
 		<input type="button" value="', $txt['spell_check'], '" tabindex="', $context['tabindex']++, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit" />';
+
+	if (!empty($context['drafts_save']))
+	{
+		// Show the save draft button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit" />
+		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';
+
+		// Start an instance of the auto saver if its enabled
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<br />
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
+
+	if (!empty($context['drafts_pm_save']))
+	{
+		// The PM draft save button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit" />
+		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '" />';
+
+		// Load in the PM autosaver if its enabled and the user wants to use it
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_pm_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				bPM: true,
+				iBoard: 0,
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
 }
 
 // What's this, verification?!

@@ -1,3 +1,14 @@
+$(document).ready(function() {
+	// menu drop downs
+	$('ul.dropmenu').superfish();
+	
+	// tooltips
+	$('.preview').SMFtooltip();
+
+	// find all nested linked images and turn off the border
+	$('a.bbc_link img.bbc_img').parent().css('border', '0');
+});
+
 // The purpose of this code is to fix the height of overflow: auto blocks, because some browsers can't figure it out for themselves.
 function smf_codeBoxFix()
 {
@@ -16,7 +27,7 @@ function smf_codeBoxFix()
 }
 
 // Add a fix for code stuff?
-if ((is_ie && !is_ie4) || is_webkit || is_ff)
+if (is_ie || is_webkit || is_ff)
 	addLoadEvent(smf_codeBoxFix);
 
 // Toggles the element height and width styles of an image.
@@ -59,38 +70,3 @@ function smf_addButton(sButtonStripId, bUseImage, oOptions)
 
 	oButtonStripList.appendChild(oNewButton);
 }
-
-// Adds hover events to list items. Used for a versions of IE that don't support this by default.
-var smf_addListItemHoverEvents = function()
-{
-	var cssRule, newSelector;
-
-	// Add a rule for the list item hover event to every stylesheet.
-	for (var iStyleSheet = 0; iStyleSheet < document.styleSheets.length; iStyleSheet ++)
-		for (var iRule = 0; iRule < document.styleSheets[iStyleSheet].rules.length; iRule ++)
-		{
-			oCssRule = document.styleSheets[iStyleSheet].rules[iRule];
-			if (oCssRule.selectorText.indexOf('LI:hover') != -1)
-			{
-				sNewSelector = oCssRule.selectorText.replace(/LI:hover/gi, 'LI.iehover');
-				document.styleSheets[iStyleSheet].addRule(sNewSelector, oCssRule.style.cssText);
-			}
-		}
-
-	// Now add handling for these hover events.
-	var oListItems = document.getElementsByTagName('LI');
-	for (oListItem in oListItems)
-	{
-		oListItems[oListItem].onmouseover = function() {
-			this.className += ' iehover';
-		};
-
-		oListItems[oListItem].onmouseout = function() {
-			this.className = this.className.replace(new RegExp(' iehover\\b'), '');
-		};
-	}
-}
-
-// Add hover events to list items if the browser requires it.
-if (is_ie7down && 'attachEvent' in window)
-	window.attachEvent('onload', smf_addListItemHoverEvents);

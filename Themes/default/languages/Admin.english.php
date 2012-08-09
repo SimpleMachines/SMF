@@ -118,9 +118,9 @@ $txt['smileys_manage'] = 'Smileys and Message Icons';
 $txt['smileys_manage_info'] = 'Install new smiley sets, add smileys to existing ones, or manage your message icons.';
 $txt['package_info'] = 'Install new features or modify existing ones with this interface.';
 $txt['theme_admin'] = 'Themes and Layout';
-$txt['theme_admin_info'] = 'Setup and manage your themes and set or reset theme options.';
+$txt['theme_admin_info'] = 'Setup and manage your themes, and set or reset theme options.';
 $txt['registration_center'] = 'Registration';
-$txt['member_center_info'] = 'View the member list, search for members and manage not-yet-approved members and members who haven\'t activated their account yet.';
+$txt['member_center_info'] = 'View the member list, search for members, or manage account approvals and activations.';
 
 $txt['viewmembers_name'] = 'Username (display name)';
 $txt['viewmembers_online'] = 'Last Online';
@@ -139,7 +139,7 @@ $txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referer: %1$s
 $txt['email_preview_warning'] = 'The preview is not 100% accurate. In order to preserve the functionality of the page only the basic html tags are represented';
 $txt['email_as_html'] = 'Send in HTML format.  (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br /&gt;s and &amp;nbsp;s to this message.';
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;.  Click <a href="' . $scripturl . '?action=helpadmin;help=emailmembers" onclick="return reqWin(this.href);" class="help">here</a> for more information.';
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;.  Click <a href="' . $scripturl . '?action=helpadmin;help=emailmembers" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
@@ -291,7 +291,7 @@ $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
 
 $txt['support_credits_title'] = 'Support and Credits';
-$txt['support_credits_info'] = 'Get support on common issues and version information to give if you have problems.';
+$txt['support_credits_info'] = 'Links to support for common issues, and version information to give if you have problems.';
 $txt['support_title'] = 'Support Information';
 $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
@@ -308,7 +308,7 @@ $txt['support_resources_p2'] = 'If you can\'t find the answers to your questions
 $txt['support_latest'] = 'Common Support &amp; Issues';
 $txt['support_latest_fetch'] = 'Retrieving support information...';
 
-$txt['edit_permissions_info'] = 'Change restrictions and available features globally or to specific boards.';
+$txt['edit_permissions_info'] = 'Change restrictions and available features, globally or in specific boards.';
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
 $txt['membergroups_guests_na'] = 'n/a';
@@ -351,10 +351,8 @@ $txt['attachmentCheckExtensions'] = 'Check attachment\'s extension';
 $txt['attachmentExtensions'] = 'Allowed attachment extensions';
 $txt['attachmentRecodeLineEndings'] = 'Recode line endings in textual attachments';
 $txt['attachmentShowImages'] = 'Display image attachments as pictures under post';
-$txt['attachmentEncryptFilenames'] = 'Encrypt stored filenames';
 $txt['attachmentUploadDir'] = 'Attachments directory';
-$txt['attachmentUploadDir_multiple'] = 'Attachments directory';
-$txt['attachmentUploadDir_multiple_configure'] = 'Configure multiple attachment directories';
+$txt['attachmentUploadDir_multiple_configure'] = 'Manage attachment directories';
 $txt['attachmentDirSizeLimit'] = 'Max attachment folder space';
 $txt['attachmentPostLimit'] = 'Max attachment size per post';
 $txt['attachmentSizeLimit'] = 'Max size per attachment';
@@ -380,17 +378,59 @@ $txt['attach_dir_does_not_exist'] = 'Does Not Exist';
 $txt['attach_dir_not_writable'] = 'Not Writable';
 $txt['attach_dir_files_missing'] = 'Files Missing (<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=repair;%2$s=%1$s">Repair</a>)';
 $txt['attach_dir_unused'] = 'Unused';
+$txt['attach_dir_empty'] = 'Empty';
 $txt['attach_dir_ok'] = 'OK';
+$txt['attach_dir_basedir'] = 'Base directory';
 
+$txt['attach_dir_desc'] = 'Create new directories or change the current directory below. Directories can be renamed as long as they do not contain a sub-directory. If the new directory is to be in the created within the forum directory structure. Just the directory name can be used. To remove a directory, blank the path input field. Directories can not be deleted if they contain either files or sub-directories (shown in brackets next to the file count).';
+$txt['attach_dir_base_desc'] = 'You may use below to change the current base directory or create a new one. New base directories are also added to the Attachment Directory list. You may also designate an existing directory to be a base directory.';
+$txt['attach_dir_save_problem'] = 'Oops, there seems to be a problem.';
+$txt['attachments_no_create'] = 'Unable to create a new attachment directory. Please do so using a FTP client or your site file manager.';
+$txt['attachments_no_write'] = 'This directory has been created but is not writable. Please attempt to do so using a FTP client or your site file manager.';
+$txt['attach_dir_duplicate_msg'] = 'Unable to add. This directory already exists.';
+$txt['attach_dir_exists_msg'] = 'Unable to move. A directory already exists at that path.';
+$txt['attach_dir_base_dupe_msg'] = 'Unable to add. This base directory has already been created.';
+$txt['attach_dir_base_no_create'] = 'Unable to create. Please verify the path input. Or create this directory using an FTP client or site file manager and re-try.';
+$txt['attach_dir_no_rename'] = 'Unable to move or rename. Please verify that the path is correct or that this directory does not contain any sub-directories.';
+$txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do so using a FTP client or site file manager.';
+$txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and can not be deleted.';
+$txt['attach_dir_is_current'] = 'Unable to remove while it is selected as the current directory.';
+$txt['attach_dir_is_current_bd'] = 'Unable to remove while it is selected as the current base directory.';
+$txt['attach_last_dir'] = 'Last active attachment directory';
+$txt['attach_current_dir'] = 'Current attachment directory';
+$txt['attach_current'] = 'Current';
 $txt['attach_path_manage'] = 'Manage Attachment Paths';
-$txt['attach_paths'] = 'Attachment Paths';
-$txt['attach_current_dir'] = 'Current Directory';
+$txt['attach_directories'] = 'Attachment Directories';
+$txt['attach_paths'] = 'Attachment Directory Paths';
+$txt['attach_base_paths'] = 'Base Directory Paths';
 $txt['attach_path'] = 'Path';
-$txt['attach_current_size'] = 'Current Size (KB)';
+$txt['attach_current_size'] = 'Size (KB)';
 $txt['attach_num_files'] = 'Files';
 $txt['attach_dir_status'] = 'Status';
 $txt['attach_add_path'] = 'Add Path';
 $txt['attach_path_current_bad'] = 'Invalid current attachment path.';
+$txt['attachmentDirFileLimit'] = 'Maximum number of files per directory';
+
+$txt['attach_base_paths'] = 'Base Directory Paths';
+$txt['attach_num_dirs'] = 'Directories';
+$txt['max_image_width'] = 'Max display width of posted or attached images';
+$txt['max_image_height'] = 'Max display height of posted or attached images';
+
+$txt['automanage_attachments'] = 'Choose the method for the management of the attachment directories';
+$txt['attachments_normal'] = '(Manual) SMF default behaviour';
+$txt['attachments_auto_years'] = '(Auto) Subdivide by years';
+$txt['attachments_auto_months'] = '(Auto) Subdivide by years and months';
+$txt['attachments_auto_days'] = '(Auto) Subdivide by years, months and days';
+$txt['attachments_auto_16'] = '(Auto) 16 random folders';
+$txt['attachments_auto_16x16'] = '(Auto) 16 random folders with 16 random sub-folders';
+$txt['attachments_auto_space'] = '(Auto) When either directory space limit is reached';
+
+$txt['use_subdirectories_for_attachments'] = 'Create new directories within a base directory';
+$txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
+$txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
+$txt['basedirectory_for_attachments_current'] = 'Current base directory';
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
@@ -443,7 +483,7 @@ $txt['attach_repair_file_size_of_zero'] = '%1$d attachments/avatars have a size 
 $txt['attach_repair_attachment_no_msg'] = '%1$d attachments no longer have a message associated with them';
 $txt['attach_repair_avatar_no_member'] = '%1$d avatars no longer have a member associated with them';
 $txt['attach_repair_wrong_folder'] = '%1$d attachments are in the wrong folder';
-$txt['attach_repair_files_without_attachment'] = '%1$d files doesn\'t have a corresponding entri into the database. (These will be deleted)';
+$txt['attach_repair_files_without_attachment'] = '%1$d files do not have a corresponding entry in the database. (These will be deleted)';
 
 $txt['news_title'] = 'News and Newsletters';
 $txt['news_settings_desc'] = 'Here you can change the settings and permissions related to news and newsletters.';
@@ -492,6 +532,13 @@ $txt['manageposts_topic_settings'] = 'Topic Settings';
 $txt['manageposts_topic_settings_description'] = 'Here you can set all settings involving topics.';
 $txt['manageposts_topic_settings_submit'] = 'Save';
 
+$txt['managedrafts_settings'] = 'Draft Settings';
+$txt['managedrafts_settings_description'] = 'Here you can set all settings involving drafts.';
+$txt['managedrafts_submit'] = 'Save';
+$txt['manage_drafts'] = 'Drafts';
+$txt['drafts_autosave'] = 'Enable the autosaving of posts as drafts';
+$txt['drafts_autosave_frequency'] = 'How often should drafts be autosaved?';
+
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
 $txt['enableEmbeddedFlash'] = 'Embed flash into posts';
 $txt['enableEmbeddedFlash_warning'] = 'may be a security risk!';
@@ -500,6 +547,7 @@ $txt['enableSpellChecking_warning'] = 'this does not work on all servers!';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
+$txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then came back to increase the maximum allowed post size.';
 $txt['fixLongWords'] = 'Break up words with more letters than';
 $txt['fixLongWords_zero'] = '0 to disable.';
 $txt['fixLongWords_warning'] = 'this does not work on all servers!';
@@ -526,6 +574,7 @@ $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
 $txt['oldTopicDays_zero'] = '0 to disable';
 $txt['defaultMaxTopics'] = 'Number of topics per page in the message index';
 $txt['defaultMaxMessages'] = 'Number of posts per page in a topic page';
+$txt['disable_print_topic'] = 'Disable print topic feature';
 $txt['hotTopicPosts'] = 'Number of posts for a hot topic';
 $txt['hotTopicVeryPosts'] = 'Number of posts for a very hot topic';
 $txt['enableAllMessages'] = 'Max topic size to show &quot;All&quot; posts';
@@ -645,6 +694,8 @@ $txt['paid_subs_view'] = 'View Subscriptions';
 $txt['hooks_title_list'] = 'Integration Hooks';
 $txt['hooks_field_hook_name'] = 'Hook Name';
 $txt['hooks_field_function_name'] = 'Function Name';
+$txt['hooks_field_function'] = 'Function';
+$txt['hooks_field_included_file'] = 'Included file';
 $txt['hooks_field_file_name'] = 'File Name';
 $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';
@@ -658,5 +709,10 @@ $txt['hooks_disable_legend_exists'] = 'the hook exists and is active';
 $txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
 $txt['hooks_disable_legend_missing'] = 'the hook has not been found';
 $txt['hooks_reset_filter'] = 'Reset filter';
+
+$txt['board_perms_allow'] = 'Allow';
+$txt['board_perms_ignore'] = 'Ignore';
+$txt['board_perms_deny'] = 'Deny';
+$txt['all_boards_in_cat'] = 'All boards in this category';
 
 ?>

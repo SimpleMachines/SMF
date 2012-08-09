@@ -167,8 +167,19 @@ function createList($listOptions)
 			$cur_row[$column_id] = $cur_data;
 		}
 
+		$list_context['rows'][$item_id]['class'] = '';
+		$list_context['rows'][$item_id]['style'] = '';
+		// Maybe we wat set a custom class for the row based on the data in the row itself
+		if (isset($listOptions['data_check']))
+		{
+			if (isset($listOptions['data_check']['class']))
+				$list_context['rows'][$item_id]['class'] = ' ' . $listOptions['data_check']['class']($list_item);
+			if (isset($listOptions['data_check']['style']))
+				$list_context['rows'][$item_id]['style'] = ' style="' . $listOptions['data_check']['style']($list_item) . '"';
+		}
+
 		// Insert the row into the list.
-		$list_context['rows'][$item_id] = $cur_row;
+		$list_context['rows'][$item_id]['data'] = $cur_row;
 	}
 
 	// The title is currently optional.

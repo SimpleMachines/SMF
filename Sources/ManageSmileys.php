@@ -207,7 +207,7 @@ function EditSmileySets()
 			$set_paths = explode(',', $modSettings['smiley_sets_known']);
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
-			{	
+			{
 				if (isset($set_paths[$id], $set_names[$id]) && !empty($id))
 					unset($set_paths[$id], $set_names[$id]);
 			}
@@ -322,6 +322,9 @@ function EditSmileySets()
 						$smileys[strtolower($entry)] = $entry;
 				}
 				$dir->close();
+
+				if (empty($smileys))
+					fatal_lang_error('smiley_set_dir_not_found', false, array($context['current_set']['name']));
 
 				// Exclude the smileys that are already in the database.
 				$request = $smcFunc['db_query']('', '

@@ -32,11 +32,9 @@ function template_main()
 	if (empty($context['categories']))
 		echo '
 		<div class="windowbg">
-			<span class="topslice"><span></span></span>
 			<div class="content centertext">
 				', $txt['mboards_no_cats'], '
 			</div>
-			<span class="botslice"><span></span></span>
 		</div>';
 
 	// Loop through every category, listing the boards in each as we go.
@@ -54,7 +52,6 @@ function template_main()
 		echo '
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<ul id="category_', $category['id'], '" class="reset nolist">';
 
@@ -95,19 +92,14 @@ function template_main()
 		// Button to add a new board.
 		echo '
 					</ul>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['mboards_new_board'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
-		</form>
-		<br class="clear" />';
+		</form>';
 	}
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Template for editing/adding a category on the forum.
@@ -126,7 +118,6 @@ function template_modify_category()
 					</h3>
 				</div>
 				<div class="windowbg">
-					<span class="topslice"><span></span></span>
 					<div class="content">
 						<dl class="settings">';
 	// If this isn't the only category, let the user choose where this category should be positioned down the board index.
@@ -163,8 +154,7 @@ function template_modify_category()
 
 	// Table footer.
 	echo '
-					</dl>
-					<hr class="hrcolor" />';
+					</dl>';
 
 	if (isset($context['category']['is_new']))
 		echo '
@@ -185,13 +175,10 @@ function template_modify_category()
 						<input type="hidden" name="empty" value="1" />';
 
 	echo '
-					<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
@@ -208,7 +195,6 @@ function template_confirm_category_delete()
 				<h3 class="catbg">', $txt['mboards_delete_cat'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['mboards_delete_cat_contains'], ':</p>
 					<ul>';
@@ -220,13 +206,11 @@ function template_confirm_category_delete()
 	echo '
 					</ul>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mboards_delete_what_do'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_option1'], '</label><br />
@@ -246,11 +230,9 @@ function template_confirm_category_delete()
 					<input type="hidden" name="confirmation" value="1" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Below is the template for adding/editing an board on the forum.
@@ -269,7 +251,6 @@ function template_modify_board()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<dl class="settings">';
 
@@ -405,12 +386,15 @@ function template_modify_board()
 
 	if (empty($modSettings['deny_boards_access']))
 		echo '
-							<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[\');" /><br />
+							<span class="select_all_box">
+								<em>', $txt['check_all'], '</em> <input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \'groups[\');" />
+							</span>
+							<br />
 							<br />
 						</dd>';
 	else
 		echo '
-								<tr>
+								<tr class="select_all_box">
 									<td>
 									</td>
 									<td>
@@ -440,6 +424,13 @@ function template_modify_board()
 							<div id="moderator_container"></div>
 						</dd>
 					</dl>
+					<script type="text/javascript"><!-- // --><![CDATA[
+						$(document).ready(function () {
+							$(".select_all_box").each(function () {
+								$(this).removeClass(\'select_all_box\');
+							});
+						});
+					// ]]></script>
 					<hr class="hrcolor" />';
 
 	if (empty($context['board']['is_recycle']) && empty($context['board']['topics']))
@@ -546,7 +537,6 @@ function template_modify_board()
 		echo '<div class="information">', $txt['mboards_recycle_disabled_delete'], '</div>';
 
 	echo '
-					<hr class="hrcolor" />
 					<input type="hidden" name="rid" value="', $context['redirect_location'], '" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '" />';
@@ -568,13 +558,11 @@ function template_modify_board()
 		echo '
 					<span', $context['board']['is_recycle'] ? ' style="visibility:hidden">' : '>', '<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" onclick="return confirm(\'', $txt['boardConfirm'], '\');"', ' class="button_submit" /></span>';
 	echo '
-				<br class="clear_right" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
 	</div>
-	<br class="clear" />
+
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 <script type="text/javascript"><!-- // --><![CDATA[
 	var oModeratorSuggest = new smc_AutoSuggest({
@@ -648,7 +636,6 @@ function template_confirm_board_delete()
 				<h3 class="catbg">', $txt['mboards_delete_board'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>', $txt['mboards_delete_board_contains'], '</p>
 						<ul>';
@@ -660,13 +647,11 @@ function template_confirm_board_delete()
 	echo '
 						</ul>
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mboards_delete_what_do'], '</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
 				<div class="content">
 					<p>
 						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_board_option1'], '</label><br />
@@ -686,11 +671,9 @@ function template_confirm_board_delete()
 					<input type="hidden" name="confirmation" value="1" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>
-				<span class="botslice"><span></span></span>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

@@ -37,6 +37,7 @@ $txt['feature_disabled'] = 'Sorry, this feature is disabled.';
 $txt['feature_no_exists'] = 'Sorry, this feature doesn\'t exist.';
 $txt['couldnt_connect'] = 'Could not connect to server or could not find file';
 $txt['no_board'] = 'The board you specified doesn\'t exist';
+$txt['no_message'] = 'The message is no longer available';
 $txt['cant_split'] = 'You are not allowed to split topics';
 $txt['cant_merge'] = 'You are not allowed to merge topics';
 $txt['no_topic_id'] = 'You specified an invalid topic ID.';
@@ -201,14 +202,15 @@ $txt['who_off'] = 'You cannot access Who\'s Online right now because it is disab
 $txt['merge_create_topic_failed'] = 'Error creating a new topic.';
 $txt['merge_need_more_topics'] = 'Merge topics require at least two topics to merge.';
 
-$txt['postWaitTime_broken'] = 'The last posting from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['registerWaitTime_broken'] = 'You already registered just %1$d seconds ago!';
-$txt['loginWaitTime_broken'] = 'You will have to wait about %1$d seconds to login again, sorry.';
-$txt['pmWaitTime_broken'] = 'The last personal message from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['reporttmWaitTime_broken'] = 'The last topic report from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['sendtopcWaitTime_broken'] = 'The last topic sent from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['sendmailWaitTime_broken'] = 'The last email sent from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['searchWaitTime_broken'] = 'Your last search was less than %1$d seconds ago. Please try again later.';
+$txt['post_WaitTime_broken'] = 'The last posting from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['register_WaitTime_broken'] = 'You already registered just %1$d seconds ago!';
+$txt['login_WaitTime_broken'] = 'You will have to wait about %1$d seconds to login again, sorry.';
+$txt['pm_WaitTime_broken'] = 'The last personal message from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['reporttm_WaitTime_broken'] = 'The last topic report from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['sendtopic_WaitTime_broken'] = 'The last topic sent from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['sendmail_WaitTime_broken'] = 'The last email sent from your IP was less than %1$d seconds ago. Please try again later.';
+$txt['search_WaitTime_broken'] = 'Your last search was less than %1$d seconds ago. Please try again later.';
+$txt['remind_WaitTime_broken'] = 'Your last reminder was less than %1$d seconds ago. Please try again later.';
 
 $txt['email_missing_data'] = 'You must enter something in both the subject and message boxes.';
 
@@ -251,6 +253,7 @@ $txt['error_wrong_verification_answer'] = 'You did not answer the verification q
 $txt['error_need_verification_code'] = 'Please enter the verification code below to continue to the results.';
 $txt['error_bad_file'] = 'Sorry but the file specified could not be opened: %1$s';
 $txt['error_bad_line'] = 'The line you specified is invalid.';
+$txt['error_draft_not_saved'] = 'There was an error saving the draft';
 
 $txt['smiley_not_found'] = 'Smiley not found.';
 $txt['smiley_has_no_code'] = 'No code for this smiley was given.';
@@ -258,6 +261,7 @@ $txt['smiley_has_no_filename'] = 'No filename for this smiley was given.';
 $txt['smiley_not_unique'] = 'A smiley with that code already exists.';
 $txt['smiley_set_already_exists'] = 'A smiley set with that URL already exists';
 $txt['smiley_set_not_found'] = 'Smiley set not found';
+$txt['smiley_set_dir_not_found'] = 'The directory of the smiley set %1$s is either invalid or cannot be accessed';
 $txt['smiley_set_path_already_used'] = 'The URL of the smiley set is already being used by another smiley set.';
 $txt['smiley_set_unable_to_import'] = 'Unable to import smiley set. Either the directory is invalid or cannot be accessed.';
 
@@ -324,6 +328,9 @@ $txt['profile_error_password_chars'] = 'Your password must contain a mix of uppe
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID authentication URL';
 $txt['profile_error_signature_not_yet_saved'] = 'The signature is not yet saved!';
+$txt['profile_error_aim_too_long'] = 'The AIM nickname is too long.';
+$txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
+$txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
 
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
@@ -345,6 +352,7 @@ $txt['loadavg_allunread_disabled'] = 'The server\'s resources are temporarily un
 $txt['loadavg_unreadreplies_disabled'] = 'The server is currently under high stress.  Please try again shortly.';
 $txt['loadavg_show_posts_disabled'] = 'Please try again later.  This member\'s posts are not currently available due to high load on the server.';
 $txt['loadavg_unread_disabled'] = 'The server\'s resources are temporarily under too high a demand to list out the topics you have not read.';
+$txt['loadavg_userstats_disabled'] = 'Please try again later.  This member\'s statistics are not currently available due to high load on the server.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
 

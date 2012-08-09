@@ -71,6 +71,9 @@ function RemindPick()
 	if (empty($where))
 		fatal_lang_error('username_no_exist', false);
 
+	// Make sure we are not being slammed
+	spamProtection('remind');
+
 	// Find the user!
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, openid_uri, secret_question

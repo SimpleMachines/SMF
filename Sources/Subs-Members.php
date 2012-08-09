@@ -39,7 +39,7 @@ function deleteMembers($users, $check_not_admin = false)
 
 	// Try give us a while to sort this out...
 	@set_time_limit(600);
-	
+
 	// Try to get some more memory.
 	setMemoryLimit('128M');
 
@@ -109,15 +109,19 @@ function deleteMembers($users, $check_not_admin = false)
 	if (empty($users))
 		return;
 
-	require_once($sourcedir . '/Logging.php');
 	// Log the action - regardless of who is deleting it.
-	$log_inserts = array();
+	$log_changes = array();
 	foreach ($user_log_details as $user)
 	{
-		// Integration rocks!
-		call_integration_hook('integrate_delete_member', array($user[0]));
-
-		logAction('delete_member', array('member' => $user[0], 'name' => $user[1], 'member_acted' => $user_info['name']), 'admin');
+		$log_changes[] = array(
+			'action' => 'delete_member',
+			'log_type' => 'admin',
+			'extra' => array(
+				'member' => $user[0],
+				'name' => $user[1],
+				'member_acted' => $user_info['name'],
+			),
+		);
 
 		// Remove any cached data if enabled.
 		if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
@@ -199,6 +203,15 @@ function deleteMembers($users, $check_not_admin = false)
 	// Delete the member.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}members
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
+	// Delete any drafts...
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_drafts
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'users' => $users,
@@ -392,7 +405,13 @@ function deleteMembers($users, $check_not_admin = false)
 		'calendar_updated' => time(),
 	));
 
+	// Integration rocks!
+	call_integration_hook('integrate_delete_members', array($users));
+
 	updateStats('member');
+
+	require_once($sourcedir . '/Logging.php');
+	logActions($log_changes);
 }
 
 /**
@@ -1177,6 +1196,9 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 			'memID' => $memID,
 		)
 	);
+
+	// Allow mods with their own post tables to reattribute posts as well :)
+ 	call_integration_hook('integrate_reattribute_posts', array(&$memID, &$email, &$membername, &$post_count));
 }
 
 /**

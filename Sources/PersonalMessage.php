@@ -35,7 +35,7 @@ function MessageMain()
 	// This file contains the basic functions for sending a PM.
 	require_once($sourcedir . '/Subs-Post.php');
 
-	loadLanguage('PersonalMessage');
+	loadLanguage('PersonalMessage+Drafts');
 
 	if (WIRELESS && WIRELESS_PROTOCOL == 'wap')
 		fatal_lang_error('wireless_error_notyet', false);
@@ -197,6 +197,7 @@ function MessageMain()
 		'send' => 'MessagePost',
 		'send2' => 'MessagePost2',
 		'settings' => 'MessageSettings',
+		'showpmdrafts' => 'MessageDrafts',
 	);
 
 	if (!isset($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
@@ -210,7 +211,7 @@ function MessageMain()
 }
 
 /**
- * A sidebar to easily access different areas of the section
+ * A menu to easily access different areas of the PM section
  *
  * @param string $area
  */
@@ -234,6 +235,12 @@ function messageIndexBar($area)
 				'sent' => array(
 					'label' => $txt['sent_items'],
 					'custom_url' => $scripturl . '?action=pm;f=sent',
+				),
+				'drafts' => array(
+					'label' => $txt['drafts_show'],
+					'custom_url' => $scripturl . '?action=pm;sa=showpmdrafts',
+					'permission' => allowedTo('pm_draft'),
+					'enabled' => !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']),
 				),
 			),
 		),
@@ -332,22 +339,25 @@ function messageIndexBar($area)
 	$menuOptions = array(
 		'current_area' => $area,
 		'disable_url_session_check' => true,
-		'toggle_url' => $current_page . ';togglebar',
-		'toggle_redirect_url' => $current_page,
 	);
 
 	// Actually create the menu!
 	$pm_include_data = createMenu($pm_areas, $menuOptions);
 	unset($pm_areas);
 
+	// No menu means no access.
+	if (!$pm_include_data && (!$user_info['is_guest'] || validateSession()))
+		fatal_lang_error('no_access', false);
+
 	// Make a note of the Unique ID for this menu.
 	$context['pm_menu_id'] = $context['max_menu_id'];
 	$context['pm_menu_name'] = 'menu_data_' . $context['pm_menu_id'];
 
 	// Set the selected item.
-	$context['menu_item_selected'] = $pm_include_data['current_area'];
+	$current_area = $pm_include_data['current_area'];
+	$context['menu_item_selected'] = $current_area;
 
-	// obExit will know what to do!
+	// Set the template for this area and add the profile layer.
 	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
 }
@@ -379,6 +389,7 @@ function MessageFolder()
 	$context['from_or_to'] = $context['folder'] != 'sent' ? 'from' : 'to';
 	$context['get_pmessage'] = 'prepareMessageContext';
 	$context['signature_enabled'] = substr($modSettings['signature_settings'], 0, 1) == 1;
+	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 
 	$labelQuery = $context['folder'] != 'sent' ? '
 			AND FIND_IN_SET(' . $context['current_label_id'] . ', pmr.labels) != 0' : '';
@@ -841,6 +852,18 @@ function MessageFolder()
 		// Otherwise do just the current one!
 		elseif (!empty($context['current_pm']))
 			markMessages($display_pms, $context['current_label_id']);
+	}
+
+	// Build the conversation button array.
+	if ($context['display_mode'] == 2)
+	{
+		$context['conversation_buttons'] = array(
+			'reply' => array('text' => 'reply_to_all', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $context['current_pm'] . ';u=all', 'active' => true),
+			'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_message']) . '?\');"'),
+		);
+
+		// Allow mods to add additional buttons here
+		call_integration_hook('integrate_conversation_buttons');
 	}
 }
 
@@ -1758,6 +1781,18 @@ function MessagePost()
 
 	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
 
+	// Are PM drafts enabled?
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+
+	// Generate a list of drafts that they can load in to the editor
+	if (!empty($context['drafts_pm_save']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		$pm_seed = isset($_REQUEST['pmsg']) ? $_REQUEST['pmsg'] : (isset($_REQUEST['quote']) ? $_REQUEST['quote'] : 0);
+		ShowDrafts($user_info['id'], $pm_seed, 1);
+	}
+
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
 
@@ -1791,6 +1826,28 @@ function MessagePost()
 
 	// Register this form and get a sequence number in $context.
 	checkSubmitOnce('register');
+}
+
+/**
+ * This function allows the user to view their PM drafts
+ */
+function MessageDrafts()
+{
+	global $context, $sourcedir, $user_info, $modSettings;
+
+	// Set draft capability
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+
+	// validate with loadMemberData()
+	$memberResult = loadMemberData($user_info['id'], false);
+	if (!is_array($memberResult))
+		fatal_lang_error('not_a_user', false);
+	list ($memID) = $memberResult;
+
+	// drafts is where the functions reside
+	require_once($sourcedir . '/Drafts.php');
+	showPMDrafts($memID);
 }
 
 /**
@@ -1909,9 +1966,9 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	// Set each of the errors for the template.
 	loadLanguage('Errors');
-	
+
 	$context['error_type'] = 'minor';
-	
+
 	$context['post_error'] = array(
 		'messages' => array(),
 		// @todo error handling: maybe fatal errors can be error_type => serious
@@ -1927,11 +1984,15 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 				$txt['error_' . $error_type] = sprintf($txt['error_' . $error_type], $modSettings['max_messageLength']);
 			$context['post_error']['messages'][] = $txt['error_' . $error_type];
 		}
-		
+
 		// If it's not a minor error flag it as such.
 		if (!in_array($error_type, array('new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject')))
 			$context['error_type'] = 'serious';
 	}
+
+	// Need to reset draft capability once again
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
 
 	// We need to load the editor once more.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -2017,19 +2078,6 @@ function MessagePost2()
 			else
 				$post_errors[] = 'pm_too_many_per_hour';
 		}
-	}
-
-	// If we came from WYSIWYG then turn it back into BBC regardless.
-	if (!empty($_POST['message_mode']) && isset($_POST['message']))
-	{
-		require_once($sourcedir . '/Subs-Editor.php');
-		$_POST['message'] = html_to_bbc($_POST['message']);
-
-		// We need to unhtml it now as it gets done shortly.
-		$_POST['message'] = un_htmlspecialchars($_POST['message']);
-
-		// We need this in case of errors etc.
-		$_REQUEST['message'] = $_POST['message'];
 	}
 
 	// If your session timed out, show an error, but do allow to re-submit.
@@ -2162,9 +2210,7 @@ function MessagePost2()
 		$context['require_verification'] = create_control_verification($verificationOptions, true);
 
 		if (is_array($context['require_verification']))
-		{
 			$post_errors = array_merge($post_errors, $context['require_verification']);
-		}
 	}
 
 	// If they did, give a chance to make ammends.
@@ -2205,6 +2251,14 @@ function MessagePost2()
 		}
 
 		return messagePostError(array(), $namedRecipientList, $recipientList);
+	}
+
+	// Want to save this as a draft and think about it some more?
+	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && isset($_POST['save_draft']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		SavePMDraft($post_errors, $recipientList);
+		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 	}
 
 	// Before we send the PM, let's make sure we don't have an abuse of numbers.

@@ -214,6 +214,9 @@ function Vote()
 		smf_setcookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000, $cookie_url[1], $cookie_url[0], false, false);
 	}
 
+	// Maybe let a social networking mod log this, or something?
+	call_integration_hook('integrate_poll_vote', array(&$row['id_poll'], &$pollOptions));
+
 	// Return to the post...
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
@@ -880,6 +883,8 @@ function EditPoll2()
 		);
 	}
 
+	call_integration_hook('integrate_poll_add_edit', array($bcinfo['id_poll'], $isEdit));
+
 	// Off we go.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
@@ -971,6 +976,9 @@ function RemovePoll()
 			'no_poll' => 0,
 		)
 	);
+
+	// A mod might have logged this (social network?), so let them remove, it too
+	call_integration_hook('integrate_poll_remove', array(&$pollID));
 
 	// Take the moderator back to the topic.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);

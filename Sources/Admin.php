@@ -30,7 +30,7 @@ function AdminMain()
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin', 'admin');
-	loadJavascriptFile('scripts/admin.js?alp21', array('default_theme' => true));
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
@@ -227,6 +227,14 @@ function AdminMain()
 						'topics' => array($txt['manageposts_topic_settings']),
 					),
 				),
+				'managedrafts' => array(
+					'label' => $txt['manage_drafts'],
+					'file' => 'Drafts.php',
+					'function' => 'ModifyDraftSettings',
+					'icon' => 'logs.png',
+					'permission' => array('admin_forum'),
+					'enabled' => in_array('dr', $context['admin_features']),
+				),
 				'managecalendar' => array(
 					'label' => $txt['manage_calendar'],
 					'file' => 'ManageCalendar.php',
@@ -276,6 +284,7 @@ function AdminMain()
 						'browse' => array($txt['attachment_manager_browse']),
 						'attachments' => array($txt['attachment_manager_settings']),
 						'avatars' => array($txt['attachment_manager_avatar_settings']),
+						'attachpaths' => array($txt['attach_directories']),
 						'maintenance' => array($txt['attachment_manager_maintenance']),
 					),
 				),
@@ -866,7 +875,6 @@ function AdminSearchMember()
 
 /**
  * This file allows the user to search the SM online manual for a little of help.
- * @todo wiki search
  */
 function AdminSearchOM()
 {
@@ -996,7 +1004,7 @@ function AdminEndSession()
 		if (strpos($key, '-admin') !== false)
 			unset($_SESSION['token'][$key]);
 
-	redirectexit('?action=admin');
+	redirectexit('action=admin');
 }
 
 ?>
