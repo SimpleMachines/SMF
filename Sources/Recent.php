@@ -246,14 +246,18 @@ function RecentPosts()
 				SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-				WHERE ' . $query_this_board . '
-					AND m.approved = {int:is_approved}
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+				WHERE ' . $query_this_board . ($modSettings['postmod_active'] ? '
+				AND (m.approved = {int:is_approved}
+					AND t.approved = {int:is_approved}
+					OR {raw:boards_moderated})' : '') . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
 					'is_approved' => 1,
 					'offset' => $_REQUEST['start'],
 					'limit' => 10,
+					'boards_moderated' => !empty($user_info['mod_cache']['mq']) ? $user_info['mod_cache']['mq'] : '0=1',
 				))
 			);
 			// If we don't have 10 results, try again with an unoptimized version covering all rows, and cache the result.
