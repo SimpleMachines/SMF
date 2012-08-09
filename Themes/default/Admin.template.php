@@ -733,7 +733,7 @@ function template_show_settings()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $context['settings_title'], ' - Bar 1
+					', $context['settings_title'], '
 				</h3>
 			</div>';
 
@@ -766,7 +766,7 @@ function template_show_settings()
 					<div class="cat_bar">
 						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
 							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
-							', $config_var['label'], ' - Bar 2
+							', $config_var['label'], '
 						</h3>
 					</div>';
 			}
