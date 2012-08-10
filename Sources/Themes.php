@@ -121,6 +121,7 @@ function ThemeAdmin()
 	if (!isset($_POST['save']))
 	{
 		loadTemplate('Themes');
+		$context['sub_template'] = 'theme_admin';
 
 		// Make our known themes a little easier to work with.
 		$knownThemes = !empty($modSettings['knownThemes']) ? explode(',',$modSettings['knownThemes']) : array();
@@ -1289,8 +1290,6 @@ function ThemeInstall()
 {
 	global $sourcedir, $boarddir, $boardurl, $txt, $context, $settings, $modSettings, $smcFunc;
 
-	checkSession('request');
-
 	isAllowedTo('admin_forum');
 	checkSession('request');
 
@@ -1318,15 +1317,12 @@ function ThemeInstall()
 
 		$context['sub_template'] = 'installed';
 		$context['page_title'] = $txt['theme_installed'];
-		$context['installed_theme'] = array(
-			'id' => (int) $_GET['theme_id'],
-			'name' => $theme_name,
-		);
+		$context['theme_installed_message'] = sprintf($txt['theme_installed_message'], '<a href="', $scripturl, '?action=admin;area=theme;sa=list;th=', (int) $_GET['theme_id'], ';', $context['session_var'], '=', $context['session_id'], '">', $theme_name, '</a>');
 
 		return;
 	}
 
-	if ((!empty($_FILES['theme_gz']) && (!isset($_FILES['theme_gz']['error']) || $_FILES['theme_gz']['error'] != 4)) || !empty($_REQUEST['theme_gz']))
+	if ((!empty($_FILES['package']) && (!isset($_FILES['package']['error']) || $_FILES['package']['error'] != 4)) || !empty($_REQUEST['theme_gz']))
 		$method = 'upload';
 	elseif (isset($_REQUEST['theme_dir']) && rtrim(realpath($_REQUEST['theme_dir']), '/\\') != realpath($boarddir . '/Themes') && file_exists($_REQUEST['theme_dir']))
 		$method = 'path';
@@ -1436,16 +1432,16 @@ function ThemeInstall()
 			fatal_lang_error('theme_install_write_error', 'critical');
 
 		// This happens when the admin session is gone and the user has to login again
-		if (empty($_FILES['theme_gz']) && empty($_REQUEST['theme_gz']))
+		if (empty($_FILES['package']) && empty($_REQUEST['theme_gz']))
 			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 
 		// Set the default settings...
-		$theme_name = strtok(basename(isset($_FILES['theme_gz']) ? $_FILES['theme_gz']['name'] : $_REQUEST['theme_gz']), '.');
+		$theme_name = strtok(basename(isset($_FILES['package']) ? $_FILES['package']['name'] : $_REQUEST['theme_gz']), '.');
 		$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
 		$theme_dir = $boarddir . '/Themes/' . $theme_name;
 
-		if (isset($_FILES['theme_gz']) && is_uploaded_file($_FILES['theme_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['theme_gz']['tmp_name'])))
-			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $boarddir . '/Themes/' . $theme_name, false, true);
+		if (isset($_FILES['package']) && is_uploaded_file($_FILES['package']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['package']['tmp_name'])))
+			$extracted = read_tgz_file($_FILES['package']['tmp_name'], $boarddir . '/Themes/' . $theme_name, false, true);
 		elseif (isset($_REQUEST['theme_gz']))
 		{
 			// Check that the theme is from simplemachines.org, for now... maybe add mirroring later.
