@@ -596,7 +596,7 @@ function Credits($in_admin = false)
 						// Lead Customizer
 						'Gary M. Gadsdon',
 						// Customizers
-						'Jessica Gonz&aacute;les',
+						'Jessica Gonz&aacute;lez',
 						'Kays',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Ricky.',
