@@ -549,7 +549,7 @@ function Credits($in_admin = false)
 						'Brad &quot;IchBin&trade;&quot; Grow',
 						'emanuele',
 						'Norv',
-						'Spuds',
+						// 'Spuds', // Doesn't want to be listed here
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
@@ -609,10 +609,10 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'Joshua &quot;groundup&quot; Dickerson',
-						// Doc Writers
 						'AngelinaBelle',
+						// Doc Writers
 						'Graeme Spence',
+						'Joshua &quot;groundup&quot; Dickerson',
 					),
 				),
 				array(
