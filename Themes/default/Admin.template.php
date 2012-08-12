@@ -733,7 +733,7 @@ function template_show_settings()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $context['settings_title'], ' - Bar 1
+					', $context['settings_title'], '
 				</h3>
 			</div>';
 
