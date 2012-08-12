@@ -107,8 +107,7 @@ $txt['karmaLabel'] = 'Karma label';
 $txt['karmaApplaudLabel'] = 'Karma applaud label';
 $txt['karmaSmiteLabel'] = 'Karma smite label';
 
-$txt['caching_information'] = '<div class="aligncenter underline"><strong>Important! Read this first before enabling these features.</strong></div>
-SMF supports caching through the use of accelerators. The currently supported accelerators include:
+$txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
 	<li>APC</li>
 	<li>eAccelerator</li>
