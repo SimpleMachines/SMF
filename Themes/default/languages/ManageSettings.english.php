@@ -65,7 +65,7 @@ $txt['autoOptMaxOnline'] = 'Maximum users online when optimizing';
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
 $txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
-$txt['jquery_source'] = 'Source for the Jquery Library';
+$txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
@@ -107,8 +107,7 @@ $txt['karmaLabel'] = 'Karma label';
 $txt['karmaApplaudLabel'] = 'Karma applaud label';
 $txt['karmaSmiteLabel'] = 'Karma smite label';
 
-$txt['caching_information'] = '<div class="aligncenter underline"><strong>Important! Read this first before enabling these features.</strong></div>
-SMF supports caching through the use of accelerators. The currently supported accelerators include:
+$txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
 	<li>APC</li>
 	<li>eAccelerator</li>
