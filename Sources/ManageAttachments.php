@@ -359,7 +359,7 @@ function BrowseFiles()
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'file_list',
-		'title' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ( $context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments'))],
+		'title' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ($context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments'))],
 		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
