@@ -143,7 +143,7 @@ function template_modifyset()
 		echo '
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['smiley_sets_save'], '" class="button_submit" />
+					<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
 			</div>

@@ -606,6 +606,10 @@ function showAttachments($memID)
 					'db' => 'posted',
 					'timeformat' => true,
 				),
+				'sort' => array(
+					'default' => 'm.poster_time',
+					'reverse' => 'm.poster_time DESC',
+				),
 			),
 		),
 	);

@@ -385,8 +385,7 @@ function DeleteDraft($id_draft, $check = true)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}user_drafts
 		WHERE id_draft IN ({array_int:id_draft})' . ($check ? '
-			AND  id_member = {int:id_member}' : '') . '
-		LIMIT 1',
+			AND  id_member = {int:id_member}' : ''),
 		array (
 			'id_draft' => $id_draft,
 			'id_member' => empty($user_info['id']) ? -1 : $user_info['id'],
@@ -848,24 +847,14 @@ function ModifyDraftSettings($return_config = false)
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managedrafts');
 	}
-
+	
 	// some javascript to enable / disable the frequency input box
 	$context['settings_post_javascript'] = '
 		var autosave = document.getElementById(\'drafts_autosave_enabled\');
-		mod_addEvent(autosave, \'change\', toggle);
+		createEventListener(autosave)
+		autosave.addEventListener(\'change\', toggle);
 		toggle();
 
-		function mod_addEvent(control, ev, fn)
-		{
-			if (control.addEventListener)
-			{
-				control.addEventListener(ev, fn, false);
-			}
-			else if (control.attachEvent)
-			{
-				control.attachEvent(\'on\'+ev, fn);
-			}
-		}
 		function toggle()
 		{
 			var select_elem = document.getElementById(\'drafts_autosave_frequency\');
