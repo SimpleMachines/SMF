@@ -193,7 +193,7 @@ function InMaintenance()
  *
  * @param string $type = 'admin'
  */
-function adminLogin($type = 'admin', $additionalToken = false)
+function adminLogin($type = 'admin')
 {
 	global $context, $scripturl, $txt, $user_info, $user_settings;
 
@@ -229,9 +229,6 @@ function adminLogin($type = 'admin', $additionalToken = false)
 	$_POST[$context['session_var']] = $context['session_id'];
 	foreach ($_POST as $k => $v)
 		$context['post_data'] .= adminLogin_outputPostVars($k, $v);
-
-	if (!empty($additionalToken))
-		$context['post_data'] .= adminLogin_outputPostVars($context[$additionalToken . '_token_var'], $context[$additionalToken . '_token']);
 
 	// Now we'll use the admin_login sub template of the Login template.
 	$context['sub_template'] = 'admin_login';
