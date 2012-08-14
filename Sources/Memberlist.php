@@ -501,6 +501,10 @@ function MLSearch()
 		else
 			$condition = '';
 
+		if ($smcFunc['db_case_sensitive'])
+			foreach ($fields as $key => $field)
+				$fields[$key] = 'LOWER(' . $field . ')';
+
 		$customJoin = array();
 		$customCount = 10;
 
@@ -516,7 +520,7 @@ function MLSearch()
 			}
 		}
 
-		$query = $_POST['search'] == '' ? '= {string:blank_string}' : 'LIKE {string:search}';
+		$query = $_POST['search'] == '' ? '= {string:blank_string}' : ($smcFunc['db_case_sensitive'] ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
