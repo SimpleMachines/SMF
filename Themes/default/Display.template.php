@@ -807,10 +807,10 @@ function template_main()
 	if ($context['show_spellchecking'])
 		echo '
 			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value="" /></form>
-				<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js"></script>';
+				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>';
 
 	echo '
-				<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/topic.js"></script>
+				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 				<script type="text/javascript"><!-- // --><![CDATA[';
 
 	if (!empty($options['display_quick_reply']))
