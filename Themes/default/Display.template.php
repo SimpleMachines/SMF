@@ -796,8 +796,8 @@ function template_main()
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
 					sLastNote: \'draft_lastautosave\',
-					sLastID: \'id_draft\',
-					sSceditorID: \'', $context['post_box_name']. '\',
+					sLastID: \'id_draft\',', !empty($context['post_box_name']) ? '
+					sSceditorID: \'' . $context['post_box_name'] . '\',' : '', '
 					sType: \'', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'quick' : 'quick', '\',
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
@@ -877,7 +877,8 @@ function template_main()
 							sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 							sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 							sTemplateTopSubject: ', JavaScriptEscape($txt['topic'] . ': %subject% &nbsp;(' . $txt['read'] . ' ' . $context['num_views'] . ' ' . $txt['times'] . ')'), ',
-							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), '
+							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply'] && !empty($options['display_quick_reply'])) ? ',
+							sFormRemoveAccessKeys: \'postmodify\'' : '', '
 						});
 
 						aJumpTo[aJumpTo.length] = new JumpTo({
