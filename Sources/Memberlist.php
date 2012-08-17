@@ -406,6 +406,9 @@ function MLSearch()
 {
 	global $txt, $scripturl, $context, $user_info, $modSettings, $smcFunc;
 
+	$context['page_title'] = $txt['mlist_search'];
+	$context['can_moderate_forum'] = allowedTo('moderate_forum');
+
 	// Can they search custom fields?
 	$request = $smcFunc['db_query']('', '
 		SELECT col_name, field_name, field_desc
@@ -464,8 +467,6 @@ function MLSearch()
 		}
 
 		// set up some things for use in the template
-		$context['page_title'] = $txt['mlist_search'];
-		$context['can_moderate_forum'] = allowedTo('moderate_forum');
 		$context['sort_direction'] = !isset($_REQUEST['desc']) ? 'up' : 'down';
 		$context['sort_by'] = $_REQUEST['sort'];
 
@@ -500,6 +501,10 @@ function MLSearch()
 		else
 			$condition = '';
 
+		if ($smcFunc['db_case_sensitive'])
+			foreach ($fields as $key => $field)
+				$fields[$key] = 'LOWER(' . $field . ')';
+
 		$customJoin = array();
 		$customCount = 10;
 
@@ -515,7 +520,7 @@ function MLSearch()
 			}
 		}
 
-		$query = $_POST['search'] == '' ? '= {string:blank_string}' : 'LIKE {string:search}';
+		$query = $_POST['search'] == '' ? '= {string:blank_string}' : ($smcFunc['db_case_sensitive'] ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)

@@ -1254,7 +1254,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 			mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
-		WHERE ' . $where . '
+		WHERE ' . ($where == '1' ? '1=1' : $where) . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:per_page}',
 		array_merge($where_params, array(
