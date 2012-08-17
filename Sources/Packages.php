@@ -645,7 +645,12 @@ function PackageInstallTest()
 		if (empty($thisAction))
 			continue;
 
-		if (isset($action['filename']) && !file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
+		if ($context['uninstalling'])
+			$file = in_array($action['type'], array('remove-dir', 'remove-file')) ? $action['filename'] : $boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename'];
+		else
+			$file =  $boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename'];
+
+		if (isset($action['filename']) && !file_exists($file))
 		{
 			$context['has_failure'] = true;
 
