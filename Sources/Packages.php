@@ -1556,7 +1556,6 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 		$sort_id = 1;
 		foreach ($instmods as $installed_mod)
 		{
-			$packages['modification'][] = $installed_mod['package_id'];
 			$context['available_modification'][$installed_mod['package_id']] = array(
 				'sort_id' => $sort_id++,
 				'can_uninstall' => true,
@@ -1568,14 +1567,6 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				'is_current' => true,
 			);
 		}
-		if (isset($_GET['type']) && $_GET['type'] == $params)
-		{
-			if (isset($_GET['desc']))
-				krsort($packages['modification']);
-			else
-				ksort($packages['modification']);
-		}
-		return $packages['modification'];
 	}
 
 	if (empty($packages))
@@ -1722,8 +1713,16 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				{
 					$sort_id['modification']++;
 					$sort_id['mod']++;
-					$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_modification'][md5($package)] = $packageInfo;
+					if ($installed)
+					{
+						$packages['modification'][strtolower($packageInfo[$sort])] = $packageInfo['id'];
+						$context['available_modification'][$packageInfo['id']] = array_merge($context['available_modification'][$packageInfo['id']], $packageInfo);
+					}
+					else
+					{
+						$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
+						$context['available_modification'][md5($package)] = $packageInfo;
+					}
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')
