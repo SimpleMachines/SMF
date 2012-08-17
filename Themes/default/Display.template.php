@@ -551,9 +551,9 @@ function template_main()
 						<ul class="quickbuttons">';
 
 		// Maybe we can approve it, maybe we should?
-		if ($message['can_approve'] || $message['can_unapprove'])
+		if ($message['can_approve'])
 			echo '
-							<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="', $message['can_unapprove'] ? 'un' : '', 'approve_button">', $txt[($message['can_unapprove'] ? 'un' : '') . 'approve'], '</a></li>';
+							<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="approve_button">', $txt['approve'], '</a></li>';
 
 		// Can they reply? Have they turned on quick reply?
 		if ($context['can_quote'] && !empty($options['display_quick_reply']))
@@ -597,6 +597,11 @@ function template_main()
 				if ($context['can_restore_msg'])
 					echo '
 									<li><a href="', $scripturl, '?action=restoretopic;msgs=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="restore_button">', $txt['restore_message'], '</a></li>';
+
+				// Maybe we can unapprove it?
+				if ($message['can_unapprove'])
+					echo '
+									<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="unapprove_button">', $txt['unapprove'], '</a></li>';
 
 			echo '
 								</ul>
