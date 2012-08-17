@@ -1382,7 +1382,7 @@ function PackageBrowse()
 				'function' => 'list_getPackages',
 				'params' => array('type' => $type, 'installed' => $installed),
 			),
-			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
+			'base_href' => $scripturl . '?action=admin;area=packages;sa=' . $context['sub_action'] . ';type=' . $type,
 			'default_sort_col' => 'id' . $type,
 			'columns' => array(
 				'id' . $type => array(
@@ -1396,11 +1396,6 @@ function PackageBrowse()
 
 							if (isset($context[\'available_' . $type . '\'][$package_md5]))
 								return $context[\'available_' . $type . '\'][$package_md5][\'sort_id\'];
-							return $context[\'sort_id\'];
-							if (empty($packageCounter))
-								$packageCounter = 1;
-
-							return $packageCounter++ . \'.\';
 						'),
 					),
 					'sort' => array(
@@ -1418,8 +1413,8 @@ function PackageBrowse()
 							global $context;
 
 							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];'
-						),
+								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];
+						'),
 					),
 					'sort' => array(
 						'default' => 'name',
@@ -1436,8 +1431,8 @@ function PackageBrowse()
 							global $context;
 
 							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];'
-						),
+								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];
+						'),
 					),
 					'sort' => array(
 						'default' => 'version',
@@ -1477,8 +1472,8 @@ function PackageBrowse()
 
 							return $return . \'
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=list;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'list_files\'] . \' ]</a>
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';'
-							),
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';
+						'),
 						'style' => 'text-align: right;',
 					),
 				),
@@ -1554,10 +1549,12 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 
 	if ($installed)
 	{
+		$sort_id = 1;
 		foreach ($instmods as $installed_mod)
 		{
 			$packages['modification'][] = $installed_mod['package_id'];
 			$context['available_modification'][$installed_mod['package_id']] = array(
+				'sort_id' => $sort_id++,
 				'can_uninstall' => true,
 				'name' => $installed_mod['name'],
 				'filename' => $installed_mod['filename'],
@@ -1566,6 +1563,13 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				'is_installed' => true,
 				'is_current' => true,
 			);
+		}
+		if (isset($_GET['type']) && $_GET['type'] == $params)
+		{
+			if (isset($_GET['desc']))
+				krsort($packages['modification']);
+			else
+				ksort($packages['modification']);
 		}
 		return $packages['modification'];
 	}
