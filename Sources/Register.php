@@ -522,7 +522,11 @@ function Register2($verifiedOpenID = false)
  */
 function Activate()
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $language;
+	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $language, $user_info;
+
+	// Logged in users should not bother to activate their accounts
+	if (!empty($user_info['id']))
+		redirectexit();
 
 	loadLanguage('Login');
 	loadTemplate('Login');

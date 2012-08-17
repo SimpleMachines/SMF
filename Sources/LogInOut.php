@@ -28,7 +28,11 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl;
+	global $txt, $context, $scripturl, $user_info;
+
+	// You are already logged in, go take a tour of the boards
+	if (!empty($user_info['id']))
+		redirectexit();
 
 	// In wireless?  If so, use the correct sub template.
 	if (WIRELESS)
