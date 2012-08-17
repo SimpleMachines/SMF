@@ -1517,7 +1517,11 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 	$the_version = strtr($forum_version, array('SMF ' => ''));
 
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
-	if (isset($_GET['version_emulate']))
+	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('SMF ' => '')) == $the_version)
+	{
+		unset($_SESSION['version_emulate']);
+	}
+	elseif (isset($_GET['version_emulate']))
 	{
 		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === $forum_version) && isset($_SESSION['version_emulate']))
 			unset($_SESSION['version_emulate']);
