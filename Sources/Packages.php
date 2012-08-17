@@ -1364,10 +1364,10 @@ function PackageBrowse()
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
-	$context['forum_version'] = $forum_version;
-	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
-
 	$installed = $context['sub_action'] == 'installed' ? true : false;
+
+	$context['forum_version'] = $forum_version;
+	$context['modification_types'] = $installed ? array('modification') : array('modification', 'avatar', 'language', 'unknown');
 
 	require_once($sourcedir . '/Subs-List.php');
 
