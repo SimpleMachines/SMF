@@ -916,25 +916,36 @@ function modifyEvent($event_id, &$eventOptions)
 	if (!isset($eventOptions['end_date']))
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
+	$event_columns = array(
+		'start_date' = '{date:start_date}',
+		'end_date' = '{date:end_date}',
+		'title' = 'SUBSTRING({string:title}, 1, 60)',
+		'id_board' = '{int:id_board}',
+		'id_topic' = '{int:id_topic}'
+	);
+	$event_parameters = array(
+		'start_date' => $eventOptions['start_date'],
+		'end_date' => $eventOptions['end_date'],
+		'title' => $eventOptions['title'],
+		'id_board' => isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0,
+		'id_topic' => isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0,
+	);
 
-	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions));
+	// This is to prevent hooks to modify the id of the event
+	$real_event_id = $event_id;
+
+	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions, &$event_columns, &$event_parameters));
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}calendar
 		SET
-			start_date = {date:start_date},
-			end_date = {date:end_date},
-			title = SUBSTRING({string:title}, 1, 60),
-			id_board = {int:id_board},
-			id_topic = {int:id_topic}
+			' . implode(', ', $event_columns) . '
 		WHERE id_event = {int:id_event}',
-		array(
-			'start_date' => $eventOptions['start_date'],
-			'end_date' => $eventOptions['end_date'],
-			'title' => $eventOptions['title'],
-			'id_board' => isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0,
-			'id_topic' => isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0,
-			'id_event' => $event_id,
+		array_merge(
+			$event_parameters,
+			array(
+				'id_event' => $real_event_id
+			)
 		)
 	);
 

@@ -31,7 +31,7 @@ function modifyCategory($category_id, $catOptions)
 	$catUpdates = array();
 	$catParameters = array();
 
-	call_integration_hook('integrate_modify_category', array($category_id, &$catOptions));
+	call_integration_hook('integrate_pre_modify_category', array($category_id, &$catOptions));
 
 	// Wanna change the categories position?
 	if (isset($catOptions['move_after']))
@@ -92,6 +92,8 @@ function modifyCategory($category_id, $catOptions)
 		$catUpdates[] = 'can_collapse = {int:is_collapsible}';
 		$catParameters['is_collapsible'] = $catOptions['is_collapsible'] ? 1 : 0;
 	}
+
+	call_integration_hook('integrate_modify_category', array($category_id, &$catUpdates, &$catParameters));
 
 	// Do the updates (if any).
 	if (!empty($catUpdates))

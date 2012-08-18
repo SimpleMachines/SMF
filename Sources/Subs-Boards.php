@@ -483,7 +483,7 @@ function modifyBoard($board_id, &$boardOptions)
 	if (!isset($boards[$board_id]) || (isset($boardOptions['target_board']) && !isset($boards[$boardOptions['target_board']])) || (isset($boardOptions['target_category']) && !isset($cat_tree[$boardOptions['target_category']])))
 		fatal_lang_error('no_board');
 
-	call_integration_hook('integrate_modify_board', array($board_id, &$boardOptions));
+	call_integration_hook('integrate_pre_modify_board', array($board_id, &$boardOptions));
 
 	// All things that will be updated in the database will be in $boardUpdates.
 	$boardUpdates = array();
@@ -661,6 +661,8 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdates[] = 'num_posts = {int:num_posts}';
 		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
 	}
+
+	call_integration_hook('integrate_modify_board', array($board_id, &$boardUpdates, &$boardUpdateParameters));
 
 	// Do the updates (if any).
 	if (!empty($boardUpdates))
