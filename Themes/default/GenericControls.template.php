@@ -29,7 +29,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0" />
 		<script type="text/javascript"><!-- // --><![CDATA[
 			$(document).ready(function() {
-				', !empty($context['bbcodes_hanlders']) ? $context['bbcodes_hanlders'] : '', '
+				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
