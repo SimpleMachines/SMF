@@ -1846,7 +1846,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	);
 
 	// What if we want to do anything with posts?
-	call_integration_hook('integrate_create_post', array(&$message_columns, &$message_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+	call_integration_hook('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
 
 	// Insert the post.
 	$smcFunc['db_insert']('',
@@ -1889,7 +1889,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
 		);
 
-		call_integration_hook('integrate_before_create_topic', array(&$topic_columns, &$topic_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
 
 		$smcFunc['db_insert']('',
 			'{db_prefix}topics',

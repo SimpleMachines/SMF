@@ -869,24 +869,27 @@ function insertEvent(&$eventOptions)
 	$eventOptions['board'] = isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0;
 	$eventOptions['topic'] = isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0;
 
+	$event_columns = array(
+		'id_board' => 'int', 'id_topic' => 'int', 'title' => 'string-60', 'id_member' => 'int',
+		'start_date' => 'date', 'end_date' => 'date',
+	);
+	$event_parameters = array(
+		$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
+		$eventOptions['start_date'], $eventOptions['end_date'],
+	);
+
+	call_integration_hook('integrate_create_event', array(&$eventOptions, &$event_columns, &$event_parameters));
+
 	// Insert the event!
 	$smcFunc['db_insert']('',
 		'{db_prefix}calendar',
-		array(
-			'id_board' => 'int', 'id_topic' => 'int', 'title' => 'string-60', 'id_member' => 'int',
-			'start_date' => 'date', 'end_date' => 'date',
-		),
-		array(
-			$eventOptions['board'], $eventOptions['topic'], $eventOptions['title'], $eventOptions['member'],
-			$eventOptions['start_date'], $eventOptions['end_date'],
-		),
+		$event_columns,
+		$event_parameters,
 		array('id_event')
 	);
 
 	// Store the just inserted id_event for future reference.
 	$eventOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}calendar', 'id_event');
-
-	call_integration_hook('integrate_insert_event', array($eventOptions));
 
 	// Update the settings to show something calendarish was updated.
 	updateSettings(array(

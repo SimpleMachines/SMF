@@ -768,8 +768,6 @@ function createBoard($boardOptions)
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
 		trigger_error('createBoard(): Target board is not set', E_USER_ERROR);
 
-	call_integration_hook('integrate_create_board', array(&$boardOptions));
-
 	// Set every optional value to its default value.
 	$boardOptions += array(
 		'posts_count' => true,
@@ -782,18 +780,22 @@ function createBoard($boardOptions)
 		'inherit_permissions' => true,
 		'dont_log' => true,
 	);
+	$board_columns = array(
+		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
+		'member_groups' => 'string', 'redirect' => 'string',
+	);
+	$board_parameters = array(
+		$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
+		'-1,0', '',
+	);
+
+	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
 
 	// Insert a board, the settings are dealt with later.
 	$smcFunc['db_insert']('',
 		'{db_prefix}boards',
-		array(
-			'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
-			'member_groups' => 'string', 'redirect' => 'string',
-		),
-		array(
-			$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
-			'-1,0', '',
-		),
+		$board_columns,
+		$board_parameters,
 		array('id_board')
 	);
 	$board_id = $smcFunc['db_insert_id']('{db_prefix}boards', 'id_board');
