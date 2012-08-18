@@ -920,11 +920,11 @@ function modifyEvent($event_id, &$eventOptions)
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
 	$event_columns = array(
-		'start_date' = '{date:start_date}',
-		'end_date' = '{date:end_date}',
-		'title' = 'SUBSTRING({string:title}, 1, 60)',
-		'id_board' = '{int:id_board}',
-		'id_topic' = '{int:id_topic}'
+		'start_date' => '{date:start_date}',
+		'end_date' => '{date:end_date}',
+		'title' => 'SUBSTRING({string:title}, 1, 60)',
+		'id_board' => '{int:id_board}',
+		'id_topic' => '{int:id_topic}'
 	);
 	$event_parameters = array(
 		'start_date' => $eventOptions['start_date'],
