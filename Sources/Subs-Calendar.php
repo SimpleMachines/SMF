@@ -936,7 +936,6 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// This is to prevent hooks to modify the id of the event
 	$real_event_id = $event_id;
-
 	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions, &$event_columns, &$event_parameters));
 
 	$smcFunc['db_query']('', '
