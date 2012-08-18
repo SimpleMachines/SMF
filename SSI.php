@@ -1678,9 +1678,15 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		if (!empty($length) && $smcFunc['strlen']($row['body']) > $length)
 		{
 			$row['body'] = $smcFunc['substr']($row['body'], 0, $length);
+			$cutoff = false;
 
-			// The first space or line break. (<br />, etc.)
-			$cutoff = max(strrpos($row['body'], ' '), strrpos($row['body'], '<'));
+			$last_space = strrpos($row['body'], ' ');
+			$last_open = strrpos($row['body'], '<');
+			$last_close = strrpos($row['body'], '>');
+			if (empty($last_space) || ($last_space == $last_open + 3 && (empty($last_close) || (!empty($last_close) && $last_close < $last_open))) || $last_space < $last_open || $last_open == $length - 6)
+				$cutoff = $last_open;
+			elseif (empty($last_close) || $last_close < $last_open)
+				$cutoff = $last_space;
 
 			if ($cutoff !== false)
 				$row['body'] = $smcFunc['substr']($row['body'], 0, $cutoff);
