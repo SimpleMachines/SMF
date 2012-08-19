@@ -1720,7 +1720,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 					}
 					else
 					{
-						$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
+						$packages['modification'][strtolower($packageInfo[$sort]) . $sort_id['mod']] = md5($package);
 						$context['available_modification'][md5($package)] = $packageInfo;
 					}
 				}
