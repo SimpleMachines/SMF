@@ -53,7 +53,7 @@ $txt['membergroups_max_messages'] = 'Max personal messages';
 $txt['membergroups_max_messages_note'] = '0 = unlimited';
 $txt['membergroups_edit_save'] = 'Save';
 $txt['membergroups_delete'] = 'Delete';
-$txt['membergroups_confirm_delete'] = 'Are you sure you want to delete this group?!';
+$txt['membergroups_confirm_delete'] = 'Are you sure you want to delete this group?';
 
 $txt['membergroups_members_title'] = 'Viewing Group';
 $txt['membergroups_members_group_members'] = 'Group Members';

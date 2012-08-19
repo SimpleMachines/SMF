@@ -98,7 +98,7 @@ $txt['allowed_types'] = 'Allowed file types';
 $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';
 $txt['restricted_filename'] = 'That is a restricted filename. Please try a different filename.';
-$txt['topic_locked_no_reply'] = 'Warning: topic is currently/will be locked!<br />Only admins and moderators can reply.';
+$txt['topic_locked_no_reply'] = 'Warning! This topic is currently/will be locked<br />Only admins and moderators can reply.';
 $txt['awaiting_approval'] = 'Awaiting approval';
 $txt['attachment_requires_approval'] = 'Note that any files attached will not be displayed until approved by a moderator.';
 $txt['error_temp_attachments'] = 'There are attachments found, which you have attached before but not posted. These attachments are now attached to this post. If you do not want to include them in this post, you can remove them <a href="#postAttachment">here</a>.';
