@@ -880,7 +880,7 @@ function template_show_settings()
 										</li>';
 					}
 					echo '			</ul>
-								<input type="checkbox" id="select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
+								<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
 							</fieldset>';
 				}
 				// A simple message?

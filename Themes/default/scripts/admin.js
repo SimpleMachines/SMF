@@ -339,12 +339,13 @@ function addNewWord()
 
 function toggleBBCDisabled(section, disable)
 {
-	for (var i = 0; i < document.forms.bbcForm.length; i++)
+	elems = document.getElementById(section).getElementsByTagName('*');
+	for (var i = 0; i < elems.length; i++)
 	{
-		if (typeof(document.forms.bbcForm[i].name) == "undefined" || (document.forms.bbcForm[i].name.substr(0, 11) != "enabledTags") || (document.forms.bbcForm[i].name.indexOf(section) != 11))
+		if (typeof(elems[i].name) == "undefined" || (elems[i].name.substr((section.length + 1), (elems[i].name.length - 2 - (section.length + 1))) != "enabledTags") || (elems[i].name.indexOf(section) != 0))
 			continue;
 
-		document.forms.bbcForm[i].disabled = disable;
+		elems[i].disabled = disable;
 	}
 	document.getElementById("bbc_" + section + "_select_all").disabled = disable;
 }
