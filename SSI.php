@@ -147,6 +147,10 @@ loadPermissions();
 // Load the current or SSI theme. (just use $ssi_theme = id_theme;)
 loadTheme(isset($ssi_theme) ? (int) $ssi_theme : 0);
 
+// @todo: probably not the best place, but somewhere it should be set...
+if (!headers_sent())
+	header('Content-Type: text/html; charset=' . (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']));
+
 // Take care of any banning that needs to be done.
 if (isset($_REQUEST['ssi_ban']) || (isset($ssi_ban) && $ssi_ban === true))
 	is_not_banned();
