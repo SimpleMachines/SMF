@@ -76,6 +76,7 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_default' => true,
 		'utf8_required' => true,
+		'utf8_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			global $incontext, $txt;
 
@@ -944,9 +945,9 @@ function ForumSettings()
 		require(dirname(__FILE__) . '/Settings.php');
 
 		// UTF-8 requires a setting to override the language charset.
-		if (isset($_POST['utf8']) && !empty($databases[$db_type]['utf8_support']))
+		if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
 		{
-			if (version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
+			if (!empty($databases[$db_type]['utf8_version_check']) && version_compare($databases[$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', eval($databases[$db_type]['utf8_version_check'])), '>'))
 			{
 				$incontext['error'] = sprintf($txt['error_utf8_version'], $databases[$db_type]['utf8_version']);
 				return false;
@@ -1033,8 +1034,7 @@ function DatabasePopulation()
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
 
 	// If the UTF-8 setting was enabled, add it to the table definitions.
-	// @todo Very MySQL specific still
-	if ($db_type == 'mysql' && isset($_POST['utf8']) && !empty($databases[$db_type]['utf8_support']))
+	if (empty($databases[$db_type]['utf8_required']) && isset($_POST['utf8']) && !empty($databases[$db_type]['utf8_support']))
 		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1110,7 +1110,7 @@ function DatabasePopulation()
 	}
 
 	// Make sure UTF will be used globally.
-	if (isset($_POST['utf8']) && !empty($databases[$db_type]['utf8_support']))
+	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
 		$smcFunc['db_insert']('replace',
 			$db_prefix . 'settings',
 			array(
