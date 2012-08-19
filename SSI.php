@@ -301,9 +301,12 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 }
 
 // Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overriden.
-function ssi_fetchPosts($post_ids, $override_permissions = false, $output_method = 'echo')
+function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 {
 	global $user_info, $modSettings;
+
+	if (empty($post_ids))
+		return;
 
 	// Allow the user to request more than one - why not?
 	$post_ids = is_array($post_ids) ? $post_ids : array($post_ids);
@@ -323,7 +326,7 @@ function ssi_fetchPosts($post_ids, $override_permissions = false, $output_method
 }
 
 // This removes code duplication in other queries - don't call it direct unless you really know what you're up to.
-function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = '', $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false)
+function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
 	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc;
@@ -340,11 +343,15 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$user_info['is_guest'] ? '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = m.id_topic AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = m.id_board AND lmr.id_member = {int:current_member})' : '') . '
-		' . (empty($query_where) ? '' : 'WHERE ' . $query_where) . '
+		WHERE 1=1 ' . ($override_permissions ? '' : '
+			AND {query_wanna_see_board}') . ($modSettings['postmod_active'] ? '
+			AND m.approved = {int:is_approved}' : '') . '
+		' . (empty($query_where) ? '' : 'AND ' . $query_where) . '
 		ORDER BY ' . $query_order . '
 		' . ($query_limit == '' ? '' : 'LIMIT ' . $query_limit),
 		array_merge($query_where_params, array(
 			'current_member' => $user_info['id'],
+			'is_approved' => 1,
 		))
 	);
 	$posts = array();
@@ -796,8 +803,11 @@ function ssi_randomMember($random_type = '', $output_method = 'echo')
 }
 
 // Fetch a specific member.
-function ssi_fetchMember($member_ids, $output_method = 'echo')
+function ssi_fetchMember($member_ids = array(), $output_method = 'echo')
 {
+	if (empty($member_ids))
+		return;
+
 	// Can have more than one member if you really want...
 	$member_ids = is_array($member_ids) ? $member_ids : array($member_ids);
 
@@ -814,8 +824,11 @@ function ssi_fetchMember($member_ids, $output_method = 'echo')
 }
 
 // Get all members of a group.
-function ssi_fetchGroupMembers($group_id, $output_method = 'echo')
+function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 {
+	if ($group_id === null)
+		return;
+
 	$query_where = '
 		id_group = {int:id_group}
 		OR id_post_group = {int:id_group}
@@ -829,10 +842,13 @@ function ssi_fetchGroupMembers($group_id, $output_method = 'echo')
 }
 
 // Fetch some member data!
-function ssi_queryMembers($query_where, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
+function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
 	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc, $memberContext;
+
+	if ($query_where === null)
+		return;
 
 	// Fetch the members in question.
 	$request = $smcFunc['db_query']('', '
@@ -895,6 +911,9 @@ function ssi_queryMembers($query_where, $query_where_params = array(), $query_li
 function ssi_boardStats($output_method = 'echo')
 {
 	global $db_prefix, $txt, $scripturl, $modSettings, $smcFunc;
+
+	if (!allowedTo('view_stats'))
+		return;
 
 	$totals = array(
 		'members' => $modSettings['totalMembers'],
@@ -1483,7 +1502,7 @@ function ssi_todaysBirthdays($output_method = 'echo')
 {
 	global $scripturl, $modSettings, $user_info;
 
-	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view_any'))
 		return;
 
 	$eventOptions = array(
@@ -1557,7 +1576,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 		return;
 
 	$eventOptions = array(
-		'include_birthdays' => true,
+		'include_birthdays' => allowedTo('profile_view_any'),
 		'include_holidays' => true,
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
