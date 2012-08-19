@@ -1706,7 +1706,7 @@ function create_control_richedit($editorOptions)
 		}
 
 		$bbcodes_styles = '';
-		$context['bbcodes_hanlders'] = '';
+		$context['bbcodes_handlers'] = '';
 		$context['bbc_toolbar'] = array();
 		foreach ($context['bbc_tags'] as $row => $tagRow)
 		{
@@ -1727,7 +1727,7 @@ function create_control_richedit($editorOptions)
 			}';
 						if (isset($tag['before']))
 						{
-							$context['bbcodes_hanlders'] = '
+							$context['bbcodes_handlers'] = '
 				$.sceditor.setCommand(
 					' . javaScriptEscape($tag['code']) . ',
 					function () {

@@ -645,7 +645,12 @@ function PackageInstallTest()
 		if (empty($thisAction))
 			continue;
 
-		if (isset($action['filename']) && !file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
+		if ($context['uninstalling'])
+			$file = in_array($action['type'], array('remove-dir', 'remove-file')) ? $action['filename'] : $boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename'];
+		else
+			$file =  $boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename'];
+
+		if (isset($action['filename']) && !file_exists($file))
 		{
 			$context['has_failure'] = true;
 
@@ -1359,10 +1364,10 @@ function PackageBrowse()
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
-	$context['forum_version'] = $forum_version;
-	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
-
 	$installed = $context['sub_action'] == 'installed' ? true : false;
+
+	$context['forum_version'] = $forum_version;
+	$context['modification_types'] = $installed ? array('modification') : array('modification', 'avatar', 'language', 'unknown');
 
 	require_once($sourcedir . '/Subs-List.php');
 
@@ -1377,7 +1382,7 @@ function PackageBrowse()
 				'function' => 'list_getPackages',
 				'params' => array('type' => $type, 'installed' => $installed),
 			),
-			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
+			'base_href' => $scripturl . '?action=admin;area=packages;sa=' . $context['sub_action'] . ';type=' . $type,
 			'default_sort_col' => 'id' . $type,
 			'columns' => array(
 				'id' . $type => array(
@@ -1391,11 +1396,6 @@ function PackageBrowse()
 
 							if (isset($context[\'available_' . $type . '\'][$package_md5]))
 								return $context[\'available_' . $type . '\'][$package_md5][\'sort_id\'];
-							return $context[\'sort_id\'];
-							if (empty($packageCounter))
-								$packageCounter = 1;
-
-							return $packageCounter++ . \'.\';
 						'),
 					),
 					'sort' => array(
@@ -1413,8 +1413,8 @@ function PackageBrowse()
 							global $context;
 
 							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];'
-						),
+								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];
+						'),
 					),
 					'sort' => array(
 						'default' => 'name',
@@ -1431,8 +1431,8 @@ function PackageBrowse()
 							global $context;
 
 							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];'
-						),
+								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];
+						'),
 					),
 					'sort' => array(
 						'default' => 'version',
@@ -1472,8 +1472,8 @@ function PackageBrowse()
 
 							return $return . \'
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=list;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'list_files\'] . \' ]</a>
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';'
-							),
+									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';
+						'),
 						'style' => 'text-align: right;',
 					),
 				),
@@ -1517,7 +1517,11 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 	$the_version = strtr($forum_version, array('SMF ' => ''));
 
 	// Here we have a little code to help those who class themselves as something of gods, version emulation ;)
-	if (isset($_GET['version_emulate']))
+	if (isset($_GET['version_emulate']) && strtr($_GET['version_emulate'], array('SMF ' => '')) == $the_version)
+	{
+		unset($_SESSION['version_emulate']);
+	}
+	elseif (isset($_GET['version_emulate']))
 	{
 		if (($_GET['version_emulate'] === 0 || $_GET['version_emulate'] === $forum_version) && isset($_SESSION['version_emulate']))
 			unset($_SESSION['version_emulate']);
@@ -1549,10 +1553,11 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 
 	if ($installed)
 	{
+		$sort_id = 1;
 		foreach ($instmods as $installed_mod)
 		{
-			$packages['modification'][] = $installed_mod['package_id'];
 			$context['available_modification'][$installed_mod['package_id']] = array(
+				'sort_id' => $sort_id++,
 				'can_uninstall' => true,
 				'name' => $installed_mod['name'],
 				'filename' => $installed_mod['filename'],
@@ -1562,7 +1567,6 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				'is_current' => true,
 			);
 		}
-		return $packages['modification'];
 	}
 
 	if (empty($packages))
@@ -1709,8 +1713,16 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				{
 					$sort_id['modification']++;
 					$sort_id['mod']++;
-					$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_modification'][md5($package)] = $packageInfo;
+					if ($installed)
+					{
+						$packages['modification'][strtolower($packageInfo[$sort])] = $packageInfo['id'];
+						$context['available_modification'][$packageInfo['id']] = array_merge($context['available_modification'][$packageInfo['id']], $packageInfo);
+					}
+					else
+					{
+						$packages['modification'][strtolower($packageInfo[$sort])] = md5($package);
+						$context['available_modification'][md5($package)] = $packageInfo;
+					}
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')

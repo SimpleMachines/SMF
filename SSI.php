@@ -1451,6 +1451,9 @@ function ssi_quickSearch($output_method = 'echo')
 {
 	global $scripturl, $txt, $context;
 
+	if (!allowedTo('search_posts'))
+		return;
+
 	if ($output_method != 'echo')
 		return $scripturl . '?action=search';
 
@@ -1476,6 +1479,9 @@ function ssi_todaysBirthdays($output_method = 'echo')
 {
 	global $scripturl, $modSettings, $user_info;
 
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
+
 	$eventOptions = array(
 		'include_birthdays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
@@ -1495,6 +1501,9 @@ function ssi_todaysHolidays($output_method = 'echo')
 {
 	global $modSettings, $user_info;
 
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
+
 	$eventOptions = array(
 		'include_holidays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
@@ -1512,6 +1521,9 @@ function ssi_todaysHolidays($output_method = 'echo')
 function ssi_todaysEvents($output_method = 'echo')
 {
 	global $modSettings, $user_info;
+
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
 
 	$eventOptions = array(
 		'include_events' => true,
@@ -1536,6 +1548,9 @@ function ssi_todaysEvents($output_method = 'echo')
 function ssi_todaysCalendar($output_method = 'echo')
 {
 	global $modSettings, $txt, $scripturl, $user_info;
+
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
 
 	$eventOptions = array(
 		'include_birthdays' => true,
@@ -1637,11 +1652,13 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 
 	// Find the post ids.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_first_msg
-		FROM {db_prefix}topics
-		WHERE id_board = {int:current_board}' . ($modSettings['postmod_active'] ? '
-			AND approved = {int:is_approved}' : '') . '
-		ORDER BY id_first_msg DESC
+		SELECT t.id_first_msg
+		FROM {db_prefix}topics as t
+		LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
+		WHERE t.id_board = {int:current_board}' . ($modSettings['postmod_active'] ? '
+			AND t.approved = {int:is_approved}' : '') . '
+			AND {query_see_board}
+		ORDER BY t.id_first_msg DESC
 		LIMIT ' . $start . ', ' . $limit,
 		array(
 			'current_board' => $board,
@@ -1678,9 +1695,15 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		if (!empty($length) && $smcFunc['strlen']($row['body']) > $length)
 		{
 			$row['body'] = $smcFunc['substr']($row['body'], 0, $length);
+			$cutoff = false;
 
-			// The first space or line break. (<br />, etc.)
-			$cutoff = max(strrpos($row['body'], ' '), strrpos($row['body'], '<'));
+			$last_space = strrpos($row['body'], ' ');
+			$last_open = strrpos($row['body'], '<');
+			$last_close = strrpos($row['body'], '>');
+			if (empty($last_space) || ($last_space == $last_open + 3 && (empty($last_close) || (!empty($last_close) && $last_close < $last_open))) || $last_space < $last_open || $last_open == $length - 6)
+				$cutoff = $last_open;
+			elseif (empty($last_close) || $last_close < $last_open)
+				$cutoff = $last_space;
 
 			if ($cutoff !== false)
 				$row['body'] = $smcFunc['substr']($row['body'], 0, $cutoff);
@@ -1753,6 +1776,9 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 {
 	global $db_prefix, $user_info, $scripturl, $modSettings, $txt, $context, $smcFunc;
+
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
 
 	// Find all events which are happening in the near future that the member can see.
 	$request = $smcFunc['db_query']('', '
