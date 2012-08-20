@@ -103,7 +103,7 @@ This is due to the following reason: {REASON}
 	@description:
 */
 $txt['admin_approve_accept_subject'] = 'Welcome to {FORUMNAME}';
-$txt['admin_approve_accept_body'] = 'Welcome, {NAME}!
+$txt['admin_approve_accept_body'] = 'Welcome, {NAME}
 
 Your account has been activated manually by the admin and you can now login and post. Your username is: {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
@@ -486,7 +486,7 @@ The reporter has made the following comment:
 	@description:
 */
 $txt['change_password_subject'] = 'New Password Details';
-$txt['change_password_body'] = 'Hey, {USERNAME}!
+$txt['change_password_body'] = 'Dear, {USERNAME}
 
 Your login details at {FORUMNAME} have been changed and your password reset. Below are your new login details.
 
@@ -914,7 +914,7 @@ You can view this members profile by clicking the link below:
 	@description:
 */
 $txt['paid_subscription_error_subject'] = 'Paid Subscription Error Occurred';
-$txt['paid_subscription_error_body'] = '{REALNAME},
+$txt['paid_subscription_error_body'] = 'Dear, {REALNAME},
 
 The following error occurred when processing a paid subscription
 ---------------------------------------------------------------

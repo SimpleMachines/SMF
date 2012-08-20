@@ -130,7 +130,7 @@ $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
 $txt['group_perms_name_who_view'] = 'See who\'s online';
 
-$txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 members of staff!';
+$txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 staff members.';
 $txt['report_staff_position'] = 'Position';
 $txt['report_staff_moderates'] = 'Moderates';
 $txt['report_staff_posts'] = 'Posts';

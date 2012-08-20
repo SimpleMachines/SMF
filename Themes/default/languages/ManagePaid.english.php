@@ -129,7 +129,7 @@ $txt['year'] = 'Year';
 // View subscribed users.
 $txt['viewing_users_subscribed'] = 'Viewing Users';
 $txt['view_users_subscribed'] = 'Viewing users subscribed to: &quot;%1$s&quot;';
-$txt['no_subscribers'] = 'There are currently no subscribers to this subscription!';
+$txt['no_subscribers'] = 'There are currently no subscribers to this subscription.';
 $txt['add_subscriber'] = 'Add New Subscriber';
 $txt['edit_subscriber'] = 'Edit Subscriber';
 $txt['delete_selected'] = 'Delete Selected';
@@ -182,8 +182,8 @@ $txt['paid_all_freq_blank'] = 'You must enter a cost for at least one of the fou
 $txt['paid_no_data'] = 'No valid data was sent to the script.';
 
 $txt['paypal_could_not_connect'] = 'Could not connect to PayPal server';
-$txt['paid_sub_not_active'] = 'That subscription is not taking any new users!';
-$txt['paid_disabled'] = 'Paid subscriptions are currently disabled!';
+$txt['paid_sub_not_active'] = 'That subscription is not taking any new users.';
+$txt['paid_disabled'] = 'Paid subscriptions are currently disabled.';
 $txt['paid_unknown_transaction_type'] = 'Unknown Paid Subscriptions transaction type.';
 $txt['paid_empty_member'] = 'Paid subscription handler could not recover member ID';
 $txt['paid_could_not_find_member'] = 'Paid subscription handler could not find member with ID: %1$d';
@@ -196,7 +196,7 @@ $txt['paid_make_recurring'] = 'Make this a recurring payment';
 $txt['subscriptions'] = 'Subscriptions';
 $txt['subscription'] = 'Subscription';
 $txt['paid_subs_desc'] = 'Below is a list of all the subscriptions which are available on this forum.';
-$txt['paid_subs_none'] = 'There are currently no paid subscriptions available!';
+$txt['paid_subs_none'] = 'There are currently no paid subscriptions available.';
 
 $txt['paid_current'] = 'Existing Subscriptions';
 $txt['pending_payments'] = 'Pending Payments';

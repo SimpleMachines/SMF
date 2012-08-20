@@ -66,7 +66,7 @@ $txt['file_location'] = 'Location of file';
 $txt['package_installed_key'] = 'Installed mods:';
 $txt['package_installed_current'] = 'current version';
 $txt['package_installed_old'] = 'older version';
-$txt['package_installed_warning1'] = 'This package is already installed, and no upgrade was found!';
+$txt['package_installed_warning1'] = 'This package is already installed, and no upgrade was found.';
 $txt['package_installed_warning2'] = 'You should uninstall the old version first to avoid problems, or ask the author to create an upgrade from your old version.';
 $txt['package_installed_warning3'] = 'Please remember to always make regular backups of your sources and database before installing mods, especially beta versions.';
 $txt['package_installed_extract'] = 'Extracting Package';
@@ -86,7 +86,7 @@ $txt['package_install_type'] = 'Type';
 $txt['package_install_action'] = 'Action';
 $txt['package_install_desc'] = 'Description';
 $txt['install_actions'] = 'Install Actions';
-$txt['perform_actions'] = 'Installing this package will perform the following actions:';
+$txt['perform_actions'] = 'This will perform the following actions:';
 $txt['corrupt_compatible'] = 'The package you are trying to download or install is either corrupt or not compatible with this version of SMF.';
 $txt['package_create'] = 'Create';
 $txt['package_move'] = 'Move';
@@ -107,14 +107,14 @@ $txt['execute_credits_remove'] = 'Remove Credits';
 $txt['execute_credits_action'] = 'Credits: %1$s';
 
 $txt['package_install_actions'] = 'Installations actions for';
-$txt['package_will_fail_title'] = 'Error in Package Installation';
-$txt['package_will_fail_warning'] = 'At least one error was encountered during a test installation of this package.
-	It is <strong>strongly</strong> recommended that you do not continue with installation unless you know what you are doing, and have made a backup very recently.<br />
-	This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you don\'t have installed yet, or a package designed for another version of SMF.';
+$txt['package_will_fail_title'] = 'Error in package %1$s';
+$txt['package_will_fail_warning'] = 'At least one error was encountered during a test %1$s of this package.<br />It is <strong>strongly</strong> recommended that you do not continue with %1$s unless you know what you are doing, and have made a backup very recently.<br /><br />This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
 $txt['package_will_fail_unknown_action'] = 'The package is trying to perform an unknown action: %1$s';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
 $txt['package_will_fail_popup_uninstall'] = 'Are you sure you wish to continue uninstalling this modification, even though it will not uninstall successfully?';
+$txt['package_install'] = 'installation';
+$txt['package_uninstall'] = 'removal';
 $txt['package_install_now'] = 'Install Now';
 $txt['package_uninstall_now'] = 'Uninstall Now';
 $txt['package_other_themes'] = 'Install in Other Themes';
@@ -133,7 +133,7 @@ $txt['package_action_skipping'] = '<strong>Skipping file</strong>';
 
 $txt['package_uninstall_actions'] = 'Uninstall Actions';
 $txt['package_uninstall_done'] = 'The package has been successfully uninstalled.';
-$txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller!<br /><br />Please contact the mod author for more information.';
+$txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller.<br /><br />Please contact the mod author for more information.';
 
 $txt['package_install_options'] = 'Installation Options';
 $txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and ftp access';
