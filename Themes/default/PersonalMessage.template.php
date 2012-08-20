@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -471,7 +471,7 @@ function template_folder()
 					echo '
 					</select>
 					<noscript>
-						<input type="submit" value="', $txt['pm_apply'], '" class="button_submit" />
+						<input type="submit" value="', $txt['pm_apply'], '" class="button_submit" style="float: none" />
 					</noscript>';
 				}
 				echo '
@@ -627,7 +627,7 @@ function template_subject_list()
 			echo '
 				</select>
 				<noscript>
-					<input type="submit" value="', $txt['pm_apply'], '" class="button_submit" />
+					<input type="submit" value="', $txt['pm_apply'], '" class="button_submit" style="float: none" />
 				</noscript>';
 		}
 
@@ -747,7 +747,8 @@ function template_search()
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
 					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />
-				</p><br class="clear_right" />
+				</p>
+				<br class="clear_right" />
 			</div>
 		</fieldset>';
 
@@ -960,7 +961,8 @@ function template_send()
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=send2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'message\']);">
 		<div>
-			<div class="roundframe"><br class="clear" />';
+			<div class="roundframe">
+				<br class="clear" />';
 
 	// If there were errors for sending the PM, show them.
 	echo '
@@ -1249,7 +1251,8 @@ function template_send()
 			<div class="clear">
 				<span class="smalltext floatright">', $txt['on'], ': ', $context['quoted_message']['time'], '</span>
 				<strong>', $txt['from'], ': ', $context['quoted_message']['member']['name'], '</strong>
-			</div><hr />
+			</div>
+			<hr />
 			', $context['quoted_message']['body'], '
 		</div>
 	</div><br class="clear" />';
@@ -1899,35 +1902,6 @@ function template_showPMDrafts()
 	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
 	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
 
-	// For every draft to be displayed, give it its own div, and show the important details of the draft.
-	foreach ($context['drafts'] as $draft)
-	{
-		echo '
-		<div class="topic">
-			<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
-				<div class="content">
-					<div class="counter">', $draft['counter'], '</div>
-					<div class="topic_details">
-						<h5><strong>', $draft['subject'], '</strong>&nbsp;';
-
-		echo '
-						</h5>
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br />
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</span><br />
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</span>
-					</div>
-					<div class="list_posts">
-						', $draft['body'], '
-					</div>
-
-					<ul class="reset smalltext quickbuttons">
-						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
-						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
-					</ul>
-				</div>
-			</div>
-		</div>';
-	}
 
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
@@ -1935,6 +1909,37 @@ function template_showPMDrafts()
 		<div class="tborder windowbg2 padding centertext">
 			', $txt['draft_none'], '
 		</div>';
+	else
+	{
+		// For every draft to be displayed, give it its own div, and show the important details of the draft.
+		foreach ($context['drafts'] as $draft)
+		{
+			echo '
+			<div class="topic">
+				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+					<div class="content">
+						<div class="counter">', $draft['counter'], '</div>
+						<div class="topic_details">
+							<h5><strong>', $draft['subject'], '</strong>&nbsp;';
+
+			echo '
+							</h5>
+							<span class="smalltext">&#171;&nbsp;<strong>', $txt['draft_saved_on'], ':</strong> ', sprintf($txt['draft_days_ago'], $draft['age']), (!empty($draft['remaining']) ? ', ' . sprintf($txt['draft_retain'], $draft['remaining']) : ''), '&#187;</span><br />
+							<span class="smalltext">&#171;&nbsp;<strong>', $txt['to'], ':</strong> ', implode(', ', $draft['recipients']['to']), '&nbsp;&#187;</span><br />
+							<span class="smalltext">&#171;&nbsp;<strong>', $txt['pm_bcc'], ':</strong> ', implode(', ', $draft['recipients']['bcc']), '&nbsp;&#187;</span>
+						</div>
+						<div class="list_posts">
+							', $draft['body'], '
+						</div>
+						<ul class="reset smalltext quickbuttons">
+							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>';
+		}
+	}
 
 	// Show page numbers.
 	echo '

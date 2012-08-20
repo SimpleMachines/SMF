@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; Search
+// Version: 2.1; Search
 
 $txt['set_parameters'] = 'Set Search Parameters';
 $txt['choose_board'] = 'Choose a board to search in, or search all';
@@ -61,7 +61,7 @@ $txt['search_method_fulltext_remove'] = 'remove fulltext index';
 $txt['search_method_index_partial'] = 'partially created';
 $txt['search_index_custom_resume'] = 'resume';
 // This string is used in a javascript confirmation popup; don't use entities.
-$txt['search_method_fulltext_warning'] = 'In order to be able to use fulltext search, you\\\'ll have to create a fulltext index first!';
+$txt['search_method_fulltext_warning'] = 'In order to be able to use fulltext search, you\\\'ll have to create a fulltext index first.';
 
 $txt['search_index'] = 'Search index';
 $txt['search_index_none'] = 'No index';
@@ -92,7 +92,7 @@ $txt['search_predefined_large'] = 'Large sized index';
 $txt['search_create_index_continue'] = 'Continue';
 $txt['search_create_index_not_ready'] = 'SMF is currently creating a search index of your messages. To avoid overloading your server, the process has been temporarily paused. It should automatically continue in a few seconds. If it doesn\'t, please click continue below.';
 $txt['search_create_index_progress'] = 'Progress';
-$txt['search_create_index_done'] = 'Custom search index created!';
+$txt['search_create_index_done'] = 'Custom search index successfully created.';
 $txt['search_create_index_done_link'] = 'Continue';
 $txt['search_double_index'] = 'You have currently created two indexes on the messages table. For best performance it is advisable to remove one of the two indexes.';
 

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -423,7 +423,7 @@ function template_main()
 
 	// Javascript for inline editing.
 	echo '
-<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/topic.js"></script>
+<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 <script type="text/javascript"><!-- // --><![CDATA[
 
 	// Hide certain bits during topic edit.

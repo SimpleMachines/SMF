@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; ManageSettings
+// Version: 2.1; ManageSettings
 
 global $scripturl;
 
@@ -65,12 +65,12 @@ $txt['autoOptMaxOnline'] = 'Maximum users online when optimizing';
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
 $txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
-$txt['jquery_source'] = 'Source for the Jquery Library';
+$txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
 $txt['queryless_urls'] = 'Search engine friendly URLs';
-$txt['queryless_urls_note'] = 'Apache/Lighttpd only!';
+$txt['queryless_urls_note'] = 'Apache/Lighttpd only';
 $txt['enableReportPM'] = 'Enable reporting of personal messages';
 $txt['max_pm_recipients'] = 'Maximum number of recipients allowed in a personal message';
 $txt['max_pm_recipients_note'] = '(0 for no limit, admins are exempt)';
@@ -107,8 +107,7 @@ $txt['karmaLabel'] = 'Karma label';
 $txt['karmaApplaudLabel'] = 'Karma applaud label';
 $txt['karmaSmiteLabel'] = 'Karma smite label';
 
-$txt['caching_information'] = '<div class="aligncenter underline"><strong>Important! Read this first before enabling these features.</strong></div>
-SMF supports caching through the use of accelerators. The currently supported accelerators include:
+$txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
 	<li>APC</li>
 	<li>eAccelerator</li>
@@ -303,8 +302,8 @@ $txt['core_settings_item_dr'] = 'Drafts';
 $txt['core_settings_item_dr_desc'] = 'Enabling this feature will allow users to save drafts of their posts so they can return to them later to post them.';
 $txt['core_settings_item_cp'] = 'Advanced Profile Fields';
 $txt['core_settings_item_cp_desc'] = 'This enables you to hide standard profile fields, add profile fields to registration, and create new profile fields for your forum.';
-$txt['core_settings_item_ih'] = 'Integration Hooks Handling';
-$txt['core_settings_item_ih_desc'] = 'This feature allows you to enable or disable hooks. Since this could stop your forum to work properly use this function only if you know what you are doing';
+$txt['core_settings_item_ih'] = 'Integration Hooks Management';
+$txt['core_settings_item_ih_desc'] = 'This feature allows you to enable or disable any intergartion hooks added by modifications. Changing hooks can prevent your forum from working properly, so use this feature only if you know what you are doing.';
 $txt['core_settings_item_k'] = 'Karma';
 $txt['core_settings_item_k_desc'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can \'applaud\' or \'smite\' other members, which is how their popularity is calculated.';
 $txt['core_settings_item_ml'] = 'Moderation, Administration and User Logs';

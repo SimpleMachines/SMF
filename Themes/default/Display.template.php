@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -551,9 +551,9 @@ function template_main()
 						<ul class="quickbuttons">';
 
 		// Maybe we can approve it, maybe we should?
-		if ($message['can_approve'] || $message['can_unapprove'])
+		if ($message['can_approve'])
 			echo '
-							<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="', $message['can_unapprove'] ? 'un' : '', 'approve_button">', $txt[($message['can_unapprove'] ? 'un' : '') . 'approve'], '</a></li>';
+							<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="approve_button">', $txt['approve'], '</a></li>';
 
 		// Can they reply? Have they turned on quick reply?
 		if ($context['can_quote'] && !empty($options['display_quick_reply']))
@@ -597,6 +597,11 @@ function template_main()
 				if ($context['can_restore_msg'])
 					echo '
 									<li><a href="', $scripturl, '?action=restoretopic;msgs=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="restore_button">', $txt['restore_message'], '</a></li>';
+
+				// Maybe we can unapprove it?
+				if ($message['can_unapprove'])
+					echo '
+									<li><a href="', $scripturl, '?action=moderate;area=postmod;sa=approve;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"  class="unapprove_button">', $txt['unapprove'], '</a></li>';
 
 			echo '
 								</ul>
@@ -796,8 +801,8 @@ function template_main()
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
 					sLastNote: \'draft_lastautosave\',
-					sLastID: \'id_draft\',
-					sSceditorID: \'', $context['post_box_name']. '\',
+					sLastID: \'id_draft\',', !empty($context['post_box_name']) ? '
+					sSceditorID: \'' . $context['post_box_name'] . '\',' : '', '
 					sType: \'', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'quick' : 'quick', '\',
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
@@ -807,10 +812,10 @@ function template_main()
 	if ($context['show_spellchecking'])
 		echo '
 			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value="" /></form>
-				<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js"></script>';
+				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>';
 
 	echo '
-				<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/topic.js"></script>
+				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 				<script type="text/javascript"><!-- // --><![CDATA[';
 
 	if (!empty($options['display_quick_reply']))
@@ -877,7 +882,8 @@ function template_main()
 							sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 							sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
 							sTemplateTopSubject: ', JavaScriptEscape($txt['topic'] . ': %subject% &nbsp;(' . $txt['read'] . ' ' . $context['num_views'] . ' ' . $txt['times'] . ')'), ',
-							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), '
+							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply'] && !empty($options['display_quick_reply'])) ? ',
+							sFormRemoveAccessKeys: \'postmodify\'' : '', '
 						});
 
 						aJumpTo[aJumpTo.length] = new JumpTo({

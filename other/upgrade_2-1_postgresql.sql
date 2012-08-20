@@ -30,6 +30,20 @@ if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['pac
 ---}
 ---#
 
+---# Adding back proper support for UTF8
+---{
+global $sourcedir;
+require_once($sourcedir . '/Subs-Admin.php');
+updateSettingsFile(array('db_character_set' => 'utf8'));
+
+upgrade_query("
+	INSERT INTO {$db_prefix}settings
+		(variable, value)
+	VALUES
+		('global_character_set', 'UTF-8')");
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
@@ -252,22 +266,23 @@ upgrade_query("
 /******************************************************************************/
 ---# Creating drafts table.
 CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int unsigned NOT NULL auto_increment,
-  id_topic int unsigned NOT NULL default '0',
-  id_board smallint unsigned NOT NULL default '0',
-  id_reply int unsigned NOT NULL default '0',
-  type smallint NOT NULL default '0',
-  poster_time int unsigned NOT NULL default '0',
-  id_member int unsigned NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  smileys_enabled smallint NOT NULL default '1',
-  body text NOT NULL,
-  icon varchar(16) NOT NULL default 'xx',
-  locked smallint NOT NULL default '0',
-  is_sticky smallint NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
-  outbox smallint NOT NULL default '0',
-  PRIMARY KEY (id_draft)
+	id_draft int unsigned NOT NULL auto_increment,
+	id_topic int unsigned NOT NULL default '0',
+	id_board smallint unsigned NOT NULL default '0',
+	id_reply int unsigned NOT NULL default '0',
+	type smallint NOT NULL default '0',
+	poster_time int unsigned NOT NULL default '0',
+	id_member int unsigned NOT NULL default '0',
+	subject varchar(255) NOT NULL default '',
+	smileys_enabled smallint NOT NULL default '1',
+	body text NOT NULL,
+	icon varchar(16) NOT NULL default 'xx',
+	locked smallint NOT NULL default '0',
+	is_sticky smallint NOT NULL default '0',
+	to_list varchar(255) NOT NULL default '',
+	outbox smallint NOT NULL default '0',
+	PRIMARY KEY (id_draft)
+);
 ---#
 
 ---# Adding draft permissions...

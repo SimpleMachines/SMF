@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; ModerationCenter
+// Version: 2.1; ModerationCenter
 
 global $scripturl;
 
@@ -107,7 +107,7 @@ $txt['mc_warning_templates'] = 'Custom Templates';
 $txt['mc_warning_log_title'] = 'Viewing Warning Log';
 $txt['mc_warning_templates_title'] = 'Custom Warning Templates';
 
-$txt['mc_warnings_none'] = 'No warnings have been issued yet!';
+$txt['mc_warnings_none'] = 'No warnings have been issued.';
 $txt['mc_warnings_recipient'] = 'Recipient';
 
 $txt['mc_warning_templates_none'] = 'No warning templates have been created yet';

@@ -1,11 +1,14 @@
 <?php
 
 /**
+ * The contents of this file handle the deletion of topics, posts, and related
+ * paraphernalia.
+ * 
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.0
@@ -17,23 +20,12 @@ if (!defined('SMF'))
 /*	The contents of this file handle the deletion of topics, posts, and related
 	paraphernalia.  It has the following functions:
 
-	void RemoveTopic2()
-		// !!!
-
-	void DeleteMessage()
-		// !!!
-
-	void RemoveOldTopics2()
-		// !!!
-
-	void removeTopics(array topics, bool decreasePostCount = true, bool ignoreRecycling = false)
-		// !!!
-
-	bool removeMessage(int id_msg, bool decreasePostCount = true)
-		// !!!
 */
 
-// Completely remove an entire topic.
+/**
+ * Completely remove an entire topic.
+ * Redirects to the board when completed.
+ */
 function RemoveTopic2()
 {
 	global $user_info, $topic, $board, $sourcedir, $smcFunc, $context, $modSettings;
@@ -84,7 +76,10 @@ function RemoveTopic2()
 	redirectexit('board=' . $board . '.0');
 }
 
-// Remove just a single post.
+/**
+ * Remove just a single post.
+ * On completion redirect to the topic or to the board.
+ */
 function DeleteMessage()
 {
 	global $user_info, $topic, $board, $modSettings, $smcFunc;
@@ -151,7 +146,10 @@ function DeleteMessage()
 		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
-// So long as you are sure... all old posts will be gone.
+/**
+ * So long as you are sure... all old posts will be gone.
+ * Used in ManageMaintenance.php to prune old topics.
+ */
 function RemoveOldTopics2()
 {
 	global $modSettings, $smcFunc;
@@ -221,7 +219,13 @@ function RemoveOldTopics2()
 	redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
 }
 
-// Removes the passed id_topic's. (permissions are NOT checked here!)
+/**
+ * Removes the passed id_topic's. (permissions are NOT checked here!).
+ *
+ * @param array/int $topics The topics to remove (can be an id or an array of ids).
+ * @param bool $decreasePostCount if true users' post count will be reduced
+ * @param bool $ignoreRecycling if true topics are not moved to the recycle board (if it exists).
+ */
 function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = false)
 {
 	global $sourcedir, $modSettings, $smcFunc;
@@ -551,7 +555,15 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	updateLastMessages($updates);
 }
 
-// Remove a specific message (including permission checks).
+/**
+ * Remove a specific message (including permission checks).
+ * - normally, local and global should be the localCookies and globalCookies settings, respectively.
+ * - uses boardurl to determine these two things.
+ *
+ * @param int $message The message id
+ * @param bool $decreasePostCount if true users' post count will be reduced
+ * @return array an array to set the cookie on with domain and path in it, in that order
+ */
 function removeMessage($message, $decreasePostCount = true)
 {
 	global $board, $sourcedir, $modSettings, $user_info, $smcFunc, $context;
@@ -984,6 +996,9 @@ function removeMessage($message, $decreasePostCount = true)
 	return false;
 }
 
+/**
+ * Move back a topic from the recycle board to its original board.
+ */
 function RestoreTopic()
 {
 	global $context, $smcFunc, $modSettings, $sourcedir;
@@ -1215,7 +1230,9 @@ function RestoreTopic()
 	redirectexit();
 }
 
-// Take a load of messages from one place and stick them in a topic.
+/**
+ * Take a load of messages from one place and stick them in a topic.
+ */
 function mergePosts($msgs = array(), $from_topic, $target_topic)
 {
 	global $context, $smcFunc, $modSettings, $sourcedir;
@@ -1468,6 +1485,9 @@ function mergePosts($msgs = array(), $from_topic, $target_topic)
 	updateLastMessages(array($from_board, $target_board));
 }
 
+/**
+ * Try to determine if the topic has already been deleted by another user.
+ */
 function removeDeleteConcurrence()
 {
 	global $modSettings, $board, $topic, $smcFunc, $scripturl, $context;

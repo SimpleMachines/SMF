@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -1706,7 +1706,7 @@ function create_control_richedit($editorOptions)
 		}
 
 		$bbcodes_styles = '';
-		$context['bbcodes_hanlders'] = '';
+		$context['bbcodes_handlers'] = '';
 		$context['bbc_toolbar'] = array();
 		foreach ($context['bbc_tags'] as $row => $tagRow)
 		{
@@ -1727,7 +1727,7 @@ function create_control_richedit($editorOptions)
 			}';
 						if (isset($tag['before']))
 						{
-							$context['bbcodes_hanlders'] = '
+							$context['bbcodes_handlers'] = '
 				$.sceditor.setCommand(
 					' . javaScriptEscape($tag['code']) . ',
 					function () {

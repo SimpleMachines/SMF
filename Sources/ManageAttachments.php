@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -359,7 +359,7 @@ function BrowseFiles()
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'file_list',
-		'title' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ( $context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments'))],
+		'title' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ($context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments'))],
 		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
@@ -1082,7 +1082,7 @@ function RepairAttachments()
 	@set_time_limit(600);
 
 	$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
-	$_SESSION['starting_substep'] = $_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
+	$context['starting_substep'] = $_GET['substep'] = empty($_GET['substep']) ? 0 : (int) $_GET['substep'];
 
 	// Don't recall the session just in case.
 	if ($_GET['step'] == 0 && $_GET['substep'] == 0)
@@ -1647,7 +1647,7 @@ function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 		@apache_reset_timeout();
 
 	// Have we already used our maximum time?
-	if (time() - array_sum(explode(' ', $time_start)) < 3 || $_SESSION['starting_substep'] == $_GET['substep'])
+	if (time() - array_sum(explode(' ', $time_start)) < 3 || $context['starting_substep'] == $_GET['substep'])
 		return;
 
 	$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . $context['session_var'] . '=' . $context['session_id'];

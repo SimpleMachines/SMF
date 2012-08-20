@@ -196,6 +196,7 @@ function QuickModify(oOptions)
 	this.sMessageBuffer = '';
 	this.sSubjectBuffer = '';
 	this.bXmlHttpCapable = this.isXmlHttpCapable();
+	this.aAccessKeys = new Array();
 
 	// Show the edit buttons
 	if (this.bXmlHttpCapable)
@@ -232,6 +233,23 @@ QuickModify.prototype.modifyMsg = function (iMessageId)
 	// Add backwards compatibility with old themes.
 	if (typeof(sSessionVar) == 'undefined')
 		sSessionVar = 'sesc';
+
+	// Removes the accesskeys from the quickreply inputs and saves them in an array to use them later
+	if (typeof(this.opt.sFormRemoveAccessKeys) != 'undefined')
+	{
+		if (typeof(document.forms[this.opt.sFormRemoveAccessKeys]))
+		{
+			var aInputs = document.forms[this.opt.sFormRemoveAccessKeys].getElementsByTagName('input');
+			for (var i = 0; i < aInputs.length; i++)
+			{
+				if (aInputs[i].accessKey != '')
+				{
+					this.aAccessKeys[aInputs[i].name] = aInputs[i].accessKey;
+					aInputs[i].accessKey = '';
+				}
+			}
+		}
+	}
 
 	// First cancel if there's another message still being edited.
 	if (this.bInEditMode)
@@ -295,6 +313,22 @@ QuickModify.prototype.modifyCancel = function ()
 	// No longer in edit mode, that's right.
 	this.bInEditMode = false;
 
+	// Let's put back the accesskeys to their original place
+	if (typeof(this.opt.sFormRemoveAccessKeys) != 'undefined')
+	{
+		if (typeof(document.forms[this.opt.sFormRemoveAccessKeys]))
+		{
+			var aInputs = document.forms[this.opt.sFormRemoveAccessKeys].getElementsByTagName('input');
+			for (var i = 0; i < aInputs.length; i++)
+			{
+				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
+				{
+					aInputs[i].name = this.aAccessKeys[aInputs[i].name];
+				}
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -308,6 +342,23 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 	// Add backwards compatibility with old themes.
 	if (typeof(sSessionVar) == 'undefined')
 		sSessionVar = 'sesc';
+
+	// Let's put back the accesskeys to their original place
+	if (typeof(this.opt.sFormRemoveAccessKeys) != 'undefined')
+	{
+		if (typeof(document.forms[this.opt.sFormRemoveAccessKeys]))
+		{
+			var aInputs = document.forms[this.opt.sFormRemoveAccessKeys].getElementsByTagName('input');
+			for (var i = 0; i < aInputs.length; i++)
+			{
+				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
+				{
+					aInputs[i].name = this.aAccessKeys[aInputs[i].name];
+				}
+			}
+		}
+	}
+
 
 	var i, x = new Array();
 	x[x.length] = 'subject=' + escape(document.forms.quickModForm['subject'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B");

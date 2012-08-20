@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; Errors
+// Version: 2.1; Errors
 
 global $scripturl, $modSettings;
 
@@ -108,7 +108,7 @@ $txt['cannot_post_new'] = 'Sorry, you cannot post new topics in this board.';
 $txt['cannot_post_reply_any'] = 'You are not permitted to post replies to topics on this board.';
 $txt['cannot_post_reply_own'] = 'You are not allowed to post replies even to your own topics in this board.';
 $txt['cannot_profile_remove_own'] = 'Sorry, but you aren\'t allowed to delete your own account.';
-$txt['cannot_profile_remove_any'] = 'You don\'t have the permissions to go about removing people\'s accounts!';
+$txt['cannot_profile_remove_any'] = 'You don\'t have the approriate permissions to remove accounts.';
 $txt['cannot_profile_extra_any'] = 'You are not permitted to modify profile settings.';
 $txt['cannot_profile_identity_any'] = 'You aren\'t allowed to edit account settings.';
 $txt['cannot_profile_title_any'] = 'You cannot edit people\'s custom titles.';
@@ -215,9 +215,9 @@ $txt['remind_WaitTime_broken'] = 'Your last reminder was less than %1$d seconds 
 $txt['email_missing_data'] = 'You must enter something in both the subject and message boxes.';
 
 $txt['topic_gone'] = 'The topic or board you are looking for appears to be either missing or off limits to you.';
-$txt['theme_edit_missing'] = 'The file you are trying to edit... can\'t even be found!';
+$txt['theme_edit_missing'] = 'The file you are trying to edit can\'t be found.';
 
-$txt['no_dump_database'] = 'Only administrators can make database backups!';
+$txt['no_dump_database'] = 'Only administrators can make database backups.';
 $txt['pm_not_yours'] = 'The personal message you\'re trying to quote is not your own or does not exist, please go back and try again.';
 $txt['mangled_post'] = 'Mangled form data - please go back and try again.';
 $txt['too_many_groups'] = 'Sorry, you selected too many groups, please remove some.';
@@ -246,7 +246,7 @@ $txt['error_bad_to'] = 'One or more \'to\'-recipients could not be found.';
 $txt['error_bad_bcc'] = 'One or more \'bcc\'-recipients could not be found.';
 $txt['error_form_already_submitted'] = 'You already submitted this post!  You might have accidentally double clicked or tried to refresh the page.';
 $txt['error_poll_few'] = 'You must have at least two choices!';
-$txt['error_poll_many'] = 'You must have no more than 256 choices!';
+$txt['error_poll_many'] = 'You must have no more than 256 choices.';
 $txt['error_need_qr_verification'] = 'Please complete the verification section below to complete your post.';
 $txt['error_wrong_verification_code'] = 'The letters you typed don\'t match the letters that were shown in the picture.';
 $txt['error_wrong_verification_answer'] = 'You did not answer the verification questions correctly.';
@@ -266,8 +266,8 @@ $txt['smiley_set_path_already_used'] = 'The URL of the smiley set is already bei
 $txt['smiley_set_unable_to_import'] = 'Unable to import smiley set. Either the directory is invalid or cannot be accessed.';
 
 $txt['smileys_upload_error'] = 'Failed to upload file.';
-$txt['smileys_upload_error_blank'] = 'All smiley sets must have an image!';
-$txt['smileys_upload_error_name'] = 'All smileys must have the same filename!';
+$txt['smileys_upload_error_blank'] = 'All smiley sets must have an image.';
+$txt['smileys_upload_error_name'] = 'All smileys must have the same filename.';
 $txt['smileys_upload_error_illegal'] = 'Illegal Type.';
 
 $txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configure to be non-zero. Please report this error to an administrator.';
@@ -300,13 +300,13 @@ $txt['error_functionality_not_windows'] = 'Sorry, this functionality is currentl
 // Don't use entities in the below string.
 $txt['attachment_not_found'] = 'Attachment Not Found';
 
-$txt['error_no_boards_selected'] = 'No valid boards were selected!';
+$txt['error_no_boards_selected'] = 'No valid boards were selected.';
 $txt['error_invalid_search_string'] = 'Did you forget to put something to search for?';
 $txt['error_invalid_search_string_blacklist'] = 'Your search query contained too trivial words. Please try again with a different query.';
 $txt['error_search_string_small_words'] = 'Each word must be at least two characters long.';
 $txt['error_query_not_specific_enough'] = 'Your search query didn\'t return any matches.';
 $txt['error_no_messages_in_time_frame'] = 'No messages found in selected time frame.';
-$txt['error_no_labels_selected'] = 'No labels were selected!';
+$txt['error_no_labels_selected'] = 'No labels were selected.';
 $txt['error_no_search_daemon'] = 'Unable to access the search daemon';
 
 $txt['profile_errors_occurred'] = 'The following errors occurred when trying to save your profile';
@@ -327,7 +327,7 @@ $txt['profile_error_password_restricted_words'] = 'Your password must not contai
 $txt['profile_error_password_chars'] = 'Your password must contain a mix of upper and lower case letters, as well as digits.';
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID authentication URL';
-$txt['profile_error_signature_not_yet_saved'] = 'The signature is not yet saved!';
+$txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
 $txt['profile_error_aim_too_long'] = 'The AIM nickname is too long.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
@@ -335,12 +335,12 @@ $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
 $txt['icon_not_found'] = 'The icon image could not be found in the default theme - please ensure the image has been uploaded and try again.';
-$txt['icon_after_itself'] = 'The icon cannot be positioned after itself!';
+$txt['icon_after_itself'] = 'The icon cannot be positioned after itself.';
 $txt['icon_name_too_long'] = 'Icon filenames cannot be more than 16 characters long';
 
 $txt['name_censored'] = 'Sorry, the name you tried to use, %1$s, contains words which have been censored.  Please try another name.';
 
-$txt['poll_already_exists'] = 'A topic can only have one poll associated with it!';
+$txt['poll_already_exists'] = 'A topic can only have one poll associated with it.';
 $txt['poll_not_found'] = 'There is no poll associated with this topic!';
 
 $txt['error_while_adding_poll'] = 'The following error or errors occurred while adding this poll';
@@ -366,11 +366,11 @@ $txt['themes_none_selectable'] = 'At least one theme must be selectable.';
 $txt['themes_default_selectable'] = 'The overall forum default theme must be a selectable theme.';
 $txt['ignoreboards_disallowed'] = 'The option to ignore boards has not been enabled.';
 
-$txt['mboards_delete_error'] = 'No category selected!';
-$txt['mboards_delete_board_error'] = 'No board selected!';
+$txt['mboards_delete_error'] = 'No category selected.';
+$txt['mboards_delete_board_error'] = 'No board selected.';
 
-$txt['mboards_parent_own_child_error'] = 'Unable to make a parent its own child!';
-$txt['mboards_board_own_child_error'] = 'Unable to make a board its own child!';
+$txt['mboards_parent_own_child_error'] = 'You can not make a parent its own child.';
+$txt['mboards_board_own_child_error'] = 'You can not make a board its own child.';
 
 $txt['smileys_upload_error_notwritable'] = 'The following smiley directories are not writable: %1$s';
 $txt['smileys_upload_error_types'] = 'Smiley images can only have the following extensions: %1$s.';
@@ -378,8 +378,8 @@ $txt['smileys_upload_error_types'] = 'Smiley images can only have the following 
 $txt['change_email_success'] = 'Your email address has been changed, and a new activation email has been sent to it.';
 $txt['resend_email_success'] = 'A new activation email has successfully been sent.';
 
-$txt['custom_option_need_name'] = 'The profile option must have a name!';
-$txt['custom_option_not_unique'] = 'Field name is not unique!';
+$txt['custom_option_need_name'] = 'The profile option must have a name.';
+$txt['custom_option_not_unique'] = 'Field name is not unique.';
 $txt['custom_option_regex_error'] = 'The regex you entered is not valid';
 
 $txt['warning_no_reason'] = 'You must enter a reason for altering the warning state of a member';
@@ -406,7 +406,7 @@ $txt['error_custom_field_empty'] = 'The &quot;%1$s&quot; field cannot be left bl
 
 $txt['email_no_template'] = 'The email template &quot;%1$s&quot; could not be found.';
 
-$txt['search_api_missing'] = 'The search API could not be found! Please contact the admin to check they have uploaded the correct files.';
+$txt['search_api_missing'] = 'The search API could not be found. Please contact the admin to check they have uploaded the correct files.';
 $txt['search_api_not_compatible'] = 'The selected search API the forum is using is out of date - falling back to standard search. Please check file %1$s.';
 
 // Restore topic/posts

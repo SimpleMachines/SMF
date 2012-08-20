@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -764,7 +764,7 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings, $sourcedir;
+	global $modSettings;
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
@@ -805,13 +805,6 @@ function validateToken($action, $type = 'post', $reset = true)
 
 		// I'm back baby.
 		createToken($action, $type);
-
-		// Need to type in a password for that, man.
-		if (!isset($_GET['xml']))
-		{
-			require_once($sourcedir . '/Subs-Auth.php');
-			adminLogin($type, $action);
-		}
 
 		fatal_lang_error('token_verify_fail', false);
 	}

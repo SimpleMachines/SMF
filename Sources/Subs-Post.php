@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -718,7 +718,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 		$smcFunc['db_insert']('',
 			'{db_prefix}mail_queue',
 			array(
-				'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string-65534', 'subject' => 'string-255',
+				'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string', 'subject' => 'string-255',
 				'headers' => 'string-65534', 'send_html' => 'int', 'priority' => 'int', 'private' => 'int',
 			),
 			$cur_insert,
@@ -764,7 +764,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
 			$smcFunc['db_insert']('',
 				'{db_prefix}mail_queue',
 				array(
-					'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string-65534', 'subject' => 'string-255',
+					'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string', 'subject' => 'string-255',
 					'headers' => 'string-65534', 'send_html' => 'int', 'priority' => 'int', 'private' => 'int',
 				),
 				$cur_insert,
@@ -1846,7 +1846,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	);
 
 	// What if we want to do anything with posts?
-	call_integration_hook('integrate_create_post', array(&$message_columns, &$message_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+	call_integration_hook('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
 
 	// Insert the post.
 	$smcFunc['db_insert']('',
@@ -1889,7 +1889,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
 		);
 
-		call_integration_hook('integrate_before_create_topic', array(&$topic_columns, &$topic_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
 
 		$smcFunc['db_insert']('',
 			'{db_prefix}topics',
@@ -2152,7 +2152,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		'id_msg' => $msgOptions['id'],
 	);
 
-	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
 
 	foreach ($messages_columns as $var => $val)
 	{

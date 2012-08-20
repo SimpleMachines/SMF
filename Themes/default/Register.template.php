@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -184,7 +184,11 @@ function template_registration_form()
 							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
-						<dd>', $field['input_html'], '</dd>';
+						<dd>', preg_replace_callback('~<(input|select|textarea) ~', create_function('$matches', '
+							global $context;
+							return \'<\' . $matches[1] . \' tabindex="\' . $context[\'tabindex\']++ . \'"\';
+						')
+					, $field['input_html']), '</dd>';
 
 		echo '
 					</dl>';
