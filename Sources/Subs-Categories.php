@@ -31,7 +31,8 @@ function modifyCategory($category_id, $catOptions)
 	$catUpdates = array();
 	$catParameters = array();
 
-	call_integration_hook('integrate_modify_category', array($category_id, &$catOptions));
+	$cat_id = $category_id;
+	call_integration_hook('integrate_pre_modify_category', array($cat_id, &$catOptions));
 
 	// Wanna change the categories position?
 	if (isset($catOptions['move_after']))
@@ -93,6 +94,9 @@ function modifyCategory($category_id, $catOptions)
 		$catParameters['is_collapsible'] = $catOptions['is_collapsible'] ? 1 : 0;
 	}
 
+	$cat_id = $category_id;
+	call_integration_hook('integrate_modify_category', array($cat_id, &$catUpdates, &$catParameters));
+
 	// Do the updates (if any).
 	if (!empty($catUpdates))
 	{
@@ -125,8 +129,6 @@ function createCategory($catOptions)
 {
 	global $smcFunc;
 
-	call_integration_hook('integrate_create_category', array(&$catOptions));
-
 	// Check required values.
 	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
 		trigger_error('createCategory(): A category name is required', E_USER_ERROR);
@@ -139,15 +141,20 @@ function createCategory($catOptions)
 	// Don't log an edit right after.
 	$catOptions['dont_log'] = true;
 
+	$cat_columns = array(
+		'name' => 'string-48',
+	);
+	$cat_parameters = array(
+		$catOptions['cat_name'],
+	);
+	
+	call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
+
 	// Add the category to the database.
 	$smcFunc['db_insert']('',
 		'{db_prefix}categories',
-		array(
-			'name' => 'string-48',
-		),
-		array(
-			$catOptions['cat_name'],
-		),
+		$cat_columns,
+		$cat_parameters,
 		array('id_cat')
 	);
 
