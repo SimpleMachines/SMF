@@ -1715,8 +1715,11 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 					$sort_id['mod']++;
 					if ($installed)
 					{
-						$packages['modification'][strtolower($packageInfo[$sort]) . $sort_id['mod']] = $packageInfo['id'];
-						$context['available_modification'][$packageInfo['id']] = $packageInfo;
+						if (!empty($context['available_modification'][$packageInfo['id']]))
+						{
+							$packages['modification'][strtolower($packageInfo[$sort]) . $sort_id['mod']] = $packageInfo['id'];
+							$context['available_modification'][$packageInfo['id']] = array_merge($context['available_modification'][$packageInfo['id']], $packageInfo);
+						}
 					}
 					else
 					{
