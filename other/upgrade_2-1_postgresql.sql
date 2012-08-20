@@ -30,6 +30,20 @@ if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['pac
 ---}
 ---#
 
+---# Adding back proper support for UTF8
+---{
+global $sourcedir;
+require_once($sourcedir . '/Subs-Admin.php');
+updateSettingsFile(array('db_character_set' => 'utf8'));
+
+upgrade_query("
+	INSERT INTO {$db_prefix}settings
+		(variable, value)
+	VALUES
+		('global_character_set', 'UTF-8')");
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
