@@ -266,11 +266,15 @@ function ModifyBBCSettings($return_config = false)
 	$config_vars = array(
 			// Main tweaks
 			array('check', 'enableBBC'),
+			array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
 			array('check', 'enablePostHTML'),
 			array('check', 'autoLinkUrls'),
 		'',
 			array('bbc', 'disabledBBC'),
 	);
+
+	$context['settings_post_javascript'] = '
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 

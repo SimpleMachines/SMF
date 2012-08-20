@@ -120,7 +120,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 		}
 
 		// A lot of useful information for each member.
-		$membersOnlineStats['users_online'][$row[$membersOnlineOptions['sort']] . $row['member_name']] = array(
+		$membersOnlineStats['users_online'][$row[$membersOnlineOptions['sort']] . '_' . $row['member_name']] = array(
 			'id' => $row['id_member'],
 			'username' => $row['member_name'],
 			'name' => $row['real_name'],
@@ -133,7 +133,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 		);
 
 		// This is the compact version, simply implode it to show.
-		$membersOnlineStats['list_users_online'][$row[$membersOnlineOptions['sort']] . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
+		$membersOnlineStats['list_users_online'][$row[$membersOnlineOptions['sort']] . '_' . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
 
 		// Store all distinct (primary) membergroups that are shown.
 		if (!isset($membersOnlineStats['online_groups'][$row['id_group']]))
@@ -152,7 +152,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 		foreach ($spider_finds as $id => $count)
 		{
 			$link = $spiders[$id] . ($count > 1 ? ' (' . $count . ')' : '');
-			$membersOnlineStats['users_online'][$sort . $spiders[$id]] = array(
+			$membersOnlineStats['users_online'][$sort . '_' . $spiders[$id]] = array(
 				'id' => 0,
 				'username' => $spiders[$id],
 				'name' => $link,
@@ -163,7 +163,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 				'hidden' => false,
 				'is_last' => false,
 			);
-			$membersOnlineStats['list_users_online'][$sort . $spiders[$id]] = $link;
+			$membersOnlineStats['list_users_online'][$sort . '_' . $spiders[$id]] = $link;
 		}
 	}
 

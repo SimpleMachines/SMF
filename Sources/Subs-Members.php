@@ -469,34 +469,16 @@ function registerMember(&$regOptions, $return_errors = false)
 			$regOptions['auth_method'] = 'password';
 	}
 
-	// No name?!  How can you register with no name?
-	if (empty($regOptions['username']))
-		$reg_errors[] = array('lang', 'need_username');
-
 	// Spaces and other odd characters are evil...
 	$regOptions['username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']);
-
-	// Don't use too long a name.
-	if ($smcFunc['strlen']($regOptions['username']) > 25)
-		$reg_errors[] = array('lang', 'error_long_name');
-
-	// Only these characters are permitted.
-	if (preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $regOptions['username'])) != 0 || $regOptions['username'] == '_' || $regOptions['username'] == '|' || strpos($regOptions['username'], '[code') !== false || strpos($regOptions['username'], '[/code') !== false)
-		$reg_errors[] = array('lang', 'error_invalid_characters_username');
-
-	if ($smcFunc['strtolower']($regOptions['username']) === $smcFunc['strtolower']($txt['guest_title']))
-		$reg_errors[] = array('lang', 'username_reserved', 'general', array($txt['guest_title']));
 
 	// @todo Separate the sprintf?
 	if (empty($regOptions['email']) || preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $regOptions['email']) === 0 || strlen($regOptions['email']) > 255)
 		$reg_errors[] = array('done', sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($regOptions['username'])));
 
-	if (!empty($regOptions['check_reserved_name']) && isReservedName($regOptions['username'], 0, false))
-	{
-		if ($regOptions['password'] == 'chocolate cake')
-			$reg_errors[] = array('done', 'Sorry, I don\'t take bribes... you\'ll need to come up with a different name.');
-		$reg_errors[] = array('done', '(' . htmlspecialchars($regOptions['username']) . ') ' . $txt['name_in_use']);
-	}
+	$username_validation_errors = validateUsername(0, $regOptions['username'], true, !empty($regOptions['check_reserved_name']));
+	if (!empty($username_validation_errors))
+		$reg_errors = array_merge($reg_errors, $username_validation_errors);
 
 	// Generate a validation code if it's supposed to be emailed.
 	$validation_code = '';
