@@ -75,10 +75,10 @@ $txt['database_prefix'] = 'Database Tables Prefix';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
-$txt['errors_do_recount'] = 'All errors fixed - a salvage area has been created! Please click the button below to recount some key statistics.';
+$txt['errors_do_recount'] = 'All errors have been fixed and a salvage area has been created. Please click the button below to recount some key statistics.';
 $txt['errors_recount_now'] = 'Recount Statistics';
 $txt['errors_fixing'] = 'Fixing forum errors';
-$txt['errors_fixed'] = 'All errors fixed! Please check on any categories, boards, or topics created to decide what to do with them.';
+$txt['errors_fixed'] = 'All errors fixed. Please check on any categories, boards, or topics created to decide what to do with them.';
 $txt['attachments_avatars'] = 'Attachments and Avatars';
 $txt['attachments_desc'] = 'From here you can administer the attached files on your system. You can delete attachments by size and by date from your system. Statistics on attachments are also displayed below.';
 $txt['attachment_stats'] = 'File Attachment Statistics';
@@ -224,7 +224,7 @@ $txt['maintain_sub_routine'] = 'Routine';
 $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
 $txt['maintain_done'] = 'The maintenance task \'%1$s\' was executed successfully.';
-$txt['maintain_no_errors'] = 'Congratulations, no errors found!  Thanks for checking.';
+$txt['maintain_no_errors'] = 'Congratulations, no errors were found.  Thanks for checking.';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
@@ -471,7 +471,7 @@ $txt['avatar_paranoid'] = 'Perform extensive security checks on uploaded avatars
 $txt['repair_attachments'] = 'Maintain Attachments';
 $txt['repair_attachments_complete'] = 'Maintenance Complete';
 $txt['repair_attachments_complete_desc'] = 'All selected errors have now been corrected';
-$txt['repair_attachments_no_errors'] = 'No errors were found!';
+$txt['repair_attachments_no_errors'] = 'No errors were found';
 $txt['repair_attachments_error_desc'] = 'The follow errors were found during maintenance. Check the box next to the errors you wish to fix and hit continue.';
 $txt['repair_attachments_continue'] = 'Continue';
 $txt['repair_attachments_cancel'] = 'Cancel';
@@ -504,7 +504,7 @@ $txt['layout_controls'] = 'Forum';
 $txt['logs'] = 'Logs';
 $txt['generate_reports'] = 'Reports';
 
-$txt['update_available'] = 'Update Available!';
+$txt['update_available'] = 'Update Available';
 $txt['update_message'] = 'You\'re using an outdated version of SMF, which contains some bugs which have since been fixed.
 	It is recommended that you <a href="#" id="update-link">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
 
@@ -543,14 +543,14 @@ $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
 $txt['enableEmbeddedFlash'] = 'Embed flash into posts';
 $txt['enableEmbeddedFlash_warning'] = 'may be a security risk!';
 $txt['enableSpellChecking'] = 'Enable spell checking';
-$txt['enableSpellChecking_warning'] = 'this does not work on all servers!';
+$txt['enableSpellChecking_warning'] = 'this does not work on all servers.';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
 $txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then came back to increase the maximum allowed post size.';
 $txt['fixLongWords'] = 'Break up words with more letters than';
 $txt['fixLongWords_zero'] = '0 to disable.';
-$txt['fixLongWords_warning'] = 'this does not work on all servers!';
+$txt['fixLongWords_warning'] = 'this does not work on all servers.';
 $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';
@@ -582,7 +582,7 @@ $txt['enableAllMessages_zero'] = '0 to never show &quot;All&quot;';
 $txt['disableCustomPerPage'] = 'Disable user defined topic/message count per page';
 $txt['enablePreviousNext'] = 'Enable previous/next topic links';
 
-$txt['not_done_title'] = 'Not done yet!';
+$txt['not_done_title'] = 'Not done yet';
 $txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused.  It should automatically continue in a few seconds.  If it doesn\'t, please click continue below.';
 $txt['not_done_continue'] = 'Continue';
 
@@ -631,7 +631,7 @@ $txt['admin_search_go'] = 'Go';
 $txt['admin_search_results'] = 'Search Results';
 $txt['admin_search_results_desc'] = 'Results for search: &quot;%1$s&quot;';
 $txt['admin_search_results_again'] = 'Search again';
-$txt['admin_search_results_none'] = 'No results found!';
+$txt['admin_search_results_none'] = 'No results found.';
 
 $txt['admin_search_section_sections'] = 'Section';
 $txt['admin_search_section_settings'] = 'Setting';
