@@ -247,10 +247,7 @@ function RecentPosts()
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
-				WHERE ' . $query_this_board . ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']) && $user_info['mod_cache']['ap'] != array(0) ? '
-				AND (m.approved = {int:is_approved}
-					AND t.approved = {int:is_approved}
-					OR b.id_board IN ({array_int:can_approve}))' : '') . '
+				WHERE ' . $query_this_board . $query_moderation['messages'] . '
 				ORDER BY m.id_msg DESC
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
@@ -668,7 +665,25 @@ function UnreadTopics()
 		$context['icon_sources'][$icon] = 'images_url';
 
 	$is_topics = $_REQUEST['action'] == 'unread';
-	$can_see_unapproved = !empty($modSettings['postmod_active']) && allowedTo('approve_posts');
+	if ($modSettings['postmod_active'])
+	{
+	$query_moderation = array(
+		'messages' => !empty($user_info['mod_cache']['ap']) && $user_info['mod_cache']['ap'] != array(0) ? '
+			AND (m.approved = {int:is_approved}
+				AND t.approved = {int:is_approved}
+				OR t.id_board IN ({array_int:can_approve})
+				OR t.id_member_started = {int:current_member})' : (empty($user_info['mod_cache']['ap']) ? ' AND m.approved = {int:is_approved} AND t.approved = {int:is_approved}' : ''),
+		'topics' => !empty($user_info['mod_cache']['ap']) && $user_info['mod_cache']['ap'] != array(0) ? '
+			AND (t.approved = {int:is_approved}
+				OR t.id_board IN ({array_int:can_approve})
+				OR t.id_member_started = {int:current_member})' : (empty($user_info['mod_cache']['ap']) ? ' AND t.approved = {int:is_approved}' : '')
+		);
+	}
+	else
+		$query_moderation = array(
+			'messages' => '',
+			'topics' => '',
+		);
 
 	// This part is the same for each query.
 	$select_clause = '
@@ -765,12 +780,12 @@ function UnreadTopics()
 				INNER JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic)
 			WHERE lt.id_member = {int:current_member}
 				AND t.' . $query_this_board . (empty($earliest_msg) ? '' : '
-				AND t.id_last_msg > {int:earliest_msg}') . ($can_see_unapproved ? '' : '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
+				AND t.id_last_msg > {int:earliest_msg}') . $query_moderation['topics'],
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => 1,
 				'is_approved' => 1,
+				'can_approve' => $user_info['mod_cache']['ap'],
 				'db_error_skip' => true,
 			))
 		) !== false;
@@ -787,12 +802,12 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($can_see_unapproved ? '' : '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . $query_moderation['topics'],
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
 				'is_approved' => 1,
+				'can_approve' => $user_info['mod_cache']['ap'],
 			))
 		);
 		list ($num_topics, $min_message) = $smcFunc['db_fetch_row']($request);
@@ -842,14 +857,14 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE b.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND ms.approved = {int:is_approved}' : '') . '
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . str_replace('m.approved', 'ms.approved', $query_moderation['messages']) . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'min_message' => $min_message,
 				'is_approved' => 1,
+				'can_approve' => $user_info['mod_cache']['ap'],
 				'sort' => $_REQUEST['sort'] . ($ascending ? '' : ' DESC'),
 				'offset' => $_REQUEST['start'],
 				'limit' => $context['topics_per_page'],
@@ -867,13 +882,13 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . ($context['showing_all_topics'] && !empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : (!$context['showing_all_topics'] && empty($_SESSION['first_login']) ? '
 				AND t.id_last_msg > {int:id_msg_last_visit}' : '')) . '
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($can_see_unapproved ? '' : '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . $query_moderation['topics'],
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
 				'id_msg_last_visit' => $_SESSION['id_msg_last_visit'],
 				'is_approved' => 1,
+				'can_approve' => $user_info['mod_cache']['ap'],
 			))
 		);
 		list ($num_topics, $min_message) = $smcFunc['db_fetch_row']($request);
@@ -928,8 +943,7 @@ function UnreadTopics()
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 			WHERE t.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
-				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < ml.id_msg' . ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']) && $user_info['mod_cache']['ap'] != array(0) ? '
-				AND (ms.approved = {int:is_approved} || b.id_board IN ({array_int:can_approve}))' : '') . '
+				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < ml.id_msg' . str_replace('m.approved', 'ms.approved', $query_moderation['messages']) . '
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -981,13 +995,13 @@ function UnreadTopics()
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
-					AND t.id_board = {int:current_board}' : '') . ($can_see_unapproved ? '' : '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})') . '
+					AND t.id_board = {int:current_board}' : '') . $query_moderation['topics'] . '
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
 					'current_member' => $user_info['id'],
 					'is_approved' => 1,
+					'can_approve' => $user_info['mod_cache']['ap'],
 					'string_zero' => '0',
 					'db_error_skip' => true,
 				)
@@ -1034,11 +1048,11 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 				WHERE t.' . $query_this_board . '
 					AND m.id_member = {int:current_member}
-					AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($can_see_unapproved ? '' : '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})'),
+					AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . $query_moderation['messages'],
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
 					'is_approved' => 1,
+					'can_approve' => $user_info['mod_cache']['ap'],
 				))
 			);
 			list ($num_topics, $min_message) = $smcFunc['db_fetch_row']($request);
@@ -1097,14 +1111,14 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})
 				WHERE t.' . $query_this_board . '
 					AND t.id_last_msg >= {int:min_message}
-					AND (IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0))) < t.id_last_msg' . ($can_see_unapproved ? '' : '
-				AND (t.approved = {int:is_approved} OR t.id_member_started = {int:current_member})') . '
+					AND (IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0))) < t.id_last_msg' . $query_moderation['messages'] . '
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
 					'min_message' => (int) $min_message,
 					'is_approved' => 1,
+					'can_approve' => $user_info['mod_cache']['ap'],
 					'order' => $_REQUEST['sort'] . ($ascending ? '' : ' DESC'),
 					'offset' => $_REQUEST['start'],
 					'limit' => $context['topics_per_page'],
