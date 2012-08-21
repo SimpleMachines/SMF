@@ -3836,11 +3836,6 @@ function setupMenuContext()
 				'href' => $scripturl . '?action=profile',
 				'show' => $context['allow_edit_profile'],
 				'sub_buttons' => array(
-					'summary' => array(
-						'title' => $txt['summary'],
-						'href' => $scripturl . '?action=profile',
-						'show' => true,
-					),
 					'account' => array(
 						'title' => $txt['account'],
 						'href' => $scripturl . '?action=profile;area=account',
@@ -3851,6 +3846,11 @@ function setupMenuContext()
 						'href' => $scripturl . '?action=profile;area=forumprofile',
 						'show' => allowedTo(array('profile_extra_any', 'profile_extra_own')),
 						'is_last' => true,
+					),
+					'theme' => array(
+						'title' => $txt['theme'],
+						'href' => $scripturl . '?action=profile;area=theme',
+						'show' => allowedTo('profile_extra_any', 'profile_extra_own', 'profile_extra_any'),
 					),
 				),
 			),
