@@ -31,6 +31,8 @@ function createList($listOptions)
 	assert((empty($listOptions['default_sort_col']) || isset($listOptions['columns'][$listOptions['default_sort_col']])));
 	assert((!isset($listOptions['form']) || isset($listOptions['form']['href'])));
 
+	call_integration_hook('integrate_' . $listOptions['id'], array(&$listOptions));
+
 	// All the context data will be easily accessible by using a reference.
 	$context[$listOptions['id']] = array();
 	$list_context = &$context[$listOptions['id']];
