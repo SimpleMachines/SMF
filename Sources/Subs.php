@@ -4046,7 +4046,10 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $modSettings, $settings, $boarddir, $sourcedir;
+	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug, $context;
+
+	if ($db_show_debug === true)
+		$context['debug']['hooks'][] = $hook;
 
 	$results = array();
 	if (empty($modSettings[$hook]))
