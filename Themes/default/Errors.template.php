@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -221,13 +221,12 @@ function template_attachment_errors()
 		</div>
 		<div class="windowbg">
 			<div class="padding">
-				<div class="noticebox" />',
+				<div class="noticebox">',
 					$context['error_message'], '
 				</div>',
 				!empty($context['back_link']) ? ('<a class="button_link" href="' . $scripturl . $context['back_link'] . '">' . $txt['back'] . '</a>') : '',
 				'<span style="float: right; margin:.5em;"></span>
 				<a class="button_link" href="', $scripturl, $context['redirect_link'], '">', $txt['continue'], '</a>
-				<br class="clear_right" />
 			</div>
 		</div>
 	</div>';

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -143,7 +143,7 @@ function template_modifyset()
 		echo '
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['smiley_sets_save'], '" class="button_submit" />
+					<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit" />
 					<br class="clear_right" />
 				</div>
 			</div>

@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -543,7 +543,14 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
+						// Lead Developer
+						// 'Steven &quot;Fustrate&quot; Hoffman',
+						// Developers
+						'Brad &quot;IchBin&trade;&quot; Grow',
+						'emanuele',
 						'Norv',
+						// 'Spuds', // Doesn't want to be listed here
+						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern &quot;Bloc&quot; Kristiansen',
@@ -561,17 +568,22 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
+						// Lead Support Specialist
+						'Kat',
+						// Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
-						'JimM',
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
 						'Bigguy',
-						'CapadY',
 						'Chas Large',
 						'Duncan85',
-						'gbsothere',
-						'Jessica &quot;Miss All Sunday&quot; Gonzales',
-						'Kevin &quot;greyknight17&quot; Hou',
+						'JimM',
 						'Mashby',
+						'Old Fossil',
+						'Yoshi',
+						'ziycon',
+						// Former Support Specialists
+						'CapadY',
+						'gbsothere',
+						'Kevin &quot;greyknight17&quot; Hou',
 						'Michele &quot;Illori&quot; Davis',
 						'S-Ace',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
@@ -581,38 +593,49 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
-						'Brad &quot;IchBin&trade;&quot; Grow',
-						'Brannon &quot;B&quot; Hall',
-						'Bryan &quot;Runic&quot; Deakin',
+						// Lead Customizer
 						'Gary M. Gadsdon',
-						'Jonathan &quot;vbgamer45&quot; Valentin',
+						// Customizers
+						'Jessica Gonz&aacute;lez',
 						'Kays',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
-						'Spuds',
+						'Ricky.',
+						// Former Customizers
+						'Brannon &quot;B&quot; Hall',
 						'Joey &quot;Tyrsson&quot; Smith',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
-						'Joshua &quot;groundup&quot; Dickerson',
-						'AngellinaBelle',
-						'emanuele',
+						// Doc Coordinator
+						'AngelinaBelle',
+						// Doc Writers
 						'Graeme Spence',
+						'Joshua &quot;groundup&quot; Dickerson',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
+						// Lead Localizer
+						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						// Localizers
+						'Dr. Deejay',
 						'Relyana',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
+						// Marketing Coordinator
+						'Ralph &quot;[n3rve]&quot; Otowo',
+						// Marketing
+						'Bryan &quot;Runic&quot; Deakin',
+						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
+						// Former Marketing
 						'Kindred',
 						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
-						'Ralph &quot;[n3rve]&quot; Otowo',
 					),
 				),
 				array(

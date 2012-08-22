@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -456,50 +456,49 @@ function template_showDrafts()
 	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
 	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
 
-	// For every draft to be displayed, give it its own div, and show the important details of the draft.
-	foreach ($context['drafts'] as $draft)
-	{
-		echo '
-		<div class="topic">
-			<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
-				<span class="topslice"><span></span></span>
-				<div class="content">
-					<div class="counter">', $draft['counter'], '</div>
-					<div class="topic_details">
-						<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
-
-		if (!empty($draft['sticky']))
-			echo '<img src="', $settings['images_url'], '/icons/quick_sticky.png" alt="', $txt['sticky_topic'], '" title="', $txt['sticky_topic'], '" />';
-
-		if (!empty($draft['locked']))
-			echo '<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="', $txt['locked_topic'], '" title="', $txt['locked_topic'], '" />';
-
-		echo '
-						</h5>
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
-					</div>
-					<div class="list_posts">
-						', $draft['body'], '
-					</div>
-				</div>
-				<div class="floatright">
-					<ul class="reset smalltext quickbuttons">
-						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
-						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
-					</ul>
-				</div>
-				<br class="clear" />
-				<span class="botslice"><span></span></span>
-			</div>
-		</div>';
-	}
-
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
 		<div class="tborder windowbg2 padding centertext">
 			', $txt['draft_none'], '
 		</div>';
+	else
+	{
+		// For every draft to be displayed, give it its own div, and show the important details of the draft.
+		foreach ($context['drafts'] as $draft)
+		{
+			echo '
+			<div class="topic">
+				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+					<div class="content">
+						<div class="counter">', $draft['counter'], '</div>
+						<div class="topic_details">
+							<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
+
+			if (!empty($draft['sticky']))
+				echo '<img src="', $settings['images_url'], '/icons/quick_sticky.png" alt="', $txt['sticky_topic'], '" title="', $txt['sticky_topic'], '" />';
+
+			if (!empty($draft['locked']))
+				echo '<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="', $txt['locked_topic'], '" title="', $txt['locked_topic'], '" />';
+
+			echo '
+							</h5>
+							<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
+						</div>
+						<div class="list_posts">
+							', $draft['body'], '
+						</div>
+					</div>
+					<div class="floatright">
+						<ul class="reset smalltext quickbuttons">
+							<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+							<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>';
+		}
+	}
 
 	// Show page numbers.
 	echo '

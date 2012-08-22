@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -62,7 +62,7 @@ function template_show_list($list_id = null)
 			<div class="flow_auto">';
 
 		// Show the page index (if this list doesn't intend to show all items).
-		if (!empty($cur_list['items_per_page']))
+		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
 				<div class="floatleft">
 					<div class="pagesection">', $cur_list['page_index'], '</div>
@@ -145,7 +145,7 @@ function template_show_list($list_id = null)
 			<div class="flow_auto">';
 
 		// Show the page index (if this list doesn't intend to show all items).
-		if (!empty($cur_list['items_per_page']))
+		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
 				<div class="floatleft">
 					<div class="pagesection">', $cur_list['page_index'], '</div>

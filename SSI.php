@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -146,6 +146,10 @@ loadPermissions();
 
 // Load the current or SSI theme. (just use $ssi_theme = id_theme;)
 loadTheme(isset($ssi_theme) ? (int) $ssi_theme : 0);
+
+// @todo: probably not the best place, but somewhere it should be set...
+if (!headers_sent())
+	header('Content-Type: text/html; charset=' . (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']));
 
 // Take care of any banning that needs to be done.
 if (isset($_REQUEST['ssi_ban']) || (isset($ssi_ban) && $ssi_ban === true))
@@ -297,9 +301,12 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 }
 
 // Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overriden.
-function ssi_fetchPosts($post_ids, $override_permissions = false, $output_method = 'echo')
+function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 {
 	global $user_info, $modSettings;
+
+	if (empty($post_ids))
+		return;
 
 	// Allow the user to request more than one - why not?
 	$post_ids = is_array($post_ids) ? $post_ids : array($post_ids);
@@ -319,7 +326,7 @@ function ssi_fetchPosts($post_ids, $override_permissions = false, $output_method
 }
 
 // This removes code duplication in other queries - don't call it direct unless you really know what you're up to.
-function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = '', $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false)
+function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
 	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc;
@@ -336,11 +343,15 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!$user_info['is_guest'] ? '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = m.id_topic AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = m.id_board AND lmr.id_member = {int:current_member})' : '') . '
-		' . (empty($query_where) ? '' : 'WHERE ' . $query_where) . '
+		WHERE 1=1 ' . ($override_permissions ? '' : '
+			AND {query_wanna_see_board}') . ($modSettings['postmod_active'] ? '
+			AND m.approved = {int:is_approved}' : '') . '
+		' . (empty($query_where) ? '' : 'AND ' . $query_where) . '
 		ORDER BY ' . $query_order . '
 		' . ($query_limit == '' ? '' : 'LIMIT ' . $query_limit),
 		array_merge($query_where_params, array(
 			'current_member' => $user_info['id'],
+			'is_approved' => 1,
 		))
 	);
 	$posts = array();
@@ -792,8 +803,11 @@ function ssi_randomMember($random_type = '', $output_method = 'echo')
 }
 
 // Fetch a specific member.
-function ssi_fetchMember($member_ids, $output_method = 'echo')
+function ssi_fetchMember($member_ids = array(), $output_method = 'echo')
 {
+	if (empty($member_ids))
+		return;
+
 	// Can have more than one member if you really want...
 	$member_ids = is_array($member_ids) ? $member_ids : array($member_ids);
 
@@ -810,8 +824,11 @@ function ssi_fetchMember($member_ids, $output_method = 'echo')
 }
 
 // Get all members of a group.
-function ssi_fetchGroupMembers($group_id, $output_method = 'echo')
+function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 {
+	if ($group_id === null)
+		return;
+
 	$query_where = '
 		id_group = {int:id_group}
 		OR id_post_group = {int:id_group}
@@ -825,10 +842,13 @@ function ssi_fetchGroupMembers($group_id, $output_method = 'echo')
 }
 
 // Fetch some member data!
-function ssi_queryMembers($query_where, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
+function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
 	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc, $memberContext;
+
+	if ($query_where === null)
+		return;
 
 	// Fetch the members in question.
 	$request = $smcFunc['db_query']('', '
@@ -891,6 +911,9 @@ function ssi_queryMembers($query_where, $query_where_params = array(), $query_li
 function ssi_boardStats($output_method = 'echo')
 {
 	global $db_prefix, $txt, $scripturl, $modSettings, $smcFunc;
+
+	if (!allowedTo('view_stats'))
+		return;
 
 	$totals = array(
 		'members' => $modSettings['totalMembers'],
@@ -1451,6 +1474,9 @@ function ssi_quickSearch($output_method = 'echo')
 {
 	global $scripturl, $txt, $context;
 
+	if (!allowedTo('search_posts'))
+		return;
+
 	if ($output_method != 'echo')
 		return $scripturl . '?action=search';
 
@@ -1476,6 +1502,9 @@ function ssi_todaysBirthdays($output_method = 'echo')
 {
 	global $scripturl, $modSettings, $user_info;
 
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view_any'))
+		return;
+
 	$eventOptions = array(
 		'include_birthdays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
@@ -1495,6 +1524,9 @@ function ssi_todaysHolidays($output_method = 'echo')
 {
 	global $modSettings, $user_info;
 
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
+
 	$eventOptions = array(
 		'include_holidays' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
@@ -1512,6 +1544,9 @@ function ssi_todaysHolidays($output_method = 'echo')
 function ssi_todaysEvents($output_method = 'echo')
 {
 	global $modSettings, $user_info;
+
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
 
 	$eventOptions = array(
 		'include_events' => true,
@@ -1537,8 +1572,11 @@ function ssi_todaysCalendar($output_method = 'echo')
 {
 	global $modSettings, $txt, $scripturl, $user_info;
 
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
+
 	$eventOptions = array(
-		'include_birthdays' => true,
+		'include_birthdays' => allowedTo('profile_view_any'),
 		'include_holidays' => true,
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],
@@ -1637,11 +1675,13 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 
 	// Find the post ids.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_first_msg
-		FROM {db_prefix}topics
-		WHERE id_board = {int:current_board}' . ($modSettings['postmod_active'] ? '
-			AND approved = {int:is_approved}' : '') . '
-		ORDER BY id_first_msg DESC
+		SELECT t.id_first_msg
+		FROM {db_prefix}topics as t
+		LEFT JOIN {db_prefix}boards as b ON (b.id_board = t.id_board)
+		WHERE t.id_board = {int:current_board}' . ($modSettings['postmod_active'] ? '
+			AND t.approved = {int:is_approved}' : '') . '
+			AND {query_see_board}
+		ORDER BY t.id_first_msg DESC
 		LIMIT ' . $start . ', ' . $limit,
 		array(
 			'current_board' => $board,
@@ -1678,9 +1718,15 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		if (!empty($length) && $smcFunc['strlen']($row['body']) > $length)
 		{
 			$row['body'] = $smcFunc['substr']($row['body'], 0, $length);
+			$cutoff = false;
 
-			// The first space or line break. (<br />, etc.)
-			$cutoff = max(strrpos($row['body'], ' '), strrpos($row['body'], '<'));
+			$last_space = strrpos($row['body'], ' ');
+			$last_open = strrpos($row['body'], '<');
+			$last_close = strrpos($row['body'], '>');
+			if (empty($last_space) || ($last_space == $last_open + 3 && (empty($last_close) || (!empty($last_close) && $last_close < $last_open))) || $last_space < $last_open || $last_open == $length - 6)
+				$cutoff = $last_open;
+			elseif (empty($last_close) || $last_close < $last_open)
+				$cutoff = $last_space;
 
 			if ($cutoff !== false)
 				$row['body'] = $smcFunc['substr']($row['body'], 0, $cutoff);
@@ -1753,6 +1799,9 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 {
 	global $db_prefix, $user_info, $scripturl, $modSettings, $txt, $context, $smcFunc;
+
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
+		return;
 
 	// Find all events which are happening in the near future that the member can see.
 	$request = $smcFunc['db_query']('', '

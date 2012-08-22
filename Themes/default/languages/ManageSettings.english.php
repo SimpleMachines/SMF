@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; ManageSettings
+// Version: 2.1; ManageSettings
 
 global $scripturl;
 
@@ -70,7 +70,7 @@ $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';
 $txt['queryless_urls'] = 'Search engine friendly URLs';
-$txt['queryless_urls_note'] = 'Apache/Lighttpd only!';
+$txt['queryless_urls_note'] = 'Apache/Lighttpd only';
 $txt['enableReportPM'] = 'Enable reporting of personal messages';
 $txt['max_pm_recipients'] = 'Maximum number of recipients allowed in a personal message';
 $txt['max_pm_recipients_note'] = '(0 for no limit, admins are exempt)';
@@ -302,8 +302,8 @@ $txt['core_settings_item_dr'] = 'Drafts';
 $txt['core_settings_item_dr_desc'] = 'Enabling this feature will allow users to save drafts of their posts so they can return to them later to post them.';
 $txt['core_settings_item_cp'] = 'Advanced Profile Fields';
 $txt['core_settings_item_cp_desc'] = 'This enables you to hide standard profile fields, add profile fields to registration, and create new profile fields for your forum.';
-$txt['core_settings_item_ih'] = 'Integration Hooks Handling';
-$txt['core_settings_item_ih_desc'] = 'This feature allows you to enable or disable hooks. Since this could stop your forum to work properly use this function only if you know what you are doing';
+$txt['core_settings_item_ih'] = 'Integration Hooks Management';
+$txt['core_settings_item_ih_desc'] = 'This feature allows you to enable or disable any intergartion hooks added by modifications. Changing hooks can prevent your forum from working properly, so use this feature only if you know what you are doing.';
 $txt['core_settings_item_k'] = 'Karma';
 $txt['core_settings_item_k_desc'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can \'applaud\' or \'smite\' other members, which is how their popularity is calculated.';
 $txt['core_settings_item_ml'] = 'Moderation, Administration and User Logs';

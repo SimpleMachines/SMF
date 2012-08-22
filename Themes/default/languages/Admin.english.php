@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; Admin
+// Version: 2.1; Admin
 
 global $settings, $scripturl;
 
@@ -15,7 +15,7 @@ $txt['admin_censored_words'] = 'Censored Words';
 $txt['admin_censored_where'] = 'Put the word to be censored on the left, and what to change it to on the right.';
 $txt['admin_censored_desc'] = 'Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member.<br />Clear a box to remove that word from the censor.';
 $txt['admin_reserved_names'] = 'Reserved Names';
-$txt['admin_template_edit'] = 'Edit Your Forum Template';
+$txt['admin_template_edit'] = 'Edit your forum template';
 $txt['admin_modifications'] = 'Modification Settings';
 $txt['admin_security_moderation'] = 'Security and Moderation';
 $txt['admin_server_settings'] = 'Server Settings';
@@ -26,16 +26,16 @@ $txt['admin_maintain'] = 'Enable Maintenance Mode';
 $txt['admin_title'] = 'Forum Title';
 $txt['admin_url'] = 'Forum URL';
 $txt['cookie_name'] = 'Cookie Name';
-$txt['admin_webmaster_email'] = 'Webmaster Email Address';
+$txt['admin_webmaster_email'] = 'Webmaster email address';
 $txt['boarddir'] = 'SMF Directory';
 $txt['sourcesdir'] = 'Sources Directory';
 $txt['cachedir'] = 'Cache Directory';
 $txt['admin_news'] = 'Enable News';
-$txt['admin_guest_post'] = 'Enable Guest Posting';
+$txt['admin_guest_post'] = 'Enable guest posting';
 $txt['admin_manage_members'] = 'Members';
 $txt['admin_main'] = 'Main';
 $txt['admin_config'] = 'Configuration';
-$txt['admin_version_check'] = 'Detailed Version Check';
+$txt['admin_version_check'] = 'Detailed version check';
 $txt['admin_smffile'] = 'SMF File';
 $txt['admin_smfpackage'] = 'SMF Package';
 $txt['admin_logoff'] = 'Admin End Session';
@@ -47,7 +47,7 @@ $txt['admin_agreement_default'] = 'Default';
 $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_delete_members'] = 'Delete Selected Members';
-$txt['admin_repair'] = 'Repair All Boards and Topics';
+$txt['admin_repair'] = 'Repair All boards and topics';
 $txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;.  From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<div style="margin-top: 1ex;">If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page.  If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.</div>You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.png" alt="%2$s" title="%3$s" /> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
@@ -75,10 +75,10 @@ $txt['database_prefix'] = 'Database Tables Prefix';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
-$txt['errors_do_recount'] = 'All errors fixed - a salvage area has been created! Please click the button below to recount some key statistics.';
+$txt['errors_do_recount'] = 'All errors have been fixed and a salvage area has been created. Please click the button below to recount some key statistics.';
 $txt['errors_recount_now'] = 'Recount Statistics';
 $txt['errors_fixing'] = 'Fixing forum errors';
-$txt['errors_fixed'] = 'All errors fixed! Please check on any categories, boards, or topics created to decide what to do with them.';
+$txt['errors_fixed'] = 'All errors fixed. Please check on any categories, boards, or topics created to decide what to do with them.';
 $txt['attachments_avatars'] = 'Attachments and Avatars';
 $txt['attachments_desc'] = 'From here you can administer the attached files on your system. You can delete attachments by size and by date from your system. Statistics on attachments are also displayed below.';
 $txt['attachment_stats'] = 'File Attachment Statistics';
@@ -89,12 +89,12 @@ $txt['attachment_pruning'] = 'Attachment Pruning';
 $txt['attachment_pruning_message'] = 'Message to add to post';
 $txt['attachment_pruning_warning'] = 'Are you sure you want to delete these attachments?\\nThis cannot be undone!';
 $txt['attachment_total'] = 'Total Attachments';
-$txt['attachmentdir_size'] = 'Total Size of Attachment Directory';
-$txt['attachmentdir_size_current'] = 'Total Size of Current Attachment Directory';
-$txt['attachment_space'] = 'Total Space Available in Attachment Directory';
-$txt['attachment_space_current'] = 'Total Space Available in Current Attachment Directory';
-$txt['attachment_options'] = 'File Attachment Options';
-$txt['attachment_log'] = 'Attachment Log';
+$txt['attachmentdir_size'] = 'Total size of attachment directory';
+$txt['attachmentdir_size_current'] = 'Total size of current attachment directory';
+$txt['attachment_space'] = 'Total space available in attachment directory';
+$txt['attachment_space_current'] = 'Total space available in current attachment directory';
+$txt['attachment_options'] = 'File attachment options';
+$txt['attachment_log'] = 'Attachment log';
 $txt['attachment_remove_old'] = 'Remove attachments older than';
 $txt['attachment_remove_size'] = 'Remove attachments larger than';
 $txt['attachment_name'] = 'Attachment Name';
@@ -151,7 +151,7 @@ $txt['ban_email'] = 'Email banning: (e.g. badguy@somewhere.com) - one entry per 
 $txt['ban_username'] = 'User name banning: (e.g. l33tuser) - one entry per line';
 
 $txt['ban_description'] = 'Here you can ban troublesome people either by IP, hostname, username, or email.';
-$txt['ban_add_new'] = 'Add New Ban';
+$txt['ban_add_new'] = 'Add new ban';
 $txt['ban_banned_entity'] = 'Banned entity';
 $txt['ban_on_ip'] = 'Ban on IP (e.g. 192.168.10-20.*)';
 $txt['ban_on_hostname'] = 'Ban on Hostname (e.g. *.mil)';
@@ -224,7 +224,7 @@ $txt['maintain_sub_routine'] = 'Routine';
 $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
 $txt['maintain_done'] = 'The maintenance task \'%1$s\' was executed successfully.';
-$txt['maintain_no_errors'] = 'Congratulations, no errors found!  Thanks for checking.';
+$txt['maintain_no_errors'] = 'Congratulations, no errors were found.  Thanks for checking.';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
@@ -471,7 +471,7 @@ $txt['avatar_paranoid'] = 'Perform extensive security checks on uploaded avatars
 $txt['repair_attachments'] = 'Maintain Attachments';
 $txt['repair_attachments_complete'] = 'Maintenance Complete';
 $txt['repair_attachments_complete_desc'] = 'All selected errors have now been corrected';
-$txt['repair_attachments_no_errors'] = 'No errors were found!';
+$txt['repair_attachments_no_errors'] = 'No errors were found';
 $txt['repair_attachments_error_desc'] = 'The follow errors were found during maintenance. Check the box next to the errors you wish to fix and hit continue.';
 $txt['repair_attachments_continue'] = 'Continue';
 $txt['repair_attachments_cancel'] = 'Cancel';
@@ -495,7 +495,7 @@ $txt['groups_send_mail'] = 'Groups allowed to send out forum newsletters';
 $txt['xmlnews_enable'] = 'Enable XML/RSS news';
 $txt['xmlnews_maxlen'] = 'Maximum message length';
 $txt['xmlnews_maxlen_note'] = '(0 to disable, bad idea.)';
-$txt['editnews_clickadd'] = 'Click here to add another item.';
+$txt['editnews_clickadd'] = 'Add another item';
 $txt['editnews_remove_selected'] = 'Remove selected';
 $txt['editnews_remove_confirm'] = 'Are you sure you want to delete the selected news items?';
 $txt['censor_clickadd'] = 'Add another word';
@@ -504,7 +504,7 @@ $txt['layout_controls'] = 'Forum';
 $txt['logs'] = 'Logs';
 $txt['generate_reports'] = 'Reports';
 
-$txt['update_available'] = 'Update Available!';
+$txt['update_available'] = 'Update Available';
 $txt['update_message'] = 'You\'re using an outdated version of SMF, which contains some bugs which have since been fixed.
 	It is recommended that you <a href="#" id="update-link">update your forum</a> to the latest version as soon as possible. It only takes a minute!';
 
@@ -543,14 +543,14 @@ $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
 $txt['enableEmbeddedFlash'] = 'Embed flash into posts';
 $txt['enableEmbeddedFlash_warning'] = 'may be a security risk!';
 $txt['enableSpellChecking'] = 'Enable spell checking';
-$txt['enableSpellChecking_warning'] = 'this does not work on all servers!';
+$txt['enableSpellChecking_warning'] = 'this does not work on all servers.';
 $txt['disable_wysiwyg'] = 'Disable WYSIWYG editor';
 $txt['max_messageLength'] = 'Maximum allowed post size';
 $txt['max_messageLength_zero'] = '0 for no max.';
 $txt['convert_to_mediumtext'] = 'Your database is not setup to accept messages longer than 65535 characters. Please use the <a href="%1$s">database maintenance</a> page to convert the database and then came back to increase the maximum allowed post size.';
 $txt['fixLongWords'] = 'Break up words with more letters than';
 $txt['fixLongWords_zero'] = '0 to disable.';
-$txt['fixLongWords_warning'] = 'this does not work on all servers!';
+$txt['fixLongWords_warning'] = 'this does not work on all servers.';
 $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';
@@ -582,7 +582,7 @@ $txt['enableAllMessages_zero'] = '0 to never show &quot;All&quot;';
 $txt['disableCustomPerPage'] = 'Disable user defined topic/message count per page';
 $txt['enablePreviousNext'] = 'Enable previous/next topic links';
 
-$txt['not_done_title'] = 'Not done yet!';
+$txt['not_done_title'] = 'Not done yet';
 $txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused.  It should automatically continue in a few seconds.  If it doesn\'t, please click continue below.';
 $txt['not_done_continue'] = 'Continue';
 
@@ -631,7 +631,7 @@ $txt['admin_search_go'] = 'Go';
 $txt['admin_search_results'] = 'Search Results';
 $txt['admin_search_results_desc'] = 'Results for search: &quot;%1$s&quot;';
 $txt['admin_search_results_again'] = 'Search again';
-$txt['admin_search_results_none'] = 'No results found!';
+$txt['admin_search_results_none'] = 'No results found.';
 
 $txt['admin_search_section_sections'] = 'Section';
 $txt['admin_search_section_settings'] = 'Setting';
@@ -648,8 +648,8 @@ $txt['signature_settings_short'] = 'Signatures';
 $txt['custom_profile_shorttitle'] = 'Profile Fields';
 $txt['pruning_title'] = 'Log Pruning';
 
-$txt['core_settings_activation_message'] = 'The Feature {core_feature} has been activated, click on the title to configure it';
-$txt['core_settings_deactivation_message'] = 'The Feature {core_feature} has been deactivated';
+$txt['core_settings_activation_message'] = 'The feature {core_feature} has been activated, click on the title to configure it';
+$txt['core_settings_deactivation_message'] = 'The feature {core_feature} has been deactivated';
 $txt['core_settings_generic_error'] = 'An unforeseen error occurred, please relod the page and try again';
 
 $txt['boardsEdit'] = 'Modify Boards';

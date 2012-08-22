@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -1645,12 +1645,12 @@ function PlushSearch2()
 						SELECT
 							{int:id_search},
 							t.id_topic,
-							' . $relevance. ',
+							' . $relevance . ',
 							t.id_first_msg,
 							1
 						FROM {db_prefix}topics AS t
 							INNER JOIN {db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics AS lst ON (lst.id_topic = t.id_topic)'
-						. ($createTemporary ? '' : 'WHERE lst.id_search = {int:id_search}')
+						. ($createTemporary ? '' : ' WHERE lst.id_search = {int:id_search}')
 						. (empty($modSettings['search_max_results']) ? '' : '
 						LIMIT ' . ($modSettings['search_max_results'] - $_SESSION['search_cache']['num_results'])),
 						array(
