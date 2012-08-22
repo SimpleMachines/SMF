@@ -28,6 +28,8 @@ function AutoTask()
 		ReduceMailQueue();
 	else
 	{
+		call_integration_hook('integrate_autotask_include');
+
 		// Select the next task to do.
 		$request = $smcFunc['db_query']('', '
 			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit

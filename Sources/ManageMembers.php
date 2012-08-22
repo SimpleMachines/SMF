@@ -609,8 +609,6 @@ function ViewMemberlist()
 	if (!allowedTo('profile_remove_any'))
 		unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
 
-	call_integration_hook('integrate_view_members_list', array(&$listOptions));
-
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
