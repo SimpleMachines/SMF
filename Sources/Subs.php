@@ -1038,7 +1038,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'center',
-				'before' => '<div class="centertext">',
+				'before' => '<div align="center">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
@@ -1264,7 +1264,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'left',
-				'before' => '<div class="lefttext;">',
+				'before' => '<div style="text-align: left;">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
@@ -1397,7 +1397,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'right',
-				'before' => '<div class="righttext">',
+				'before' => '<div style="text-align: right;">',
 				'after' => '</div>',
 				'block_level' => true,
 			),
