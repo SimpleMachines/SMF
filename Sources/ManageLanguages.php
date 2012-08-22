@@ -147,9 +147,11 @@ function list_getLanguagesList()
 	require_once($sourcedir . '/Class-Package.php');
 	$language_list = new xmlArray(fetch_web_data($url), true);
 
-	// Check it exists.
-	if (!$language_list->exists('languages/language'))
+	// Check that the site responded and that the language exists.
+	if (!$language_list->exists('languages'))
 		$context['smf_error'] = 'no_response';
+	elseif (!$language_list->exists('languages/language'))
+		$context['smf_error'] = 'no_files';
 	else
 	{
 		$language_list = $language_list->path('languages[0]');
