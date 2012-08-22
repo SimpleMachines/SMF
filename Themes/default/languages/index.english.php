@@ -522,7 +522,6 @@ $txt['mlist_search'] = 'Search For Members';
 $txt['mlist_search_again'] = 'Search again';
 $txt['mlist_search_filter'] = 'Search Options';
 $txt['mlist_search_email'] = 'Search by email address';
-$txt['mlist_search_messenger'] = 'Search by messenger nickname';
 $txt['mlist_search_group'] = 'Search by position';
 $txt['mlist_search_name'] = 'Search by name';
 $txt['mlist_search_website'] = 'Search by website';
