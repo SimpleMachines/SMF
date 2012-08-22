@@ -66,6 +66,10 @@ function createMenu($menuData, $menuOptions = array())
 	// What is the general action of this menu (i.e. $scripturl?action=XXXX.
 	$menu_context['current_action'] = isset($menuOptions['action']) ? $menuOptions['action'] : $context['current_action'];
 
+	// Allow extend *any* menu with a single hook
+	if (!empty($menuOptions['action']))
+		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
+
 	// What is the current area selected?
 	if (isset($menuOptions['current_area']) || isset($_GET['area']))
 		$menu_context['current_area'] = isset($menuOptions['current_area']) ? $menuOptions['current_area'] : $_GET['area'];

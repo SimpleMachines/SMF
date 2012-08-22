@@ -196,8 +196,6 @@ function MembergroupIndex()
 		),
 	);
 
-	call_integration_hook('integrate_modify_regular_groups', array(&$listOptions));
-
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
 
@@ -308,8 +306,6 @@ function MembergroupIndex()
 			),
 		),
 	);
-
-	call_integration_hook('integrate_modify_post_groups', array(&$listOptions));
 
 	createList($listOptions);
 }

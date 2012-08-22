@@ -154,9 +154,6 @@ function ModerationMain($dont_call = false)
 		),
 	);
 
-	// Let them modify admin areas easily.
-	call_integration_hook('integrate_moderate_areas', array(&$moderation_areas));
-
 	// Make sure the administrator has a valid session...
 	validateSession('moderate');
 
