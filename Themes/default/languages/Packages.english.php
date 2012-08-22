@@ -38,13 +38,13 @@ $txt['package_manager_desc'] = 'From this easy to use interface, you can downloa
 $txt['installed_packages_desc'] = 'You can use the interface below to view those packages currently installed on the forum, and remove the ones you no longer require.';
 $txt['download_packages_desc'] = 'From this section you can choose to either download new packages from package servers, or upload a package file directly to the forum.';
 
-$txt['create_package'] = 'Create a New Package';
-$txt['download_new_package'] = 'Download New Packages';
-$txt['view_and_remove'] = 'View and Remove Installed Packages';
-$txt['modification_package'] = 'Modification Packages';
-$txt['avatar_package'] = 'Avatar Packages';
-$txt['language_package'] = 'Language Packages';
-$txt['unknown_package'] = 'Unknown Packages';
+$txt['create_package'] = 'Create a new Package';
+$txt['download_new_package'] = 'Download new packages';
+$txt['view_and_remove'] = 'View and remove installed packages';
+$txt['modification_package'] = 'Modification packages';
+$txt['avatar_package'] = 'Avatar packages';
+$txt['language_package'] = 'Language packages';
+$txt['unknown_package'] = 'Unknown packages';
 $txt['use_avatars'] = 'Use Avatars';
 $txt['add_languages'] = 'Add Language';
 $txt['list_files'] = 'List Files';
@@ -59,7 +59,7 @@ $txt['mod_name'] = 'Mod Name';
 $txt['mod_version'] = 'Version';
 $txt['mod_author'] = 'Author';
 $txt['author_website'] = 'Author\'s Homepage';
-$txt['package_no_description'] = 'No Description Given';
+$txt['package_no_description'] = 'No description given';
 $txt['package_description'] = 'Description';
 $txt['file_location'] = 'Location of file';
 
@@ -115,10 +115,10 @@ $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing 
 $txt['package_will_fail_popup_uninstall'] = 'Are you sure you wish to continue uninstalling this modification, even though it will not uninstall successfully?';
 $txt['package_install'] = 'installation';
 $txt['package_uninstall'] = 'removal';
-$txt['package_install_now'] = 'Install Now';
-$txt['package_uninstall_now'] = 'Uninstall Now';
-$txt['package_other_themes'] = 'Install in Other Themes';
-$txt['package_other_themes_uninstall'] = 'UnInstall in Other Themes';
+$txt['package_install_now'] = 'Install now';
+$txt['package_uninstall_now'] = 'Uninstall now';
+$txt['package_other_themes'] = 'Install in other themes';
+$txt['package_other_themes_uninstall'] = 'UnInstall in other themes';
 $txt['package_other_themes_desc'] = 'To use this modification in themes other than the default, the package manager needs to make additional changes to the other themes. If you\'d like to install this modification in the other themes, please select these themes below.';
 // Don't use entities in the below string.
 $txt['package_theme_failure_warning'] = 'At least one error was encountered during a test install of this theme. Are you sure you wish to attempt installation?';
@@ -246,7 +246,7 @@ $txt['package_file_perms_files_done'] = '%1$d of %2$d files done in current dire
 
 $txt['chmod_value_invalid'] = 'You have tried to enter an invalid chmod value. Chmod must be between 0444 and 0777';
 
-$txt['package_restore_permissions'] = 'Restore File Permissions';
+$txt['package_restore_permissions'] = 'Restore file permissions';
 $txt['package_restore_permissions_desc'] = 'The following file permissions were changed by SMF to install the selected package(s). You can return these files back to their original status by clicking &quot;Restore&quot; below.';
 $txt['package_restore_permissions_restore'] = 'Restore';
 $txt['package_restore_permissions_filename'] = 'Filename';
