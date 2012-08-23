@@ -535,8 +535,8 @@ function attachmentChecks($attachID)
 		$context['dir_files']++;
 
 		// Are we about to run out of room? Let's notify the admin then.
-		if (empty($modSettings['attachment_full_notified']) && empty($modSettings['attachmentDirSizeLimit']) && $modSettings['attachmentDirSizeLimit'] > 4000 && $context['dir_size'] > ($modSettings['attachmentDirSizeLimit'] - 2000) * 1024
-			|| (empty($modSettings['attachmentDirFileLimit']) && $modSettings['attachmentDirFileLimit'] * .95 < $context['dir_files'] && $modSettings['attachmentDirFileLimit'] > 500))
+		if (empty($modSettings['attachment_full_notified']) && !empty($modSettings['attachmentDirSizeLimit']) && $modSettings['attachmentDirSizeLimit'] > 4000 && $context['dir_size'] > ($modSettings['attachmentDirSizeLimit'] - 2000) * 1024
+			|| (!empty($modSettings['attachmentDirFileLimit']) && $modSettings['attachmentDirFileLimit'] * .95 < $context['dir_files'] && $modSettings['attachmentDirFileLimit'] > 500))
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
 			emailAdmins('admin_attachments_full');
@@ -545,7 +545,7 @@ function attachmentChecks($attachID)
 
 		// // No room left.... What to do now???
 		if (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_files'] + 2 > $modSettings['attachmentDirFileLimit']
-			|| (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024))
+			|| (!empty($modSettings['attachmentDirSizeLimit']) && $context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024))
 		{
 			if (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] == 1)
 			{
