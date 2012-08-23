@@ -219,7 +219,7 @@ function template_main()
 
 		// [WIP] The new member info dropdown starts here. Note that conditionals have not been fully checked yet.
 			echo '
-									<ul class="smalltext" id="msg_', $message['id'], '_extra_info">';
+									<ul class="smalltext" id="msg_', $message['id'], '_extra_info"', $ignoring ? ' style="display:none;"' : '', '>';
 
 		// Don't show these things for guests.
 		if (!$message['member']['is_guest'])
@@ -442,7 +442,7 @@ function template_main()
 
 			echo '
 								</h5>
-								<div id="msg_', $message['id'], '_quick_mod"></div>
+								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
 							</div>';
 
 		// Ignoring this user? Hide the post.
@@ -463,14 +463,14 @@ function template_main()
 									', $txt['post_awaiting_approval'], '
 								</div>';
 		echo '
-								<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>
+								<div class="inner" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
 							</div>';
 
 		// Assuming there are attachments...
 		if (!empty($message['attachment']))
 		{
 			echo '
-							<div id="msg_', $message['id'], '_footer" class="attachments">';
+							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
 
 			$last_approved_state = 1;
 			$attachments_per_line = 4;
@@ -647,7 +647,7 @@ function template_main()
 		// Show the member's signature?
 		if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
 			echo '
-							<div class="signature" id="msg_', $message['id'], '_signature">', $message['member']['signature'], '</div>';
+							<div class="signature" id="msg_', $message['id'], '_signature"', $ignoring ? ' style="display:none;"' : '', '>', $message['member']['signature'], '</div>';
 
 		echo '
 						</div>
