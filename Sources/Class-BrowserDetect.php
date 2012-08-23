@@ -357,14 +357,17 @@ class browser_detector
 	function fillInformation()
 	{
 		$this->_browsers += array(
-			'is_webkit' => false,
+			'is_opera' => false,
 			'is_opera6' => false,
 			'is_opera7' => false,
 			'is_opera8' => false,
 			'is_opera9' => false,
 			'is_opera10' => false,
-			'is_ie4' => false,
+			'is_webkit' => false,
 			'is_mac_ie' => false,
+			'is_web_tv' => false,
+			'is_konqueror' => false,
+			'is_firefox' => false,
 			'is_firefox1' => false,
 			'is_firefox2' => false,
 			'is_firefox3' => false,
@@ -372,12 +375,17 @@ class browser_detector
 			'is_android' => false,
 			'is_chrome' => false,
 			'is_safari' => false,
+			'is_gecko'  => false,
 			'is_ie8' => false,
 			'is_ie7' => false,
 			'is_ie6' => false,
 			'is_ie5.5' => false,
 			'is_ie5' => false,
+			'is_ie' => false,
+			'is_ie4' => false,
 			'ie_standards_fix' => false,
+			'needs_size_fix' => false,
+			'possibly_robot' => false,
 		);
 	}
 }
