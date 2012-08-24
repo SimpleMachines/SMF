@@ -16,11 +16,9 @@ function template_generic_menu_sidebar_above()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	// This is the main table - we need it so we can keep the content to the right of it.
-	// [WIP] Why is there a span id="admin_menu"? #admin_menu is also the div that wraps the drop menu system.
-	// Is this some bonkers leftover span from 2.0 beta days? It has no content and is not listed in the CSS.
 	echo '
 	<div id="main_container">
-		<div id="left_admsection"><span id="admin_menu"></span>';
+		<div id="left_admsection">';
 
 	// What one are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;

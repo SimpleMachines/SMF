@@ -141,10 +141,9 @@ function template_main()
 						<input type="checkbox" name="resetVoteCount" value="on" class="input_check" /> ' . $txt['reset_votes_check'] . '
 					</fieldset>';
 	echo '
-					<div class="righttext padding">
+					<div class="padding flow_auto">
 						<input type="submit" name="post" value="', $txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit" />
 					</div>
-					<br class="clear" />
 				</div>
 			</div>
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />

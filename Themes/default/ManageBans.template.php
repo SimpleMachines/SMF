@@ -169,7 +169,6 @@ function template_ban_edit()
 						<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
-						<br class="clear_right" />
 					</form>
 				</div>
 			</div>';
@@ -231,7 +230,6 @@ function template_ban_edit()
 						</div>
 					</div>
 				</div>
-				<br class="clear" />
 				<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
@@ -241,7 +239,6 @@ function template_ban_edit()
 
 	echo '
 	</div>
-	<br class="clear" />
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var fUpdateStatus = function ()
@@ -330,7 +327,6 @@ function template_ban_edit_trigger()
 						</dl>
 					</fieldset>
 					<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '" />
@@ -339,7 +335,7 @@ function template_ban_edit_trigger()
 			<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '" />
 		</form>
 	</div>
-	<br class="clear" />
+
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAddMemberSuggest = new smc_AutoSuggest({

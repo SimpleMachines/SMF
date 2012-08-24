@@ -188,12 +188,10 @@ function template_modify_subscription()
 					<input type="submit" name="save" value="', $txt['paid_settings_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-pms_token_var'], '" value="', $context['admin-pms_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 }
 
@@ -217,8 +215,7 @@ function template_delete_subscription()
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 }
 
@@ -377,8 +374,12 @@ function template_modify_user_subscription()
 			echo '
 					<li class="reset">
 						', $payment['desc'], '
-						<span class="floatleft"><a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';accept">', $txt['pending_payments_accept'], '</a></span>
-						<span class="floatright"><a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';remove">', $txt['pending_payments_remove'], '</a></span>
+						<span class="floatleft">
+							<a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';accept">', $txt['pending_payments_accept'], '</a>
+						</span>
+						<span class="floatright">
+							<a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';remove">', $txt['pending_payments_remove'], '</a>
+						</span>
 					</li>';
 		}
 
@@ -389,8 +390,7 @@ function template_modify_user_subscription()
 	}
 
 	echo '
-		</div>
-	<br class="clear" />';
+		</div>';
 }
 
 // Template for a user to edit/pick their subscriptions.
@@ -466,8 +466,7 @@ function template_user_subscription()
 
 				echo '
 					<hr class="hrcolor" />
-					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit" />
-					<br class="clear_right" />';
+					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit" />';
 			}
 			else
 				echo '
@@ -529,8 +528,7 @@ function template_user_subscription()
 	echo '
 			</tbody>
 		</table>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // The "choose payment" dialog.
@@ -616,8 +614,7 @@ function template_paid_done()
 				<a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=subscriptions">', $txt['paid_sub_return'], '</a>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

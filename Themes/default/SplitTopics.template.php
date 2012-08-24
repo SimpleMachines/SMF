@@ -39,10 +39,11 @@ function template_ask()
 						</li>
 					</ul>
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['split'], '" class="button_submit" />
-					<br class="clear_right" />
+					<div class="auto_flow">
+						<input type="submit" value="', $txt['split'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					</div>
 				</div>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			</div>
 		</form>
 	</div>';
@@ -145,86 +146,86 @@ function template_select()
 				</ul>
 			</div>
 			<br class="clear" />
-			<p>
+			<div class="flow_auto">
 				<input type="hidden" name="topic" value="', $context['current_topic'], '" />
 				<input type="hidden" name="subname" value="', $context['new_subject'], '" />
 				<input type="submit" value="', $txt['split'], '" class="button_submit" />
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			</p>
+			</div>
 		</form>
 	</div>
-	<br class="clear" />
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var start = new Array();
-			start[0] = ', $context['not_selected']['start'], ';
-			start[1] = ', $context['selected']['start'], ';
+	
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var start = new Array();
+		start[0] = ', $context['not_selected']['start'], ';
+		start[1] = ', $context['selected']['start'], ';
 
-			function select(direction, msg_id)
+		function select(direction, msg_id)
+		{
+			if (window.XMLHttpRequest)
 			{
-				if (window.XMLHttpRequest)
-				{
-					getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '." + start[0] + ";start2=" + start[1] + ";move=" + direction + ";msg=" + msg_id + ";xml", onDocReceived);
-					return false;
-				}
+				getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '." + start[0] + ";start2=" + start[1] + ";move=" + direction + ";msg=" + msg_id + ";xml", onDocReceived);
+				return false;
+			}
+			else
+				return true;
+		}
+		function onDocReceived(XMLDoc)
+		{
+			var i, j, pageIndex;
+			for (i = 0; i < 2; i++)
+			{
+				pageIndex = XMLDoc.getElementsByTagName("pageIndex")[i];
+				setInnerHTML(document.getElementById("pageindex_" + pageIndex.getAttribute("section")), pageIndex.firstChild.nodeValue);
+				start[i] = pageIndex.getAttribute("startFrom");
+			}
+			var numChanges = XMLDoc.getElementsByTagName("change").length;
+			var curChange, curSection, curAction, curId, curList, curData, newItem, sInsertBeforeId;
+			for (i = 0; i < numChanges; i++)
+			{
+				curChange = XMLDoc.getElementsByTagName("change")[i];
+				curSection = curChange.getAttribute("section");
+				curAction = curChange.getAttribute("curAction");
+				curId = curChange.getAttribute("id");
+				curList = document.getElementById("messages_" + curSection);
+				if (curAction == "remove")
+					curList.removeChild(document.getElementById(curSection + "_" + curId));
+				// Insert a message.
 				else
-					return true;
-			}
-			function onDocReceived(XMLDoc)
-			{
-				var i, j, pageIndex;
-				for (i = 0; i < 2; i++)
 				{
-					pageIndex = XMLDoc.getElementsByTagName("pageIndex")[i];
-					setInnerHTML(document.getElementById("pageindex_" + pageIndex.getAttribute("section")), pageIndex.firstChild.nodeValue);
-					start[i] = pageIndex.getAttribute("startFrom");
-				}
-				var numChanges = XMLDoc.getElementsByTagName("change").length;
-				var curChange, curSection, curAction, curId, curList, curData, newItem, sInsertBeforeId;
-				for (i = 0; i < numChanges; i++)
-				{
-					curChange = XMLDoc.getElementsByTagName("change")[i];
-					curSection = curChange.getAttribute("section");
-					curAction = curChange.getAttribute("curAction");
-					curId = curChange.getAttribute("id");
-					curList = document.getElementById("messages_" + curSection);
-					if (curAction == "remove")
-						curList.removeChild(document.getElementById(curSection + "_" + curId));
-					// Insert a message.
-					else
+					// By default, insert the element at the end of the list.
+					sInsertBeforeId = null;
+					// Loop through the list to try and find an item to insert after.
+					oListItems = curList.getElementsByTagName("LI");
+					for (j = 0; j < oListItems.length; j++)
 					{
-						// By default, insert the element at the end of the list.
-						sInsertBeforeId = null;
-						// Loop through the list to try and find an item to insert after.
-						oListItems = curList.getElementsByTagName("LI");
-						for (j = 0; j < oListItems.length; j++)
+						if (parseInt(oListItems[j].id.substr(curSection.length + 1)) < curId)
 						{
-							if (parseInt(oListItems[j].id.substr(curSection.length + 1)) < curId)
-							{
-								// This would be a nice place to insert the row.
-								sInsertBeforeId = oListItems[j].id;
-								// We\'re done for now. Escape the loop.
-								j = oListItems.length + 1;
-							}
+							// This would be a nice place to insert the row.
+							sInsertBeforeId = oListItems[j].id;
+							// We\'re done for now. Escape the loop.
+							j = oListItems.length + 1;
 						}
-
-						// Let\'s create a nice container for the message.
-						newItem = document.createElement("LI");
-						newItem.className = "windowbg2";
-						newItem.id = curSection + "_" + curId;
-						newItem.innerHTML = "<div class=\\"content\\"><div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><img src=\\"', $settings['images_url'], '/split_" + (curSection == "selected" ? "de" : "") + "select.png\\" alt=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\" /></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br /><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div>";
-
-						// So, where do we insert it?
-						if (typeof sInsertBeforeId == "string")
-							curList.insertBefore(newItem, document.getElementById(sInsertBeforeId));
-						else
-							curList.appendChild(newItem);
 					}
+
+					// Let\'s create a nice container for the message.
+					newItem = document.createElement("LI");
+					newItem.className = "windowbg2";
+					newItem.id = curSection + "_" + curId;
+					newItem.innerHTML = "<div class=\\"content\\"><div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><img src=\\"', $settings['images_url'], '/split_" + (curSection == "selected" ? "de" : "") + "select.png\\" alt=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\" /></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br /><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div>";
+
+					// So, where do we insert it?
+					if (typeof sInsertBeforeId == "string")
+						curList.insertBefore(newItem, document.getElementById(sInsertBeforeId));
+					else
+						curList.appendChild(newItem);
 				}
-				// After all changes, make sure the window backgrounds are still correct for both lists.
-				applyWindowClasses(document.getElementById("messages_selected"));
-				applyWindowClasses(document.getElementById("messages_not_selected"));
 			}
-		// ]]></script>';
+			// After all changes, make sure the window backgrounds are still correct for both lists.
+			applyWindowClasses(document.getElementById("messages_selected"));
+			applyWindowClasses(document.getElementById("messages_not_selected"));
+		}
+	// ]]></script>';
 }
 
 function template_merge_done()
@@ -342,8 +343,7 @@ function template_merge()
 			<div class="pagesection">
 				<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
 			</div>
-		</div>
-	<br class="clear" />';
+		</div>';
 }
 
 function template_merge_extra_options()
@@ -444,15 +444,15 @@ function template_merge_extra_options()
 					</fieldset>';
 	}
 	echo '
-					<input type="submit" value="' . $txt['merge'] . '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="sa" value="execute" />
-					<br class="clear_right" />
+					<div class="auto_flow">
+						<input type="submit" value="' . $txt['merge'] . '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="sa" value="execute" />
+					</div>
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

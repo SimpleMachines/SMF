@@ -329,7 +329,7 @@ function template_registration_form()
 	}
 
 	echo '
-			<div id="confirm_buttons">';
+			<div id="confirm_buttons flow_auto">';
 
 	// Age restriction in effect?
 	if (!$context['require_agreement'] && $context['show_coppa'])
@@ -345,7 +345,7 @@ function template_registration_form()
 			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '" />
 			<input type="hidden" name="step" value="2" />
 		</form>
-		<br class="clear" />
+		
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var regTextStrings = {
 				"username_valid": "', $txt['registration_username_available'], '",
@@ -578,12 +578,14 @@ function template_admin_register()
 					</dd>
 				</dl>
 				<hr class="hrcolor" />
-				<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
-				<input type="hidden" name="sa" value="register" />
-				<br class="clear_right" />
+				<div class="flow_auto">
+					<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
+					<input type="hidden" name="sa" value="register" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '" />
+				</div>
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '" />
+			
 		</form>
 	</div>
 	<br class="clear" />';
@@ -645,16 +647,16 @@ function template_edit_agreement()
 						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check" /> ', $txt['admin_agreement'], '.</label>
 					</p>
 					<hr class="hrcolor" />
-					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
-					<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '" />
-					<input type="hidden" name="sa" value="agreement" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '" />
-					<br class="clear_right" />
+					<div class="flow_auto" >
+						<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
+						<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '" />
+						<input type="hidden" name="sa" value="agreement" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '" />
+					</div>
 				</form>
 			</div>
-		</div>
-		<br class="clear" />';
+		</div>';
 }
 
 function template_edit_reserved_words()
@@ -698,14 +700,17 @@ function template_edit_reserved_words()
 					</dd>
 				</dl>
 				<hr class="hrcolor" />
-				<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit" />
-				<br class="clear_right" />
+				<div class="flow_auto" >
+					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit" />
+					<input type="hidden" name="sa" value="reservednames" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '" />
+				</div>
 			</div>
-			<input type="hidden" name="sa" value="reservednames" />
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '" />
-		</form>
-		<br class="clear" />';
+		</form>';
 }
+
+
+
 
 ?>

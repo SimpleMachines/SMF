@@ -616,7 +616,6 @@ function template_group_members()
 						</dd>
 					</dl>
 					<input type="submit" name="add" value="', $txt['membergroups_members_add'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>';
 	}
@@ -625,8 +624,7 @@ function template_group_members()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['mod-mgm_token_var'], '" value="', $context['mod-mgm_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	if (!empty($context['group']['assignable']))
 		echo '
@@ -680,12 +678,10 @@ function template_group_request_reason()
 					<input type="submit" name="go" value="', $txt['mc_groupr_submit'], '" class="button_submit" />
 					<input type="hidden" name="req_action" value="got_reason" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

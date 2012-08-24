@@ -89,11 +89,10 @@ function template_main()
 					</dl>
 					<hr class="hrcolor" />
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-					<br class="clear_right" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
 				</div>
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
 		</form>';
 
 	// Link to simplemachines.org for latest themes and info!
@@ -161,21 +160,19 @@ function template_main()
 					</dl>
 					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
-					<br class="clear_right" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
 				</div>
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
 		</form>
 	</div>
-	<br class="clear" />
 
-		<script type="text/javascript"><!-- // --><![CDATA[
-			window.smfForum_scripturl = "', $scripturl, '";
-			window.smfForum_sessionid = "', $context['session_id'], '";
-			window.smfForum_sessionvar = "', $context['session_var'], '";
-			window.smfThemes_writable = ', $context['can_create_new'] ? 'true' : 'false', ';
-		// ]]></script>';
+	<script type="text/javascript"><!-- // --><![CDATA[
+		window.smfForum_scripturl = "', $scripturl, '";
+		window.smfForum_sessionid = "', $context['session_id'], '";
+		window.smfForum_sessionvar = "', $context['session_var'], '";
+		window.smfThemes_writable = ', $context['can_create_new'] ? 'true' : 'false', ';
+	// ]]></script>';
 
 	if (empty($modSettings['disable_smf_js']))
 		echo '
@@ -254,15 +251,13 @@ function template_list_themes()
 						</dd>
 					</dl>
 					<input type="submit" name="save" value="', $txt['themeadmin_list_reset_go'], '" class="button_submit" />
-					<br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-tl_token_var'], '" value="', $context['admin-tl_token'], '" />
 				</div>
 			</div>
 
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_reset_list()
@@ -307,8 +302,7 @@ function template_reset_list()
 	}
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_set_options()
@@ -405,12 +399,10 @@ function template_set_options()
 					<hr class="hrcolor" />
 					<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_set_settings()
@@ -606,15 +598,13 @@ function template_set_settings()
 	echo '
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" /><br />
-					<br class="clear_right" />
+					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '" />
 				</div>
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	if (!empty($context['theme_variants']))
 	{
@@ -728,8 +718,7 @@ function template_pick()
 
 	echo '
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Okay, that theme was installed successfully!
@@ -753,8 +742,7 @@ function template_installed()
 				</p>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_edit_list()
@@ -792,8 +780,7 @@ function template_edit_list()
 	}
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_copy_template()
@@ -836,8 +823,7 @@ function template_copy_template()
 				</ul>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_edit_browse()
@@ -885,8 +871,7 @@ function template_edit_browse()
 	echo '
 		</tbody>
 		</table>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Wanna edit the stylesheet?
@@ -1039,8 +1024,7 @@ function template_edit_style()
 			<input type="hidden" name="filename" value="', $context['edit_filename'], '" />
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // This edits the template...
@@ -1135,8 +1119,7 @@ function template_edit_file()
 			</div>
 
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

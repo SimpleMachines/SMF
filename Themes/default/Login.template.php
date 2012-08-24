@@ -25,7 +25,7 @@ function template_login()
 					<img src="', $settings['images_url'], '/icons/login_sm.png" alt="" class="icon" /> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe"><br class="clear" />';
+			<div class="roundframe">';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
@@ -186,7 +186,8 @@ function template_maintenance()
 				<dt>', $txt['always_logged_in'], ':</dt>
 				<dd><input type="checkbox" name="cookieneverexp" class="input_check" /></dd>
 			</dl>
-			<p class="centertext"><input type="submit" value="', $txt['login'], '" class="button_submit" /></p>
+			<input type="submit" value="', $txt['login'], '" class="button_submit" />
+			<br class="clear" />
 		</div>
 		<input type="hidden" name="hash_passwrd" value="" />
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
