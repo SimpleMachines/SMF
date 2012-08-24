@@ -3850,7 +3850,7 @@ function setupMenuContext()
 					'theme' => array(
 						'title' => $txt['theme'],
 						'href' => $scripturl . '?action=profile;area=theme',
-						'show' => allowedTo('profile_extra_any', 'profile_extra_own', 'profile_extra_any'),
+						'show' => allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_extra_any')),
 					),
 				),
 			),
