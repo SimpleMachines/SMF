@@ -94,12 +94,13 @@ function ManageAttachmentSettings($return_config = false)
 	$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
 	$context['attachmentUploadDir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
+	// First time here?
+	if (empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1)
+		$modSettings['attachmentUploadDir'] = $modSettings['attachmentUploadDir'][1];
+
 	// If not set, show a default path for the base directory
 	if (!isset($_GET['save']) && empty($modSettings['basedirectory_for_attachments']))
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-			$modSettings['basedirectory_for_attachments'] = $modSettings['attachmentUploadDir'][1];
-		else
-			$modSettings['basedirectory_for_attachments'] = $context['attachmentUploadDir'];
+		$modSettings['basedirectory_for_attachments'] = $context['attachmentUploadDir'];
 
 	$context['valid_upload_dir'] = is_dir($context['attachmentUploadDir']) && is_writable($context['attachmentUploadDir']);
 
@@ -138,7 +139,7 @@ function ManageAttachmentSettings($return_config = false)
 			array('select', 'automanage_attachments', array(0 => $txt['attachments_normal'], 1 => $txt['attachments_auto_space'], 2 => $txt['attachments_auto_years'], 3 => $txt['attachments_auto_months'], 4 => $txt['attachments_auto_16'])),
 			array('check', 'use_subdirectories_for_attachments', 'subtext' => $txt['use_subdirectories_for_attachments_note']),
 			(empty($modSettings['attachment_basedirectories']) ? array('text', 'basedirectory_for_attachments', 40,) : array('var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty($context['valid_basedirectory']), 'text_label' => (!empty($context['valid_basedirectory']) ? $txt['basedirectory_for_attachments_current'] : $txt['basedirectory_for_attachments_warning']))),
-			array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
+			empty($modSettings['attachment_basedirectories']) && $modSettings['currentAttachmentUploadDir'] == 1 && count($modSettings['attachmentUploadDir']) == 1	? array('text', 'attachmentUploadDir', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !$context['valid_upload_dir']) : array('var_message', 'attach_current_directory', 'subtext' => $txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty($context['valid_upload_dir']), 'text_label' => (!empty($context['valid_upload_dir']) ? $txt['attach_current_dir'] : $txt['attach_current_dir_warning'])),
 			array('int', 'attachmentDirFileLimit', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('int', 'attachmentDirSizeLimit', 'subtext' => $txt['zero_for_no_limit'], 6, 'postinput' => $txt['kilobyte']),
 		'',
@@ -198,6 +199,15 @@ function ManageAttachmentSettings($return_config = false)
 	{
 		checkSession();
 
+		if (isset($_POST['attachmentUploadDir']))
+		{
+			if (!empty($_POST['attachmentUploadDir']) && $modSettings['attachmentUploadDir'] != $_POST['attachmentUploadDir'])
+				rename($modSettings['attachmentUploadDir'], $_POST['attachmentUploadDir']);
+
+			$modSettings['attachmentUploadDir'] = array(1 => $_POST['attachmentUploadDir']);
+			$_POST['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
+		}
+
 		if (!empty($_POST['use_subdirectories_for_attachments']))
 		{
 			if(isset($_POST['use_subdirectories_for_attachments']) && empty($_POST['basedirectory_for_attachments']))
@@ -216,8 +226,10 @@ function ManageAttachmentSettings($return_config = false)
 				$currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
 
 				if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachmentUploadDir']))
+				{
 					if (!automanage_attachments_create_directory($_POST['basedirectory_for_attachments']))
-						$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];				}
+						$_POST['basedirectory_for_attachments'] = $modSettings['basedirectory_for_attachments'];
+				}
 
 				if (!in_array($_POST['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']))
 				{
@@ -226,6 +238,10 @@ function ManageAttachmentSettings($return_config = false)
 						'attachment_basedirectories' => serialize($modSettings['attachment_basedirectories']),
 						'currentAttachmentUploadDir' => $currentAttachmentUploadDir,
 					));
+
+					$_POST['use_subdirectories_for_attachments'] = 1;
+					$_POST['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);	
+
 				}
 			}
 		}
