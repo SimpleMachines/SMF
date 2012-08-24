@@ -2261,11 +2261,14 @@ ul.quickbuttons li.inline_mod_check {
 	position: relative;
 	color: #222;
 }
-.quickbuttons li.quick_edit img{
+.quickbuttons li.quick_edit img {
 	padding: 2px 7em 2px 3px;
 	position: absolute;
 	left: 0;
 	top: 0;
+}
+.quickbuttons li.quick_edit {
+	display: none;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 3px 0 0 3px;

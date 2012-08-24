@@ -861,6 +861,7 @@ function template_main()
 					});';
 
 	echo '
+					$(".quick_edit").css("display", "inline");
 					if (\'XMLHttpRequest\' in window)
 					{
 						var oQuickModify = new QuickModify({
