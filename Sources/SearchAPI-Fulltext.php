@@ -22,9 +22,6 @@ class fulltext_search
 	public $min_smf_version = 'SMF 2.1 Alpha 1';
 	// Is it supported?
 	public $is_supported = true;
-
-	// Can we do a boolean search - tested on construct.
-	protected $canDoBooleanSearch = false;
 	// What words are banned?
 	protected $bannedWords = array();
 	// What is the minimum word length?
@@ -32,6 +29,10 @@ class fulltext_search
 	// What databases support the fulltext index?
 	protected $supported_databases = array('mysql');
 
+	/**
+	 * fulltext_search::__construct()
+	 *
+	 */
 	public function __construct()
 	{
 		global $smcFunc, $db_connection, $modSettings, $db_type;
@@ -43,14 +44,19 @@ class fulltext_search
 			return;
 		}
 
-		// Some MySQL versions are superior to others :P.
-		$this->canDoBooleanSearch = version_compare($smcFunc['db_server_info']($db_connection), '4.0.1', '>=');
-
 		$this->bannedWords = empty($modSettings['search_banned_words']) ? array() : explode(',', $modSettings['search_banned_words']);
 		$this->min_word_length = $this->_getMinWordLength();
 	}
 
-	// Check whether the method can be performed by this API.
+	/**
+	 * fulltext_search::supportsMethod()
+	 *
+	 * Check whether the method can be performed by this API.
+	 *
+	 * @param mixed $methodName
+	 * @param mixed $query_params
+	 * @return
+	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{
 		switch ($methodName)
@@ -68,7 +74,13 @@ class fulltext_search
 		}
 	}
 
-	// What is the minimum word length full text supports?
+	/**
+	 * fulltext_search::_getMinWordLength()
+	 *
+	 * What is the minimum word length full text supports?
+	 *
+	 * @return
+	 */
 	protected function _getMinWordLength()
 	{
 		global $smcFunc;
@@ -92,7 +104,7 @@ class fulltext_search
 
 		return $min_word_length;
 	}
-
+	
 	/**
 	 * callback function for usort used to sort the fulltext results.
 	 * the order of sorting is: large words, small words, large words that
@@ -103,26 +115,34 @@ class fulltext_search
 	 */
 	public function searchSort($a, $b)
 	{
-		global $modSettings, $excludedWords;
+		global $modSettings, $excludedWords, $smcFunc;
 
-		$x = strlen($a) - (in_array($a, $excludedWords) ? 1000 : 0);
-		$y = strlen($b) - (in_array($b, $excludedWords) ? 1000 : 0);
-
+		$x = $smcFunc['strlen']($a) - (in_array($a, $excludedWords) ? 1000 : 0);
+		$y = $smcFunc['strlen']($b) - (in_array($b, $excludedWords) ? 1000 : 0);
+		
 		return $x < $y ? 1 : ($x > $y ? -1 : 0);
 	}
-
-	// Do we have to do some work with the words we are searching for to prepare them?
+	
+	/**
+	 * fulltext_search::prepareIndexes()
+	 *
+	 * Do we have to do some work with the words we are searching for to prepare them?
+	 *
+	 * @param mixed $word
+	 * @param mixed $wordsSearch
+	 * @param mixed $wordsExclude
+	 * @param mixed $isExcluded
+	 * @return
+	 */
 	public function prepareIndexes($word, &$wordsSearch, &$wordsExclude, $isExcluded)
 	{
 		global $modSettings, $smcFunc;
 
 		$subwords = text2words($word, null, false);
 
-		if (!$this->canDoBooleanSearch && count($subwords) > 1 && empty($modSettings['search_force_index']))
-			$wordsSearch['words'][] = $word;
-		elseif (empty($modSettings['search_force_index']) && $this->canDoBooleanSearch)
+		if (empty($modSettings['search_force_index']))
 		{
-			// A boolean capable search engine and not forced to only use an index, we may use a non index search
+			// A boolean capable search engine and not forced to only use an index, we may use a non indexed search
 			// this is harder on the server so we are restrictive here
 			if (count($subwords) > 1 && preg_match('~[.:@$]~', $word))
 			{
@@ -141,37 +161,21 @@ class fulltext_search
 			}
 		}
 
-		if ($this->canDoBooleanSearch)
-		{
-			$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
-			$wordsSearch['indexed_words'][] = $fulltextWord;
-			if ($isExcluded)
-				$wordsExclude[] = $fulltextWord;
-		}
-		// Excluded phrases don't benefit from being split into subwords.
-		elseif (count($subwords) > 1 && $isExcluded)
-			return;
-		else
-		{
-			$relyOnIndex = true;
-			foreach ($subwords as $subword)
-			{
-				if (($smcFunc['strlen']($subword) >= $this->min_word_length) && !in_array($subword, $this->bannedWords))
-				{
-					$wordsSearch['indexed_words'][] = $subword;
-					if ($isExcluded)
-						$wordsExclude[] = $subword;
-				}
-				elseif (!in_array($subword, $this->bannedWords))
-					$relyOnIndex = false;
-			}
-
-			if ($this->canDoBooleanSearch && !$relyOnIndex && empty($modSettings['search_force_index']))
-				$wordsSearch['words'][] = $word;
-		}
+		$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
+		$wordsSearch['indexed_words'][] = $fulltextWord;
+		if ($isExcluded)
+			$wordsExclude[] = $fulltextWord;
 	}
 
-	// Search for indexed words.
+	/**
+	 * fulltext_search::indexedWordQuery()
+	 *
+	 * Search for indexed words.
+	 *
+	 * @param mixed $words
+	 * @param mixed $search_data
+	 * @return
+	 */
 	public function indexedWordQuery($words, $search_data)
 	{
 		global $modSettings, $smcFunc;
@@ -225,7 +229,7 @@ class fulltext_search
 			$query_where[] = 'MATCH (body) AGAINST ({string:body_match})';
 			$query_params['body_match'] = implode(' ', array_diff($words['indexed_words'], $query_params['excluded_index_words']));
 		}
-		elseif ($this->canDoBooleanSearch)
+		else
 		{
 			$query_params['boolean_match'] = '';
 
@@ -239,15 +243,6 @@ class fulltext_search
 			// if we have bool terms to search, add them in
 			if ($query_params['boolean_match'])
 				$query_where[] = 'MATCH (body) AGAINST ({string:boolean_match} IN BOOLEAN MODE)';
-		}
-		else
-		{
-			$count = 0;
-			foreach ($words['indexed_words'] as $fulltextWord)
-			{
-				$query_where[] = (in_array($fulltextWord, $query_params['excluded_index_words']) ? 'NOT ' : '') . 'MATCH (body) AGAINST ({string:fulltext_match_' . $count . '})';
-				$query_params['fulltext_match_' . $count++] = $fulltextWord;
-			}
 		}
 
 		$ignoreRequest = $smcFunc['db_search_query']('insert_into_log_messages_fulltext', ($smcFunc['db_support_ignore'] ? ( '
