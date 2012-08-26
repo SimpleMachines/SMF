@@ -389,15 +389,15 @@ function ModifyCoreFeatures($return_config = false)
 	{
 		checkSession();
 
-	if (isset($_GET['xml']))
-	{
-		$tokenValidation = validateToken('admin-core', 'post', false);
+		if (isset($_GET['xml']))
+		{
+			$tokenValidation = validateToken('admin-core', 'post', false);
 
-		if (empty($tokenValidation))
-			return 'token_verify_fail';
-	}
-	else
-		validateToken('admin-core');
+			if (empty($tokenValidation))
+				return 'token_verify_fail';
+		}
+		else
+			validateToken('admin-core');
 
 		$setting_changes = array('admin_features' => array());
 
