@@ -440,7 +440,7 @@ function template_folder()
 			if ($context['folder'] != 'sent' && !empty($context['currently_using_labels']) && $context['display_mode'] != 2)
 			{
 				echo '
-				<div class="labels righttext">';
+				<div class="labels righttext flow_auto">';
 				// Add the label drop down box.
 				if (!empty($context['currently_using_labels']))
 				{
@@ -480,7 +480,6 @@ function template_folder()
 
 			echo '
 			</div>
-			<br class="clear" />
 		</div>
 		<div class="moderatorbar">
 		</div>
@@ -632,7 +631,7 @@ function template_subject_list()
 		}
 
 		echo '
-				<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button_submit" />';
+				<input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button_submit" style="float: none" />';
 	}
 
 	echo '
@@ -714,7 +713,7 @@ function template_search()
 				</dl>';
 		if (!$context['currently_using_labels'])
 			echo '
-				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit floatright" />';
+				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit" />';
 			echo '
 				<br class="clear_right" />
 			</div>
@@ -1333,10 +1332,7 @@ function template_prune()
 		<div class="windowbg">
 			<div class="content">
 				<p>', $txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14" class="input_text" /> ', $txt['pm_prune_desc2'], '</p>
-				<div class="righttext">
-					<input type="submit" value="', $txt['delete'], '" class="button_submit" />
-				</div>
-				<br class="clear" />
+				<input type="submit" value="', $txt['delete'], '" class="button_submit" />
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -1403,7 +1399,7 @@ function template_labels()
 
 	if (!count($context['labels']) < 2)
 		echo '
-		<div class="padding righttext">
+		<div class="padding">
 			<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 			<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" onclick="return confirm(\'', $txt['pm_labels_delete'], '\');" class="button_submit" />
 		</div>';
@@ -1428,7 +1424,6 @@ function template_labels()
 				</dl>
 				<hr class="hrcolor" />
 				<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button_submit" />
-				<br class="clear_right" />
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -1840,7 +1835,8 @@ function template_add_rule()
 					<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', $txt['pm_rule_add_action'], ')</a>
 				</fieldset>
 			</div>
-		</div><br class="clear" />
+		</div>
+		
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_rule_description'], '</h3>
 		</div>

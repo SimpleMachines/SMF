@@ -194,8 +194,9 @@ function template_search()
 	echo '
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
-					<br class="clear_right" />
+					<div class="flow_auto">
+						<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
+					</div>
 				</div>
 			</div>
 		</div>

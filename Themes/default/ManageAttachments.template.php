@@ -52,8 +52,6 @@ function template_browse()
 	</div>';
 
 	template_show_list('file_list');
-	echo '
-	<br class="clear" />';
 
 }
 
@@ -76,7 +74,7 @@ function template_maintenance()
 				</dl>
 			</div>
 		</div>
-		<br class="clear" />
+
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_integrity_check'], '</h3>
 		</div>
@@ -90,7 +88,7 @@ function template_maintenance()
 				</form>
 			</div>
 		</div>
-		<br class="clear" />
+		
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_pruning'], '</h3>
 		</div>
@@ -122,12 +120,10 @@ function template_maintenance()
 					<input type="hidden" name="type" value="avatars" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="sa" value="byAge" />
-					<br class="clear_right" />
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_attachment_repair()
@@ -207,7 +203,6 @@ function template_attachment_paths()
 	if (!empty($modSettings['attachment_basedirectories']))
 	{
 		template_show_list('base_paths');
-		echo '<br />';
 	}
 
 	template_show_list('attach_paths');

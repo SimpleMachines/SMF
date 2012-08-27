@@ -51,10 +51,7 @@ function template_maintain_database()
 
 	if ($db_type == 'sqlite')
 		echo '
-					<p>
-						<input type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" class="button_submit" />
-						<br class="clear_right" />
-					</p>';
+					<input type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" class="button_submit" />';
 	else
 	{
 		if ($context['safe_mode_enable'])
@@ -97,7 +94,7 @@ function template_maintain_database()
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['mediumtext_introduction'], '</p>',
 					$context['convert_to_suggest'] ? '<p class="infobox">' . $txt['convert_to_suggest_text'] . '</p>' : '', '
-					<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit" /><br class="clear_right" />
+					<input type="submit" name="evaluate_conversion" value="', $txt['maintain_run_now'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
@@ -159,10 +156,10 @@ function template_maintain_routine()
 
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
-	echo '
-		<div class="maintenance_finished">
-			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
-		</div>';
+		echo '
+			<div class="maintenance_finished">
+				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
+			</div>';
 
 	echo '
 		<div class="cat_bar">
