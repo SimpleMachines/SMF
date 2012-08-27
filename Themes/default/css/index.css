@@ -2223,7 +2223,7 @@ ul.quickbuttons li a.notify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -240px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 4px -237px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
@@ -2261,11 +2261,14 @@ ul.quickbuttons li.inline_mod_check {
 	position: relative;
 	color: #222;
 }
-.quickbuttons li.quick_edit img{
+.quickbuttons li.quick_edit img {
 	padding: 2px 7em 2px 3px;
 	position: absolute;
 	left: 0;
 	top: 0;
+}
+.quickbuttons li.quick_edit {
+	display: none;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 3px 0 0 3px;
