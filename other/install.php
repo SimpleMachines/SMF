@@ -76,7 +76,7 @@ $databases = array(
 		'always_has_db' => true,
 		'utf8_default' => true,
 		'utf8_required' => true,
-		'utf8_support' => true,
+		'utf8_support' => false,
 		'validate_prefix' => create_function('&$value', '
 			global $incontext, $txt;
 

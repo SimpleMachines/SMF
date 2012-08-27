@@ -89,6 +89,18 @@ function EnableCoreFeatures()
 	// Just in case, maybe we don't need it
 	loadLanguage('Errors');
 
+	// We need (at least) this to ensure that mod files are included
+	if (!empty($modSettings['integrate_admin_include']))
+	{
+		$admin_includes = explode(',', $modSettings['integrate_admin_include']);
+		foreach ($admin_includes as $include)
+		{
+			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+			if (file_exists($include))
+				require_once($include);
+		}
+	}
+
 	$errors = array();
 	$returns = array();
 	$tokens = array();
