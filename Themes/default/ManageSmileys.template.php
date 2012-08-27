@@ -31,7 +31,7 @@ function template_editsets()
 			</div>
 		</div>
 	</div>
-	<br class="clear" />
+	
 	<script type="text/javascript"><!-- // --><![CDATA[
 		window.smfForum_scripturl = "', $scripturl, '";
 		window.smfForum_sessionid = "', $context['session_id'], '";
@@ -144,15 +144,13 @@ function template_modifyset()
 					</dl>
 					<hr class="hrcolor" />
 					<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mss_token_var'], '" value="', $context['admin-mss_token'], '" />
 			<input type="hidden" name="set" value="', $context['current_set']['id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Editing an individual smiley
@@ -233,14 +231,13 @@ function template_modifysmiley()
 					<hr class="hrcolor" />
 					<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit" />
 					<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" onclick="return confirm(\'', $txt['smileys_delete_confirm'], '\');" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '" />
 		</form>
 	</div>
-	<br class="clear" />
+	
 	<script type="text/javascript"><!-- // --><![CDATA[
 		function updatePreview()
 		{
@@ -342,7 +339,7 @@ function template_addsmiley()
 					</dl>
 				</div>
 			</div>
-			<br class="clear" />
+			
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>
@@ -380,13 +377,11 @@ function template_addsmiley()
 					</dl>
 					<hr class="hrcolor" />
 					<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Ordering smileys.
@@ -434,12 +429,11 @@ function template_setorder()
 				</div>
 			</div>
 		<input type="hidden" name="reorder" value="1" />
-	</form>
-	<br />';
+	</form>';
 	}
+	
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Editing Message Icons
@@ -533,12 +527,10 @@ function template_editicon()
 					<hr class="hrcolor" />
 					<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

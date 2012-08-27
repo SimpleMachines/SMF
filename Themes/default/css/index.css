@@ -157,7 +157,6 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border-radius: 3px;
 }*/
 a.button_link {
- 
 	color: #333;
 	margin: 0 !important;
 }
@@ -260,7 +259,9 @@ em {
 .floatleft {
 	float: left;
 }
-
+.floatnone {
+	float: none;
+}
 .flow_auto {
 	overflow: auto;
 }
@@ -908,7 +909,7 @@ img.sort {
 #permissions table.table_grid  td {
 	padding: 5px 10px;
 	cursor: default;
-} 
+}
 
 .postbg {
 	border-left: 1px solid #7f7f7f;
@@ -2841,6 +2842,17 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	background-image: none;
 }
 
+.errorfile_table {
+	background: #f0f4f7;
+	border-spacing: 3;
+	border-collapse: collapse;
+}
+.errorfile_table td.current {
+	font-weight: bold;
+	border: 1px solid black;
+	border-width: 1px 0 1px 1px;
+}
+
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
@@ -3049,7 +3061,8 @@ dl {
 	border: solid #666;
 	border-width: 1px 1px 1px 1px;
 	border-left: none;
-	border-right: none; background: #eee;
+	border-right: none;
+	background: #eee;
 	text-align: center;
 }
 .activity_stats li.last span {
@@ -3262,12 +3275,12 @@ img.centericon {
 #stats_left, #top_posters, #top_topics_replies, #top_topics_starter {
 	float: left;
 	width: 50%;
-	padding: 0 3px 0 0; 
+	padding: 0 3px 0 0;
 }
 #stats_right, #top_boards, #top_topics_views, #most_online {
 	float: right;
 	width: 50%;
-	padding: 0 0 0 3px; 
+	padding: 0 0 0 3px;
 }
 #stats_left{
 	border-right: 1px solid #bbb;
