@@ -477,7 +477,6 @@ function ConvertUtf8()
 		{
 			require_once($sourcedir . '/ManageSearch.php');
 			detectFulltextIndex();
-			_debug($context);
 		}
 		// Cannot do conversion if using a fulltext index
 		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' || !empty($context['fulltext_index']))
