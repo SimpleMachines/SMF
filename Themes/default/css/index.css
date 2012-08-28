@@ -2010,8 +2010,13 @@ ul.post_options li {
 	padding: 0;
 	padding: 0.5em;
 }
-#postAttachment dd, #postAttachment2 dd {
-	margin: .3em 0 .3em 1em;
+#postAttachment dd {
+	margin: 4px 0 4px 12px;
+	width: 45%;
+	float: left;
+}
+#postAttachment2 dd {
+	margin: 4px 0 4px 12px;
 }
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;

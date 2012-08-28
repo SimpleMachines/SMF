@@ -402,7 +402,7 @@ function template_main()
 						<dt>
 							', $txt['attached'], ':
 						</dt>
-						<dd class="smalltext">
+						<dd class="smalltext" style="width: 100%;">
 							<input type="hidden" name="attach_del[]" value="0" />
 							', $txt['uncheck_unwatchd_attach'], ':
 						</dd>';
@@ -413,12 +413,12 @@ function template_main()
 							!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label>
 						</dd>';
 
-		if (!empty($context['files_in_session_warning']))
-			echo '
-						<dd class="smalltext">', $context['files_in_session_warning'], '</dd>';
-
 		echo '
 					</dl>';
+
+		if (!empty($context['files_in_session_warning']))
+			echo '
+					<div class="smalltext">', $context['files_in_session_warning'], '</div>';
 	}
 
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
