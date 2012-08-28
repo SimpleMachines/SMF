@@ -220,9 +220,9 @@ function automanage_attachments_by_space()
 	{
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
 		updateSettings(array(
-			'last_attachments_directory' => serialize($modSettings['last_attachments_directory']),
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
-		));
+			'last_attachments_directory' => serialize($modSettings['last_attachments_directory']),
+		), true);
 		$modSettings['last_attachments_directory'] = unserialize($modSettings['last_attachments_directory']);
 
 		return true;
@@ -523,9 +523,11 @@ function attachmentChecks($attachID)
 			$request = $smcFunc['db_query']('', '
 				SELECT COUNT(*), SUM(size)
 				FROM {db_prefix}attachments
-				WHERE id_folder = {int:folder_id}',
+				WHERE id_folder = {int:folder_id}
+					AND attachment_type != {int:type}',
 				array(
-					'folder_id' => (empty($modSettings['currentAttachmentUploadDir']) ? 1 : $modSettings['currentAttachmentUploadDir']),
+					'folder_id' => $modSettings['currentAttachmentUploadDir'],
+					'type' => 1,
 				)
 			);
 			list ($context['dir_files'], $context['dir_size']) = $smcFunc['db_fetch_row']($request);
@@ -555,8 +557,8 @@ function attachmentChecks($attachID)
 					rename($_SESSION['temp_attachments'][$attachID]['tmp_name'], $context['attach_dir'] . '/' . $attachID);
 					$_SESSION['temp_attachments'][$attachID]['tmp_name'] = $context['attach_dir'] . '/' . $attachID;
 					$_SESSION['temp_attachments'][$attachID]['id_folder'] = $modSettings['currentAttachmentUploadDir'];
-					$context['dir_size'] = $_SESSION['temp_attachments'][$attachID]['size'];
-					$context['dir_files'] = 1;
+					$context['dir_size'] = 0;
+					$context['dir_files'] = 0;
 				}
 				// Or, let the user know that it ain't gonna happen.
 				else
@@ -750,8 +752,8 @@ function createAttachment(&$attachmentOptions)
 					{
 						rename($thumb_path, $context['attach_dir'] . '/' . $thumb_filename);
 						$thumb_path = $context['attach_dir'] . '/' . $thumb_filename;
-						$context['dir_size'] = $thumb_size;
-						$context['dir_files'] = 1;
+						$context['dir_size'] = 0;
+						$context['dir_files'] = 0;
 					}
 				}
 			}
