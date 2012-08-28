@@ -471,8 +471,16 @@ function ConvertUtf8()
 		if ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8')
 			fatal_lang_error('utf8_already_utf8');
 
+		// Detect whether a fulltext index is set.
+		db_extend('search');
+		if ($smcFunc['db_search_support']('fulltext'))
+		{
+			require_once($sourcedir . '/ManageSearch.php');
+			detectFulltextIndex();
+			_debug($context);
+		}
 		// Cannot do conversion if using a fulltext index
-		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext')
+		if (!empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' || !empty($context['fulltext_index']))
 			fatal_lang_error('utf8_cannot_convert_fulltext');
 
 		// Grab the character set from the default language file.
@@ -675,9 +683,9 @@ function ConvertUtf8()
 					foreach ($columns as $column)
 					{
 						$updates_blob .= '
-							CHANGE COLUMN ' . $column['Field'] . ' ' . $column['Field'] . ' ' . strtr($column['Type'], array('text' => 'blob', 'char' => 'binary')) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], array('text' => 'blob', 'char' => 'binary')) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
 						$updates_text .= '
-							CHANGE COLUMN ' . $column['Field'] . ' ' . $column['Field'] . ' ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$_POST['src_charset']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$_POST['src_charset']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
 					}
 				}
 			}
