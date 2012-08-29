@@ -137,18 +137,18 @@
 					$('body').append('<div id="' + oSettings.tooltipID + '" class="' + oSettings.tooltipClass + '"><div id="' + oSettings.tooltipTextID + '" style="display:none;"></div></div>');
 					
 					// load information in to our newly created div
-					var $tt = $('#' + oSettings.tooltipID);
-					var $ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
+					var tt = $('#' + oSettings.tooltipID);
+					var ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
 					
 					if (oSettings.tooltipContent == 'html')
-						$ttContent.html($(this).children('.' + oSettings.tooltipSwapClass).html());
+						ttContent.html($(this).children('.' + oSettings.tooltipSwapClass).html());
 					else
-						$ttContent.text($(this).children('.' + oSettings.tooltipSwapClass).text());
+						ttContent.text($(this).children('.' + oSettings.tooltipSwapClass).text());
 					
 					oSettings.tooltipContent
 					
 					// show then position or it may postion off screen
-					$tt.show();
+					tt.show();
 					showTooltip();
 					positionTooltip(event);
 				}
