@@ -1196,11 +1196,9 @@ IconList.prototype.openPopup = function (oDiv, iMessageId)
 		this.oContainerDiv.style.display = 'none';
 		this.oContainerDiv.style.cursor = 'pointer';
 		this.oContainerDiv.style.position = 'absolute';
-		this.oContainerDiv.style.width = oDiv.offsetWidth + 'px';
 		this.oContainerDiv.style.background = this.opt.sContainerBackground;
 		this.oContainerDiv.style.border = this.opt.sContainerBorder;
-		this.oContainerDiv.style.padding = '1px';
-		this.oContainerDiv.style.textAlign = 'center';
+		this.oContainerDiv.style.padding = '6px 0px';
 		document.body.appendChild(this.oContainerDiv);
 
 		// Start to fetch its contents.
@@ -1230,7 +1228,7 @@ IconList.prototype.onIconsReceived = function (oXMLDoc)
 	var sItems = '';
 
 	for (var i = 0, n = icons.length; i < n; i++)
-		sItems += '<div onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 3px 0px 3px 0px; margin-left: auto; margin-right: auto; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" /></div>';
+		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle" /></span>';
 
 	setInnerHTML(this.oContainerDiv, sItems);
 	this.oContainerDiv.style.display = 'block';
