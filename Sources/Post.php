@@ -18,7 +18,7 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * handles showing the post screen, loading the post to be modified, and loading any post quoted.
+ * Handles showing the post screen, loading the post to be modified, and loading any post quoted.
  *
  * - additionally handles previews of posts.
  * - @uses the Post template and language file, main sub template.
@@ -2045,7 +2045,7 @@ function Post2()
 }
 
 /**
- * handle the announce topic function (action=announce).
+ * Handle the announce topic function (action=announce).
  *
  * checks the topic announcement permissions and loads the announcement template.
  * requires the announce_topic permission.
@@ -2504,7 +2504,7 @@ function getTopic()
 }
 
 /**
- * loads a post an inserts it into the current editing text box.
+ * Loads a post an inserts it into the current editing text box.
  * uses the Post language file.
  * uses special (sadly browser dependent) javascript to parse entities for internationalization reasons.
  * accessed with ?action=quotefast.

@@ -17,7 +17,7 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * sets the SMF-style login cookie and session based on the id_member and password passed.
+ * Sets the SMF-style login cookie and session based on the id_member and password passed.
  * - password should be already encrypted with the cookie salt.
  * - logs the user out if id_member is zero.
  * - sets the cookie and session to last the number of seconds specified by cookie_length.
@@ -247,7 +247,7 @@ function adminLogin($type = 'admin')
 }
 
 /**
- * used by the adminLogin() function.
+ * Used by the adminLogin() function.
  * if 'value' is an array, the function is called recursively.
  *
  * @param string $key
@@ -399,7 +399,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 }
 
 /**
- * called by index.php?action=findmember.
+ * Called by index.php?action=findmember.
  * - is used as a popup for searching members.
  * - uses sub template find_members of the Help template.
  * - also used to add members for PM's sent using wap2/imode protocol.
@@ -471,7 +471,7 @@ function JSMembers()
 }
 
 /**
- * outputs each member name on its own line.
+ * Outputs each member name on its own line.
  * - used by javascript to find members matching the request.
  */
 function RequestMembers()
