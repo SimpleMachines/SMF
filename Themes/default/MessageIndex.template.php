@@ -252,7 +252,7 @@ function template_main()
 						</div>
 					</td>
 					<td class="', $alternate_class, ' subject">
-						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '" onmouseout="mouse_on_div = 0;" onmouseover="mouse_on_div = 1;" ondblclick="modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
+						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
 
 			// [WIP] Methinks the orange icons look better if they aren't all over the page.
 			// Is this topic new? (assuming they are logged in!)
@@ -425,14 +425,10 @@ function template_main()
 	echo '
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 <script type="text/javascript"><!-- // --><![CDATA[
-
-	// Hide certain bits during topic edit.
-	hide_prefixes.push("lockicon", "stickyicon", "pages", "newicon");
-
-	// Use it to detect when we\'ve stopped editing.
-	document.onclick = modify_topic_click;
-
-	var mouse_on_div;
+	var oQuickModifyTopic = new QuickModifyTopic({
+		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
+		bMouseOnDiv: false,
+	});
 // ]]></script>';
 }
 
