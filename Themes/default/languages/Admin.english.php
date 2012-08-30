@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; Admin
+// Version: 2.1; Admin
 
 global $settings, $scripturl;
 
@@ -88,11 +88,14 @@ $txt['attachment_check_now'] = 'Run check now';
 $txt['attachment_pruning'] = 'Attachment Pruning';
 $txt['attachment_pruning_message'] = 'Message to add to post';
 $txt['attachment_pruning_warning'] = 'Are you sure you want to delete these attachments?\\nThis cannot be undone!';
-$txt['attachment_total'] = 'Total Attachments';
-$txt['attachmentdir_size'] = 'Total Size of Attachment Directory';
-$txt['attachmentdir_size_current'] = 'Total Size of Current Attachment Directory';
-$txt['attachment_space'] = 'Total Space Available in Attachment Directory';
-$txt['attachment_space_current'] = 'Total Space Available in Current Attachment Directory';
+
+$txt['attachment_total'] = 'Total attachments';
+$txt['attachmentdir_size'] = 'Total size of all attachment directories';
+$txt['attachmentdir_size_current'] = 'Total size of current attachment directory';
+$txt['attachmentdir_files_current'] = 'Total files in current attachment directory';
+$txt['attachment_space'] = 'Total space available';
+$txt['attachment_files'] = 'Total files remaining';
+
 $txt['attachment_options'] = 'File Attachment Options';
 $txt['attachment_log'] = 'Attachment Log';
 $txt['attachment_remove_old'] = 'Remove attachments older than';
@@ -100,6 +103,7 @@ $txt['attachment_remove_size'] = 'Remove attachments larger than';
 $txt['attachment_name'] = 'Attachment Name';
 $txt['attachment_file_size'] = 'File Size';
 $txt['attachmentdir_size_not_set'] = 'No maximum directory size is currently set';
+$txt['attachmentdir_files_not_set'] = 'No directory file limit is currently set';
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
 $txt['live'] = 'Live from Simple Machines...';
 $txt['remove_all'] = 'Clear Log';
@@ -331,7 +335,7 @@ $txt['attachment_manager_thumbs'] = 'Thumbnails';
 $txt['attachment_manager_last_active'] = 'Last Active';
 $txt['attachment_manager_member'] = 'Member';
 $txt['attachment_manager_avatars_older'] = 'Remove avatars from members not active for more than';
-$txt['attachment_manager_total_avatars'] = 'Total Avatars';
+$txt['attachment_manager_total_avatars'] = 'Total avatars';
 
 $txt['attachment_manager_avatars_no_entries'] = 'There are currently no avatars.';
 $txt['attachment_manager_attachments_no_entries'] = 'There are currently no attachments.';
@@ -431,6 +435,25 @@ $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
 $txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 $txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+
+$txt['attachment_transfer'] = 'Transfer Attachments';
+$txt['attachment_transfer_desc'] = 'Transfer files betwen directories.';
+$txt['attachment_transfer_select'] = 'Select directory';
+$txt['attachment_transfer_now'] = 'Transfer';
+$txt['attachment_transfer_from'] = 'Transfer files from';
+$txt['attachment_transfer_auto'] = 'Automatically by space or file count';
+$txt['attachment_transfer_auto_select'] = 'Select base directory';
+$txt['attachment_transfer_to'] = 'Or to a specific directory.';
+$txt['attachment_transfer_empty'] = 'Empty the source directory';
+$txt['attachment_transfer_no_base'] = 'No base directories available.';
+$txt['attachment_transfer_forum_root'] = 'Forum root directory.';
+$txt['attachment_transfer_no_room'] = 'Directory size or file count limit reached.';
+$txt['attachment_transfer_no_find'] = 'No files were found to transfer.';
+$txt['attachments_transfered'] = '%1$d files were transfered to %2$s';
+$txt['attachment_not_transfered'] = '%1$d files were not transfered.';
+$txt['attachment_transfer_no_dir'] = 'Either the source directory or one of the target options were not selected.';
+$txt['attachment_transfer_same_dir'] = 'You cannot select the same directory as both the source and target.';
+$txt['attachment_transfer_progress'] = 'Please wait. Transfer in progess.';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';

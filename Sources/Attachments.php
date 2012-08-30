@@ -23,9 +23,11 @@ function automanage_attachments_check_directory()
 	global $boarddir, $modSettings, $context;
 
 	// Not pretty, but since we don't want folders created for every post. It'll do unless a better solution can be found.
-	if (empty($modSettings['automanage_attachments']))
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin')
+		$doit = true;
+	elseif (empty($modSettings['automanage_attachments']))
 		return;
-	elseif (!isset($_FILES) && !isset($doit))
+	elseif (!isset($_FILES))
 		return;
 	elseif (isset($_FILES))
 		foreach ($_FILES['attachment']['tmp_name'] as $dummy)
@@ -220,9 +222,9 @@ function automanage_attachments_by_space()
 	{
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
 		updateSettings(array(
-			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
 			'last_attachments_directory' => serialize($modSettings['last_attachments_directory']),
-		), true);
+			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
+		));
 		$modSettings['last_attachments_directory'] = unserialize($modSettings['last_attachments_directory']);
 
 		return true;
