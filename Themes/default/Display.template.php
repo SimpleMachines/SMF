@@ -405,7 +405,7 @@ function template_main()
 		{
 			if(!empty($modSettings['onlineEnable']))
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', ($message['member']['online']['is_online']) ? $message['member']['name']. ' is online' : $message['member']['name']. ' is offline', '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
 				echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';

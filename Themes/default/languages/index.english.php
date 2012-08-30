@@ -468,7 +468,9 @@ $txt['queries'] = ' queries.';
 $txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.<br /><em>Please note that your email address will be revealed to the moderators if you use this.</em>';
 
 $txt['online'] = 'Online';
+$txt['member_is_online'] = '%1$s is online';
 $txt['offline'] = 'Offline';
+$txt['member_is_offline'] = '%1$s is offline';
 $txt['pm_online'] = 'Personal Message (Online)';
 $txt['pm_offline'] = 'Personal Message (Offline)';
 $txt['status'] = 'Status';
