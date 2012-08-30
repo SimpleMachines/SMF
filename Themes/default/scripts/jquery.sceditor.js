@@ -3480,7 +3480,7 @@
 				if (popup_exists)
 				{
 					this.options.emoticons.more = this.options.emoticons.popup;
-					moreButton = $('<div class="sceditor-more-button" />').attr({class: "sceditor-more"}).text('[' + this._('More') + ']').click(function () {
+					moreButton = $('<div class="sceditor-more-button" />').attr({'class': "sceditor-more"}).text('[' + this._('More') + ']').click(function () {
 						if ($(".sceditor-smileyPopup").length > 0)
 						{
 							$(".sceditor-smileyPopup").fadeIn('fast');
