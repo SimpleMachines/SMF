@@ -1163,7 +1163,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'ip2' => htmlspecialchars($profile['member_ip2']),
 		'online' => array(
 			'is_online' => $profile['is_online'],
-			'text' => $txt[$profile['is_online'] ? 'online' : 'offline'],
+			'member_is_online' => sprintf($txt[$profile['is_online'] ? 'member_is_online' : 'member_is_offline'], $smcFunc['htmlspecialchars']($profile['real_name'])),
 			'href' => $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . $txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
 			'image_href' => $settings['images_url'] . '/' . ($profile['buddy'] ? 'buddy_' : '') . ($profile['is_online'] ? 'useron' : 'useroff') . '.png',
