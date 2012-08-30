@@ -723,7 +723,7 @@ function Credits($in_admin = false)
 		),
 	);
 
-	// support for mods that use the <credits> tag via the package manager
+	// Support for mods that use the <credits> tag via the package manager
 	$context['credits_modifications'] = array();
 	if (($mods = cache_get_data('mods_credits', 86400)) === null)
 	{

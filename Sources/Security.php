@@ -1022,9 +1022,9 @@ function isAllowedTo($permission, $boards = null)
 
 /**
  * Return the boards a user has a certain (board) permission on. (array(0) if all.)
- * returns a list of boards on which the user is allowed to do the specified permission.
- * Returns an array with only a 0 in it if the user has permission to do this on every board.
- * Returns an empty array if he or she cannot do this on any board.
+ *  - returns a list of boards on which the user is allowed to do the specified permission.
+ *  - returns an array with only a 0 in it if the user has permission to do this on every board.
+ *  - returns an empty array if he or she cannot do this on any board.
  * If check_access is true will also make sure the group has proper access to that board.
  *
  * @param array $permissions

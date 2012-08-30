@@ -1571,7 +1571,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 
 	if (empty($packages))
 		foreach ($context['modification_types'] as $type)
-			$packages[$type] = arra();
+			$packages[$type] = array();
 
 	if ($dir = @opendir($boarddir . '/Packages'))
 	{
