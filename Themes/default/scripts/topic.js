@@ -163,7 +163,7 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	var subject = message.getElementsByTagName("subject")[0];
 	var error = message.getElementsByTagName("error")[0];
 
-	// No subject or other error>
+	// No subject or other error?
 
 	if (!subject || error)
 		return false;
@@ -172,6 +172,10 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
 
+	// redo tips if they are on since we just pulled the rug out on this one 
+	if ($.isFunction($.fn.SMFtooltip));
+		$('.preview').SMFtooltip().smf_tooltip_off;
+	
 	return false;
 }
 
