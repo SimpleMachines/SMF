@@ -405,10 +405,10 @@ function template_main()
 		{
 			if(!empty($modSettings['onlineEnable']))
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', ($message['member']['online']['is_online']) ? $message['member']['name']. ' is online' : $message['member']['name']. ' is offline', '">Send message <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', ($message['member']['online']['is_online']) ? $message['member']['name']. ' is online' : $message['member']['name']. ' is offline', '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">Send message</a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
 		}
 
 		if ((!$context['can_send_pm']) && (!empty($modSettings['onlineEnable'])))
@@ -431,7 +431,7 @@ function template_main()
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
 								</div>
 								<h5 id="subject_', $message['id'], '">
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? $txt['reply_noun'] . ' #' . $message['counter'] : '', ' - ', $message['subject'], '">', !empty($message['counter']) ? '' : '<strong>OP: </strong>', '', $message['time'], '</a>';
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? $txt['reply_noun'] . ' #' . $message['counter'] : '', ' - ', $message['subject'], '">', $message['time'], '</a>';
 
 		// Show "<< Last Edit: Time by Person >>" if this post was edited.
 		if ($settings['show_modify'] && !empty($message['modified']['name']))
