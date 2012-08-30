@@ -308,9 +308,10 @@ function QuickModify(oOptions)
 	// Show the edit buttons
 	if (this.bXmlHttpCapable)
 	{
-		for (var i = document.images.length - 1; i >= 0; i--)
-			if (document.images[i].id.substr(0, 14) == 'modify_button_')
-				document.images[i].style.display = '';
+		var aShowQuickModify = document.getElementsByClassName(this.opt.sClassName);
+		for (var i = 0, length = aShowQuickModify.length; i < length; i++) {
+			aShowQuickModify[i].style.display = "inline";
+		}
 	}
 }
 
