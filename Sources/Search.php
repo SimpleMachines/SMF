@@ -1628,7 +1628,7 @@ function PlushSearch2()
 				if ($_SESSION['search_cache']['num_results'] < $modSettings['search_max_results'] && $numSubjectResults !== 0)
 				{
 					$relevance = '1000 * (';
-					foreach ($main_query['weights'] as $type => $value)
+					foreach ($weight_factors as $type => $value)
 						if (isset($value['results']))
 						{
 							$relevance .= $weight[$type];

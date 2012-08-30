@@ -303,7 +303,7 @@ function template_admin_browse()
 							</select>
 						</dd>
 					</dl>
-					<input type="submit" value="', $txt['admin_browse_outstanding_go'], '" class="button_submit" /><br class="clear_right">
+					<input type="submit" value="', $txt['admin_browse_outstanding_go'], '" class="button_submit" />
 					<input type="hidden" name="type" value="', $context['browse_type'], '" />
 					<input type="hidden" name="sort" value="', $context['approve_list']['sort']['id'], '" />
 					<input type="hidden" name="start" value="', $context['approve_list']['start'], '" />

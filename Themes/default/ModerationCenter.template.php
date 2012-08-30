@@ -69,7 +69,6 @@ function template_latest_news()
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
@@ -227,10 +226,7 @@ function template_notes()
 					<div class="floatleft post_note">
 						<input type="text" name="new_note" value="', $txt['mc_click_add_note'], '" style="width: 95%;" onclick="if (this.value == \'', $txt['mc_click_add_note'], '\') this.value = \'\';" class="input_text" />
 					</div>
-					<div class="floatright">
-						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit" />
-					</div>
-					<br class="clear" />
+					<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
@@ -369,7 +365,6 @@ function template_unapproved_posts()
 
 			echo '
 					</span>
-					<br class="clear" />
 				</div>
 			</div>
 		</div>';
@@ -400,8 +395,7 @@ function template_unapproved_posts()
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 	</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // List all attachments awaiting approval.
@@ -422,8 +416,7 @@ function template_unapproved_attachments()
 	template_show_list('mc_unapproved_attach');
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_viewmodreport()
@@ -485,7 +478,9 @@ function template_viewmodreport()
 
 	if (empty($context['report']['mod_comments']))
 		echo '
-					<p class="centertext">', $txt['mc_modreport_no_mod_comment'], '</p>';
+				<div class="information">
+					<p class="centertext">', $txt['mc_modreport_no_mod_comment'], '</p>
+				</div>';
 
 	foreach ($context['report']['mod_comments'] as $comment)
 		echo
@@ -507,8 +502,7 @@ function template_viewmodreport()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Callback function for showing a watched users post in the table.
@@ -614,12 +608,10 @@ function template_moderation_settings()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '" />
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Show a notice sent to a user.
@@ -725,14 +717,13 @@ function template_warn_template()
 					<hr class="hrcolor" />
 					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '" />
 		</form>
 	</div>
-	<br class="clear" />
+
 	<script type="text/javascript"><!-- // --><![CDATA[
 		$(document).ready(function() {
 			$("#preview_button").click(function() {

@@ -106,12 +106,10 @@ function template_edit_holiday()
 					<input type="hidden" name="holiday" value="', $context['holiday']['id'], '" />';
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 ?>

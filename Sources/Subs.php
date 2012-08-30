@@ -3610,7 +3610,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 /**
  * Empty out the cache in use as best it can
  *
- * it may only remove the files of a certain type (if the $type parameter is given)
+ * It may only remove the files of a certain type (if the $type parameter is given)
  * Type can be user, data or left blank
  * 	- user clears out user data
  *  - data clears out system / opcode data
@@ -4046,7 +4046,10 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $modSettings, $settings, $boarddir, $sourcedir;
+	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug, $context;
+
+	if ($db_show_debug === true)
+		$context['debug']['hooks'][] = $hook;
 
 	$results = array();
 	if (empty($modSettings[$hook]))

@@ -36,7 +36,9 @@ function template_fatal_error()
 
 	// Show a back button (using javascript.)
 	echo '
-	<div class="centertext"><a href="javascript:history.go(-1)">', $txt['back'], '</a></div>';
+	<div class="centertext">
+		<a class="button_link" style="float:none" href="javascript:history.go(-1)">', $txt['back'], '</a>
+	</div>';
 }
 
 function template_error_log()
@@ -191,14 +193,14 @@ function template_show_file()
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
 	</head>
 	<body>
-		<table border="0" cellpadding="0" cellspacing="3">';
+		<table class="errorfile_table">';
 	foreach ($context['file_data']['contents'] as $index => $line)
 	{
-		$line_num = $index+$context['file_data']['min'];
+		$line_num = $index + $context['file_data']['min'];
 		$is_target = $line_num == $context['file_data']['target'];
 		echo '
 			<tr>
-				<td align="right"', $is_target ? ' style="font-weight: bold; border: 1px solid black;border-width: 1px 0 1px 1px;">==&gt;' : '>', $line_num , ':</td>
+				<td align="right"', $is_target ? ' class="current">==&gt;' : '>', $line_num , ':</td>
 				<td style="white-space: nowrap;', $is_target ? ' border: 1px solid black;border-width: 1px 1px 1px 0;':'','">', $line, '</td>
 			</tr>';
 	}

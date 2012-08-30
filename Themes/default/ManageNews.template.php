@@ -42,7 +42,8 @@ function template_email_members()
 
 	echo '
 						</dd>
-					</dl><br class="clear" />
+					</dl>
+					<br class="clear" />
 				</div>
 			</div>
 			<br />
@@ -394,8 +395,7 @@ function template_email_members_compose()
 			}
 		// ]]></script>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_email_members_send()
@@ -434,12 +434,11 @@ function template_email_members_send()
 					<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '" />';
 
 	echo '
-				<br class="clear_right" />
 				</div>
 			</div>
 		</form>
 	</div>
-	<br class="clear" />
+
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var countdown = 2;
 		doAutoSubmit();

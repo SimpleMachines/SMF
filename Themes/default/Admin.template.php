@@ -296,7 +296,8 @@ function template_credits()
 
 		if (isset($section['posttext']))
 			echo '
-					<hr /><p>', $section['posttext'], '</p>';
+					<hr />
+					<p>', $section['posttext'], '</p>';
 	}
 
 	echo '
@@ -680,7 +681,7 @@ function template_not_done()
 
 	if (!empty($context['substep_enabled']))
 		echo '
-					<div class="progress_bar">
+				<div class="progress_bar">
 					<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
 					<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
 				</div>';
@@ -1218,7 +1219,7 @@ function template_admin_search_results()
 						<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit" />
 					</form>
 				</object>
-				<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" />&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
+				<img class="icon" src="' . $settings['images_url'] . '/buttons/search.png" alt="" />&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 			</h3>
 		</div>
 	<div class="windowbg2 generic_list_wrapper">
@@ -1619,7 +1620,8 @@ function template_php_info()
 		}
 		echo '
 		</tbody>
-	</table><br />';
+	</table>
+	<br />';
 	}
 
 	echo '
