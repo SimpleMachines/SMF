@@ -840,6 +840,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	$usernames = array();
 	foreach ($recipients as $rec_type => $rec)
 	{
+		// Make sure $rec is an array
+		if (!is_array($rec))
+			$rec = array($rec);
+
 		foreach ($rec as $id => $member)
 		{
 			if (!is_numeric($recipients[$rec_type][$id]))
