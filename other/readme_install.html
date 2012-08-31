@@ -3,6 +3,7 @@
 	<head>
 		<title>SMF 2.1 Installation Guide</title>
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21" />
+		<style type="text/css">#wrapper, .frame {width: 90%;}</style>
 		<style type="text/css">
 			h1.forumtitle
 			{
@@ -10,11 +11,11 @@
 			}
 			#upper_section .user
 			{
-				height: 4em;
+				height: 1em;
 			}
 			#upper_section .news
 			{
-				height: 80px;
+				height: 1em;
 			}
 			#main_screen
 			{
@@ -31,11 +32,6 @@
 			h3
 			{
 				color: #d05800;
-			}
-			#content_section
-			{
-				position: relative;
-				top: -20px;
 			}
 			#main_content_section .panel
 			{
@@ -65,16 +61,6 @@
 				font-weight: normal;
 				line-height: 1.6em;
 			}
-			#liftup
-			{
-				position: relative;
-				top: -70px;
-			}
-			#footer_section
-			{
-				position: relative;
-				top: -60px;
-			}
 			tt
 			{
 				font-family: verdana, sans-serif;
@@ -101,11 +87,6 @@
 				margin-left: 2em;
 				margin-bottom: .1em;
 			}
-			#header, #content_section, #footer_section
-			{
-				width: 90%;
-				margin: 0 auto;
-			}
 			a:link, a:visited
 			{
 				color: #3E5D8F;
@@ -118,19 +99,20 @@
 	</head>
 	<body>
 		<div id="header"><div class="frame">
-			<div id="top_section">
-				<h1 class="forumtitle">SMF 2.1 Installation Guide</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
-			</div>
-			<div id="upper_section" class="middletext" style="overflow: hidden;">
+			<h1 class="forumtitle"><a>SMF 2.1 Installation Guide</a></h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+		</div></div>
+		<div id="wrapper">
+		<div id="upper_section" class="middletext" style="overflow: hidden;">
+			<div id="inner_section">
 				<div class="user"></div>
 				<div class="news normaltext">
 				</div>
 			</div>
-		</div></div>
-		<div id="content_section"><div class="frame">
+		</div>
+		<div id="content_section">
 			<div id="main_content_section">
-				<div id="liftup">
+				<div>
 					<div class="panel">
 						<h2 id="contents">Installing your forum</h2>
 						<p>Thank you for deciding to use, or at least try, <a href="http://www.simplemachines.org/smf/">SMF</a>.  Before you get started, please remember that there is <a href="http://www.simplemachines.org/community/index.php">a place for help at www.simplemachines.org</a> if you run into any problems at all.</p>
@@ -299,10 +281,13 @@
 					</div>
 				</div>
 			</div>
-		</div></div>
+		</div>
+		</div>
 		<div id="footer_section"><div class="frame">
-			<div class="smalltext padding"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0; margin-bottom: 0.7em;" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</div>
-			<div class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></div>
+			<ul class="reset">
+				<li class="copyright"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0; margin-bottom: 0.7em;" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</li>
+				<li><a href="http://www.simplemachines.org">Simple Machines Forum</a></li>
+			</ul>
 		</div></div>
 	</body>
 </html>
