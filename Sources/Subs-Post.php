@@ -833,9 +833,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	if ($smcFunc['strlen']($htmlsubject) > 100)
 		$htmlsubject = $smcFunc['substr']($htmlsubject, 0, 100);
 
-	// Integrated PMs
-	call_integration_hook('integrate_personal_message', array(&$recipients, &$from['username'], &$subject, &$message));
-
 	// Get a list of usernames and convert them to IDs.
 	$usernames = array();
 	foreach ($recipients as $rec_type => $rec)
