@@ -1156,8 +1156,15 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
 	}
 
+	// Create an array of data to send to the hook
+	$hook_data = array(
+		'message' => $message,
+		'id_pm' => $id_pm,
+		'log' => $log,
+	);
+
 	// Integrated PMs
-	call_integration_hook('integrate_personal_message', array(&$recipients, &$from, &$subject, &$message));
+	call_integration_hook('integrate_personal_message', array(&$recipients, &$from, &$subject, &$hook_data));
 
 	// Back to what we were on before!
 	loadLanguage('index+PersonalMessage');
