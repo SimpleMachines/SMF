@@ -831,7 +831,7 @@ function template_main()
 						sImageCollapsed: "collapse.png",
 						sImageExpanded: "expand.png",
 						sJumpAnchor: "quickreply",
-						bIsFull: ', !empty($options['wisiwyg_quick_reply']) ? 'true' : 'false', '
+						bIsFull: ', !empty($options['use_editor_quick_reply']) ? 'true' : 'false', '
 					});';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])

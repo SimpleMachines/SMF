@@ -135,8 +135,8 @@ function template_options()
 			'default' => true,
 		),
         array(
-            'id' => 'wysiwyg_quick_reply',
-            'label' => $txt['wysiwyg_quick_reply'],
+            'id' => 'use_editor_quick_reply',
+            'label' => $txt['use_editor_quick_reply'],
             'default' => true,
         ),
 		array(

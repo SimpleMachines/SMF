@@ -1099,7 +1099,7 @@ function Display()
 		checkSubmitOnce('register');
 		$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
 		$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
-		if (!empty($options['wysiwyg_quick_reply']) && $context['can_reply'])
+		if (!empty($options['use_editor_quick_reply']) && $context['can_reply'])
 		{
 			// Needed for the editor and message icons.
 			require_once($sourcedir . '/Subs-Editor.php');
