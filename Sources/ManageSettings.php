@@ -159,8 +159,6 @@ function ModifyModSettings()
 	// Make it easier for mods to add new areas.
 	call_integration_hook('integrate_modify_modifications', array(&$subActions));
 
-	loadGeneralSettingParameters($subActions, $context['hooks_exist'] ? 'hooks' : 'general');
-
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['admin_modifications'],
