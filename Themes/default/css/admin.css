@@ -72,6 +72,9 @@ body.action_admin .navigate_section ul li a {
 }
 
 /* Special styling for admin descriptions. */
+.admincenter {
+	min-height: 155px;
+}
 .action_admin p.description, .action_admin  .information {
 	overflow: auto;
 	background: none;
