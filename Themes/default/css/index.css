@@ -408,6 +408,7 @@ em {
 .bbc_list {
 	text-align: left;
 }
+/* Everything is same except HTML5 valid */
 .bbc_tt {
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 }
