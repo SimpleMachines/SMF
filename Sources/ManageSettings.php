@@ -2417,6 +2417,8 @@ function get_integration_hooks_data($start, $per_page, $sort)
 							$function = explode('::', $hook_name);
 							$function = $function[1];
 						}
+						else
+							$function = $function_o;
 						$function = explode(':', $function);
 						$function = $function[0];
 
