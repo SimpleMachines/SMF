@@ -2420,7 +2420,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 							$function = $function[1];
 						}
 						else
-							$function = $function_o;
+							$function = $hook_name;
 						$function = explode(':', $function);
 						$function = $function[0];
 
