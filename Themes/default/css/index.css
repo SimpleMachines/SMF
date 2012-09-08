@@ -409,6 +409,10 @@ em {
 .bbc_list {
 	text-align: left;
 }
+.bbc_list li {
+	list-style: inside;
+	list-style-type: inherit;
+}
 .bbc_tt {
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 }

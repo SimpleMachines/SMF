@@ -67,7 +67,7 @@ function createMenu($menuData, $menuOptions = array())
 	$menu_context['current_action'] = isset($menuOptions['action']) ? $menuOptions['action'] : $context['current_action'];
 
 	// Allow extend *any* menu with a single hook
-	if (!empty($menuOptions['action']))
+	if (!empty($menu_context['current_action']))
 		call_integration_hook('integrate_' . $menu_context['current_action'] . '_areas', array(&$menuData));
 
 	// What is the current area selected?
