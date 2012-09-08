@@ -151,13 +151,15 @@ function ModifyModSettings()
 	$context['page_title'] = $txt['admin_modifications'];
 
 	$subActions = array(
-		'hooks' => 'list_integration_hooks',
 		'general' => 'ModifyGeneralModSettings',
+		'hooks' => 'list_integration_hooks',
 		// Mod authors, once again, if you have a whole section to add do it AFTER this line, and keep a comma at the end.
 	);
 
 	// Make it easier for mods to add new areas.
 	call_integration_hook('integrate_modify_modifications', array(&$subActions));
+
+	loadGeneralSettingParameters($subActions, 'general');
 
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -165,9 +167,9 @@ function ModifyModSettings()
 		'help' => 'modsettings',
 		'description' => $txt['modification_settings_desc'],
 		'tabs' => array(
-			'hooks' => array(
-			),
 			'general' => array(
+			),
+			'hooks' => array(
 			),
 		),
 	);
