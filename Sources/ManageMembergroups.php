@@ -352,7 +352,7 @@ function AddMembergroup()
 			),
 			array(
 				$id_group, '', $smcFunc['htmlspecialchars']($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
-				'1#star.png', '', $_POST['group_type'],
+				'1#icon.png', '', $_POST['group_type'],
 			),
 			array('id_group')
 		);
