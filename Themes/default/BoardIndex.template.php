@@ -82,6 +82,9 @@ function template_main()
 	// ]]></script>';
 	}
 
+	// For easy adding something on main page
+	call_integration_hook('integrate_boardindex');
+
 	echo '
 	<div id="boardindex_table" class="boardindex_table">
 		<table class="table_list">';
