@@ -472,9 +472,10 @@ $txt['agreement_missing'] = 'You are requiring new users to accept a registratio
 
 $txt['cache_writable'] = 'The cache directory is not writable - this will adversely affect the performance of your forum.';
 
-$txt['page_created'] = 'Page created in ';
-$txt['seconds_with'] = ' seconds with ';
-$txt['queries'] = ' queries.';
+$txt['page_created'] = 'Page created in '; //Deprecated
+$txt['seconds_with'] = ' seconds with '; //Deprecated
+$txt['queries'] = ' queries.'; //Deprecated
+$txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
 
 $txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.<br /><em>Please note that your email address will be revealed to the moderators if you use this.</em>';
 
@@ -666,7 +667,7 @@ $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 $txt['search_results'] = 'Search Results';
 $txt['search_no_results'] = 'Sorry, no matches were found';
 
-$txt['totalTimeLogged1'] = 'Total time logged in: ';
+$txt['totalTimeLogged1'] = 'Total time logged in: '; //Deprecated
 $txt['totalTimeLogged2'] = ' days, ';
 $txt['totalTimeLogged3'] = ' hours and ';
 $txt['totalTimeLogged4'] = ' minutes.';
