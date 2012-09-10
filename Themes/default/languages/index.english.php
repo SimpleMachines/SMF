@@ -674,11 +674,13 @@ $txt['totalTimeLogged5'] = 'd ';
 $txt['totalTimeLogged6'] = 'h ';
 $txt['totalTimeLogged7'] = 'm';
 
-$txt['approve_thereis'] = 'There is';
-$txt['approve_thereare'] = 'There are';
-$txt['approve_member'] = 'one member';
-$txt['approve_members'] = 'members';
-$txt['approve_members_waiting'] = 'awaiting approval.';
+$txt['approve_thereis'] = 'There is'; //Deprecated
+$txt['approve_thereare'] = 'There are'; //Deprecated
+$txt['approve_member'] = 'one member'; //Deprecated
+$txt['approve_members'] = 'members'; //Deprecated
+$txt['approve_members_waiting'] = 'awaiting approval.'; //Deprecated
+$txt['approve_one_member_waiting'] = 'There is <a href="%1$s">one member</a> awaiting approval.';
+$txt['approve_many_members_waiting'] = 'There are <a href="%1$s">%2$d members</a> awaiting approval.';
 
 $txt['notifyboard_turnon'] = 'Do you want a notification email when someone posts a new topic in this board?';
 $txt['notifyboard_turnoff'] = 'Are you sure you do not want to receive new topic notifications for this board?';
