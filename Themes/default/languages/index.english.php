@@ -31,10 +31,10 @@ $txt['months_short'] = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
 
-$txt['newmessages0'] = 'is new';
-$txt['newmessages1'] = 'are new';
-$txt['newmessages3'] = 'New';
-$txt['newmessages4'] = ',';
+$txt['newmessages0'] = 'is new'; //Deprecated
+$txt['newmessages1'] = 'are new'; //Deprecated
+$txt['newmessages3'] = 'New'; //Deprecated
+$txt['newmessages4'] = ','; //Deprecated
 
 $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';
@@ -143,8 +143,8 @@ $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awai
 $txt['send_message'] = 'Send message';
 
 $txt['msg_alert_none'] = 'No messages...';
-$txt['msg_alert_you_have'] = 'you have';
-$txt['msg_alert_messages'] = 'messages';
+$txt['msg_alert_you_have'] = 'you have'; //Deprecated
+$txt['msg_alert_messages'] = 'messages'; //Deprecated
 $txt['msg_alert_no_messages'] = 'you don\'t have any message';
 $txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
 $txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
@@ -177,7 +177,7 @@ $txt['topic_started'] = 'Topic started by';
 $txt['title'] = 'Title';
 $txt['post_by'] = 'Post by';
 $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
-$txt['welcome_member'] = 'Please welcome';
+$txt['welcome_member'] = 'Please welcome'; //Deprecated
 $txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
 $txt['last_edit'] = 'Last Edit';
@@ -291,7 +291,7 @@ $txt['print'] = 'Print';
 $txt['profile'] = 'Profile';
 $txt['topic_summary'] = 'Topic Summary';
 $txt['not_applicable'] = 'N/A';
-$txt['message_lowercase'] = 'message';
+$txt['message_lowercase'] = 'message'; //Deprecated
 $txt['name_in_use'] = 'This name is already in use by another member.';
 
 $txt['total_members'] = 'Total Members';
@@ -319,7 +319,7 @@ $txt['seconds'] = 'seconds';
 $txt['hour'] = 'Hour';
 $txt['days_word'] = 'days';
 
-$txt['newest_member'] = ', our newest member.';
+$txt['newest_member'] = ', our newest member.'; //Deprecated
 
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
@@ -337,8 +337,10 @@ $txt['yim_title'] = 'Yahoo Instant Messenger';
 
 $txt['maintain_mode_on'] = 'Remember, this forum is in \'Maintenance Mode\'.';
 
-$txt['read'] = 'Read';
-$txt['times'] = 'times';
+$txt['read'] = 'Read'; //Deprecated
+$txt['times'] = 'times'; //Deprecated
+$txt['read_one_time'] = 'Read 1 time';
+$txt['read_many_times'] = 'Read %1$d times';
 
 $txt['forum_stats'] = 'Forum Stats';
 $txt['latest_member'] = 'Latest Member';
