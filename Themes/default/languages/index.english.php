@@ -628,6 +628,8 @@ $txt['guests'] = 'Guests';
 $txt['user'] = 'User';
 $txt['users'] = 'Users';
 $txt['hidden'] = 'Hidden';
+// Plural form of hidden for languages other than English
+$txt['hidden_s'] = 'Hidden';
 $txt['buddy'] = 'Buddy';
 $txt['buddies'] = 'Buddies';
 $txt['most_online_ever'] = 'Most Online Ever';
