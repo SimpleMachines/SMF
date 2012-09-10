@@ -749,7 +749,7 @@ function ssi_latestMember($output_method = 'echo')
 
 	if ($output_method == 'echo')
 		echo '
-	', $txt['welcome_member'], ' ', $context['common_stats']['latest_member']['link'], '', $txt['newest_member'], '<br />';
+	', sprintf($txt['welcome_newest_member'], ' ' . $context['common_stats']['latest_member']['link']), '<br />';
 	else
 		return $context['common_stats']['latest_member'];
 }

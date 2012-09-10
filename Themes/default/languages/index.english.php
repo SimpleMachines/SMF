@@ -173,6 +173,7 @@ $txt['title'] = 'Title';
 $txt['post_by'] = 'Post by';
 $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
 $txt['welcome_member'] = 'Please welcome';
+$txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
 $txt['last_edit'] = 'Last Edit';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
