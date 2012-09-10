@@ -145,6 +145,11 @@ $txt['send_message'] = 'Send message';
 $txt['msg_alert_none'] = 'No messages...';
 $txt['msg_alert_you_have'] = 'you have';
 $txt['msg_alert_messages'] = 'messages';
+$txt['msg_alert_no_messages'] = 'you don\'t have any message';
+$txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
+$txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
+$txt['msg_alert_one_new'] = '1 is new';
+$txt['msg_alert_many_new'] = '%1$d are new';
 $txt['remove_message'] = 'Remove this message';
 
 $txt['online_users'] = 'Users Online';
@@ -344,6 +349,9 @@ $txt['you_have'] = 'You\'ve got';
 $txt['click'] = 'Click';
 $txt['here'] = 'here';
 $txt['to_view'] = 'to view them.';
+$txt['you_have_no_msg'] = 'You don\'t have any message...';
+$txt['you_have_one_msg'] = 'You\'ve got 1 message... Click <a href="%1$s">here</a> to view it';
+$txt['you_have_many_msgs'] = 'You\'ve got %2$d messages... Click <a href="%1$s">here</a> to view them';
 
 $txt['total_boards'] = 'Total Boards';
 

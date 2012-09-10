@@ -420,7 +420,7 @@ function template_info_center()
 				</h4>
 			</div>
 			<p class="pminfo">
-					', $txt['you_have'], ' ', comma_format($context['user']['messages']), ' ', $context['user']['messages'] == 1 ? $txt['message_lowercase'] : $txt['msg_alert_messages'], '.... ', $txt['click'], ' <a href="', $scripturl, '?action=pm">', $txt['here'], '</a> ', $txt['to_view'], '
+					', empty($context['user']['messages']) ? $txt['you_have_no_msg'] : ($context['user']['messages'] == 1 ? sprintf($txt['you_have_one_msg'], $scripturl . '?action=pm') : sprintf($txt['you_have_many_msgs'], $scripturl . '?action=pm', $context['user']['messages'])), '
 			</p>';
 	}
 
