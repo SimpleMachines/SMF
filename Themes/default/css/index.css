@@ -4041,6 +4041,9 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	width: 100%;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
 }
+#postmodify .lastedit{
+	font-weight: bold;
+}
 
 /* Subtle zebra striping to make tables easier to follow. Will make a solution for IE8. */
 /* CSS for locked, sticky, etc has not been applied yet. Don't panic. She'll be right, mate. :P */ 

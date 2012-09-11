@@ -359,8 +359,7 @@ function template_main()
 	if (isset($context['last_modified']))
 		echo '
 					<div class="padding smalltext">
-						<strong>', $txt['last_edit'], ':</strong>
-						', $context['last_modified'], '
+						', $context['last_modified_text'], '
 					</div>';
 
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.

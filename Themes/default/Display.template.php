@@ -395,15 +395,15 @@ function template_main()
 		// The plan is to make these buttons act sensibly, and link to your own inbox in your own posts (with new PM notification).
 		// Still has a little bit of hard-coded text. This may be a place where translators should be able to write inclusive strings,
 		// instead of dealing with $txt['by'] etc in the markup. Must be brief to work, anyway. Cannot ramble on at all.
-		if (($context['can_send_pm']) && ($message['is_message_author']))
+		if ($context['can_send_pm'] && $message['is_message_author'])
 		{
 			echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm">', $txt['pm_short'], ' ', $context['user']['unread_messages'] > 0 ? '[<strong>'. $context['user']['unread_messages'] . '</strong>]' : '' , '</a></li>';
 		}
 
-		if (($context['can_send_pm']) && (!$message['is_message_author']) && (!$message['member']['is_guest']))
+		if ($context['can_send_pm'] && !$message['is_message_author'] && !$message['member']['is_guest'])
 		{
-			if(!empty($modSettings['onlineEnable']))
+			if (!empty($modSettings['onlineEnable']))
 				echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
@@ -411,13 +411,13 @@ function template_main()
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
 		}
 
-		if ((!$context['can_send_pm']) && (!empty($modSettings['onlineEnable'])))
+		if (!$context['can_send_pm'] && !empty($modSettings['onlineEnable']))
 			echo '
 								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], '<img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
 
 		// Are we showing the warning status?
 		// Don't show these things for guests.
-		if ((!$message['member']['is_guest']) &&($message['member']['can_see_warning']))
+		if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 			echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '" />', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
@@ -437,7 +437,7 @@ function template_main()
 		if ($settings['show_modify'] && !empty($message['modified']['name']))
 			echo '
 									<span class="smalltext modified" id="modified_', $message['id'], '">
-										', $txt['last_edit'], ': ', $message['modified']['time'], ' ', $txt['by'], ' ', $message['modified']['name'], '
+										', $message['modified']['last_edit_text'], '
 									</span>';
 
 			echo '
@@ -774,7 +774,7 @@ function template_main()
 			echo '
 								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'postmodify\', \'message\');" tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
-		if (($context['drafts_save']) && !empty($options['drafts_show_saved_enabled']))
+		if ($context['drafts_save'] && !empty($options['drafts_show_saved_enabled']))
 			echo '
 								<input type="submit" name="save_draft" value="', $txt['draft_save'], '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" tabindex="', $context['tabindex']++, '" class="button_submit" />
 								<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';

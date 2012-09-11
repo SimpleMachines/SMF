@@ -608,7 +608,7 @@ function Post($post_errors = array())
 		// Get the existing message.
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				m.id_member, m.modified_time, m.smileys_enabled, m.body,
+				m.id_member, m.modified_time, m.modified_name, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
@@ -659,7 +659,10 @@ function Post($post_errors = array())
 
 		// When was it last modified?
 		if (!empty($row['modified_time']))
+		{
 			$context['last_modified'] = timeformat($row['modified_time']);
+			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']);
+		}
 
 		// Get the stuff ready for the form.
 		$form_subject = $row['subject'];
