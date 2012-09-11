@@ -145,7 +145,7 @@ $txt['package_install_options_make_backups'] = 'Create Backup versions of replac
 $txt['package_install_options_make_full_backups'] = 'Create an entire backup (excluding smileys, avatars and attachments) of the SMF install.';
 
 $txt['package_ftp_necessary'] = 'FTP Information Required';
-$txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable.  This needs to be changed by logging into FTP and using it to chmod or create the files and folders.  Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="%1$s">here</a>.';
+$txt['package_ftp_why'] = 'Some of the files the package manager needs to modify are not writable.  This needs to be changed by logging into FTP and using it to chmod or create the files and directories.  Your FTP information may be temporarily cached for proper operation of the package manager. Note you can also do this manually using an FTP client - to view a list of the affected files please click <a href="#" onclick="%1$s">here</a>.';
 $txt['package_ftp_why_file_list'] = 'The following files need to made writable to continue installation:';
 $txt['package_ftp_why_download'] = 'In order to download packages, the Packages directory, and any files in it, must be writable.  Currently the system does not have the needed permissions to write to this directory.  The package manager can use your FTP information to attempt to fix this problem.';
 $txt['package_ftp_server'] = 'FTP Server';
@@ -212,7 +212,7 @@ $txt['operation_ignore'] = 'Ignore Errors';
 $txt['operation_invalid'] = 'The operation that you selected is invalid.';
 
 $txt['package_file_perms_desc'] = 'You can use this section to review the writable status of critical files and folders within your forum directory. Note this only considers key forum folders and files - use an FTP client for additional options.';
-$txt['package_file_perms_name'] = 'File/Folder Name';
+$txt['package_file_perms_name'] = 'File/Directory Name';
 $txt['package_file_perms_status'] = 'Current Status';
 $txt['package_file_perms_new_status'] = 'New Status';
 $txt['package_file_perms_status_read'] = 'Read';
@@ -227,7 +227,7 @@ $txt['package_file_perms_more_files'] = 'More Files';
 
 $txt['package_file_perms_change'] = 'Change File Permissions';
 $txt['package_file_perms_predefined'] = 'Use predefined permission profile';
-$txt['package_file_perms_predefined_note'] = 'Note that this only applies the predefined profile to key SMF folders and files.';
+$txt['package_file_perms_predefined_note'] = 'Note that this only applies the predefined profile to key SMF directories and files.';
 $txt['package_file_perms_apply'] = 'Apply individual file permissions settings selected above.';
 $txt['package_file_perms_custom'] = 'If &quot;Custom&quot; has been selected use chmod value of';
 $txt['package_file_perms_pre_restricted'] = 'Restricted - minimum files writable';
