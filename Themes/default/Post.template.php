@@ -523,9 +523,6 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<br class="clear_right" />
-					<span class="smalltext">
-						', isBrowser('is_firefox') ? ($context['drafts_save'] ? $txt['shortcuts_drafts_firefox'] : $txt['shortcuts_firefox']) : ($context['drafts_save'] ? $txt['shortcuts_drafts'] : $txt['shortcuts']), '
-					</span>
 					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 

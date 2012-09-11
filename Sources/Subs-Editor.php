@@ -1484,6 +1484,7 @@ function create_control_richedit($editorOptions)
 		if (!empty($txt['lang_locale']) && $txt['lang_locale'] != 'en_US')
 			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array(), 'sceditor_language');
 
+		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (isBrowser('is_firefox') ? '_firefox' : '')];
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
 		{
