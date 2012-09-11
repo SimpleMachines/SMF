@@ -1067,6 +1067,9 @@
 				// make sure this link is not an e-mail, if it is return e-mail BBCode
 				if(element.attr('href').substr(0, 7) === 'mailto:')
 					return '[email=' + element.attr('href').substr(7) + ']' + content + '[/email]';
+				// make sure this link is not an ftp, if it is return ftp BBCode
+				else if(element.attr('href').substr(0, 3) === 'ftp')
+					return '[ftp=' + element.attr('href') + ']' + content + '[/ftp]';
 
 				if(element.attr('target') !== undefined)
 					return '[url=' + decodeURI(element.attr('href')) + ']' + content + '[/url]';
