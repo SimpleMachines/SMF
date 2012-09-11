@@ -279,14 +279,20 @@ function template_info_center()
 			// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 			echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', $context['latest_post']['link'], '&quot; ', $txt['recent_updated'], ' (', $context['latest_post']['time'], ')<br />
+					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br />
 				</p>';
 		}
 		// Show lots of posts.
 		elseif (!empty($context['latest_posts']))
 		{
 			echo '
-				<table id="ic_recentposts">';
+				<table id="ic_recentposts">
+					<tr>
+						<th class="recentpost first_th">', $txt['message'], '</th>
+						<th class="recentposter">', $txt['author'], '</th>
+						<th class="recentboard">', $txt['board'], '</th>
+						<th class="recenttime last_th">', $txt['date'], '</th>
+					</tr>';
 
 			/* Each post in latest_posts has:
 					board (with an id, name, and link.), topic (the topic's id.), poster (with id, name, and link.),
@@ -295,8 +301,8 @@ function template_info_center()
 				echo '
 					<tr>
 						<td class="recentpost"><strong>', $post['link'], '</strong></td>
-						<td class="recentposter">', $txt['by'], ' ', $post['poster']['link'], '</td>
-						<td class="recentboard">(', $post['board']['link'], ')</td>
+						<td class="recentposter">', $post['poster']['link'], '</td>
+						<td class="recentboard">', $post['board']['link'], '</td>
 						<td class="recenttime">', $post['time'], '</td>
 					</tr>';
 			echo '
