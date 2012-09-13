@@ -1034,7 +1034,7 @@
 
 				var width = ' width=' + $(element).width();
 				var height = ' height=' + $(element).height();
-				var alt = $(element).attr('alt') != undefined ? ' alt=' + $(element).attr('author').php_unhtmlspecialchars() : '';
+				var alt = $(element).attr('alt') != undefined ? ' alt=' + $(element).attr('alt').php_unhtmlspecialchars() : '';
 
 				return '[img' + width + height + alt + ']' + element.attr('src') + '[/img]';
 			},
