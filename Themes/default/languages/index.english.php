@@ -135,6 +135,7 @@ $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
 $txt['reply_noun'] = 'Reply';
+$txt['reply_number'] = 'Reply #%1$s';
 $txt['approve'] = 'Approve';
 $txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
@@ -182,7 +183,7 @@ $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
 $txt['welcome_member'] = 'Please welcome'; //Deprecated
 $txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
-$txt['last_edit'] = 'Last Edit'; // Deprecated
+$txt['last_edit'] = 'Last Edit'; //Deprecated
 $txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 
@@ -313,7 +314,7 @@ $txt['ip'] = 'IP';
 
 $txt['www'] = 'WWW';
 
-$txt['by'] = 'by'; // Deprecated
+$txt['by'] = 'by'; //Deprecated
 
 $txt['hours'] = 'hours';
 $txt['minutes'] = 'minutes';
