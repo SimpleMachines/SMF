@@ -164,19 +164,21 @@
 				} },
 				email: { txtExec: function(caller, selected) {
 					var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-						email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected)),
+						email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
+					if (email)
+					{
 						text	= prompt(this._("Enter the displayed text:"), display || email) || email;
-
-					if(email)
 						this.insertText("[email=" + email + "]" + text + "[/email]");
+					}
 				} },
 				link: { txtExec: function(caller, selected) {
 					var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-						url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected)),
+						url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
+					if (url)
+					{
 						text	= prompt(this._("Enter the displayed text:"), display || url) || url;
-
-					if(url)
 						this.insertText("[url=" + url + "]" + text + "[/url]");
+					}
 				} },
 				quote: { txtExec: ["[quote]", "[/quote]"] },
 				youtube: { txtExec: function(caller) {
