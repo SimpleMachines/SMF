@@ -29,7 +29,7 @@ function automanage_attachments_check_directory()
 		return;
 	elseif (!isset($_FILES))
 		return;
-	elseif (isset($_FILES))
+	elseif (isset($_FILES['attachment']))
 		foreach ($_FILES['attachment']['tmp_name'] as $dummy)
 			if (!empty($dummy))
 			{
