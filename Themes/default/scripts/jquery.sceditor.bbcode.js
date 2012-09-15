@@ -167,7 +167,7 @@
 						email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
 					if (email)
 					{
-						text	= prompt(this._("Enter the displayed text:"), display || email) || email;
+						var text	= prompt(this._("Enter the displayed text:"), display || email) || email;
 						this.insertText("[email=" + email + "]" + text + "[/email]");
 					}
 				} },
@@ -176,7 +176,7 @@
 						url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
 					if (url)
 					{
-						text	= prompt(this._("Enter the displayed text:"), display || url) || url;
+						var text	= prompt(this._("Enter the displayed text:"), display || url) || url;
 						this.insertText("[url=" + url + "]" + text + "[/url]");
 					}
 				} },
