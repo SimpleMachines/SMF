@@ -1185,6 +1185,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
 {
 	global $context;
+	
+	//  No bot scan 4 u
+	if(!isset($context))
+		return;
 
 	$charset = $custom_charset !== null ? $custom_charset : $context['character_set'];
 
