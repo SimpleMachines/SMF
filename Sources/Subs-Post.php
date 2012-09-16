@@ -1186,6 +1186,10 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 {
 	global $context;
 
+	//  No bot scan 4 u
+	if(!isset($context))
+		return;
+
 	$charset = $custom_charset !== null ? $custom_charset : $context['character_set'];
 
 	// This is the fun part....
