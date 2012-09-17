@@ -1509,8 +1509,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'tt',
-				'before' => '<div class="bbc_tt">',
-				'after' => '</div>',
+				'before' => '<span class="bbc_tt">',
+				'after' => '</span>',
 			),
 			array(
 				'tag' => 'u',
