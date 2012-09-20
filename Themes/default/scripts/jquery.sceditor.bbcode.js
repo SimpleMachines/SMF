@@ -1117,7 +1117,8 @@
 		// START_COMMAND: Quote
 		quote: {
 			tags: {
-				blockquote: null
+				blockquote: null,
+				cite: null
 			},
 			isBlock: true,
 			format: function(element, content) {
@@ -1125,35 +1126,15 @@
 				var date = '';
 				var link = '';
 
-				if ($(element).children("cite:first").length === 1)
-				{
-					author = $(element).children("cite:first").find("author").text();
-					date = $(element).children("cite:first").find("date").attr('timestamp');
-					link = $(element).children("cite:first").find("quote_link").text();
+				if (element[0].tagName.toLowerCase() == 'cite')
+					return '';
 
-					$(element).attr({'author': author.php_htmlspecialchars(), 'date': date, 'link': link});
-					if (author != '')
-						author = ' author=' + author;
-					if (date != '')
-						date = ' date=' + date;
-					if (link != '')
-						link = ' link=' + link;
-
-					content = '';
-					$(element).children("cite:first").remove();
-
-					var preserve_newline = $(element).children().last().is("br") && $(element).children().last().last().is("br");
-					content = this.elementToBbcode($(element)) + (preserve_newline ? "\n" : '');
-				}
-				else
-				{
-					if ($(element).attr('author') != undefined)
-						author = ' author=' + $(element).attr('author').php_unhtmlspecialchars();
-					if ($(element).attr('date') != undefined)
-						date = ' date=' + $(element).attr('date');
-					if ($(element).attr('link') != undefined)
-						link = ' link=' + $(element).attr('link');
-				}
+				if ($(element).attr('author'))
+					author = ' author=' + $(element).attr('author').php_unhtmlspecialchars();
+				if ($(element).attr('date'))
+					date = ' date=' + $(element).attr('date');
+				if ($(element).attr('link'))
+					link = ' link=' + $(element).attr('link');
 
 				return '[quote' + author + date + link + ']' + content + '[/quote]';
 			},
@@ -1161,11 +1142,14 @@
 				return ['author', 'date', 'link'];
 			},
 			html: function(element, attrs, content) {
-				var author = '';
-				var sDate = '';
-				var link = '';
-				if(typeof attrs.author !== "undefined")
-					author = bbc_quote_from + ': <author>' + attrs.author + '</author>';
+				var attr_author = '', author = '';
+				var attr_date = '', sDate = '';
+				var attr_link = '', link = '';
+				if(typeof attrs.author !== "undefined" && attrs.author)
+				{
+					attr_author = attrs.author;
+					author = bbc_quote_from + ': ' + attr_author;
+				}
 
 				// Links could be in the form: link=topic=71.msg201#msg201 that would fool javascript, so we need a workaround
 				// Probably no more necessary
@@ -1173,26 +1157,25 @@
 				{
 					if (key.substr(0, 4) == 'link' && attrs.hasOwnProperty(key))
 					{
-						var possible_url = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
+						var attr_link = key.length > 4 ? key.substr(5) + '=' + attrs[key] : attrs[key];
 
-						link = possible_url.substr(0, 7) == 'http://' ? possible_url : smf_scripturl + '?' + possible_url;
-						author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': <author src=">' + link + '</author></a>' : '<a href="' + link + '">' + author + '</a>';
-						link = '<quote_link style="display:none">' + possible_url + '</quote_link>';
+						link = attr_link.substr(0, 7) == 'http://' ? attr_link : smf_scripturl + '?' + attr_link;
+						author = author == '' ? '<a href="' + link + '">' + bbc_quote_from + ': ' + link + '</a>' : '<a href="' + link + '">' + author + '</a>';
 					}
 				}
 
-				if(typeof attrs.date !== "undefined")
+				if(typeof attrs.date !== "undefined" && attrs.date)
 				{
-					var date = new Date(attrs.date * 1000);
-					sDate = date;
+					attr_date = attrs.date;
+					sDate = '<date timestamp="' + attr_date + '">' + new Date(attrs.date * 1000) + '</date>';
 				}
 
 				if (author == '' && sDate == '')
 					author = bbc_quote;
 				else
-					author += ' ';
+					author += ' ' + bbc_search_on;
 
-				content = '<blockquote><cite>' + author + bbc_search_on + ' ' + '<date timestamp="' + attrs.date + '">' + sDate + '</date>' + link + '</cite>' + content + '</blockquote>';
+				content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
 
 				return content;
 			}

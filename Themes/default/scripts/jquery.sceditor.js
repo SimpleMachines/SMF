@@ -3412,10 +3412,11 @@
 
 		},
 		getText: function() {
+			var current_value = '';
 			if(this.inSourceMode())
-				var current_value = this.getTextareaValue(false);
+				current_value = this.getTextareaValue(false);
 			else
-				var current_value = this.getWysiwygEditorValue();
+				current_value = this.getWysiwygEditorValue();
 
 			return current_value;
 		},
