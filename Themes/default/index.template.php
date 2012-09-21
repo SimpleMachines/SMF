@@ -96,17 +96,6 @@ function template_html_above()
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
 
-	// RTL languages require an additional stylesheet.
-	if ($context['right_to_left'])
-	{
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
-
-	if (!empty($context['theme_variant']))
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
-	}
-
 	// Save some database hits, if a width for multiple wrappers is set in admin.
 	if(!empty($settings['forum_width']))
 		echo '
@@ -121,6 +110,17 @@ function template_html_above()
 
 	// load in any javascript files from mods and themes
 	template_javascript();
+
+	// RTL languages require an additional stylesheet.
+	if ($context['right_to_left'])
+	{
+		echo '
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
+
+	if (!empty($context['theme_variant']))
+		echo '
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
+	}
 
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
@@ -521,7 +521,7 @@ function template_menu()
 	// Menu bar will still accommodate ten buttons on a 1024, with theme set to 90%. That's more than enough.
 	// If anyone is terrified of losing 40px out of the menu bar, set your theme to 92% instead of 90%. :P
 	echo '
-				<li style="float: right; position: absolute; top: 0; right: 0;">
+				<li id="collapse_button">
 					<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="padding: 4px 9px 3px 9px; display: none;" />
 				</li>';
 

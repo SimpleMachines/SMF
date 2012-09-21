@@ -1208,6 +1208,13 @@ div#admin_menu {
 	line-height: 1.8em;
 }
 
+li#collapse_button {
+	float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
 
