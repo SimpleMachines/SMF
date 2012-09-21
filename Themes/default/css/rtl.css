@@ -87,18 +87,6 @@ table.table_list a.unreadlink, table.table_list a.collapse {
 table.table_list a.collapse {
 	margin: 10px 1em 0 5px;
 }
-.table_grid th.first_th, tr.catbg th.first_th {
-	background: #a8bace url(../images/theme/main_block.png) no-repeat 100% -240px;
-}
-.table_grid th.last_th, tr.catbg th.last_th {
-	background: #a8bace url(../images/theme/main_block.png) no-repeat 0 -240px;
-}
-tr.titlebg th.first_th {
-	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 100% -340px;
-}
-tr.titlebg th.last_th {
-	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -340px;
-}
 
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
@@ -152,7 +140,7 @@ tr.titlebg th.last_th {
 }
 /* For no-js background. */
 .dropmenu li li.subsections a:focus {
-	background:  #e3e9ef url(../images/admin/subsection_rtl.png) no-repeat 1% 40%, url(../images/theme/lower_section_rtl.png) 0 0 repeat-x;
+	background:  #e3e9ef url(../images/admin/subsection_rtl.png) no-repeat 1% 40%, url(../images/theme/lower_section.png) 0 0 repeat-x;
 }
 
 /* The dropdown menu toggle image */
@@ -610,6 +598,9 @@ div#admin_menu {
 }
 .topic_table td.lastpost {
 	background: none;
+}
+#info_center .cat_bar, .table_grid tr.catbg th, #show_attachments th, #searchform .roundframe .title_bar {
+	text-align: right;
 }
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
