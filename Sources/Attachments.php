@@ -133,9 +133,9 @@ function automanage_attachments_create_directory($updir)
 
 	$directory .= DIRECTORY_SEPARATOR . array_shift($tree);
 
-	while (!is_dir($directory) || $count != -1)
+	while (!@is_dir($directory) || $count != -1)
 	{
-		if (!is_dir($directory))
+		if (!@is_dir($directory))
 		{
 			if (!@mkdir($directory,0755))
 			{
