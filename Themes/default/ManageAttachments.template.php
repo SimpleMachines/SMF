@@ -197,7 +197,7 @@ function template_maintenance()
 							<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked="checked"' : '', ' /></dd>';
 	echo '
 						</dl>
-						<hr />
+						<hr class="hrcolor"/>
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="submit" onclick="start_progress()" name="transfer" value="', $txt['attachment_transfer_now'], '" class="button_submit" />
 						<div id="progress_msg"></div>
