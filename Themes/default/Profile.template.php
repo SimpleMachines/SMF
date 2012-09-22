@@ -340,10 +340,10 @@ function template_showPosts()
 			<h3 class="catbg">
 				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), ' - ', $context['member']['name'], '
 			</h3>
-		</div>
+		</div>', !empty($context['page_index']) ? '
 		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
-		</div>';
+			<div class="pagelinks">' . $context['page_index'] . '</div>
+		</div>' : '';
 
 	// Button shortcuts
 	$quote_button = create_button('quote.png', 'reply_quote', 'quote', 'class="centericon"');
@@ -429,7 +429,8 @@ function template_showPosts()
 		</table>';
 
 	// Show more page numbers.
-	echo '
+	if (!empty($context['page_index']))
+		echo '
 		<div class="pagesection" style="margin-bottom: 0;">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
