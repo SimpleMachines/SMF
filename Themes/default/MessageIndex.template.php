@@ -238,17 +238,15 @@ function template_main()
 			// Some columns require a different shade of the color class.
 			$alternate_class = $color_class . '2';
 
-			// [WIP] There is trial code here to hide the topic icon column. Hardly anyone will miss it.
-			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
+			// TODO Markup can be cleaned up later.
 			echo '
 				<tr>
-					<td class="', $color_class, ' icon1" style="display: none;">
-						<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
-					</td>
-					<td class="', $color_class, ' icon2">
-						<div style="position: relative; width: 40px; margin: auto;">
-							<img src="', $topic['first_post']['icon_url'], '" alt="" />
-							', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
+					<td class="', $color_class, ' topic_icons">
+						<div>
+							<img src="', !$topic['is_poll'] ? $topic['first_post']['icon_url'] : $settings['images_url'] .'/post/poll.png', '" alt="" />
+							', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" class="mypost" />' : '','
+							', $topic['is_locked'] ? '<img src="'. $settings['images_url']. '/icons/quick_lock.png" alt="" class="locked" />' : '','
+							', $topic['is_sticky'] ? '<img src="'. $settings['images_url']. '/icons/quick_sticky.png" alt="" class="sticky" />' : '','
 						</div>
 					</td>
 					<td class="', $alternate_class, ' subject">
