@@ -87,18 +87,6 @@ table.table_list a.unreadlink, table.table_list a.collapse {
 table.table_list a.collapse {
 	margin: 10px 1em 0 5px;
 }
-.table_grid th.first_th, tr.catbg th.first_th {
-	background: #a8bace url(../images/theme/main_block.png) no-repeat 100% -240px;
-}
-.table_grid th.last_th, tr.catbg th.last_th {
-	background: #a8bace url(../images/theme/main_block.png) no-repeat 0 -240px;
-}
-tr.titlebg th.first_th {
-	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 100% -340px;
-}
-tr.titlebg th.last_th {
-	background: #e3e9ef url(../images/theme/main_block.png) no-repeat 0 -340px;
-}
 
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
@@ -107,6 +95,7 @@ tr.titlebg th.last_th {
 }
 .dropmenu {
 	float: right;
+	padding: 0;
 }
 .dropmenu li {
 	float: right;
@@ -123,7 +112,7 @@ tr.titlebg th.last_th {
 	margin-right: 1109.5em;
 }
 .dropmenu ul ul a:focus {
-	margin-right: 2228em;
+	margin-right: 0;
 }
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
@@ -139,7 +128,19 @@ tr.titlebg th.last_th {
 }
 /* Reposition as visible on hover. */
 .dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
-	right: auto;
+	right: 14.5em;
+}
+/* Reposition as visible on hover. */
+.dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
+	right: 14.5em;
+}
+/* Indicator for additonal levels. Best in the anchor so it stays visible on hover. */
+.dropmenu li li.subsections a {
+	background: url(../images/admin/subsection_rtl.png) no-repeat 1% 40%;
+}
+/* For no-js background. */
+.dropmenu li li.subsections a:focus {
+	background:  #e3e9ef url(../images/admin/subsection_rtl.png) no-repeat 1% 40%, url(../images/theme/lower_section.png) 0 0 repeat-x;
 }
 
 /* The dropdown menu toggle image */
@@ -152,6 +153,12 @@ tr.titlebg th.last_th {
 #menu_toggle span {
 	position: relative;
 	left: 0;
+}
+
+li#collapse_button {
+	float: left;
+	position: relative;
+	right: 0;
 }
 
 /* Styles for the standard button lists.
@@ -205,6 +212,14 @@ div#upper_section div.user ul {
 	padding-right: 10px;
 }
 
+.button_submit, .button_reset, .button_link {
+	float: left;
+}
+
+#search_form {
+	text-align: left;
+}
+
 /* The navigation list (i.e. linktree) */
 .navigate_section ul li {
 	float: right;
@@ -246,7 +261,6 @@ form#ic_login ul li {
 }
 img#upshrink_ic, img#newsupshrink {
 	float: right;
-	margin: 10px 0 0 5px;
 }
 
 /* Styles for the message (topic) index.
@@ -555,7 +569,7 @@ h3.titlebg img {
 tr.titlebg td {
 	padding-right: 0.7em;
 }
-#admin_menu {
+div#admin_menu {
 	padding-right: 0;
 }
 #admin_content {
@@ -584,6 +598,9 @@ tr.titlebg td {
 }
 .topic_table td.lastpost {
 	background: none;
+}
+#info_center .cat_bar, .table_grid tr.catbg th, #show_attachments th, #searchform .roundframe .title_bar {
+	text-align: right;
 }
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
