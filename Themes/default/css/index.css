@@ -1983,7 +1983,7 @@ p#whoisviewing {
 }
 /* poster and postarea + moderation area underneath */
 /* Need to sort the overflow on the post backgrounds. */
-#forumposts .windowbg, #forumposts .windowbg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #personal_messages div.windowbg, #personal_messages div.windowbg2 {
 	overflow: visible;
 	float: left;
 	width: 100%;
@@ -3871,7 +3871,7 @@ span.hidelink {
 /* Forum posts may require some special treatment for dealing with clearing floated content. */
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
 
-#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden {
+#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden, #personal_messages .windowbg, #personal_messages .windowbg2 {
 	background: /*#e8eff5;*/#f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -3879,7 +3879,7 @@ span.hidelink {
 	border-radius: 5px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 }
-#forumposts .windowbg2 {
+#forumposts .windowbg2, #personal_messages .windowbg2 {
 	background: #eaf1f4;
 }
 #statistics .flow_hidden {

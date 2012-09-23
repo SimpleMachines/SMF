@@ -173,7 +173,7 @@ function template_folder()
 			$window_class = $message['alternate'] == 0 ? 'windowbg' : 'windowbg2';
 
 			echo '
-	<div class="', $window_class, ' clear">
+	<div class="', $window_class, '">
 		<div class="poster">
 			<ul class="dropmenu">
 				<li>
