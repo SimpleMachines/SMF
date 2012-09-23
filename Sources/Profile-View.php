@@ -200,7 +200,7 @@ function showPosts($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['showPosts'],
 		'description' => $txt['showPosts_help'],
-		'icon' => 'profile_sm.png',
+		'icon' => 'profile_hd.png',
 		'tabs' => array(
 			'messages' => array(
 			),
@@ -919,7 +919,7 @@ function tracking($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['tracking'],
 		'description' => $txt['tracking_description'],
-		'icon' => 'profile_sm.png',
+		'icon' => 'profile_hd.png',
 		'tabs' => array(
 			'activity' => array(),
 			'ip' => array(),

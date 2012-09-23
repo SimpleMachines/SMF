@@ -168,7 +168,7 @@ function template_search()
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
+					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
 				</h3>
 			</div>
 			<div id="memberlist_search" class="clear">

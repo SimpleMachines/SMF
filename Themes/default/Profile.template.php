@@ -51,7 +51,7 @@ function template_summary()
 	echo '
 <div class="cat_bar">
 	<h3 class="catbg">
-		<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
+		<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['summary'], '
 	</h3>
 </div>
 <div id="profileview" class="flow_auto">
@@ -632,7 +632,7 @@ function template_editIgnoreList()
 	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['editIgnoreList'], '
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['editIgnoreList'], '
 			</h3>
 		</div>
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
@@ -878,7 +878,7 @@ function template_showPermissions()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['showPermissions'], '
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['showPermissions'], '
 			</h3>
 		</div>';
 
@@ -1035,7 +1035,7 @@ function template_statPanel()
 	echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
+			<img src="', $settings['images_url'], '/stats_info_hd.png" alt="" class="icon" />
 			', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
 		</h3>
 	</div>
@@ -1200,7 +1200,7 @@ function template_edit_options()
 		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />';
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />';
 
 		// Don't say "Profile" if this isn't the profile...
 		if (!empty($context['profile_header_text']))
@@ -1710,7 +1710,7 @@ function template_notification()
 		<form action="', $scripturl, '?action=profile;area=notification;save" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['notification_info'], '</p>
@@ -1804,7 +1804,7 @@ function template_groupMembership()
 		<form action="', $scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['groupMembership_info'], '</p>';
@@ -1973,7 +1973,7 @@ function template_ignoreboards()
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
 			</h3>
 		</div>
 		<p class="description">', $txt['ignoreboards_info'], '</p>
@@ -2067,7 +2067,7 @@ function template_viewWarning()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />
 				', sprintf($txt['profile_viewwarning_for_user'], $context['member']['name']), '
 			</h3>
 		</div>
@@ -2253,7 +2253,7 @@ function template_issueWarning()
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />
 				', $context['user']['is_owner'] ? $txt['profile_warning_level'] : $txt['profile_issue_warning'], '
 			</h3>
 		</div>';
@@ -2449,7 +2449,7 @@ function template_deleteAccount()
 		<form action="', $scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['deleteAccount'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['deleteAccount'], '
 				</h3>
 			</div>';
 
@@ -2925,7 +2925,7 @@ function template_authentication_method()
 		<form action="', $scripturl, '?action=profile;area=authentication;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['authentication'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['authentication'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['change_authentication'], '</p>

@@ -1329,7 +1329,7 @@ function editBuddyIgnoreLists($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['editBuddyIgnoreLists'],
 		'description' => $txt['buddy_ignore_desc'],
-		'icon' => 'profile_sm.png',
+		'icon' => 'profile_hd.png',
 		'tabs' => array(
 			'buddies' => array(),
 			'ignore' => array(),
