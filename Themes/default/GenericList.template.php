@@ -56,7 +56,7 @@ function template_show_list($list_id = null)
 	if (isset($cur_list['additional_rows']['top_of_list']))
 		template_additional_rows('top_of_list', $cur_list);
 
-	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['above_column_headers']))
+	if ((!empty($cur_list['items_per_page']) && !empty($cur_list['page_index'])) || isset($cur_list['additional_rows']['above_column_headers']))
 	{
 		echo '
 			<div class="flow_auto">';
@@ -139,7 +139,7 @@ function template_show_list($list_id = null)
 			</tbody>
 			</table>';
 
-	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['below_table_data']))
+	if ((!empty($cur_list['items_per_page']) && !empty($cur_list['page_index'])) || isset($cur_list['additional_rows']['below_table_data']))
 	{
 		echo '
 			<div class="flow_auto">';
