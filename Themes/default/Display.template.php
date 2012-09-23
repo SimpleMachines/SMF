@@ -338,10 +338,13 @@ function template_main()
 										<li class="email"><a href="', $scripturl, '?action=emailuser;sa=email;msg=', $message['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
 
 		// Stuff for the staff to wallop them with.
+		echo '
+										<li><hr /></li>';
+
 		// Maybe they want to report this post to the moderator(s)?
 		if ($context['can_report_moderator'])
 			echo '
-										<li class="report_link"><hr /><a href="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $message['counter'], ';msg=', $message['id'], '">', $txt['report_to_mod'], '</a></li>';
+										<li class="report_link"><a href="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $message['counter'], ';msg=', $message['id'], '">', $txt['report_to_mod'], '</a></li>';
 
 		// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
 		if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
@@ -400,8 +403,7 @@ function template_main()
 			echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm">', $txt['pm_short'], ' ', $context['user']['unread_messages'] > 0 ? '[<strong>'. $context['user']['unread_messages'] . '</strong>]' : '' , '</a></li>';
 		}
-
-		if (($context['can_send_pm']) && (!$message['is_message_author']) && (!$message['member']['is_guest']))
+		elseif (($context['can_send_pm']) && (!$message['is_message_author']) && (!$message['member']['is_guest']))
 		{
 			if(!empty($modSettings['onlineEnable']))
 				echo '
@@ -410,8 +412,7 @@ function template_main()
 				echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
 		}
-
-		if ((!$context['can_send_pm']) && (!empty($modSettings['onlineEnable'])))
+		elseif ((!$context['can_send_pm']) && (!empty($modSettings['onlineEnable'])))
 			echo '
 								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], '<img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
 

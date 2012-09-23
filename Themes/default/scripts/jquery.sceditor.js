@@ -1315,17 +1315,11 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.toggleTextMode = function () {
-			/*
-			// Possible replacement
 			// don't allow switching to WYSIWYG if doesn't support it
 			if(!$.sceditor.isWysiwygSupported() && base.inSourceMode())
 				return;
 
 			if(base.inSourceMode())
-			*/
-
-
-			if(base.inSourceMode() && base.options.supportedWysiwyg)
 				base.setWysiwygEditorValue(base.getTextareaValue());
 			else
 				base.setTextareaValue(base.getWysiwygEditorValue());
@@ -3418,10 +3412,11 @@
 
 		},
 		getText: function() {
+			var current_value = '';
 			if(this.inSourceMode())
-				var current_value = this.getTextareaValue(false);
+				current_value = this.getTextareaValue(false);
 			else
-				var current_value = this.getWysiwygEditorValue();
+				current_value = this.getWysiwygEditorValue();
 
 			return current_value;
 		},

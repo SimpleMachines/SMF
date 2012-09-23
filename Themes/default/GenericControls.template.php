@@ -33,8 +33,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,
-					supportedWysiwyg: (is_ie || is_ff || is_opera || is_safari || is_chrome),',
+					emoticonsCompat: true,',
 					!empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
