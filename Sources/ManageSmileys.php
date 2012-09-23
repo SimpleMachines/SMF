@@ -387,7 +387,8 @@ function EditSmileySets()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return $rowData[\'selected\'] ? \'<strong>*</strong>\' : \'\';
+						global $settings;
+						return $rowData[\'selected\'] ? \'<img src="\' . $settings[\'images_url\'] . \'/icons/field_valid.png" alt="*" class="icon" />\' : \'\';
 					'),
 					'style' => 'text-align: center;',
 				),
