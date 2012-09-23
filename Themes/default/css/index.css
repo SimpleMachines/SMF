@@ -849,28 +849,7 @@ div.cat_bar {
 div.title_bar {
 	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
 }
-.topic_icons div {
-	text-align: center;
-	position: relative;
-	width: 40px;
-	margin: auto;
-}
-.topic_icons img.mypost, .topic_icons img.locked, .topic_icons img.sticky {
-	position: absolute;
-	z-index: 5;
-}
-.topic_icons img.mypost {
-	right: 4px;
-	bottom: -3px;
-}
-.topic_icons img.locked {
-	left: 4px;
-	bottom: -4px;
-}
-.topic_icons img.sticky {
-	left: 4px;
-	top: -6px;
-}
+
 /* Info center title bars are a bit different. *//* [WIP] */
 /*div.title_barIC {
 	background: #dde3e9 url(../images/theme/bars.png) 0 0 repeat-x;
