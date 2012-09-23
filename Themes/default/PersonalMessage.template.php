@@ -947,7 +947,7 @@ function template_send()
 					</div>
 				</div>
 			</div>
-		</div><br />';
+		</div>';
 
 	// Main message editing box.
 	echo '

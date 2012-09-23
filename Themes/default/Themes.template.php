@@ -18,7 +18,6 @@ function template_main()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=theme;sa=admin" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" value="0" name="options[theme_allow]" />
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a>
@@ -87,10 +86,10 @@ function template_main()
 							<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=0;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
+					<input type="hidden" value="0" name="options[theme_allow]" />
 				</div>
 			</div>
 		</form>';
@@ -158,7 +157,6 @@ function template_main()
 
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
@@ -168,9 +166,9 @@ function template_main()
 	</div>
 
 	<script type="text/javascript"><!-- // --><![CDATA[
-		window.smfForum_scripturl = "', $scripturl, '";
-		window.smfForum_sessionid = "', $context['session_id'], '";
-		window.smfForum_sessionvar = "', $context['session_var'], '";
+		window.smfForum_scripturl = smf_scripturl;
+		window.smfForum_sessionid = smf_session_id;
+		window.smfForum_sessionvar = smf_session_var;
 		window.smfThemes_writable = ', $context['can_create_new'] ? 'true' : 'false', ';
 	// ]]></script>';
 
@@ -597,7 +595,6 @@ function template_set_settings()
 
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '" />
@@ -753,7 +750,8 @@ function template_edit_list()
 	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_edit_title'], '</h3>
-		</div>';
+		</div>
+		<br />';
 
 	$alternate = false;
 

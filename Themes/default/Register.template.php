@@ -577,7 +577,6 @@ function template_admin_register()
 						<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', $context['tabindex']++, '"', !empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? ' checked="checked"' : '', ' onclick="onCheckChange();" class="input_check" />
 					</dd>
 				</dl>
-				<hr class="hrcolor" />
 				<div class="flow_auto">
 					<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
 					<input type="hidden" name="sa" value="register" />

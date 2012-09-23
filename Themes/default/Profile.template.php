@@ -103,6 +103,7 @@ function template_summary()
 	if (!$context['user']['is_owner'] && $context['can_send_pm'])
 		echo '
 					<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '">', $txt['profile_sendpm_short'], '</a><br />';
+	
 	echo '
 					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
 
@@ -777,7 +778,8 @@ function template_trackActivity()
 					</dl>
 				</div>
 			</div>
-		</div>';
+		</div>
+		<br />';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -809,6 +811,7 @@ function template_trackIP()
 			</form>
 		</div>
 	</div>
+	<br />
 	<div class="generic_list_wrapper">';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
@@ -862,7 +865,8 @@ function template_trackIP()
 	}
 
 	echo '
-	</div>';
+	</div>
+	<br />';
 
 	template_show_list('track_message_list');
 
@@ -1372,9 +1376,6 @@ function template_edit_options()
 							<input type="password" name="oldpasswrd" id="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" />
 						</dd>
 					</dl>';
-
-	echo '
-					<hr class="hrcolor" />';
 
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))

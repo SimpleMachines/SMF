@@ -33,9 +33,9 @@ function template_editsets()
 	</div>
 	
 	<script type="text/javascript"><!-- // --><![CDATA[
-		window.smfForum_scripturl = "', $scripturl, '";
-		window.smfForum_sessionid = "', $context['session_id'], '";
-		window.smfForum_sessionvar = "', $context['session_var'], '";
+		window.smfForum_scripturl = smf_scripturl;
+		window.smfForum_sessionid = smf_session_id;
+		window.smfForum_sessionvar = smf_session_var;
 	// ]]></script>';
 
 	if (empty($modSettings['disable_smf_js']))

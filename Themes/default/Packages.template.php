@@ -542,9 +542,9 @@ function template_browse()
 		</div>
 
 		<script type="text/javascript"><!-- // --><![CDATA[
-			window.smfForum_scripturl = "', $scripturl, '";
-			window.smfForum_sessionid = "', $context['session_id'], '";
-			window.smfForum_sessionvar = "', $context['session_var'], '";';
+			window.smfForum_scripturl = smf_scripturl;
+			window.smfForum_sessionid = smf_session_id;
+			window.smfForum_sessionvar = smf_session_var;';
 
 		// Make a list of already installed mods so nothing is listed twice ;).
 		echo '
@@ -1088,7 +1088,7 @@ function template_install_options()
 							<input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' />
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
+
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</form>
@@ -1601,7 +1601,6 @@ function template_file_permissions()
 
 	echo '
 				<span id="test_ftp_placeholder_full"></span>
-				<hr class="hrcolor" />
 				<input type="hidden" name="action_changes" value="1" />
 				<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit" />
 			</div>

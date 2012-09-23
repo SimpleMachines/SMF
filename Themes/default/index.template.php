@@ -437,7 +437,7 @@ function theme_linktree($force_show = false)
 		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
 		if ($link_num != 0)
 			echo '
-				<span class="dividers">',$context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+				<span class="dividers">', $context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
 
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '
