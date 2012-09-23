@@ -218,7 +218,7 @@ function template_notes()
 			echo '
 					</ul>
 					<div class="pagesection notes">
-						<span class="smalltext">', $txt['pages'], ': ', $context['page_index'], '</span>
+						<span class="smalltext">', $context['page_index'], '</span>
 					</div>';
 		}
 
@@ -334,7 +334,7 @@ function template_unapproved_posts()
 	else
 		echo '
 			<div class="pagesection floatleft">
-				', $txt['pages'], ': ', $context['page_index'], '
+				', $context['page_index'], '
 			</div>';
 
 	foreach ($context['unapproved_items'] as $item)
@@ -388,7 +388,7 @@ function template_unapproved_posts()
 	if (!empty($context['unapproved_items']))
 		echo '
 			<div class="floatleft">
-				<div class="pagelinks">', $txt['pages'], ': ', $context['page_index'], '</div>
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
 
 	echo '
