@@ -338,21 +338,27 @@ function ModifyCacheSettings($return_config = false)
 		$detected['memcached'] = $txt['memcached_cache'];
 	if (function_exists('xcache_set'))
 		$detected['xcache'] = $txt['xcache_cache'];
-
-	// set a message to show what, if anything, we found
+	if (function_exists('file_put_contents'))
+		$detected['smf'] = $txt['default_cache'];
+		
+	// set our values to show what, if anything, we found
 	if (empty($detected))
+	{
 		$txt['cache_settings_message'] = $txt['detected_no_caching'];
+		$cache_level = array($txt['cache_off']);
+		$detected['none'] = $txt['cache_off'];
+	}
 	else
+	{
 		$txt['cache_settings_message'] = sprintf($txt['detected_accelerators'], implode(', ', $detected));
-
-	// This is always an option
-	$detected['smf'] = $txt['default_cache'];
+		$cache_level = array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']);
+	}
 
 	// Define the variables we want to edit.
 	$config_vars = array(
 		// Only a few settings, but they are important
 		array('', $txt['cache_settings_message'], '', 'desc'),
-		array('cache_enable', $txt['cache_enable'], 'file', 'select', array($txt['cache_off'], $txt['cache_level1'], $txt['cache_level2'], $txt['cache_level3']), 'cache_enable'),
+		array('cache_enable', $txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'),
 		array('cache_accelerator', $txt['cache_accelerator'], 'file', 'select', $detected),
 		array('cache_memcached', $txt['cache_memcached'], 'file', 'text', $txt['cache_memcached'], 'cache_memcached'),
 		array('cachedir', $txt['cachedir'], 'file', 'text', 36, 'cache_cachedir'),
