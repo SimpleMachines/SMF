@@ -530,42 +530,39 @@ function template_browse()
 	if ($context['sub_action'] == 'browse')
 	{
 		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
-			</h3>
-		</div>
-		<div class="windowbg2">
-			<div class="content">
-				<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
+		<div id="admin_form_wrapper">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
+				</h3>
 			</div>
-		</div>
+			<div class="windowbg2">
+				<div class="content">
+					<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
+				</div>
+			</div>
 
-		<script type="text/javascript"><!-- // --><![CDATA[
-			window.smfForum_scripturl = smf_scripturl;
-			window.smfForum_sessionid = smf_session_id;
-			window.smfForum_sessionvar = smf_session_var;';
+			<script type="text/javascript"><!-- // --><![CDATA[
+				window.smfForum_scripturl = smf_scripturl;
+				window.smfForum_sessionid = smf_session_id;
+				window.smfForum_sessionvar = smf_session_var;';
 
 		// Make a list of already installed mods so nothing is listed twice ;).
 		echo '
-			window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
-			window.smfVersion = "', $context['forum_version'], '";
-		// ]]></script>';
+				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
+				window.smfVersion = "', $context['forum_version'], '";
+			// ]]></script>';
 
 		if (empty($modSettings['disable_smf_js']))
 			echo '
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
+			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
 
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var tempOldOnload;
-			smfSetLatestPackages();
-		// ]]></script>';
+			<script type="text/javascript"><!-- // --><![CDATA[
+				var tempOldOnload;
+				smfSetLatestPackages();
+			// ]]></script>
 
-		echo '
-		<br class="clear" />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['browse_packages'], '</h3>
 		</div>';
 	}
 
@@ -581,7 +578,7 @@ function template_browse()
 
 	if (!$mods_available)
 		echo '
-		<div class="information">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
+		<div class="descbox">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
 
 	// the advanced (emulation) box, collapsed by default
 	echo '
@@ -679,7 +676,7 @@ function template_servers()
 					</div>';
 
 	echo '
-	<div id="admincenter">
+	<div id="admin_form_wrapper">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['download_new_package'], '</h3>
 		</div>';
@@ -1497,7 +1494,7 @@ function template_file_permissions()
 	// ]]></script>';
 
 		echo '
-	<div class="information">
+	<div class="noticebox">
 		<div>
 			<strong>', $txt['package_file_perms_warning'], ':</strong>
 			<div class="smalltext">
@@ -1597,7 +1594,7 @@ function template_file_permissions()
 					', $txt['package_file_perms_ftp_details'], ':
 				</p>
 				', template_control_chmod(), '
-				<div class="information">', $txt['package_file_perms_ftp_retain'], '</div>';
+				<div class="descbox">', $txt['package_file_perms_ftp_retain'], '</div>';
 
 	echo '
 				<span id="test_ftp_placeholder_full"></span>

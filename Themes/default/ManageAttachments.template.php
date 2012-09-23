@@ -168,7 +168,7 @@ function template_attachment_repair()
 	{
 		echo '
 	<div id="manage_attachments">
-		<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['repair_attachments'], '</h3>
 			</div>

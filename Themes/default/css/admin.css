@@ -38,7 +38,7 @@ body.action_admin .navigate_section ul li a {
 
 /* Common admin center classes.
 ------------------------------------------------------- */
-/* [WIP]
+/* @todo
 /* The CSS targeting for all this gets a bit convoluted and requires a good clean up.
 /* It's left over from when I started theming admin independently over a Curve forum.
 /* Can be simplified quite a lot before production builds. */
@@ -78,7 +78,7 @@ body.action_admin .navigate_section ul li a {
 	border: 1px solid #ddd;
 	border-top: none;
 	border-radius: 0 0 7px 7px;
-	margin: 0 0 0 0;
+	margin: -1px 0 12px 0;
 	padding: 12px 9px 8px 9px;
 }
 .action_admin p.description a {
@@ -228,7 +228,6 @@ div.quick_tasks {
 .action_admin .table_grid tr:nth-child(odd) td {
 	background: #f8f8f8;
 }
-/*-------------------------------------------*/
 
 /* Newsletters screen.
 ---------------------------------------------*/
@@ -566,11 +565,12 @@ div.quick_tasks {
 	margin: 0 12px 0 0;
 }
 .features_switch {
+	margin: -20px 0 6px 6px;
 	float: right;
 }
 .features h4 {
 	padding: 0;
-	margin-top: 6px;
+	margin: 0 6px 0 105px;
 	font-size: 1.1em;
 	overflow: hidden;
 	white-space: pre;
@@ -729,6 +729,10 @@ pre.file_content {
 	padding: 8px 16px 4px 16px;
 	color: #444;
 }
+#manage_boards .cat_bar .catbg {
+	border: none;
+	border-bottom: 1px solid #bbb;
+}
 #manage_boards .catbg a {
 	color: #346;
 }
@@ -873,7 +877,6 @@ dl.right dt {
 	padding: 6px 30px;
 	margin: 0 0 6px 0;
 }
-/* Didn't get any further last night. */
 
 /* Styles for the manage calendar section.
 ------------------------------------------------- */

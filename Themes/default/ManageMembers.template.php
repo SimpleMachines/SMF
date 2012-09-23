@@ -164,8 +164,8 @@ function template_search_members()
 					<thead>
 						<tr class="catbg">
 							<th scope="col" class="first_th">', $txt['membergroups'], '</th>
-							<th scope="col">', $txt['primary'], '</th>
-							<th scope="col" class="last_th">', $txt['additional'], '</th>
+							<th scope="col" style="text-align: center">', $txt['primary'], '</th>
+							<th scope="col" class="last_th" style="text-align: center">', $txt['additional'], '</th>
 						</tr>
 					</thead>
 					<tbody>';

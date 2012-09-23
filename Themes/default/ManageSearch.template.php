@@ -16,7 +16,7 @@ function template_modify_weights()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_weights'], '</h3>
 			</div>
@@ -94,12 +94,16 @@ function template_select_search_method()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="', $context['character_set'], '">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['search_method'], '</h3>
+		</div>
+		<div class="information">
+			<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
+		</div>
+			
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_method'], '</h3>
-			</div>
-			<div class="information">
-				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
 			</div>
 			<div class="windowbg">
 				<div class="content">
@@ -320,7 +324,7 @@ function template_spider_edit()
 	global $context, $settings, $options, $scripturl, $txt;
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', $context['spider']['id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', $context['spider']['id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
@@ -407,11 +411,10 @@ function template_show_spider_stats()
 	template_show_list('spider_stat_list');
 
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
-		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+			</div>
 			<div class="windowbg">
 				<div class="content">
 					<p>

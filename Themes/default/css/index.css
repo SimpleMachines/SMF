@@ -1,4 +1,4 @@
-/* Styles for the general looks for the Curve theme.
+/* Styles for the general looks for the Curve II theme.
 ------------------------------------------------------- */
 
 /* Normal, standard links. */
@@ -62,7 +62,7 @@ p, ul, ol, li, dl, dd ,dt, fieldset, form {
 }
 
 /* Set list-style to none by default. Best in most places.*/
-ul, ol, li {
+ul, ol {
 	list-style: none;
 }
 
@@ -87,6 +87,7 @@ ul.reset, ul.reset li {
 /* Thought it made sense to declare box-sizing here too. */
 input, button, select, textarea, textarea.editor {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Liberation Sans", "Nimbus Sans L", Arial, sans-serif;
 	background: #fff;
 	outline: none !important;
 	border: 1px solid #bbb;
@@ -135,9 +136,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-/*	font-weight: bold;*/
-/*	color: #444;*/
-	/* [WIP]*/
+	/* @todo */
 	-moz-transition: all 0.05s linear 0.05s;
 }
 .button_submit:hover, .button_reset:hover, .button_link:hover {
@@ -147,18 +146,14 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-	/* [WIP]*/
+	/* @todo */
 	-moz-transition: all 0.05s linear 0.05s;
 }
-/*.button_link {
-	padding: 4px 5px 4px 4px;
-	font: 95%/115% verdana, Helvetica, sans-serif;
-	float: right;
-	border-radius: 3px;
-}*/
 a.button_link {
-	color: #333;
+	color: #000;
+	padding: 1px 5px;
 	margin: 0 !important;
+	font-size: 0.9em;
 }
 .button_link:hover {
 	text-decoration: none;
@@ -178,7 +173,7 @@ span.new_posts {
 	margin: 0 5px 0 -2px;
 	padding: 0 4px 1px 4px;
 	font-size: 9px;
-	font-family: verdana, sans-serif; /*[WIP] Might add extra fallbacks. Possibly monospace. */
+	font-family: verdana, sans-serif; /* @todo Might add extra fallbacks. Possibly monospace. */
 	box-shadow: 1px 2px 2px rgba(0,0,0,0.1), 0 -2px 4px rgba(0,0,0,0.1) inset;
 }
 a span.new_posts:hover {
@@ -408,9 +403,7 @@ em {
 }
 .bbc_list {
 	text-align: left;
-}
-.bbc_list li {
-	list-style: inside;
+	padding: 0 0 0 35px;
 	list-style-type: inherit;
 }
 .bbc_tt {
@@ -551,7 +544,7 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	padding: 2px 7px 1px 7px;
 	margin: 5px 8px 0 0;
 	color: #222;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 .topbottom:hover {
@@ -563,29 +556,11 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 
-/* Colors for background of posts requiring approval */
-.approvebg {
-	color: #222;
-	background: #ffeaea;
-}
-.approvebg2 {
-	color: #222;
-	background: #fff2f2;
-}
 
-/* Color for background of *topics* requiring approval */
-.approvetbg {
-	color: #222;
-	background: #e4a17c;
-}
-.approvetbg2 {
-	color: #222;
-	background: #f3bd9f;
-}
 
 /* Sticky topics get a different background */
 .stickybg {
@@ -779,7 +754,7 @@ dl.settings dt a img {
 h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
 	overflow: hidden;
 	font-size: 1.1em;
-	font-family: tahoma;/*[WIP]*/
+	font-family: tahoma;/* @todo */
 	font-weight: bold;
 	line-height: 1.5em;
 	padding: 8px;
@@ -792,7 +767,7 @@ h3.catbg2 a, h3.catbg2 {
 }
 h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover {
 	color: #ffc178;
-	text-shadow: -1px -1px 0 rgba(0,0,0,0.5);
+	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
 h3.catbg2 a:hover {
@@ -837,7 +812,7 @@ div.cat_bar {
 	padding: 0;
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.4)
+	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
 /* Message index board descriptions*/
 .description_header {
@@ -850,7 +825,7 @@ div.title_bar {
 	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
 }
 
-/* Info center title bars are a bit different. *//* [WIP] */
+/* Info center title bars are a bit different. */ /* @todo */
 /*div.title_barIC {
 	background: #dde3e9 url(../images/theme/bars.png) 0 0 repeat-x;
 }*/
@@ -921,7 +896,7 @@ img.sort {
 }
 
 /* Used for sections that need somewhat larger corners.
------------------------------------------------------------ *//* [WIP] */
+----------------------------------------------------------- */ /* @todo */
 .roundframe {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	margin: 2px 0 0 0;
@@ -983,7 +958,7 @@ img.sort {
 	float: left;
 	width: 100%;
 	position: relative; /* WTF is this relative for? Hmmmm.*/
-	-moz-box-sizing: border-box;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 /* Level 1 button background. */
 .dropmenu li {
@@ -1054,7 +1029,7 @@ img.sort {
 	position: absolute;
 	top: 2.25em;
 	left: -9999px;
-	width: 16em;
+	width: 17em;
 	padding: 5px 0 7px 0;
 	font-weight: normal;
 	background: #fff url(../images/theme/bars.png) 0 -580px repeat-x;
@@ -1237,13 +1212,13 @@ div#admin_menu {
 /*	font-weight: bold;*/
 	color: #444;
 	font-size: 0.8em;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .buttonlist ul li a {
 	font-size: 0.889em;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 .buttonlist ul li a:hover {
@@ -1254,7 +1229,7 @@ div#admin_menu {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 .buttonlist ul li a span {
@@ -1273,12 +1248,12 @@ div#admin_menu {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #354f64;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.1), -1px -2px 3px rgba(255,255,255,0.3) inset, 1px 2px 3px rgba(0,0,0,0.1) inset;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 .buttonlist ul li a.active:hover {
 	color: #ffc187;
-	/* [WIP]*/
+	/* @todo*/
 	-moz-transition: all 0.05s linear 0.05s;
 }
 .align_top ul li a, .align_bottom ul li a {
@@ -1359,7 +1334,7 @@ div#admin_menu {
 	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	color: #333;
 }
-/* [WIP] In practice it may be better to set a different value for Firefox and Opera only, */
+/* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
 #ie #search_form .button_submit, #chrome #search_form .button_submit {
 	padding: 3px 5px;
@@ -1508,6 +1483,7 @@ img#upshrink {
 }
 .navigate_section ul li .dividers {
 	color: #3f6b8c;
+	font: 83.33%/150% Arial,sans-serif;
 	text-shadow: -2px -1px 0 rgba(0,0,0,0.4), -1px -1px 0 rgba(0,0,0,0.4), -2px 1px 0 rgba(0,0,0,0.4);
 }
 
@@ -1955,7 +1931,7 @@ p#whoisviewing {
 }
 /* poster and postarea + moderation area underneath */
 /* Need to sort the overflow on the post backgrounds. */
-#forumposts .windowbg, #forumposts .windowbg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
 	float: left;
 	width: 100%;
@@ -1984,7 +1960,7 @@ p#whoisviewing {
 	display: block;
 }
 /* Nifty new flyout menu for the poster info. */
-/* [WIP] Can probably clean up the CSS here a bit. */
+/* @todo Can probably clean up the CSS here a bit. */
 /* Check inheritance with font size in the dropdown. */
 .poster .dropmenu {
 	padding: 0 0 0 0;
@@ -2244,7 +2220,7 @@ ul.quickbuttons li.inline_mod_check {
 	color: /*#492700*/ #222;
 	margin: 3px 19px;
 	overflow: visible;
-	/* [WIP] */
+	/* @todo */
 	-moz-transition: all 0.1s linear 0.05s;
 }
 .quickbuttons li:first-child {
@@ -2257,7 +2233,7 @@ ul.quickbuttons li.inline_mod_check {
 	border: 1px solid #ccc;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
-	/* [WIP] */
+	/* @todo */
 	-moz-transition: all 0.1s linear 0.05s;
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
@@ -2331,7 +2307,7 @@ ul.quickbuttons li.inline_mod_check {
 /*-------------------------------------*/
 /* The new little droppy off the "More.." button. */
 /* This should probably be Superfished for production, but transitions were fun to play with in testing. */
-	/* [WIP] */
+	/* @todo */
 .quickbuttons li.post_options ul {
 	opacity: 0;
 	z-index: -1;
@@ -2456,7 +2432,12 @@ ul.post_options li {
 	padding: 0;
 	padding: 6px;
 }
-#postAttachment dd, #postAttachment2 dd {
+#postAttachment dd {
+	margin: 4px 0 4px 12px;
+	width: 45%;
+	float: left;
+}
+#postAttachment2 dd {
 	margin: 4px 0 4px 12px;
 }
 #postAttachment dt, #postAttachment2 dt {
@@ -2912,6 +2893,13 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	border-bottom: 1px solid green;
 	padding: 7px 10px 7px 35px;
 	margin-bottom: 12px;
+}
+.descbox  {
+	text-align: left;
+	padding: 7px 10px 7px 35px;
+	border: 1px solid #c5c5c5;
+	border-radius: 7px;
+	margin: 6px 0;
 }
 
 /* Styles for the profile section.
@@ -3843,7 +3831,7 @@ span.hidelink {
 /* Forum posts may require some special treatment for dealing with clearing floated content. */
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
 
-#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden {
+#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: /*#e8eff5;*/#f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -3890,6 +3878,9 @@ span.hidelink {
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
 }
+.generic_list_wrapper {
+	margin-top: -5px;
+}
 .generic_list_wrapper .title_bar{
 	background: none;
 	border-bottom: 1px solid #fff;
@@ -3902,9 +3893,12 @@ span.hidelink {
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
-	padding: 0;
-	border-bottom: 1px solid #aaa;
+	padding: 5px 0;
+	border-top: 1px solid #aaa;
 	border-radius: 0;
+}
+.generic_list_wrapper .information .additional_row{
+	border: none;
 }
 .generic_list_wrapper .information {
 	margin: 0;
@@ -3949,7 +3943,7 @@ span.hidelink {
 .action_recent #recent .quickbuttons {
 	margin-top: 8px;
 }
-/* [WIP] Some odd inheritance glitch here with font-size. Check it out. */
+/* @todo Some odd inheritance glitch here with font-size. Check it out. */
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
@@ -4064,4 +4058,22 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 }
 .table_grid td.whos_viewing {
 	font-size: 0.9em;
+}
+/* Colors for background of posts requiring approval */
+#forumposts .approvebg {
+	color: #222;
+	background: #ffeaea;
+}
+#forumposts .approvebg2 {
+	color: #222;
+	background: #fff2f2;
+}
+/* Color for background of *topics* requiring approval */
+.approvetbg {
+	color: #222;
+	background: #e4a17c;
+}
+.approvetbg2 {
+	color: #222;
+	background: #f3bd9f;
 }
