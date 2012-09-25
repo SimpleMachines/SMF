@@ -507,10 +507,10 @@ function template_admin_register()
 
 	echo '
 	<div id="admincenter">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
-		</div>
-		<form class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm" id="postForm">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm" id="postForm">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
+			</div>
 			<div class="content" id="register_screen">';
 
 	if (!empty($context['registration_done']))
@@ -597,10 +597,7 @@ function template_edit_agreement()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	// Just a big box to edit the text file ;).
-	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['registration_agreement'], '</h3>
-		</div>';
+	echo '';
 
 	// Warning for if the file isn't writable.
 	if (!empty($context['warning']))
@@ -608,54 +605,56 @@ function template_edit_agreement()
 		<p class="error">', $context['warning'], '</p>';
 
 	echo '
-		<div class="windowbg2" id="registration_agreement">
-			<div class="content">';
+		<div id="admin_form_wrapper">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
+			</div>';
 
 	// Is there more than one language to choose from?
 	if (count($context['editable_agreements']) > 1)
 	{
 		echo '
-				<div class="information">
-					<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
-						<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
-						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
+			<div class="information">
+				<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
+					<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
+					<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
 
 		foreach ($context['editable_agreements'] as $file => $name)
 			echo '
-							<option value="', $file, '" ', $context['current_agreement'] == $file ? 'selected="selected"' : '', '>', $name, '</option>';
+						<option value="', $file, '" ', $context['current_agreement'] == $file ? 'selected="selected"' : '', '>', $name, '</option>';
 
 		echo '
-						</select>
-						<div class="righttext">
-							<input type="hidden" name="sa" value="agreement" />
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
-						</div>
-					</form>
-				</div>';
-	}
-
-	echo '
-				<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">';
-
-	// Show the actual agreement in an oversized text box.
-	echo '
-					<p class="agreement">
-						<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
-					</p>
-					<p>
-						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check" /> ', $txt['admin_agreement'], '.</label>
-					</p>
-					<hr class="hrcolor" />
-					<div class="flow_auto" >
-						<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
-						<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '" />
+					</select>
+					<div class="righttext">
 						<input type="hidden" name="sa" value="agreement" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '" />
+						<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
 					</div>
 				</form>
 			</div>
+			<hr />';
+	}
+
+	echo '
+			<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">';
+
+	// Show the actual agreement in an oversized text box.
+	echo '
+				<p class="agreement">
+					<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
+				</p>
+				<p>
+					<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check" /> ', $txt['admin_agreement'], '.</label>
+				</p>
+				<hr class="hrcolor" />
+				<div class="flow_auto" >
+					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
+					<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '" />
+					<input type="hidden" name="sa" value="agreement" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '" />
+				</div>
+			</form>
 		</div>';
 }
 
@@ -664,10 +663,10 @@ function template_edit_reserved_words()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
-		</div>
-		<form id="registration_agreement" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
+			</div>
 			<div class="content">
 				<h4>', $txt['admin_reserved_line'], '</h4>
 				<p class="reserved_names">
@@ -709,8 +708,5 @@ function template_edit_reserved_words()
 			</div>
 		</form>';
 }
-
-
-
 
 ?>

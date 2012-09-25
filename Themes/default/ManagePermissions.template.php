@@ -359,7 +359,7 @@ function template_edit_profiles()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="', $context['character_set'], '">
+		<form class="generic_list_wrapper" action="', $scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="', $context['character_set'], '">
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['permissions_profile_edit'], '</h3>
 			</div>
@@ -1057,7 +1057,7 @@ function template_postmod_permissions()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=permissions;sa=postmod;', $context['session_var'], '=', $context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="', $context['character_set'], '">
+		<form class="generic_list_wrapper" action="', $scripturl, '?action=admin;area=permissions;sa=postmod;', $context['session_var'], '=', $context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="', $context['character_set'], '">
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['permissions_post_moderation'], '</h3>
 			</div>';
