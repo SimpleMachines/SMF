@@ -264,25 +264,22 @@ function template_by_board()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	echo '
-	<form id="admincenter" action="', $scripturl, '?action=admin;area=permissions;sa=board" method="post" accept-charset="', $context['character_set'], '">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['permissions_boards'], '</h3>
+	<form id="manage_boards" action="', $scripturl, '?action=admin;area=permissions;sa=board" method="post" accept-charset="', $context['character_set'], '">
+		<div class="title_bar">
+			<h3 class="titlebg">', $txt['permissions_boards'], '</h3>
 		</div>
 		<div class="information">
 			', $txt['permissions_boards_desc'], '
-		</div>
+		</div>', !$context['edit_all'] ? '
+		<div class="content flow_auto">
+			<a class="button_link" href="' . $scripturl . '?action=admin;area=permissions;sa=board;edit;' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['permissions_board_all'] . '</a>
+		</div>' : '', '
 		<div class="title_bar">
 			<h3 id="board_permissions" class="titlebg flow_hidden">
 				<span class="perm_name floatleft">', $txt['board_name'], '</span>
 				<span class="perm_profile floatleft">', $txt['permission_profile'], '</span>
 			</h3>
 		</div>';
-
-	if (!$context['edit_all'])
-		echo '
-			<div class="content flow_auto">
-			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>
-			</div>';
 
 	foreach ($context['categories'] as $category)
 	{
