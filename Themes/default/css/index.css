@@ -406,6 +406,7 @@ em {
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
 }
+/* Everything is same except HTML5 valid */
 .bbc_tt {
 	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 }
