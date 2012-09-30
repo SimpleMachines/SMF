@@ -596,7 +596,7 @@ function template_edit_agreement()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	// Just a big box to edit the text file ;).
-echo '
+	echo '
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
@@ -711,8 +711,5 @@ function template_edit_reserved_words()
 			</div>
 		</form>';
 }
-
-
-
 
 ?>

@@ -23,7 +23,7 @@ $txt['permissions_profile_no_polls'] = 'No Polls';
 $txt['permissions_profile_reply_only'] = 'Reply Only';
 $txt['permissions_profile_read_only'] = 'Read Only';
 
-$txt['permissions_profile_rename'] = 'Rename';
+$txt['permissions_profile_rename'] = 'Rename all';
 $txt['permissions_profile_edit'] = 'Edit Profiles';
 $txt['permissions_profile_new'] = 'New Profile';
 $txt['permissions_profile_new_create'] = 'Create';
