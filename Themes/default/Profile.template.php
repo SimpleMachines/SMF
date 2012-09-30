@@ -51,7 +51,7 @@ function template_summary()
 	echo '
 <div class="cat_bar">
 	<h3 class="catbg">
-		<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
+		<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['summary'], '
 	</h3>
 </div>
 <div id="profileview" class="flow_auto">
@@ -65,12 +65,12 @@ function template_summary()
 	// What about if we allow email only via the forum??
 	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
 		echo '
-					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" /></a></li>';
+					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" class="centericon" /></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
 		echo '
-					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www_sm.png" alt="' . $context['member']['website']['title'] . '" />' : $txt['www']), '</a></li>';
+					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www_sm.png" alt="' . $context['member']['website']['title'] . '" class="centericon" />' : $txt['www']), '</a></li>';
 
 	// Are there any custom profile fields for the summary?
 	if (!empty($context['custom_fields']))
@@ -103,6 +103,7 @@ function template_summary()
 	if (!$context['user']['is_owner'] && $context['can_send_pm'])
 		echo '
 					<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '">', $txt['profile_sendpm_short'], '</a><br />';
+	
 	echo '
 					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
 
@@ -633,7 +634,7 @@ function template_editIgnoreList()
 	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['editIgnoreList'], '
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['editIgnoreList'], '
 			</h3>
 		</div>
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
@@ -778,7 +779,8 @@ function template_trackActivity()
 					</dl>
 				</div>
 			</div>
-		</div>';
+		</div>
+		<br />';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -810,6 +812,7 @@ function template_trackIP()
 			</form>
 		</div>
 	</div>
+	<br />
 	<div class="generic_list_wrapper">';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
@@ -863,7 +866,8 @@ function template_trackIP()
 	}
 
 	echo '
-	</div>';
+	</div>
+	<br />';
 
 	template_show_list('track_message_list');
 
@@ -879,7 +883,7 @@ function template_showPermissions()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['showPermissions'], '
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['showPermissions'], '
 			</h3>
 		</div>';
 
@@ -1036,7 +1040,7 @@ function template_statPanel()
 	echo '
 	<div class="cat_bar">
 		<h3 class="catbg">
-			<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
+			<img src="', $settings['images_url'], '/stats_info_hd.png" alt="" class="icon" />
 			', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
 		</h3>
 	</div>
@@ -1201,7 +1205,7 @@ function template_edit_options()
 		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />';
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />';
 
 		// Don't say "Profile" if this isn't the profile...
 		if (!empty($context['profile_header_text']))
@@ -1373,9 +1377,6 @@ function template_edit_options()
 							<input type="password" name="oldpasswrd" id="oldpasswrd" size="20" style="margin-right: 4ex;" class="input_password" />
 						</dd>
 					</dl>';
-
-	echo '
-					<hr class="hrcolor" />';
 
 	// The button shouldn't say "Change profile" unless we're changing the profile...
 	if (!empty($context['submit_button_text']))
@@ -1687,8 +1688,14 @@ function template_profile_theme_settings()
 									<option value="0"', empty($context['member']['options']['display_quick_reply']) ? ' selected="selected"' : '', '>', $txt['display_quick_reply1'], '</option>
 									<option value="1"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 1 ? ' selected="selected"' : '', '>', $txt['display_quick_reply2'], '</option>
 									<option value="2"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 2 ? ' selected="selected"' : '', '>', $txt['display_quick_reply3'], '</option>
-									<option value="3"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 3 ? ' selected="selected"' : '', '>', $txt['display_quick_reply4'], '</option>
 								</select>
+							</dd>
+							<dt>
+								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '</label>
+							</dt>
+							<dd>
+								<input type="hidden" name="default_options[use_editor_quick_reply]" value="0" />
+								<label for="use_editor_quick_reply"><input type="checkbox" name="default_options[use_editor_quick_reply]" id="use_editor_quick_reply" value="1"', !empty($context['member']['options']['use_editor_quick_reply']) ? ' checked="checked"' : '', ' class="input_check" /></label>
 							</dd>
 							<dt>
 								<label for="display_quick_mod">', $txt['display_quick_mod'], '</label>
@@ -1711,7 +1718,7 @@ function template_notification()
 		<form action="', $scripturl, '?action=profile;area=notification;save" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['notification_info'], '</p>
@@ -1805,7 +1812,7 @@ function template_groupMembership()
 		<form action="', $scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['groupMembership_info'], '</p>';
@@ -1974,7 +1981,7 @@ function template_ignoreboards()
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
 			</h3>
 		</div>
 		<p class="description">', $txt['ignoreboards_info'], '</p>
@@ -2068,7 +2075,7 @@ function template_viewWarning()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />
 				', sprintf($txt['profile_viewwarning_for_user'], $context['member']['name']), '
 			</h3>
 		</div>
@@ -2254,7 +2261,7 @@ function template_issueWarning()
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />
+				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />
 				', $context['user']['is_owner'] ? $txt['profile_warning_level'] : $txt['profile_issue_warning'], '
 			</h3>
 		</div>';
@@ -2450,7 +2457,7 @@ function template_deleteAccount()
 		<form action="', $scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['deleteAccount'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['deleteAccount'], '
 				</h3>
 			</div>';
 
@@ -2926,7 +2933,7 @@ function template_authentication_method()
 		<form action="', $scripturl, '?action=profile;area=authentication;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['authentication'], '
+					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['authentication'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['change_authentication'], '</p>

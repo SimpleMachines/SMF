@@ -594,6 +594,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 				'check' => array(
 					'header' => array(
 						'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+						'class' => 'centercol',
 					),
 					'data' => array(
 						'sprintf' => array(
@@ -602,7 +603,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 								'path' => false,
 							),
 						),
-						'style' => 'text-align: center',
+						'class' => 'centercol',
 					),
 				),
 				'result' => array(
@@ -627,7 +628,6 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 					'position' => 'below_table_data',
 					'value' => '<input type="submit" name="restore_perms" value="' . $txt['package_restore_permissions_restore'] . '" class="button_submit" />',
 					'class' => 'titlebg',
-					'style' => 'text-align: right;',
 				),
 				array(
 					'position' => 'after_title',

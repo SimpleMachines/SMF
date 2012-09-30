@@ -200,7 +200,7 @@ function showPosts($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['showPosts'],
 		'description' => $txt['showPosts_help'],
-		'icon' => 'profile_sm.png',
+		'icon' => 'profile_hd.png',
 		'tabs' => array(
 			'messages' => array(
 			),
@@ -559,7 +559,7 @@ function showAttachments($memID)
 				'header' => array(
 					'value' => $txt['show_attach_downloads'],
 					'class' => 'lefttext',
-					'style' => 'width: 25%',
+					'style' => 'width: 25%;',
 				),
 				'data' => array(
 					'db' => 'filename',
@@ -572,7 +572,7 @@ function showAttachments($memID)
 			'downloads' => array(
 				'header' => array(
 					'value' => $txt['show_attach_downloads'],
-					'style' => 'width: 12%',
+					'style' => 'width: 12%;',
 				),
 				'data' => array(
 					'db' => 'downloads',
@@ -587,7 +587,7 @@ function showAttachments($memID)
 				'header' => array(
 					'value' => $txt['message'],
 					'class' => 'lefttext',
-					'style' => 'width: 30%',
+					'style' => 'width: 30%;',
 				),
 				'data' => array(
 					'db' => 'subject',
@@ -919,7 +919,7 @@ function tracking($memID)
 	$context[$context['profile_menu_name']]['tab_data'] = array(
 		'title' => $txt['tracking'],
 		'description' => $txt['tracking_description'],
-		'icon' => 'profile_sm.png',
+		'icon' => 'profile_hd.png',
 		'tabs' => array(
 			'activity' => array(),
 			'ip' => array(),
@@ -2179,7 +2179,7 @@ function viewWarning($memID)
 			'reason' => array(
 				'header' => array(
 					'value' => $txt['profile_warning_previous_reason'],
-					'style' => 'width: 50%',
+					'style' => 'width: 50%;',
 				),
 				'data' => array(
 					'db' => 'reason',

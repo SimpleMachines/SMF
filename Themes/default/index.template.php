@@ -428,16 +428,12 @@ function theme_linktree($force_show = false)
 		echo '
 			<li', ($link_num == count($context['linktree']) - 1) ? ' class="last"' : '', '>';
 
-		// Show something before the link?
-		if (isset($tree['extra_before']))
-			echo $tree['extra_before'];
-
 		// Don't show a separator for the first one.
 		// Better here. Always points to the next level when the linktree breaks to a second line.
 		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
 		if ($link_num != 0)
 			echo '
-				<span class="dividers">',$context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+				<span class="dividers">', $context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
 
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '

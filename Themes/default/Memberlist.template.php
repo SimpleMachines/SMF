@@ -19,7 +19,7 @@ function template_main()
 	<div class="main_section" id="memberlist">
 		<div class="pagesection">
 			', template_button_strip($context['memberlist_buttons'], 'right'), '
-			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
+			<div class="pagelinks floatleft">', $context['page_index'], '</div>
 		</div>
 		<div class="cat_bar">
 			<h4 class="catbg">
@@ -142,7 +142,7 @@ function template_main()
 	// Show the page numbers again. (makes 'em easier to find!)
 	echo '
 		<div class="pagesection">
-			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>';
+			<div class="pagelinks floatleft">', $context['page_index'], '</div>';
 
 	// If it is displaying the result of a search show a "search again" link to edit their criteria.
 	if (isset($context['old_search']))
@@ -168,7 +168,7 @@ function template_search()
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
+					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
 				</h3>
 			</div>
 			<div id="memberlist_search" class="clear">
@@ -191,9 +191,9 @@ function template_search()
 							<label for="fields-', $id, '"><input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '" ', in_array($id, $context['search_defaults']) ? 'checked="checked"' : '', ' class="input_check floatright" />', $title, '</label>
 						</dd>';
 	}
+	
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<div class="flow_auto">
 						<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
 					</div>

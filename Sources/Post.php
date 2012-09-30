@@ -2022,6 +2022,7 @@ function Post2()
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.0',
 			'name' => $_POST['subject'],
+			'extra_before' => $settings['linktree_inline'] ? $txt['topic'] . ': ' : ''
 		);
 
 		if (isset($_REQUEST['msg']))

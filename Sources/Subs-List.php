@@ -82,7 +82,8 @@ function createList($listOptions)
 		$list_context['items_per_page'] = $listOptions['items_per_page'];
 
 		// Then create a page index.
-		$list_context['page_index'] = constructPageIndex($listOptions['base_href'] . (empty($list_context['sort']) ? '' : ';' . $request_var_sort . '=' . $list_context['sort']['id'] . ($list_context['sort']['desc'] ? ';' . $request_var_desc : '')) . ($list_context['start_var_name'] != 'start' ? ';' . $list_context['start_var_name'] . '=%1$d' : ''), $list_context['start'], $list_context['total_num_items'], $list_context['items_per_page'], $list_context['start_var_name'] != 'start');
+		if ($list_context['total_num_items'] > $list_context['items_per_page'])
+			$list_context['page_index'] = constructPageIndex($listOptions['base_href'] . (empty($list_context['sort']) ? '' : ';' . $request_var_sort . '=' . $list_context['sort']['id'] . ($list_context['sort']['desc'] ? ';' . $request_var_desc : '')) . ($list_context['start_var_name'] != 'start' ? ';' . $list_context['start_var_name'] . '=%1$d' : ''), $list_context['start'], $list_context['total_num_items'], $list_context['items_per_page'], $list_context['start_var_name'] != 'start');
 	}
 
 	// Prepare the headers of the table.
@@ -108,7 +109,8 @@ function createList($listOptions)
 
 	// Call the function and include which items we want and in what order.
 	$list_items = call_user_func_array($listOptions['get_items']['function'], array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
-
+	$list_items = empty($list_items) ? array() : $list_items;
+	
 	// Loop through the list items to be shown and construct the data values.
 	$list_context['rows'] = array();
 	foreach ($list_items as $item_id => $list_item)

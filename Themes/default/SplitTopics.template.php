@@ -92,7 +92,7 @@ function template_select()
 					', $txt['please_select_split'], '
 				</div>
 				<div class="pagesection">
-					<strong>', $txt['pages'], ':</strong> <span id="pageindex_not_selected">', $context['not_selected']['page_index'], '</span>
+					<span id="pageindex_not_selected">', $context['not_selected']['page_index'], '</span>
 				</div>
 				<ul id="messages_not_selected" class="split_messages smalltext reset">';
 
@@ -123,7 +123,7 @@ function template_select()
 					', $txt['split_selected_posts_desc'], '
 				</div>
 				<div class="pagesection">
-					<strong>', $txt['pages'], ':</strong> <span id="pageindex_selected">', $context['selected']['page_index'], '</span>
+					<span id="pageindex_selected">', $context['selected']['page_index'], '</span>
 				</div>
 				<ul id="messages_selected" class="split_messages smalltext reset">';
 
@@ -321,7 +321,7 @@ function template_merge()
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
 			<div class="pagesection">
-				<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
+				', $context['page_index'], '
 			</div>
 			<div class="windowbg2">
 				<div class="content">
@@ -341,7 +341,7 @@ function template_merge()
 				</div>
 			</div>
 			<div class="pagesection">
-				<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
+				', $context['page_index'], '
 			</div>
 		</div>';
 }

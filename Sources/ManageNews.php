@@ -175,6 +175,7 @@ function EditNews()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$news', '
@@ -184,7 +185,7 @@ function EditNews()
 						else
 							return \'\';
 					'),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),

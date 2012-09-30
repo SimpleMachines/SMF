@@ -110,7 +110,7 @@ function db_fix_prefix(&$db_prefix, $db_name)
 }
 
 /**
- * Callback for preg_replace_calback on the query.
+ * Callback for preg_replace_callback on the query.
  * It allows to replace on the fly a few pre-defined strings, for
  * convenience ('query_see_board', 'query_wanna_see_board'), with
  * their current values from $user_info.

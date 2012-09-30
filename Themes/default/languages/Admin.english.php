@@ -637,6 +637,7 @@ $txt['admin_search_section_sections'] = 'Section';
 $txt['admin_search_section_settings'] = 'Setting';
 
 $txt['core_settings_title'] = 'Core Features';
+$txt['core_settings_desc'] = 'This page allows you to turn on or off optional features of your forum.';
 $txt['mods_cat_features'] = 'General';
 $txt['mods_cat_security_general'] = 'General';
 $txt['antispam_title'] = 'Anti-Spam';
