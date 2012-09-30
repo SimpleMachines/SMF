@@ -117,17 +117,17 @@ function automanage_attachments_create_directory($updir)
 {
 	global $modSettings, $initial_error, $context, $boarddir;
 
-	$tree = mama_get_directory_tree_elements($updir);
+	$tree = get_directory_tree_elements($updir);
 	$count = count($tree);
 
-	$directory = mama_init_dir($tree, $count);
+	$directory = attachments_init_dir($tree, $count);
 	if ($directory === false)
 	{
 		// Maybe it's just the folder name
-		$tree = mama_get_directory_tree_elements($boarddir . DIRECTORY_SEPARATOR . $updir);
+		$tree = get_directory_tree_elements($boarddir . DIRECTORY_SEPARATOR . $updir);
 		$count = count($tree);
 	
-		$directory = mama_init_dir($tree, $count);
+		$directory = attachments_init_dir($tree, $count);
 		if ($directory === false)
 			return false;
 	}
@@ -234,7 +234,7 @@ function automanage_attachments_by_space()
 		return false;
 }
 
-function mama_get_directory_tree_elements ($directory)
+function get_directory_tree_elements ($directory)
 {
 	/*
 		In Windows server both \ and / can be used as directory separators in paths
@@ -255,7 +255,7 @@ function mama_get_directory_tree_elements ($directory)
 	return $tree;
 }
 
-function mama_init_dir (&$tree, &$count)
+function attachments_init_dir (&$tree, &$count)
 {
 	$directory = '';
 	// If on Windows servers the first part of the path is the drive (e.g. "C:")

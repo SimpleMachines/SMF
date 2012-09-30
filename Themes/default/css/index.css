@@ -2440,13 +2440,12 @@ ul.post_options li {
 	padding: 0;
 	padding: 6px;
 }
-#postAttachment dd {
+#postAttachment dd, #postAttachment2 dd {
 	margin: 4px 0 4px 12px;
+}
+#postAttachment dd {
 	width: 45%;
 	float: left;
-}
-#postAttachment2 dd {
-	margin: 4px 0 4px 12px;
 }
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;
