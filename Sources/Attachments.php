@@ -23,11 +23,13 @@ function automanage_attachments_check_directory()
 	global $boarddir, $modSettings, $context;
 
 	// Not pretty, but since we don't want folders created for every post. It'll do unless a better solution can be found.
-	if (empty($modSettings['automanage_attachments']))
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin')
+		$doit = true;
+	elseif (empty($modSettings['automanage_attachments']))
 		return;
-	elseif (!isset($_FILES) && !isset($doit))
+	elseif (!isset($_FILES))
 		return;
-	elseif (isset($_FILES))
+	elseif (isset($_FILES['attachment']))
 		foreach ($_FILES['attachment']['tmp_name'] as $dummy)
 			if (!empty($dummy))
 			{
@@ -132,9 +134,9 @@ function automanage_attachments_create_directory($updir)
 
 	$directory .= DIRECTORY_SEPARATOR . array_shift($tree);
 
-	while (!is_dir($directory) || $count != -1)
+	while (!@is_dir($directory) || $count != -1)
 	{
-		if (!is_dir($directory))
+		if (!@is_dir($directory))
 		{
 			if (!@mkdir($directory,0755))
 			{
@@ -524,9 +526,11 @@ function attachmentChecks($attachID)
 			$request = $smcFunc['db_query']('', '
 				SELECT COUNT(*), SUM(size)
 				FROM {db_prefix}attachments
-				WHERE id_folder = {int:folder_id}',
+				WHERE id_folder = {int:folder_id}
+					AND attachment_type != {int:type}',
 				array(
-					'folder_id' => (empty($modSettings['currentAttachmentUploadDir']) ? 1 : $modSettings['currentAttachmentUploadDir']),
+					'folder_id' => $modSettings['currentAttachmentUploadDir'],
+					'type' => 1,
 				)
 			);
 			list ($context['dir_files'], $context['dir_size']) = $smcFunc['db_fetch_row']($request);
@@ -536,8 +540,8 @@ function attachmentChecks($attachID)
 		$context['dir_files']++;
 
 		// Are we about to run out of room? Let's notify the admin then.
-		if (empty($modSettings['attachment_full_notified']) && empty($modSettings['attachmentDirSizeLimit']) && $modSettings['attachmentDirSizeLimit'] > 4000 && $context['dir_size'] > ($modSettings['attachmentDirSizeLimit'] - 2000) * 1024
-			|| (empty($modSettings['attachmentDirFileLimit']) && $modSettings['attachmentDirFileLimit'] * .95 < $context['dir_files'] && $modSettings['attachmentDirFileLimit'] > 500))
+		if (empty($modSettings['attachment_full_notified']) && !empty($modSettings['attachmentDirSizeLimit']) && $modSettings['attachmentDirSizeLimit'] > 4000 && $context['dir_size'] > ($modSettings['attachmentDirSizeLimit'] - 2000) * 1024
+			|| (!empty($modSettings['attachmentDirFileLimit']) && $modSettings['attachmentDirFileLimit'] * .95 < $context['dir_files'] && $modSettings['attachmentDirFileLimit'] > 500))
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
 			emailAdmins('admin_attachments_full');
@@ -546,7 +550,7 @@ function attachmentChecks($attachID)
 
 		// // No room left.... What to do now???
 		if (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_files'] + 2 > $modSettings['attachmentDirFileLimit']
-			|| (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024))
+			|| (!empty($modSettings['attachmentDirSizeLimit']) && $context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024))
 		{
 			if (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] == 1)
 			{
@@ -556,8 +560,8 @@ function attachmentChecks($attachID)
 					rename($_SESSION['temp_attachments'][$attachID]['tmp_name'], $context['attach_dir'] . '/' . $attachID);
 					$_SESSION['temp_attachments'][$attachID]['tmp_name'] = $context['attach_dir'] . '/' . $attachID;
 					$_SESSION['temp_attachments'][$attachID]['id_folder'] = $modSettings['currentAttachmentUploadDir'];
-					$context['dir_size'] = $_SESSION['temp_attachments'][$attachID]['size'];
-					$context['dir_files'] = 1;
+					$context['dir_size'] = 0;
+					$context['dir_files'] = 0;
 				}
 				// Or, let the user know that it ain't gonna happen.
 				else
@@ -751,8 +755,8 @@ function createAttachment(&$attachmentOptions)
 					{
 						rename($thumb_path, $context['attach_dir'] . '/' . $thumb_filename);
 						$thumb_path = $context['attach_dir'] . '/' . $thumb_filename;
-						$context['dir_size'] = $thumb_size;
-						$context['dir_files'] = 1;
+						$context['dir_size'] = 0;
+						$context['dir_files'] = 0;
 					}
 				}
 			}
