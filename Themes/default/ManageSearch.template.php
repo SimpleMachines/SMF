@@ -16,7 +16,7 @@ function template_modify_weights()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_weights'], '</h3>
 			</div>
@@ -79,7 +79,6 @@ function template_modify_weights()
 							<span class="search_weight"><strong>100%</strong></span>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '" />
@@ -95,12 +94,16 @@ function template_select_search_method()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="', $context['character_set'], '">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['search_method'], '</h3>
+		</div>
+		<div class="information">
+			<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
+		</div>
+			
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['search_method'], '</h3>
-			</div>
-			<div class="information">
-				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
 			</div>
 			<div class="windowbg">
 				<div class="content">
@@ -205,7 +208,7 @@ function template_select_search_method()
 						<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked="checked"', ' class="input_check" /><label for="search_force_index_check">', $txt['search_force_index'], '</label><br />
 						<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked="checked"', ' class="input_check" /><label for="search_match_words_check">', $txt['search_match_words'], '</label>
 					</fieldset>
-					<hr class="hrcolor clear" />
+					<br class="clear"/>
 					<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '" />
@@ -321,7 +324,7 @@ function template_spider_edit()
 	global $context, $settings, $options, $scripturl, $txt;
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', $context['spider']['id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', $context['spider']['id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
@@ -408,11 +411,10 @@ function template_show_spider_stats()
 	template_show_list('spider_stat_list');
 
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
-		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+			</div>
 			<div class="windowbg">
 				<div class="content">
 					<p>

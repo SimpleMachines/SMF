@@ -239,7 +239,6 @@ function BanList()
 				),
 				'data' => array(
 					'db' => 'num_triggers',
-					'style' => 'text-align: center;',
 				),
 				'sort' => array(
 					'default' => 'num_triggers DESC',
@@ -249,6 +248,7 @@ function BanList()
 			'actions' => array(
 				'header' => array(
 					'value' => $txt['ban_actions'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -257,12 +257,13 @@ function BanList()
 							'id_ban_group' => false,
 						),
 					),
-					'style' => 'text-align: center;',
+					'class' => 'centercol',
 				),
 			),
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -271,7 +272,7 @@ function BanList()
 							'id_ban_group' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -280,9 +281,8 @@ function BanList()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_confirm'] . '\');" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -1212,7 +1212,6 @@ function BanBrowseTriggers()
 				),
 				'data' => array(
 					'db' => 'hits',
-					'style' => 'text-align: center;',
 				),
 				'sort' => array(
 					'default' => 'bi.hits DESC',
@@ -1222,6 +1221,7 @@ function BanBrowseTriggers()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1230,7 +1230,7 @@ function BanBrowseTriggers()
 							'id_ban' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -1245,9 +1245,8 @@ function BanBrowseTriggers()
 				'value' => '<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . ($context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . ($context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . ($context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . ($context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['username'] . '</a>',
 			),
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_triggers_confirm'] . '\');" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -1530,6 +1529,7 @@ function BanLog()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1538,7 +1538,7 @@ function BanLog()
 							'id_ban_log' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -1550,11 +1550,10 @@ function BanLog()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '
 					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_selected_confirm'] . '\');" class="button_submit" />
 					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_all_confirm'] . '\');" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);

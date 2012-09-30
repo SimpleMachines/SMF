@@ -158,6 +158,7 @@ function MembergroupIndex()
 			'members' => array(
 				'header' => array(
 					'value' => $txt['membergroups_members_top'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -166,7 +167,7 @@ function MembergroupIndex()
 						// No explicit members for the moderator group.
 						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : $rowData[\'num_members\'];
 					'),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 				'sort' => array(
 					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, 1',
@@ -176,6 +177,7 @@ function MembergroupIndex()
 			'modify' => array(
 				'header' => array(
 					'value' => $txt['modify'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -184,7 +186,7 @@ function MembergroupIndex()
 							'id_group' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -261,10 +263,11 @@ function MembergroupIndex()
 			'members' => array(
 				'header' => array(
 					'value' => $txt['membergroups_members_top'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'db' => 'num_members',
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 				'sort' => array(
 					'default' => '1 DESC',
@@ -274,10 +277,11 @@ function MembergroupIndex()
 			'required_posts' => array(
 				'header' => array(
 					'value' => $txt['membergroups_min_posts'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'db' => 'min_posts',
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 				'sort' => array(
 					'default' => 'min_posts',
@@ -287,6 +291,7 @@ function MembergroupIndex()
 			'modify' => array(
 				'header' => array(
 					'value' => $txt['modify'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -295,7 +300,7 @@ function MembergroupIndex()
 							'id_group' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),

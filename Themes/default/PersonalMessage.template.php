@@ -535,7 +535,7 @@ function template_folder()
 			echo '
 
 	<div class="pagesection">
-		<div class="floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
+		<div class="floatleft">', $context['page_index'], '</div>
 		<div class="floatright"><input type="submit" name="del_selected" value="', $txt['quickmod_delete_selected'], '" style="font-weight: normal;" onclick="if (!confirm(\'', $txt['delete_selected_confirm'], '\')) return false;" class="button_submit" /></div>
 	</div>';
 
@@ -637,7 +637,7 @@ function template_subject_list()
 	</tbody>
 	</table>
 	<div class="pagesection">
-		<div class="floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
+		<div class="floatleft">', $context['page_index'], '</div>
 		<div class="floatright">&nbsp;';
 
 	if ($context['show_delete'])
@@ -846,7 +846,7 @@ function template_search_results()
 			<h3 class="catbg">', $txt['pm_search_results'], '</h3>
 		</div>
 		<div class="pagesection">
-			<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
+			', $context['page_index'], '
 		</div>';
 
 	// complete results ?
@@ -947,7 +947,7 @@ function template_search_results()
 
 	echo '
 		<div class="pagesection">
-			<strong>', $txt['pages'], ':</strong> ', $context['page_index'], '
+			', $context['page_index'], '
 		</div>';
 
 }
@@ -992,7 +992,7 @@ function template_send()
 					</div>
 				</div>
 			</div>
-		</div><br />';
+		</div>';
 
 	// Main message editing box.
 	echo '
@@ -1936,7 +1936,7 @@ function template_showPMDrafts()
 			</h3>
 		</div>
 		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<span>', $context['page_index'], '</span>
 		</div>';
 
 	// Button shortcuts
@@ -1985,7 +1985,7 @@ function template_showPMDrafts()
 	// Show page numbers.
 	echo '
 		<div class="pagesection" style="margin-bottom: 0;">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<span>', $context['page_index'], '</span>
 		</div>';
 }
 ?>

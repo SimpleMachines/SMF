@@ -55,7 +55,7 @@ function template_latest_news()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
+				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -218,7 +218,7 @@ function template_notes()
 			echo '
 					</ul>
 					<div class="pagesection notes">
-						<span class="smalltext">', $txt['pages'], ': ', $context['page_index'], '</span>
+						<span class="smalltext">', $context['page_index'], '</span>
 					</div>';
 		}
 
@@ -334,7 +334,7 @@ function template_unapproved_posts()
 	else
 		echo '
 			<div class="pagesection floatleft">
-				', $txt['pages'], ': ', $context['page_index'], '
+				', $context['page_index'], '
 			</div>';
 
 	foreach ($context['unapproved_items'] as $item)
@@ -388,7 +388,7 @@ function template_unapproved_posts()
 	if (!empty($context['unapproved_items']))
 		echo '
 			<div class="floatleft">
-				<div class="pagelinks">', $txt['pages'], ': ', $context['page_index'], '</div>
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
 
 	echo '
