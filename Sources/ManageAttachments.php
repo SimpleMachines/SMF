@@ -712,6 +712,8 @@ function MaintainFiles()
 	);
 	list ($attachmentDirSize) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
+
+	// Divide it into kilobytes.
 	$attachmentDirSize /= 1024;
 	$context['attachment_total_size'] = comma_format($attachmentDirSize, 2);
 
@@ -729,6 +731,7 @@ function MaintainFiles()
 	$smcFunc['db_free_result']($request);
 	$current_dir_size /= 1024;
 
+	// If they specified a limit only....
 	if (!empty($modSettings['attachmentDirSizeLimit']))
 		$context['attachment_space'] = comma_format(max($modSettings['attachmentDirSizeLimit'] - $current_dir_size, 0), 2);
 	$context['attachment_current_size'] = comma_format($current_dir_size, 2);
@@ -1979,7 +1982,7 @@ function ManageAttachmentPaths()
 			{
 				$path = $modSettings['attachmentUploadDir'][$id];
 
-				// It's not a good idea to delete the current directory. 
+				// It's not a good idea to delete the current directory.
 				if ($id == (!empty($_POST['current_dir']) ? $_POST['current_dir'] : $modSettings['currentAttachmentUploadDir']))
 					$errors[] = $path . ': ' . $txt['attach_dir_is_current'];
 				// Or the current base directory
@@ -2777,9 +2780,9 @@ function TransferAttachments()
 						<div class="green_percent" style="width: ' . $percent_done . '%;">&nbsp;</div>
 					</div>';
 				// Write it to a file so it can be displayed
-				$fp = fopen($boarddir . '/progress.php', "w");        
-				fwrite($fp, $prog_bar);  
-				fclose($fp);  
+				$fp = fopen($boarddir . '/progress.php', "w");
+				fwrite($fp, $prog_bar);
+				fclose($fp);
 				usleep(500000);
 			}
 		}

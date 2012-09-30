@@ -61,6 +61,7 @@ function template_main()
 	else
 	{
 		echo '
+		<fieldset id="advanced_search">
 			<div class="roundframe">
 				<dl class="settings" id="search_options">
 					<dt class="righttext">
@@ -71,7 +72,7 @@ function template_main()
 
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
-				<em class="smalltext">', $txt['search_example'], '</em>';
+						<em class="smalltext">', $txt['search_example'], '</em>';
 
 		echo '
 					</dd>
@@ -121,7 +122,7 @@ function template_main()
 						$txt['search_between'], '</label><input type="text" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="text" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
 					</dd>
 				</dl>
-				</fieldset>
+				
 				<script type="text/javascript"><!-- // --><![CDATA[
 					createEventListener(window);
 					window.addEventListener("load", initSearch, false);
@@ -146,6 +147,7 @@ function template_main()
 
 		echo '
 			</div>
+		</fieldset>
 		';
 
 		if (empty($context['search_params']['topic']))
