@@ -1079,26 +1079,26 @@
 					return '[iurl=' + decodeURI(element.attr('href')) + ']' + content + '[/iurl]';
 			},
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
-					attrs.defaultAttr = content;
+				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+					attrs.defaultattr = content;
 
-				return '<a target="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+				return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
 			}
 		},
 		iurl: {
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
-					attrs.defaultAttr = content;
+				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+					attrs.defaultattr = content;
 
-				return '<a href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+				return '<a href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
 			}
 		},
 		ftp: {
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
-					attrs.defaultAttr = content;
+				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+					attrs.defaultattr = content;
 
-				return '<a target="_blank" href="' + encodeURI(attrs.defaultAttr) + '">' + content + '</a>';
+				return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
 			}
 		},
 		// END_COMMAND
@@ -1216,8 +1216,8 @@
 			},
 			html:  function(element, attrs, content) {
 				var from = '';
-				if(typeof attrs.defaultAttr !== "undefined")
-					from = '<cite>' + attrs.defaultAttr + '</cite>';
+				if(typeof attrs.defaultattr !== "undefined")
+					from = '<cite>' + attrs.defaultattr + '</cite>';
 
 				return '<code>' + from + content.replace('[', '&#91;') + '</code>'
 			}
@@ -1324,10 +1324,10 @@
 				return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
 			},
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 					return content;
 
-				return '<abbr title="' + attrs.defaultAttr + '">' + content + '</abbr>';
+				return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
 			}
 		},
 		acronym: {
@@ -1340,10 +1340,10 @@
 				return '[acronym=' + element.attr('title') + ']' + content + '[/acronym]';
 			},
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 					return content;
 
-				return '<acronym title="' + attrs.defaultAttr + '">' + content + '</acronym>';
+				return '<acronym title="' + attrs.defaultattr + '">' + content + '</acronym>';
 			}
 		},
 		bdo: {
@@ -1356,12 +1356,12 @@
 				return '[bdo=' + element.attr('dir') + ']' + content + '[/bdo]';
 			},
 			html: function(element, attrs, content) {
-				if(typeof attrs.defaultAttr === "undefined" || attrs.defaultAttr.length === 0)
+				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 					return content;
-				if (attrs.defaultAttr != 'rtl' && attrs.defaultAttr != 'ltr')
-					return '[bdo=' + attrs.defaultAttr + ']' + content + '[/bdo]';
+				if (attrs.defaultattr != 'rtl' && attrs.defaultattr != 'ltr')
+					return '[bdo=' + attrs.defaultattr + ']' + content + '[/bdo]';
 
-				return '<bdo dir="' + attrs.defaultAttr + '">' + content + '</bdo>';
+				return '<bdo dir="' + attrs.defaultattr + '">' + content + '</bdo>';
 			}
 		},
 		tt: {
