@@ -164,8 +164,8 @@ function template_search_members()
 					<thead>
 						<tr class="catbg">
 							<th scope="col" class="first_th">', $txt['membergroups'], '</th>
-							<th scope="col" style="text-align: center">', $txt['primary'], '</th>
-							<th scope="col" class="last_th" style="text-align: center">', $txt['additional'], '</th>
+							<th scope="col" class="centercol">', $txt['primary'], '</th>
+							<th scope="col" class="last_th centercol">', $txt['additional'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -174,10 +174,10 @@ function template_search_members()
 				echo '
 						<tr class="windowbg2">
 							<td>', $membergroup['name'], '</td>
-							<td align="center">
+							<td class="centercol">
 								<input type="checkbox" name="membergroups[1][]" value="', $membergroup['id'], '" checked="checked" class="input_check" />
 							</td>
-							<td align="center">
+							<td class="centercol">
 								', $membergroup['can_be_additional'] ? '<input type="checkbox" name="membergroups[2][]" value="' . $membergroup['id'] . '" checked="checked" class="input_check" />' : '', '
 							</td>
 						</tr>';
@@ -187,10 +187,10 @@ function template_search_members()
 							<td>
 								<em>', $txt['check_all'], '</em>
 							</td>
-							<td align="center">
+							<td class="centercol">
 								<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[1]\');" checked="checked" class="input_check" />
 							</td>
-							<td align="center">
+							<td class="centercol">
 								<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[2]\');" checked="checked" class="input_check" />
 							</td>
 						</tr>
@@ -214,7 +214,7 @@ function template_search_members()
 							<td>
 								', $postgroup['name'], '
 							</td>
-							<td width="40" align="center">
+							<td width="40" class="centercol">
 								<input type="checkbox" name="postgroups[]" value="', $postgroup['id'], '" checked="checked" class="input_check" />
 							</td>
 						</tr>';
@@ -224,13 +224,14 @@ function template_search_members()
 							<td>
 								<em>', $txt['check_all'], '</em>
 							</td>
-							<td align="center">
+							<td class="centercol">
 								<input type="checkbox" onclick="invertAll(this, this.form, \'postgroups[]\');" checked="checked" class="input_check" />
 							</td>
 						</tr>
 					</tbody>
 				</table>
-			</div><br />
+			</div>
+			<br />
 			<input type="submit" value="', $txt['search'], '" class="button_submit" />
 		</form>
 	</div>';

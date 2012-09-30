@@ -142,6 +142,7 @@ function ModifyHolidays()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -150,7 +151,7 @@ function ModifyHolidays()
 							'id_holiday' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -161,11 +162,8 @@ function ModifyHolidays()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '
-
-					<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />
 					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday" style="margin: 0 1em">' . $txt['holidays_add'] . '</a>',
-				'style' => 'text-align: right;',
 			),
 		),
 	);

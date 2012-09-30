@@ -1896,6 +1896,7 @@ function notification($memID)
 				'header' => array(
 					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
 					'style' => 'width: 4%;',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1904,7 +1905,7 @@ function notification($memID)
 							'id' => false,
 						),
 					),
-					'style' => 'text-align: center;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -2013,6 +2014,7 @@ function notification($memID)
 				'header' => array(
 					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
 					'style' => 'width: 4%;',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -2021,7 +2023,7 @@ function notification($memID)
 							'id' => false,
 						),
 					),
-					'style' => 'text-align: center;',
+					'class' => 'centercol',
 				),
 			),
 		),

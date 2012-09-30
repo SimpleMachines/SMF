@@ -91,10 +91,10 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['headers'] as $col_header)
 		{
 			$i ++;
-			if (empty($col_header['class']) && $i == 1)
-				$col_header['class'] = 'first_th';
-			elseif (empty($col_header['class']) && $i == $header_count)
-				$col_header['class'] = 'last_th';
+			if ($i === 1)
+				$col_header['class'] = empty($col_header['class']) ? 'first_th' : 'first_th ' . $col_header['class'];
+			elseif ($i === $header_count)
+				$col_header['class'] = empty($col_header['class']) ? 'last_th' : 'last_th ' . $col_header['class'];
 
 			echo '
 					<th scope="col"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $col_header['sort_image'] . '.png" alt="" /></a>'), '</th>';

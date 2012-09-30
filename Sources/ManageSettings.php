@@ -1424,7 +1424,6 @@ function ShowCustomProfiles()
 			'field' => array(
 				'header' => array(
 					'value' => $txt['standard_profile_field'],
-					'style' => 'text-align: left;',
 				),
 				'data' => array(
 					'db' => 'label',
@@ -1434,6 +1433,7 @@ function ShowCustomProfiles()
 			'active' => array(
 				'header' => array(
 					'value' => $txt['custom_edit_active'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1441,12 +1441,14 @@ function ShowCustomProfiles()
 						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\'onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
 						return sprintf(\'<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $onClickHandler);
 					'),
-					'style' => 'width: 20%; text-align: center;',
+					'style' => 'width: 20%;',
+					'class' => 'centercol',
 				),
 			),
 			'show_on_registration' => array(
 				'header' => array(
 					'value' => $txt['custom_edit_registration'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1454,7 +1456,8 @@ function ShowCustomProfiles()
 						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled="disabled"\';
 						return sprintf(\'<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $isDisabled);
 					'),
-					'style' => 'width: 20%; text-align: center;',
+					'style' => 'width: 20%;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -1467,7 +1470,6 @@ function ShowCustomProfiles()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -1493,7 +1495,6 @@ function ShowCustomProfiles()
 			'field_name' => array(
 				'header' => array(
 					'value' => $txt['custom_profile_fieldname'],
-					'style' => 'text-align: left;',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1511,7 +1512,6 @@ function ShowCustomProfiles()
 			'field_type' => array(
 				'header' => array(
 					'value' => $txt['custom_profile_fieldtype'],
-					'style' => 'text-align: left;',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1537,7 +1537,7 @@ function ShowCustomProfiles()
 
 						return $rowData[\'active\'] ? $txt[\'yes\'] : $txt[\'no\'];
 					'),
-					'style' => 'width: 8%; text-align: center;',
+					'style' => 'width: 8%;',
 				),
 				'sort' => array(
 					'default' => 'active DESC',
@@ -1554,7 +1554,7 @@ function ShowCustomProfiles()
 
 						return $txt[\'custom_profile_placement_\' . (empty($rowData[\'placement\']) ? \'standard\' : ($rowData[\'placement\'] == 1 ? \'withicons\' : \'abovesignature\'))];
 					'),
-					'style' => 'width: 8%; text-align: center;',
+					'style' => 'width: 8%;',
 				),
 				'sort' => array(
 					'default' => 'placement DESC',
@@ -1562,9 +1562,6 @@ function ShowCustomProfiles()
 				),
 			),
 			'show_on_registration' => array(
-				'header' => array(
-					'value' => $txt['modify'],
-				),
 				'data' => array(
 					'sprintf' => array(
 						'format' => '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . $txt['modify'] . '</a>',
@@ -1572,7 +1569,7 @@ function ShowCustomProfiles()
 							'id_field' => false,
 						),
 					),
-					'style' => 'width: 15%; text-align: center;',
+					'style' => 'width: 15%;',
 				),
 			),
 		),
@@ -1584,7 +1581,6 @@ function ShowCustomProfiles()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="new" value="' . $txt['custom_profile_make_new'] . '" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -2296,7 +2292,7 @@ function list_integration_hooks()
 			'status' => array(
 				'header' => array(
 					'value' => $txt['hooks_field_hook_exists'],
-					'style' => 'width:3%',
+					'style' => 'width:3%;',
 				),
 				'data' => array(
 					'function' => create_function('$data', '

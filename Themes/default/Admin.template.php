@@ -1582,9 +1582,9 @@ function template_php_info()
 		echo '
 		<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
 			<thead>
-			<tr class="catbg" align="center">
+			<tr class="catbg">
 				<th class="first_th" scope="col" width="33%"></th>
-				<th scope="col" width="33%"><strong>', $area, '</strong></th>
+				<th scope="col" width="33%" class="centercol"><strong>', $area, '</strong></th>
 				<th class="last_th" scope="col" width="33%"></th>
 			</tr>
 			</thead>

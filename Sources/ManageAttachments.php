@@ -496,6 +496,7 @@ function BrowseFiles()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -504,7 +505,7 @@ function BrowseFiles()
 							'id_attach' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -520,7 +521,6 @@ function BrowseFiles()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="remove_submit" class="button_submit" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['confirm_delete_attachments'] . '\');" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -2115,12 +2115,14 @@ function ManageAttachmentPaths()
 			'current_dir' => array(
 				'header' => array(
 					'value' => $txt['attach_current'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
 						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled="disabled"\' : \'\') . \' class="input_radio" />\';
 					'),
-					'style' => 'text-align: center; width: 10%;',
+					'style' => 'width: 10%;',
+					'class' => 'centercol',
 				),
 			),
 			'path' => array(
@@ -2131,7 +2133,7 @@ function ManageAttachmentPaths()
 					'function' => create_function('$rowData', '
 						return \'<input type="hidden" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'" /><input type="text" size="40" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'"\' . (!empty($rowData[\'disable_base_dir\']) ? \' disabled="disabled"\' : \'\') . \' class="input_text" style="width: 100%" />\';
 					'),
-					'style' => 'text-align: center; width: 40%;',
+					'style' => 'width: 40%;',
 				),
 			),
 			'current_size' => array(
@@ -2140,7 +2142,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'db' => 'current_size',
-					'style' => 'text-align: center; width: 15%;',
+					'style' => 'width: 15%;',
 				),
 			),
 			'num_files' => array(
@@ -2149,16 +2151,18 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'db' => 'num_files',
-					'style' => 'text-align: center; width: 15%;',
+					'style' => 'width: 15%;',
 				),
 			),
 			'status' => array(
 				'header' => array(
 					'value' => $txt['attach_dir_status'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'db' => 'status',
-					'style' => 'text-align: center; width: 25%;',
+					'style' => 'width: 25%;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -2168,18 +2172,20 @@ function ManageAttachmentPaths()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" /><input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button_submit" />&nbsp;<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />',
-				'style' => 'text-align: right;',
+				'value' => '
+				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+				<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
+				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button_submit" />',
 			),
 			empty($errors['dir']) ? array(
 				'position' => 'top_of_list',
 				'value' => $txt['attach_dir_desc'],
-				'style' => 'text-align: left; padding: 5px 10px',
+				'style' => 'padding: 5px 10px;',
 				'class' => 'windowbg2 smalltext'
 			) : array(
 				'position' => 'top_of_list',
 				'value' => $txt['attach_dir_save_problem'] . '<br />' . implode('<br />', $errors['dir']),
-				'style' => 'text-align: left;',
+				'style' => 'padding-left: 35px;',
 				'class' => 'noticebox',
 			),
 		),
@@ -2200,12 +2206,14 @@ function ManageAttachmentPaths()
 				'current_dir' => array(
 					'header' => array(
 						'value' => $txt['attach_current'],
+						'class' => 'centercol',
 					),
 					'data' => array(
 						'function' => create_function('$rowData', '
 							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . \' class="input_radio" />\';
 						'),
-						'style' => 'text-align: center; width: 10%;',
+						'style' => 'width: 10%;',
+						'class' => 'centercol',
 					),
 				),
 				'path' => array(
@@ -2223,7 +2231,7 @@ function ManageAttachmentPaths()
 					),
 					'data' => array(
 						'db' => 'num_dirs',
-						'style' => 'text-align: center; width: 15%;',
+						'style' => 'width: 15%;',
 					),
 				),
 				'status' => array(
@@ -2232,7 +2240,8 @@ function ManageAttachmentPaths()
 					),
 					'data' => array(
 						'db' => 'status',
-						'style' => 'text-align: center; width: 15%;',
+						'style' => 'width: 15%;',
+						'class' => 'centercol',
 					),
 				),
 			),
@@ -2242,18 +2251,18 @@ function ManageAttachmentPaths()
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" /><input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button_submit" />&nbsp;<input type="submit" name="save2" value="' . $txt['save'] . '" class="button_submit" />',
-					'style' => 'text-align: right;',
+					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" /><input type="submit" name="save2" value="' . $txt['save'] . '" class="button_submit" />
+					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button_submit" />',
 				),
 				empty($errors['base']) ? array(
 					'position' => 'top_of_list',
 					'value' => $txt['attach_dir_base_desc'],
-					'style' => 'text-align: left; padding: 5px 10px',
+					'style' => 'padding: 5px 10px;',
 					'class' => 'windowbg2 smalltext'
 				) : array(
 					'position' => 'top_of_list',
 					'value' => $txt['attach_dir_save_problem'] . '<br />' . implode('<br />', $errors['base']),
-					'style' => 'text-align: left;',
+					'style' => 'padding-left: 35px',
 					'class' => 'noticebox',
 				),
 			),

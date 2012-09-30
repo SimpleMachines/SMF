@@ -89,8 +89,8 @@ function template_new_group()
 			echo '
 									<option value="', $group['id'], '">', $group['name'], '</option>';
 		echo '
-								</select><br />
-
+								</select>
+								<br />
 								<input type="radio" name="perm_type" id="perm_type_copy" value="copy" class="input_radio" />
 								<label for="perm_type_copy">', $txt['membergroups_new_as_copy'], ':</label>
 								<select name="copyperm" id="copyperm_select" onclick="document.getElementById(\'perm_type_copy\').checked = true;">
@@ -100,8 +100,8 @@ function template_new_group()
 			echo '
 									<option value="', $group['id'], '">', $group['name'], '</option>';
 		echo '
-								</select><br />
-
+								</select>
+								<br />
 								<input type="radio" name="perm_type" id="perm_type_predefined" value="predefined" class="input_radio" />
 								<label for="perm_type_predefined">', $txt['membergroups_new_as_type'], ':</label>
 								<select name="level" id="level_select" onclick="document.getElementById(\'perm_type_predefined\').checked = true;">
@@ -423,7 +423,7 @@ function template_add_edit_group_boards_list($collapse = true)
 							</fieldset>';
 	else
 		echo '
-								<br />
+								<br class="clear" />
 								<span class="select_all_box">
 									<em>', $txt['all'], ': </em>
 									<input type="radio" name="select_all" id="allow_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');" /> <label for="allow_all">', $txt['board_perms_allow'], '</label>
