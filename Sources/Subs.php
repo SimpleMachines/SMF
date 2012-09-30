@@ -3649,7 +3649,7 @@ function clean_cache($type = '')
 
 				// Remove all unused scripts and data from shared memory and disk cache,
 				// e.g. all data that isn't used in the current requests.
-				eaccelerator_clear();
+				@eaccelerator_clear();
 			}
 		case 'mmcache':
 			if (function_exists('mmcache_gc'))
