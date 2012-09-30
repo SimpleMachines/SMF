@@ -1689,7 +1689,7 @@ function template_profile_theme_settings()
 								</select>
 							</dd>
 							<dt>
-								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '<label>
+								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '</label>
 							</dt>
 							<dd>
 								<input type="hidden" name="default_options[use_editor_quick_reply]" value="0" />
