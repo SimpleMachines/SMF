@@ -710,14 +710,6 @@ pre.file_content {
 #manage_boards .titlebg {
 	border-bottom: 1px solid #bbb;
 }
-#manage_boards .information {
-	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
-	margin: 8px 16px 4px 16px;
-	padding: 4px 12px 2px 12px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
 #manage_boards .cat_bar, #manage_boards .windowbg {
 	background: none;
 	margin: 0 0 0 0;
