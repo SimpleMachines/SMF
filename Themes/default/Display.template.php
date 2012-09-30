@@ -405,7 +405,7 @@ function template_main()
 		{
 			if(!empty($modSettings['onlineEnable']))
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', ($message['member']['online']['is_online']) ? $message['member']['name']. ' is online' : $message['member']['name']. ' is offline', '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
 				echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
@@ -568,7 +568,7 @@ function template_main()
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-							<li class="quick_edit"><img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer; display: none; margin: 0 0 0 0;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" />', $txt['quick_edit'], '</li>';
+							<li class="quick_edit"><img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer; margin: 0;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" />', $txt['quick_edit'], '</li>';
 
 		// Can the user modify the contents of this post?
 		if ($message['can_modify'])
@@ -831,7 +831,7 @@ function template_main()
 						sImageCollapsed: "collapse.png",
 						sImageExpanded: "expand.png",
 						sJumpAnchor: "quickreply",
-						bIsFull: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'true' : 'false', '
+						bIsFull: ', !empty($options['use_editor_quick_reply']) ? 'true' : 'false', '
 					});';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
@@ -861,11 +861,11 @@ function template_main()
 					});';
 
 	echo '
-					$(".quick_edit").css("display", "inline");
 					if (\'XMLHttpRequest\' in window)
 					{
 						var oQuickModify = new QuickModify({
 							sScriptUrl: smf_scripturl,
+							sClassName: \'quick_edit\',
 							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
 							iTopicId: ', $context['current_topic'], ',
 							sTemplateBodyEdit: ', JavaScriptEscape('

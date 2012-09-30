@@ -1164,6 +1164,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'online' => array(
 			'is_online' => $profile['is_online'],
 			'text' => $txt[$profile['is_online'] ? 'online' : 'offline'],
+			'member_online_text' => sprintf($txt[$profile['is_online'] ? 'member_is_online' : 'member_is_offline'], $smcFunc['htmlspecialchars']($profile['real_name'])),
 			'href' => $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . $txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
 			'image_href' => $settings['images_url'] . '/' . ($profile['buddy'] ? 'buddy_' : '') . ($profile['is_online'] ? 'useron' : 'useroff') . '.png',
@@ -2722,17 +2723,18 @@ function cache_put_data($key, $value, $ttl = 120)
 			break;
 		default:
 			// Otherwise custom cache?
-			if ($value === null)
-				@unlink($cachedir . '/data_' . $key . '.php');
-			else
-			{
-				$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
-
-				// Write out the cache file, check that the cache write was successful; all the data must be written
-				// If it fails due to low diskspace, or other, remove the cache file
-				if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
+			if (function_exists('file_put_contents')) {
+				if ($value === null)
 					@unlink($cachedir . '/data_' . $key . '.php');
-			}
+				else
+					{
+					$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
+
+					// Write out the cache file, check that the cache write was successful; all the data must be written
+					// If it fails due to low diskspace, or other, remove the cache file
+					if (file_put_contents($cachedir . '/data_' . $key . '.php', $cache_data, LOCK_EX) !== strlen($cache_data))
+						@unlink($cachedir . '/data_' . $key . '.php');
+			}	}
 			break;
 	}
 
