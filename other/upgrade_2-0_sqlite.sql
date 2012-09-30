@@ -863,12 +863,13 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 			$smcFunc['db_free_result']($request);
 
 			if (!empty($insertRows))
-				upgrade_query("
-					INSERT IGNORE INTO {$db_prefix}themes
-						(id_member, id_theme, variable, value)
-					VALUES
-						" . implode(',
-						', $insertRows));
+				foreach ($insertRows as $insertRow)
+					upgrade_query("
+						INSERT IGNORE INTO {$db_prefix}themes
+							(id_member, id_theme, variable, value)
+						VALUES
+							" . implode(',
+							', $insertRow));
 		}
 	}
 	$smcFunc['db_free_result']($theme_request);

@@ -70,7 +70,8 @@ function automanage_attachments_check_directory()
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
 
-	switch ($modSettings['automanage_attachments']){
+	switch ($modSettings['automanage_attachments'])
+	{
 		case 1:
 			$updir = $basedirectory . DIRECTORY_SEPARATOR . 'attachments_' . (isset($modSettings['last_attachments_directory'][$base_dir]) ? $modSettings['last_attachments_directory'][$base_dir] : 0);
 			break;
@@ -165,7 +166,7 @@ function automanage_attachments_create_directory($updir)
 	}
 
 	// Everything seems fine...let's create the .htaccess
-	if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htacess'))
+	if (!file_exists($directory . DIRECTORY_SEPARATOR . '.htaccess'))
 		secureDirectory($updir, true);
 
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
