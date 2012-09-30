@@ -1035,9 +1035,8 @@ dl.themes_list dd {
 	float: right;
 	margin: 0 0 1em 0;
 }
-
-.modbox {
-	height: 14em;
+.modblock_left #smfAnnouncements {
+	height: 15em;
 	overflow: auto;
 }
 /* Moderation Notes */

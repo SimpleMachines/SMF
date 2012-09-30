@@ -1183,6 +1183,13 @@ div#admin_menu {
 	line-height: 1.8em;
 }
 
+li#collapse_button {
+	float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
 
@@ -1931,7 +1938,7 @@ p#whoisviewing {
 }
 /* poster and postarea + moderation area underneath */
 /* Need to sort the overflow on the post backgrounds. */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2, #personal_messages div.windowbg, #personal_messages div.windowbg2  {
 	overflow: visible;
 	float: left;
 	width: 100%;
@@ -2554,7 +2561,7 @@ ul.post_options li {
 	width: 65%;
 }
 #edit_poll dl.poll_options dd input {
-	margin-left: 0; 
+	margin-left: 0;
 }
 
 /* Styles for the recent messages section.
@@ -3764,7 +3771,7 @@ span.hidelink {
 	margin: -4px 4px 0 0;
 }
 
-/* Styles for the progress bar 
+/* Styles for the progress bar
 -------------------------------------------------- */
 .progress_bar {
 	height: 15pt;
@@ -3831,7 +3838,7 @@ span.hidelink {
 /* Forum posts may require some special treatment for dealing with clearing floated content. */
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
 
-#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden, #forumposts .approvebg, #forumposts .approvebg2, #personal_messages .windowbg, #personal_messages .windowbg2 {
 	background: /*#e8eff5;*/#f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -3839,7 +3846,7 @@ span.hidelink {
 	border-radius: 5px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 }
-#forumposts .windowbg2 {
+#forumposts .windowbg2, #personal_messages .windowbg2 {
 	background: #eaf1f4;
 }
 #statistics .flow_hidden {
@@ -3894,8 +3901,11 @@ span.hidelink {
 .generic_list_wrapper .additional_row {
 	margin: 0;
 	padding: 5px 0;
-	border-top: 1px solid #aaa;
+	/*border-top: 1px solid #aaa;*/
 	border-radius: 0;
+}
+.generic_list_wrapper table.table_grid {
+	border-bottom: 1px solid #aaa;
 }
 .generic_list_wrapper .information .additional_row{
 	border: none;
@@ -3970,9 +3980,12 @@ span.hidelink {
 	border-top: 2px solid #ff9400;
 	border-bottom: 2px solid #bf6900;
 	background: #fff;
-	color: #444;
+	color: #666;
 	border-radius: 2px 2px 0 0;
 	text-align: left;
+}
+.table_grid tr.catbg th.centercol, .table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
+	text-align: center;
 }
 #show_attachments th {
 	text-align: left;
@@ -4037,7 +4050,7 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 }
 
 /* Subtle zebra striping to make tables easier to follow. Will make a solution for IE8. */
-/* CSS for locked, sticky, etc has not been applied yet. Don't panic. She'll be right, mate. :P */ 
+/* CSS for locked, sticky, etc has not been applied yet. Don't panic. She'll be right, mate. :P */
 .table_grid td.statsbar div{display: none;}
 .table_grid  tr td:first-child, .table_grid td.icon2 {
 	border-left: 1px solid #ccc;
@@ -4045,9 +4058,9 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 .table_grid td.lastpost, .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell {
 	border-right: 1px solid #ccc;
 }
-.table_grid td.windowbg, .table_grid td.windowbg2,.table_grid td.lockedbg, .table_grid td.lockedbg2,
-.table_grid td.stickybg, .table_grid td.stickybg2,.table_grid td.locked_sticky, .table_grid td.locked_sticky2,
-.table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell {
+.table_grid td.windowbg, .table_grid td.windowbg2, .table_grid td.lockedbg, .table_grid td.lockedbg2,
+.table_grid td.stickybg, .table_grid td.stickybg2, .table_grid td.locked_sticky, .table_grid td.locked_sticky2,
+.table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
 	border-bottom: 1px solid #ccc;
 }
 .table_grid tr:nth-child(even) td {
