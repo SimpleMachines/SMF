@@ -107,8 +107,9 @@
 			$('#' + oSettings.tooltipID).fadeOut('slow').trigger("unload").remove();
 		}
 		
+		// used to keep html encoded
 		function htmlspecialchars(string)
-		{ 
+		{
 			return $('<span>').text(string).html();
 		}
 		
@@ -176,6 +177,13 @@
 					return false;
 				});
 			}
+			
+			// clear the tip on a click
+			$(this).bind("click", function(event){
+				hideTooltip(this);
+				return true;
+			});
+
 		});
 	};
 	

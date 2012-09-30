@@ -1687,8 +1687,14 @@ function template_profile_theme_settings()
 									<option value="0"', empty($context['member']['options']['display_quick_reply']) ? ' selected="selected"' : '', '>', $txt['display_quick_reply1'], '</option>
 									<option value="1"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 1 ? ' selected="selected"' : '', '>', $txt['display_quick_reply2'], '</option>
 									<option value="2"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 2 ? ' selected="selected"' : '', '>', $txt['display_quick_reply3'], '</option>
-									<option value="3"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 3 ? ' selected="selected"' : '', '>', $txt['display_quick_reply4'], '</option>
 								</select>
+							</dd>
+							<dt>
+								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '</label>
+							</dt>
+							<dd>
+								<input type="hidden" name="default_options[use_editor_quick_reply]" value="0" />
+								<label for="use_editor_quick_reply"><input type="checkbox" name="default_options[use_editor_quick_reply]" id="use_editor_quick_reply" value="1"', !empty($context['member']['options']['use_editor_quick_reply']) ? ' checked="checked"' : '', ' class="input_check" /></label>
 							</dd>
 							<dt>
 								<label for="display_quick_mod">', $txt['display_quick_mod'], '</label>
