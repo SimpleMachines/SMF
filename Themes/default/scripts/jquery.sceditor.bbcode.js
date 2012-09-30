@@ -504,8 +504,8 @@
 
 			var	oldText, replaceBBCodeFunc,
 // Previous				bbcodeRegex = /\[([^\[\s=]*?)(?:([\s=][^\[]*?))?\]((?:[\s\S(?!=\[\\\1)](?!\[\1))*?)\[\/(\1)\]/g,
-				bbcodeRegex = /\[([^\[\s=]+)(?:([\s=][^\[\]]+))?\]((?:[\s\S](?!\[\1))*?)\[\/(\1)\]/g,
-				atribsRegex = /(\S+)=((?:(?:(["'])(?:\\\3|[^\3])*?\3))|(?:[^'"\s]+))/g;
+				bbcodeRegex = /\[([^\[\s=]+)(?:([\s=][^\[\]]+))?\]((?:[\s\S](?!\[\1))*?)\[\/(\1)\]/gi,
+				atribsRegex = /(\S+)=((?:(?:(["'])(?:\\\3|[^\3])*?\3))|(?:[^'"\s]+))/gi;
 
 			replaceBBCodeFunc = function(str, bbcode, attrs, content)
 			{
