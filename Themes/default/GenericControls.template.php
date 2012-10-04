@@ -58,6 +58,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 
 				$numRows = count($smileyRows);
+				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
+				$emptyPlaceholder = 0;
 				foreach ($smileyRows as $smileyRow)
 				{
 					foreach ($smileyRow['smileys'] as $smiley)
@@ -67,7 +69,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					}
 					if (empty($smileyRow['isLast']) && $numRows != 1)
 						echo ',
-						\'\': \'\',';
+						\'-', $emptyPlaceholder++, '\': \'\',';
 				}
 				echo '
 						}', $countLocations != 0 ? ',' : '';

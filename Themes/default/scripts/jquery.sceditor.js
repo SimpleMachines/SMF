@@ -720,7 +720,7 @@
 
 			$.each(emoticons, function (key, url) {
 				// In SMF an empty entry means a new line
-				if (key == '')
+				if (url == '')
 					emoticon = document.createElement('br');
 				else
 				{
@@ -1244,7 +1244,7 @@
 
 			$.each(emoticons, function (key, url) {
 				// In SMF an empty entry means a new line
-				if (key == '')
+				if (url == '')
 					return;
 				// escape the key before using it as a regex
 				// and append the regex to only find emoticons outside
@@ -3421,7 +3421,7 @@
 			return current_value;
 		},
 		appendEmoticon: function (code, emoticon) {
-			if (code == '')
+			if (emoticon == '')
 				line.append($('<br />'));
 			else
 				line.append($('<img />')
@@ -3515,7 +3515,9 @@
 								position: "fixed",
 								top: $(window).height() * 0.2,
 								left: $(window).width() * 0.5 - ($dropdown.width() / 2),
-								"max-width": "50%"
+								"max-width": "50%",
+								"max-height": "50%",
+								"overflow": "auto"
 							});
 
 							$('.sceditor-smileyPopup').animaDrag({ 
@@ -3626,10 +3628,21 @@ $.sceditor.setCommand(
 			boundary: document.body,
 			grip: null,
 			overlay: true,
-			after: function(e) {},
-			during: function(e) {},
-			before: function(e) {},
-			afterEachAnimation: function(e) {}
+			after: function(e) {
+// 				$(this).height(this.startheight);
+// 				$(this).width(this.startwidth);
+			},
+			during: function(e) {
+				$(this).height(this.startheight);
+				$(this).width(this.startwidth);
+			},
+			before: function(e) {
+				this.startheight = $(this).innerHeight();
+				this.startwidth = $(this).innerWidth();
+			},
+			afterEachAnimation: function(e) {},
+			startheight: 0,
+			startwidth: 0
 		}
 		if(typeof callback == 'function') {
 				defaults.after = callback;
