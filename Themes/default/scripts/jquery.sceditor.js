@@ -2098,7 +2098,7 @@
 							if(!description)
 								description = val;
 
-							editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
+							editor.wysiwygEditorInsertHtml('<a target="_blank" href="' + val + '">' + description + '</a>');
 						}
 						else
 							editor.execCommand("createlink", val);
