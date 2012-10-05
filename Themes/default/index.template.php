@@ -435,6 +435,10 @@ function theme_linktree($force_show = false)
 			echo '
 				<span class="dividers">', $context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
 
+		// Show something before the link?
+		if (isset($tree['extra_before']))
+			echo $tree['extra_before'];
+
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '
 				<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>' : '<span>' . $tree['name'] . '</span>';
