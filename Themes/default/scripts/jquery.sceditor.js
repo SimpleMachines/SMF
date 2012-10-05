@@ -3485,13 +3485,15 @@
 							var emoticons = $.extend({}, base.options.emoticons.popup);
 							var popup_position;
 							var titlebar = $('<div class="catbg sceditor-popup-grip"/>');
-								popupContent = $('<div id="sceditor-popup"/>');
-								allowHide = true;
-								popupContent.append(titlebar);
-								line = $('<div />');
-								closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
-									$(".sceditor-smileyPopup").fadeOut('fast');
-								});
+							popupContent = $('<div id="sceditor-popup"/>');
+							allowHide = true;
+							line = $('<div id="sceditor-popup-smiley"/>');
+							adjheight = 0;
+
+							popupContent.append(titlebar);
+							closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
+								$(".sceditor-smileyPopup").fadeOut('fast');
+							});
 
 							$.each(emoticons, base.appendEmoticon);
 
@@ -3511,12 +3513,15 @@
 
 							$dropdown.appendTo($('body'));
 							dropdownIgnoreLastClick = true;
+							adjheight = closeButton.height() + titlebar.height();
 							$dropdown.css({
 								position: "fixed",
 								top: $(window).height() * 0.2,
-								left: $(window).width() * 0.5 - ($dropdown.width() / 2),
+								left: $(window).width() * 0.5 - ($dropdown.find('#sceditor-popup-smiley').width() / 2),
 								"max-width": "50%",
 								"max-height": "50%",
+							}).find('#sceditor-popup-smiley').css({
+								height: $dropdown.height() - adjheight,
 								"overflow": "auto"
 							});
 
