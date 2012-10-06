@@ -1202,8 +1202,8 @@ function Post2()
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
 
-	// Drafts enabled?
-	if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+	// Drafts enabled and needed?
+	if (!empty($modSettings['drafts_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
 		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
@@ -1824,6 +1824,10 @@ function Post2()
 		if (isset($topicOptions['id']))
 			$topic = $topicOptions['id'];
 	}
+	
+	// If we had a draft for this, its time to remove it since it was just posted
+	if (!empty($modSettings['drafts_enabled']) && !empty($_POST['id_draft']))
+		DeleteDraft($_POST['id_draft']);
 
 	// Editing or posting an event?
 	if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1))
