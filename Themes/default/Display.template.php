@@ -410,11 +410,11 @@ function template_main()
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], ' </a></li>';
 		}
 		elseif ((!$context['can_send_pm']) && (!empty($modSettings['onlineEnable'])))
 			echo '
-								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], '<img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
+								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
 
 		// Are we showing the warning status?
 		// Don't show these things for guests.
