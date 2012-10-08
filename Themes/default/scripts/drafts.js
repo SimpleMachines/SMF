@@ -74,8 +74,8 @@ smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 // Make the call to save this draft in the background
 smf_DraftAutoSave.prototype.draftSave = function ()
 {
-	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText();
-	
+	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText(true);
+
 	// nothing to save or already posting or nothing changed?
 	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft.localeCompare(sPostdata) == 0)
 		return false;

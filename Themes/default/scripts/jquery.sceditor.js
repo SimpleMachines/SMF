@@ -1166,7 +1166,7 @@
 			html = $body.html();
 
 			if(filter !== false && base.options.getHtmlHandler)
-				html = base.options.getHtmlHandler(html, $body);
+				html = base.options.getHtmlHandler(html, $body, filter);
 
 			return html;
 		};
@@ -3411,12 +3411,13 @@
 				this.toggleTextMode();
 
 		},
-		getText: function() {
+		getText: function(filter) {
 			var current_value = '';
+			
 			if(this.inSourceMode())
 				current_value = this.getTextareaValue(false);
 			else
-				current_value = this.getWysiwygEditorValue();
+				current_value  = this.getWysiwygEditorValue(filter);
 
 			return current_value;
 		},
