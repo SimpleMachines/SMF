@@ -238,6 +238,54 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Messager fields
+/******************************************************************************/
+---# Insert fields
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/fields/aim.gif" alt="AIM - {INPUT}"></a>', 1),
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 'regex~[1-9][0-9]{4,9}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/whitepages/about_me.php?uin={INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="http://status.icq.com/online.gif?img=5&icq={INPUT}" alt="ICQ - {INPUT}" width="18" height="18"></a>', 1),
+('cust_msn', 'MSN/Live', 'Your Live Messenger email address', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="msn" href="http://members.msn.com/{INPUT}" target="_blank" title="Live - {INPUT}"><img src="{IMAGES_URL}/fields/msntalk.gif" alt="Live - {INPUT}"></a>', 1),
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="http://opi.yahoo.com/online?m=g&t=0&u={INPUT}" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+---#
+
+---# Converting member values...
+---{
+// We cannot do this twice
+if (@$modSettings['smfVersion'] < '2.2')
+{
+	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
+	$request = upgrade_query("
+		SELECT id_member, aim, icq, msn, yim
+		FROM {$db_prefix}members");
+	$inserts = array();
+	while ($row = mysql_fetch_assoc($request))
+	{
+		$inserts[] = "($row[id_member], -1, 'cust_aolins', $row[aim])";
+		$inserts[] = "($row[id_member], -1, 'cust_icq', $row[icq])";
+		$inserts[] = "($row[id_member], -1, 'cust_msn', $row[msn])";
+		$inserts[] = "($row[id_member], -1, 'cust_yahoo', $row[yim])";
+	}
+	mysql_free_result($request);
+
+	if (!empty($inserts))
+		upgrade_query("
+			INSERT INTO {$db_prefix}themes
+				(id_member, id_theme, variable, value)
+			VALUES
+				" . implode(',', $inserts));
+}
+---}
+---#
+
+---# Dropping old fields
+ALTER TABLE `s{$db_prefix}members`
+  DROP `icq`,
+  DROP `aim`,
+  DROP `yim`,
+  DROP `msn`;
+---#
+
+/******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
@@ -285,7 +333,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 				(id_group, id_board, permission, add_deny)
 			VALUES
 				" . implode(',', $inserts));
-				
+
 	// Next we find people who can send PM's, and assume they can save pm_drafts as well
 	$request = upgrade_query("
 		SELECT id_group, add_deny, permission
