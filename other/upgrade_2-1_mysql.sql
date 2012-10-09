@@ -211,17 +211,23 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 // We cannot do this twice
 if (@$modSettings['smfVersion'] < '2.2')
 {
-	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 	$request = upgrade_query("
 		SELECT id_member, aim, icq, msn, yim
 		FROM {$db_prefix}members");
 	$inserts = array();
 	while ($row = mysql_fetch_assoc($request))
 	{
-		$inserts[] = "($row[id_member], -1, 'cust_aolins', $row[aim])";
-		$inserts[] = "($row[id_member], -1, 'cust_icq', $row[icq])";
-		$inserts[] = "($row[id_member], -1, 'cust_msn', $row[msn])";
-		$inserts[] = "($row[id_member], -1, 'cust_yahoo', $row[yim])";
+		if (!empty($row[aim]))
+			$inserts[] = "($row[id_member], -1, 'cust_aolins', $row[aim])";
+
+		if (!empty($row[icq]))
+			$inserts[] = "($row[id_member], -1, 'cust_icq', $row[icq])";
+
+		if (!empty($row[msn]))
+			$inserts[] = "($row[id_member], -1, 'cust_msn', $row[msn])";
+
+		if (!empty($row[yim]))
+			$inserts[] = "($row[id_member], -1, 'cust_yahoo', $row[yim])";
 	}
 	mysql_free_result($request);
 
