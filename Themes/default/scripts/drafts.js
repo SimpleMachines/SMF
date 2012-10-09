@@ -77,7 +77,7 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText(true);
 
 	// nothing to save or already posting or nothing changed?
-	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft.localeCompare(sPostdata) == 0)
+	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)
 		return false;
 	
 	// Still saving the last one or other?
@@ -124,7 +124,7 @@ smf_DraftAutoSave.prototype.draftPMSave = function ()
 	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText();
 	
 	// nothing to save or already posting or nothing changed?
-	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft.localeCompare(sPostdata) == 0)
+	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)
 		return false;
 
 	// Still saving the last one or some other?
