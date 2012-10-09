@@ -38,6 +38,18 @@ function SaveDraft(&$post_errors)
 	$id_draft = (int) $_POST['id_draft'];
 	$draft_info = ReadDraft($id_draft);
 
+	// A draft has been saved less than 5 seconds ago, let's not do the autosave again
+	if (!empty($draft_info['poster_time']) && time() < $draft_info['poster_time'] + 5  && isset($_REQUEST['xml']))
+	{
+		$context['draft_saved_on'] = $draft_info['poster_time'];
+
+		// since we were called from the autosave function, send something back
+		if (!empty($id_draft))
+			XmlDraft($id_draft);
+
+		return true;
+	}
+
 	// prepare any data from the form
 	$topic_id = empty($_REQUEST['topic']) ? 0 : (int) $_REQUEST['topic'];
 	$draft['icon'] = empty($_POST['icon']) ? 'xx' : preg_replace('~[\./\\\\*:"\'<>]~', '', $_POST['icon']);
@@ -143,7 +155,10 @@ function SaveDraft(&$post_errors)
 
 	// if we were called from the autosave function, send something back
 	if (!empty($id_draft) && isset($_REQUEST['xml']) && (!in_array('session_timeout', $post_errors)))
+	{
+		$context['draft_saved_on'] = time();
 		XmlDraft($id_draft);
+	}
 
 	return true;
 }
@@ -172,6 +187,18 @@ function SavePMDraft(&$post_errors, $recipientList)
 	// read in what you sent us
 	$id_pm_draft = (int) $_POST['id_pm_draft'];
 	$draft_info = ReadDraft($id_pm_draft, 1);
+
+	// 5 seconds is the same limit we have for posting
+	if (!empty($draft_info['poster_time']) && time() < $draft_info['poster_time'] + 5  && isset($_REQUEST['xml']))
+	{
+		$context['draft_saved_on'] = $draft_info['poster_time'];
+
+		// Send something back to the javascript
+		if (!empty($id_draft))
+			XmlDraft($id_draft);
+
+		return true;
+	}
 
 	// determine who this is being sent to
 	if (isset($_REQUEST['xml']))
@@ -268,7 +295,10 @@ function SavePMDraft(&$post_errors, $recipientList)
 
 	// if we were called from the autosave function, send something back
 	if (!empty($id_pm_draft) && isset($_REQUEST['xml']) && !in_array('session_timeout', $post_errors))
+	{
+		$context['draft_saved_on'] = time();
 		XmlDraft($id_pm_draft);
+	}
 
 	return;
 }
@@ -471,7 +501,7 @@ function XmlDraft($id_draft)
 
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?>
 	<drafts>
-		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat(time()), ']]></draft>
+		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat($context['draft_saved_on']), ']]></draft>
 	</drafts>';
 
 	obExit(false);
