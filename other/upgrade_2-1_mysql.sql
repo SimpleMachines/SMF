@@ -242,7 +242,7 @@ if (@$modSettings['smfVersion'] < '2.2')
 ---#
 
 ---# Dropping old fields
-ALTER TABLE `s{$db_prefix}members`
+ALTER TABLE `{$db_prefix}members`
   DROP `icq`,
   DROP `aim`,
   DROP `yim`,
