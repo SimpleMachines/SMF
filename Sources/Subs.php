@@ -4200,13 +4200,13 @@ function remove_integration_function($hook, $function, $file = '')
 }
 
 /**
-* Microsoft uses their own character set Code Page 1252 (CP1252), which is a
-* superset of ISO 8859-1, defining several characters between DEC 128 and 159
-* that are not normally displayable.  This converts the popular ones that
-* appear from a cut and paste from windows.
-*
-* @param string $string
-* @return string $string
+ * Microsoft uses their own character set Code Page 1252 (CP1252), which is a
+ * superset of ISO 8859-1, defining several characters between DEC 128 and 159
+ * that are not normally displayable.  This converts the popular ones that
+ * appear from a cut and paste from windows.
+ *
+ * @param string $string
+ * @return string $string
 */
 function sanitizeMSCutPaste($string)
 {

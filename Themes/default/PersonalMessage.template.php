@@ -577,7 +577,7 @@ function template_subject_list()
 	<table width="100%" class="table_grid">
 	<thead>
 		<tr class="catbg">
-			<th align="center" width="4%" class="first_th">
+			<th align="center" width="4%" class="centercol first_th">
 				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"><img src="', $settings['images_url'], '/im_switch.png" alt="', $txt['pm_change_view'], '" title="', $txt['pm_change_view'], '" width="16" height="16" /></a>
 			</th>
 			<th class="lefttext" width="22%">
@@ -589,7 +589,7 @@ function template_subject_list()
 			<th class="lefttext">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a>
 			</th>
-			<th align="center" width="4%" class="last_th">
+			<th width="4%" class="centercol last_th">
 				<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />
 			</th>
 		</tr>
@@ -628,7 +628,7 @@ function template_subject_list()
 			<td>', $message['time'], '</td>
 			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*" />' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>
-			<td align="center" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked="checked"' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check" /></td>
+			<td class="centercol" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked="checked"' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check" /></td>
 		</tr>';
 			$next_alternate = !$next_alternate;
 	}
@@ -1467,7 +1467,6 @@ function template_labels()
 						<input type="text" id="add_label" name="label" value="" size="30" maxlength="30" class="input_text" />
 					</dd>
 				</dl>
-				<hr class="hrcolor" />
 				<input type="submit" name="add" value="', $txt['pm_label_add_new'], '" class="button_submit" />
 			</div>
 		</div>
@@ -1880,17 +1879,17 @@ function template_add_rule()
 					<a href="#" onclick="addActionOption(); return false;" id="addonjs2" style="display: none;">(', $txt['pm_rule_add_action'], ')</a>
 				</fieldset>
 			</div>
-		</div>
 		
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_rule_description'], '</h3>
-		</div>
-		<div class="information">
-			<div id="ruletext">', $txt['pm_rule_js_disabled'], '</div>
-		</div>
-		<div class="righttext">
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="submit" name="save" value="', $txt['pm_rule_save'], '" class="button_submit" />
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['pm_rule_description'], '</h3>
+			</div>
+			<div class="information">
+				<div id="ruletext">', $txt['pm_rule_js_disabled'], '</div>
+			</div>
+			<div class="righttext">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="submit" name="save" value="', $txt['pm_rule_save'], '" class="button_submit" />
+			</div>
 		</div>
 	</form>';
 

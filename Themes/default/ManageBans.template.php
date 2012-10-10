@@ -161,7 +161,6 @@ function template_ban_edit()
 	}
 
 	echo '
-						<hr class="hrcolor" />
 						<input type="submit" name="', $context['ban']['is_new'] ? 'add_ban' : 'modify_ban', '" value="', $context['ban']['is_new'] ? $txt['ban_add'] : $txt['ban_modify'], '" class="button_submit" />
 						<input type="hidden" name="old_expire" value="', $context['ban']['expiration']['days'], '" />
 						<input type="hidden" name="bg" value="', $context['ban']['id'], '" />
