@@ -745,6 +745,10 @@ function loadSearchAPIs()
 	return $apis;
 }
 
+/**
+ * Checks if the message table already has a fulltext index created and returns the key name
+ * Determines if a db is capable of creating a fulltext index
+ */
 function detectFulltextIndex()
 {
 	global $smcFunc, $context, $db_prefix;

@@ -366,7 +366,9 @@ function MaintainEmptyUnimportantLogs()
 	$context['maintenance_finished'] = $txt['maintain_logs'];
 }
 
-// Oh noes!
+/**
+ * Oh noes! I'd document this but that would give it away
+ */
 function Destroy()
 {
 	global $context;

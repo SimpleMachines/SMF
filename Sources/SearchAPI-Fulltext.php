@@ -14,19 +14,46 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
+/**
+ * Fulltext API, used when an SQL fulltext index is used
+ */
 class fulltext_search
 {
-	// This is the last version of SMF that this was tested on, to protect against API changes.
+	/**
+	 * This is the last version of SMF that this was tested on, to protect against API changes.
+	 * @var type
+	 */
 	public $version_compatible = 'SMF 2.1 Alpha 1';
-	// This won't work with versions of SMF less than this.
+
+	/**
+	 * This won't work with versions of SMF less than this.
+	 * @var type
+	 */
 	public $min_smf_version = 'SMF 2.1 Alpha 1';
-	// Is it supported?
+
+	/**
+	 * Is it supported?
+	 *
+	 * @var type
+	 */
 	public $is_supported = true;
-	// What words are banned?
+
+	/**
+	 * What words are banned?
+	 * @var type
+	 */
 	protected $bannedWords = array();
-	// What is the minimum word length?
+
+	/**
+	 * What is the minimum word length?
+	 * @var type
+	 */
 	protected $min_word_length = 4;
-	// What databases support the fulltext index?
+
+	/**
+	 * What databases support the fulltext index?
+	 * @var type
+	 */
 	protected $supported_databases = array('mysql');
 
 	/**
@@ -104,11 +131,12 @@ class fulltext_search
 
 		return $min_word_length;
 	}
-	
+
 	/**
 	 * callback function for usort used to sort the fulltext results.
 	 * the order of sorting is: large words, small words, large words that
 	 * are excluded from the search, small words that are excluded.
+	 *
 	 * @param string $a Word A
 	 * @param string $b Word B
 	 * @return int
@@ -119,10 +147,10 @@ class fulltext_search
 
 		$x = $smcFunc['strlen']($a) - (in_array($a, $excludedWords) ? 1000 : 0);
 		$y = $smcFunc['strlen']($b) - (in_array($b, $excludedWords) ? 1000 : 0);
-		
+
 		return $x < $y ? 1 : ($x > $y ? -1 : 0);
 	}
-	
+
 	/**
 	 * fulltext_search::prepareIndexes()
 	 *

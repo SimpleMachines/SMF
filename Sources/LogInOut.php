@@ -571,7 +571,7 @@ function DoLogin()
  * It redirects back to $_SESSION['logout_url'], if it exists.
  * It is accessed via ?action=logout;session_var=...
  *
- * @param bool $internal, if true, it doesn't check the session
+ * @param bool $internal if true, it doesn't check the session
  * @param $redirect
  */
 function Logout($internal = false, $redirect = true)

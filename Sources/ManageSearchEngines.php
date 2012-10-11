@@ -1020,6 +1020,11 @@ function SpiderStats()
 
 /**
  * Callback function for createList()
+ * Get a list of spider stats from the log_spider table
+ *
+ * @param type $start
+ * @param type $items_per_page
+ * @param type $sort
  * @return array
  */
 function list_getSpiderStats($start, $items_per_page, $sort)
@@ -1045,6 +1050,8 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ * Get the number of spider stat rows from the log spicer stats table
+ *
  * @return int
  */
 function list_getNumSpiderStats()

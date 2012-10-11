@@ -49,7 +49,7 @@ function smf_db_search_support($search_type)
  *
  * @param string $identifier
  * @param string $db_string
- * @param array $db_values, default array()
+ * @param array $db_values default array()
  * @param resource $connection
  */
 function smf_db_search_query($identifier, $db_string, $db_values = array(), $connection = null)

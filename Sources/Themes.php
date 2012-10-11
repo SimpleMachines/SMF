@@ -16,8 +16,7 @@
  * - any support website for the theme should be in website.
  * - layers and templates (non-default) should go in those elements ;).
  * - if the images dir isn't images, specify in the images element.
- * - any extra rows for themes should go in extra, serialized.
- * (as in array(variable => value).)
+ * - any extra rows for themes should go in extra, serialized. (as in array(variable => value).)
  * - tar and gzip the directory - and you're done!
  * - please include any special license in a license.txt file.
  *
@@ -1984,6 +1983,13 @@ function EditTheme()
 	createToken('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
 }
 
+/**
+ * Generates a file listing for a given directory
+ *
+ * @param type $path
+ * @param type $relative
+ * @return type
+ */
 function get_file_listing($path, $relative)
 {
 	global $scripturl, $txt, $context;
@@ -2045,6 +2051,10 @@ function get_file_listing($path, $relative)
 	return array_merge($listing1, $listing2);
 }
 
+/**
+ * Makes a copy of a template file in a new location
+ * @uses Themes template, copy_template sub-template.
+ */
 function CopyTemplate()
 {
 	global $context, $settings, $smcFunc;

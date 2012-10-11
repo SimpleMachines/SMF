@@ -842,7 +842,12 @@ function scheduled_weekly_digest()
 }
 
 /**
- * Send a bunch of emails from the mail queue.
+ * Send a group of emails from the mail queue.
+ *
+ * @param type $number the number to send each loop through
+ * @param type $override_limit bypassing our limit flaf
+ * @param type $force_send
+ * @return boolean
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
@@ -1043,6 +1048,9 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 /**
  * Calculate the next time the passed tasks should be triggered.
+ *
+ * @param type $tasks
+ * @param type $forceUpdate
  */
 function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 {
@@ -1109,6 +1117,11 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 
 /**
  * Simply returns a time stamp of the next instance of these time parameters.
+ *
+ * @param int $regularity
+ * @param type $unit
+ * @param type $offset
+ * @return int
  */
 function next_time($regularity, $unit, $offset)
 {

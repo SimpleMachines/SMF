@@ -328,6 +328,11 @@ function list_getBans($start, $items_per_page, $sort)
 	return $bans;
 }
 
+/**
+ * Get the total number of ban from the ban group table
+ *
+ * @return int
+ */
 function list_getNumBans()
 {
 	global $smcFunc;
@@ -1625,8 +1630,8 @@ function list_getNumBanLogEntries()
  * @example
  * range2ip(array(10, 10, 10, 0), array(10, 10, 20, 255)) returns '10.10.10-20.*
  *
- * @param array $low, IPv4 format
- * @param array $high, IPv4 format
+ * @param array $low IPv4 format
+ * @param array $high IPv4 format
  * @return string
  */
 function range2ip($low, $high)
@@ -1681,7 +1686,7 @@ function range2ip($low, $high)
  *
  * @param array $ip_array
  * @param string $fullip
- * @return bool
+ * @return boolean
  */
 function checkExistingTriggerIP($ip_array, $fullip = '')
 {

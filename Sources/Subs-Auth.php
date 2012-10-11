@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * - sets the cookie and session to last the number of seconds specified by cookie_length.
  * - when logging out, if the globalCookies setting is enabled, attempts to clear the subdomain's cookie too.
  *
- * @param int $cookie_length,
+ * @param int $cookie_length
  * @param int $id The id of the member
  * @param string $password = ''
  */
@@ -110,7 +110,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
  * - normally, local and global should be the localCookies and globalCookies settings, respectively.
  * - uses boardurl to determine these two things.
  *
- * @param bool $local,
+ * @param bool $local
  * @param bool $global
  * @return array an array to set the cookie on with domain and path in it, in that order
  */
@@ -250,8 +250,8 @@ function adminLogin($type = 'admin')
  * Used by the adminLogin() function.
  * if 'value' is an array, the function is called recursively.
  *
- * @param string $key
- * @param string $value
+ * @param string $k key
+ * @param string $v value
  * @return string 'hidden' HTML form fields, containing key-value-pairs
  */
 function adminLogin_outputPostVars($k, $v)
@@ -316,7 +316,7 @@ function construct_query_string($get)
  * - searches for members whose username, display name, or e-mail address match the given pattern of array names.
  * - searches only buddies if buddies_only is set.
  *
- * @param array $names,
+ * @param array $names
  * @param bool $use_wildcards = false, accepts wildcards ? and * in the patern if true
  * @param bool $buddies_only = false,
  * @param int $max = 500 retrieves a maximum of max members, if passed
@@ -588,8 +588,10 @@ function resetPassword($memID, $username = null)
 /**
  * Checks a username obeys a load of rules
  *
- * @param int $memID,
+ * @param int $memID
  * @param string $username
+ * @param boolean $return_error
+ * @param boolean $check_reserved_name
  * @return string Returns null if fine
  */
 function validateUsername($memID, $username, $return_error = false, $check_reserved_name = true)
