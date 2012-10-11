@@ -720,7 +720,7 @@
 
 			$.each(emoticons, function (key, url) {
 				// In SMF an empty entry means a new line
-				if (key == '')
+				if (url == '')
 					emoticon = document.createElement('br');
 				else
 				{
@@ -1244,7 +1244,7 @@
 
 			$.each(emoticons, function (key, url) {
 				// In SMF an empty entry means a new line
-				if (key == '')
+				if (url == '')
 					return;
 				// escape the key before using it as a regex
 				// and append the regex to only find emoticons outside
@@ -2098,7 +2098,7 @@
 							if(!description)
 								description = val;
 
-							editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
+							editor.wysiwygEditorInsertHtml('<a target="_blank" href="' + val + '">' + description + '</a>');
 						}
 						else
 							editor.execCommand("createlink", val);
@@ -3422,7 +3422,7 @@
 			return current_value;
 		},
 		appendEmoticon: function (code, emoticon) {
-			if (code == '')
+			if (emoticon == '')
 				line.append($('<br />'));
 			else
 				line.append($('<img />')
@@ -3486,13 +3486,15 @@
 							var emoticons = $.extend({}, base.options.emoticons.popup);
 							var popup_position;
 							var titlebar = $('<div class="catbg sceditor-popup-grip"/>');
-								popupContent = $('<div id="sceditor-popup"/>');
-								allowHide = true;
-								popupContent.append(titlebar);
-								line = $('<div />');
-								closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
-									$(".sceditor-smileyPopup").fadeOut('fast');
-								});
+							popupContent = $('<div id="sceditor-popup"/>');
+							allowHide = true;
+							line = $('<div id="sceditor-popup-smiley"/>');
+							adjheight = 0;
+
+							popupContent.append(titlebar);
+							closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
+								$(".sceditor-smileyPopup").fadeOut('fast');
+							});
 
 							$.each(emoticons, base.appendEmoticon);
 
@@ -3512,16 +3514,29 @@
 
 							$dropdown.appendTo($('body'));
 							dropdownIgnoreLastClick = true;
+							adjheight = closeButton.height() + titlebar.height();
 							$dropdown.css({
 								position: "fixed",
 								top: $(window).height() * 0.2,
-								left: $(window).width() * 0.5 - ($dropdown.width() / 2),
-								"max-width": "50%"
+								left: $(window).width() * 0.5 - ($dropdown.find('#sceditor-popup-smiley').width() / 2),
+								"max-width": "50%",
+								"max-height": "50%",
+							}).find('#sceditor-popup-smiley').css({
+								height: $dropdown.height() - adjheight,
+								"overflow": "auto"
 							});
 
 							$('.sceditor-smileyPopup').animaDrag({ 
 								speed: 150, 
 								interval: 120, 
+								during: function(e) {
+									$(this).height(this.startheight);
+									$(this).width(this.startwidth);
+								},
+								before: function(e) {
+									this.startheight = $(this).innerHeight();
+									this.startwidth = $(this).innerWidth();
+								},
 								grip: '.sceditor-popup-grip' 
 							});
 							// stop clicks within the dropdown from being handled
