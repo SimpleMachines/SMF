@@ -248,17 +248,15 @@ function template_email_members_compose()
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 					echo '
-					<ul class="reset">
-						<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_pms'], '</label></li>
-						<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html" ', !empty($context['send_html']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_html'], '</label></li>
-						<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked="checked" disabled="disabled" class="input_check" /> ', $txt['email_parsed_html'], '</label></li>
-					</ul>
-				<p id="shortcuts" class="smalltext">
-					', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
-				</p>
-				<p id="post_confirm_strip" class="righttext">
+				<ul class="reset">
+					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm" ', !empty($context['send_pm']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_pms'], '</label></li>
+					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html" ', !empty($context['send_html']) ? 'checked="checked"' : '', 'class="input_check" onclick="checkboxes_status(this);" /> ', $txt['email_as_html'], '</label></li>
+					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked="checked" disabled="disabled" class="input_check" /> ', $txt['email_parsed_html'], '</label></li>
+				</ul>
+				<br class="clear_right" />
+				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '
-				</p>
+				</span>
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />

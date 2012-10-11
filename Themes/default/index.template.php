@@ -312,7 +312,7 @@ function template_body_above()
 		// Are there any members waiting for approval?
 		if (!empty($context['unapproved_members']))
 			echo '
-							<li>', $context['unapproved_members'] == 1 ? $txt['approve_thereis'] : $txt['approve_thereare'], ' <a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $context['unapproved_members'] == 1 ? $txt['approve_member'] : $context['unapproved_members'] . ' ' . $txt['approve_members'], '</a> ', $txt['approve_members_waiting'], '</li>';
+							<li>', $context['unapproved_members_text'], '</li>';
 
 		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
 			echo '
@@ -379,7 +379,7 @@ function template_body_below()
 	// Show the load time?
 	if ($context['show_load_time'])
 		echo '
-			<p>', $txt['page_created'], $context['load_time'], $txt['seconds_with'], $context['load_queries'], $txt['queries'], '</p>';
+			<p>', sprintf($txt['page_created_full'], $context['load_time'], $context['load_queries']), '</p>';
 
 	echo '
 		</div>

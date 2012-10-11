@@ -260,6 +260,7 @@ function ShowXmlFeed()
 	elseif ($xml_format == 'webslice')
 	{
 		$context['recent_posts_data'] = $xml;
+		$context['can_pm_read'] = allowedTo('pm_read');
 
 		// This always has RSS 2
 		echo '
