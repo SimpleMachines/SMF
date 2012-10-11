@@ -338,10 +338,13 @@ function template_main()
 										<li class="email"><a href="', $scripturl, '?action=emailuser;sa=email;msg=', $message['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
 
 		// Stuff for the staff to wallop them with.
+		echo '
+										<li><hr /></li>';
+
 		// Maybe they want to report this post to the moderator(s)?
 		if ($context['can_report_moderator'])
 			echo '
-										<li class="report_link"><hr /><a href="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $message['counter'], ';msg=', $message['id'], '">', $txt['report_to_mod'], '</a></li>';
+										<li class="report_link"><a href="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $message['counter'], ';msg=', $message['id'], '">', $txt['report_to_mod'], '</a></li>';
 
 		// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
 		if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
@@ -400,20 +403,18 @@ function template_main()
 			echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm">', $txt['pm_short'], ' ', $context['user']['unread_messages'] > 0 ? '[<strong>'. $context['user']['unread_messages'] . '</strong>]' : '' , '</a></li>';
 		}
-
-		if ($context['can_send_pm'] && !$message['is_message_author'] && !$message['member']['is_guest'])
+		elseif ($context['can_send_pm'] && !$message['is_message_author'] && !$message['member']['is_guest'])
 		{
 			if (!empty($modSettings['onlineEnable']))
 				echo '
 								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else
 				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
+								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], ' </a></li>';
 		}
-
-		if (!$context['can_send_pm'] && !empty($modSettings['onlineEnable']))
+		elseif (!$context['can_send_pm'] && !empty($modSettings['onlineEnable']))
 			echo '
-								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], '<img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
+								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
 
 		// Are we showing the warning status?
 		// Don't show these things for guests.
@@ -568,7 +569,7 @@ function template_main()
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-							<li class="quick_edit"><img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer; display: none; margin: 0 0 0 0;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" />', $txt['quick_edit'], '</li>';
+							<li class="quick_edit"><img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer; margin: 0;" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')" />', $txt['quick_edit'], '</li>';
 
 		// Can the user modify the contents of this post?
 		if ($message['can_modify'])
@@ -831,7 +832,7 @@ function template_main()
 						sImageCollapsed: "collapse.png",
 						sImageExpanded: "expand.png",
 						sJumpAnchor: "quickreply",
-						bIsFull: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'true' : 'false', '
+						bIsFull: ', !empty($options['use_editor_quick_reply']) ? 'true' : 'false', '
 					});';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
@@ -861,11 +862,11 @@ function template_main()
 					});';
 
 	echo '
-					$(".quick_edit").css("display", "inline");
 					if (\'XMLHttpRequest\' in window)
 					{
 						var oQuickModify = new QuickModify({
 							sScriptUrl: smf_scripturl,
+							sClassName: \'quick_edit\',
 							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
 							iTopicId: ', $context['current_topic'], ',
 							sTemplateBodyEdit: ', JavaScriptEscape('

@@ -29,11 +29,11 @@ if (!defined('SMF'))
  * - updates the database info for the member's avatar.
  * - returns whether the download and resize was successful.
  *
- * @param string $temporary_path, the full path to the temporary file
- * @param int $memID, member ID
+ * @param string $url the full path to the temporary file
+ * @param int $memID member ID
  * @param int $max_width
  * @param int $max_height
- * @return bool, whether the download and resize was successful.
+ * @return boolean whether the download and resize was successful.
  *
  */
 function downloadAvatar($url, $memID, $max_width, $max_height)
@@ -145,7 +145,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
  * @param string $source
  * @param int $max_width
  * @param int $max_height
- * @return bool, whether the thumbnail creation was successful.
+ * @return boolean, whether the thumbnail creation was successful.
  */
 function createThumbnail($source, $max_width, $max_height)
 {
@@ -180,7 +180,7 @@ function createThumbnail($source, $max_width, $max_height)
  *
  * @param string $fileName
  * @param int $preferred_format = 0
- * @return bool, true on success, false on failure.
+ * @return boolean, true on success, false on failure.
  */
 function reencodeImage($fileName, $preferred_format = 0)
 {
@@ -277,6 +277,7 @@ function checkImagick()
 /**
  * See if we have enough memory to thumbnail an image
  *
+ * @param array $sizes image size
  * @return whether we do
  */
 function imageMemoryCheck($sizes)
@@ -733,7 +734,7 @@ if (!function_exists('imagecreatefrombmp'))
  * @param resource $gif
  * @param string $lpszFileName
  * @param int $background_color = -1
- * @return bool, whether it was successful or not.
+ * @return boolean, whether it was successful or not.
  */
 function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {

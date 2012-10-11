@@ -652,8 +652,6 @@ function toggleSubDir ()
 		document.getElementById('setting_use_subdirectories_for_attachments').parentNode.style.display = "none";
 		dir_elem.style.display = "none";
 		document.getElementById('setting_basedirectory_for_attachments').parentNode.style.display = "none";
-		document.getElementById('attachmentUploadDir').parentNode.style.display = "";
-		document.getElementById('setting_attachmentUploadDir').parentNode.style.display = "";
 	}
 	else
 	{
@@ -661,8 +659,6 @@ function toggleSubDir ()
 		document.getElementById('setting_use_subdirectories_for_attachments').parentNode.style.display = "";
 		dir_elem.style.display = "";
 		document.getElementById('setting_basedirectory_for_attachments').parentNode.style.display = "";
-		document.getElementById('attachmentUploadDir').parentNode.style.display = "none";
-		document.getElementById('setting_attachmentUploadDir').parentNode.style.display = "none";
 	}
 		toggleBaseDir();
 }

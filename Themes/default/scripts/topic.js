@@ -163,7 +163,7 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	var subject = message.getElementsByTagName("subject")[0];
 	var error = message.getElementsByTagName("error")[0];
 
-	// No subject or other error>
+	// No subject or other error?
 
 	if (!subject || error)
 		return false;
@@ -172,6 +172,10 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
 
+	// redo tips if they are on since we just pulled the rug out on this one 
+	if ($.isFunction($.fn.SMFtooltip));
+		$('.preview').SMFtooltip().smf_tooltip_off;
+	
 	return false;
 }
 
@@ -308,9 +312,10 @@ function QuickModify(oOptions)
 	// Show the edit buttons
 	if (this.bXmlHttpCapable)
 	{
-		for (var i = document.images.length - 1; i >= 0; i--)
-			if (document.images[i].id.substr(0, 14) == 'modify_button_')
-				document.images[i].style.display = '';
+		var aShowQuickModify = document.getElementsByClassName(this.opt.sClassName);
+		for (var i = 0, length = aShowQuickModify.length; i < length; i++) {
+			aShowQuickModify[i].style.display = "inline";
+		}
 	}
 }
 
@@ -631,19 +636,19 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 	// Show the number of messages selected in the button.
 	if (this.opt.bCanRemove && !this.opt.bUseImageButton)
 	{
-		setInnerHTML(document.getElementById(this.opt.sSelf + '_remove_button'), this.opt.sRemoveButtonLabel + ' [' + this.iNumSelected + ']');
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_remove_button_text'), this.opt.sRemoveButtonLabel + ' [' + this.iNumSelected + ']');
 		document.getElementById(this.opt.sSelf + '_remove_button').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if (this.opt.bCanRestore && !this.opt.bUseImageButton)
 	{
-		setInnerHTML(document.getElementById(this.opt.sSelf + '_restore_button'), this.opt.sRestoreButtonLabel + ' [' + this.iNumSelected + ']');
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_restore_button_text'), this.opt.sRestoreButtonLabel + ' [' + this.iNumSelected + ']');
 		document.getElementById(this.opt.sSelf + '_restore_button').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if (this.opt.bCanSplit && !this.opt.bUseImageButton)
 	{
-		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
+		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button_text'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
 		document.getElementById(this.opt.sSelf + '_split_button').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 

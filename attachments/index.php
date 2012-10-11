@@ -1,6 +1,8 @@
 <?php
 
-// This file is here solely to protect your attachments directory.
+/**
+ * This file is here solely to protect your attachments directory.
+ */
 
 // Look for Settings.php....
 if (file_exists(dirname(dirname(__FILE__)) . '/Settings.php'))

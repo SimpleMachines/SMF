@@ -280,6 +280,7 @@ function ViewSpiders()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -288,7 +289,7 @@ function ViewSpiders()
 							'id_spider' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -298,12 +299,11 @@ function ViewSpiders()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '
 					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" onclick="return confirm(\'' . $txt['spider_remove_selected_confirm'] . '\');" class="button_submit" />
 					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit" />
 				',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -758,7 +758,6 @@ function SpiderLogs()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" onclick="return confirm(\'' . $txt['spider_log_empty_log_confirm'] . '\');" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -1021,6 +1020,11 @@ function SpiderStats()
 
 /**
  * Callback function for createList()
+ * Get a list of spider stats from the log_spider table
+ *
+ * @param type $start
+ * @param type $items_per_page
+ * @param type $sort
  * @return array
  */
 function list_getSpiderStats($start, $items_per_page, $sort)
@@ -1046,6 +1050,8 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
+ * Get the number of spider stat rows from the log spicer stats table
+ *
  * @return int
  */
 function list_getNumSpiderStats()

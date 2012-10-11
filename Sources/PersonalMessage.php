@@ -174,6 +174,10 @@ function MessageMain()
 	$context['current_label_redirect'] = 'action=pm;f=' . $context['folder'] . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
 	$context['can_issue_warning'] = in_array('w', $context['admin_features']) && allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1;
 
+	// Are PM drafts enabled?
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+	
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=pm',
@@ -990,6 +994,9 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'is_replied_to' => &$context['message_replied'][$message['id_pm']],
 		'is_unread' => &$context['message_unread'][$message['id_pm']],
 		'is_selected' => !empty($temp_pm_selected) && in_array($message['id_pm'], $temp_pm_selected),
+		'is_message_author' => $message['id_member_from'] == $user_info['id'],
+		'can_report' => !empty($modSettings['enableReportPM']),
+		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
 	);
 
 	$counter++;
@@ -1781,10 +1788,6 @@ function MessagePost()
 
 	$modSettings['disable_wysiwyg'] = !empty($modSettings['disable_wysiwyg']) || empty($modSettings['enableBBC']);
 
-	// Are PM drafts enabled?
-	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
-
 	// Generate a list of drafts that they can load in to the editor
 	if (!empty($context['drafts_pm_save']))
 	{
@@ -1834,10 +1837,6 @@ function MessagePost()
 function MessageDrafts()
 {
 	global $context, $sourcedir, $user_info, $modSettings;
-
-	// Set draft capability
-	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
 
 	// validate with loadMemberData()
 	$memberResult = loadMemberData($user_info['id'], false);
@@ -1990,10 +1989,6 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 			$context['error_type'] = 'serious';
 	}
 
-	// Need to reset draft capability once again
-	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
-
 	// We need to load the editor once more.
 	require_once($sourcedir . '/Subs-Editor.php');
 
@@ -2044,6 +2039,10 @@ function MessagePost2()
 
 	isAllowedTo('pm_send');
 	require_once($sourcedir . '/Subs-Auth.php');
+	
+	// PM Drafts enabled and needed? 
+	if ($context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
+		require_once($sourcedir . '/Drafts.php');
 
 	loadLanguage('PersonalMessage', '', false);
 
@@ -2254,9 +2253,8 @@ function MessagePost2()
 	}
 
 	// Want to save this as a draft and think about it some more?
-	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && isset($_POST['save_draft']))
+	if ($context['drafts_pm_save'] && isset($_POST['save_draft']))
 	{
-		require_once($sourcedir . '/Drafts.php');
 		SavePMDraft($post_errors, $recipientList);
 		return messagePostError($post_errors, $namedRecipientList, $recipientList);
 	}
@@ -2310,7 +2308,13 @@ function MessagePost2()
 
 	// Message sent successfully?
 	if (!empty($context['send_log']) && empty($context['send_log']['failed']))
+	{
 		$context['current_label_redirect'] = $context['current_label_redirect'] . ';done=sent';
+		
+		// If we had a PM draft for this one, then its time to remove it since it was just sent
+		if ($context['drafts_pm_save'] && !empty($_POST['id_pm_draft']))
+			DeleteDraft($_POST['id_pm_draft']);
+	}
 
 	// Go back to the where they sent from, if possible...
 	redirectexit($context['current_label_redirect']);
@@ -2624,7 +2628,7 @@ function MessagePrune()
 /**
  * Delete the specified personal messages.
  *
- * @param array $personal_messages, array of pm ids
+ * @param array $personal_messages array of pm ids
  * @param string $folder = null
  * @param int $owner = null
  */
@@ -3656,7 +3660,7 @@ function LoadRules($reload = false)
  *
  * @param int $pmID
  * @param $validFor
- * @return bool
+ * @return boolean
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {

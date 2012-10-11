@@ -448,7 +448,6 @@ function ViewMemberlist()
 				),
 				'data' => array(
 					'db' => 'id_member',
-					'style' => 'text-align: center;',
 				),
 				'sort' => array(
 					'default' => 'id_member',
@@ -580,6 +579,7 @@ function ViewMemberlist()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -587,7 +587,7 @@ function ViewMemberlist()
 
 						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_member\'] . \'" class="input_check" \' . ($rowData[\'id_member\'] == $user_info[\'id\'] || $rowData[\'id_group\'] == 1 || in_array(1, explode(\',\', $rowData[\'additional_groups\'])) ? \'disabled="disabled"\' : \'\') . \' />\';
 					'),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -600,7 +600,6 @@ function ViewMemberlist()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" onclick="return confirm(\'' . $txt['confirm_delete_members'] . '\');" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -826,7 +825,6 @@ function MembersAwaitingActivation()
 				),
 				'data' => array(
 					'db' => 'id_member',
-					'style' => 'text-align: center;',
 				),
 				'sort' => array(
 					'default' => 'id_member',
@@ -916,7 +914,7 @@ function MembersAwaitingActivation()
 				'header' => array(
 					'value' => $txt['duplicates'],
 					// Make sure it doesn't go too wide.
-					'style' => 'width: 20%',
+					'style' => 'width: 20%;',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -938,6 +936,7 @@ function MembersAwaitingActivation()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -946,7 +945,7 @@ function MembersAwaitingActivation()
 							'id_member' => false,
 						),
 					),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -968,7 +967,7 @@ function MembersAwaitingActivation()
 					<select name="todo" onchange="onSelectChange();">
 						' . $allowed_actions . '
 					</select>
-					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit" /><br class="clear_right"></noscript>
+					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit" /><br class="clear_right" /></noscript>
 				',
 				'class' => 'floatright',
 			),

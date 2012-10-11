@@ -17,160 +17,165 @@ function template_main()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=theme;sa=admin" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" value="0" name="options[theme_allow]" />
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
-					', $txt['themeadmin_title'], '
-				</h3>
-			</div>
-			<div class="information">
-				', $txt['themeadmin_explain'], '
-			</div>
-			<div class="windowbg2">
-				<div class="content">
-					<dl class="settings">
-						<dt>
-							<label for="options-theme_allow"> ', $txt['theme_allow'], '</label>
-						</dt>
-						<dd>
-							<input type="checkbox" name="options[theme_allow]" id="options-theme_allow" value="1"', !empty($modSettings['theme_allow']) ? ' checked="checked"' : '', ' class="input_check" />
-						</dd>
-						<dt>
-							<label for="known_themes_list">', $txt['themeadmin_selectable'], '</label>:
-						</dt>
-						<dd>
-							<div id="known_themes_list">';
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a>
+				', $txt['themeadmin_title'], '
+			</h3>
+		</div>
+		<div class="information">
+			', $txt['themeadmin_explain'], '
+		</div>
+		<div id="admin_form_wrapper">
+			<form action="', $scripturl, '?action=admin;area=theme;sa=admin" method="post" accept-charset="', $context['character_set'], '">
+				<div class="cat_bar">
+					<h3 class="catbg">',
+						$txt['settings'], '
+					</h3>
+				</div>
+				<div class="windowbg2">
+					<div class="content">
+						<dl class="settings">
+							<dt>
+								<label for="options-theme_allow"> ', $txt['theme_allow'], '</label>
+							</dt>
+							<dd>
+								<input type="checkbox" name="options[theme_allow]" id="options-theme_allow" value="1"', !empty($modSettings['theme_allow']) ? ' checked="checked"' : '', ' class="input_check" />
+							</dd>
+							<dt>
+								<label for="known_themes_list">', $txt['themeadmin_selectable'], '</label>:
+							</dt>
+							<dd>
+								<div id="known_themes_list">';
 	foreach ($context['themes'] as $theme)
 		echo '
-								<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked="checked"' : '', ' class="input_check" /> ', $theme['name'], '</label><br />';
+									<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked="checked"' : '', ' class="input_check" /> ', $theme['name'], '</label><br />';
 
 		echo '
-							</div>
-							<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').style.display=\'block\'; document.getElementById(\'known_themes_link\').style.display = \'none\'; return false; " id="known_themes_link" style="display: none;">[ ', $txt['themeadmin_themelist_link'], ' ]</a>
-							<script type="text/javascript"><!-- // --><![CDATA[
-								document.getElementById("known_themes_list").style.display = "none";
-								document.getElementById("known_themes_link").style.display = "";
-							// ]]></script>
-						</dd>
-						<dt>
-							<label for="theme_guests">', $txt['theme_guests'], ':</label>
-						</dt>
-						<dd>
-							<select name="options[theme_guests]" id="theme_guests">';
+								</div>
+								<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').style.display=\'block\'; document.getElementById(\'known_themes_link\').style.display = \'none\'; return false; " id="known_themes_link" style="display: none;">[ ', $txt['themeadmin_themelist_link'], ' ]</a>
+								<script type="text/javascript"><!-- // --><![CDATA[
+									document.getElementById("known_themes_list").style.display = "none";
+									document.getElementById("known_themes_link").style.display = "";
+								// ]]></script>
+							</dd>
+							<dt>
+								<label for="theme_guests">', $txt['theme_guests'], ':</label>
+							</dt>
+							<dd>
+								<select name="options[theme_guests]" id="theme_guests">';
 
 	// Put an option for each theme in the select box.
 	foreach ($context['themes'] as $theme)
 		echo '
-								<option value="', $theme['id'], '"', $modSettings['theme_guests'] == $theme['id'] ? ' selected="selected"' : '', '>', $theme['name'], '</option>';
+									<option value="', $theme['id'], '"', $modSettings['theme_guests'] == $theme['id'] ? ' selected="selected"' : '', '>', $theme['name'], '</option>';
 
 	echo '
-							</select>
-							<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=-1;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
-						</dd>
-						<dt>
-							<label for="theme_reset">', $txt['theme_reset'], '</label>:
-						</dt>
-						<dd>
-							<select name="theme_reset" id="theme_reset">
-								<option value="-1" selected="selected">', $txt['theme_nochange'], '</option>
-								<option value="0">', $txt['theme_forum_default'], '</option>';
+								</select>
+								<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=-1;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
+							</dd>
+							<dt>
+								<label for="theme_reset">', $txt['theme_reset'], '</label>:
+							</dt>
+							<dd>
+								<select name="theme_reset" id="theme_reset">
+									<option value="-1" selected="selected">', $txt['theme_nochange'], '</option>
+									<option value="0">', $txt['theme_forum_default'], '</option>';
 
 	// Same thing, this time for changing the theme of everyone.
 	foreach ($context['themes'] as $theme)
 		echo '
-								<option value="', $theme['id'], '">', $theme['name'], '</option>';
+									<option value="', $theme['id'], '">', $theme['name'], '</option>';
 
 	echo '
-							</select>
-							<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=0;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
-						</dd>
-					</dl>
-					<hr class="hrcolor" />
-					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
+								</select>
+								<span class="smalltext pick_theme"><a href="', $scripturl, '?action=theme;sa=pick;u=0;', $context['session_var'], '=', $context['session_id'], '">', $txt['theme_select'], '</a></span>
+							</dd>
+						</dl>
+						<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
+						<input type="hidden" value="0" name="options[theme_allow]" />
+					</div>
 				</div>
-			</div>
-		</form>';
+			</form>';
 
 	// Link to simplemachines.org for latest themes and info!
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=latest_themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_latest'], '
-			</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				<div id="themeLatest">
-					', $txt['theme_latest_fetch'], '
-				</div>
-			</div>
-		</div>
-		<br />';
-
-	// Warn them if theme creation isn't possible!
-	if (!$context['can_create_new'])
-		echo '
-		<div class="errorbox">', $txt['theme_install_writable'], '</div>';
-
-		echo '
-		<form action="', $scripturl, '?action=admin;area=theme;sa=install" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" onsubmit="return confirm(\'', $txt['theme_install_new_confirm'], '\');">
+			<br />
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_install" onclick="return reqOverlayDiv(this.href);" class="help" id="theme_install"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_install'], '
+					<a href="', $scripturl, '?action=helpadmin;help=latest_themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_latest'], '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<div class="content">
-					<dl class="settings">';
+					<div id="themeLatest">
+						', $txt['theme_latest_fetch'], '
+					</div>
+				</div>
+			</div>
+			<br />';
+
+	// Warn them if theme creation isn't possible!
+	if (!$context['can_create_new'])
+		echo '
+			<div class="errorbox">', $txt['theme_install_writable'], '</div>';
+
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<a href="', $scripturl, '?action=helpadmin;help=theme_install" onclick="return reqOverlayDiv(this.href);" class="help" id="theme_install"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['theme_install'], '
+				</h3>
+			</div>
+			<form action="', $scripturl, '?action=admin;area=theme;sa=install" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" onsubmit="return confirm(\'', $txt['theme_install_new_confirm'], '\');">
+				<div class="windowbg">
+					<div class="content">
+						<dl class="settings">';
 
 	// Here's a little box for installing a new theme.
 	// @todo Should the value="theme_gz" be there?!
 	if ($context['can_create_new'])
 		echo '
-						<dt>
-							<label for="theme_gz">', $txt['theme_install_file'], '</label>:
-						</dt>
-						<dd>
-							<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
-						</dd>';
+							<dt>
+								<label for="theme_gz">', $txt['theme_install_file'], '</label>:
+							</dt>
+							<dd>
+								<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
+							</dd>';
 
 	echo '
-						<dt>
-							<label for="theme_dir">', $txt['theme_install_dir'], '</label>:
-						</dt>
-						<dd>
-							<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 70%;" class="input_text" />
-						</dd>';
+							<dt>
+								<label for="theme_dir">', $txt['theme_install_dir'], '</label>:
+							</dt>
+							<dd>
+								<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 70%;" class="input_text" />
+							</dd>';
 
 	if ($context['can_create_new'])
 		echo '
-						<dt>
-							<label for="copy">', $txt['theme_install_new'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40" class="input_text" />
-						</dd>';
+							<dt>
+								<label for="copy">', $txt['theme_install_new'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40" class="input_text" />
+							</dd>';
 
 	echo '
-					</dl>
-					<hr class="hrcolor" />
-					<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
+						</dl>
+						<input type="submit" name="save" value="', $txt['theme_install_go'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
+					</div>
 				</div>
-			</div>
-		</form>
+			</form>
+		</div>
 	</div>
 
 	<script type="text/javascript"><!-- // --><![CDATA[
-		window.smfForum_scripturl = "', $scripturl, '";
-		window.smfForum_sessionid = "', $context['session_id'], '";
-		window.smfForum_sessionvar = "', $context['session_var'], '";
+		window.smfForum_scripturl = smf_scripturl;
+		window.smfForum_sessionid = smf_session_id;
+		window.smfForum_sessionvar = smf_session_var;
 		window.smfThemes_writable = ', $context['can_create_new'] ? 'true' : 'false', ';
 	// ]]></script>';
 
@@ -196,7 +201,13 @@ function template_list_themes()
 		</div>
 		<div class="information">
 			', $txt['themeadmin_list_tip'], '
-		</div>';
+		</div>
+		
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=theme;', $context['session_var'], '=', $context['session_id'], ';sa=list" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['theme_settings'], '</h3>
+			</div>
+			<br />';
 
 	// Show each theme.... with X for delete and a link to settings.
 	foreach ($context['themes'] as $theme)
@@ -229,8 +240,6 @@ function template_list_themes()
 	}
 
 	echo '
-
-		<form action="', $scripturl, '?action=admin;area=theme;', $context['session_var'], '=', $context['session_id'], ';sa=list" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['themeadmin_list_reset'], '</h3>
 			</div>
@@ -271,7 +280,8 @@ function template_reset_list()
 		</div>
 		<div class="information">
 			', $txt['themeadmin_reset_tip'], '
-		</div>';
+		</div>
+		<div id="admin_form_wrapper">';
 
 	// Show each theme.... with X for delete and a link to settings.
 	$alternate = false;
@@ -281,27 +291,28 @@ function template_reset_list()
 		$alternate = !$alternate;
 
 		echo '
-		<div class="title_bar">
-			<h3 class="titlebg">', $theme['name'], '</h3>
-		</div>
-		<div class="windowbg', $alternate ? '' : '2','">
-			<div class="content">
-				<ul class="reset">
-					<li>
-						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset">', $txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', $txt['themeadmin_reset_defaults_current'], ')</em>
-					</li>
-					<li>
-						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset;who=1">', $txt['themeadmin_reset_members'], '</a>
-					</li>
-					<li>
-						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset;who=2;', $context['admin-stor_token_var'], '=', $context['admin-stor_token'], '" onclick="return confirm(\'', $txt['themeadmin_reset_remove_confirm'], '\');">', $txt['themeadmin_reset_remove'], '</a> <em class="smalltext">(', $theme['num_members'], ' ', $txt['themeadmin_reset_remove_current'], ')</em>
-					</li>
-				</ul>
+			<div class="title_bar">
+				<h3 class="titlebg">', $theme['name'], '</h3>
 			</div>
-		</div>';
+			<div class="windowbg', $alternate ? '' : '2','">
+				<div class="content">
+					<ul class="reset">
+						<li>
+							<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset">', $txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', $txt['themeadmin_reset_defaults_current'], ')</em>
+						</li>
+						<li>
+							<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset;who=1">', $txt['themeadmin_reset_members'], '</a>
+						</li>
+						<li>
+							<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset;who=2;', $context['admin-stor_token_var'], '=', $context['admin-stor_token'], '" onclick="return confirm(\'', $txt['themeadmin_reset_remove_confirm'], '\');">', $txt['themeadmin_reset_remove'], '</a> <em class="smalltext">(', $theme['num_members'], ' ', $txt['themeadmin_reset_remove_current'], ')</em>
+						</li>
+					</ul>
+				</div>
+			</div>';
 	}
 
 	echo '
+		</div>
 	</div>';
 }
 
@@ -396,7 +407,6 @@ function template_set_options()
 	// close the option page up
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>
@@ -410,20 +420,21 @@ function template_set_settings()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
+	<div id="admin_form_wrapper">
 		<form action="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['theme_settings']['theme_id'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="title_bar">
-				<h3 class="titlebg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
 				</h3>
-			</div>';
+			</div>
+			<br />';
 
 	// @todo Why can't I edit the default theme popup.
 	if ($context['theme_settings']['theme_id'] != 1)
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/config_sm.png" alt="" class="icon" /> ', $txt['theme_edit'], '
+					<img src="', $settings['images_url'], '/icons/config_hd.png" alt="" class="icon" /> ', $txt['theme_edit'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -442,7 +453,7 @@ function template_set_settings()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/config_sm.png" alt="" class="icon" /> ', $txt['theme_url_config'], '
+					<img src="', $settings['images_url'], '/icons/config_hd.png" alt="" class="icon" /> ', $txt['theme_url_config'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
@@ -482,7 +493,7 @@ function template_set_settings()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img class="icon" src="', $settings['images_url'], '/icons/config_sm.png" alt="" /> ', $txt['theme_variants'], '
+					<img class="icon" src="', $settings['images_url'], '/icons/config_hd.png" alt="" /> ', $txt['theme_variants'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
@@ -517,7 +528,7 @@ function template_set_settings()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/config_sm.png" alt="" class="icon" /> ', $txt['theme_options'], '
+					<img src="', $settings['images_url'], '/icons/config_hd.png" alt="" class="icon" /> ', $txt['theme_options'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -597,7 +608,6 @@ function template_set_settings()
 
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-sts_token_var'], '" value="', $context['admin-sts_token'], '" />
@@ -750,10 +760,11 @@ function template_edit_list()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
+	<div id="admin_form_wrapper">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['themeadmin_edit_title'], '</h3>
-		</div>';
+		</div>
+		<br />';
 
 	$alternate = false;
 

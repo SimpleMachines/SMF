@@ -216,8 +216,9 @@ function smf_db_optimize_table($table)
 /**
  * This function lists all tables in the database.
  * The listing could be filtered according to $filter.
- * @param mixed $db, string holding the table name, or false, default false
- * @param mixed $filter, string to filter by, or false, default false
+ *
+ * @param mixed $db string holding the table name, or false, default false
+ * @param mixed $filter string to filter by, or false, default false
  * @return array, an array of table names. (strings)
  */
 function smf_db_list_tables($db = false, $filter = false)
@@ -248,9 +249,10 @@ function smf_db_list_tables($db = false, $filter = false)
 /**
  * Gets all the necessary INSERTs for the table named table_name.
  * It goes in 250 row segments.
+ *
  * @param string $tableName - the table to create the inserts for.
- * @return string, the query to insert the data back in, or an empty
- *  string if the table was empty.
+ * @param bool $new_table
+ * @return string the query to insert the data back in, or an empty string if the table was empty.
  */
 function smf_db_insert_sql($tableName, $new_table = false)
 {

@@ -507,86 +507,87 @@ function template_admin_register()
 
 	echo '
 	<div id="admincenter">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
-		</div>
-		<form class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm" id="postForm">
-			<div class="content" id="register_screen">';
+		<div id="admin_form_wrapper">
+			<form id="postForm" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm">
+				<div class="cat_bar">
+					<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
+				</div>
+				<div class="content" id="register_screen">';
 
 	if (!empty($context['registration_done']))
 		echo '
-				<div class="infobox">
-					', $context['registration_done'], '
-				</div>';
+					<div class="infobox">
+						', $context['registration_done'], '
+					</div>';
 
 	echo '
-				<dl class="register_form" id="admin_register_form">
-					<dt>
-						<strong><label for="user_input">', $txt['admin_register_username'], ':</label></strong>
-						<span class="smalltext">', $txt['admin_register_username_desc'], '</span>
-					</dt>
-					<dd>
-						<input type="text" name="user" id="user_input" tabindex="', $context['tabindex']++, '" size="30" maxlength="25" class="input_text" />
-					</dd>
-					<dt>
-						<strong><label for="email_input">', $txt['admin_register_email'], ':</label></strong>
-						<span class="smalltext">', $txt['admin_register_email_desc'], '</span>
-					</dt>
-					<dd>
-						<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="30" class="input_text" />
-					</dd>
-					<dt>
-						<strong><label for="password_input">', $txt['admin_register_password'], ':</label></strong>
-						<span class="smalltext">', $txt['admin_register_password_desc'], '</span>
-					</dt>
-					<dd>
-						<input type="password" name="password" id="password_input" tabindex="', $context['tabindex']++, '" size="30" class="input_password" onchange="onCheckChange();" />
-					</dd>';
+					<dl class="register_form" id="admin_register_form">
+						<dt>
+							<strong><label for="user_input">', $txt['admin_register_username'], ':</label></strong>
+							<span class="smalltext">', $txt['admin_register_username_desc'], '</span>
+						</dt>
+						<dd>
+							<input type="text" name="user" id="user_input" tabindex="', $context['tabindex']++, '" size="30" maxlength="25" class="input_text" />
+						</dd>
+						<dt>
+							<strong><label for="email_input">', $txt['admin_register_email'], ':</label></strong>
+							<span class="smalltext">', $txt['admin_register_email_desc'], '</span>
+						</dt>
+						<dd>
+							<input type="text" name="email" id="email_input" tabindex="', $context['tabindex']++, '" size="30" class="input_text" />
+						</dd>
+						<dt>
+							<strong><label for="password_input">', $txt['admin_register_password'], ':</label></strong>
+							<span class="smalltext">', $txt['admin_register_password_desc'], '</span>
+						</dt>
+						<dd>
+							<input type="password" name="password" id="password_input" tabindex="', $context['tabindex']++, '" size="30" class="input_password" onchange="onCheckChange();" />
+						</dd>';
 
 	if (!empty($context['member_groups']))
 	{
 		echo '
-					<dt>
-						<strong><label for="group_select">', $txt['admin_register_group'], ':</label></strong>
-						<span class="smalltext">', $txt['admin_register_group_desc'], '</span>
-					</dt>
-					<dd>
-						<select name="group" id="group_select" tabindex="', $context['tabindex']++, '">';
+						<dt>
+							<strong><label for="group_select">', $txt['admin_register_group'], ':</label></strong>
+							<span class="smalltext">', $txt['admin_register_group_desc'], '</span>
+						</dt>
+						<dd>
+							<select name="group" id="group_select" tabindex="', $context['tabindex']++, '">';
 
 		foreach ($context['member_groups'] as $id => $name)
 			echo '
-							<option value="', $id, '">', $name, '</option>';
+								<option value="', $id, '">', $name, '</option>';
 
 		echo '
-						</select>
-					</dd>';
+							</select>
+						</dd>';
 	}
 
 	echo '
-					<dt>
-						<strong><label for="emailPassword_check">', $txt['admin_register_email_detail'], ':</label></strong>
-						<span class="smalltext">', $txt['admin_register_email_detail_desc'], '</span>
-					</dt>
-					<dd>
-						<input type="checkbox" name="emailPassword" id="emailPassword_check" tabindex="', $context['tabindex']++, '" checked="checked" disabled="disabled" class="input_check" />
-					</dd>
-					<dt>
-						<strong><label for="emailActivate_check">', $txt['admin_register_email_activate'], ':</label></strong>
-					</dt>
-					<dd>
-						<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', $context['tabindex']++, '"', !empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? ' checked="checked"' : '', ' onclick="onCheckChange();" class="input_check" />
-					</dd>
-				</dl>
-				<hr class="hrcolor" />
-				<div class="flow_auto">
-					<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
-					<input type="hidden" name="sa" value="register" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '" />
+						<dt>
+							<strong><label for="emailPassword_check">', $txt['admin_register_email_detail'], ':</label></strong>
+							<span class="smalltext">', $txt['admin_register_email_detail_desc'], '</span>
+						</dt>
+						<dd>
+							<input type="checkbox" name="emailPassword" id="emailPassword_check" tabindex="', $context['tabindex']++, '" checked="checked" disabled="disabled" class="input_check" />
+						</dd>
+						<dt>
+							<strong><label for="emailActivate_check">', $txt['admin_register_email_activate'], ':</label></strong>
+						</dt>
+						<dd>
+							<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', $context['tabindex']++, '"', !empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? ' checked="checked"' : '', ' onclick="onCheckChange();" class="input_check" />
+						</dd>
+					</dl>
+					<div class="flow_auto">
+						<input type="submit" name="regSubmit" value="', $txt['register'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
+						<input type="hidden" name="sa" value="register" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-regc_token_var'], '" value="', $context['admin-regc_token'], '" />
+					</div>
 				</div>
-			</div>
-			
-		</form>
+				
+			</form>
+		</div>
 	</div>
 	<br class="clear" />';
 }
@@ -598,45 +599,48 @@ function template_edit_agreement()
 
 	// Just a big box to edit the text file ;).
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['registration_agreement'], '</h3>
-		</div>';
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
+			</div>';
 
 	// Warning for if the file isn't writable.
 	if (!empty($context['warning']))
 		echo '
-		<p class="error">', $context['warning'], '</p>';
+			<p class="error">', $context['warning'], '</p>';
 
 	echo '
-		<div class="windowbg2" id="registration_agreement">
-			<div class="content">';
+			<div class="windowbg2" id="registration_agreement">
+				<div class="content">';
 
 	// Is there more than one language to choose from?
 	if (count($context['editable_agreements']) > 1)
 	{
 		echo '
-				<div class="information">
-					<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
-						<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
-						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
+					<div class="cat_bar">
+						<h3 class="catbg">', $txt['language_configuration'], '</h3>
+					</div>
+					<div class="information">
+						<form action="', $scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', $context['character_set'], '" style="display: inline;">
+							<strong>', $txt['admin_agreement_select_language'], ':</strong>&nbsp;
+							<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', $context['tabindex']++, '">';
 
 		foreach ($context['editable_agreements'] as $file => $name)
 			echo '
-							<option value="', $file, '" ', $context['current_agreement'] == $file ? 'selected="selected"' : '', '>', $name, '</option>';
+								<option value="', $file, '" ', $context['current_agreement'] == $file ? 'selected="selected"' : '', '>', $name, '</option>';
 
 		echo '
-						</select>
-						<div class="righttext">
-							<input type="hidden" name="sa" value="agreement" />
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
-						</div>
-					</form>
-				</div>';
+							</select>
+							<div class="righttext">
+								<input type="hidden" name="sa" value="agreement" />
+								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+								<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
+							</div>
+						</form>
+					</div>';
 	}
 
-	echo '
-				<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">';
+
 
 	// Show the actual agreement in an oversized text box.
 	echo '
@@ -646,7 +650,6 @@ function template_edit_agreement()
 					<p>
 						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check" /> ', $txt['admin_agreement'], '.</label>
 					</p>
-					<hr class="hrcolor" />
 					<div class="flow_auto" >
 						<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
 						<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '" />
@@ -654,9 +657,9 @@ function template_edit_agreement()
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '" />
 					</div>
-				</form>
+				</div>
 			</div>
-		</div>';
+		</form>';
 }
 
 function template_edit_reserved_words()
@@ -664,10 +667,10 @@ function template_edit_reserved_words()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
-		</div>
-		<form id="registration_agreement" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
+			</div>
 			<div class="content">
 				<h4>', $txt['admin_reserved_line'], '</h4>
 				<p class="reserved_names">
@@ -699,7 +702,6 @@ function template_edit_reserved_words()
 						<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '" ', $context['reserved_word_options']['match_name'] ? 'checked="checked"' : '', ' class="input_check" />
 					</dd>
 				</dl>
-				<hr class="hrcolor" />
 				<div class="flow_auto" >
 					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit" />
 					<input type="hidden" name="sa" value="reservednames" />
@@ -709,8 +711,5 @@ function template_edit_reserved_words()
 			</div>
 		</form>';
 }
-
-
-
 
 ?>

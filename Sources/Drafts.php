@@ -23,7 +23,9 @@ loadLanguage('Drafts');
  * Saves a post draft in the user_drafts table
  * The core draft feature must be enabled, as well as the post draft option
  * Determines if this is a new or an existing draft
+ * Returns errors in $post_errors for display in the template
  *
+ * @param string $post_errors
  * @return boolean
  */
 function SaveDraft(&$post_errors)
@@ -37,6 +39,18 @@ function SaveDraft(&$post_errors)
 	// read in what they sent us, if anything
 	$id_draft = (int) $_POST['id_draft'];
 	$draft_info = ReadDraft($id_draft);
+
+	// A draft has been saved less than 5 seconds ago, let's not do the autosave again
+	if (isset($_REQUEST['xml']) && !empty($draft_info['poster_time']) && time() < $draft_info['poster_time'] + 5)
+	{
+		$context['draft_saved_on'] = $draft_info['poster_time'];
+
+		// since we were called from the autosave function, send something back
+		if (!empty($id_draft))
+			XmlDraft($id_draft);
+
+		return true;
+	}
 
 	// prepare any data from the form
 	$topic_id = empty($_REQUEST['topic']) ? 0 : (int) $_REQUEST['topic'];
@@ -143,15 +157,18 @@ function SaveDraft(&$post_errors)
 
 	// if we were called from the autosave function, send something back
 	if (!empty($id_draft) && isset($_REQUEST['xml']) && (!in_array('session_timeout', $post_errors)))
+	{
+		$context['draft_saved_on'] = time();
 		XmlDraft($id_draft);
+	}
 
 	return true;
 }
 
 /**
  * Saves a PM draft in the user_drafts table
- * The core draft feature must be enable, as well as the pm draft option
- * Determines if this is a new or and update to an existing draft
+ * The core draft feature must be enabled, as well as the pm draft option
+ * Determines if this is a new or and update to an existing pm draft
  *
  * @global type $context
  * @global type $user_info
@@ -173,6 +190,18 @@ function SavePMDraft(&$post_errors, $recipientList)
 	$id_pm_draft = (int) $_POST['id_pm_draft'];
 	$draft_info = ReadDraft($id_pm_draft, 1);
 
+	// 5 seconds is the same limit we have for posting
+	if (isset($_REQUEST['xml']) && !empty($draft_info['poster_time']) && time() < $draft_info['poster_time'] + 5)
+	{
+		$context['draft_saved_on'] = $draft_info['poster_time'];
+
+		// Send something back to the javascript caller
+		if (!empty($id_draft))
+			XmlDraft($id_draft);
+
+		return true;
+	}
+
 	// determine who this is being sent to
 	if (isset($_REQUEST['xml']))
 	{
@@ -188,7 +217,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	$draft['body'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
 	$draft['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 
-	// message and subject still need a bit more massaging
+	// message and subject always need a bit more work
 	preparsecode($draft['body']);
 	if ($smcFunc['strlen']($draft['subject']) > 100)
 		$draft['subject'] = $smcFunc['substr']($draft['subject'], 0, 100);
@@ -210,8 +239,8 @@ function SavePMDraft(&$post_errors, $recipientList)
 			array(
 				'id_reply' => $reply_id,
 				'type' => 1,
-				'poster_time' =>  time(),
-				'subject' =>  $draft['subject'],
+				'poster_time' => time(),
+				'subject' => $draft['subject'],
 				'body' => $draft['body'],
 				'id_pm_draft' => $id_pm_draft,
 				'to_list' => serialize($recipientList),
@@ -256,7 +285,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 		// get the new id
 		$id_pm_draft = $smcFunc['db_insert_id']('{db_prefix}user_drafts', 'id_draft');
 
-		// everything go as expected, if not toss an error
+		// everything go as expected, if not toss back an error
 		if (!empty($id_pm_draft))
 		{
 			$context['draft_saved'] = true;
@@ -268,7 +297,10 @@ function SavePMDraft(&$post_errors, $recipientList)
 
 	// if we were called from the autosave function, send something back
 	if (!empty($id_pm_draft) && isset($_REQUEST['xml']) && !in_array('session_timeout', $post_errors))
+	{
+		$context['draft_saved_on'] = time();
 		XmlDraft($id_pm_draft);
+	}
 
 	return;
 }
@@ -289,7 +321,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 {
 	global $context, $user_info, $smcFunc, $modSettings;
 
-	// always clean to be sure
+	// like purell always clean to be sure
 	$id_draft = (int) $id_draft;
 	$type = (int) $type;
 
@@ -471,7 +503,7 @@ function XmlDraft($id_draft)
 
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?>
 	<drafts>
-		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat(time()), ']]></draft>
+		<draft id="', $id_draft, '"><![CDATA[', $txt['draft_saved_on'], ': ', timeformat($context['draft_saved_on']), ']]></draft>
 	</drafts>';
 
 	obExit(false);
@@ -517,7 +549,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 
 	// Default to 10.
 	if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount']))
-		$_REQUEST['viewscount'] = '10';
+		$_REQUEST['viewscount'] = 10;
 
 	// Get the count of applicable drafts on the boards they can (still) see ...
 	// @todo .. should we just let them see their drafts even if they have lost board access ?
@@ -616,7 +648,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	}
 	$smcFunc['db_free_result']($request);
 
-	// All drafts were retrieved in reverse order, get them right again.
+	// If the drafts were retrieved in reverse order, get them right again.
 	if ($reverse)
 		$context['drafts'] = array_reverse($context['drafts'], true);
 
@@ -629,7 +661,6 @@ function showProfileDrafts($memID, $draft_type = 0)
  * Allows for the deleting and loading/editing of drafts
  *
  * @param type $memID
- * @param type $draft_type
  */
 function showPMDrafts($memID = -1)
 {
@@ -672,12 +703,12 @@ function showPMDrafts($memID = -1)
 
 	// Default to 10.
 	if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount']))
-		$_REQUEST['viewscount'] = '10';
+		$_REQUEST['viewscount'] = 10;
 
 	// Get the count of applicable drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_draft)
-		FROM {db_prefix}user_drafts AS ud
+		FROM {db_prefix}user_drafts
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : ''),
@@ -817,14 +848,14 @@ function ModifyDraftSettings($return_config = false)
 
 	// Here are all the draft settings, a bit lite for now, but we can add more :P
 	$config_vars = array(
-			// Draft settings ...
-			array('check', 'drafts_post_enabled'),
-			array('check', 'drafts_pm_enabled'),
-			array('check', 'drafts_show_saved_enabled', 'subtext' => $txt['drafts_show_saved_enabled_subnote']),
-			array('int', 'drafts_keep_days', 'postinput' => $txt['days_word'], 'subtext' => $txt['drafts_keep_days_subnote']),
-			'',
-			array('check', 'drafts_autosave_enabled', 'subtext' => $txt['drafts_autosave_enabled_subnote']),
-			array('int', 'drafts_autosave_frequency', 'postinput' => $txt['manageposts_seconds'], 'subtext' => $txt['drafts_autosave_frequency_subnote']),
+		// Draft settings ...
+		array('check', 'drafts_post_enabled'),
+		array('check', 'drafts_pm_enabled'),
+		array('check', 'drafts_show_saved_enabled', 'subtext' => $txt['drafts_show_saved_enabled_subnote']),
+		array('int', 'drafts_keep_days', 'postinput' => $txt['days_word'], 'subtext' => $txt['drafts_keep_days_subnote']),
+		'',
+		array('check', 'drafts_autosave_enabled', 'subtext' => $txt['drafts_autosave_enabled_subnote']),
+		array('int', 'drafts_autosave_frequency', 'postinput' => $txt['manageposts_seconds'], 'subtext' => $txt['drafts_autosave_frequency_subnote']),
 	);
 
 	if ($return_config)

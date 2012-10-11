@@ -530,42 +530,39 @@ function template_browse()
 	if ($context['sub_action'] == 'browse')
 	{
 		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
-			</h3>
-		</div>
-		<div class="windowbg2">
-			<div class="content">
-				<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
+		<div id="admin_form_wrapper">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
+				</h3>
 			</div>
-		</div>
+			<div class="windowbg2">
+				<div class="content">
+					<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
+				</div>
+			</div>
 
-		<script type="text/javascript"><!-- // --><![CDATA[
-			window.smfForum_scripturl = "', $scripturl, '";
-			window.smfForum_sessionid = "', $context['session_id'], '";
-			window.smfForum_sessionvar = "', $context['session_var'], '";';
+			<script type="text/javascript"><!-- // --><![CDATA[
+				window.smfForum_scripturl = smf_scripturl;
+				window.smfForum_sessionid = smf_session_id;
+				window.smfForum_sessionvar = smf_session_var;';
 
 		// Make a list of already installed mods so nothing is listed twice ;).
 		echo '
-			window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
-			window.smfVersion = "', $context['forum_version'], '";
-		// ]]></script>';
+				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
+				window.smfVersion = "', $context['forum_version'], '";
+			// ]]></script>';
 
 		if (empty($modSettings['disable_smf_js']))
 			echo '
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
+			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
 
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var tempOldOnload;
-			smfSetLatestPackages();
-		// ]]></script>';
+			<script type="text/javascript"><!-- // --><![CDATA[
+				var tempOldOnload;
+				smfSetLatestPackages();
+			// ]]></script>
 
-		echo '
-		<br class="clear" />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['browse_packages'], '</h3>
 		</div>';
 	}
 
@@ -581,7 +578,7 @@ function template_browse()
 
 	if (!$mods_available)
 		echo '
-		<div class="information">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
+		<div class="descbox">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
 
 	// the advanced (emulation) box, collapsed by default
 	echo '
@@ -679,7 +676,7 @@ function template_servers()
 					</div>';
 
 	echo '
-	<div id="admincenter">
+	<div id="admin_form_wrapper">
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['download_new_package'], '</h3>
 		</div>';
@@ -1088,7 +1085,7 @@ function template_install_options()
 							<input type="checkbox" name="package_make_full_backups" id="package_make_full_backups" value="1" class="input_check"', $context['package_make_full_backups'] ? ' checked="checked"' : '', ' />
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
+
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</form>
@@ -1497,7 +1494,7 @@ function template_file_permissions()
 	// ]]></script>';
 
 		echo '
-	<div class="information">
+	<div class="noticebox">
 		<div>
 			<strong>', $txt['package_file_perms_warning'], ':</strong>
 			<div class="smalltext">
@@ -1525,12 +1522,13 @@ function template_file_permissions()
 					<th align="center" width="8%"><span class="filepermissions">', $txt['package_file_perms_status_custom'], '</span></th>
 					<th class="last_th" align="center" width="8%"><span class="filepermissions">', $txt['package_file_perms_status_no_change'], '</span></th>
 				</tr>
-			</thead>';
+			</thead>
+			<tbody>';
 
 	foreach ($context['file_tree'] as $name => $dir)
 	{
 		echo '
-			<tbody>
+			
 				<tr class="windowbg2">
 					<td width="30%"><strong>';
 
@@ -1551,14 +1549,14 @@ function template_file_permissions()
 					<td align="center" class="perm_custom" width="8%"><input type="radio" name="permStatus[', $name, ']" value="custom" class="input_radio" /></td>
 					<td align="center" class="perm_nochange" width="8%"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked="checked" class="input_radio" /></td>
 				</tr>
-			</tbody>';
+			';
 
 		if (!empty($dir['contents']))
 			template_permission_show_contents($name, $dir['contents'], 1);
 	}
 
 	echo '
-
+			</tbody>
 		</table>
 		<br />
 		<div class="cat_bar">
@@ -1597,11 +1595,10 @@ function template_file_permissions()
 					', $txt['package_file_perms_ftp_details'], ':
 				</p>
 				', template_control_chmod(), '
-				<div class="information">', $txt['package_file_perms_ftp_retain'], '</div>';
+				<div class="descbox">', $txt['package_file_perms_ftp_retain'], '</div>';
 
 	echo '
 				<span id="test_ftp_placeholder_full"></span>
-				<hr class="hrcolor" />
 				<input type="hidden" name="action_changes" value="1" />
 				<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit" />
 			</div>
@@ -1619,6 +1616,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 {
 	global $settings, $txt, $scripturl, $context;
 	$js_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident);
+	
 	// Have we actually done something?
 	$drawn_div = false;
 
@@ -1630,8 +1628,10 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 			{
 				$drawn_div = true;
 				echo '
+			</tbody>
 			</table>
-			<table border="0" width="100%" class="table_grid" id="', $js_ident, '">';
+			<table border="0" width="100%" class="table_grid" id="', $js_ident, '">
+			<tbody>';
 			}
 
 			$cur_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident . '/' . $name);
@@ -1690,10 +1690,12 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 		if ($level > 1 && !$isFound)
 			echo '
+		</tbody>
 		</table><script type="text/javascript"><!-- // --><![CDATA[
 			expandFolder(\'', $js_ident, '\', \'\');
 		// ]]></script>
 		<table border="0" width="100%" class="table_grid">
+			<tbody>
 			<tr style="display: none;"><td></td></tr>';
 	}
 }

@@ -790,7 +790,7 @@ function GroupRequests()
 			'date' => array(
 				'header' => array(
 					'value' => $txt['date'],
-					'style' => 'width: 18%;white-space:nowrap;',
+					'style' => 'width: 18%; white-space:nowrap;',
 				),
 				'data' => array(
 					'db' => 'time_submitted',
@@ -800,6 +800,7 @@ function GroupRequests()
 				'header' => array(
 					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
 					'style' => 'width: 4%;',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -808,7 +809,7 @@ function GroupRequests()
 							'id' => false,
 						),
 					),
-					'style' => 'text-align: center;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -832,8 +833,8 @@ function GroupRequests()
 						<option value="reject">' . $txt['mc_groupr_reject'] . '</option>
 						<option value="reason">' . $txt['mc_groupr_reject_w_reason'] . '</option>
 					</select>
-					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button_submit" style="float: none"/>',
-				'align' => 'right',
+					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button_submit" />',
+				'class' => 'floatright',
 			),
 		),
 	);

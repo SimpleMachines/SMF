@@ -1100,7 +1100,7 @@ function Display()
 		checkSubmitOnce('register');
 		$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
 		$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
-		if ($options['display_quick_reply'] == 3 && $context['can_reply'])
+		if (!empty($options['use_editor_quick_reply']) && $context['can_reply'])
 		{
 			// Needed for the editor and message icons.
 			require_once($sourcedir . '/Subs-Editor.php');
@@ -1167,7 +1167,8 @@ function Display()
  * It actually gets and prepares the message context.
  * This function will start over from the beginning if reset is set to true, which is
  * useful for showing an index before or after the posts.
- * @param bool $reset, default false.
+ *
+ * @param bool $reset default false.
  */
 function prepareDisplayContext($reset = false)
 {
@@ -1450,29 +1451,17 @@ function Download()
 
 	// Convert the file to UTF-8, cuz most browsers dig that.
 	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $real_filename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($real_filename, 'UTF-8', $context['character_set']) : $real_filename);
-	$fixchar = create_function('$n', '
-		if ($n < 32)
-			return \'\';
-		elseif ($n < 128)
-			return chr($n);
-		elseif ($n < 2048)
-			return chr(192 | $n >> 6) . chr(128 | $n & 63);
-		elseif ($n < 65536)
-			return chr(224 | $n >> 12) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);
-		else
-			return chr(240 | $n >> 18) . chr(128 | $n >> 12 & 63) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);');
-
 	$disposition = !isset($_REQUEST['image']) ? 'attachment' : 'inline';
 
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
-		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)));
+		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
 
 	elseif (isBrowser('opera'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name) . '"');
+		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
 
 	elseif (isBrowser('ie'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)) . '"');
+		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
 
 	else
 		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');
@@ -1526,11 +1515,14 @@ function Download()
 
 /**
  * This loads an attachment's contextual data including, most importantly, its size if it is an image.
- *  Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
- *  (@todo change this pre-condition, too fragile and error-prone.)
- *  It requires the view_attachments permission to calculate image size.
- *  It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
- *  the max_image_width and max_image_height settings.
+ * Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
+ * (@todo change this pre-condition, too fragile and error-prone.)
+ * It requires the view_attachments permission to calculate image size.
+ * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
+ * the max_image_width and max_image_height settings.
+ *
+ * @param type $id_msg message number to load attachments for
+ * @return array of attachemnts
  */
 function loadAttachmentContext($id_msg)
 {

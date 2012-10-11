@@ -226,7 +226,9 @@ function PackageInstallTest()
 	$smcFunc['db_free_result']($request);
 
 	$context['database_changes'] = array();
-	if (!empty($db_changes))
+	if (isset($packageInfo['uninstall']['database']))
+		$context['database_changes'][] = $txt['execute_database_changes'] . ' - ' . $packageInfo['uninstall']['database'];
+	elseif (!empty($db_changes))
 	{
 		foreach ($db_changes as $change)
 		{
@@ -1115,6 +1117,13 @@ function PackageInstall()
 			{
 				// We're really just checking for entries which are create table AND add columns (etc).
 				$tables = array();
+				/**
+				 * Table sorting function used in usort
+				 *
+				 * @param type $a
+				 * @param type $b
+				 * @return int
+				 */
 				function sort_table_first($a, $b)
 				{
 					if ($a[0] == $b[0])
@@ -1474,7 +1483,7 @@ function PackageBrowse()
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=list;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'list_files\'] . \' ]</a>
 									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';
 						'),
-						'style' => 'text-align: right;',
+						'class' => 'righttext',
 					),
 				),
 			),
@@ -1501,6 +1510,18 @@ function PackageBrowse()
 	$context['available_all'] = array();
 }
 
+/**
+ * Get a listing of all the packages
+ * Determines if the package is a mod, avatar, language package
+ * Determines if the package has been installed or not
+ *
+ * @param type $start
+ * @param type $items_per_page
+ * @param type $sort
+ * @param type $params
+ * @param type $installed
+ * @return type
+ */
 function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 {
 	global $boarddir, $scripturl, $context, $forum_version;
@@ -1765,6 +1786,9 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 	return $packages[$params];
 }
 
+/**
+ * Used when a temp FTP access is needed to package functions
+ */
 function PackageOptions()
 {
 	global $txt, $scripturl, $context, $sourcedir, $modSettings, $smcFunc;
@@ -2199,6 +2223,14 @@ function PackagePermissions()
 	}
 }
 
+/**
+ * Checkes the permissions of all the areas that will be affected by the package
+ *
+ * @param type $path
+ * @param type $data
+ * @param type $level
+ * @return type
+ */
 function fetchPerms__recursive($path, &$data, $level)
 {
 	global $context;
@@ -2478,6 +2510,12 @@ function PackagePermissionsAction()
 		// Haven't counted the items yet?
 		if (empty($context['total_items']))
 		{
+			/**
+			 * Counts all the directorys under a given path
+			 *
+			 * @param type $dir
+			 * @return integer
+			 */
 			function count_directories__recursive($dir)
 			{
 				global $context;
@@ -2513,6 +2551,13 @@ function PackagePermissionsAction()
 		if (!isset($_POST['specialFiles']) && $context['predefined_type'] != 'free')
 		{
 			$context['special_files'] = array();
+
+			/**
+			 * Builds a list of special files recusivly for a given path
+			 *
+			 * @param type $path
+			 * @param type $data
+			 */
 			function build_special_files__recursive($path, &$data)
 			{
 				global $context;

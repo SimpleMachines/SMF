@@ -205,7 +205,7 @@ function CalendarPost()
 			$eventOptions = array(
 				'board' => 0,
 				'topic' => 0,
-				'title' => substr($_REQUEST['evtitle'], 0, 60),
+				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
 				'member' => $user_info['id'],
 				'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
 				'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
@@ -236,7 +236,7 @@ function CalendarPost()
 			}
 
 			$eventOptions = array(
-				'title' => substr($_REQUEST['evtitle'], 0, 60),
+				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
 				'span' => empty($modSettings['cal_allowspan']) || empty($_POST['span']) || $_POST['span'] == 1 || empty($modSettings['cal_maxspan']) || $_POST['span'] > $modSettings['cal_maxspan'] ? 0 : min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1),
 				'start_date' => strftime('%Y-%m-%d', mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year'])),
 			);

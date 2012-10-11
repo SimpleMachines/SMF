@@ -60,7 +60,7 @@ function template_admin()
 			<div id="live_news" class="floatleft">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['live'], '
+						<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['live'], '
 					</h3>
 				</div>
 				<div class="windowbg nopadding">
@@ -175,7 +175,6 @@ function template_admin()
 								%message%
 							</div>
 						</div>
-						<span class="botslice"><span></span></span>
 					</div>
 				'), ',
 				sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
@@ -251,7 +250,7 @@ function template_credits()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '
+					<a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -586,7 +585,7 @@ function template_edit_censored()
 	// First section is for adding/removing words from the censored list.
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', $context['character_set'], '">
 			<div id="section_header" class="cat_bar">
 				<h3 class="catbg">
 					', $txt['admin_censored_words'], '
@@ -766,7 +765,7 @@ function template_show_settings()
 				echo '
 					<div class="cat_bar">
 						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
+							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
 							', $config_var['label'], '
 						</h3>
 					</div>';
@@ -881,7 +880,7 @@ function template_show_settings()
 										</li>';
 					}
 					echo '			</ul>
-								<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
+								<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
 							</fieldset>';
 				}
 				// A simple message?
@@ -1381,8 +1380,10 @@ function template_core_features()
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
 				</h3>
+				
 			</div>
-		<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
+			<p class="description">', $txt['core_settings_desc'], '</p>
+			<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
 			<div style="display:none" id="activation_message" class="errorbox"></div>';
 
 	$alternate = true;
@@ -1396,7 +1397,7 @@ function template_core_features()
 				<img class="features_image" src="', $feature['image'], '" alt="', $feature['title'], '" />
 				<div class="features_switch" id="js_feature_', $id, '">
 					<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
-					<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" id="switch_', $id, '" style="margin-top: 1.3em;display:none" />
+					<img class="core_features_img ', $feature['state'], '" src="', $settings['images_url'], '/admin/switch_', $feature['state'], '.png" alt="', $feature['state'], '" id="switch_', $id, '" style="margin-top: 1.3em;display:none" />
 				</div>
 				<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
 				<p>', $feature['desc'], '</p>
@@ -1567,21 +1568,27 @@ function template_php_info()
 	global $context, $txt;
 
 	echo '
-	<div class="generic_list_wrapper" id="phpinfo">';
-
+	<div id="admin_form_wrapper">
+		<div id="section_header" class="cat_bar">
+			<h3 class="catbg">',
+				$txt['phpinfo_settings'], '
+			</h3>
+		</div>
+		<br />';
+	
 	// for each php info area
 	foreach ($context['pinfo'] as $area => $php_area)
 	{
 		echo '
-	<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
-		<thead>
-		<tr class="catbg" align="center">
-			<th class="first_th" scope="col" width="33%"></th>
-			<th scope="col" width="33%"><strong>', $area, '</strong></th>
-			<th class="last_th" scope="col" width="33%"></th>
-		</tr>
-		</thead>
-		<tbody>';
+		<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
+			<thead>
+			<tr class="catbg">
+				<th class="first_th" scope="col" width="33%"></th>
+				<th scope="col" width="33%" class="centercol"><strong>', $area, '</strong></th>
+				<th class="last_th" scope="col" width="33%"></th>
+			</tr>
+			</thead>
+			<tbody>';
 
 		$alternate = true;
 		$localmaster = true;
@@ -1596,42 +1603,42 @@ function template_php_info()
 				{
 					// heading row for the settings section of this categorys settings
 					echo '
-		<tr class="titlebg">
-			<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
-			<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
-			<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
-		</tr>';
+			<tr class="titlebg">
+				<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
+				<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
+				<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
+			</tr>';
 					$localmaster = false;
 				}
 
 				echo '
-		<tr>
-			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
+			<tr>
+				<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
 
 				foreach ($setting as $key_lm => $value)
 				{
 					echo '
-			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $value, '</td>';
+				<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $value, '</td>';
 				}
 				echo '
-		</tr>';
+			</tr>';
 			}
 			// just a single setting (2 col)
 			else
 			{
 				echo '
-		<tr>
-			<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key,  '</td>
-			<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
-		</tr>';
+			<tr>
+				<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key,  '</td>
+				<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
+			</tr>';
 			}
 
 			$alternate = !$alternate;
 		}
 		echo '
-		</tbody>
-	</table>
-	<br />';
+			</tbody>
+		</table>
+		<br />';
 	}
 
 	echo '

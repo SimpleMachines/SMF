@@ -96,17 +96,6 @@ function template_html_above()
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
 
-	// RTL languages require an additional stylesheet.
-	if ($context['right_to_left'])
-	{
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
-
-	if (!empty($context['theme_variant']))
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
-	}
-
 	// Save some database hits, if a width for multiple wrappers is set in admin.
 	if(!empty($settings['forum_width']))
 		echo '
@@ -121,6 +110,17 @@ function template_html_above()
 
 	// load in any javascript files from mods and themes
 	template_javascript();
+
+	// RTL languages require an additional stylesheet.
+	if ($context['right_to_left'])
+	{
+		echo '
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
+
+	if (!empty($context['theme_variant']))
+		echo '
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
+	}
 
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
@@ -428,16 +428,16 @@ function theme_linktree($force_show = false)
 		echo '
 			<li', ($link_num == count($context['linktree']) - 1) ? ' class="last"' : '', '>';
 
-		// Show something before the link?
-		if (isset($tree['extra_before']))
-			echo $tree['extra_before'];
-
 		// Don't show a separator for the first one.
 		// Better here. Always points to the next level when the linktree breaks to a second line.
 		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
 		if ($link_num != 0)
 			echo '
-				<span class="dividers">',$context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+				<span class="dividers">', $context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+
+		// Show something before the link?
+		if (isset($tree['extra_before']))
+			echo $tree['extra_before'];
 
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '
@@ -521,7 +521,7 @@ function template_menu()
 	// Menu bar will still accommodate ten buttons on a 1024, with theme set to 90%. That's more than enough.
 	// If anyone is terrified of losing 40px out of the menu bar, set your theme to 92% instead of 90%. :P
 	echo '
-				<li style="float: right; position: absolute; top: 0; right: 0;">
+				<li id="collapse_button">
 					<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="padding: 4px 9px 3px 9px; display: none;" />
 				</li>';
 

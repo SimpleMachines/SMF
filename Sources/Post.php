@@ -26,6 +26,8 @@ if (!defined('SMF'))
  * - requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
+ *
+ *  @param array $post_errors holds any errors found tyring to post
  */
 function Post($post_errors = array())
 {
@@ -1205,8 +1207,8 @@ function Post2()
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
 
-	// Drafts enabled?
-	if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+	// Drafts enabled and needed?
+	if (!empty($modSettings['drafts_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
 		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
@@ -1244,7 +1246,7 @@ function Post2()
 
 	// Then try to upload any attachments.
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
-	if ($context['can_post_attachment'] && !empty($_FILES['attachment']) && empty($_POST['from_qr']))
+	if ($context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
 		 require_once($sourcedir . '/Attachments.php');
 		 processAttachments();
@@ -1827,6 +1829,10 @@ function Post2()
 		if (isset($topicOptions['id']))
 			$topic = $topicOptions['id'];
 	}
+	
+	// If we had a draft for this, its time to remove it since it was just posted
+	if (!empty($modSettings['drafts_enabled']) && !empty($_POST['id_draft']))
+		DeleteDraft($_POST['id_draft']);
 
 	// Editing or posting an event?
 	if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1))
@@ -2025,6 +2031,7 @@ function Post2()
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.0',
 			'name' => $_POST['subject'],
+			'extra_before' => $settings['linktree_inline'] ? $txt['topic'] . ': ' : ''
 		);
 
 		if (isset($_REQUEST['msg']))

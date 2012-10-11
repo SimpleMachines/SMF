@@ -482,6 +482,8 @@ function ModifyCoreFeatures($return_config = false)
 }
 
 /**
+ * Config array for chaning the basic forum settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=basic;
  *
  * @param $return_config
  */
@@ -624,6 +626,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 }
 
 /**
+ * Allows modifying the global layout settings in the forum
+ * Accessed through ?action=admin;area=featuresettings;sa=layout;
  *
  * @param $return_config
  */
@@ -676,6 +680,8 @@ function ModifyLayoutSettings($return_config = false)
 }
 
 /**
+ * Config array for chaning the karma settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=karma;
  *
  * @param $return_config
  */
@@ -1424,7 +1430,6 @@ function ShowCustomProfiles()
 			'field' => array(
 				'header' => array(
 					'value' => $txt['standard_profile_field'],
-					'style' => 'text-align: left;',
 				),
 				'data' => array(
 					'db' => 'label',
@@ -1434,6 +1439,7 @@ function ShowCustomProfiles()
 			'active' => array(
 				'header' => array(
 					'value' => $txt['custom_edit_active'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1441,12 +1447,14 @@ function ShowCustomProfiles()
 						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\'onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
 						return sprintf(\'<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $onClickHandler);
 					'),
-					'style' => 'width: 20%; text-align: center;',
+					'style' => 'width: 20%;',
+					'class' => 'centercol',
 				),
 			),
 			'show_on_registration' => array(
 				'header' => array(
 					'value' => $txt['custom_edit_registration'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1454,7 +1462,8 @@ function ShowCustomProfiles()
 						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled="disabled"\';
 						return sprintf(\'<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $isDisabled);
 					'),
-					'style' => 'width: 20%; text-align: center;',
+					'style' => 'width: 20%;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -1467,7 +1476,6 @@ function ShowCustomProfiles()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -1493,7 +1501,6 @@ function ShowCustomProfiles()
 			'field_name' => array(
 				'header' => array(
 					'value' => $txt['custom_profile_fieldname'],
-					'style' => 'text-align: left;',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1511,7 +1518,6 @@ function ShowCustomProfiles()
 			'field_type' => array(
 				'header' => array(
 					'value' => $txt['custom_profile_fieldtype'],
-					'style' => 'text-align: left;',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1537,7 +1543,7 @@ function ShowCustomProfiles()
 
 						return $rowData[\'active\'] ? $txt[\'yes\'] : $txt[\'no\'];
 					'),
-					'style' => 'width: 8%; text-align: center;',
+					'style' => 'width: 8%;',
 				),
 				'sort' => array(
 					'default' => 'active DESC',
@@ -1554,7 +1560,7 @@ function ShowCustomProfiles()
 
 						return $txt[\'custom_profile_placement_\' . (empty($rowData[\'placement\']) ? \'standard\' : ($rowData[\'placement\'] == 1 ? \'withicons\' : \'abovesignature\'))];
 					'),
-					'style' => 'width: 8%; text-align: center;',
+					'style' => 'width: 8%;',
 				),
 				'sort' => array(
 					'default' => 'placement DESC',
@@ -1562,9 +1568,6 @@ function ShowCustomProfiles()
 				),
 			),
 			'show_on_registration' => array(
-				'header' => array(
-					'value' => $txt['modify'],
-				),
 				'data' => array(
 					'sprintf' => array(
 						'format' => '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . $txt['modify'] . '</a>',
@@ -1572,7 +1575,7 @@ function ShowCustomProfiles()
 							'id_field' => false,
 						),
 					),
-					'style' => 'width: 15%; text-align: center;',
+					'style' => 'width: 15%;',
 				),
 			),
 		),
@@ -1584,7 +1587,6 @@ function ShowCustomProfiles()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="new" value="' . $txt['custom_profile_make_new'] . '" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 	);
@@ -2195,14 +2197,23 @@ function ModifyGeneralModSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
+/**
+ * Generates a list of integration hooks for display
+ * Accessed through ?action=admin;area=modsettings;sa=hooks;
+ * Allows for removal or disabing of selected hooks
+ */
 function list_integration_hooks()
 {
 	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
 
-	$context['filter'] = '';
+	$context['filter_url'] = '';
+	$context['current_filter'] = '';
 	$currentHooks = get_integration_hooks();
 	if (isset($_GET['filter']) && in_array($_GET['filter'], array_keys($currentHooks)))
-		$context['filter'] = ';filter=' . $_GET['filter'];
+	{
+		$context['filter_url'] = ';filter=' . $_GET['filter'];
+		$context['current_filter'] = $_GET['filter'];
+	}
 
 	if (!empty($modSettings['handlinghooks_enabled']))
 	{
@@ -2231,7 +2242,7 @@ function list_integration_hooks()
 				remove_integration_function($_REQUEST['hook'], $function_remove, $file);
 				add_integration_function($_REQUEST['hook'], $function_add, $file);
 
-				redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter']);
+				redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter_url']);
 			}
 		}
 	}
@@ -2240,7 +2251,7 @@ function list_integration_hooks()
 		'id' => 'list_integration_hooks',
 		'title' => $txt['hooks_title_list'],
 		'items_per_page' => 20,
-		'base_href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+		'base_href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 		'default_sort_col' => 'hook_name',
 		'get_items' => array(
 			'function' => 'get_integration_hooks_data',
@@ -2296,7 +2307,7 @@ function list_integration_hooks()
 			'status' => array(
 				'header' => array(
 					'value' => $txt['hooks_field_hook_exists'],
-					'style' => 'width:3%',
+					'style' => 'width:3%;',
 				),
 				'data' => array(
 					'function' => create_function('$data', '
@@ -2305,7 +2316,7 @@ function list_integration_hooks()
 						$change_status = array(\'before\' => \'\', \'after\' => \'\');
 						if ($data[\'can_be_disabled\'] && $data[\'status\'] != \'deny\')
 						{
-							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'real_function\'] . (!empty($data[\'included_file\']) ? \';includedfile=\' . urlencode($data[\'included_file\']) : \'\') . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
+							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'real_function\'] . (!empty($data[\'included_file\']) ? \';includedfile=\' . urlencode($data[\'included_file\']) : \'\') . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
 							$change_status[\'after\'] = \'</a>\';
 						}
 						return $change_status[\'before\'] . \'<img src="\' . $settings[\'images_url\'] . \'/admin/post_moderation_\' . $data[\'status\'] . \'.png" alt="\' . $data[\'img_text\'] . \'" title="\' . $data[\'img_text\'] . \'" />\' . $change_status[\'after\'];
@@ -2347,7 +2358,7 @@ function list_integration_hooks()
 
 					if (!$data[\'hook_exists\'])
 						return \'
-						<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
+						<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
 							<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="\' . $txt[\'hooks_button_remove\'] . \'" title="\' . $txt[\'hooks_button_remove\'] . \'" />
 						</a>\';
 				'),
@@ -2355,7 +2366,7 @@ function list_integration_hooks()
 			),
 		);
 		$list_options['form'] = array(
-			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 			'name' => 'list_integration_hooks',
 		);
 	}
@@ -2369,6 +2380,12 @@ function list_integration_hooks()
 	$context['default_list'] = 'list_integration_hooks';
 }
 
+/**
+ * Gets all of the files in a directory and its chidren directories
+ *
+ * @param type $dir_path
+ * @return array
+ */
 function get_files_recursive($dir_path)
 {
 	$files = array();
@@ -2391,6 +2408,16 @@ function get_files_recursive($dir_path)
 	return $files;
 }
 
+/**
+ * Callback function for the integration hooks list (list_integration_hooks)
+ * Gets all of the hooks in the system and their status
+ * Would be better documented if Ema was not lazy
+ *
+ * @param type $start
+ * @param type $per_page
+ * @param type $sort
+ * @return array
+ */
 function get_integration_hooks_data($start, $per_page, $sort)
 {
 	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl, $modSettings;
@@ -2458,12 +2485,11 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 	$sort_options = $sort_types[$sort];
 	$sort = array();
-	$context['hooks_filters'] = '';
 	$hooks_filters = array();
 
 	foreach ($hooks as $hook => $functions)
 	{
-		$hooks_filters[] = '<option onclick="window.location = \'' . $scripturl . '?action=admin;area=modsettings;sa=hooks;filter=' . $hook . '\';">' . $hook . '</option>';
+		$hooks_filters[] = '<option ' . ($context['current_filter'] == $hook ? 'selected="selected" ' : '') . 'onclick="window.location = \'' . $scripturl . '?action=admin;area=modsettings;sa=hooks;filter=' . $hook . '\';">' . $hook . '</option>';
 		foreach ($functions as $function)
 		{
 			$enabled = strstr($function, ']') === false;
@@ -2487,7 +2513,11 @@ function get_integration_hooks_data($start, $per_page, $sort)
 	}
 
 	if (!empty($hooks_filters))
-		$context['hooks_filters'] = '<select style="margin-left:15px;">' . '<option>---</option><option onclick="window.location = \'' . $scripturl . '?action=admin;area=modsettings;sa=hooks\';">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>';
+		$context['insert_after_template'] .= '
+		<script type="text/javascript"><!-- // --><![CDATA[
+			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
+			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;"><option>---</option><option onclick="window.location = \'' . $scripturl . '?action=admin;area=modsettings;sa=hooks\';">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
+		// ]]></script>';
 
 	$temp_data = array();
 	$id = 0;
@@ -2546,6 +2576,13 @@ function get_integration_hooks_data($start, $per_page, $sort)
 	return $hooks_data;
 }
 
+/**
+ * Simply returns the total count of integraion hooks
+ * Used but the intergation hooks list function (list_integration_hooks)
+ *
+ * @global type $context
+ * @return int
+ */
 function get_integration_hooks_count()
 {
 	global $context;
@@ -2566,6 +2603,12 @@ function get_integration_hooks_count()
 	return $hooks_count;
 }
 
+/**
+ * Parses modSettings to create integration hook array
+ * 
+ * @staticvar type $integration_hooks
+ * @return type
+ */
 function get_integration_hooks()
 {
 	global $modSettings;

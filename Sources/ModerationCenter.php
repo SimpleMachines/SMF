@@ -1789,6 +1789,7 @@ function ViewWarningTemplates()
 				'header' => array(
 					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
 					'style' => 'width: 4%;',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -1796,7 +1797,7 @@ function ViewWarningTemplates()
 
 						return \'<input type="checkbox" name="deltpl[]" value="\' . $rowData[\'id_comment\'] . \'" class="input_check" />\';
 					'),
-					'style' => 'text-align: center;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -1808,13 +1809,10 @@ function ViewWarningTemplates()
 			array(
 				'position' => 'below_table_data',
 				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '
-					<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit" />',
-				'style' => 'text-align: right;',
+				'value' => '<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit" />',
 			),
 		),
 	);

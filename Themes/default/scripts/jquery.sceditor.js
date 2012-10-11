@@ -720,7 +720,7 @@
 
 			$.each(emoticons, function (key, url) {
 				// In SMF an empty entry means a new line
-				if (key == '')
+				if (url == '')
 					emoticon = document.createElement('br');
 				else
 				{
@@ -1166,7 +1166,7 @@
 			html = $body.html();
 
 			if(filter !== false && base.options.getHtmlHandler)
-				html = base.options.getHtmlHandler(html, $body);
+				html = base.options.getHtmlHandler(html, $body, filter);
 
 			return html;
 		};
@@ -1244,7 +1244,7 @@
 
 			$.each(emoticons, function (key, url) {
 				// In SMF an empty entry means a new line
-				if (key == '')
+				if (url == '')
 					return;
 				// escape the key before using it as a regex
 				// and append the regex to only find emoticons outside
@@ -1315,17 +1315,11 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.toggleTextMode = function () {
-			/*
-			// Possible replacement
 			// don't allow switching to WYSIWYG if doesn't support it
 			if(!$.sceditor.isWysiwygSupported() && base.inSourceMode())
 				return;
 
 			if(base.inSourceMode())
-			*/
-
-
-			if(base.inSourceMode() && base.options.supportedWysiwyg)
 				base.setWysiwygEditorValue(base.getTextareaValue());
 			else
 				base.setTextareaValue(base.getWysiwygEditorValue());
@@ -2104,7 +2098,7 @@
 							if(!description)
 								description = val;
 
-							editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
+							editor.wysiwygEditorInsertHtml('<a target="_blank" href="' + val + '">' + description + '</a>');
 						}
 						else
 							editor.execCommand("createlink", val);
@@ -3417,16 +3411,18 @@
 				this.toggleTextMode();
 
 		},
-		getText: function() {
+		getText: function(filter) {
+			var current_value = '';
+			
 			if(this.inSourceMode())
-				var current_value = this.getTextareaValue(false);
+				current_value = this.getTextareaValue(false);
 			else
-				var current_value = this.getWysiwygEditorValue();
+				current_value  = this.getWysiwygEditorValue(filter);
 
 			return current_value;
 		},
 		appendEmoticon: function (code, emoticon) {
-			if (code == '')
+			if (emoticon == '')
 				line.append($('<br />'));
 			else
 				line.append($('<img />')
@@ -3490,13 +3486,15 @@
 							var emoticons = $.extend({}, base.options.emoticons.popup);
 							var popup_position;
 							var titlebar = $('<div class="catbg sceditor-popup-grip"/>');
-								popupContent = $('<div id="sceditor-popup"/>');
-								allowHide = true;
-								popupContent.append(titlebar);
-								line = $('<div />');
-								closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
-									$(".sceditor-smileyPopup").fadeOut('fast');
-								});
+							popupContent = $('<div id="sceditor-popup"/>');
+							allowHide = true;
+							line = $('<div id="sceditor-popup-smiley"/>');
+							adjheight = 0;
+
+							popupContent.append(titlebar);
+							closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
+								$(".sceditor-smileyPopup").fadeOut('fast');
+							});
 
 							$.each(emoticons, base.appendEmoticon);
 
@@ -3516,16 +3514,29 @@
 
 							$dropdown.appendTo($('body'));
 							dropdownIgnoreLastClick = true;
+							adjheight = closeButton.height() + titlebar.height();
 							$dropdown.css({
 								position: "fixed",
 								top: $(window).height() * 0.2,
-								left: $(window).width() * 0.5 - ($dropdown.width() / 2),
-								"max-width": "50%"
+								left: $(window).width() * 0.5 - ($dropdown.find('#sceditor-popup-smiley').width() / 2),
+								"max-width": "50%",
+								"max-height": "50%",
+							}).find('#sceditor-popup-smiley').css({
+								height: $dropdown.height() - adjheight,
+								"overflow": "auto"
 							});
 
 							$('.sceditor-smileyPopup').animaDrag({ 
 								speed: 150, 
 								interval: 120, 
+								during: function(e) {
+									$(this).height(this.startheight);
+									$(this).width(this.startwidth);
+								},
+								before: function(e) {
+									this.startheight = $(this).innerHeight();
+									this.startwidth = $(this).innerWidth();
+								},
 								grip: '.sceditor-popup-grip' 
 							});
 							// stop clicks within the dropdown from being handled
@@ -3613,116 +3624,3 @@ $.sceditor.setCommand(
 	},
 	'Pre'
 );
-
-/**
- * AnimaDrag
- * Animated jQuery Drag and Drop Plugin
- * Version 0.5.1 beta
- * Author Abel Mohler
- * Released with the MIT License: http://www.opensource.org/licenses/mit-license.php
- */
-(function($){
-	$.fn.animaDrag = function(o, callback) {
-		var defaults = {
-			speed: 400,
-			interval: 300,
-			easing: null,
-			cursor: 'move',
-			boundary: document.body,
-			grip: null,
-			overlay: true,
-			after: function(e) {},
-			during: function(e) {},
-			before: function(e) {},
-			afterEachAnimation: function(e) {}
-		}
-		if(typeof callback == 'function') {
-				defaults.after = callback;
-		}
-		o = $.extend(defaults, o || {});
-		return this.each(function() {
-			var id, startX, startY, draggableStartX, draggableStartY, dragging = false, Ev, draggable = this,
-			grip = ($(this).find(o.grip).length > 0) ? $(this).find(o.grip) : $(this);
-			if(o.boundary) {
-				var limitTop = $(o.boundary).offset().top, limitLeft = $(o.boundary).offset().left,
-				limitBottom = limitTop + $(o.boundary).innerHeight(), limitRight = limitLeft + $(o.boundary).innerWidth();
-			}
-			grip.mousedown(function(e) {
-				o.before.call(draggable, e);
-
-				var lastX, lastY;
-				dragging = true;
-
-				Ev = e;
-
-				startX = lastX = e.pageX;
-				startY = lastY = e.pageY;
-				draggableStartX = $(draggable).offset().left;
-				draggableStartY = $(draggable).offset().top;
-
-				$(draggable).css({
-					position: 'absolute',
-					left: draggableStartX + 'px',
-					top: draggableStartY + 'px',
-					cursor: o.cursor,
-					zIndex: '1010'
-				}).addClass('anima-drag').appendTo(document.body);
-				if(o.overlay && $('#anima-drag-overlay').length == 0) {
-					$('<div id="anima-drag-overlay"></div>').css({
-						position: 'absolute',
-						top: '0',
-						left: '0',
-						zIndex: '1000',
-						width: $(document.body).outerWidth() + 'px',
-						height: $(document.body).outerHeight() + 'px'
-					}).appendTo(document.body);
-				}
-				else if(o.overlay) {
-					$('#anima-drag-overlay').show();
-				}
-				id = setInterval(function() {
-					if(lastX != Ev.pageX || lastY != Ev.pageY) {
-						var positionX = draggableStartX - (startX - Ev.pageX), positionY = draggableStartY - (startY - Ev.pageY);
-						if(positionX < limitLeft && o.boundary) {
-							positionX = limitLeft;
-						}
-						else if(positionX + $(draggable).innerWidth() > limitRight && o.boundary) {
-							positionX = limitRight - $(draggable).outerWidth();
-						}
-						if(positionY < limitTop && o.boundary) {
-							positionY = limitTop;
-						}
-						else if(positionY + $(draggable).innerHeight() > limitBottom && o.boundary) {
-							positionY = limitBottom - $(draggable).outerHeight();
-						}
-						$(draggable).stop().animate({
-							left: positionX + 'px',
-							top: positionY + 'px'
-						}, o.speed, o.easing, function(){o.afterEachAnimation.call(draggable, Ev)});
-					}
-					lastX = Ev.pageX;
-					lastY = Ev.pageY;
-				}, o.interval);
-				($.browser.safari || e.preventDefault());
-			});
-			$(document).mousemove(function(e) {
-				if(dragging) {
-					Ev = e;
-					o.during.call(draggable, e);
-				}
-			});
-			$(document).mouseup(function(e) {
-				if(dragging) {
-					$(draggable).css({
-						cursor: '',
-						zIndex: '990'
-					}).removeClass('anima-drag');
-					$('#anima-drag-overlay').hide().appendTo(document.body);
-					clearInterval(id);
-					o.after.call(draggable, e);
-					dragging = false;
-				}
-			});
-		});
-	}
-})(jQuery);

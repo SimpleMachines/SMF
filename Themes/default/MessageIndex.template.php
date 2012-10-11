@@ -141,6 +141,9 @@ function template_main()
 	</div>
 	<p class="description_board">
 		', $context['description'], '<br/>';
+	else
+		echo '
+	<p class="description_board">';
 
 	if (!empty($context['moderators']))
 		echo '

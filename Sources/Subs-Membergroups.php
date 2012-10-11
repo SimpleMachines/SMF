@@ -24,7 +24,7 @@ if (!defined('SMF'))
  * Deletes the permissions linked to the membergroup.
  * Takes members out of the deleted membergroups.
  * @param array $groups
- * @return bool
+ * @return boolean
  */
 function deleteMembergroups($groups)
 {
@@ -209,7 +209,7 @@ function deleteMembergroups($groups)
  * @param array $members
  * @param array $groups = null if groups is null, the specified members are stripped from all their membergroups.
  * @param bool $permissionCheckDone = false
- * @return bool
+ * @return boolean
  */
 function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false)
 {
@@ -434,7 +434,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  * 	- auto              - Assigns a membergroup to the primary group if it's still
  * 						  available. If not, assign it to the additional group.
  * @param bool $permissionCheckDone
- * @return bool success or failure
+ * @return boolean success or failure
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false)
 {
@@ -575,11 +575,13 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 }
 
 /**
+ * Gets the members of a supplied membergroup
+ * Returns them as a link for display
  *
  * @param array &$members
  * @param int $membergroup
  * @param int $limit = null
- * @return bool
+ * @return boolean
  */
 function listMembergroupMembers_Href(&$members, $membergroup, $limit = null)
 {
@@ -609,7 +611,13 @@ function listMembergroupMembers_Href(&$members, $membergroup, $limit = null)
 		return false;
 }
 
-// Retrieve a list of (visible) membergroups used by the cache.
+/**
+ * Retrieve a list of (visible) membergroups used by the cache.
+ *
+ * @global type $scripturl
+ * @global type $smcFunc
+ * @return type
+ */
 function cache_getMembergroupList()
 {
 	global $scripturl, $smcFunc;
@@ -641,6 +649,15 @@ function cache_getMembergroupList()
 	);
 }
 
+/**
+ * Helper function to generate a list of membergroups for display
+ *
+ * @param type $start
+ * @param type $items_per_page
+ * @param type $sort
+ * @param type $membergroup_type
+ * @return type
+ */
 function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
 	global $txt, $scripturl, $context, $settings, $smcFunc;

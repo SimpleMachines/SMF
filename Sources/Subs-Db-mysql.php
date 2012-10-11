@@ -19,11 +19,14 @@ if (!defined('SMF'))
 /**
  *  Maps the implementations in this file (smf_db_function_name)
  *  to the $smcFunc['db_function_name'] variable.
- *  @param string $db_server
- *  @param string $db_name
- *  @param string $db_user
- *  @param string $db_passwd
- *  @param array $db_options = array()
+ *
+ * @param string $db_server
+ * @param string $db_name
+ * @param string $db_user
+ * @param string $db_passwd
+ * @param string $db_prefix
+ * @param array $db_options
+ * @return null
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
@@ -87,8 +90,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
  * Extend the database functionality. It calls the respective file's init
  * to add the implementations in that file to $smcFunc array.
  *
- * @param string $type, indicated which additional file to load.
- * ('extra', 'packages')
+ * @param string $type indicated which additional file to load. ('extra', 'packages')
  */
 function db_extend($type = 'extra')
 {
@@ -101,6 +103,7 @@ function db_extend($type = 'extra')
 
 /**
  * Fix up the prefix so it doesn't require the database to be selected.
+ *
  * @param string &db_prefix
  * @param string $db_name
  */
@@ -110,12 +113,10 @@ function db_fix_prefix(&$db_prefix, $db_name)
 }
 
 /**
- * Callback for preg_replace_calback on the query.
- * It allows to replace on the fly a few pre-defined strings, for
- * convenience ('query_see_board', 'query_wanna_see_board'), with
+ * Callback for preg_replace_callback on the query.
+ * It allows to replace on the fly a few pre-defined strings, for convenience ('query_see_board', 'query_wanna_see_board'), with
  * their current values from $user_info.
- * In addition, it performs checks and sanitization on the values
- * sent to the database.
+ * In addition, it performs checks and sanitization on the values sent to the database.
  *
  * @param $matches
  */
@@ -224,8 +225,8 @@ function smf_db_replacement__callback($matches)
 }
 
 /**
- * Just like the db_query, escape and quote a string,
- * but not executing the query.
+ * Just like the db_query, escape and quote a string, but not executing the query.
+ *
  * @param string $db_string
  * @param array $db_values
  * @param resource $connection = null
@@ -252,6 +253,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 
 /**
  * Do a query.  Takes care of errors too.
+ *
  * @param string $identifier
  * @param string $db_string
  * @param array $db_values = array()
@@ -650,7 +652,7 @@ function smf_db_error($db_string, $connection = null)
 /**
  * insert
  *
- * @param string $method, options 'replace', 'ignore', 'insert'
+ * @param string $method - options 'replace', 'ignore', 'insert'
  * @param $table
  * @param $columns
  * @param $data

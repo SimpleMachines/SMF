@@ -96,7 +96,7 @@ $txt['package_file'] = 'File';
 $txt['package_tree'] = 'Tree';
 $txt['execute_modification'] = 'Execute Modification';
 $txt['execute_code'] = 'Execute Code';
-$txt['execute_database_changes'] = 'Adapt Database';
+$txt['execute_database_changes'] = 'Execute file';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
 $txt['execute_hook_action'] = 'Adapting hook %1$s';
@@ -188,7 +188,7 @@ $txt['package_download_filename_info'] = 'Optional value.  Should be used when t
 
 $txt['package_db_uninstall'] = 'Remove all data associated with this modification.';
 $txt['package_db_uninstall_details'] = 'Details';
-$txt['package_db_uninstall_actions'] = 'Checking this option will result in the following database changes';
+$txt['package_db_uninstall_actions'] = 'Checking this option will result in the following actions';
 $txt['package_db_remove_table'] = 'Drop table &quot;%1$s&quot;';
 $txt['package_db_remove_column'] = 'Remove column &quot;%2$s&quot; from &quot;%1$s&quot;';
 $txt['package_db_remove_index'] = 'Remove index &quot;%1$s&quot; from &quot;%2$s&quot;';

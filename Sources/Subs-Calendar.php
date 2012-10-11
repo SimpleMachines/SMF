@@ -17,29 +17,10 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- void insertEvent(
- * inserts the passed event information into the calendar table.
- * allows to either set a time span (in days) or an end_date.
- * does not check any permissions of any sort.
- * @param array $eventOptions
-
- void modifyEvent(
- * modifies an event.
- * allows to either set a time span (in days) or an end_date.
- * does not check any permissions of any sort.
- * @param int $event_id
- * @param array $eventOptions
-
- void removeEvent(
- * removes an event.
- * does no permission checks.
- * @param int $event_id
-*/
-
-/**
  * Get all birthdays within the given time range.
  * finds all the birthdays in the specified range of days.
  * works with birthdays set for no year, or any other year, and respects month and year boundaries.
+ *
  * @param string $low_date inclusive, YYYY-MM-DD
  * @param string $high_date inclusive, YYYY-MM-DD
  * @return array days, each of which an array of birthday information for the context
@@ -109,8 +90,8 @@ function getBirthdayRange($low_date, $high_date)
  * - censors the posted event titles.
  * - uses the current user's permissions if use_permissions is true, otherwise it does nothing "permission specific"
  *
- * @param string $earliest_date
- * @param string $latest_date
+ * @param string $low_date
+ * @param string $high_date
  * @param bool $use_permissions = true
  * @return array contextual information if use_permissions is true, and an array of the data needed to build that otherwise
  */
@@ -214,6 +195,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 
 /**
  * Get all holidays within the given time range.
+ *
  * @param string $low_date YYYY-MM-DD
  * @param string $high_date YYYY-MM-DD
  * @return array an array of days, which are all arrays of holiday names.
@@ -608,6 +590,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
  * cache callback function used to retrieve the birthdays, holidays, and events between now and now + days_to_index.
  * widens the search range by an extra 24 hours to support time offset shifts.
  * used by the cache_getRecentEvents function to get the information needed to calculate the events taking the users time offset into account.
+ *
  * @param int $days_to_index
  * @return array
  */
@@ -803,8 +786,8 @@ function validateEventPost()
 		// No title?
 		if ($smcFunc['htmltrim']($_POST['evtitle']) === '')
 			fatal_lang_error('no_event_title', false);
-		if ($smcFunc['strlen']($_POST['evtitle']) > 30)
-			$_POST['evtitle'] = $smcFunc['substr']($_POST['evtitle'], 0, 30);
+		if ($smcFunc['strlen']($_POST['evtitle']) > 100)
+			$_POST['evtitle'] = $smcFunc['substr']($_POST['evtitle'], 0, 100);
 		$_POST['evtitle'] = str_replace(';', '', $_POST['evtitle']);
 	}
 }
@@ -842,6 +825,9 @@ function getEventPoster($event_id)
 
 /**
  * Consolidating the various INSERT statements into this function.
+ * inserts the passed event information into the calendar table.
+ * allows to either set a time span (in days) or an end_date.
+ * does not check any permissions of any sort.
  *
  * @param array $eventOptions
  */
@@ -898,8 +884,12 @@ function insertEvent(&$eventOptions)
 }
 
 /**
+ * modifies an event.
+ * allows to either set a time span (in days) or an end_date.
+ * does not check any permissions of any sort.
+ *
  * @param int $event_id
- * @param array &$eventOptions
+ * @param array $eventOptions
  */
 function modifyEvent($event_id, &$eventOptions)
 {
@@ -958,6 +948,9 @@ function modifyEvent($event_id, &$eventOptions)
 
 /**
  * Remove an event
+ * removes an event.
+ * does no permission checks.
+ *
  * @param int $event_id
  */
 function removeEvent($event_id)
@@ -980,6 +973,8 @@ function removeEvent($event_id)
 }
 
 /**
+ * Gets all the events properties
+ *
  * @param int $event_id
  * @return array
  */
@@ -1037,6 +1032,7 @@ function getEventProperties($event_id)
 }
 
 /**
+ * Gets all of the holidays for the listing
  *
  * @param int $start
  * @param int $items_per_page
@@ -1065,6 +1061,8 @@ function list_getHolidays($start, $items_per_page, $sort)
 }
 
 /**
+ * Helper function to get the total number of holidays
+ *
  * @return int
  */
 function list_getNumHolidays()
@@ -1084,6 +1082,8 @@ function list_getNumHolidays()
 }
 
 /**
+ * Remove a holdiay from the calendar
+ *
  * @param array $holiday_ids An array of
  */
 function removeHolidays($holiday_ids)

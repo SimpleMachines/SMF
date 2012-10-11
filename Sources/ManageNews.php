@@ -175,6 +175,7 @@ function EditNews()
 			'check' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$news', '
@@ -184,7 +185,7 @@ function EditNews()
 						else
 							return \'\';
 					'),
-					'style' => 'text-align: center',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -264,6 +265,11 @@ function EditNews()
 	$context['default_list'] = 'news_lists';
 }
 
+/**
+ * Prepares an array of the forum news items for display in the template
+ *
+ * @return array
+ */
 function list_getNews()
 {
 	global $modSettings;

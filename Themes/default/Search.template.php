@@ -18,7 +18,7 @@ function template_main()
 	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : ' ', $txt['set_parameters'], '
+				', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="" class="icon" />' : ' ', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
@@ -61,6 +61,7 @@ function template_main()
 	else
 	{
 		echo '
+		<fieldset id="advanced_search">
 			<div class="roundframe">
 				<dl class="settings" id="search_options">
 					<dt class="righttext">
@@ -71,7 +72,7 @@ function template_main()
 
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
-				<em class="smalltext">', $txt['search_example'], '</em>';
+						<em class="smalltext">', $txt['search_example'], '</em>';
 
 		echo '
 					</dd>
@@ -121,7 +122,7 @@ function template_main()
 						$txt['search_between'], '</label><input type="text" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text" />&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="text" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text" /> ', $txt['days_word'], '
 					</dd>
 				</dl>
-				</fieldset>
+				
 				<script type="text/javascript"><!-- // --><![CDATA[
 					createEventListener(window);
 					window.addEventListener("load", initSearch, false);
@@ -146,6 +147,7 @@ function template_main()
 
 		echo '
 			</div>
+		</fieldset>
 		';
 
 		if (empty($context['search_params']['topic']))
@@ -308,7 +310,7 @@ function template_results()
 		if (!empty($context['topics']))
 		echo'
 		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<span>', $context['page_index'], '</span>
 		</div>';
 		else
 			echo '
@@ -389,7 +391,7 @@ function template_results()
 		if (!empty($context['topics']))
 		echo '
 		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<span>', $context['page_index'], '</span>
 		</div>';
 
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
@@ -431,11 +433,11 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img class="centericon" src="' . $settings['images_url'] . '/buttons/search.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<img class="centericon" src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="?" />&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>
 		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<span>', $context['page_index'], '</span>
 		</div>';
 
 		if (empty($context['topics']))
@@ -491,7 +493,7 @@ function template_results()
 
 		echo '
 		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
+			<span>', $context['page_index'], '</span>
 		</div>';
 	}
 

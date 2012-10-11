@@ -151,7 +151,9 @@ function ModifyKarma()
 	}
 }
 
-//  What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
+/**
+ * What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
+ */
 function BookOfUnknown()
 {
 	global $context;
@@ -159,7 +161,7 @@ function BookOfUnknown()
 	if (strpos($_GET['action'], 'mozilla') !== false && !isBrowser('gecko'))
 		redirectexit('http://www.getfirefox.com/');
 	elseif (strpos($_GET['action'], 'mozilla') !== false)
-		redirectexit('about:mozilla');
+		redirectexit('about:mozilla', true);
 
 	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>

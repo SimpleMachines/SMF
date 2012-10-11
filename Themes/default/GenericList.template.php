@@ -56,7 +56,7 @@ function template_show_list($list_id = null)
 	if (isset($cur_list['additional_rows']['top_of_list']))
 		template_additional_rows('top_of_list', $cur_list);
 
-	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['above_column_headers']))
+	if ((!empty($cur_list['items_per_page']) && !empty($cur_list['page_index'])) || isset($cur_list['additional_rows']['above_column_headers']))
 	{
 		echo '
 			<div class="flow_auto">';
@@ -91,13 +91,13 @@ function template_show_list($list_id = null)
 		foreach ($cur_list['headers'] as $col_header)
 		{
 			$i ++;
-			if (empty($col_header['class']) && $i == 1)
-				$col_header['class'] = 'first_th';
-			elseif (empty($col_header['class']) && $i == $header_count)
-				$col_header['class'] = 'last_th';
+			if ($i === 1)
+				$col_header['class'] = empty($col_header['class']) ? 'first_th' : 'first_th ' . $col_header['class'];
+			elseif ($i === $header_count)
+				$col_header['class'] = empty($col_header['class']) ? 'last_th' : 'last_th ' . $col_header['class'];
 
 			echo '
-					<th scope="col"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $col_header['sort_image'] . '.png" alt="" /></a>'), '</th>';
+					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $col_header['sort_image'] . '.png" alt="" /></a>'), '</th>';
 		}
 
 		echo '
@@ -139,7 +139,7 @@ function template_show_list($list_id = null)
 			</tbody>
 			</table>';
 
-	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['below_table_data']))
+	if ((!empty($cur_list['items_per_page']) && !empty($cur_list['page_index'])) || isset($cur_list['additional_rows']['below_table_data']))
 	{
 		echo '
 			<div class="flow_auto">';

@@ -294,8 +294,9 @@ function cleanRequest()
 
 /**
  * Validates a IPv6 address. returns true if it is ipv6.
+ *
  * @param string $ip ip address to be validated
- * @return bool true|false
+ * @return boolean true|false
  */
 function isValidIPv6($ip)
 {
@@ -307,6 +308,7 @@ function isValidIPv6($ip)
 
 /**
  * Converts IPv6s to numbers.  This makes ban checks much easier.
+ *
  * @param string $ip ip address to be converted
  * @return array
  */
@@ -333,8 +335,10 @@ function convertIPv6toInts($ip)
 
 /**
  * Expands a IPv6 address to its full form.
- * @param string $ip ip address to be converted
- * @return bool/string expanded ipv6 address.
+ *
+ * @param type $addr
+ * @param type $strict_check checks lenght to expaned address for compliance
+ * @return boolean/string expanded ipv6 address.
  */
 function expandIPv6($addr, $strict_check = true)
 {
@@ -555,7 +559,7 @@ function cleanXml($string)
 }
 
 /**
- * @todo needs a description
+ * Escapes (replaces) characters in strings to make them safe for use in javascript
  *
  * @param string $string
  * @return string

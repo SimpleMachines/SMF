@@ -113,15 +113,16 @@ function AddLanguage()
 					),
 					'data' => array(
 						'db' => 'utf8',
-						'style' => 'text-align: center',
 					),
 				),
 				'install_link' => array(
 					'header' => array(
 						'value' => $txt['add_language_smf_install'],
+						'class' => 'centercol',
 					),
 					'data' => array(
 						'db' => 'install_link',
+						'class' => 'centercol',
 					),
 				),
 			),
@@ -136,6 +137,12 @@ function AddLanguage()
 	$context['sub_template'] = 'add_language';
 }
 
+/**
+ * Gets a list of available languages from the mother ship
+ * Will return a subset if searching, otherwise all avaialble
+ *
+ * @return string
+ */
 function list_getLanguagesList()
 {
 	global $forum_version, $context, $sourcedir, $smcFunc, $txt, $scripturl;
@@ -213,6 +220,7 @@ function DownloadLanguage()
 
 		$chmod_files = array();
 		$install_files = array();
+
 		// Check writable status.
 		foreach ($_POST['copy_file'] as $file)
 		{
@@ -497,7 +505,6 @@ function DownloadLanguage()
 
 						return \'<span style="color: \' . ($rowData[\'writable\'] ? \'green\' : \'red\') . \';">\' . ($rowData[\'writable\'] ? $txt[\'yes\'] : $txt[\'no\']) . \'</span>\';
 					'),
-					'style' => 'text-align: center',
 				),
 			),
 			'version' => array(
@@ -527,12 +534,14 @@ function DownloadLanguage()
 			'copy' => array(
 				'header' => array(
 					'value' => $txt['languages_download_copy'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
 						return \'<input type="checkbox" name="copy_file[]" value="\' . $rowData[\'generaldest\'] . \'" \' . ($rowData[\'default_copy\'] ? \'checked="checked"\' : \'\') . \' class="input_check" />\';
 					'),
-					'style' => 'text-align: center; width: 4%;',
+					'style' => 'width: 4%;',
+					'class' => 'centercol',
 				),
 			),
 		),
@@ -592,12 +601,14 @@ function ModifyLanguages()
 			'default' => array(
 				'header' => array(
 					'value' => $txt['languages_default'],
+					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
 						return \'<input type="radio" name="def_language" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'default\'] ? \'checked="checked"\' : \'\') . \' onclick="highlightSelected(\\\'list_language_list_\' . $rowData[\'id\'] . \'\\\');" class="input_radio" />\';
 					'),
-					'style' => 'text-align: center; width: 8%;',
+					'style' => 'width: 8%;',
+					'class' => 'centercol',
 				),
 			),
 			'name' => array(
@@ -626,7 +637,6 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'db_htmlsafe' => 'count',
-					'style' => 'text-align: center',
 				),
 			),
 			'locale' => array(
@@ -644,9 +654,8 @@ function ModifyLanguages()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" /><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled="disabled"') . ' class="button_submit" />',
-				'style' => 'text-align: right;',
 			),
 		),
 		// For highlighting the default.

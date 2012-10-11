@@ -33,8 +33,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,
-					supportedWysiwyg: (is_ie || is_ff || is_opera || is_safari || is_chrome),',
+					emoticonsCompat: true,',
 					!empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
@@ -59,6 +58,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 
 				$numRows = count($smileyRows);
+				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
+				$emptyPlaceholder = 0;
 				foreach ($smileyRows as $smileyRow)
 				{
 					foreach ($smileyRow['smileys'] as $smiley)
@@ -68,7 +69,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					}
 					if (empty($smileyRow['isLast']) && $numRows != 1)
 						echo ',
-						\'\': \'\',';
+						\'-', $emptyPlaceholder++, '\': \'\',';
 				}
 				echo '
 						}', $countLocations != 0 ? ',' : '';
@@ -169,7 +170,7 @@ function template_control_richedit_buttons($editor_id)
 				sSceditorID: \'', $editor_id, '\',
 				sType: \'post\',
 				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
-				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+				iFreq: ', $context['drafts_autosave_frequency'], '
 			});
 		// ]]></script>';
 	}
