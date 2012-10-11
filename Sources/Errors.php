@@ -23,6 +23,7 @@ if (!defined('SMF'))
  * filename and line should be __FILE__ and __LINE__, respectively.
  * Example use:
  *  die(log_error($msg));
+ *
  * @param string $error_message
  * @param string $error_type = 'general'
  * @param string $file = null
@@ -257,9 +258,10 @@ function error_handler($error_level, $error_string, $file, $line)
 
 /**
  * It is called by fatal_error() and fatal_lang_error().
- * @uses Errors template, fatal_error sub template, or Wireless template,
- * error sub template.
+ * @uses Errors template, fatal_error sub template, or Wireless template, error sub template.
+ * 
  * @param string $error_message
+ * @param type $error_code
  */
 function setup_fatal_error_context($error_message, $error_code)
 {

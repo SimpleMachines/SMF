@@ -348,6 +348,13 @@ function ShowXmlFeed()
 	obExit(false);
 }
 
+/**
+ * Called from dumpTags to convert data to xml
+ * Finds urls for local sitte and santizes them
+ *
+ * @param type $val
+ * @return type
+ */
 function fix_possible_url($val)
 {
 	global $modSettings, $context, $scripturl;
@@ -364,6 +371,14 @@ function fix_possible_url($val)
 	return $val;
 }
 
+/**
+ * Ensures supplied data is properly encpsulated in cdata xml tags
+ * Called from getXmlProfile in News.php
+ *
+ * @param type $data
+ * @param type $ns
+ * @return type
+ */
 function cdata_parse($data, $ns = '')
 {
 	global $smcFunc, $cdata_override;
@@ -438,9 +453,9 @@ function cdata_parse($data, $ns = '')
  * Additionally formats data based on the specific format passed.
  * This function is recursively called to handle sub arrays of data.
 
- * @param array $data, the array to output as xml data
- * @param int $i, the amount of indentation to use.
- * @param string $tag, if specified, it will be used instead of the keys of data.
+ * @param array $data the array to output as xml data
+ * @param int $i the amount of indentation to use.
+ * @param string $tag if specified, it will be used instead of the keys of data.
  * @param string $xml_format
  */
 function dumpTags($data, $i, $tag = null, $xml_format = '')

@@ -22,13 +22,13 @@ if (!defined('SMF'))
  * respectively removing your own account or any account.
  * Non-admins cannot delete admins.
  * The function:
- * - changes author of messages, topics and polls to guest authors.
- * - removes all log entries concerning the deleted members, except the
+ *   - changes author of messages, topics and polls to guest authors.
+ *   - removes all log entries concerning the deleted members, except the
  * error logs, ban logs and moderation logs.
- * - removes these members' personal messages (only the inbox), avatars,
+ *   - removes these members' personal messages (only the inbox), avatars,
  * ban entries, theme settings, moderator positions, poll votes, and
  * karma votes.
- * - updates member statistics afterwards.
+ *   - updates member statistics afterwards.
  *
  * @param array $users
  * @param bool $check_not_admin = false
@@ -1283,6 +1283,7 @@ function list_getNumMembers($where, $where_params = array())
 }
 
 /**
+ * Find potential duplicate registation members based on the same IP address
  *
  * @param $members
  */
@@ -1400,8 +1401,12 @@ function populateDuplicateMembers(&$members)
 		}
 }
 
-// Generate a random validation code.
-// @todo Err. Whatcha doin' here.
+/**
+ * Generate a random validation code.
+ * @todo Err. Whatcha doin' here.
+ *
+ * @return type
+ */
 function generateValidationCode()
 {
 	global $smcFunc, $modSettings;

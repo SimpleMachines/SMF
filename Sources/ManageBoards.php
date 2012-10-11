@@ -20,8 +20,7 @@ if (!defined('SMF'))
  * The main dispatcher; doesn't do anything, just delegates.
  * This is the main entry point for all the manageboards admin screens.
  * Called by ?action=admin;area=manageboards.
- * It checks the permissions, based on the sub-action, and calls a function
- *  based on the sub-action.
+ * It checks the permissions, based on the sub-action, and calls a function based on the sub-action.
  *
  *  @uses ManageBoards language file.
  */
@@ -369,7 +368,6 @@ function EditCategory2()
  * uses the modify_board sub-template of the ManageBoards template.
  * requires manage_boards permission.
  * also used to show the confirm deletion of category screen (sub-template confirm_board_delete).
-		  (sub-template confirm_board_delete).
 
  */
 function EditBoard()
@@ -726,6 +724,9 @@ function EditBoard2()
 		redirectexit('action=admin;area=manageboards');
 }
 
+/**
+ * Used to retrieve data for modifying a board category
+ */
 function ModifyCat()
 {
 	global $cat_tree, $boardList, $boards, $sourcedir, $smcFunc;

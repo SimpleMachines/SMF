@@ -17,9 +17,17 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- *  Maps the implementations in this file (smf_db_function_name)
- *  to the $smcFunc['db_function_name'] variable.
- *  @see Subs-Db-mysql.php#smf_db_initiate
+ * Maps the implementations in this file (smf_db_function_name)
+ * to the $smcFunc['db_function_name'] variable.
+ * @see Subs-Db-mysql.php#smf_db_initiate
+ *
+ * @param type $db_server
+ * @param type $db_name
+ * @param type $db_user
+ * @param type $db_passwd
+ * @param type $db_prefix
+ * @param type $db_options
+ * @return null
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix, $db_options = array())
 {
@@ -75,6 +83,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 /**
  * Extend the database functionality. It calls the respective file's init
  * to add the implementations in that file to $smcFunc array.
+ *
  * @param string $type = 'extra'
  */
 function db_extend ($type = 'extra')
@@ -89,6 +98,10 @@ function db_extend ($type = 'extra')
 /**
  * Fix the database prefix if necessary.
  * Do nothing on postgreSQL
+ *
+ * @param type $db_prefix
+ * @param type $db_name
+ * @return type
  */
 function db_fix_prefix (&$db_prefix, $db_name)
 {
@@ -207,6 +220,11 @@ function smf_db_replacement__callback($matches)
 /**
  * Just like the db_query, escape and quote a string,
  * but not executing the query.
+ *
+ * @param string $db_string
+ * @param string $db_values
+ * @param type $connection
+ * @return type
  */
 function smf_db_quote($db_string, $db_values, $connection = null)
 {
@@ -232,6 +250,12 @@ function smf_db_quote($db_string, $db_values, $connection = null)
  * Do a query.  Takes care of errors too.
  * Special queries may need additional replacements to be appropriate
  * for PostgreSQL.
+ *
+ * @param string $identifier
+ * @param string $db_string
+ * @param string $db_values
+ * @param type $connection
+ * @return boolean
  */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
@@ -644,7 +668,7 @@ function smf_db_unescape_string($string)
 /**
  * insert
  *
- * @param string $method, options 'replace', 'ignore', 'insert'
+ * @param string $method - options 'replace', 'ignore', 'insert'
  * @param $table
  * @param $columns
  * @param $data

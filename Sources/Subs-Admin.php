@@ -390,6 +390,8 @@ function updateSettingsFile($config_vars)
  * - Done separately from updateSettingsFile to avoid race conditions
  *   which can occur during a db error
  * - If it fails Settings.php will assume 0
+ *
+ * @param type $time
  */
 function updateDbLastError($time)
 {
@@ -441,6 +443,10 @@ function updateAdminPreferences()
  * - loads all users who are admins or have the admin forum permission.
  * - uses the email template and replacements passed in the parameters.
  * - sends them an email.
+ *
+ * @param string $template
+ * @param array $replacements
+ * @param array $additional_recipients
  */
 function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 {

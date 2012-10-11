@@ -151,7 +151,9 @@ function ModifyKarma()
 	}
 }
 
-//  What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
+/**
+ * What's this?  I dunno, what are you talking about?  Never seen this before, nope.  No sir.
+ */
 function BookOfUnknown()
 {
 	global $context;

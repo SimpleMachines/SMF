@@ -1393,7 +1393,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
  * Load permissions into $context['permissions'].
  * @internal
  *
- * @param string $loadType, options: 'classic' or 'simple'
+ * @param string $loadType options: 'classic' or 'simple'
  */
 function loadAllPermissions($loadType = 'classic')
 {

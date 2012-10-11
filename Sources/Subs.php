@@ -2987,7 +2987,7 @@ function setupThemeContext($forceload = false)
  *
  * @param string $needed The amount of memory to request, if needed, like 256M
  * @param bool $in_use Set to true to account for current memory usage of the script
- * @return bool, true if we have at least the needed memory
+ * @return boolean, true if we have at least the needed memory
  */
 function setMemoryLimit($needed, $in_use = false)
 {
@@ -3053,7 +3053,7 @@ function template_rawdata()
 }
 
 /**
- *
+ * The header template
  */
 function template_header()
 {
@@ -3196,7 +3196,7 @@ function theme_copyright()
 }
 
 /**
- *
+ * The template footer
  */
 function template_footer()
 {
@@ -3584,11 +3584,11 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
- * @param string $filename
+ * @param string $name
  * @param string $alt
  * @param string $label = ''
- * @param bool $custom = ''
- * @param bool $force_use = false
+ * @param boolean $custom = ''
+ * @param boolean $force_use = false
  * @return string
  */
 function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
@@ -3732,6 +3732,9 @@ function loadClassFile($filename)
 }
 
 /**
+ * Sets up all of the top menu buttons
+ * Saves them in the cache if it is available and on
+ * Places the results in $context
  *
  */
 function setupMenuContext()
@@ -4041,7 +4044,7 @@ function smf_seed_generator()
  * supports static class method calls.
  *
  * @param string $hook
- * @param array $paramaters = array()
+ * @param array $parameters = array()
  * @return array the results of the functions
  */
 function call_integration_hook($hook, $parameters = array())
