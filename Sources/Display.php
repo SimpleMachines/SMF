@@ -1447,29 +1447,17 @@ function Download()
 
 	// Convert the file to UTF-8, cuz most browsers dig that.
 	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $real_filename) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($real_filename, 'UTF-8', $context['character_set']) : $real_filename);
-	$fixchar = create_function('$n', '
-		if ($n < 32)
-			return \'\';
-		elseif ($n < 128)
-			return chr($n);
-		elseif ($n < 2048)
-			return chr(192 | $n >> 6) . chr(128 | $n & 63);
-		elseif ($n < 65536)
-			return chr(224 | $n >> 12) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);
-		else
-			return chr(240 | $n >> 18) . chr(128 | $n >> 12 & 63) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);');
-
 	$disposition = !isset($_REQUEST['image']) ? 'attachment' : 'inline';
 
 	// Different browsers like different standards...
 	if (isBrowser('firefox'))
-		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)));
+		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
 
 	elseif (isBrowser('opera'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name) . '"');
+		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
 
 	elseif (isBrowser('ie'))
-		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $utf8name)) . '"');
+		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
 
 	else
 		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');

@@ -970,11 +970,6 @@ function ConvertEntities()
 	);
 	$context['num_tables'] = count($tables);
 
-	// This function will do the conversion later on.
-	$entity_replace = create_function('$string', '
-		$num = substr($string, 0, 1) === \'x\' ? hexdec(substr($string, 1)) : (int) $string;
-		return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) ? \'\' : ($num < 0x80 ? \'&#\' . $num . \';\' : ($num < 0x800 ? chr(192 | $num >> 6) . chr(128 | $num & 63) : ($num < 0x10000 ? chr(224 | $num >> 12) . chr(128 | $num >> 6 & 63) . chr(128 | $num & 63) : chr(240 | $num >> 18) . chr(128 | $num >> 12 & 63) . chr(128 | $num >> 6 & 63) . chr(128 | $num & 63))));');
-
 	// Loop through all tables that need converting.
 	for (; $context['table'] < $context['num_tables']; $context['table']++)
 	{
@@ -1061,7 +1056,7 @@ function ConvertEntities()
 					if ($column_name !== $primary_key && strpos($column_value, '&#') !== false)
 					{
 						$changes[] = $column_name . ' = {string:changes_' . $column_name . '}';
-						$insertion_variables['changes_' . $column_name] = preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e', '$entity_replace(\'\\2\')', $column_value);
+						$insertion_variables['changes_' . $column_name] = preg_replace_callback('~&#(\d{1,7}|x[0-9a-fA-F]{1,6});~', 'fixchar__callback', $column_value);
 					}
 
 				$where = array();
