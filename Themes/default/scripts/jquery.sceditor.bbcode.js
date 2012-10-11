@@ -410,8 +410,9 @@
 		 * @return string BBCode which has been converted from HTML
 		 * @memberOf jQuery.sceditorBBCodePlugin.prototype
 		 */
-		base.getHtmlHandler = function(html, domBody) {
-			$.sceditor.dom.removeWhiteSpace(domBody[0]);
+		base.getHtmlHandler = function(html, domBody, filter) {
+			if (typeof filter == 'undefined')
+				$.sceditor.dom.removeWhiteSpace(domBody[0]);
 
 			return $.trim(base.elementToBbcode(domBody));
 		};
