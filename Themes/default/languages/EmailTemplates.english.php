@@ -847,12 +847,12 @@ Before this member can begin posting they must first have their account approved
 		REALNAME:
 	@description:
 */
-$txt['admin_attachments_full_subject'] = 'Urgent! Attachments folder almost full';
+$txt['admin_attachments_full_subject'] = 'Urgent! Attachments directory almost full';
 $txt['admin_attachments_full_body'] = '{REALNAME},
 
-The attachments folder at {FORUMNAME} is almost full. Please visit the forum to resolve this problem.
+The attachments directory at {FORUMNAME} is almost full. Please visit the forum to resolve this problem.
 
-Once the attachments folder reaches it\'s maximum permitted size users will not be able to continue to post attachments or upload custom avatars (If enabled).
+Once the attachments directory reaches it\'s maximum permitted size users will not be able to continue to post attachments or upload custom avatars (If enabled).
 
 {REGARDS}';
 

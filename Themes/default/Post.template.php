@@ -359,8 +359,7 @@ function template_main()
 	if (isset($context['last_modified']))
 		echo '
 					<div class="padding smalltext">
-						<strong>', $txt['last_edit'], ':</strong>
-						', $context['last_modified'], '
+						', $context['last_modified_text'], '
 					</div>';
 
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
@@ -524,9 +523,6 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<br class="clear_right" />
-					<span class="smalltext">
-						', isBrowser('is_firefox') ? ($context['drafts_save'] ? $txt['shortcuts_drafts_firefox'] : $txt['shortcuts_firefox']) : ($context['drafts_save'] ? $txt['shortcuts_drafts'] : $txt['shortcuts']), '
-					</span>
 					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']);
 
