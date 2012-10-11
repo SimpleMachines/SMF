@@ -184,4 +184,66 @@ function BoardNotify()
 	redirectexit('board=' . $board . '.' . $_REQUEST['start']);
 }
 
+/**
+ * Turn off/on unread replies subscription for a topic
+ * Must be called with a topic specified in the URL.
+ * The sub-action can be 'on', 'off', or nothing for what to do.
+ * Requires the mark_any_notify permission.
+ * Upon successful completion of action will direct user back to topic.
+ * Accessed via ?action=disregardtopic.
+ */
+function TopicDisregard()
+{
+	global $smcFunc, $user_info, $topic, $modSettings;
+
+	// Let's do something only if the function is enabled
+	if ($modSettings['enable_disregard'])
+	{
+		checkSession('get');
+
+		if (isset($_GET['sa']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_member, id_topic, id_msg, disregarded
+				FROM {db_prefix}log_topics
+				WHERE id_member = {int:current_user}
+					AND id_topic = {int:current_topic}',
+				array(
+					'current_user' => $user_info['id'],
+					'current_topic' => $topic,
+				)
+			);
+			$log = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
+			if (empty($log))
+			{
+				$insert = true;
+				$log['disregarded'] = $_GET['sa'] == 'on' ? 1 : 0;
+			}
+			else
+			{
+				$insert = false;
+				$log = array(
+					'id_member' => $user_info['id'],
+					'id_topic' => $topic,
+					'id_msg' => 0,
+					'disregarded' => $_GET['sa'] == 'on' ? 1 : 0,
+				);
+			}
+
+			$smcFunc['db_insert']($insert ? 'insert' : 'replace',
+				'{db_prefix}log_topics',
+				array(
+					'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'disregarded' => 'int',
+				),
+				$log,
+				array('id_member', 'id_topic')
+			);
+		}
+	}
+
+	// Back to the topic.
+	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+}
+
 ?>

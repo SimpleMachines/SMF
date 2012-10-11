@@ -237,6 +237,22 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Adding support for topic disregard
+/******************************************************************************/
+---# Adding new columns to log_topics...
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}log_topics
+	ADD COLUMN disregarded tinyint NOT NULL DEFAULT '0'");
+
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('enable_disregard', 0);
+---}
+---#
+
+/******************************************************************************/
 --- Name changes
 /******************************************************************************/
 ---# Altering the membergroup stars to icons

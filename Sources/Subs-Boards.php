@@ -176,14 +176,31 @@ function MarkRead()
 	{
 		// Make sure all the boards are integers!
 		$topics = explode('-', $_REQUEST['topics']);
+		foreach ($topics as &$id_topic)
+			$id_topic = (int) $id_topic;
+
+		$smcFunc['db_query']('', '
+			SELECT id_topic, disregarded
+			FROM {db_prefix}log_topics
+			WHERE id_topic IN ({array_int:selected_topics}
+				AND id_member = {int:current_user}',
+			array(
+				'selected_topics' => $topics,
+				'current_user' => $user_info['id'],
+			)
+		);
+		$logged_topics = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$logged_topics[$row['id_topic']] = $row['disregarded'];
+		$smcFunc['db_free_result']($request);
 
 		$markRead = array();
 		foreach ($topics as $id_topic)
-			$markRead[] = array($modSettings['maxMsgID'], $user_info['id'], (int) $id_topic);
+			$markRead[] = array($modSettings['maxMsgID'], $user_info['id'], $id_topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
 
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int'),
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'disregarded' => 'int'),
 			$markRead,
 			array('id_member', 'id_topic')
 		);
@@ -199,11 +216,13 @@ function MarkRead()
 	{
 		// First, let's figure out what the latest message is.
 		$result = $smcFunc['db_query']('', '
-			SELECT id_first_msg, id_last_msg
-			FROM {db_prefix}topics
-			WHERE id_topic = {int:current_topic}',
+			SELECT t.id_first_msg, t.id_last_msg, IFNULL(lt.disregarded, 0) as disregarded
+			FROM {db_prefix}topics as t
+			LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
+			WHERE t.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
+				'current_member' => $user_info['id'],
 			)
 		);
 		$topicinfo = $smcFunc['db_fetch_assoc']($result);
@@ -246,9 +265,10 @@ function MarkRead()
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
 				ORDER BY id_msg
-				LIMIT ' . (int) $_REQUEST['start'] . ', 1',
+				LIMIT {int:start}, 1',
 				array(
 					'current_topic' => $topic,
+					'start' => (int) $_REQUEST['start'],
 				)
 			);
 			list ($earlyMsg) = $smcFunc['db_fetch_row']($result);
@@ -260,8 +280,8 @@ function MarkRead()
 		// Blam, unread!
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int'),
-			array($earlyMsg, $user_info['id'], $topic),
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'disregarded' => 'int'),
+			array($earlyMsg, $user_info['id'], $topic, $topicinfo['disregarded']),
 			array('id_member', 'id_topic')
 		);
 
