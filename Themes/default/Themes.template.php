@@ -407,7 +407,6 @@ function template_set_options()
 	// close the option page up
 	echo '
 					</dl>
-					<hr class="hrcolor" />
 					<input type="submit" name="submit" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				</div>

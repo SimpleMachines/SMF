@@ -967,7 +967,7 @@ function MembersAwaitingActivation()
 					<select name="todo" onchange="onSelectChange();">
 						' . $allowed_actions . '
 					</select>
-					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit" /><br class="clear_right"></noscript>
+					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit" /><br class="clear_right" /></noscript>
 				',
 				'class' => 'floatright',
 			),
