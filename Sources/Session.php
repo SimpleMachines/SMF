@@ -101,7 +101,7 @@ function loadSession()
  *
  * @param string $save_path
  * @param string $session_name
- * @return bool
+ * @return boolean
  */
 function sessionOpen($save_path, $session_name)
 {
@@ -112,7 +112,7 @@ function sessionOpen($save_path, $session_name)
  * Implementation of sessionClose() replacing the standard close handler.
  * It simply returns true.
  *
- * @return bool
+ * @return boolean
  */
 function sessionClose()
 {
@@ -153,7 +153,7 @@ function sessionRead($session_id)
  *
  * @param string $session_id
  * @param string $data
- * @return bool
+ * @return boolean
  */
 function sessionWrite($session_id, $data)
 {
@@ -190,7 +190,7 @@ function sessionWrite($session_id, $data)
  * Implementation of sessionDestroy() replacing the standard destroy handler.
  *
  * @param string $session_id
- * @return bool
+ * @return boolean
  */
 function sessionDestroy($session_id)
 {
@@ -214,7 +214,7 @@ function sessionDestroy($session_id)
  * Callback for garbage collection.
  *
  * @param int $max_lifetime
- * @return bool
+ * @return boolean
  */
 function sessionGC($max_lifetime)
 {

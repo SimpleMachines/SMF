@@ -122,7 +122,6 @@ function modifyCategory($category_id, $catOptions)
  * allows (almost) the same options as the modifyCat() function.
  * returns the ID of the newly created category.
  *
- * @param int $createCategory
  * @param array $catOptions
  */
 function createCategory($catOptions)
@@ -147,7 +146,7 @@ function createCategory($catOptions)
 	$cat_parameters = array(
 		$catOptions['cat_name'],
 	);
-	
+
 	call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
 
 	// Add the category to the database.
@@ -178,8 +177,8 @@ function createCategory($catOptions)
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
  *
- * @param array $categories_to_remove
- * @param int $moveChildrenTo = null
+ * @param string $categories
+ * @param int $moveBoardsTo = null
  */
 function deleteCategories($categories, $moveBoardsTo = null)
 {

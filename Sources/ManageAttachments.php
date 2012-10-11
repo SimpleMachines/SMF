@@ -557,7 +557,7 @@ function BrowseFiles()
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
- * @param string $browse_type, can be 'avatars' or ... not. :P
+ * @param string $browse_type can be on eof 'avatars' or ... not. :P
  */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
@@ -616,8 +616,7 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
  * Return the number of files of the specified type recorded in the database.
  * (the specified type being attachments or avatars).
  *
- * @param string $browse_type, can be 'avatars' or not. (in which case they're
- * attachments)
+ * @param string $browse_type can be one of 'avatars' or not. (in which case they're attachments)
  */
 function list_getNumFiles($browse_type)
 {
@@ -2578,6 +2577,9 @@ function attachDirStatus($dir, $expected_files)
 		return array('ok', false, $num_files);
 }
 
+/**
+ * Maintance function to move attachments from one directory to another
+ */
 function TransferAttachments()
 {
 	global $modSettings, $context, $smcFunc, $sourcedir, $txt, $boarddir;

@@ -2230,6 +2230,11 @@ function AutoSuggest_Search_Member()
 	return $xml_data;
 }
 
+/**
+ * Provides a list of possible SMF versions to use in emulation
+ * 
+ * @return string
+ */
 function AutoSuggest_Search_SMFVersions()
 {
 

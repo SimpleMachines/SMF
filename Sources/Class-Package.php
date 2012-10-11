@@ -21,19 +21,33 @@ if (!defined('SMF'))
  */
 class xmlArray
 {
-	// The array and debugging output level.
-	public $array, $debug_level, $trim;
+	/**
+	 * holds xml parsed results
+	 * @var array
+	 */
+	public $array;
+
+	/**
+	 * holds debugging level
+	 * @var type
+	 */
+	public $debug_level;
+
+	/**
+	 * holds trim level textual data
+	 * @var bool
+	 */
+	public $trim;
 
 	/**
 	 * Constructor for the xml parser.
 	 * Example use:
 	 *  $xml = new xmlArray(file('data.xml'));
+	 *
 	 * @param string $data the xml data or an array of, unless is_clone is true.
-	 * @param bool $auto_trim, default false, used to automatically trim textual data.
-	 * @param int $level, default null, the debug level, specifies whether notices
-	 *  should be generated for missing elements and attributes.
-	 * @param bool $is_clone, default false. If is_clone is true, the
-	 *  xmlArray is cloned from another - used internally only.
+	 * @param bool $auto_trim default false, used to automatically trim textual data.
+	 * @param int $level default null, the debug level, specifies whether notices should be generated for missing elements and attributes.
+	 * @param bool $is_clone default false. If is_clone is true, the  xmlArray is cloned from another - used internally only.
 	 */
 	public function __construct($data, $auto_trim = false, $level = null, $is_clone = false)
 	{
@@ -179,8 +193,9 @@ class xmlArray
 	 * Check if an element exists.
 	 * Example use,
 	 *  echo $xml->exists('html/body') ? 'y' : 'n';
+	 *
 	 * @param string $path - the path to the element to get.
-	 * @return bool
+	 * @return boolean
 	 */
 	public function exists($path)
 	{
@@ -298,7 +313,8 @@ class xmlArray
 	 * Output the xml in an array form.
 	 * Example use:
 	 *  print_r($xml->to_array());
-	 * @param string $path, the path to output.
+	 *
+	 * @param string $path the path to output.
 	 */
 	public function to_array($path = null)
 	{
@@ -322,6 +338,7 @@ class xmlArray
 
 	/**
 	 * Parse data into an array. (privately used...)
+	 *
 	 * @param string $data to parse
 	 */
 	protected function _parse($data)
@@ -469,6 +486,7 @@ class xmlArray
 
 	/**
 	 * Get a specific element's xml. (privately used...)
+	 *
 	 * @param $array
 	 * @param $indent
 	 */
@@ -519,7 +537,12 @@ class xmlArray
 		return $output;
 	}
 
-	// Return an element as an array...
+	/**
+	 * Return an element as an array
+	 *
+	 * @param type $array
+	 * @return type
+	 */
 	protected function _array($array)
 	{
 		$return = array();
@@ -543,6 +566,7 @@ class xmlArray
 
 	/**
 	 * Parse out CDATA tags. (htmlspecialchars them...)
+	 *
 	 * @param $data
 	 */
 	function _to_cdata($data)
@@ -579,6 +603,7 @@ class xmlArray
 
 	/**
 	 * Turn the CDATAs back to normal text.
+	 *
 	 * @param $data
 	 */
 	protected function _from_cdata($data)
@@ -624,6 +649,7 @@ class xmlArray
 
 	/**
 	 * Get a specific array by path, one level down. (privately used...)
+	 *
 	 * @param array $array
 	 * @param string $path
 	 * @param int $level
@@ -686,13 +712,43 @@ class xmlArray
 
 /**
  * Simple FTP protocol implementation.
+ *
  * http://www.faqs.org/rfcs/rfc959.html
  */
 class ftp_connection
 {
-	public $connection, $error, $last_message, $pasv;
+	/**
+	 * holds the connection response
+	 * @var type
+	 */
+	public $connection;
 
-	// Create a new FTP connection...
+	/**
+	 * holds any errors
+	 * @var type
+	 */
+	public $error;
+
+	/**
+	 * holds last message from the server
+	 * @var type
+	 */
+	public $last_message;
+
+	/**
+	 * Passive connection
+	 * @var type
+	 */
+	public $pasv;
+
+	/**
+	 * Create a new FTP connection...
+	 *
+	 * @param type $ftp_server
+	 * @param type $ftp_port
+	 * @param type $ftp_user
+	 * @param type $ftp_pass
+	 */
 	public function __construct($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
 		// Initialize variables.
@@ -704,6 +760,15 @@ class ftp_connection
 			$this->connect($ftp_server, $ftp_port, $ftp_user, $ftp_pass);
 	}
 
+	/**
+	 * Connects to a server
+	 *
+	 * @param type $ftp_server
+	 * @param type $ftp_port
+	 * @param type $ftp_user
+	 * @param type $ftp_pass
+	 * @return type
+	 */
 	public function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
 		if (strpos($ftp_server, 'ftp://') === 0)
@@ -746,6 +811,12 @@ class ftp_connection
 		}
 	}
 
+	/**
+	 * Changes to a directory (chdir) via the ftp connection
+	 *
+	 * @param type $ftp_path
+	 * @return boolean
+	 */
 	public function chdir($ftp_path)
 	{
 		if (!is_resource($this->connection))
@@ -765,6 +836,13 @@ class ftp_connection
 		return true;
 	}
 
+	/**
+	 * Changes a files atrributes (chmod)
+	 *
+	 * @param string $ftp_file
+	 * @param type $chmod
+	 * @return boolean
+	 */
 	public function chmod($ftp_file, $chmod)
 	{
 		if (!is_resource($this->connection))
@@ -784,6 +862,12 @@ class ftp_connection
 		return true;
 	}
 
+	/**
+	 * Deletes a file
+	 *
+	 * @param type $ftp_file
+	 * @return boolean
+	 */
 	public function unlink($ftp_file)
 	{
 		// We are actually connected, right?
@@ -807,6 +891,12 @@ class ftp_connection
 		return true;
 	}
 
+	/**
+	 * Reads the response to the command from the server
+	 *
+	 * @param type $desired
+	 * @return type
+	 */
 	public function check_response($desired)
 	{
 		// Wait for a response that isn't continued with -, but don't wait too long.
@@ -819,6 +909,11 @@ class ftp_connection
 		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
 	}
 
+	/**
+	 * Used to create a passive connection
+	 *
+	 * @return boolean
+	 */
 	public function passive()
 	{
 		// We can't create a passive data connection without a primary one first being there.
@@ -852,6 +947,12 @@ class ftp_connection
 		return true;
 	}
 
+	/**
+	 * Creates a new file on the server
+	 *
+	 * @param type $ftp_file
+	 * @return boolean
+	 */
 	public function create_file($ftp_file)
 	{
 		// First, we have to be connected... very important.
@@ -885,6 +986,13 @@ class ftp_connection
 		return true;
 	}
 
+	/**
+	 * Generates a direcotry listing for the current directory
+	 *
+	 * @param type $ftp_path
+	 * @param type $search
+	 * @return boolean
+	 */
 	public function list_dir($ftp_path = '', $search = false)
 	{
 		// Are we even connected...?
@@ -923,6 +1031,13 @@ class ftp_connection
 		return $data;
 	}
 
+	/**
+	 * Determins the current dirctory we are in
+	 *
+	 * @param type $file
+	 * @param type $listing
+	 * @return string|boolean
+	 */
 	public function locate($file, $listing = null)
 	{
 		if ($listing === null)
@@ -963,6 +1078,12 @@ class ftp_connection
 		return false;
 	}
 
+	/**
+	 * Creates a new directory on the server
+	 *
+	 * @param type $ftp_dir
+	 * @return boolean
+	 */
 	public function create_dir($ftp_dir)
 	{
 		// We must be connected to the server to do something.
@@ -980,6 +1101,13 @@ class ftp_connection
 		return true;
 	}
 
+	/**
+	 * Detects the current path
+	 *
+	 * @param type $filesystem_path
+	 * @param type $lookup_file
+	 * @return type
+	 */
 	public function detect_path($filesystem_path, $lookup_file = null)
 	{
 		$username = '';
@@ -1025,6 +1153,11 @@ class ftp_connection
 		return array($username, $path, isset($found_path));
 	}
 
+	/**
+	 * Close the ftp connection
+	 *
+	 * @return boolean
+	 */
 	public function close()
 	{
 		// Goodbye!

@@ -517,7 +517,7 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
  * @param int $priority = 3
  * @param bool $hotmail_fix = null
  * @param $is_private
- * @return bool, whether ot not the email was sent properly.
+ * @return boolean, whether ot not the email was sent properly.
  */
 function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 {
@@ -696,7 +696,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
  * @param bool $send_html = false
  * @param int $priority = 3
  * @param $is_private
- * @return bool
+ * @return boolean
  */
 function AddMailQueue($flush = false, $to_array = array(), $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
 {
@@ -1275,18 +1275,16 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 		return array($charset, $string, '7bit');
 }
 
-// Send an email via SMTP.
-
 /**
  * Sends mail, like mail() but over SMTP.
  * It expects no slashes or entities.
  * @internal
  *
  * @param array $mail_to_array - array of strings (email addresses)
- * @param string $subject, email subject
- * @param string $message, email message
- * @param string  $headers
- * @return bool, whether it sent or not.
+ * @param string $subject email subject
+ * @param string $message email message
+ * @param string $headers
+ * @return boolean whether it sent or not.
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
@@ -2479,7 +2477,7 @@ function approvePosts($msgs, $approve = true)
  * Approve topics?
  * @todo shouldn't this be in topic
  *
- * @param array $topics, array of topics ids
+ * @param array $topics array of topics ids
  * @param bool $approve = true
  */
 function approveTopics($topics, $approve = true)
@@ -2790,7 +2788,7 @@ function updateLastMessages($setboards, $id_msg = 0)
  * Email is sent to all groups that have the moderate_forum permission.
  * The language set by each member is being used (if available).
  *
- * @param string $type, types supported are 'approval', 'activation', and 'standard'.
+ * @param string $type types supported are 'approval', 'activation', and 'standard'.
  * @param int $memberID
  * @param string $member_name = null
  * @uses the Login language file.
@@ -2940,6 +2938,13 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 	return $ret;
 }
 
+/**
+ * Callback function for loademaitemplate on subject and body
+ * Uses capture group 1 in array
+ *
+ * @param type $matches
+ * @return string
+ */
 function user_info_callback($matches)
 {
 	global $user_info;

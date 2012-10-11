@@ -157,7 +157,9 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
 	obExit();
 }
 
-// Load up all the tests we might want to do ;)
+/**
+ * Load up all the tests we might want to do ;)
+ */
 function loadForumTests()
 {
 	global $errorTests;

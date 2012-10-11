@@ -2627,7 +2627,7 @@ function MessagePrune()
 /**
  * Delete the specified personal messages.
  *
- * @param array $personal_messages, array of pm ids
+ * @param array $personal_messages array of pm ids
  * @param string $folder = null
  * @param int $owner = null
  */
@@ -3659,7 +3659,7 @@ function LoadRules($reload = false)
  *
  * @param int $pmID
  * @param $validFor
- * @return bool
+ * @return boolean
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {

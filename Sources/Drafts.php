@@ -23,7 +23,9 @@ loadLanguage('Drafts');
  * Saves a post draft in the user_drafts table
  * The core draft feature must be enabled, as well as the post draft option
  * Determines if this is a new or an existing draft
+ * Returns errors in $post_errors for display in the template
  *
+ * @param string $post_errors
  * @return boolean
  */
 function SaveDraft(&$post_errors)
@@ -150,8 +152,8 @@ function SaveDraft(&$post_errors)
 
 /**
  * Saves a PM draft in the user_drafts table
- * The core draft feature must be enable, as well as the pm draft option
- * Determines if this is a new or and update to an existing draft
+ * The core draft feature must be enabled, as well as the pm draft option
+ * Determines if this is a new or and update to an existing pm draft
  *
  * @global type $context
  * @global type $user_info
@@ -629,7 +631,6 @@ function showProfileDrafts($memID, $draft_type = 0)
  * Allows for the deleting and loading/editing of drafts
  *
  * @param type $memID
- * @param type $draft_type
  */
 function showPMDrafts($memID = -1)
 {

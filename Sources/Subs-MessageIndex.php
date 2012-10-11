@@ -14,6 +14,13 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
+/**
+ * Generates the query to determine the list of available boards for a user
+ * Executes the query and returns the list
+ *
+ * @param type $boardListOptions
+ * @return type
+ */
 function getBoardList($boardListOptions = array())
 {
 	global $smcFunc, $user_info;

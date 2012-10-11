@@ -1038,7 +1038,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
  *
  * @param int $user
  * @param bool $display_custom_fields = false
- * @return bool
+ * @return boolean
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
@@ -1786,7 +1786,7 @@ function loadTheme($id_theme = 0, $initialize = true)
  * @param string $template_name
  * @param array $style_sheets = array()
  * @param bool $fatal = true if fatal is true, dies with an error message if the template cannot be found
- * @return bool
+ * @return boolean
  */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {

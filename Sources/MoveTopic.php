@@ -384,7 +384,16 @@ function MoveTopic2()
 		redirectexit('topic=' . $topic . '.0');
 }
 
-// Moves one or more topics to a specific board. (doesn't check permissions.)
+/**
+ * Moves one or more topics to a specific board. (doesn't check permissions.)
+ * Determines the source boards for the supplied topics
+ * Handles the moving of mark_read data
+ * Updates the posts count of the affected boards
+ *
+ * @param type $topics
+ * @param type $toBoard
+ * @return type
+ */
 function moveTopics($topics, $toBoard)
 {
 	global $sourcedir, $user_info, $modSettings, $smcFunc;
@@ -702,6 +711,10 @@ function moveTopics($topics, $toBoard)
 	));
 }
 
+/**
+ * Called after a topic is moved to update $board_link and $topic_link to point to new location
+ *
+ */
 function moveTopicConcurrence()
 {
 	global $board, $topic, $smcFunc, $scripturl;

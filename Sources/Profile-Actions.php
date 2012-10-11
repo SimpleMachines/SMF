@@ -473,7 +473,7 @@ function list_getUserWarningCount($memID)
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
- * @param int $memID, the member ID
+ * @param int $memID the member ID
  * @return array the preview warnings
  */
 function list_getUserWarnings($start, $items_per_page, $sort, $memID)
@@ -516,7 +516,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 /**
  * Present a screen to make sure the user wants to be deleted
  *
- * @param int $memID, the member ID
+ * @param int $memID the member ID
  */
 function deleteAccount($memID)
 {
@@ -538,7 +538,7 @@ function deleteAccount($memID)
 /**
  * Actually delete an account.
  *
- * @param int $memID, the member ID
+ * @param int $memID the member ID
  */
 function deleteAccount2($memID)
 {

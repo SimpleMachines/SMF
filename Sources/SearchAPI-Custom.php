@@ -14,23 +14,58 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
+/**
+ * Custom Search API class .. used when custom SMF index is used
+ */
 class custom_search
 {
-	// This is the last version of SMF that this was tested on, to protect against API changes.
+	/**
+	 *This is the last version of SMF that this was tested on, to protect against API changes.
+	 * @var type
+	 */
 	public $version_compatible = 'SMF 2.1 Alpha 1';
-	// This won't work with versions of SMF less than this.
+
+	/**
+	 *This won't work with versions of SMF less than this.
+	 * @var type
+	 */
 	public $min_smf_version = 'SMF 2.1 Alpha 1';
-	// Is it supported?
+
+	/**
+	 * Is it supported?
+	 * @var type
+	 */
 	public $is_supported = true;
 
+	/**
+	 * Index Settings
+	 * @var type
+	 */
 	protected $indexSettings = array();
-	// What words are banned?
+
+	/**
+	 * What words are banned?
+	 * @var type
+	 */
 	protected $bannedWords = array();
-	// What is the minimum word length?
+
+	/**
+	 * What is the minimum word length?
+	 * @var type
+	 */
 	protected $min_word_length = null;
-	// What databases support the custom index?
+
+	/**
+	 * What databases support the custom index?
+	 * @var type
+	 */
 	protected $supported_databases = array('mysql', 'postgresql', 'sqlite');
 
+	/**
+	 * constructor function
+	 *
+	 * @return type
+	 */
 	public function __construct()
 	{
 		global $modSettings, $db_type;
@@ -51,7 +86,13 @@ class custom_search
 		$this->min_word_length = $this->indexSettings['bytes_per_word'];
 	}
 
-	// Check whether the search can be performed by this API.
+	/**
+	 * Check whether the search can be performed by this API.
+	 *
+	 * @param type $methodName
+	 * @param type $query_params
+	 * @return boolean
+	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{
 		switch ($methodName)
@@ -72,7 +113,11 @@ class custom_search
 		}
 	}
 
-	// If the settings don't exist we can't continue.
+	/**
+	 * If the settings don't exist we can't continue.
+	 *
+	 * @return type
+	 */
 	public function isValid()
 	{
 		global $modSettings;
@@ -98,7 +143,14 @@ class custom_search
 		return $y < $x ? 1 : ($y > $x ? -1 : 0);
 	}
 
-	// Do we have to do some work with the words we are searching for to prepare them?
+	/**
+	 * Do we have to do some work with the words we are searching for to prepare them?
+	 *
+	 * @param type $word
+	 * @param type $wordsSearch
+	 * @param type $wordsExclude
+	 * @param type $isExcluded
+	 */
 	public function prepareIndexes($word, &$wordsSearch, &$wordsExclude, $isExcluded)
 	{
 		global $modSettings, $smcFunc;
@@ -125,7 +177,13 @@ class custom_search
 		}
 	}
 
-	// Search for indexed words.
+	/**
+	 * Search for indexed words.
+	 *
+	 * @param type $words
+	 * @param type $search_data
+	 * @return type
+	 */
 	public function indexedWordQuery($words, $search_data)
 	{
 		global $modSettings, $smcFunc;
@@ -212,7 +270,11 @@ class custom_search
 	}
 
 	/**
-	 * After a post is made, we update the search index database.
+	 *  After a post is made, we update the search index database
+	 *
+	 * @param type $msgOptions
+	 * @param type $topicOptions
+	 * @param type $posterOptions
 	 */
 	public function postCreated($msgOptions, $topicOptions, $posterOptions)
 	{
@@ -235,6 +297,10 @@ class custom_search
 
 	/**
 	 * After a post is modified, we update the search index database.
+	 *
+	 * @param type $msgOptions
+	 * @param type $topicOptions
+	 * @param type $posterOptions
 	 */
 	public function postModified($msgOptions, $topicOptions, $posterOptions)
 	{

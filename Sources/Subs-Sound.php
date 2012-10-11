@@ -24,7 +24,7 @@ if (!defined('SMF'))
  * Used by VerificationCode() (Register.php).
  *
  * @param string $word
- * @return bool false on failure
+ * @return boolean false on failure
  */
 
 function createWaveFile($word)

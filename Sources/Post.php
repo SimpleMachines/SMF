@@ -26,6 +26,8 @@ if (!defined('SMF'))
  * - requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
+ *
+ *  @param array $post_errors holds any errors found tyring to post
  */
 function Post($post_errors = array())
 {

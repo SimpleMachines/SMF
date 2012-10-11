@@ -1166,7 +1166,8 @@ function Display()
  * It actually gets and prepares the message context.
  * This function will start over from the beginning if reset is set to true, which is
  * useful for showing an index before or after the posts.
- * @param bool $reset, default false.
+ *
+ * @param bool $reset default false.
  */
 function prepareDisplayContext($reset = false)
 {
@@ -1523,11 +1524,14 @@ function Download()
 
 /**
  * This loads an attachment's contextual data including, most importantly, its size if it is an image.
- *  Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
- *  (@todo change this pre-condition, too fragile and error-prone.)
- *  It requires the view_attachments permission to calculate image size.
- *  It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
- *  the max_image_width and max_image_height settings.
+ * Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
+ * (@todo change this pre-condition, too fragile and error-prone.)
+ * It requires the view_attachments permission to calculate image size.
+ * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
+ * the max_image_width and max_image_height settings.
+ *
+ * @param type $id_msg message number to load attachments for
+ * @return array of attachemnts
  */
 function loadAttachmentContext($id_msg)
 {

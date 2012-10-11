@@ -137,6 +137,12 @@ function AddLanguage()
 	$context['sub_template'] = 'add_language';
 }
 
+/**
+ * Gets a list of available languages from the mother ship
+ * Will return a subset if searching, otherwise all avaialble
+ *
+ * @return string
+ */
 function list_getLanguagesList()
 {
 	global $forum_version, $context, $sourcedir, $smcFunc, $txt, $scripturl;
@@ -214,7 +220,7 @@ function DownloadLanguage()
 
 		$chmod_files = array();
 		$install_files = array();
-		
+
 		// Check writable status.
 		foreach ($_POST['copy_file'] as $file)
 		{
