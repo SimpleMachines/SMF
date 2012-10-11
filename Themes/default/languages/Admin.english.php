@@ -559,8 +559,6 @@ $txt['managedrafts_settings'] = 'Draft Settings';
 $txt['managedrafts_settings_description'] = 'Here you can set all settings involving drafts.';
 $txt['managedrafts_submit'] = 'Save';
 $txt['manage_drafts'] = 'Drafts';
-$txt['drafts_autosave'] = 'Enable the autosaving of posts as drafts';
-$txt['drafts_autosave_frequency'] = 'How often should drafts be autosaved?';
 
 $txt['removeNestedQuotes'] = 'Remove nested quotes when quoting';
 $txt['enableEmbeddedFlash'] = 'Embed flash into posts';

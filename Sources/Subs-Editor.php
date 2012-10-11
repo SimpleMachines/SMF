@@ -1467,6 +1467,8 @@ function create_control_richedit($editorOptions)
 	{
 		// Some general stuff.
 		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			$context['drafts_autosave_frequency'] = empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000;
 
 		// This really has some WYSIWYG stuff.
 		loadTemplate('GenericControls', 'jquery.sceditor');
