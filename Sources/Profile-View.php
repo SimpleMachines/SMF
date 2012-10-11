@@ -619,6 +619,16 @@ function showAttachments($memID)
 
 }
 
+/**
+ * Get a list of attachments for this user
+ *
+ * @param type $start
+ * @param type $items_per_page
+ * @param type $sort
+ * @param type $boardsAllowed
+ * @param type $memID
+ * @return type
+ */
 function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $memID)
 {
 	global $smcFunc, $board, $modSettings, $context;
@@ -670,6 +680,13 @@ function list_getAttachments($start, $items_per_page, $sort, $boardsAllowed, $me
 	return $attachments;
 }
 
+/**
+ * Gets the total number of attachments for the user
+ *
+ * @param type $boardsAllowed
+ * @param type $memID
+ * @return type
+ */
 function list_getNumAttachments($boardsAllowed, $memID)
 {
 	global $board, $smcFunc, $modSettings, $context;

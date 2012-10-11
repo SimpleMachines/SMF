@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * Create a menu.
  * @param array $menuData
  * @param array $menuOptions = array()
- * @return bool|array
+ * @return boolean|array
  */
 function createMenu($menuData, $menuOptions = array())
 {
@@ -280,7 +280,7 @@ function createMenu($menuData, $menuOptions = array())
 /**
  * Delete a menu.
  * @param string $menu_id = 'last'
- * @return bool
+ * @return boolean
  */
 function destroyMenu($menu_id = 'last')
 {

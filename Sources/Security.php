@@ -760,7 +760,7 @@ function createToken($action, $type = 'post')
  * @param string $action
  * @param string $type = 'post' (get, request, or post)
  * @param bool $reset = true
- * @return bool
+ * @return boolean
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
@@ -848,7 +848,7 @@ function cleanTokens($complete = false)
  *
  * @param string $action
  * @param bool $is_fatal = true
- * @return bool
+ * @return boolean
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
@@ -894,7 +894,7 @@ function checkSubmitOnce($action, $is_fatal = true)
  *
  * @param string $permission
  * @param array $boards = null
- * @return bool if the user can do the permission
+ * @return boolean if the user can do the permission
  */
 function allowedTo($permission, $boards = null)
 {
@@ -1151,7 +1151,7 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
  * This function attempts to protect from spammed messages and the like.
  * The time taken depends on error_type - generally uses the modSetting.
  *
- * @param string $error_type, used also as a $txt index. (not an actual string.)
+ * @param string $error_type used also as a $txt index. (not an actual string.)
  * @return boolean
  */
 function spamProtection($error_type)
@@ -1210,9 +1210,9 @@ function spamProtection($error_type)
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
  *
- * @param string $path, the (absolute) directory path
- * @param boolean $attachments, if the directory is an attachments directory or not
- * @return true on success, error string if anything fails
+ * @param string $path the (absolute) directory path
+ * @param boolean $attachments if the directory is an attachments directory or not
+ * @return true on success error string if anything fails
  */
 function secureDirectory($path, $attachments = false)
 {

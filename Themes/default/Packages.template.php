@@ -1522,12 +1522,13 @@ function template_file_permissions()
 					<th align="center" width="8%"><span class="filepermissions">', $txt['package_file_perms_status_custom'], '</span></th>
 					<th class="last_th" align="center" width="8%"><span class="filepermissions">', $txt['package_file_perms_status_no_change'], '</span></th>
 				</tr>
-			</thead>';
+			</thead>
+			<tbody>';
 
 	foreach ($context['file_tree'] as $name => $dir)
 	{
 		echo '
-			<tbody>
+			
 				<tr class="windowbg2">
 					<td width="30%"><strong>';
 
@@ -1548,14 +1549,14 @@ function template_file_permissions()
 					<td align="center" class="perm_custom" width="8%"><input type="radio" name="permStatus[', $name, ']" value="custom" class="input_radio" /></td>
 					<td align="center" class="perm_nochange" width="8%"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked="checked" class="input_radio" /></td>
 				</tr>
-			</tbody>';
+			';
 
 		if (!empty($dir['contents']))
 			template_permission_show_contents($name, $dir['contents'], 1);
 	}
 
 	echo '
-
+			</tbody>
 		</table>
 		<br />
 		<div class="cat_bar">
@@ -1615,6 +1616,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 {
 	global $settings, $txt, $scripturl, $context;
 	$js_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident);
+	
 	// Have we actually done something?
 	$drawn_div = false;
 
@@ -1626,8 +1628,10 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 			{
 				$drawn_div = true;
 				echo '
+			</tbody>
 			</table>
-			<table border="0" width="100%" class="table_grid" id="', $js_ident, '">';
+			<table border="0" width="100%" class="table_grid" id="', $js_ident, '">
+			<tbody>';
 			}
 
 			$cur_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident . '/' . $name);
@@ -1686,10 +1690,12 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 		if ($level > 1 && !$isFound)
 			echo '
+		</tbody>
 		</table><script type="text/javascript"><!-- // --><![CDATA[
 			expandFolder(\'', $js_ident, '\', \'\');
 		// ]]></script>
 		<table border="0" width="100%" class="table_grid">
+			<tbody>
 			<tr style="display: none;"><td></td></tr>';
 	}
 }

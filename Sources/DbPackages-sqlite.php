@@ -83,12 +83,13 @@ function db_packages_init()
  *  	- 'ignore' will do nothing if the table exists. (And will return true)
  *  	- 'overwrite' will drop any existing table of the same name.
  *  	- 'error' will return false if the table already exists.
+ *
  * @param string $table_name
- * @param array $columns, in the format specified.
- * @param array $indexes, default array(), in the format specified.
- * @param array $parameters, default array()
- * @param string $if_exists, default 'ignore'
- * @param string $error, default 'fatal'
+ * @param array $columns in the format specified.
+ * @param array $indexes default array(), in the format specified.
+ * @param array $parameters default array()
+ * @param string $if_exists default 'ignore'
+ * @param string $error default 'fatal'
  */
 function smf_db_create_table($table_name, $columns, $indexes = array(), $parameters = array(), $if_exists = 'ignore', $error = 'fatal')
 {
@@ -196,9 +197,11 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 /**
  * Drop a table.
+ *
  * @param string $table_name
- * @param array $parameters, default array()
- * @param string $error, default 'fatal'
+ * @param array $parameters default array()
+ * @param bool $error
+ * @param string $error default 'fatal'
  */
 function smf_db_drop_table($table_name, $parameters = array(), $error = 'fatal')
 {
@@ -232,11 +235,12 @@ function smf_db_drop_table($table_name, $parameters = array(), $error = 'fatal')
 
 /**
  * This function adds a column.
- * @param string $table_name, the name of the table
- * @param array $column_info, with column information
- * @param array $parameters, default array()
- * @param string $if_exists, default 'update'
- * @param string $error, default 'fatal'
+ *
+ * @param string $table_name the name of the table
+ * @param array $column_info with column information
+ * @param array $parameters default array()
+ * @param string $if_exists default 'update'
+ * @param string $error default 'fatal'
  */
 function smf_db_add_column($table_name, $column_info, $parameters = array(), $if_exists = 'update', $error = 'fatal')
 {
@@ -268,11 +272,12 @@ function smf_db_add_column($table_name, $column_info, $parameters = array(), $if
 
 /**
  * Removes a column.
+ *
  * We can't reliably do this on SQLite - damn!
  * @param string $table_name
  * @param string $column_name
- * @param array $parameters, default array()
- * @param string $error, default 'fatal'
+ * @param array $parameters default array()
+ * @param string $error default 'fatal'
  */
 function smf_db_remove_column($table_name, $column_name, $parameters = array(), $error = 'fatal')
 {
@@ -288,11 +293,12 @@ function smf_db_remove_column($table_name, $column_name, $parameters = array(), 
 
 /**
  * Change a column.
+ *
  * @param string $table_name
  * @param $old_column
  * @param $column_info
- * @param array $parameters, default array()
- * @param string $error, default 'fatal'
+ * @param array $parameters default array()
+ * @param string $error default 'fatal'
  */
 function smf_db_change_column($table_name, $old_column, $column_info, $parameters = array(), $error = 'fatal')
 {
@@ -308,11 +314,12 @@ function smf_db_change_column($table_name, $old_column, $column_info, $parameter
 
 /**
  * Add an index.
+ *
  * @param string $table_name
  * @param array $index_info
- * @param array $parameters, default array()
- * @param string $if_exists, default 'update'
- * @param string $error, default 'fatal'
+ * @param array $parameters default array()
+ * @param string $if_exists default 'update'
+ * @param string $error default 'fatal'
  */
 function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_exists = 'update', $error = 'fatal')
 {
@@ -373,10 +380,11 @@ function smf_db_add_index($table_name, $index_info, $parameters = array(), $if_e
 
 /**
  * Remove an index.
+ *
  * @param string $table_name
  * @param string $index_name
- * @param array$parameters, default array()
- * @param string $error, default 'fatal'
+ * @param array$parameters default array()
+ * @param string $error default 'fatal'
  */
 function smf_db_remove_index($table_name, $index_name, $parameters = array(), $error = 'fatal')
 {
@@ -410,6 +418,7 @@ function smf_db_remove_index($table_name, $index_name, $parameters = array(), $e
 
 /**
  * Get the schema formatted name for a type.
+ *
  * @param string $type_name
  * @param $type_size
  * @param $reverse
@@ -451,8 +460,9 @@ function smf_db_calculate_type($type_name, $type_size = null, $reverse = false)
 
 /**
  * Get table structure.
+ *
  * @param string $table_name
- * @param array $parameters, default array()
+ * @param array $parameters default array()
  */
 function smf_db_table_structure($table_name, $parameters = array())
 {
@@ -470,9 +480,10 @@ function smf_db_table_structure($table_name, $parameters = array())
 /**
  * Return column information for a table.
  * Harder than it should be, on sqlite!
+ *
  * @param string $table_name
  * @param bool $detail
- * @param array $parameters, default array()
+ * @param array $parameters default array()
  * @return mixed
  */
 function smf_db_list_columns($table_name, $detail = false, $parameters = array())
@@ -535,6 +546,7 @@ function smf_db_list_columns($table_name, $detail = false, $parameters = array()
 
 /**
  * Get index information.
+ *
  * @param string $table_name
  * @param bool $detail
  * @param array $parameters
@@ -596,6 +608,7 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 
 /**
  * Alter table on SQLite.
+ *
  * @param string $table_name
  * @param array $columns
  */

@@ -250,7 +250,7 @@ function Who()
  * Adding actions to the Who's Online list:
  * Adding actions to this list is actually relatively easy...
  *  - for actions anyone should be able to see, just add a string named whoall_ACTION.
-*     (where ACTION is the action used in index.php.)
+ *    (where ACTION is the action used in index.php.)
  *  - for actions that have a subaction which should be represented differently, use whoall_ACTION_SUBACTION.
  *  - for actions that include a topic, and should be restricted, use whotopic_ACTION.
  *  - for actions that use a message, by msg or quote, use whopost_ACTION.
@@ -259,11 +259,9 @@ function Who()
  *    use whoallow_ACTION and add a list of possible permissions to the
  *    $allowedActions array, using ACTION as the key.
  *
- * @param mixed $urls, a single url (string) or an array of arrays, each
- * inner array being (serialized request data, id_member)
+ * @param mixed $urls  a single url (string) or an array of arrays, each inner array being (serialized request data, id_member)
  * @param string $preferred_prefix = false
- * @return array, an array of descriptions if you passed an array, otherwise
- * the string describing their current location.
+ * @return array, an array of descriptions if you passed an array, otherwise the string describing their current location.
  */
 function determineActions($urls, $preferred_prefix = false)
 {

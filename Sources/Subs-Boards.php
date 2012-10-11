@@ -1178,7 +1178,7 @@ function recursiveBoards(&$_boardList, &$_tree)
  * Returns whether the child board id is actually a child of the parent (recursive).
  * @param int $child
  * @param int $parent
- * @return bool
+ * @return boolean
  */
 function isChildOf($child, $parent)
 {

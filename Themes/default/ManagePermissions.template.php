@@ -548,9 +548,9 @@ function template_modify_group()
 		else
 			template_modify_group_classic('board');
 
+		echo '
+			</div>';
 	}
-	echo '
-		</div>';
 
 	if ($context['profile']['can_modify'])
 		echo '

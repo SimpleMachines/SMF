@@ -19,6 +19,13 @@ if (!defined('SMF'))
 /**
  *  Maps the implementations in this file (smf_db_function_name)
  *  to the $smcFunc['db_function_name'] variable.
+ *
+ * @param string $db_server
+ * @param string $db_name
+ * @param string $db_user
+ * @param string $db_passwd
+ * @param string $db_prefix
+ * @param array $db_options
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options = array())
 {
@@ -90,7 +97,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
  * Extend the database functionality. It calls the respective file's init
  * to add the implementations in that file to $smcFunc array.
  *
- * @param string $type, indicated which additional file to load. ('extra', 'packages')
+ * @param string $type indicated which additional file to load. ('extra', 'packages')
  */
 function db_extend($type = 'extra')
 {
@@ -104,6 +111,9 @@ function db_extend($type = 'extra')
 /**
  * Fix db prefix if necessary.
  * SQLite doesn't actually need this!
+ *
+ * @param type $db_prefix
+ * @param type $db_name
  */
 function db_fix_prefix(&$db_prefix, $db_name)
 {
@@ -222,6 +232,10 @@ function smf_db_replacement__callback($matches)
 /**
  * Just like the db_query, escape and quote a string,
  * but not executing the query.
+ *
+ * @param string $db_string
+ * @param string $db_values
+ * @param resource $connection
  */
 function smf_db_quote($db_string, $db_values, $connection = null)
 {
@@ -245,6 +259,11 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 
 /**
  * Do a query.  Takes care of errors too.
+ *
+ * @param string $identifier
+ * @param string $db_string
+ * @param string $db_values
+ * @param resource $connection
  */
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
@@ -391,6 +410,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 /**
  * affected_rows
+ *
  * @param resource $connection
  */
 function smf_db_affected_rows($connection = null)

@@ -329,7 +329,7 @@ function displayDebug()
  * It depends on the trackStats setting.
  *
  * @param array $stats = array()
- * @return bool|array
+ * @return boolean|array
  */
 function trackStats($stats = array())
 {
@@ -389,9 +389,10 @@ function trackStats($stats = array())
  * @example logAction('remove', array('starter' => $id_member_started));
  *
  * @deprecated deprecated since version 2.1
+ *
  * @param string $action
  * @param array $extra = array()
- * @param string $log_type, options 'moderate', 'admin', ...etc.
+ * @param string $log_type options: 'moderate', 'admin', ...etc.
  */
 function logAction($action, $extra = array(), $log_type = 'moderate')
 {

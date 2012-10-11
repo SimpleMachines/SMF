@@ -3,7 +3,7 @@
 /**
  * The contents of this file handle the deletion of topics, posts, and related
  * paraphernalia.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -1231,7 +1231,11 @@ function RestoreTopic()
 }
 
 /**
- * Take a load of messages from one place and stick them in a topic.
+ * Take a load of messages from one place and stick them in a topic
+ *
+ * @param array $msgs
+ * @param integer $from_topic
+ * @param integer $target_topic
  */
 function mergePosts($msgs = array(), $from_topic, $target_topic)
 {

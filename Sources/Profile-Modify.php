@@ -2334,7 +2334,7 @@ function ignoreboards($memID)
 
 /**
  * Load all the languages for the profile.
- * @return bool
+ * @return boolean
  */
 function profileLoadLanguages()
 {
@@ -2892,7 +2892,7 @@ function profileSaveAvatarData(&$value)
  * Validate the signature
  *
  * @param mixed &$value
- * @return bool|string
+ * @return boolean|string
  */
 function profileValidateSignature(&$value)
 {
@@ -3076,7 +3076,7 @@ function profileValidateSignature(&$value)
  *
  * @param string $email
  * @param int $memID = 0
- * @return bool|string
+ * @return boolean|string
  */
 function profileValidateEmail($email, $memID = 0)
 {

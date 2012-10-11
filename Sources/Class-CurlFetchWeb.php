@@ -1,7 +1,19 @@
 <?php
 /**
- *
  * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2012 Simple Machines
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Alpha 1
+ */
+
+if (!defined('SMF'))
+	die('Hacking attempt...');
+
+/**
  * Simple cURL class to fetch a web page
  * Properly redirects even with safe mode and basedir restrictions
  * Can provide simple post options to a page
@@ -23,20 +35,14 @@
  *  - $fetch_data->result(); // an array of results, body, header, http result codes
  *  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
  *  - $fetch_data->result_raw(0); // show all results of call x
- *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Alpha 1
  */
-
-if (!defined('SMF'))
-	die('Hacking attempt...');
-
 class curl_fetch_web_data
 {
+	/**
+	 * Set the default itmes for this class
+	 *
+	 * @var type
+	 */
 	private $default_options = array(
 		CURLOPT_RETURNTRANSFER	=> 1, // Get returned value as a string (don't output it)
 		CURLOPT_HEADER			=> 1, // We need the headers to do our own redirect
@@ -55,8 +61,8 @@ class curl_fetch_web_data
 	* Start the curl object
 	* - allow for user override values
 	*
-	* @param type $options, cURL options as an array
-	* @param type $max_redirect, use to overide the default of 3
+	* @param type $options cURL options as an array
+	* @param type $max_redirect use to overide the default of 3
 	*/
 	public function __construct($options = array(), $max_redirect = 3)
 	{
@@ -72,8 +78,8 @@ class curl_fetch_web_data
 	*  - passed arrays will be converted to a post string joined with &'s
 	*  - calls set_options to set the curl opts array values based on the defaults and user input
 	*
-	* @param type $url, the site we are going to fetch
-	* @param type $post_data, any post data as form name => value
+	* @param type $url the site we are going to fetch
+	* @param type $post_data any post data as form name => value
 	*/
 	public function get_url_data($url, $post_data = array())
 	{
@@ -95,8 +101,8 @@ class curl_fetch_web_data
 	*  - stores responses (url, code, error, headers, body) in the response array
 	*  - detects 301, 302, 307 codes and will redirect to the given response header location
 	*
-	* @param type $url, site to fetch
-	* @param type $redirect, flag to indicate if this was a redirect request or not
+	* @param type $url site to fetch
+	* @param type $redirect flag to indicate if this was a redirect request or not
 	* @return boolean
 	*/
 	private function curl_request($url, $redirect = false)
@@ -151,8 +157,8 @@ class curl_fetch_web_data
 	/**
 	* Used if being redirected to ensure we have a fully qualified address
 	*
-	* @param type $last_url, where we went to
-	* @param type $new_url, where we were redirected to
+	* @param type $last_url where we went to
+	* @param type $new_url where we were redirected to
 	* @return new url location
 	*/
 	private function get_redirect_url($last_url = '', $new_url = '')
@@ -176,7 +182,7 @@ class curl_fetch_web_data
 	*  - called as ->result() will return the full final array
 	*  - called as ->result('body') to just return the page source of the result
 	*
-	* @param type $area, used to return an area such as body, header, error
+	* @param type $area used to return an area such as body, header, error
 	* @return type
 	*/
 	public function result($area = '')

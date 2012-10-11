@@ -482,6 +482,8 @@ function ModifyCoreFeatures($return_config = false)
 }
 
 /**
+ * Config array for chaning the basic forum settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=basic;
  *
  * @param $return_config
  */
@@ -624,6 +626,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 }
 
 /**
+ * Allows modifying the global layout settings in the forum
+ * Accessed through ?action=admin;area=featuresettings;sa=layout;
  *
  * @param $return_config
  */
@@ -676,6 +680,8 @@ function ModifyLayoutSettings($return_config = false)
 }
 
 /**
+ * Config array for chaning the karma settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=karma;
  *
  * @param $return_config
  */
@@ -2191,6 +2197,11 @@ function ModifyGeneralModSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
+/**
+ * Generates a list of integration hooks for display
+ * Accessed through ?action=admin;area=modsettings;sa=hooks;
+ * Allows for removal or disabing of selected hooks
+ */
 function list_integration_hooks()
 {
 	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
@@ -2369,6 +2380,12 @@ function list_integration_hooks()
 	$context['default_list'] = 'list_integration_hooks';
 }
 
+/**
+ * Gets all of the files in a directory and its chidren directories
+ *
+ * @param type $dir_path
+ * @return array
+ */
 function get_files_recursive($dir_path)
 {
 	$files = array();
@@ -2391,6 +2408,16 @@ function get_files_recursive($dir_path)
 	return $files;
 }
 
+/**
+ * Callback function for the integration hooks list (list_integration_hooks)
+ * Gets all of the hooks in the system and their status
+ * Would be better documented if Ema was not lazy
+ *
+ * @param type $start
+ * @param type $per_page
+ * @param type $sort
+ * @return array
+ */
 function get_integration_hooks_data($start, $per_page, $sort)
 {
 	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl, $modSettings;
@@ -2549,6 +2576,13 @@ function get_integration_hooks_data($start, $per_page, $sort)
 	return $hooks_data;
 }
 
+/**
+ * Simply returns the total count of integraion hooks
+ * Used but the intergation hooks list function (list_integration_hooks)
+ *
+ * @global type $context
+ * @return int
+ */
 function get_integration_hooks_count()
 {
 	global $context;
@@ -2569,6 +2603,12 @@ function get_integration_hooks_count()
 	return $hooks_count;
 }
 
+/**
+ * Parses modSettings to create integration hook array
+ * 
+ * @staticvar type $integration_hooks
+ * @return type
+ */
 function get_integration_hooks()
 {
 	global $modSettings;

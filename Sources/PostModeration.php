@@ -602,13 +602,10 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
 
 /**
  * Callback function for UnapprovedAttachments
- * count all the attachments waiting for approval the approver can approve
+ * count all the attachments waiting for approval that this approver can approve
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
  * @param string $approve_query additional restrictions based on the boards the approver can see
- * @return int, the number of unapproved attachments
+ * @return int the number of unapproved attachments
  */
 function list_getNumUnapprovedAttachments($approve_query)
 {

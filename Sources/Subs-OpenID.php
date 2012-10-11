@@ -81,7 +81,7 @@ function smf_openID_validate($openid_uri, $return = false, $save_fields = array(
 
 /**
  * Revalidate a user using OpenID. Note that this function will not return when authentication is required.
- * @return bool
+ * @return boolean
  */
 function smf_openID_revalidate()
 {
@@ -520,7 +520,7 @@ function smf_openid_generate_private_key()
  *
  * Enter description here ...
  * @param string $openid_url
- * @return bool|array
+ * @return boolean|array
  */
 function smf_openID_getServerInfo($openid_url)
 {
