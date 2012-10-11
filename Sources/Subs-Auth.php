@@ -511,19 +511,7 @@ function RequestMembers()
 		$row['real_name'] = strtr($row['real_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
 
 		if (preg_match('~&#\d+;~', $row['real_name']) != 0)
-		{
-			$fixchar = create_function('$n', '
-				if ($n < 128)
-					return chr($n);
-				elseif ($n < 2048)
-					return chr(192 | $n >> 6) . chr(128 | $n & 63);
-				elseif ($n < 65536)
-					return chr(224 | $n >> 12) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);
-				else
-					return chr(240 | $n >> 18) . chr(128 | $n >> 12 & 63) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);');
-
-			$row['real_name'] = preg_replace('~&#(\d+);~e', '$fixchar(\'$1\')', $row['real_name']);
-		}
+			$row['real_name'] = preg_replace_callback('~&#(\d+);~', 'fixchar__callback', $row['real_name']);
 
 		echo $row['real_name'], "\n";
 	}

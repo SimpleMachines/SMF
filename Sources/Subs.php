@@ -4262,4 +4262,122 @@ function sanitizeMSCutPaste($string)
 	return $string;
 }
 
+/**
+ * Decode numeric html entities to their ascii or UTF8 equivalent character.
+ *
+ * Callback function for preg_replace_callback in subs-members
+ * Uses capture group 2 in the supplied array
+ * Does basic scan to ensure characters are inside a valid range
+ *
+ * @param array $matches
+ * @return string $string
+*/
+function replaceEntities__callback($matches)
+{
+	global $context;
+	
+	if (!isset($matches[2]))
+		return '';
+
+	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
+	
+	// remove left to right / right to left overrides
+	if ($num === 0x202D || $num === 0x202E) 
+		return '';
+	
+	// Quote, Ampersand, Apostrophe, Less/Greater Than get html replaced
+	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E))) 
+		return '&#' . $num . ';';
+
+	if (empty($context['utf8']))
+	{
+		// no control characters
+		if ($num < 0x20)
+			return '';
+		// text is text
+		elseif ($num < 0x80)
+			return chr($num);
+		// all others get html-ised
+		else
+			return '&#' . $matches[2] . ';';
+	}
+	else
+	{
+		// <0x20 are control characters, 0x20 is a space, > 0x10FFFF is past the end of the utf8 character set
+		// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
+		if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
+			return '';
+		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
+		elseif ($num < 0x80)
+			return chr($num);
+		// <0x800 (2048)
+		elseif ($num < 0x800)
+			return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
+		// < 0x10000 (65536)
+		elseif ($num < 0x10000)
+			return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+		// <= 0x10FFFF (1114111)
+		else
+			return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+	}
+}
+
+/**
+ * Converts html entities to utf8 equivalents
+ *
+ * Callback function for preg_replace_callback
+ * Uses capture group 1 in the supplied array
+ * Does basic checks to keep characters inside a viewable range.
+ *
+ * @param array $matches
+ * @return string $string
+*/
+function fixchar__callback($matches)
+{
+	if (!isset($matches[1]))
+		return '';
+	
+	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
+
+	// <0x20 are control characters, > 0x10FFFF is past the end of the utf8 character set
+	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text), 0x202D-E are left to right overrides
+	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202D || $num === 0x202E)
+		return '';
+	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
+	elseif ($num < 0x80)
+		return chr($num);
+	// <0x800 (2048)
+	elseif ($num < 0x800)
+		return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
+	// < 0x10000 (65536)
+	elseif ($num < 0x10000)
+		return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+	// <= 0x10FFFF (1114111)
+	else
+		return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+}
+
+/**
+ * Strips out invalid html entities, replaces others with html style &#123; codes
+ *
+ * Callback function used of preg_replace_callback in smcFunc $ent_checks, for example
+ * strpos, strlen, substr etc
+ *
+ * @param array $matches
+ * @return string $string
+*/
+function entity_fix__callback($matches)
+{
+	if (!isset($matches[2]))
+		return '';
+	
+	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
+	
+	// we don't allow control characters, characters out of range, byte markers, etc
+	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num == 0x202D || $num == 0x202E)
+		return '';
+	else
+		return '&#' . $num . ';';
+}
+
 ?>

@@ -866,14 +866,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 {
 	global $user_info, $modSettings, $smcFunc, $context;
 
-	// No cheating with entities please.
-	$replaceEntities = create_function('$string', '
-		$num = substr($string, 0, 1) === \'x\' ? hexdec(substr($string, 1)) : (int) $string;' . (empty($context['utf8']) ? '
-		return $num < 0x20 ? \'\' : ($num < 0x80 ? chr($num) : \'&#\' . $string . \';\');' : '
-		return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) ? \'\' : ($num < 0x80 ? chr($num) : ($num < 0x800 ? chr(192 | $num >> 6) . chr(128 | $num & 63) : ($num < 0x10000 ? chr(224 | $num >> 12) . chr(128 | $num >> 6 & 63) . chr(128 | $num & 63) : chr(240 | $num >> 18) . chr(128 | $num >> 12 & 63) . chr(128 | $num >> 6 & 63) . chr(128 | $num & 63))));')
-	);
-
-	$name = preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e', '$replaceEntities(\'\\2\')', $name);
+	$name = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $name);
 	$checkName = $smcFunc['strtolower']($name);
 
 	// Administrators are never restricted ;).
@@ -890,7 +883,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 				continue;
 
 			// The admin might've used entities too, level the playing field.
-			$reservedCheck = preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e', '$replaceEntities(\'\\2\')', $reserved);
+			$reservedCheck = preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $reserved);
 
 			// Case sensitive name?
 			if (empty($modSettings['reserveCase']))

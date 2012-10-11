@@ -1211,17 +1211,7 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 					$string = $newstring;
 			}
 
-			$fixchar = create_function('$n', '
-				if ($n < 128)
-					return chr($n);
-				elseif ($n < 2048)
-					return chr(192 | $n >> 6) . chr(128 | $n & 63);
-				elseif ($n < 65536)
-					return chr(224 | $n >> 12) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);
-				else
-					return chr(240 | $n >> 18) . chr(128 | $n >> 12 & 63) . chr(128 | $n >> 6 & 63) . chr(128 | $n & 63);');
-
-			$string = preg_replace('~&#(\d{3,8});~e', '$fixchar(\'$1\')', $string);
+			$string = preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $string);
 
 			// Unicode, baby.
 			$charset = 'UTF-8';
