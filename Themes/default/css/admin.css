@@ -658,6 +658,12 @@ pre.file_content {
 .operation {
 	padding: 0 1em;
 }
+/* Styles for the themes settings.
+------------------------------------------------- */
+#theme_edit_links_dd {
+	float: left;
+}
+
 
 /* Styles for the file permissions section.
 ------------------------------------------------- */

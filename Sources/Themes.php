@@ -735,7 +735,7 @@ function SetThemeOptions()
  */
 function SetThemeSettings()
 {
-	global $txt, $context, $settings, $modSettings, $sourcedir, $smcFunc;
+	global $txt, $context, $settings, $modSettings, $sourcedir, $smcFunc, $scripturl;
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
@@ -778,6 +778,65 @@ function SetThemeSettings()
 	loadTemplate('Settings');
 	loadSubTemplate('settings');
 
+	$context['sub_template'] = 'set_settings';
+	$context['sub_template'] = 'show_settings';
+	$context['page_title'] = $txt['theme_settings'];
+	$context['post_url'] = $scripturl . '?action=admin;area=theme;sa=list;save;th=' . $_GET['th'];
+
+	foreach ($settings as $setting => $dummy)
+	{
+		if (!in_array($setting, array('theme_url', 'theme_dir', 'images_url', 'template_dirs')))
+			$settings[$setting] = htmlspecialchars__recursive($settings[$setting]);
+	}
+
+	$theme_settings = array();
+	$theme_values = array();
+
+	$count_themeid = 0;
+	if ($settings['theme_id'] != 1)
+	{
+		$count_themeid = 2;
+		$theme_settings[] = array(
+			0 => '',
+			1 => 'theme_edit',
+			'type' => 'title',
+			'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_edit'],
+		);
+		$theme_settings[] = array(
+			0 => 'message',
+			1 => 'theme_edit_links',
+			'label' => '
+					<ul class="reset">
+						<li>
+							<a href="' . $scripturl . '?action=admin;area=theme;th=' . $settings['theme_id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;filename=index.template.php">' . $txt['theme_edit_index'] . '</a>
+						</li>
+						<li>
+							<a href="' . $scripturl . '?action=admin;area=theme;th=' . $settings['theme_id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=css">' . $txt['theme_edit_style'] . '</a>
+						</li>
+					</ul>',
+			'force_div_id' => 'theme_edit_links',
+		);
+	}
+
+	$theme_settings[] = array(
+		0 => '',
+		1 => 'theme_url_config',
+		'type' => 'title',
+		'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_url_config'],
+	);
+	foreach (array('name', 'theme_url', 'images_url', 'theme_dir') as $setting)
+	{
+		$theme_settings[] = array(
+			0 => 'text',
+			1 => $setting,
+			2 => 50,
+			'text_label' => $txt['actual_' . (substr($setting, 0, 6) == 'theme_' ? '' : 'theme_') . $setting],
+			'array' => 'options',
+		);
+		$theme_values[$setting] = !isset($settings[$setting]) ? '' : $settings[$setting];
+	}
+
+	$count_variants = 0;
 	// Load the variants separately...
 	$settings['theme_variants'] = array();
 	if (file_exists($settings['theme_dir'] . '/index.template.php'))
@@ -785,45 +844,142 @@ function SetThemeSettings()
 		$file_contents = implode('', file($settings['theme_dir'] . '/index.template.php'));
 		if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
 				eval('global $settings;' . $matches[0]);
+
+		if (!empty($settings['theme_variants']))
+		{
+			$count_variants = 4;
+
+			$theme_settings[] = array(
+				0 => '',
+				1 => 'theme_variants',
+				'type' => 'title',
+				'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_variants'],
+				'array' => 'options',
+			);
+
+			$theme_variants = array();
+			$variants_values = array();
+			foreach ($settings['theme_variants'] as $variant)
+			{
+				// Have any text, old chap?
+				$theme_variants[$variant] = array(
+					'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
+					'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
+				);
+				$variants_values[$variant] = $variant;
+			}
+
+			$theme_settings[] = array(
+				0 => 'select',
+				1 => 'default_variant',
+				2 => $variants_values,
+				'text_label' => $txt['theme_variants_default'],
+				'onchange' => 'changeVariant(this.value)',
+				'array' => 'options',
+			);
+			$theme_values['default_variant'] = !empty($settings['default_variant']) && isset($theme_variants[$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
+
+			$theme_settings[] = array(
+				0 => 'check',
+				1 => 'disable_user_variant',
+				'text_label' => $txt['theme_variants_user_disable'],
+				'array' => 'options',
+			);
+			$theme_values['disable_user_variant'] = !isset($settings['disable_user_variant']) ? '' : $settings['disable_user_variant'];
+
+			$theme_settings[] = array(
+				0 => 'message',
+				1 => 'variant_preview',
+				'label' => '<img src="' . $theme_variants[$theme_values['default_variant']]['thumbnail'] . '" id="variant_preview" alt="" />',
+				'array' => 'options',
+			);
+
+		$context['settings_post_javascript'] = '
+		var oThumbnails = {';
+
+		// All the variant thumbnails.
+		$count = 1;
+		foreach ($theme_variants as $key => $variant)
+		{
+			$context['settings_post_javascript'] .= '
+			\'' . $key . '\': \'' . $variant['thumbnail'] . '\'' . (count($theme_variants) == $count ? '' : ',');
+			$count++;
+		}
+
+		$context['settings_post_javascript'] .= '
+		};';
+		}
 	}
 
-	// Submitting!
-	if (isset($_POST['save']))
+	$theme_settings[] = array(
+		0 => '',
+		1 => 'theme_options',
+		'type' => 'title',
+		'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_options'],
+	);
+
+	foreach ($context['theme_settings'] as $i => $setting)
 	{
-		checkSession();
-		validateToken('admin-sts');
-
-		if (empty($_POST['options']))
-			$_POST['options'] = array();
-		if (empty($_POST['default_options']))
-			$_POST['default_options'] = array();
-
-		// Make sure items are cast correctly.
-		foreach ($context['theme_settings'] as $item)
+		$id = $i + $count_themeid + 6 + $count_variants;
+		// Separators are dummies, so leave them alone.
+		if (!is_array($setting))
 		{
-			// Disregard this item if this is just a separator.
-			if (!is_array($item))
-				continue;
-
-			foreach (array('options', 'default_options') as $option)
-			{
-				if (!isset($_POST[$option][$item['id']]))
-					continue;
-				// Checkbox.
-				elseif (empty($item['type']))
-					$_POST[$option][$item['id']] = $_POST[$option][$item['id']] ? 1 : 0;
-				// Number
-				elseif ($item['type'] == 'number')
-					$_POST[$option][$item['id']] = (int) $_POST[$option][$item['id']];
-			}
+			$theme_settings[$id] = '';
+			continue;
 		}
+
+		if (!isset($setting['type']) || $setting['type'] == 'bool')
+			$theme_settings[$id][0] = 'check';
+		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer' || $setting['type'] == 'number')
+			$theme_settings[$id][0] = 'int';
+		elseif ($setting['type'] == 'string' || $setting['type'] == 'text')
+			$theme_settings[$id][0] = 'text';
+
+		$theme_settings[$id] += array(
+			1 => $setting['id'],
+			'text_label' => $setting['label'],
+			'array' => !empty($setting['default']) ? 'default_options' : 'options',
+		);
+
+		if (isset($setting['options']))
+		{
+			$theme_settings[$id][0] = 'select';
+			foreach ($setting['options'] as $l => $v)
+				$theme_settings[$id][2][$l] = $v;
+		}
+
+		$theme_values[$setting['id']] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
+	}
+
+	// Restore the current theme.
+	loadTheme($old_id, false);
+
+	// Reinit just incase.
+	loadSubTemplate('init', 'ignore');
+
+	$settings = $old_settings;
+
+	loadTemplate('Themes');
+	loadTemplate('Admin');
+	require_once($sourcedir . '/ManageServer.php');
+	$context['settings_title']= '<a href="' . $scripturl . '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" alt="' . $txt['help'] . '" class="icon" /></a> ' . $txt['theme_settings'] . ' - ' . $settings['name'];
+
+	// Submitting!
+	if (isset($_REQUEST['save']))
+	{
+		validateToken('admin-sts');
+		checkSession();
+
+		$saveOptions = saveDBSettings($theme_settings, true);
 
 		// Set up the sql query.
 		$inserts = array();
-		foreach ($_POST['options'] as $opt => $val)
-			$inserts[] = array(0, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val);
-		foreach ($_POST['default_options'] as $opt => $val)
-			$inserts[] = array(0, 1, $opt, is_array($val) ? implode(',', $val) : $val);
+		if (!empty($saveOptions['options']))
+			foreach ($saveOptions['options'] as $opt => $val)
+				$inserts[] = array(0, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val);
+		if (!empty($saveOptions['default_options']))
+			foreach ($saveOptions['default_options'] as $opt => $val)
+				$inserts[] = array(0, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 		// If we're actually inserting something..
 		if (!empty($inserts))
 		{
@@ -844,64 +1000,13 @@ function SetThemeSettings()
 		redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	$context['sub_template'] = 'set_settings';
-	$context['page_title'] = $txt['theme_settings'];
-
-	foreach ($settings as $setting => $dummy)
-	{
-		if (!in_array($setting, array('theme_url', 'theme_dir', 'images_url', 'template_dirs')))
-			$settings[$setting] = htmlspecialchars__recursive($settings[$setting]);
-	}
-
-	$context['settings'] = $context['theme_settings'];
-	$context['theme_settings'] = $settings;
-
-	foreach ($context['settings'] as $i => $setting)
-	{
-		// Separators are dummies, so leave them alone.
-		if (!is_array($setting))
-			continue;
-
-		if (!isset($setting['type']) || $setting['type'] == 'bool')
-			$context['settings'][$i]['type'] = 'checkbox';
-		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
-			$context['settings'][$i]['type'] = 'number';
-		elseif ($setting['type'] == 'string')
-			$context['settings'][$i]['type'] = 'text';
-
-		if (isset($setting['options']))
-			$context['settings'][$i]['type'] = 'list';
-
-		$context['settings'][$i]['value'] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
-	}
-
-	// Do we support variants?
-	if (!empty($settings['theme_variants']))
-	{
-		$context['theme_variants'] = array();
-		foreach ($settings['theme_variants'] as $variant)
-		{
-			// Have any text, old chap?
-			$context['theme_variants'][$variant] = array(
-				'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
-				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
-			);
-		}
-		$context['default_variant'] = !empty($settings['default_variant']) && isset($context['theme_variants'][$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	}
-
-	// Restore the current theme.
-	loadTheme($old_id, false);
-
-	// Reinit just incase.
-	loadSubTemplate('init', 'ignore');
-
-	$settings = $old_settings;
-
-	loadTemplate('Themes');
+	prepareDBSettingContext($theme_settings, $theme_values);
 
 	// We like Kenny better than Token.
 	createToken('admin-sts');
+	$context['hidden_fields'][$context['admin-sts_token_var']] = $context['admin-sts_token'];
+	if (isset($_GET['who']) && $_GET['who'] == 1)
+		$context['hidden_fields']['who'] = 1;
 }
 
 /**
