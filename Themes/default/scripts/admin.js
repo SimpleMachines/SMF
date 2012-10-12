@@ -450,10 +450,10 @@ function changeVariant(sVariant, theme_id)
 		document.getElementById('variant_preview').src = oThumbnails[sVariant];
 	else
 	{
-		document.getElementById('theme_thumb_' + theme_id).src = oThumbnails[sVariant];
-		document.getElementById('theme_use_' + theme_id).href = sBaseUseUrl + theme_id + ';vrt=' + sVariant;
-		document.getElementById('theme_thumb_preview_' + theme_id).href = sBasePreviewUrl + theme_id + ';vrt=' + sVariant + ';variant=' + sVariant;
-		document.getElementById('theme_preview_' + theme_id).href = sBasePreviewUrl + theme_id + ';vrt=' + sVariant + ';variant=' + sVariant;
+		document.getElementById('theme_thumb_' + theme_id).src = oThumbnails[theme_id][sVariant];
+		document.getElementById('theme_use_' + theme_id).href = sBaseUseUrl[theme_id] + ';vrt=' + sVariant;
+		document.getElementById('theme_thumb_preview_' + theme_id).href = sBasePreviewUrl[theme_id] + ';vrt=' + sVariant + ';variant=' + sVariant;
+		document.getElementById('theme_preview_' + theme_id).href = sBasePreviewUrl[theme_id] + ';vrt=' + sVariant + ';variant=' + sVariant;
 	}
 }
 

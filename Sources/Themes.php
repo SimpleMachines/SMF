@@ -1092,6 +1092,7 @@ function PickTheme()
 
 	loadLanguage('Profile');
 	loadTemplate('Themes');
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
 
 	// Build the link tree.
 	$context['linktree'][] = array(

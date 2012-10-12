@@ -378,9 +378,12 @@ function template_pick()
 		{
 			echo '
 			<script type="text/javascript"><!-- // --><![CDATA[
-			var sBaseUseUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
-			var sBasePreviewUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
-			var oThumbnails', $theme['id'], ' = {';
+			var sBaseUseUrl = new Array();
+			var sBasePreviewUrl = new Array();
+			var oThumbnails = new Array();
+			sBaseUseUrl[', $theme['id'], '] = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
+			sBasePreviewUrl[', $theme['id'], '] = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
+			oThumbnails[', $theme['id'], '] = {';
 
 			// All the variant thumbnails.
 			$count = 1;
