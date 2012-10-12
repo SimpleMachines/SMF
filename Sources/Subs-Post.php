@@ -1159,6 +1159,9 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
 	}
 
+	// Integrated After PMs
+	call_integration_hook('integrate_personal_message_after', array(&$id_pm, &$log, &$recipients, &$from, &$subject, &$message));
+
 	// Back to what we were on before!
 	loadLanguage('index+PersonalMessage');
 
