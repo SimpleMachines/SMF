@@ -765,7 +765,7 @@ function createToken($action, $type = 'post')
 function validateToken($action, $type = 'post', $reset = true)
 {
 	global $modSettings;
-return true;
+
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
 	// Logins are special: the token is used to has the password with javascript before POST it

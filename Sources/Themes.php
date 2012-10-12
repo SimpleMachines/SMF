@@ -472,7 +472,6 @@ function SetThemeOptions()
 				'guest_member' => -1,
 			)
 		);
-		$themeCurOpt = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$themeCurOpt[$row['variable']] = $row['value'];
 		$smcFunc['db_free_result']($request);
