@@ -117,6 +117,11 @@ function template_main()
 		}
 		echo '
 			</tbody>
+			<tbody class="divider">
+				<tr>
+					<td colspan="4"></td>
+				</tr>
+			</tbody>
 		</table>
 	</div>';
 	}
