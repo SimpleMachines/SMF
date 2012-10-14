@@ -510,6 +510,7 @@ function Display()
 	// Set the topic's information for the template.
 	$context['subject'] = $topicinfo['subject'];
 	$context['num_views'] = $topicinfo['num_views'];
+	$context['num_views_text'] = $context['num_views'] == 1 ? $txt['read_one_time'] : sprintf($txt['read_many_times'], $context['num_views']);
 	$context['mark_unread_time'] = !empty($virtual_msg) ? $virtual_msg : $topicinfo['new_from'];
 
 	// Set a canonical URL for this page.
@@ -1286,6 +1287,8 @@ function prepareDisplayContext($reset = false)
 
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
+	if (!empty($output['modified']['name']))
+		$output['modified']['last_edit_text'] = sprintf($txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
 
 	call_integration_hook('integrate_prepare_display_context', array($output, $message));
 

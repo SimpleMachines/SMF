@@ -213,7 +213,7 @@ $txt['attach_php_error'] = 'Due to an error, your attachment could not be upload
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';
 $txt['php_upload_error_3'] = 'The uploaded file was only partially uploaded. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_4'] = 'No file was uploaded. This is a PHP related error. Please contact your host if this problem continues.';
-$txt['php_upload_error_6'] = 'Unable to save. Missing a temporary folder. Please contact your host if you are unable to correct this problem.';
+$txt['php_upload_error_6'] = 'Unable to save. Missing a temporary directory. Please contact your host if you are unable to correct this problem.';
 $txt['php_upload_error_7'] = 'Failed to write file to disk. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_8'] = 'A PHP extension stopped the file upload. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['error_temp_attachments_new'] = 'There are attachments which you had previously attached but not posted. These attachments are still attached to this post. This post does need to be submitted before these attachments are either saved or removed. You can do that <a href="#postAttachment">here</a>';
@@ -227,7 +227,7 @@ $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
-$txt['ran_out_of_space'] = 'The upload folder is full. Please contact an administrator about this problem.';
+$txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory.  Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';

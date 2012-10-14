@@ -1104,9 +1104,6 @@ function template_send()
 					<label for="outbox"><input type="checkbox" name="outbox" id="outbox" value="1" tabindex="', $context['tabindex']++, '"', $context['copy_to_outbox'] ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['pm_save_outbox'], '</label>
 				</p>
 				<hr class="hrcolor" />
-				<span id="shortcuts" class="smalltext">
-					', isBrowser('is_firefox') ? $txt['shortcuts_firefox'] : $txt['shortcuts'], '
-				</span>
 				<span id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>

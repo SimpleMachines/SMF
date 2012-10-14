@@ -253,6 +253,7 @@ function MessageIndex()
 
 			if (!empty($row['show_online']) || allowedTo('moderate_forum'))
 				$context['view_members_list'][$row['log_time'] . $row['member_name']] = empty($row['show_online']) ? '<em>' . $link . '</em>' : $link;
+			// @todo why are we filling this array of data that are just counted (twice) and discarded? ???
 			$context['view_members'][$row['log_time'] . $row['member_name']] = array(
 				'id' => $row['id_member'],
 				'username' => $row['member_name'],
@@ -302,6 +303,10 @@ function MessageIndex()
 	}
 
 	$context['sort_direction'] = $ascending ? 'up' : 'down';
+	$txt['starter'] = $txt['started_by'];
+
+	foreach ($sort_methods as $key => $val)
+		$context['topics_headers'][$key] = '<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '') . '</a>';
 
 	// Calculate the fastest way to get the topics.
 	$start = (int) $_REQUEST['start'];

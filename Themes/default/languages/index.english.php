@@ -31,10 +31,10 @@ $txt['months_short'] = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
 
-$txt['newmessages0'] = 'is new';
-$txt['newmessages1'] = 'are new';
-$txt['newmessages3'] = 'New';
-$txt['newmessages4'] = ',';
+$txt['newmessages0'] = 'is new'; //Deprecated
+$txt['newmessages1'] = 'are new'; //Deprecated
+$txt['newmessages3'] = 'New'; //Deprecated
+$txt['newmessages4'] = ','; //Deprecated
 
 $txt['admin'] = 'Admin';
 $txt['moderate'] = 'Moderate';
@@ -107,9 +107,11 @@ $txt['error_occured'] = 'An Error Has Occurred';
 $txt['at'] = 'at';
 $txt['logout'] = 'Logout';
 $txt['started_by'] = 'Started by';
-$txt['topic_started_by'] = 'Started by  <strong>%1$s</strong> in <em>%2$s</em>';
+$txt['topic_started_by'] = 'Started by <strong>%1$s</strong> in <em>%2$s</em>';
 $txt['replies'] = 'Replies';
 $txt['last_post'] = 'Last post';
+$txt['first_post'] = 'First post';
+$txt['last_poster'] = 'Last post by';
 //$txt['last_post_message'] = '<strong>Last post</strong> by %1$s<br />in %2$s<br />on %3$s';
 $txt['last_post_message'] = '<strong>Last post: </strong>%3$s<br />%2$s by %1$s';
 $txt['boardindex_total_posts'] = '%1$d Posts in %2$d Topics by %3$d Members';
@@ -134,6 +136,7 @@ $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
 $txt['reply_noun'] = 'Reply';
+$txt['reply_number'] = 'Reply #%1$s';
 $txt['approve'] = 'Approve';
 $txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
@@ -144,8 +147,13 @@ $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awai
 $txt['send_message'] = 'Send message';
 
 $txt['msg_alert_none'] = 'No messages...';
-$txt['msg_alert_you_have'] = 'you have';
-$txt['msg_alert_messages'] = 'messages';
+$txt['msg_alert_you_have'] = 'you have'; //Deprecated
+$txt['msg_alert_messages'] = 'messages'; //Deprecated
+$txt['msg_alert_no_messages'] = 'you don\'t have any message';
+$txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
+$txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
+$txt['msg_alert_one_new'] = '1 is new';
+$txt['msg_alert_many_new'] = '%1$d are new';
 $txt['remove_message'] = 'Remove this message';
 
 $txt['online_users'] = 'Users Online';
@@ -173,9 +181,11 @@ $txt['topic_started'] = 'Topic started by';
 $txt['title'] = 'Title';
 $txt['post_by'] = 'Post by';
 $txt['memberlist_searchable'] = 'Searchable list of all registered members.';
-$txt['welcome_member'] = 'Please welcome';
+$txt['welcome_member'] = 'Please welcome'; //Deprecated
+$txt['welcome_newest_member'] = 'Please welcome %1$s, our newest member.';
 $txt['admin_center'] = 'Administration Center';
-$txt['last_edit'] = 'Last Edit';
+$txt['last_edit'] = 'Last Edit'; //Deprecated
+$txt['last_edit_by'] = '<span class="lastedit">Last Edit</span>: %1$s by %2$s';
 $txt['notify_deactivate'] = 'Would you like to deactivate notification on this topic?';
 
 $txt['recent_posts'] = 'Recent Posts';
@@ -186,6 +196,7 @@ $txt['date_registered'] = 'Date Registered';
 
 $txt['recent_view'] = 'View the most recent posts on the forum.';
 $txt['recent_updated'] = 'is the most recently updated topic';
+$txt['is_recent_updated'] = '%1$s is the most recently updated topic';
 
 $txt['male'] = 'Male';
 $txt['female'] = 'Female';
@@ -286,7 +297,7 @@ $txt['print'] = 'Print';
 $txt['profile'] = 'Profile';
 $txt['topic_summary'] = 'Topic Summary';
 $txt['not_applicable'] = 'N/A';
-$txt['message_lowercase'] = 'message';
+$txt['message_lowercase'] = 'message'; //Deprecated
 $txt['name_in_use'] = 'This name is already in use by another member.';
 
 $txt['total_members'] = 'Total Members';
@@ -304,7 +315,7 @@ $txt['ip'] = 'IP';
 
 $txt['www'] = 'WWW';
 
-$txt['by'] = 'by';
+$txt['by'] = 'by'; //Deprecated
 
 $txt['hours'] = 'hours';
 $txt['minutes'] = 'minutes';
@@ -314,7 +325,7 @@ $txt['seconds'] = 'seconds';
 $txt['hour'] = 'Hour';
 $txt['days_word'] = 'days';
 
-$txt['newest_member'] = ', our newest member.';
+$txt['newest_member'] = ', our newest member.'; //Deprecated
 
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
@@ -332,8 +343,10 @@ $txt['yim_title'] = 'Yahoo Instant Messenger';
 
 $txt['maintain_mode_on'] = 'Remember, this forum is in \'Maintenance Mode\'.';
 
-$txt['read'] = 'Read';
-$txt['times'] = 'times';
+$txt['read'] = 'Read'; //Deprecated
+$txt['times'] = 'times'; //Deprecated
+$txt['read_one_time'] = 'Read 1 time';
+$txt['read_many_times'] = 'Read %1$d times';
 
 $txt['forum_stats'] = 'Forum Stats';
 $txt['latest_member'] = 'Latest Member';
@@ -344,6 +357,9 @@ $txt['you_have'] = 'You\'ve got';
 $txt['click'] = 'Click';
 $txt['here'] = 'here';
 $txt['to_view'] = 'to view them.';
+$txt['you_have_no_msg'] = 'You don\'t have any message...';
+$txt['you_have_one_msg'] = 'You\'ve got 1 message... Click <a href="%1$s">here</a> to view it';
+$txt['you_have_many_msgs'] = 'You\'ve got %2$d messages... Click <a href="%1$s">here</a> to view them';
 
 $txt['total_boards'] = 'Total Boards';
 
@@ -387,8 +403,8 @@ $txt['poll_vote'] = 'Submit Vote';
 $txt['poll_total_voters'] = 'Total Members Voted';
 $txt['shortcuts'] = 'shortcuts: alt+s submit/post, alt+p preview';
 $txt['shortcuts_firefox'] = 'shortcuts: shift+alt+s submit/post, shift+alt+p preview';
-$txt['shortcuts_drafts'] = 'or alt+d save draft';
-$txt['shortcuts_drafts_firefox'] = 'or shift+alt+d save draft';
+$txt['shortcuts_drafts'] = ', alt+d save draft';
+$txt['shortcuts_drafts_firefox'] = ', shift+alt+d save draft';
 $txt['poll_results'] = 'View results';
 $txt['poll_lock'] = 'Lock Voting';
 $txt['poll_unlock'] = 'Unlock Voting';
@@ -462,9 +478,10 @@ $txt['agreement_missing'] = 'You are requiring new users to accept a registratio
 
 $txt['cache_writable'] = 'The cache directory is not writable - this will adversely affect the performance of your forum.';
 
-$txt['page_created'] = 'Page created in ';
-$txt['seconds_with'] = ' seconds with ';
-$txt['queries'] = ' queries.';
+$txt['page_created'] = 'Page created in '; //Deprecated
+$txt['seconds_with'] = ' seconds with '; //Deprecated
+$txt['queries'] = ' queries.'; //Deprecated
+$txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
 
 $txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.<br /><em>Please note that your email address will be revealed to the moderators if you use this.</em>';
 
@@ -628,6 +645,8 @@ $txt['guests'] = 'Guests';
 $txt['user'] = 'User';
 $txt['users'] = 'Users';
 $txt['hidden'] = 'Hidden';
+// Plural form of hidden for languages other than English
+$txt['hidden_s'] = 'Hidden';
 $txt['buddy'] = 'Buddy';
 $txt['buddies'] = 'Buddies';
 $txt['most_online_ever'] = 'Most Online Ever';
@@ -654,7 +673,7 @@ $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 $txt['search_results'] = 'Search Results';
 $txt['search_no_results'] = 'Sorry, no matches were found';
 
-$txt['totalTimeLogged1'] = 'Total time logged in: ';
+$txt['totalTimeLogged1'] = 'Total time logged in: '; //Deprecated
 $txt['totalTimeLogged2'] = ' days, ';
 $txt['totalTimeLogged3'] = ' hours and ';
 $txt['totalTimeLogged4'] = ' minutes.';
@@ -662,11 +681,13 @@ $txt['totalTimeLogged5'] = 'd ';
 $txt['totalTimeLogged6'] = 'h ';
 $txt['totalTimeLogged7'] = 'm';
 
-$txt['approve_thereis'] = 'There is';
-$txt['approve_thereare'] = 'There are';
-$txt['approve_member'] = 'one member';
-$txt['approve_members'] = 'members';
-$txt['approve_members_waiting'] = 'awaiting approval.';
+$txt['approve_thereis'] = 'There is'; //Deprecated
+$txt['approve_thereare'] = 'There are'; //Deprecated
+$txt['approve_member'] = 'one member'; //Deprecated
+$txt['approve_members'] = 'members'; //Deprecated
+$txt['approve_members_waiting'] = 'awaiting approval.'; //Deprecated
+$txt['approve_one_member_waiting'] = 'There is <a href="%1$s">one member</a> awaiting approval.';
+$txt['approve_many_members_waiting'] = 'There are <a href="%1$s">%2$d members</a> awaiting approval.';
 
 $txt['notifyboard_turnon'] = 'Do you want a notification email when someone posts a new topic in this board?';
 $txt['notifyboard_turnoff'] = 'Are you sure you do not want to receive new topic notifications for this board?';

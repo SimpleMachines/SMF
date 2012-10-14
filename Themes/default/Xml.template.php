@@ -52,7 +52,7 @@ function template_modifydone()
 	if (empty($context['message']['errors']))
 	{
 		echo '
-		<modified><![CDATA[', empty($context['message']['modified']['time']) ? '' : cleanXml('&#171; <em>' . $txt['last_edit'] . ': ' . $context['message']['modified']['time'] . ' ' . $txt['by'] . ' ' . $context['message']['modified']['name'] . '</em> &#187;'), ']]></modified>
+		<modified><![CDATA[', empty($context['message']['modified']['time']) ? '' : cleanXml('&#171; <em>' . sprintf($txt['last_edit_by'], $context['message']['modified']['time'], $context['message']['modified']['name']) . '</em> &#187;'), ']]></modified>
 		<subject is_first="', $context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>
 		<body><![CDATA[', $context['message']['body'], ']]></body>';
 	}
@@ -74,7 +74,7 @@ function template_modifytopicdone()
 	if (empty($context['message']['errors']))
 	{
 		echo '
-		<modified><![CDATA[', empty($context['message']['modified']['time']) ? '' : cleanXml('&#171; <em>' . $txt['last_edit'] . ': ' . $context['message']['modified']['time'] . ' ' . $txt['by'] . ' ' . $context['message']['modified']['name'] . '</em> &#187;'), ']]></modified>';
+		<modified><![CDATA[', empty($context['message']['modified']['time']) ? '' : cleanXml('&#171; <em>' . sprintf($txt['last_edit_by'], $context['message']['modified']['time'], $context['message']['modified']['name']) . '</em> &#187;'), ']]></modified>';
 		if (!empty($context['message']['subject']))
 			echo '
 		<subject><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>';
@@ -408,8 +408,7 @@ function template_webslice_recent_posts()
 			<a href="', $scripturl, '?action=login">', $txt['login'], '</a>';
 	else
 		echo '
-			', cleanXml($context['user']['name']), ', ', cleanXml($txt['msg_alert_you_have']), ' <a href="', $scripturl, '?action=pm">', cleanXml($context['user']['messages']), ' ', cleanXml($context['user']['messages'] != 1 ? $txt['msg_alert_messages'] : $txt['message_lowercase']), '</a>', cleanXml($txt['newmessages4'] . ' ' . $context['user']['unread_messages']), ' ', cleanXml($context['user']['unread_messages'] == 1 ? $txt['newmessages0'] : $txt['newmessages1']);
-
+			', cleanXml($context['user']['name']), cleanXml(!empty($context['can_pm_read']) ? ', ' . (empty($context['user']['messages']) ? $txt['msg_alert_no_messages'] : (($context['user']['messages'] == 1 ? sprintf($txt['msg_alert_one_message'], $scripturl . '?action=pm') : sprintf($txt['msg_alert_many_message'], $scripturl . '?action=pm', $context['user']['messages'])) . ', ' . ($context['user']['unread_messages'] == 1 ? $txt['msg_alert_one_new'] : sprintf($txt['msg_alert_many_new'], $context['user']['unread_messages'])))) : '');
 	echo '
 		</div>
 	</div>';
