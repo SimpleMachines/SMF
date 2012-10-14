@@ -41,7 +41,7 @@ function ManageCalendar()
 		'settings' => 'ModifyCalendarSettings'
 	);
 
-	call_integration_hook('integrate_manage_calendar', array(&$subActions));
+	call_integration_hook('integrate_manage_calendar', array($subActions));
 
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'holidays';
 
@@ -335,7 +335,7 @@ function ModifyCalendarSettings($return_config = false)
 			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word']),
 	);
 
-	call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_calendar_settings', array($config_vars));
 	if ($return_config)
 		return $config_vars;
 

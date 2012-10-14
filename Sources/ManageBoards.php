@@ -44,7 +44,7 @@ function ManageBoards()
 		'settings' => array('EditBoardSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_boards', array(&$subActions));
+	call_integration_hook('integrate_manage_boards', array($subActions));
 
 	// Default to sub action 'main' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_boards') ? 'main' : 'settings');
@@ -804,7 +804,7 @@ function EditBoardSettings($return_config = false)
 			array('check', 'deny_boards_access'),
 	);
 
-	call_integration_hook('integrate_modify_board_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_board_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;

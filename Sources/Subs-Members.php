@@ -699,7 +699,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	);
 
 	// Call an optional function to validate the users' input.
-	call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, &$knownInts, &$knownFloats));
+	call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, $knownInts, $knownFloats));
 
 	$column_names = array();
 	$values = array();
@@ -1173,7 +1173,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 	);
 
 	// Allow mods with their own post tables to reattribute posts as well :)
- 	call_integration_hook('integrate_reattribute_posts', array(&$memID, &$email, &$membername, &$post_count));
+ 	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count));
 }
 
 /**

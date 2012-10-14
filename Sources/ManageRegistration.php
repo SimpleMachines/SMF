@@ -41,7 +41,7 @@ function RegCenter()
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_registrations', array(&$subActions));
+	call_integration_hook('integrate_manage_registrations', array($subActions));
 
 	// Work out which to call...
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
@@ -291,7 +291,7 @@ function ModifyRegistrationSettings($return_config = false)
 			array('text', 'coppaPhone'),
 	);
 
-	call_integration_hook('integrate_modify_registration_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_registration_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;

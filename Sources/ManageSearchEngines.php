@@ -36,7 +36,7 @@ function SearchEngines()
 		'stats' => 'SpiderStats',
 	);
 
-	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
+	call_integration_hook('integrate_manage_search_engines', array($subActions));
 
 	// Ensure we have a valid subaction.
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'stats';
@@ -88,7 +88,7 @@ function ManageSearchEngineSettings($return_config = false)
 		}
 		disableFields();';
 
-	call_integration_hook('integrate_modify_search_engine_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_search_engine_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;

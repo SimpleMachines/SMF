@@ -150,7 +150,7 @@ function Display()
 	);
 	$topic_selects = array();
 	$topic_tables = array();
-	call_integration_hook('integrate_display_topic', array(&$topic_selects, &$topic_tables, &$topic_parameters));
+	call_integration_hook('integrate_display_topic', array($topic_selects, $topic_tables, $topic_parameters));
 
 	// @todo Why isn't this cached?
 	// @todo if we get id_board in this query and cache it, we can save a query on posting
@@ -975,7 +975,7 @@ function Display()
 		);
 		$msg_selects = array();
 		$msg_tables = array();
-		call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
+		call_integration_hook('integrate_query_message', array($msg_selects, $msg_tables, $msg_parameters));
 
 		// What?  It's not like it *couldn't* be only guests in this topic...
 		if (!empty($posters))
@@ -1158,7 +1158,10 @@ function Display()
 		$context['mod_buttons'][] = array('text' => 'restore_topic', 'image' => '', 'lang' => true, 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Allow adding new mod buttons easily.
-	call_integration_hook('integrate_display_buttons');
+	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+	call_integration_hook('integrate_display_buttons', array($context['normal_buttons']));
+	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
+	call_integration_hook('integrate_mod_buttons', array($context['mod_buttons']));
 }
 
 /**
@@ -1284,7 +1287,7 @@ function prepareDisplayContext($reset = false)
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 
-	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
+	call_integration_hook('integrate_prepare_display_context', array($output, $message));
 
 	if (empty($options['view_newest_first']))
 		$counter++;

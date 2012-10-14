@@ -1834,7 +1834,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	);
 
 	// What if we want to do anything with posts?
-	call_integration_hook('integrate_create_post', array(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters));
+	call_integration_hook('integrate_create_post', array($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters));
 
 	// Insert the post.
 	$smcFunc['db_insert']('',
@@ -1877,7 +1877,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
 		);
 
-		call_integration_hook('integrate_before_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters));
+		call_integration_hook('integrate_before_create_topic', array($msgOptions, $topicOptions, $posterOptions, $topic_columns, $topic_parameters));
 
 		$smcFunc['db_insert']('',
 			'{db_prefix}topics',
@@ -1953,7 +1953,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'is_sticky = {int:is_sticky}',
 			);
 
-		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
+		call_integration_hook('integrate_modify_topic', array($topics_columns, $update_parameters, $msgOptions, $topicOptions, $posterOptions));
 
 		// Update the number of replies and the lock/sticky status.
 		$smcFunc['db_query']('', '
@@ -2140,7 +2140,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		'id_msg' => $msgOptions['id'],
 	);
 
-	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
+	call_integration_hook('integrate_modify_post', array($messages_columns, $update_parameters, $msgOptions, $topicOptions, $posterOptions, $messageInts));
 
 	foreach ($messages_columns as $var => $val)
 	{
