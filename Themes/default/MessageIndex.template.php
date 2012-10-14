@@ -140,7 +140,7 @@ function template_main()
 		<h3 class="catbg">', $context['name'], '</h3>
 	</div>
 	<p class="description_board">
-		', $context['description'], '<br/>';
+		', $context['description'], '<br />';
 	else
 		echo '
 	<p class="description_board">';

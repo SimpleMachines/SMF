@@ -752,6 +752,7 @@ function PackageInstallTest()
 		$context['ftp_needed'] = !empty($ftp_status['files']['notwritable']) && !empty($context['package_ftp']);
 	}
 
+	$context['post_url'] = $scripturl .'?action=admin;area=packages;sa=' . ($context['uninstalling'] ? 'uninstall' : 'install') . ($context['ftp_needed'] ? '' : '2') . ';package=' . $context['filename'] . ';pid=' . $context['install_id'];
 	checkSubmitOnce('register');
 }
 
@@ -960,7 +961,7 @@ function PackageInstall()
 	if (!isset($old_version) || $context['is_installed'])
 		$install_log = parsePackageInfo($packageInfo['xml'], false, 'install');
 
-	$context['install_finished'] = false;
+	$install_finished = false;
 
 	// @todo Make a log of any errors that occurred and output them?
 
@@ -1171,7 +1172,7 @@ function PackageInstall()
 		}
 		$smcFunc['db_free_result']($request);
 
-		$context['install_finished'] = true;
+		$install_finished = true;
 	}
 
 	// If there's database changes - and they want them removed - let's do it last!

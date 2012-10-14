@@ -1404,40 +1404,230 @@ function EditSmileyOrder()
  */
 function InstallSmileySet()
 {
-	global $sourcedir, $boarddir, $modSettings, $smcFunc;
+	global $sourcedir, $boarddir, $modSettings, $smcFunc, $scripturl, $context, $txt, $user_info;
 
 	isAllowedTo('manage_smileys');
 	checkSession('request');
+	// One of these two may be necessary
+	loadLanguage('Errors');
+	loadLanguage('Packages');
 
 	require_once($sourcedir . '/Subs-Package.php');
 
-	$name = strtok(basename(isset($_FILES['set_gz']) ? $_FILES['set_gz']['name'] : $_REQUEST['set_gz']), '.');
-	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
+	// Installing unless proven otherwise
+	$testing = false;
 
-	//@todo Decide: overwrite or not?
-	if (isset($_FILES['set_gz']) && is_uploaded_file($_FILES['set_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['set_gz']['tmp_name'])))
-		$extracted = read_tgz_file($_FILES['set_gz']['tmp_name'], $boarddir . '/Smileys/' . $name);
-	elseif (isset($_REQUEST['set_gz']))
+	if (isset($_REQUEST['set_gz']))
 	{
+		$base_name = strtr(basename($_REQUEST['set_gz']), ':/', '-_');
+		$name = $smcFunc['htmlspecialchars'](strtok(basename($_REQUEST['set_gz']), '.'));
+		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
+		$context['filename'] = $base_name;
+
 		// Check that the smiley is from simplemachines.org, for now... maybe add mirroring later.
 		if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
 			fatal_lang_error('not_on_simplemachines');
 
-		$extracted = read_tgz_file($_REQUEST['set_gz'], $boarddir . '/Smileys/' . $name);
+		$destination = $boarddir . '/Packages/' . $base_name;
+
+		if (file_exists($destination))
+			fatal_lang_error('package_upload_error_exists');
+
+		// Let's copy it to the Packages directory
+		file_put_contents($destination, fetch_web_data($_REQUEST['set_gz']));
+		$testing = true;
 	}
+	elseif (isset($_REQUEST['package']))
+	{
+		$base_name = basename($_REQUEST['package']);
+		$name = $smcFunc['htmlspecialchars'](strtok(basename($_REQUEST['package']), '.'));
+		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
+		$context['filename'] = $base_name;
+
+		$destination = $boarddir . '/Packages/' . basename($_REQUEST['package']);
+	}
+
+	if (!file_exists($destination))
+		fatal_lang_error('package_no_file', false);
+
+	// Make sure temp directory exists and is empty.
+	if (file_exists($boarddir . '/Packages/temp'))
+		deltree($boarddir . '/Packages/temp', false);
+
+	if (!mktree($boarddir . '/Packages/temp', 0755))
+	{
+		deltree($boarddir . '/Packages/temp', false);
+		if (!mktree($boarddir . '/Packages/temp', 0777))
+		{
+			deltree($boarddir . '/Packages/temp', false);
+			// @todo not sure about url in destination_url
+			create_chmod_control(array($boarddir . '/Packages/temp/delme.tmp'), array('destination_url' => $scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true));
+
+			deltree($boarddir . '/Packages/temp', false);
+			if (!mktree($boarddir . '/Packages/temp', 0777))
+				fatal_lang_error('package_cant_download', false);
+		}
+	}
+
+	$extracted = read_tgz_file($destination, $boarddir . '/Packages/temp');
+	if (!$extracted)
+		fatal_lang_error('packageget_unable', false, array('http://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
+	if ($extracted && !file_exists($boarddir . '/Packages/temp/package-info.xml'))
+		foreach ($extracted as $file)
+			if (basename($file['filename']) == 'package-info.xml')
+			{
+				$base_path = dirname($file['filename']) . '/';
+				break;
+			}
+
+	if (!isset($base_path))
+		$base_path = '';
+
+	if (!file_exists($boarddir . '/Packages/temp/' . $base_path . 'package-info.xml'))
+		fatal_lang_error('package_get_error_missing_xml', false);
+
+	$smileyInfo = getPackageInfo($context['filename']);
+	if (!is_array($smileyInfo))
+		fatal_lang_error($smileyInfo);
+
+	// See if it is installed?
+	$request = $smcFunc['db_query']('', '
+		SELECT version, themes_installed, db_changes
+		FROM {db_prefix}log_packages
+		WHERE package_id = {string:current_package}
+			AND install_state != {int:not_installed}
+		ORDER BY time_installed DESC
+		LIMIT 1',
+		array(
+			'not_installed'	=> 0,
+			'current_package' => $smileyInfo['id'],
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) > 0)
+		fata_lang_error('package_installed_warning1');
+
+	// Everything is fine, now it's time to do something
+	$actions = parsePackageInfo($smileyInfo['xml'], true, 'install');
+
+	$context['post_url'] = $scripturl . '?action=admin;area=smileys;sa=install;package=' . $base_name;
+	$has_readme = false;
+	$context['has_failure'] = false;
+	$context['actions'] = array();
+	$context['ftp_needed'] = false;
+
+	foreach ($actions as $action)
+	{
+		if ($action['type'] == 'readme' || $action['type'] == 'license')
+		{
+			$has_readme = true;
+			$type = 'package_' . $action['type'];
+			if (file_exists($boarddir . '/Packages/temp/' . $base_path . $action['filename']))
+				$context[$type] = htmlspecialchars(trim(file_get_contents($boarddir . '/Packages/temp/' . $base_path . $action['filename']), "\n\r"));
+			elseif (file_exists($action['filename']))
+				$context[$type] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
+
+			if (!empty($action['parse_bbc']))
+			{
+				require_once($sourcedir . '/Subs-Post.php');
+				preparsecode($context[$type]);
+				$context[$type] = parse_bbc($context[$type]);
+			}
+			else
+				$context[$type] = nl2br($context[$type]);
+
+			continue;
+		}
+		elseif ($action['type'] == 'require-dir')
+		{
+			// Do this one...
+			$thisAction = array(
+				'type' => $txt['package_extract'] . ' ' . ($action['type'] == 'require-dir' ? $txt['package_tree'] : $txt['package_file']),
+				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
+			);
+
+			$file =  $boarddir . '/Packages/temp/' . $base_path . $action['filename'];
+			if (isset($action['filename']) && (!file_exists($file) || !is_writable(dirname($action['destination']))))
+			{
+				$context['has_failure'] = true;
+
+				$thisAction += array(
+					'description' => $txt['package_action_error'],
+					'failed' => true,
+				);
+			}
+			// @todo None given?
+			if (empty($thisAction['description']))
+				$thisAction['description'] = isset($action['description']) ? $action['description'] : '';
+
+			$context['actions'][] = $thisAction;
+		}
+		elseif ($action['type'] == 'credits')
+		{
+			// Time to build the billboard
+			$credits_tag = array(
+				'url' => $action['url'],
+				'license' => $action['license'],
+				'copyright' => $action['copyright'],
+				'title' => $action['title'],
+			);
+		}
+	}
+
+	if ($testing)
+	{
+		$context['sub_template'] = 'view_package';
+		$context['uninstalling'] = false;
+		$context['is_installed'] = false;
+		$context['package_name'] = $smileyInfo['name'];
+		loadTemplate('Packages');
+	}
+	// Do the actual install
 	else
+	{
+		$actions = parsePackageInfo($smileyInfo['xml'], false, 'install');
+		foreach ($context['actions'] as $action)
+		{
+			updateSettings(array(
+				'smiley_sets_known' => $modSettings['smiley_sets_known'] . ',' . basename($action['action']),
+				'smiley_sets_names' => $modSettings['smiley_sets_names'] . "\n" . $smileyInfo['name'] . (count($context['actions']) > 1 ? ' ' .  (!empty($action['description']) ? $smcFunc['htmlspecialchars']($action['description']) : basename($action['action'])) : ''),
+			));
+		}
+
+		package_flush_cache();
+
+		// Time to tell pacman we have a new package installed!
+		package_put_contents($boarddir . '/Packages/installed.list', time());
+		// Credits tag?
+		$credits_tag = (empty($credits_tag)) ? '' : serialize($credits_tag);
+		$smcFunc['db_insert']('',
+			'{db_prefix}log_packages',
+			array(
+				'filename' => 'string', 'name' => 'string', 'package_id' => 'string', 'version' => 'string',
+				'id_member_installed' => 'int', 'member_installed' => 'string','time_installed' => 'int',
+				'install_state' => 'int', 'failed_steps' => 'string', 'themes_installed' => 'string',
+				'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
+			),
+			array(
+				$smileyInfo['filename'], $smileyInfo['name'], $smileyInfo['id'], $smileyInfo['version'],
+				$user_info['id'], $user_info['name'], time(),
+				1, '', '',
+				0, '', $credits_tag,
+			),
+			array('id_install')
+		);
+
+		logAction('install_package', array('package' => $smcFunc['htmlspecialchars']($smileyInfo['name']), 'version' => $smcFunc['htmlspecialchars']($smileyInfo['version'])), 'admin');
+
+		cache_put_data('parsing_smileys', null, 480);
+		cache_put_data('posting_smileys', null, 480);
+	}
+
+	if (file_exists($boarddir . '/Packages/temp'))
+		deltree($boarddir . '/Packages/temp');
+
+	if (!$testing)
 		redirectexit('action=admin;area=smileys');
-
-	updateSettings(array(
-		'smiley_sets_known' => $modSettings['smiley_sets_known'] . ',' . $name,
-		'smiley_sets_names' => $modSettings['smiley_sets_names'] . "\n" . strtok(basename(isset($_FILES['set_gz']) ? $_FILES['set_gz']['name'] : $_REQUEST['set_gz']), '.'),
-	));
-
-	cache_put_data('parsing_smileys', null, 480);
-	cache_put_data('posting_smileys', null, 480);
-
-	// @todo Add some confirmation?
-	redirectexit('action=admin;area=smileys');
 }
 
 /**
