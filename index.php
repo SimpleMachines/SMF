@@ -234,11 +234,13 @@ function smf_main()
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 		if (empty($board) && empty($topic))
 		{
-			$call = '';
-			call_integration_hook('integrate_default_action', array(&$call));
-			$call = strpos($call, '::') !== false ? explode('::', $call) : $call;
-			if (!empty($call) && is_callable($call))
-				return $call;
+			$defaultActions = call_integration_hook('integrate_default_action');
+			foreach ($defaultActions as $defaultAction)
+			{
+				$call = strpos($defaultAction, '::') !== false ? explode('::', $defaultAction) : $defaultAction;
+				if (!empty($call) && is_callable($call))
+					return $call;
+			}
 
 			require_once($sourcedir . '/BoardIndex.php');
 
