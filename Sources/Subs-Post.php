@@ -833,8 +833,12 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	if ($smcFunc['strlen']($htmlsubject) > 100)
 		$htmlsubject = $smcFunc['substr']($htmlsubject, 0, 100);
 
+	// Make sure is an array
+	if (!is_array($recipients))
+		$recipients = array($recipients);
+
 	// Integrated PMs
-	call_integration_hook('integrate_personal_message', array(&$recipients, &$from['username'], &$subject, &$message));
+	call_integration_hook('integrate_personal_message', array(&$recipients, &$from, &$subject, &$message));
 
 	// Get a list of usernames and convert them to IDs.
 	$usernames = array();
@@ -1154,6 +1158,9 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// Off the notification email goes!
 		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
 	}
+
+	// Integrated After PMs
+	call_integration_hook('integrate_personal_message_after', array(&$id_pm, &$log, &$recipients, &$from, &$subject, &$message));
 
 	// Back to what we were on before!
 	loadLanguage('index+PersonalMessage');
