@@ -584,6 +584,8 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 	$buttons = array();
 	foreach ($button_strip as $key => $value)
 	{
+		// @todo this check here doesn't make much sense now (from 2.1 on), it should be moved to where the button array is generated
+		// Kept for backward compatibility
 		if (!isset($value['test']) || !empty($context[$value['test']]))
 			$buttons[] = '
 				<li><a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button_strip_' . $key . (isset($value['active']) ? ' active' : '') . '" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '><span>' . $txt[$value['text']] . '</span></a></li>';
