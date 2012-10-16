@@ -4270,11 +4270,11 @@ function replaceEntities__callback($matches)
 	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
 	
 	// remove left to right / right to left overrides
-	if ($num === 0x202D || $num === 0x202E) 
+	if ($num === 0x202D || $num === 0x202E)
 		return '';
 	
 	// Quote, Ampersand, Apostrophe, Less/Greater Than get html replaced
-	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E))) 
+	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E)))
 		return '&#' . $num . ';';
 
 	if (empty($context['utf8']))
