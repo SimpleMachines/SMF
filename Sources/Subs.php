@@ -2458,7 +2458,7 @@ function parsesmileys(&$message)
 				while ($row = $smcFunc['db_fetch_assoc']($result))
 				{
 					$smileysfrom[] = $row['code'];
-					$smileysto[] = $row['filename'];
+					$smileysto[] = htmlspecialchars($row['filename']);
 					$smileysdescs[] = $row['description'];
 				}
 				$smcFunc['db_free_result']($result);
@@ -2475,14 +2475,17 @@ function parsesmileys(&$message)
 		// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
 		$smileyPregReplacements = array();
 		$searchParts = array();
+		$smileys_path = htmlspecialchars($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
+		
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
-			$smileyCode = '<img src="' . htmlspecialchars($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/' . $smileysto[$i]) . '" alt="' . strtr(htmlspecialchars($smileysfrom[$i], ENT_QUOTES), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr(htmlspecialchars($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley" />';
+			$specialChars = htmlspecialchars($smileysfrom[$i], ENT_QUOTES);
+			$smileyCode = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($specialChars, array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')). '" title="' . strtr(htmlspecialchars($smileysdescs[$i]), array(':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;')) . '" class="smiley" />';
 
 			$smileyPregReplacements[$smileysfrom[$i]] = $smileyCode;
 
 			$searchParts[] = preg_quote($smileysfrom[$i], '~');
-			if ($smileysfrom[$i] != ($specialChars = htmlspecialchars($smileysfrom[$i], ENT_QUOTES)))
+			if ($smileysfrom[$i] != $specialChars)
 			{
 				$smileyPregReplacements[$specialChars] = $smileyCode;
 				$searchParts[] = preg_quote($specialChars, '~');
