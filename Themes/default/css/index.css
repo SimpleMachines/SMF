@@ -2135,6 +2135,8 @@ p#whoisviewing {
 	margin: 0 12px 0 0;
 	border-top: 1px solid #ccc;
 	min-height: 80px;
+	word-break: hyphenate;
+	word-wrap: break-word;
 }
 img.smiley {
 	vertical-align: bottom;
