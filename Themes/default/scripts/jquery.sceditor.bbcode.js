@@ -114,6 +114,7 @@
 				ftp: { txtExec: ["[ftp]", "[/ftp]"] },
 				tt: { txtExec: ["[tt]", "[/tt]"] },
 				glow: { txtExec: ["[glow=red,2,300]", "[/glow]"] },
+				move: { txtExec: ["[[move]", "[/move]"] },
 				shadow: { txtExec: ["[shadow=red,left]", "[/shadow]"] },
 				pre: { txtExec: ["[pre]", "[/pre]"] },
 				// @todo: check tooltip
