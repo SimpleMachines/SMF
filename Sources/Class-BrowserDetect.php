@@ -1,8 +1,21 @@
 <?php
 
 /**
- * This class is an experiment for the job of correctly detecting browsers and settings
- * needed for them.
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2012 Simple Machines contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Alpha 1
+ */
+
+if (!defined('SMF'))
+	die('Hacking attempt...');
+
+/**
+ *  This class is an experiment for the job of correctly detecting browsers and settings needed for them.
  * - Detects the following browsers
  * - Opera, Webkit, Firefox, Web_tv, Konqueror, IE, Gecko
  * - Webkit variants: Chrome, iphone, blackberry, android, safari, ipad, ipod
@@ -12,9 +25,6 @@
  * - IE Versions: 4, 5, 5.5, 6, 7, 8, 9, 10 ... mobile and Mac
  * - Nokia
  */
-
-if (!defined('SMF'))
-	die('Hacking attempt...');
 
 class browser_detector
 {
