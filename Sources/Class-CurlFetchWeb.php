@@ -1,7 +1,14 @@
 <?php
 /**
- *
  * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2012 Simple Machines contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Alpha 1
+ *
  * Simple cURL class to fetch a web page
  * Properly redirects even with safe mode and basedir restrictions
  * Can provide simple post options to a page
@@ -23,13 +30,6 @@
  *  - $fetch_data->result(); // an array of results, body, header, http result codes
  *  - $fetch_data->result_raw(); // show all results of all calls (in the event of a redirect)
  *  - $fetch_data->result_raw(0); // show all results of call x
- *
- * @package SMF
- * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
- * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
