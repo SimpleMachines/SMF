@@ -175,9 +175,7 @@ function MarkRead()
 	elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies')
 	{
 		// Make sure all the boards are integers!
-		$topics = explode('-', $_REQUEST['topics']);
-		foreach ($topics as &$id_topic)
-			$id_topic = (int) $id_topic;
+		$topics = array_map('intval', explode('-', $_REQUEST['topics']));
 
 		$smcFunc['db_query']('', '
 			SELECT id_topic, disregarded
