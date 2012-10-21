@@ -3146,6 +3146,8 @@ dl {
 	padding-top: 12px;
 	margin: 0;
 	overflow: auto;
+	word-break: hyphenate;
+	word-wrap: break-word;
 }
 .topic h4 {
 	margin: 3px 0;
