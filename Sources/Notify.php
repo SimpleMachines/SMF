@@ -197,7 +197,7 @@ function TopicDisregard()
 	global $smcFunc, $user_info, $topic, $modSettings;
 
 	// Let's do something only if the function is enabled
-	if ($modSettings['enable_disregard'])
+	if (!$user_info['is_guest'] && $modSettings['enable_disregard'])
 	{
 		checkSession('get');
 

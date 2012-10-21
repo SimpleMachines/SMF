@@ -162,7 +162,7 @@ function Display()
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
 			' . (!empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $board ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? implode(',', $topic_selects) : '') . '
-			' . ($modSettings['enable_disregard'] && !$user_info['is_guest'] ? ', IFNULL(lt.disregarded, 0) as disregarded' : '') . '
+			' . (!$user_info['is_guest'] ? ', IFNULL(lt.disregarded, 0) as disregarded' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
@@ -172,6 +172,7 @@ function Display()
 		LIMIT 1',
 			$topic_parameters
 	);
+
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('not_a_topic', false);
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
@@ -184,7 +185,7 @@ function Display()
 	$context['real_num_replies'] = $context['num_replies'] = $topicinfo['num_replies'];
 	$context['topic_first_message'] = $topicinfo['id_first_msg'];
 	$context['topic_last_message'] = $topicinfo['id_last_msg'];
-	$context['topic_disregarded'] = $topicinfo['disregarded'];
+	$context['topic_disregarded'] = isset($topicinfo['disregarded']) ? $topicinfo['disregarded'] : 0;
 
 	// Add up unapproved replies to get real number of replies...
 	if ($modSettings['postmod_active'] && allowedTo('approve_posts'))
@@ -1071,7 +1072,7 @@ function Display()
 	$context['can_reply'] |= $context['can_reply_unapproved'];
 	$context['can_quote'] = $context['can_reply'] && (empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC'])));
 	$context['can_mark_unread'] = !$user_info['is_guest'] && $settings['show_mark_read'];
-	$context['can_disregard'] = $modSettings['enable_disregard'];
+	$context['can_disregard'] = !$user_info['is_guest'] && $modSettings['enable_disregard'];
 
 	$context['can_send_topic'] = (!$modSettings['postmod_active'] || $topicinfo['approved']) && allowedTo('send_topic');
 	$context['can_print'] = empty($modSettings['disable_print_topic']);
