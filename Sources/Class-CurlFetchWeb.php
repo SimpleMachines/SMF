@@ -1,7 +1,19 @@
 <?php
 /**
- *
  * Simple Machines Forum (SMF)
+ * 
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2012 Simple Machines Forum contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Alpha 1
+ */
+
+if (!defined('SMF'))
+	die('Hacking attempt...');
+
+/**
  * Simple cURL class to fetch a web page
  * Properly redirects even with safe mode and basedir restrictions
  * Can provide simple post options to a page
