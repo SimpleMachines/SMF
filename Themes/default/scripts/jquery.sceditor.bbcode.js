@@ -528,7 +528,7 @@
 						if(attrs.charAt(0) === "=")
 							attrs = "defaultattr" + attrs;
 
-						if (typeof base.bbcodes[bbcode].attrs == 'function')
+						if (typeof base.bbcodes[bbcode] != 'undefined' && typeof base.bbcodes[bbcode].attrs == 'function')
 						{
 							var declaredAttrs = base.bbcodes[bbcode].attrs();
 							var attrArray = new Array;
