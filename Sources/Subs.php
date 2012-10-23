@@ -2035,7 +2035,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// Item codes are complicated buggers... they are implicit [li]s and can make [list]s!
 		if ($smileys !== false && $tag === null && isset($itemcodes[$message[$pos + 1]]) && $message[$pos + 2] == ']' && !isset($disabled['list']) && !isset($disabled['li']))
 		{
-			if ($message[$pos + 1] === 0 && !in_array($message[$pos - 1], array(';', ' ', "\t", '>')))
+			if ($message[$pos + 1] == '0' && !in_array($message[$pos - 1], array(';', ' ', "\t", '>')))
 				continue;
 			
 			$tag = $itemcodes[$message[$pos + 1]];
