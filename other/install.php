@@ -2035,60 +2035,63 @@ function template_install_above()
 		<script type="text/javascript" src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
-	<div id="header"><div class="frame">
-		<div id="top_section">
-			<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
-			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+		<div id="header">
+			<div class="frame">
+				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+			</div>
 		</div>
-		<div id="upper_section" class="middletext flow_hidden">
-			<div class="user"></div>
-			<div class="news normaltext">';
+		<div id="wrapper">
+			<div id="upper_section">
+				<div id="inner_section">
+					<div id="inner_wrap">';
 
 	// Have we got a language drop down - if so do it on the first step only.
 	if (!empty($incontext['detected_languages']) && count($incontext['detected_languages']) > 1 && $incontext['current_step'] == 0)
 	{
 		echo '
-				<div class="righttext">
-					<form action="', $installurl, '" method="get">
-						<label for="installer_language">', $txt['installer_language'], ':</label> <select id="installer_language" name="lang_file" onchange="location.href = \'', $installurl, '?lang_file=\' + this.options[this.selectedIndex].value;">';
+						<div class="news">
+							<form action="', $installurl, '" method="get">
+								<label for="installer_language">', $txt['installer_language'], ':</label>
+								<select id="installer_language" name="lang_file" onchange="location.href = \'', $installurl, '?lang_file=\' + this.options[this.selectedIndex].value;">';
 
 		foreach ($incontext['detected_languages'] as $lang => $name)
 			echo '
-							<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected="selected"' : '', ' value="', $lang, '">', $name, '</option>';
+									<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected="selected"' : '', ' value="', $lang, '">', $name, '</option>';
 
 		echo '
-						</select>
-						<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button_submit" /></noscript>
-					</form>
-				</div>';
+								</select>
+								<noscript><input type="submit" value="', $txt['installer_language_set'], '" class="button_submit" /></noscript>
+							</form>
+						</div>
+						<hr class="clear" />';
 	}
 
 	echo '
+					</div>
+				</div>
 			</div>
-		</div>
-	</div></div>
-	<div id="content_section"><div class="frame">
-		<div id="main_content_section">
-			<div id="main-steps">
-				<h2>', $txt['upgrade_progress'], '</h2>
-				<ul>';
+			<div id="content_section">
+				<div id="main_content_section">
+					<div id="main_steps">
+						<h2>', $txt['upgrade_progress'], '</h2>
+						<ul>';
 
 	foreach ($incontext['steps'] as $num => $step)
 		echo '
-					<li class="', $num < $incontext['current_step'] ? 'stepdone' : ($num == $incontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
+							<li class="', $num < $incontext['current_step'] ? 'stepdone' : ($num == $incontext['current_step'] ? 'stepcurrent' : 'stepwaiting'), '">', $txt['upgrade_step'], ' ', $step[0], ': ', $step[1], '</li>';
 
 	echo '
-				</ul>
-			</div>
-			<div style="font-size: 12pt; height: 25pt; border: 1px solid black; background: white; float: left; margin-left: 12%; width: 25%;">
-				<div id="overall_text" style="padding-top: 8pt; z-index: 2; color: black; margin-left: -4em; position: absolute; text-align: center; font-weight: bold;">', $incontext['overall_percent'], '%</div>
-				<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%; height: 25pt; z-index: 1; background-color: lime;">&nbsp;</div>
-				<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
-			</div>
-			<div id="main_screen" class="clear">
-				<h2>', $incontext['page_title'], '</h2>
-				<div class="panel">
-					<div style="max-height: 560px; overflow: auto;">';
+						</ul>
+					</div>
+					<div id="progress_bar">
+						<div id="overall_text">', $incontext['overall_percent'], '%</div>
+						<div id="overall_progress" style="width: ', $incontext['overall_percent'], '%;">&nbsp;</div>
+						<div class="overall_progress">', $txt['upgrade_overall_progress'], '</div>
+					</div>
+					<div id="main_screen" class="clear">
+						<h2>', $incontext['page_title'], '</h2>
+						<div class="panel">';
 }
 
 function template_install_below()
@@ -2098,16 +2101,16 @@ function template_install_below()
 	if (!empty($incontext['continue']) || !empty($incontext['skip']))
 	{
 		echo '
-						<div class="righttext" style="margin: 1ex;">';
+								<div class="clear">';
 
 		if (!empty($incontext['continue']))
 			echo '
-							<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button_submit" />';
+									<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '" onclick="return submitThisOnce(this);" class="button_submit" />';
 		if (!empty($incontext['skip']))
 			echo '
-							<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button_submit" />';
+									<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="return submitThisOnce(this);" class="button_submit" />';
 		echo '
-						</div>';
+								</div>';
 	}
 
 	// Show the closing form tag and other data only if not in the last step
@@ -2116,14 +2119,18 @@ function template_install_below()
 							</form>';
 
 	echo '
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div></div>
-	<div id="footer_section"><div class="frame" style="height: 40px;">
-		<div class="smalltext"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2011, Simple Machines</a></div>
-	</div></div>
+		<div id="footer_section">
+			<div class="frame">
+				<ul class="reset">
+					<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2011, Simple Machines</a></li>
+				</ul>
+			</div>
+		</div>
 	</body>
 </html>';
 }
@@ -2149,9 +2156,6 @@ function template_welcome_message()
 	if (template_warning_divs())
 		echo '
 		<h3>', $txt['install_all_lovely'], '</h3>';
-
-	echo '
-		<div style="height: 100px;"></div>';
 
 	// Say we want the continue button!
 	if (empty($incontext['error']))
