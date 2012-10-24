@@ -306,7 +306,7 @@ function template_body_above()
 			echo '
 						<a href="', $scripturl, '?action=profile" class="avatar">', $context['user']['avatar']['image'], '</a>';
 			echo '
-						<ul class="floatleft">
+						<ul>
 							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>';
 
 		// Are there any members waiting for approval?
@@ -360,13 +360,13 @@ function template_body_below()
 		</div>
 	</div>';
 
-	// Show the "Powered by" and "Valid" logos, as well as the copyright. Remember, the copyright must be somewhere!
+	// Show the XHTML, RSS and WAP2 links, as well as the copyright.
 	// Footer is now full-width by default. Frame inside it will match theme wrapper width automatically.
 	echo '
 	<div id="footer_section">
 		<div class="frame">';
 
-	// Thee is now a global "Go to top" link above the copyright.
+	// There is now a global "Go to top" link at the right.
 		echo '
 			<a href="#top" id="bot"><img src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['go_up'], '" /></a>
 			<ul class="reset">
@@ -418,7 +418,7 @@ function theme_linktree($force_show = false)
 	if ($context['user']['is_logged'])
 	echo '
 			<li class="unread_links">
-				<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a> -
+				<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
 				<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
 			</li>';
 
