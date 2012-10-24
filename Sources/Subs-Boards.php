@@ -109,7 +109,8 @@ function markBoardsRead($boards, $unread = false)
 			INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
 				AND t.id_board IN ({array_int:board_list}))
 		WHERE lt.id_member = {int:current_member}
-			AND lt.id_topic >= {int:lowest_topic}',
+			AND lt.id_topic >= {int:lowest_topic}
+			AND lt.disregarded != 1',
 		array(
 			'current_member' => $user_info['id'],
 			'board_list' => $boards,
