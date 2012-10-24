@@ -134,31 +134,24 @@ function template_main()
 		', template_button_strip($context['normal_buttons'], 'right'), '
 	</div>';
 
+	if ((!empty($options['show_board_desc']) && $context['description'] != '')||(!empty($context['moderators'])))
+		{
+		echo '
+	<div id="description_board" class="generic_list_wrapper">
+		<h3 class="floatleft">', $context['name'], '&nbsp;-&nbsp;</h3>
+		<p>';
 	if (!empty($options['show_board_desc']) && $context['description'] != '')
-		echo '
-	<div class="cat_bar description_header">
-		<h3 class="catbg">', $context['name'], '</h3>
-	</div>
-	<p class="description_board">
-		', $context['description'], '<br/>';
-	else
-		echo '
-	<p class="description_board">';
+	echo '
+		', $context['description'], '&nbsp;';
 
 	if (!empty($context['moderators']))
-		echo '
-		', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.&nbsp;&nbsp;';
+	echo '
+		', count($context['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $context['link_moderators']), '.';
 
-		if (!empty($settings['display_who_viewing']))
-		{
-			if ($settings['display_who_viewing'] == 1)
-				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
-			else
-				echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . (empty($context['view_num_hidden']) || $context['can_moderate_forum'] ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
-			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'], '';
+	echo '
+		</p>
+	</div>';
 		}
-		echo '
-	</p>';
 
 		// If Quick Moderation is enabled start the form.
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty($context['topics']))
@@ -166,19 +159,33 @@ function template_main()
 	<form action="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '" class="clear" name="quickModForm" id="quickModForm">';
 
 		echo '
-	<div class="tborder topic_table" id="messageindex">
+		<div class="tborder topic_table" id="messageindex">';
+		if (!empty($settings['display_who_viewing']))
+		{
+		echo '
+			<p class="whoisviewing">';
+			if ($settings['display_who_viewing'] == 1)
+				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
+		else
+				echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . (empty($context['view_num_hidden']) || $context['can_moderate_forum'] ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
+			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
+
+		echo '
+			</p>';
+		}
+	echo '
+
 		<table class="table_grid" cellspacing="0">
 			<thead>
 				<tr class="catbg">';
 
 		// Are there actually any topics to show?
-		// [WIP] There is trial code here to hide the topic icon column. Colspan can be cleaned up later.
 		if (!empty($context['topics']))
 		{
 			echo '
-					<th scope="col" class="first_th" width="6%" colspan="1">&nbsp;</th>
+					<th scope="col" class="first_th" width="4%">&nbsp;</th>
 					<th scope="col" class="lefttext">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</th>
-					<th scope="col" width="14%">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
+					<th scope="col" class="stats" width="14%">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
 			// Show a "select all" box for quick moderation?
 			if (empty($context['can_quick_mod']))
 				echo '
@@ -241,13 +248,9 @@ function template_main()
 			// Some columns require a different shade of the color class.
 			$alternate_class = $color_class . '2';
 
-			// [WIP] There is trial code here to hide the topic icon column. Hardly anyone will miss it.
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 				<tr>
-					<td class="', $color_class, ' icon1" style="display: none;">
-						<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
-					</td>
 					<td class="', $color_class, ' icon2">
 						<div style="position: relative; width: 40px; margin: auto;">
 							<img src="', $topic['first_post']['icon_url'], '" alt="" />
@@ -373,14 +376,11 @@ function template_main()
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
 				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				<img src="' . $settings['images_url'] . '/topic/normal_post.png" alt="" class="centericon" /> ' . $txt['normal_topic'] . '<br />
-				<img src="' . $settings['images_url'] . '/topic/hot_post.png" alt="" class="centericon" /> ' . sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']) . '<br />
-				<img src="' . $settings['images_url'] . '/topic/veryhot_post.png" alt="" class="centericon" /> ' . sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']) . '
+				'. ($modSettings['pollMode'] == '1' ? '<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '
 			</p>
 			<p>
 				<img src="' . $settings['images_url'] . '/icons/quick_lock.png" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />' . ($modSettings['enableStickyTopics'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />' : '') . ($modSettings['pollMode'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '
+				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />' : '') . '
 			</p>';
 
 	echo '
