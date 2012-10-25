@@ -584,8 +584,9 @@ function prepareServerSettingsContext(&$config_vars)
  * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars
+ * @param array $override array that holds the settings to be used, if not specified $modSettings will be used instead
  */
-function prepareDBSettingContext(&$config_vars)
+function prepareDBSettingContext(&$config_vars, $override = array())
 {
 	global $txt, $helptxt, $context, $modSettings, $sourcedir;
 
@@ -594,6 +595,8 @@ function prepareDBSettingContext(&$config_vars)
 	$context['config_vars'] = array();
 	$inlinePermissions = array();
 	$bbcChoice = array();
+	$realSettings = !empty($override) && is_array($override) ? $override : $modSettings;
+
 	foreach ($config_vars as $config_var)
 	{
 		// HR?
@@ -622,13 +625,14 @@ function prepareDBSettingContext(&$config_vars)
 				'size' => !empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], array('int', 'float')) ? 6 : 0),
 				'data' => array(),
 				'name' => $config_var[1],
-				'value' => isset($modSettings[$config_var[1]]) ? ($config_var[0] == 'select' ? $modSettings[$config_var[1]] : htmlspecialchars($modSettings[$config_var[1]])) : (in_array($config_var[0], array('int', 'float')) ? 0 : ''),
+				'value' => isset($realSettings[$config_var[1]]) ? ($config_var[0] == 'select' ? $realSettings[$config_var[1]] : htmlspecialchars($realSettings[$config_var[1]])) : (in_array($config_var[0], array('int', 'float')) ? 0 : ''),
 				'disabled' => false,
 				'invalid' => !empty($config_var['invalid']),
 				'javascript' => '',
 				'var_message' => !empty($config_var['message']) && isset($txt[$config_var['message']]) ? $txt[$config_var['message']] : '',
 				'preinput' => isset($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => isset($config_var['postinput']) ? $config_var['postinput'] : '',
+				'array' => isset($config_var['array']) ? $config_var['array'] : '',
 			);
 
 			// If this is a select box handle any data.
@@ -847,49 +851,58 @@ function saveSettings(&$config_vars)
  * @todo see rev. 10406 from 2.1-requests
  *
  * @param array $config_vars
+ * @param mixed $callback if boolean true returns an array with the options that should be saved, is string it represent a function that will save the settings to a db table (default empty, equivalent to updateSettings)
+ *
  */
-function saveDBSettings(&$config_vars)
+function saveDBSettings(&$config_vars, $callback = null, $overridePost = array())
 {
 	global $sourcedir, $context;
 
 	validateToken('admin-dbsc');
 
 	$inlinePermissions = array();
+	$settingArray = !empty($overridePost) && is_array($overridePost) ? $overridePost : $_POST;
 	foreach ($config_vars as $var)
 	{
-		if (!isset($var[1]) || (!isset($_POST[$var[1]]) && $var[0] != 'check' && $var[0] != 'permissions' && ($var[0] != 'bbc' || !isset($_POST[$var[1] . '_enabledTags']))))
+		$setValue = null;
+		if (isset($var['array']) && isset($settingArray[$var['array']]))
+			$realCheck = $settingArray[$var['array']];
+		else
+			$realCheck = isset($var['array']) && isset($settingArray[$var['array']]) ? $settingArray[$var['array']] : $settingArray;
+
+		if (!isset($var[1]) || (!isset($realCheck[$var[1]]) && $var[0] != 'check' && $var[0] != 'permissions' && ($var[0] != 'bbc' || !isset($realCheck[$var[1] . '_enabledTags']))))
 			continue;
 
 		// Checkboxes!
 		elseif ($var[0] == 'check')
-			$setArray[$var[1]] = !empty($_POST[$var[1]]) ? '1' : '0';
+			$setValue = !empty($realCheck[$var[1]]) ? '1' : '0';
 		// Select boxes!
-		elseif ($var[0] == 'select' && in_array($_POST[$var[1]], array_keys($var[2])))
-			$setArray[$var[1]] = $_POST[$var[1]];
-		elseif ($var[0] == 'select' && !empty($var['multiple']) && array_intersect($_POST[$var[1]], array_keys($var[2])) != array())
+		elseif ($var[0] == 'select' && in_array($realCheck[$var[1]], array_keys($var[2])))
+			$setValue = $realCheck[$var[1]];
+		elseif ($var[0] == 'select' && !empty($var['multiple']) && array_intersect($realCheck[$var[1]], array_keys($var[2])) != array())
 		{
 			// For security purposes we validate this line by line.
 			$options = array();
-			foreach ($_POST[$var[1]] as $invar)
+			foreach ($realCheck[$var[1]] as $invar)
 				if (in_array($invar, array_keys($var[2])))
 					$options[] = $invar;
 
-			$setArray[$var[1]] = serialize($options);
+			$setValue = serialize($options);
 		}
 		// Integers!
 		elseif ($var[0] == 'int')
-			$setArray[$var[1]] = (int) $_POST[$var[1]];
+			$setValue = (int) $realCheck[$var[1]];
 		// Floating point!
 		elseif ($var[0] == 'float')
-			$setArray[$var[1]] = (float) $_POST[$var[1]];
+			$setValue = (float) $realCheck[$var[1]];
 		// Text!
 		elseif ($var[0] == 'text' || $var[0] == 'large_text')
-			$setArray[$var[1]] = $_POST[$var[1]];
+			$setValue = $realCheck[$var[1]];
 		// Passwords!
 		elseif ($var[0] == 'password')
 		{
-			if (isset($_POST[$var[1]][1]) && $_POST[$var[1]][0] == $_POST[$var[1]][1])
-				$setArray[$var[1]] = $_POST[$var[1]][0];
+			if (isset($realCheck[$var[1]][1]) && $realCheck[$var[1]][0] == $realCheck[$var[1]][1])
+				$setValue = $realCheck[$var[1]][0];
 		}
 		// BBC.
 		elseif ($var[0] == 'bbc')
@@ -899,20 +912,39 @@ function saveDBSettings(&$config_vars)
 			foreach (parse_bbc(false) as $tag)
 				$bbcTags[] = $tag['tag'];
 
-			if (!isset($_POST[$var[1] . '_enabledTags']))
-				$_POST[$var[1] . '_enabledTags'] = array();
-			elseif (!is_array($_POST[$var[1] . '_enabledTags']))
-				$_POST[$var[1] . '_enabledTags'] = array($_POST[$var[1] . '_enabledTags']);
+			if (!isset($realCheck[$var[1] . '_enabledTags']))
+				$realCheck[$var[1] . '_enabledTags'] = array();
+			elseif (!is_array($realCheck[$var[1] . '_enabledTags']))
+				$realCheck[$var[1] . '_enabledTags'] = array($realCheck[$var[1] . '_enabledTags']);
 
-			$setArray[$var[1]] = implode(',', array_diff($bbcTags, $_POST[$var[1] . '_enabledTags']));
+			$setValue = implode(',', array_diff($bbcTags, $realCheck[$var[1] . '_enabledTags']));
 		}
 		// Permissions?
 		elseif ($var[0] == 'permissions')
 			$inlinePermissions[] = $var[1];
+
+		if (isset($var['array']))
+			$setArray[$var['array']][$var[1]] = $setValue;
+		else
+			$setArray[$var[1]] = $setValue;
 	}
 
 	if (!empty($setArray))
-		updateSettings($setArray);
+	{
+		if (!empty($callback))
+		{
+			if ($callback === true)
+				return $setArray;
+
+			$call = strpos($callback, '::') !== false ? explode('::', $callback) : $callback;
+			if (!empty($call) && is_callable($call))
+				call_user_func_array($call, array($setArray));
+			else
+				fatal_lang_error('invalid_save_function');
+		}
+		else
+			updateSettings($setArray);
+	}
 
 	// If we have inline permissions we need to save them.
 	if (!empty($inlinePermissions) && allowedTo('manage_permissions'))

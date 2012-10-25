@@ -315,7 +315,7 @@ function ThemeList()
  */
 function SetThemeOptions()
 {
-	global $txt, $context, $settings, $modSettings, $smcFunc;
+	global $txt, $context, $settings, $modSettings, $smcFunc, $scripturl, $sourcedir;
 
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
 
@@ -400,180 +400,8 @@ function SetThemeOptions()
 		return;
 	}
 
-	// Submit?
-	if (isset($_POST['submit']) && empty($_POST['who']))
-	{
-		checkSession();
-		validateToken('admin-sto');
-
-		if (empty($_POST['options']))
-			$_POST['options'] = array();
-		if (empty($_POST['default_options']))
-			$_POST['default_options'] = array();
-
-		// Set up the sql query.
-		$setValues = array();
-
-		foreach ($_POST['options'] as $opt => $val)
-			$setValues[] = array(-1, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val);
-
-		$old_settings = array();
-		foreach ($_POST['default_options'] as $opt => $val)
-		{
-			$old_settings[] = $opt;
-
-			$setValues[] = array(-1, 1, $opt, is_array($val) ? implode(',', $val) : $val);
-		}
-
-		// If we're actually inserting something..
-		if (!empty($setValues))
-		{
-			// Are there options in non-default themes set that should be cleared?
-			if (!empty($old_settings))
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE id_theme != {int:default_theme}
-						AND id_member = {int:guest_member}
-						AND variable IN ({array_string:old_settings})',
-					array(
-						'default_theme' => 1,
-						'guest_member' => -1,
-						'old_settings' => $old_settings,
-					)
-				);
-
-			$smcFunc['db_insert']('replace',
-				'{db_prefix}themes',
-				array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
-				$setValues,
-				array('id_theme', 'variable', 'id_member')
-			);
-		}
-
-		cache_put_data('theme_settings-' . $_GET['th'], null, 90);
-		cache_put_data('theme_settings-1', null, 90);
-
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
-	}
-	elseif (isset($_POST['submit']) && $_POST['who'] == 1)
-	{
-		checkSession();
-		validateToken('admin-sto');
-
-		$_POST['options'] = empty($_POST['options']) ? array() : $_POST['options'];
-		$_POST['options_master'] = empty($_POST['options_master']) ? array() : $_POST['options_master'];
-		$_POST['default_options'] = empty($_POST['default_options']) ? array() : $_POST['default_options'];
-		$_POST['default_options_master'] = empty($_POST['default_options_master']) ? array() : $_POST['default_options_master'];
-
-		$old_settings = array();
-		foreach ($_POST['default_options'] as $opt => $val)
-		{
-			if ($_POST['default_options_master'][$opt] == 0)
-				continue;
-			elseif ($_POST['default_options_master'][$opt] == 1)
-			{
-				// Delete then insert for ease of database compatibility!
-				$smcFunc['db_query']('substring', '
-					DELETE FROM {db_prefix}themes
-					WHERE id_theme = {int:default_theme}
-						AND id_member != {int:no_member}
-						AND variable = SUBSTRING({string:option}, 1, 255)',
-					array(
-						'default_theme' => 1,
-						'no_member' => 0,
-						'option' => $opt,
-					)
-				);
-				$smcFunc['db_query']('substring', '
-					INSERT INTO {db_prefix}themes
-						(id_member, id_theme, variable, value)
-					SELECT id_member, 1, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
-					FROM {db_prefix}members',
-					array(
-						'option' => $opt,
-						'value' => (is_array($val) ? implode(',', $val) : $val),
-					)
-				);
-
-				$old_settings[] = $opt;
-			}
-			elseif ($_POST['default_options_master'][$opt] == 2)
-			{
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE variable = {string:option_name}
-						AND id_member > {int:no_member}',
-					array(
-						'no_member' => 0,
-						'option_name' => $opt,
-					)
-				);
-			}
-		}
-
-		// Delete options from other themes.
-		if (!empty($old_settings))
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}themes
-				WHERE id_theme != {int:default_theme}
-					AND id_member > {int:no_member}
-					AND variable IN ({array_string:old_settings})',
-				array(
-					'default_theme' => 1,
-					'no_member' => 0,
-					'old_settings' => $old_settings,
-				)
-			);
-
-		foreach ($_POST['options'] as $opt => $val)
-		{
-			if ($_POST['options_master'][$opt] == 0)
-				continue;
-			elseif ($_POST['options_master'][$opt] == 1)
-			{
-				// Delete then insert for ease of database compatibility - again!
-				$smcFunc['db_query']('substring', '
-					DELETE FROM {db_prefix}themes
-					WHERE id_theme = {int:current_theme}
-						AND id_member != {int:no_member}
-						AND variable = SUBSTRING({string:option}, 1, 255)',
-					array(
-						'current_theme' => $_GET['th'],
-						'no_member' => 0,
-						'option' => $opt,
-					)
-				);
-				$smcFunc['db_query']('substring', '
-					INSERT INTO {db_prefix}themes
-						(id_member, id_theme, variable, value)
-					SELECT id_member, {int:current_theme}, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
-					FROM {db_prefix}members',
-					array(
-						'current_theme' => $_GET['th'],
-						'option' => $opt,
-						'value' => (is_array($val) ? implode(',', $val) : $val),
-					)
-				);
-			}
-			elseif ($_POST['options_master'][$opt] == 2)
-			{
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}themes
-					WHERE variable = {string:option}
-						AND id_member > {int:no_member}
-						AND id_theme = {int:current_theme}',
-					array(
-						'no_member' => 0,
-						'current_theme' => $_GET['th'],
-						'option' => $opt,
-					)
-				);
-			}
-		}
-
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
-	}
-	elseif (!empty($_GET['who']) && $_GET['who'] == 2)
+	// Saving a reset (i.e Remove all members' options and use the defaults)
+	if (!empty($_GET['who']) && $_GET['who'] == 2)
 	{
 		checkSession('get');
 		validateToken('admin-stor', 'request');
@@ -609,6 +437,7 @@ function SetThemeOptions()
 		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
 	}
 
+	// Prepare for retrieving settings and retrieve settings
 	$old_id = $settings['theme_id'];
 	$old_settings = $settings;
 
@@ -621,12 +450,15 @@ function SetThemeOptions()
 	// Let the theme take care of the settings.
 	loadTemplate('Settings');
 	loadSubTemplate('options');
+	// @todo if this will be used, maybe it's better to move the function to the Settings template
+	loadTemplate('Admin');
+	require_once($sourcedir . '/ManageServer.php');
 
-	$context['sub_template'] = 'set_options';
+	$context['sub_template'] = 'show_settings';
+	$context['post_url'] = $scripturl . '?action=admin;area=theme;sa=reset;save;th=' . $_GET['th'];
 	$context['page_title'] = $txt['theme_settings'];
 
-	$context['options'] = $context['theme_options'];
-	$context['theme_settings'] = $settings;
+	$themeCurOpt = array();
 
 	if (empty($_REQUEST['who']))
 	{
@@ -640,52 +472,257 @@ function SetThemeOptions()
 				'guest_member' => -1,
 			)
 		);
-		$context['theme_options'] = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['theme_options'][$row['variable']] = $row['value'];
+			$themeCurOpt[$row['variable']] = $row['value'];
 		$smcFunc['db_free_result']($request);
 
-		$context['theme_options_reset'] = false;
+		$theme_options_reset = false;
 	}
 	else
 	{
-		$context['theme_options'] = array();
-		$context['theme_options_reset'] = true;
+		$theme_options_reset = '
+							<span class="floatleft"><select name="%1$soptions_master[%2$s]" onchange="this.form.%2$s.disabled = this.selectedIndex != 1;">
+								<option value="0" selected="selected">' . $txt['themeadmin_reset_options_none'] . '</option>
+								<option value="1">' . $txt['themeadmin_reset_options_change'] . '</option>
+								<option value="2">' . $txt['themeadmin_reset_options_default'] . '</option>
+							</select>&nbsp;</span>';
 	}
 
-	foreach ($context['options'] as $i => $setting)
+	$themeOptions = array();
+	$themeValues = array();
+	foreach ($context['theme_options'] as $i => $setting)
 	{
 		// Is this disabled?
 		if ($setting['id'] == 'calendar_start_day' && empty($modSettings['cal_enabled']))
-		{
-			unset($context['options'][$i]);
 			continue;
-		}
 		elseif (($setting['id'] == 'topics_per_page' || $setting['id'] == 'messages_per_page') && !empty($modSettings['disableCustomPerPage']))
-		{
-			unset($context['options'][$i]);
 			continue;
-		}
 
 		if (!isset($setting['type']) || $setting['type'] == 'bool')
-			$context['options'][$i]['type'] = 'checkbox';
+			$themeOptions[$i][0] = 'check';
 		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
-			$context['options'][$i]['type'] = 'number';
+			$themeOptions[$i][0] = 'int';
 		elseif ($setting['type'] == 'string')
-			$context['options'][$i]['type'] = 'text';
+			$themeOptions[$i][0] = 'text';
+
+		$themeOptions[$i] += array(
+			1 => $setting['id'],
+			'text_label' => $setting['label'],
+			'array' => !empty($setting['default']) ? 'default_options' : 'options',
+		);
+
+		if ($theme_options_reset)
+			$themeOptions[$i]['preinput'] = sprintf($theme_options_reset, !empty($setting['default']) ? 'default_' : '', $setting['id']);
 
 		if (isset($setting['options']))
-			$context['options'][$i]['type'] = 'list';
+		{
+			$themeOptions[$i][0] = 'select';
+			foreach ($setting['options'] as $l => $v)
+				$themeOptions[$i][2][$l] = $v;
+		}
 
-		$context['options'][$i]['value'] = !isset($context['theme_options'][$setting['id']]) ? '' : $context['theme_options'][$setting['id']];
+		$themeValues[$setting['id']] = !isset($themeCurOpt[$setting['id']]) ? '' : $themeCurOpt[$setting['id']];
 	}
+
+	if ($theme_options_reset)
+		$context['settings_post_javascript'] = '
+		var wanna_disable = [\'' . implode('\', \'', array_keys($themeValues)) . '\'];
+		for (var settingID in wanna_disable)
+		{
+			document.getElementById(wanna_disable[settingID]).disabled = true;
+		}';
 
 	// Restore the existing theme.
 	loadTheme($old_id, false);
 	$settings = $old_settings;
 
-	loadTemplate('Themes');
+	// Submit?
+	if (isset($_REQUEST['save']))
+	{
+		validateToken('admin-sto');
+		checkSession();
+		$saveSettings = saveDBSettings($themeOptions, true);
+
+		// Configure guest and new user options for this theme
+		if (empty($_POST['who']))
+		{
+			// Set up the sql query.
+			$setValues = array();
+			$old_settings = array();
+
+			if (!empty($saveSettings['options']))
+				foreach ($saveSettings['options'] as $opt => $val)
+					$setValues[] = array(-1, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val);
+
+			if (!empty($saveSettings['default_options']))
+				foreach ($saveSettings['default_options'] as $opt => $val)
+				{
+						$old_settings[] = substr($opt, 8);
+
+						$setValues[] = array(-1, 1, substr($opt, 8), is_array($val) ? implode(',', $val) : $val);
+				}
+
+			// If we're actually inserting something..
+			if (!empty($setValues))
+			{
+				// Are there options in non-default themes set that should be cleared?
+				if (!empty($old_settings))
+					$smcFunc['db_query']('', '
+						DELETE FROM {db_prefix}themes
+						WHERE id_theme != {int:default_theme}
+							AND id_member = {int:guest_member}
+							AND variable IN ({array_string:old_settings})',
+						array(
+							'default_theme' => 1,
+							'guest_member' => -1,
+							'old_settings' => $old_settings,
+						)
+					);
+
+				$smcFunc['db_insert']('replace',
+					'{db_prefix}themes',
+					array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'),
+					$setValues,
+					array('id_theme', 'variable', 'id_member')
+				);
+			}
+
+			cache_put_data('theme_settings-' . $_GET['th'], null, 90);
+			cache_put_data('theme_settings-1', null, 90);
+
+			redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
+		}
+		// Change current options for all members using this theme
+		elseif ($_POST['who'] == 1)
+		{
+			$themeMasterOptions = array();
+			foreach ($themeOptions as $i => $val)
+			{
+				$val['array'] = $val['array'] == 'default_options' ? 'default_options_master' : 'options_master';
+				$val[0] = 'select';
+				$val[2] = array(0, 1, 2);
+				$themeMasterOptions[$i] = $val;
+			}
+
+			$saveMasterSettings = saveDBSettings($themeMasterOptions, true);
+
+			$old_settings = array();
+			foreach ($saveSettings['default_options'] as $opt => $val)
+			{
+				if ($saveMasterSettings['default_options_master'][$opt] == 0)
+					continue;
+				elseif ($saveMasterSettings['default_options_master'][$opt] == 1)
+				{
+					// Delete then insert for ease of database compatibility!
+					$smcFunc['db_query']('substring', '
+						DELETE FROM {db_prefix}themes
+						WHERE id_theme = {int:default_theme}
+							AND id_member != {int:no_member}
+							AND variable = SUBSTRING({string:option}, 1, 255)',
+						array(
+							'default_theme' => 1,
+							'no_member' => 0,
+							'option' => $opt,
+						)
+					);
+					$smcFunc['db_query']('substring', '
+						INSERT INTO {db_prefix}themes
+							(id_member, id_theme, variable, value)
+						SELECT id_member, 1, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
+						FROM {db_prefix}members',
+						array(
+							'option' => $opt,
+							'value' => (is_array($val) ? implode(',', $val) : $val),
+						)
+					);
+
+					$old_settings[] = $opt;
+				}
+				elseif ($saveMasterSettings['default_options_master'][$opt] == 2)
+				{
+					$smcFunc['db_query']('', '
+						DELETE FROM {db_prefix}themes
+						WHERE variable = {string:option_name}
+							AND id_member > {int:no_member}',
+						array(
+							'no_member' => 0,
+							'option_name' => $opt,
+						)
+					);
+				}
+			}
+
+			// Delete options from other themes.
+			if (!empty($old_settings))
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}themes
+					WHERE id_theme != {int:default_theme}
+						AND id_member > {int:no_member}
+						AND variable IN ({array_string:old_settings})',
+					array(
+						'default_theme' => 1,
+						'no_member' => 0,
+						'old_settings' => $old_settings,
+					)
+				);
+
+			foreach ($saveSettings['options'] as $opt => $val)
+			{
+				if ($saveMasterSettings['options_master'][$opt] == 0)
+					continue;
+				elseif ($saveMasterSettings['options_master'][$opt] == 1)
+				{
+					// Delete then insert for ease of database compatibility - again!
+					$smcFunc['db_query']('substring', '
+						DELETE FROM {db_prefix}themes
+						WHERE id_theme = {int:current_theme}
+							AND id_member != {int:no_member}
+							AND variable = SUBSTRING({string:option}, 1, 255)',
+						array(
+							'current_theme' => $_GET['th'],
+							'no_member' => 0,
+							'option' => $opt,
+						)
+					);
+					$smcFunc['db_query']('substring', '
+						INSERT INTO {db_prefix}themes
+							(id_member, id_theme, variable, value)
+						SELECT id_member, {int:current_theme}, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
+						FROM {db_prefix}members',
+						array(
+							'current_theme' => $_GET['th'],
+							'option' => $opt,
+							'value' => (is_array($val) ? implode(',', $val) : $val),
+						)
+					);
+				}
+				elseif ($saveMasterSettings['options_master'][$opt] == 2)
+				{
+					$smcFunc['db_query']('', '
+						DELETE FROM {db_prefix}themes
+						WHERE variable = {string:option}
+							AND id_member > {int:no_member}
+							AND id_theme = {int:current_theme}',
+						array(
+							'no_member' => 0,
+							'current_theme' => $_GET['th'],
+							'option' => $opt,
+						)
+					);
+				}
+			}
+
+		}
+		// Saved, redirect.
+		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=reset');
+	}
+
+	prepareDBSettingContext($themeOptions, $themeValues);
+
 	createToken('admin-sto');
+	$context['hidden_fields'][$context['admin-sto_token_var']] = $context['admin-sto_token'];
+	if (isset($_GET['who']) && $_GET['who'] == 1)
+		$context['hidden_fields']['who'] = 1;
 }
 
 /**
@@ -698,7 +735,7 @@ function SetThemeOptions()
  */
 function SetThemeSettings()
 {
-	global $txt, $context, $settings, $modSettings, $sourcedir, $smcFunc;
+	global $txt, $context, $settings, $modSettings, $sourcedir, $smcFunc, $scripturl;
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
@@ -741,6 +778,65 @@ function SetThemeSettings()
 	loadTemplate('Settings');
 	loadSubTemplate('settings');
 
+	$context['sub_template'] = 'set_settings';
+	$context['sub_template'] = 'show_settings';
+	$context['page_title'] = $txt['theme_settings'];
+	$context['post_url'] = $scripturl . '?action=admin;area=theme;sa=list;save;th=' . $_GET['th'];
+
+	foreach ($settings as $setting => $dummy)
+	{
+		if (!in_array($setting, array('theme_url', 'theme_dir', 'images_url', 'template_dirs')))
+			$settings[$setting] = htmlspecialchars__recursive($settings[$setting]);
+	}
+
+	$theme_settings = array();
+	$theme_values = array();
+
+	$count_themeid = 0;
+	if ($settings['theme_id'] != 1)
+	{
+		$count_themeid = 2;
+		$theme_settings[] = array(
+			0 => '',
+			1 => 'theme_edit',
+			'type' => 'title',
+			'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_edit'],
+		);
+		$theme_settings[] = array(
+			0 => 'message',
+			1 => 'theme_edit_links',
+			'label' => '
+					<ul class="reset">
+						<li>
+							<a href="' . $scripturl . '?action=admin;area=theme;th=' . $settings['theme_id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;filename=index.template.php">' . $txt['theme_edit_index'] . '</a>
+						</li>
+						<li>
+							<a href="' . $scripturl . '?action=admin;area=theme;th=' . $settings['theme_id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=css">' . $txt['theme_edit_style'] . '</a>
+						</li>
+					</ul>',
+			'force_div_id' => 'theme_edit_links',
+		);
+	}
+
+	$theme_settings[] = array(
+		0 => '',
+		1 => 'theme_url_config',
+		'type' => 'title',
+		'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_url_config'],
+	);
+	foreach (array('name', 'theme_url', 'images_url', 'theme_dir') as $setting)
+	{
+		$theme_settings[] = array(
+			0 => 'text',
+			1 => $setting,
+			2 => 50,
+			'text_label' => $txt['actual_' . (substr($setting, 0, 6) == 'theme_' ? '' : 'theme_') . $setting],
+			'array' => 'options',
+		);
+		$theme_values[$setting] = !isset($settings[$setting]) ? '' : $settings[$setting];
+	}
+
+	$count_variants = 0;
 	// Load the variants separately...
 	$settings['theme_variants'] = array();
 	if (file_exists($settings['theme_dir'] . '/index.template.php'))
@@ -748,45 +844,142 @@ function SetThemeSettings()
 		$file_contents = implode('', file($settings['theme_dir'] . '/index.template.php'));
 		if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
 				eval('global $settings;' . $matches[0]);
+
+		if (!empty($settings['theme_variants']))
+		{
+			$count_variants = 4;
+
+			$theme_settings[] = array(
+				0 => '',
+				1 => 'theme_variants',
+				'type' => 'title',
+				'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_variants'],
+				'array' => 'options',
+			);
+
+			$theme_variants = array();
+			$variants_values = array();
+			foreach ($settings['theme_variants'] as $variant)
+			{
+				// Have any text, old chap?
+				$theme_variants[$variant] = array(
+					'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
+					'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
+				);
+				$variants_values[$variant] = $variant;
+			}
+
+			$theme_settings[] = array(
+				0 => 'select',
+				1 => 'default_variant',
+				2 => $variants_values,
+				'text_label' => $txt['theme_variants_default'],
+				'onchange' => 'changeVariant(this.value)',
+				'array' => 'options',
+			);
+			$theme_values['default_variant'] = !empty($settings['default_variant']) && isset($theme_variants[$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
+
+			$theme_settings[] = array(
+				0 => 'check',
+				1 => 'disable_user_variant',
+				'text_label' => $txt['theme_variants_user_disable'],
+				'array' => 'options',
+			);
+			$theme_values['disable_user_variant'] = !isset($settings['disable_user_variant']) ? '' : $settings['disable_user_variant'];
+
+			$theme_settings[] = array(
+				0 => 'message',
+				1 => 'variant_preview',
+				'label' => '<img src="' . $theme_variants[$theme_values['default_variant']]['thumbnail'] . '" id="variant_preview" alt="" />',
+				'array' => 'options',
+			);
+
+		$context['settings_post_javascript'] = '
+		var oThumbnails = {';
+
+		// All the variant thumbnails.
+		$count = 1;
+		foreach ($theme_variants as $key => $variant)
+		{
+			$context['settings_post_javascript'] .= '
+			\'' . $key . '\': \'' . $variant['thumbnail'] . '\'' . (count($theme_variants) == $count ? '' : ',');
+			$count++;
+		}
+
+		$context['settings_post_javascript'] .= '
+		};';
+		}
 	}
 
-	// Submitting!
-	if (isset($_POST['save']))
+	$theme_settings[] = array(
+		0 => '',
+		1 => 'theme_options',
+		'type' => 'title',
+		'label' => '<img src="' . $settings['images_url'] . '/icons/config_hd.png" alt="" class="icon" /> ' . $txt['theme_options'],
+	);
+
+	foreach ($context['theme_settings'] as $i => $setting)
 	{
-		checkSession();
-		validateToken('admin-sts');
-
-		if (empty($_POST['options']))
-			$_POST['options'] = array();
-		if (empty($_POST['default_options']))
-			$_POST['default_options'] = array();
-
-		// Make sure items are cast correctly.
-		foreach ($context['theme_settings'] as $item)
+		$id = $i + $count_themeid + 6 + $count_variants;
+		// Separators are dummies, so leave them alone.
+		if (!is_array($setting))
 		{
-			// Disregard this item if this is just a separator.
-			if (!is_array($item))
-				continue;
-
-			foreach (array('options', 'default_options') as $option)
-			{
-				if (!isset($_POST[$option][$item['id']]))
-					continue;
-				// Checkbox.
-				elseif (empty($item['type']))
-					$_POST[$option][$item['id']] = $_POST[$option][$item['id']] ? 1 : 0;
-				// Number
-				elseif ($item['type'] == 'number')
-					$_POST[$option][$item['id']] = (int) $_POST[$option][$item['id']];
-			}
+			$theme_settings[$id] = '';
+			continue;
 		}
+
+		if (!isset($setting['type']) || $setting['type'] == 'bool')
+			$theme_settings[$id][0] = 'check';
+		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer' || $setting['type'] == 'number')
+			$theme_settings[$id][0] = 'int';
+		elseif ($setting['type'] == 'string' || $setting['type'] == 'text')
+			$theme_settings[$id][0] = 'text';
+
+		$theme_settings[$id] += array(
+			1 => $setting['id'],
+			'text_label' => $setting['label'],
+			'array' => !empty($setting['default']) ? 'default_options' : 'options',
+		);
+
+		if (isset($setting['options']))
+		{
+			$theme_settings[$id][0] = 'select';
+			foreach ($setting['options'] as $l => $v)
+				$theme_settings[$id][2][$l] = $v;
+		}
+
+		$theme_values[$setting['id']] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
+	}
+
+	// Restore the current theme.
+	loadTheme($old_id, false);
+
+	// Reinit just incase.
+	loadSubTemplate('init', 'ignore');
+
+	$settings = $old_settings;
+
+	loadTemplate('Themes');
+	loadTemplate('Admin');
+	require_once($sourcedir . '/ManageServer.php');
+	$context['settings_title']= '<a href="' . $scripturl . '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" alt="' . $txt['help'] . '" class="icon" /></a> ' . $txt['theme_settings'] . ' - ' . $settings['name'];
+
+	// Submitting!
+	if (isset($_REQUEST['save']))
+	{
+		validateToken('admin-sts');
+		checkSession();
+
+		$saveOptions = saveDBSettings($theme_settings, true);
 
 		// Set up the sql query.
 		$inserts = array();
-		foreach ($_POST['options'] as $opt => $val)
-			$inserts[] = array(0, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val);
-		foreach ($_POST['default_options'] as $opt => $val)
-			$inserts[] = array(0, 1, $opt, is_array($val) ? implode(',', $val) : $val);
+		if (!empty($saveOptions['options']))
+			foreach ($saveOptions['options'] as $opt => $val)
+				$inserts[] = array(0, $_GET['th'], $opt, is_array($val) ? implode(',', $val) : $val);
+		if (!empty($saveOptions['default_options']))
+			foreach ($saveOptions['default_options'] as $opt => $val)
+				$inserts[] = array(0, 1, $opt, is_array($val) ? implode(',', $val) : $val);
 		// If we're actually inserting something..
 		if (!empty($inserts))
 		{
@@ -807,64 +1000,13 @@ function SetThemeSettings()
 		redirectexit('action=admin;area=theme;sa=list;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	$context['sub_template'] = 'set_settings';
-	$context['page_title'] = $txt['theme_settings'];
-
-	foreach ($settings as $setting => $dummy)
-	{
-		if (!in_array($setting, array('theme_url', 'theme_dir', 'images_url', 'template_dirs')))
-			$settings[$setting] = htmlspecialchars__recursive($settings[$setting]);
-	}
-
-	$context['settings'] = $context['theme_settings'];
-	$context['theme_settings'] = $settings;
-
-	foreach ($context['settings'] as $i => $setting)
-	{
-		// Separators are dummies, so leave them alone.
-		if (!is_array($setting))
-			continue;
-
-		if (!isset($setting['type']) || $setting['type'] == 'bool')
-			$context['settings'][$i]['type'] = 'checkbox';
-		elseif ($setting['type'] == 'int' || $setting['type'] == 'integer')
-			$context['settings'][$i]['type'] = 'number';
-		elseif ($setting['type'] == 'string')
-			$context['settings'][$i]['type'] = 'text';
-
-		if (isset($setting['options']))
-			$context['settings'][$i]['type'] = 'list';
-
-		$context['settings'][$i]['value'] = !isset($settings[$setting['id']]) ? '' : $settings[$setting['id']];
-	}
-
-	// Do we support variants?
-	if (!empty($settings['theme_variants']))
-	{
-		$context['theme_variants'] = array();
-		foreach ($settings['theme_variants'] as $variant)
-		{
-			// Have any text, old chap?
-			$context['theme_variants'][$variant] = array(
-				'label' => isset($txt['variant_' . $variant]) ? $txt['variant_' . $variant] : $variant,
-				'thumbnail' => !file_exists($settings['theme_dir'] . '/images/thumbnail.png') || file_exists($settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $settings['images_url'] . '/thumbnail_' . $variant . '.png' : ($settings['images_url'] . '/thumbnail.png'),
-			);
-		}
-		$context['default_variant'] = !empty($settings['default_variant']) && isset($context['theme_variants'][$settings['default_variant']]) ? $settings['default_variant'] : $settings['theme_variants'][0];
-	}
-
-	// Restore the current theme.
-	loadTheme($old_id, false);
-
-	// Reinit just incase.
-	loadSubTemplate('init', 'ignore');
-
-	$settings = $old_settings;
-
-	loadTemplate('Themes');
+	prepareDBSettingContext($theme_settings, $theme_values);
 
 	// We like Kenny better than Token.
 	createToken('admin-sts');
+	$context['hidden_fields'][$context['admin-sts_token_var']] = $context['admin-sts_token'];
+	if (isset($_GET['who']) && $_GET['who'] == 1)
+		$context['hidden_fields']['who'] = 1;
 }
 
 /**
@@ -950,6 +1092,7 @@ function PickTheme()
 
 	loadLanguage('Profile');
 	loadTemplate('Themes');
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
 
 	// Build the link tree.
 	$context['linktree'][] = array(
