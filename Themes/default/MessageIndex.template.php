@@ -117,6 +117,11 @@ function template_main()
 		}
 		echo '
 			</tbody>
+			<tbody class="divider">
+				<tr>
+					<td colspan="4"></td>
+				</tr>
+			</tbody>
 		</table>
 	</div>';
 	}
@@ -140,7 +145,7 @@ function template_main()
 		<h3 class="catbg">', $context['name'], '</h3>
 	</div>
 	<p class="description_board">
-		', $context['description'], '<br/>';
+		', $context['description'], '<br />';
 	else
 		echo '
 	<p class="description_board">';

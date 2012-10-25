@@ -2204,7 +2204,7 @@ VALUES (1, 1, 1, 1, 0, 0);
 #
 
 CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int unsigned NOT NULL auto_increment,
+  id_draft int primary key,
   id_topic int unsigned NOT NULL default '0',
   id_board smallint unsigned NOT NULL default '0',
   id_reply int unsigned NOT NULL default '0',
@@ -2218,8 +2218,7 @@ CREATE TABLE {$db_prefix}user_drafts (
   locked smallint NOT NULL default '0',
   is_sticky smallint NOT NULL default '0',
   to_list varchar(255) NOT NULL default '',
-  outbox smallint NOT NULL default '0',
-  PRIMARY KEY (id_draft)
+  outbox smallint NOT NULL default '0'
 );
 
 #

@@ -54,7 +54,7 @@ function ManageAttachments()
 		'transfer' => 'TransferAttachments',
 	);
 
-	call_integration_hook('integrate_manage_attachments', array(&$subActions));
+	call_integration_hook('integrate_manage_attachments', array($subActions));
 
 	// Pick the correct sub-action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
@@ -189,7 +189,7 @@ function ManageAttachmentSettings($return_config = false)
 	base_dir.addEventListener("change", toggleSubDir, false);
 	toggleSubDir();';
 
-	call_integration_hook('integrate_modify_attachment_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_attachment_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -319,7 +319,7 @@ function ManageAvatarSettings($return_config = false)
 			array('text', 'custom_avatar_url', 40),
 	);
 
-	call_integration_hook('integrate_modify_avatar_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_avatar_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;

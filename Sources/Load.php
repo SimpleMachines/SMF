@@ -950,7 +950,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		trigger_error('loadMemberData(): Invalid member data set \'' . $set . '\'', E_USER_WARNING);
 
 	// Allow mods to easily add to the selected member data
-	call_integration_hook('integrate_load_member_data', array(&$select_columns, &$select_tables));
+	call_integration_hook('integrate_load_member_data', array($select_columns, $select_tables));
 
 	if (!empty($users))
 	{
@@ -1236,7 +1236,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		}
 	}
 
-	call_integration_hook('integrate_member_context', array(&$user, $display_custom_fields));
+	call_integration_hook('integrate_member_context', array($user, $display_custom_fields));
 	return true;
 }
 
@@ -2584,7 +2584,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 	// @todo Why are we doing this if caching is disabled?
 
 	if (function_exists('call_integration_hook'))
-		call_integration_hook('pre_cache_quick_get', array(&$key, &$file, &$function, &$params, &$level));
+		call_integration_hook('pre_cache_quick_get', array($key, $file, $function, $params, $level));
 
 	/* Refresh the cache if either:
 		1. Caching is disabled.
@@ -2607,7 +2607,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
 		eval($cache_block['post_retri_eval']);
 
 	if (function_exists('call_integration_hook'))
-		call_integration_hook('post_cache_quick_get', array(&$cache_block));
+		call_integration_hook('post_cache_quick_get', array($cache_block));
 
 	return $cache_block['data'];
 }
@@ -2738,7 +2738,7 @@ function cache_put_data($key, $value, $ttl = 120)
 	}
 
 	if (function_exists('call_integration_hook'))
-		call_integration_hook('cache_put_data', array(&$key, &$value, &$ttl));
+		call_integration_hook('cache_put_data', array($key, $value, $ttl));
 
 	if (isset($db_show_debug) && $db_show_debug === true)
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
@@ -2834,7 +2834,7 @@ function cache_get_data($key, $ttl = 120)
 	}
 
 	if (function_exists('call_integration_hook'))
-		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
+		call_integration_hook('cache_get_data', array($key, $ttl, $value));
 
 	return empty($value) ? null : @unserialize($value);
 }

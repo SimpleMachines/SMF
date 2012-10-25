@@ -41,7 +41,7 @@ function RegCenter()
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_registrations', array(&$subActions));
+	call_integration_hook('integrate_manage_registrations', array($subActions));
 
 	// Work out which to call...
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
@@ -284,14 +284,14 @@ function ModifyRegistrationSettings($return_config = false)
 			array('check', 'notify_new_registration'),
 			array('check', 'send_welcomeEmail'),
 		'',
-			array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();'),
+			array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
 			array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
 			array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 			array('text', 'coppaFax'),
 			array('text', 'coppaPhone'),
 	);
 
-	call_integration_hook('integrate_modify_registration_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_registration_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;

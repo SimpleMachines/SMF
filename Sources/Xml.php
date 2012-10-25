@@ -37,7 +37,7 @@ function XMLhttpMain()
 	);
 
 	// Easy adding of sub actions
- 	call_integration_hook('integrate_xmlhttp', array(&$sub_actions));
+ 	call_integration_hook('integrate_xmlhttp', array($sub_actions));
 
 	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
@@ -83,7 +83,7 @@ function ListMessageIcons()
 
 function EnableCoreFeatures()
 {
-	global $context, $smcFunc, $sourcedir, $modSettings, $txt;
+	global $context, $smcFunc, $sourcedir, $modSettings, $txt, $boarddir, $settings;
 
 	$context['xml_data'] = array();
 	// Just in case, maybe we don't need it
