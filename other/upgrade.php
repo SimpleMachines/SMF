@@ -985,7 +985,7 @@ function WelcomeLogin()
 	);
 
 	require_once($sourcedir . '/Security.php');
-	createToken('login');
+	$upcontext += createToken('login');
 
 	// Check the cache directory.
 	$cachedir_temp = empty($cachedir) ? $boarddir . '/cache' : $cachedir;
@@ -3642,8 +3642,8 @@ function template_welcome_message()
 		<script type="text/javascript" src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
-	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform" ', empty($upcontext['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $upcontext['rid'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
-		<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
+	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform" ', empty($upcontext['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $upcontext['rid'] . '\', \'' . (!empty($upcontext['login_token']) ? $upcontext['login_token'] : '') . '\');"' : '', '>
+		<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '" />
 		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
 			<strong style="text-decoration: underline;">', $txt['upgrade_warning'], '</strong><br />
