@@ -83,7 +83,7 @@ function ListMessageIcons()
 
 function EnableCoreFeatures()
 {
-	global $context, $smcFunc, $sourcedir, $modSettings, $txt;
+	global $context, $smcFunc, $sourcedir, $modSettings, $txt, $boarddir, $settings;
 
 	$context['xml_data'] = array();
 	// Just in case, maybe we don't need it
