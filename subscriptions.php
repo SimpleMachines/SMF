@@ -271,8 +271,8 @@ else
 	//
 	// subscr_cancel: This IPN response (txn_type) is sent only when the subscriber cancels his/her
 	// current subscription or the merchant cancels the subscribers subscription. In this event according
-	// to Paypal rules the subscr_eot (End of Term) IPN response is NEVER sent, and it is upto you to
-	// keep the subscription of the subscriber acitve for remaining days of subscription should they cancel
+	// to Paypal rules the subscr_eot (End of Term) IPN response is NEVER sent, and it is up to you to
+	// keep the subscription of the subscriber active for remaining days of subscription should they cancel
 	// their subscription in the middle of the subscription period.
 	//
 	// subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
