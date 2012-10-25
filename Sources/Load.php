@@ -882,6 +882,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	if (empty($users))
 		return false;
 
+	/* Pass the set value */
+	$context['loadMemberContext_set'] = $set;
+
 	// Make sure it's an array.
 	$users = !is_array($users) ? array($users) : array_unique($users);
 	$loaded_ids = array();
@@ -1913,7 +1916,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? '?alph21' : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
-	
+
 	// account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($filename, '.css?');
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
@@ -1941,7 +1944,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 
 /**
  * Add a Javascript file for output later
- 
+
  * @param string $filename
  * @param array $params
  * Keys are the following:
@@ -1963,7 +1966,7 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? '?alph21' : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
-	
+
 	// account for shorthand like admin.js?alp21 filenames
 	$has_seed = strpos($filename, '.js?');
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
