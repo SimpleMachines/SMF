@@ -1,5 +1,5 @@
 /**
- * SCEditor v1.3.1
+ * SCEditor v1.3.7
  * http://www.samclarke.com/2011/07/sceditor/
  *
  * Copyright (C) 2011, Sam Clarke (samclarke.com)
@@ -7,17 +7,10 @@
  * SCEditor is licensed under the MIT license:
  *	http://www.opensource.org/licenses/mit-license.php
  *
- * Icons by Mark James (http://www.famfamfam.com/lab/icons/silk/)
- * Licensed under the Creative Commons CC-BY license (http://creativecommons.org/licenses/by/3.0/)
  */
 
-/*
-	spritemapper.output_image = minified/jquery.sceditor.min.png
-	spritemapper.output_css = minified/jquery.sceditor.min.css
-*/
 .sceditor-container {
 	position: relative;
-	overflow: hidden;
 	border: 1px solid #aaa;
 	background: #fff;
 
@@ -27,167 +20,189 @@
 	-khtml-border-radius: 4px;
 	border-radius: 4px;
 }
-
-.sceditor-container, .sceditor-container div,
-div.sceditor-dropdown, div.sceditor-dropdown div {
+.sceditor-container.resizing {
+	overflow: hidden;
+}
+.sceditor-container, .sceditor-container div, div.sceditor-dropdown, div.sceditor-dropdown div {
 	padding: 0;
 	margin: 0;
 	z-index: 3;
 }
-	.sceditor-container iframe, .sceditor-container textarea {
-		border: 0;
-		outline: none;
-		font-family: Verdana, Arial, Helvetica, sans-serif;
-		font-size: 13px;
-		color: #111;
-		padding: 0;
-		margin: 5px;
-		resize: none;
-	}
-	div.sceditor-resize-cover {
-		position: absolute;
-		top: 0;
-		left: 0;
-		background: #000;
-		width: 3000px;
-		height: 6000px;
-		z-index: 2;
-		filter: alpha(opacity=30);
-		opacity: 0.3;
-	}
-	div.sceditor-grip {
-		background: #000;
-		overflow: hidden;
-		width: 10px;
-		height: 10px;
-		cursor: pointer;
-		position: absolute;
-		bottom: 0;
-		right: 0;
-		z-index: 3;
-		background: url('../images/bbc/grip.png');
-	}
-	div.sceditor-dropdown {
-		position: absolute;
-		margin: 22px 0 0 1px;
-		border: 1px solid #bbb;
-		background: #fff;
-		color: #222;
-		font-size: 13px;
-		z-index: 6;
-	}
-		div.sceditor-dropdown form { margin: 0; }
-		div.sceditor-dropdown label {
-			display:block;
-			font-weight: bold;
-			font-size: .95em;
-			margin: .65em 0 .15em;
-		}
-		div.sceditor-dropdown .button {	margin: .5em 0 0; }
-		.sceditor-pastetext textarea { border: 1px solid #bbb; width: 20em; }
-		div.sceditor-inserttable, div.sceditor-insertimage,
-		div.sceditor-pastetext, div.sceditor-insertlink,
-		div.sceditor-insertemail {
-			padding: 5px;
-		}
-		div.sceditor-smileyPopup {
-			margin: 0;
-		}
-		.sceditor-insertemoticon img, .sceditor-smileyPopup img {
-			cursor: pointer;
-			margin: 2px;
-		}
-		.sceditor-more, .sceditor-smileyPopup {
-			display: inline;
-			text-align: center;
-			cursor: pointer;
-			padding: 2px 0;
-		}
-		.sceditor-more:hover { background: #eee; }
-		.sceditor-fontsize-option, .sceditor-font-option {
-			display: block;
-			padding: 4px 6px;
-			cursor: pointer;
-			font-size: 14px;
-			text-decoration: none;
-			color: #222;
-		}
-		.sceditor-fontsize-option:hover, .sceditor-font-option:hover { background: #eee; }
-		.sceditor-color-column { float: left; }
-			.sceditor-color-option {
-				display: block;
-				border: 1px solid #fff;
-				height: 20px;
-				width: 100px;
-				overflow: hidden;
-			}
-			.sceditor-color-option:hover { border: 1px solid #333; }
-
-	div.sceditor-toolbar {
-		overflow: hidden;
-		zoom: 1; /* IE6 */
-		padding: 3px 5px 0 5px;
-		*padding: 3px 5px 3px 5px;
-		background: #f7f7f7;
-		border-bottom: 1px solid #aaa;
-
-		-webkit-border-radius: 4px 4px 0 0;
-	}
-
-		div.sceditor-group {
-			overflow: hidden;
-			display: inline-block;
-			zoom: 1; /* IE6 */
-			*display: inline;
-			background: #ddd;
-			margin: 1px 5px 1px 0;
-			*margin: 2px 5px 2px 0;
-			padding: 2px;
-
-			-moz-border-radius: 4px;
-			-webkit-border-radius: 4px;
-			-opera-border-radius: 4px;
-			-khtml-border-radius: 4px;
-			border-radius: 4px;
-		}
-		div.sceditor-row {
-			overflow: hidden;
-			display: block;
-			zoom: 1; /* IE6 */
-			*display: inline;
-		}
-
-		.sceditor-button {
-			float: left;
-			cursor: pointer;
-			padding: 3px 4px;
-		}
-		/*.sceditor-button.disabled {
-			background-color: #666;
-		}*/
-		.sceditor-button.disabled div {
-			filter: alpha(opacity=30);
-			opacity: 0.3;
-		}
-		.sceditor-button.disabled:hover {
-			background: inherit;
-			cursor: default;
-		}
-		.sceditor-button div, .sceditor-button {
-			display: block;
-			width: 18px;
-			height: 18px;
-			background-repeat:no-repeat !important;
-			background-position:center center !important;
-		}
-		.sceditor-button div {
-			margin: 0;
-			padding: 0;
-			text-indent: -9999px;
-		}
-		.sceditor-button:hover { background: #eee; }
-			.sceditor-button-emoticon { display:none; }
-
+.sceditor-container iframe, .sceditor-container textarea {
+	border: 0;
+	outline: none;
+	color: #111;
+	padding: 5px;
+	margin: 0 0 12px 0;
+	resize: none;
+	background: #fff;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+/* Necessary for stabilising font-size in source mode! */
+.sceditor-container textarea, .sceditor-container textarea:focus {
+	font-size: 1em;
+	box-shadow: none;
+}
+div.sceditor-resize-cover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #fff;
+	width: 3000px;
+	height: 6000px;
+	z-index: 2;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
+}
+div.sceditor-grip {
+	overflow: hidden;
+	height: 12px;
+	cursor: pointer;
+	position: absolute;
+	bottom: 0;
+	left: -1px;
+	right: -1px;
+	z-index: 3;
+	background: #fff url('../images/bbc/grip.png') 100% 100% no-repeat;
+	border: 1px solid #ccc;
+	border-bottom: none;
+	border-radius: 0 0 4px 4px;
+	box-shadow: -1px -2px 4px rgba(0,0,0,0.1) inset, 2px 2px 4px rgba(255,255,255,0.75) inset;
+}
+div.sceditor-dropdown {
+	position: absolute;
+	margin: 22px 0 0 1px;
+	border: 1px solid #bbb;
+	background: #fff;
+	color: #222;
+	font-size: 13px;
+	z-index: 6;
+}
+div.sceditor-dropdown form { 
+	margin: 0; 
+}
+div.sceditor-dropdown label {
+	display: block;
+	font-eight: bold;
+	font-size: .95em;
+	margin: .65em 0 .15em;
+}
+div.sceditor-dropdown .button {	
+	margin: .5em 0 0; 
+}
+.sceditor-pastetext textarea { 
+	border: 1px solid #bbb; 
+	width: 20em; 
+}
+div.sceditor-inserttable, div.sceditor-insertimage, div.sceditor-pastetext, div.sceditor-insertlink, div.sceditor-insertemail {
+	padding: 5px;
+}
+div.sceditor-smileyPopup {
+	margin: 0;
+}
+.sceditor-insertemoticon img, .sceditor-smileyPopup img {
+	cursor: pointer;
+	margin: 6px 4px 4px 4px;
+}
+.sceditor-more, .sceditor-smileyPopup {
+	display: inline;
+	text-align: center;
+	cursor: pointer;
+	padding: 2px 0;
+}
+.sceditor-more:hover { 
+	background: #eee; 
+}
+.sceditor-fontsize-option, .sceditor-font-option {
+	display: block;
+	padding: 4px 6px;
+	cursor: pointer;
+	font-size: 14px;
+	text-decoration: none;
+	color: #222;
+}
+.sceditor-fontsize-option:hover, .sceditor-font-option:hover { 
+	background: #eee; 
+}
+.sceditor-color-column {
+	float: left; 
+}
+.sceditor-color-option {
+	display: block;
+	border: 1px solid #fff;
+	height: 20px;
+	width: 100px;
+	overflow: hidden;
+}
+.sceditor-color-option:hover { 
+	border: 1px solid #333; 
+}
+div.sceditor-toolbar {
+	overflow: hidden;
+	padding: 3px 5px 0 5px;
+	background: #f7f7f7;
+	border-bottom: 1px solid #aaa;
+	border-radius: 4px 4px 0 0;
+	box-shadow: 0 -1px 2px rgba(0,0,0,0.1) inset;
+}
+div.sceditor-group {
+	overflow: hidden;
+	display: inline-block;
+	background: none;
+	margin: 0;
+	padding: 0;
+}
+div.sceditor-row {
+	overflow: hidden;
+	display: inline-block;
+	border-left: 1px solid #ccc;
+	border-radius: 1px;
+	margin: 4px 2px 2px 2px;
+}
+.sceditor-button {
+	float: left;
+	cursor: pointer;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-left: none;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 1px;
+	box-shadow: -1px -1px 3px rgba(96,134,166,0.2) inset;
+	padding: 3px 6px 2px 6px;
+	color: #222;
+	margin: 0;
+}
+.sceditor-button.disabled div {
+	filter: alpha(opacity=30);
+	opacity: 0.3;
+}
+.sceditor-button.disabled:hover {
+	background: inherit;
+	cursor: default;
+}
+.sceditor-button div, .sceditor-button {
+	display: block;
+	width: 18px;
+	height: 18px;
+	background-repeat:no-repeat !important;
+	background-position:center center !important;
+}
+.sceditor-button div {
+	margin: 0;
+	padding: 0;
+	text-indent: -9999px;
+}
+.sceditor-button:hover {
+	background: #fafafa;
+	box-shadow: 1px 1px 1px rgba(0,0,0,0.07) inset;
+	border: 1px solid #ccc;
+	border-left: none;
+	border-top: 1px solid #aaa;
+}
+.sceditor-button-emoticon {
+	display:none; 
+}
 .sceditor-popup-grip {
 	display: block;
 	height: 15px;
@@ -196,6 +211,13 @@ div.sceditor-dropdown, div.sceditor-dropdown div {
 /* SMF buttons styles */
 .sceditor-button-source div {
 	background: url('../images/bbc/toggle.png');
+}
+.sourceMode .sceditor-button-source {
+	background: #fafafa;
+	box-shadow: 1px 1px 3px rgba(96,134,166,0.3) inset;
+	border: 1px solid #ccc;
+	border-left: none;
+	border-top: 1px solid #aaa;
 }
 .sceditor-button-font div {
 	background: url('../images/bbc/font.png');

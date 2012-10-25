@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	// menu drop downs
-	$('ul.dropmenu').superfish();
+	$('ul.dropmenu, ul.quickbuttons').superfish({delay : 600, speed: 200, sensitivity : 8, interval : 50, timeout : 1}); 
 	
 	// tooltips
 	$('.preview').SMFtooltip();
