@@ -233,6 +233,9 @@
 			if("text-align" === property)
 			{
 				$elm = $(element);
+			
+				if(!element.style)
+					return null;
 
 				if($elm.parent().css(property) !== $elm.css(property) &&
 					$elm.css('display') === "block" && !$elm.is('hr') && !$elm.is('th'))
@@ -256,7 +259,7 @@
 			var	childNodes = element.childNodes,
 				i = childNodes.length;
 
-			if(element.nodeValue)
+			if(element.nodeValue && /\S|\u00A0/.test(element.nodeValue))
 				return false;
 
 			if(childNodes.length === 0 || (childNodes.length === 1 && (/br/i.test(childNodes[0].nodeName) || isEmpty(childNodes[0]))))
@@ -411,9 +414,8 @@
 		 * @return string BBCode which has been converted from HTML
 		 * @memberOf jQuery.sceditorBBCodePlugin.prototype
 		 */
-		base.getHtmlHandler = function(html, domBody, filter) {
-			if (typeof filter == 'undefined')
-				$.sceditor.dom.removeWhiteSpace(domBody[0]);
+		base.getHtmlHandler = function(html, domBody) {
+			$.sceditor.dom.removeWhiteSpace(domBody[0]);
 
 			return $.trim(base.elementToBbcode(domBody));
 		};
@@ -632,7 +634,7 @@
 						// If it's an empty DIV and in compatibility mode is below IE8 then
 						// we must add a non-breaking space to the div otherwise the div
 						// will be collapsed. Adding a BR works but when you press enter
-						// to make a newline it suddenly gose back to the normal IE div
+						// to make a newline it suddenly goes back to the normal IE div
 						// behaviour and creates two lines, one for the newline and one
 						// for the BR. I'm sure there must be a better fix but I've yet to
 						// find one.
@@ -1489,7 +1491,7 @@
 	};
 
 	$.fn.sceditorBBCodePlugin = function(options) {
-		if((!options || !options.runWithoutWysiwygSupport) && !$.sceditor.isWysiwygSupported())
+		if((!options || !options.runWithoutWysiwygSupport) && !$.sceditor.isWysiwygSupported)
 			return;
 
 		return this.each(function() {

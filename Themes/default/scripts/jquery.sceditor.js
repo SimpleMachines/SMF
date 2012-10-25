@@ -242,21 +242,8 @@
 
 			// load any textarea value into the editor
 			base.val($textarea.hide().val());
-/*
-			// Pass the value though the getTextHandler if it is set so that
-			// BBCode, ect. can be converted
-			if(base.options.getTextHandler && base.options.supportedWysiwyg)
-			{
-				val = base.options.getTextHandler(val);
 
-				base.setWysiwygEditorValue(val);
-			}
-			else
-			{
-				base.toggleTextMode();
-				base.setTextareaValue(val);
-			}
-*/
+
 			if(base.options.autofocus)
 				autofocus();
 
@@ -318,7 +305,7 @@
 				$doc.find("html").addClass('ie' + $.sceditor.ie);
 
 			// iframe overflow fix
-			if(/iPhone|iPod|iPad| wosbrowser\//i.test(navigator.userAgent))
+			if(/iPhone|iPod|iPad| wosbrowser\//i.test(navigator.userAgent) || $.sceditor.ie)
 				$body.height('100%');
 
 			// set the key press event
@@ -831,13 +818,14 @@
 				else
 				{
 					// Allow max 25 checks before giving up.
-					// Needed inscase empty input is posted or
-					// something gose wrong.
+					// Needed in case empty input is pasted or
+					// something goes wrong.
 					if(checkCount > 25)
 					{
 						while(prePasteContent.firstChild)
 							elm.appendChild(prePasteContent.firstChild);
 
+						rangeHelper.restoreRange();
 						return;
 					}
 
@@ -999,8 +987,9 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.textEditorInsertText = function (text, endText) {
-			var range, start, end, txtLen;
-
+			var range, start, end, txtLen, scrollTop;
+			
+			scrollTop = textEditor.scrollTop;
 			textEditor.focus();
 
 			if(typeof textEditor.selectionStart !== "undefined")
@@ -1039,6 +1028,7 @@
 			else
 				textEditor.value += text + endText;
 
+			textEditor.scrollTop = scrollTop;
 			textEditor.focus();
 		};
 
@@ -1056,6 +1046,12 @@
 
 		/**
 		 * Gets the value of the editor
+		 *
+		 * If the editor is in WYSIWYG mode it will return the filtered
+		 * HTML from it (converted to BBCode if using the BBCode plugin).
+		 * It it's in Source Mode it will return the unfiltered contents
+		 * of the source editor (if using the BBCode plugin this will be
+		 * BBCode again).
 		 *
 		 * @since 1.3.5
 		 * @return {string}
@@ -1153,20 +1149,25 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.getWysiwygEditorValue = function (filter) {
-			// Possible replacement:
-			// if(!$.sceditor.isWysiwygSupported())
-			//if (!base.options.supportedWysiwyg)
-			//	return;
-
 			var	$body = $wysiwygEditor.contents().find("body"),
 				html;
+
+			// save the range before the DOM gets messed with
+			rangeHelper.saveRange();
+			base.focus();
 
 			// fix any invalid nesting
 			$.sceditor.dom.fixNesting($body.get(0));
 			html = $body.html();
 
 			if(filter !== false && base.options.getHtmlHandler)
-				html = base.options.getHtmlHandler(html, $body, filter);
+				html = base.options.getHtmlHandler(html, $body);
+				
+			// restore the range.
+			rangeHelper.restoreRange();
+			
+			// remove the last stored range for IE as it no longer applies
+			lastRange = null;
 
 			return html;
 		};
@@ -2567,7 +2568,11 @@
 				sel = doc.selection;
 
 			if(sel.getRangeAt && sel.rangeCount <= 0)
-				sel.addRange(doc.createRange());
+			{
+				var r = doc.createRange();
+				r.setStart(doc.body, 0)
+				sel.addRange(r);
+			}
 
 			if(!isW3C)
 				return sel.createRange();
@@ -2774,7 +2779,8 @@
 		 * @memberOf jQuery.sceditor.rangeHelper.prototype
 		 */
 		base.restoreRange = function() {
-			var	range	= base.selectedRange(),
+			var	marker,
+				range	= base.selectedRange(),
 				start	= base.getMarker(startMarker),
 				end	= base.getMarker(endMarker);
 
@@ -2784,7 +2790,7 @@
 			if(!isW3C)
 			{
 				range = doc.body.createTextRange();
-				var marker = doc.body.createTextRange();
+				marker = doc.body.createTextRange();
 
 				marker.moveToElementText(start);
 				range.setEndPoint('StartToStart', marker);
