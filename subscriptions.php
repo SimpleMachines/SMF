@@ -3,7 +3,7 @@
 /**
  * This file is the file which all subscription gateways should call
  * when a payment has been received - it sorts out the user status.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -41,12 +41,14 @@ if (empty($modSettings['paid_enabled']))
 // If we have some custom people who find out about problems load them here.
 $notify_users = array();
 if (!empty($modSettings['paid_email_to']))
+{
 	foreach (explode(',', $modSettings['paid_email_to']) as $email)
 		$notify_users[] = array(
 			'email' => $email,
 			'name' => $txt['who_member'],
 			'id' => 0,
 		);
+}
 
 // We need to see whether we can find the correct payment gateway,
 // we'll going to go through all our gateway scripts and find out
@@ -67,7 +69,7 @@ if (empty($txnType))
 	generateSubscriptionError($txt['paid_unknown_transaction_type']);
 
 // Get the subscription and member ID amoungst others...
-@list ($subscription_id, $member_id) = $gatewayClass->precheck();
+@list($subscription_id, $member_id) = $gatewayClass->precheck();
 
 // Integer these just in case.
 $subscription_id = (int) $subscription_id;
@@ -87,7 +89,7 @@ $request = $smcFunc['db_query']('', '
 	)
 );
 // Didn't find them?
-if ($smcFunc['db_num_rows']($request) == 0)
+if ($smcFunc['db_num_rows']($request) === 0)
 	generateSubscriptionError(sprintf($txt['paid_could_not_find_member'], $member_id));
 $member_info = $smcFunc['db_fetch_assoc']($request);
 $smcFunc['db_free_result']($request);
@@ -103,7 +105,7 @@ $request = $smcFunc['db_query']('', '
 );
 
 // Didn't find it?
-if ($smcFunc['db_num_rows']($request) == 0)
+if ($smcFunc['db_num_rows']($request) === 0)
 	generateSubscriptionError(sprintf($txt['paid_count_not_find_subscription'], $member_id, $subscription_id));
 
 $subscription_info = $smcFunc['db_fetch_assoc']($request);
@@ -121,7 +123,7 @@ $request = $smcFunc['db_query']('', '
 		'current_member' => $member_id,
 	)
 );
-if ($smcFunc['db_num_rows']($request) == 0)
+if ($smcFunc['db_num_rows']($request) === 0)
 	generateSubscriptionError(sprintf($txt['paid_count_not_find_subscription_log'], $member_id, $subscription_id));
 $subscription_info += $smcFunc['db_fetch_assoc']($request);
 $smcFunc['db_free_result']($request);
@@ -188,6 +190,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 		$real_details = @unserialize($subscription_info['pending_details']);
 		if (empty($real_details))
 			generateSubscriptionError(sprintf($txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
+		
 		// Now we just try to find anything pending.
 		// We don't really care which it is as security happens later.
 		foreach ($real_details as $id => $detail)
@@ -197,6 +200,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 				$subscription_info['payments_pending']--;
 			break;
 		}
+		
 		$subscription_info['pending_details'] = empty($real_details) ? '' : serialize($real_details);
 
 		$smcFunc['db_query']('', '
@@ -215,6 +219,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 	if ($subscription_info['length'] == 'F')
 	{
 		$found_duration = 0;
+		
 		// This is a little harder, can we find the right duration?
 		foreach ($cost as $duration => $value)
 		{
@@ -225,7 +230,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 		}
 
 		// If we have the duration then we're done.
-		if ($found_duration!== 0)
+		if ($found_duration !== 0)
 		{
 			$notify = true;
 			addSubscription($subscription_id, $member_id, $found_duration);
@@ -234,6 +239,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 	else
 	{
 		$actual_cost = $cost['fixed'];
+		
 		// It must be at least the right amount.
 		if ($total_cost != 0 && $total_cost >= $actual_cost)
 		{
@@ -259,11 +265,31 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 		emailAdmins('paid_subscription_new', $replacements, $notify_users);
 	}
 }
+else
+{
+	// Some other "valid" transaction such as:
+	//
+	// subscr_cancel: This IPN response (txn_type) is sent only when the subscriber cancels his/her
+	// current subscription or the merchant cancels the subscribers subscription. In this event according
+	// to Paypal rules the subscr_eot (End of Term) IPN response is NEVER sent, and it is up to you to
+	// keep the subscription of the subscriber active for remaining days of subscription should they cancel
+	// their subscription in the middle of the subscription period.
+	//
+	// subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
+	// It then does not fire in any event later. This response is received somewhere before or after the first payment of
+	// subscription is received (txn_type=subscr_payment) which is what we do process
+	//
+	// Should we log any of these ...
+}
 
 // In case we have anything specific to do.
 $gatewayClass->close();
 
-// Log an error then die.
+/**
+ * Log an error then exit
+ *
+ * @param string $text
+ */
 function generateSubscriptionError($text)
 {
 	global $modSettings, $notify_users, $smcFunc;
@@ -280,8 +306,10 @@ function generateSubscriptionError($text)
 
 	// Maybe we can try to give them the post data?
 	if (!empty($_POST))
+	{
 		foreach ($_POST as $key => $val)
 			$text .= '<br />' . $smcFunc['htmlspecialchars']($key) . ': ' . $smcFunc['htmlspecialchars']($val);
+	}
 
 	// Then just log and die.
 	log_error($text);
