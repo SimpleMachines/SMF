@@ -77,6 +77,10 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			echo '
 					}';
 		}
+		else
+			echo ',
+					emoticons:
+					{}';
 
 		if ($context['show_bbc'] && $bbcContainer !== null)
 		{
