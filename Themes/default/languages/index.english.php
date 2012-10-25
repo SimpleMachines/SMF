@@ -83,6 +83,7 @@ $txt['position'] = 'Position';
 $txt['profile_of'] = 'View the profile of';
 $txt['total'] = 'Total';
 $txt['posts_made'] = 'Posts';
+$txt['topics_made'] = 'Topics';
 $txt['website'] = 'Website';
 $txt['register'] = 'Register';
 $txt['warning_status'] = 'Warning Status';

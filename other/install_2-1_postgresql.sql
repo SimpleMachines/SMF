@@ -2566,11 +2566,17 @@ VALUES (1, 1, 1, 1, 0, 0);
 
 
 #
+# Sequence for table `user_drafts`
+#
+
+CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+
+#
 # Table structure for table `user_drafts`
 #
 
 CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int unsigned NOT NULL auto_increment,
+  id_draft int default nextval('{$db_prefix}user_drafts_seq'),
   id_topic int unsigned NOT NULL default '0',
   id_board smallint unsigned NOT NULL default '0',
   id_reply int unsigned NOT NULL default '0',

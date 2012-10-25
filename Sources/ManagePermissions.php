@@ -44,7 +44,7 @@ function ModifyPermissions()
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_permissions', array(&$subActions));
+	call_integration_hook('integrate_manage_permissions', array($subActions));
 
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
@@ -975,7 +975,7 @@ function GeneralPermissionSettings($return_config = false)
 			array('check', 'permission_enable_postgroups', 0, $txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'),
 	);
 
-	call_integration_hook('integrate_modify_permission_settings', array(&$config_vars));
+	call_integration_hook('integrate_modify_permission_settings', array($config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -2285,7 +2285,7 @@ function ModifyPostModeration()
 		'attachment' => array('post_attachment', 'post_unapproved_attachments'),
 	);
 
-	call_integration_hook('integrate_post_moderation_mapping', array(&$mappings));
+	call_integration_hook('integrate_post_moderation_mapping', array($mappings));
 
 	// Start this with the guests/members.
 	$context['profile_groups'] = array(
