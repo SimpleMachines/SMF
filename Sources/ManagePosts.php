@@ -189,7 +189,6 @@ function ModifyPostSettings($return_config = false)
 		'',
 			// Posting limits...
 			array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),
-			array('int', 'fixLongWords', 'subtext' => $txt['fixLongWords_zero'] . ($context['utf8'] ? ' <span class="alert">' . $txt['fixLongWords_warning'] . '</span>' : ''), 'postinput' => $txt['manageposts_characters']),
 			array('int', 'topicSummaryPosts', 'postinput' => $txt['manageposts_posts']),
 		'',
 			// Posting time limits...
