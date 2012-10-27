@@ -2966,7 +2966,7 @@ function template_authentication_method()
 								</dt>
 								<dd>
 									<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
-									<span id="smf_autov_pwverify_div" style="display: none;"><img id="smf_autov_pwverify_img" class="centericon"  src="', $settings['images_url'], '/icons/field_valid.png" alt="*" /></span>
+									<span id="smf_autov_pwverify_div" style="display: none;"><img id="smf_autov_pwverify_img" class="centericon" src="', $settings['images_url'], '/icons/field_valid.png" alt="*" /></span>
 								</dd>
 							</dl>
 						</dd>

@@ -296,18 +296,17 @@ legend {
 ------------------------------------------------------- */
 /* Admin quick search bar, and results page. */
 h3.catbg #quick_search form {
-	padding-top: 2px;
-	font-size: 0.66em;
+	font-size: 0.9em;
 }
 h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button_submit {
 	margin: 0 3px;
-	padding: 4px 3px 3px 3px;
+	padding: 3px;
 	border-radius: 4px;
 	border: 1px solid #777;
 	vertical-align: top;
 }
 h3.catbg #quick_search form select {
-	font-size: 1.01em;
+	font-size: 0.9em;
 	margin: 0;
 	padding: 2px;
 }
@@ -317,7 +316,7 @@ h3.catbg #quick_search form select option {
 h3.catbg #quick_search form .button_submit {
 	font-weight: bold;
 	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
-	padding: 3px 6px 2px 6px;
+	padding: 2px 6px 2px 6px;
 }
 h3.catbg #quick_search form .button_submit:hover {
 	background: #fff;

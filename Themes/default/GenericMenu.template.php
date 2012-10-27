@@ -36,7 +36,7 @@ function template_generic_menu_sidebar_above()
 						', $section['title'], '
 					</h4>
 				</div>
-				<ul class="smalltext left_admmenu">';
+				<ul class="dropmenu left_admmenu">';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
 		foreach ($section['areas'] as $i => $area)
@@ -46,7 +46,7 @@ function template_generic_menu_sidebar_above()
 				continue;
 
 			echo '
-					<li>';
+					<li ', !empty($area['subsections']) ?'class="subsections"':'', ' ', ($i == $menu_context['current_area']) ?'id="menu_current_area"':'', '>';
 
 			// Is this the current area, or just some area?
 			if ($i == $menu_context['current_area'])
@@ -60,7 +60,28 @@ function template_generic_menu_sidebar_above()
 			else
 				echo '
 						<a href="', isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i, $menu_context['extra_parameters'], '">', $area['label'], '</a>';
+			// Is there any subsections?
+			if (!empty($area['subsections']))
+			{
+				echo '
+						<ul>';
 
+				foreach ($area['subsections'] as $sa => $sub)
+				{
+					if (!empty($sub['disabled']))
+						continue;
+
+					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
+
+					echo '
+							<li>
+								<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', 'href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
+							</li>';
+				}
+
+				echo '
+						</ul>';
+			}
 			echo '
 					</li>';
 		}
@@ -147,7 +168,7 @@ function template_generic_menu_dropdown_above()
 
 					echo '
 							<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>
-								<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', 'href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
+								<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
 							</li>';
 				}
 

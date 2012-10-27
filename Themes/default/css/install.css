@@ -1,73 +1,156 @@
-body {
-	width: 90%;
-}
-#top_section {
-	height: 70px;
-	min-height: 65px;
-}
-#upper_section {
-	margin-bottom: 0;
-	padding: 0;
-}
-#upper_section .user {
-	height: 4em;
-}
-#upper_section .news {
-	height: 80px;
-}
-#main_screen {
-	padding: 0 40px;
-}
-#main_screen h2 {
-	font-size: 1.5em;
-	border-bottom: 1px solid #d05800;
-	line-height: 1.5em;
-	margin: 0 0 0.5em 0;
-	color: #d05800;
-}
-#main-steps {
-	float: right;
-	width: 50%;
-	margin-top: -60px;
-}
-#main-steps h2 {
-	font-size: 1.1em;
-	border-bottom: 1px solid #d05800;
-	line-height: 1.1em;
-	margin: 0 0 0.5em 0;
-	color: #d05800;
-	margin-right: 40px;
-}
-#main-steps ul {
-	list-style: none;
-	padding-left: 0;
-	margin: 0;
-}
-#main-steps ul li {
-	padding: 1px 0;
-	font-size: 0.9em;
-}
-#main-steps ul li.stepdone {
-	color: #aaa;
-}
-#main-steps ul li.stepcurrent {
-	color: #000;
-	font-weight: bold;
-}
-#main-steps ul li.stepwaiting {
-	color: #666;
-}
-.panel {
-	font-weight: normal;
-}
 a:link, a:hover, a:visited {
 	text-decoration: underline;
 }
-.progress {
-	position: relative;
-	margin: -16px 3px 0 3px;
+/* These divisions wrap the forum sections when a forum width is set. */
+#wrapper, .frame {
+	width: 90%;
+	max-width: 1140px;
 }
-.overall_progress {
+h1.forumtitle {
+	font-size: 2em;
+	font-family: tahoma;
+	margin: 0;
+	padding: 32px 12px 16px 12px;
+	float: left;
+	font-weight: normal;
+	color: #a85400;
+	text-shadow: -1px -1px 0 rgba(0,0,0,0.5), 1px 1px 0 #fff;
+}
+/* Tweak the SMF logo */
+img#smflogo {
+	margin: 26px 0 0 0;
+}
+#inner_wrap {
+	min-height: 80px;
+}
+#inner_wrap .news {
+	height: 80px;
+	text-align: right;
+	width: 100%;
+	max-width: 100%;
+	float: left;
+}
+#main_steps {
+	float: right;
+	width: 50%;
+	padding: 0 0 1em 0;
+}
+#main_steps h2 {
+	font-size: 1.2em;
+	border-bottom: 1px solid #d05800;
+	line-height: 1.6em;
+	margin: 0 1em 0.5em 0;
+	color: #d05800;
+}
+#main_steps ul {
+	list-style: none;
+	padding: 0 0.5em;
+	margin: 0;
+	line-height: 1.8em;
+}
+#main_steps ul li.stepdone {
+	color: #aaa;
+}
+#main_steps ul li.stepcurrent {
+	color: #222;
+	font-weight: bold;
+}
+#main_steps ul li.stepwaiting {
+	color: #666;
+}
+#progress_bar {
 	position: relative;
-	margin: -25px 3px 0 3px;
+	font-size: 1.2em;
+	height: 2.3em;
+	border: 1px solid black;
+	border-radius: 2px;
+	background: #fff;
+	float: left;
+	margin: 0.6em 0 0 4em;
+	width: 33%;
+}
+#overall_text, #step_text {
+	z-index: 2;
+	color: #111;
+	font-weight: bold;
+	position: absolute;
+	top: 0.5em;
+	left: -3.3em;
+}
+#overall_progress, #step_progress {
+	height: 2.3em;
+	z-index: 1;
+	background: lime;
+}
+#step_progress {
+	background: #ffd000;
+}
+.overall_progress, .progress {
+	position: absolute;
+	top: 0.5em;
+	left: 0.5em;
+}
+#substep_progress {
+	height: 2.3em;
+	z-index: 1;
+	background: #eebaf4;
+}
+#main_screen {
+	padding: 1em 1em 0.5em 1em;
+}
+#main_screen h2 {
+	font-size: 1.2em;
+	border-bottom: 1px solid #d05800;
+	line-height: 1.6em;
+	margin: 0 0 0.5em 0;
+	color: #d05800;
+}
+.panel form div{
+	max-height: 560px;
+	overflow: auto;
+}
+.panel p, .panel h3 {
+	margin: 0 0.5em 1em 0.5em;
+}
+.panel ul {
+	margin: 0 0.5em 1em 0.5em;
+}
+.error_message {
+	color: red;
+	padding: 0.5em;
+}
+.panel .button_submit, .panel .button_link {
+	font-size: 1em;
+	font-weight: bold;
+	color: #333;
+	padding: 3px 6px;
+	text-decoration: none;
+}
+.panel .button_submit:hover, .panel .button_link:hover {
+	color: #af6700;
+	text-decoration: none;
+}
+.panel .clear {
+	padding: 1em 0 0 0;
+	overflow: auto;
+}
+/* [WIP] Warning: this next bit may cause trouble. */
+/* It's just to hide an empty div when the submits are not shown. */
+.panel .clear:nth-child(3) {
+	border: 1px solid green;
+	display: none;
+}
+/* End [WIP] */
+#time_elapsed {
+	clear: both;
+	padding: 1em 1em 0 1em;
+	border: 1px solid green;
+	/* [WIP] */
+	background: /*#f0f4f7*/ #fcfcfc;
+	margin: 1em 0.9em 0 0.9em;
+	padding: 6px 8px 8px 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	/* End [WIP] */
 }
