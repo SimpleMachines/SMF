@@ -124,7 +124,7 @@ function automanage_attachments_check_directory()
  *
  * @param $updir: the directory to be created
  *
- * @return (bool) false on erros
+ * @return (bool) false on errors
  */
 function automanage_attachments_create_directory($updir)
 {
@@ -206,7 +206,8 @@ function automanage_attachments_create_directory($updir)
 }
 
 /**
- * 
+ * Called when a directory space limit is reached.
+ * Creates a new directory and increments the directory suffix number.
  *
  * @return (bool) false on erros
  */
