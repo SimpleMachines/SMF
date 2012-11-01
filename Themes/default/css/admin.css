@@ -309,7 +309,7 @@ h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg 
 }
 h3.catbg #quick_search form select {
 	font-size: 1.01em;
-	margin: 0;
+	margin: 1px 0 0 0;
 	padding: 2px;
 }
 h3.catbg #quick_search form select option {
@@ -333,7 +333,7 @@ body#chrome #quick_search .button_submit, body#ie #quick_search .button_submit, 
 	padding: 5px 9px 4px 9px;
 }
 body#chrome  #quick_search .button_submit {
-	margin: -26px 5px 0 5px;
+	margin: -24px 5px 0 5px;
 }
 
 /* The welcome thingy. */
@@ -341,7 +341,6 @@ body#chrome  #quick_search .button_submit {
 	background: none;
 	border: none;
 	box-shadow: none;
-	margin: 0;
 	padding: 0;
 	overflow: visible;
 }

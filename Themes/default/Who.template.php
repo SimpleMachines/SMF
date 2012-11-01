@@ -26,8 +26,8 @@ function template_main()
 				<div class="pagesection">
 					<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>';
 		echo '
-					<div class="selectbox floatright">', $txt['who_show1'], '
-						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
+					<div class="selectbox floatright" id="who_upper_show">', $txt['who_show1'], '
+						<select name="show_top" class="who_show" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();" style="margin-top: -2px;">';
 
 		foreach ($context['show_methods'] as $value => $label)
 			echo '
@@ -102,22 +102,22 @@ function template_main()
 	echo '
 					</tbody>
 				</table>
-			</div>
-			<div class="pagesection">
-				<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>';
-
-	echo '
-				<div class="selectbox floatright">', $txt['who_show1'], '
-					<select name="show" onchange="document.forms.whoFilter.submit();">';
-
-	foreach ($context['show_methods'] as $value => $label)
+				<div id="who_lower_pagesection" class="pagesection">
+					<div id="who_lower_pagelinks" class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>';
+	
 		echo '
-						<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
-	echo '
-					</select>
-					<noscript>
-						<input type="submit" value="', $txt['go'], '" class="button_submit" />
-					</noscript>
+					<div class="selectbox floatright">', $txt['who_show1'], '
+						<select name="show" class="who_show" onchange="document.forms.whoFilter.submit();" style="margin-top: -2px;">';
+	
+		foreach ($context['show_methods'] as $value => $label)
+			echo '
+							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+		echo '
+						</select>
+						<noscript>
+							<input type="submit" value="', $txt['go'], '" class="button_submit" />
+						</noscript>
+					</div>
 				</div>
 			</div>
 		</form>

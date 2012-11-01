@@ -351,8 +351,6 @@ em {
 	overflow: auto;
 	white-space: nowrap;
 	/* Show a scrollbar after about 6 lines. */
-	/* This is much better than the old max-height css. */
-	height: 10em;
 	resize: vertical;
 }
 
@@ -931,6 +929,9 @@ img.sort {
 }
 .roundframe p {
 	padding: 6px;
+}
+.rfix {
+	margin-top: -1px;
 }
 
 /* The main content area.
@@ -1569,7 +1570,7 @@ img#upshrink {
 ------------------------------------------------------- */
 .table_list {
 	width: 100%;
-	border-collapse: collapse;
+	border-spacing: 0;
 }
 .table_list .header td {
 	padding: 0;
@@ -1578,7 +1579,7 @@ img#upshrink {
 	padding: 7px;
 }
 .table_list .header .cat_bar {
-	margin: 0 0 0 -1px;
+	margin: 0 0 0 0;
 }
 .table_list .icon, .table_list .info, .table_list .stats, .table_list.lastpost {
 	border-top: 2px solid #fff;
@@ -1593,6 +1594,9 @@ img#upshrink {
 	vertical-align: top;
 	border-left: 1px solid #ddd;
 	text-align: center;
+}
+.table_list td.icon img {
+	margin-top: 4px;
 }
 .table_list td.info {
 	padding: 0 7px 0 0;
@@ -1617,8 +1621,8 @@ img#upshrink {
 	width: 12%;
 }
 .table_list .stats p {
-	border-left: 1px solid #ccc;
-	border-right: 1px solid #ccc;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
 	min-height: 3em;
 	margin: 3px 0 0 0;
 	padding: 0px 7px 0 7px;
@@ -1655,7 +1659,7 @@ img#upshrink {
 .table_list .content tr:first-child .stats, .table_list .content tr:first-child .lastpost {
 	border-top: none;
 }
-.table_list .divider {
+.table_list .divider tr td {
 	border: none;
 	border-top: 1px solid #ddd;
 	height: 18px;
@@ -1663,8 +1667,8 @@ img#upshrink {
 
 /* the posting icons */
 #posting_icons {
-	padding: 0 12px 6px 12px;
-	margin: 0 0 12px 0;
+	padding: 0 12px 6px 0;
+	margin: 6px 0 12px -8px;
 	line-height: 12px;
 	float: left;
 }
@@ -1681,11 +1685,11 @@ img#upshrink {
 }
 .mark_read {
 	margin: -5px 0 0 0;
-	padding: 0 6px;
+	padding: 0 0 0 0;
 	float: right;
 }
 .mark_read .buttonlist ul {
-	margin: 0 0 0 0;
+	margin: 4px 0 0 0;
 	padding: 0 0 0 0;
 }
 /* the newsfader */
@@ -2205,7 +2209,7 @@ ul.quickbuttons li a.modify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 3px -57px;
 }
 ul.quickbuttons li a.approve_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -90px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 2px -89px;
 }
 ul.quickbuttons li a.restore_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
@@ -2223,8 +2227,9 @@ ul.quickbuttons li a.notify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -240px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 3px -238px;
 }
+
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
 }
@@ -4044,4 +4049,14 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 }
 .table_grid td.whos_viewing {
 	font-size: 0.9em;
+}
+
+#who_upper_show {
+	margin-top: 6px;
+}
+#who_lower_pagesection {
+	margin-top: 4px;
+}
+#who_lower_pagelinks {
+	margin-top: -4px;
 }

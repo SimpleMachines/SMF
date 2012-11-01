@@ -153,6 +153,16 @@ function template_main()
 				</div>
 			</div>';
 
+	// Who's creepin'?
+	if (!empty($settings['display_who_viewing']))
+	{
+		if ($settings['display_who_viewing'] == 1)
+			echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
+		else
+			echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . ((empty($context['view_num_hidden']) or $context['can_moderate_forum']) ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
+		echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_topic'], '';
+	}
+
 	// Show the topic information - icon, subject, etc.
 	echo '
 			<div id="forumposts">
