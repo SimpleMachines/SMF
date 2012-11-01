@@ -238,7 +238,7 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
---- Messager fields
+--- Messenger fields
 /******************************************************************************/
 ---# Insert fields
 INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
