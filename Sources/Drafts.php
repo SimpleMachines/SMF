@@ -647,6 +647,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'id_draft' => $row['id_draft'],
 			'locked' => $row['locked'],
 			'sticky' => $row['is_sticky'],
+			'age' => floor((time() - $row['poster_time']) / 86400),
+			'remaining' => (!empty($modSettings['drafts_keep_days']) ? round($modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
 		);
 	}
 	$smcFunc['db_free_result']($request);
