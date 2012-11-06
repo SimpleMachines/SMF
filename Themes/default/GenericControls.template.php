@@ -58,6 +58,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 
 				$numRows = count($smileyRows);
+				
 				// This is needed because otherwise the editor will remove all the duplicate (empty) keys and leave only 1 additional line
 				$emptyPlaceholder = 0;
 				foreach ($smileyRows as $smileyRow)
@@ -165,13 +166,12 @@ function template_control_richedit_buttons($editor_id)
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
 			<span id="draft_lastautosave" ></span>
 		</span>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
 				sLastID: \'id_draft\',
-				sSceditorID: \'', $editor_id, '\',
+				sSceditorID: \'', $context['post_box_name'], '\',
 				sType: \'post\',
 				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 				iFreq: ', $context['drafts_autosave_frequency'], '
@@ -193,17 +193,16 @@ function template_control_richedit_buttons($editor_id)
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span>
 			<span id="draft_lastautosave" ></span>
 		</span>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
 				sLastID: \'id_pm_draft\',
-				sSceditorID: \'', $editor_id, '\',
+				sSceditorID: \'', $context['post_box_name'], '\',
 				sType: \'post\',
 				bPM: true,
 				iBoard: 0,
-				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+				iFreq: ', $context['drafts_autosave_frequency'], '
 			});
 		// ]]></script>';
 	}
