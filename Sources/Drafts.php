@@ -31,9 +31,13 @@ loadLanguage('Drafts');
 function SaveDraft(&$post_errors)
 {
 	global $txt, $context, $user_info, $smcFunc, $modSettings, $board;
+	
+	// ajax calling
+	if (!isset($context['drafts_save']))
+		$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
 
 	// can you be, should you be ... here?
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
+	if (empty($context['drafts_save']) || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
 
 	// read in what they sent us, if anything
@@ -182,8 +186,12 @@ function SavePMDraft(&$post_errors, $recipientList)
 {
 	global $context, $user_info, $smcFunc, $modSettings;
 
+	// ajax calling
+	if (!isset($context['drafts_pm_save']))
+		$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	
 	// PM survey says ... can you stay or must you go
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
+	if (empty($context['drafts_pm_save']) || !isset($_POST['save_draft']) || !isset($_POST['id_pm_draft']))
 		return false;
 
 	// read in what you sent us
@@ -653,7 +661,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 /**
  * Show all PM drafts of the current user
  * Uses the showpmdraft template
- * Allows for the deleting and loading/editing of drafts
+ * Allows for the deleting and loading/editing of PM drafts
  *
  * @param type $memID
  */
@@ -873,7 +881,7 @@ function ModifyDraftSettings($return_config = false)
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managedrafts');
 	}
-	
+
 	// some javascript to enable / disable the frequency input box
 	$context['settings_post_javascript'] = '
 		var autosave = document.getElementById(\'drafts_autosave_enabled\');
