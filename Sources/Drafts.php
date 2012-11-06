@@ -550,11 +550,10 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$_REQUEST['viewscount'] = 10;
 
 	// Get the count of applicable drafts on the boards they can (still) see ...
-	// @todo .. should we just let them see their drafts even if they have lost board access ?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_draft)
 		FROM {db_prefix}user_drafts AS ud
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board)
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : ''),
@@ -582,15 +581,13 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$start = $msgCount < $context['start'] + $modSettings['defaultMaxMessages'] + 1 || $msgCount < $context['start'] + $modSettings['defaultMaxMessages'] ? 0 : $msgCount - $context['start'] - $modSettings['defaultMaxMessages'];
 	}
 
-	// Find this user's drafts for the boards they can access
-	// @todo ... do we want to do this?  If they were able to create a draft, do we remove thier access to said draft if they loose
-	//           access to the board or if the topic moves to a board they can not see?
+	// Find this user's drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			b.id_board, b.name AS bname,
 			ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
 		FROM {db_prefix}user_drafts AS ud
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board)
 		WHERE ud.id_member = {int:current_member}
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
