@@ -31,9 +31,13 @@ loadLanguage('Drafts');
 function SaveDraft(&$post_errors)
 {
 	global $txt, $context, $user_info, $smcFunc, $modSettings, $board;
+	
+	// ajax calling
+	if (!isset($context['drafts_save']))
+		$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
 
 	// can you be, should you be ... here?
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
+	if (empty($context['drafts_save']) || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
 
 	// read in what they sent us, if anything
@@ -182,8 +186,12 @@ function SavePMDraft(&$post_errors, $recipientList)
 {
 	global $context, $user_info, $smcFunc, $modSettings;
 
+	// ajax calling
+	if (!isset($context['drafts_pm_save']))
+		$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	
 	// PM survey says ... can you stay or must you go
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
+	if (empty($context['drafts_pm_save']) || !isset($_POST['save_draft']) || !isset($_POST['id_pm_draft']))
 		return false;
 
 	// read in what you sent us
@@ -535,12 +543,10 @@ function showProfileDrafts($memID, $draft_type = 0)
 			DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
-				AND type = {int:draft_type}
 			LIMIT 1',
 			array(
 				'id_draft' => $id_delete,
 				'id_member' => $memID,
-				'draft_type' => $draft_type,
 			)
 		);
 
@@ -552,11 +558,10 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$_REQUEST['viewscount'] = 10;
 
 	// Get the count of applicable drafts on the boards they can (still) see ...
-	// @todo .. should we just let them see their drafts even if they have lost board access ?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_draft)
 		FROM {db_prefix}user_drafts AS ud
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board)
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : ''),
@@ -584,15 +589,13 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$start = $msgCount < $context['start'] + $modSettings['defaultMaxMessages'] + 1 || $msgCount < $context['start'] + $modSettings['defaultMaxMessages'] ? 0 : $msgCount - $context['start'] - $modSettings['defaultMaxMessages'];
 	}
 
-	// Find this user's drafts for the boards they can access
-	// @todo ... do we want to do this?  If they were able to create a draft, do we remove thier access to said draft if they loose
-	//           access to the board or if the topic moves to a board they can not see?
+	// Find this user's drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			b.id_board, b.name AS bname,
 			ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
 		FROM {db_prefix}user_drafts AS ud
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board)
 		WHERE ud.id_member = {int:current_member}
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
@@ -644,6 +647,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 			'id_draft' => $row['id_draft'],
 			'locked' => $row['locked'],
 			'sticky' => $row['is_sticky'],
+			'age' => floor((time() - $row['poster_time']) / 86400),
+			'remaining' => (!empty($modSettings['drafts_keep_days']) ? round($modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -658,7 +663,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 /**
  * Show all PM drafts of the current user
  * Uses the showpmdraft template
- * Allows for the deleting and loading/editing of drafts
+ * Allows for the deleting and loading/editing of PM drafts
  *
  * @param type $memID
  */
@@ -878,7 +883,7 @@ function ModifyDraftSettings($return_config = false)
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managedrafts');
 	}
-	
+
 	// some javascript to enable / disable the frequency input box
 	$context['settings_post_javascript'] = '
 		var autosave = document.getElementById(\'drafts_autosave_enabled\');

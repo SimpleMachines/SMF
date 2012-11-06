@@ -12,7 +12,7 @@ function smf_DraftAutoSave(oOptions)
 	this.sCheckDraft = '';
 
 	// slight delay on autosave init to allow sceditor to create the iframe
-	setTimeout('addLoadEvent(' + this.opt.sSelf + '.init())', 4000);
+	setTimeout('addLoadEvent(' + this.opt.sSelf + '.init())', 3000);
 }
 
 // Start our self calling routine
@@ -20,32 +20,34 @@ smf_DraftAutoSave.prototype.init = function ()
 {
 	if (this.opt.iFreq > 0)
 	{
-		// find the editors wysiwyg iframe and gets its window
-		var oIframe = document.getElementsByTagName('iframe')[0];
-		var oIframeWindow = oIframe.contentWindow || oIframe.contentDocument;
 		// start the autosave timer
-		this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
+		this.interval_id = this.oDraftHandle.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
 
-		// Set up window focus and blur events
+		// Set up the textarea focus and blur events
 		this.oDraftHandle.instanceRef = this;
-		this.oDraftHandle.onblur = function (oEvent) {return this.instanceRef.draftBlur(oEvent, true);};
-		this.oDraftHandle.onfocus = function (oEvent) {return this.instanceRef.draftFocus(oEvent, true);};
+		if (typeof(this.instanceRef) != 'undefined')
+		{
+			this.oDraftHandle.onblur = function (oEvent) {return this.instanceRef.draftBlur(oEvent, true);};
+			this.oDraftHandle.onfocus = function (oEvent) {return this.instanceRef.draftFocus(oEvent, true);};
+		}
 		
-		// If we found the iframe window, set body focus/blur events for it
-		if (oIframeWindow.document) 
+		// find the editors wysiwyg iframe and get its window to set focus/blur events for it as well
+		var oIframe = document.getElementsByTagName('iframe')[0];
+		var oIframeWindow = typeof(oIframe) != 'undefined' ? oIframe.contentWindow || oIframe.contentDocument : null;
+		if (oIframeWindow != null && oIframeWindow.document)
 		{
 			var oIframeDoc = oIframeWindow.document;
-			// @todo oDraftAutoSave should use the this.opt.sSelf name not hardcoded 
+			// @todo oDraftAutoSave should be this.opt.sSelf name not hard code
 			oIframeDoc.body.onblur = function (oEvent) {return parent.oDraftAutoSave.draftBlur(oEvent, false);};
 			oIframeDoc.body.onfocus = function (oEvent) {return parent.oDraftAutoSave.draftFocus(oEvent, false);};
-		};
+		}
 	}
 }
 
 // Moved away from the page, where did you go? ... till you return we pause autosaving
 smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 {
-	if ($('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
+	if (this.opt.sType == 'quick' || $('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
 	{
 		// save what we have and turn of the autosave
 		if (this.bPM)
@@ -55,6 +57,7 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 		
 		if (this.interval_id != "")
 			window.clearInterval(this.interval_id);
+		
 		this.interval_id = "";
 	}
 	return;
@@ -63,7 +66,7 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 // Since your back we resume the autosave timer
 smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 {
-	if ($('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
+	if (this.opt.sType == 'quick' || $('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
 	{
 		if (this.interval_id == "")
 			this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
@@ -74,7 +77,10 @@ smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 // Make the call to save this draft in the background
 smf_DraftAutoSave.prototype.draftSave = function ()
 {
-	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText(true);
+	if (this.opt.sType != 'quick')
+		var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText();
+	else
+		var sPostdata = document.forms.postmodify["message"].value;
 
 	// nothing to save or already posting or nothing changed?
 	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)
@@ -108,8 +114,9 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 			aSections[aSections.length] = 'sticky=1';
 	}
 
-	// keep track of source or wysiwyg
-	aSections[aSections.length] = 'message_mode=' + $('#' + this.opt.sSceditorID).data("sceditor").inSourceMode();
+	// keep track of source or wysiwyg when using the full editor
+	if (this.opt.sType == 'post' || this.opt.sType == 'qpost')
+		aSections[aSections.length] = 'message_mode=' + $('#' + this.opt.sSceditorID).data("sceditor").inSourceMode();
 
 	// Send in document for saving and hope for the best
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=post2;board=" + this.opt.iBoard + ";xml", aSections.join("&"), this.onDraftDone);
@@ -170,7 +177,7 @@ smf_DraftAutoSave.prototype.draftPMSave = function ()
 smf_DraftAutoSave.prototype.onDraftDone = function (XMLDoc)
 {
 	// If it is not valid then clean up
-	if (!XMLDoc || !XMLDoc.getElementsByTagName('draft'))
+	if (!XMLDoc || !XMLDoc.getElementsByTagName('draft')[0])
 		return this.draftCancel();
 
 	// Grab the returned draft id and saved time from the response
