@@ -734,8 +734,9 @@ function template_main()
 		if ($context['require_verification'])
 			echo '
 							<strong>', $txt['verification'], ':</strong>', template_control_verification($context['visual_verification_id'], 'quick_reply'), '<br />';
-
-		if ($options['display_quick_reply'] < 3)
+		
+		// Using the full editor
+		if (empty($options['use_editor_quick_reply']))
 		{
 			echo '
 							<div class="quickReplyContent">
@@ -788,14 +789,16 @@ function template_main()
 			echo '
 								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'postmodify\', \'message\');" tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
-		if ($context['drafts_save'] && !empty($options['drafts_show_saved_enabled']))
+		if ($context['drafts_save'] && !empty($options['display_quick_reply']))
+		{
 			echo '
 								<input type="submit" name="save_draft" value="', $txt['draft_save'], '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" tabindex="', $context['tabindex']++, '" class="button_submit" />
 								<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '" />';
 
-		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
-			echo '
-								<div class="clear righttext padding"><span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span><span id="draft_lastautosave" ></span></div>';
+			if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+				echo '
+								<div class="clear righttext padding"><span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon" />&nbsp;</span><span id="draft_lastautosave"></span></div>';
+		}
 
 		echo '
 							</div>
@@ -808,18 +811,19 @@ function template_main()
 		echo '
 		<br class="clear" />';
 
-	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+	// draft autosave available and the user has it enabled?
+	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']) && !empty($options['display_quick_reply']))
 		echo '
 			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
 			<script type="text/javascript"><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
 					sLastNote: \'draft_lastautosave\',
-					sLastID: \'id_draft\',', !empty($context['post_box_name']) ? '
-					sSceditorID: \'' . $context['post_box_name'] . '\',' : '', '
-					sType: \'', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'quick' : 'quick', '\',
+					sLastID: \'id_draft\',
+					sSceditorID: ' . (!empty($context['post_box_name']) ? "'" . $context['post_box_name'] . "'" : "null") . ',
+					sType: \'', (!empty($options['use_editor_quick_reply']) ? 'post' : 'quick'), '\',
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
-					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
+					iFreq: ', isset($context['drafts_autosave_frequency']) ? $context['drafts_autosave_frequency'] : 30000, ',
 				});
 			// ]]></script>';
 
