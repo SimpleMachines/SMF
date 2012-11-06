@@ -115,7 +115,7 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	}
 
 	// keep track of source or wysiwyg when using the full editor
-	if (this.opt.sType == 'post')
+	if (this.opt.sType == 'post' || this.opt.sType == 'qpost')
 		aSections[aSections.length] = 'message_mode=' + $('#' + this.opt.sSceditorID).data("sceditor").inSourceMode();
 
 	// Send in document for saving and hope for the best

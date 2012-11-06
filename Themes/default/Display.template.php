@@ -821,7 +821,7 @@ function template_main()
 					sLastNote: \'draft_lastautosave\',
 					sLastID: \'id_draft\',
 					sSceditorID: ' . (!empty($context['post_box_name']) ? "'" . $context['post_box_name'] . "'" : "null") . ',
-					sType: \'', (!empty($options['use_editor_quick_reply']) ? 'post' : 'quick'), '\',
+					sType: \'', (!empty($options['use_editor_quick_reply']) ? 'qpost' : 'quick'), '\',
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 					iFreq: ', isset($context['drafts_autosave_frequency']) ? $context['drafts_autosave_frequency'] : 30000, ',
 				});
