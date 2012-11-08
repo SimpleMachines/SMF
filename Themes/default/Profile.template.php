@@ -1433,7 +1433,11 @@ function template_edit_options()
 	// Any final spellchecking stuff?
 	if (!empty($context['show_spellchecking']))
 		echo '
-		<form name="spell_form" id="spell_form" method="post" accept-charset="', $context['character_set'], '" target="spellWindow" action="', $scripturl, '?action=spellcheck"><input type="hidden" name="spellstring" value="" /></form>';
+		<form name="spell_form" id="spell_form" method="post" accept-charset="', $context['character_set'], '" target="spellWindow" action="', $scripturl, '?action=spellcheck">
+			<input type="hidden" name="spellstring" value="" />
+			<input type="hidden" name="fulleditor" value="" />
+		</form>
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js"></script>';
 }
 
 // Personal Message settings.
@@ -2681,14 +2685,9 @@ function template_profile_signature_modify()
 	echo '
 							<dt>
 								<strong>', $txt['signature'], ':</strong><br />
-								<span class="smalltext">', $txt['sig_info'], '</span><br />
-								<br />';
-
-	if ($context['show_spellchecking'])
-		echo '
-								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'creator\', \'signature\');" class="button_submit" />';
-
-		echo '
+								<span class="smalltext">', $txt['sig_info'], '</span>
+								<br />
+								<br />
 							</dt>
 							<dd>
 								<textarea class="editor" onkeyup="calcCharLeft();" id="signature" name="signature" rows="5" cols="50" style="min-width: 50%; max-width: 99%;">', $context['member']['signature'], '</textarea><br />';
@@ -2698,18 +2697,17 @@ function template_profile_signature_modify()
 		echo '
 								<span class="smalltext">', sprintf($txt['max_sig_characters'], $context['signature_limits']['max_length']), ' <span id="signatureLeft">', $context['signature_limits']['max_length'], '</span></span><br />';
 
+	if ($context['show_spellchecking'])
+		echo '
+						<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'creator\', \'signature\', false);"  tabindex="', $context['tabindex']++, '" class="button_submit" />';
 	if (!empty($context['show_preview_button']))
 		echo '
-						<input type="submit" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '" class="button_submit" />';
+						<input type="submit" name="preview_signature" id="preview_button" value="', $txt['preview_signature'], '"  tabindex="', $context['tabindex']++, '" class="button_submit" />';
 
 	if ($context['signature_warning'])
 		echo '
 								<span class="smalltext">', $context['signature_warning'], '</span>';
 
-	// Load the spell checker?
-	if ($context['show_spellchecking'])
-		echo '
-								<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>';
 
 	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '

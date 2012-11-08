@@ -1,8 +1,8 @@
 // These are variables the popup is going to want to access...
-var spell_formname, spell_fieldname;
+var spell_formname, spell_fieldname, spell_full;
 
 // Spell check the specified field in the specified form.
-function spellCheck(formName, fieldName)
+function spellCheck(formName, fieldName, bFull = true)
 {
 	// Grab the (hidden) spell checking form.
 	var spellform = document.forms.spell_form;
@@ -10,6 +10,7 @@ function spellCheck(formName, fieldName)
 	// Register the name of the editing form for future reference.
 	spell_formname = formName;
 	spell_fieldname = fieldName;
+	spell_full = bFull;
 
 	// This should match a word (most of the time).
 	var regexpWordMatch = /(?:<[^>]+>)|(?:\[[^ ][^\]]*\])|(?:&[^; ]+;)|(?:[^0-9\s\]\[{};:"\\|,<.>\/?`~!@#$%^&*()_+=]+)/g;
@@ -18,7 +19,7 @@ function spellCheck(formName, fieldName)
 	var aWordCharacters = ['-', '\''];
 
 	var aWords = new Array(), aResult = new Array();
-	var sText = $('#' + fieldName).data("sceditor").getTextareaValue(false);
+	var sText = (spell_full) ? $('#' + fieldName).data("sceditor").getTextareaValue(false) : document.forms[formName][fieldName].value;
 	var bInCode = false;
 	var iOffset1, iOffset2;
 
@@ -58,6 +59,7 @@ function spellCheck(formName, fieldName)
 
 	// Pass the data to a form...
 	spellform.spellstring.value = aWords.join('\n');
+	spellform.fulleditor.value = spell_full ? 'true' : 'false';
 
 	//  and go!
 	spellform.submit();
@@ -235,7 +237,16 @@ function nextWord(ignoreall)
 		mispstr = mispstr.replace(/_\|_/g, "\n");
 
 		// Get a handle to the field we need to re-populate.
-		window.opener.spellCheckSetText(mispstr, spell_fieldname);
+		if (spell_full)
+			window.opener.spellCheckSetText(mispstr, spell_fieldname);
+		else
+		{
+			window.opener.document.forms[spell_formname][spell_fieldname].value = mispstr;
+			if (!window.opener.spellCheckDone)
+				window.opener.document.forms[spell_formname][spell_fieldname].focus();
+			else
+				window.opener.spellCheckDone();
+		}
 
 		window.close();
 		return true;
@@ -277,6 +288,7 @@ function nextWord(ignoreall)
 	return false;
 }
 
+// convert characters to HTML equivalents
 function htmlspecialchars(thetext)
 {
 	thetext = thetext.replace(/\</g, "&lt;");
@@ -287,18 +299,21 @@ function htmlspecialchars(thetext)
 	return thetext;
 }
 
+// Open a new window
 function openSpellWin(width, height)
 {
 	window.open("", "spellWindow", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=" + width + ",height=" + height);
 }
 
+// get the sceditor text
 function spellCheckGetText(editorID)
 {
-	return $("#" + editorID).data("sceditor").getTextareaValue(false);
+	return $("#" + editorID).data("sceditor").getText();
 }
+// set the sceditor text
 function spellCheckSetText(text, editorID)
 {
 	$("#" + editorID).data("sceditor").InsertText(text, true);
-	if (!$("#" + editorID).data("sceditor").wasSource)
+	if (!$("#" + editorID).data("sceditor").inSourceMode)
 		$("#" + editorID).data("sceditor").toggleTextMode();
 }
