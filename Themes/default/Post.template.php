@@ -939,20 +939,21 @@ function template_spellcheck()
 				height: 314px;
 				overflow: auto;
 				background: #ffffff;
-			}';
+			}
+		</style>';
 
-	// As you may expect - we need a lot of javascript for this... load it form the separate files.
+	// As you may expect - we need a lot of javascript for this... load it from the separate files.
 	echo '
-		</style>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
-		// ]]></script>
+			var spell_full = window.opener.spell_full;
+		// ]]></script>	
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			', $context['spell_js'], '
-		// ]]></script>
+		// ]]></script>	
 	</head>
 	<body onload="nextWord(false);">
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">

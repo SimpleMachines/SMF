@@ -1487,17 +1487,18 @@ function create_control_richedit($editorOptions)
 			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array(), 'sceditor_language');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (isBrowser('is_firefox') ? '_firefox' : '')];
+		
 		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 		if ($context['show_spellchecking'])
 		{
-			loadJavascriptFile('spellcheck.js', array('default_theme' => true));
-
-			// Some hidden information is needed in order to make the spell checking work.
+			// Some hidden information is needed in order to make spell check work.
 			if (!isset($_REQUEST['xml']))
 				$context['insert_after_template'] .= '
 		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
 			<input type="hidden" name="spellstring" value="" />
-		</form>';
+			<input type="hidden" name="fulleditor" value="" />
+		</form>
+		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/spellcheck.js"></script>';
 		}
 	}
 
