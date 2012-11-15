@@ -529,6 +529,32 @@ function swapUploads()
 	document.getElementById("uploadSmiley").disabled = !document.getElementById("uploadSmiley").disabled;
 }
 
+function swapIconUploads()
+{
+	document.getElementById("uploadMore").style.display = document.getElementById("sameall").checked === true ? "none" : "";
+}
+
+function copy_icon(source, dest)
+{
+	data = source.split(":::");
+	dest_data = dest.split(":::");
+	document.getElementById("copy_from_theme").value = data[1];
+	document.getElementById("copy_image").value = data[2];
+	document.getElementById("copy_to_theme").value = dest_data[1];
+	document.getElementById("dest_name").value = dest_data[2];
+	document.forms["form_copy_icon"].submit();
+}
+
+function delete_icon(img, theme, msg)
+{
+	if (confirm(msg))
+	{
+		document.getElementById("delete_img").value = img;
+		document.getElementById("delete_theme").value = theme;
+		document.forms["form_delete_icon"].submit();
+	}
+}
+
 function selectMethod(element)
 {
 	document.getElementById("method-existing").checked = element != "upload";
