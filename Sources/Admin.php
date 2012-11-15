@@ -306,6 +306,7 @@ function AdminMain()
 					'subsections' => array(
 						'index' => array($txt['membergroups_edit_groups'], 'manage_membergroups'),
 						'add' => array($txt['membergroups_new_group'], 'manage_membergroups'),
+						'icons' => array($txt['membergroups_edit_icons'], 'admin_forum'),
 						'settings' => array($txt['settings'], 'admin_forum'),
 					),
 				),
