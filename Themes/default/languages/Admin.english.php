@@ -669,6 +669,7 @@ $txt['icons_edit_message_icons'] = 'Edit message icons';
 
 $txt['membergroups_new_group'] = 'Add Membergroup';
 $txt['membergroups_edit_groups'] = 'Edit Membergroups';
+$txt['membergroups_edit_icons'] = 'Group Icons';
 $txt['permissions_groups'] = 'General Permissions';
 $txt['permissions_boards'] = 'Board Permissions';
 $txt['permissions_profiles'] = 'Edit Profiles';
