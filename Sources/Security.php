@@ -1254,7 +1254,9 @@ RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 		if ($fh) {
 			fwrite($fh, '<?php
 
-// This file is here solely to protect your ' . $directoryname . ' directory.
+/**
+ * This file is here solely to protect your ' . $directoryname . ' directory.
+ */
 
 // Look for Settings.php....
 if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
