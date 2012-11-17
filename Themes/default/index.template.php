@@ -89,25 +89,17 @@ function template_html_above()
 
 	// The ?alp21 part of this link is just here to make sure browsers don't cache it wrongly.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		var smf_theme_url = "', $settings['theme_url'], '";
-		var smf_default_theme_url = "', $settings['default_theme_url'], '";
-		var smf_images_url = "', $settings['images_url'], '";
-		var smf_scripturl = "', $scripturl, '";
-		var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
-		var smf_charset = "', $context['character_set'], '";
-		var smf_session_id = "', $context['session_id'], '";
-		var smf_session_var = "', $context['session_var'], '";
-		var smf_member_id = "', $context['user']['id'], '";', $context['show_pm_popup'] ? '
-		var fPmPopup = function ()
-		{
-			if (confirm("' . $txt['show_personal_messages'] . '"))
-				window.open(smf_prepareScriptUrl(smf_scripturl) + "action=pm");
-		}
-		addLoadEvent(fPmPopup);' : '', '
-		var ajax_notification_text = "', $txt['ajax_in_progress'], '";
-		var ajax_notification_cancel_text = "', $txt['modify_cancel'], '";
-	// ]]></script>';
+	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css?alp21" />';
+
+	// The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
+	if (!empty($context['theme_variant']))
+		echo '
+	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
+
+	// Save some database hits, if a width for multiple wrappers is set in admin.
+	if(!empty($settings['forum_width']))
+		echo '
+	<style type="text/css">#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
 
 	// Quick and dirty testing of RTL horrors. Remove before production build.
 	//echo '
@@ -131,11 +123,6 @@ function template_html_above()
 	}
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-			$(document).ready(function() { 
-				$("ul.dropmenu").superfish(); 
-			});
-	// ]]></script>
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 	<meta name="description" content="', $context['page_title_html_safe'], '" />', !empty($context['meta_keywords']) ? '
 	<meta name="keywords" content="' . $context['meta_keywords'] . '" />' : '', '

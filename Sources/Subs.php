@@ -4040,20 +4040,7 @@ function call_integration_hook($hook, $parameters = array())
 	if (empty($modSettings[$hook]))
 		return $results;
 
-	$files_functions = explode(',', $modSettings[$hook]);
-	$functions = array();
-	foreach ($files_functions as $file_function)
-	{
-		$include = explode(';', $file_function);
-		if (isset($include[1]))
-		{
-			$include = strtr(trim($include[1]), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
-			if (file_exists($include))
-				require_once($include);
-		}
-		$functions = $include[0];
-	}
-
+	$functions = explode(',', $modSettings[$hook]);
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
@@ -4149,11 +4136,6 @@ function add_integration_function($hook, $function, $file = '', $permanent = tru
 
 	$functions[] = $integration_call;
 	$modSettings[$hook] = implode(',', $functions);
-}
-
-function addinclude_integration_function($hook, $function, $filepath, $permanent = true)
-{
-	add_integration_function($hook, $function . ';' . $filepath, $permanent);
 }
 
 /**
