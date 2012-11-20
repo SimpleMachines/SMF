@@ -280,7 +280,7 @@ function template_edit_group()
 							<dl id="sample" class="dropdown">
         						<dt><a href="javascript:void(0)"><span id="star_preview_container"><img id="star_preview" src="', $settings['images_url'], '/membergroup_icons/', $context['group']['icon_image'] == '' ? 'blank.png' : $context['group']['icon_image'], '" alt="*" /></span></a></dt>
 								
-								<ul style="display: none" class="windowbg">
+								<ul id="pick_icon" style="display: none" class="windowbg">
 									<li><a href="javascript:void(0)"><img id="blank_image" class="mg_icon" src="', $settings['images_url'], '/membergroup_icons/blank.png" alt="', $txt['no_image'] , '" title="', $txt['no_image'] , '" /><span class="value"></span></a></li>';
 	foreach ($context['membergroup_icons'] as $icon)
 		if ($icon != 'blank.png')
@@ -893,13 +893,19 @@ function template_member_icons()
 		echo '
 						</dl>
 						<input class="button_submit" type="submit" value="', $txt['upload'] , '" name="icon_save" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 					</form>
 				</div>
 			</div>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
 <script type="text/javascript"><!-- // --><![CDATA[
 
-$("span.cancopy").draggable();
+$("span.cancopy").draggable({
+	stop: function(event, ui) {
+		$(this).css({\'top\': \'0\', \'left\': \'0\'});
+	}
+});
 
 $(".drop").droppable({
 	drop: function(event, ui) {
@@ -908,8 +914,6 @@ $(".drop").droppable({
 			var id = ui.draggable.attr("id");
 			var dest_id = this.id;
 			copy_icon(id, dest_id)
-		} else {
-			ui.draggable.css({\'top\': \'0\', \'left\': \'0\'});
 		}
 	}
 });
@@ -919,12 +923,16 @@ $(".drop").droppable({
 			<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;delete" method="post" accept-charset="', $context['character_set'], '" name="form_delete_icon" id="form_delete_icon" >
 				<input type="hidden" name="delete_img" id="delete_img" />
 				<input type="hidden" name="delete_theme" id="delete_theme" />
+<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 			</form>
 			<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;copy" method="post" accept-charset="', $context['character_set'], '" name="form_copy_icon" id="form_copy_icon" >
 				<input type="hidden" name="copy_image" id="copy_image" />
 				<input type="hidden" name="copy_from_theme" id="copy_from_theme" />
 				<input type="hidden" name="dest_name" id="dest_name" />
 				<input type="hidden" name="copy_to_theme" id="copy_to_theme" />
+<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 			</form>
 		</div>';
 				
