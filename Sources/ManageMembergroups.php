@@ -187,7 +187,6 @@ function MembergroupIndex()
 						),
 					),
 					'style' => 'text-align: center',
-
 				),
 			),
 		),
@@ -299,7 +298,6 @@ function MembergroupIndex()
 						),
 					),
 					'style' => 'text-align: center',
-
 				),
 			),
 		),
