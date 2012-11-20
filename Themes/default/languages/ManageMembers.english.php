@@ -153,4 +153,5 @@ $txt['missing_icon'] = 'These membergroups seems to miss an image in all present
 $txt['copy_here'] = 'Copy the image to this location?';
 $txt['drag_me'] = 'To copy this image to an empty spot, drag it there and drop it.';
 $txt['no_image'] = 'No image';
+
 ?>
