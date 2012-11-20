@@ -923,7 +923,7 @@ $(".drop").droppable({
 			<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;delete" method="post" accept-charset="', $context['character_set'], '" name="form_delete_icon" id="form_delete_icon" >
 				<input type="hidden" name="delete_img" id="delete_img" />
 				<input type="hidden" name="delete_theme" id="delete_theme" />
-<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 			</form>
 			<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;copy" method="post" accept-charset="', $context['character_set'], '" name="form_copy_icon" id="form_copy_icon" >
@@ -931,7 +931,7 @@ $(".drop").droppable({
 				<input type="hidden" name="copy_from_theme" id="copy_from_theme" />
 				<input type="hidden" name="dest_name" id="dest_name" />
 				<input type="hidden" name="copy_to_theme" id="copy_to_theme" />
-<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 			</form>
 		</div>';
