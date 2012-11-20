@@ -1261,10 +1261,8 @@ function ModifyMembergroupIcons()
 		$imgfile = $context['available_themes'][$_POST['delete_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['delete_img'];
 		if ($_POST['delete_img'] != "" && (int)$_POST['delete_theme'] > 0)
 		{
-			echo ' Path: \'', $context['available_themes'][(int)$_POST['delete_theme']]['theme_dir'], '/images/membergroup_icons/', $_POST['delete_img'], '\'';
-			if (file_exists($imgfile))
-				if (!unlink($imgfile))
-					$error = ' Not deleted!'; // What here?
+			if (!unlink($imgfile))
+				$error = ' Not deleted!'; // What here? Want to have something here? Like cola and cookies?!
 		}
 
 		redirectexit('action=admin;area=membergroups;sa=icons#table');
