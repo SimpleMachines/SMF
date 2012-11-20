@@ -160,7 +160,6 @@ function MembergroupIndex()
 			'members' => array(
 				'header' => array(
 					'value' => $txt['membergroups_members_top'],
-
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -170,7 +169,6 @@ function MembergroupIndex()
 						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : $rowData[\'num_members\'];
 					'),
 					'style' => 'text-align: center',
-
 				),
 				'sort' => array(
 					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, 1',
@@ -180,7 +178,6 @@ function MembergroupIndex()
 			'modify' => array(
 				'header' => array(
 					'value' => $txt['modify'],
-
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -267,12 +264,10 @@ function MembergroupIndex()
 			'members' => array(
 				'header' => array(
 					'value' => $txt['membergroups_members_top'],
-
 				),
 				'data' => array(
 					'db' => 'num_members',
 					'style' => 'text-align: center',
-
 				),
 				'sort' => array(
 					'default' => '1 DESC',
@@ -282,12 +277,10 @@ function MembergroupIndex()
 			'required_posts' => array(
 				'header' => array(
 					'value' => $txt['membergroups_min_posts'],
-
 				),
 				'data' => array(
 					'db' => 'min_posts',
 					'style' => 'text-align: center',
-
 				),
 				'sort' => array(
 					'default' => 'min_posts',
@@ -297,7 +290,6 @@ function MembergroupIndex()
 			'modify' => array(
 				'header' => array(
 					'value' => $txt['modify'],
-
 				),
 				'data' => array(
 					'sprintf' => array(
