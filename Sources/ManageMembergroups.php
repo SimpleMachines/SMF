@@ -37,9 +37,8 @@ function ModifyMembergroups()
 		'edit' => array('EditMembergroup', 'manage_membergroups'),
 		'index' => array('MembergroupIndex', 'manage_membergroups'),
 		'members' => array('MembergroupMembers', 'manage_membergroups', 'Groups.php'),
-		'icons' => array('ModifyMembergroupicons', 'manage_membergroups'),
+		'icons' => array('ModifyMembergroupIcons', 'manage_membergroups'),
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
-
 	);
 
 	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
@@ -1197,7 +1196,6 @@ function ModifyMembergroupsettings()
 }
 
 function ModifyMembergroupIcons()
-
 {
 	global $context, $sourcedir, $scripturl, $modSettings, $smcFunc, $txt;
 
