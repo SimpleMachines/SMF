@@ -39,6 +39,7 @@ function ModifyMembergroups()
 		'members' => array('MembergroupMembers', 'manage_membergroups', 'Groups.php'),
 		'icons' => array('ModifyMembergroupicons', 'manage_membergroups'),
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
+
 	);
 
 	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
@@ -159,6 +160,7 @@ function MembergroupIndex()
 			'members' => array(
 				'header' => array(
 					'value' => $txt['membergroups_members_top'],
+
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
@@ -168,6 +170,7 @@ function MembergroupIndex()
 						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : $rowData[\'num_members\'];
 					'),
 					'style' => 'text-align: center',
+
 				),
 				'sort' => array(
 					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, 1',
@@ -177,6 +180,7 @@ function MembergroupIndex()
 			'modify' => array(
 				'header' => array(
 					'value' => $txt['modify'],
+
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -186,6 +190,7 @@ function MembergroupIndex()
 						),
 					),
 					'style' => 'text-align: center',
+
 				),
 			),
 		),
@@ -262,10 +267,12 @@ function MembergroupIndex()
 			'members' => array(
 				'header' => array(
 					'value' => $txt['membergroups_members_top'],
+
 				),
 				'data' => array(
 					'db' => 'num_members',
 					'style' => 'text-align: center',
+
 				),
 				'sort' => array(
 					'default' => '1 DESC',
@@ -275,10 +282,12 @@ function MembergroupIndex()
 			'required_posts' => array(
 				'header' => array(
 					'value' => $txt['membergroups_min_posts'],
+
 				),
 				'data' => array(
 					'db' => 'min_posts',
 					'style' => 'text-align: center',
+
 				),
 				'sort' => array(
 					'default' => 'min_posts',
@@ -288,6 +297,7 @@ function MembergroupIndex()
 			'modify' => array(
 				'header' => array(
 					'value' => $txt['modify'],
+
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -297,6 +307,7 @@ function MembergroupIndex()
 						),
 					),
 					'style' => 'text-align: center',
+
 				),
 			),
 		),
@@ -1125,6 +1136,7 @@ function EditMembergroup()
 		$context['inheritable_groups'][$row['id_group']] = $row['group_name'];
 	$smcFunc['db_free_result']($request);
 
+
 	// Get available star icons - will only fetch image for the admins current theme!
 	$allowedTypes = array('jpeg', 'jpg', 'gif', 'png', 'bmp');
 	$context['membergroup_icons'] = array();
@@ -1194,7 +1206,8 @@ function ModifyMembergroupsettings()
 	prepareDBSettingContext($config_vars);
 }
 
-function ModifyMembergroupicons()
+function ModifyMembergroupIcons()
+
 {
 	global $context, $sourcedir, $scripturl, $modSettings, $smcFunc, $txt;
 
@@ -1228,7 +1241,7 @@ function ModifyMembergroupicons()
 	// Copy an image
 	if (isset($_REQUEST['copy']))
 	{
-
+		checkSession();
 		if (!in_array(strtolower(substr(strrchr($_POST['copy_image'], '.'), 1)), $allowedTypes))
 			fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
 
@@ -1244,6 +1257,7 @@ function ModifyMembergroupicons()
 	// Delete doubleclicked image
 	if (isset($_REQUEST['delete']))
 	{
+		checkSession();
 		$imgfile = $context['available_themes'][$_POST['delete_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['delete_img'];
 		if ($_POST['delete_img'] != "" && (int)$_POST['delete_theme'] > 0)
 		{
@@ -1259,6 +1273,7 @@ function ModifyMembergroupicons()
 	// Upload new file(s)
 	if (isset($_REQUEST['save']))
 	{
+		checkSession();
 		if (!is_uploaded_file($_FILES['uploadIcon']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['uploadIcon']['tmp_name'])))
 				fatal_lang_error('smileys_upload_error');
 
