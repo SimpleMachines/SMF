@@ -1113,15 +1113,6 @@ h3.grid_header {
 {
 	cursor: move;
 }
-#sample ul
-{
-	position: absolute;
-	border: 1px solid #888;
-}
-#sample ul li
-{
-	display: inline;
-}
 #sample img
 {
 	margin: 3px 3px 3px 2px;
@@ -1140,7 +1131,24 @@ h3.grid_header {
 	min-height: 20px;
 	min-width: 20px;
 }
-
+#pick_icon
+{
+	display: table;
+	width: 200px;
+	position: absolute;
+	border: 1px solid #888;
+	background-color: #fff;
+	box-shadow: 2px 2px 4px #abb;
+}
+#pick_icon li
+{
+	display: inline-table;
+	width: 12%;
+}
+span.drop
+{
+	padding: 10px 14px;
+}
 
 /* Try out some nifty small screen friendliness, for the cost of a few more bytes. */
 /*@media screen and (max-width: 85em) {
