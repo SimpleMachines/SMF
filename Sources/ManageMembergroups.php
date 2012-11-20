@@ -1245,10 +1245,10 @@ function ModifyMembergroupIcons()
 		if (!in_array(strtolower(substr(strrchr($_POST['copy_image'], '.'), 1)), $allowedTypes))
 			fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
 
-		$img_source = $context['available_themes'][$_POST['copy_from_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['copy_image'];
+		$img_source = $context['available_themes'][(int)$_POST['copy_from_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['copy_image'];
 		if (file_exists($img_source) && file_exists($context['available_themes'][$_POST['copy_to_theme']]['theme_dir']. '/images/membergroup_icons/'))
 		{
-			$img_dest = $context['available_themes'][$_POST['copy_to_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['dest_name'];
+			$img_dest = $context['available_themes'][(int)$_POST['copy_to_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['dest_name'];
 			copy($img_source, $img_dest);
 		}
 		redirectexit('action=admin;area=membergroups;sa=icons#table');
