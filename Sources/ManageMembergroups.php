@@ -1209,14 +1209,6 @@ function ModifyMembergroupicons()
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes' ,
 			array(
-				'default_theme' => 0,
-				'name' => 'name',
-				'no_member' => 0,
-				'theme_url' => 'theme_url',
-				'theme_dir' => 'theme_dir',
-				'images_url' => 'images_url',
-				'disable_user_variant' => 'disable_user_variant',
-				'known_themes' => explode(',', $modSettings['knownThemes']),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
