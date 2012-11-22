@@ -699,7 +699,21 @@ function registerMember(&$regOptions, $return_errors = false)
 	);
 
 	// Call an optional function to validate the users' input.
-	call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, $knownInts, $knownFloats));
+	$hook_errors = call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, $knownInts, $knownFloats));
+
+	// If we found any errors we need to do something about it right away!
+	foreach( $hook_errors as $hook=>$hook_error)
+	{
+		if ($return_errors) {
+			$reg_errors = array_merge($hook_error, $reg_errors);
+		} else {
+			fatal_error( $hook_error );
+		}
+	}
+
+	if( !empty( $reg_errors ) ) {
+		return $reg_errors;
+	}
 
 	$column_names = array();
 	$values = array();
@@ -725,6 +739,8 @@ function registerMember(&$regOptions, $return_errors = false)
 		array('id_member')
 	);
 	$memberID = $smcFunc['db_insert_id']('{db_prefix}members', 'id_member');
+
+	call_integration_hook('integrate_post_register', array(&$regOptions, &$theme_vars, &$memberID));
 
 	// Update the number of members and latest member's info - and pass the name, but remove the 's.
 	if ($regOptions['register_vars']['is_activated'] == 1)
