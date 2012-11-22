@@ -239,7 +239,7 @@ function PrintTopic()
 
 	// Split the topics up so we can print them.
 	$request = $smcFunc['db_query']('', '
-		SELECT subject, poster_time, body, IFNULL(mem.real_name, poster_name) AS poster_name
+		SELECT subject, poster_time, body, IFNULL(mem.real_name, poster_name) AS poster_name, id_msg
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_topic = {int:current_topic}' . ($modSettings['postmod_active'] && !allowedTo('approve_posts') ? '
@@ -264,6 +264,7 @@ function PrintTopic()
 			'time' => timeformat($row['poster_time'], false),
 			'timestamp' => forum_time(true, $row['poster_time']),
 			'body' => parse_bbc($row['body'], 'print'),
+			'id_msg' => $row['id_msg'],
 		);
 
 		if (!isset($context['topic_subject']))
@@ -271,6 +272,66 @@ function PrintTopic()
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Fetch attachments so we can print them if asked, enabled and allowed
+	if (isset($_REQUEST['images']) && !empty($modSettings['attachmentEnable']) && allowedTo('view_attachments'))
+	{
+		$messages = array();
+		foreach($context['posts'] as $temp)
+			$messages[] = $temp['id_msg'];
+		
+		// build the request
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				a.id_attach, a.id_msg, a.approved, a.width, a.height, a.file_hash, a.filename, a.id_folder, a.mime_type
+			FROM {db_prefix}attachments AS a
+			WHERE a.id_msg IN ({array_int:message_list})
+				AND a.attachment_type = {int:attachment_type}',
+			array(
+				'message_list' => $messages,
+				'attachment_type' => 0,
+				'is_approved' => 1,
+			)
+		);
+		$temp = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$temp[$row['id_attach']] = $row;
+			if (!isset($context['printattach'][$row['id_msg']]))
+				$context['printattach'][$row['id_msg']] = array();
+		}
+		$smcFunc['db_free_result']($request);
+		ksort($temp);
+
+		// load them into $context so the template can use them
+		foreach ($temp as $row)
+		{
+			if (!empty($row['width']) && !empty($row['height'])) 
+			{
+				if (!empty($modSettings['max_image_width']) && (empty($modSettings['max_image_height']) || $row['height'] * ($modSettings['max_image_width'] / $row['width']) <= $modSettings['max_image_height']))
+				{
+					if ($row['width'] > $modSettings['max_image_width']) 
+					{
+						$row['height'] = floor($row['height'] * ($modSettings['max_image_width'] / $row['width']));
+						$row['width'] = $modSettings['max_image_width'];
+					}
+				}
+				elseif (!empty($modSettings['max_image_width']))
+				{
+					if ($row['height'] > $modSettings['max_image_height']) 
+					{
+						$row['width'] = floor($row['width'] * $modSettings['max_image_height'] / $row['height']);
+						$row['height'] = $modSettings['max_image_height'];
+					}
+				}
+				
+				$row['filename'] = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+
+				// save for the template
+				$context['printattach'][$row['id_msg']][] = $row;
+			}
+		}
+	}
+	
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.0';
 }

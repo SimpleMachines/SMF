@@ -364,6 +364,8 @@ $txt['you_have_many_msgs'] = 'You\'ve got %2$d messages... Click <a href="%1$s">
 $txt['total_boards'] = 'Total Boards';
 
 $txt['print_page'] = 'Print Page';
+$txt['print_page_text'] = 'Text only';
+$txt['print_page_images'] = 'Test with Images';
 
 $txt['valid_email'] = 'This must be a valid email address.';
 
