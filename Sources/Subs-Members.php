@@ -541,6 +541,10 @@ function registerMember(&$regOptions, $return_errors = false)
 		$reg_errors[] = array('lang', 'email_in_use', false, array(htmlspecialchars($regOptions['email'])));
 	$smcFunc['db_free_result']($request);
 
+	$hook_errors = call_integration_hook('integrate_register_validate', array(&$regOptions));
+	if (!empty($hook_errors))
+		$reg_errors = array_merge($reg_errors, $hook_errors);
+
 	// If we found any errors we need to do something about it right away!
 	foreach ($reg_errors as $key => $error)
 	{
@@ -725,6 +729,8 @@ function registerMember(&$regOptions, $return_errors = false)
 		array('id_member')
 	);
 	$memberID = $smcFunc['db_insert_id']('{db_prefix}members', 'id_member');
+
+	call_integration_hook('integrate_post_register', array(&$regOptions, &$theme_vars, &$memberID));
 
 	// Update the number of members and latest member's info - and pass the name, but remove the 's.
 	if ($regOptions['register_vars']['is_activated'] == 1)
