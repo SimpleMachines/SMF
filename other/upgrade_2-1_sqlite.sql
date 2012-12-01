@@ -223,7 +223,7 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 			'name' => 'disregarded',
 			'null' => false,
 			'default' => 0,
-			'type' => 'tinyint',
+			'type' => 'int',
 			'auto' => false,
 		),
 	)

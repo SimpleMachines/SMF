@@ -243,7 +243,7 @@ upgrade_query("
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_topics
-	ADD COLUMN disregarded tinyint NOT NULL DEFAULT '0'");
+	ADD COLUMN disregarded int NOT NULL DEFAULT '0'");
 
 INSERT INTO {$db_prefix}settings
 	(variable, value)
