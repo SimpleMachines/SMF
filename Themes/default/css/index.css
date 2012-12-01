@@ -779,6 +779,8 @@ h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
 	font-weight: bold;
 	line-height: 1.5em;
 	padding: 8px;
+        margin-bottom:3px;
+	margin-top:3px;
 }
 h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
 	color: #fff;
