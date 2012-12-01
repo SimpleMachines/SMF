@@ -1110,7 +1110,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	// Load this if set isn't minimal, it is still a monstrous array...
 	if ($context['loadMemberContext_set'] != 'minimal')
-		$memberContext[$user] = array(
+		$memberContext[$user] += array(
 			'is_buddy' => $profile['buddy'],
 			'is_reverse_buddy' => in_array($user_info['id'], $buddy_list),
 			'buddies' => $buddy_list,
