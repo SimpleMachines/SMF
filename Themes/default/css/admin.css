@@ -1107,6 +1107,49 @@ h3.grid_header {
 	border-right: 1px solid #ddd;
 }
 
+/* Styles for the membergroup changes 
+------------------------------------------------- */
+.cancopy
+{
+	cursor: move;
+}
+#sample img
+{
+	margin: 3px 3px 3px 2px;
+}
+#sample li img#blank_image
+{
+	border: 1px solid #666;
+	width: 16px;
+	height: 16px;
+}
+#star_preview_container
+{
+	border: 1px solid #333;
+	background-color: #eee;
+	position: absolute;
+	min-height: 20px;
+	min-width: 20px;
+}
+#pick_icon
+{
+	display: table;
+	width: 200px;
+	position: absolute;
+	border: 1px solid #888;
+	background-color: #fff;
+	box-shadow: 2px 2px 4px #abb;
+}
+#pick_icon li
+{
+	display: inline-table;
+	width: 12%;
+}
+span.drop
+{
+	padding: 10px 14px;
+}
+
 /* Try out some nifty small screen friendliness, for the cost of a few more bytes. */
 /*@media screen and (max-width: 85em) {
 	.features p {

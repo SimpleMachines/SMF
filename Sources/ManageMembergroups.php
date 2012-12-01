@@ -37,6 +37,7 @@ function ModifyMembergroups()
 		'edit' => array('EditMembergroup', 'manage_membergroups'),
 		'index' => array('MembergroupIndex', 'manage_membergroups'),
 		'members' => array('MembergroupMembers', 'manage_membergroups', 'Groups.php'),
+		'icons' => array('ModifyMembergroupIcons', 'manage_membergroups'),
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
 	);
 
@@ -144,7 +145,7 @@ function MembergroupIndex()
 						// Otherwise repeat the image a given number of times.
 						else
 						{
-							$image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $icons[1]);
+							$image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'] . \'/membergroup_icons\', $icons[1]);
 							return str_repeat($image, $icons[0]);
 						}
 					'),
@@ -248,7 +249,7 @@ function MembergroupIndex()
 							return \'\';
 						else
 						{
-							$icon_image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $icons[1]);
+							$icon_image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'] . \'/membergroup_icons\', $icons[1]);
 							return str_repeat($icon_image, $icons[0]);
 						}
 					'),
@@ -651,7 +652,7 @@ function DeleteMembergroup()
  */
 function EditMembergroup()
 {
-	global $context, $txt, $sourcedir, $modSettings, $smcFunc;
+	global $context, $txt, $sourcedir, $modSettings, $smcFunc, $settings;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
 
@@ -1124,6 +1125,20 @@ function EditMembergroup()
 		$context['inheritable_groups'][$row['id_group']] = $row['group_name'];
 	$smcFunc['db_free_result']($request);
 
+
+	// Get available star icons - will only fetch image for the admins current theme!
+	$allowedTypes = array('jpeg', 'jpg', 'gif', 'png', 'bmp');
+	$context['membergroup_icons'] = array();
+	$directory = $settings['theme_dir'] . '/images/membergroup_icons';
+	$files = scandir($directory, 0);
+	foreach ($files as $file => $find)
+	{
+		if (in_array(substr(strrchr($find, '.'), 1), $allowedTypes) && !is_dir($find))
+		{
+			$context['membergroup_icons'][] = $find;
+		}
+	}
+
 	call_integration_hook('integrate_view_membergroup');
 
 	$context['sub_template'] = 'edit_group';
@@ -1178,6 +1193,174 @@ function ModifyMembergroupsettings()
 	createToken('admin-mp');
 
 	prepareDBSettingContext($config_vars);
+}
+
+function ModifyMembergroupIcons()
+{
+	global $context, $sourcedir, $scripturl, $modSettings, $smcFunc, $txt;
+
+	$context['sub_template'] = 'member_icons';
+	$context['page_title'] = $txt['membergroups_icons'];
+
+	// Get the theme name, path and descriptions.
+	$context['available_themes'] = array();
+	if (!empty($modSettings['knownThemes']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_theme, variable, value
+			FROM {db_prefix}themes' ,
+			array(
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!isset($context['available_themes'][$row['id_theme']]))
+				$context['available_themes'][$row['id_theme']] = array(
+					'id' => $row['id_theme']
+				);
+			$context['available_themes'][$row['id_theme']][$row['variable']] = $row['value'];
+		}
+		$smcFunc['db_free_result']($request);
+	}
+
+	$allowedTypes = array('jpeg', 'jpg', 'gif', 'png', 'bmp');
+	$disabledFiles = array('con', 'com1', 'com2', 'com3', 'com4', 'prn', 'aux', 'lpt1', '.htaccess', 'index.php');
+
+	// Copy an image
+	if (isset($_REQUEST['copy']))
+	{
+		checkSession();
+		if (!in_array(strtolower(substr(strrchr($_POST['copy_image'], '.'), 1)), $allowedTypes))
+			fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
+
+		$img_source = $context['available_themes'][(int)$_POST['copy_from_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['copy_image'];
+		if (file_exists($img_source) && file_exists($context['available_themes'][$_POST['copy_to_theme']]['theme_dir']. '/images/membergroup_icons/'))
+		{
+			$img_dest = $context['available_themes'][(int)$_POST['copy_to_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['dest_name'];
+			copy($img_source, $img_dest);
+		}
+		redirectexit('action=admin;area=membergroups;sa=icons#table');
+	}
+
+	// Delete doubleclicked image
+	if (isset($_REQUEST['delete']))
+	{
+		checkSession();
+		$imgfile = $context['available_themes'][$_POST['delete_theme']]['theme_dir']. '/images/membergroup_icons/'. $_POST['delete_img'];
+		if ($_POST['delete_img'] != "" && (int)$_POST['delete_theme'] > 0)
+		{
+			if (!unlink($imgfile))
+				$error = ' Not deleted!'; // What here? Want to have something here? Like cola and cookies?!
+		}
+
+		redirectexit('action=admin;area=membergroups;sa=icons#table');
+	}
+
+	// Upload new file(s)
+	if (isset($_REQUEST['save']))
+	{
+		checkSession();
+		if (!is_uploaded_file($_FILES['uploadIcon']['tmp_name']) || (ini_get('open_basedir') == '' && !file_exists($_FILES['uploadIcon']['tmp_name'])))
+				fatal_lang_error('smileys_upload_error');
+
+		$_POST['rename_file'] = isset($_POST['rename_file']) ? htmltrim__recursive($_POST['rename_file']) : '';
+
+		// Sorry, no spaces, dots, or anything else but letters allowed.
+		$_FILES['uploadIcon']['name'] = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $_FILES['uploadIcon']['name']);
+
+		// We only allow image files - it's THAT simple - no messing around here...
+		if (!in_array(strtolower(substr(strrchr($_FILES['uploadIcon']['name'], '.'), 1)), $allowedTypes))
+			fatal_lang_error('smileys_upload_error_types', false, array(implode(', ', $allowedTypes)));
+
+		// We only need the filename...
+		$destName = $_POST['rename_file'] != '' ? $_POST['rename_file'] . substr($_FILES['uploadIcon']['name'], strrpos($_FILES['uploadIcon']['name'], '.')) : basename($_FILES['uploadIcon']['name']);
+
+		// Make sure they aren't trying to upload a nasty file - for their own good here!
+		if (in_array(strtolower($destName), $disabledFiles))
+			fatal_lang_error('icons_upload_error_illegal');
+
+		// Copy it to the theme(s) selected
+		foreach($_POST['theme'] as $theme => $id)
+		{
+			if (array_key_exists((int)$theme, $context['available_themes']))
+			{
+				$iconLocation = $context['available_themes'][$theme]['theme_dir'] . '/images/membergroup_icons/' . $destName;
+				if (!isset($_POST['overwrite']) && file_exists($iconLocation))
+				{
+					continue;
+				}
+				else
+				{
+					echo ' iconLocation: ' .$iconLocation;
+					copy($_FILES['uploadIcon']['tmp_name'], $iconLocation);
+					//@chmod($smileyLocation, 0644);
+				}
+			}
+		}
+		unlink($_FILES['uploadIcon']['tmp_name']);
+		//unset($context['available_themes']);
+		redirectexit('action=admin;area=membergroups;sa=icons');
+	}
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_group, group_name, icons
+		FROM {db_prefix}membergroups',
+		array(
+		)
+	);
+	$context['membergroup_icons'] = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['membergroup_icons'][$row['id_group']] = array($row['group_name'], explode('#', $row['icons']), 'icon_present' => 0);
+	$smcFunc['db_free_result']($request);
+
+	$context['unique_membergroup_icons'] = array();
+	for($i = 1; $i <= count($context['available_themes']); $i++)
+	{
+		$directory = $context['available_themes'][$i]['theme_dir'] . '/images/membergroup_icons';
+		if (!is_dir($directory))
+		{
+			if (!@mkdir($directory, 0755))
+			{
+				$context['dir_creation_error'] = 'attachments_no_create'; // What about this?
+				return false; // and this?!
+			}
+		}
+		else
+		{
+			$context['available_themes'][$i]['star_icons'] = array();
+			// php 5 only!
+			$files = scandir($directory, 0);
+			foreach ($files as $file => $find)
+			{
+				if (in_array(substr(strrchr($find, '.'), 1), $allowedTypes) && !is_dir($find))
+				{
+					$context['available_themes'][$i]['star_icons'][] = $find;
+					$context['unique_membergroup_icons'][$find] = $find;
+				}
+			}
+		}
+	}
+	// We want it nice!
+	asort($context['unique_membergroup_icons']);
+
+	$y = 0;
+	foreach ($context['unique_membergroup_icons'] as $icon)
+	{
+		$context['icons'][$y]['name'] = $icon;
+		$context['icons'][$y]['used_by'] = array();
+		foreach ($context['membergroup_icons'] as $mg => $id)
+		{
+			if ($icon == $id[1][1])
+			{
+				$context['icons'][$y]['used_by'][] = $id[0];
+				// Any group that *does not* get a 1 here, has an image chosen that doesn't exists in any theme
+				$context['membergroup_icons'][$mg]['icon_present'] = 1;
+			}
+		}
+		$y++;
+	}
+	$context['post_url'] = $scripturl . '?action=admin;area=membergroups;save;sa=icons';
+	createToken('admin-mmg');
 }
 
 ?>

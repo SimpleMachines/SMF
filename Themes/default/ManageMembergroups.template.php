@@ -276,9 +276,20 @@ function template_edit_group()
 							<span class="smalltext">', $txt['membergroups_icon_image_note'], '</span>
 						</dt>
 						<dd>
-							', $txt['membergroups_images_url'], '
-							<input type="text" name="icon_image" id="icon_image_input" value="', $context['group']['icon_image'], '" onchange="if (this.value &amp;&amp; this.form.icon_count.value == 0) this.form.icon_count.value = 1; else if (!this.value) this.form.icon_count.value = 0; document.getElementById(\'star_preview\').src = smf_images_url + \'/\' + (this.value &amp;&amp; this.form.icon_count.value > 0 ? this.value.replace(/\$language/g, \'', $context['user']['language'], '\') : \'blank.png\');" size="20" class="input_text" />
-							<img id="star_preview" src="', $settings['images_url'], '/', $context['group']['icon_image'] == '' ? 'blank.png' : $context['group']['icon_image'], '" alt="*" />
+							<input type="hidden" name="icon_image" id="icon_image_input" value="', $context['group']['icon_image'], '" size="20" class="input_text" />
+							<dl id="sample" class="dropdown">
+        						<dt><a href="javascript:void(0)"><span id="star_preview_container"><img id="star_preview" src="', $settings['images_url'], '/membergroup_icons/', $context['group']['icon_image'] == '' ? 'blank.png' : $context['group']['icon_image'], '" alt="*" /></span></a></dt>
+								
+								<ul id="pick_icon" style="display: none" class="windowbg">
+									<li><a href="javascript:void(0)"><img id="blank_image" class="mg_icon" src="', $settings['images_url'], '/membergroup_icons/blank.png" alt="', $txt['no_image'] , '" title="', $txt['no_image'] , '" /><span class="value"></span></a></li>';
+	foreach ($context['membergroup_icons'] as $icon)
+		if ($icon != 'blank.png')
+			echo '
+									<li><a href="javascript:void(0)"><img class="mg_icon" src="', $settings['images_url'], '/membergroup_icons/', $icon, '" alt="', $icon, '" title="', $icon, '" /><span class="value"></span></a></li>';
+
+	echo '
+								</ul>
+							</dl>
 						</dd>
 						<dt>
 							<label for="max_messages_input"><strong>', $txt['membergroups_max_messages'], ':</strong></label><br />
@@ -309,6 +320,41 @@ function template_edit_group()
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
 		</form>
 	</div>
+		<script type="text/javascript"><!-- // --><![CDATA[
+		$(document).ready(function() {
+			$(".dropdown img.mg_icon").addClass("mg_iconvisibility");
+
+			$(".dropdown dt a").click(function() {
+				$(".dropdown ul").toggle();
+			});
+						
+			$(".dropdown ul li a").click(function() {
+				var text = $(this).html();
+				$(".dropdown dt a span").html(text);
+				var img = $(this).children(".mg_icon").attr(\'src\');
+				var parts = img.split(\'/\');
+				img_name = parts[parts.length-1];
+				$("#icon_image_input").val(img_name);
+				$(".dropdown ul").hide();
+				//$("#star_preview").src(getSelectedValue("sample"));
+			});
+						
+			function getSelectedValue(id) {
+				return $("#" + id).find("dt a span.value").html();
+			}
+
+			$(document).bind(\'click\', function(e) {
+				var $clicked = $(e.target);
+				if (! $clicked.parents().hasClass("dropdown"))
+					$(".dropdown ul").hide();
+			});
+
+
+			$("#mg_iconSwitcher").click(function() {
+				$(".dropdown img.mg_icon").toggleClass("mg_iconvisibility");
+			});
+		});
+		// ]]></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oModeratorSuggest = new smc_AutoSuggest({
@@ -686,6 +732,211 @@ function template_group_request_reason()
 		</form>
 	</div>
 	<br class="clear" />';
+}
+
+
+// Templating for editing membergroup icons
+function template_member_icons()
+{
+	global $context, $settings, $options, $scripturl, $txt, $modSettings, $boardurl;
+
+	echo '
+	<div id="admincenter">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['membergroups_edit_icons'], '</h3>
+		</div>
+		<div class="information">
+			', $txt['membergroups_edit_icons_desc'], '
+		</div>
+		<div class="windowbg">
+			<div class="content">';
+	echo '
+					<a name="table"></a>
+					<table class="table_grid" cellspacing="0">
+					<thead>
+						<tr>
+							<th align="left">', $txt['icon'], '</th>';
+		for ($i = 0; $i < count($context['icons']); $i++)
+		{
+			echo '
+							<th>', $context['icons'][$i]['name'] , '</th>';
+		}
+		echo '
+						</tr>
+					</thead>
+					<tbody>
+						<tr valign="top">
+							<td>', $txt['used_with_groups'], '</td>';
+		for ($i = 0; $i < count($context['icons']); $i++)
+		{
+			echo '
+							<td nowrap="nowrap">';
+			foreach($context['icons'][$i]['used_by'] as $group)
+				echo '
+								<span class="clear floatleft smalltext">', $group, '</span>';
+			echo '
+							</td>';
+		}
+		echo '
+						</tr>
+					</tbody>
+					<tbody>
+						<tr>
+							<th align="left" colspan="', count($context['icons']) + 1, '">', $txt['themes'], '</th>
+						</tr>
+					</tbody>
+					<tbody>';
+		
+		foreach($context['available_themes'] as $theme => $id)
+		{
+			echo '
+						<tr>
+							<td>', $id['name'], '</td>';
+			for ($i = 0; $i < count($context['icons']); $i++)
+			{
+				echo '
+							<td align="center">';
+				
+				if (in_array($context['icons'][$i]['name'], $id['star_icons']))
+					echo '
+								<span id="img:::', $id['id'], ':::', $context['icons'][$i]['name'], '" class="smalltext cancopy" title="', $context['icons'][$i]['name'], ' - ', $txt['drag_me'], '">
+								<img src="', $id['theme_url'], '/images/membergroup_icons/', $context['icons'][$i]['name'], '" alt="" ondblclick="delete_icon(\'', $context['icons'][$i]['name'], '\', ', $id['id'], ', \'', $txt['icon_confirm_delete'], '\')" /></span>';
+				else
+				{
+					// Is the icon missing for a specific group?
+					if (count( $context['icons'][$i]['used_by']) > 0)
+						echo '
+								<span id="img:::', $id['id'], ':::', $context['icons'][$i]['name'], '" class="drop smalltext">', $txt['image_missing'], '</span><br />';
+					else
+						echo '
+								<span id="img:::', $id['id'], ':::', $context['icons'][$i]['name'], '" class="drop smalltext">', $txt['na'], '</span><br />';
+				}
+				echo '
+							</td>';
+			}
+			echo '
+						</tr>';
+		}
+
+		echo '
+					</tbody>
+					</table>
+					<p>', $txt['can_delete_and_drag'], '</p>';
+
+		$log_missing_icons = array();
+		foreach ($context['membergroup_icons'] as $mg => $id)
+		{
+			if ($id['icon_present'] == 0)
+				$log_missing_icons[] = array('member_group' => $mg, 'name' => $id[0]);
+		}
+		if (count($log_missing_icons) > 0)
+		{
+			echo '<div class="errorbox">', $txt['missing_icon'], '<br />';
+			foreach ($log_missing_icons as $icon)
+				echo ' [<a href="', $boardurl, '?action=admin;area=membergroups;sa=edit;group=', $icon['member_group'] , '">', $icon['name'], '</a>]';
+			echo '</div>';
+		}
+
+		echo '
+				</div>
+			</div>
+			<div class="cat_bar">
+				<a name="add_new"></a>
+				<h3 class="catbg">', $txt['add_new_icon'], '</h3>
+			</div>
+			<div class="windowbg">
+				<div class="content">';
+
+		echo '
+					<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;save" method="post" accept-charset="', $context['character_set'], '" name="new_icon" id="new_icon" enctype="multipart/form-data">
+						<fieldset id="ul_settings">
+							<dl class="settings">
+								<dt>
+									<strong>', $txt['file_to_upload'], '</strong><br />
+									<span class="smalltext">', $txt['file_to_upload_desc'], '</span>
+								</dt>
+								<dd>
+									<input type="file" class="input_file" id="uploadIcon" name="uploadIcon" />
+								</dd>
+								<dt>
+									<strong><label for="overwrite">', $txt['overwrite_existing'], '</label></strong>
+								</dt>
+								<dd>
+									<input type="checkbox" class="input_check" id="overwrite" name="overwrite" />
+								</dd>
+								<dt>
+									<strong><label for="rename_file">', $txt['rename_file'], '</label></strong><br />
+									<span class="smalltext">', $txt['rename_file_desc'], '</span>
+								</dt>
+								<dd>
+									<input type="text" id="rename_file" name="rename_file" />
+								</dd>
+								<dt>
+									<strong><label for="sameall">', $txt['same_image'], '</label></strong>
+								</dt>
+								<dd>
+									<input type="checkbox" class="input_check" onchange="swapIconUploads()" checked="checked" id="sameall" name="sameall" />
+								</dd>
+							</dl>
+						</fieldset>
+						<dl id="uploadMore" class="settings" style="display: none">';
+		foreach($context['available_themes'] as $theme => $id)
+		{
+			echo '
+							<dt>
+								', $txt['upload_to'], $id['name'], $txt['upload_to2'], '
+							</dt>
+							<dd>
+								<input type="checkbox" class="input_check" checked="checked" name="theme[', $id['id'], ']" />
+							</dd>';
+		}
+		echo '
+						</dl>
+						<input class="button_submit" type="submit" value="', $txt['upload'] , '" name="icon_save" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
+					</form>
+				</div>
+			</div>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script type="text/javascript"><!-- // --><![CDATA[
+
+$("span.cancopy").draggable({
+	stop: function(event, ui) {
+		$(this).css({\'top\': \'0\', \'left\': \'0\'});
+	}
+});
+
+$(".drop").droppable({
+	drop: function(event, ui) {
+		if (confirm(\'', $txt['copy_here'] , '\'))
+		{
+			var id = ui.draggable.attr("id");
+			var dest_id = this.id;
+			copy_icon(id, dest_id)
+		}
+	}
+});
+
+// ]]></script>
+
+			<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;delete" method="post" accept-charset="', $context['character_set'], '" name="form_delete_icon" id="form_delete_icon" >
+				<input type="hidden" name="delete_img" id="delete_img" />
+				<input type="hidden" name="delete_theme" id="delete_theme" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
+			</form>
+			<form action="', $scripturl, '?action=admin;area=membergroups;sa=icons;copy" method="post" accept-charset="', $context['character_set'], '" name="form_copy_icon" id="form_copy_icon" >
+				<input type="hidden" name="copy_image" id="copy_image" />
+				<input type="hidden" name="copy_from_theme" id="copy_from_theme" />
+				<input type="hidden" name="dest_name" id="dest_name" />
+				<input type="hidden" name="copy_to_theme" id="copy_to_theme" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '" />
+			</form>
+		</div>';
+				
+
 }
 
 ?>

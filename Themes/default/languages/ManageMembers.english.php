@@ -48,7 +48,7 @@ $txt['membergroups_min_posts'] = 'Required posts';
 $txt['membergroups_online_color'] = 'Color in online list';
 $txt['membergroups_icon_count'] = 'Number of icon images';
 $txt['membergroups_icon_image'] = 'Icon image filename';
-$txt['membergroups_icon_image_note'] = 'you can use $language for the language of the user';
+$txt['membergroups_icon_image_note'] = 'Click the image to change it.';
 $txt['membergroups_max_messages'] = 'Max personal messages';
 $txt['membergroups_max_messages_note'] = '0 = unlimited';
 $txt['membergroups_edit_save'] = 'Save';
@@ -71,9 +71,11 @@ $txt['membergroups_members_deadmin_confirm'] = 'Are you sure you wish to remove 
 
 $txt['membergroups_postgroups'] = 'Post groups';
 $txt['membergroups_settings'] = 'Membergroup Settings';
+$txt['membergroups_icons'] = 'Membergroup Icons';
+$txt['membergroups_edit_icons'] = 'Edit Icons';
+$txt['membergroups_edit_icons_desc'] = 'This page shows the membergroup icons. You can use this page to check if an image is missing (if used with a group) or just not available for specific themes. With this, you can check if a specific image is missing and will not show in a specific theme. Images listed as N.A, are images that are not present, but also not being used by any member group.<br />You should not see any \'Image Missing!\' in the table below. If you do and the theme is selectable by users, you should concider uploading a new image, copy the image from another theme or uplaod an image to the theme via FTP!';
 $txt['groups_manage_membergroups'] = 'Groups allowed to change membergroups';
 $txt['membergroups_select_permission_type'] = 'Select permission profile';
-$txt['membergroups_images_url'] = '{theme URL}/images/';
 $txt['membergroups_select_visible_boards'] = 'Show boards';
 $txt['membergroups_members_top'] = 'Members';
 $txt['membergroups_name'] = 'Name';
@@ -126,4 +128,30 @@ $txt['dont_check_for_duplicate'] = 'Don\'t check for duplicates';
 $txt['duplicates'] = 'Duplicates';
 
 $txt['not_activated'] = 'Not activated';
+
+$txt['icon'] = 'Icon:';
+$txt['used_with_groups'] = 'Used with these groups:';
+$txt['themes'] = 'Themes:';
+$txt['image_missing'] = 'Image missing!';
+$txt['upload'] = 'Upload';
+$txt['na'] = 'N.A';
+$txt['add_new_icon'] = 'Add new icon';
+$txt['file_to_upload'] = 'File to upload:';
+$txt['file_to_upload_desc'] = 'Image to be used as icon.';
+$txt['overwrite_existing'] = 'Overwrite existing file(s)';
+$txt['rename_file'] = 'Rename file:';
+$txt['rename_file_desc'] = 'Leave out the file extension and only write the name you want to use. The image will <strong>not</strong> be converted to another file format!';
+$txt['same_image'] = 'Same image for all themes:';
+$txt['upload_to'] = 'Upload to <strong>';
+$txt['upload_to2'] = '</strong> theme:';
+$txt['can_delete_and_drag'] = 'Delete icons by doubleclicking on them. To copy an icon to a spot with no image, drag it there and drop it.';
+
+$txt['icon_confirm_delete'] = 'Are you sure you want to delete this image?';
+$txt['missing_icon'] = 'These membergroups seems to miss an image in all present themes:';
+
+// Use javascript escaping in the below.
+$txt['copy_here'] = 'Copy the image to this location?';
+$txt['drag_me'] = 'To copy this image to an empty spot, drag it there and drop it.';
+$txt['no_image'] = 'No image';
+
 ?>
