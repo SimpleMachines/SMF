@@ -5,3 +5,7 @@ cache/data*.php
 Packages/backups/*
 Packages/temp
 *.*~
+
+.DS_Store
+
+attachments/1_9e3efa6b6a4559aa6e284e037110367828cc7d6c
