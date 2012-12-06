@@ -1086,7 +1086,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		$avatar_height = '';
 	}
 
-	// This values are always loaded
+	// These minimal values are always loaded
 	$memberContext[$user] = array(
 		'username' => $profile['member_name'],
 		'name' => $profile['real_name'],
@@ -1099,9 +1099,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'registered_timestamp' => empty($profile['date_registered']) ? 0 : forum_time(true, $profile['date_registered']),
 	);
 
-	// Load this if set isn't minimal, it is still a monstrous array...
+	// If the set isn't minimal then load the monstrous array.
 	if ($context['loadMemberContext_set'] != 'minimal')
-		$memberContext[$user] = array(
+		$memberContext[$user] += array(
 			'is_buddy' => $profile['buddy'],
 			'is_reverse_buddy' => in_array($user_info['id'], $buddy_list),
 			'buddies' => $buddy_list,
