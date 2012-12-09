@@ -23,7 +23,7 @@ $txt['paid_subs_view_desc'] = 'From this section you can view all the subscripti
 
 // Setting type strings.
 $txt['paid_enabled'] = 'Enable Paid Subscriptions';
-$txt['paid_enabled_desc'] = 'This must be checked the paid subscriptions to be used on the forum.';
+$txt['paid_enabled_desc'] = 'This must be checked for the paid subscriptions to be used on the forum.';
 $txt['paid_email'] = 'Send Notification Emails';
 $txt['paid_email_desc'] = 'Inform the admin when a subscription automatically changes.';
 $txt['paid_email_to'] = 'Email for Correspondence';
