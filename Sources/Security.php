@@ -751,7 +751,7 @@ function createToken($action, $type = 'post')
 	$context[$action . '_token'] = $token;
 	$context[$action . '_token_var'] = $token_var;
 
-	return array($token_var, $token);
+	return array($action . '_token_var' => $token_var, $action . '_token' => $token);
 }
 
 /**
