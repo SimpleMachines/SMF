@@ -879,6 +879,13 @@ dl.settings dd.small_caption {
 }
 /* Styles for the manage permissions section.
 ------------------------------------------------- */
+#permissionForm .table_grid {
+	width: 100%;
+}
+#permissionForm .table_grid img.icon {
+	vertical-align: top;
+	width: 16px;
+}
 dl.admin_permissions dt {
 	width: 35%;
 }

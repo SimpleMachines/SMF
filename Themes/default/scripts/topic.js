@@ -189,7 +189,7 @@ QuickModifyTopic.prototype.modify_topic_hide_edit = function (subject)
 // keypress event ... like enter or escape
 QuickModifyTopic.prototype.modify_topic_keypress = function (oEvent)
 {
-	if (typeof(oEvent.keyCode) != "undefined")
+	if (typeof(oEvent.keyCode) != "undefined" && this.bInEditMode)
 	{
 		if (oEvent.keyCode == 27)
 		{
