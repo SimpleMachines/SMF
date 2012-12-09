@@ -213,6 +213,29 @@ $smcFunc['db_alter_table']('{db_prefix}boards', array(
 ---#
 
 /******************************************************************************/
+--- Adding support for topic disregard
+/******************************************************************************/
+---# Adding new columns to log_topics...
+---{
+$smcFunc['db_alter_table']('{db_prefix}log_topics', array(
+	'add' => array(
+		'disregarded' => array(
+			'name' => 'disregarded',
+			'null' => false,
+			'default' => 0,
+			'type' => 'int',
+			'auto' => false,
+		),
+	)
+));
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('enable_disregard', 0);
+---}
+---#
+
+/******************************************************************************/
 --- Name changes
 /******************************************************************************/
 ---# Altering the membergroup stars to icons

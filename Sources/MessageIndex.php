@@ -1163,13 +1163,28 @@ function QuickModeration()
 
 	if (!empty($markCache))
 	{
+		$smcFunc['db_query']('', '
+			SELECT id_topic, disregarded
+			FROM {db_prefix}log_topics
+			WHERE id_topic IN ({array_int:selected_topics}
+				AND id_member = {int:current_user}',
+			array(
+				'selected_topics' => $markCache,
+				'current_user' => $user_info['id'],
+			)
+		);
+		$logged_topics = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$logged_topics[$row['id_topic']] = $row['disregarded'];
+		$smcFunc['db_free_result']($request);
+
 		$markArray = array();
 		foreach ($markCache as $topic)
-			$markArray[] = array($modSettings['maxMsgID'], $user_info['id'], $topic);
+			$markArray[] = array($modSettings['maxMsgID'], $user_info['id'], $topic, (isset($logged_topics[$topic]) ? $logged_topics[$topic] : 0));
 
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int'),
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'disregarded' => 'int'),
 			$markArray,
 			array('id_member', 'id_topic')
 		);
