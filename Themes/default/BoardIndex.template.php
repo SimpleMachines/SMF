@@ -23,23 +23,20 @@ function template_main()
 	</div>';
 
 	// Show the news fader?  (assuming there are things to show...)
-	if ($settings['show_newsfader'] && !empty($context['fader_news_lines']))
+	if ($settings['show_newsfader'] && !empty($context['news_lines']))
 	{
 		echo '
 	<div id="newsfader">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['upshrink_description'], '" align="bottom" style="display: none;" />
+				<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;" />
 				', $txt['news'], '
 			</h3>
 		</div>
-		<ul class="reset" id="smfFadeScroller"', empty($options['collapse_news_fader']) ? '' : ' style="display: none;"', '>';
-
-			foreach ($context['news_lines'] as $news)
-				echo '
-			<li>', $news, '</li>';
-
-	echo '
+		<ul class="reset" id="smfFadeScroller"', empty($options['collapse_news_fader']) ? '' : ' style="display: none;"', '>
+			<li>
+				', implode('</li><li>', $context['news_lines']), '
+			</li>
 		</ul>
 	</div>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
@@ -63,9 +60,9 @@ function template_main()
 				{
 					sId: \'newsupshrink\',
 					srcExpanded: smf_images_url + \'/collapse.png\',
-					altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
-					altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
 			oThemeOptions: {

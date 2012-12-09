@@ -106,7 +106,7 @@ function is_not_guest($message = '')
 	global $user_info, $txt, $context, $scripturl;
 
 	// Luckily, this person isn't a guest.
-	if (!$user_info['is_guest'])
+	if (isset($user_info['is_guest']) && !$user_info['is_guest'])
 		return;
 
 	// People always worry when they see people doing things they aren't actually doing...
@@ -1254,7 +1254,9 @@ RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 		if ($fh) {
 			fwrite($fh, '<?php
 
-// This file is here solely to protect your ' . $directoryname . ' directory.
+/**
+ * This file is here solely to protect your ' . $directoryname . ' directory.
+ */
 
 // Look for Settings.php....
 if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))

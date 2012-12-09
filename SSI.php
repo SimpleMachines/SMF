@@ -1287,10 +1287,10 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 
 	$return = array(
 		'id' => $row['id_poll'],
-		'image' => empty($pollinfo['voting_locked']) ? 'poll' : 'locked_poll',
+		'image' => empty($row['voting_locked']) ? 'poll' : 'locked_poll',
 		'question' => $row['question'],
 		'total_votes' => $total,
-		'is_locked' => !empty($pollinfo['voting_locked']),
+		'is_locked' => !empty($row['voting_locked']),
 		'allow_vote' => $allow_vote,
 		'allow_view_results' => $allow_view_results,
 		'topic' => $topic
