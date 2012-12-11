@@ -733,3 +733,4 @@ $txt['board_perms_ignore'] = 'Ignore';
 $txt['board_perms_deny'] = 'Deny';
 $txt['all_boards_in_cat'] = 'All boards in this category';
 
+?>
