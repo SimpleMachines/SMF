@@ -1036,7 +1036,8 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	global $user_info, $modSettings, $smcFunc;
 
 	// Arrays are nice, most of the time.
-	$permissions = (array) $permissions;
+	if (!is_array($permissions))
+		$permissions = array($permissions);
 
 	/*
 	 * Set $simple to true to use this function as it were in SMF 2.0.x.
@@ -1052,11 +1053,11 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			return array(0);
 		else
 		{
-			$result = array();
+			$boards = array();
 			foreach ($permissions as $permission)
-				$result[$permission] = array(0);
+				$boards[$permission] = array(0);
 
-			return $result;
+			return $boards;
 		}
 	}
 
@@ -1079,7 +1080,8 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 			'permissions' => $permissions,
 		)
 	);
-	$boards = $deny_boards = $result = array();
+	$boards = array();
+	$deny_boards = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($simple)
@@ -1100,12 +1102,24 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 	$smcFunc['db_free_result']($request);
 
 	if ($simple)
-		$result = array_unique(array_values(array_diff($boards, $deny_boards)));
+		$boards = array_unique(array_values(array_diff($boards, $deny_boards)));
 	else
+	{
 		foreach ($permissions as $permission)
-			$result[$permission] = array_unique(array_values(array_diff($boards[$permission], $deny_boards[$permission])));
+		{
+			// never had it to start with
+			if (empty($boards[$permission]))
+				$boards[$permission] = array();
+			else
+			{
+				// Or it may have been removed
+				$deny_boards[$permission] = isset($deny_boards[$permission]) ? $deny_boards[$permission] : array();
+				$boards[$permission] = array_unique(array_values(array_diff($boards[$permission], $deny_boards[$permission])));
+			}
+		}
+	}
 
-	return $result;
+	return $boards;
 }
 
 /**
