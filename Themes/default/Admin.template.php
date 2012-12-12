@@ -41,7 +41,7 @@ function template_admin()
 	echo $txt['admin_center'], '
 			</h3>
 		</div>
-		<div class="roundframe">
+		<div class="roundframe rfix">
 			<div id="welcome">
 				<strong>', $txt['hello_guest'], ' ', $context['user']['name'], '!</strong>
 				', sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']), '
