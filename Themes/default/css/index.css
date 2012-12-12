@@ -4197,3 +4197,7 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	color: #222;
 	background: #f3bd9f;
 }
+
+div#manage_boards dl dd textarea[name=desc] {
+	margin-top: 1px;
+}
