@@ -5,3 +5,5 @@ cache/data*.php
 Packages/backups/*
 Packages/temp
 *.*~
+
+.DS_Store
