@@ -910,6 +910,11 @@ img.sort {
 	padding: 6px;
 }
 
+/* Used for combining cat/title headers with a content frame */
+.rfix {
+	margin-top: -1px;
+}
+
 /* The main content area.
 ------------------------------------------------------- */
 .content {
