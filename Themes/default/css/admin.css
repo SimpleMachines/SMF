@@ -78,7 +78,7 @@ body.action_admin .navigate_section ul li a {
 	border: 1px solid #ddd;
 	border-top: none;
 	border-radius: 0 0 7px 7px;
-	margin: -1px 0 12px 0;
+	margin: 0 0 0 0;
 	padding: 12px 9px 8px 9px;
 }
 .action_admin p.description a {
@@ -228,6 +228,7 @@ div.quick_tasks {
 .action_admin .table_grid tr:nth-child(odd) td {
 	background: #f8f8f8;
 }
+/*-------------------------------------------*/
 
 /* Newsletters screen.
 ---------------------------------------------*/
@@ -296,18 +297,19 @@ legend {
 ------------------------------------------------------- */
 /* Admin quick search bar, and results page. */
 h3.catbg #quick_search form {
+	padding-top: 2px;
 	font-size: 0.9em;
 }
 h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button_submit {
 	margin: 0 3px;
-	padding: 3px;
+	padding: 4px 3px 3px 3px;
 	border-radius: 4px;
 	border: 1px solid #777;
 	vertical-align: top;
 }
 h3.catbg #quick_search form select {
 	font-size: 0.9em;
-	margin: 0;
+	margin: -1px 0 0 0;
 	padding: 2px;
 }
 h3.catbg #quick_search form select option {
@@ -316,7 +318,7 @@ h3.catbg #quick_search form select option {
 h3.catbg #quick_search form .button_submit {
 	font-weight: bold;
 	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
-	padding: 2px 6px 2px 6px;
+	padding: 3px 6px 2px 6px;
 }
 h3.catbg #quick_search form .button_submit:hover {
 	background: #fff;
@@ -325,13 +327,14 @@ h3.catbg #quick_search form .button_submit:hover {
 /* Browser tweaks. */
 body#chrome #quick_search form input {
 	padding: 4px 3px;
+	margin-top: -3px;
 }
 body#chrome #quick_search .button_submit, body#ie #quick_search .button_submit, body#opera #quick_search .button_submit {
 	margin: 0 5px;
 	padding: 5px 9px 4px 9px;
 }
 body#chrome  #quick_search .button_submit {
-	margin: -26px 5px 0 5px;
+	margin: -29px 5px 0 5px;
 }
 
 /* The welcome thingy. */
@@ -339,7 +342,6 @@ body#chrome  #quick_search .button_submit {
 	background: none;
 	border: none;
 	box-shadow: none;
-	margin: 0;
 	padding: 0;
 	overflow: visible;
 }
