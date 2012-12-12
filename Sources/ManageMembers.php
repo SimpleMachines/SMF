@@ -265,10 +265,6 @@ function ViewMemberlist()
 				'db_fields' => array('member_ip'),
 				'type' => 'string'
 			),
-			'messenger' => array(
-				'db_fields' => array('icq', 'aim', 'yim', 'msn'),
-				'type' => 'string'
-			)
 		);
 		$range_trans = array(
 			'--' => '<',
