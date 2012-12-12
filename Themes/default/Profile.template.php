@@ -58,7 +58,9 @@ function template_summary()
 	<div id="basicinfo">
 		<div class="windowbg">
 			<div class="content flow_auto">
-				<div class="username"><h4>', $context['member']['name'], ' <span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4></div>
+				<div class="username">
+					<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
+				</div>
 				', $context['member']['avatar']['image'], '
 				<ul class="reset">';
 	// @TODO fix the <ul> when no fields are visible

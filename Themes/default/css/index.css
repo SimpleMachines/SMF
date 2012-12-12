@@ -3032,9 +3032,10 @@ dl {
 	margin-right: 5px;
 	height: 20px;
 }
-#basicinfo#userstatus {
+#basicinfo #userstatus {
 	display: block;
 	clear: both;
+	margin-top: 6px;
 }
 #basicinfo #userstatus img {
 	vertical-align: middle;
