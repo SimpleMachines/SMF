@@ -1328,10 +1328,6 @@ function Download()
 
 	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
 
-	// Check for compatibility
-	if (isset($_REQUEST['type']) && $_REQUEST['type'] == 'avatar')
-		redirectexit('action=dlavatar;attach=' . $_REQUEST['attach']);
-
 	// This checks only the current board for $board/$topic's permissions.
 	isAllowedTo('view_attachments');
 
