@@ -1328,42 +1328,24 @@ function Download()
 
 	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
 
-	if (isset($_REQUEST['type']) && $_REQUEST['type'] == 'avatar')
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
-			FROM {db_prefix}attachments
-			WHERE id_attach = {int:id_attach}
-				AND id_member > {int:blank_id_member}
-			LIMIT 1',
-			array(
-				'id_attach' => $_REQUEST['attach'],
-				'blank_id_member' => 0,
-			)
-		);
-		$_REQUEST['image'] = true;
-	}
-	// This is just a regular attachment...
-	else
-	{
-		// This checks only the current board for $board/$topic's permissions.
-		isAllowedTo('view_attachments');
+	// This checks only the current board for $board/$topic's permissions.
+	isAllowedTo('view_attachments');
 
-		// Make sure this attachment is on this board.
-		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
-		$request = $smcFunc['db_query']('', '
-			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
-			FROM {db_prefix}attachments AS a
-				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-			WHERE a.id_attach = {int:attach}
-			LIMIT 1',
-			array(
-				'attach' => $_REQUEST['attach'],
-				'current_topic' => $topic,
-			)
-		);
-	}
+	// Make sure this attachment is on this board.
+	// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+	$request = $smcFunc['db_query']('', '
+		SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+		FROM {db_prefix}attachments AS a
+			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
+			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+		WHERE a.id_attach = {int:attach}
+		LIMIT 1',
+		array(
+			'attach' => $_REQUEST['attach'],
+			'current_topic' => $topic,
+		)
+	);
+
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_access', false);
 	list ($id_folder, $real_filename, $file_hash, $file_ext, $id_attach, $attachment_type, $mime_type, $is_approved, $id_member) = $smcFunc['db_fetch_row']($request);
