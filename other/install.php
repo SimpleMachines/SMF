@@ -2101,7 +2101,7 @@ function template_install_below()
 	if (!empty($incontext['continue']) || !empty($incontext['skip']))
 	{
 		echo '
-								<div class="clear">';
+								<div>';
 
 		if (!empty($incontext['continue']))
 			echo '

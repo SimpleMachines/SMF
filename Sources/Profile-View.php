@@ -206,6 +206,8 @@ function showPosts($memID)
 			),
 			'topics' => array(
 			),
+			'disregardedtopics' => array(
+			),
 			'attach' => array(
 			),
 		),
@@ -221,6 +223,9 @@ function showPosts($memID)
 	// If we're specifically dealing with attachments use that function!
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
+	// Instead, if we're dealing with disregarded topics (and the feature is enabled) use that other function.
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'disregardedtopics' && $modSettings['enable_disregard'])
+		return showDisregarded($memID);
 
 	// Are we just viewing topics?
 	$context['is_topics'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? true : false;
@@ -527,13 +532,13 @@ function showAttachments($memID)
 
 	require_once($sourcedir . '/Subs-List.php');
 
-	// This is all the information required for a group listing.
+	// This is all the information required to list attachments.
 	$listOptions = array(
 		'id' => 'attachments',
 		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $txt['show_attachments_none'],
-		'base_href' => $scripturl . '?action=profile;area=showposts;sa=attach;sort=filename;u=' . $memID,
+		'base_href' => $scripturl . '?action=profile;area=showposts;sa=attach;u=' . $memID,
 		'default_sort_col' => 'filename',
 		'get_items' => array(
 			'function' => 'list_getAttachments',
@@ -716,6 +721,208 @@ function list_getNumAttachments($boardsAllowed, $memID)
 	$smcFunc['db_free_result']($request);
 
 	return $attachCount;
+}
+
+/**
+ * Show all the disregarded topics.
+ *
+ * @param int $memID id_member
+ */
+function showDisregarded($memID)
+{
+	global $txt, $user_info, $scripturl, $modSettings, $board, $context, $sourcedir, $smcFunc;
+
+	// Only the owner can see the list (if the function is enabled of course)
+	if ($user_info['id'] != $memID || !$modSettings['enable_disregard'])
+		return;
+
+	require_once($sourcedir . '/Subs-List.php');
+
+	// And here they are: the topics you don't like
+	$listOptions = array(
+		'id' => 'disregarded_topics',
+		'width' => '100%',
+		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'no_items_label' => $txt['disregarded_topics_none'],
+		'base_href' => $scripturl . '?action=profile;area=showposts;sa=disregardedtopics;u=' . $memID,
+		'default_sort_col' => 'started_on',
+		'get_items' => array(
+			'function' => 'list_getDisregarded',
+			'params' => array(
+				$memID,
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getNumDisregarded',
+			'params' => array(
+				$memID,
+			),
+		),
+		'columns' => array(
+			'subject' => array(
+				'header' => array(
+					'value' => $txt['subject'],
+					'class' => 'lefttext',
+					'style' => 'width: 30%;',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' => '<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>',
+						'params' => array(
+							'id_topic' => false,
+							'subject' => false,
+						),
+					),
+				),
+				'sort' => array(
+					'default' => 'm.subject',
+					'reverse' => 'm.subject DESC',
+				),
+			),
+			'started_by' => array(
+				'header' => array(
+					'value' => $txt['started_by'],
+					'style' => 'width: 15%;',
+				),
+				'data' => array(
+					'db' => 'started_by',
+				),
+				'sort' => array(
+					'default' => 'mem.real_name',
+					'reverse' => 'mem.real_name DESC',
+				),
+			),
+			'started_on' => array(
+				'header' => array(
+					'value' => $txt['on'],
+					'class' => 'lefttext',
+					'style' => 'width: 20%;',
+				),
+				'data' => array(
+					'db' => 'started_on',
+					'timeformat' => true,
+				),
+				'sort' => array(
+					'default' => 'm.poster_time',
+					'reverse' => 'm.poster_time DESC',
+				),
+			),
+			'last_post_by' => array(
+				'header' => array(
+					'value' => $txt['last_post'],
+					'style' => 'width: 15%;',
+				),
+				'data' => array(
+					'db' => 'last_post_by',
+				),
+				'sort' => array(
+					'default' => 'mem.real_name',
+					'reverse' => 'mem.real_name DESC',
+				),
+			),
+			'last_post_on' => array(
+				'header' => array(
+					'value' => $txt['on'],
+					'class' => 'lefttext',
+					'style' => 'width: 20%;',
+				),
+				'data' => array(
+					'db' => 'last_post_on',
+					'timeformat' => true,
+				),
+				'sort' => array(
+					'default' => 'm.poster_time',
+					'reverse' => 'm.poster_time DESC',
+				),
+			),
+		),
+	);
+
+	// Create the request list.
+	createList($listOptions);
+
+	$context['sub_template'] = 'show_list';
+	$context['default_list'] = 'disregarded_topics';
+}
+
+/**
+ * Get the relevant topics in the disregarded list
+ */
+function list_getDisregarded($start, $items_per_page, $sort, $memID)
+{
+	global $smcFunc, $board, $modSettings, $context;
+
+	// Get the list of topics we can see
+	$request = $smcFunc['db_query']('', '
+		SELECT lt.id_topic
+		FROM {db_prefix}log_topics as lt
+			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
+			LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
+			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
+			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
+		WHERE lt.id_member = {int:current_member}
+			AND disregarded = 1
+			AND {query_see_board}
+		ORDER BY {raw:sort}
+		LIMIT {int:offset}, {int:limit}',
+		array(
+			'current_member' => $memID,
+			'sort' => $sort,
+			'offset' => $start,
+			'limit' => $items_per_page,
+		)
+	);
+
+	$topics = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$topics[] = $row['id_topic'];
+
+	$smcFunc['db_free_result']($request);
+
+	$request = $smcFunc['db_query']('', '
+		SELECT mf.subject, mf.poster_time as started_on, IFNULL(memf.real_name, mf.poster_name) as started_by, ml.poster_time as last_post_on, IFNULL(meml.real_name, ml.poster_name) as last_post_by, t.id_topic
+		FROM {db_prefix}topics AS t
+			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
+			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
+			LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
+			LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)
+		WHERE t.id_topic IN ({array_int:topics})',
+		array(
+			'topics' => $topics,
+		)
+	);
+	$topicsInfo = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$topicsInfo[] = $row;
+	$smcFunc['db_free_result']($request);
+
+	return $topicsInfo;
+}
+
+/**
+ * Count the topics in the disregarded list
+ */
+function list_getNumDisregarded($memID)
+{
+	global $smcFunc, $user_info;
+
+	// Get the total number of attachments they have posted.
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}log_topics as lt
+		LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
+		LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
+		WHERE id_member = {int:current_member}
+			AND disregarded = 1
+			AND {query_see_board}',
+		array(
+			'current_member' => $memID,
+		)
+	);
+	list ($disregardedCount) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	return $disregardedCount;
 }
 
 /**

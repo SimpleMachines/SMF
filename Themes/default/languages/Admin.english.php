@@ -406,7 +406,6 @@ $txt['attach_current'] = 'Current';
 $txt['attach_path_manage'] = 'Manage attachment paths';
 $txt['attach_directories'] = 'Attachment Directories';
 $txt['attach_paths'] = 'Attachment directory paths';
-$txt['attach_base_paths'] = 'Base directory paths';
 $txt['attach_path'] = 'Path';
 $txt['attach_current_size'] = 'Size (KB)';
 $txt['attach_num_files'] = 'Files';
