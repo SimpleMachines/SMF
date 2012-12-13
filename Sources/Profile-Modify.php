@@ -2676,10 +2676,6 @@ function profileSaveAvatarData(&$value)
 		$id_folder = 1;
 	}
 
-	// Temp, this is TEMP, since the attachment dir most likely will be created on install/upgrade and for the sake of not adding a custom one, lets temporary hardcode the path
-	global $boarddir;
-	$uploadDir = $boarddir . '/attachments';
-
 	$downloadedExternalAvatar = false;
 	if ($value == 'external' && allowedTo('profile_remote_avatar') && stripos($_POST['userpicpersonal'], 'http://') === 0 && strlen($_POST['userpicpersonal']) > 7 && !empty($modSettings['avatar_download_external']))
 	{
