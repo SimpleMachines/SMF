@@ -1306,7 +1306,7 @@ function prepareDisplayContext($reset = false)
 }
 
 /**
- * Downloads an attachment or avatar, and increments the download count.
+ * Downloads an attachment, and increments the download count.
  * It requires the view_attachments permission. (not for avatars!)
  * It disables the session parser, and clears any previous output.
  * It depends on the attachmentUploadDir setting being correct.
