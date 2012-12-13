@@ -1307,11 +1307,11 @@ function prepareDisplayContext($reset = false)
 
 /**
  * Downloads an attachment, and increments the download count.
- * It requires the view_attachments permission. (not for avatars!)
+ * It requires the view_attachments permission.
  * It disables the session parser, and clears any previous output.
  * It depends on the attachmentUploadDir setting being correct.
  * It is accessed via the query string ?action=dlattach.
- * Views to attachments and avatars do not increase hits and are not logged in the "Who's Online" log.
+ * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
  */
 function Download()
 {
