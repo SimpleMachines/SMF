@@ -2845,7 +2845,7 @@ function setupThemeContext($forceload = false)
 
 		// Figure out the avatar... uploaded?
 		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
-			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlavatar;attach=' . $user_info['avatar']['id_attach'];
+			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
 		elseif (substr($user_info['avatar']['url'], 0, 7) == 'http://')
 		{
