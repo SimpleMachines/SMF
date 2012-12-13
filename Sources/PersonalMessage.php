@@ -177,7 +177,7 @@ function MessageMain()
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
-	
+
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=pm',
@@ -2040,8 +2040,8 @@ function MessagePost2()
 
 	isAllowedTo('pm_send');
 	require_once($sourcedir . '/Subs-Auth.php');
-	
-	// PM Drafts enabled and needed? 
+
+	// PM Drafts enabled and needed?
 	if ($context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
 		require_once($sourcedir . '/Drafts.php');
 
@@ -2311,7 +2311,7 @@ function MessagePost2()
 	if (!empty($context['send_log']) && empty($context['send_log']['failed']))
 	{
 		$context['current_label_redirect'] = $context['current_label_redirect'] . ';done=sent';
-		
+
 		// If we had a PM draft for this one, then its time to remove it since it was just sent
 		if ($context['drafts_pm_save'] && !empty($_POST['id_pm_draft']))
 			DeleteDraft($_POST['id_pm_draft']);

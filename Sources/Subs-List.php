@@ -110,7 +110,7 @@ function createList($listOptions)
 	// Call the function and include which items we want and in what order.
 	$list_items = call_user_func_array($listOptions['get_items']['function'], array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
 	$list_items = empty($list_items) ? array() : $list_items;
-	
+
 	// Loop through the list items to be shown and construct the data values.
 	$list_context['rows'] = array();
 	foreach ($list_items as $item_id => $list_item)

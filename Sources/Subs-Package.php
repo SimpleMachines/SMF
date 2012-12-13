@@ -3191,7 +3191,7 @@ if (!function_exists('smf_crc32'))
 	/**
 	 * crc32 doesn't work as expected on 64-bit functions - make our own.
 	 * http://www.php.net/crc32#79567
-	 * 
+	 *
 	 * @param type $number
 	 * @return type
 	 */

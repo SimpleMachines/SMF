@@ -2236,7 +2236,7 @@ function AutoSuggest_Search_Member()
 
 /**
  * Provides a list of possible SMF versions to use in emulation
- * 
+ *
  * @return string
  */
 function AutoSuggest_Search_SMFVersions()

@@ -736,7 +736,7 @@ function modifyBoard($board_id, &$boardOptions)
  * Allows (almost) the same options as the modifyBoard() function.
  * With the option inherit_permissions set, the parent board permissions
  * will be inherited.
- * 
+ *
  * @param array $boardOptions
  * @return int The new board id
  */
@@ -1176,7 +1176,7 @@ function getBoardTree()
 
 /**
  * Recursively get a list of boards.
- * Used by getBoardTree 
+ * Used by getBoardTree
  *
  * @param array &$_boardList
  * @param array &$_tree

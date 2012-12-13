@@ -22,11 +22,11 @@ function template_ban_edit()
 					', $context['ban']['is_new'] ? $txt['ban_add_new'] : $txt['ban_edit'] . ' \'' . $context['ban']['name'] . '\'', '
 				</h3>
 			</div>';
-			
+
 	if ($context['ban']['is_new'])
 		echo '
 			<div class="information">', $txt['ban_add_notes'], '</div>';
-		
+
 	echo '
 			<div class="content">
 				<dl class="settings">
@@ -184,7 +184,7 @@ function template_ban_edit()
 						</tr>
 					</thead>
 					<tbody>';
-		
+
 		if (empty($context['ban_items']))
 			echo '
 						<tr class="windowbg2">
@@ -219,7 +219,6 @@ function template_ban_edit()
 		echo '
 					</tbody>
 				</table>
-				
 				<div class="flow_auto">
 					<br />
 					<input type="submit" name="remove_selection" value="', $txt['ban_remove_selected_triggers'], '" class="button_submit" />

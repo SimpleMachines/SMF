@@ -202,7 +202,6 @@ function template_list_themes()
 		<div class="information">
 			', $txt['themeadmin_list_tip'], '
 		</div>
-		
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=theme;', $context['session_var'], '=', $context['session_id'], ';sa=list" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_settings'], '</h3>
