@@ -40,6 +40,13 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
 
+// Displaying attached avatars
+if(strpos($_SERVER['QUERY_STRING'], 'action=dlattach') !== false && strpos($_SERVER['QUERY_STRING'], 'type=avatar') !== false)
+{
+	require($sourcedir. '/Avatar.php');
+	exit;
+}
+
 // Make absolutely sure the cache directory is defined.
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
@@ -275,7 +282,6 @@ function smf_main()
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
 		'disregardtopic' => array('Notify.php', 'TopicDisregard'),
 		'dlattach' => array('Display.php', 'Download'),
-		'dlavatar' => array('Avatar.php', 'Download'),
 		'editpoll' => array('Poll.php', 'EditPoll'),
 		'editpoll2' => array('Poll.php', 'EditPoll2'),
 		'emailuser' => array('SendTopic.php', 'EmailUser'),
