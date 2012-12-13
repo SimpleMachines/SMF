@@ -128,12 +128,6 @@ function template_search_members()
 								<dd>
 									<input type="text" name="ip" id="ip" value="" class="input_text" />
 								</dd>
-								<dt class="righttext">
-									<strong><label for="messenger">', $txt['messenger_address'], ':</label></strong>
-								</dt>
-								<dd>
-									<input type="text" name="messenger" id="messenger" value="" class="input_text" />
-								</dd>
 							</dl>
 						</div>
 					</div>
