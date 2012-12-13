@@ -40,6 +40,13 @@ foreach (array('db_character_set', 'cachedir') as $variable)
 // Load the settings...
 require_once(dirname(__FILE__) . '/Settings.php');
 
+// Displaying attached avatars
+if(strpos($_SERVER['QUERY_STRING'], 'action=dlattach') !== false && strpos($_SERVER['QUERY_STRING'], 'type=avatar') !== false)
+{
+  require($sourcedir. '/Avatar.php');
+  exit;
+}
+
 // Make absolutely sure the cache directory is defined.
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
