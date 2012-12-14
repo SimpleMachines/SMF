@@ -614,6 +614,8 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 					'login' => !empty($row['cannot_login']),
 				),
 				'is_new' => false,
+				'hostname' => '',
+				'email' => '',
 			);
 		}
 

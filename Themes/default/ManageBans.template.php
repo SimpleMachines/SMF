@@ -53,23 +53,29 @@ function template_ban_edit()
 						</dt>
 						<dd>
 							<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60" class="input_text" />
-						</dd>
-						<dt>
-							<input type="checkbox" name="ban_suggestion[]" id="hostname_check" value="hostname" class="input_check" />
-							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
-						</dt>
-						<dd>
-							<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;" class="input_text" />
 						</dd>';
 
+	if (isset($context['ban']['reason']))
 		echo '
-						<dt>
-							<input type="checkbox" name="ban_suggestion[]" id="email_check" value="email" class="input_check" checked="checked" />
-							<label for="email_check">', $txt['ban_on_email'], '</label>
-						</dt>
-						<dd>
-							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
-						</dd>
+					<dt>
+						<strong><label for="reason">', $txt['ban_reason'], ':</label></strong><br />
+						<span class="smalltext">', $txt['ban_reason_desc'], '</span>
+					</dt>
+					<dd>
+						<textarea name="reason" id="reason" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['reason'], '</textarea>
+					</dd>';
+
+	if (isset($context['ban']['notes']))
+		echo '
+					<dt>
+						<strong><label for="ban_notes">', $txt['ban_notes'], ':</label></strong><br />
+						<span class="smalltext">', $txt['ban_notes_desc'], '</span>
+					</dt>
+					<dd>
+						<textarea name="notes" id="ban_notes" cols="40" rows="3" style="min-height: 64px; max-height: 64px; min-width: 50%; max-width: 99%;">', $context['ban']['notes'], '</textarea>
+					</dd>';
+
+	echo '
 					</dl>
 					<fieldset class="ban_settings floatleft">
 						<legend>
