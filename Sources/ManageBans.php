@@ -367,177 +367,175 @@ function BanEdit()
 		foreach ($context['ban_errors'] as $error)
 			$context['error_messages'][$error] = $txt[$error];
 	}
+
+	// If we're editing an existing ban, get it from the database.
+	if (!empty($ban_group_id))
+	{
+		$context['ban_group_id'] = $ban_group_id;
+
+		// We're going to want this for making our list.
+		require_once($sourcedir . '/Subs-List.php');
+
+		$listOptions = array(
+			'id' => 'ban_items',
+			'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
+			'no_items_label' => $txt['ban_no_triggers'],
+			'items_per_page' => $modSettings['defaultMaxMessages'],
+			'get_items' => array(
+				'function' => 'list_getBanItems',
+				'params' => array(
+					'ban_group_id' => $ban_group_id,
+				),
+			),
+			'get_count' => array(
+				'function' => 'list_getNumBanItems',
+				'params' => array(
+					'ban_group_id' => $ban_group_id,
+				),
+			),
+			'columns' => array(
+				'type' => array(
+					'header' => array(
+						'value' => $txt['ban_banned_entity'],
+						'style' => 'width: 60%;text-align: left;',
+					),
+					'data' => array(
+						'function' => create_function('$ban_item', '
+							global $txt;
+
+							if (in_array($ban_item[\'type\'], array(\'ip\', \'hostname\', \'email\')))
+								return \'<strong>\' . $txt[$ban_item[\'type\']] . \':</strong>&nbsp;\' . $ban_item[$ban_item[\'type\']];
+							elseif ($ban_item[\'type\'] == \'user\')
+								return \'<strong>\' . $txt[\'username\'] . \':</strong>&nbsp;\' . $ban_item[\'user\'][\'link\'];
+							else
+								return \'<strong>\' . $txt[\'unknown\'] . \':</strong>&nbsp;\' . $ban_item[\'no_bantype_selected\'];
+						'),
+						'style' => 'text-align: left;',
+					),
+				),
+				'hits' => array(
+					'header' => array(
+						'value' => $txt['ban_hits'],
+						'style' => 'width: 15%; text-align: center;',
+					),
+					'data' => array(
+						'db' => 'hits',
+						'style' => 'text-align: center;',
+					),
+				),
+				'id' => array(
+					'header' => array(
+						'value' => $txt['ban_actions'],
+						'style' => 'width: 15%; text-align: center;',
+					),
+					'data' => array(
+						'function' => create_function('$ban_item', '
+							global $txt, $context, $scripturl;
+							
+							return \'<a href="\' . $scripturl . \'?action=admin;area=ban;sa=edittrigger;bg=\' . $context[\'ban\'][\'id\'] . \';bi=\' . $ban_item[\'id\'] . \'">\' . $txt[\'ban_edit_trigger\'] . \'</a>\';
+						'),
+						'style' => 'text-align: center;',
+					),
+				),
+				'checkboxes' => array(
+					'header' => array(
+						'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check" />',
+						'style' => 'width: 5%; text-align: center;',
+					),
+					'data' => array(
+						'sprintf' => array(
+							'format' => '<input type="checkbox" name="ban_items[]" value="%1$d" class="input_check" />',
+							'params' => array(
+								'id' => false,
+							),
+						),
+						'style' => 'text-align: center;',
+					),
+				),
+			),
+			'form' => array(
+				'href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
+				'name' => 'standardProfileFields',
+			),
+			'additional_rows' => array(
+				array(
+					'position' => 'below_table_data',
+					'value' => '
+					[<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>] <input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button_submit" />',
+					'style' => 'text-align: right;',
+				),
+				array(
+					'position' => 'below_table_data',
+					'value' => '
+					<input type="hidden" name="bg" value="' . $ban_group_id . '" />
+					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+					<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '" />',
+				),
+			),
+		);
+		createList($listOptions);
+	}
+	// Not an existing one, then it's probably a new one.
 	else
 	{
-		// If we're editing an existing ban, get it from the database.
-		if (!empty($ban_group_id))
-		{
-			$context['ban_group_id'] = $ban_group_id;
-
-			// We're going to want this for making our list.
-			require_once($sourcedir . '/Subs-List.php');
-
-			$listOptions = array(
-				'id' => 'ban_items',
-				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
-				'no_items_label' => $txt['ban_no_triggers'],
-				'items_per_page' => $modSettings['defaultMaxMessages'],
-				'get_items' => array(
-					'function' => 'list_getBanItems',
-					'params' => array(
-						'ban_group_id' => $ban_group_id,
-					),
-				),
-				'get_count' => array(
-					'function' => 'list_getNumBanItems',
-					'params' => array(
-						'ban_group_id' => $ban_group_id,
-					),
-				),
-				'columns' => array(
-					'type' => array(
-						'header' => array(
-							'value' => $txt['ban_banned_entity'],
-							'style' => 'width: 60%;text-align: left;',
-						),
-						'data' => array(
-							'function' => create_function('$ban_item', '
-								global $txt;
-
-								if (in_array($ban_item[\'type\'], array(\'ip\', \'hostname\', \'email\')))
-									return \'<strong>\' . $txt[$ban_item[\'type\']] . \':</strong>&nbsp;\' . $ban_item[$ban_item[\'type\']];
-								elseif ($ban_item[\'type\'] == \'user\')
-									return \'<strong>\' . $txt[\'username\'] . \':</strong>&nbsp;\' . $ban_item[\'user\'][\'link\'];
-								else
-									return \'<strong>\' . $txt[\'unknown\'] . \':</strong>&nbsp;\' . $ban_item[\'no_bantype_selected\'];
-							'),
-							'style' => 'text-align: left;',
-						),
-					),
-					'hits' => array(
-						'header' => array(
-							'value' => $txt['ban_hits'],
-							'style' => 'width: 15%; text-align: center;',
-						),
-						'data' => array(
-							'db' => 'hits',
-							'style' => 'text-align: center;',
-						),
-					),
-					'id' => array(
-						'header' => array(
-							'value' => $txt['ban_actions'],
-							'style' => 'width: 15%; text-align: center;',
-						),
-						'data' => array(
-							'function' => create_function('$ban_item', '
-								global $txt, $context, $scripturl;
-								
-								return \'<a href="\' . $scripturl . \'?action=admin;area=ban;sa=edittrigger;bg=\' . $context[\'ban\'][\'id\'] . \';bi=\' . $ban_item[\'id\'] . \'">\' . $txt[\'ban_edit_trigger\'] . \'</a>\';
-							'),
-							'style' => 'text-align: center;',
-						),
-					),
-					'checkboxes' => array(
-						'header' => array(
-							'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check" />',
-							'style' => 'width: 5%; text-align: center;',
-						),
-						'data' => array(
-							'sprintf' => array(
-								'format' => '<input type="checkbox" name="ban_items[]" value="%1$d" class="input_check" />',
-								'params' => array(
-									'id' => false,
-								),
-							),
-							'style' => 'text-align: center;',
-						),
-					),
-				),
-				'form' => array(
-					'href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
-					'name' => 'standardProfileFields',
-				),
-				'additional_rows' => array(
-					array(
-						'position' => 'below_table_data',
-						'value' => '
-						[<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>] <input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button_submit" />',
-						'style' => 'text-align: right;',
-					),
-					array(
-						'position' => 'below_table_data',
-						'value' => '
-						<input type="hidden" name="bg" value="' . $ban_group_id . '" />
-						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
-						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '" />',
-					),
-				),
-			);
-			createList($listOptions);
-		}
-		// Not an existing one, then it's probably a new one.
-		else
-		{
-			$context['ban'] = array(
+		$context['ban'] = array(
+			'id' => 0,
+			'name' => '',
+			'expiration' => array(
+				'status' => 'never',
+				'days' => 0
+			),
+			'reason' => '',
+			'notes' => '',
+			'ban_days' => 0,
+			'cannot' => array(
+				'access' => true,
+				'post' => false,
+				'register' => false,
+				'login' => false,
+			),
+			'is_new' => true,
+		);
+		$context['ban_suggestions'] = array(
+			'main_ip' => '',
+			'hostname' => '',
+			'email' => '',
+			'member' => array(
 				'id' => 0,
-				'name' => '',
-				'expiration' => array(
-					'status' => 'never',
-					'days' => 0
-				),
-				'reason' => '',
-				'notes' => '',
-				'ban_days' => 0,
-				'cannot' => array(
-					'access' => true,
-					'post' => false,
-					'register' => false,
-					'login' => false,
-				),
-				'is_new' => true,
-			);
-			$context['ban_suggestions'] = array(
-				'main_ip' => '',
-				'hostname' => '',
-				'email' => '',
-				'member' => array(
-					'id' => 0,
-				),
-			);
+			),
+		);
 
-			// Overwrite some of the default form values if a user ID was given.
-			if (!empty($_REQUEST['u']))
+		// Overwrite some of the default form values if a user ID was given.
+		if (!empty($_REQUEST['u']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_member, real_name, member_ip, email_address
+				FROM {db_prefix}members
+				WHERE id_member = {int:current_user}
+				LIMIT 1',
+				array(
+					'current_user' => (int) $_REQUEST['u'],
+				)
+			);
+			if ($smcFunc['db_num_rows']($request) > 0)
+				list ($context['ban_suggestions']['member']['id'], $context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
+			$smcFunc['db_free_result']($request);
+
+			if (!empty($context['ban_suggestions']['member']['id']))
 			{
-				$request = $smcFunc['db_query']('', '
-					SELECT id_member, real_name, member_ip, email_address
-					FROM {db_prefix}members
-					WHERE id_member = {int:current_user}
-					LIMIT 1',
-					array(
-						'current_user' => (int) $_REQUEST['u'],
-					)
-				);
-				if ($smcFunc['db_num_rows']($request) > 0)
-					list ($context['ban_suggestions']['member']['id'], $context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
+				$context['ban_suggestions']['href'] = $scripturl . '?action=profile;u=' . $context['ban_suggestions']['member']['id'];
+				$context['ban_suggestions']['member']['link'] = '<a href="' . $context['ban_suggestions']['href'] . '">' . $context['ban_suggestions']['member']['name'] . '</a>';
 
-				if (!empty($context['ban_suggestions']['member']['id']))
-				{
-					$context['ban_suggestions']['href'] = $scripturl . '?action=profile;u=' . $context['ban_suggestions']['member']['id'];
-					$context['ban_suggestions']['member']['link'] = '<a href="' . $context['ban_suggestions']['href'] . '">' . $context['ban_suggestions']['member']['name'] . '</a>';
+				// Default the ban name to the name of the banned member.
+				$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
+				// @todo: there should be a better solution...used to lock the "Ban on Username" input when banning from profile
+				$context['ban']['from_user'] = true;
 
-					// Default the ban name to the name of the banned member.
-					$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
-					// @todo: there should be a better solution...used to lock the "Ban on Username" input when banning from profile
-					$context['ban']['from_user'] = true;
+				// Would be nice if we could also ban the hostname.
+				if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
+					$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
 
-					// Would be nice if we could also ban the hostname.
-					if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
-						$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
-
-					banLoadAdditionalIPs();
-				}
+				banLoadAdditionalIPs();
 			}
 		}
 	}
@@ -551,7 +549,10 @@ function BanEdit()
 				unset($context['template_layers'][$k]);
 	}
 	else
+	{
+		loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
 		$context['sub_template'] = 'ban_edit';
+	}
 
 }
 
