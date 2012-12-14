@@ -345,9 +345,6 @@ function list_getNumBans()
  *  - is accesssed by ?action=admin;area=ban;sa=edit;bg=x
  *  - uses the ban_edit sub template of the ManageBans template.
  *  - shows a list of ban triggers for the specified ban.
- *  - handles submitted forms that add, modify or remove ban triggers.
- *
- *  @todo insane number of writing to superglobals here...
  */
 function BanEdit()
 {
@@ -536,7 +533,7 @@ function BanEdit()
 				if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
 					$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
 
-				banLoadAdditionalIPs();
+				$context['ban_suggestions'] += banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 			}
 		}
 	}
@@ -557,6 +554,15 @@ function BanEdit()
 
 }
 
+/**
+ * Retrieves all the ban items belonging to a certain ban group
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $ban_group_id
+ * @return array
+ */
 function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0)
 {
 	global $context, $smcFunc, $scripturl;
@@ -652,6 +658,11 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 	return $ban_items;
 }
 
+/**
+ * Gets the number of ban items belonging to a certain ban group
+ *
+ * @return int
+ */
 function list_getNumBanItems()
 {
 	global $smcFunc, $context;
@@ -674,7 +685,13 @@ function list_getNumBanItems()
 	return $banNumber;
 }
 
-function banLoadAdditionalIPs()
+/**
+ * Finds additional IPs related to a certain user from the messages and the log_errors tables
+ *
+ * @param int $member_id
+ * @return array
+ */
+function banLoadAdditionalIPs($member_id)
 {
 	global $context, $smcFunc;
 
@@ -682,7 +699,7 @@ function banLoadAdditionalIPs()
 	loadLanguage('Profile');
 
 	// Find some additional IP's used by this member.
-	$context['ban_suggestions']['message_ips'] = array();
+	$message_ips = array();
 	$request = $smcFunc['db_query']('ban_suggest_message_ips', '
 		SELECT DISTINCT poster_ip
 		FROM {db_prefix}messages
@@ -690,15 +707,15 @@ function banLoadAdditionalIPs()
 			AND poster_ip RLIKE {string:poster_ip_regex}
 		ORDER BY poster_ip',
 		array(
-			'current_user' => $context['ban_suggestions']['member']['id'],
+			'current_user' => $member_id,
 			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['ban_suggestions']['message_ips'][] = $row['poster_ip'];
+		$message_ips[] = $row['poster_ip'];
 	$smcFunc['db_free_result']($request);
 
-	$context['ban_suggestions']['error_ips'] = array();
+	$error_ips = array();
 	$request = $smcFunc['db_query']('ban_suggest_error_ips', '
 		SELECT DISTINCT ip
 		FROM {db_prefix}log_errors
@@ -706,15 +723,20 @@ function banLoadAdditionalIPs()
 			AND ip RLIKE {string:poster_ip_regex}
 		ORDER BY ip',
 		array(
-			'current_user' => $context['ban_suggestions']['member']['id'],
+			'current_user' => $member_id,
 			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['ban_suggestions']['error_ips'][] = $row['ip'];
+		$error_ips[] = $row['ip'];
 	$smcFunc['db_free_result']($request);
+
+	return array('message_ips' => $message_ips, 'error_ips' => $error_ips);
 }
 
+/**
+ * This function handles submitted forms that add, modify or remove ban triggers.
+ */
 function banEdit2()
 {
 	global $smcFunc, $context;
@@ -763,14 +785,15 @@ function banEdit2()
 	}
 
 	if (isset($_POST['ban_suggestions']))
-		$context['ban_suggestions'] = saveTriggers($_POST['ban_suggestions'], $ban_info['id']);
+		// @TODO: is $_REQUEST['bi'] ever set?
+		$context['ban_suggestions'] = saveTriggers($_POST['ban_suggestions'], $ban_info['id'], isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0, isset($_REQUEST['bi']) ? (int) $_REQUEST['bi'] : 0);
 
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
 	{
 		// Not strictly necessary, but it's nice
 		if (!empty($context['ban_suggestions']['member']['id']))
-			banLoadAdditionalIPs();
+			$context['ban_suggestions'] += banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 		return BanEdit();
 	}
 
@@ -790,14 +813,26 @@ function banEdit2()
 	updateBanMembers();
 }
 
-function saveTriggers($suggestions = array(), $ban_group)
+/**
+ * Saves one or more ban triggers into a ban item: according to the suggestions
+ * checks the $_POST variable to verify if the trigger is present
+ * If 
+ *
+ * @param array $suggestions
+ * @param int $ban_group
+ * @param int $member
+ * @param int $ban_id
+ *
+ * @return mixed array with the saved triggers or false on failure
+ */
+function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id = 0)
 {
 	$triggers = array(
 		'main_ip' => '',
 		'hostname' => '',
 		'email' => '',
 		'member' => array(
-			'id' => isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0,
+			'id' => $member,
 		)
 	);
 	$ban_triggers = array();
@@ -815,10 +850,10 @@ function saveTriggers($suggestions = array(), $ban_group)
 	// Time to save!
 	if (!empty($ban_triggers['ban_triggers']) && empty($context['ban_errors']))
 	{
-		if (empty($_REQUEST['bi']))
+		if (empty($ban_id))
 			addTriggers($ban_group, $ban_triggers['ban_triggers'], $ban_triggers['log_info']);
 		else
-			updateTriggers((int) $_REQUEST['bi'], $ban_group, $ban_triggers['ban_triggers'][0], $ban_triggers['log_info'][0]);
+			updateTriggers($ban_id, $ban_group, array_shift($ban_triggers['ban_triggers']), $ban_triggers['log_info'][0]);
 	}
 	if (!empty($context['ban_errors']))
 		return $triggers;
@@ -1236,7 +1271,7 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 		$context['ban_errors'][] = 'ban_ban_item_empty';
 	if (empty($group_id))
 		$context['ban_errors'][] = 'ban_group_id_empty';
-	if (empty($triggers))
+	if (empty($trigger))
 		$context['ban_errors'][] = 'ban_no_triggers';
 
 	if (!empty($context['ban_errors']))
@@ -1438,23 +1473,38 @@ function BanEditTrigger()
 	$context['form_url'] = $scripturl . '?action=admin;area=ban;sa=edittrigger';
 
 	$ban_group = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
+	$ban_id = isset($_REQUEST['bi']) ? (int) $_REQUEST['bi'] : 0;
 
 	if (empty($ban_group))
 		fatal_lang_error('ban_not_found', false);
 
 	if (isset($_POST['add_new_trigger']) && !empty($_POST['ban_suggestions']))
 	{
-		$context['ban_suggestions'] = saveTriggers($_POST['ban_suggestions'], $ban_group);
+		saveTriggers($_POST['ban_suggestions'], $ban_group, 0, $ban_id);
+		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
+	}
+	elseif (isset($_POST['edit_trigger']) && !empty($_POST['ban_suggestions']))
+	{
+		// The first replaces the old one, the others are added new (simplification, otherwise it would require another query and some work...)
+		saveTriggers(array_shift($_POST['ban_suggestions']), $ban_group, 0, $ban_id);
+		if (!empty($_POST['ban_suggestions']))
+			saveTriggers($_POST['ban_suggestions'], $ban_group);
+
+		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
+	}
+	elseif (isset($_POST['edit_trigger']))
+	{
+		removeBanTriggers($ban_id);
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
 
 	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
 
-	if (empty($_REQUEST['bi']))
+	if (empty($ban_id))
 	{
 		$context['ban_trigger'] = array(
 			'id' => 0,
-			'group' => (int) $_REQUEST['bg'],
+			'group' => $ban_group,
 			'ip' => array(
 				'value' => '',
 				'selected' => true,
@@ -1488,8 +1538,8 @@ function BanEditTrigger()
 				AND bi.id_ban_group = {int:ban_group}
 			LIMIT 1',
 			array(
-				'ban_item' => (int) $_REQUEST['bi'],
-				'ban_group' => (int) $_REQUEST['bg'],
+				'ban_item' => $ban_id,
+				'ban_group' => $ban_group,
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
