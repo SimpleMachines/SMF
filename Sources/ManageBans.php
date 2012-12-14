@@ -106,24 +106,11 @@ function BanList()
 		checkSession();
 
 		// Make sure every entry is a proper integer.
-		foreach ($_POST['remove'] as $index => $ban_id)
-			$_POST['remove'][(int) $index] = (int) $ban_id;
+		array_map('intval', $_POST['remove']);
 
 		// Unban them all!
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}ban_groups
-			WHERE id_ban_group IN ({array_int:ban_list})',
-			array(
-				'ban_list' => $_POST['remove'],
-			)
-		);
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}ban_items
-			WHERE id_ban_group IN ({array_int:ban_list})',
-			array(
-				'ban_list' => $_POST['remove'],
-			)
-		);
+		removeBanGroups($_POST['remove']);
+		removeBanTriggers($_POST['remove']);
 
 		// No more caching this ban!
 		updateSettings(array('banLastUpdated' => time()));
@@ -654,13 +641,7 @@ function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group
 			else
 			{
 				unset($ban_items[$row['id_ban']]);
-				$smcFunc['db_query']('', '
-					DELETE FROM {db_prefix}ban_items
-					WHERE id_ban = {int:current_ban}',
-					array(
-						'current_ban' => $row['id_ban'],
-					)
-				);
+				removeBanTriggers($row['id_ban']);
 			}
 		}
 	}
@@ -828,10 +809,9 @@ function banEdit2()
 	{
 		$items_ids = array();
 		$group_id = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
-		foreach ($_POST['ban_items'] as $id)
-			$items_ids[] = (int) $id;
+		array_map('intval', $_POST['ban_items']);
 
-		removeBanTriggers($group_id, $items_ids);
+		removeBanTriggers($_POST['ban_items'], $group_id);
 	}
 
 	// Register the last modified date.
@@ -842,29 +822,116 @@ function banEdit2()
 }
 
 /**
- * This function removes a bunch of triggers
+ * This function removes a bunch of triggers based on ids
+ * Doesn't clean the inputs
  *
  * @param array $items_ids
- * @return true/false
+ * @return bool
  */
-function removeBanTriggers($group_id = 0, $items_ids = array())
+function removeBanTriggers($items_ids = array(), $group_id = false)
 {
 	global $smcFunc;
 
-	if (empty($group_id) || empty($items_ids))
+	if ($group_id !== false)
+		$group_id = (int) $group_id;
+
+	if (empty($group_id) && empty($items_ids))
 		return false;
 
-	$items_ids = array_unique($items_ids);
+	if (!is_array($items_ids))
+		$items_ids = array($items_ids);
+
+	if ($group_id !== false)
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}ban_items
+			WHERE id_ban IN ({array_int:ban_list})
+				AND id_ban_group = {int:ban_group}',
+			array(
+				'ban_list' => $items_ids,
+				'ban_group' => $group_id,
+			)
+		);
+	}
+	elseif (!empty($items_ids))
+	{
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}ban_items
+			WHERE id_ban IN ({array_int:ban_list})',
+			array(
+				'ban_list' => $items_ids,
+			)
+		);
+	}
+
+	return true;
+}
+
+/**
+ * This function removes a bunch of ban groups based on ids
+ * Doesn't clean the inputs
+ *
+ * @param array $group_ids
+ * @return bool
+ */
+function removeBanGroups($group_ids)
+{
+	global $smcFunc;
+
+	if (!is_array($group_ids))
+		$group_ids = array($group_ids);
+
+	$group_ids = array_unique($group_ids);
+
+	if (empty($group_ids))
+		return false;
 
 	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}ban_items
-		WHERE id_ban IN ({array_int:ban_list})
-			AND id_ban_group = {int:ban_group}',
+		DELETE FROM {db_prefix}ban_groups
+		WHERE id_ban_group IN ({array_int:ban_list})',
 		array(
-			'ban_list' => $items_ids,
-			'ban_group' => $group_id,
+			'ban_list' => $group_ids,
 		)
 	);
+
+	return true;
+}
+
+/**
+ * Removes logs - by default truncate the table
+ * Doesn't clean the inputs
+ *
+ * @param array (optional) $ids
+ * @return bool
+ */
+function removeBanLogs($ids = array())
+{
+	global $smcFunc;
+
+	if (empty($ids))
+		$smcFunc['db_query']('truncate_table', '
+			TRUNCATE {db_prefix}log_banned',
+			array(
+			)
+		);
+	else
+	{
+		if (!is_array($ids))
+			$ids = array($ids);
+
+		$ids = array_unique($ids);
+
+		if (empty($ids))
+			return false;
+
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}log_banned
+			WHERE id_ban_log IN ({array_int:ban_list})',
+			array(
+				'ban_list' => $ids,
+			)
+		);
+	}
 
 	return true;
 }
@@ -1456,17 +1523,7 @@ function BanBrowseTriggers()
 	{
 		checkSession();
 
-		// Clean the integers.
-		foreach ($_POST['remove'] as $key => $value)
-			$_POST['remove'][$key] = $value;
-
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}ban_items
-			WHERE id_ban IN ({array_int:ban_list})',
-			array(
-				'ban_list' => $_POST['remove'],
-			)
-		);
+		removeBanTriggers($_POST['remove']);
 
 		// Rehabilitate some members.
 		if ($_REQUEST['entity'] == 'member')
@@ -1743,26 +1800,12 @@ function BanLog()
 
 		// 'Delete all entries' button was pressed.
 		if (!empty($_POST['removeAll']))
-			$smcFunc['db_query']('truncate_table', '
-				TRUNCATE {db_prefix}log_banned',
-				array(
-				)
-			);
-
+			removeBanLogs();
 		// 'Delete selection' button was pressed.
 		else
 		{
-			// Make sure every entry is integer.
-			foreach ($_POST['remove'] as $index => $log_id)
-				$_POST['remove'][$index] = (int) $log_id;
-
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}log_banned
-				WHERE id_ban_log IN ({array_int:ban_list})',
-				array(
-					'ban_list' => $_POST['remove'],
-				)
-			);
+			array_map('intval', $_POST['remove']);
+			removeBanLogs($_POST['remove']);
 		}
 	}
 
@@ -2184,5 +2227,6 @@ function updateBanMembers()
 	// Update the latest member and our total members as banning may change them.
 	updateStats('member');
 }
+
 
 ?>
