@@ -361,6 +361,7 @@ function BanEdit()
 	// Template needs this to show errors using javascript
 	loadLanguage('Errors');
 	createToken('admin-bet');
+	$context['form_url'] = $scripturl . '?action=admin;area=ban;sa=edit';
 
 	if (!empty($context['ban_errors']))
 	{
@@ -762,40 +763,7 @@ function banEdit2()
 	}
 
 	if (isset($_POST['ban_suggestions']))
-	{
-		$triggers = array(
-			'main_ip' => '',
-			'hostname' => '',
-			'email' => '',
-			'member' => array(
-				'id' => isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0,
-			)
-		);
-		$ban_triggers = array();
-
-		foreach ($_POST['ban_suggestions'] as $key => $value)
-		{
-			if (is_array($value))
-				$triggers[$key] = $value;
-			else
-				$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
-		}
-
-		$ban_triggers = validateTriggers($triggers);
-
-		// Time to save!
-		if (!empty($ban_triggers['ban_triggers']) && empty($context['ban_errors']))
-		{
-			if (empty($_REQUEST['bi']))
-				addTriggers($ban_info['id'], $ban_triggers['ban_triggers'], $ban_triggers['log_info']);
-			else
-				updateTriggers((int) $_REQUEST['bi'], $ban_info['id'], $ban_triggers['ban_triggers'][0], $ban_triggers['log_info'][0]);
-		}
-		if (!empty($context['ban_errors']))
-		{
-			$context['ban_suggestions'] = $triggers;
-		}
-	}
+		$context['ban_suggestions'] = saveTriggers($_POST['ban_suggestions'], $ban_info['id']);
 
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
@@ -820,6 +788,42 @@ function banEdit2()
 
 	// Update the member table to represent the new ban situation.
 	updateBanMembers();
+}
+
+function saveTriggers($suggestions = array(), $ban_group)
+{
+	$triggers = array(
+		'main_ip' => '',
+		'hostname' => '',
+		'email' => '',
+		'member' => array(
+			'id' => isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0,
+		)
+	);
+	$ban_triggers = array();
+
+	foreach ($suggestions as $key => $value)
+	{
+		if (is_array($value))
+			$triggers[$key] = $value;
+		else
+			$triggers[$value] = !empty($_POST[$value]) ? $_POST[$value] : '';
+	}
+
+	$ban_triggers = validateTriggers($triggers);
+
+	// Time to save!
+	if (!empty($ban_triggers['ban_triggers']) && empty($context['ban_errors']))
+	{
+		if (empty($_REQUEST['bi']))
+			addTriggers($ban_group, $ban_triggers['ban_triggers'], $ban_triggers['log_info']);
+		else
+			updateTriggers((int) $_REQUEST['bi'], $ban_group, $ban_triggers['ban_triggers'][0], $ban_triggers['log_info'][0]);
+	}
+	if (!empty($context['ban_errors']))
+		return $triggers;
+	else
+		return false;
 }
 
 /**
@@ -1428,12 +1432,23 @@ function insertBanGroup($ban_info = array())
  */
 function BanEditTrigger()
 {
-	global $context, $smcFunc;
+	global $context, $smcFunc, $scripturl;
 
 	$context['sub_template'] = 'ban_edit_trigger';
+	$context['form_url'] = $scripturl . '?action=admin;area=ban;sa=edittrigger';
 
-	if (empty($_REQUEST['bg']))
+	$ban_group = isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0;
+
+	if (empty($ban_group))
 		fatal_lang_error('ban_not_found', false);
+
+	if (isset($_POST['add_new_trigger']) && !empty($_POST['ban_suggestions']))
+	{
+		$context['ban_suggestions'] = saveTriggers($_POST['ban_suggestions'], $ban_group);
+		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
+	}
+
+	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
 
 	if (empty($_REQUEST['bi']))
 	{
