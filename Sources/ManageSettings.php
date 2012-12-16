@@ -498,6 +498,7 @@ function ModifyBasicSettings($return_config = false)
 			// Basic stuff, titles, flash, permissions...
 			array('check', 'allow_guestAccess'),
 			array('check', 'enable_buddylist'),
+			array('check', 'enable_disregard'),
 			array('check', 'allow_editDisplayName'),
 			array('check', 'allow_hideOnline'),
 			array('check', 'titlesEnable'),

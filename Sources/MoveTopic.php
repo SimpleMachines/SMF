@@ -456,7 +456,7 @@ function moveTopics($topics, $toBoard)
 	// Move over the mark_read data. (because it may be read and now not by some!)
 	$SaveAServer = max(0, $modSettings['maxMsgID'] - 50000);
 	$request = $smcFunc['db_query']('', '
-		SELECT lmr.id_member, lmr.id_msg, t.id_topic
+		SELECT lmr.id_member, lmr.id_msg, t.id_topic, lt.disregarded
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board
 				AND lmr.id_msg > t.id_first_msg AND lmr.id_msg > {int:protect_lmr_msg})
@@ -471,14 +471,14 @@ function moveTopics($topics, $toBoard)
 	$log_topics = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$log_topics[] = array($row['id_topic'], $row['id_member'], $row['id_msg']);
+		$log_topics[] = array($row['id_topic'], $row['id_member'], $row['id_msg'], $row['disregarded']);
 
 		// Prevent queries from getting too big. Taking some steam off.
 		if (count($log_topics) > 500)
 		{
 			$smcFunc['db_insert']('replace',
 				'{db_prefix}log_topics',
-				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
+				array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'disregarded' => 'int'),
 				$log_topics,
 				array('id_topic', 'id_member')
 			);
@@ -494,7 +494,7 @@ function moveTopics($topics, $toBoard)
 		// Insert that information into the database!
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'),
+			array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'disregarded' => 'int'),
 			$log_topics,
 			array('id_topic', 'id_member')
 		);

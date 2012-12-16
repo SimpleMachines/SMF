@@ -37,7 +37,7 @@ function template_permission_index()
 			</div>';
 
 		echo '
-			<table width="100%" class="table_grid">
+			<table class="table_grid">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th">', $txt['membergroups_name'], '</th>
@@ -67,7 +67,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg', $alternate ? '2' : '', '">
 						<td>
-							', $group['id'] == -1 ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=membergroup_guests" onclick="return reqOverlayDiv(this.href);"><img class="icon" style="vertical-align: top" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" /></a>' : ($group['id'] == 0 ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=membergroup_regular_members" onclick="return reqOverlayDiv(this.href);"><img class="icon" style="vertical-align: top" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" /></a>' : ($group['id'] == 1 ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);"><img class="icon" style="vertical-align: top" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" /></a>' : ($group['id'] == 3 ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);"><img class="icon" style="vertical-align: top" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" /></a>' : '<img class="icon" style="vertical-align: top" src="' . $settings['images_url'] . '/blank.png" width="16px" alt="' . $txt['help'] . '" />'))), '&nbsp;<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><img class="icon" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" /></a>' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '" />', '&nbsp;<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '

@@ -44,7 +44,7 @@ function template_main()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="' . $scripturl . '?action=admin;area=manageboards;sa=cat;cat=' . $category['id'] . '">', $category['name'], '</a> <a href="' . $scripturl . '?action=admin;area=manageboards;sa=cat;cat=' . $category['id'] . '">', $txt['catModify'], '</a>
+					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['catModify'], '</a>
 				</h3>
 			</div>';
 
@@ -116,7 +116,7 @@ function template_modify_category()
 			<input type="hidden" name="cat" value="', $context['category']['id'], '" />
 				<div class="title_bar">
 					<h3 class="titlebg">
-					', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
+						', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
 					</h3>
 				</div>
 				<div class="windowbg">
@@ -150,8 +150,8 @@ function template_modify_category()
 							<input type="text" name="cat_name" value="', $context['category']['editable_name'], '" size="30" tabindex="', $context['tabindex']++, '" class="input_text" />
 						</dd>
 						<dt>
-							<strong>' . $txt['collapse_enable'] . '</strong><br />
-							<span class="smalltext">' . $txt['collapse_desc'] . '</span>
+							<strong>', $txt['collapse_enable'], '</strong><br />
+							<span class="smalltext">', $txt['collapse_desc'], '</span>
 						</dt>
 						<dd>
 							<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" class="input_check" />
@@ -220,7 +220,7 @@ function template_confirm_category_delete()
 					<p>
 						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_option1'], '</label><br />
 						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_option2'], '</label>:
-						<select name="cat_to" ', count($context['category_order']) == 1 ? 'disabled="disabled"' : '', '>';
+						<select name="cat_to"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', '>';
 
 	foreach ($context['category_order'] as $cat)
 		if ($cat['id'] != 0)
@@ -295,7 +295,7 @@ function template_modify_board()
 
 	// The second select box lists all the boards in the category.
 	echo '
-							<select id="board_order" name="board_order" ', isset($context['board']['is_new']) ? '' : 'disabled="disabled"', '>
+							<select id="board_order" name="board_order"', !isset($context['board']['is_new']) ? ' disabled="disabled"' : '', '>
 								', !isset($context['board']['is_new']) ? '<option value="">(' . $txt['mboards_unchanged'] . ')</option>' : '';
 	foreach ($context['board_order'] as $order)
 		echo '
@@ -319,7 +319,7 @@ function template_modify_board()
 							<span class="smalltext">', $txt['mboards_description_desc'], '</span>
 						</dt>
 						<dd>
-							<textarea name="desc" rows="3" cols="35" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';">', $context['board']['description'], '</textarea>
+							<textarea name="desc" rows="3" cols="35" style="width: ', isBrowser('is_ie8') ? '635px; max-width: 99%; min-width: 99' : '99', '%;">', $context['board']['description'], '</textarea>
 						</dd>
 						<dt>
 							<strong>', $txt['permission_profile'], ':</strong><br />
@@ -334,7 +334,7 @@ function template_modify_board()
 
 	foreach ($context['profiles'] as $id => $profile)
 		echo '
-								<option value="', $id, '" ', $id == $context['board']['profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
+								<option value="', $id, '"', $id == $context['board']['profile'] ? ' selected="selected"' : '', '>', $profile['name'], '</option>';
 
 	echo '
 							</select>
@@ -363,7 +363,7 @@ function template_modify_board()
 			echo '
 							<label for="groups_', $group['id'], '">
 								<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['allow'] ? ' checked="checked"' : '', ' class="input_check" />
-								<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : '', $group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : '', '>
+								<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>
 									', $group['name'], '
 								</span>
 							</label><br />';
@@ -372,7 +372,7 @@ function template_modify_board()
 								<tr>
 									<td>
 										<label for="groups_', $group['id'], '_a">
-											<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : '', $group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : '', '>
+											<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>
 												', $group['name'], '
 											</span>
 										</label>
@@ -500,7 +500,7 @@ function template_modify_board()
 								<span class="smalltext">', $txt['mboards_count_posts_desc'], '</span><br />
 							</dt>
 							<dd>
-								<input type="checkbox" name="count" ', $context['board']['count_posts'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="count"', $context['board']['count_posts'] ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</div>';

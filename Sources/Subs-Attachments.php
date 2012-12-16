@@ -18,6 +18,12 @@
 if (!defined('SMF'))
 	die('Hacking attempt...');
 
+/**
+ * Check if the current directory is still valid or not.
+ * If not creates the new directory
+ *
+ * @return (bool) false if any error occurred
+ */
 function automanage_attachments_check_directory()
 {
 	global $boarddir, $modSettings, $context;
@@ -113,6 +119,13 @@ function automanage_attachments_check_directory()
 	return $outputCreation;
 }
 
+/**
+ * Creates a directory
+ *
+ * @param $updir: the directory to be created
+ *
+ * @return (bool) false on errors
+ */
 function automanage_attachments_create_directory($updir)
 {
 	global $modSettings, $initial_error, $context, $boarddir;
@@ -149,6 +162,7 @@ function automanage_attachments_create_directory($updir)
 		$count--;
 	}
 
+	// @todo: chmod (especially with some servers) is usually bad
 	if (!is_writable($directory))
 	{
 		chmod($directory, 0755);
@@ -177,7 +191,7 @@ function automanage_attachments_create_directory($updir)
 	// Only update if it's a new directory
 	if (!in_array($updir, $modSettings['attachmentUploadDir']))
 	{
-		$modSettings['currentAttachmentUploadDir'] = max(array_keys($modSettings['attachmentUploadDir'])) +1;
+		$modSettings['currentAttachmentUploadDir'] = max(array_keys($modSettings['attachmentUploadDir'])) + 1;
 		$modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] = $updir;
 
 		updateSettings(array(
@@ -191,6 +205,12 @@ function automanage_attachments_create_directory($updir)
 	return true;
 }
 
+/**
+ * Called when a directory space limit is reached.
+ * Creates a new directory and increments the directory suffix number.
+ *
+ * @return (bool) false on erros
+ */
 function automanage_attachments_by_space()
 {
 	global $modSettings, $boarddir, $context;
@@ -198,7 +218,7 @@ function automanage_attachments_by_space()
 	if (!isset($modSettings['automanage_attachments']) || (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] != 1))
 		return;
 
-	$basedirectory = (!empty($modSettings['use_subdirectories_for_attachments']) ? ($modSettings['basedirectory_for_attachments']) : $boarddir);
+	$basedirectory = !empty($modSettings['use_subdirectories_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : $boarddir;
 	//Just to be sure: I don't want directory separators at the end
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
@@ -234,6 +254,13 @@ function automanage_attachments_by_space()
 		return false;
 }
 
+/**
+ * Split a path into a list of all directories and subdirectories
+ *
+ * @param $directory a path
+ *
+ * @return (mixed) an array of all the directories and subdirectories or false on failure
+ */
 function get_directory_tree_elements ($directory)
 {
 	/*
@@ -247,7 +274,7 @@ function get_directory_tree_elements ($directory)
 		$tree = preg_split('#[\\\/]#', $directory);
 	else
 	{
-		if (substr($directory, 0, 1)!=DIRECTORY_SEPARATOR)
+		if (substr($directory, 0, 1) != DIRECTORY_SEPARATOR)
 			return false;
 
 		$tree = explode(DIRECTORY_SEPARATOR, trim($directory,DIRECTORY_SEPARATOR));
@@ -255,6 +282,14 @@ function get_directory_tree_elements ($directory)
 	return $tree;
 }
 
+/**
+ * Return the first part of a path (i.e. c:\ or / + the first directory), used by automanage_attachments_create_directory
+ *
+ * @param $tree an array 
+ * @param $count the number of elements in $tree
+ *
+ * @return (string)
+ */
 function attachments_init_dir (&$tree, &$count)
 {
 	$directory = '';
@@ -274,6 +309,9 @@ function attachments_init_dir (&$tree, &$count)
 	return $directory;
 }
 
+/**
+ * Moves an attachment to the proper directory and set the relevant data into $_SESSION['temp_attachments']
+ */
 function processAttachments()
 {
 	global $context, $modSettings, $smcFunc, $txt, $user_info;

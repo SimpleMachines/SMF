@@ -857,7 +857,7 @@ table.table_list a.collapse {
 }
 
 .table_grid th.last_th input {
-	margin: 0 2px;
+	margin: 0 7px;
 }
 .table_grid th.lefttext {
 	padding: 0 8px;
@@ -908,6 +908,11 @@ img.sort {
 }
 .roundframe p {
 	padding: 6px;
+}
+
+/* Used for combining cat/title headers with a content frame */
+.rfix {
+	margin-top: -1px;
 }
 
 /* The main content area.
@@ -1856,12 +1861,17 @@ p.whoisviewing {
 .lastpost img {
 	float: right;
 	padding: 4px;
+	margin-top: 4px;
 }
 .titlebg td.qaction_cell {
 	font-size: 0.909em;
 }
-select.qaction, input.qaction {
+select.qaction {
 	padding: 0;
+}
+td#quick_actions {
+	border-right: 1px solid #ccc;
+	padding-right: 4px;
 }
 .qaction_cell .button_submit {
 	margin: 2px 4px 0 4px;
@@ -1893,6 +1903,10 @@ select.qaction, input.qaction {
 }
 #message_index_jump_to .button_submit {
 	padding: 4px 6px 2px 6px;
+}
+
+.message_index_title {
+	margin-bottom: -3px;
 }
 
 /* Styles for the display template (topic view).
@@ -3032,9 +3046,10 @@ dl {
 	margin-right: 5px;
 	height: 20px;
 }
-#basicinfo#userstatus {
+#basicinfo #userstatus {
 	display: block;
 	clear: both;
+	margin-top: 6px;
 }
 #basicinfo #userstatus img {
 	vertical-align: middle;
@@ -4196,4 +4211,12 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 .approvetbg2 {
 	color: #222;
 	background: #f3bd9f;
+}
+
+div#manage_boards dl dd textarea[name=desc] {
+	margin-top: 1px;
+}
+
+.bold_text {
+	font-weight: bold;
 }
