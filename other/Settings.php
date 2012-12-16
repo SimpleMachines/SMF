@@ -2,7 +2,7 @@
 
 /**
  * The settings file contains all of the basic settings that need to be present when a database/cache is not available.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -111,15 +111,15 @@ $db_prefix = 'smf_';
  */
 $db_persist = 0;
 /**
- * 
+ *
  * @var int|bool
  */
 $db_error_send = 0;
 
 ########## Cache Info ##########
 /**
- * Select a cache system. You want to leave this up to the cache area of the admin panel for 
- * proper detection of apc, eaccelerator, memcache, mmcache, output_cache, smf, or xcache 
+ * Select a cache system. You want to leave this up to the cache area of the admin panel for
+ * proper detection of apc, eaccelerator, memcache, mmcache, output_cache, smf, or xcache
  * (you can add more with a mod).
  * @var string
  */
@@ -157,13 +157,13 @@ $sourcedir = dirname(__FILE__) . '/Sources';
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.
 if (file_exists(dirname(__FILE__) . '/db_last_error.php'))
-	include(dirname(__FILE__) . '/db_last_error.php'); 
+	include(dirname(__FILE__) . '/db_last_error.php');
 
 if (!isset($db_last_error))
 {
 	// File does not exist so lets try to create it
 	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	$db_last_error = 0; 
+	$db_last_error = 0;
 }
 
 if (file_exists(dirname(__FILE__) . '/install.php'))

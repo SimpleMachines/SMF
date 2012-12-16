@@ -69,7 +69,7 @@ $upcontext['database_step'] = 3;
 @set_time_limit(600);
 if (!ini_get('safe_mode'))
 {
-	ini_set('mysql.connect_timeout', -1); 
+	ini_set('mysql.connect_timeout', -1);
 	ini_set('default_socket_timeout', 900);
 }
 // Clean the upgrade path if this is from the client.
@@ -2171,7 +2171,7 @@ function changeSettings($config_vars)
 	fwrite($fp, rtrim($settingsArray[$i]));
 	fclose($fp);
 }
-function updateLastError() 
+function updateLastError()
 {
 	// clear out the db_last_error file
 	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
