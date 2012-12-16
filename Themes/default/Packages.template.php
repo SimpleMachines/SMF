@@ -619,7 +619,6 @@ function template_browse()
 
 	echo '
 	</div>
-	
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -1528,7 +1527,6 @@ function template_file_permissions()
 	foreach ($context['file_tree'] as $name => $dir)
 	{
 		echo '
-			
 				<tr class="windowbg2">
 					<td width="30%"><strong>';
 
@@ -1616,7 +1614,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 {
 	global $settings, $txt, $scripturl, $context;
 	$js_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident);
-	
+
 	// Have we actually done something?
 	$drawn_div = false;
 

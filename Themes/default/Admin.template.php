@@ -1380,7 +1380,6 @@ function template_core_features()
 				<h3 class="catbg">
 					', $txt['core_settings_title'], '
 				</h3>
-				
 			</div>
 			<p class="description">', $txt['core_settings_desc'], '</p>
 			<form id="core_features" action="', $scripturl, '?action=admin;area=corefeatures" method="post" accept-charset="', $context['character_set'], '">
@@ -1575,7 +1574,7 @@ function template_php_info()
 			</h3>
 		</div>
 		<br />';
-	
+
 	// for each php info area
 	foreach ($context['pinfo'] as $area => $php_area)
 	{

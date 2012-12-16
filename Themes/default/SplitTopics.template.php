@@ -154,7 +154,6 @@ function template_select()
 			</div>
 		</form>
 	</div>
-	
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var start = new Array();
 		start[0] = ', $context['not_selected']['start'], ';

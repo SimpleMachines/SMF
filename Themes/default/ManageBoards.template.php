@@ -99,7 +99,7 @@ function template_main()
 			</div>
 		</form>';
 	}
-	
+
 	echo '
 	</div>';
 }
@@ -122,7 +122,7 @@ function template_modify_category()
 				<div class="windowbg">
 					<div class="content">
 						<dl class="settings">';
-	
+
 	// If this isn't the only category, let the user choose where this category should be positioned down the board index.
 	if (count($context['category_order']) > 1)
 	{
@@ -130,7 +130,7 @@ function template_modify_category()
 						<dt><strong>', $txt['order'], ':</strong></dt>
 						<dd>
 							<select name="cat_order">';
-	
+
 		// Print every existing category into a select box.
 		foreach ($context['category_order'] as $order)
 			echo '
@@ -139,7 +139,7 @@ function template_modify_category()
 							</select>
 						</dd>';
 	}
-	
+
 	// Allow the user to edit the category name and/or choose whether you can collapse the category.
 	echo '
 						<dt>

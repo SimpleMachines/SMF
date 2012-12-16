@@ -1829,7 +1829,7 @@ function Post2()
 		if (isset($topicOptions['id']))
 			$topic = $topicOptions['id'];
 	}
-	
+
 	// If we had a draft for this, its time to remove it since it was just posted
 	if (!empty($modSettings['drafts_enabled']) && !empty($_POST['id_draft']))
 		DeleteDraft($_POST['id_draft']);
@@ -2031,7 +2031,7 @@ function Post2()
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.0',
 			'name' => $_POST['subject'],
-			'extra_before' => $settings['linktree_inline'] ? $txt['topic'] . ': ' : ''
+			'extra_before' => !empty($settings['linktree_inline']) ? $txt['topic'] . ': ' : ''
 		);
 
 		if (isset($_REQUEST['msg']))

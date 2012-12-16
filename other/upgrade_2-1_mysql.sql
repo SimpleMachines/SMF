@@ -257,7 +257,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 				(id_group, id_board, permission, add_deny)
 			VALUES
 				" . implode(',', $inserts));
-				
+
 	// Next we find people who can send PM's, and assume they can save pm_drafts as well
 	$request = upgrade_query("
 		SELECT id_group, add_deny, permission
