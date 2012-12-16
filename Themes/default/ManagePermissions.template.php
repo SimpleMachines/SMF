@@ -278,7 +278,7 @@ function template_by_board()
 			<div class="information">
 				', $txt['permissions_boards_desc'], '
 			</div>
-			
+
 			<div class="title_bar">
 				<h3 id="board_permissions" class="titlebg flow_hidden">
 					<span class="perm_name floatleft">', $txt['board_name'], '</span>
@@ -318,7 +318,7 @@ function template_by_board()
 								<a href="', $scripturl, '?action=admin;area=manageboards;sa=board;boardid=', $board['id'], ';rid=permissions;', $context['session_var'], '=', $context['session_id'], '">', str_repeat('-', $board['child_level']), ' ', $board['name'], '</a>
 							</span>
 							<span class="perm_boardprofile floatleft">';
-			
+
 			if ($context['edit_all'])
 			{
 				echo '
@@ -356,7 +356,7 @@ function template_by_board()
 	else
 		echo '
 				<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>';
-	
+
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '" />

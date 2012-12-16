@@ -1813,12 +1813,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$pos2 = strpos($message, ']', $pos + 1);
 			if ($pos2 == $pos + 2)
 				continue;
-			
+
 			$look_for = strtolower(substr($message, $pos + 2, $pos2 - $pos - 2));
 
 			$to_close = array();
 			$block_level = null;
-			
+
 			do
 			{
 				$tag = array_pop($open_tags);
@@ -1915,7 +1915,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		foreach ($bbc_codes[$tags] as $possible)
 		{
 			$pt_strlen = strlen($possible['tag']);
-			
+
 			// Not a match?
 			if (strtolower(substr($message, $pos + 1, $pt_strlen)) != $possible['tag'])
 				continue;
@@ -2037,7 +2037,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if ($message[$pos + 1] == '0' && !in_array($message[$pos - 1], array(';', ' ', "\t", '>')))
 				continue;
-			
+
 			$tag = $itemcodes[$message[$pos + 1]];
 
 			// First let's set up the tree: it needs to be in a list, or after an li.
@@ -2130,7 +2130,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			else
 				$tag['content'] = $tag['disabled_content'];
 		}
-		
+
 		// we use this alot
 		$tag_strlen = strlen($tag['tag']);
 
@@ -2208,7 +2208,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1);
 			if ($pos2 === false)
 				continue;
-			
+
 			$pos3 = stripos($message, '[/' . substr($message, $pos + 1, $tag_strlen) . ']', $pos2);
 			if ($pos3 === false)
 				continue;
@@ -2242,7 +2242,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$pos2 = strpos($message, ']', $pos1);
 			if ($pos2 === false)
 				continue;
-				
+
 			$pos3 = stripos($message, '[/' . substr($message, $pos + 1, $tag_strlen) . ']', $pos2);
 			if ($pos3 === false)
 				continue;
@@ -2444,7 +2444,7 @@ function parsesmileys(&$message)
 		$smileyPregReplacements = array();
 		$searchParts = array();
 		$smileys_path = htmlspecialchars($modSettings['smileys_url'] . '/' . $user_info['smiley_set'] . '/');
-		
+
 		for ($i = 0, $n = count($smileysfrom); $i < $n; $i++)
 		{
 			$specialChars = htmlspecialchars($smileysfrom[$i], ENT_QUOTES);
@@ -4072,7 +4072,7 @@ function call_integration_hook($hook, $parameters = array())
 					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
 				if (file_exists($absPath))
 					require_once($absPath);
-				$call = $function;
+				$call = $func;
 			}
 		}
 
@@ -4260,16 +4260,16 @@ function sanitizeMSCutPaste($string)
 function replaceEntities__callback($matches)
 {
 	global $context;
-	
+
 	if (!isset($matches[2]))
 		return '';
 
 	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
-	
+
 	// remove left to right / right to left overrides
 	if ($num === 0x202D || $num === 0x202E)
 		return '';
-	
+
 	// Quote, Ampersand, Apostrophe, Less/Greater Than get html replaced
 	if (in_array($num, array(0x22, 0x26, 0x27, 0x3C, 0x3E)))
 		return '&#' . $num . ';';
@@ -4321,7 +4321,7 @@ function fixchar__callback($matches)
 {
 	if (!isset($matches[1]))
 		return '';
-	
+
 	$num = $matches[1][0] === 'x' ? hexdec(substr($matches[1], 1)) : (int) $matches[1];
 
 	// <0x20 are control characters, > 0x10FFFF is past the end of the utf8 character set
@@ -4355,9 +4355,9 @@ function entity_fix__callback($matches)
 {
 	if (!isset($matches[2]))
 		return '';
-	
+
 	$num = $matches[2][0] === 'x' ? hexdec(substr($matches[2], 1)) : (int) $matches[2];
-	
+
 	// we don't allow control characters, characters out of range, byte markers, etc
 	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num == 0x202D || $num == 0x202E)
 		return '';

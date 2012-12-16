@@ -158,7 +158,7 @@ function smf_db_optimize_table($table)
 /**
  * This function lists all tables in the database.
  * The listing could be filtered according to $filter.
- * 
+ *
  * @param mixed $db string holding the table name, or false, default false
  * @param mixed $filter string to filter by, or false, default false
  * @return array an array of table names. (strings)

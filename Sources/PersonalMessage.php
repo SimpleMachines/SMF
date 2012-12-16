@@ -177,7 +177,7 @@ function MessageMain()
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
-	
+
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=pm',
@@ -862,7 +862,6 @@ function MessageFolder()
 	if ($context['display_mode'] == 2)
 	{
 		$context['conversation_buttons'] = array(
-			'reply' => array('text' => 'reply_to_all', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=send;f=' . $context['folder'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';pmsg=' . $context['current_pm'] . ';u=all', 'active' => true),
 			'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_message']) . '?\');"'),
 		);
 
@@ -955,6 +954,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	{
 		$memberContext[$message['id_member_from']]['name'] = $message['from_name'];
 		$memberContext[$message['id_member_from']]['id'] = 0;
+
 		// Sometimes the forum sends messages itself (Warnings are an example) - in this case don't label it from a guest.
 		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == $context['forum_name'] ? '' : $txt['guest_title'];
 		$memberContext[$message['id_member_from']]['link'] = $message['from_name'];
@@ -968,7 +968,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		$memberContext[$message['id_member_from']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member_from']]['warning_status'] && ($context['user']['can_mod'] || (!empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $message['id_member_from'] == $user_info['id'])));
 	}
 
-		$memberContext[$message['id_member_from']]['show_profile_buttons'] = $settings['show_profile_buttons'] && (!empty($memberContext[$message['id_member_from']]['can_view_profile']) || (!empty($memberContext[$message['id_member_from']]['website']['url']) && !isset($context['disabled_fields']['website'])) || (in_array($memberContext[$message['id_member_from']]['show_email'], array('yes', 'yes_permission_override', 'no_through_forum'))) || $context['can_send_pm']);
+	$memberContext[$message['id_member_from']]['show_profile_buttons'] = $settings['show_profile_buttons'] && (!empty($memberContext[$message['id_member_from']]['can_view_profile']) || (!empty($memberContext[$message['id_member_from']]['website']['url']) && !isset($context['disabled_fields']['website'])) || (in_array($memberContext[$message['id_member_from']]['show_email'], array('yes', 'yes_permission_override', 'no_through_forum'))) || $context['can_send_pm']);
 
 	// Censor all the important text...
 	censorText($message['body']);
@@ -996,7 +996,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		'is_selected' => !empty($temp_pm_selected) && in_array($message['id_pm'], $temp_pm_selected),
 		'is_message_author' => $message['id_member_from'] == $user_info['id'],
 		'can_report' => !empty($modSettings['enableReportPM']),
-		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
+		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member_from'] == $user_info['id'] && !empty($user_info['id'])),
 	);
 
 	$counter++;
@@ -1803,7 +1803,7 @@ function MessagePost()
 	$editorOptions = array(
 		'id' => 'message',
 		'value' => $context['message'],
-		'height' => '175px',
+		'height' => '250px',
 		'width' => '100%',
 		'labels' => array(
 			'post_button' => $txt['send_message'],
@@ -1836,7 +1836,7 @@ function MessagePost()
  */
 function MessageDrafts()
 {
-	global $context, $sourcedir, $user_info, $modSettings;
+	global $sourcedir, $user_info;
 
 	// validate with loadMemberData()
 	$memberResult = loadMemberData($user_info['id'], false);
@@ -1997,6 +1997,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		'id' => 'message',
 		'value' => $context['message'],
 		'width' => '90%',
+		'height' => '250px',
 		'labels' => array(
 			'post_button' => $txt['send_message'],
 		),
@@ -2039,8 +2040,8 @@ function MessagePost2()
 
 	isAllowedTo('pm_send');
 	require_once($sourcedir . '/Subs-Auth.php');
-	
-	// PM Drafts enabled and needed? 
+
+	// PM Drafts enabled and needed?
 	if ($context['drafts_pm_save'] && (isset($_POST['save_draft']) || isset($_POST['id_pm_draft'])))
 		require_once($sourcedir . '/Drafts.php');
 
@@ -2310,7 +2311,7 @@ function MessagePost2()
 	if (!empty($context['send_log']) && empty($context['send_log']['failed']))
 	{
 		$context['current_label_redirect'] = $context['current_label_redirect'] . ';done=sent';
-		
+
 		// If we had a PM draft for this one, then its time to remove it since it was just sent
 		if ($context['drafts_pm_save'] && !empty($_POST['id_pm_draft']))
 			DeleteDraft($_POST['id_pm_draft']);

@@ -174,7 +174,7 @@ upgrade_query("
 
 	ALTER TABLE {$db_prefix}sessions
 	ALTER COLUMN session_id type char(64);");
-	
+
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
 	ALTER COLUMN session SET DEFAULT '';
@@ -311,7 +311,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 				(id_group, id_board, permission, add_deny)
 			VALUES
 				" . implode(',', $inserts));
-				
+
 	// Next we find people who can send PM's, and assume they can save pm_drafts as well
 	$request = upgrade_query("
 		SELECT id_group, add_deny, permission

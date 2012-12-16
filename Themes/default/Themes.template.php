@@ -202,7 +202,6 @@ function template_list_themes()
 		<div class="information">
 			', $txt['themeadmin_list_tip'], '
 		</div>
-		
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=theme;', $context['session_var'], '=', $context['session_id'], ';sa=list" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_settings'], '</h3>
@@ -1082,7 +1081,14 @@ function template_edit_template()
 					<div class="padding righttext">
 						<input type="submit" name="save" value="', $txt['theme_edit_save'], '"', $context['allow_save'] ? '' : ' disabled="disabled"', ' class="button_submit" />
 						<input type="hidden" name="filename" value="', $context['edit_filename'], '" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+
+	// Hopefully it exists.
+	if (isset($context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token']))
+		echo '
+						<input type="hidden" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '" />';
+
+	echo '
 					</div>
 				</div>
 			</div>
@@ -1124,7 +1130,7 @@ function template_edit_file()
 	// Hopefully it exists.
 	if (isset($context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token']))
 		echo '
-					<input type="text" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '" />';
+					<input type="hidden" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '" />';
 
 	echo '
 				</div>
