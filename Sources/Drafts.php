@@ -878,7 +878,7 @@ function ModifyDraftSettings($return_config = false)
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managedrafts');
 	}
-	
+
 	// some javascript to enable / disable the frequency input box
 	$context['settings_post_javascript'] = '
 		var autosave = document.getElementById(\'drafts_autosave_enabled\');

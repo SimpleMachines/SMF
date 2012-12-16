@@ -139,7 +139,7 @@ function automanage_attachments_create_directory($updir)
 		// Maybe it's just the folder name
 		$tree = get_directory_tree_elements($boarddir . DIRECTORY_SEPARATOR . $updir);
 		$count = count($tree);
-	
+
 		$directory = attachments_init_dir($tree, $count);
 		if ($directory === false)
 			return false;
@@ -285,7 +285,7 @@ function get_directory_tree_elements ($directory)
 /**
  * Return the first part of a path (i.e. c:\ or / + the first directory), used by automanage_attachments_create_directory
  *
- * @param $tree an array 
+ * @param $tree an array
  * @param $count the number of elements in $tree
  *
  * @return (string)

@@ -351,3 +351,5 @@ class custom_search
 		}
 	}
 }
+
+?>

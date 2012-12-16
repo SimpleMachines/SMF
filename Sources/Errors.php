@@ -259,7 +259,7 @@ function error_handler($error_level, $error_string, $file, $line)
 /**
  * It is called by fatal_error() and fatal_lang_error().
  * @uses Errors template, fatal_error sub template, or Wireless template, error sub template.
- * 
+ *
  * @param string $error_message
  * @param type $error_code
  */

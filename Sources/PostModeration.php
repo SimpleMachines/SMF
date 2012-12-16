@@ -295,7 +295,7 @@ function UnapprovedPosts()
 			'category' => array(
 				'id' => $row['id_cat'],
 				'name' => $row['cat_name'],
-				'link' => '<a href="', $scripturl, '#c', $row['id_cat'], '">', $row['cat_name'], '</a>',
+				'link' => '<a href="' . $scripturl . '#c' . $row['id_cat'] . '">' . $row['cat_name'] . '</a>',
 			),
 			'can_delete' => $can_delete,
 		);
