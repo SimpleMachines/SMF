@@ -1102,6 +1102,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load the monstrous array.
 	if ($context['loadMemberContext_set'] != 'minimal')
 		$memberContext[$user] += array(
+			'username_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['member_name'] .'</span>',
+			'name_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['real_name'] .'</span>',
+			'link_color' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '" '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>' . $profile['real_name'] . '</a>',
 			'is_buddy' => $profile['buddy'],
 			'is_reverse_buddy' => in_array($user_info['id'], $buddy_list),
 			'buddies' => $buddy_list,
