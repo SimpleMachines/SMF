@@ -688,6 +688,7 @@ function PlushSearch2()
 	// The remaining words and phrases are all included.
 	$searchArray = array_merge($phraseArray, $wordArray);
 
+	$context['search_ignored'] = array();
 	// Trim everything and make sure there are no words that are the same.
 	foreach ($searchArray as $index => $value)
 	{
@@ -703,7 +704,7 @@ function PlushSearch2()
 		// Don't allow very, very short words.
 		elseif ($smcFunc['strlen']($value) < 2)
 		{
-			$context['search_errors']['search_string_small_words'] = true;
+			$context['search_ignored'][] = $value;
 			unset($searchArray[$index]);
 		}
 		else
