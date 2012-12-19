@@ -13,6 +13,7 @@ $txt['membergroups_modify'] = 'Modify';
 $txt['membergroups_add_group'] = 'Add group';
 $txt['membergroups_regular'] = 'Regular groups';
 $txt['membergroups_post'] = 'Post count based groups';
+$txt['membergroups_guests_na'] = 'n/a';
 
 $txt['membergroups_group_name'] = 'Membergroup name';
 $txt['membergroups_new_board'] = 'Visible Boards';
