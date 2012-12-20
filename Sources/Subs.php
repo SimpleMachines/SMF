@@ -2902,7 +2902,7 @@ function setupThemeContext($forceload = false)
 	$context['show_pm_popup'] = $context['user']['popup_messages'] && !empty($options['popup_messages']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'pm');
 
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
-	if($context['show_pm_popup'])
+	if ($context['show_pm_popup'])
 		addInlineJavascript('
 		$(document).ready(function(){
 			new smc_Popup({

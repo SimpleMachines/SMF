@@ -276,7 +276,7 @@ function PrintTopic()
 	if (isset($_REQUEST['images']) && !empty($modSettings['attachmentEnable']) && allowedTo('view_attachments'))
 	{
 		$messages = array();
-		foreach($context['posts'] as $temp)
+		foreach ($context['posts'] as $temp)
 			$messages[] = $temp['id_msg'];
 		
 		// build the request
