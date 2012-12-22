@@ -365,7 +365,7 @@ $txt['total_boards'] = 'Total Boards';
 
 $txt['print_page'] = 'Print Page';
 $txt['print_page_text'] = 'Text only';
-$txt['print_page_images'] = 'Test with Images';
+$txt['print_page_images'] = 'Text with Images';
 
 $txt['valid_email'] = 'This must be a valid email address.';
 
