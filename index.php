@@ -84,13 +84,10 @@ elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['
 
 // And important includes.
 require_once($sourcedir . '/Session.php');
-if (file_exists($sourcedir . '/decoda/Decoda.php'))
-	require_once($sourcedir . '/decoda/Decoda.php');
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Security.php');
-if (file_exists($sourcedir . '/Class-BrowserDetect.php'))
-	require_once($sourcedir . '/Class-BrowserDetect.php');
+require_once($sourcedir . '/Class-BrowserDetect.php');
 
 // Using an pre-PHP 5.1 version?
 if (version_compare(PHP_VERSION, '5.1', '<'))
