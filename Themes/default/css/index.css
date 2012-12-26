@@ -4220,3 +4220,18 @@ div#manage_boards dl dd textarea[name=desc] {
 .bold_text {
 	font-weight: bold;
 }
+
+/* Styles for "Who" action.
+-------------------------------------------------- */	
+.action_who #upper_show {	
+	margin-top: 6px;
+}
+.action_who #lower_pagesection {
+	margin-top: 4px;
+}
+.action_who #lower_pagelinks {
+	margin-top: -4px;
+}
+.action_who select {
+	margin-top: -1px !important;
+}
