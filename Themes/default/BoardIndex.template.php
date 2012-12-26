@@ -23,60 +23,63 @@ function template_main()
 	</div>';
 
 	// Show the news fader?  (assuming there are things to show...)
-	if ($settings['show_newsfader'] && !empty($context['news_lines']))
+	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
 	{
 		echo '
-	<div id="newsfader">
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;" />
-				', $txt['news'], '
-			</h3>
-		</div>
-		<ul class="reset" id="smfFadeScroller"', empty($options['collapse_news_fader']) ? '' : ' style="display: none;"', '>
-			<li>
-				', implode('</li><li>', $context['news_lines']), '
-			</li>
-		</ul>
-	</div>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
-
-		// Create a news fader object.
-		var oNewsFader = new smc_NewsFader({
-			sFaderControlId: \'smfFadeScroller\',
-			sItemTemplate: ', JavaScriptEscape('<strong>%1$s</strong>'), ',
-			iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
-		});
-
-		// Create the news fader toggle.
-		var smfNewsFadeToggle = new smc_Toggle({
-			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', empty($options['collapse_news_fader']) ? 'false' : 'true', ',
-			aSwappableContainers: [
-				\'smfFadeScroller\'
-			],
-			aSwapImages: [
-				{
-					sId: \'newsupshrink\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					srcCollapsed: smf_images_url + \'/expand.png\',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
-				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
-				sOptionName: \'collapse_news_fader\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id
-			},
-			oCookieOptions: {
-				bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
-				sCookieName: \'newsupshrink\'
-			}
-		});
-	// ]]></script>';
+			<div id="newsfader">
+				<div class="cat_bar">
+					<h3 class="catbg">
+						<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;" />
+						', $txt['news'], '
+					</h3>
+				</div>
+				<div class="roundframe rfix" id="smfFadeScrollerCont">
+					<ul class="reset" id="smfFadeScroller"', empty($options['collapse_news_fader']) ? '' : ' style="display: none;"', '>
+						<li>
+							', implode('</li><li>', $context['news_lines']), '
+						</li>
+					</ul>
+				</div>
+			</div>
+			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
+			<script type="text/javascript"><!-- // --><![CDATA[
+		
+				// Create a news fader object.
+				var oNewsFader = new smc_NewsFader({
+					sFaderControlId: \'smfFadeScroller\',
+					sItemTemplate: ', JavaScriptEscape('%1$s'), ',
+					iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
+				});
+		
+				// Create the news fader toggle.
+				var smfNewsFadeToggle = new smc_Toggle({
+					bToggleEnabled: true,
+					bCurrentlyCollapsed: ', empty($options['collapse_news_fader']) ? 'false' : 'true', ',
+					aSwappableContainers: [
+						\'smfFadeScrollerCont\'
+					],
+					aSwapImages: [
+						{
+							sId: \'newsupshrink\',
+							srcExpanded: smf_images_url + \'/collapse.png\',
+							altExpanded: ', JavaScriptEscape($txt['hide']), ',
+							srcCollapsed: smf_images_url + \'/expand.png\',
+							altCollapsed: ', JavaScriptEscape($txt['show']), '
+						}
+					],
+					oThemeOptions: {
+						bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+						sOptionName: \'collapse_news_fader\',
+						sSessionVar: smf_session_var,
+						sSessionId: smf_session_id
+					},
+					oCookieOptions: {
+						bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
+						sCookieName: \'newsupshrink\'
+					}
+				});
+			// ]]></script>
+		';
 	}
 
 	echo '

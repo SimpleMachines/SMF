@@ -913,6 +913,9 @@ img.sort {
 /* Used for combining cat/title headers with a content frame */
 .rfix {
 	margin-top: -1px;
+	border-top: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 /* The main content area.
@@ -1747,13 +1750,16 @@ ul li.greeting {
 }
 /* the newsfader */
 #newsfader {
-	margin: 0;
+	margin: 0 0 8px 0;
 }
 #smfFadeScroller {
 	text-align: center;
 	padding: 12px 25px;
 	overflow: auto;
 	color: #444444; /* shouldn't be shorthand style due to a JS bug in IE! */
+}
+ul#smfFadeScroller li {
+	font-weight: bold;
 }
 
 /* Styles for the info center on the board index.
