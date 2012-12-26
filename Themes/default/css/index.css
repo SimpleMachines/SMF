@@ -347,8 +347,6 @@ em {
 	overflow: auto;
 	white-space: nowrap;
 	/* Show a scrollbar after about 6 lines. */
-	/* This is much better than the old max-height css. */
-	height: 10em;
 	resize: vertical;
 }
 
