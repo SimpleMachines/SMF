@@ -26,7 +26,7 @@ function template_main()
 				<div class="pagesection">
 					<div class="pagelinks floatleft">', $context['page_index'], '</div>';
 		echo '
-					<div class="selectbox floatright">', $txt['who_show1'], '
+					<div class="selectbox floatright" id="upper_show">', $txt['who_show1'], '
 						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
 
 		foreach ($context['show_methods'] as $value => $label)
@@ -102,22 +102,22 @@ function template_main()
 	echo '
 					</tbody>
 				</table>
-			</div>
-			<div class="pagesection">
-				<div class="pagelinks floatleft">', $context['page_index'], '</div>';
-
-	echo '
-				<div class="selectbox floatright">', $txt['who_show1'], '
-					<select name="show" onchange="document.forms.whoFilter.submit();">';
-
-	foreach ($context['show_methods'] as $value => $label)
+				<div class="pagesection" id="lower_pagesection">
+					<div class="pagelinks floatleft" id="lower_pagelinks">', $context['page_index'], '</div>';
+	
 		echo '
-						<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
-	echo '
-					</select>
-					<noscript>
-						<input type="submit" value="', $txt['go'], '" class="button_submit" />
-					</noscript>
+					<div class="selectbox floatright">', $txt['who_show1'], '
+						<select name="show" onchange="document.forms.whoFilter.submit();">';
+	
+		foreach ($context['show_methods'] as $value => $label)
+			echo '
+							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+		echo '
+						</select>
+						<noscript>
+							<input type="submit" value="', $txt['go'], '" class="button_submit" />
+						</noscript>
+					</div>
 				</div>
 			</div>
 		</form>
