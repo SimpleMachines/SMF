@@ -2284,7 +2284,7 @@ ul.quickbuttons li a.modify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 3px -57px;
 }
 ul.quickbuttons li a.approve_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -90px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 4px -88px;
 }
 ul.quickbuttons li a.restore_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
@@ -2302,7 +2302,7 @@ ul.quickbuttons li a.notify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 4px -237px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
