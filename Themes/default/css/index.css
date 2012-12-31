@@ -3112,6 +3112,7 @@ dl {
 #main_admsection #basicinfo p#infolinks {
 	display: none;
 	clear: both;
+    margin-top: 1px;
 }
 #main_admsection #basicinfo .botslice {
 	clear: both;
