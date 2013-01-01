@@ -35,7 +35,9 @@ function smc_NewsFader(oOptions)
 			aFaderItems.push($(this).html());
 		});
 
-	$(sControlId).html('<li>' + sItemTemplate.replace('%1$s', aFaderItems[0]) + '</li>').show();
-
-	fadeOut();
+	if (aFaderItems.length > 1)
+	{
+		$(sControlId).html('<li>' + sItemTemplate.replace('%1$s', aFaderItems[0]) + '</li>').show();
+		fadeOut();
+	}
 }
