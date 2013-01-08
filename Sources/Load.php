@@ -1531,13 +1531,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Some basic information...
 	if (!isset($context['html_headers']))
 		$context['html_headers'] = '';
-	if(!isset($context['javascript_files']))
+	if (!isset($context['javascript_files']))
 		$context['javascript_files'] = array();
-	if(!isset($context['css_files']))
+	if (!isset($context['css_files']))
 		$context['css_files'] = array();
-	if(!isset($context['javascript_inline']))
+	if (!isset($context['javascript_inline']))
 		$context['javascript_inline'] = array('standard' => array(), 'defer' => array());
-	if(!isset($context['javascript_vars']))
+	if (!isset($context['javascript_vars']))
 		$context['javascript_vars'] = array();
 
 	$context['menu_separator'] = !empty($settings['use_image_buttons']) ? ' ' : ' | ';

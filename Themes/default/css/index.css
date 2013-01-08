@@ -2719,6 +2719,9 @@ dl.send_mail dd {
 #report_topic dl.settings dd {
 	width: 79%;
 }
+#report_comment {
+	width: 70%;
+}
 
 /* Styles for the split topic section.
 ---------------------------------------------------- */

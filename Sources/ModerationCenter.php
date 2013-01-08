@@ -880,7 +880,7 @@ function ModReport()
 	{
 		$context['report']['comments'][] = array(
 			'id' => $row['id_comment'],
-			'message' => $row['comment'],
+			'message' => strtr($row['comment'], array("\n" => '<br />')),
 			'time' => timeformat($row['time_sent']),
 			'member' => array(
 				'id' => $row['id_member'],

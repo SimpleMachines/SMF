@@ -486,7 +486,7 @@ function MessageIndex()
 			if (!empty($settings['avatars_on_indexes']))
 			{
 				// Allow themers to show the latest poster's avatar along with the topic
-				if(!empty($row['avatar']))
+				if (!empty($row['avatar']))
 				{
 					if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
 					{
