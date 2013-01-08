@@ -44,19 +44,10 @@ require_once(dirname(__FILE__) . '/Settings.php');
 if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
-// And important includes.
+// Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
-require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Subs.php');
-require_once($sourcedir . '/Errors.php');
-require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Load.php');
-require_once($sourcedir . '/Security.php');
-require_once($sourcedir . '/Class-BrowserDetect.php');
-
-// Using an pre-PHP 5.1 version?
-if (version_compare(PHP_VERSION, '5.1', '<'))
-	require_once($sourcedir . '/Subs-Compat.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
 if (!empty($maintenance) && $maintenance == 2)
@@ -84,6 +75,23 @@ if (isset($_GET['scheduled']))
 	require_once($sourcedir . '/ScheduledTasks.php');
 	AutoTask();
 }
+// Displaying attached avatars
+elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && $_GET['type'] == 'avatar')
+{
+	require_once($sourcedir. '/Avatar.php');
+	showAvatar();
+}
+
+// And important includes.
+require_once($sourcedir . '/Session.php');
+require_once($sourcedir . '/Errors.php');
+require_once($sourcedir . '/Logging.php');
+require_once($sourcedir . '/Security.php');
+require_once($sourcedir . '/Class-BrowserDetect.php');
+
+// Using an pre-PHP 5.1 version?
+if (version_compare(PHP_VERSION, '5.1', '<'))
+	require_once($sourcedir . '/Subs-Compat.php');
 
 // Check if compressed output is enabled, supported, and not already being done.
 if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())

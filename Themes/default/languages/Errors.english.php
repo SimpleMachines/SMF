@@ -25,6 +25,7 @@ $txt['not_a_user'] = 'The user whose profile you are trying to view does not exi
 $txt['not_a_topic'] = 'This topic doesn\'t exist on this board.';
 $txt['not_approved_topic'] = 'This topic has not been approved yet.';
 $txt['email_in_use'] = 'That email address (%1$s) is being used by a registered member already. If you feel this is a mistake, go to the login page and use the password reminder with that address.';
+$txt['attachments_no_write'] = 'The attachments directory is not writable';
 
 $txt['didnt_select_vote'] = 'You didn\'t select a vote option.';
 $txt['poll_error'] = 'Either that poll doesn\'t exist, the poll has been locked, or you tried to vote twice.';
