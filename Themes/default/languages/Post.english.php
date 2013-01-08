@@ -67,6 +67,7 @@ $txt['right_align'] = 'Right align';
 $txt['superscript'] = 'Superscript';
 $txt['subscript'] = 'Subscript';
 $txt['table_tr'] = 'Insert table row';
+// post_too_long seems unused (duplicate in Errors: error_post_too_long
 $txt['post_too_long'] = 'Your message is too long. Please go back and shorten it, then try again.';
 $txt['horizontal_rule'] = 'Horizontal Rule';
 $txt['font_size'] = 'Font size';

@@ -1214,7 +1214,7 @@ function DatabasePopulation()
 		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
 
 		// Optimizing one sqlite table, optimizes them all
-		if($db_type == 'sqlite')
+		if ($db_type == 'sqlite')
 			break;
 
 		if (!empty($db_messed))

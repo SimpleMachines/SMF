@@ -233,7 +233,7 @@ function getBoardIndex($boardIndexOptions)
 		if (!empty($settings['avatars_on_indexes']))
 		{
 			// Allow themers to show the latest poster's avatar along with the board
-			if(!empty($row_board['avatar']))
+			if (!empty($row_board['avatar']))
 			{
 				if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
 				{
