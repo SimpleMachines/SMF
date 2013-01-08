@@ -123,8 +123,8 @@ function MembergroupIndex()
 					'),
 				),
 				'sort' => array(
-					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, group_name',
-					'reverse' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, group_name DESC',
+					'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name',
+					'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name DESC',
 				),
 			),
 			'icons' => array(
@@ -132,27 +132,11 @@ function MembergroupIndex()
 					'value' => $txt['membergroups_icons'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $settings;
-
-						$icons = explode(\'#\', $rowData[\'icons\']);
-
-						// In case no icons are setup, return with nothing
-						if (empty($icons[0]) || empty($icons[1]))
-							return \'\';
-
-						// Otherwise repeat the image a given number of times.
-						else
-						{
-							$image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $icons[1]);
-							return str_repeat($image, $icons[0]);
-						}
-					'),
-
+					'db' => 'icons',
 				),
 				'sort' => array(
-					'default' => 'icons',
-					'reverse' => 'icons DESC',
+					'default' => 'mg.icons',
+					'reverse' => 'mg.icons DESC',
 				)
 			),
 			'members' => array(
@@ -165,13 +149,13 @@ function MembergroupIndex()
 						global $txt;
 
 						// No explicit members for the moderator group.
-						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : $rowData[\'num_members\'];
+						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : comma_format($rowData[\'num_members\']);
 					'),
 					'class' => 'centercol',
 				),
 				'sort' => array(
-					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, 1',
-					'reverse' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, 1 DESC',
+					'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, 1',
+					'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, 1 DESC',
 				),
 			),
 			'modify' => array(
@@ -232,8 +216,8 @@ function MembergroupIndex()
 					'),
 				),
 				'sort' => array(
-					'default' => 'group_name',
-					'reverse' => 'group_name DESC',
+					'default' => 'mg.group_name',
+					'reverse' => 'mg.group_name DESC',
 				),
 			),
 			'icons' => array(
@@ -241,23 +225,11 @@ function MembergroupIndex()
 					'value' => $txt['membergroups_icons'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $settings;
-
-						$icons = explode(\'#\', $rowData[\'icons\']);
-
-						if (empty($icons[0]) || empty($icons[1]))
-							return \'\';
-						else
-						{
-							$icon_image = sprintf(\'<img src="%1$s/%2$s" alt="*" />\', $settings[\'images_url\'], $icons[1]);
-							return str_repeat($icon_image, $icons[0]);
-						}
-					'),
+					'db' => 'icons',
 				),
 				'sort' => array(
-					'default' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, icons',
-					'reverse' => 'CASE WHEN id_group < 4 THEN id_group ELSE 4 END, icons DESC',
+					'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, icons',
+					'reverse' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, icons DESC',
 				)
 			),
 			'members' => array(
@@ -284,8 +256,8 @@ function MembergroupIndex()
 					'class' => 'centercol',
 				),
 				'sort' => array(
-					'default' => 'min_posts',
-					'reverse' => 'min_posts DESC',
+					'default' => 'mg.min_posts',
+					'reverse' => 'mg.min_posts DESC',
 				),
 			),
 			'modify' => array(
