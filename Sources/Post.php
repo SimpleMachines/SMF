@@ -1223,7 +1223,7 @@ function Post2()
 				$keep_ids[] = (int) $dummy;
 
 		if (isset($_SESSION['temp_attachments']))
-			foreach($_SESSION['temp_attachments'] as $attachID => $attachment)
+			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
 			{
 				if ((isset($_SESSION['temp_attachments']['post']['files'], $attachment['name']) && in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])) || in_array($attachID, $keep_temp) || strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 					continue;

@@ -172,7 +172,7 @@ function template_maintenance()
 							<dd><select name="to">
 								<option value="0">', $txt['attachment_transfer_select'], '</option>';
 
-	foreach($context['attach_dirs'] as $id => $dir)
+	foreach ($context['attach_dirs'] as $id => $dir)
 		echo '
 								<option value="', $id, '">', $dir, '</option>';
 	echo '

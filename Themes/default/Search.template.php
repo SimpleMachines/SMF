@@ -26,6 +26,10 @@ function template_main()
 		echo '
 		<p class="errorbox">', implode('<br />', $context['search_errors']['messages']), '</p>';
 
+	if (!empty($context['search_ignored']))
+		echo '
+		<p class="noticebox">', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '</p>';
+
 	// Simple Search?
 	if ($context['simple_search'])
 	{
@@ -238,7 +242,7 @@ function template_results()
 {
 	global $context, $settings, $options, $txt, $scripturl, $message;
 
-	if (isset($context['did_you_mean']) || empty($context['topics']))
+	if (isset($context['did_you_mean']) || empty($context['topics']) || !empty($context['search_ignored']))
 	{
 		echo '
 	<div id="search_results">
@@ -253,6 +257,10 @@ function template_results()
 		if (isset($context['did_you_mean']))
 			echo '
 			<p>', $txt['search_did_you_mean'], ' <a href="', $scripturl, '?action=search2;params=', $context['did_you_mean_params'], '">', $context['did_you_mean'], '</a>.</p>';
+
+		if (!empty($context['search_ignored']))
+			echo '
+			<p>', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '</p>';
 
 		echo '
 			<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">

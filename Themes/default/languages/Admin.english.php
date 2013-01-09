@@ -315,7 +315,6 @@ $txt['support_latest_fetch'] = 'Retrieving support information...';
 $txt['edit_permissions_info'] = 'Change restrictions and available features, globally or in specific boards.';
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
-$txt['membergroups_guests_na'] = 'n/a';
 $txt['membergroups_add_group'] = 'Add group';
 $txt['membergroups_permissions'] = 'Permissions';
 

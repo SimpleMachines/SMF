@@ -368,7 +368,7 @@ function template_folder()
 		}
 		elseif ($context['can_send_pm'] && !$message['is_message_author'] && !$message['member']['is_guest'])
 		{
-			if(!empty($modSettings['onlineEnable']))
+			if (!empty($modSettings['onlineEnable']))
 				echo '
 				<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
 			else

@@ -12,7 +12,10 @@
 
 function template_print_above()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $txt, $topic, $scripturl;
+	
+	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
+	$url_images = $url_text . ';images';
 
 	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -22,89 +25,95 @@ function template_print_above()
 		<link rel="canonical" href="', $context['canonical_url'], '" />
 		<title>', $txt['print_page'], ' - ', $context['topic_subject'], '</title>
 		<style type="text/css">
-			body, a
-			{
+			body, a {
 				color: #000;
 				background: #fff;
 			}
-			body, td, .normaltext
-			{
+			body, td, .normaltext {
 				font-family: Verdana, arial, helvetica, serif;
 				font-size: small;
 			}
-			h1#title
-			{
+			h1#title {
 				font-size: large;
 				font-weight: bold;
 			}
-			h2#linktree
-			{
+			h2#linktree {
 				margin: 1em 0 2.5em 0;
 				font-size: small;
 				font-weight: bold;
 			}
-			dl#posts
-			{
+			dl#posts {
 				width: 90%;
 				margin: 0;
 				padding: 0;
 				list-style: none;
 			}
-			div.postheader, #poll_data
-			{
+			div.postheader, #poll_data {
 				border: solid #000;
 				border-width: 1px 0;
 				padding: 4px 0;
 			}
-			div.postbody
-			{
+			div.postbody {
 				margin: 1em 0 2em 2em;
 			}
-			table
-			{
+			table {
 				empty-cells: show;
 			}
-			blockquote, code
-			{
+			blockquote, code {
 				border: 1px solid #000;
 				margin: 3px;
 				padding: 1px;
 				display: block;
 			}
-			code
-			{
+			code {
 				font: x-small monospace;
 			}
-			blockquote
-			{
+			blockquote {
 				font-size: x-small;
 			}
-			.smalltext, .quoteheader, .codeheader
-			{
+			.smalltext, .quoteheader, .codeheader {
 				font-size: x-small;
 			}
-			.largetext
-			{
+			.largetext {
 				font-size: large;
 			}
-			.centertext
-			{
+			.centertext {
 				text-align: center;
 			}
-			hr
-			{
+			hr {
 				height: 1px;
 				border: 0;
 				color: black;
 				background-color: black;
 			}
-			.voted
-			{
+			.voted {
 				font-weight: bold;
+			}
+			@media print {
+				.print_options {
+					display:none;
+				}
+			}
+			@media screen {
+				.print_options {
+					margin:1em;
+				}
 			}
 		</style>
 	</head>
 	<body>
+		<div class="print_options">';
+
+	// which option is set, text or text&images
+	if (isset($_REQUEST['images']))
+		echo '
+			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
+	else
+		echo '
+			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
+
+	echo '
+		</div>
 		<h1 id="title">', $context['forum_name_html_safe'], '</h1>
 		<h2 id="linktree">', $context['category_name'], ' => ', (!empty($context['parent_boards']) ? implode(' => ', $context['parent_boards']) . ' => ' : ''), $context['board_name'], ' => ', $txt['topic_started'], ': ', $context['poster_name'], ' ', $txt['search_on'], ' ', $context['post_time'], '</h2>
 		<div id="posts">';
@@ -112,7 +121,7 @@ function template_print_above()
 
 function template_main()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $options, $txt, $scripturl, $topic;
 
 	if (!empty($context['poll']))
 	{
@@ -132,19 +141,49 @@ function template_main()
 	}
 
 	foreach ($context['posts'] as $post)
+	{
 		echo '
 			<div class="postheader">
 				', $txt['title'], ': <strong>', $post['subject'], '</strong><br />
 				', $txt['post_by'], ': <strong>', $post['member'], '</strong> ', $txt['search_on'], ' <strong>', $post['time'], '</strong>
 			</div>
 			<div class="postbody">
-				', $post['body'], '
+				', $post['body'];
+				
+		// Show attachment images
+		if (isset($_GET['images']) && !empty($context['printattach'][$post['id_msg']]))
+		{
+			echo '
+				<hr />';
+			
+			foreach ($context['printattach'][$post['id_msg']] as $attach)
+				echo '
+					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="" />';
+		}
+			
+		echo '
 			</div>';
+	}
 }
 
 function template_print_below()
 {
-	global $context, $settings, $options;
+	global $topic, $txt, $scripturl;
+	
+	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
+	$url_images = $url_text . ';images';
+	
+	echo '
+		</div>
+		<div class="print_options">';
+
+	// Show the text / image links
+	if (isset($_GET['images']))
+		echo '
+			<a href="', $url_text, '">', $txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', $txt['print_page_images'], '</a></strong>';
+	else
+		echo '
+			<strong><a href="', $url_text, '">', $txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', $txt['print_page_images'], '</a>';
 
 	echo '
 		</div>

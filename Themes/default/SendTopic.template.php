@@ -209,18 +209,23 @@ function template_report()
 
 	if (!empty($context['post_errors']))
 	{
-		echo '
-				<div class="errorbox">
-					<ul>';
+	echo '
+				<div id="error_box" class="errorbox">
+					<ul id="error_list">';
 
-		foreach ($context['post_errors'] as $error)
+		foreach ($context['post_errors'] as $key => $error)
 			echo '
-						<li class="error">', $error, '</li>';
+						<li id="error_', $key, '" class="error">', $error, '</li>';
 
 		echo '
-					</ul>
-				</div>';
+					</ul>';
 	}
+	else
+		echo '
+				<div style="display:none" id="error_box" class="errorbox">';
+
+		echo '
+				</div>';
 
 	echo '
 						<p class="noticebox">', $txt['report_to_mod_func'], '</p>
@@ -243,7 +248,7 @@ function template_report()
 								<label for="report_comment">', $txt['enter_comment'], '</label>:
 							</dt>
 							<dd>
-								<input type="text" id="report_comment" name="comment" size="50" value="', $context['comment_body'], '" maxlength="255" />
+								<textarea type="text" id="report_comment" name="comment" rows="5">', $context['comment_body'], '</textarea>
 							</dd>';
 
 	if ($context['require_verification'])

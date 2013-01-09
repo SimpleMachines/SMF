@@ -25,6 +25,7 @@ $txt['not_a_user'] = 'The user whose profile you are trying to view does not exi
 $txt['not_a_topic'] = 'This topic doesn\'t exist on this board.';
 $txt['not_approved_topic'] = 'This topic has not been approved yet.';
 $txt['email_in_use'] = 'That email address (%1$s) is being used by a registered member already. If you feel this is a mistake, go to the login page and use the password reminder with that address.';
+$txt['attachments_no_write'] = 'The attachments directory is not writable';
 
 $txt['didnt_select_vote'] = 'You didn\'t select a vote option.';
 $txt['poll_error'] = 'Either that poll doesn\'t exist, the poll has been locked, or you tried to vote twice.';
@@ -240,6 +241,8 @@ $txt['error_no_question'] = 'No question was filled in for this poll.';
 $txt['error_no_message'] = 'The message body was left empty.';
 $txt['error_long_message'] = 'The message exceeds the maximum allowed length (%1$d characters).';
 $txt['error_no_comment'] = 'The comment field was left empty.';
+// duplicate of post_too_long in Post.{language}.php
+$txt['error_post_too_long'] = 'Your message is too long. Please go back and shorten it, then try again.';
 $txt['error_session_timeout'] = 'Your session timed out while posting. Please try to re-submit your message.';
 $txt['error_no_to'] = 'No recipients specified.';
 $txt['error_bad_to'] = 'One or more \'to\'-recipients could not be found.';
