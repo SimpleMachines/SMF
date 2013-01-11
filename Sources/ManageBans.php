@@ -533,7 +533,11 @@ function BanEdit()
 				if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
 					$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
 
-				$context['ban_suggestions'] += banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
+				// Borrowing a few language strings from profile.
+				loadLanguage('Profile');
+
+				$context['ban_suggestions']['message_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id'], 'messages', 'poster_ip');
+				$context['ban_suggestions']['error_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id'], 'log_errors');
 			}
 		}
 	}
@@ -686,52 +690,37 @@ function list_getNumBanItems()
 }
 
 /**
- * Finds additional IPs related to a certain user from the messages and the log_errors tables
+ * Finds additional IPs related to a certain user from a specified table (and column)
  *
  * @param int $member_id
+ * @param string $table table name without prefix
+ * @param string $column column to search in (default 'ip')
  * @return array
  */
-function banLoadAdditionalIPs($member_id)
+function banLoadAdditionalIPs($member_id, $table, $column = 'ip')
 {
-	global $context, $smcFunc;
-
-	// Borrowing a few language strings from profile.
-	loadLanguage('Profile');
+	global $smcFunc;
 
 	// Find some additional IP's used by this member.
-	$message_ips = array();
+	$ips = array();
 	$request = $smcFunc['db_query']('ban_suggest_message_ips', '
-		SELECT DISTINCT poster_ip
-		FROM {db_prefix}messages
+		SELECT DISTINCT {raw:column_name}
+		FROM {db_prefix}{raw:table_name}
 		WHERE id_member = {int:current_user}
-			AND poster_ip RLIKE {string:poster_ip_regex}
-		ORDER BY poster_ip',
+			AND {raw:column_name} RLIKE {string:poster_ip_regex}
+		ORDER BY {raw:column_name}',
 		array(
+			'table_name' => $table,
+			'column_name' => $column,
 			'current_user' => $member_id,
 			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$message_ips[] = $row['poster_ip'];
+		$ips[] = $row[$column];
 	$smcFunc['db_free_result']($request);
 
-	$error_ips = array();
-	$request = $smcFunc['db_query']('ban_suggest_error_ips', '
-		SELECT DISTINCT ip
-		FROM {db_prefix}log_errors
-		WHERE id_member = {int:current_user}
-			AND ip RLIKE {string:poster_ip_regex}
-		ORDER BY ip',
-		array(
-			'current_user' => $member_id,
-			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$error_ips[] = $row['ip'];
-	$smcFunc['db_free_result']($request);
-
-	return array('message_ips' => $message_ips, 'error_ips' => $error_ips);
+	return $ips;
 }
 
 /**
@@ -793,7 +782,13 @@ function banEdit2()
 	{
 		// Not strictly necessary, but it's nice
 		if (!empty($context['ban_suggestions']['member']['id']))
-			$context['ban_suggestions'] += banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
+		{
+			// Borrowing a few language strings from profile.
+			loadLanguage('Profile');
+
+			$context['ban_suggestions']['message_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id'], 'messages', 'poster_ip');
+			$context['ban_suggestions']['error_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id'], 'log_errors');
+		}
 		return BanEdit();
 	}
 
