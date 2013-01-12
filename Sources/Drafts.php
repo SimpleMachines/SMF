@@ -867,6 +867,11 @@ function ModifyDraftSettings($return_config = false)
 	// Setup the template.
 	$context['page_title'] = $txt['managedrafts_settings'];
 	$context['sub_template'] = 'show_settings';
+	$context[$context['admin_menu_name']]['tab_data'] = array(
+		'title' => $txt['drafts'],
+		'help' => '',
+		'description' => $txt['managedrafts_settings_description'],
+	);
 
 	// Saving them ?
 	if (isset($_GET['save']))
