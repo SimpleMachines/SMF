@@ -218,6 +218,10 @@ function template_generic_menu_tabs(&$menu_context)
 	<div class="cat_bar">
 		<h3 class="catbg">';
 
+	// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
+	if (function_exists('template_admin_quick_search'))
+		template_admin_quick_search();
+
 	// Exactly how many tabs do we have?
 	foreach ($context['tabs'] as $id => $tab)
 	{

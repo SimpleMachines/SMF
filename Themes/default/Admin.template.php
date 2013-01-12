@@ -23,20 +23,7 @@ function template_admin()
 		<div id="section_header" class="cat_bar">
 			<h3 class="catbg">';
 
-	if ($context['user']['is_admin'])
-		echo '
-			<object id="quick_search">
-				<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
-					<img class="icon" src="', $settings['images_url'] , '/filter.png" alt="" />
-					<input type="text" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text" />
-					<select name="search_type">
-						<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_internal'], '</option>
-						<option value="member"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'member' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_member'], '</option>
-						<option value="online"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'online' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_online'], '</option>
-					</select>
-					<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button_submit" />
-				</form>
-			</object>';
+	template_admin_quick_search();
 
 	echo $txt['admin_center'], '
 			</h3>
@@ -195,8 +182,11 @@ function template_credits()
 
 	<div id="admincenter">
 		<div id="section_header" class="cat_bar">
-			<h3 class="catbg">
-				', $txt['support_credits_title'], '
+			<h3 class="catbg">';
+
+	template_admin_quick_search();
+
+	echo $txt['support_credits_title'], '
 			</h3>
 		</div>
 		<div id="support_credits">
@@ -1377,8 +1367,11 @@ function template_core_features()
 
 	echo '
 			<div id="section_header" class="cat_bar">
-				<h3 class="catbg">
-					', $txt['core_settings_title'], '
+				<h3 class="catbg">';
+
+	template_admin_quick_search();
+
+	echo $txt['core_settings_title'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['core_settings_desc'], '</p>
@@ -1666,6 +1659,25 @@ function template_clean_cache_button_below()
 			</form>
 		</div>
 	</div>';
+}
+
+function template_admin_quick_search()
+{
+	global $context, $settings, $txt, $scripturl;
+	if ($context['user']['is_admin'])
+		echo '
+			<object id="quick_search">
+				<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
+					<img class="icon" src="', $settings['images_url'] , '/filter.png" alt="" />
+					<input type="text" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text" />
+					<select name="search_type">
+						<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_internal'], '</option>
+						<option value="member"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'member' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_member'], '</option>
+						<option value="online"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'online' ? ' selected="selected"' : ''), '>', $txt['admin_search_type_online'], '</option>
+					</select>
+					<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button_submit" />
+				</form>
+			</object>';
 }
 
 ?>
