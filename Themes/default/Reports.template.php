@@ -71,7 +71,7 @@ function template_main()
 		</div>
 		<div id="report_buttons">';
 
-	if (!empty($context['report_buttons']) && !empty($settings['use_tabs']))
+	if (!empty($context['report_buttons']))
 		template_button_strip($context['report_buttons'], 'right');
 
 	echo '

@@ -290,74 +290,42 @@ function template_generic_menu_tabs(&$menu_context)
 		</h3>
 	</div>';
 
-	// Shall we use the tabs?
-	if (!empty($settings['use_tabs']))
-	{
-		echo '
+	// Shall we use the tabs? Yes, it's the only known way!
+	echo '
 	<p class="description">
 		', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
 	</p>';
 
-		// The admin tabs.
-		echo '
+	// The admin tabs.
+	echo '
 	<div id="adm_submenus">
 		<ul class="dropmenu">';
 
-		// Print out all the items in this tab.
-		foreach ($tab_context['tabs'] as $sa => $tab)
-		{
-			if (!empty($tab['disabled']))
-				continue;
+	// Print out all the items in this tab.
+	foreach ($tab_context['tabs'] as $sa => $tab)
+	{
+		if (!empty($tab['disabled']))
+			continue;
 
-			if (!empty($tab['is_selected']))
-			{
-				echo '
+		if (!empty($tab['is_selected']))
+		{
+			echo '
 			<li>
 				<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
 			</li>';
-			}
-			else
-				echo '
+		}
+		else
+			echo '
 			<li>
 				<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
 			</li>';
-		}
+	}
 
-		// the end of tabs
-		echo '
+	// the end of tabs
+	echo '
 		</ul>
 	</div>
 	<br class="clear" />';
-	}
-	// ...if not use the old style
-	else
-	{
-		echo '
-	<p class="tabs">';
-
-		// Print out all the items in this tab.
-		foreach ($tab_context['tabs'] as $sa => $tab)
-		{
-			if (!empty($tab['disabled']))
-				continue;
-
-			if (!empty($tab['is_selected']))
-			{
-				echo '
-		<img src="', $settings['images_url'], '/selected.png" alt="*" /> <strong><a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], '">', $tab['label'], '</a></strong>';
-			}
-			else
-				echo '
-		<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], '">', $tab['label'], '</a>';
-
-			if (empty($tab['is_last']))
-				echo ' | ';
-		}
-
-		echo '
-	</p>
-	<p class="description">', isset($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '</p>';
-	}
 }
 
 ?>
