@@ -2073,6 +2073,9 @@ div#pollmoderation {
 	line-height: 1.5em;
 	text-align: center;
 }
+.poster .dropmenu>li .karma_allow a {
+	float: left;
+}
 .poster .dropmenu li:hover a, .poster .dropmenu li.sfhover a, .poster .dropmenu li a:hover,
 .poster .dropmenu li:hover a:hover, .poster .dropmenu li.sfhover a:hover, .poster .dropmenu li a {
 	background: none;
