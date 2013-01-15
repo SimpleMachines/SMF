@@ -3090,6 +3090,7 @@ dl {
 }
 #avatar_server_stored div {
 	float: left;
+	padding-right: 5px;
 }
 #avatar_upload {
 	overflow: auto;
