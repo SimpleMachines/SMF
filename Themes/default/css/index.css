@@ -823,14 +823,6 @@ div.title_bar {
 	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
 }
 
-/* Info center title bars are a bit different. */ /* @todo */
-/*div.title_barIC {
-	background: #dde3e9 url(../images/theme/bars.png) 0 0 repeat-x;
-}*/
-div.title_barIC h4.titlebg {
-	font-size: 1.1em;
-}
-
 /* Upshrinks in cat and title bars. */
 #upshrinkHeaderIC p.pminfo {
 	margin: 0;
