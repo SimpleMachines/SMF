@@ -2331,7 +2331,7 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 }
 .quickbuttons li.quick_edit img {
-	padding: 4px 4px 4px 4px;
+	padding: 4px 5em 4px 4px;
 	position: absolute;
 	left: 0;
 	top: 0;
