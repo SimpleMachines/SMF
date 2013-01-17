@@ -139,7 +139,7 @@ function createList($listOptions)
 
 			// The most flexible way probably is applying a custom function.
 			elseif (isset($column['data']['function']))
-				$cur_data['value'] = $column['data']['function']($list_item);
+				$cur_data['value'] = call_user_func_array($column['data']['function'], array($list_item));
 
 			// A modified value (inject the database values).
 			elseif (isset($column['data']['eval']))

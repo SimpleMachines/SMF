@@ -961,7 +961,7 @@ function PackageInstall()
 	if (!isset($old_version) || $context['is_installed'])
 		$install_log = parsePackageInfo($packageInfo['xml'], false, 'install');
 
-	$install_finished = false;
+	$context['install_finished'] = false;
 
 	// @todo Make a log of any errors that occurred and output them?
 
@@ -1172,7 +1172,7 @@ function PackageInstall()
 		}
 		$smcFunc['db_free_result']($request);
 
-		$install_finished = true;
+		$context['install_finished'] = true;
 	}
 
 	// If there's database changes - and they want them removed - let's do it last!
