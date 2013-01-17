@@ -117,8 +117,6 @@ function EditSearchSettings($return_config = false)
 	$context['page_title'] = $txt['search_settings_title'];
 	$context['sub_template'] = 'show_settings';
 
-	call_integration_hook('integrate_modify_search_weights', array($factors));
-
 	// We'll need this for the settings.
 	require_once($sourcedir . '/ManageServer.php');
 
