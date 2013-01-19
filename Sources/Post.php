@@ -455,7 +455,7 @@ function Post($post_errors = array())
 		}
 
 		// Only show the preview stuff if they hit Preview.
-		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_POST['id_draft']))
+		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_REQUEST['save_draft']))
 		{
 			// Set up the preview message and subject and censor them...
 			$context['preview_message'] = $form_message;
