@@ -540,6 +540,12 @@ function Post($post_errors = array())
 			else
 				isAllowedTo('modify_any');
 
+			if ($context['can_announce'] && !empty($row['id_action']))
+			{
+				loadLanguage('Errors');
+				$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+			}
+
 			if (!empty($modSettings['attachmentEnable']))
 			{
 				$request = $smcFunc['db_query']('', '
@@ -566,12 +572,6 @@ function Post($post_errors = array())
 					);
 				}
 				$smcFunc['db_free_result']($request);
-			}
-
-			if ($context['can_announce'] && !empty($row['id_action']))
-			{
-				loadLanguage('Errors');
-				$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
 			}
 
 			// Allow moderators to change names....
