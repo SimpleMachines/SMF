@@ -477,7 +477,8 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 .catbg select {
 	height: 2em;
 	font-size: 0.9em;
-	padding: 0;
+	padding: 1px;
+	margin-top: -1px;
 }
 
 /* Alternating backgrounds for posts, and several other sections of the forum. */
@@ -620,11 +621,9 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .birthday {
 	color: #920ac4;
 }
-
 .event {
 	color: #078907;
 }
-
 .holiday {
 	color: #000080;
 }
@@ -633,11 +632,9 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .warn_mute {
 	color: red;
 }
-
 .warn_moderate {
 	color: #ffa500;
 }
-
 .warn_watch, .success {
 	color: green;
 }
@@ -3338,6 +3335,7 @@ img.centericon {
 	width: 100%;
 	float: left;
 }
+
 /*Issue a warning*/
 #warn_body{
 	width: 80%;
@@ -3915,14 +3913,40 @@ span.hidelink {
 	z-index: 1;
 }
 
-/* Experimental additions. @todo */
-/*-------------------------*/
-
-/* Drop the stats cell from the board index on narrow screens. */
-/* Much more user-friendly IMHO. */
-
-@media screen and (max-width: 1220px) {
-	.table_list td.stats {
+/* Experimental media screen additions. */
+/*--------------------------------------*/
+/* Smartphones (portrait & landscape) drop the stats (views/replys) and last post from the screen */
+@media screen and (min-width: 320px) and (max-width: 480px) {
+	.table_list td.stats, .table_list td.lastpost, .table_grid td.lastpost, .table_grid th.last_post, .table_grid td.stats, .table_grid th.stats {
+		display: none;
+	}
+	#wrapper, .frame {
+		min-width: 300px;
+		width: 100% !important;
+	}
+	#main_content_section {
+		padding: 1px 2px 16px 3px;
+	}
+	.poster img.avatar {
+		width: 30px;
+	}
+	.poster {
+		width: 110px;
+		font-size: .8em;
+	}
+	.postarea, .moderatorbar {
+		margin: 0 0 0 110px;
+	}
+	.post {
+		margin: 0 0 0 5px;
+	}
+}
+/* Tablets (landscape) */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+}
+/* Tablets (portrait)  Drop the stats col replys/views and topics/messages */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+	.table_list td.stats .table_grid td.stats, .table_grid th.stats {
 		display: none;
 	}
 	.table_list td.lastpost p {
@@ -3930,6 +3954,18 @@ span.hidelink {
 		padding: 1px 5px 2px 10px;
 		margin-top: 1px;
 	}
+	.table_grid td.lastpost p {
+		border-left: 1px solid #ccc;
+	}
+	.table_grid th.last_post {
+		width: 30%;
+	}
+}
+/* Desktops and laptops */
+@media screen and (min-width: 1224px) {
+}
+/* Large screens */
+@media screen and (min-width: 1824px) {
 }
 
 /* General @todo stuff follows. Just added here temporarily, for convenience while trying stuff out. */
@@ -4008,7 +4044,7 @@ span.hidelink {
 .table_grid .catbg, .table_grid .catbg th, .table_grid .catbg th a {
 	font-size: 1em;
 }
-.generic_list_wrapper .information .additional_row{
+.generic_list_wrapper .information .additional_row {
 	border: none;
 }
 .generic_list_wrapper .information {
