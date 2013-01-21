@@ -416,15 +416,11 @@ function template_showPosts()
 	// No posts? Just end the table with a informative message.
 	if ((isset($context['attachments']) && empty($context['attachments'])) || (!isset($context['attachments']) && empty($context['posts'])))
 		echo '
-				<tr>
-					<td class="tborder windowbg2 padding centertext" colspan="4">
+				<div class="windowbg2">
+					<div class="content">
 						', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
-					</td>
-				</tr>';
-
-		echo '
-			</tbody>
-		</table>';
+					</div>
+				</div>';
 
 	// Show more page numbers.
 	if (!empty($context['page_index']))
@@ -959,20 +955,22 @@ function template_showPermissions()
 							<a id="board_permissions"></a>', $txt['showPermissions_select'], ':
 							<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
 								<option value="0"', $context['board'] == 0 ? ' selected="selected"' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
-				if (!empty($context['boards']))
-					echo '
+
+		if (!empty($context['boards']))
+			echo '
 								<option value="" disabled="disabled">---------------------------</option>';
 
-				// Fill the box with any local permission boards.
-				foreach ($context['boards'] as $board)
-					echo '
+		// Fill the box with any local permission boards.
+		foreach ($context['boards'] as $board)
+			echo '
 								<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
 
-				echo '
+		echo '
 							</select>
 						</h3>
 					</div>
 				</form>';
+
 		if (!empty($context['member']['permissions']['board']))
 		{
 			echo '
@@ -2832,7 +2830,6 @@ function template_profile_karma_modify()
 								(', $txt['total'], ': <span id="karmaTotal">', ($context['member']['karma']['good'] - $context['member']['karma']['bad']), '</span>)
 							</dd>';
 }
-
 
 // Select the time format!
 function template_profile_timeformat_modify()
