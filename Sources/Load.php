@@ -2835,7 +2835,7 @@ function cache_get_data($key, $ttl = 120)
 		$cache_hits[$cache_count]['s'] = isset($value) ? strlen($value) : 0;
 	}
 
-	if (function_exists('call_integration_hook'))
+	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array($key, $ttl, $value));
 
 	return empty($value) ? null : @unserialize($value);

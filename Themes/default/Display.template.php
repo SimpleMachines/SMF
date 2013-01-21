@@ -627,7 +627,6 @@ function template_main()
 							<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
-
 			echo '
 						</ul>';
 
@@ -735,7 +734,8 @@ function template_main()
 			echo '
 							<strong>', $txt['verification'], ':</strong>', template_control_verification($context['visual_verification_id'], 'quick_reply'), '<br />';
 
-		if ($options['display_quick_reply'] < 3)
+		// Using the full editor
+		if (empty($options['use_editor_quick_reply']))
 		{
 			echo '
 							<div class="quickReplyContent">
@@ -808,6 +808,7 @@ function template_main()
 		echo '
 		<br class="clear" />';
 
+	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 		echo '
 			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
