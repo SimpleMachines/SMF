@@ -390,14 +390,9 @@ function ModifyCacheSettings($return_config = false)
 		redirectexit('action=admin;area=serversettings;sa=cache;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	// if its off, allow them to clear it as well
-	// @todo why only when its off ?
-	if (empty($cache_enable))
-	{
-		loadLanguage('ManageMaintenance');
-		createToken('admin-maint');
-		$context['template_layers'][] = 'clean_cache_button';
-	}
+	loadLanguage('ManageMaintenance');
+	createToken('admin-maint');
+	$context['template_layers'][] = 'clean_cache_button';
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
