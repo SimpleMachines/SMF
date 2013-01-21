@@ -384,6 +384,9 @@ em {
 .bbc_color a {
 	color: inherit;
 }
+.bbc_strong {
+	color: inherit;
+}
 .bbc_img {
 	border: 0;
 }
