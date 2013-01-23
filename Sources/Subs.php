@@ -3234,10 +3234,10 @@ function template_javascript($do_defered = false)
 	{
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
-	<script type="text/javascript" src="', $js_file['filename'], '" id="', $id,'"' , !empty($js_file['options']['async']) ? ' async="async"' : '' ,'></script>';
+	<script type="text/javascript" src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
 
 		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
-		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'],array('local', 'cdn'))))
+		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
 		echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
@@ -3256,7 +3256,7 @@ function template_javascript($do_defered = false)
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
-			echo'
+			echo '
 // ]]></script>';
 		}
 
@@ -3268,7 +3268,7 @@ function template_javascript($do_defered = false)
 			foreach ($context['javascript_inline']['standard'] as $js_code)
 				echo $js_code;
 
-			echo'
+			echo '
 	// ]]></script>';
 		}
 	}
@@ -3286,7 +3286,7 @@ function template_css()
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" id="', $id,'" />';
+	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
 }
 
 /**
