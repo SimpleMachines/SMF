@@ -533,7 +533,7 @@ function BanEdit()
 				if ((preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $context['ban_suggestions']['main_ip']) == 1 || isValidIPv6($context['ban_suggestions']['main_ip'])) && empty($modSettings['disableHostnameLookup']))
 					$context['ban_suggestions']['hostname'] = host_from_ip($context['ban_suggestions']['main_ip']);
 
-				$context['ban_suggestions'] += banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
+				$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 			}
 		}
 	}
@@ -686,17 +686,31 @@ function list_getNumBanItems()
 }
 
 /**
- * Finds additional IPs related to a certain user from the messages and the log_errors tables
+ * Finds additional IPs related to a certain user
  *
  * @param int $member_id
  * @return array
  */
 function banLoadAdditionalIPs($member_id)
 {
-	global $context, $smcFunc;
-
 	// Borrowing a few language strings from profile.
 	loadLanguage('Profile');
+
+	$search_list = array();
+	call_integration_hook('integrate_load_addtional_ip_ban', array(&$search_list));
+	$search_list += array('ips_in_messages' => 'banLoadAdditionalIPsMember', 'ips_in_errors' => 'banLoadAdditionalIPsError');
+
+	$return = array();
+	foreach ($search_list as $key => $callable) 
+		if (is_callable($callable))
+			$return[$key] = call_user_func($callable, $member_id);
+
+	return $return;
+}
+
+function banLoadAdditionalIPsMember($member_id)
+{
+	global $smcFunc;
 
 	// Find some additional IP's used by this member.
 	$message_ips = array();
@@ -715,6 +729,13 @@ function banLoadAdditionalIPs($member_id)
 		$message_ips[] = $row['poster_ip'];
 	$smcFunc['db_free_result']($request);
 
+	return $message_ips;
+}
+
+function banLoadAdditionalIPsError($member_id)
+{
+	global $smcFunc;
+
 	$error_ips = array();
 	$request = $smcFunc['db_query']('ban_suggest_error_ips', '
 		SELECT DISTINCT ip
@@ -731,7 +752,7 @@ function banLoadAdditionalIPs($member_id)
 		$error_ips[] = $row['ip'];
 	$smcFunc['db_free_result']($request);
 
-	return array('message_ips' => $message_ips, 'error_ips' => $error_ips);
+	return $error_ips;
 }
 
 /**
@@ -786,14 +807,14 @@ function banEdit2()
 
 	if (isset($_POST['ban_suggestions']))
 		// @TODO: is $_REQUEST['bi'] ever set?
-		$context['ban_suggestions'] = saveTriggers($_POST['ban_suggestions'], $ban_info['id'], isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0, isset($_REQUEST['bi']) ? (int) $_REQUEST['bi'] : 0);
+		$context['ban_suggestions']['saved_triggers'] = saveTriggers($_POST['ban_suggestions'], $ban_info['id'], isset($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0, isset($_REQUEST['bi']) ? (int) $_REQUEST['bi'] : 0);
 
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
 	{
 		// Not strictly necessary, but it's nice
 		if (!empty($context['ban_suggestions']['member']['id']))
-			$context['ban_suggestions'] += banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
+			$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 		return BanEdit();
 	}
 
@@ -993,6 +1014,9 @@ function validateTriggers(&$triggers)
 
 	$ban_triggers = array();
 	$log_info = array();
+	$array_keys = array();
+	call_integration_hook('integrate_extend_ban_triggers', array(&$array_keys));
+	$array_keys += array('ips_in_messages', 'ips_in_errors');
 
 	foreach ($triggers as $key => $value)
 	{
@@ -1090,7 +1114,7 @@ function validateTriggers(&$triggers)
 				else
 					$ban_triggers['user']['id_member'] = $value;
 			}
-			elseif ($key == 'ips_m' || $key == 'ips_e')
+			elseif (in_array($key, $array_keys))
 			{
 				// Special case, those two are arrays themselves
 				$values = array_unique($value);
@@ -1217,11 +1241,15 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'ip_high8' => 'int',
 	);
 
+	$array_keys = array();
+	call_integration_hook('integrate_extend_ban_triggers', array(&$array_keys));
+	$array_keys += array('ips_in_messages', 'ips_in_errors');
+
 	$insertTriggers = array();
 	foreach ($triggers as $key => $trigger)
 	{
 		// Exceptions, exceptions, exceptions...always exceptions... :P
-		if ($key == 'ips_m' || $key == 'ips_e')
+		if (in_array($key, $array_keys))
 			foreach ($trigger as $real_trigger)
 				$insertTriggers[] = array_merge($values, $real_trigger);
 		else
