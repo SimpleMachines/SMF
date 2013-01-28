@@ -10,7 +10,7 @@
  * @version 2.1 Alpha 1
  */
 
-function template_main()
+function template_boardindex_outer_above()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
@@ -81,6 +81,11 @@ function template_main()
 			// ]]></script>
 		';
 	}
+}
+
+function template_main()
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div id="boardindex_table" class="boardindex_table">
@@ -239,11 +244,9 @@ function template_main()
 	if ($settings['show_mark_read'] && !empty($context['categories']))
 	echo '
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
-
-	template_info_center();
 }
 
-function template_info_center()
+function template_boardindex_outer_below()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
