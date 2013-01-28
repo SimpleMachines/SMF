@@ -22,6 +22,13 @@ function template_boardindex_outer_above()
 		', $settings['show_latest_member'] ? ' ' . sprintf($txt['welcome_newest_member'], ' <strong>' . $context['common_stats']['latest_member']['link'] . '</strong>') : '' , '
 	</div>';
 
+	template_newsfader();
+}
+
+function template_newsfader()
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+
 	// Show the news fader?  (assuming there are things to show...)
 	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
 	{
@@ -247,6 +254,11 @@ function template_main()
 }
 
 function template_boardindex_outer_below()
+{
+	template_info_center();
+}
+
+function template_info_center()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
