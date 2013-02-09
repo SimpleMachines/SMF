@@ -332,16 +332,21 @@ function deleteErrors()
  */
 function ViewFile()
 {
-	global $context, $txt, $boarddir, $sourcedir;
+	global $context, $txt, $boarddir, $sourcedir, $cachedir;
 	// Check for the administrative permission to do this.
 	isAllowedTo('admin_forum');
 
-	// decode the file and get the line
-	$file = base64_decode($_REQUEST['file']);
+	// Decode the file and get the line
+	$file = realpath(base64_decode($_REQUEST['file']));
+	$real_board = realpath($boarddir);
+	$real_source = realpath($sourcedir);
+	$real_cache = realpath($cachedir);
+	$basename = strtolower(basename($file));
+	$ext = strrchr($basename, '.');
 	$line = isset($_REQUEST['line']) ? (int) $_REQUEST['line'] : 0;
 
 	// Make sure the file we are looking for is one they are allowed to look at
-	if (!is_readable($file) || (strpos($file, '../') !== false && ( strpos($file, $boarddir) === false || strpos($file, $sourcedir) === false)))
+	if ($ext != '.php' || (strpos($file, $real_board) === false && strpos($file, $real_source) === false) || ($basename == 'settings.php' || $basename == 'settings_bak.php') || strpos($file, $real_cache) !== false || !is_readable($file))
 		fatal_lang_error('error_bad_file', true, array(htmlspecialchars($file)));
 
 	// get the min and max lines
