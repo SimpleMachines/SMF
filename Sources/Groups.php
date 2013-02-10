@@ -625,7 +625,6 @@ function GroupRequests()
 	// This is all the information required for a group listing.
 	$listOptions = array(
 		'id' => 'group_request_list',
-		'title' => $txt['mc_group_requests'],
 		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $txt['mc_groupr_none_found'],
@@ -735,6 +734,9 @@ function GroupRequests()
 	createList($listOptions);
 
 	$context['default_list'] = 'group_request_list';
+	$context[$context['moderation_menu_name']]['tab_data'] = array(
+		'title' => $txt['mc_group_requests'],
+	);
 }
 
 /**

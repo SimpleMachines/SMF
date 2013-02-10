@@ -2059,6 +2059,11 @@ function ModerationSettings()
 	loadTemplate('ModerationCenter');
 	$context['page_title'] = $txt['mc_settings'];
 	$context['sub_template'] = 'moderation_settings';
+	$context[$context['moderation_menu_name']]['tab_data'] = array(
+		'title' => $txt['mc_prefs_title'],
+		'help' => '',
+		'description' => $txt['mc_prefs_desc']
+	);
 
 	// What blocks can this user see?
 	$context['homepage_blocks'] = array(

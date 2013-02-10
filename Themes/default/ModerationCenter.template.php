@@ -389,27 +389,6 @@ function template_unapproved_posts()
 	</div>';
 }
 
-// List all attachments awaiting approval.
-function template_unapproved_attachments()
-{
-	global $settings, $options, $context, $txt, $scripturl;
-
-	// Show all the attachments still oustanding.
-	echo '
-	<div id="modcenter">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['mc_unapproved_attachments'], '</h3>
-		</div>
-		<div class="information">
-			', $txt['mc_unapproved_attachments_desc'], '
-		</div>';
-
-	template_show_list('mc_unapproved_attach');
-
-	echo '
-	</div>';
-}
-
 function template_viewmodreport()
 {
 	global $context, $scripturl, $txt;
@@ -537,12 +516,6 @@ function template_moderation_settings()
 	echo '
 	<div id="modcenter">
 		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_prefs_title'], '</h3>
-			</div>
-			<div class="information">
-				', $txt['mc_prefs_desc'], '
-			</div>
 			<div class="windowbg2">
 				<div class="content">
 					<dl class="settings">
