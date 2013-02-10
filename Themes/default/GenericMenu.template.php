@@ -214,84 +214,87 @@ function template_generic_menu_tabs(&$menu_context)
 	// Handy shortcut.
 	$tab_context = &$menu_context['tab_data'];
 
-	echo '
+	if (!empty($tab_context['title']))
+	{
+		echo '
 	<div class="cat_bar">
 		<h3 class="catbg">';
 
-	// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
-	if (function_exists('template_admin_quick_search'))
-		template_admin_quick_search();
+		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
+		if (function_exists('template_admin_quick_search'))
+			template_admin_quick_search();
 
-	// Exactly how many tabs do we have?
-	if (!empty($context['tabs']))
-	{
-		foreach ($context['tabs'] as $id => $tab)
+		// Exactly how many tabs do we have?
+		if (!empty($context['tabs']))
 		{
-			// Can this not be accessed?
-			if (!empty($tab['disabled']))
+			foreach ($context['tabs'] as $id => $tab)
 			{
-				$tab_context['tabs'][$id]['disabled'] = true;
-				continue;
+				// Can this not be accessed?
+				if (!empty($tab['disabled']))
+				{
+					$tab_context['tabs'][$id]['disabled'] = true;
+					continue;
+				}
+
+				// Did this not even exist - or do we not have a label?
+				if (!isset($tab_context['tabs'][$id]))
+					$tab_context['tabs'][$id] = array('label' => $tab['label']);
+				elseif (!isset($tab_context['tabs'][$id]['label']))
+					$tab_context['tabs'][$id]['label'] = $tab['label'];
+
+				// Has a custom URL defined in the main admin structure?
+				if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
+					$tab_context['tabs'][$id]['url'] = $tab['url'];
+
+				// Any additional paramaters for the url?
+				if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
+					$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
+
+				// Has it been deemed selected?
+				if (!empty($tab['is_selected']))
+					$tab_context['tabs'][$id]['is_selected'] = true;
+
+				// Does it have its own help?
+				if (!empty($tab['help']))
+					$tab_context['tabs'][$id]['help'] = $tab['help'];
+
+				// Is this the last one?
+				if (!empty($tab['is_last']) && !isset($tab_context['override_last']))
+					$tab_context['tabs'][$id]['is_last'] = true;
 			}
 
-			// Did this not even exist - or do we not have a label?
-			if (!isset($tab_context['tabs'][$id]))
-				$tab_context['tabs'][$id] = array('label' => $tab['label']);
-			elseif (!isset($tab_context['tabs'][$id]['label']))
-				$tab_context['tabs'][$id]['label'] = $tab['label'];
-
-			// Has a custom URL defined in the main admin structure?
-			if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
-				$tab_context['tabs'][$id]['url'] = $tab['url'];
-
-			// Any additional paramaters for the url?
-			if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
-				$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
-
-			// Has it been deemed selected?
-			if (!empty($tab['is_selected']))
-				$tab_context['tabs'][$id]['is_selected'] = true;
-
-			// Does it have its own help?
-			if (!empty($tab['help']))
-				$tab_context['tabs'][$id]['help'] = $tab['help'];
-
-			// Is this the last one?
-			if (!empty($tab['is_last']) && !isset($tab_context['override_last']))
-				$tab_context['tabs'][$id]['is_last'] = true;
-		}
-
-		// Find the selected tab
-		foreach ($tab_context['tabs'] as $sa => $tab)
-		{
-			if (!empty($tab['is_selected']) || (isset($menu_context['current_subsection']) && $menu_context['current_subsection'] == $sa))
+			// Find the selected tab
+			foreach ($tab_context['tabs'] as $sa => $tab)
 			{
-				$selected_tab = $tab;
-				$tab_context['tabs'][$sa]['is_selected'] = true;
+				if (!empty($tab['is_selected']) || (isset($menu_context['current_subsection']) && $menu_context['current_subsection'] == $sa))
+				{
+					$selected_tab = $tab;
+					$tab_context['tabs'][$sa]['is_selected'] = true;
+				}
 			}
 		}
-	}
 
-	// Show an icon and/or a help item?
-	if (!empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help']))
-	{
-		if (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
-			echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon" />';
+		// Show an icon and/or a help item?
+		if (!empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help']))
+		{
+			if (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
+				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon" />';
 
-		if (!empty($selected_tab['help']) || !empty($tab_context['help']))
-			echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a>';
+			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
+				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a>';
 
-		echo $tab_context['title'];
-	}
-	else
-	{
+			echo $tab_context['title'];
+		}
+		else
+		{
+			echo '
+				', $tab_context['title'];
+		}
+
 		echo '
-			', $tab_context['title'];
-	}
-
-	echo '
 		</h3>
 	</div>';
+	}
 
 	// Shall we use the tabs? Yes, it's the only known way!
 	if (!empty($selected_tab['description']) || !empty($tab_context['description']))
@@ -300,14 +303,14 @@ function template_generic_menu_tabs(&$menu_context)
 		', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
 	</p>';
 
-	// The admin tabs.
-	echo '
-	<div id="adm_submenus">
-		<ul class="dropmenu">';
-
 	// Print out all the items in this tab (if any).
 	if (!empty($context['tabs']))
 	{
+		// The admin tabs.
+		echo '
+	<div id="adm_submenus">
+		<ul class="dropmenu">';
+
 		foreach ($tab_context['tabs'] as $sa => $tab)
 		{
 			if (!empty($tab['disabled']))
@@ -326,13 +329,14 @@ function template_generic_menu_tabs(&$menu_context)
 				<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
 			</li>';
 		}
-	}
 
-	// the end of tabs
-	echo '
+		// the end of tabs
+		echo '
 		</ul>
 	</div>
 	<br class="clear" />';
+
+	}
 }
 
 ?>

@@ -16,16 +16,7 @@ function template_moderation_center()
 
 	// Show a welcome message to the user.
 	echo '
-	<div id="modcenter">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['moderation_center'], '</h3>
-		</div>
-		<div class="information">
-			<strong>', $txt['hello_guest'], ' ', $context['user']['name'], '!</strong>
-			<p>
-				', $txt['mc_description'], '
-			</p>
-		</div>';
+	<div id="modcenter">';
 
 	$alternate = true;
 	// Show all the blocks they want to see.

@@ -652,6 +652,11 @@ function showProfileDrafts($memID, $draft_type = 0)
 	if ($reverse)
 		$context['drafts'] = array_reverse($context['drafts'], true);
 
+	// Menu tab
+	$context[$context['profile_menu_name']]['tab_data'] = array(
+		'title' => $txt['drafts_show'] . ' - ' . $context['member']['name'],
+		'icon' => 'message_sm.png'
+	);
 	$context['sub_template'] = 'showDrafts';
 }
 
