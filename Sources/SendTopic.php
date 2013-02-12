@@ -13,7 +13,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * The main handling function for sending specialist (Or otherwise) emails to a user.

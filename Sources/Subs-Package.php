@@ -17,7 +17,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Reads a .tar.gz file, filename, in and extracts file(s) from it.

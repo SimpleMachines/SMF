@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Maps the implementations in this file (smf_db_function_name)

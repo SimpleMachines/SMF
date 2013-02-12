@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Get a list of versions that are currently installed on the server.

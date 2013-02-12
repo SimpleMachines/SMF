@@ -15,7 +15,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * This is the main function for the languages area.

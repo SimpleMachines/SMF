@@ -15,7 +15,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Ask them for their login information. (shows a page for the user to type

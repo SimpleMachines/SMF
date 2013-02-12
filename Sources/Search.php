@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(

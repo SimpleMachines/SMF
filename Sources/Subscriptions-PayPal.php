@@ -15,7 +15,7 @@
 // SMF Payment Gateway: paypal
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Class for returning available form data for this gateway

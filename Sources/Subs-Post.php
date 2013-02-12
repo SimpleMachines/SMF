@@ -16,7 +16,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Takes a message and parses it, returning nothing.

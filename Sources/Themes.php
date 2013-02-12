@@ -31,7 +31,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Subaction handler - manages the action and delegates control to the proper

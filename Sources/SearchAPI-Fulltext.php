@@ -12,7 +12,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Fulltext API, used when an SQL fulltext index is used

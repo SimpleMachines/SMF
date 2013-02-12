@@ -12,7 +12,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Generates the query to determine the list of available boards for a user
