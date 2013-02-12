@@ -94,7 +94,7 @@ function ModifyFeatureSettings()
 		),
 	);
 
-	// Call the right function for this sub-acton.
+	// Call the right function for this sub-action.
 	$subActions[$_REQUEST['sa']]();
 }
 
@@ -137,7 +137,7 @@ function ModifySecuritySettings()
 		),
 	);
 
-	// Call the right function for this sub-acton.
+	// Call the right function for this sub-action.
 	$subActions[$_REQUEST['sa']]();
 }
 
@@ -174,7 +174,7 @@ function ModifyModSettings()
 		),
 	);
 
-	// Call the right function for this sub-acton.
+	// Call the right function for this sub-action.
 	$subActions[$_REQUEST['sa']]();
 }
 

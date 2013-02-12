@@ -102,7 +102,7 @@ function ManageSmileys()
 		$context[$context['admin_menu_name']]['tab_data']['tabs']['setorder']['disabled'] = true;
 	}
 
-	// Call the right function for this sub-acton.
+	// Call the right function for this sub-action.
 	$subActions[$_REQUEST['sa']]();
 }
 

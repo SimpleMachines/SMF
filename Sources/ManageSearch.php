@@ -73,7 +73,7 @@ function ManageSearch()
 		),
 	);
 
-	// Call the right function for this sub-acton.
+	// Call the right function for this sub-action.
 	$subActions[$_REQUEST['sa']]();
 }
 
