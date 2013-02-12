@@ -628,7 +628,7 @@ function DeleteMembergroup()
  */
 function EditMembergroup()
 {
-	global $context, $txt, $sourcedir, $modSettings, $smcFunc;
+	global $context, $txt, $sourcedir, $modSettings, $smcFunc, $settings;
 
 	$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
 
@@ -1078,6 +1078,41 @@ function EditMembergroup()
 		if ($max_boards == 1)
 			$max_boards = 2;
 	}
+	
+	// Get a list of all the image formats we can select.
+	$imageExts = array('png', 'jpg', 'jpeg', 'bmp', 'gif');
+	
+	// Scan the directory.
+	$context['possibleStars'] = array();
+	if ($files = scandir($settings['default_theme_dir'] . '/images/stars'))
+	{
+		// Loop through every file in the directory.
+		foreach ($files as $value)
+		{
+			// Grab the image extension.
+			$ext = pathinfo($settings['default_theme_dir'] . '/images/stars/' . $value, PATHINFO_EXTENSION);
+			
+			// If the extension is not empty, and it is valid, 
+			if (!empty($ext) && in_array($ext, $imageExts))
+			{
+				// Get the size of the image.
+				$image_info = getimagesize($settings['default_theme_dir'] . '/images/stars/' . $value);
+				
+				// If this is bigger than 128 in width or 32 in height, skip this one.
+				if ($image_info == false || $image_info[0] > 128 || $image_info[1] > 32)
+					continue;
+					
+				// Else it's valid. Add it in.
+				else
+					$context['possibleStars'][] = $value;
+			}
+		}
+	}
+	
+	// Insert our JS, if we have possible stars.
+	if (!empty($context['possibleStars']))
+		$context['html_headers'] .= '
+	<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/stardropdown.js"></script>';
 
 	// Finally, get all the groups this could be inherited off.
 	$request = $smcFunc['db_query']('', '
