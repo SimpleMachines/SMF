@@ -18,10 +18,10 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * This just avoids some repetition.
+ * This function makes sure the requested subaction does exists, if it doesn't, it sets a default action or.
  *
- * @param array $subActions = array()
- * @param string $defaultAction = ''
+ * @param array $subActions = array() An array containing all possible subactions.
+ * @param string $defaultAction = '' the default action to be called if no valid subaction was found.
  */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
 {
