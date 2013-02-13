@@ -1251,7 +1251,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 function loadMemberCustomFields($users)
 {
 	global $modSettings, $context, $smcFunc, $txt;
-	global $scripturl, $settings;
+	global $scripturl, $settings, $memberContext;
 
 	// Make sure it's an array.
 	$users = !is_array($users) ? array($users) : array_unique($users);
