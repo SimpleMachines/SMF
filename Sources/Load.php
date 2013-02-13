@@ -1246,7 +1246,6 @@ function loadMemberContext($user, $display_custom_fields = false)
  * Loads the user's custom profile fields
  *
  * @param mixed $users either an integer or an array of integers
- * @param boolean $return = false, whether or not return the custom fields
  * @return array
  */
 function loadMemberCustomFields($users)
