@@ -1280,7 +1280,10 @@ function loadMemberCustomFields($users)
 		foreach ($context['display_fields'] as $custom)
 		{
 			if (!isset($custom['title']) || trim($custom['title']) == '' || empty($temp[$user]['options'][$custom['colname']]))
+			{
 				$return[$user] = array();
+				$memberContext[$user]['custom_fields'] = array();
+			}
 
 			else
 			{
