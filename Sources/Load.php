@@ -1243,6 +1243,87 @@ function loadMemberContext($user, $display_custom_fields = false)
 }
 
 /**
+ * Loads the user's custom profile fields
+ *
+ * @param mixed $users either an integer or an array of integers
+ * @param boolean $return = false, whether or not return the custom fields
+ * @return array
+ */
+function loadMemberCustomFields($users)
+{
+	global $modSettings, $context, $smcFunc, $txt;
+	global $scripturl, $settings;
+
+	// Make sure it's an array.
+	$users = !is_array($users) ? array($users) : array_unique($users);
+
+	$temp = array();
+	$return = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT *
+		FROM {db_prefix}themes
+		WHERE id_member' . (count($users) == 1 ? ' = {int:loaded_ids}' : ' IN ({array_int:loaded_ids})'),
+		array(
+			'loaded_ids' => count($users) == 1 ? $users[0] : $users,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$temp[$row['id_member']]['options'][$row['variable']] = $row['value'];
+
+	$smcFunc['db_free_result']($request);
+
+	if (!isset($context['display_fields']))
+		$context['display_fields'] = unserialize($modSettings['displayFields']);
+
+	foreach ($users as $user)
+		foreach ($context['display_fields'] as $custom)
+		{
+			if (!isset($custom['title']) || trim($custom['title']) == '' || empty($temp[$user]['options'][$custom['colname']]))
+				$return[$user] = array();
+
+			else
+			{
+				$value = $temp[$user]['options'][$custom['colname']];
+
+				// BBC?
+				if ($custom['bbc'])
+					$value = parse_bbc($value);
+
+				// ... or checkbox?
+				elseif (isset($custom['type']) && $custom['type'] == 'check')
+					$value = $value ? $txt['yes'] : $txt['no'];
+
+				// Enclosing the user input within some other text?
+				if (!empty($custom['enclose']))
+					$value = strtr($custom['enclose'], array(
+						'{SCRIPTURL}' => $scripturl,
+						'{IMAGES_URL}' => $settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{INPUT}' => $value,
+					));
+
+				$return[$user][] = array(
+					'title' => $custom['title'],
+					'colname' => $custom['colname'],
+					'value' => $value,
+					'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
+				);
+
+				$memberContext[$user]['custom_fields'][] = array(
+					'title' => $custom['title'],
+					'colname' => $custom['colname'],
+					'value' => $value,
+					'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
+				);
+			}
+		}
+
+		return !empty($return) ? $return : false;
+}
+
+/**
  * Loads information about what browser the user is viewing with and places it in $context
  *  - uses the class from Class-BrowerDetect.php
  *
