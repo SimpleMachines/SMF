@@ -764,7 +764,6 @@ h3.catbg2 a, h3.catbg2 {
 }
 h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover {
 	color: #ffc178;
-	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
 h3.catbg2 a:hover {
@@ -807,7 +806,7 @@ div.cat_bar {
 	background: #557ea0;
 	border-bottom: 1px solid #777;
 	padding: 0;
-	border-radius: 6px 6px 0 0;
+	border-radius: 3px 3px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
