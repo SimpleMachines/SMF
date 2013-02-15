@@ -1251,8 +1251,7 @@ function loadMemberContext($user, $display_custom_fields = false)
  */
 function loadMemberCustomFields($users, $params)
 {
-	global $smcFunc, $txt;
-	global $scripturl, $settings;
+	global $smcFunc, $txt, $scripturl, $settings;
 
 	// Do not waste my time...
 	if (empty($users) || empty($params))
@@ -1301,7 +1300,7 @@ function loadMemberCustomFields($users, $params)
 
 		// More than 1? knock yourself out...
 		else
-			$return[$row['id_member']][] = $row;
+			$return[$row['id_member']][$row['id_field']] = $row;
 	}
 
 	$smcFunc['db_free_result']($request);
