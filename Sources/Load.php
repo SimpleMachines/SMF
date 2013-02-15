@@ -1246,83 +1246,67 @@ function loadMemberContext($user, $display_custom_fields = false)
  * Loads the user's custom profile fields
  *
  * @param mixed $users either an integer or an array of integers
+ * @param mixed $param either a string or an array of strings with profile fields names
  * @return array
  */
-function loadMemberCustomFields($users)
+function loadMemberCustomFields($users, $params)
 {
-	global $modSettings, $context, $smcFunc, $txt;
-	global $scripturl, $settings, $memberContext;
+	global $smcFunc, $txt;
+	global $scripturl, $settings;
+
+	// Do not waste my time...
+	if (empty($users) || empty($params))
+		return false;
 
 	// Make sure it's an array.
 	$users = !is_array($users) ? array($users) : array_unique($users);
-
-	$temp = array();
+	$params = !is_array($params) ? array($params) : array_unique($params);
 	$return = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT *
-		FROM {db_prefix}themes
-		WHERE id_member' . (count($users) == 1 ? ' = {int:loaded_ids}' : ' IN ({array_int:loaded_ids})'),
+		SELECT c.id_field, c.col_name, c.field_name, c.field_desc, c.field_type, c.field_length, c.field_options, c.mask, show_reg,
+		c.show_display, c.show_profile, c.private, c.active, c.bbc, c.can_search, c.default_value, c.enclose, c.placement, t.variable, t.value, t.id_member
+		FROM {db_prefix}themes AS t
+			LEFT JOIN {db_prefix}custom_fields AS c ON (c.col_name = t.variable)
+		WHERE id_member' . (count($users) == 1 ? ' = {int:loaded_ids} ' : ' IN ({array_int:loaded_ids}) ') .
+			'AND variable' . (count($params) == 1 ? ' = {string:params}' : ' IN ({array_string:params})'),
 		array(
-			'loaded_ids' => count($users) == 1 ? $users[0] : $users,
+			'loaded_ids' => (int) count($users) == 1 ? $users[0] : $users,
+			'params' => (string) count($params) == 1 ? $params[0] : $params,
 		)
 	);
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$temp[$row['id_member']]['options'][$row['variable']] = $row['value'];
+	{
+		// BBC?
+		if (!empty($row['bbc']))
+			$row['value'] = parse_bbc($row['value']);
+
+		// ... or checkbox?
+		elseif (isset($row['type']) && $row['type'] == 'check')
+			$row['value'] = !empty($row['value']) ? $txt['yes'] : $txt['no'];
+
+		// Enclosing the user input within some other text?
+		if (!empty($row['enclose']))
+			$row['value'] = strtr($row['enclose'], array(
+				'{SCRIPTURL}' => $scripturl,
+				'{IMAGES_URL}' => $settings['images_url'],
+				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+				'{INPUT}' => $row['value'],
+			));
+
+		// Send a simple array if there is just 1 param
+		if (count($params) == 1)
+			$return[$row['id_member']] = $row;
+
+		// More than 1? knock yourself out...
+		else
+			$return[$row['id_member']][] = $row;
+	}
 
 	$smcFunc['db_free_result']($request);
 
-	if (!isset($context['display_fields']))
-		$context['display_fields'] = unserialize($modSettings['displayFields']);
-
-	foreach ($users as $user)
-		foreach ($context['display_fields'] as $custom)
-		{
-			if (!isset($custom['title']) || trim($custom['title']) == '' || empty($temp[$user]['options'][$custom['colname']]))
-			{
-				$return[$user] = array();
-				$memberContext[$user]['custom_fields'] = array();
-			}
-
-			else
-			{
-				$value = $temp[$user]['options'][$custom['colname']];
-
-				// BBC?
-				if ($custom['bbc'])
-					$value = parse_bbc($value);
-
-				// ... or checkbox?
-				elseif (isset($custom['type']) && $custom['type'] == 'check')
-					$value = $value ? $txt['yes'] : $txt['no'];
-
-				// Enclosing the user input within some other text?
-				if (!empty($custom['enclose']))
-					$value = strtr($custom['enclose'], array(
-						'{SCRIPTURL}' => $scripturl,
-						'{IMAGES_URL}' => $settings['images_url'],
-						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-						'{INPUT}' => $value,
-					));
-
-				$return[$user][] = array(
-					'title' => $custom['title'],
-					'colname' => $custom['colname'],
-					'value' => $value,
-					'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
-				);
-
-				$memberContext[$user]['custom_fields'][] = array(
-					'title' => $custom['title'],
-					'colname' => $custom['colname'],
-					'value' => $value,
-					'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
-				);
-			}
-		}
-
-		return !empty($return) ? $return : false;
+	return !empty($return) ? $return : false;
 }
 
 /**
