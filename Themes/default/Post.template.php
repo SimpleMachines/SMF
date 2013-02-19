@@ -112,10 +112,10 @@ function template_main()
 	if (!$context['becomes_approved'])
 	{
 		echo '
-					<p class="information">
-						<em>', $txt['wait_for_approval'], '</em>
+					<div class="infobox">
+						', $txt['wait_for_approval'], '
 						<input type="hidden" name="not_approved" value="1" />
-					</p>';
+					</div>';
 	}
 
 	// If it's locked, show a message to warn the replyer.
