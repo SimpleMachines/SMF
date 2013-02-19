@@ -1279,53 +1279,65 @@ function template_core_features()
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
-		var token_name;
-		var token_value;
-		var feature_on_text =  ', JavaScriptEscape($txt['core_settings_switch_off']), '
-		var feature_off_text =', JavaScriptEscape($txt['core_settings_switch_on']), '
+		var message, token_name, token_value;
+		var feature_on_text, feature_off_text;
+		var activation_text, deactivation_text;
+		var generic_error_text, imgs, sImageText;
+		var cc, cf, new_state, ajax_infobar;
+
+		feature_on_text = ', JavaScriptEscape($txt['core_settings_switch_off']), ';
+		feature_off_text = ', JavaScriptEscape($txt['core_settings_switch_on']), ';
+		activation_text = ', JavaScriptEscape($txt['core_settings_activation_message']), ';
+		deactivation_text = ', JavaScriptEscape($txt['core_settings_deactivation_message']), ';
+		generic_error_text = ', JavaScriptEscape($txt['core_settings_generic_error']), ';
+		imgs = [
+			"', $settings['images_url'], '/admin/switch_off.png",
+			"', $settings['images_url'], '/admin/switch_on.png"
+		];
 
 		$(document).ready(function() {
-			$(".core_features_hide").css(\'display\', \'none\');
-			$(".core_features_img").css({\'cursor\': \'pointer\', \'display\': \'\'}).each(function () {
-				var sImageText = $(this).hasClass(\'on\') ? feature_on_text : feature_off_text;
-				$(this).attr({ title: sImageText, alt: sImageText });
+			$(".core_features_hide").hide();
+			$(".core_features_img").css({\'cursor\': \'pointer\', \'display\': \'\'}).each(function() {
+				sImageText = $(this).hasClass(\'on\') ? feature_on_text : feature_off_text;
+				$(this).attr({title: sImageText, alt: sImageText});
 			});
-			$("#core_features_submit").css(\'display\', \'none\');
+			$("#core_features_submit").hide();
+
 			if (token_name == undefined)
 				token_name = $("#core_features_token").attr("name")
 			if (token_value == undefined)
 				token_value = $("#core_features_token").attr("value")
-			$(".core_features_img").click(function(){
-				var cc = $(this);
-				var cf = $(this).attr("id").substring(7);
-				var imgs = new Array("', $settings['images_url'], '/admin/switch_off.png", "', $settings['images_url'], '/admin/switch_on.png");
-				var new_state = !$("#feature_" + cf).attr("checked");
-				var ajax_infobar = document.createElement(\'div\');
-				$(ajax_infobar).css({\'position\': \'fixed\', \'top\': \'0\', \'left\': \'0\', \'width\': \'100%\'});
+
+			$(".core_features_img").click(function() {
+				cc = $(this);
+				cf = $(this).attr("id").substring(7);
+				new_state = !$("#feature_" + cf).attr("checked");
+				ajax_infobar = document.createElement(\'div\');
+				$(ajax_infobar).addClass("cf_notification");
 				$("body").append(ajax_infobar);
-				$(ajax_infobar).slideUp();
+				$(ajax_infobar).hide();
 				$("#feature_" + cf).attr("checked", new_state);
 
 				data = {save: "save", feature_id: cf};
-				data[$("#core_features_session").attr("name")] = $("#core_features_session").attr("value");
+				data[$("#core_features_session").attr("name")] = $("#core_features_session").val();
 				data[token_name] = token_value;
-				$(".core_features_status_box").each(function(){
+				$(".core_features_status_box").each(function() {
 					data[$(this).attr("name")] = !$(this).attr("checked") ? 0 : 1;
 				});
 
 				// Launch AJAX request.
 				$.ajax({
 					// The link we are accessing.
-					url: "', $scripturl, '?action=xmlhttp;sa=corefeatures;xml",
+					url: smf_scripturl + "?action=xmlhttp;sa=corefeatures;xml",
 					// The type of request.
 					type: "post",
 					// The type of data that is getting returned.
 					data: data,
-					error: function(error){
+					error: function(error) {
 							$(ajax_infobar).html(error).slideDown(\'fast\');
 					},
 
-					success: function(request){
+					success: function(request) {
 						if ($(request).find("errors").find("error").length != 0)
 						{
 							$(ajax_infobar).attr(\'class\', \'errorbox\');
@@ -1340,20 +1352,17 @@ function template_core_features()
 								"alt": new_state ? feature_on_text : feature_off_text
 							});
 							$("#feature_link_" + cf).fadeOut().fadeIn();
-							$(ajax_infobar).attr(\'class\', \'infobox\');
-							var message = new_state ? ' . JavaScriptEscape($txt['core_settings_activation_message']) . ' : ' . JavaScriptEscape($txt['core_settings_deactivation_message']) . ';
-							$(ajax_infobar).html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\');
-							setTimeout(function() {
-								$(ajax_infobar).slideUp();
-							}, 5000);
+							$(ajax_infobar).addClass("infobox");
+							message = new_state ? activation_text : deactivation_text;
+							$(ajax_infobar).html(message.replace(\'{core_feature}\', $(request).find("corefeatures").find("corefeature").text())).slideDown(\'fast\').delay(5*1000).slideUp(function() { $(this).remove(); });
 
 							token_name = $(request).find("tokens").find(\'[type="token"]\').text();
 							token_value = $(request).find("tokens").find(\'[type="token_var"]\').text();
 						}
 						else
 						{
-							$(ajax_infobar).attr(\'class\', \'errorbox\');
-							$(ajax_infobar).html(' . JavaScriptEscape($txt['core_settings_generic_error']) . ').slideDown(\'fast\');
+							$(ajax_infobar).addClass("errorbox");
+							$(ajax_infobar).text(generic_error_text).slideDown(\'fast\');
 
 						}
 					}
@@ -1392,7 +1401,7 @@ function template_core_features()
 	{
 		$num++;
 		echo '
-			<div class="content features">
+			<div class="content features', $num !== $num_features ? ' features_separate' : '', '">
 				<img class="features_image" src="', $feature['image'], '" alt="', $feature['title'], '" />
 				<div class="features_switch" id="js_feature_', $id, '">
 					<label class="core_features_hide" for="feature_', $id, '">', $txt['core_settings_enabled'], '<input class="core_features_status_box" type="checkbox" name="feature_', $id, '" id="feature_', $id, '"', $feature['enabled'] ? ' checked="checked"' : '', ' /></label>
@@ -1400,7 +1409,6 @@ function template_core_features()
 				</div>
 				<h4 id="feature_link_' . $id . '">', ($feature['enabled'] && $feature['url'] ? '<a href="' . $feature['url'] . '">' . $feature['title'] . '</a>' : $feature['title']), '</h4>
 				<p>', $feature['desc'], '</p>
-				<hr />
 			</div>';
 
 		$alternate = !$alternate;
