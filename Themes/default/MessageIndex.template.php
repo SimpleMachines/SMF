@@ -226,8 +226,8 @@ function template_main()
 		{
 			echo '
 				<tr class="windowbg2">
-					<td colspan="', !empty($context['can_quick_mod']) ? '6' : '5', '">
-						<span class="alert">!</span> ', $context['unapproved_posts_message'], '
+					<td colspan="', !empty($context['can_quick_mod']) ? '5' : '4', '">
+						<div class="noticebox" style="margin-bottom:0">! ', $context['unapproved_posts_message'], '</div>
 					</td>
 				</tr>';
 		}
