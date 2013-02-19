@@ -497,13 +497,13 @@ function attachmentChecks($attachID)
 
 	// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
 	if ( empty($_SESSION['temp_attachments'][$attachID]))
-		$errror = '$_SESSION[\'temp_attachments\'][$attachID]';
+		$error = '$_SESSION[\'temp_attachments\'][$attachID]';
 	elseif (empty($attachID))
-		$errror = '$attachID';
+		$error = '$attachID';
 	elseif (empty($context['attachments']))
-		$errror = '$context[\'attachments\']';
+		$error = '$context[\'attachments\']';
 	elseif (empty($context['attach_dir']))
-		$errror = '$context[\'attach_dir\']';
+		$error = '$context[\'attach_dir\']';
 
 	// Let's get their attention.
 	if (!empty($error))
