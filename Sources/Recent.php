@@ -752,7 +752,7 @@ function UnreadTopics()
 			CREATE TEMPORARY TABLE {db_prefix}log_topics_unread (
 				PRIMARY KEY (id_topic)
 			)
-			SELECT lt.id_topic, lt.id_msg
+			SELECT lt.id_topic, lt.id_msg, lt.disregarded
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic)
 			WHERE lt.id_member = {int:current_member}
