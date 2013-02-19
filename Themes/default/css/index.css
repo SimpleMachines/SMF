@@ -453,7 +453,7 @@ a img {
 
 .titlebg, .titlebg2, tr.titlebg th, tr.titlebg td, tr.titlebg2 td {
 	color: #444;
-	font-size: /*1.1em*/1em;
+	font-size: 1.1em;
 	font-weight: bold;
 	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
 }
@@ -730,7 +730,7 @@ dl.settings dt.windowbg {
 	clear: both;
 }
 dl.settings dd {
-	width: 56%;
+	width: 55%;
 	float: right;
 	overflow: auto;
 	margin: 0 0 3px 0;
@@ -2272,31 +2272,43 @@ ul.quickbuttons li a.quote_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 1px 0px;
 }
 ul.quickbuttons li a.remove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -19px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -24px;
 }
 ul.quickbuttons li a.modify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -40px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -48px;
 }
 ul.quickbuttons li a.approve_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -60px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -72px;
 }
 ul.quickbuttons li a.restore_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -80px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -96px;
 }
 ul.quickbuttons li a.split_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -100px;
-}
-ul.quickbuttons li a.reply_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 1px -120px;
 }
+ul.quickbuttons li a.reply_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -144px;
+}
 ul.quickbuttons li a.reply_all_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -120x;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -144x;
 }
 ul.quickbuttons li a.notify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -140px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -168px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -160px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -192px;
+}
+ul.quickbuttons li a.close_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -216px;
+}
+ul.quickbuttons li a.im_reply_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -240px;
+}
+ul.quickbuttons li a.details_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -264px;
+}
+ul.quickbuttons li a.ignore_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -288px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
@@ -3679,6 +3691,11 @@ span.hidelink {
 #mlist_search {
 	margin: auto;
 	width: 500px;
+	overflow: hidden;
+}
+#mlist_search .input_text {
+	width: 100%;
+	overflow: hidden;
 }
 
 /* Styles for the basic search section.
@@ -4030,7 +4047,7 @@ span.hidelink {
 .generic_list_wrapper .titlebg {
 	background: none;
 	border-bottom: 1px solid #aaa;
-	font-size: /*1.1em*/1em;
+	font-size: 1.1em;
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
@@ -4223,7 +4240,8 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 }
 .table_grid td.windowbg, .table_grid td.windowbg2, .table_grid td.lockedbg, .table_grid td.lockedbg2,
 .table_grid td.stickybg, .table_grid td.stickybg2, .table_grid td.locked_sticky, .table_grid td.locked_sticky2,
-.table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
+.table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody ,
+.table_grid td.approvetbg, .table_grid td.approvetbg2 {
 	border-bottom: 1px solid #ccc;
 }
 .table_grid tr:nth-child(even) td {
