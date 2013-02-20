@@ -15,7 +15,7 @@
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
  * @copyright 2013 Simple Machines and individual code contributors
- * Please see code_contributors.txt in this distribution for a list of individual code contributors
+ * Please see contributors.txt in this distribution for a list of individual code contributors
  * @license see license.txt in this distribution and http://www.simplemachines.org/about/smf/license.php#BSD
  *
  * @version 2.1 Alpha 1
