@@ -12,7 +12,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  *  This class is an experiment for the job of correctly detecting browsers and settings needed for them.
