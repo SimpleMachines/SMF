@@ -11,7 +11,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Simple cURL class to fetch a web page

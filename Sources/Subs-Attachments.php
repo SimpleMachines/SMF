@@ -16,7 +16,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Check if the current directory is still valid or not.

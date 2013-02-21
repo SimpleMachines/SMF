@@ -13,7 +13,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Openid_uri is the URI given by the user

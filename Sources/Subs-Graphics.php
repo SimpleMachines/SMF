@@ -19,7 +19,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * downloads a file from a url and stores it locally for avatar use by id_member.

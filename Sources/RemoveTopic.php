@@ -15,7 +15,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /*	The contents of this file handle the deletion of topics, posts, and related
 	paraphernalia.  It has the following functions:

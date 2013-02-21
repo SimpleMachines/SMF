@@ -16,7 +16,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Log an error, if the error logging is enabled.
@@ -253,7 +253,7 @@ function error_handler($error_level, $error_string, $file, $line)
 
 	// We should NEVER get to this point.  Any fatal error MUST quit, or very bad things can happen.
 	if ($error_level % 255 == E_ERROR)
-		die('Hacking attempt...');
+		die('No direct access...');
 }
 
 /**

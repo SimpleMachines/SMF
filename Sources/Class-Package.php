@@ -14,7 +14,7 @@
  */
 
 if (!defined('SMF'))
-	die('Hacking attempt...');
+	die('No direct access...');
 
 /**
  * Class representing an xml array.  Reads in xml, allows you to access it simply.  Version 1.1.
