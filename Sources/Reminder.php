@@ -110,9 +110,9 @@ function RemindPick()
 	{
 		// Awaiting approval...
 		if (trim($row['validation_code']) == '')
-			fatal_error($txt['registration_not_approved'] . ' <a href="' . $scripturl . '?action=activate;user=' . $_POST['user'] . '">' . $txt['here'] . '</a>.', false);
+			fatal_error(sprintf($txt['registration_not_approved'], $scripturl . '?action=activate;user=' . $_POST['user']), false);
 		else
-			fatal_error($txt['registration_not_activated'] . ' <a href="' . $scripturl . '?action=activate;user=' . $_POST['user'] . '">' . $txt['here'] . '</a>.', false);
+			fatal_error(sprintf($txt['registration_not_activated'], $scripturl . '?action=activate;user=' . $_POST['user']), false);
 	}
 
 	// You can't get emailed if you have no email address.
