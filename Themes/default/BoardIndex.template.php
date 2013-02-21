@@ -10,7 +10,7 @@
  * @version 2.1 Alpha 1
  */
 
-function template_main()
+function template_boardindex_outer_above()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
@@ -21,6 +21,13 @@ function template_main()
 		', $txt['members'], ': ', $context['common_stats']['total_members'], ' &nbsp;&#8226;&nbsp; ', $txt['posts_made'], ': ', $context['common_stats']['total_posts'], ' &nbsp;&#8226;&nbsp; ', $txt['topics_made'], ': ', $context['common_stats']['total_topics'], '<br />
 		', $settings['show_latest_member'] ? ' ' . sprintf($txt['welcome_newest_member'], ' <strong>' . $context['common_stats']['latest_member']['link'] . '</strong>') : '' , '
 	</div>';
+
+	template_newsfader();
+}
+
+function template_newsfader()
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	// Show the news fader?  (assuming there are things to show...)
 	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
@@ -81,6 +88,11 @@ function template_main()
 			// ]]></script>
 		';
 	}
+}
+
+function template_main()
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div id="boardindex_table" class="boardindex_table">
@@ -239,7 +251,10 @@ function template_main()
 	if ($settings['show_mark_read'] && !empty($context['categories']))
 	echo '
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
+}
 
+function template_boardindex_outer_below()
+{
 	template_info_center();
 }
 
