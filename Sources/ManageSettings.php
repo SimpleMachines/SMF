@@ -2207,9 +2207,6 @@ function ModifyGeneralModSettings($return_config = false)
 function list_integration_hooks()
 {
 	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
-	
-	if (empty($modSettings['handlinghooks_enabled']))
-		fatal_lang_error('handlinghooks_disabled');
 
 	$context['filter_url'] = '';
 	$context['current_filter'] = '';

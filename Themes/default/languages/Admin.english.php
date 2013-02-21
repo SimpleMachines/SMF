@@ -708,7 +708,6 @@ $txt['paid_subscriptions'] = 'Paid Subscriptions';
 $txt['paid_subs_view'] = 'View Subscriptions';
 
 $txt['hooks_title_list'] = 'Integration Hooks';
-$txt['handlinghooks_disabled'] = 'Integration Hooks Management is disabled. Please enable it in the Admin panel before continuing.';
 $txt['hooks_field_hook_name'] = 'Hook Name';
 $txt['hooks_field_function_name'] = 'Function Name';
 $txt['hooks_field_function'] = 'Function';
