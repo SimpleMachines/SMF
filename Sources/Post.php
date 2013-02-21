@@ -860,9 +860,9 @@ function Post($post_errors = array())
 				{
 					// Since, they don't belong here. Let's inform the user that they exist..
 					if (!empty($topic))
-						$delete_link = '<a href="' . $scripturl . '?action=post' .(!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp">' . $txt['here'] . '</a>';
+						$delete_url = $scripturl . '?action=post' .(!empty($_REQUEST['msg']) ? (';msg=' . $_REQUEST['msg']) : '') . (!empty($_REQUEST['last_msg']) ? (';last_msg=' . $_REQUEST['last_msg']) : '') . ';topic=' . $topic . ';delete_temp';
 					else
-						$delete_link = '<a href="' . $scripturl . '?action=post;board=' . $board . ';delete_temp">' . $txt['here'] . '</a>';
+						$delete_url = $scripturl . '?action=post;board=' . $board . ';delete_temp';
 
 					// Compile a list of the files to show the user.
 					$file_list = array();
@@ -876,14 +876,14 @@ function Post($post_errors = array())
 					if (!empty($_SESSION['temp_attachments']['post']['msg']))
 					{
 						// We have a message id, so we can link back to the old topic they were trying to edit..
-						$goback_link = '<a href="' . $scripturl . '?action=post' .(!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions">' . $txt['here'] . '</a>';
+						$goback_url = $scripturl . '?action=post' .(!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
 
-						$post_errors[] = array('temp_attachments_found', array($delete_link, $goback_link, $file_list));
+						$post_errors[] = array('temp_attachments_found', array($delete_url, $goback_url, $file_list));
 						$context['ignore_temp_attachments'] = true;
 					}
 					else
 					{
-						$post_errors[] = array('temp_attachments_lost', array($delete_link, $file_list));
+						$post_errors[] = array('temp_attachments_lost', array($delete_url, $file_list));
 						$context['ignore_temp_attachments'] = true;
 					}
 				}

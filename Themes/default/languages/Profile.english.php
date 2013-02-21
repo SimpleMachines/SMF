@@ -233,8 +233,8 @@ $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
 $txt['reminder_error'] = '%1$s failed to answer their secret question correctly when attempting to change a forgotten password.';
 
-$txt['registration_not_approved'] = 'Sorry, this account has not yet been approved. If you need to change your email address please click';
-$txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click';
+$txt['registration_not_approved'] = 'Sorry, this account has not yet been approved. If you need to change your email address please click <a href="%1$s">here</a>.';
+$txt['registration_not_activated'] = 'Sorry, this account has not yet been activated. If you need to resend the activation email please click <a href="%1$s">here</a>';
 
 $txt['primary_membergroup'] = 'Primary Membergroup';
 $txt['additional_membergroups'] = 'Additional Membergroups';

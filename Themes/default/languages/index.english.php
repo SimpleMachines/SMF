@@ -353,10 +353,10 @@ $txt['latest_member'] = 'Latest Member';
 $txt['total_cats'] = 'Total Categories';
 $txt['latest_post'] = 'Latest Post';
 
-$txt['you_have'] = 'You\'ve got';
-$txt['click'] = 'Click';
-$txt['here'] = 'here';
-$txt['to_view'] = 'to view them.';
+$txt['you_have'] = 'You\'ve got'; //Deprecated
+$txt['click'] = 'Click'; //Deprecated
+$txt['here'] = 'here'; //Deprecated
+$txt['to_view'] = 'to view them.'; //Deprecated
 $txt['you_have_no_msg'] = 'You don\'t have any message...';
 $txt['you_have_one_msg'] = 'You\'ve got 1 message... Click <a href="%1$s">here</a> to view it';
 $txt['you_have_many_msgs'] = 'You\'ve got %2$d messages... Click <a href="%1$s">here</a> to view them';
