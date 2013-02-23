@@ -978,7 +978,7 @@ function RemovePoll()
 	);
 
 	// A mod might have logged this (social network?), so let them remove, it too
-	call_integration_hook('integrate_poll_remove', array(&$pollID));
+	call_integration_hook('integrate_poll_remove', array($pollID));
 
 	// Take the moderator back to the topic.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);

@@ -972,7 +972,7 @@ function Post($post_errors = array())
 	 */
 	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
 
-	call_integration_hook('integrate_post_errors', array($post_errors, $minor_errors));
+	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors));
 
 	// Any errors occurred?
 	if (!empty($post_errors))

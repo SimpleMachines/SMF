@@ -338,7 +338,7 @@ function updateMemberData($members, $data)
 
 			if (!empty($member_names))
 				foreach ($vars_to_integrate as $var)
-					call_integration_hook('integrate_change_member_data', array($member_names, $var, $data[$var], $knownInts, $knownFloats));
+					call_integration_hook('integrate_change_member_data', array($member_names, $var, &$data[$var], &$knownInts, &$knownFloats));
 		}
 	}
 

@@ -1761,10 +1761,10 @@ function PlushSearch2()
 			$posters[] = $row['id_member'];
 		$smcFunc['db_free_result']($request);
 
+		call_integration_hook('integrate_search_message_list', array(&$msg_list, &$posters));
+
 		if (!empty($posters))
 			loadMemberData(array_unique($posters));
-
-		call_integration_hook('integrate_search_message_list', array($msg_list, $posters));
 
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = $smcFunc['db_query']('', '

@@ -822,7 +822,7 @@ function ModifyLanguageSettings($return_config = false)
 	{
 		checkSession();
 
-		call_integration_hook('integrate_save_language_settings', array($config_vars));
+		call_integration_hook('integrate_save_language_settings', array(&$config_vars));
 
 		saveSettings($config_vars);
 		redirectexit('action=admin;area=languages;sa=settings');

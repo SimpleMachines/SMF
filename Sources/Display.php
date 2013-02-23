@@ -822,7 +822,7 @@ function Display()
 	$smcFunc['db_free_result']($request);
 	$posters = array_unique($all_posters);
 
-	call_integration_hook('integrate_display_message_list', array($messages, $posters));
+	call_integration_hook('integrate_display_message_list', array(&$messages, &$posters));
 
 	// Guests can't mark topics read or for notifications, just can't sorry.
 	if (!$user_info['is_guest'] && !empty($messages))

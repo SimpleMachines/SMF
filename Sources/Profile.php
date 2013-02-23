@@ -598,7 +598,7 @@ function ModifyProfile($post_errors = array())
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
 
-		call_integration_hook('integrate_profile_save', array($profile_vars, $post_errors, $memID));
+		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID));
 
 		// There was a problem, let them try to re-enter.
 		if (!empty($post_errors))
