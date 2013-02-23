@@ -1393,7 +1393,7 @@ function editBuddies($memID)
 				unset($new_buddies[$k]);
 		}
 
-		call_integration_hook('integrate_add_buddies', array($memID, $new_buddies));
+		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
 		if (!empty($new_buddies))
 		{

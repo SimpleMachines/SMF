@@ -461,7 +461,7 @@ function modifyBoard($board_id, &$boardOptions)
 		fatal_lang_error('no_board');
 
 	$id = $board_id;
-	call_integration_hook('integrate_pre_modify_board', array($id, $boardOptions));
+	call_integration_hook('integrate_pre_modify_board', array($id, &$boardOptions));
 
 	// All things that will be updated in the database will be in $boardUpdates.
 	$boardUpdates = array();
@@ -641,7 +641,7 @@ function modifyBoard($board_id, &$boardOptions)
 	}
 
 	$id = $board_id;
-	call_integration_hook('integrate_modify_board', array($id, $boardUpdates, $boardUpdateParameters));
+	call_integration_hook('integrate_modify_board', array($id, &$boardUpdates, &$boardUpdateParameters));
 
 	// Do the updates (if any).
 	if (!empty($boardUpdates))
@@ -772,7 +772,7 @@ function createBoard($boardOptions)
 		'-1,0', '',
 	);
 
-	call_integration_hook('integrate_create_board', array($boardOptions, $board_columns, $board_parameters));
+	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
 
 	// Insert a board, the settings are dealt with later.
 	$smcFunc['db_insert']('',
@@ -852,7 +852,7 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 
 	getBoardTree();
 
-	call_integration_hook('integrate_delete_board', array($boards_to_remove, $moveChildrenTo));
+	call_integration_hook('integrate_delete_board', array($boards_to_remove, &$moveChildrenTo));
 
 	// If $moveChildrenTo is set to null, include the children in the removal.
 	if ($moveChildrenTo === null)

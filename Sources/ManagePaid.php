@@ -40,7 +40,7 @@ function ManagePaidSubscriptions()
 		'viewsub' => array('ViewSubscribedUsers', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_subscriptions', array($subActions));
+	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
 
 	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) ? 'view' : 'settings');

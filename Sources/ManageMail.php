@@ -43,7 +43,7 @@ function ManageMail()
 		'settings' => 'ModifyMailSettings',
 	);
 
-	call_integration_hook('integrate_manage_mail', array($subActions));
+	call_integration_hook('integrate_manage_mail', array(&$subActions));
 
 	// By default we want to browse
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
@@ -314,7 +314,7 @@ function ModifyMailSettings($return_config = false)
 			'birthday_body' => array('var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)),
 	);
 
-	call_integration_hook('integrate_modify_mail_settings', array($config_vars));
+	call_integration_hook('integrate_modify_mail_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

@@ -88,7 +88,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	if (empty($tried_hook))
 	{
 		$tried_hook = true;
-		call_integration_hook('integrate_error_types', array($other_error_types));
+		call_integration_hook('integrate_error_types', array(&$other_error_types));
 		$known_error_types += $other_error_types;
 	}
 	// Make sure the category that was specified is a valid one

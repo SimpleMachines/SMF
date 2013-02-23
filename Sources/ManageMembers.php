@@ -37,7 +37,7 @@ function ViewMembers()
 		'query' => array('ViewMemberlist', 'moderate_forum'),
 	);
 
-	call_integration_hook('integrate_manage_members', array($subActions));
+	call_integration_hook('integrate_manage_members', array(&$subActions));
 
 	// Default to sub action 'index' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'all';
@@ -278,7 +278,7 @@ function ViewMemberlist()
 			'++' => '>'
 		);
 
-		call_integration_hook('integrate_view_members_params', array($params));
+		call_integration_hook('integrate_view_members_params', array(&$params));
 
 		$search_params = array();
 		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
