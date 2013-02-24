@@ -351,6 +351,9 @@ function ModifyProfile($post_errors = array())
 		),
 	);
 
+	// Let them modify profile areas easily.
+	call_integration_hook('integrate_profile_areas', array(&$profile_areas));
+
 	// Do some cleaning ready for the menu function.
 	$context['password_areas'] = array();
 	$current_area = isset($_REQUEST['area']) ? $_REQUEST['area'] : '';
@@ -595,7 +598,7 @@ function ModifyProfile($post_errors = array())
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
 
-		call_integration_hook('integrate_profile_save', array($profile_vars, $post_errors, $memID));
+		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID));
 
 		// There was a problem, let them try to re-enter.
 		if (!empty($post_errors))

@@ -88,7 +88,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	if (empty($tried_hook))
 	{
 		$tried_hook = true;
-		call_integration_hook('integrate_error_types', array($other_error_types));
+		call_integration_hook('integrate_error_types', array(&$other_error_types));
 		$known_error_types += $other_error_types;
 	}
 	// Make sure the category that was specified is a valid one
@@ -235,7 +235,7 @@ function error_handler($error_level, $error_string, $file, $line)
 	$message = log_error($error_level . ': ' . $error_string, $error_type, $file, $line);
 
 	// Let's give integrations a chance to ouput a bit differently
-	call_integration_hook('integrate_output_error', array($message, $error_type, $error_level, $file, $line));
+	call_integration_hook('integrate_output_error', array(&$message, &$error_type, &$error_level, &$file, &$line));
 
 	// Dying on these errors only causes MORE problems (blank pages!)
 	if ($file == 'Unknown')

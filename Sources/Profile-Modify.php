@@ -690,7 +690,7 @@ function loadProfileFields($force_reload = false)
 		),
 	);
 
-	call_integration_hook('integrate_load_profile_fields', array($profile_fields));
+	call_integration_hook('integrate_load_profile_fields', array(&$profile_fields));
 
 	$disabled_fields = !empty($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
 	// For each of the above let's take out the bits which don't apply - to save memory and security!
@@ -1282,7 +1282,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 	}
 	$smcFunc['db_free_result']($request);
 
-	call_integration_hook('integrate_save_custom_profile_fields', array($changes, $log_changes, $memID, $area, $sanitize));
+	call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, $memID, $area, $sanitize));
 
 	// Make those changes!
 	if (!empty($changes) && empty($context['password_auth_failed']))
@@ -1393,7 +1393,7 @@ function editBuddies($memID)
 				unset($new_buddies[$k]);
 		}
 
-		call_integration_hook('integrate_add_buddies', array($memID, $new_buddies));
+		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
 		if (!empty($new_buddies))
 		{

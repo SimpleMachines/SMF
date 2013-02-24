@@ -338,7 +338,7 @@ function updateMemberData($members, $data)
 
 			if (!empty($member_names))
 				foreach ($vars_to_integrate as $var)
-					call_integration_hook('integrate_change_member_data', array($member_names, $var, $data[$var], $knownInts, $knownFloats));
+					call_integration_hook('integrate_change_member_data', array($member_names, $var, &$data[$var], &$knownInts, &$knownFloats));
 		}
 	}
 
@@ -881,7 +881,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	// Allow mods access before entering the main parse_bbc loop
-	call_integration_hook('integrate_pre_parsebbc', array($message, $smileys, $cache_id, $parse_tags));
+	call_integration_hook('integrate_pre_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Sift out the bbc for a performance improvement.
 	if (empty($bbc_codes) || $message === false || !empty($parse_tags))
@@ -2358,7 +2358,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$message = strtr($message, array('  ' => ' &nbsp;', "\r" => '', "\n" => '<br />', '<br /> ' => '<br />&nbsp;', '&#13;' => "\n"));
 
 	// Allow mods access to what parse_bbc created
-	call_integration_hook('integrate_post_parsebbc', array($message, $smileys, $cache_id, $parse_tags));
+	call_integration_hook('integrate_post_parsebbc', array(&$message, &$smileys, &$cache_id, &$parse_tags));
 
 	// Cache the output if it took some time...
 	if (isset($cache_key, $cache_t) && array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.05)
@@ -3990,7 +3990,7 @@ function setupMenuContext()
 
 	// Not all actions are simple.
 	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array($current_action));
+		call_integration_hook('integrate_current_action', array(&$current_action));
 
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;

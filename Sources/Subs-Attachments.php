@@ -482,7 +482,7 @@ function processAttachments()
 	//   id_folder => $modSettings['currentAttachmentUploadDir']
 	//   errors => An array of errors (use the index of the $txt variable for that error).
 	// Template changes can be done using "integrate_upload_template".
-	call_integration_hook('integrate_attachment_upload');
+	call_integration_hook('integrate_attachment_upload', array());
 }
 
 /**

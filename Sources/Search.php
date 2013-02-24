@@ -292,7 +292,7 @@ function PlushSearch2()
 		),
 	);
 
-	call_integration_hook('integrate_search_weights', array($weight_factors));
+	call_integration_hook('integrate_search_weights', array(&$weight_factors));
 
 	$weight = array();
 	$weight_total = 0;
@@ -591,7 +591,7 @@ function PlushSearch2()
 		'num_replies',
 		'id_msg',
 	);
-	call_integration_hook('integrate_search_sort_columns', array($sort_columns));
+	call_integration_hook('integrate_search_sort_columns', array(&$sort_columns));
 	if (empty($search_params['sort']) && !empty($_REQUEST['sort']))
 		list ($search_params['sort'], $search_params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 	$search_params['sort'] = !empty($search_params['sort']) && in_array($search_params['sort'], $sort_columns) ? $search_params['sort'] : 'relevance';
@@ -606,7 +606,7 @@ function PlushSearch2()
 	$recentMsg = $modSettings['maxMsgID'] - $minMsg;
 
 	// *** Parse the search query
-	call_integration_hook('integrate_search_params', array($search_params));
+	call_integration_hook('integrate_search_params', array(&$search_params));
 
 	/*
 	 * Unfortunately, searching for words like this is going to be slow, so we're blacklisting them.
@@ -615,7 +615,7 @@ function PlushSearch2()
 	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
 	 */
 	$blacklisted_words = array('img', 'url', 'quote', 'www', 'http', 'the', 'is', 'it', 'are', 'if');
-	call_integration_hook('integrate_search_blacklisted_words', array($blacklisted_words));
+	call_integration_hook('integrate_search_blacklisted_words', array(&$blacklisted_words));
 
 	// What are we searching for?
 	if (empty($search_params['search']))
@@ -1089,7 +1089,7 @@ function PlushSearch2()
 							$subject_query_params['excluded_phrases_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
 						}
 					}
-					call_integration_hook('integrate_subject_only_search_query', array($subject_query, $subject_query_params));
+					call_integration_hook('integrate_subject_only_search_query', array(&$subject_query, &$subject_query_params));
 
 					$relevance = '1000 * (';
 					foreach ($weight_factors as $type => $value)
@@ -1337,7 +1337,7 @@ function PlushSearch2()
 								$subject_query['params']['exclude_phrase_' . $count++] = empty($modSettings['search_match_words']) || $no_regexp ? '%' . strtr($phrase, array('_' => '\\_', '%' => '\\%')) . '%' : '[[:<:]]' . addcslashes(preg_replace(array('/([\[\]$.+*?|{}()])/'), array('[$1]'), $phrase), '\\\'') . '[[:>:]]';
 							}
 						}
-						call_integration_hook('integrate_subject_search_query', array($subject_query));
+						call_integration_hook('integrate_subject_search_query', array(&$subject_query));
 
 						// Nothing to search for?
 						if (empty($subject_query['where']))
@@ -1555,7 +1555,7 @@ function PlushSearch2()
 						$main_query['parameters']['board_query'] = $boardQuery;
 					}
 				}
-				call_integration_hook('integrate_main_search_query', array($main_query));
+				call_integration_hook('integrate_main_search_query', array(&$main_query));
 
 				// Did we either get some indexed results, or otherwise did not do an indexed query?
 				if (!empty($indexedResults) || !$searchAPI->supportsMethod('indexedWordQuery', $query_params))
@@ -1761,10 +1761,10 @@ function PlushSearch2()
 			$posters[] = $row['id_member'];
 		$smcFunc['db_free_result']($request);
 
+		call_integration_hook('integrate_search_message_list', array(&$msg_list, &$posters));
+
 		if (!empty($posters))
 			loadMemberData(array_unique($posters));
-
-		call_integration_hook('integrate_search_message_list', array($msg_list, $posters));
 
 		// Get the messages out for the callback - select enough that it can be made to look just like Display.
 		$messages_request = $smcFunc['db_query']('', '
@@ -2115,7 +2115,7 @@ function prepareSearchContext($reset = false)
 	);
 	$counter++;
 
-	call_integration_hook('integrate_search_message_context', array($counter, $output));
+	call_integration_hook('integrate_search_message_context', array($counter, &$output));
 
 	return $output;
 }

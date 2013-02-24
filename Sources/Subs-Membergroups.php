@@ -564,12 +564,11 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	updateStats('postgroups', $members);
 
 	// Log the data.
-	$log_inserts = array();
 	require_once($sourcedir . '/Logging.php');
 	foreach ($members as $member)
 		logAction('added_to_group', array('group' => $group_names[$group], 'member' => $member), 'admin');
 
-	call_integration_hook('integrate_add_members_to_group', array($log_inserts));
+	call_integration_hook('integrate_add_members_to_group');
 
 	return true;
 }
