@@ -341,7 +341,7 @@ function EditSmileySets()
 				$smcFunc['db_free_result']($request);
 
 				$context['current_set']['can_import'] = count($smileys);
-				$context['current_set']['import_url'] = $scripturl . '?action=admin;area=smileys;sa=import;set=' . $context['current_set']['id'] . ';' . $context['session_var'] . '=' . $context['session_id']
+				$context['current_set']['import_url'] = $scripturl . '?action=admin;area=smileys;sa=import;set=' . $context['current_set']['id'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 			}
 		}
 
