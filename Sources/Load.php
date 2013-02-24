@@ -1268,7 +1268,7 @@ function loadMemberCustomFields($users, $params)
 		FROM {db_prefix}themes AS t
 			LEFT JOIN {db_prefix}custom_fields AS c ON (c.col_name = t.variable)
 		WHERE id_member IN ({array_int:loaded_ids}) 
-			AND variable IN ({array_string:params})'),
+			AND variable IN ({array_string:params})',
 		array(
 			'loaded_ids' => $users,
 			'params' => $params,
