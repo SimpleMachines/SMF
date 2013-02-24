@@ -558,6 +558,14 @@ div.quick_tasks {
 	padding: 0 12px;
 	overflow: auto;
 }
+
+.cf_notification {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+
 /* Keep your enemies close, and your submit buttons if your screen is huge. */
 /* Speaking of which, I can't see the last submit that is in the markup. */
 /* Still works without it if you reload the page, but rather odd that it's hiding. */
@@ -568,6 +576,10 @@ div.quick_tasks {
 .features_switch {
 	margin: -20px 0 6px 6px;
 	float: right;
+}
+.features_separate {
+	margin-bottom: 12px;
+	border-bottom: 2px solid #ccc;
 }
 .features h4 {
 	padding: 0;
