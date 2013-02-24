@@ -165,7 +165,7 @@ function ViewMemberlist()
 		{
 			// Delete all the selected members.
 			require_once($sourcedir . '/Subs-Members.php');
-			deleteMembers($_POST['delete'], true);
+			deleteMembers($delete, true);
 		}
 	}
 
