@@ -476,6 +476,11 @@ function ModifyCoreFeatures($return_config = false)
 
 	$context['sub_template'] = 'core_features';
 	$context['page_title'] = $txt['core_settings_title'];
+	$context[$context['admin_menu_name']]['tab_data'] = array(
+		'title' => $txt['core_settings_title'],
+		'help' => '',
+		'description' => $txt['core_settings_desc'],
+	);
 
 	// We love our tokens.
 	createToken('admin-core');

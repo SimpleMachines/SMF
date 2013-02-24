@@ -552,6 +552,15 @@ function AdminHome()
 
 	$context['sub_template'] = $context['admin_area'] == 'credits' ? 'credits' : 'admin';
 	$context['page_title'] = $context['admin_area'] == 'credits' ? $txt['support_credits_title'] : $txt['admin_center'];
+	if ($context['admin_area'] != 'credits')
+		$context[$context['admin_menu_name']]['tab_data'] = array(
+			'title' => $txt['admin_center'],
+			'help' => '',
+			'description' => '
+				<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
+				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
+		);
+
 
 	// The format of this array is: permission, action, title, description, icon.
 	$quick_admin_tasks = array(
