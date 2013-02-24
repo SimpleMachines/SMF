@@ -154,6 +154,7 @@ $txt['ban_ip'] = 'IP banning: (e.g. 192.168.12.213 or 128.0.*.*) - one entry per
 $txt['ban_email'] = 'Email banning: (e.g. badguy@somewhere.com) - one entry per line';
 $txt['ban_username'] = 'User name banning: (e.g. l33tuser) - one entry per line';
 
+$txt['ban_errors_detected'] = 'The following error or errors occurred while saving or editing the ban group or trigger';
 $txt['ban_description'] = 'Here you can ban troublesome people either by IP, hostname, username, or email.';
 $txt['ban_add_new'] = 'Add new ban';
 $txt['ban_banned_entity'] = 'Banned entity';

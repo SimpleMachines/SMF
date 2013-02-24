@@ -808,7 +808,7 @@ function template_imode_ban_edit()
 			<tr><td>
 				<strong>', $txt['ban_expiration'], ': </strong><br />
 				<input type="radio" name="expiration" value="never" ', $context['ban']['expiration']['status'] == 'never' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['never'], '<br />
-				<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'still_active_but_we_re_counting_the_days' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
+				<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'one_day' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
 				<input type="radio" name="expiration" value="expired" ', $context['ban']['expiration']['status'] == 'expired' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_expired'], '<br />
 			</td></tr>
 			<tr><td>
@@ -832,24 +832,24 @@ function template_imode_ban_edit()
 		echo '
 			<tr bgcolor="#b6dbff"><td>', $txt['ban_triggers'], '</td></tr>
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
+				<input type="checkbox" name="ban_suggestions[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
 				&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="20" class="input_text" />
 			</td></tr>';
 
 		if (empty($modSettings['disableHostnameLookup']))
 			echo '
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
+				<input type="checkbox" name="ban_suggestions[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
 				&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="20" class="input_text" />
 			</td></tr>';
 
 		echo '
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
+				<input type="checkbox" name="ban_suggestions[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
 				&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="20" class="input_text" />
 			</td></tr>
 			<tr><td>
-				<input type="checkbox" name="ban_suggestion[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
+				<input type="checkbox" name="ban_suggestions[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
 
 		if (empty($context['ban_suggestions']['member']['id']))
 			echo '
@@ -1440,7 +1440,7 @@ function template_wap2_ban_edit()
 		<p class="windowbg">
 			<strong>', $txt['ban_expiration'], ': </strong><br />
 			<input type="radio" name="expiration" value="never" ', $context['ban']['expiration']['status'] == 'never' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['never'], '<br />
-			<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'still_active_but_we_re_counting_the_days' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
+			<input type="radio" name="expiration" value="one_day" ', $context['ban']['expiration']['status'] == 'one_day' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_will_expire_within'], ' <input type="text" name="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" /> ', $txt['ban_days'], '<br />
 			<input type="radio" name="expiration" value="expired" ', $context['ban']['expiration']['status'] == 'expired' ? ' checked="checked"' : '', ' class="input_radio" /> ', $txt['ban_expired'], '<br />
 		</p>
 		<p class="windowbg">
@@ -1464,24 +1464,24 @@ function template_wap2_ban_edit()
 		echo '
 		<p class="titlebg">', $txt['ban_triggers'], '</p>
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
+			<input type="checkbox" name="ban_suggestions[]" value="main_ip" class="input_check" /> <strong>', $txt['wireless_ban_ip'], ':</strong><br />
 			&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="main_ip" value="', $context['ban_suggestions']['main_ip'], '" size="20" class="input_text" />
 		</p>';
 
 		if (empty($modSettings['disableHostnameLookup']))
 			echo '
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
+			<input type="checkbox" name="ban_suggestions[]" value="hostname" class="input_check" /> <strong>', $txt['wireless_ban_hostname'], ':</strong><br />
 			&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="hostname" value="', $context['ban_suggestions']['hostname'], '" size="20" class="input_text" />
 		<p>';
 
 		echo '
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
+			<input type="checkbox" name="ban_suggestions[]" value="email" class="input_check" /> <strong>', $txt['wireless_ban_email'], ':</strong><br />
 			&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="20" class="input_text" />
 		</p>
 		<p class="windowbg">
-			<input type="checkbox" name="ban_suggestion[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
+			<input type="checkbox" name="ban_suggestions[]" value="user" class="input_check" /> <strong>', $txt['ban_on_username'], ':</strong><br />';
 
 		if (empty($context['ban_suggestions']['member']['id']))
 			echo '
