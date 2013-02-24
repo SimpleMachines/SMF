@@ -38,7 +38,7 @@ function ManagePostSettings()
 		'topics' => 'ModifyTopicSettings',
 	);
 
-	call_integration_hook('integrate_manage_posts', array($subActions));
+	call_integration_hook('integrate_manage_posts', array(&$subActions));
 
 	// Default the sub-action to 'posts'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'posts';
@@ -128,7 +128,7 @@ function SetCensor()
 			'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
 		);
 
-		call_integration_hook('integrate_save_censors', array($updates));
+		call_integration_hook('integrate_save_censors', array(&$updates));
 
 		updateSettings($updates);
 	}
@@ -200,7 +200,7 @@ function ModifyPostSettings($return_config = false)
 			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
 	);
 
-	call_integration_hook('integrate_modify_post_settings', array($config_vars));
+	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -275,7 +275,7 @@ function ModifyBBCSettings($return_config = false)
 	$context['settings_post_javascript'] = '
 		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
-	call_integration_hook('integrate_modify_bbc_settings', array($config_vars));
+	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -352,7 +352,7 @@ function ModifyTopicSettings($return_config = false)
 
 	);
 
-	call_integration_hook('integrate_modify_topic_settings', array($config_vars));
+	call_integration_hook('integrate_modify_topic_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

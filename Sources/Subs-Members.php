@@ -699,7 +699,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	);
 
 	// Call an optional function to validate the users' input.
-	call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, $knownInts, $knownFloats));
+	call_integration_hook('integrate_register', array(&$regOptions, &$theme_vars, &$knownInts, &$knownFloats));
 
 	$column_names = array();
 	$values = array();

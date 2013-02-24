@@ -42,7 +42,7 @@ function ManageSmileys()
 		'install' => 'InstallSmileySet'
 	);
 
-	call_integration_hook('integrate_manage_smileys', array($subActions));
+	call_integration_hook('integrate_manage_smileys', array(&$subActions));
 
 	// If customized smileys is disabled don't show the setting page
 	if (empty($modSettings['smiley_enable']))
@@ -143,7 +143,7 @@ function EditSmileySettings($return_config = false)
 			array('check', 'messageIcons_enable', 'subtext' => $txt['setting_messageIcons_enable_note']),
 	);
 
-	call_integration_hook('integrate_modify_smiley_settings', array($config_vars));
+	call_integration_hook('integrate_modify_smiley_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;

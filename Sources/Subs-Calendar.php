@@ -864,7 +864,7 @@ function insertEvent(&$eventOptions)
 		$eventOptions['start_date'], $eventOptions['end_date'],
 	);
 
-	call_integration_hook('integrate_create_event', array($eventOptions, $event_columns, $event_parameters));
+	call_integration_hook('integrate_create_event', array(&$eventOptions, &$event_columns, &$event_parameters));
 
 	// Insert the event!
 	$smcFunc['db_insert']('',
@@ -926,7 +926,7 @@ function modifyEvent($event_id, &$eventOptions)
 
 	// This is to prevent hooks to modify the id of the event
 	$real_event_id = $event_id;
-	call_integration_hook('integrate_modify_event', array($event_id, $eventOptions, $event_columns, $event_parameters));
+	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions, &$event_columns, &$event_parameters));
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}calendar
