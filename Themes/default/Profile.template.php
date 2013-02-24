@@ -49,11 +49,6 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-<div class="cat_bar">
-	<h3 class="catbg">
-		<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['summary'], '
-	</h3>
-</div>
 <div id="profileview" class="flow_auto">
 	<div id="basicinfo">
 		<div class="windowbg">
@@ -445,13 +440,6 @@ function template_showDrafts()
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/message_sm.png" alt="" class="icon" />
-					', $txt['drafts_show'], ' - ', $context['member']['name'], '
-				</span>
-			</h3>
-		</div>
 		<div class="pagesection" style="margin-bottom: 0;">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
@@ -1039,12 +1027,6 @@ function template_statPanel()
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
-	<div class="cat_bar">
-		<h3 class="catbg">
-			<img src="', $settings['images_url'], '/stats_info_hd.png" alt="" class="icon" />
-			', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
-		</h3>
-	</div>
 	<div id="profileview">
 		<div id="generalstats">
 			<div class="windowbg2">

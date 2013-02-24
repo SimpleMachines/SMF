@@ -61,6 +61,12 @@ function ReportsMain()
 	);
 
 	call_integration_hook('integrate_report_types');
+	// Load up all the tabs...
+	$context[$context['admin_menu_name']]['tab_data'] = array(
+		'title' => $txt['generate_reports'],
+		'help' => '',
+		'description' => $txt['generate_reports_desc'],
+	);
 
 	$is_first = 0;
 	foreach ($context['report_types'] as $k => $temp)

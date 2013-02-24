@@ -18,12 +18,6 @@ function template_report_type()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=reports" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['generate_reports'], '</h3>
-			</div>
-			<div class="information">
-				', $txt['generate_reports_desc'], '
-			</div>
 			<div id="generate_reports_type">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
@@ -67,7 +61,7 @@ function template_main()
 		</div>
 		<div id="report_buttons">';
 
-	if (!empty($context['report_buttons']) && !empty($settings['use_tabs']))
+	if (!empty($context['report_buttons']))
 		template_button_strip($context['report_buttons'], 'right');
 
 	echo '

@@ -42,6 +42,11 @@ function summary($memID)
 
 	// Are there things we don't show?
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
+	// Menu tab
+	$context[$context['profile_menu_name']]['tab_data'] = array(
+		'title' => $txt['summary'],
+		'icon' => 'profile_hd.png'
+	);
 
 	// See if they have broken any warning levels...
 	list ($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
@@ -951,6 +956,11 @@ function statPanel($memID)
 	$timeHours = floor(($user_profile[$memID]['total_time_logged_in'] % 86400) / 3600);
 	$context['time_logged_in'] = ($timeDays > 0 ? $timeDays . $txt['totalTimeLogged2'] : '') . ($timeHours > 0 ? $timeHours . $txt['totalTimeLogged3'] : '') . floor(($user_profile[$memID]['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged4'];
 	$context['num_posts'] = comma_format($user_profile[$memID]['posts']);
+	// Menu tab
+	$context[$context['profile_menu_name']]['tab_data'] = array(
+		'title' => $txt['statPanel_generalStats'] . ' - ' . $context['member']['name'],
+		'icon' => 'stats_info_hd.png'
+	);
 
 	// Number of topics started.
 	$result = $smcFunc['db_query']('', '
