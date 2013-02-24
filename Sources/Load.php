@@ -952,10 +952,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		$request = $smcFunc['db_query']('', '
 			SELECT' . $select_columns . '
 			FROM {db_prefix}members AS mem' . $select_tables . '
-			WHERE mem.' . ($is_name ? 'member_name' : 'id_member') . (count($users) == 1 ? ' = {' . ($is_name ? 'string' : 'int') . ':users}' : ' IN ({' . ($is_name ? 'array_string' : 'array_int') . ':users})'),
+			WHERE mem.' . ($is_name ? 'member_name' : 'id_member') . ' IN ({' . ($is_name ? 'array_string' : 'array_int') . ':users})',
 			array(
 				'blank_string' => '',
-				'users' => count($users) == 1 ? current($users) : $users,
+				'users' => $users,
 			)
 		);
 		$new_loaded_ids = array();
@@ -974,9 +974,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		$request = $smcFunc['db_query']('', '
 			SELECT *
 			FROM {db_prefix}themes
-			WHERE id_member' . (count($new_loaded_ids) == 1 ? ' = {int:loaded_ids}' : ' IN ({array_int:loaded_ids})'),
+			WHERE id_member IN ({array_int:loaded_ids})',
 			array(
-				'loaded_ids' => count($new_loaded_ids) == 1 ? $new_loaded_ids[0] : $new_loaded_ids,
+				'loaded_ids' => $new_loaded_ids,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1240,6 +1240,72 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	call_integration_hook('integrate_member_context', array(&$user, $display_custom_fields));
 	return true;
+}
+
+/**
+ * Loads the user's custom profile fields
+ *
+ * @param mixed $users either an integer or an array of integers
+ * @param mixed $param either a string or an array of strings with profile fields names
+ * @return array
+ */
+function loadMemberCustomFields($users, $params)
+{
+	global $smcFunc, $txt, $scripturl, $settings;
+
+	// Do not waste my time...
+	if (empty($users) || empty($params))
+		return false;
+
+	// Make sure it's an array.
+	$users = !is_array($users) ? array($users) : array_unique($users);
+	$params = !is_array($params) ? array($params) : array_unique($params);
+	$return = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT c.id_field, c.col_name, c.field_name, c.field_desc, c.field_type, c.field_length, c.field_options, c.mask, show_reg,
+		c.show_display, c.show_profile, c.private, c.active, c.bbc, c.can_search, c.default_value, c.enclose, c.placement, t.variable, t.value, t.id_member
+		FROM {db_prefix}themes AS t
+			LEFT JOIN {db_prefix}custom_fields AS c ON (c.col_name = t.variable)
+		WHERE id_member IN ({array_int:loaded_ids}) 
+			AND variable IN ({array_string:params})',
+		array(
+			'loaded_ids' => $users,
+			'params' => $params,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// BBC?
+		if (!empty($row['bbc']))
+			$row['value'] = parse_bbc($row['value']);
+
+		// ... or checkbox?
+		elseif (isset($row['type']) && $row['type'] == 'check')
+			$row['value'] = !empty($row['value']) ? $txt['yes'] : $txt['no'];
+
+		// Enclosing the user input within some other text?
+		if (!empty($row['enclose']))
+			$row['value'] = strtr($row['enclose'], array(
+				'{SCRIPTURL}' => $scripturl,
+				'{IMAGES_URL}' => $settings['images_url'],
+				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+				'{INPUT}' => $row['value'],
+			));
+
+		// Send a simple array if there is just 1 param
+		if (count($params) == 1)
+			$return[$row['id_member']] = $row;
+
+		// More than 1? knock yourself out...
+		else
+			$return[$row['id_member']][$row['id_field']] = $row;
+	}
+
+	$smcFunc['db_free_result']($request);
+
+	return !empty($return) ? $return : false;
 }
 
 /**
