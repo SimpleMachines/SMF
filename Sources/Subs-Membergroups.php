@@ -703,7 +703,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			'type' => $row['group_type'],
 			'num_members' => $row['num_members'],
 			'moderators' => array(),
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/stars/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
 		);
 
 		$context['can_moderate'] |= $row['can_moderate'];

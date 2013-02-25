@@ -269,11 +269,11 @@ function template_edit_group()
 							<label for="icon_count_input"><strong>', $txt['membergroups_icon_count'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" onkeyup="if (this.value.length > 2) this.value = 99;" onkeydown="this.onkeyup();" onchange="if (this.value != 0) this.form.icon_image.onchange();" class="input_text" />
+							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" class="input_text" />
 						</dd>';
         
         // Do we have any possible stars to select from?
-       	if (!empty($context['possibleStars']))
+       	if (!empty($context['possible_icons']))
        	{
        		echo '
 						<dt>
@@ -285,15 +285,15 @@ function template_edit_group()
 							<select name="icon_image" id="icon_image_input">';
 
 		// For every possible star, create an option.
-		foreach ($context['possibleStars'] as $star)
+		foreach ($context['possible_icons'] as $icon)
 		{
 			echo '
-								<option value="', $star, '"', $context['group']['icon_image'] == $star ? ' selected="selected"' : '', '>', $star, '</option>';
+								<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected="selected"' : '', '>', $icon, '</option>';
 		}
 	
 		echo '
 							</select>
-							<img id="star_preview" src="', $settings['images_url'], '/stars/', $context['group']['star_image'] == '' ? 'blank.png' : $context['group']['star_image'], '" alt="*" />
+							<img id="star_preview" src="" alt="*" />
 						</dd>';
 	}
 	
