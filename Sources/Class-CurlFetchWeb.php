@@ -39,7 +39,7 @@ if (!defined('SMF'))
 class curl_fetch_web_data
 {
 	/**
-	 * Set the default itmes for this class
+	 * Set the default items for this class
 	 *
 	 * @var type
 	 */
