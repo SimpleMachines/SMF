@@ -651,6 +651,9 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button_text'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
 		document.getElementById(this.opt.sSelf + '_split_button').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
+
+	if(typeof smf_fixButtonClass == 'function')
+		smf_fixButtonClass(this.opt.sButtonStrip);
 }
 
 InTopicModeration.prototype.handleSubmit = function (sSubmitType)

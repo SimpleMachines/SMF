@@ -60,8 +60,6 @@ addLoadEvent(smc_toggleImageDimensions);
 
 function smf_addButton(stripId, image, options)
 {
-	$('#' + stripId + ' ul li').last().removeClass("last");
-
 	$('#' + stripId + ' ul').append(
 		'<li' + ('sId' in options ? ' id="' + options.sId + '"' : '') + '>' +
 			'<a href="' + options.sUrl + '"' + ('sCustom' in options ? options.sCustom : '') + '>' +
