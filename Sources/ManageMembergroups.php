@@ -1109,10 +1109,9 @@ function EditMembergroup()
 		}
 	}
 	
-	// Insert our JS, if we have possible stars.
+	// Insert our JS, if we have possible icons.
 	if (!empty($context['possible_icons']))
-		$context['html_headers'] .= '
-	<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/stardropdown.js"></script>';
+		loadJavascriptFile('stardropdown.js', array('validate' => true));
 
 	// Finally, get all the groups this could be inherited off.
 	$request = $smcFunc['db_query']('', '
