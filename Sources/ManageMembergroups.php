@@ -1111,7 +1111,7 @@ function EditMembergroup()
 	
 	// Insert our JS, if we have possible icons.
 	if (!empty($context['possible_icons']))
-		loadJavascriptFile('stardropdown.js', array('validate' => true));
+		loadJavascriptFile('icondropdown.js', array('validate' => true));
 
 	// Finally, get all the groups this could be inherited off.
 	$request = $smcFunc['db_query']('', '
