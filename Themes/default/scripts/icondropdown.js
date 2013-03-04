@@ -18,7 +18,7 @@ $(document).ready(function()
 	
 	function refreshPreview()
 	{
-		// Get the star count element.
+		// Get the icon count element.
 		var icon_count = $('#icon_count_input');
 		var select_box = $('select#icon_image_input').val();
 	
@@ -26,8 +26,8 @@ $(document).ready(function()
 		if (icon_count.val() == 0 && select_box != 'blank.png')
 			icon_count.val(1);
 	
-		// Update the star preview.
-		$('#star_preview').attr('src', smf_default_theme_url + '/images/membericons/' + select_box);
+		// Update the icon preview.
+		$('#icon_preview').attr('src', smf_default_theme_url + '/images/membericons/' + select_box);
 	}
 	
 	refreshPreview();

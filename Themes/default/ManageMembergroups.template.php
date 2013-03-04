@@ -272,7 +272,7 @@ function template_edit_group()
 							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" class="input_text" />
 						</dd>';
         
-        // Do we have any possible stars to select from?
+        // Do we have any possible icons to select from?
        	if (!empty($context['possible_icons']))
        	{
        		echo '
@@ -284,7 +284,7 @@ function template_edit_group()
 							', $txt['membergroups_images_url'], '
 							<select name="icon_image" id="icon_image_input">';
 
-		// For every possible star, create an option.
+		// For every possible icon, create an option.
 		foreach ($context['possible_icons'] as $icon)
 		{
 			echo '
@@ -293,7 +293,7 @@ function template_edit_group()
 	
 		echo '
 							</select>
-							<img id="star_preview" src="" alt="*" />
+							<img id="icon_preview" src="" alt="*" />
 						</dd>';
 	}
 	
