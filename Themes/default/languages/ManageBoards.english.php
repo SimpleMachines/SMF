@@ -89,7 +89,7 @@ $txt['recycle_board_unselected_notice'] = 'You have enabled the recycling of top
 $txt['countChildPosts'] = 'Count child\'s posts in parent\'s totals';
 $txt['allow_ignore_boards'] = 'Allow boards to be ignored';
 $txt['deny_boards_access'] = 'Enable the option to deny board access based on membergroup';
-$txt['boardsaccess_option_desc'] = 'For each permission you can choose \'Allow\' (A), \'Disallow\' (X), or <span class="alert">\'Deny\' (D)</span>.<br /><br />If you deny access, any member - (including moderators) - in that group will be denied access.<br />For this reason, you should set deny carefully, only when <strong>necessary</strong>. Ignore, on the other hand, denies unless otherwise granted.';
+$txt['boardsaccess_option_desc'] = 'For each permission you can choose \'Allow\' (A), \'Disallow\' (X), or <span class="alert">\'Deny\' (D)</span>.<br /><br />If you deny access, any member - (including moderators) - in that group will be denied access.<br />For this reason, you should set deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
 $txt['mboards_select_destination'] = 'Select destination for board \'<strong>%1$s</strong>\'';
 $txt['mboards_cancel_moving'] = 'Cancel moving';
