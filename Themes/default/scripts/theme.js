@@ -60,20 +60,9 @@ addLoadEvent(smc_toggleImageDimensions);
 
 function smf_addButton(stripId, image, options)
 {
-	var strip = $('#' + stripId);
-	var anchorItems = $('#' + stripId + '.span');
+	$('#' + stripId + ' ul li').last().removeClass("last");
 
-	// Kill the class name "last" in the last item.
-	if (anchorItems.length > 0)
-	{
-		var lastSpan = anchorItems[anchorItems.length - 1];
-		var lastSpanClass = $(lastSpan).attr('class');
-		$(lastSpan).attr('class') = lastSpanClass.replace(/\s*last/, 'position_holder');
-	}
-
-	// Add in the new button!
-	var buttonStrip = strip.children('ul');
-	buttonStrip.append(
+	$('#' + stripId + ' ul').append(
 		'<li' + ('sId' in options ? ' id="' + options.sId + '"' : '') + '>' +
 			'<a href="' + options.sUrl + '"' + ('sCustom' in options ? options.sCustom : '') + '>' +
 				'<span class="last"' + ('sId' in options ? ' id="' + options.sId + '_text"' : '') + '>' + options.sText + '</span>' +
