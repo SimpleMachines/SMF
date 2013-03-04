@@ -651,22 +651,6 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button_text'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
 		document.getElementById(this.opt.sSelf + '_split_button').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
-
-	// Try to restore the correct position.
-	var aItems = document.getElementById(this.opt.sButtonStrip).getElementsByTagName('span');
-	if (aItems.length > 3)
-	{
-		if (this.iNumSelected < 1)
-		{
-			aItems[aItems.length - 3].className = aItems[aItems.length - 3].className.replace(/\s*position_holder/, 'last');
-			aItems[aItems.length - 2].className = aItems[aItems.length - 2].className.replace(/\s*position_holder/, 'last');
-		}
-		else
-		{
-			aItems[aItems.length - 2].className = aItems[aItems.length - 2].className.replace(/\s*last/, 'position_holder');
-			aItems[aItems.length - 3].className = aItems[aItems.length - 3].className.replace(/\s*last/, 'position_holder');
-		}
-	}
 }
 
 InTopicModeration.prototype.handleSubmit = function (sSubmitType)
