@@ -269,17 +269,40 @@ function template_edit_group()
 							<label for="icon_count_input"><strong>', $txt['membergroups_icon_count'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" onkeyup="if (this.value.length > 2) this.value = 99;" onkeydown="this.onkeyup();" onchange="if (this.value != 0) this.form.icon_image.onchange();" class="input_text" />
-						</dd>
+							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" class="input_text" />
+						</dd>';
+        
+        // Do we have any possible icons to select from?
+       	if (!empty($context['possible_icons']))
+       	{
+       		echo '
 						<dt>
 							<label for="icon_image_input"><strong>', $txt['membergroups_icon_image'], ':</strong></label><br />
 							<span class="smalltext">', $txt['membergroups_icon_image_note'], '</span>
 						</dt>
 						<dd>
 							', $txt['membergroups_images_url'], '
-							<input type="text" name="icon_image" id="icon_image_input" value="', $context['group']['icon_image'], '" onchange="if (this.value &amp;&amp; this.form.icon_count.value == 0) this.form.icon_count.value = 1; else if (!this.value) this.form.icon_count.value = 0; document.getElementById(\'star_preview\').src = smf_images_url + \'/\' + (this.value &amp;&amp; this.form.icon_count.value > 0 ? this.value.replace(/\$language/g, \'', $context['user']['language'], '\') : \'blank.png\');" size="20" class="input_text" />
-							<img id="star_preview" src="', $settings['images_url'], '/', $context['group']['icon_image'] == '' ? 'blank.png' : $context['group']['icon_image'], '" alt="*" />
-						</dd>
+							<select name="icon_image" id="icon_image_input">';
+
+		// For every possible icon, create an option.
+		foreach ($context['possible_icons'] as $icon)
+		{
+			echo '
+								<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected="selected"' : '', '>', $icon, '</option>';
+		}
+	
+		echo '
+							</select>
+							<img id="icon_preview" src="" alt="*" />
+						</dd>';
+	}
+	
+	// No? Hide the entire control.
+	else
+		echo '
+						<input type="hidden" name="icon_image" value="" />';
+						
+	echo '
 						<dt>
 							<label for="max_messages_input"><strong>', $txt['membergroups_max_messages'], ':</strong></label><br />
 							<span class="smalltext">', $txt['membergroups_max_messages_note'], '</span>
