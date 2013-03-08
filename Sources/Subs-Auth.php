@@ -202,7 +202,7 @@ function adminLogin($type = 'admin')
 
 	// Validate what type of session check this is.
 	$types = array();
-	call_integration_hook('integrate_validateSession', array($types));
+	call_integration_hook('integrate_validateSession', array(&$types));
 	$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
 
 	// They used a wrong password, log it and unset that.

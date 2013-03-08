@@ -882,7 +882,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	if (empty($users))
 		return false;
 
-	/* Pass the set value */
+	// Pass the set value
 	$context['loadMemberContext_set'] = $set;
 
 	// Make sure it's an array.

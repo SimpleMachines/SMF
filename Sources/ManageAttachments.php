@@ -557,7 +557,7 @@ function BrowseFiles()
  * @param int $start
  * @param int $items_per_page
  * @param string $sort
- * @param string $browse_type can be on eof 'avatars' or ... not. :P
+ * @param string $browse_type can be one of 'avatars' or ... not. :P
  */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
