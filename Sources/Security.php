@@ -34,7 +34,7 @@ function validateSession($type = 'admin')
 
 	// Validate what type of session check this is.
 	$types = array();
-	call_integration_hook('integrate_validateSession', array($types));
+	call_integration_hook('integrate_validateSession', array(&$types));
 	$type = in_array($type, $types) || $type == 'moderate' ? $type : 'admin';
 
 	// If we're using XML give an additional ten minutes grace as an admin can't log on in XML mode.
