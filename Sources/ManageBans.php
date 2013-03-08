@@ -874,7 +874,7 @@ function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id =
 		if (empty($ban_id))
 			addTriggers($ban_group, $ban_triggers['ban_triggers'], $ban_triggers['log_info']);
 		else
-			updateTriggers($ban_id, $ban_group, array_shift($ban_triggers['ban_triggers']), $ban_triggers['log_info'][0]);
+			updateTriggers($ban_id, $ban_group, array_shift($ban_triggers['ban_triggers']), $ban_triggers['log_info']);
 	}
 	if (!empty($context['ban_errors']))
 		return $triggers;
@@ -1186,14 +1186,6 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 	if (empty($group_id))
 		$context['ban_errors'][] = 'ban_group_id_empty';
 
-	$logCorrel = array(
-		'main_ip' => 'ip_range',
-		'hostname' => 'email',
-		'email' => 'email',
-		'user' => 'member',
-		'ip_range' => 'ip_range',
-	);
-
 	// Preset all values that are required.
 	$values = array(
 		'id_ban_group' => $group_id,
@@ -1269,13 +1261,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		array('id_ban')
 	);
 
-	// Log the addion of the ban entries into the moderation log.
-	foreach ($logs as $log)
-		logAction('ban', array(
-			$logCorrel[$log['bantype']] => $log['value'],
-			'new' => 1,
-			'type' => $log['bantype'],
-		));
+	logTriggersUpdates($logs, true);
 
 	return true;
 }
@@ -1350,12 +1336,38 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 			'ban_item' => $ban_item,
 		))
 	);
+
+	logTriggersUpdates($logs, false);
+}
+
+/**
+ * A small function to unify logging of triggers (updates and new)
+ *
+ * @param array $logs an array of logs, each log contains the following keys:
+ *                - bantype: a known type of ban (ip_range, hostname, email, user, main_ip)
+ *                - value: the value of the bantype (e.g. the IP or the email address banned)
+ * @param bool $new if the trigger is new or an update of an existing one
+ */
+function logTriggersUpdates($logs, $new = true)
+{
+	if (empty($logs))
+		return;
+
+	$log_name_map = array(
+		'main_ip' => 'ip_range',
+		'hostname' => 'hostname',
+		'email' => 'email',
+		'user' => 'member',
+		'ip_range' => 'ip_range',
+	);
+
 	// Log the addion of the ban entries into the moderation log.
-	logAction('ban', array(
-		$logCorrel[$log['bantype']] => $log['value'],
-		'new' => 0,
-		'type' => $log['bantype'],
-	));
+	foreach ($logs as $log)
+		logAction('ban', array(
+			$log_name_map[$log['bantype']] => $log['value'],
+			'new' => empty($new) ? 0 : 1,
+			'type' => $log['bantype'],
+		));
 }
 
 /**
