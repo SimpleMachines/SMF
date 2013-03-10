@@ -1091,13 +1091,17 @@ function PlushSearch2()
 					}
 					call_integration_hook('integrate_subject_only_search_query', array(&$subject_query, &$subject_query_params));
 
+					// Build the search relevance query
 					$relevance = '1000 * (';
 					foreach ($weight_factors as $type => $value)
 					{
-						$relevance .= $weight[$type];
-						if (!empty($value['results']))
-							$relevance .= ' * ' . $value['results'];
-						$relevance .= ' + ';
+						if (isset($value['results']))
+						{
+							$relevance .= $weight[$type];
+							if (!empty($value['results']))
+								$relevance .= ' * ' . $value['results'];
+							$relevance .= ' + ';
+						}
 					}
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 
