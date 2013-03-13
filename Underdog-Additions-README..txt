@@ -93,7 +93,7 @@ style_after   => for all types                      (string - adds style attribu
 
 style_before  => for all types                      (string - adds style attributes to text_before)
 
-value         => for all types                      (string - for textarea this will appear in the box)
+value         => for all types                      (string - for textarea it will appear in the box, else input value)
 
 width         => for all types                      (int)
 
