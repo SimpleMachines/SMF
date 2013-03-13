@@ -81,7 +81,7 @@ size          => for all types                      (int)
 
 src           => for image                          (int)
 
-style         => for all types                      (string - addes style attributes to value (internal) of textarea)
+style         => for all types                      (string - style attributes for input/textarea)
 
 tabindex      => for all types                      (int)
 
@@ -93,7 +93,7 @@ style_after   => for all types                      (string - adds style attribu
 
 style_before  => for all types                      (string - adds style attributes to text_before)
 
-value         => for all types                      (string - for textarea thsi will appear in the box)
+value         => for all types                      (string - for textarea this will appear in the box)
 
 width         => for all types                      (int)
 
