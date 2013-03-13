@@ -1107,8 +1107,8 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
                             continue;
                             
                         /* These looped values must first be null */
-                        $null_values = array(array(), false, false, false, false, false, false, false, 0, 0);
-                        list ($inputValues, $newType, $newTextAfter, $newTextBefore, $lineBreaks, $styleBefore, $styleAfter, $textArea, $breakCount, $newBreak) = $null_values;
+                        $null_values = array(array(), false, false, false, false, false, false, false, false, false, false, 0, 0);
+                        list ($inputValues, $newType, $newTextAfter, $newTextBefore, $lineBreaks, $styleBefore, $styleAfter, $textArea, $class, $classBefore, $classAfter, $breakCount, $newBreak) = $null_values;
                                                         
                         /* Now extract all new values into an array from the xml input tag */
                         $input_structures = explode('}{', $action->array[0]["value"]);
@@ -1130,6 +1130,9 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
                                                 'autofocus' => array('all', 'true'),
                                                 'break' => array('all', 'int'),
                                                 'checked' => array('radio, checkbox', 'true'),
+                                                'class' => array('all', 'string'),
+                                                'class_before' => array('all', 'string'),
+                                                'class_after' => array('all', 'string'),  
                                                 'cols' => array('textarea', 'int'),
                                                 'disable' => array('all', 'true'),
                                                 'height' => array('all', 'int'),
@@ -1197,7 +1200,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
                                         
                                         if ($command[1] == 'int')
                                             $value = (int)$value;
-                                        elseif ($command[1] == 'string' && $key != 'text_before' && $key != 'text_after' && $key != 'value' && $key != 'name')
+                                        elseif ($command[1] == 'string' && $key != 'text_before' && $key != 'text_after' && $key != 'value' && $key != 'name' && $key !='class_before' && $key != 'class_after' && $key != 'class')
                                             $value = strtolower($value);
                                         elseif ($command[1] == 'true')
                                             $value = 'true';                                        
@@ -1218,7 +1221,13 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
                                         elseif ($key == 'style_before')
                                             $styleBefore = $value;
                                         elseif ($key == 'style_after')
-                                            $styleAfter = $value;    
+                                            $styleAfter = $value; 
+                                        elseif ($key == 'class_before')
+                                            $classBefore = 'class="' . $value . '" ';
+                                        elseif ($key == 'class_after')
+                                            $classAfter = 'class="' . $value . '" ';
+                                        elseif ($key == 'class')
+                                            $class = 'class="' . $value . '" ';    
                                         elseif ($newType == 'textarea' && $key == 'value')
                                             $textArea = trim($value);
                                         else
@@ -1242,26 +1251,26 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
                                 }
                             }                  
                                                         
-                            /* Close the input/textarea and add it to the appropriate $context array */
+                             /* Close the input/textarea and add it to the appropriate $context array */
                             if ($newType == 'textarea')
-                            {
+                            {                         
                                 if ($styleBefore && $newTextBefore)
-                                    $newTextBefore = '<span style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
+                                    $newTextBefore = '<span ' . $classBefore . 'style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
                                 
                                 if ($styleAfter && $newTextAfter)
-                                    $newTextAfter = '<span style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
+                                    $newTextAfter = '<span ' . $classAfter . 'style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
                                     
-                                $context['new_package_inputs'][] = $newTextBefore . '<textarea ' . $inputString . '>' . $textArea . '</textarea>' . $newTextAfter . $lineBreaks;                                
+                                $context['new_package_inputs'][] = $newTextBefore . '<textarea ' . $class . $inputString . '>' . $textArea . '</textarea>' . $newTextAfter . $lineBreaks;                                
                             }                            
                             else
                             {
                                 if ($styleBefore && $newTextBefore)
-                                    $newTextBefore = '<span style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
+                                    $newTextBefore = '<span ' . $classBefore . 'style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
                                 
                                 if ($styleAfter && $newTextAfter)
-                                    $newTextAfter = '<span style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
+                                    $newTextAfter = '<span ' . $classAfter . 'style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
                                     
-                                $inputString .= '/>';                            
+                                $inputString .= ' ' . $class . '/>';                            
                                 $context['new_package_inputs'][] = $newTextBefore . $inputString . $newTextAfter . $lineBreaks;
                             }
                             
