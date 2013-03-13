@@ -1,4 +1,3 @@
-
 Changes:
 
 - added ability to use input and/or textarea HTML5 commands for uninstall/install template
@@ -22,7 +21,7 @@ Examples:
 Explanation:
 
   The commands are filtered in Subs-Packages.php in an attempt to thwart errors from the package-info.xml file. 
-Although it is up to the mod author to use the proper syntax, this was done to help ensure the xml code was entered correct;y/
+Although it is up to the mod author to use the proper syntax, this was done to help ensure the xml code was entered correctly.
 Each command has to be separated by encased hard brackets and their values must be in quotations. 
 Additional filtering can be added to thwart unnecessary white spaces in certain areas but as I said the mod author should use appropriate syntax.
 The command names and values are actual HTML5 syntax where some features were omitted as imo they do not apply for the packages template.
@@ -38,7 +37,7 @@ button, checkbox, color, date, datetime, datetime-local, email, hidden, image, m
 number, password, radio, range, reset, search, submit, tel, text, textarea, time, url, week 
 
 
-Allowed input/textare attributes:
+Allowed input/textarea attributes:
 alt           => for image                          (string)
 
 autocomplete  => for text, search, url, tel,        (string - on or off)
