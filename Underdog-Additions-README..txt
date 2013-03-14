@@ -14,8 +14,8 @@ Syntax
 ------
 
 Examples:
-<input>{type="checkbox"}{name="delete_tables"}{value="1"}{text_after="Remove all database tables related to this modification?"}{checked="false"}{break="2"}{style="position:relative;top:2px;"}</input>
-<input>{type="textarea"}{name="info"}{value="Comments"}{text_after="Enter your comments"}{style_after="position:relative;bottom:25px;color:blue;"}{style="color:red;"}{tabindex="5"}{rows="3"}{cols="50"}</input>
+<input>{type="checkbox"}{name="delete_tables"}{value="1"}{text_after="Remove all database tables related to this modification?"}{checked="false"}{break="2"}</input>
+<input>{type="textarea"}{name="info"}{value="Comments"}{text_after="Enter your comments"}{style_after="color:blue;"}{style="color:red;"}{tabindex="5"}{rows="3"}{cols="50"}</input>
 
 
 Explanation:
