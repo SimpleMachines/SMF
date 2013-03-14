@@ -1,0 +1,5 @@
+[alias]
+ci = commit
+cia = commit -a 
+co = checkout
+cob = checkout -b
