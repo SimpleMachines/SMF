@@ -54,6 +54,7 @@ function getBoardIndex($boardIndexOptions)
 			(IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, IFNULL(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse, IFNULL(cc.id_member, 0) AS is_collapsed,' : '')) . '
 			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg,
+			IFNULL(mods_grp.id_grp, 0) AS id_moderator_group, mods_grp.group_name AS mod_group_name,
 			IFNULL(mods_mem.id_member, 0) AS id_moderator, mods_mem.real_name AS mod_real_name' . (!empty($settings['avatars_on_indexes']) ? ',
 			IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
@@ -62,6 +63,8 @@ function getBoardIndex($boardIndexOptions)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})' . ($boardIndexOptions['include_categories'] ? '
 			LEFT JOIN {db_prefix}collapsed_categories AS cc ON (cc.id_cat = c.id_cat AND cc.id_member = {int:current_member})' : '')) . '
+			LEFT JOIN {db_prefix}moderator_groups AS mods_g ON (mods_g.id_board = b.id_board)
+			LEFT JOIN {db_prefix}membergroups AS mods_grp ON (mods_grp.id_group = mods_g.id_group)
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
 			LEFT JOIN {db_prefix}members AS mods_mem ON (mods_mem.id_member = mods.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
 			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = m.id_member)' : '') . '
@@ -137,6 +140,7 @@ function getBoardIndex($boardIndexOptions)
 					'name' => $row_board['board_name'],
 					'description' => $row_board['description'],
 					'moderators' => array(),
+					'moderators_groups' => array(),
 					'link_moderators' => array(),
 					'children' => array(),
 					'link_children' => array(),
@@ -160,6 +164,16 @@ function getBoardIndex($boardIndexOptions)
 					'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_board['id_moderator'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_real_name'] . '</a>'
 				);
 				$this_category[$row_board['id_board']]['link_moderators'][] = '<a href="' . $scripturl . '?action=profile;u=' . $row_board['id_moderator'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_real_name'] . '</a>';
+			}
+			if (!empty($row_board['id_moderator_group']))
+			{
+				$this_category[$row_board['id_board']]['moderator_groups'][$row_board['id_moderator_group']] = array(
+					'id' => $row_board['id_moderator_group'],
+					'name'=> $row_board['mod_group_name'],
+					'href' => $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'],
+					'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator_group'] . '">' . $row_board['mod_group_name'] . '</a>'
+				);
+				$this_category[$row_board['id_board']]['link_moderator_groups'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator_group'] . '">' . $row_board['mod_group_name'] . '</a>';
 			}
 		}
 		// Found a child board.... make sure we've found its parent and the child hasn't been set already.

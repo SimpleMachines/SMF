@@ -1523,6 +1523,16 @@ CREATE TABLE {$db_prefix}moderators (
 );
 
 #
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint NOT NULL default '0',
+  id_group smallint NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group)
+);
+
+#
 # Table structure for table `openid_assoc`
 #
 
