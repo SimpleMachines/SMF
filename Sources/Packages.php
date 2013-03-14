@@ -998,7 +998,13 @@ function PackageInstall()
 			{
 				// This is just here as reference for what is available.
 				global $txt, $boarddir, $sourcedir, $modSettings, $context, $settings, $forum_version, $smcFunc;
-
+				
+				$context['new_inputs'] = array();
+				if (!empty($_POST['new_inputs']))
+				{					
+					$context['new_inputs'] = $_POST['new_inputs'];				
+				}
+				
 				// Now include the file and be done with it ;).
 				if (file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
 					require($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']);
