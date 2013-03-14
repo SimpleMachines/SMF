@@ -1525,6 +1525,7 @@ function DeleteInstall()
 
 	// Now is the perfect time to fetch the SM files.
 	require_once($sourcedir . '/ScheduledTasks.php');
+	require_once($sourcedir . '/Logging.php');
 	// Sanity check that they loaded earlier!
 	if (isset($modSettings['recycle_board']))
 	{
