@@ -41,7 +41,7 @@ number, password, radio, range, reset, search, submit, tel, text, textarea, time
 
 Allowed input/textare attributes:
 ---------------------------------
-alt           => for image (string)
+alt           => for image                      (string)
 
 autocomplete  => for text, search, url, tel,    (string - on or off)
                  password, datepickers, range,
