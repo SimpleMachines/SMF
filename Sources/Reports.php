@@ -150,6 +150,15 @@ function BoardReport()
 		$moderators[$row['id_board']][] = $row['real_name'];
 	$smcFunc['db_free_result']($request);
 
+	// Get every moderator gruop.
+	$request = $smcFunc['db_query']('', '
+		SELECT modgs.id_board, modgs.id_group, memg.group_name
+		FROM {db_prefix}moderator_groups AS modgs
+			INNER JOIN {db_prefix}membergroups AS memg ON (memg.id_group = modgs.id_group)',
+		array(
+		)
+	);
+
 	// Get all the possible membergroups!
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name, online_color
@@ -173,6 +182,7 @@ function BoardReport()
 		'override_theme' => $txt['board_override_theme'],
 		'profile' => $txt['board_profile'],
 		'moderators' => $txt['board_moderators'],
+		'moderator_groups' => $txt['board_moderator_groups'],
 		'groups' => $txt['board_groups'],
 	);
 	if (!empty($modSettings['deny_boards_access']))
@@ -217,6 +227,7 @@ function BoardReport()
 			'profile' => $profile_name,
 			'override_theme' => $row['override_theme'] ? $txt['yes'] : $txt['no'],
 			'moderators' => empty($moderators[$row['id_board']]) ? $txt['none'] : implode(', ', $moderators[$row['id_board']]),
+			'moderator_groups' => empty($moderator_groups[$row['id_board']]) ? $txt['none'] : implode(', ', $moderators[$row['id_board']]),
 		);
 
 		// Work out the membergroups who can and cannot access it (but only if enabled).
