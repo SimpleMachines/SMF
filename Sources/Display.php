@@ -491,7 +491,7 @@ function Display()
 	{
 		// Add a link for each moderator group as well...
 		foreach ($board_info['moderator_groups'] as $mod_group)
-			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=viewmemberes;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator_group'] . '">' . $mod_group['name'] . '</a>';
+			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=viewmemberes;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
 
 

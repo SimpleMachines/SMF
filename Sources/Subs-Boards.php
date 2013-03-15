@@ -638,7 +638,7 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 
 	// Set moderators of this board.
-	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']))
+	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groupss']) || isset($boardOptions['moderator_group_string']))
 	{
 		// Reset current moderators for this board - if there are any!
 		$smcFunc['db_query']('', '
@@ -648,6 +648,7 @@ function modifyBoard($board_id, &$boardOptions)
 				'board_list' => $board_id,
 			)
 		);
+		
 
 		// Validate and get the IDs of the new moderators.
 		if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '')
@@ -698,7 +699,16 @@ function modifyBoard($board_id, &$boardOptions)
 				array('id_board', 'id_member')
 			);
 		}
-
+		
+		// Reset current moderator groups for this group - if there are any! 
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}moderator_groups
+			WHERE id_board = {int:board_list}',
+			array(
+				'board_list' => $board_id,
+			)
+		);
+		
 		// Validate and get the IDs of the new moderator groups.
 		if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '')
 		{
@@ -727,14 +737,14 @@ function modifyBoard($board_id, &$boardOptions)
 						AND min_posts = {int:min_posts}
 						AND group_type != {int:is_protected}
 						AND id_group != {int:mod_group}
-						AND is_hidden != {int:is_hidden}
+						AND is_hidden != {int:hidden}
 					LIMIT ' . count($moderator_groups),
 					array(
 						'moderator_group_list' => $moderator_groupss,
 						'min_posts' => -1,
 						'is_protected' => 1,
 						'mod_group' => 3,
-						'is_hidden' => 1,
+						'hidden' => 2,
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))

@@ -54,7 +54,7 @@ function getBoardIndex($boardIndexOptions)
 			(IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, IFNULL(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse, IFNULL(cc.id_member, 0) AS is_collapsed,' : '')) . '
 			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg,
-			IFNULL(mods_grp.id_grp, 0) AS id_moderator_group, mods_grp.group_name AS mod_group_name,
+			IFNULL(mods_grp.id_group, 0) AS id_moderator_group, mods_grp.group_name AS mod_group_name,
 			IFNULL(mods_mem.id_member, 0) AS id_moderator, mods_mem.real_name AS mod_real_name' . (!empty($settings['avatars_on_indexes']) ? ',
 			IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
@@ -171,9 +171,9 @@ function getBoardIndex($boardIndexOptions)
 					'id' => $row_board['id_moderator_group'],
 					'name'=> $row_board['mod_group_name'],
 					'href' => $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'],
-					'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator_group'] . '">' . $row_board['mod_group_name'] . '</a>'
+					'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_group_name'] . '</a>'
 				);
-				$this_category[$row_board['id_board']]['link_moderator_groups'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator_group'] . '">' . $row_board['mod_group_name'] . '</a>';
+				$this_category[$row_board['id_board']]['link_moderator_groups'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_group_name'] . '</a>';
 			}
 		}
 		// Found a child board.... make sure we've found its parent and the child hasn't been set already.

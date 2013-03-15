@@ -118,7 +118,7 @@ function MessageIndex()
 	{
 		// By default just tack the moderator groups onto the end of the members
 		foreach ($board_info['moderator_groups'] as $mod_group)
-			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $mod['id_moderator_group'] . '" title="' . $txt['board_moderator_group'] . '">' . $mod['mod_group_name'] . '</a>';
+			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
 	
 	// Now we tack the info onto the end of the linktree

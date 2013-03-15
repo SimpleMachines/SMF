@@ -616,7 +616,7 @@ function template_modify_board()
 		echo '
 					{
 						sItemId: ', JavaScriptEscape($id_group), ',
-						sItemName: ', JavaScriptEscape($member_name), '
+						sItemName: ', JavaScriptEscape($group_name), '
 					}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
 
 		echo '

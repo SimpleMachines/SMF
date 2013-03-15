@@ -638,8 +638,8 @@ function loadBoard()
 					$board_info['moderator_groups'][$row['id_moderator_group']] = array(
 						'id' => $row['id_moderator_group'],
 						'name' => $row['group_name'],
-						'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
-						'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '">' . $row['group_name'] . '</a>'
+						'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
+						'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
 					);
 			}
 			while ($row = $smcFunc['db_fetch_assoc']($request));
@@ -696,8 +696,11 @@ function loadBoard()
 
 	if (!empty($board))
 	{
+		// Get this into an array of keys for array_intersect
+		$moderator_groups = array_keys($board_info['moderator_groups']);
+		
 		// Now check if the user is a moderator.
-		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]) || count(array_intersect($user_info['groups'], $board_info['moderator_groups'])) != 0;
+		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]) || count(array_intersect($user_info['groups'], $moderator_groups)) != 0;
 
 		if (count(array_intersect($user_info['groups'], $board_info['groups'])) == 0 && !$user_info['is_admin'])
 			$board_info['error'] = 'access';

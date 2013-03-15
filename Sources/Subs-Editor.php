@@ -2250,8 +2250,8 @@ function AutoSuggest_Search_MemberGroups()
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE group_name LIKE {string:search}
-			AND min_posts = {int:min_posts},
-			AND group_type != {int:is_protected},
+			AND min_posts = {int:min_posts}
+			AND group_type != {int:is_protected}
 			AND id_group != {int:mod_group}
 			AND hidden != {int:hidden}
 		',
@@ -2259,7 +2259,7 @@ function AutoSuggest_Search_MemberGroups()
 			'min_posts' => -1,
 			'is_protected' => 1,
 			'mod_group' => 3,
-			'hidden' => 1,
+			'hidden' => 2,
 			'search' => $_REQUEST['search'],
 		)
 	);
