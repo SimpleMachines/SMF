@@ -1,7 +1,6 @@
-
 Changes:
 --------
-- added ability to use input and/or textarea HTML5 commands for uninstall/install template
+Adds ability to use input and/or textarea HTML5 commands for uninstall/install template
 
 
 Files affected:
@@ -49,7 +48,7 @@ autocomplete  => for text, search, url, tel,    (string - on or off)
 
 autofocus     => for all types                  (true)
 
-break         => for all types                  (integer - inserts additional line breaks after the input/textarea)
+break         => for all types                  (int - inserts additional line breaks after the input/textarea)
 
 checked       => for radio, checkbox            (true)
 
@@ -59,13 +58,13 @@ class_before  => for all types                  (string - css class for text_bef
 
 class_after   => for all types                  (string - css class for text_after)
 
-cols          => for textarea                   (integer)
+cols          => for textarea                   (int)
 
 disable       => for all types                  (true)
 
-height        => for all types                  (integer)
+height        => for all types                  (int)
 
-maxlength     => for all types                  (integer)
+maxlength     => for all types                  (int)
 
 name          => for all types                  (string)
 
@@ -79,13 +78,13 @@ required      => for text, search, url, tel,    (true)
                  number, checkbox, radio,
                  textarea
 
-rows          => for textarea                   (integer)
+rows          => for textarea                   (int)
 
 size          => for all types                  (int)
 
 src           => for image                      (int)
 
-style         => for all types                  (string - addes style attributes to value (internal) of textarea)
+style         => for all types                  (string - adds style attributes to input/textarea)
 
 tabindex      => for all types                  (int)
 
@@ -97,7 +96,7 @@ style_after   => for all types                  (string - adds style attributes 
 
 style_before  => for all types                  (string - adds style attributes to text_before)
 
-value         => for all types                  (string - for textarea thsi will appear in the box)
+value         => for all types                  (string - for textarea this will appear in the box)
 
 width         => for all types                  (int)
 
