@@ -638,7 +638,7 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 
 	// Set moderators of this board.
-	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']))
+	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groupss']) || isset($boardOptions['moderator_group_string']))
 	{
 		// Reset current moderators for this board - if there are any!
 		$smcFunc['db_query']('', '
@@ -648,6 +648,7 @@ function modifyBoard($board_id, &$boardOptions)
 				'board_list' => $board_id,
 			)
 		);
+		
 
 		// Validate and get the IDs of the new moderators.
 		if (isset($boardOptions['moderator_string']) && trim($boardOptions['moderator_string']) != '')
@@ -698,7 +699,75 @@ function modifyBoard($board_id, &$boardOptions)
 				array('id_board', 'id_member')
 			);
 		}
+		
+		// Reset current moderator groups for this group - if there are any! 
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}moderator_groups
+			WHERE id_board = {int:board_list}',
+			array(
+				'board_list' => $board_id,
+			)
+		);
+		
+		// Validate and get the IDs of the new moderator groups.
+		if (isset($boardOptions['moderator_group_string']) && trim($boardOptions['moderator_group_string']) != '')
+		{
+			// Divvy out the membergroups, remove extra space.
+			$moderator_group_string = strtr($smcFunc['htmlspecialchars']($boardOptions['moderator_group_string'], ENT_QUOTES), array('&quot;' => '"'));
+			preg_match_all('~"([^"]+)"~', $moderator_group_string, $matches);
+			$moderator_groups = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)));
+			for ($k = 0, $n = count($moderator_groups); $k < $n; $k++)
+			{
+				$moderator_groups[$k] = trim($moderator_groups[$k]);
 
+				if (strlen($moderator_groups[$k]) == 0)
+					unset($moderator_groups[$k]);
+			}
+
+			// Find all the id_group's for the group_name's in the list.
+			if (empty($boardOptions['moderator_groups']))
+				$boardOptions['moderator_groups'] = array();
+			if (!empty($moderator_groups))
+			{
+				// Only non-post-based groups which are not "Protected" and are "Visible"
+				$request = $smcFunc['db_query']('', '
+					SELECT id_group
+					FROM {db_prefix}membergroups
+					WHERE group_name IN ({array_string:moderator_group_list})
+						AND min_posts = {int:min_posts}
+						AND group_type != {int:is_protected}
+						AND id_group != {int:mod_group}
+						AND is_hidden != {int:hidden}
+					LIMIT ' . count($moderator_groups),
+					array(
+						'moderator_group_list' => $moderator_groupss,
+						'min_posts' => -1,
+						'is_protected' => 1,
+						'mod_group' => 3,
+						'hidden' => 2,
+					)
+				);
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$boardOptions['moderator_groups'][] = $row['id_group'];
+				$smcFunc['db_free_result']($request);
+			}
+		}
+
+		// Add the moderator groups to the board.
+		if (!empty($boardOptions['moderator_groups']))
+		{
+			$inserts = array();
+			foreach ($boardOptions['moderator_groups'] as $moderator_group)
+				$inserts[] = array($board_id, $moderator_group);
+
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}moderator_groups',
+				array('id_board' => 'int', 'id_group' => 'int'),
+				$inserts,
+				array('id_board', 'id_group')
+			);
+		}
+		
 		// Note that caches can now be wrong!
 		updateSettings(array('settings_updated' => time()));
 	}
@@ -903,6 +972,15 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 	// Delete this board's moderators.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}moderators
+		WHERE id_board IN ({array_int:boards_to_remove})',
+		array(
+			'boards_to_remove' => $boards_to_remove,
+		)
+	);
+
+	// Delete this board's moderator groups.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}moderator_groups
 		WHERE id_board IN ({array_int:boards_to_remove})',
 		array(
 			'boards_to_remove' => $boards_to_remove,

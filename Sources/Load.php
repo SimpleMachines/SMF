@@ -543,7 +543,7 @@ function loadBoard()
 	// Load this board only if it is specified.
 	if (empty($board) && empty($topic))
 	{
-		$board_info = array('moderators' => array());
+		$board_info = array('moderators' => array(), 'moderator_groups' => array());
 		return;
 	}
 
@@ -567,7 +567,8 @@ function loadBoard()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
-				b.id_parent, c.name AS cname, IFNULL(mem.id_member, 0) AS id_moderator,
+				b.id_parent, c.name AS cname, IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name,
+				IFNULL(mem.id_member, 0) AS id_moderator,
 				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
 				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
 				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
@@ -575,7 +576,9 @@ function loadBoard()
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})' : '') . '
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})
+				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = {raw:board_link})
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
+				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)
 			WHERE b.id_board = {raw:board_link}',
 			array(
 				'current_topic' => $topic,
@@ -630,6 +633,14 @@ function loadBoard()
 						'href' => $scripturl . '?action=profile;u=' . $row['id_moderator'],
 						'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
 					);
+
+				if (!empty($row['id_moderator_group']))
+					$board_info['moderator_groups'][$row['id_moderator_group']] = array(
+						'id' => $row['id_moderator_group'],
+						'name' => $row['group_name'],
+						'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
+						'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
+					);
 			}
 			while ($row = $smcFunc['db_fetch_assoc']($request));
 
@@ -671,6 +682,7 @@ function loadBoard()
 			// Otherwise the topic is invalid, there are no moderators, etc.
 			$board_info = array(
 				'moderators' => array(),
+				'moderator_groups' => array(),
 				'error' => 'exist'
 			);
 			$topic = null;
@@ -684,8 +696,11 @@ function loadBoard()
 
 	if (!empty($board))
 	{
+		// Get this into an array of keys for array_intersect
+		$moderator_groups = array_keys($board_info['moderator_groups']);
+		
 		// Now check if the user is a moderator.
-		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]);
+		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]) || count(array_intersect($user_info['groups'], $moderator_groups)) != 0;
 
 		if (count(array_intersect($user_info['groups'], $board_info['groups'])) == 0 && !$user_info['is_admin'])
 			$board_info['error'] = 'access';
@@ -1861,7 +1876,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  * What it does:
  * 	- loads the sub template specified by sub_template_name, which must be in an already-loaded template.
  *  - if ?debug is in the query string, shows administrators a marker after every sub template
- *    for debugging purposes.
+ *	for debugging purposes.
  *
  * @todo get rid of reading $_REQUEST directly
  *
@@ -1948,7 +1963,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
- *    default theme if not found in the current theme
+ *	default theme if not found in the current theme
  *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
@@ -2289,7 +2304,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  * What this function does:
  *  - it censors the passed string.
  *  - if the theme setting allow_no_censored is on, and the theme option
- *    show_no_censored is enabled, does not censor, unless force is also set.
+ *	show_no_censored is enabled, does not censor, unless force is also set.
  *  - it caches the list of censored words to reduce parsing.
  *
  * @param string &$text
@@ -2617,13 +2632,13 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It may "miss" so shouldn't be depended on
  * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
- *     Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
- *     Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
- *     memcache: http://www.php.net/memcache
- *     APC: http://www.php.net/apc
- *     eAccelerator: http://bart.eaccelerator.net/doc/phpdoc/
- *     Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
- *     Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
+ *	 Turck MMCache: http://turck-mmcache.sourceforge.net/index_old.html#api
+ *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
+ *	 memcache: http://www.php.net/memcache
+ *	 APC: http://www.php.net/apc
+ *	 eAccelerator: http://bart.eaccelerator.net/doc/phpdoc/
+ *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
+ *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
  * @param string $key
  * @param mixed $value
