@@ -572,7 +572,28 @@ function ReportToModerator2()
 	while ($row = $smcFunc['db_fetch_assoc']($request2))
 		$real_mods[] = $row['id_member'];
 	$smcFunc['db_free_result']($request2);
+	
+	// Get any additional members who are in groups assigned to moderate this board
+	$request3 = $smcFunc['db_query']('', '
+		SELECT mem.id_member
+		FROM {db_prefix}members AS mem, {db_prefix}moderator_groups AS bm
+		WHERE bm.id_board = {int:current_board}
+			AND(
+				mem.id_group = bm.id_group
+				OR FIND_IN_SET(bm.id_group, mem.additional_groups) != 0
+			)',
+		array(
+			'current_board' => $board,
+		)
+	);
 
+	while ($row = $smcFunc['db_fetch_assoc']($request2))
+		$real_mods[] = $row['id_member'];
+	$smcFunc['db_free_result']($request2);
+	
+	// Make sure we don't have any duplicates
+	$real_mods = array_unique($real_mods);
+	
 	// Send every moderator an email.
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
