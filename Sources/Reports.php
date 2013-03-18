@@ -441,12 +441,9 @@ function BoardPermissionsReport()
 					$curData[$id_group] = $group_permissions[$ID_PERM];
 				}
 				// Is it inherited from Moderator?
-				elseif (in_array($id_group, $boards[$board]['mod_groups']))
+				elseif (in_array($id_group, $boards[$board]['mod_groups']) && !empty($groups[3]) && isset($groups[3][$ID_PERM]))
 				{
-					if (!empty($groups[3]) && isset($groups[3][$ID_PERM]))
-					{
-						$curData[$id_group] = $groups[3][$ID_PERM];
-					}
+					$curData[$id_group] = $groups[3][$ID_PERM];
 				}
 				// Otherwise means it's set to disallow..
 				else
