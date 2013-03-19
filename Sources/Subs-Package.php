@@ -1183,11 +1183,8 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
                                             $newTextBefore = $value . ' ';
                                         elseif ($key == 'text_after')
                                             $newTextAfter = ' ' . $value;
-                                        elseif ($key == 'name')
-                                        {
-                                            
-                                            $inputString .= $setCommand . '="new_inputs['.$value.']" ';                                        
-                                        }
+                                        elseif ($key == 'name')                                                                                
+                                            $inputString .= $setCommand . '="new_inputs['.$value.']" ';                                            
                                         elseif ($value == 'true')
                                             $inputString .= $setCommand . ' ';
                                         elseif ($key == 'style_before')
