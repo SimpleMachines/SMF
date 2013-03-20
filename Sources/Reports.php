@@ -392,7 +392,7 @@ function BoardPermissionsReport()
 		foreach ($boards as $id => $board)
 			if ($board['profile'] == $row['id_profile'])
 				$board_permissions[$id][$row['id_group']][$row['permission']] = $row['add_deny'];
-		
+
 		// Make sure we get every permission.
 		if (!isset($permissions[$row['permission']]))
 		{
@@ -400,7 +400,7 @@ function BoardPermissionsReport()
 			$permissions[$row['permission']] = array(
 				'title' => isset($txt['board_perms_name_' . $row['permission']]) ? $txt['board_perms_name_' . $row['permission']] : $row['permission'],
 			);
-		}		
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
