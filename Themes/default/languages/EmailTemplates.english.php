@@ -298,7 +298,7 @@ Unsubscribe to new topics from this board by using this link:
 
 /**
 	@additional_params: request_membership
-		RECPNAME: The name of the person recieving the email
+		RECPNAME: The name of the person receiving the email
 		APPYNAME: The name of the person applying for group membership
 		GROUPNAME: The name of the group being applied to.
 		REASON: The reason given by the applicant for wanting to join the group.

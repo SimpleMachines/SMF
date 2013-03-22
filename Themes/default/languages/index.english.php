@@ -103,7 +103,7 @@ $txt['next'] = 'next page';
 
 $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
-$txt['error_occured'] = 'An Error Has Occurred';
+$txt['error_occurred'] = 'An Error Has Occurred';
 $txt['at'] = 'at';
 $txt['logout'] = 'Logout';
 $txt['started_by'] = 'Started by';

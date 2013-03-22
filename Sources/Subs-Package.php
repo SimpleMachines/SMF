@@ -2743,7 +2743,7 @@ function package_chmod($filename, $perm_state = 'writable', $track_change = fals
 		{
 			$chmod_file = $filename;
 
-			// Start off with a less agressive test.
+			// Start off with a less aggressive test.
 			if ($i == 0)
 			{
 				// If this file doesn't exist, then we actually want to look at whatever parent directory does.

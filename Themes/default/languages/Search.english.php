@@ -114,7 +114,7 @@ $txt['spider_mode_note'] = 'Note higher level tracking increases server resource
 $txt['spider_mode_off'] = 'Disabled';
 $txt['spider_mode_standard'] = 'Standard';
 $txt['spider_mode_high'] = 'Moderate';
-$txt['spider_mode_vhigh'] = 'Agressive';
+$txt['spider_mode_vhigh'] = 'Aggressive';
 $txt['spider_settings_desc'] = 'You can change settings for spider tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up <a href="%1$s">here</a>';
 
 $txt['spider_group'] = 'Apply restrictive permissions from group';

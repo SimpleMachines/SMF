@@ -55,7 +55,7 @@ function loadProfileFields($force_reload = false)
 								Return types:
 					- true:			Element can be stored.
 					- false:		Skip this element.
-					- a text string:	An error occured - this is the error message.
+					- a text string:	An error occurred - this is the error message.
 
 				function $preload:		A function that is used to load data required for this element to be displayed. Must return
 								true to be displayed at all.
@@ -831,7 +831,7 @@ function saveProfileFields()
 		if (isset($field['input_validate']))
 		{
 			$is_valid = $field['input_validate']($_POST[$key]);
-			// An error occured - set it as such!
+			// An error occurred - set it as such!
 			if ($is_valid !== true)
 			{
 				// Is this an actual error?

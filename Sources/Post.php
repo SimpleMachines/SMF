@@ -908,7 +908,7 @@ function Post($post_errors = array())
 					break;
 				}
 
-				// Show any errors which might of occured.
+				// Show any errors which might of occurred.
 				if (!empty($attachment['errors']))
 				{
 					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br />' : '';
@@ -2021,7 +2021,7 @@ function Post2()
 
 		loadTemplate('Errors');
 		$context['sub_template'] = 'attachment_errors';
-		$context['page_title'] = $txt['error_occured'];
+		$context['page_title'] = $txt['error_occurred'];
 
 		$context['error_message'] = '<dl>';
 		$context['error_message'] .= implode("\n", $attach_errors);
