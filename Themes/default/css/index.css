@@ -1487,7 +1487,7 @@ ul li.greeting {
 }
 /* News section. */
 #inner_wrap .news {
-	width: 50%;
+	max-width: 50%;
 	max-width: 27em;
 	float: right;
 	overflow: auto;
