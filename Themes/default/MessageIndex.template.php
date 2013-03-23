@@ -180,7 +180,7 @@ function template_main()
 		}
 	echo '
 
-		<table class="table_grid" cellspacing="0">
+		<table class="table_grid" style="border-spacing: 0; border-collapse: collapse;">
 			<thead>
 				<tr class="catbg">';
 
@@ -188,33 +188,33 @@ function template_main()
 		if (!empty($context['topics']))
 		{
 			echo '
-					<th scope="col" class="first_th" width="4%">&nbsp;</th>
+					<th scope="col" class="first_th" style="width: 4%;">&nbsp;</th>
 					<th scope="col" class="lefttext">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</th>
-					<th scope="col" class="stats" width="14%">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
+					<th scope="col" class="stats" style="width: 14%;">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
 			// Show a "select all" box for quick moderation?
 			if (empty($context['can_quick_mod']))
 				echo '
-					<th scope="col" class="lefttext last_th" width="22%">', $context['topics_headers']['last_post'], '</th>';
+					<th scope="col" class="lefttext last_th" style="width: 22%;">', $context['topics_headers']['last_post'], '</th>';
 			else
 				echo '
-					<th scope="col" class="lefttext" width="22%">', $context['topics_headers']['last_post'], '</th>';
+					<th scope="col" class="lefttext" style="width: 22%;">', $context['topics_headers']['last_post'], '</th>';
 
 			// Show a "select all" box for quick moderation?
 			if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-					<th scope="col" class="last_th" width="24"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" /></th>';
+					<th scope="col" class="last_th" style="width: 24px;"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" /></th>';
 
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-					<th class="last_th" width="4%">&nbsp;</th>';
+					<th class="last_th" style="width: 4%;">&nbsp;</th>';
 		}
 		// No topics.... just say, "sorry bub".
 		else
 			echo '
-					<th scope="col" class="first_th" width="8%">&nbsp;</th>
+					<th scope="col" class="first_th" style="width: 8%;">&nbsp;</th>
 					<th colspan="3"><strong>', $txt['msg_alert_none'], '</strong></th>
-					<th scope="col" class="last_th" width="8%">&nbsp;</th>';
+					<th scope="col" class="last_th" style="width: 8%;">&nbsp;</th>';
 
 		echo '
 				</tr>
@@ -299,19 +299,19 @@ function template_main()
 				{
 					// Check permissions on each and show only the ones they are allowed to use.
 					if ($topic['quick_mod']['remove'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><img src="', $settings['images_url'], '/icons/quick_remove.png" width="16" alt="', $txt['remove_topic'], '" title="', $txt['remove_topic'], '" /></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><img src="', $settings['images_url'], '/icons/quick_remove.png" style="width: 16px;" alt="', $txt['remove_topic'], '" title="', $txt['remove_topic'], '" /></a>';
 
 					if ($topic['quick_mod']['lock'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><img src="', $settings['images_url'], '/icons/quick_lock.png" width="16" alt="', $txt['set_lock'], '" title="', $txt['set_lock'], '" /></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><img src="', $settings['images_url'], '/icons/quick_lock.png" style="width: 16px;" alt="', $txt['set_lock'], '" title="', $txt['set_lock'], '" /></a>';
 
 					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 						echo '<br />';
 
 					if ($topic['quick_mod']['sticky'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><img src="', $settings['images_url'], '/icons/quick_sticky.png" width="16" alt="', $txt['set_sticky'], '" title="', $txt['set_sticky'], '" /></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><img src="', $settings['images_url'], '/icons/quick_sticky.png" style="width: 16px;" alt="', $txt['set_sticky'], '" title="', $txt['set_sticky'], '" /></a>';
 
 					if ($topic['quick_mod']['move'])
-						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><img src="', $settings['images_url'], '/icons/quick_move.png" width="16" alt="', $txt['move_topic'], '" title="', $txt['move_topic'], '" /></a>';
+						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><img src="', $settings['images_url'], '/icons/quick_move.png" style="width: 16px;"  alt="', $txt['move_topic'], '" title="', $txt['move_topic'], '" /></a>';
 				}
 				echo '
 					</td>';
@@ -386,7 +386,7 @@ function template_main()
 			</p>';
 
 	echo '
-			<script type="text/javascript"><!-- // --><![CDATA[';
+			<script><!-- // --><![CDATA[';
 
 	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
 		echo '
@@ -429,7 +429,7 @@ function template_main()
 	// Javascript for inline editing.
 	echo '
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
-<script type="text/javascript"><!-- // --><![CDATA[
+<script><!-- // --><![CDATA[
 	var oQuickModifyTopic = new QuickModifyTopic({
 		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
 		bMouseOnDiv: false,

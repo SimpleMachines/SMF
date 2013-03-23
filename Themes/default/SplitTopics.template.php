@@ -154,7 +154,7 @@ function template_select()
 			</div>
 		</form>
 	</div>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var start = new Array();
 		start[0] = ', $context['not_selected']['start'], ';
 		start[1] = ', $context['selected']['start'], ';
@@ -355,14 +355,14 @@ function template_merge_extra_options()
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['merge_topic_list'], '</h3>
 			</div>
-			<table width="100%" class="bordercolor table_grid">
+			<table class="bordercolor table_grid" style="width: 100%;">
 				<thead>
 					<tr class="catbg">
-						<th scope="col" class="first_th" align="center" width="10px">', $txt['merge_check'], '</th>
+						<th scope="col" class="first_th" align="center" style="width: 10px;">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>
 						<th scope="col" class="lefttext">', $txt['last_post'], '</th>
-						<th scope="col" class="last_th" width="20px">' . $txt['merge_include_notifications'] . '</th>
+						<th scope="col" class="last_th" style="width: 20px;">' . $txt['merge_include_notifications'] . '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -370,21 +370,21 @@ function template_merge_extra_options()
 			echo '
 					<tr class="windowbg2">
 						<td align="center">
-							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked="checked" />
+							<input type="checkbox" class="input_check" name="topics[]" value="', $topic['id'], '" checked="checked" />
 						</td>
 						<td>
-							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" class="new_win">' . $topic['subject'] . '</a>
+							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" class="new_win">', $topic['subject'], '</a>
 						</td>
 						<td>
 							', $topic['started']['link'], '<br />
 							<span class="smalltext">', $topic['started']['time'], '</span>
 						</td>
 						<td>
-							' . $topic['updated']['link'] . '<br />
+							', $topic['updated']['link'], '<br />
 							<span class="smalltext">', $topic['updated']['time'], '</span>
 						</td>
 						<td align="center">
-							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked="checked" />
+							<input type="checkbox" class="input_check" name="notifications[]" value="', $topic['id'], '" checked="checked" />
 						</td>
 					</tr>';
 		echo '
@@ -400,7 +400,7 @@ function template_merge_extra_options()
 						<select name="subject" onchange="this.form.custom_subject.style.display = (this.options[this.selectedIndex].value != 0) ? \'none\': \'\' ;">';
 	foreach ($context['topics'] as $topic)
 		echo '
-							<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected="selected"' : '') . '>', $topic['subject'], '</option>';
+							<option value="', $topic['id'], '"', $topic['selected'] ? ' selected="selected"' : '', '>', $topic['subject'], '</option>';
 	echo '
 							<option value="0">', $txt['merge_custom_subject'], ':</option>
 						</select>

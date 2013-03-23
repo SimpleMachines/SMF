@@ -21,7 +21,7 @@ function template_profile_above()
 	// Prevent Chrome from auto completing fields when viewing/editing other members profiles
 	if (isBrowser('is_chrome') && !$context['user']['is_owner'])
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		disableAutoComplete();
 	// ]]></script>';
 
@@ -514,9 +514,9 @@ function template_editBuddies()
 				<img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '
 			</h3>
 		</div>
-		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
+		<table cellspacing="1" cellpadding="4" class="table_grid" align="center" style="width: 100%; border: 0px;">
 			<tr class="catbg">
-				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
+				<th class="first_th" scope="col" style="width: 20%;">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 	if ($context['can_send_email'])
 		echo '
@@ -599,8 +599,8 @@ function template_editBuddies()
 			</div>
 		</div>
 	</form>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
+	<script><!-- // --><![CDATA[
 		var oAddBuddySuggest = new smc_AutoSuggest({
 			sSelf: \'oAddBuddySuggest\',
 			sSessionId: smf_session_id,
@@ -626,9 +626,9 @@ function template_editIgnoreList()
 				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['editIgnoreList'], '
 			</h3>
 		</div>
-		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
+		<table cellspacing="1" cellpadding="4" class="table_grid" align="center" style="width: 100%; border: 0px;">
 			<tr class="catbg">
-				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
+				<th class="first_th" scope="col" style="width: 20%;">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 	if ($context['can_send_email'])
 		echo '
@@ -702,7 +702,7 @@ function template_editIgnoreList()
 		</div>
 	</form>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddIgnoreSuggest\',
 			sSessionId: \'', $context['session_id'], '\',
@@ -832,7 +832,7 @@ function template_trackIP()
 	else
 	{
 		echo '
-		<table class="table_grid" cellspacing="0" width="100%">
+		<table class="table_grid" cellspacing="0" style="width: 100%;">
 			<thead>
 				<tr class="catbg">
 					<th class="first_th" scope="col">', $txt['ip_address'], '</th>
@@ -912,11 +912,11 @@ function template_showPermissions()
 		if (!empty($context['member']['permissions']['general']))
 		{
 			echo '
-					<table class="table_grid" width="100%" cellspacing="0">
+					<table class="table_grid" cellspacing="0" style="width: 100%;">
 						<thead>
 							<tr class="titlebg">
-								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-								<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+								<th class="lefttext first_th" scope="col" style="width: 50%;">', $txt['showPermissions_permission'], '</th>
+								<th class="lefttext last_th" scope="col" style="width: 50%;">', $txt['showPermissions_status'], '</th>
 							</tr>
 						</thead>
 						<tbody>';
@@ -976,11 +976,11 @@ function template_showPermissions()
 		if (!empty($context['member']['permissions']['board']))
 		{
 			echo '
-				<table class="table_grid" width="100%" cellspacing="0">
+				<table class="table_grid" cellspacing="0" style="width: 100%;">
 					<thead>
 						<tr class="titlebg">
-							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-							<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+							<th class="lefttext first_th" scope="col" style="width: 50%;">', $txt['showPermissions_permission'], '</th>
+							<th class="lefttext last_th" scope="col" style="width: 50%;">', $txt['showPermissions_status'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -1233,7 +1233,7 @@ function template_edit_options()
 		{
 			echo '
 					</dl>
-					<hr width="100%" size="1" class="hrcolor clear" />
+					<hr class="hrcolor clear" style="width: 100%; height: 1px;" />
 					<dl>';
 		}
 		elseif ($field['type'] == 'callback')
@@ -1321,7 +1321,7 @@ function template_edit_options()
 	{
 		if ($lastItem != 'hr')
 			echo '
-					<hr width="100%" size="1" class="hrcolor clear" />';
+					<hr class="hrcolor clear" style="width: 100%; height: 1px;" />';
 
 		echo '
 					<dl>';
@@ -1383,7 +1383,7 @@ function template_edit_options()
 
 	// Some javascript!
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			function checkProfileSubmit()
 			{';
 
@@ -1828,7 +1828,7 @@ function template_groupMembership()
 	else
 	{
 		echo '
-			<table border="0" width="100%" cellspacing="0" cellpadding="4" class="table_grid">
+			<table cellspacing="0" cellpadding="4" class="table_grid" style="width: 100%; border: 0px;">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th" scope="col" ', $context['can_edit_primary'] ? ' colspan="2"' : '', '>', $txt['current_membergroups'], '</th>
@@ -1845,7 +1845,7 @@ function template_groupMembership()
 
 				if ($context['can_edit_primary'])
 					echo '
-						<td width="4%">
+						<td style="width: 4%;">
 							<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '" ', $group['is_primary'] ? 'checked="checked"' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');" ', $group['can_be_primary'] ? '' : 'disabled="disabled"', ' class="input_radio" />
 						</td>';
 
@@ -1853,7 +1853,7 @@ function template_groupMembership()
 						<td>
 							<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br /><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>
 						</td>
-						<td width="15%" class="righttext">';
+						<td class="righttext" style="width: 15%;">';
 
 				// Can they leave their group?
 				if ($group['can_leave'])
@@ -1880,7 +1880,7 @@ function template_groupMembership()
 		{
 			echo '
 			<br />
-			<table border="0" width="100%" cellspacing="0" cellpadding="4" class="table_grid">
+			<table cellspacing="0" cellpadding="4" class="table_grid" style="width: 100%; border: 0px;">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th" scope="col">
@@ -1899,7 +1899,7 @@ function template_groupMembership()
 						<td>
 							<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br /><span class="smalltext">' . $group['desc'] . '</span>' : ''), '
 						</td>
-						<td width="15%" class="lefttext">';
+						<td class="lefttext" style="width: 15%;">';
 
 				if ($group['type'] == 3)
 					echo '
@@ -1925,7 +1925,7 @@ function template_groupMembership()
 
 		// Javascript for the selector stuff.
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 		var prevClass = "";
 		var prevDiv = "";
 		function highlightSelected(box)
@@ -2112,7 +2112,7 @@ function template_issueWarning()
 	template_load_warning_variables();
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		function setWarningBarPos(curEvent, isMove, changeAmount)
 		{
 			barWidth = ', $context['warningBarWidth'], ';
@@ -2380,7 +2380,7 @@ function template_issueWarning()
 
 	// Do our best to get pretty javascript enabled.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		document.getElementById(\'warndiv1\').style.display = "";
 		document.getElementById(\'preview_button\').style.display = "none";
 		document.getElementById(\'warndiv2\').style.display = "none";';
@@ -2526,7 +2526,7 @@ function template_profile_save()
 
 	echo '
 
-					<hr width="100%" size="1" class="hrcolor clear" />';
+					<hr class="hrcolor clear" style="width: 100%; height: 1px;" />';
 
 	// Only show the password box if it's actually needed.
 	if ($context['require_password'])
@@ -2615,7 +2615,7 @@ function template_profile_group_manage()
 		echo '
 								</span>
 								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;">', $txt['additional_membergroups_show'], '</a>
-								<script type="text/javascript"><!-- // --><![CDATA[
+								<script><!-- // --><![CDATA[
 									document.getElementById("additional_groupsList").style.display = "none";
 									document.getElementById("additional_groupsLink").style.display = "";
 								// ]]></script>
@@ -2696,7 +2696,7 @@ function template_profile_signature_modify()
 
 	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
-								<script type="text/javascript"><!-- // --><![CDATA[
+								<script><!-- // --><![CDATA[
 									var maxLength = ', $context['signature_limits']['max_length'], ';
 
 									$(document).ready(function() {
@@ -2742,7 +2742,7 @@ function template_profile_avatar_select()
 										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled="disabled"><option></option></select>
 									</div>
 									<div><img name="avatar" id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing" /></div>
-									<script type="text/javascript"><!-- // --><![CDATA[
+									<script><!-- // --><![CDATA[
 										var files = ["' . implode('", "', $context['avatar_list']) . '"];
 										var avatar = document.getElementById("avatar");
 										var cat = document.getElementById("cat");
@@ -2783,7 +2783,7 @@ function template_profile_avatar_select()
 	}
 
 	echo '
-								<script type="text/javascript"><!-- // --><![CDATA[
+								<script><!-- // --><![CDATA[
 									', !empty($context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "' . ($context['member']['avatar']['choice'] == 'server_stored' ? '' : 'none') . '";' : '', '
 									', !empty($context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "' . ($context['member']['avatar']['choice'] == 'external' ? '' : 'none') . '";' : '', '
 									', !empty($context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "' . ($context['member']['avatar']['choice'] == 'upload' ? '' : 'none') . '";' : '', '
@@ -2912,7 +2912,7 @@ function template_authentication_method()
 
 	// The main header!
 	echo '
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/register.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 		<form action="', $scripturl, '?action=profile;area=authentication;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -2957,7 +2957,7 @@ function template_authentication_method()
 
 	if ($context['require_password'])
 		echo '
-					<hr width="100%" size="1" class="hrcolor clear" />
+					<hr class="hrcolor clear" style="width: 100%; height: 1px;" />
 					<dl>
 						<dt>
 							<strong', isset($context['modify_error']['bad_password']) || isset($context['modify_error']['no_password']) ? ' class="error"' : '', '>', $txt['current_password'], ': </strong><br />
@@ -2986,7 +2986,7 @@ function template_authentication_method()
 
 	// The password stuff.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",
 		"password_reserved": "', $txt['registration_password_reserved'], '",

@@ -134,7 +134,7 @@ function ManageSearchEngineSettings($return_config = false)
 	$context['post_url'] = $scripturl . '?action=admin;area=sengines;save;sa=settings';
 	$context['settings_title'] = $txt['settings'];
 	$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			' . $javascript_function . '
 		// ]]></script>';
 

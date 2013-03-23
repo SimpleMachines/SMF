@@ -1777,7 +1777,7 @@ function create_control_richedit($editorOptions)
 		}
 		if (!empty($bbcodes_styles))
 			$context['html_headers'] .= '
-		<style type="text/css">' . $bbcodes_styles . '
+		<style>' . $bbcodes_styles . '
 		</style>';
 	}
 
@@ -1973,7 +1973,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// Add javascript for the object.
 	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'] && !WIRELESS)
 		$context['insert_after_template'] .= '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
 			// ]]></script>';
 

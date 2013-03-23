@@ -1065,7 +1065,7 @@ function ModifyNewsSettings($return_config = false)
 
 	// Add some javascript at the bottom...
 	$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;
 		// ]]></script>';
 

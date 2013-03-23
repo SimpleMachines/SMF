@@ -50,8 +50,8 @@ function template_init()
 
 	/* What document type definition is being used? (for font size and other issues.)
 		'xhtml' for an XHTML 1.0 document type definition.
-		'html' for an HTML 4.01 document type definition. */
-	$settings['doctype'] = 'xhtml';
+		'html' for an HTML5 document type definition. */
+	$settings['doctype'] = 'html';
 
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	$settings['theme_version'] = '2.0';
@@ -80,27 +80,27 @@ function template_html_above()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	// Show right to left and the character set for ease of translating.
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 <head>';
 
 	// The ?alp21 part of this link is just here to make sure browsers don't cache it wrongly.
 	echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css?alp21" />';
+	<link rel="stylesheet" href="', $settings['theme_url'], '/css/index.css?alp21">';
 
 	// The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
 	if (!empty($context['theme_variant']))
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
+	<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">';
 
 	// Save some database hits, if a width for multiple wrappers is set in admin.
 	if (!empty($settings['forum_width']))
 		echo '
-	<style type="text/css">#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
+	<style>#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
 
 	// Quick and dirty testing of RTL horrors. Remove before production build.
 	//echo '
-	//<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
+	//<link rel="stylesheet" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
 
 	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
@@ -112,55 +112,55 @@ function template_html_above()
 	if ($context['right_to_left'])
 	{
 		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/rtl.css?alp21">';
 
-	if (!empty($context['theme_variant']))
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
+		if (!empty($context['theme_variant']))
+			echo '
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21">';
 	}
 
 	echo '
-	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-	<meta name="description" content="', $context['page_title_html_safe'], '" />', !empty($context['meta_keywords']) ? '
-	<meta name="keywords" content="' . $context['meta_keywords'] . '" />' : '', '
+	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+	<meta name="description" content="', $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
+	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>';
 
 	// Please don't index these Mr Robot.
 	if (!empty($context['robot_no_index']))
 		echo '
-	<meta name="robots" content="noindex" />';
+	<meta name="robots" content="noindex">';
 
 	// Present a canonical url for search engines to prevent duplicate content in their indices.
 	if (!empty($context['canonical_url']))
 		echo '
-	<link rel="canonical" href="', $context['canonical_url'], '" />';
+	<link rel="canonical" href="', $context['canonical_url'], '">';
 
 	// Show all the relative links, such as help, search, contents, and the like.
 	echo '
-	<link rel="help" href="', $scripturl, '?action=help" />
-	<link rel="contents" href="', $scripturl, '" />', ($context['allow_search'] ? '
-	<link rel="search" href="' . $scripturl . '?action=search" />' : '');
+	<link rel="help" href="', $scripturl, '?action=help">
+	<link rel="contents" href="', $scripturl, '" />', $context['allow_search'] ? '
+	<link rel="search" href="' . $scripturl . '?action=search">' : '';
 
 	// If RSS feeds are enabled, advertise the presence of one.
 	if (!empty($modSettings['xmlnews_enable']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']))
 		echo '
-	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['rss'], '" href="', $scripturl, '?type=rss2;action=.xml" />
-	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['atom'], '" href="', $scripturl, '?type=atom;action=.xml" />';
+	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['rss'], '" href="', $scripturl, '?type=rss2;action=.xml">
+	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['atom'], '" href="', $scripturl, '?type=atom;action=.xml">';
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty($context['links']['next']))
-		echo '<link rel="next" href="', $context['links']['next'], '" />';
+		echo '<link rel="next" href="', $context['links']['next'], '">';
 	else if (!empty($context['current_topic']))
-		echo '<link rel="next" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=next" />';
+		echo '<link rel="next" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=next">';
 	if (!empty($context['links']['prev']))
-		echo '<link rel="prev" href="', $context['links']['prev'], '" />';
+		echo '<link rel="prev" href="', $context['links']['prev'], '">';
 	else if (!empty($context['current_topic']))
-		echo '<link rel="prev" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=prev" />';
+		echo '<link rel="prev" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=prev">';
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
 	if (!empty($context['current_board']))
 		echo '
-	<link rel="index" href="', $scripturl, '?board=', $context['current_board'], '.0" />';
+	<link rel="index" href="', $scripturl, '?board=', $context['current_board'], '.0">';
 
 	// Output any remaining HTML headers. (from mods, maybe?)
 	echo $context['html_headers'];
@@ -529,7 +529,7 @@ function template_menu()
 	// Define the upper_section toggle in JavaScript.
 	// Note that this definition had to be shifted for the js to work with the new markup.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oMainHeaderToggle = new smc_Toggle({
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: ', empty($options['collapse_header']) ? 'false' : 'true', ',
@@ -585,7 +585,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		// Kept for backward compatibility
 		if (!isset($value['test']) || !empty($context[$value['test']]))
 			$buttons[] = '
-				<li><a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button_strip_' . $key . (isset($value['active']) ? ' active' : '') . '" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '><span>' . $txt[$value['text']] . '</span></a></li>';
+				<li><a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button_strip_' . $key . (isset($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '><span>' . $txt[$value['text']] . '</span></a></li>';
 	}
 
 	// No buttons? No button strip either.

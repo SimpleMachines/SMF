@@ -52,7 +52,7 @@ function template_registration_form()
 
 	echo '
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/register.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			function verifyAgree()
 			{
 				if (currentAuthMethod == \'passwd\' && document.forms.registration.smf_autov_pwmain.value != document.forms.registration.smf_autov_pwverify.value)
@@ -345,7 +345,7 @@ function template_registration_form()
 			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '" />
 			<input type="hidden" name="step" value="2" />
 		</form>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var regTextStrings = {
 				"username_valid": "', $txt['registration_username_available'], '",
 				"username_invalid": "', $txt['registration_username_unavailable'], '",
@@ -435,7 +435,7 @@ function template_coppa_form()
 
 	// Show the form (As best we can)
 	echo '
-		<table border="0" width="100%" cellpadding="3" cellspacing="0" class="tborder" align="center">
+		<table style="width: 100%; border; 0;" cellpadding="3" cellspacing="0" class="tborder" align="center">
 			<tr>
 				<td align="left">', $context['forum_contacts'], '</td>
 			</tr><tr>
@@ -464,14 +464,14 @@ function template_verification_sound()
 {
 	global $context, $settings, $options, $txt, $scripturl;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $txt['visual_verification_sound'], '</title>
-		<meta name="robots" content="noindex" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
-		<style type="text/css">';
+		<meta name="robots" content="noindex">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<style>';
 
 	// Just show the help text and a "close window" link.
 	echo '

@@ -106,7 +106,7 @@ function template_admin()
 	// This sets the announcements and current versions themselves ;).
 	echo '
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/admin.js?alp21"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
 
@@ -275,7 +275,7 @@ function template_credits()
 
 	// This makes all the support information available to the support script...
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var smfSupportVersions = {};
 
 			smfSupportVersions.forum = "', $context['forum_version'], '";';
@@ -294,7 +294,7 @@ function template_credits()
 
 	// This sets the latest support stuff.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			function smfCurrentVersion()
 			{
 				var smfVer, yourVer;
@@ -330,16 +330,16 @@ function template_view_versions()
 			</h3>
 		</div>
 		<div class="information">', $txt['version_check_desc'], '</div>
-			<table width="100%" class="table_grid">
+			<table class="table_grid" style="width: 100%;">
 				<thead>
 					<tr class="catbg" align="left">
-						<th class="first_th" scope="col" width="50%">
+						<th class="first_th" scope="col" style="width: 50%;">
 							<strong>', $txt['admin_smffile'], '</strong>
 						</th>
-						<th scope="col" width="25%">
+						<th scope="col" style="width: 25%;">
 							<strong>', $txt['dvc_your'], '</strong>
 						</th>
-						<th class="last_th" scope="col" width="25%">
+						<th class="last_th" scope="col" style="width: 25%;">
 							<strong>', $txt['dvc_current'], '</strong>
 						</th>
 					</tr>
@@ -376,20 +376,20 @@ function template_view_versions()
 				</tbody>
 			</table>
 
-			<table id="Sources" width="100%" class="table_grid">
+			<table id="Sources" class="table_grid" style="width: 100%;">
 			<tbody>';
 
 	// Loop through every source file displaying its version - using javascript.
 	foreach ($context['file_versions'] as $filename => $version)
 		echo '
 				<tr>
-					<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+					<td class="windowbg2" style="width: 50%; padding-left: 3ex;">
 						', $filename, '
 					</td>
-					<td class="windowbg2" width="25%">
+					<td class="windowbg2" style="width: 25%;">
 						<em id="yourSources', $filename, '">', $version, '</em>
 					</td>
-					<td class="windowbg2" width="25%">
+					<td class="windowbg2" style="width: 25%;">
 						<em id="currentSources', $filename, '">??</em>
 					</td>
 				</tr>';
@@ -399,35 +399,35 @@ function template_view_versions()
 			</tbody>
 			</table>
 
-			<table width="100%" class="table_grid">
+			<table class="table_grid" style="width: 100%;">
 				<tbody>
 					<tr>
-						<td class="windowbg" width="50%">
+						<td class="windowbg" style="width: 50%;">
 							<a href="#" id="Default-link">', $txt['dvc_default'], '</a>
 						</td>
-						<td class="windowbg" width="25%">
+						<td class="windowbg" style="width: 25%;">
 							<em id="yourDefault">??</em>
 						</td>
-						<td class="windowbg" width="25%">
+						<td class="windowbg" style="width: 25%;">
 							<em id="currentDefault">??</em>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 
-			<table id="Default" width="100%" class="table_grid">
+			<table id="Default" class="table_grid" style="width: 100%;">
 				<tbody>';
 
 	foreach ($context['default_template_versions'] as $filename => $version)
 		echo '
 					<tr>
-						<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+						<td class="windowbg2" style="width: 50%; padding-left: 3ex;">
 							', $filename, '
 						</td>
-						<td class="windowbg2" width="25%">
+						<td class="windowbg2" style="width: 25%;">
 							<em id="yourDefault', $filename, '">', $version, '</em>
 						</td>
-						<td class="windowbg2" width="25%">
+						<td class="windowbg2" style="width: 25%;">
 							<em id="currentDefault', $filename, '">??</em>
 						</td>
 					</tr>';
@@ -437,23 +437,23 @@ function template_view_versions()
 				</tbody>
 			</table>
 
-			<table width="100%" class="table_grid">
+			<table class="table_grid" style="width: 100%;">
 				<tbody>
 					<tr>
-						<td class="windowbg" width="50%">
+						<td class="windowbg" style="width: 50%;">
 							<a href="#" id="Languages-link">', $txt['dvc_languages'], '</a>
 						</td>
-						<td class="windowbg" width="25%">
+						<td class="windowbg" style="width: 25%;">
 							<em id="yourLanguages">??</em>
 						</td>
-						<td class="windowbg" width="25%">
+						<td class="windowbg" style="width: 25%;">
 							<em id="currentLanguages">??</em>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 
-			<table id="Languages" width="100%" class="table_grid">
+			<table id="Languages" class="table_grid" style="width: 100%;">
 				<tbody>';
 
 	foreach ($context['default_language_versions'] as $language => $files)
@@ -461,13 +461,13 @@ function template_view_versions()
 		foreach ($files as $filename => $version)
 			echo '
 					<tr>
-						<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+						<td class="windowbg2" style="width: 50%; padding-left: 3ex;">
 							', $filename, '.<em>', $language, '</em>.php
 						</td>
-						<td class="windowbg2" width="25%">
+						<td class="windowbg2" style="width: 25%;">
 							<em id="your', $filename, '.', $language, '">', $version, '</em>
 						</td>
-						<td class="windowbg2" width="25%">
+						<td class="windowbg2" style="width: 25%;">
 							<em id="current', $filename, '.', $language, '">??</em>
 						</td>
 					</tr>';
@@ -481,35 +481,35 @@ function template_view_versions()
 	if (!empty($context['template_versions']))
 	{
 		echo '
-			<table width="100%" class="table_grid">
+			<table class="table_grid" style="width: 100%;">
 				<tbody>
 					<tr>
-						<td class="windowbg" width="50%">
+						<td class="windowbg" style="width: 50%;">
 							<a href="#" id="Templates-link">', $txt['dvc_templates'], '</a>
 						</td>
-						<td class="windowbg" width="25%">
+						<td class="windowbg" style="width: 25%;">
 							<em id="yourTemplates">??</em>
 						</td>
-						<td class="windowbg" width="25%">
+						<td class="windowbg" style="width: 25%;">
 							<em id="currentTemplates">??</em>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 
-			<table id="Templates" width="100%" class="table_grid">
+			<table id="Templates" class="table_grid" style="width: 100%;">
 				<tbody>';
 
 		foreach ($context['template_versions'] as $filename => $version)
 			echo '
 					<tr>
-						<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+						<td class="windowbg2" style="width: 50%; padding-left: 3ex;">
 							', $filename, '
 						</td>
-						<td class="windowbg2" width="25%">
+						<td class="windowbg2" style="width: 25%;">
 							<em id="yourTemplates', $filename, '">', $version, '</em>
 						</td>
-						<td class="windowbg2" width="25%">
+						<td class="windowbg2" style="width: 25%;">
 							<em id="currentTemplates', $filename, '">??</em>
 						</td>
 					</tr>';
@@ -527,8 +527,8 @@ function template_view_versions()
 	   red.  It also contains the function, swapOption, that toggles showing the detailed information for each of the
 	   file categories. (sources, languages, and templates.) */
 	echo '
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
+		<script><!-- // --><![CDATA[
 			var oViewVersions = new smf_ViewVersions({
 				aKnownLanguages: [
 					\'.', implode('\',
@@ -578,10 +578,10 @@ function template_edit_censored()
 					<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
 						<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br />
 					</div>
-					<script type="text/javascript"><!-- // --><![CDATA[
+					<script><!-- // --><![CDATA[
 						document.getElementById("moreCensoredWords_link").style.display = "";
 					// ]]></script>
-					<hr width="100%" size="1" class="hrcolor clear" />
+					<hr class="hrcolor clear" style="width: 100%; height: 1px;" />
 					<dl class="settings">
 						<dt>
 							<strong><label for="censorWholeWord_check">', $txt['censor_whole_words'], ':</label></strong>
@@ -661,7 +661,7 @@ function template_not_done()
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var countdown = ', $context['continue_countdown'], ';
 		doAutoSubmit();
 
@@ -687,7 +687,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_pre_javascript']))
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[', $context['settings_pre_javascript'], '// ]]></script>';
+	<script><!-- // --><![CDATA[', $context['settings_pre_javascript'], '// ]]></script>';
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
@@ -916,7 +916,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	', $context['settings_post_javascript'], '
 	// ]]></script>';
 
@@ -933,7 +933,7 @@ function template_show_custom_profile()
 	template_show_list('standard_profile_fields');
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var iNumChecks = document.forms.standardProfileFields.length;
 		for (var i = 0; i < iNumChecks; i++)
 			if (document.forms.standardProfileFields[i].id.indexOf(\'reg_\') == 0)
@@ -951,7 +951,7 @@ function template_edit_profile_field()
 
 	// All the javascript for this page - quite a bit in script.js!
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var startOptID = ', count($context['field']['options']), ';
 	// ]]></script>';
 
@@ -1166,7 +1166,7 @@ function template_edit_profile_field()
 
 	// Get the javascript bits right!
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		updateInputBoxes();
 	// ]]></script>';
 }
@@ -1246,7 +1246,7 @@ function template_core_features()
 	global $context, $txt, $settings, $options, $scripturl;
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var message, token_name, token_value;
 		var feature_on_text, feature_off_text;
 		var activation_text, deactivation_text;
@@ -1511,7 +1511,7 @@ function template_repair_boards()
 	if (!empty($context['redirect_to_recount']))
 	{
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var countdown = 5;
 		doAutoSubmit();
 
@@ -1549,12 +1549,12 @@ function template_php_info()
 	foreach ($context['pinfo'] as $area => $php_area)
 	{
 		echo '
-		<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
+		<table id="', str_replace(' ', '_', $area), '" class="table_grid" style="width: 100%;">
 			<thead>
 			<tr class="catbg">
-				<th class="first_th" scope="col" width="33%"></th>
-				<th scope="col" width="33%" class="centercol"><strong>', $area, '</strong></th>
-				<th class="last_th" scope="col" width="33%"></th>
+				<th class="first_th" scope="col" style="width: 33%;"></th>
+				<th scope="col" class="centercol" style="width: 33%;"><strong>', $area, '</strong></th>
+				<th class="last_th" scope="col" style="width: 33%;"></th>
 			</tr>
 			</thead>
 			<tbody>';
@@ -1573,21 +1573,21 @@ function template_php_info()
 					// heading row for the settings section of this categorys settings
 					echo '
 			<tr class="titlebg">
-				<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
-				<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
-				<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
+				<td align="center" style="width: 33%;"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
+				<td align="center" style="width: 33%;"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
+				<td align="center" style="width: 33%;"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
 			</tr>';
 					$localmaster = false;
 				}
 
 				echo '
 			<tr>
-				<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
+				<td align="left" class="windowbg', $alternate ? '2' : '', '" style="width: 33%;">', $key, '</td>';
 
 				foreach ($setting as $key_lm => $value)
 				{
 					echo '
-				<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $value, '</td>';
+				<td align="left" class="windowbg', $alternate ? '2' : '', '" style="width: 33%;">', $value, '</td>';
 				}
 				echo '
 			</tr>';
@@ -1597,7 +1597,7 @@ function template_php_info()
 			{
 				echo '
 			<tr>
-				<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key,  '</td>
+				<td align="left" class="windowbg', $alternate ? '2' : '', '" style="width: 33%;">', $key,  '</td>
 				<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
 			</tr>';
 			}

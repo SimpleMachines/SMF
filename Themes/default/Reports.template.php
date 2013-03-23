@@ -72,7 +72,7 @@ function template_main()
 	foreach ($context['tables'] as $table)
 	{
 		echo '
-		<table class="table_grid report_results" width="100%">';
+		<table class="table_grid report_results" style="width: 100%;">';
 
 		if (!empty($table['title']))
 			echo '
@@ -113,12 +113,12 @@ function template_main()
 				// Shaded?
 				if ($column_number == 0 && !empty($table['shading']['left']))
 					echo '
-					<td align="', $table['align']['shaded'], '" class="table_caption"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
+					<td align="', $table['align']['shaded'], '" class="table_caption"', $table['width']['shaded'] != 'auto' ? ' style="width: ' . $table['width']['shaded'] . '"' : '', '>
 						', $data['v'] == $table['default_value'] ? '' : ($data['v'] . (empty($data['v']) ? '' : ':')), '
 					</td>';
 				else
 					echo '
-					<td class="smalltext" align="', $table['align']['normal'], '"', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
+					<td class="smalltext" align="', $table['align']['normal'], '" style="', $table['width']['normal'] != 'auto' ? 'width: ' . $table['width']['normal'] . ';"' : '', !empty($data['style']) ? $data['style'] : '', '>
 						', $data['v'], '
 					</td>';
 
@@ -146,12 +146,12 @@ function template_print_above()
 {
 	global $context, $settings, $options, $txt;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css">
 	</head>
 	<body>';
 }
@@ -165,7 +165,7 @@ function template_print()
 	{
 		echo '
 		<div style="overflow: visible;', $table['max_width'] != 'auto' ? ' width: ' . $table['max_width'] . 'px;' : '', '">
-			<table border="0" cellspacing="1" cellpadding="4" width="100%" class="bordercolor">';
+			<table cellspacing="1" cellpadding="4" class="bordercolor" style="width: 100%; border: 0px;">';
 
 		if (!empty($table['title']))
 			echo '
@@ -204,12 +204,12 @@ function template_print()
 				// Shaded?
 				if ($column_number == 0 && !empty($table['shading']['left']))
 					echo '
-					<td align="', $table['align']['shaded'], '" class="titlebg"', $table['width']['shaded'] != 'auto' ? ' width="' . $table['width']['shaded'] . '"' : '', '>
+					<td align="', $table['align']['shaded'], '" class="titlebg"', $table['width']['shaded'] != 'auto' ? ' style="width: ' . $table['width']['shaded'] . ';"' : '', '>
 						', $data['v'] == $table['default_value'] ? '' : ($data['v'] . (empty($data['v']) ? '' : ':')), '
 					</td>';
 				else
 					echo '
-					<td align="', $table['align']['normal'], '"', $table['width']['normal'] != 'auto' ? ' width="' . $table['width']['normal'] . '"' : '', !empty($data['style']) ? ' style="' . $data['style'] . '"' : '', '>
+					<td align="', $table['align']['normal'], '" style="', $table['width']['normal'] != 'auto' ? 'width: ' . $table['width']['normal'] . ';' : '', !empty($data['style']) ? $data['style'] : '', '">
 						', $data['v'], '
 					</td>';
 

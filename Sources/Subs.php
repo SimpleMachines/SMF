@@ -1142,7 +1142,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'flash',
 				'type' => 'unparsed_commas_content',
 				'test' => '\d+,\d+\]',
-				'content' => (isBrowser('ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1" /><param name="play" value="true" /><param name="loop" value="true" /><param name="quality" value="high" /><param name="AllowScriptAccess" value="never" /><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
+				'content' => (isBrowser('ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" style="width: $2px; height: $3px;"><param name="movie" value="$1" /><param name="play" value="true" /><param name="loop" value="true" /><param name="quality" value="high" /><param name="AllowScriptAccess" value="never" /><embed src="$1" style="width: $2px; height: $3px;" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" style="width: $2px; height: $3px;" play="true" loop="true" quality="high" AllowScriptAccess="never" /><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
 				'validate' => create_function('&$tag, &$data, $disabled', '
 					if (isset($disabled[\'url\']))
 						$tag[\'content\'] = \'$1\';
@@ -1184,7 +1184,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => isBrowser('ie') ? '<table border="0" cellpadding="0" cellspacing="0" style="display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
+				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; border-collapse: collapse; display: inline; vertical-align: middle; font: inherit;"><tr><td style="padding: 0; filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
 				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
 			),
 			array(
@@ -1215,10 +1215,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'parameters' => array(
 					'alt' => array('optional' => true),
-					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
-					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
+					'width' => array('optional' => true, 'value' => '$1px;', 'match' => '(\d+)'),
+					'height' => array('optional' => true, 'value' => '$1px;', 'match' => '(\d+)'),
 				),
-				'content' => '<img src="$1" alt="{alt}"{width}{height} class="bbc_img resized" />',
+				'content' => '<img src="$1" alt="{alt}" style="{width}{height}" class="bbc_img resized" />',
 				'validate' => create_function('&$tag, &$data, $disabled', '
 					$data = strtr($data, array(\'<br />\' => \'\'));
 					if (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
@@ -2864,7 +2864,7 @@ function setupThemeContext($forceload = false)
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . htmlspecialchars($user_info['avatar']['url']);
 
 		if (!empty($context['user']['avatar']))
-			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '"' . (isset($context['user']['avatar']['width']) ? ' width="' . $context['user']['avatar']['width'] . '"' : '') . (isset($context['user']['avatar']['height']) ? ' height="' . $context['user']['avatar']['height'] . '"' : '') . ' alt="" class="avatar" />';
+			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '" style="' . (isset($context['user']['avatar']['width']) ? 'width: ' . $context['user']['avatar']['width'] . 'px;' : '') . (isset($context['user']['avatar']['height']) ? 'height: ' . $context['user']['avatar']['height'] . 'px' : '') . '" alt="" class="avatar" />';
 
 		// Figure out how long they've been logged in.
 		$context['user']['total_time_logged_in'] = array(
@@ -2917,7 +2917,7 @@ function setupThemeContext($forceload = false)
 	{
 		// @todo Move this over to script.js?
 		$context['html_headers'] .= '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var smf_avatarMaxWidth = ' . (int) $modSettings['avatar_max_width_external'] . ';
 		var smf_avatarMaxHeight = ' . (int) $modSettings['avatar_max_height_external'] . ';';
 
@@ -2950,7 +2950,7 @@ function setupThemeContext($forceload = false)
 
 	if (empty($settings['theme_version']))
 		$context['html_headers'] .= '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var smf_scripturl = "' . $scripturl . '";
 	// ]]></script>';
 
@@ -3219,7 +3219,7 @@ function template_javascript($do_defered = false)
 	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[';
+	<script><!-- // --><![CDATA[';
 
 		foreach ($context['javascript_vars'] as $key => $value)
 			echo '
@@ -3234,12 +3234,12 @@ function template_javascript($do_defered = false)
 	{
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
-	<script type="text/javascript" src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
+	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
 
 		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
 		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
 	// ]]></script>';
 
@@ -3251,7 +3251,7 @@ function template_javascript($do_defered = false)
 		if (!empty($context['javascript_inline']['defer']) && $do_defered)
 		{
 			echo '
-<script type="text/javascript"><!-- // --><![CDATA[';
+<script><!-- // --><![CDATA[';
 
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
@@ -3263,7 +3263,7 @@ function template_javascript($do_defered = false)
 		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
 		{
 			echo '
-	<script type="text/javascript"><!-- // --><![CDATA[';
+	<script><!-- // --><![CDATA[';
 
 			foreach ($context['javascript_inline']['standard'] as $js_code)
 				echo $js_code;
@@ -3272,6 +3272,12 @@ function template_javascript($do_defered = false)
 	// ]]></script>';
 		}
 	}
+
+	// HTML5 for Pre-IE9.
+	echo '
+	<!--[if lt IE 9]>
+	<script src="' . $settings['default_theme_url'] . '/scripts/html5-compat.js"></script>
+	<![endif]-->';
 }
 
 /**
@@ -3286,7 +3292,7 @@ function template_css()
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
+	<link rel="stylesheet" type="text/css" href="', $file['filename'], '">';
 }
 
 /**

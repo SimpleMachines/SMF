@@ -75,19 +75,19 @@ function template_download_language()
 					', $txt['languages_download_theme_files'], '
 				</h3>
 			</div>
-			<table class="table_grid" cellspacing="0" width="100%">
+			<table class="table_grid" style="width: 100%; border-spacing: 0; border-collapse: collapse;">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th" scope="col">
 							', $txt['languages_download_filename'], '
 						</th>
-						<th scope="col" width="100">
+						<th scope="col" style="width: 100px;">
 							', $txt['languages_download_writable'], '
 						</th>
-						<th scope="col" width="100">
+						<th scope="col" style="width: 100px;">
 							', $txt['languages_download_exists'], '
 						</th>
-						<th class="last_th centercol" scope="col" width="4%">
+						<th class="last_th centercol" scope="col" style="width: 4%;">
 							', $txt['languages_download_copy'], '
 						</th>
 					</tr>
@@ -196,7 +196,7 @@ function template_download_language()
 
 	// The javascript for expand and collapse of sections.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[';
+	<script><!-- // --><![CDATA[';
 
 	// Each theme gets its own handler.
 	foreach ($context['files']['images'] as $theme => $group)

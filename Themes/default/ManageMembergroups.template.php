@@ -132,7 +132,7 @@ function template_new_group()
 	if ($context['undefined_group'])
 	{
 		echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				function swapPostGroup(isChecked)
 				{
 					var min_posts_text = document.getElementById(\'min_posts_text\');
@@ -333,7 +333,7 @@ function template_edit_group()
 		</form>
 	</div>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oModeratorSuggest = new smc_AutoSuggest({
 				sSelf: \'oModeratorSuggest\',
 				sSessionId: smf_session_id,
@@ -362,7 +362,7 @@ function template_edit_group()
 
 	if ($context['group']['allow_post_group'])
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			function swapPostGroup(isChecked)
 			{
 				var min_posts_text = document.getElementById(\'min_posts_text\');
@@ -454,7 +454,7 @@ function template_add_edit_group_boards_list($collapse = true)
 									<input type="radio" name="select_all" id="deny_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');" /> <label for="deny_all">', $txt['board_perms_deny'], '</label>
 								</span>
 							</fieldset>
-							<script type="text/javascript"><!-- // --><![CDATA[
+							<script><!-- // --><![CDATA[
 								$(document).ready(function () {
 									$(".select_all_box").each(function () {
 										$(this).removeClass(\'select_all_box\');
@@ -465,7 +465,7 @@ function template_add_edit_group_boards_list($collapse = true)
 	if ($collapse)
 		echo '
 							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
-							<script type="text/javascript"><!-- // --><![CDATA[
+							<script><!-- // --><![CDATA[
 								document.getElementById("visible_boards_link").style.display = "";
 								document.getElementById("visible_boards").style.display = "none";
 							// ]]></script>';
@@ -535,7 +535,7 @@ function template_group_members()
 			</div>
 			<br />
 			<div class="pagesection">', $context['page_index'], '</div>
-			<table width="100%" class="table_grid">
+			<table class="table_grid" style="width: 100%;">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a></th>';
@@ -550,7 +550,7 @@ function template_group_members()
 						<th ', empty($context['group']['assignable']) ? ' class="last_th" colspan="2"' : '', '><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <img src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '','</a></th>';
 	if (!empty($context['group']['assignable']))
 		echo '
-						<th class="last_th" width="4%" align="center"><input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" /></th>';
+						<th class="last_th" align="center" style="width: 4%;"><input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" /></th>';
 	echo '
 					</tr>
 				</thead>
@@ -600,7 +600,7 @@ function template_group_members()
 						<td', empty($context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 		if (!empty($context['group']['assignable']))
 			echo '
-						<td align="center" width="4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" class="input_check" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
+						<td align="center" style="width: 4%;"><input type="checkbox" name="rem[]" value="', $member['id'], '" class="input_check" ', ($context['user']['id'] == $member['id'] && $context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . $txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
 		echo '
 					</tr>';
 	}
@@ -652,7 +652,7 @@ function template_group_members()
 	if (!empty($context['group']['assignable']))
 		echo '
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oAddMemberSuggest = new smc_AutoSuggest({
 				sSelf: \'oAddMemberSuggest\',
 				sSessionId: \'', $context['session_id'], '\',

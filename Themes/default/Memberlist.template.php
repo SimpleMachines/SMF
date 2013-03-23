@@ -33,7 +33,7 @@ function template_main()
 
 	echo '
 		<div id="mlist" class="tborder topic_table">
-			<table class="table_grid" cellspacing="0" width="100%">
+			<table class="table_grid" style="width: 100%; border-spacing: 0; border-collapse: collapse;">
 			<thead>
 				<tr class="catbg">';
 
@@ -52,7 +52,7 @@ function template_main()
 		// This is just some column... show the link and be done with it.
 		else
 			echo '
-					<th scope="col" class="', isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' width="' . $column['width'] . '"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
+					<th scope="col" class="', isset($column['class']) ? ' ' . $column['class'] : '', '"', isset($column['width']) ? ' style="width: ' . $column['width'] . 'px;"' : '', isset($column['colspan']) ? ' colspan="' . $column['colspan'] . '"' : '', '>
 						', $column['link'], '</th>';
 	}
 	echo '
@@ -108,8 +108,8 @@ function template_main()
 		if (!isset($context['disabled_fields']['posts']))
 		{
 			echo '
-					<td style="white-space: nowrap" width="15">', $member['posts'], '</td>
-					<td class="statsbar" width="120">';
+					<td style="white-space: nowrap; width: 15px;">', $member['posts'], '</td>
+					<td class="statsbar" style="width: 120px;">';
 
 			if (!empty($member['post_percent']))
 				echo '

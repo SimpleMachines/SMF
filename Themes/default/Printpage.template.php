@@ -12,19 +12,19 @@
 
 function template_print_above()
 {
-	global $context, $txt, $topic, $scripturl;
+	global $context, $txt, $topic, $scripturl, $settings;
 	
 	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
 	$url_images = $url_text . ';images';
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
-		<link rel="canonical" href="', $context['canonical_url'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta name="robots" content="noindex">
+		<link rel="canonical" href="', $context['canonical_url'], '">
 		<title>', $txt['print_page'], ' - ', $context['topic_subject'], '</title>
-		<style type="text/css">
+		<style>
 			body, a {
 				color: #000;
 				background: #fff;
@@ -158,7 +158,7 @@ function template_main()
 			
 			foreach ($context['printattach'][$post['id_msg']] as $attach)
 				echo '
-					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="" />';
+					<img style="width: ' . $attach['width'] . 'px; height: ' . $attach['height'] . 'px;" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="" />';
 		}
 			
 		echo '

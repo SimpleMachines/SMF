@@ -521,7 +521,7 @@ function template_main()
 											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '" /></a>';
 					else
 						echo '
-											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '"/>';
+											<img src="' . $attachment['href'] . ';image" alt="" style="width: ' . $attachment['width'] . 'px; height: ' . $attachment['height'] . 'px" />';
 
 						echo '
 										</div>';
@@ -758,7 +758,7 @@ function template_main()
 
 			echo '
 							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
-							<script type="text/javascript"><!-- // --><![CDATA[
+							<script><!-- // --><![CDATA[
 								function insertQuoteFast(messageid)
 								{
 									if (window.XMLHttpRequest)
@@ -812,7 +812,7 @@ function template_main()
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 		echo '
 			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
 					sLastNote: \'draft_lastautosave\',
@@ -831,7 +831,7 @@ function template_main()
 
 	echo '
 				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
-				<script type="text/javascript"><!-- // --><![CDATA[';
+				<script><!-- // --><![CDATA[';
 
 	if (!empty($options['display_quick_reply']))
 		echo '

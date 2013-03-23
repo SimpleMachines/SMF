@@ -17,7 +17,7 @@ function template_edit_holiday()
 
 	// Start with javascript for getting the calendar dates right.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 			function generateDays()

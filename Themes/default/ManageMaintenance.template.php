@@ -240,7 +240,7 @@ function template_maintain_members()
 	global $context, $settings, $options, $txt, $scripturl;
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var warningMessage = \'\';
 		var membersSwap = false;
 
@@ -387,7 +387,7 @@ function template_maintain_members()
 	</div>
 
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAttributeMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -415,7 +415,7 @@ function template_maintain_topics()
 
 	// Bit of javascript for showing which boards to prune in an otherwise hidden list.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var rotSwap = false;
 			function swapRot()
 			{

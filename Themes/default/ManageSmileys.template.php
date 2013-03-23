@@ -31,7 +31,7 @@ function template_editsets()
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		window.smfForum_scripturl = smf_scripturl;
 		window.smfForum_sessionid = smf_session_id;
 		window.smfForum_sessionvar = smf_session_var;
@@ -42,7 +42,7 @@ function template_editsets()
 	<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-smileys.js"></script>';
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		function smfSetLatestSmileys()
 		{
 			if (typeof(window.smfLatestSmileys) != "undefined")
@@ -236,7 +236,7 @@ function template_modifysmiley()
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '" />
 		</form>
 	</div>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		function updatePreview()
 		{
 			var currentImage = document.getElementById("preview");
