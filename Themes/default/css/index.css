@@ -4039,6 +4039,11 @@ span.hidelink {
 	border: none;
 	box-shadow: none;
 }
+
+div#editlang_desc {
+	margin-bottom: 8px;
+}
+
 /* Some caution required here, as Post.template.php topic summary shares #recent with recent posts. */
 #recent .core_posts {
 	padding: 8px 0;
