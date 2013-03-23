@@ -384,9 +384,10 @@ span.percent {
 	margin: 0 0 0 0.5em;
 }
 
-.keyinfo {
-	float: right;
+#display_jump_to select {
+	margin: 0;
 }
+
 .modifybutton {
 	clear: left;
 	float: left;
