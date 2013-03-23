@@ -46,6 +46,37 @@
 	padding-left: 0;
 }
 
+a#bot {
+	float: left;
+}
+
+img.icon {
+	margin: 0 0 0 5px !important;
+}
+
+a.collapse img {
+	margin: -8px 0 0 -4px;
+}
+
+#menu_nav {
+	padding: 0;
+}
+
+.button_submit, .button_reset, .button_link {
+	margin: 0;
+}
+
+/* BoardIndex Styling for RTL */
+td.lastpost {
+	border-left: 1px solid #ddd;
+	border-right: 0px !important;
+}
+
+.table_list td.icon {
+	border-left: 0px !important;
+	border-right: 1px solid #ddd;
+}
+
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
 dl.settings {
@@ -167,8 +198,7 @@ li#collapse_button {
 	margin: 0 0 0 0.2em;
 }
 .buttonlist ul li a {
-	margin-left: 0;
-	margin-right: 12px;
+	margin: 0;
 }
 .buttonlist ul li a span {
 	left: 8px;
@@ -260,7 +290,7 @@ form#ic_login ul li {
 	text-align: left;
 }
 img#upshrink_ic, img#newsupshrink {
-	float: right;
+	float: left;
 }
 
 /* Styles for the message (topic) index.
@@ -897,4 +927,14 @@ span.search_weight {
 }
 ul.moderation_notes li {
 	padding: 4px 4px 4px 0;
+}
+
+#inner_wrap a.avatar {
+	float: right;
+	width: 46px;
+}
+
+.unread_links {
+	float: left !important;
+	padding-left: 0;
 }
