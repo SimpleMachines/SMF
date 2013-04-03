@@ -174,7 +174,7 @@ function smf_db_backup_table($table, $backup_table)
  */
 function smf_db_optimize_table($table)
 {
-	global $smcFunc, $db_name, $db_prefix;
+	global $smcFunc, $db_prefix;
 
 	$table = str_replace('{db_prefix}', $db_prefix, $table);
 
