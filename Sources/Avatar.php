@@ -19,7 +19,7 @@ if (!defined('SMF'))
 
 function showAvatar()
 {
-	global $smcFunc, $modSettings, $sourcedir, $maintenance;
+	global $smcFunc, $modSettings, $maintenance;
 
 	// We need a valid ID
 	if(empty($_GET['attach']) || (string)$_GET['attach'] != (string)(int)$_GET['attach'])
