@@ -337,7 +337,7 @@ function CalendarPost()
  */
 function iCalDownload()
 {
-	global $smcFunc, $sourcedir, $forum_version, $context, $modSettings, $webmaster_email, $mbname;
+	global $smcFunc, $sourcedir, $forum_version, $modSettings, $webmaster_email, $mbname;
 
 	// You can't export if the calendar export feature is off.
 	if (empty($modSettings['cal_export']))
