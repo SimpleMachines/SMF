@@ -1095,8 +1095,8 @@ function PlushSearch2()
 					foreach ($weight_factors as $type => $value)
 					{
 						$relevance .= $weight[$type];
-						if (!empty($value['search']))
-							$relevance .= ' * ' . $value['search'];
+						if (!empty($value['results']))
+							$relevance .= ' * ' . $value['results'];
 						$relevance .= ' + ';
 					}
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
