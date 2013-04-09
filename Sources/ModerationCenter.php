@@ -1137,7 +1137,7 @@ function ViewWatchedUsers()
 			$approve_query = ' AND m.id_board IN (' . implode(',', $approve_boards) . ')';
 		// Nada, zip, etc...
 		else
-			$approve_query = ' AND 0';
+			$approve_query = ' AND 1=0';
 	}
 
 	require_once($sourcedir . '/Subs-List.php');

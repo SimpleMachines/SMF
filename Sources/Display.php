@@ -1164,7 +1164,10 @@ function Display()
 		$context['mod_buttons'][] = array('text' => 'restore_topic', 'image' => '', 'lang' => true, 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Allow adding new mod buttons easily.
-	call_integration_hook('integrate_display_buttons');
+	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+	call_integration_hook('integrate_display_buttons', array(&$context['normal_buttons']));
+	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
+	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
 }
 
 /**
