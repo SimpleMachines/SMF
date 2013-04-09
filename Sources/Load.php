@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function reloadSettings()
 {
-	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $context, $sourcedir;
+	global $modSettings, $boarddir, $smcFunc, $txt, $db_character_set, $sourcedir;
 
 	// Most database systems have not set UTF-8 as their default input charset.
 	if (!empty($db_character_set))
@@ -1037,7 +1037,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 function loadMemberContext($user, $display_custom_fields = false)
 {
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
-	global $context, $modSettings, $board_info, $settings;
+	global $context, $modSettings, $settings;
 	global $smcFunc;
 	static $dataLoaded = array();
 
@@ -1368,8 +1368,8 @@ function isBrowser($browser)
  */
 function loadTheme($id_theme = 0, $initialize = true)
 {
-	global $user_info, $user_settings, $board_info, $sc, $boarddir;
-	global $txt, $boardurl, $scripturl, $mbname, $modSettings, $language;
+	global $user_info, $user_settings, $board_info, $boarddir;
+	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
 	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc;
 
 	// The theme was specified by parameter.
@@ -1939,7 +1939,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  */
 function loadSubTemplate($sub_template_name, $fatal = false)
 {
-	global $context, $settings, $options, $txt, $db_show_debug;
+	global $context, $txt, $db_show_debug;
 
 	if ($db_show_debug === true)
 		$context['debug']['sub_templates'][] = $sub_template_name;
@@ -2103,7 +2103,7 @@ function addInlineJavascript($javascript, $defer = false)
 function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
 {
 	global $user_info, $language, $settings, $context, $modSettings;
-	global $cachedir, $db_show_debug, $sourcedir, $txt;
+	global $db_show_debug, $sourcedir, $txt;
 	static $already_loaded = array();
 
 	// Default to the user's language.
@@ -2415,8 +2415,8 @@ function censorText(&$text, $force = false)
  */
 function template_include($filename, $once = false)
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
-	global $user_info, $boardurl, $boarddir, $sourcedir;
+	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $boardurl, $boarddir, $sourcedir;
 	global $maintenance, $mtitle, $mmessage;
 	static $templates = array();
 
@@ -2918,7 +2918,7 @@ function cache_get_data($key, $ttl = 120)
  */
 function get_memcached_server($level = 3)
 {
-	global $modSettings, $memcached, $db_persist, $cache_memcached;
+	global $memcached, $db_persist, $cache_memcached;
 
 	$servers = explode(',', $cache_memcached);
 	$server = explode(':', trim($servers[array_rand($servers)]));
