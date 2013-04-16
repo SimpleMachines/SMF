@@ -998,7 +998,7 @@ img.sort {
 	font-weight: bold;
 	border: 1px solid #f49a3a;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
-	text-shadow: 0 0 1px rgba(0,0,0,0.4);
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 1);
 }
 /* Level 1 hover effects. */
 .dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus {
@@ -1008,6 +1008,7 @@ img.sort {
 	cursor: pointer;
 	text-decoration: none;
 	box-shadow: 0 4px 4px rgba(255,255,255,0.1) inset;
+	text-shadow: 1px 1px 3px rgba(255, 255, 255, 1);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover, .dropmenu li:hover a.active {
@@ -1304,9 +1305,7 @@ img.sort {
 	font-weight: bold;
 	border-radius: 3px;
 	border: 1px solid #558080;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #354f64;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.1), -1px -2px 3px rgba(255,255,255,0.3) inset, 1px 2px 3px rgba(0,0,0,0.1) inset;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 1);
 }
 .buttonlist ul li a.active:hover {
 	color: #ffc187;
@@ -1419,7 +1418,7 @@ h1.forumtitle {
 }
 h1.forumtitle a {
 	color: #a85400;
-	text-shadow: -1px -1px 0 rgba(0,0,0,0.5), 1px 1px 0 #fff;
+	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5), 1px 1px 0 #fff;
 }
 /* Float these items to the right */
 #siteslogan, img#smflogo {
@@ -1478,16 +1477,17 @@ ul li.greeting {
 #inner_wrap a.avatar {
 	float: left;
 	margin: 0 10px 5px 0;
-	width: 40px;
 }
 /* No more huge avatars up top. YAY! */
 #inner_wrap a.avatar img {
 	height: 100%;
 	width: 100%;
+	max-width: 40px;
+	max-height: 40px;
 }
 /* News section. */
 #inner_wrap .news {
-	width: 50%;
+	max-width: 50%;
 	max-width: 27em;
 	float: right;
 	overflow: auto;
@@ -4039,6 +4039,11 @@ span.hidelink {
 	border: none;
 	box-shadow: none;
 }
+
+div#editlang_desc {
+	margin-bottom: 8px;
+}
+
 /* Some caution required here, as Post.template.php topic summary shares #recent with recent posts. */
 #recent .core_posts {
 	padding: 8px 0;
