@@ -91,11 +91,17 @@ function CalendarMain()
 		'show_birthdays' => in_array($modSettings['cal_showbdays'], array(1, 2)),
 		'show_events' => in_array($modSettings['cal_showevents'], array(1, 2)),
 		'show_holidays' => in_array($modSettings['cal_showholidays'], array(1, 2)),
-		'show_week_num' => true,
-		'short_day_titles' => false,
-		'show_next_prev' => true,
-		'show_week_links' => true,
-		'size' => 'large',
+		'highlight' => array(
+			'events' => isset($modSettings['cal_highlight_events']) ? $modSettings['cal_highlight_events'] : 0,
+			'holidays' => isset($modSettings['cal_highlight_holidays']) ? $modSettings['cal_highlight_holidays'] : 0,
+			'birthdays' => isset($modSettings['cal_highlight_birthdays']) ? $modSettings['cal_highlight_birthdays'] : 0,
+		),
+		'show_week_num' => !empty($modSettings['cal_week_numbers']),
+		'short_day_titles' => !empty($modSettings['cal_short_days']),
+		'short_month_titles' => !empty($modSettings['cal_short_months']),
+		'show_next_prev' => !empty($modSettings['cal_prev_next_links']),
+		'show_week_links' => isset($modSettings['cal_week_links']) ? $modSettings['cal_week_links'] : 0,
+		'size' => empty($modSettings['cal_display_type']) ? 'large' : 'small',
 	);
 
 	// Load up the main view.
@@ -105,15 +111,11 @@ function CalendarMain()
 		$context['calendar_grid_main'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
 
 	// Load up the previous and next months.
-	$calendarOptions['show_birthdays'] = $calendarOptions['show_events'] = $calendarOptions['show_holidays'] = false;
-	$calendarOptions['short_day_titles'] = true;
-	$calendarOptions['show_next_prev'] = false;
-	$calendarOptions['show_week_links'] = false;
-	$calendarOptions['size'] = 'small';
+	//$calendarOptions['show_birthdays'] = $calendarOptions['show_events'] = $calendarOptions['show_holidays'] = false;
 	$context['calendar_grid_current'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
-		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['month'], $context['calendar_grid_current']['previous_calendar']['year'], $calendarOptions);
+		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['month'], $context['calendar_grid_current']['previous_calendar']['year'], $calendarOptions, true);
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
 		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
@@ -124,6 +126,7 @@ function CalendarMain()
 	$context['current_month'] = $curPage['month'];
 	$context['current_year'] = $curPage['year'];
 	$context['show_all_birthdays'] = isset($_GET['showbd']);
+	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
 
 	// Set the page title to mention the month or week, too
 	$context['page_title'] .= ' - ' . ($context['view_week'] ? sprintf($txt['calendar_week_title'], $context['calendar_grid_main']['week_number'], ($context['calendar_grid_main']['week_number'] == 53 ? $context['current_year'] - 1 : $context['current_year'])) : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);

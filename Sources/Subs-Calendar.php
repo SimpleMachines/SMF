@@ -307,21 +307,28 @@ function getTodayInfo()
  * @param int $month
  * @param int $year
  * @param array $calendarOptions
+ * @param int $is_previous
  * @return array containing all the information needed to show a calendar grid for the given month
  */
-function getCalendarGrid($month, $year, $calendarOptions)
+function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 {
-	global $scripturl, $modSettings;
+	global $scripturl, $modSettings, $context;
 
 	// Eventually this is what we'll be returning.
 	$calendarGrid = array(
 		'week_days' => array(),
 		'weeks' => array(),
 		'short_day_titles' => !empty($calendarOptions['short_day_titles']),
+		'short_month_titles' => !empty($calendarOptions['short_month_titles']),
+		'highlight' => array(
+			'events' => !empty($calendarOptions['highlight']['events']) && !empty($calendarOptions['show_events']) ? $calendarOptions['highlight']['events'] : 0,
+			'holidays' => !empty($calendarOptions['highlight']['holidays']) && !empty($calendarOptions['show_holidays']) ? $calendarOptions['highlight']['holidays'] : 0,
+			'birthdays' => !empty($calendarOptions['highlight']['birthdays']) && !empty($calendarOptions['show_birthdays']) ? $calendarOptions['highlight']['birthdays'] : 0,
+		),
 		'current_month' => $month,
 		'current_year' => $year,
 		'show_next_prev' => !empty($calendarOptions['show_next_prev']),
-		'show_week_links' => !empty($calendarOptions['show_week_links']),
+		'show_week_links' => isset($calendarOptions['show_week_links']) ? $calendarOptions['show_week_links'] : 0,
 		'previous_calendar' => array(
 			'year' => $month == 1 ? $year - 1 : $year,
 			'month' => $month == 1 ? 12 : $month - 1,
@@ -444,12 +451,20 @@ function getCalendarGrid($month, $year, $calendarOptions)
 				'date' => $date,
 				'is_today' => $date == $today['date'],
 				'is_first_day' => !empty($calendarOptions['show_week_num']) && (($month_info['first_day']['day_of_week'] + $nDay - 1) % 7 == $calendarOptions['start_day']),
+				'is_first_of_month' => $nDay === 1,
 				'holidays' => !empty($holidays[$date]) ? $holidays[$date] : array(),
 				'events' => !empty($events[$date]) ? $events[$date] : array(),
-				'birthdays' => !empty($bday[$date]) ? $bday[$date] : array()
+				'birthdays' => !empty($bday[$date]) ? $bday[$date] : array(),
 			);
 		}
 	}
+
+	// What is the last day of the month?
+	if ($is_previous === true)
+		$calendarGrid['last_of_month'] = $month_info['last_day']['day_of_month'];
+
+	// A comment is like...a dog marking its territory. ;)
+	$calendarGrid['shift'] = $nShift;
 
 	// Set the previous and the next month's links.
 	$calendarGrid['previous_calendar']['href'] = $scripturl . '?action=calendar;year=' . $calendarGrid['previous_calendar']['year'] . ';month=' . $calendarGrid['previous_calendar']['month'];

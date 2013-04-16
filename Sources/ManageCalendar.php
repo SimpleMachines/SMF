@@ -333,6 +333,20 @@ function ModifyCalendarSettings($return_config = false)
 			// Calendar spanning...
 			array('check', 'cal_allowspan'),
 			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word']),
+		'',
+			// A comment is like a dog marking its territory. ;)
+			array('select', 'cal_highlight_events', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+			array('select', 'cal_highlight_holidays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+			array('select', 'cal_highlight_birthdays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+		'',
+			// Miscellaneous layout settings...
+			array('check', 'cal_disable_prev_next'),
+			array('select', 'cal_display_type', array(0 => $txt['setting_cal_display_comfortable'], 1 => $txt['setting_cal_display_compact'])),
+			array('select', 'cal_week_links', array(0 => $txt['setting_cal_week_links_none'], 1 => $txt['setting_cal_week_links_mini'], 2 => $txt['setting_cal_week_links_main'], 3 => $txt['setting_cal_week_links_both'])),
+			array('check', 'cal_prev_next_links'),
+			array('check', 'cal_short_days'),
+			array('check', 'cal_short_months'),
+			array('check', 'cal_week_numbers'),
 	);
 
 	call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));

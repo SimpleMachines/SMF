@@ -21,12 +21,18 @@ $txt['lang_capitalize_dates'] = true;
 // Number format.
 $txt['number_format'] = '1,234.00';
 
+$txt['days_title'] = 'Days';
 $txt['days'] = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 $txt['days_short'] = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 // Months must start with 1 => 'January'. (or translated, of course.)
+$txt['months_title'] = 'Months';
 $txt['months'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 $txt['months_titles'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 $txt['months_short'] = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+
+$txt['minutes_label'] = 'Minutes';
+$txt['hours_label'] = 'Hours';
+$txt['years_title'] = 'Years';
 
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
