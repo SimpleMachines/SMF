@@ -1480,6 +1480,8 @@ ul li.greeting {
 }
 /* No more huge avatars up top. YAY! */
 #inner_wrap a.avatar img {
+	height: 100%;
+	width: 100%;
 	max-width: 40px;
 	max-height: 40px;
 }
