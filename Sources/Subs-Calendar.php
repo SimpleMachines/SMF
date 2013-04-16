@@ -312,7 +312,7 @@ function getTodayInfo()
  */
 function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 {
-	global $scripturl, $modSettings, $context;
+	global $scripturl, $modSettings;
 
 	// Eventually this is what we'll be returning.
 	$calendarGrid = array(
