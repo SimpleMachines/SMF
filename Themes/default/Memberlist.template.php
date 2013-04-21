@@ -67,33 +67,50 @@ function template_main()
 		foreach ($context['members'] as $member)
 		{
 			echo '
-                                <tr class="windowbg', $alternate ? '2' : '', '"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>';
-			foreach ($context['columns'] AS $key => $m) {
-			        if ($key == 'is_online') {
+				<tr class="windowbg', $alternate ? '2' : '', '"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>';
+			
+			foreach ($context['columns'] AS $key => $value) {
+				
+				$class = 'centertext';
+				if (empty($value['cols']['class']) == false) {
+					$class = $value['cols']['class'];
+				}
+				
+				if ($key == 'is_online') {
 					echo '
-					<td class="centertext">
+					<td class="', $class, '">
 						', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', 
 						$settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" class="centericon" />' : $member['online']['label'], 
 						$context['can_send_pm'] ? '</a>' : '', '
 					</td>';
 				} elseif ($key == 'real_name') {
+					
 					echo '
-					<td class="lefttext">', $member['link'], '</td>';
+					<td class="', $class, '">', $member['link'], '</td>';
+					
 				} elseif ($key == 'email_address' && $context['can_send_email'] == true) {
+					
 					echo '
-					<td class="centertext">', $member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>', '</td>';
+					<td class="', $class, '">', $member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>', '</td>';
+					
 				} elseif ($key == 'id_group') {
+					
 					echo '
-					<td class="lefttext">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>';
+					<td class="', $class, '">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>';
+					
 				} elseif ($key == 'registered') {
+					
 					echo '
-					<td class="lefttext">', $member['registered_date'], '</td>';
+					<td class="', $class, '">', $member['registered_date'], '</td>';
+					
 				} elseif ($key == 'posts' && isset($context['disabled_fields']['posts']) == false) {
+					
 					echo '
 					<td style="white-space: nowrap" width="15">', $member['posts'], '</td>
 					<td class="statsbar" width="120">';
 					
 					if (empty($member['post_percent']) == false) {
+						
 						echo '
 						<div class="bar" style="width: ', $member['post_percent'] + 4, 'px;">
 							<div style="width: ', $member['post_percent'], 'px;"></div>
@@ -102,20 +119,26 @@ function template_main()
 					
 					echo '
 					</td>';
+					
 				} elseif ($key == 'website_url') {
+					
 					echo '
-					<td class="centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><img src="' . $settings['images_url'] . '/www.png" alt="' . $member['website']['title'] . '" title="' . $member['website']['title'] . '" /></a>' : '', '</td>';
+					<td class="', $class, '">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><img src="' . $settings['images_url'] . '/www.png" alt="' . $member['website']['title'] . '" title="' . $member['website']['title'] . '" /></a>' : '', '</td>';
+					
 				} else {
+					
 					if (isset($context['disabled_fields'][$key]) == false) {
+						
 						echo '
-					<td class="centertext">', $member[$key]['link'], '</td>';
+					<td class="', $class, '">', $member[$key]['link'], '</td>';
+						
 					}
 				}
 			}
-
+			
 			echo '
 				</tr>';
-
+			
 			$alternate = !$alternate;
 		}
 	}

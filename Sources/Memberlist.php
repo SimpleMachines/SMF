@@ -75,6 +75,9 @@ function Memberlist()
 				'down' => 'mem.real_name DESC',
 				'up' => 'mem.real_name ASC'
 			),
+			'cols' => array(
+				'class' => 'lefttext',
+			),
 		),
 		'email_address' => array(
 			'label' => $txt['email'],
@@ -131,12 +134,18 @@ function Memberlist()
 				'down' => 'IFNULL(mg.group_name, 1=1) DESC, mg.group_name DESC',
 				'up' => 'IFNULL(mg.group_name, 1=1) ASC, mg.group_name ASC'
 			),
+			'cols' => array(
+				'class' => 'lefttext',
+			),
 		),
 		'registered' => array(
 			'label' => $txt['date_registered'],
 			'sort' => array(
 				'down' => 'mem.date_registered DESC',
 				'up' => 'mem.date_registered ASC'
+			),
+			'cols' => array(
+				'class' => 'lefttext',
 			),
 		),
 		'posts' => array(
@@ -151,8 +160,8 @@ function Memberlist()
 		)
 	);
 
-    // Allow mods to add additional tables column head here
-    call_integration_hook('integrate_mlist_head_column', array(&$context['colspan']));
+	// Allow mods to add additional tables column head here
+	call_integration_hook('integrate_memberlist_column', array(&$context['colspan']));
 
 	$context['colspan'] = 0;
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
@@ -215,6 +224,8 @@ function MLAll()
 	// 3. the page shown is high enough to make a DB filesort unprofitable.
 	$use_cache = $modSettings['totalMembers'] > 2000 && (!isset($_REQUEST['sort']) || $_REQUEST['sort'] === 'real_name') && isset($_REQUEST['start']) && $_REQUEST['start'] > $cache_step_size;
 
+	$memberlist_cache = Array();
+	
 	if ($use_cache)
 	{
 		// Maybe there's something cached already.
