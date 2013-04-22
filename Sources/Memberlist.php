@@ -161,7 +161,7 @@ function Memberlist()
 	);
 
 	// Allow mods to add additional tables column head here
-	call_integration_hook('integrate_memberlist_column', array(&$context['colspan']));
+	call_integration_hook('integrate_memberlist_column', array(&$context['columns']));
 
 	$context['colspan'] = 0;
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
