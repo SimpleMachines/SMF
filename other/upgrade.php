@@ -943,6 +943,48 @@ function WelcomeLogin()
 
 	$upcontext['sub_template'] = 'welcome_message';
 
+
+	$missing = array();
+	if(!@file_exists($modSettings['theme_dir'] . '/index.template.php')) {
+		$missing[] = $modSettings['theme_dir'] . '/index.template.php';
+		$check = false;
+	}
+	if(!@file_exists($sourcedir . '/QueryString.php')) {
+		$missing[] = $sourcedir . '/QueryString.php';
+		$check = false;
+	}
+	if(!@file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php')) {
+		$missing[] = $sourcedir . '/Subs-Db-' . $db_type . '.php';
+		$check = false;
+	}
+	if(!@file_exists(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql')) {
+		$missing[] = dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql';
+		$check = false;
+	}
+
+	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 2.1) {
+		if (!@file_exists(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql')) {
+				$missing[] = dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql';
+				$check = false;
+		}
+	}
+
+	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 2.0) {
+		if (!@file_exists(dirname(__FILE__) . '/upgrade_1-1.sql')) {
+				$missing[] = dirname(__FILE__) . '/upgrade_1-1.sql';
+				$check = false;
+		}
+	}
+	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 1.1) {
+		if (!@file_exists(dirname(__FILE__) . '/upgrade_1-1.sql')) {
+				$missing[] = dirname(__FILE__) . '/upgrade_1-0.sql';
+				$check = false;
+		}
+	}
+	if (!$check)
+		// Tell them what files are missing, so that they can do something about it.
+		return throw_error('The upgrader was unable to find some crucial files.<br /><br />Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.<br /><strong>Missing files:<br /> ' . implode("<br />",$missing).'</strong>');
+/*
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists($sourcedir . '/QueryString.php')
@@ -960,6 +1002,7 @@ function WelcomeLogin()
 	if (!$check)
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
 		return throw_error('The upgrader was unable to find some crucial files.<br /><br />Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.');
+*/
 
 	// Do they meet the install requirements?
 	if (!php_version_check())
