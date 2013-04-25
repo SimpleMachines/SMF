@@ -2592,9 +2592,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	if ($do_footer === null)
 		$do_footer = $do_header;
 
-	// We should set our security headers now.
-	frameOptionsHeader();
-
 	// Has the template/header been done yet?
 	if ($do_header)
 	{
