@@ -1284,7 +1284,7 @@ RemoveHandler .php .php3 .phtml .cgi .fcgi .pl .fpl .shtml';
 	{
 		$fh = @fopen($path . '/index.php', 'w');
 		if ($fh) {
-			fwrite($fh, '<?php
+			fwrite($fh, '<' . '?php
 
 /**
  * This file is here solely to protect your ' . $directoryname . ' directory.
@@ -1301,7 +1301,7 @@ if (file_exists(dirname(dirname(__FILE__)) . \'/Settings.php\'))
 else
 	exit;
 
-?>');
+?'. '>');
 			fclose($fh);
 		}
 		$errors[] = 'index-php_cannot_create_file';
@@ -1350,6 +1350,32 @@ function constructBanQueryIP($fullip)
 			AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
 
 	return $ban_query;
+}
+
+/**
+* This sets the X-Frame-Options header.
+*
+* @param string $option the frame option, defaults to deny.
+* @return void.
+* @since 3.0
+* @version 3.0
+*/
+function frameOptionsHeader($override = null)
+{
+	global $modSettings;
+
+	$option = 'SAMEORIGIN';
+	if (is_null($override) && !empty($modSettings['frame_security']))
+		$option = $modSettings['frame_security'];
+	elseif (in_array($override, array('SAMEORIGIN', 'DENY', 'SAMEORIGIN')))
+		$option = $override;
+
+	// Don't bother setting the header if we have disabled it.
+	if ($option == 'DISABLE')
+		return;
+
+	// Finally set it.
+	header('X-Frame-Options: ' . $option);
 }
 
 ?>
