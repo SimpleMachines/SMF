@@ -1486,7 +1486,6 @@ ul li.greeting {
 /* News section. */
 #inner_wrap .news {
 	max-width: 50%;
-	max-width: 27em;
 	float: right;
 	overflow: auto;
 	padding: 0 0 6px 0;
