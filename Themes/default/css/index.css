@@ -1544,8 +1544,13 @@ ul li.greeting {
 	text-shadow: 1px 1px 0 #fff;
 }
 .navigate_section ul li a, .navigate_section ul li em {
-	padding: 4px 0;
+	padding: 4px 0 4px;
+	margin-top: -4px;
 	display: inline-block;
+}
+.navigate_section ul li span {
+	display: inline-block;
+	margin-top: 8px;
 }
 .navigate_section ul li .dividers {
 	color: #3f6b8c;
@@ -1563,6 +1568,7 @@ ul li.greeting {
 }
 .navigate_section .unread_links a {
 	padding: 4px 0 4px 10px;
+	margin-top: 4px;
 }
 /* The content section */
 #content_section {
