@@ -160,7 +160,7 @@ function template_search_members()
 				<h3 class="titlebg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>
 			<div class="flow_hidden">
-				<table width="49%" class="table_grid floatleft">
+				<table class="table_grid floatleft" style="width: 49%;">
 					<thead>
 						<tr class="catbg">
 							<th scope="col" class="first_th">', $txt['membergroups'], '</th>
@@ -197,7 +197,7 @@ function template_search_members()
 					</tbody>
 				</table>
 
-				<table width="49%" class="table_grid floatright">
+				<table class="table_grid floatright" style="width: 49%;">
 					<thead>
 						<tr class="catbg">
 							<th scope="col" class="first_th">
@@ -214,7 +214,7 @@ function template_search_members()
 							<td>
 								', $postgroup['name'], '
 							</td>
-							<td width="40" class="centercol">
+							<td class="centercol" style="width: 40px;">
 								<input type="checkbox" name="postgroups[]" value="', $postgroup['id'], '" checked="checked" class="input_check" />
 							</td>
 						</tr>';
@@ -255,7 +255,7 @@ function template_admin_browse()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_browse_outstanding'], '</h3>
 			</div>
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				function onOutstandingSubmit()
 				{
 					if (document.forms.postFormOutstanding.todo.value == "")

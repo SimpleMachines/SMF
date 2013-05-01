@@ -136,11 +136,11 @@ function ModifyKarma()
 	// JavaScript as a last resort.
 	else
 	{
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+		echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>...</title>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			history.go(-1);
 		// ]]></script>
 	</head>
@@ -163,19 +163,18 @@ function BookOfUnknown()
 	elseif (strpos($_GET['action'], 'mozilla') !== false)
 		redirectexit('about:mozilla', true);
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>The Book of Unknown, ', @$_GET['verse'] == '2:18' ? '2:18' : '4:16', '</title>
-		<style type="text/css">
-			em
-			{
+		<style>
+			em {
 				font-size: 1.3em;
 				line-height: 0;
 			}
 		</style>
 	</head>
-	<body style="background-color: #444455; color: white; font-style: italic; font-family: serif;">
+	<body style="background: #444455; color: white; font-style: italic; font-family: serif;">
 		<div style="margin-top: 12%; font-size: 1.1em; line-height: 1.4; text-align: center;">';
 	if (@$_GET['verse'] == '2:18')
 		echo '

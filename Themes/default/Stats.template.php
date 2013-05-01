@@ -301,14 +301,14 @@ function template_main()
 	if (!empty($context['yearly']))
 	{
 		echo '
-		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" id="stats">
+		<table cellspacing="1" cellpadding="4" class="table_grid" id="stats" style="width: 100%; border: 0px;">
 			<thead>
 				<tr class="titlebg" valign="middle" align="center">
-					<th class="first_th lefttext" width="25%">', $txt['yearly_summary'], '</th>
-					<th width="15%">', $txt['stats_new_topics'], '</th>
-					<th width="15%">', $txt['stats_new_posts'], '</th>
-					<th width="15%">', $txt['stats_new_members'], '</th>
-					<th', empty($modSettings['hitStats']) ? ' class="last_th"' : '', ' width="15%">', $txt['most_online'], '</th>';
+					<th class="first_th lefttext" style="width: 25%;">', $txt['yearly_summary'], '</th>
+					<th style="width: 15%;">', $txt['stats_new_topics'], '</th>
+					<th style="width: 15%;">', $txt['stats_new_posts'], '</th>
+					<th style="width: 15%;">', $txt['stats_new_members'], '</th>
+					<th', empty($modSettings['hitStats']) ? ' class="last_th"' : '', ' style="width: 15%;">', $txt['most_online'], '</th>';
 
 		if (!empty($modSettings['hitStats']))
 			echo '
@@ -323,13 +323,13 @@ function template_main()
 		{
 			echo '
 				<tr class="windowbg2" valign="middle" align="center" id="year_', $id, '">
-					<th class="lefttext" width="25%">
+					<th class="lefttext" style="width: 25%;">
 						<img id="year_img_', $id, '" src="', $settings['images_url'], '/selected_open.png" alt="*" /> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
 					</th>
-					<th width="15%">', $year['new_topics'], '</th>
-					<th width="15%">', $year['new_posts'], '</th>
-					<th width="15%">', $year['new_members'], '</th>
-					<th width="15%">', $year['most_members_online'], '</th>';
+					<th style="width: 15%;">', $year['new_topics'], '</th>
+					<th style="width: 15%;">', $year['new_posts'], '</th>
+					<th style="width: 15%;">', $year['new_members'], '</th>
+					<th style="width: 15%;">', $year['most_members_online'], '</th>';
 
 			if (!empty($modSettings['hitStats']))
 				echo '
@@ -345,10 +345,10 @@ function template_main()
 					<th class="stats_month">
 						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '" /> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
 					</th>
-					<th width="15%">', $month['new_topics'], '</th>
-					<th width="15%">', $month['new_posts'], '</th>
-					<th width="15%">', $month['new_members'], '</th>
-					<th width="15%">', $month['most_members_online'], '</th>';
+					<th style="width: 15%;">', $month['new_topics'], '</th>
+					<th style="width: 15%;">', $month['new_posts'], '</th>
+					<th style="width: 15%;">', $month['new_members'], '</th>
+					<th style="width: 15%;">', $month['most_members_online'], '</th>';
 
 				if (!empty($modSettings['hitStats']))
 					echo '
@@ -385,8 +385,8 @@ function template_main()
 		</table>
 		</div>
 	</div>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/stats.js"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script src="', $settings['default_theme_url'], '/scripts/stats.js"></script>
+	<script><!-- // --><![CDATA[
 		var oStatsCenter = new smf_StatsCenter({
 			sTableId: \'stats\',
 

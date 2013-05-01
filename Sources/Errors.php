@@ -337,10 +337,10 @@ function display_maintenance_message()
 	set_fatal_error_headers();
 
 	if (!empty($maintenance))
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+		echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>', $mtitle, '</title>
 	</head>
 	<body>
@@ -384,10 +384,10 @@ function display_db_error()
 	}
 
 	// What to do?  Language files haven't and can't be loaded yet...
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Connection Problems</title>
 	</head>
 	<body>
@@ -411,10 +411,10 @@ function display_loadavg_error()
 
 	set_fatal_error_headers();
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Temporarily Unavailable</title>
 	</head>
 	<body>

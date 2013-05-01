@@ -60,7 +60,7 @@ function template_latest_news()
 	echo '
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oAdminIndex = new smf_AdminIndex({
 				sSelf: \'oAdminCenter\',
 
@@ -688,7 +688,7 @@ function template_warn_template()
 		</form>
 	</div>
 
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		$(document).ready(function() {
 			$("#preview_button").click(function() {
 				return ajax_getTemplatePreview();

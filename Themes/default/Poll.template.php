@@ -16,7 +16,7 @@ function template_main()
 
 	// Some javascript for adding more options.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var pollOptionNum = 0;
 			var pollOptionId = ', $context['last_choice_id'], ';
 

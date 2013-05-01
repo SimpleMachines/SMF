@@ -400,7 +400,7 @@ template_ssi_above();
 				<h3>Code</h3>
 				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code"><?php echo htmlspecialchars(template_homepage_sample1('source')); ?></code>
 				<h3>Result</h3>
-				<iframe src="?view=home1" width="99%" height="300"></iframe>
+				<iframe src="?view=home1" style="width: 99%; height: 300px;"></iframe>
 			</div>
 		</div>
 		<span class="botslice"><span></span></span>
@@ -414,84 +414,71 @@ function template_ssi_above()
 {
 	global $settings, $context, $scripturl;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
 	<head>
 		<title>SMF 2.1 Alpha 1 SSI.php Examples</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
-		<style type="text/css">
-			#wrapper
-			{
+		<style>
+			#wrapper {
 				width: 90%;
 			}
-			#upper_section .user
-			{
+			#upper_section .user {
 				height: 4em;
 			}
-			#upper_section .news
-			{
+			#upper_section .news {
 				height: 80px;
 			}
-			#content_section
-			{
+			#content_section {
 				position: relative;
 				top: -20px;
 			}
-			#main_content_section h2
-			{
+			#main_content_section h2 {
 				font-size: 1.5em;
 				border-bottom: solid 1px #d05800;
 				line-height: 1.5em;
 				margin: 0.5em 0;
 				color: #d05800;
 			}
-			#liftup
-			{
+			#liftup {
 				position: relative;
 				top: -70px;
 				padding: 1em 2em 1em 1em;
 				line-height: 1.6em;
 			}
-			#footer_section
-			{
+			#footer_section {
 				position: relative;
 				top: -20px;
 			}
-			#sidenav
-			{
+			#sidenav {
 				width: 210px;
 				float: left;
 				margin-right: 20px;
 			}
-			#sidenav ul
-			{
+			#sidenav ul {
 				margin: 0 0 0 15px;
 				padding: 0;
 				list-style: none;
 				font-size: 90%;
 			}
-			#preview
-			{
+			#preview {
 				margin-left: 230px;
 			}
-			.ssi_preview
-			{
+			.ssi_preview {
 				margin-bottom: 1.5em;
 			}
-			.ssi_preview h3
-			{
+			.ssi_preview h3 {
 				margin: 1em 0 0.5em 0;
 			}
-			.ssi_result
-			{
+			.ssi_result {
 				background-color: #fff;
 				border: 1px solid #99a;
 				padding: 10px;
 				overflow: hidden;
 			}
 		</style>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var smf_scripturl = "', $scripturl, '";
 			var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
 			var smf_charset = "', $context['character_set'], '";
@@ -540,7 +527,7 @@ function template_ssi_below()
 	global $time_start;
 
 	echo '
-						<script type="text/javascript"><!-- // --><![CDATA[
+						<script><!-- // --><![CDATA[
 							showSSIBlock("ssi_recentTopics");
 						// ]]></script>
 					</div>
@@ -558,11 +545,11 @@ function template_homepage_sample1($method = 'source')
 {
 	global $user_info, $boarddir;
 
-	$header = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	$header = '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
 <head>
 	<title>SSI.php example for home page</title>
-	<style type="text/css">
+	<style>
 		body { font-family: Arial, Tahoma, sans-serif; font-size: 80%; background: #DFDFDF; color: #FFFFFF; margin: 0 }
 		ul,ol { padding-left: 19px; margin: 0; }
 		li { font-size: 11px; }
@@ -594,8 +581,8 @@ function template_homepage_sample1($method = 'source')
 
 	$footer = '
 	<div id="footer">
-		<a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/publicdomain/88x31.png" /></a>
-		This sample website layout is dedicated to the <a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/">Public Domain</a>.
+		<a href="http://creativecommons.org/licenses/publicdomain/" target="_blank" rel="license"><img src="http://i.creativecommons.org/l/publicdomain/88x31.png" alt="Creative Commons License" style="border: 0;" /></a>
+		This sample website layout is dedicated to the <a href="http://creativecommons.org/licenses/publicdomain/" target="_blank" rel="license">Public Domain</a>.
 	</div>
 </div>
 </body>

@@ -119,7 +119,7 @@ function template_set_password()
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		<input type="hidden" name="', $context['remind-sp_token_var'], '" value="', $context['remind-sp_token'], '" />
 	</form>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",
 		"password_reserved": "', $txt['registration_password_reserved'], '",
@@ -182,7 +182,7 @@ function template_ask()
 
 	if ($context['account_type'] == 'password')
 		echo '
-<script type="text/javascript"><!-- // --><![CDATA[
+<script><!-- // --><![CDATA[
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",
 		"password_reserved": "', $txt['registration_password_reserved'], '",

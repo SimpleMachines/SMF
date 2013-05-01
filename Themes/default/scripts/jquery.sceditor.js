@@ -29,8 +29,8 @@
 				'<html>' +
 					'<head>' +
 						'<!--[if IE]><style>* {min-height: auto !important}</style><![endif]-->' +
-						'<meta http-equiv="Content-Type" content="text/html;charset={charset}" />' +
-						'<link rel="stylesheet" type="text/css" href="{style}" />' +
+						'<meta http-equiv="Content-Type" content="text/html;charset={charset}">' +
+						'<link rel="stylesheet" type="text/css" href="{style}">' +
 					'</head>' +
 					'<body contenteditable="true"></body>' +
 				'</html>',
@@ -65,7 +65,7 @@
 
 		youtubeMenu:	'<div><label for="link">{label}</label> <input type="text" id="link" value="http://" /></div><div><input type="button" class="button" value="{insert}" /></div>',
 
-		youtube:	'<iframe width="560" height="315" src="http://www.youtube.com/embed/{id}?wmode=opaque" data-youtube-id="{id}" frameborder="0" allowfullscreen></iframe>'
+		youtube:	'<iframe src="http://www.youtube.com/embed/{id}?wmode=opaque" data-youtube-id="{id}" frameborder="0" allowfullscreen style="width: 560px; height: 315px;"></iframe>'
 	};
 
 	/**
@@ -2025,10 +2025,10 @@
 						attrs	= '',
 						width, height;
 
-					if((width = content.find("#width").val()))
-						attrs += ' width="' + width + '"';
-					if((height = content.find("#height").val()))
-						attrs += ' height="' + height + '"';
+					if ((width = content.find("#width").val()))
+						attrs += ' style="width: ' + width + ';"';
+					if ((height = content.find("#height").val()))
+						attrs += ' style="height: ' + height + ';"';
 
 					if(val && val !== "http://")
 						editor.wysiwygEditorInsertHtml('<img' + attrs + ' src="' + val + '" />');

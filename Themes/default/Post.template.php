@@ -17,7 +17,7 @@ function template_main()
 
 	// Start the javascript... and boy is there a lot.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[';
+		<script><!-- // --><![CDATA[';
 
 	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
 	if (isBrowser('is_firefox'))
@@ -435,7 +435,7 @@ function template_main()
 			// Show more boxes if they aren't approaching that limit.
 			if ($context['num_allowed_attachments'] > 1)
 				echo '
-								<script type="text/javascript"><!-- // --><![CDATA[
+								<script><!-- // --><![CDATA[
 									var allowed_attachments = ', $context['num_allowed_attachments'], ';
 									var current_attachment = 1;
 
@@ -552,7 +552,7 @@ function template_main()
 		</form>';
 
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[';
+		<script><!-- // --><![CDATA[';
 
 	// The functions used to preview a posts without loading a new page.
 	echo '
@@ -855,7 +855,7 @@ function template_main()
 
 		echo '
 		</div>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var aIgnoreToggles = new Array();';
 
 		foreach ($ignored_posts as $post_id)
@@ -910,28 +910,25 @@ function template_spellcheck()
 	global $context, $settings, $options, $txt;
 
 	// The style information that makes the spellchecker look... like the forum hopefully!
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $txt['spell_check'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
-		<style type="text/css">
-			body, td
-			{
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<style>
+			body, td {
 				font-size: small;
 				margin: 0;
 				background: #f0f0f0;
 				color: #000;
 				padding: 10px;
 			}
-			.highlight
-			{
+			.highlight {
 				color: red;
 				font-weight: bold;
 			}
-			#spellview
-			{
+			#spellview {
 				border-style: outset;
 				border: 1px solid black;
 				padding: 5px;
@@ -944,25 +941,25 @@ function template_spellcheck()
 	// As you may expect - we need a lot of javascript for this... load it form the separate files.
 	echo '
 		</style>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		// ]]></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script><!-- // --><![CDATA[
 			', $context['spell_js'], '
 		// ]]></script>
 	</head>
 	<body onload="nextWord(false);">
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
 			<div id="spellview">&nbsp;</div>
-			<table border="0" cellpadding="4" cellspacing="0" width="100%"><tr class="windowbg">
-				<td width="50%" valign="top">
+			<table cellpadding="4" cellspacing="0" style="width: 100%; border: 0;"><tr class="windowbg">
+				<td valign="top" style="width: 50%;">
 					', $txt['spellcheck_change_to'], '<br />
 					<input type="text" name="changeto" style="width: 98%;" class="input_text" />
 				</td>
-				<td width="50%">
+				<td style="width: 50%;">
 					', $txt['spellcheck_suggest'], '<br />
 					<select name="suggestions" style="width: 98%;" size="5" onclick="if (this.selectedIndex != -1) this.form.changeto.value = this.options[this.selectedIndex].text;" ondblclick="replaceWord();">
 					</select>
@@ -983,17 +980,17 @@ function template_quotefast()
 {
 	global $context, $settings, $options, $txt;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	</head>
 	<body>
 		', $txt['retrieving_quote'], '
 		<div id="temporary_posting_area" style="display: none;"></div>
-		<script type="text/javascript"><!-- // --><![CDATA[';
+		<script><!-- // --><![CDATA[';
 
 	if ($context['close_window'])
 		echo '
@@ -1107,7 +1104,7 @@ function template_announcement_send()
 		</form>
 	</div>
 	<br />
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var countdown = 2;
 			doAutoSubmit();
 

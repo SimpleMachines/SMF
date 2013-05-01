@@ -1050,9 +1050,9 @@
 
 				// handle [img width=340 height=240]url[/img]
 				if(typeof attrs.width !== "undefined")
-					attribs += ' width="' + attrs.width + '"';
+					attribs += ' style="width: ' + attrs.width + ';"';
 				if(typeof attrs.height !== "undefined")
-					attribs += ' height="' + attrs.height + '"';
+					attribs += ' style="height: ' + attrs.height + ';"';
 				if(typeof attrs.alt !== "undefined")
 					attribs += ' alt="' + attrs.alt + '"';
 
@@ -1292,8 +1292,8 @@
 
 				return '[youtube]' + element.attr('data-youtube-id') + '[/youtube]';
 			},
-			html: '<iframe width="560" height="315" src="http://www.youtube.com/embed/{0}?wmode=opaque' +
-				'" data-youtube-id="{0}" frameborder="0" allowfullscreen></iframe>'
+			html: '<iframe src="http://www.youtube.com/embed/{0}?wmode=opaque' +
+				'" data-youtube-id="{0}" frameborder="0" allowfullscreen style="width: 560px; height: 315px;"></iframe>'
 		},
 		// END_COMMAND
 

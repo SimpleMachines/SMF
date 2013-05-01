@@ -72,7 +72,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-			<table class="table_grid" cellspacing="0" width="', !empty($cur_list['width']) ? $cur_list['width'] : '100%', '">';
+			<table class="table_grid" style="border-spacing: 0; border-collapse: collapse; width: ', !empty($cur_list['width']) ? $cur_list['width'] . 'px' : '100%', ';">';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);
@@ -178,7 +178,7 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['javascript']))
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		', $cur_list['javascript'], '
 	// ]]></script>';
 }

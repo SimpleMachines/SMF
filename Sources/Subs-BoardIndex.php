@@ -238,8 +238,8 @@ function getBoardIndex($boardIndexOptions)
 			{
 				if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
 				{
-					$avatar_width = !empty($modSettings['avatar_max_width_external']) ? ' width="' . $modSettings['avatar_max_width_external'] . '"' : '';
-					$avatar_height = !empty($modSettings['avatar_max_height_external']) ? ' height="' . $modSettings['avatar_max_height_external'] . '"' : '';
+					$avatar_width = !empty($modSettings['avatar_max_width_external']) ? 'width: ' . $modSettings['avatar_max_width_external'] . 'px;' : '';
+					$avatar_height = !empty($modSettings['avatar_max_height_external']) ? 'height: ' . $modSettings['avatar_max_height_external'] . 'px;' : '';
 				}
 				else
 				{
@@ -271,7 +271,7 @@ function getBoardIndex($boardIndexOptions)
 		if (!empty($settings['avatars_on_indexes']))
 			$this_last_post['member']['avatar'] = array(
 				'name' => $row_board['avatar'],
-				'image' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) . '" alt="" />' : '') : (stristr($row_board['avatar'], 'http://') ? '<img class="avatar" src="' . $row_board['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . htmlspecialchars($row_board['avatar']) . '" alt="" />'),
+				'image' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) . '" alt="" />' : '') : (stristr($row_board['avatar'], 'http://') ? '<img class="avatar" src="' . $row_board['avatar'] . '" style="' . $avatar_width . $avatar_height . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . htmlspecialchars($row_board['avatar']) . '" alt="" />'),
 				'href' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) : '') : (stristr($row_board['avatar'], 'http://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar']),
 				'url' => $row_board['avatar'] == '' ? '' : (stristr($row_board['avatar'], 'http://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'])
 			);

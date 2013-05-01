@@ -78,7 +78,7 @@ function template_login()
 
 	// Focus on the correct input - username or password.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			document.forms.frmLogin.', isset($context['default_username']) && $context['default_username'] != '' ? 'passwrd' : 'user', '.focus();
 		// ]]></script>';
 }
@@ -150,7 +150,7 @@ function template_kick_guest()
 
 	// Do the focus thing...
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			document.forms.frmLogin.user.focus();
 		// ]]></script>';
 }
@@ -169,7 +169,7 @@ function template_maintenance()
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
 		<p class="description">
-			<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '" />
+			<img class="floatleft" src="', $settings['images_url'], '/construction.png" alt="', $txt['in_maintain_mode'], '" style="width: 40px; height: 40px;" />
 			', $context['description'], '<br class="clear" />
 		</p>
 		<div class="title_bar">
@@ -235,7 +235,7 @@ function template_admin_login()
 
 	// Focus on the password box.
 	echo '
-<script type="text/javascript"><!-- // --><![CDATA[
+<script><!-- // --><![CDATA[
 	document.forms.frmLogin.', $context['sessionCheckType'], '_pass.focus();
 // ]]></script>';
 }

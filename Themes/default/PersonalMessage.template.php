@@ -55,7 +55,7 @@ function template_folder()
 
 	// The every helpful javascript!
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var allLabels = {};
 		var currentLabels = {};
 		function loadLabelChoices()
@@ -574,22 +574,22 @@ function template_subject_list()
 	global $context, $options, $settings, $modSettings, $txt, $scripturl;
 
 	echo '
-	<table width="100%" class="table_grid">
+	<table class="table_grid" style="width: 100%;">
 	<thead>
 		<tr class="catbg">
-			<th align="center" width="4%" class="centercol first_th">
-				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"><img src="', $settings['images_url'], '/im_switch.png" alt="', $txt['pm_change_view'], '" title="', $txt['pm_change_view'], '" width="16" height="16" /></a>
+			<th align="center" class="centercol first_th" style="width: 4%;">
+				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"><img src="', $settings['images_url'], '/im_switch.png" alt="', $txt['pm_change_view'], '" title="', $txt['pm_change_view'], '" style="width: 16px; height: 16px;" /></a>
 			</th>
-			<th class="lefttext" width="22%">
+			<th class="lefttext" style="width: 22%;">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=date', $context['sort_by'] == 'date' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['date'], $context['sort_by'] == 'date' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a>
 			</th>
-			<th class="lefttext" width="46%">
+			<th class="lefttext" style="width: 46%;">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a>
 			</th>
 			<th class="lefttext">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <img class="sort" src="' . $settings['images_url'] . '/sort_' . $context['sort_direction'] . '.png" alt="" />' : '', '</a>
 			</th>
-			<th width="4%" class="centercol last_th">
+			<th class="centercol last_th" style="width: 4%;">
 				<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />
 			</th>
 		</tr>
@@ -606,8 +606,8 @@ function template_subject_list()
 	{
 		echo '
 		<tr class="', $next_alternate ? 'windowbg' : 'windowbg2', '">
-			<td align="center" width="4%">
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<td align="center" style="width: 4%;">
+			<script><!-- // --><![CDATA[
 				currentLabels[', $message['id'], '] = {';
 
 		if (!empty($message['labels']))
@@ -628,7 +628,7 @@ function template_subject_list()
 			<td>', $message['time'], '</td>
 			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*" />' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>
-			<td class="centercol" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked="checked"' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check" /></td>
+			<td class="centercol" style="width: 4%;"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked="checked"' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check" /></td>
 		</tr>';
 			$next_alternate = !$next_alternate;
 	}
@@ -728,7 +728,7 @@ function template_search()
 				<span class="enhanced">
 					<strong>', $txt['pm_search_text'], ':</strong>
 					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text" />
-					<script type="text/javascript"><!-- // --><![CDATA[
+					<script><!-- // --><![CDATA[
 						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
 					// ]]></script>
@@ -798,7 +798,7 @@ function template_search()
 
 			// Some javascript for the advanced toggling
 			echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
@@ -852,12 +852,12 @@ function template_search_results()
 	// complete results ?
 	if (empty($context['search_params']['show_complete']) && !empty($context['personal_messages']))
 		echo '
-	<table width="100%" class="table_grid">
+	<table class="table_grid" style="width: 100%;">
 	<thead>
 		<tr class="catbg">
-			<th class="lefttext first_th" width="30%">', $txt['date'], '</th>
-			<th class="lefttext" width="50%">', $txt['subject'], '</th>
-			<th class="lefttext last_th" width="20%">', $txt['from'], '</th>
+			<th class="lefttext first_th" style="width: 30%;">', $txt['date'], '</th>
+			<th class="lefttext" style="width: 50%;">', $txt['subject'], '</th>
+			<th class="lefttext last_th" style="width: 20%;">', $txt['from'], '</th>
 		</tr>
 	</thead>
 	<tbody>';
@@ -1143,7 +1143,7 @@ function template_send()
 	}
 
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[';
+		<script><!-- // --><![CDATA[';
 	// The functions used to preview a personal message without loading a new page.
 	echo '
 			var txt_preview_title = "', $txt['preview_title'], '";
@@ -1301,7 +1301,7 @@ function template_send()
 	echo '
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/PersonalMessage.js?alp21"></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var oPersonalMessageSend = new smf_PersonalMessageSend({
 				sSelf: \'oPersonalMessageSend\',
 				sSessionId: smf_session_id,
@@ -1394,13 +1394,13 @@ function template_labels()
 		<div class="description">
 			', $txt['pm_labels_desc'], '
 		</div>
-		<table width="100%" class="table_grid">
+		<table class="table_grid" style="width: 100%;">
 		<thead>
 			<tr class="catbg">
 				<th class="lefttext first_th">
 					', $txt['pm_label_name'], '
 				</th>
-				<th class="centertext last_th" width="4%">';
+				<th class="centertext last_th" style="width: 4%;">';
 
 	if (count($context['labels']) > 2)
 		echo '
@@ -1429,7 +1429,7 @@ function template_labels()
 				<td>
 					<input type="text" name="label_name[', $label['id'], ']" value="', $label['name'], '" size="30" maxlength="30" class="input_text" />
 				</td>
-				<td width="4%" align="center"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']" /></td>
+				<td align="center" style="width: 4%;"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']" /></td>
 			</tr>';
 
 			$alternate = !$alternate;
@@ -1555,13 +1555,13 @@ function template_rules()
 		<div class="description">
 			', $txt['pm_manage_rules_desc'], '
 		</div>
-		<table width="100%" class="table_grid">
+		<table class="table_grid" style="width: 100%;">
 		<thead>
 			<tr class="catbg">
 				<th class="lefttext first_th">
 					', $txt['pm_rule_title'], '
 				</th>
-				<th width="4%" class="centertext last_th">';
+				<th class="centertext last_th" style="width: 4%;">';
 
 	if (!empty($context['rules']))
 		echo '
@@ -1589,7 +1589,7 @@ function template_rules()
 				<td>
 					<a href="', $scripturl, '?action=pm;sa=manrules;add;rid=', $rule['id'], '">', $rule['name'], '</a>
 				</td>
-				<td width="4%" align="center">
+				<td align="center" style="width: 4%;">
 					<input type="checkbox" name="delrule[', $rule['id'], ']" class="input_check" />
 				</td>
 			</tr>';
@@ -1623,7 +1623,7 @@ function template_add_rule()
 	global $context, $settings, $options, $txt, $scripturl;
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 			var criteriaNum = 0;
 			var actionNum = 0;
 			var groups = new Array()
@@ -1891,7 +1891,7 @@ function template_add_rule()
 
 	// Now setup all the bits!
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[';
+	<script><!-- // --><![CDATA[';
 
 	foreach ($context['rule']['criteria'] as $k => $c)
 		echo '
