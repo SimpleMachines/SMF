@@ -2524,6 +2524,11 @@ foreach ($textfield_updates as $ind => $change)
 	$step_progress['current'] = $_GET['strict_step'];
 }
 
+---# Replacing MSN with Skype.
+ALTER TABLE {$db_prefix}members
+CHANGE COLUMN msn skype tinytext NOT NULL default '';
+---#
+
 $step_progress = array();
 ---}
 ---#

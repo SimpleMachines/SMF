@@ -1251,7 +1251,7 @@ CREATE TABLE {$db_prefix}members (
   icq varchar(255) NOT NULL default '',
   aim varchar(255) NOT NULL default '',
   yim varchar(32) NOT NULL default '',
-  msn varchar(255) NOT NULL default '',
+  skype varchar(255) NOT NULL default '',
   hide_email tinyint(4) NOT NULL default '0',
   show_online tinyint(4) NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
