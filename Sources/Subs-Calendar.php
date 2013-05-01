@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function getBirthdayRange($low_date, $high_date)
 {
-	global $scripturl, $modSettings, $smcFunc;
+	global $smcFunc;
 
 	// We need to search for any birthday in this range, and whatever year that birthday is on.
 	$year_low = (int) substr($low_date, 0, 4);
@@ -339,11 +339,10 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 			'month' => $month == 12 ? 1 : $month + 1,
 			'disabled' => $modSettings['cal_maxyear'] < ($month == 12 ? $year + 1 : $year),
 		),
-		// @todo Better tweaks?
-		'size' => isset($calendarOptions['size']) ? $calendarOptions['size'] : 'large',
+		'size' => empty($modSettings['cal_display_type']) ? 'large' : 'small',
 	);
 
-	// Get todays date.
+	// Get today's date.
 	$today = getTodayInfo();
 
 	// Get information about this month.
@@ -463,7 +462,7 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 	if ($is_previous === true)
 		$calendarGrid['last_of_month'] = $month_info['last_day']['day_of_month'];
 
-	// A comment is like...a dog marking its territory. ;)
+	// We'll use the shift in the template.
 	$calendarGrid['shift'] = $nShift;
 
 	// Set the previous and the next month's links.
@@ -485,7 +484,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 {
 	global $scripturl, $modSettings;
 
-	// Get todays date.
+	// Get today's date.
 	$today = getTodayInfo();
 
 	// What is the actual "start date" for the passed day.
@@ -516,6 +515,7 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 		'next_week' => array(
 			'disabled' => $day > 25 && $modSettings['cal_maxyear'] < ($month == 12 ? $year + 1 : $year),
 		),
+		'size' => empty($modSettings['cal_display_type']) ? 'large' : 'small',
 	);
 
 	// The next week calculation requires a bit more work.
@@ -611,8 +611,6 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
  */
 function cache_getOffsetIndependentEvents($days_to_index)
 {
-	global $sourcedir;
-
 	$low_date = strftime('%Y-%m-%d', forum_time(false) - 24 * 3600);
 	$high_date = strftime('%Y-%m-%d', forum_time(false) + $days_to_index * 24 * 3600);
 
@@ -636,8 +634,6 @@ function cache_getOffsetIndependentEvents($days_to_index)
  */
 function cache_getRecentEvents($eventOptions)
 {
-	global $modSettings, $user_info, $scripturl;
-
 	// With the 'static' cached data we can calculate the user-specific data.
 	$cached_data = cache_quick_get('calendar_index', 'Subs-Calendar.php', 'cache_getOffsetIndependentEvents', array($eventOptions['num_days_shown']));
 
@@ -754,7 +750,7 @@ function cache_getRecentEvents($eventOptions)
  */
 function validateEventPost()
 {
-	global $modSettings, $txt, $sourcedir, $smcFunc;
+	global $modSettings, $smcFunc;
 
 	if (!isset($_POST['deleteevent']))
 	{
@@ -848,7 +844,7 @@ function getEventPoster($event_id)
  */
 function insertEvent(&$eventOptions)
 {
-	global $modSettings, $smcFunc;
+	global $smcFunc;
 
 	// Add special chars to the title.
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);
@@ -892,7 +888,7 @@ function insertEvent(&$eventOptions)
 	// Store the just inserted id_event for future reference.
 	$eventOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}calendar', 'id_event');
 
-	// Update the settings to show something calendarish was updated.
+	// Update the settings to show something calendar-ish was updated.
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));

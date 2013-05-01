@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function ManageCalendar()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -184,7 +184,7 @@ function ModifyHolidays()
  */
 function EditHoliday()
 {
-	global $txt, $context, $scripturl, $smcFunc;
+	global $txt, $context, $smcFunc;
 
 	loadTemplate('ManageCalendar');
 
@@ -290,7 +290,7 @@ function EditHoliday()
  */
 function ModifyCalendarSettings($return_config = false)
 {
-	global $modSettings, $context, $settings, $txt, $boarddir, $sourcedir, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	// Load the boards list.
 	$boards = array('');
@@ -379,7 +379,7 @@ function ModifyCalendarSettings($return_config = false)
 		redirectexit('action=admin;area=managecalendar;sa=settings');
 	}
 
-	// We need this for the in-line permissions
+	// We need this for the inline permissions
 	createToken('admin-mp');
 
 	// Prepare the settings...

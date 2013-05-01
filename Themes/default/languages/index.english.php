@@ -8,7 +8,7 @@ global $forum_copyright, $forum_version, $webmaster_email, $scripturl, $context,
 //   - http://www.php.net/function.pspell-new
 //   - http://www.php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
-$txt['lang_locale'] = 'en_US';
+$txt['lang_locale'] = '';
 $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
 
@@ -523,6 +523,8 @@ $txt['calendar_event_title'] = 'Event Title';
 $txt['calendar_event_options'] = 'Event Options';
 $txt['calendar_post_in'] = 'Post In:';
 $txt['calendar_edit'] = 'Edit Event';
+$txt['calendar_export'] = 'Export Event';
+$txt['calendar_view_week'] = 'View Week';
 $txt['event_delete_confirm'] = 'Delete this event?';
 $txt['event_delete'] = 'Delete Event';
 $txt['calendar_post_event'] = 'Post Event';

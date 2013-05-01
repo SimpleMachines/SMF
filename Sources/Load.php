@@ -507,7 +507,7 @@ function loadBoard()
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Looking through the message table can be slow, so try using the cache first.
-		if (($topic = cache_get_data('msg_topic-' . $_REQUEST['msg'], 120)) === NULL)
+		if (($topic = cache_get_data('msg_topic-' . $_REQUEST['msg'], 120)) === null)
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT id_topic
@@ -1768,7 +1768,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
 		'smf_images_url' => '"' . $settings['images_url'] . '"',
 		'smf_scripturl' => '"' . $scripturl . '"',
-		'smf_default_theme_url' => '"' . $settings['default_theme_url'] . '"',
 		'smf_iso_case_folding' => $context['server']['iso_case_folding'] ? 'true' : 'false',
 		'smf_charset' => '"' . $context['character_set'] . '"',
 		'smf_session_id' => '"' . $context['session_id'] . '"',
@@ -2086,9 +2085,7 @@ function addJavascriptVar($key, $value, $escape = false)
 function addInlineJavascript($javascript, $defer = false)
 {
 	global $context;
-
-	if (!empty($javascript))
-		$context['javascript_inline'][(!empty($defer) ? 'defer' : 'standard')][] = $javascript;
+	$context['javascript_inline'][($defer === true ? 'defer' : 'standard')][] = $javascript;
 }
 
 /**
