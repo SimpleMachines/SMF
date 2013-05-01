@@ -970,7 +970,7 @@ CHANGE COLUMN avatar avatar tinytext NOT NULL default '',
 CHANGE COLUMN im_ignore_list im_ignore_list tinytext NOT NULL default '',
 CHANGE COLUMN usertitle usertitle tinytext NOT NULL default '',
 CHANGE COLUMN lngfile lngfile tinytext NOT NULL default '',
-CHANGE COLUMN MSN skype tinytext NOT NULL default '',
+CHANGE COLUMN MSN MSN tinytext NOT NULL default '',
 CHANGE COLUMN memberIP memberIP tinytext NOT NULL default '',
 ADD INDEX lngfile (lngfile(24));
 ---#
