@@ -63,7 +63,7 @@ a.collapse img {
 }
 
 .button_submit, .button_reset, .button_link {
-	margin: 0;
+	margin: 0 2x;
 }
 
 /* BoardIndex Styling for RTL */
@@ -133,10 +133,6 @@ table.table_list a.collapse {
 }
 .dropmenu li ul {
 	right: -999em;
-	background: #fff url(../images/theme/menu_gfx.png) -30px -137px repeat-x;
-	/* Note: Using a black rgba box-shadow with suitable
-	alpha value gives the best effect on any background. */
-	box-shadow: -1px 2px 2px rgba(0,0,0,0.3);
 }
 /* Note: The next two declarations are for keyboard access with js disabled. */
 .dropmenu ul a:focus {
@@ -165,14 +161,13 @@ table.table_list a.collapse {
 .dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
 	right: 14.5em;
 }
-/* Indicator for additonal levels. Best in the anchor so it stays visible on hover. */
-.dropmenu li li.subsections a {
-	background: url(../images/admin/subsection_rtl.png) no-repeat 1% 40%;
+/* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
+.dropmenu li li.subsections a:after, .adm_section .dropmenu li.subsections a:after{
+	left: 2px;
+	right: auto;
+	background: url(../images/admin/subsection_rtl.png) no-repeat;
 }
-/* For no-js background. */
-.dropmenu li li.subsections a:focus {
-	background:  #e3e9ef url(../images/admin/subsection_rtl.png) no-repeat 1% 40%, url(../images/theme/lower_section.png) 0 0 repeat-x;
-}
+
 
 /* The dropdown menu toggle image */
 #menu_toggle {
@@ -303,6 +298,10 @@ img#upshrink_ic, img#newsupshrink {
 	float: left;
 }
 
+#message_index_jump_to label {
+	margin-left: 14px;
+}
+
 /* Styles for the display template (topic view).
 ---------------------------------------------------- */
 #postbuttons div.buttons {
@@ -404,7 +403,7 @@ ul.quickbuttons {
 }
 ul.quickbuttons li {
 	float: left;
-	margin: 0 11px 0 0;
+	margin: 0 0 0 0;
 }
 ul.quickbuttons li a {
 	padding: 0 20px 0 0;
