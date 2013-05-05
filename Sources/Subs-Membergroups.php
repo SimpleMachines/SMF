@@ -209,9 +209,10 @@ function deleteMembergroups($groups)
  * @param array $members
  * @param array $groups = null if groups is null, the specified members are stripped from all their membergroups.
  * @param bool $permissionCheckDone = false
+ * @param bool $ignoreProtected = false
  * @return boolean
  */
-function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false)
+function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false, $ignoreProtected = false)
 {
 	global $smcFunc, $user_info, $modSettings, $sourcedir;
 
@@ -312,7 +313,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 	$groups = array_diff($groups, $implicitGroups);
 
 	// Don't forget the protected groups.
-	if (!allowedTo('admin_forum'))
+	if (!allowedTo('admin_forum') && !ignoreProtected)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_group
@@ -434,9 +435,10 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  * 	- auto              - Assigns a membergroup to the primary group if it's still
  * 						  available. If not, assign it to the additional group.
  * @param bool $permissionCheckDone
+ * @param bool $ignoreProtected
  * @return boolean success or failure
  */
-function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false)
+function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
 	global $smcFunc, $user_info, $modSettings, $sourcedir;
 
@@ -487,7 +489,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	if (!allowedTo('admin_forum') && $group == 1)
 		return false;
 	// ... and assign protected groups!
-	elseif (!allowedTo('admin_forum'))
+	elseif (!allowedTo('admin_forum') && !ignoreProtected)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT group_type
