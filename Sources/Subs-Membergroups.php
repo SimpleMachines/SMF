@@ -313,7 +313,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 	$groups = array_diff($groups, $implicitGroups);
 
 	// Don't forget the protected groups.
-	if (!allowedTo('admin_forum') && !ignoreProtected)
+	if (!allowedTo('admin_forum') && !$ignoreProtected)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_group
@@ -489,7 +489,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	if (!allowedTo('admin_forum') && $group == 1)
 		return false;
 	// ... and assign protected groups!
-	elseif (!allowedTo('admin_forum') && !ignoreProtected)
+	elseif (!allowedTo('admin_forum') && !$ignoreProtected)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT group_type
