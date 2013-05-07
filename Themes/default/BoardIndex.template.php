@@ -340,7 +340,7 @@ function template_info_center()
 		// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P.
 		if (!empty($context['calendar_holidays']))
 			echo '
-				<p class="inline holiday">', $txt['calendar_prompt'], ' ', implode(', ', $context['calendar_holidays']), '</p>';
+				<p class="inline holiday"><span>', $txt['calendar_prompt'], '</span> ', implode(', ', $context['calendar_holidays']), '</p>';
 
 		// People's birthdays. Like mine. And yours, I guess. Kidding.
 		if (!empty($context['calendar_birthdays']))
