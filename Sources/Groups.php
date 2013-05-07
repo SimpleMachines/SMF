@@ -781,7 +781,7 @@ function list_getGroupRequestCount($where, $where_parameters)
  */
 function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_parameters)
 {
-	global $smcFunc, $txt, $scripturl;
+	global $smcFunc, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
