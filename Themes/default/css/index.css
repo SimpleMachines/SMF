@@ -1004,7 +1004,7 @@ img.sort {
 	font-weight: bold;
 	border: 1px solid #f49a3a;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 1);
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 /* Level 1 hover effects. */
 .dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus {
@@ -1014,7 +1014,7 @@ img.sort {
 	cursor: pointer;
 	text-decoration: none;
 	box-shadow: 0 4px 4px rgba(255,255,255,0.1) inset;
-	text-shadow: 1px 1px 3px rgba(255, 255, 255, 1);
+	text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.5);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover, .dropmenu li:hover a.active {
