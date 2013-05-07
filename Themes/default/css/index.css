@@ -25,7 +25,7 @@ html {
 }
 /* Set a font-size that will look the same in all browsers. */
 body {
-	background: #E9EEF2;
+	background: #e9eef2;
 	/* Start with the best Vista/W7 font, then go to best Mac and Linux, then the old fallbacks.........*/
 	/* Font size is specifically chosen to be exactly 10 point. There are sound reasons for this (hinting, ClearType, etc). */
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Liberation Sans", "Nimbus Sans L", Arial, sans-serif;
@@ -283,6 +283,12 @@ em {
 }
 .largetext {
 	font-size: 1.4em;
+}
+h3.largetext {
+	font-size: large;
+}
+.xlarge_text {
+	font-size: x-large;
 }
 .centertext {
 	margin: 0 auto;
@@ -622,8 +628,8 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	color: #078907;
 }
 
-.holiday {
-	color: #000080;
+.holiday > span {
+	color: rgb(0, 92, 255);
 }
 
 /* Colors for warnings */
@@ -1295,7 +1301,7 @@ img.sort {
 .buttonlist ul li a span {
 	display: block;
 	height: 2.2em;
-	line-height: 2.2em;
+	line-height: 2.5em;
 	padding: 0 8px;
 }
 /* the active one */
@@ -3549,23 +3555,19 @@ dl.addrules dt.floatleft {
 #calendar {
 	overflow: hidden;
 }
-
 /* Used to indicate the current day in the grid. */
-.calendar_today {
+#main_grid .calendar_today span.day_text, #month_grid .calendar_today, .calendar_week tr.days_wrapper td.calendar_today:first-child {
+	font-weight: bold;
+}
+.calendar_today, td.days:hover {
 	background: #fff;
-	border: 1px solid #bbb;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.05) inset;
 }
 #month_grid {
-	padding: 0 15px 0 0;
-	width: 215px;
-	text-align: center;
+	width: 284px;
 	float: left;
-}
-#month_grid div.cat_bar {
-	border-radius: 5px 5px 0 0;
-	margin: 0 1px 0 0;
-	padding: 0 0 0 0;
+	text-align: center;
+	overflow: hidden;
+	margin-right: 1%;
 }
 #month_grid h3 a {
 	padding: 0 6px 0 6px;
@@ -3573,21 +3575,45 @@ dl.addrules dt.floatleft {
 #month_grid table {
 	width: 100%;
 	margin-bottom: 12px;
+	border-collapse: collapse;
+	background: #f0f4f7;
+	border: 1px solid #ccc;
 }
 #main_grid {
-	position: relative;
-	overflow: hidden;
+	overflow: auto;
 }
 #main_grid table {
-	width: 100%;
-	margin-bottom: 2px;
-	padding-bottom: 4px;
+	width: 99.9%;
+	border-collapse: collapse;
+	background: #f0f4f7;
+	margin: 1px 0 0 0;
+	border: 1px solid #ccc;
+	overflow: auto;
+	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
+	margin-left: 1px;
 }
 #main_grid .cat_bar {
 	border-radius: 5px 5px 0 0;
 	margin: 0 1px;
 }
-#main_grid h3.catbg {
+#month_grid table th:first-child {
+	background: #e7eaef;
+}
+#month_grid table th.days {
+	background: #e7eaef;
+}
+#month_grid table th.days, #month_grid table td.weeks {
+	padding: 5px;
+	text-align: center;
+}
+#month_grid table td.weeks {
+	font-size: large;
+	background: #e7eaef;
+}
+#month_grid td.weeks a:hover {
+	text-decoration: underline;
+}
+#month_grid h3.catbg, #main_grid h3.catbg {
 	padding: 8px 6px 4px 6px;
 }
 #main_grid h3.catbg span {
@@ -3595,90 +3621,133 @@ dl.addrules dt.floatleft {
 	font-size: 1.5em;
 	margin: -3px 4px 0 4px;
 }
+#main_grid table th:first-child {
+	background: #e7eaef;
+}
 #main_grid table th.days {
 	width: 14%;
-	padding: 4px 0;
+	padding: 10px;
+	text-align: left;
+	background: #e7eaef;
 }
 #main_grid table td.weeks {
 	text-align: center;
 	font-weight: bold;
 	font-size: 1.8em;
+	background: #e7eaef;
 }
 #main_grid table td.weeks a:hover {
 	text-decoration: none;
 }
-#main_grid table td.days {
+/* Main Highlighting */
+#main_grid table td.disabled, #month_grid table td.disabled {
+	background: rgba(238, 238, 238, 1.0);
+}
+#main_grid table td.events, #month_grid table td.events {
+	background: rgba(30, 245, 20, 0.1);
+}
+#main_grid table td.holidays, #month_grid table td.holidays {
+	background: rgba(23, 110, 245, 0.1);
+}
+#main_grid table td.birthdays, #month_grid table td.birthdays {
+	background: rgba(102, 0, 255, 0.1);
+}
+/* Special Case Highlighting */
+#main_grid table td.events:hover, #month_grid table td.events:hover, #month_grid table td.calendar_today.events {
+	background: rgba(30, 245, 20, 0.2);
+}
+#main_grid table td.holidays:hover, #month_grid table td.holidays:hover, #month_grid table td.calendar_today.holidays {
+	background: rgba(23, 110, 245, 0.2);
+}
+#main_grid table td.birthdays:hover, #month_grid table td.birthdays:hover, #month_grid table td.calendar_today.birthdays {
+	background: rgba(153, 51, 255, 0.2);
+}
+#main_grid table td.days, #month_grid table td.days {
 	vertical-align: top;
+	text-align: left;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+}
+#main_grid table td.days {
+	padding: 10px;
+}
+#month_grid table td.days {
+	padding: 5px;
+	width: 14.28%;
 	text-align: center;
 }
-#main_grid h3.weekly {
-	text-align: center;
-	font-size: 1.4em;
+#main_grid table tbody tr:nth-child(2) td.days, #month_grid table tbody tr:nth-child(2) {
+	border-top: 1px solid #ccc;
 }
-#main_grid ul.weeklist, #main_grid ul.weeklist li {
-	margin: 0 0 8px 0;
-	padding: 0;
+#main_grid table tbody tr.days_wrapper > td:nth-child(2), #month_grid table tr.days_wrapper > td:nth-child(2) {
+	border-left: 1px solid #ccc;
+}
+#main_grid table tr.days_wrapper:nth-child(2) > td.weeks {
+	border-top: 1px solid #ccc;
+}
+#main_grid table:last-child td.weeks {
+	border-bottom: 1px solid #ccc;
+}
+#main_grid td#post_event {
+	background: #e7eaef;
+	text-align: center;
+	padding-top: 12px;
+	margin-right: 0;
+}
+#main_grid img.calendar_icon {
 	float: left;
-	width: 100%;
-	overflow: hidden;
+	width: 16px;
+	margin: 2px 2px;
 }
-#main_grid ul.weeklist li {
-	margin: 0 1px 0 1px;
-	border-top: 2px solid #fff;
+#main_grid .act_day {
+	font-size: 12pt;
 }
-#main_grid .weeklist h4 {
+#main_grid .active_post_event > a {
+	color: #999;
+}
+div.week_month_title {
+	font-weight: bold;
+	font-size: xx-large;
+	margin: 10px 0 12px 2px;
+}
+div.week_month_title a {
+	color: #555;
+}
+td.week_post {
+	vertical-align: middle !important;
+}
+div.week_add_event {
 	text-align: center;
-	float: left;
-	width: 10em;
-	font-size: 1.2em;
-	padding: 15px 0;
 }
-#main_grid .weeklist h4 a:hover {
-	text-decoration: none;
-	border-bottom: 1px solid #346;
+div.week_add_event > a {
+	font-size: x-large;
+	color: #999;
 }
-/* Use the old one true layout trick here. */
-#main_grid .weeklist .windowbg2 {
-	margin: 0 0 -95px 12em;
-	padding: 8px 8px 100px 8px;
-	border-radius: 0;
-	border-left: 2px solid #fff;
-}
-#main_grid .weeklist .calendar_today {
-	margin: 0 0 -95px 12em;
-	padding: 8px 8px 100px 8px;
-	border-left: none;
-	background: #fff;
-}
-a.modify_event {
-	color: red;
+div.week_add_event > a:hover {
+	color: #555;
 }
 span.hidelink {
 	font-style: italic;
 }
-/* Add a background that fits with the calendar. */
-#calendar_navigation {
-	margin: -6px 1px 0 1px;
-	padding: 12px 0;
-	text-align: center;
-	float: left;
-	width: 100%;
-	background: #e7eaef;
+#view_button {
+	margin-top: -2px;
 }
 /* Cheat and match this to the submit button. */
 #main_grid .buttonlist {
-	position: absolute;
-	bottom: 12px;
-	right: 12px;
+	margin: -4px 12px 0 0;
 }
-#main_grid .buttonlist a {
-	background: #cde7ff url(../images/theme/submit_bg.png) no-repeat;
-	border: 1px solid #aaa;
-	border-radius: 3px;
+#month_grid .compact {
+	padding: 2px;
 }
-#main_grid .buttonlist a:hover {
-	background: #dceeff url(../images/theme/submit_bg.png) no-repeat 0 -140px;
-	color: #222;
+#month_grid .comfortable {
+	padding: 5px;
+}
+#main_grid .compact, .calendar_week .compact {
+	height: 45px;
+}
+#main_grid .comfortable, .calendar_week .comfortable {
+	height: 100px;
+	padding: 10px;
 }
 
 /* Styles for the memberlist section.
@@ -3978,7 +4047,7 @@ span.hidelink {
 /* This lot will be simplified once I get all the styling hooks in place. */
 .generic_list_wrapper, .action_profile  #permissions, #postmodify .roundframe, .add_buddy, #creator .windowbg2,
 #notify_options .windowbg2, #info_center, #profileview, #messageindex, #mlist,
-#main_grid table, .core_posts, #recent .core_posts, #recent .topic_table, #searchform .roundframe {
+.core_posts, #recent .core_posts, #recent .topic_table, #searchform .roundframe {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -4249,4 +4318,8 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 .action_who select {
 	margin-top: -1px !important;
+}
+
+.full_width {
+	width: 100%;
 }

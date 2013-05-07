@@ -8,7 +8,7 @@ global $forum_copyright, $forum_version, $webmaster_email, $scripturl, $context,
 //   - http://www.php.net/function.pspell-new
 //   - http://www.php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
-$txt['lang_locale'] = 'en_US';
+$txt['lang_locale'] = '';
 $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
 
@@ -21,12 +21,18 @@ $txt['lang_capitalize_dates'] = true;
 // Number format.
 $txt['number_format'] = '1,234.00';
 
+$txt['days_title'] = 'Days';
 $txt['days'] = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 $txt['days_short'] = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 // Months must start with 1 => 'January'. (or translated, of course.)
+$txt['months_title'] = 'Months';
 $txt['months'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 $txt['months_titles'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 $txt['months_short'] = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+
+$txt['minutes_label'] = 'Minutes';
+$txt['hours_label'] = 'Hours';
+$txt['years_title'] = 'Years';
 
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
@@ -517,6 +523,8 @@ $txt['calendar_event_title'] = 'Event Title';
 $txt['calendar_event_options'] = 'Event Options';
 $txt['calendar_post_in'] = 'Post In:';
 $txt['calendar_edit'] = 'Edit Event';
+$txt['calendar_export'] = 'Export Event';
+$txt['calendar_view_week'] = 'View Week';
 $txt['event_delete_confirm'] = 'Delete this event?';
 $txt['event_delete'] = 'Delete Event';
 $txt['calendar_post_event'] = 'Post Event';
