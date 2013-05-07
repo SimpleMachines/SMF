@@ -1181,7 +1181,7 @@ function Display()
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $txt, $modSettings, $scripturl, $options, $user_info, $smcFunc;
-	global $memberContext, $context, $messages_request, $topic, $attachments, $topicinfo;
+	global $memberContext, $context, $messages_request, $topic;
 
 	static $counter = null;
 
@@ -1315,7 +1315,7 @@ function prepareDisplayContext($reset = false)
  */
 function Download()
 {
-	global $txt, $modSettings, $user_info, $scripturl, $context, $sourcedir, $topic, $smcFunc;
+	global $txt, $modSettings, $user_info, $context, $topic, $smcFunc;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
