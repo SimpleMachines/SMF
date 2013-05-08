@@ -1357,8 +1357,7 @@ function constructBanQueryIP($fullip)
 *
 * @param string $option the frame option, defaults to deny.
 * @return void.
-* @since 3.0
-* @version 3.0
+* @since 2.1
 */
 function frameOptionsHeader($override = null)
 {
