@@ -94,6 +94,13 @@ $txt['install_settings_name_info'] = 'This is the name of your forum, ie. &quot;
 $txt['install_settings_name_default'] = 'My Community';
 $txt['install_settings_url'] = 'Forum URL';
 $txt['install_settings_url_info'] = 'This is the URL to your forum <strong>without the trailing \'/\'!</strong>.<br />In most cases, you can leave the default value in this box alone - it is usually right.';
+$txt['install_settings_reg_mode'] = 'Registration Mode';
+$txt['install_settings_reg_modes'] = 'Registration Modes';
+$txt['install_settings_reg_immediate'] = 'Immediate Registration';
+$txt['install_settings_reg_email'] = 'Email Activation';
+$txt['install_settings_reg_admin'] = 'Admin Approval';
+$txt['install_settings_reg_disabled'] = 'Registration Disabled';
+$txt['install_settings_reg_mode_info'] = 'This field allows you to change the mode of registration on installation to prevent unwanted registrations.';
 $txt['install_settings_compress'] = 'Gzip Output';
 $txt['install_settings_compress_title'] = 'Compress output to save bandwidth.';
 // In this string, you can translate the word "PASS" to change what it says when the test passes.
