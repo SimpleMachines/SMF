@@ -266,7 +266,7 @@ function ViewMemberlist()
 				'type' => 'string'
 			),
 			'messenger' => array(
-				'db_fields' => array('icq', 'aim', 'yim', 'msn'),
+				'db_fields' => array('icq', 'aim', 'yim', 'skype'),
 				'type' => 'string'
 			)
 		);

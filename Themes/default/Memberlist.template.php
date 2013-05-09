@@ -95,10 +95,10 @@ function template_main()
 			echo '
 					<td class="centertext">', $member['yim']['link'], '</td>';
 
-		// MSN?
-		if (!isset($context['disabled_fields']['msn']))
+		// Skype?
+		if (!isset($context['disabled_fields']['skype']))
 			echo '
-					<td class="centertext">', $member['msn']['link'], '</td>';
+					<td class="centertext">', $member['skype']['link'], '</td>';
 
 		// Group and date.
 		echo '

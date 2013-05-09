@@ -1373,7 +1373,7 @@ function AdminAccount()
 					'password_salt' => 'string', 'lngfile' => 'string', 'personal_text' => 'string', 'avatar' => 'string',
 					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
 					'message_labels' => 'string', 'website_title' => 'string', 'website_url' => 'string', 'location' => 'string',
-					'aim' => 'string', 'icq' => 'string', 'msn' => 'string', 'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
+					'aim' => 'string', 'icq' => 'string', 'skype' => 'string', 'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
 					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
 				),
 				array(

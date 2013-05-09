@@ -266,11 +266,11 @@ function template_folder()
 				if ($message['member']['has_messenger'] && $message['member']['can_view_profile'])
 					echo '
 						<li class="im_icons">
-							<ul>', !isset($context['disabled_fields']['icq']) && !empty($message['member']['icq']['link']) ? '
-								<li>' . $message['member']['icq']['link'] . '</li>' : '', !isset($context['disabled_fields']['msn']) && !empty($message['member']['msn']['link']) ? '
-								<li>' . $message['member']['msn']['link'] . '</li>' : '', !isset($context['disabled_fields']['aim']) && !empty($message['member']['aim']['link']) ? '
-								<li>' . $message['member']['aim']['link'] . '</li>' : '', !isset($context['disabled_fields']['yim']) && !empty($message['member']['yim']['link']) ? '
-								<li>' . $message['member']['yim']['link'] . '</li>' : '', '
+							<ul>
+								', !isset($context['disabled_fields']['icq']) && !empty($message['member']['icq']['link']) ? '<li>' . $message['member']['icq']['link'] . '</li>' : '', '
+								', !isset($context['disabled_fields']['skype']) && !empty($message['member']['skype']['link']) ? '<li>' . $message['member']['skype']['link'] . '</li>' : '', '
+								', !isset($context['disabled_fields']['aim']) && !empty($message['member']['aim']['link']) ? '<li>' . $message['member']['aim']['link'] . '</li>' : '', '
+								', !isset($context['disabled_fields']['yim']) && !empty($message['member']['yim']['link']) ? '<li>' . $message['member']['yim']['link'] . '</li>' : '', '
 							</ul>
 						</li>';
 
