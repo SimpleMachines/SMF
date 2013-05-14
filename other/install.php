@@ -957,17 +957,6 @@ function ForumSettings()
 				updateSettingsFile(array('db_character_set' => 'utf8'));
 		}
 
-		//-- Set the registration mode...
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}settings
-			SET value = {int:reg_mode}
-			WHERE variable = {string:this_variable}',
-			array(
-				'reg_mode' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
-				'this_variable' => 'registration_method',
-			)
-		);
-
 		// Good, skip on.
 		return true;
 	}
@@ -1035,6 +1024,7 @@ function DatabasePopulation()
 		'{$smf_version}' => $GLOBALS['current_smf_version'],
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
+		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
 	);
 
 	foreach ($txt as $key => $value)

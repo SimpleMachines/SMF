@@ -2236,7 +2236,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_enable', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_maxlen', '255');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicPosts', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicVeryPosts', '25');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '{$registration_method}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_validation_onChange', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_welcomeEmail', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_editDisplayName', '1');
