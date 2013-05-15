@@ -113,7 +113,8 @@ function template_html_above()
 	{
 		echo '
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
-
+	}
+	
 	if (!empty($context['theme_variant']))
 		echo '
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
