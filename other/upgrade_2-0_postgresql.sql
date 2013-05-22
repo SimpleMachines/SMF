@@ -202,6 +202,9 @@ CREATE TABLE {$db_prefix}log_spider_stats (
 --- Adding new forum settings.
 /******************************************************************************/
 
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
+
 ---# Enable cache if upgrading from 2.0 beta 1 and lower.
 ---{
 if (isset($modSettings['smfVersion']) && $modSettings['smfVersion'] <= '2.0 Beta 1')

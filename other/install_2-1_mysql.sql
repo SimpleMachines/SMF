@@ -1845,7 +1845,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('attachment_thumb_png', '1'),
 	('avatar_reencode', '1'),
 	('avatar_paranoid', '0'),
-	('enable_disregard', '0');
+	('enable_disregard', '0'),
+	('drafts_autosave_enabled', 1),
+	('drafts_show_saved_enabled', 1);
 # --------------------------------------------------------
 
 #
