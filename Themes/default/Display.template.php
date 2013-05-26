@@ -585,10 +585,12 @@ function template_main()
 		// Can the user modify the contents of this post?
 		if ($message['can_modify'])
 			echo '
-							<a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '">', $txt['post_options'], '</a>';
+							<a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '">';
 		else
 			echo '
-							<a href="#">', $txt['post_options'], '</a>';
+							<a href="#">';
+			echo '
+							', $txt['post_options'], '</a>';
 							
 			echo '			
 								<ul>';
