@@ -584,7 +584,9 @@ function template_main()
 			echo '
 							<li class="post_options"><a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '">', $txt['post_options'], '</a>';
                     else
-                        echo '                          <li class="post_options"><a href="#">', $txt['post_options'], '</a>';
+			echo '
+							<li class="post_options"><a href="#">', $txt['post_options'], '</a>';
+							
 			echo '			
 								<ul>';
 
