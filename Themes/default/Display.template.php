@@ -586,7 +586,7 @@ function template_main()
 		if ($message['can_modify'])
 			echo '
 							<a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '">', $txt['post_options'], '</a>';
-                    else
+		else
 			echo '
 							<a href="#">', $txt['post_options'], '</a>';
 							
