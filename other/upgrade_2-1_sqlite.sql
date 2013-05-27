@@ -239,7 +239,9 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enable_disregard', 0);
+	('enable_disregard', 0),
+	('drafts_autosave_enabled', 1),
+	('drafts_show_saved_enabled', 1);
 ---}
 ---#
 

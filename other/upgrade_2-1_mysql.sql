@@ -197,7 +197,10 @@ ADD COLUMN disregarded tinyint(3) NOT NULL DEFAULT '0';
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enable_disregard', 0);
+	('enable_disregard', 0),
+	('drafts_autosave_enabled', 1),
+	('drafts_show_saved_enabled', 1);
+
 ---#
 
 /******************************************************************************/
