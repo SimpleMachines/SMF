@@ -528,12 +528,14 @@ function Credits($in_admin = false)
 	loadLanguage('Who');
 
 	if($in_admin)
-	$context[$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['support_credits_title'],
-		'help' => '',
-		'description' => '',
-	);
-
+	{
+		$context[$context['admin_menu_name']]['tab_data'] = array(
+			'title' => $txt['support_credits_title'],
+			'help' => '',
+			'description' => '',
+		);
+	}
+	
 	$context['credits'] = array(
 		array(
 			'pretext' => $txt['credits_intro'],
