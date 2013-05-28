@@ -539,7 +539,7 @@ function Credits($in_admin = false)
 			'title' => $txt['credits_team'],
 			'groups' => array(
 				array(
-					'title' => $txt['credits_groups_ps'],
+					'title' => $txt['credits_groups_pm'],
 					'members' => array(
 						'Michael &quot;Oldiesmann&quot; Eshom',
 					),
