@@ -605,6 +605,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		'',
 			// Reporting of personal messages?
 			array('check', 'enableReportPM'),
+		'',
+			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
 	);
 
 	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
