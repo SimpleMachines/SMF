@@ -1404,6 +1404,16 @@ CREATE TABLE {$db_prefix}moderators (
 ) ENGINE=MyISAM;
 
 #
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_group smallint(5) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group) 
+) ENGINE=MyISAM;
+
+#
 # Table structure for table `openid_assoc`
 #
 

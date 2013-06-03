@@ -342,3 +342,13 @@ if (@$modSettings['smfVersion'] < '2.1')
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Adding support for group-based board moderation
+/******************************************************************************/
+---# Creating moderator_groups table
+CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
+  id_board smallint NOT NULL default '0',
+  id_group smallint NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group)
+);

@@ -951,10 +951,11 @@ function allowedTo($permission, $boards = null)
 		FROM {db_prefix}boards AS b
 			INNER JOIN {db_prefix}board_permissions AS bp ON (bp.id_profile = b.id_profile)
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
+			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND b.id_group IN ({array_int:group_list})
 		WHERE b.id_board IN ({array_int:board_list})
 			AND bp.id_group IN ({array_int:group_list}, {int:moderator_group})
 			AND bp.permission {raw:permission_list}
-			AND (mods.id_member IS NOT NULL OR bp.id_group != {int:moderator_group})
+			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})
 		GROUP BY b.id_board',
 		array(
 			'current_member' => $user_info['id'],
@@ -1087,9 +1088,10 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 		FROM {db_prefix}board_permissions AS bp
 			INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
+			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))
 		WHERE bp.id_group IN ({array_int:group_list}, {int:moderator_group})
 			AND bp.permission IN ({array_string:permissions})
-			AND (mods.id_member IS NOT NULL OR bp.id_group != {int:moderator_group})' .
+			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})' .
 			($check_access ? ' AND {query_see_board}' : ''),
 		array(
 			'current_member' => $user_info['id'],

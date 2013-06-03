@@ -2164,6 +2164,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	// These are all registered types.
 	$searchTypes = array(
 		'member' => 'Member',
+		'membergroups' => 'MemberGroups',
 		'versions' => 'SMFVersions',
 	);
 
@@ -2227,6 +2228,59 @@ function AutoSuggest_Search_Member()
 				'id' => $row['id_member'],
 			),
 			'value' => $row['real_name'],
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $xml_data;
+}
+
+/**
+ * Search for a membergroup by name
+ *
+ * @return string
+ */
+function AutoSuggest_Search_MemberGroup()
+{
+	global $txt, $smcFunc, $context;
+
+	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
+	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
+
+	// Find the group.
+	// Only return groups which are not post-based, not "Hidden", not the "Moderators" group and not "Protected"
+	$request = $smcFunc['db_query']('', '
+		SELECT id_group, group_name
+		FROM {db_prefix}membergroups
+		WHERE group_name LIKE {string:search}
+			AND min_posts = {int:min_posts}
+			AND group_type != {int:is_protected}
+			AND id_group != {int:mod_group}
+			AND hidden != {int:hidden}
+		',
+		array(
+			'min_posts' => -1,
+			'is_protected' => 1,
+			'mod_group' => 3,
+			'hidden' => 2,
+			'search' => $_REQUEST['search'],
+		)
+	);
+	$xml_data = array(
+		'items' => array(
+			'identifier' => 'item',
+			'children' => array(),
+		),
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$row['group_name'] = strtr($row['group_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
+
+		$xml_data['items']['children'][] = array(
+			'attributes' => array(
+				'id' => $row['id_group'],
+			),
+			'value' => $row['group_name'],
 		);
 	}
 	$smcFunc['db_free_result']($request);
