@@ -92,7 +92,7 @@ function template_newsfader()
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings, $user_info;
 
 	echo '
 	<div id="boardindex_table" class="boardindex_table">
@@ -248,7 +248,7 @@ function template_main()
 		</ul>';
 
 	// Show the mark all as read button?
-	if ($context['user']['is_logged'] && $settings['show_mark_read'] && !empty($context['categories']))
+	if ($settings['show_mark_read'] && !empty($context['categories']))
 	echo '
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 }
