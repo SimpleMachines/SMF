@@ -2365,8 +2365,8 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 }
 .quickbuttons li.post_options {
-	padding: 0 0 0 0;
-	border-radius: 1px 4px 4px 1px;
+    padding: 0 4px 0 4px;
+    border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
