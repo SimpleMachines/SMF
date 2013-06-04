@@ -639,7 +639,7 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => create_function('&$value', '
 				global $smcFunc;
 
-				if ($smcFunc[\'strlen\'] > 50)
+				if ($smcFunc[\'strlen\']($value) > 50)
 					return \'user_title_too_long\';
 
 				return true;
