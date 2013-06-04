@@ -298,3 +298,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM;
+
+/******************************************************************************/
+--- Dropping 'filetype' column from admin_info_files table
+/******************************************************************************/
+ALTER TABLE {$db_prefix}admin_info_files DROP filetype;

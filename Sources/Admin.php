@@ -637,7 +637,7 @@ function DisplayAdminFile()
 		fatal_lang_error('no_access', false);
 
 	$request = $smcFunc['db_query']('', '
-		SELECT data, filetype
+		SELECT data
 		FROM {db_prefix}admin_info_files
 		WHERE filename = {string:current_filename}
 		LIMIT 1',

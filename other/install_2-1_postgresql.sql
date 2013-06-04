@@ -155,7 +155,6 @@ CREATE TABLE {$db_prefix}admin_info_files (
   path varchar(255) NOT NULL,
   parameters varchar(255) NOT NULL,
   data text NOT NULL,
-  filetype varchar(255) NOT NULL,
   PRIMARY KEY (id_file)
 );
 
@@ -169,13 +168,13 @@ CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_fil
 # Dumping data for table `admin_info_files`
 #
 
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (1, 'current-version.js', '/smf/', 'version=%3$s', '');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s', '');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data) VALUES (7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '');
 # --------------------------------------------------------
 
 #

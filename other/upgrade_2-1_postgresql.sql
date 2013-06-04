@@ -352,3 +352,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 );
+
+/******************************************************************************/
+--- Dropping 'filetype' column from admin_info_files table
+/******************************************************************************/
+ALTER TABLE {$db_prefix}admin_info_files DROP COLUMN filetype;

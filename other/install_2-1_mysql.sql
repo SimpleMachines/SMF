@@ -11,7 +11,6 @@ CREATE TABLE {$db_prefix}admin_info_files (
   path varchar(255) NOT NULL default '',
   parameters varchar(255) NOT NULL default '',
   data text NOT NULL,
-  filetype varchar(255) NOT NULL default '',
   PRIMARY KEY (id_file),
   KEY filename (filename(30))
 ) ENGINE=MyISAM;
@@ -21,15 +20,15 @@ CREATE TABLE {$db_prefix}admin_info_files (
 #
 
 INSERT INTO {$db_prefix}admin_info_files
-	(id_file, filename, path, parameters, data, filetype)
+	(id_file, filename, path, parameters, data)
 VALUES
-	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
-	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
-	(4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+	(1, 'current-version.js', '/smf/', 'version=%3$s', ''),
+	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', ''),
+	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', ''),
+	(4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', ''),
+	(5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', ''),
+	(6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s', ''),
+	(7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '');
 # --------------------------------------------------------
 
 #
