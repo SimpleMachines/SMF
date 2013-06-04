@@ -649,7 +649,7 @@ function DisplayAdminFile()
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']));
 
-	list ($file_data, $filetype) = $smcFunc['db_fetch_row']($request);
+	list ($file_data) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// @todo Temp
@@ -669,7 +669,7 @@ if (!(\'smfForum_sessionvar\' in window))
 		@ob_start();
 
 	// Make sure they know what type of file we are.
-	header('Content-Type: ' . $filetype);
+	header('Content-Type: text/javascript');
 	echo $file_data;
 	obExit(false);
 }
