@@ -252,12 +252,12 @@ if (@$modSettings['smfVersion'] < '2.1')
 		FROM {$db_prefix}board_permissions
 		WHERE permission = 'post_unapproved_topics'");
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
 		$inserts[] = "($row[id_group], $row[id_board], 'post_autosave_draft', $row[add_deny])";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -272,12 +272,12 @@ if (@$modSettings['smfVersion'] < '2.1')
 		FROM {$db_prefix}permissions
 		WHERE permission = 'pm_send'");
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'pm_autosave_draft', $row[add_deny])";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	if (!empty($inserts))
 		upgrade_query("

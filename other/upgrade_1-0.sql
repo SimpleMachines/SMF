@@ -301,9 +301,9 @@ $request = upgrade_query("
 		LEFT JOIN {$db_prefix}log_boards AS lb ON (lb.ID_BOARD = lmr.ID_BOARD AND lb.ID_MEMBER = lmr.ID_MEMBER)
 	WHERE lb.logTime < lmr.logTime");
 $replaceRows = '';
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 	$replaceRows .= "($row[ID_BOARD], $row[ID_MEMBER], $row[logTime]),";
-mysql_free_result($request);
+smf_mysql_free_result($request);
 if (!empty($replaceRows))
 {
 	$replaceRows = substr($replaceRows, 0, -1);
@@ -408,7 +408,7 @@ if ($result !== false)
 	$result = upgrade_query("
 		SELECT TRIM(memberGroups) AS memberGroups, ID_CAT
 		FROM {$db_prefix}categories");
-	while ($row = mysql_fetch_assoc($result))
+	while ($row = smf_mysql_fetch_assoc($result))
 	{
 		if (trim($row['memberGroups']) == '')
 			$groups = '-1,0,2';
@@ -456,7 +456,7 @@ $request = upgrade_query("
 	SHOW COLUMNS
 	FROM {$db_prefix}boards
 	LIKE 'notifyAnnouncements'");
-if (mysql_num_rows($request) > 0)
+if (smf_mysql_num_rows($request) > 0)
 {
 	$conversions = array(
 		'moderate_forum' => array('manage_membergroups', 'manage_bans'),
@@ -470,11 +470,11 @@ if (mysql_num_rows($request) > 0)
 			SELECT ID_GROUP, addDeny
 			FROM {$db_prefix}permissions
 			WHERE permission = '$original_permission'");
-		while ($row = mysql_fetch_assoc($result))
+		while ($row = smf_mysql_fetch_assoc($result))
 			$setString .= "
 				('" . implode("', $row[ID_GROUP], $row[addDeny]),
 				('", $new_permissions) . "', $row[ID_GROUP], $row[addDeny]),";
-		mysql_free_result($result);
+		smf_mysql_free_result($result);
 
 		if ($setString != '')
 			upgrade_query("
@@ -483,7 +483,7 @@ if (mysql_num_rows($request) > 0)
 				VALUES" . substr($setString, 0, -1));
 	}
 }
-mysql_free_result($request);
+smf_mysql_free_result($request);
 ---}
 
 DELETE FROM {$db_prefix}permissions
@@ -501,9 +501,9 @@ $result = upgrade_query("
 	WHERE m.ID_MSG = t.ID_LAST_MSG
 	GROUP BY t.ID_BOARD");
 $last_msgs = array();
-while ($row = mysql_fetch_assoc($result))
+while ($row = smf_mysql_fetch_assoc($result))
 	$last_msgs[] = $row['ID_LAST_MSG'];
-mysql_free_result($result);
+smf_mysql_free_result($result);
 
 if (!empty($last_msgs))
 {
@@ -513,7 +513,7 @@ if (!empty($last_msgs))
 		WHERE t.ID_TOPIC = m.ID_TOPIC
 			AND m.ID_MSG IN (" . implode(',', $last_msgs) . ")
 		LIMIT " . count($last_msgs));
-	while ($row = mysql_fetch_assoc($result))
+	while ($row = smf_mysql_fetch_assoc($result))
 	{
 		upgrade_query("
 			UPDATE {$db_prefix}boards
@@ -521,7 +521,7 @@ if (!empty($last_msgs))
 			WHERE ID_BOARD = $row[ID_BOARD]
 			LIMIT 1");
 	}
-	mysql_free_result($result);
+	smf_mysql_free_result($result);
 }
 ---}
 ---#
@@ -532,8 +532,8 @@ $request = upgrade_query("
 	SHOW COLUMNS
 	FROM {$db_prefix}boards
 	LIKE 'moderators'");
-$do_moderators = mysql_num_rows($request) > 0;
-mysql_free_result($request);
+$do_moderators = smf_mysql_num_rows($request) > 0;
+smf_mysql_free_result($request);
 
 if ($do_moderators)
 {
@@ -541,7 +541,7 @@ if ($do_moderators)
 		SELECT TRIM(moderators) AS moderators, ID_BOARD
 		FROM {$db_prefix}boards
 		WHERE TRIM(moderators) != ''");
-	while ($row = mysql_fetch_assoc($result))
+	while ($row = smf_mysql_fetch_assoc($result))
 	{
 		$moderators = array_unique(explode(',', $row['moderators']));
 		foreach ($moderators as $k => $dummy)
@@ -579,7 +579,7 @@ $request = upgrade_query("
 $catOrder = -1;
 $boardOrder = -1;
 $curCat = -1;
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	if ($curCat != $row['ID_CAT'])
 	{
@@ -598,7 +598,7 @@ while ($row = mysql_fetch_assoc($request))
 			WHERE ID_BOARD = $row[ID_BOARD]
 			LIMIT 1");
 }
-mysql_free_result($request);
+smf_mysql_free_result($request);
 ---}
 ---#
 
@@ -610,15 +610,15 @@ if (empty($modSettings['smfVersion']) || (substr($modSettings['smfVersion'], 0, 
 	$result = upgrade_query("
 		SELECT ID_GROUP
 		FROM {$db_prefix}membergroups");
-	while ($row = mysql_fetch_assoc($result))
+	while ($row = smf_mysql_fetch_assoc($result))
 		$all_groups[] = $row['ID_GROUP'];
-	mysql_free_result($result);
+	smf_mysql_free_result($result);
 
 	$result = upgrade_query("
 		SELECT ID_BOARD, memberGroups
 		FROM {$db_prefix}boards
 		WHERE FIND_IN_SET(0, memberGroups)");
-	while ($row = mysql_fetch_assoc($result))
+	while ($row = smf_mysql_fetch_assoc($result))
 	{
 		upgrade_query("
 			UPDATE {$db_prefix}boards
@@ -626,7 +626,7 @@ if (empty($modSettings['smfVersion']) || (substr($modSettings['smfVersion'], 0, 
 			WHERE ID_BOARD = $row[ID_BOARD]
 			LIMIT 1");
 	}
-	mysql_free_result($result);
+	smf_mysql_free_result($result);
 }
 ---}
 ---#
@@ -724,7 +724,7 @@ while (true)
 			AND m.ID_BOARD = 0
 		LIMIT 1400");
 	$boards = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 		$boards[$row['ID_BOARD']][] = $row['ID_TOPIC'];
 
 	foreach ($boards as $board => $topics)
@@ -733,10 +733,10 @@ while (true)
 			SET ID_BOARD = $board
 			WHERE ID_TOPIC IN (" . implode(', ', $topics) . ')');
 
-	if (mysql_num_rows($request) < 1400)
+	if (smf_mysql_num_rows($request) < 1400)
 		break;
 
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 }
 ---}
 ---#
@@ -814,8 +814,8 @@ $request = upgrade_query("
 	SHOW COLUMNS
 	FROM {$db_prefix}members
 	LIKE 'im_ignore_list'");
-$do_it = mysql_num_rows($request) != 0;
-mysql_free_result($request);
+$do_it = smf_mysql_num_rows($request) != 0;
+smf_mysql_free_result($request);
 
 while ($do_it)
 {
@@ -826,16 +826,16 @@ while ($do_it)
 		FROM {$db_prefix}members
 		WHERE im_ignore_list RLIKE '[a-z]'
 		LIMIT 512");
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$request2 = upgrade_query("
 			SELECT ID_MEMBER
 			FROM {$db_prefix}members
 			WHERE FIND_IN_SET(memberName, '" . addslashes($row['im_ignore_list']) . "')");
 		$im_ignore_list = '';
-		while ($row2 = mysql_fetch_assoc($request2))
+		while ($row2 = smf_mysql_fetch_assoc($request2))
 			$im_ignore_list .= ',' . $row2['ID_MEMBER'];
-		mysql_free_result($request2);
+		smf_mysql_free_result($request2);
 
 		upgrade_query("
 			UPDATE {$db_prefix}members
@@ -843,9 +843,9 @@ while ($do_it)
 			WHERE ID_MEMBER = $row[ID_MEMBER]
 			LIMIT 1");
 	}
-	if (mysql_num_rows($request) < 512)
+	if (smf_mysql_num_rows($request) < 512)
 		break;
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 }
 ---}
 ---#
@@ -1076,7 +1076,7 @@ ADD PRIMARY KEY (ID_PM, ID_MEMBER);
 
 ---# Updating data in "instant_messages" (part 1)...
 ---{
-$request = mysql_query("
+$request = upgrade_query("
 	SHOW COLUMNS
 	FROM {$db_prefix}instant_messages
 	LIKE 'readBy'");
@@ -1084,10 +1084,10 @@ $do_it = $request !== false;
 
 if ($do_it)
 {
-	$adv_im = mysql_num_rows($request) == 0;
-	mysql_free_result($request);
+	$adv_im = smf_mysql_num_rows($request) == 0;
+	smf_mysql_free_result($request);
 
-	mysql_query("
+	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}im_recipients
 			(ID_PM, ID_MEMBER, bcc, is_read, deleted)
 		SELECT ID_PM, ID_MEMBER_TO, 0, IF(" . (!$adv_im ? 'readBy' : 'alerted') . " != 0, 1, 0), IF(deletedBy = '1', 1, 0)
@@ -1120,16 +1120,16 @@ ADD INDEX ID_MEMBER (ID_MEMBER_FROM, deletedBySender);
 
 ---# Recounting personal message totals...
 ---{
-$request = mysql_query("
+$request = upgrade_query("
 	SHOW CREATE TABLE {$db_prefix}instant_messages");
 $do_it = $request !== false;
-@mysql_free_result($request);
+@smf_mysql_free_result($request);
 
 $request = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}members");
-list ($totalMembers) = mysql_fetch_row($request);
-mysql_free_result($request);
+list ($totalMembers) = smf_mysql_fetch_row($request);
+smf_mysql_free_result($request);
 
 $_GET['m'] = (int) @$_GET['m'];
 
@@ -1146,7 +1146,7 @@ while ($_GET['m'] < $totalMembers && $do_it)
 		GROUP BY mem.ID_MEMBER
 		HAVING instantMessages_real != instantMessages
 		LIMIT 512");
-	while ($row = mysql_fetch_assoc($mrequest))
+	while ($row = smf_mysql_fetch_assoc($mrequest))
 	{
 		upgrade_query("
 			UPDATE {$db_prefix}members
@@ -1160,16 +1160,16 @@ while ($_GET['m'] < $totalMembers && $do_it)
 unset($_GET['m']);
 ---}
 ---{
-$request = mysql_query("
+$request = upgrade_query("
 	SHOW CREATE TABLE {$db_prefix}instant_messages");
 $do_it = $request !== false;
-@mysql_free_result($request);
+@smf_mysql_free_result($request);
 
 $request = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}members");
-list ($totalMembers) = mysql_fetch_row($request);
-mysql_free_result($request);
+list ($totalMembers) = smf_mysql_fetch_row($request);
+smf_mysql_free_result($request);
 
 $_GET['m'] = (int) @$_GET['m'];
 
@@ -1186,7 +1186,7 @@ while ($_GET['m'] < $totalMembers && $do_it)
 		GROUP BY mem.ID_MEMBER
 		HAVING unreadMessages_real != unreadMessages
 		LIMIT 512");
-	while ($row = mysql_fetch_assoc($mrequest))
+	while ($row = smf_mysql_fetch_assoc($mrequest))
 	{
 		upgrade_query("
 			UPDATE {$db_prefix}members
@@ -1205,7 +1205,7 @@ unset($_GET['m']);
 ---{
 global $JrPostNum, $FullPostNum, $SrPostNum, $GodPostNum;
 
-$result = mysql_query("
+$result = upgrade_query("
 	SELECT minPosts
 	FROM {$db_prefix}membergroups
 	LIMIT 1");
@@ -1331,21 +1331,21 @@ if ($result === false)
 
 ---# Converting "reserved_names"...
 ---{
-$request = mysql_query("
+$request = upgrade_query("
 	SELECT setting, value
 	FROM {$db_prefix}reserved_names");
 if ($request !== false)
 {
 	$words = array();
 	$match_settings = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		if (substr($row['setting'], 0, 5) == 'match')
 			$match_settings[$row['setting']] = $row['value'];
 		else
 			$words[] = $row['value'];
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	upgrade_query("
 		INSERT IGNORE INTO {$db_prefix}settings
@@ -1373,15 +1373,15 @@ $request = upgrade_query("
 	WHERE minPosts != -1
 	ORDER BY minPosts DESC");
 $post_groups = array();
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 	$post_groups[$row['minPosts']] = $row['ID_GROUP'];
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 $request = upgrade_query("
 	SELECT ID_MEMBER, posts
 	FROM {$db_prefix}members");
 $mg_updates = array();
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	$group = 4;
 	foreach ($post_groups as $min_posts => $group_id)
@@ -1393,7 +1393,7 @@ while ($row = mysql_fetch_assoc($request))
 
 	$mg_updates[$group][] = $row['ID_MEMBER'];
 }
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 foreach ($mg_updates as $group_to => $update_members)
 	upgrade_query("
@@ -1417,12 +1417,12 @@ if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper'
 		FROM {$db_prefix}censor");
 	$censor_vulgar = array();
 	$censor_proper = array();
-	while ($row = mysql_fetch_row($request))
+	while ($row = smf_mysql_fetch_row($request))
 	{
 		$censor_vulgar[] = trim($row[0]);
 		$censor_proper[] = trim($row[1]);
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	$modSettings['censor_vulgar'] = addslashes(implode("\n", $censor_vulgar));
 	$modSettings['censor_proper'] = addslashes(implode("\n", $censor_proper));
@@ -1442,14 +1442,14 @@ if (!isset($modSettings['censor_vulgar']) || !isset($modSettings['censor_proper'
 
 ---# Converting topic notifications...
 ---{
-$result = mysql_query("
+$result = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}topics
 	WHERE notifies != ''");
 if ($result !== false)
 {
-	list ($numNotifies) = mysql_fetch_row($result);
-	mysql_free_result($result);
+	list ($numNotifies) = smf_mysql_fetch_row($result);
+	smf_mysql_free_result($result);
 
 	$_GET['t'] = (int) @$_GET['t'];
 
@@ -1478,14 +1478,14 @@ DROP notifies;
 
 ---# Converting "banned"...
 ---{
-$request = mysql_query("
+$request = upgrade_query("
 	SELECT type, value
 	FROM {$db_prefix}banned
 	WHERE type = 'ip'");
 if ($request !== false)
 {
 	$insertEntries = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		if (preg_match('~^\d{1,3}\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$~', $row['value']) == 0)
 			continue;
@@ -1493,7 +1493,7 @@ if ($request !== false)
 		$ip_parts = ip2range($row['value']);
 		$insertEntries[] = "('ip_ban', {$ip_parts[0]['low']}, {$ip_parts[0]['high']}, {$ip_parts[1]['low']}, {$ip_parts[1]['high']}, {$ip_parts[2]['low']}, {$ip_parts[2]['high']}, {$ip_parts[3]['low']}, {$ip_parts[3]['high']}, '', '', 0, " . time() . ", NULL, 'full_ban', '', 'Imported from YaBB SE')";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	upgrade_query("
 		CREATE TABLE IF NOT EXISTS {$db_prefix}banned2 (
@@ -1605,8 +1605,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}calendar_holidays (
 $result = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}calendar_holidays");
-list ($size) = mysql_fetch_row($result);
-mysql_free_result($result);
+list ($size) = smf_mysql_fetch_row($result);
+smf_mysql_free_result($result);
 
 if (empty($size))
 {
@@ -1676,13 +1676,13 @@ FROM {$db_prefix}polls;
 
 ---# Converting data to "log_polls"...
 ---{
-$query = mysql_query("
+$query = upgrade_query("
 	SELECT ID_POLL, votedMemberIDs
 	FROM {$db_prefix}polls");
 if ($query !== false)
 {
 	$setStringLog = '';
-	while ($row = mysql_fetch_assoc($query))
+	while ($row = smf_mysql_fetch_assoc($query))
 	{
 		$members = explode(',', $row['votedMemberIDs']);
 		foreach ($members as $member)
@@ -1731,7 +1731,7 @@ $result = upgrade_query("
 		AND p.ID_POLL = t.ID_POLL
 		AND p.ID_MEMBER = 0
 		AND t.ID_MEMBER_STARTED != 0");
-while ($row = mysql_fetch_assoc($result))
+while ($row = smf_mysql_fetch_assoc($result))
 {
 	upgrade_query("
 		UPDATE {$db_prefix}polls
@@ -1739,7 +1739,7 @@ while ($row = mysql_fetch_assoc($result))
 		WHERE ID_POLL = $row[ID_POLL]
 		LIMIT 1");
 }
-mysql_free_result($result);
+smf_mysql_free_result($result);
 ---}
 ---#
 
@@ -1769,9 +1769,9 @@ $request = upgrade_query("
 	SELECT ID_THEME, IF(value = '2', 5, value) AS value
 	FROM {$db_prefix}themes
 	WHERE variable = 'display_recent_bar'");
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 	$insertRows .= "($row[ID_THEME], 'number_recent_posts', '$row[value]'),";
-mysql_free_result($request);
+smf_mysql_free_result($request);
 if (!empty($insertRows))
 {
 	$insertRows = substr($insertRows, 0, -1);
