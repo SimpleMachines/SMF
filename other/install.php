@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -956,6 +956,17 @@ function ForumSettings()
 				// Set the character set here.
 				updateSettingsFile(array('db_character_set' => 'utf8'));
 		}
+
+		//-- Set the registration mode...
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}settings
+			SET value = {int:reg_mode}
+			WHERE variable = {string:this_variable}',
+			array(
+				'reg_mode' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
+				'this_variable' => 'registration_method',
+			)
+		);
 
 		// Good, skip on.
 		return true;
