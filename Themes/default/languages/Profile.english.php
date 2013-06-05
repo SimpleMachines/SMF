@@ -355,6 +355,7 @@ $txt['group_membership_msg_free'] = 'Your group membership was successfully upda
 $txt['group_membership_msg_request'] = 'Your request has been submitted, please be patient while the request is considered.';
 $txt['group_membership_msg_primary'] = 'Your primary group has been updated';
 $txt['current_membergroups'] = 'Current Membergroups';
+$txt['no_current_membergroups'] = 'You are currently not a member of any groups.';
 $txt['available_groups'] = 'Available Groups';
 $txt['join_group'] = 'Join Group';
 $txt['leave_group'] = 'Leave Group';
