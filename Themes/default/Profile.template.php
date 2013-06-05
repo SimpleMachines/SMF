@@ -1838,31 +1838,41 @@ function template_groupMembership()
 				<tbody>';
 
 		$alternate = true;
-		foreach ($context['groups']['member'] as $group)
+		if(count($context['groups']['member']) > 1)
 		{
-			echo '
-					<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" id="primdiv_', $group['id'], '">';
-
-				if ($context['can_edit_primary'])
+			foreach ($context['groups']['member'] as $group)
+			{
+				if($group['id'] != 0) 
+				{
 					echo '
-						<td width="4%">
-							<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '" ', $group['is_primary'] ? 'checked="checked"' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');" ', $group['can_be_primary'] ? '' : 'disabled="disabled"', ' class="input_radio" />
-						</td>';
+							<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" id="primdiv_', $group['id'], '">';
 
-				echo '
-						<td>
-							<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br /><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>
-						</td>
-						<td width="15%" class="righttext">';
+						if ($context['can_edit_primary'])
+							echo '
+								<td width="4%">
+									<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '" ', $group['is_primary'] ? 'checked="checked"' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');" ', $group['can_be_primary'] ? '' : 'disabled="disabled"', ' class="input_radio" />
+								</td>';
 
-				// Can they leave their group?
-				if ($group['can_leave'])
-					echo '
-							<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
-				echo '
-						</td>
-					</tr>';
-			$alternate = !$alternate;
+						echo '
+								<td>
+									<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br /><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>
+								</td>
+								<td width="15%" class="righttext">';
+
+						// Can they leave their group?
+						if ($group['can_leave'])
+							echo '
+									<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
+						echo '
+								</td>
+							</tr>';
+					$alternate = !$alternate;
+				} 
+			}
+		}
+		else 
+		{
+			echo '<tr><td>', $txt['no_current_membergroups'] ,'</td></tr>';
 		}
 
 		echo '
