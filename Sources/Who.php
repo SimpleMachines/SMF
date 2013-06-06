@@ -548,12 +548,25 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Developers
+						'Aaron van Geffen',
+						'Antechinus',
+						'Bjoern &quot;Bloc&quot; Kristiansen',
+						'Brad &quot;IchBin&trade;&quot; Grow',
 						'emanuele',
+						'Hendrik Jan &quot;Compuart&quot; Visser',
 						'Joshua &quot;groundup&quot; Dickerson',
+						'Juan &quot;JayBachatero&quot; Hernandez',
+						'Karl &quot;RegularExpression&quot; Benson',
+						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
+						'Michael &quot;Thantos&quot; Miller',
 						'Norv',
+						'Selman &quot;[SiNaN]&quot; Eser',
+						'Theodore &quot;Orstio&quot; Hildebrandt',
+						'Thorsten &quot;TE&quot; Eurich',
+						'winrules',
 						'Steven &quot;Fustrate&quot; Hoffman',
-						'Spuds',
+						// 'Spuds', // Doesn't want to be listed here
 					),
 				),
 				array(
