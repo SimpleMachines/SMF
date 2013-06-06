@@ -1098,7 +1098,7 @@ function membersAllowedTo($permission, $board_id = null)
 
 	$member_groups = groupsAllowedTo($permission, $board_id);
 	
-	$all_groups = $member_groups;
+	$all_groups = array_merge($member_groups['allowed'], $member_groups['denied']);
 
 	$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
 	$member_groups['allowed'] = array_diff($member_groups['allowed'], array(3));
