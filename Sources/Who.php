@@ -562,6 +562,7 @@ function Credits($in_admin = false)
 						'Michael &quot;Thantos&quot; Miller',
 						'Norv',
 						'Selman &quot;[SiNaN]&quot; Eser',
+						'Suki',
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
