@@ -335,3 +335,21 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 );
+
+/******************************************************************************/
+--- Dropping 'filetype' column from admin_info_files table
+/******************************************************************************/
+BEGIN TRANSACTION;
+CREATE TEMPORARY TABLE {$db_prefix}admin_info_files_backup(id_file,filename,path,parameters,data);
+INSERT INTO {$db_prefix}admin_info_files_backup SELECT id_file,filename,path,parameters,data FROM {$db_prefix}admin_info_files;
+DROP TABLE {$db_prefix}admin_info_files;
+CREATE TABLE {$db_prefix}admin_info_files (
+  id_file integer primary key,
+  filename varchar(255) NOT NULL,
+  path varchar(255) NOT NULL,
+  parameters varchar(255) NOT NULL,
+  data text NOT NULL
+);
+INSERT INTO {$db_prefix}admin_info_files SELECT id_file,filename,path,parameters,data FROM {$db_prefix}admin_info_files_backup;
+DROP TABLE {$db_prefix}admin_info_files_backup;
+COMMIT;
