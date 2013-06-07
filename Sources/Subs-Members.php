@@ -1030,7 +1030,7 @@ function groupsAllowedTo($permission, $board_id = null)
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
 		$smcFunc['db_free_result']($request);
-		
+
 		$moderator_groups = array();
 
 		// "Inherit" any moderator permissions as needed
@@ -1049,15 +1049,15 @@ function groupsAllowedTo($permission, $board_id = null)
 					'board_id' => $board_id,
 				)
 			);
-			
+
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$moderator_groups[] = $row['id_group'];
 			}
+
+			$smcFunc['db_free_result']($request);			
 		}
-		
-		$smcFunc['db_free_result']($request);
-		
+
 		// "Inherit" any additional permissions from the "Moderators" group		
 		foreach ($moderator_groups as $mod_group)
 		{
