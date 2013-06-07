@@ -585,7 +585,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	}
 
 	// Find this user's drafts for the boards they can access
-	// @todo ... do we want to do this?  If they were able to create a draft, do we remove thier access to said draft if they loose
+	// @todo ... do we want to do this?  If they were able to create a draft, do we remove their access to said draft if they loose
 	//           access to the board or if the topic moves to a board they can not see?
 	$request = $smcFunc['db_query']('', '
 		SELECT

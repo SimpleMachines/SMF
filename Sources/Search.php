@@ -251,7 +251,7 @@ function PlushSearch2()
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc;
 
-	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
+	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
 		redirectexit($scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
 
@@ -1091,13 +1091,17 @@ function PlushSearch2()
 					}
 					call_integration_hook('integrate_subject_only_search_query', array(&$subject_query, &$subject_query_params));
 
+					// Build the search relevance query
 					$relevance = '1000 * (';
 					foreach ($weight_factors as $type => $value)
 					{
-						$relevance .= $weight[$type];
-						if (!empty($value['results']))
-							$relevance .= ' * ' . $value['results'];
-						$relevance .= ' + ';
+						if (isset($value['results']))
+						{
+							$relevance .= $weight[$type];
+							if (!empty($value['results']))
+								$relevance .= ' * ' . $value['results'];
+							$relevance .= ' + ';
+						}
 					}
 					$relevance = substr($relevance, 0, -3) . ') / ' . $weight_total . ' AS relevance';
 

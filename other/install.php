@@ -1746,7 +1746,7 @@ class ftp_connection
 		if (!is_resource($this->connection))
 			return false;
 
-		// Passive... non-agressive...
+		// Passive... non-aggressive...
 		if (!$this->passive())
 			return false;
 

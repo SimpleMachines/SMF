@@ -435,7 +435,7 @@ $txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please n
 $txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['attachment_transfer'] = 'Transfer Attachments';
-$txt['attachment_transfer_desc'] = 'Transfer files betwen directories.';
+$txt['attachment_transfer_desc'] = 'Transfer files between directories.';
 $txt['attachment_transfer_select'] = 'Select directory';
 $txt['attachment_transfer_now'] = 'Transfer';
 $txt['attachment_transfer_from'] = 'Transfer files from';
@@ -451,7 +451,7 @@ $txt['attachments_transfered'] = '%1$d files were transfered to %2$s';
 $txt['attachments_not_transfered'] = '%1$d files were not transfered.';
 $txt['attachment_transfer_no_dir'] = 'Either the source directory or one of the target options were not selected.';
 $txt['attachment_transfer_same_dir'] = 'You cannot select the same directory as both the source and target.';
-$txt['attachment_transfer_progress'] = 'Please wait. Transfer in progess.';
+$txt['attachment_transfer_progress'] = 'Please wait. Transfer in progress.';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
@@ -718,7 +718,7 @@ $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';
 $txt['hooks_disabled'] = 'Disabled';
 $txt['hooks_missing'] = 'Not found';
-$txt['hooks_no_hooks'] = 'There are currenty no hooks in the system.';
+$txt['hooks_no_hooks'] = 'There are currently no hooks in the system.';
 $txt['hooks_button_remove'] = 'Remove';
 $txt['hooks_disable_instructions'] = 'Click on the status icon to enable or disable the hook';
 $txt['hooks_disable_legend'] = 'Legend';

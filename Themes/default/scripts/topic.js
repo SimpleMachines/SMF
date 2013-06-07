@@ -393,6 +393,7 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 	// Replace the body part.
 	for (var i = 0; i < XMLDoc.getElementsByTagName("message")[0].childNodes.length; i++)
 		sBodyText += XMLDoc.getElementsByTagName("message")[0].childNodes[i].nodeValue;
+
 	this.oCurMessageDiv = document.getElementById(this.sCurMessageId);
 	this.sMessageBuffer = getInnerHTML(this.oCurMessageDiv);
 
@@ -408,6 +409,9 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 
 	sSubjectText = XMLDoc.getElementsByTagName('subject')[0].childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 	setInnerHTML(this.oCurSubjectDiv, this.opt.sTemplateSubjectEdit.replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
+
+	// position the editor in the window
+	location.hash = '#subject_' + this.sCurMessageId.substr(this.sCurMessageId.lastIndexOf("_") + 1);
 
 	return true;
 }

@@ -242,7 +242,7 @@ class browser_detector
 	 * Additional IE checks and settings.
 	 *  - determines the version of the IE browser in use
 	 *  - detects ie4 onward
-	 *  - attempts to distinguish between IE and IE in compatabilty view
+	 *  - attempts to distinguish between IE and IE in compatibilty view
 	 *  - checks for old IE on macs as well, since we can
 	 */
 	private function setupIe()

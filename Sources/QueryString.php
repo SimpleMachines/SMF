@@ -77,6 +77,9 @@ function cleanRequest()
 		// Was this redirected? If so, get the REDIRECT_QUERY_STRING.
 		// Do not urldecode() the querystring, unless you so much wish to break OpenID implementation. :)
 		$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], 0, 5) === 'url=/' ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
+		// some german webmailers need a decoded string, so let's decode the string for action=activate and action=reminder
+		if(strpos($_SERVER['QUERY_STRING'], 'activate') !== false || strpos($_SERVER['QUERY_STRING'], 'reminder') !== false)
+			$_SERVER['QUERY_STRING'] = urldecode($_SERVER['QUERY_STRING']);
 
 		// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
 		// @todo smflib

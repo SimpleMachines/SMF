@@ -390,6 +390,9 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
+.bbc_strong {
+	color: inherit;
+}
 .bbc_img {
 	border: 0;
 }
@@ -456,7 +459,7 @@ a img {
 
 .titlebg, .titlebg2, tr.titlebg th, tr.titlebg td, tr.titlebg2 td {
 	color: #444;
-	font-size: /*1.1em*/1em;
+	font-size: 1.1em;
 	font-weight: bold;
 	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
 }
@@ -480,7 +483,8 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 .catbg select {
 	height: 2em;
 	font-size: 0.9em;
-	padding: 0;
+	padding: 1px;
+	margin-top: -1px;
 }
 
 /* Alternating backgrounds for posts, and several other sections of the forum. */
@@ -623,11 +627,9 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .birthday {
 	color: #920ac4;
 }
-
 .event {
 	color: #078907;
 }
-
 .holiday > span {
 	color: rgb(0, 92, 255);
 }
@@ -636,11 +638,9 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .warn_mute {
 	color: red;
 }
-
 .warn_moderate {
 	color: #ffa500;
 }
-
 .warn_watch, .success {
 	color: green;
 }
@@ -736,7 +736,7 @@ dl.settings dt.windowbg {
 	clear: both;
 }
 dl.settings dd {
-	width: 56%;
+	width: 55%;
 	float: right;
 	overflow: auto;
 	margin: 0 0 3px 0;
@@ -827,14 +827,6 @@ div.cat_bar {
 }
 div.title_bar {
 	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
-}
-
-/* Info center title bars are a bit different. */ /* @todo */
-/*div.title_barIC {
-	background: #dde3e9 url(../images/theme/bars.png) 0 0 repeat-x;
-}*/
-div.title_barIC h4.titlebg {
-	font-size: 1.1em;
 }
 
 /* Upshrinks in cat and title bars. */
@@ -1481,10 +1473,11 @@ ul li.greeting {
 #inner_wrap a.avatar {
 	float: left;
 	margin: 0 10px 5px 0;
+	max-width: 40px;
 }
 /* No more huge avatars up top. YAY! */
 #inner_wrap a.avatar img {
-	height: 100%;
+	height: auto;
 	width: 100%;
 	max-width: 40px;
 	max-height: 40px;
@@ -2090,6 +2083,9 @@ div#pollmoderation {
 	line-height: 1.5em;
 	text-align: center;
 }
+.poster .dropmenu>li .karma_allow a {
+	float: left;
+}
 .poster .dropmenu li:hover a, .poster .dropmenu li.sfhover a, .poster .dropmenu li a:hover,
 .poster .dropmenu li:hover a:hover, .poster .dropmenu li.sfhover a:hover, .poster .dropmenu li a {
 	background: none;
@@ -2257,7 +2253,6 @@ div.quickbuttons_wrap {
 	width: 100%;
 	float: left;
 }
-
 ul.quickbuttons {
 	margin: 11px 0 0 0;
 	padding: 0 0 4px 0;
@@ -2274,7 +2269,7 @@ ul.quickbuttons li {
 ul.quickbuttons li a {
 	padding: 0 4px 0 20px;
 	display: block;
-	line-height: 1.9em;
+	line-height: 2.0em;
 	float: left;
 }
 ul.quickbuttons li a.quote_button {
@@ -2284,34 +2279,46 @@ ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat -1px -1px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px 0px;
 }
 ul.quickbuttons li a.remove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 3px -27px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -24px;
 }
 ul.quickbuttons li a.modify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 3px -57px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -48px;
 }
 ul.quickbuttons li a.approve_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 4px -88px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -72px;
 }
 ul.quickbuttons li a.restore_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -96px;
 }
 ul.quickbuttons li a.split_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 5px -147px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -120px;
 }
 ul.quickbuttons li a.reply_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -144px;
 }
 ul.quickbuttons li a.reply_all_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -144x;
 }
 ul.quickbuttons li a.notify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -168px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -192px;
+}
+ul.quickbuttons li a.close_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -216px;
+}
+ul.quickbuttons li a.im_reply_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -240px;
+}
+ul.quickbuttons li a.details_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -264px;
+}
+ul.quickbuttons li a.ignore_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -288px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
@@ -2341,12 +2348,12 @@ ul.quickbuttons li.inline_mod_check {
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
 	padding: 0 6px 0 22px;
-	line-height: 1.9em;
+	line-height: 2.0em;
 	position: relative;
 	color: #222;
 }
 .quickbuttons li.quick_edit img {
-	padding: 4px 7em 4px 4px;
+	padding: 4px 5em 4px 4px;
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -2408,7 +2415,7 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons ul li a, .quickbuttons ul li a:focus {
 	padding: 0 6px 0 26px;
 	display: block;
-	line-height: 2.2em;
+	line-height: 2.0em;
 	width: 12em;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
@@ -3104,6 +3111,7 @@ dl {
 }
 #avatar_server_stored div {
 	float: left;
+	padding-right: 5px;
 }
 #avatar_upload {
 	overflow: auto;
@@ -3349,6 +3357,7 @@ img.centericon {
 	width: 100%;
 	float: left;
 }
+
 /*Issue a warning*/
 #warn_body{
 	width: 80%;
@@ -3755,6 +3764,11 @@ span.hidelink {
 #mlist_search {
 	margin: auto;
 	width: 500px;
+	overflow: hidden;
+}
+#mlist_search .input_text {
+	width: 100%;
+	overflow: hidden;
 }
 
 /* Styles for the basic search section.
@@ -3989,14 +4003,40 @@ span.hidelink {
 	z-index: 1;
 }
 
-/* Experimental additions. @todo */
-/*-------------------------*/
-
-/* Drop the stats cell from the board index on narrow screens. */
-/* Much more user-friendly IMHO. */
-
-@media screen and (max-width: 1220px) {
-	.table_list td.stats {
+/* Experimental media screen additions. */
+/*--------------------------------------*/
+/* Smartphones (portrait & landscape) drop the stats (views/replys) and last post from the screen */
+@media screen and (min-width: 320px) and (max-width: 480px) {
+	.table_list td.stats, .table_list td.lastpost, .table_grid td.lastpost, .table_grid th.last_post, .table_grid td.stats, .table_grid th.stats {
+		display: none;
+	}
+	#wrapper, .frame {
+		min-width: 300px;
+		width: 100% !important;
+	}
+	#main_content_section {
+		padding: 1px 2px 16px 3px;
+	}
+	.poster img.avatar {
+		width: 30px;
+	}
+	.poster {
+		width: 110px;
+		font-size: .8em;
+	}
+	.postarea, .moderatorbar {
+		margin: 0 0 0 110px;
+	}
+	.post {
+		margin: 0 0 0 5px;
+	}
+}
+/* Tablets (landscape) */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+}
+/* Tablets (portrait)  Drop the stats col replys/views and topics/messages */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+	.table_list td.stats .table_grid td.stats, .table_grid th.stats {
 		display: none;
 	}
 	.table_list td.lastpost p {
@@ -4004,6 +4044,18 @@ span.hidelink {
 		padding: 1px 5px 2px 10px;
 		margin-top: 1px;
 	}
+	.table_grid td.lastpost p {
+		border-left: 1px solid #ccc;
+	}
+	.table_grid th.last_post {
+		width: 30%;
+	}
+}
+/* Desktops and laptops */
+@media screen and (min-width: 1224px) {
+}
+/* Large screens */
+@media screen and (min-width: 1824px) {
 }
 
 /* General @todo stuff follows. Just added here temporarily, for convenience while trying stuff out. */
@@ -4068,7 +4120,7 @@ span.hidelink {
 .generic_list_wrapper .titlebg {
 	background: none;
 	border-bottom: 1px solid #aaa;
-	font-size: /*1.1em*/1em;
+	font-size: 1.1em;
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
@@ -4082,7 +4134,7 @@ span.hidelink {
 .table_grid .catbg, .table_grid .catbg th, .table_grid .catbg th a {
 	font-size: 1em;
 }
-.generic_list_wrapper .information .additional_row{
+.generic_list_wrapper .information .additional_row {
 	border: none;
 }
 .generic_list_wrapper .information {
@@ -4266,7 +4318,8 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 }
 .table_grid td.windowbg, .table_grid td.windowbg2, .table_grid td.lockedbg, .table_grid td.lockedbg2,
 .table_grid td.stickybg, .table_grid td.stickybg2, .table_grid td.locked_sticky, .table_grid td.locked_sticky2,
-.table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
+.table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody ,
+.table_grid td.approvetbg, .table_grid td.approvetbg2 {
 	border-bottom: 1px solid #ccc;
 }
 .table_grid tr:nth-child(even) td {

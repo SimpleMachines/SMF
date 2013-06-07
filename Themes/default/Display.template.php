@@ -445,7 +445,7 @@ function template_main()
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
 								</div>
 								<h5 id="subject_', $message['id'], '">
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '">', $message['time'], '</a>';
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' ', $txt['on'], ': ', $message['time'], '">', $message['subject'], '</a>';
 
 		// Show "<< Last Edit: Time by Person >>" if this post was edited.
 		if ($settings['show_modify'] && !empty($message['modified']['name']))
