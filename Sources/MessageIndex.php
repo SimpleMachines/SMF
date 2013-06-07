@@ -111,13 +111,24 @@ function MessageIndex()
 
 	// Build a list of the board's moderators.
 	$context['moderators'] = &$board_info['moderators'];
+	$context['moderator_groups'] = &$board_info['moderator_groups'];
 	$context['link_moderators'] = array();
 	if (!empty($board_info['moderators']))
 	{
 		foreach ($board_info['moderators'] as $mod)
 			$context['link_moderators'][] ='<a href="' . $scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
-
-		$context['linktree'][count($context['linktree']) - 1]['extra_after'] = '<span class="board_moderators"> (' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
+	}
+	if (!empty($board_info['moderator_groups']))
+	{
+		// By default just tack the moderator groups onto the end of the members
+		foreach ($board_info['moderator_groups'] as $mod_group)
+			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+	}
+	
+	// Now we tack the info onto the end of the linktree
+	if (!empty($context['link_moderators']))
+	{
+	 	$context['linktree'][count($context['linktree']) - 1]['extra_after'] = '<span class="board_moderators"> (' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
 	}
 
 	// Mark current and parent boards as seen.
@@ -661,7 +672,8 @@ function MessageIndex()
 	);
 
 	// Allow adding new buttons easily.
-	call_integration_hook('integrate_messageindex_buttons');
+	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
+	call_integration_hook('integrate_messageindex_buttons', array(&$context['normal_buttons']));
 }
 
 /**

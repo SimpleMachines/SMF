@@ -617,7 +617,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'icq' => '',
 		'aim' => '',
 		'yim' => '',
-		'msn' => '',
+		'skype' => '',
 		'time_format' => '',
 		'signature' => '',
 		'avatar' => '',
@@ -1030,6 +1030,49 @@ function groupsAllowedTo($permission, $board_id = null)
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
 		$smcFunc['db_free_result']($request);
+
+		$moderator_groups = array();
+
+		// "Inherit" any moderator permissions as needed
+		if (isset($board_info['moderator_groups']))
+		{
+			$moderator_groups = array_keys($board_info['moderator_groups']);
+		}
+		elseif ($board_id !== 0)
+		{
+			// Get the groups that can moderate this board
+			$request = $smcFunc['db_query']('', '
+				SELECT id_group
+				FROM {db_prefix}moderator_groups
+				WHERE id_board = {int:board_id}',
+				array(
+					'board_id' => $board_id,
+				)
+			);
+
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				$moderator_groups[] = $row['id_group'];
+			}
+
+			$smcFunc['db_free_result']($request);			
+		}
+
+		// "Inherit" any additional permissions from the "Moderators" group		
+		foreach ($moderator_groups as $mod_group)
+		{
+			// If they're not specifically allowed, but the moderator group is, then allow it
+			if (in_array(3, $member_groups['allowed']) && !in_array($mod_group, $member_groups['allowed']))
+			{
+				$member_groups['allowed'][] = $mod_group;
+			}
+			
+			// They're not denied, but the moderator group is, so deny it
+			if (in_array(3, $member_groups['denied']) && !in_array($mod_group, $member_groups['denied']))
+			{
+				$member_groups['denied'][] = $mod_group;
+			}
+		}
 	}
 
 	// Denied is never allowed.
@@ -1054,6 +1097,8 @@ function membersAllowedTo($permission, $board_id = null)
 	global $smcFunc;
 
 	$member_groups = groupsAllowedTo($permission, $board_id);
+	
+	$all_groups = array_merge($member_groups['allowed'], $member_groups['denied']);
 
 	$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
 	$member_groups['allowed'] = array_diff($member_groups['allowed'], array(3));
@@ -1064,12 +1109,14 @@ function membersAllowedTo($permission, $board_id = null)
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member
 		FROM {db_prefix}members AS mem' . ($include_moderators || $exclude_moderators ? '
-			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})' : '') . '
-		WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
-			AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
+			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})
+			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group IN ({array_int:all_member_groups}))' : '') . '
+		WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
+			AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
 		array(
 			'member_groups_allowed' => $member_groups['allowed'],
 			'member_groups_denied' => $member_groups['denied'],
+			'all_member_groups' => $all_groups,
 			'board_id' => $board_id,
 			'member_group_allowed_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['allowed']),
 			'member_group_denied_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['denied']),
@@ -1225,7 +1272,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.icq, mem.aim, mem.yim, mem.msn, mem.member_ip, mem.member_ip2, mem.last_login,
+			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.icq, mem.aim, mem.yim, mem.skype, mem.member_ip, mem.member_ip2, mem.last_login,
 			mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)

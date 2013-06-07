@@ -46,6 +46,37 @@
 	padding-left: 0;
 }
 
+a#bot {
+	float: left;
+}
+
+img.icon {
+	margin: 0 0 0 5px !important;
+}
+
+a.collapse img {
+	margin: -8px 0 0 -4px;
+}
+
+#menu_nav {
+	padding: 0;
+}
+
+.button_submit, .button_reset, .button_link {
+	margin: 0 2x;
+}
+
+/* BoardIndex Styling for RTL */
+td.lastpost {
+	border-left: 1px solid #ddd;
+	border-right: 0px !important;
+}
+
+.table_list td.icon {
+	border-left: 0px !important;
+	border-right: 1px solid #ddd;
+}
+
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
 dl.settings {
@@ -102,10 +133,6 @@ table.table_list a.collapse {
 }
 .dropmenu li ul {
 	right: -999em;
-	background: #fff url(../images/theme/menu_gfx.png) -30px -137px repeat-x;
-	/* Note: Using a black rgba box-shadow with suitable
-	alpha value gives the best effect on any background. */
-	box-shadow: -1px 2px 2px rgba(0,0,0,0.3);
 }
 /* Note: The next two declarations are for keyboard access with js disabled. */
 .dropmenu ul a:focus {
@@ -134,14 +161,13 @@ table.table_list a.collapse {
 .dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
 	right: 14.5em;
 }
-/* Indicator for additonal levels. Best in the anchor so it stays visible on hover. */
-.dropmenu li li.subsections a {
-	background: url(../images/admin/subsection_rtl.png) no-repeat 1% 40%;
+/* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
+.dropmenu li li.subsections a:after, .adm_section .dropmenu li.subsections a:after{
+	left: 2px;
+	right: auto;
+	background: url(../images/admin/subsection_rtl.png) no-repeat;
 }
-/* For no-js background. */
-.dropmenu li li.subsections a:focus {
-	background:  #e3e9ef url(../images/admin/subsection_rtl.png) no-repeat 1% 40%, url(../images/theme/lower_section.png) 0 0 repeat-x;
-}
+
 
 /* The dropdown menu toggle image */
 #menu_toggle {
@@ -167,8 +193,7 @@ li#collapse_button {
 	margin: 0 0 0 0.2em;
 }
 .buttonlist ul li a {
-	margin-left: 0;
-	margin-right: 12px;
+	margin: 0;
 }
 .buttonlist ul li a span {
 	left: 8px;
@@ -260,7 +285,7 @@ form#ic_login ul li {
 	text-align: left;
 }
 img#upshrink_ic, img#newsupshrink {
-	float: right;
+	float: left;
 }
 
 /* Styles for the message (topic) index.
@@ -271,6 +296,10 @@ img#upshrink_ic, img#newsupshrink {
 }
 .lastpost img {
 	float: left;
+}
+
+#message_index_jump_to label {
+	margin-left: 14px;
 }
 
 /* Styles for the display template (topic view).
@@ -354,9 +383,10 @@ span.percent {
 	margin: 0 0 0 0.5em;
 }
 
-.keyinfo {
-	float: right;
+#display_jump_to select {
+	margin: 0;
 }
+
 .modifybutton {
 	clear: left;
 	float: left;
@@ -373,7 +403,7 @@ ul.quickbuttons {
 }
 ul.quickbuttons li {
 	float: left;
-	margin: 0 11px 0 0;
+	margin: 0 0 0 0;
 }
 ul.quickbuttons li a {
 	padding: 0 20px 0 0;
@@ -754,16 +784,22 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 
 /* Styles for the calendar section.
 ------------------------------------------------- */
+#main_grid .cat_bar {
+	margin: 0 0 0 2px;
+}
 #month_grid {
 	float: right;
+	margin: 0 0 0 1%;
 }
-
 #main_grid table.weeklist td.windowbg {
 
 	border-left: 2px solid #fff;
 	border-bottom: 2px solid #fff;
 }
-
+#main_grid img.calendar_icon {
+	float: right;
+	margin: 0 0 0 4px;
+}
 #main_grid table.weeklist td.weekdays {
 	text-align: left;
 	vertical-align: middle;
@@ -897,4 +933,14 @@ span.search_weight {
 }
 ul.moderation_notes li {
 	padding: 4px 4px 4px 0;
+}
+
+#inner_wrap a.avatar {
+	float: right;
+	width: 46px;
+}
+
+.unread_links {
+	float: left !important;
+	padding-left: 0;
 }

@@ -369,22 +369,12 @@ function loadProfileFields($force_reload = false)
 				return false;
 			'),
 		),
-		'msn' => array(
+		'skype' => array(
 			'type' => 'text',
-			'label' => $txt['msn'],
-			'subtext' => $txt['msn_email_address'],
+			'label' => $txt['skype'],
+			'subtext' => $txt['skype_username'],
 			'size' => 24,
 			'permission' => 'profile_extra',
-			'input_validate' => create_function('&$value', '
-				global $cur_profile;
-				// Make sure the msn one is an email address, not something like \'none\' :P.
-				if ($value != \'\' && preg_match(\'~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\\\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~\', $value) == 0)
-				{
-					$value = $cur_profile[\'msn\'];
-					return false;
-				}
-				return true;
-			'),
 		),
 		'passwrd1' => array(
 			'type' => 'password',
@@ -649,7 +639,7 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => create_function('&$value', '
 				global $smcFunc;
 
-				if ($smcFunc[\'strlen\'] > 50)
+				if ($smcFunc[\'strlen\']($value) > 50)
 					return \'user_title_too_long\';
 
 				return true;
@@ -1606,7 +1596,7 @@ function account($memID)
  */
 function forumProfile($memID)
 {
-	global $context, $user_profile, $user_info, $txt, $modSettings;
+	global $context, $txt;
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
@@ -1620,7 +1610,7 @@ function forumProfile($memID)
 		array(
 			'avatar_choice', 'hr', 'personal_text', 'hr',
 			'bday1', 'location', 'gender', 'hr',
-			'icq', 'aim', 'msn', 'yim', 'hr',
+			'icq', 'aim', 'yim', 'skype', 'hr',
 			'usertitle', 'signature', 'hr',
 			'karma_good', 'hr',
 			'website_title', 'website_url',

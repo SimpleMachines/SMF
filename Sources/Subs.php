@@ -2904,7 +2904,7 @@ function setupThemeContext($forceload = false)
 	// 2.1+: Add the PM popup here instead. Theme authors can still override it simply by editing/removing the 'fPmPopup' in the array.
 	if ($context['show_pm_popup'])
 		addInlineJavascript('
-		$(document).ready(function(){
+		jQuery(document).ready(function($) {
 			new smc_Popup({
 				heading: ' . JavaScriptEscape($txt['show_personal_messages_heading']) . ',
 				content: ' . JavaScriptEscape(sprintf($txt['show_personal_messages'], $context['user']['unread_messages'], $scripturl . '?action=pm')) . ',
@@ -3222,8 +3222,18 @@ function template_javascript($do_defered = false)
 	<script type="text/javascript"><!-- // --><![CDATA[';
 
 		foreach ($context['javascript_vars'] as $key => $value)
-			echo '
+		{
+			if (empty($value))
+			{
+				echo '
+		var ', $key, ';';
+			}
+			else
+			{
+				echo '
 		var ', $key, ' = ', $value, ';';
+			}
+		}
 
 		echo '
 	// ]]></script>';

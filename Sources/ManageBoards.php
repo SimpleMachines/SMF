@@ -547,6 +547,25 @@ function EditBoard()
 	if (!empty($context['board']['moderators']))
 		list ($context['board']['last_moderator_id']) = array_slice(array_keys($context['board']['moderators']), -1);
 
+	// Get all the groups assigned as moderators
+	$request = $smcFunc['db_query']('', '
+		SELECT id_group
+		FROM {db_prefix}moderator_groups
+		WHERE id_board = {int:current_board}',
+		array(
+			'current_board' => $_REQUEST['boardid'],
+		)
+	);
+	$context['board']['moderator_groups'] = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['board']['moderator_groups'][$row['id_group']] = $context['groups'][$row['id_group']]['name'];
+	$smcFunc['db_free_result']($request);
+	
+	$context['board']['moderator_groups_list'] = empty($context['board']['moderator_groups']) ? '' : '&quot;' . implode('&quot;, &qout;', $context['board']['moderator_groups']) . '&quot;';
+
+	if (!empty($context['board']['moderator_groups']))
+		list ($context['board']['last_moderator_group_id']) = array_slice(array_keys($context['board']['moderator_groups']), -1);
+
 	// Get all the themes...
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme AS id, value AS name
@@ -648,6 +667,16 @@ function EditBoard2()
 			foreach ($_POST['moderator_list'] as $moderator)
 				$moderators[(int) $moderator] = (int) $moderator;
 			$boardOptions['moderators'] = $moderators;
+		}
+
+		$boardOptions['moderator_group_string'] = $_POST['moderator_groups'];
+		
+		if (isset($_POST['moderator_group_list']) && is_array($_POST['moderator_group_list']))
+		{
+			$moderator_groups = array();
+			foreach ($_POST['moderator_group_list'] as $moderator_group)
+				$moderator_groups[(int) $moderator_group] = (int) $moderator_group;
+			$boardOptions['moderator_groups'] = $moderator_groups;
 		}
 
 		// Are they doing redirection?

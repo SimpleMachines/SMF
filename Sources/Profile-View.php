@@ -2218,12 +2218,14 @@ function showPermissions($memID)
 
 	// Load a list of boards for the jump box - except the defaults.
 	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name, b.id_profile, b.member_groups, IFNULL(mods.id_member, 0) AS is_mod
+		SELECT b.id_board, b.name, b.id_profile, b.member_groups, IFNULL(mods.id_member, IFNULL(modgs.id_group, 0)) AS is_mod
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
+			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:current_groups}))
 		WHERE {query_see_board}',
 		array(
 			'current_member' => $memID,
+			'current_groups' => $curGroups,
 		)
 	);
 	$context['boards'] = array();
@@ -2313,14 +2315,15 @@ function showPermissions($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty($board) ? '' : ',
-			b.id_profile, CASE WHEN mods.id_member IS NULL THEN 0 ELSE 1 END AS is_moderator') . '
+			b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '
 		FROM {db_prefix}board_permissions AS bp' . (empty($board) ? '' : '
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = {int:current_board})
-			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})') . '
+			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
+			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))') . '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bp.id_group)
 		WHERE bp.id_profile = {raw:current_profile}
 			AND bp.id_group IN ({array_int:group_list}' . (empty($board) ? ')' : ', {int:moderator_group})
-			AND (mods.id_member IS NOT NULL OR bp.id_group != {int:moderator_group})'),
+			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})'),
 		array(
 			'current_board' => $board,
 			'group_list' => $curGroups,

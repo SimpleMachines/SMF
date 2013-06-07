@@ -1251,7 +1251,7 @@ CREATE TABLE {$db_prefix}members (
   icq varchar(255) NOT NULL default '',
   aim varchar(255) NOT NULL default '',
   yim varchar(32) NOT NULL default '',
-  msn varchar(255) NOT NULL default '',
+  skype varchar(255) NOT NULL default '',
   hide_email tinyint(4) NOT NULL default '0',
   show_online tinyint(4) NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
@@ -1401,6 +1401,16 @@ CREATE TABLE {$db_prefix}moderators (
   id_board smallint(5) unsigned NOT NULL default '0',
   id_member mediumint(8) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_member)
+) ENGINE=MyISAM;
+
+#
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_group smallint(5) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group) 
 ) ENGINE=MyISAM;
 
 #
@@ -1715,8 +1725,17 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cal_showholidays', '1'),
 	('cal_showbdays', '1'),
 	('cal_showevents', '1'),
-	('cal_showweeknum', '0'),
 	('cal_maxspan', '7'),
+	('cal_highlight_events', '3'),
+	('cal_highlight_holidays', '3'),
+	('cal_highlight_birthdays', '3'),
+	('cal_disable_prev_next', '0'),
+	('cal_display_type', '0'),
+	('cal_week_links', '2'),
+	('cal_prev_next_links', '1'),
+	('cal_short_days', '0'),
+	('cal_short_months', '0'),
+	('cal_week_numbers', '0'),
 	('smtp_host', ''),
 	('smtp_port', '25'),
 	('smtp_username', ''),
@@ -1738,7 +1757,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('xmlnews_maxlen', '255'),
 	('hotTopicPosts', '15'),
 	('hotTopicVeryPosts', '25'),
-	('registration_method', '0'),
+	('registration_method', '{$registration_method}'),
 	('send_validation_onChange', '0'),
 	('send_welcomeEmail', '1'),
 	('allow_editDisplayName', '1'),
@@ -1998,7 +2017,7 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'enable_news', '1'),
 	(1, 'forum_width', '90%');
 
-INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '1');
+INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 # --------------------------------------------------------
 

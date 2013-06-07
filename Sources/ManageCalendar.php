@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function ManageCalendar()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -184,7 +184,7 @@ function ModifyHolidays()
  */
 function EditHoliday()
 {
-	global $txt, $context, $scripturl, $smcFunc;
+	global $txt, $context, $smcFunc;
 
 	loadTemplate('ManageCalendar');
 
@@ -290,7 +290,7 @@ function EditHoliday()
  */
 function ModifyCalendarSettings($return_config = false)
 {
-	global $modSettings, $context, $settings, $txt, $boarddir, $sourcedir, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	// Load the boards list.
 	$boards = array('');
@@ -333,6 +333,20 @@ function ModifyCalendarSettings($return_config = false)
 			// Calendar spanning...
 			array('check', 'cal_allowspan'),
 			array('int', 'cal_maxspan', 6, 'postinput' => $txt['days_word']),
+		'',
+			// A comment is like a dog marking its territory. ;)
+			array('select', 'cal_highlight_events', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+			array('select', 'cal_highlight_holidays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+			array('select', 'cal_highlight_birthdays', array(0 => $txt['setting_cal_highlight_none'], 1 => $txt['setting_cal_highlight_mini'], 2 => $txt['setting_cal_highlight_main'], 3 => $txt['setting_cal_highlight_both'])),
+		'',
+			// Miscellaneous layout settings...
+			array('check', 'cal_disable_prev_next'),
+			array('select', 'cal_display_type', array(0 => $txt['setting_cal_display_comfortable'], 1 => $txt['setting_cal_display_compact'])),
+			array('select', 'cal_week_links', array(0 => $txt['setting_cal_week_links_none'], 1 => $txt['setting_cal_week_links_mini'], 2 => $txt['setting_cal_week_links_main'], 3 => $txt['setting_cal_week_links_both'])),
+			array('check', 'cal_prev_next_links'),
+			array('check', 'cal_short_days'),
+			array('check', 'cal_short_months'),
+			array('check', 'cal_week_numbers'),
 	);
 
 	call_integration_hook('integrate_modify_calendar_settings', array(&$config_vars));
@@ -365,7 +379,7 @@ function ModifyCalendarSettings($return_config = false)
 		redirectexit('action=admin;area=managecalendar;sa=settings');
 	}
 
-	// We need this for the in-line permissions
+	// We need this for the inline permissions
 	createToken('admin-mp');
 
 	// Prepare the settings...

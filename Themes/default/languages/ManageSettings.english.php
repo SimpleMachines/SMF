@@ -384,4 +384,9 @@ $txt['languages_download_complete'] = 'Installation Complete';
 $txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
 
+$txt['setting_frame_security'] = 'Frame Security Options';
+$txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';
+$txt['setting_frame_security_DENY'] = 'Deny all frames';
+$txt['setting_frame_security_DISABLE'] = 'Disabled';
+
 ?>

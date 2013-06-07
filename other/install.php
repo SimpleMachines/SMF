@@ -339,7 +339,7 @@ function load_lang_file()
 function load_database()
 {
 	global $db_prefix, $db_connection, $db_character_set, $sourcedir, $language;
-	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user;
+	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -1024,6 +1024,7 @@ function DatabasePopulation()
 		'{$smf_version}' => $GLOBALS['current_smf_version'],
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
+		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
 	);
 
 	foreach ($txt as $key => $value)
@@ -1373,7 +1374,7 @@ function AdminAccount()
 					'password_salt' => 'string', 'lngfile' => 'string', 'personal_text' => 'string', 'avatar' => 'string',
 					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
 					'message_labels' => 'string', 'website_title' => 'string', 'website_url' => 'string', 'location' => 'string',
-					'aim' => 'string', 'icq' => 'string', 'msn' => 'string', 'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
+					'aim' => 'string', 'icq' => 'string', 'skype' => 'string', 'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
 					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
 				),
 				array(
@@ -2411,47 +2412,81 @@ function template_forum_settings()
 	template_warning_divs();
 
 	echo '
-		<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 1em 0;">
+		<table style="width: 100%; margin: 1em 0;">
 			<tr>
-				<td width="20%" valign="top" class="textbox"><label for="mbname_input">', $txt['install_settings_name'], ':</label></td>
+				<td class="textbox" style="width: 20%; vertical-align: top;">
+					<label for="mbname_input">', $txt['install_settings_name'], ':</label>
+				</td>
 				<td>
 					<input type="text" name="mbname" id="mbname_input" value="', $txt['install_settings_name_default'], '" size="65" class="input_text" />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_name_info'], '</div>
 				</td>
-			</tr><tr>
-				<td valign="top" class="textbox"><label for="boardurl_input">', $txt['install_settings_url'], ':</label></td>
+			</tr>
+			<tr>
+				<td class="textbox" style="vertical-align: top;">
+					<label for="boardurl_input">', $txt['install_settings_url'], ':</label>
+				</td>
 				<td>
-					<input type="text" name="boardurl" id="boardurl_input" value="', $incontext['detected_url'], '" size="65" class="input_text" /><br />
+					<input type="text" name="boardurl" id="boardurl_input" value="', $incontext['detected_url'], '" size="65" class="input_text" />
+					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_url_info'], '</div>
 				</td>
-			</tr><tr>
-				<td valign="top" class="textbox">', $txt['install_settings_compress'], ':</td>
+			</tr>
+			<tr>
+				<td class="textbox" style="vertical-align: top;">
+					<label for="reg_mode">', $txt['install_settings_reg_mode'], ':</label>
+				</td>
 				<td>
-					<input type="checkbox" name="compress" id="compress_check" checked="checked" class="input_check" /> <label for="compress_check">', $txt['install_settings_compress_title'], '</label><br />
+					<select name="reg_mode" id="reg_mode">
+						<optgroup label="', $txt['install_settings_reg_modes'], ':">
+							<option value="0" selected="selected">', $txt['install_settings_reg_immediate'], '</option>
+							<option value="1">', $txt['install_settings_reg_email'], '</option>
+							<option value="2">', $txt['install_settings_reg_admin'], '</option>
+							<option value="3">', $txt['install_settings_reg_disabled'], '</option>
+						</optgroup>
+					</select>
+					<br />
+					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_reg_mode_info'], '</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_compress'], ':</td>
+				<td>
+					<input type="checkbox" name="compress" id="compress_check" checked="checked" class="input_check" />&nbsp;
+					<label for="compress_check">', $txt['install_settings_compress_title'], '</label>
+					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_compress_info'], '</div>
 				</td>
-			</tr><tr>
-				<td valign="top" class="textbox">', $txt['install_settings_dbsession'], ':</td>
+			</tr>
+			<tr>
+				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_dbsession'], ':</td>
 				<td>
-					<input type="checkbox" name="dbsession" id="dbsession_check" checked="checked" class="input_check" /> <label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label><br />
+					<input type="checkbox" name="dbsession" id="dbsession_check" checked="checked" class="input_check" />&nbsp;
+					<label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label>
+					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
 				</td>
 			</tr>
 			<tr>
-				<td valign="top" class="textbox">', $txt['install_settings_utf8'], ':</td>
+				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_utf8'], ':</td>
 				<td>
-					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked="checked"' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled="disabled"' : '', ' /> <label for="utf8_check">', $txt['install_settings_utf8_title'], '</label><br />
+					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked="checked"' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled="disabled"' : '', ' />&nbsp;
+					<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
+					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_utf8_info'], '</div>
 				</td>
 			</tr>
 			<tr>
-				<td valign="top" class="textbox">', $txt['install_settings_stats'], ':</td>
+				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_stats'], ':</td>
 				<td>
-					<input type="checkbox" name="stats" id="stats_check" class="input_check" /> <label for="stats_check">', $txt['install_settings_stats_title'], '</label><br />
+					<input type="checkbox" name="stats" id="stats_check" class="input_check" />&nbsp;
+					<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
+					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_stats_info'], '</div>
 				</td>
 			</tr>
-		</table>';
+		</table>
+	';
 }
 
 // Show results of the database population.

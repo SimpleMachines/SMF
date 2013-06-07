@@ -244,12 +244,12 @@ function template_modify_language_entries()
 					', $txt['edit_languages'], '
 				</h3>
 			</div>
-			<div class="information">
+			<div id="editlang_desc" class="information">
 				', $txt['edit_language_entries_primary'], '
 			</div>';
 
 	// Not writable?
-	if ($context['lang_file_not_writable_message'])
+	if (!empty($context['lang_file_not_writable_message']))
 	{
 		// Oops, show an error for ya.
 		echo '

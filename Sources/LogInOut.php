@@ -81,7 +81,7 @@ function Login()
 function Login2()
 {
 	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
-	global $cookiename, $maintenance, $modSettings, $context, $sc, $sourcedir;
+	global $cookiename, $modSettings, $context, $sc, $sourcedir;
 
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -477,8 +477,8 @@ function checkActivation()
  */
 function DoLogin()
 {
-	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
-	global $cookiename, $maintenance, $modSettings, $context, $sourcedir;
+	global $user_info, $user_settings, $smcFunc;
+	global $maintenance, $modSettings, $context, $sourcedir;
 
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -576,7 +576,7 @@ function DoLogin()
  */
 function Logout($internal = false, $redirect = true)
 {
-	global $sourcedir, $user_info, $user_settings, $context, $modSettings, $smcFunc;
+	global $sourcedir, $user_info, $user_settings, $context, $smcFunc;
 
 	// Make sure they aren't being auto-logged out.
 	if (!$internal)
@@ -714,7 +714,7 @@ function phpBB3_password_check($passwd, $passwd_hash)
  */
 function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false)
 {
-	global $smcFunc, $cookiename, $sourcedir;
+	global $cookiename, $sourcedir;
 
 	// As this is only brute protection, we allow 5 attempts every 10 seconds.
 

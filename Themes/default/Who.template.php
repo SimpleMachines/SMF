@@ -59,13 +59,13 @@ function template_main()
 						<tr class="windowbg', $alternate ? '2' : '', '">
 							<td>';
 
-		// Guests don't have information like icq, msn, y!, and aim... and they can't be messaged.
+		// Guests don't have information like icq, skype, y!, and aim... and they can't be messaged.
 		if (!$member['is_guest'])
 		{
 			echo '
 								<span class="contact_info floatright">
 									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" align="bottom" />' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
-									', isset($context['disabled_fields']['icq']) ? '' : $member['icq']['link'] , ' ', isset($context['disabled_fields']['msn']) ? '' : $member['msn']['link'], ' ', isset($context['disabled_fields']['yim']) ? '' : $member['yim']['link'], ' ', isset($context['disabled_fields']['aim']) ? '' : $member['aim']['link'], '
+									', isset($context['disabled_fields']['icq']) ? '' : $member['icq']['link'] , ' ', isset($context['disabled_fields']['skype']) ? '' : $member['skype']['link'], ' ', isset($context['disabled_fields']['yim']) ? '' : $member['yim']['link'], ' ', isset($context['disabled_fields']['aim']) ? '' : $member['aim']['link'], '
 								</span>';
 		}
 

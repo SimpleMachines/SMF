@@ -32,7 +32,7 @@ if (!defined('SMF'))
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
-	global $txt, $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error;
+	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error;
 	static $tried_hook = false;
 
 	// Check if error logging is actually on.
@@ -120,7 +120,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  */
 function fatal_error($error, $log = 'general')
 {
-	global $txt, $context, $modSettings;
+	global $txt, $modSettings;
 
 	// We don't have $txt yet, but that's okay...
 	if (empty($txt))

@@ -482,13 +482,23 @@ function Display()
 
 	// Build a list of this board's moderators.
 	$context['moderators'] = &$board_info['moderators'];
+	$context['moderator_groups'] = &$board_info['moderator_groups'];
 	$context['link_moderators'] = array();
 	if (!empty($board_info['moderators']))
 	{
 		// Add a link for each moderator...
 		foreach ($board_info['moderators'] as $mod)
 			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+	}
+	if (!empty($board_info['moderator_groups']))
+	{
+		// Add a link for each moderator group as well...
+		foreach ($board_info['moderator_groups'] as $mod_group)
+			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=viewmemberes;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+	}
 
+	if (!empty($context['link_moderators']))
+	{
 		// And show it after the board's name.
 		$context['linktree'][count($context['linktree']) - 2]['extra_after'] = '<span class="board_moderators"> (' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
 	}
@@ -1164,7 +1174,10 @@ function Display()
 		$context['mod_buttons'][] = array('text' => 'restore_topic', 'image' => '', 'lang' => true, 'url' => $scripturl . '?action=restoretopic;topics=' . $context['current_topic'] . ';' . $context['session_var'] . '=' . $context['session_id']);
 
 	// Allow adding new mod buttons easily.
-	call_integration_hook('integrate_display_buttons');
+	// Note: $context['normal_buttons'] and $context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+	call_integration_hook('integrate_display_buttons', array(&$context['normal_buttons']));
+	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
+	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
 }
 
 /**
@@ -1178,7 +1191,7 @@ function Display()
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $txt, $modSettings, $scripturl, $options, $user_info, $smcFunc;
-	global $memberContext, $context, $messages_request, $topic, $attachments, $topicinfo;
+	global $memberContext, $context, $messages_request, $topic;
 
 	static $counter = null;
 
@@ -1312,7 +1325,7 @@ function prepareDisplayContext($reset = false)
  */
 function Download()
 {
-	global $txt, $modSettings, $user_info, $scripturl, $context, $sourcedir, $topic, $smcFunc;
+	global $txt, $modSettings, $user_info, $context, $topic, $smcFunc;
 
 	// Some defaults that we need.
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];

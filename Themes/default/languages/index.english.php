@@ -21,12 +21,18 @@ $txt['lang_capitalize_dates'] = true;
 // Number format.
 $txt['number_format'] = '1,234.00';
 
+$txt['days_title'] = 'Days';
 $txt['days'] = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 $txt['days_short'] = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 // Months must start with 1 => 'January'. (or translated, of course.)
+$txt['months_title'] = 'Months';
 $txt['months'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 $txt['months_titles'] = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 $txt['months_short'] = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+
+$txt['minutes_label'] = 'Minutes';
+$txt['hours_label'] = 'Hours';
+$txt['years_title'] = 'Years';
 
 $txt['time_am'] = 'am';
 $txt['time_pm'] = 'pm';
@@ -206,7 +212,7 @@ $txt['error_invalid_characters_username'] = 'Invalid character used in Username.
 $txt['welcome_guest'] = 'Welcome, <strong>%1$s</strong>. Please <a href="%2$s">login</a>.';
 
 //$txt['welcome_guest_register'] = 'Welcome, <strong>%1$s</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
-$txt['welcome_guest_register'] = 'Welcome to <strong>'. $context['forum_name']. '</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>' . $context['forum_name'] . '</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
 
 $txt['please_login'] = 'Please <a href="' . $scripturl . '?action=login">login</a>.';
 $txt['login_or_register'] = 'Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
@@ -337,10 +343,10 @@ $txt['aim_default_message'] = 'Hi.+Are+you+there?';
 $txt['aim_title'] = 'AOL Instant Messenger';
 $txt['icq'] = 'ICQ';
 $txt['icq_title'] = 'ICQ Messenger';
-$txt['msn'] = 'MSN';
-$txt['msn_title'] = 'MSN Messenger';
 $txt['yim'] = 'YIM';
 $txt['yim_title'] = 'Yahoo Instant Messenger';
+
+$txt['skype'] = 'Skype';
 
 $txt['maintain_mode_on'] = 'Remember, this forum is in \'Maintenance Mode\'.';
 
@@ -501,7 +507,7 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
-$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="Simple Machines Forum" target="_blank" class="new_win">%1$s</a> |
+$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="Simple Machines Forum" class="new_win">%1$s</a> |
  <a href="http://www.simplemachines.org/about/smf/license.php" title="License" target="_blank" class="new_win">SMF &copy; 2012</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
@@ -517,6 +523,8 @@ $txt['calendar_event_title'] = 'Event Title';
 $txt['calendar_event_options'] = 'Event Options';
 $txt['calendar_post_in'] = 'Post In:';
 $txt['calendar_edit'] = 'Edit Event';
+$txt['calendar_export'] = 'Export Event';
+$txt['calendar_view_week'] = 'View Week';
 $txt['event_delete_confirm'] = 'Delete this event?';
 $txt['event_delete'] = 'Delete Event';
 $txt['calendar_post_event'] = 'Post Event';

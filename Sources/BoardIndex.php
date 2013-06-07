@@ -32,11 +32,13 @@ function BoardIndex()
 	if (WIRELESS)
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_boardindex';
 	else
+	{
 		loadTemplate('BoardIndex');
+		$context['template_layers'][] = 'boardindex_outer';
+	}
 
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl;
-	$context['template_layers'][] = 'boardindex_outer';
 
 	// Do not let search engines index anything if there is a random thing in $_GET.
 	if (!empty($_GET))

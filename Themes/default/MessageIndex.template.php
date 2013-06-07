@@ -253,7 +253,7 @@ function template_main()
 			// Some columns require a different shade of the color class.
 			$alternate_class = $color_class . '2';
 
-			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
+			// @todo - [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 				<tr>
 					<td class="', $color_class, ' icon2">
@@ -264,16 +264,18 @@ function template_main()
 					</td>
 					<td class="', $alternate_class, ' subject">
 						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>
-							<div class="message_index_title">
-								', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" style="float: left; display: block; margin: 9px 0 0 3px;"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
+							<div class="message_index_title floatleft">
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 								<br class="clear" />
 							</div>
-							<p>', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
+							', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" class="floatleft" id="newicon' . $topic['first_post']['id'] . '" style="display: block; margin: 9px 0 0 3px;"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
+							<br class="clear" />
+							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 								<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 							</p>
+							<br class="clear" />
 						</div>
 					</td>
 					<td class="', $color_class, ' stats">

@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function DumpDatabase2()
 {
-	global $db_name, $scripturl, $context, $modSettings, $crlf, $smcFunc, $db_prefix, $db_show_debug;
+	global $db_name, $scripturl, $modSettings, $crlf, $smcFunc, $db_prefix, $db_show_debug;
 
 	// Administrators only!
 	if (!allowedTo('admin_forum'))

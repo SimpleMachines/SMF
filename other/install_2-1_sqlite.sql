@@ -1355,7 +1355,7 @@ CREATE TABLE {$db_prefix}members (
   icq varchar(255) NOT NULL,
   aim varchar(255) NOT NULL default '',
   yim varchar(32) NOT NULL default '',
-  msn varchar(255) NOT NULL,
+  skype varchar(255) NOT NULL default '',
   hide_email smallint NOT NULL default '0',
   show_online smallint NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
@@ -1521,6 +1521,16 @@ CREATE TABLE {$db_prefix}moderators (
   id_board smallint NOT NULL default '0',
   id_member int NOT NULL default '0',
   PRIMARY KEY (id_board, id_member)
+);
+
+#
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint NOT NULL default '0',
+  id_group smallint NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group) 
 );
 
 #
@@ -1857,8 +1867,17 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_defaultboard', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_showholidays', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_showbdays', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_showevents', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_showweeknum', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_maxspan', '7');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_highlight_events', '3');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_highlight_holidays', '3');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_highlight_birthdays', '3');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_disable_prev_next', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_display_type', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_week_links', '2');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_prev_next_links', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_short_days', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_short_months', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_week_numbers', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_host', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_port', '25');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_username', '');
@@ -1880,7 +1899,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_enable', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_maxlen', '255');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicPosts', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicVeryPosts', '25');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '{$registration_method}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_validation_onChange', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_welcomeEmail', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_editDisplayName', '1');
@@ -2148,7 +2167,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additiona
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'forum_width', '90%');
-INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '1');
+INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 COMMIT;
 
