@@ -42,5 +42,3 @@ function template_button_strip($button_strip, $direction = 'top', $strip_options
 			</ul>
 		</div>';
 }
-
-?>

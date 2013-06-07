@@ -1424,5 +1424,3 @@ function generateValidationCode()
 
 	return substr(preg_replace('/\W/', '', sha1(microtime() . mt_rand() . $dbRand . $modSettings['rand_seed'])), 0, 10);
 }
-
-?>

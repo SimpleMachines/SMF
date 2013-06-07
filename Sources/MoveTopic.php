@@ -734,5 +734,3 @@ function moveTopicConcurrence()
 		fatal_lang_error('topic_already_moved', false, array($topic_link, $board_link));
 	}
 }
-
-?>

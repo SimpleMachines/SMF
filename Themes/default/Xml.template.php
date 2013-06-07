@@ -414,5 +414,3 @@ function template_webslice_recent_posts()
 		</div>
 	</div>';
 }
-
-?>

@@ -802,5 +802,3 @@ $txt['debug_hide_queries'] = '[Hide Queries]';
 $txt['debug_tokens'] = 'Tokens: ';
 $txt['debug_browser'] = 'Browser ID: ';
 $txt['debug_hooks'] = 'Hooks called: ';
-
-?>

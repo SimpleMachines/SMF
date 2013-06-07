@@ -847,4 +847,3 @@ function EditBoardSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-?>

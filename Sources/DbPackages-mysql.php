@@ -645,5 +645,3 @@ function smf_db_create_query_column($column)
 	// Now just put it together!
 	return '`' .$column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['null']) ? '' : 'NOT NULL') . ' ' . $default;
 }
-
-?>

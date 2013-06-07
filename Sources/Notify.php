@@ -183,5 +183,3 @@ function BoardNotify()
 	// Back to the board!
 	redirectexit('board=' . $board . '.' . $_REQUEST['start']);
 }
-
-?>

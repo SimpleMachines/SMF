@@ -3551,5 +3551,3 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 
 	return $changeType;
 }
-
-?>

@@ -1361,5 +1361,3 @@ function UnreadTopics()
 	// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)
  	call_integration_hook('integrate_unread_list');
 }
-
-?>

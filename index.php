@@ -362,5 +362,3 @@ function smf_main()
 	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
 	return $actionArray[$_REQUEST['action']][1];
 }
-
-?>

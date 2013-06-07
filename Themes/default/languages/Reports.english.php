@@ -137,5 +137,3 @@ $txt['report_staff_posts'] = 'Posts';
 $txt['report_staff_last_login'] = 'Last Login';
 $txt['report_staff_all_boards'] = 'All boards';
 $txt['report_staff_no_boards'] = 'No boards';
-
-?>

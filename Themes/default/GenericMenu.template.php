@@ -334,5 +334,3 @@ function template_generic_menu_tabs(&$menu_context)
 	<p class="description">', isset($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '</p>';
 	}
 }
-
-?>

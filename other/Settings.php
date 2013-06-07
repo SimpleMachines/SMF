@@ -162,7 +162,7 @@ if (file_exists(dirname(__FILE__) . '/db_last_error.php'))
 if (!isset($db_last_error))
 {
 	// File does not exist so lets try to create it
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;');
 	$db_last_error = 0; 
 }
 
@@ -178,5 +178,3 @@ if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
 	$sourcedir = $boarddir . '/Sources';
 if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
-
-?>

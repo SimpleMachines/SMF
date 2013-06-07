@@ -457,5 +457,3 @@ function template_email_members_send()
 		}
 	// ]]></script>';
 }
-
-?>

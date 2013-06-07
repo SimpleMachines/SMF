@@ -204,5 +204,3 @@ $txt['pending_payments_desc'] = 'This member has attempted to make the following
 $txt['pending_payments_value'] = 'Value';
 $txt['pending_payments_accept'] = 'Accept';
 $txt['pending_payments_remove'] = 'Remove';
-
-?>

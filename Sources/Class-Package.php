@@ -1034,5 +1034,3 @@ class ftp_connection
 		return true;
 	}
 }
-
-?>

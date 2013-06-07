@@ -478,5 +478,3 @@ function time_since($time_diff)
 	else
 		return sprintf($time_diff == 1 ? $txt['mq_second'] : $txt['mq_seconds'], $time_diff);
 }
-
-?>

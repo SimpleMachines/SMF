@@ -847,5 +847,3 @@ function RegisterCheckUsername()
 
 	$context['valid_username'] = empty($errors);
 }
-
-?>

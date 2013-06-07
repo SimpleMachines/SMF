@@ -370,5 +370,3 @@ function ViewFile()
 	$context['sub_template'] = 'show_file';
 
 }
-
-?>

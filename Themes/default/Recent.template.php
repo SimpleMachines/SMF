@@ -415,5 +415,3 @@ function template_replies()
 		</div>
 	</div>';
 }
-
-?>

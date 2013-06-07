@@ -917,5 +917,3 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 
 	return $group_requests;
 }
-
-?>

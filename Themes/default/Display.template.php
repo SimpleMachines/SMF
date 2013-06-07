@@ -931,5 +931,3 @@ function template_main()
 				// ]]></script>';
 
 }
-
-?>

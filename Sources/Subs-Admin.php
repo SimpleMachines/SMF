@@ -305,18 +305,16 @@ function updateSettingsFile($config_vars)
 				unset($config_vars[$var]);
 			}
 		}
-
-		// End of the file ... maybe
-		if (substr(trim($settingsArray[$i]), 0, 2) == '?' . '>')
-			$end = $i;
 	}
-
-	// This should never happen, but apparently it is happening.
-	if (empty($end) || $end < 10)
-		$end = count($settingsArray) - 1;
 
 	// Still more variables to go?  Then lets add them at the end.
 	if (!empty($config_vars))
+<<<<<<< HEAD
+	{		
+		// Add in any newly defined vars that were passed
+		foreach ($config_vars as $var => $val)
+			$settingsArray[$i++] = '$' . $var . ' = ' . $val . ';' . "\n";
+=======
 	{
 		if (trim($settingsArray[$end]) == '?' . '>')
 			$settingsArray[$end++] = '';
@@ -328,9 +326,10 @@ function updateSettingsFile($config_vars)
 			$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
 
 		$settingsArray[$end] = '?' . '>';
+>>>>>>> 0f0f217c462afd53df641ca3381741af9b0585af
 	}
 	else
-		$settingsArray[$end] = trim($settingsArray[$end]);
+		$settingsArray[$i] = trim($settingsArray[$i]);
 
 	// Sanity error checking: the file needs to be at least 12 lines.
 	if (count($settingsArray) < 12)
@@ -396,7 +395,7 @@ function updateDbLastError($time)
 	global $boarddir;
 
 	// Write out the db_last_error file with the error timestamp
-	file_put_contents($boarddir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
+	file_put_contents($boarddir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';', LOCK_EX);
 	@touch($boarddir . '/' . 'Settings.php');
 }
 /**
@@ -516,5 +515,3 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 1);
 		}
 }
-
-?>
