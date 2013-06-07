@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -57,14 +57,14 @@ function template_reminder_pick()
 					<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret" class="input_radio" />
 					<label for="reminder_type_secret">', $txt['authentication_' . $context['account_type'] . '_secret'], '</label>
 				</p>
-				<input type="submit" value="', $txt['reminder_continue'], '" class="button_submit" />
-				<br class="clear" />
+				<div class="flow_auto">
+					<input type="submit" value="', $txt['reminder_continue'], '" class="button_submit" />
+					<input type="hidden" name="uid" value="', $context['current_member']['id'], '" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '" />
+				</div>
 			</div>
 		</div>
-		
-		<input type="hidden" name="uid" value="', $context['current_member']['id'], '" />
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-		<input type="hidden" name="', $context['remind_token_var'], '" value="', $context['remind_token'], '" />
 	</form>';
 }
 
@@ -170,13 +170,14 @@ function template_ask()
 
 	echo '
 				</dl>
-				<p class="align_center"><input type="submit" value="', $txt['save'], '" class="button_submit" /></p>
+				<div class="auto_flow">
+					<input type="submit" value="', $txt['save'], '" class="button_submit" />
+					<input type="hidden" name="uid" value="', $context['remind_user'], '" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['remind-sai_token_var'], '" value="', $context['remind-sai_token'], '" />
+				</div>
 			</div>
 		</div>
-		<br class="clear" />
-		<input type="hidden" name="uid" value="', $context['remind_user'], '" />
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-		<input type="hidden" name="', $context['remind-sai_token_var'], '" value="', $context['remind-sai_token'], '" />
 	</form>';
 
 	if ($context['account_type'] == 'password')

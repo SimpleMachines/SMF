@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -210,7 +210,7 @@ class custom_search
 
 		return $ignoreRequest;
 	}
-	
+
 	/**
 	 * After a post is made, we update the search index database.
 	 */
@@ -239,21 +239,21 @@ class custom_search
 	public function postModified($msgOptions, $topicOptions, $posterOptions)
 	{
 		global $modSettings, $smcFunc;
-		
+
 		if (isset($msgOptions['body']))
 		{
 			$customIndexSettings = unserialize($modSettings['search_custom_index_config']);
 			$stopwords = empty($modSettings['search_stopwords']) ? array() : explode(',', $modSettings['search_stopwords']);
 			$old_body = isset($msgOptions['old_body']) ? $msgOptions['old_body'] : '';
-			
+
 			// create thew new and old index
 			$old_index = text2words($old_body, $customIndexSettings['bytes_per_word'], true);
 			$new_index = text2words($msgOptions['body'], $customIndexSettings['bytes_per_word'], true);
-			
+
 			// Calculate the words to be added and removed from the index.
 			$removed_words = array_diff(array_diff($old_index, $new_index), $stopwords);
 			$inserted_words = array_diff(array_diff($new_index, $old_index), $stopwords);
-			
+
 			// Delete the removed words AND the added ones to avoid key constraints.
 			if (!empty($removed_words))
 			{

@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -143,6 +143,15 @@ function Display()
 		$_SESSION['last_read_topic'] = $topic;
 	}
 
+	$topic_parameters = array(
+		'current_member' => $user_info['id'],
+		'current_topic' => $topic,
+		'current_board' => $board,
+	);
+	$topic_selects = array();
+	$topic_tables = array();
+	call_integration_hook('integrate_display_topic', array(&$topic_selects, &$topic_tables, &$topic_parameters));
+
 	// @todo Why isn't this cached?
 	// @todo if we get id_board in this query and cache it, we can save a query on posting
 	// Get all the important topic info.
@@ -152,17 +161,15 @@ function Display()
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
 			' . (!empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $board ? ', id_previous_board, id_previous_topic' : '') . '
+			' . (!empty($topic_selects) ? implode(',', $topic_selects) : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
+			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
 		WHERE t.id_topic = {int:current_topic}
 		LIMIT 1',
-		array(
-			'current_member' => $user_info['id'],
-			'current_topic' => $topic,
-			'current_board' => $board,
-		)
+			$topic_parameters
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('not_a_topic', false);
@@ -322,7 +329,7 @@ function Display()
 	}
 
 	// Create a previous next string if the selected theme has it as a selected option.
-	$context['previous_next'] = $modSettings['enablePreviousNext'] ? '<a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> <a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
+	$context['previous_next'] = $modSettings['enablePreviousNext'] ? '<a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> - <a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
 
 	// Check if spellchecking is both enabled and actually working. (for quick reply.)
 	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
@@ -480,7 +487,7 @@ function Display()
 			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod['name'] . '</a>';
 
 		// And show it after the board's name.
-		$context['linktree'][count($context['linktree']) - 2]['extra_after'] = ' (' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')';
+		$context['linktree'][count($context['linktree']) - 2]['extra_after'] = '<span class="board_moderators"> (' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
 	}
 
 	// Information about the current topic...
@@ -962,6 +969,14 @@ function Display()
 				$attachments[$row['id_msg']][] = $row;
 		}
 
+		$msg_parameters = array(
+			'message_list' => $messages,
+			'new_from' => $topicinfo['new_from'],
+		);
+		$msg_selects = array();
+		$msg_tables = array();
+		call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
+
 		// What?  It's not like it *couldn't* be only guests in this topic...
 		if (!empty($posters))
 			loadMemberData($posters);
@@ -970,13 +985,12 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, body,
 				smileys_enabled, poster_name, poster_email, approved,
 				id_msg_modified < {int:new_from} AS is_read
+				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
 			FROM {db_prefix}messages
+				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
 			ORDER BY id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
-			array(
-				'message_list' => $messages,
-				'new_from' => $topicinfo['new_from'],
-			)
+			$msg_parameters
 		);
 
 		// Go to the last message if the given time is beyond the time of the last message.
@@ -1065,6 +1079,12 @@ function Display()
 	// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
 	$context['can_restore_topic'] &= !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board && !empty($topicinfo['id_previous_board']);
 	$context['can_restore_msg'] &= !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board && !empty($topicinfo['id_previous_topic']);
+
+	// Check if the draft functions are enabled and that they have permission to use them (for quick reply.)
+	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $context['can_reply'];
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+	if (!empty($context['drafts_save']))
+		loadLanguage('Drafts');
 
 	// Wireless shows a "more" if you can do anything special.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
@@ -1263,6 +1283,8 @@ function prepareDisplayContext($reset = false)
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 
+	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
+
 	if (empty($options['view_newest_first']))
 		$counter++;
 	else
@@ -1408,12 +1430,8 @@ function Download()
 	header('Connection: close');
 	header('ETag: ' . $eTag);
 
-	// IE 6 just doesn't play nice. As dirty as this seems, it works.
-	if (isBrowser('ie6') && isset($_REQUEST['image']))
-		unset($_REQUEST['image']);
-
 	// Make sure the mime type warrants an inline display.
-	elseif (isset($_REQUEST['image']) && !empty($mime_type) && strpos($mime_type, 'image/') !== 0)
+	if (isset($_REQUEST['image']) && !empty($mime_type) && strpos($mime_type, 'image/') !== 0)
 		unset($_REQUEST['image']);
 
 	// Does this have a mime type?

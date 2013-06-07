@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; PersonalMessage
+// Version: 2.1; PersonalMessage
 
 global $context;
 
@@ -32,7 +32,7 @@ $txt['pm_sent'] = 'Your message has been sent successfully.';
 
 $txt['pm_error_user_not_found'] = 'Unable to find member \'%1$s\'.';
 $txt['pm_error_ignored_by_user'] = 'User \'%1$s\' has blocked your personal message.';
-$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'%1$s\' as their inbox is full!';
+$txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'%1$s\' as their inbox is full.';
 $txt['pm_error_user_cannot_read'] = 'User \'%1$s\' can not receive personal messages.';
 $txt['pm_successfully_sent'] = 'PM successfully sent to \'%1$s\'.';
 $txt['pm_send_report'] = 'Send report';
@@ -50,27 +50,27 @@ $txt['pm_prune_desc2'] = 'days.';
 $txt['pm_prune_warning'] = 'Are you sure you wish to prune your personal messages?';
 
 // Actions Drop Down.
-$txt['pm_actions_title'] = 'Further Actions';
-$txt['pm_actions_delete_selected'] = 'Delete Selected';
-$txt['pm_actions_filter_by_label'] = 'Filter By Label';
+$txt['pm_actions_title'] = 'Further actions';
+$txt['pm_actions_delete_selected'] = 'Delete selected';
+$txt['pm_actions_filter_by_label'] = 'Filter by label';
 $txt['pm_actions_go'] = 'Go';
 
 // Manage Labels Screen.
 $txt['pm_apply'] = 'Apply';
-$txt['pm_manage_labels'] = 'Manage Labels';
+$txt['pm_manage_labels'] = 'Manage labels';
 $txt['pm_labels_delete'] = 'Are you sure you wish to delete the selected labels?';
 $txt['pm_labels_desc'] = 'From here you can add, edit and delete the labels used in your personal message center.';
-$txt['pm_label_add_new'] = 'Add New Label';
-$txt['pm_label_name'] = 'Label Name';
+$txt['pm_label_add_new'] = 'Add new label';
+$txt['pm_label_name'] = 'Label name';
 $txt['pm_labels_no_exist'] = 'You currently have no labels setup!';
 
 // Labeling Drop Down.
 $txt['pm_current_label'] = 'Label';
-$txt['pm_msg_label_title'] = 'Label Message';
-$txt['pm_msg_label_apply'] = 'Add Label';
-$txt['pm_msg_label_remove'] = 'Remove Label';
+$txt['pm_msg_label_title'] = 'Label message';
+$txt['pm_msg_label_apply'] = 'Add label';
+$txt['pm_msg_label_remove'] = 'Remove label';
 $txt['pm_msg_label_inbox'] = 'Inbox';
-$txt['pm_sel_label_title'] = 'Label Selected';
+$txt['pm_sel_label_title'] = 'Label selected';
 
 // Sidebar Headings.
 $txt['pm_labels'] = 'Labels';
@@ -81,8 +81,8 @@ $txt['pm_preferences'] = 'Preferences';
 $txt['pm_is_replied_to'] = 'You have forwarded or responded to this message.';
 
 // Reporting messages.
-$txt['pm_report_to_admin'] = 'Report To Admin';
-$txt['pm_report_title'] = 'Report Personal Message';
+$txt['pm_report_to_admin'] = 'Report to admin';
+$txt['pm_report_title'] = 'Report personal message';
 $txt['pm_report_desc'] = 'From this page you can report the personal message you received to the admin team of the forum. Please be sure to include a description of why you are reporting the message, as this will be sent along with the contents of the original message.';
 $txt['pm_report_admins'] = 'Administrator to send report to';
 $txt['pm_report_all_admins'] = 'Send to all forum administrators';
@@ -101,8 +101,8 @@ $txt['pm_report_pm_sent'] = 'Sent:';
 $txt['pm_report_done'] = 'Thank you for submitting this report. You should hear back from the admin team shortly.';
 $txt['pm_report_return'] = 'Return to the inbox';
 
-$txt['pm_search_title'] = 'Search Personal Messages';
-$txt['pm_search_bar_title'] = 'Search Messages';
+$txt['pm_search_title'] = 'Search personal messages';
+$txt['pm_search_bar_title'] = 'Search messages';
 $txt['pm_search_text'] = 'Search for';
 $txt['pm_search_go'] = 'Search';
 $txt['pm_search_advanced'] = 'Advanced search';
@@ -119,8 +119,8 @@ $txt['pm_search_between_days'] = 'days';
 $txt['pm_search_order'] = 'Search order';
 $txt['pm_search_choose_label'] = 'Choose labels to search by, or search all';
 
-$txt['pm_search_results'] = 'Search Results';
-$txt['pm_search_none_found'] = 'No Messages Found';
+$txt['pm_search_results'] = 'Search results';
+$txt['pm_search_none_found'] = 'No messages found';
 
 $txt['pm_search_orderby_relevant_first'] = 'Most relevant first';
 $txt['pm_search_orderby_recent_first'] = 'Most recent first';
@@ -129,20 +129,20 @@ $txt['pm_search_orderby_old_first'] = 'Oldest first';
 $txt['pm_visual_verification_label'] = 'Verification';
 $txt['pm_visual_verification_desc'] = 'Please enter the code in the image above to send this pm.';
 
-$txt['pm_settings'] = 'Change Settings';
-$txt['pm_change_view'] = 'Change View';
+$txt['pm_settings'] = 'Change settings';
+$txt['pm_change_view'] = 'Change view';
 
 $txt['pm_manage_rules'] = 'Manage Rules';
 $txt['pm_manage_rules_desc'] = 'Message rules allow you to automatically sort incoming messages dependant on a set of criteria you define. Below are all the rules you currently have setup. To edit a rule simply click the rule name.';
 $txt['pm_rules_none'] = 'You have not yet setup any message rules.';
 $txt['pm_rule_title'] = 'Rule';
-$txt['pm_add_rule'] = 'Add New Rule';
-$txt['pm_apply_rules'] = 'Apply Rules Now';
+$txt['pm_add_rule'] = 'Add new rule';
+$txt['pm_apply_rules'] = 'Apply rules now';
 // Use entities in the below string.
 $txt['pm_js_apply_rules_confirm'] = 'Are you sure you wish to apply the current rules to all personal messages?';
 $txt['pm_edit_rule'] = 'Edit Rule';
 $txt['pm_rule_save'] = 'Save Rule';
-$txt['pm_delete_selected_rule'] = 'Delete Selected Rules';
+$txt['pm_delete_selected_rule'] = 'Delete selected rules';
 // Use entities in the below string.
 $txt['pm_js_delete_rule_confirm'] = 'Are you sure you wish to delete the selected rules?';
 $txt['pm_rule_name'] = 'Name';
@@ -152,23 +152,23 @@ $txt['pm_rule_description'] = 'Description';
 $txt['pm_rule_not_defined'] = 'Add some criteria to begin building this rule description.';
 $txt['pm_rule_js_disabled'] = '<span class="alert"><strong>Note:</strong> You appear to have javascript disabled. We highly recommend you enable javascript to use this feature.</span>';
 $txt['pm_rule_criteria'] = 'Criteria';
-$txt['pm_rule_criteria_add'] = 'Add Criteria';
-$txt['pm_rule_criteria_pick'] = 'Choose Criteria';
-$txt['pm_rule_mid'] = 'Sender Name';
-$txt['pm_rule_gid'] = 'Sender\'s Group';
-$txt['pm_rule_sub'] = 'Message Subject Contains';
-$txt['pm_rule_msg'] = 'Message Body Contains';
-$txt['pm_rule_bud'] = 'Sender is Buddy';
-$txt['pm_rule_sel_group'] = 'Select Group';
-$txt['pm_rule_logic'] = 'When Checking Criteria';
+$txt['pm_rule_criteria_add'] = 'Add criteria';
+$txt['pm_rule_criteria_pick'] = 'Choose criteria';
+$txt['pm_rule_mid'] = 'Sender name';
+$txt['pm_rule_gid'] = 'Sender\'s group';
+$txt['pm_rule_sub'] = 'Message subject contains';
+$txt['pm_rule_msg'] = 'Message body contains';
+$txt['pm_rule_bud'] = 'Sender is buddy';
+$txt['pm_rule_sel_group'] = 'Select group';
+$txt['pm_rule_logic'] = 'When checking criteria';
 $txt['pm_rule_logic_and'] = 'All criteria must be met';
 $txt['pm_rule_logic_or'] = 'Any criteria can be met';
 $txt['pm_rule_actions'] = 'Actions';
-$txt['pm_rule_sel_action'] = 'Select an Action';
-$txt['pm_rule_add_action'] = 'Add Action';
+$txt['pm_rule_sel_action'] = 'Select an action';
+$txt['pm_rule_add_action'] = 'Add action';
 $txt['pm_rule_label'] = 'Label message with';
-$txt['pm_rule_sel_label'] = 'Select Label';
-$txt['pm_rule_delete'] = 'Delete Message';
+$txt['pm_rule_sel_label'] = 'Select label';
+$txt['pm_rule_delete'] = 'Delete message';
 $txt['pm_rule_no_name'] = 'You forgot to enter a name for the rule.';
 $txt['pm_rule_no_criteria'] = 'A rule must have at least one criteria and one action set.';
 $txt['pm_rule_too_complex'] = 'The rule you are creating is too long for SMF to store. Try breaking it up into smaller rules.';

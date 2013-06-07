@@ -25,7 +25,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -1048,7 +1048,7 @@ function PickTheme()
 		// Change a specific member's theme.
 		else
 		{
-			// The forum's default theme is always 0 and we 
+			// The forum's default theme is always 0 and we
 			if (isset($_GET['th']) && $_GET['th'] == 0)
 					$_GET['th'] = $modSettings['theme_guests'];
 

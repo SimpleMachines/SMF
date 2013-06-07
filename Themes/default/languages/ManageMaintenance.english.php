@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; ManageMaintenance
+// Version: 2.1; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
@@ -99,7 +99,7 @@ $txt['error_url'] = 'URL of page causing the error';
 $txt['error_message'] = 'Error message';
 $txt['clear_filter'] = 'Clear filter';
 $txt['remove_selection'] = 'Remove Selection';
-$txt['remove_filtered_results'] = 'Remove All Filtered Results';
+$txt['remove_filtered_results'] = 'Remove all filtered results';
 $txt['sure_about_errorlog_remove'] = 'Are you sure you want to completely clear the error log?';
 $txt['remove_selection_confirm'] = 'Are you sure you want to delete the selected entries?';
 $txt['remove_filtered_results_confirm'] = 'Are you sure you want to delete the filtered entries?';
@@ -132,7 +132,7 @@ $txt['maintain_logs_info'] = 'This function will empty out all unimportant logs.
 $txt['maintain_cache'] = 'Empty the file cache';
 $txt['maintain_cache_info'] = 'This function will empty out the file cache should you need it to be cleared.';
 $txt['maintain_optimize'] = 'Optimize all tables';
-$txt['maintain_optimize_info'] = 'This task allows you to optimize all tables. This will get rid of overhead, effectively making the tables smaller in size and your forum faster!';
+$txt['maintain_optimize_info'] = 'This task allows you to optimize all tables. This will get rid of overhead, effectively making the tables smaller in size and your forum faster.';
 $txt['maintain_version'] = 'Check all files against current versions';
 $txt['maintain_version_info'] = 'This maintenance task allows you to do a detailed version check of all forum files against the official list of latest versions.';
 $txt['maintain_run_now'] = 'Run task now';
@@ -152,11 +152,14 @@ $txt['maintain_old_nothing_else'] = 'Any sort of topic.';
 $txt['maintain_old_are_moved'] = 'Moved topic notices.';
 $txt['maintain_old_are_locked'] = 'Locked.';
 $txt['maintain_old_are_not_stickied'] = 'But don\'t count stickied topics.';
-$txt['maintain_old_all'] = 'All Boards (click to select specific boards)';
-$txt['maintain_old_choose'] = 'Specific Boards (click to select all)';
+$txt['maintain_old_all'] = 'All boards (click to select specific boards)';
+$txt['maintain_old_choose'] = 'Specific boards (click to select all)';
 $txt['maintain_old_remove'] = 'Remove now';
 $txt['maintain_old_confirm'] = 'Are you really sure you want to delete old posts now?\\n\\nThis cannot be undone!';
 
+$txt['maintain_old_drafts'] = 'Remove old drafts';
+$txt['maintain_old_drafts_days'] = 'Remove all drafts older than';
+$txt['maintain_old_drafts_confirm'] = 'Are you really sure you want to delete old drafts now?\\n\\nThis cannot be undone!';
 $txt['maintain_members'] = 'Remove Inactive Members';
 $txt['maintain_members_ungrouped'] = 'Ungrouped Members <span class="smalltext">(Members with no assigned groups)</span>';
 $txt['maintain_members_since1'] = 'Remove all members who have not';
@@ -172,7 +175,7 @@ $txt['utf8_title'] = 'Convert the database and data to UTF-8';
 $txt['utf8_introduction'] = 'UTF-8 is an international character set covering nearly all languages around the world. Converting your database and data to UTF-8 can make it easier to support multiple languages on the same board. It also can enhance search and sorting capabilities for languages with non-latin characters.';
 $txt['utf8_warning'] = 'If you want to convert your data and database to UTF-8, be aware of the following:
 <ul class="normallist">
-	<li>Converting character sets might be <em>harmful</em> for your data! Make sure you have backed up your database <em>before</em> converting.</li>
+	<li>Converting character sets might be <em>harmful</em> for your data. Make sure you have backed up your database <em>before</em> converting.</li>
 	<li>Because UTF-8 is a richer character set than most other character sets, there\'s no way back, unless by restoring your database to before the conversion.</li>
 	<li>After converting your data and database to UTF-8, you will need UTF-8 compatible language files.</li>
 </ul>';

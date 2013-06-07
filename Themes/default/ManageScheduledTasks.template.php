@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -87,6 +87,5 @@ function template_edit_scheduled_tasks()
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }

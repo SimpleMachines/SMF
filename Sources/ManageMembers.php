@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -369,7 +369,10 @@ function ViewMemberlist()
 				// Replace the wildcard characters ('*' and '?') into MySQL ones.
 				$parameter = strtolower(strtr($smcFunc['htmlspecialchars']($search_params[$param_name], ENT_QUOTES), array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_')));
 
-				$query_parts[] = '(' . implode( ' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
+				if ($smcFunc['db_case_sensitive'])
+					$query_parts[] = '(LOWER(' . implode( ') LIKE {string:' . $param_name . '_normal} OR LOWER(', $param_info['db_fields']) . ') LIKE {string:' . $param_name . '_normal})';
+				else
+					$query_parts[] = '(' . implode( ' LIKE {string:' . $param_name . '_normal} OR ', $param_info['db_fields']) . ' LIKE {string:' . $param_name . '_normal})';
 				$where_params[$param_name . '_normal'] = '%' . $parameter . '%';
 			}
 		}
@@ -602,11 +605,9 @@ function ViewMemberlist()
 		),
 	);
 
-	// Without not enough permissions, don't show 'delete members' checkboxes.
+	// Without enough permissions, don't show 'delete members' checkboxes.
 	if (!allowedTo('profile_remove_any'))
 		unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
-
-	call_integration_hook('integrate_view_members_list', array(&$listOptions));
 
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
@@ -963,15 +964,13 @@ function MembersAwaitingActivation()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<div class="floatleft">
-						[<a href="' . $scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . ($context['show_duplicates'] ? 0 : 1) . ';type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . ($context['show_duplicates'] ? $txt['dont_check_for_duplicate'] : $txt['check_for_duplicate']) . '</a>]
-					</div>
-					<div class="floatright">
-						<select name="todo" onchange="onSelectChange();">
-							' . $allowed_actions . '
-						</select>
-						<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit" /></noscript>
-					</div>',
+					[<a href="' . $scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . ($context['show_duplicates'] ? 0 : 1) . ';type=' . $context['browse_type'] . (!empty($context['show_filter']) ? ';filter=' . $context['current_filter'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . ($context['show_duplicates'] ? $txt['dont_check_for_duplicate'] : $txt['check_for_duplicate']) . '</a>]
+					<select name="todo" onchange="onSelectChange();">
+						' . $allowed_actions . '
+					</select>
+					<noscript><input type="submit" value="' . $txt['go'] . '" class="button_submit" /><br class="clear_right"></noscript>
+				',
+				'class' => 'floatright',
 			),
 		),
 	);
@@ -999,9 +998,9 @@ function MembersAwaitingActivation()
 			</select>
 			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button_submit" /></noscript>';
 		$listOptions['additional_rows'][] = array(
-			'position' => 'above_column_headers',
+			'position' => 'top_of_list',
 			'value' => $filterOptions,
-			'style' => 'text-align: center;',
+			'class' => 'righttext',
 		);
 	}
 
@@ -1010,8 +1009,7 @@ function MembersAwaitingActivation()
 		$listOptions['additional_rows'][] = array(
 			'position' => 'above_column_headers',
 			'value' => '<strong>' . $txt['admin_browse_filter_show'] . ':</strong> ' . $context['available_filters'][0]['desc'],
-			'class' => 'smalltext',
-			'style' => 'text-align: left;',
+			'class' => 'smalltext floatright',
 		);
 
 	// Now that we have all the options, create the list.

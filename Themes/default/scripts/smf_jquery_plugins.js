@@ -11,7 +11,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -25,9 +25,11 @@
 			hoverIntent: {sensitivity: 10, interval: 300, timeout: 50},
 			positionTop: 12,
 			positionLeft: 12,
-			tooltipID: 'smf_tooltip',
-			tooltipClass: 'tooltip',
-			tooltipTextID: 'smf_tooltipText'
+			tooltipID: 'smf_tooltip', // ID used on the outer div
+			tooltipTextID: 'smf_tooltipText', // as above but on the inner div holding the text
+			tooltipClass: 'tooltip', // The class applied to the outer div (that displays on hover), use this in your css
+			tooltipSwapClass: 'smf_swaptip', // a class only used internally, change only if you have a conflict
+			tooltipContent: 'html' // display captured title text as html or text
 		};
 		
 		// account for any user options
@@ -36,7 +38,7 @@
 		// move passed selector titles to a hidden span, then remove the selector title to prevent any default browser actions
 		$(this).each(function()
 		{
-			var sTitle = $('<span class="' + oSettings.tooltipClass + '">' + this.title + '</span>').hide();
+			var sTitle = $('<span class="' + oSettings.tooltipSwapClass + '">' + this.title + '</span>').hide();
 			$(this).append(sTitle).attr('title', '');
 		});
 		
@@ -128,21 +130,25 @@
 			// create the on tip action
 			function smf_tooltip_on(event)
 			{
-				// Grab the text from the hidden span element we created on page load
-				if ($(this).children('.' + oSettings.tooltipClass).text())
+				// If we have text in the hidden span element we created on page load
+				if ($(this).children('.' + oSettings.tooltipSwapClass).text())
 				{
 					// create a ID'ed div with our style class that holds the tooltip info, hidden for now
 					$('body').append('<div id="' + oSettings.tooltipID + '" class="' + oSettings.tooltipClass + '"><div id="' + oSettings.tooltipTextID + '" style="display:none;"></div></div>');
 					
 					// load information in to our newly created div
-					var $tt = $('#' + oSettings.tooltipID);
-					var $ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
-				
-					// set the text in the div
-					$ttContent.text($(this).children('.' + oSettings.tooltipClass).text());
-					$tt.show();
+					var tt = $('#' + oSettings.tooltipID);
+					var ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
+					
+					if (oSettings.tooltipContent == 'html')
+						ttContent.html($(this).children('.' + oSettings.tooltipSwapClass).html());
+					else
+						ttContent.text($(this).children('.' + oSettings.tooltipSwapClass).text());
+					
+					oSettings.tooltipContent
 					
 					// show then position or it may postion off screen
+					tt.show();
 					showTooltip();
 					positionTooltip(event);
 				}

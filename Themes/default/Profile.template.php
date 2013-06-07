@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -49,12 +49,12 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
+<div class="cat_bar">
+	<h3 class="catbg">
+		<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
+	</h3>
+</div>
 <div id="profileview" class="flow_auto">
-	<div class="cat_bar">
-		<h3 class="catbg">
-			<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['summary'], '
-		</h3>
-	</div>
 	<div id="basicinfo">
 		<div class="windowbg">
 			<div class="content flow_auto">
@@ -104,7 +104,13 @@ function template_summary()
 		echo '
 					<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '">', $txt['profile_sendpm_short'], '</a><br />';
 	echo '
-					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />
+					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
+
+	if ($context['user']['is_owner'] && !empty($modSettings['drafts_enabled']))
+		echo '
+					<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '">', $txt['drafts_show'], '</a><br />';
+
+	echo '
 					<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '">', $txt['statPanel'], '</a>
 				</p>';
 
@@ -334,6 +340,9 @@ function template_showPosts()
 			<h3 class="catbg">
 				', (!isset($context['attachments']) && empty($context['is_topics']) ? $txt['showMessages'] : (!empty($context['is_topics']) ? $txt['showTopics'] : $txt['showAttachments'])), ' - ', $context['member']['name'], '
 			</h3>
+		</div>
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Button shortcuts
@@ -345,35 +354,28 @@ function template_showPosts()
 	// Are we displaying posts or attachments?
 	if (!isset($context['attachments']))
 	{
-		echo '
-		<div class="pagesection">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
-		</div>';
-
 		// For every post to be displayed, give it its own div, and show the important details of the post.
 		foreach ($context['posts'] as $post)
 		{
 			echo '
-		<div class="topic">
 			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
 				<div class="content">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
-						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $post['time'], '&nbsp;&#187;</span>
+						<span class="smalltext">', $post['time'], '</span>
 					</div>
 					<div class="list_posts">';
 
 			if (!$post['approved'])
 				echo '
-					<div class="approve_post">
-						<em>', $txt['post_awaiting_approval'], '</em>
-					</div>';
+						<div class="approve_post">
+							<em>', $txt['post_awaiting_approval'], '</em>
+						</div>';
 
 			echo '
 					', $post['body'], '
-					</div>
-				</div>';
+					</div>';
 
 			if ($post['can_reply'] || $post['can_mark_notify'] || $post['can_delete'])
 				echo '
@@ -406,16 +408,9 @@ function template_showPosts()
 				</div>';
 
 			echo '
-				<br class="clear" />
-			</div>
-		</div>';
+				</div>
+			</div>';
 		}
-
-		// Show more page numbers.
-		echo '
-		<div class="pagesection" style="margin-bottom: 0;">
-			<span>', $txt['pages'], ': ', $context['page_index'], '</span>
-		</div>';
 	}
 	else
 		template_show_list('attachments');
@@ -432,6 +427,84 @@ function template_showPosts()
 		echo '
 			</tbody>
 		</table>';
+
+	// Show more page numbers.
+	echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+}
+
+// Template for showing all the drafts of the user.
+function template_showDrafts()
+{
+	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span class="ie6_header floatleft"><img src="', $settings['images_url'], '/message_sm.png" alt="" class="icon" />
+					', $txt['drafts_show'], ' - ', $context['member']['name'], '
+				</span>
+			</h3>
+		</div>
+		<div class="pagesection" style="margin-bottom: 0;">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+
+	// Button shortcuts
+	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
+	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
+
+	// No drafts? Just show an informative message.
+	if (empty($context['drafts']))
+		echo '
+		<div class="tborder windowbg2 padding centertext">
+			', $txt['draft_none'], '
+		</div>';
+	else
+	{
+		// For every draft to be displayed, give it its own div, and show the important details of the draft.
+		foreach ($context['drafts'] as $draft)
+		{
+			echo '
+			<div class="topic">
+				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+					<div class="content">
+						<div class="counter">', $draft['counter'], '</div>
+						<div class="topic_details">
+							<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
+
+			if (!empty($draft['sticky']))
+				echo '<img src="', $settings['images_url'], '/icons/quick_sticky.png" alt="', $txt['sticky_topic'], '" title="', $txt['sticky_topic'], '" />';
+
+			if (!empty($draft['locked']))
+				echo '<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="', $txt['locked_topic'], '" title="', $txt['locked_topic'], '" />';
+
+			echo '
+							</h5>
+							<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
+						</div>
+						<div class="list_posts">
+							', $draft['body'], '
+						</div>
+					</div>
+					<div class="floatright">
+						<ul class="reset smalltext quickbuttons">
+							<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+							<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>';
+		}
+	}
+
+	// Show page numbers.
+	echo '
+		<div class="pagesection" style="margin-bottom: 0;">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
 }
 
 // Template for showing all the buddies of the current user.
@@ -443,6 +516,7 @@ function template_editBuddies()
 	$buddy_fields = array('icq', 'aim', 'yim', 'msn');
 
 	echo '
+	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="title_bar">
 			<h3 class="titlebg">
 				<img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '
@@ -503,11 +577,11 @@ function template_editBuddies()
 	}
 
 	echo '
-		</table>';
+		</table>
+	</div>';
 
 	// Add a new buddy?
 	echo '
-	<br />
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder add_buddy">
 			<div class="title_bar">
@@ -520,6 +594,7 @@ function template_editBuddies()
 					</dt>
 					<dd>
 						<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text" />
+						<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone" />
 					</dd>
 				</dl>';
 
@@ -529,8 +604,7 @@ function template_editBuddies()
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit" />
-				<br class="clear_right" />
+				
 			</div>
 		</div>
 	</form>
@@ -555,6 +629,7 @@ function template_editIgnoreList()
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
 	echo '
+	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="title_bar">
 			<h3 class="titlebg">
 				<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['editIgnoreList'], '
@@ -605,11 +680,11 @@ function template_editIgnoreList()
 	}
 
 	echo '
-		</table>';
+		</table>
+	</div>';
 
 	// Add to the ignore list?
 	echo '
-	<br />
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder add_buddy">
 			<div class="title_bar">
@@ -632,7 +707,6 @@ function template_editIgnoreList()
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit" />
-				<br class="clear_right" />
 			</div>
 		</div>
 	</form>
@@ -658,6 +732,7 @@ function template_trackActivity()
 
 	// The first table shows IP information about the user.
 	echo '
+		<div class="generic_list_wrapper">
 			<div class="title_bar">
 				<h3 class="titlebg"><strong>', $txt['view_ips_by'], ' ', $context['member']['name'], '</strong></h3>
 			</div>';
@@ -702,7 +777,7 @@ function template_trackActivity()
 					</dl>
 				</div>
 			</div>
-			<br class="clear" />';
+		</div>';
 
 	// Show the track user list.
 	template_show_list('track_user_list');
@@ -731,11 +806,10 @@ function template_trackIP()
 					</dd>
 				</dl>
 				<input type="submit" value="', $txt['trackIP'], '" class="button_submit" />
-				<br class="clear_right" />
 			</form>
 		</div>
 	</div>
-	<br class="clear" />';
+	<div class="generic_list_wrapper">';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
 	if ($context['single_ip'])
@@ -751,8 +825,7 @@ function template_trackIP()
 					<a href="', $server['url'], '" target="_blank" class="new_win"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br />';
 			echo '
 				</div>
-			</div>
-		<br class="clear" />';
+			</div>';
 	}
 
 	// The second table lists all the members who have been logged as using this IP address.
@@ -785,9 +858,11 @@ function template_trackIP()
 
 		echo '
 			</tbody>
-		</table>
-		<br />';
+		</table>';
 	}
+
+	echo '
+	</div>';
 
 	template_show_list('track_message_list');
 
@@ -810,7 +885,7 @@ function template_showPermissions()
 	if ($context['member']['has_all_permissions'])
 	{
 		echo '
-		<p class="windowbg description">', $txt['showPermissions_all'], '</p>';
+		<p class="description">', $txt['showPermissions_all'], '</p>';
 	}
 	else
 	{
@@ -958,14 +1033,14 @@ function template_statPanel()
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
+	<div class="cat_bar">
+		<h3 class="catbg">
+			<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
+			', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
+		</h3>
+	</div>
 	<div id="profileview">
 		<div id="generalstats">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/stats_info.png" alt="" class="icon" />
-					', $txt['statPanel_generalStats'], ' - ', $context['member']['name'], '
-				</h3>
-			</div>
 			<div class="windowbg2">
 				<div class="content">
 					<dl>
@@ -1112,8 +1187,7 @@ function template_statPanel()
 		</div>';
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Template for editing profile options.
@@ -1143,7 +1217,7 @@ function template_edit_options()
 	// Have we some description?
 	if ($context['page_desc'])
 		echo '
-			<p class="windowbg description">', $context['page_desc'], '</p>';
+			<p class="description">', $context['page_desc'], '</p>';
 
 	echo '
 			<div class="windowbg2">
@@ -1318,10 +1392,8 @@ function template_edit_options()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="u" value="', $context['id_member'], '" />
 					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
-			<br />
 		</form>';
 
 	// Some javascript!
@@ -1586,6 +1658,25 @@ function template_profile_theme_settings()
 								</select>
 							</dd>';
 
+	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_autosave_enabled']))
+		echo '
+							<dt>
+								<label for="drafts_autosave_enabled">', $txt['drafts_autosave_enabled'], '</label>
+							</dt>
+							<dd>
+								<input type="hidden" name="default_options[drafts_autosave_enabled]" value="0" />
+								<label for="drafts_autosave_enabled"><input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked="checked"' : '', ' class="input_check" /></label>
+							</dd>';
+	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_show_saved_enabled']))
+		echo '
+							<dt>
+								<label for="drafts_show_saved_enabled">', $txt['drafts_show_saved_enabled'], '</label>
+							</dt>
+							<dd>
+								<input type="hidden" name="default_options[drafts_show_saved_enabled]" value="0" />
+								<label for="drafts_show_saved_enabled"><input type="checkbox" name="default_options[drafts_show_saved_enabled]" id="drafts_show_saved_enabled" value="1"', !empty($context['member']['options']['drafts_show_saved_enabled']) ? ' checked="checked"' : '', ' class="input_check" /></label>
+							</dd>';
+
 	echo '
 							<dt>
 								<label for="display_quick_reply">', $txt['display_quick_reply'], '</label>
@@ -1622,7 +1713,7 @@ function template_notification()
 					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['profile'], '
 				</h3>
 			</div>
-			<p class="windowbg description">', $txt['notification_info'], '</p>
+			<p class="description">', $txt['notification_info'], '</p>
 			<div class="windowbg2">
 				<div class="content">
 					<dl class="settings">';
@@ -1685,11 +1776,11 @@ function template_notification()
 					<hr class="hrcolor" />
 					<div>
 						<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />', !empty($context['token_check']) ? '
+						<input type="hidden" name="' . $context[$context['token_check'] . '_token_var'] . '" value="' . $context[$context['token_check'] . '_token'] . '" />' : '', '
 						<input type="hidden" name="u" value="', $context['id_member'], '" />
 						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
 					</div>
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
@@ -1933,8 +2024,7 @@ function template_ignoreboards()
 	}
 
 	echo '
-				</ul>
-				<br class="clear" />';
+				</ul>';
 
 	// Show the standard "Save Settings" profile button.
 	template_profile_save();
@@ -2290,7 +2380,6 @@ function template_issueWarning()
 					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button_submit" />
 				</div>
-				<br class="clear" />
 			</div>
 		</div>
 	</form>';
@@ -2509,7 +2598,7 @@ function template_profile_group_manage()
 							</dt>
 							<dd>
 								<select name="id_group" ', ($context['user']['is_owner'] && $context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . $txt['deadmin_confirm'] . '\')) this.value = 1;"' : ''), '>';
-		
+
 		// Fill the select box with all primary member groups that can be assigned to a member.
 		foreach ($context['member_groups'] as $member_group)
 			if (!empty($member_group['can_be_primary']))
@@ -2839,7 +2928,7 @@ function template_authentication_method()
 					<img src="', $settings['images_url'], '/icons/profile_sm.png" alt="" class="icon" />', $txt['authentication'], '
 				</h3>
 			</div>
-			<p class="windowbg description">', $txt['change_authentication'], '</p>
+			<p class="description">', $txt['change_authentication'], '</p>
 			<div class="windowbg2">
 				<div class="content">
 					<dl>
@@ -2862,14 +2951,14 @@ function template_authentication_method()
 								</dt>
 								<dd>
 									<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
-									<span id="smf_autov_pwmain_div" style="display: none;"><img id="smf_autov_pwmain_img" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" /></span>
+									<span id="smf_autov_pwmain_div" style="display: none;"><img id="smf_autov_pwmain_img" class="centericon" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" /></span>
 								</dd>
 								<dt>
 									<em>', $txt['verify_pass'], ':</em>
 								</dt>
 								<dd>
 									<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
-									<span id="smf_autov_pwverify_div" style="display: none;"><img id="smf_autov_pwverify_img" src="', $settings['images_url'], '/icons/field_valid.png" alt="*" /></span>
+									<span id="smf_autov_pwverify_div" style="display: none;"><img id="smf_autov_pwverify_img" class="centericon"  src="', $settings['images_url'], '/icons/field_valid.png" alt="*" /></span>
 								</dd>
 							</dl>
 						</dd>
@@ -2900,7 +2989,6 @@ function template_authentication_method()
 					<input type="hidden" name="u" value="', $context['id_member'], '" />
 					<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
 					<input type="submit" value="', $txt['change_profile'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>';

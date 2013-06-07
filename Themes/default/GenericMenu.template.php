@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -18,7 +18,7 @@ function template_generic_menu_sidebar_above()
 	// This is the main table - we need it so we can keep the content to the right of it.
 	echo '
 	<div id="main_container">
-		<div id="left_admsection"><span id="admin_menu"></span>';
+		<div id="left_admsection">';
 
 	// What one are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
@@ -32,20 +32,8 @@ function template_generic_menu_sidebar_above()
 		echo '
 			<div class="adm_section">
 				<div class="cat_bar">
-					<h4 class="catbg">';
-
-		if ($firstSection && !empty($menu_context['can_toggle_drop_down']))
-		{
-			echo '
-							<a href="', $menu_context['toggle_url'], '">', $section['title'],'<img src="', $context['menu_image_path'], '/change_menu', $context['right_to_left'] ? '' : '2', '.png" alt="!" /></a>';
-		}
-		else
-		{
-			echo '
-						', $section['title'];
-		}
-
-		echo '
+					<h4 class="catbg">
+						', $section['title'], '
 					</h4>
 				</div>
 				<ul class="smalltext left_admmenu">';
@@ -101,8 +89,7 @@ function template_generic_menu_sidebar_below()
 
 	echo '
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // This contains the html for the side bar of the admin center, which is used for all admin pages.
@@ -114,19 +101,17 @@ function template_generic_menu_dropdown_above()
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
 	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
 
-	if (!empty($menu_context['can_toggle_drop_down']))
-		echo '
-	<a href="', $menu_context['toggle_url'], '"><img id="menu_toggle" src="', $context['menu_image_path'], '/change_menu', $context['right_to_left'] ? '2' : '', '.png" alt="*" /></a>';
+	echo '
+<div id="admin_menu">';
 
 	echo '
-<div id="admin_menu">
 	<ul class="dropmenu" id="dropdown_menu_', $context['cur_menu_id'], '">';
 
 	// Main areas first.
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-			<li><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'] , '</a>
+			<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'] , '</a>
 				<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
@@ -231,19 +216,19 @@ function template_generic_menu_tabs(&$menu_context)
 		// Has a custom URL defined in the main admin structure?
 		if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
 			$tab_context['tabs'][$id]['url'] = $tab['url'];
-		
+
 		// Any additional paramaters for the url?
 		if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
 			$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
-		
+
 		// Has it been deemed selected?
 		if (!empty($tab['is_selected']))
 			$tab_context['tabs'][$id]['is_selected'] = true;
-		
+
 		// Does it have its own help?
 		if (!empty($tab['help']))
 			$tab_context['tabs'][$id]['help'] = $tab['help'];
-		
+
 		// Is this the last one?
 		if (!empty($tab['is_last']) && !isset($tab_context['override_last']))
 			$tab_context['tabs'][$id]['is_last'] = true;
@@ -284,7 +269,7 @@ function template_generic_menu_tabs(&$menu_context)
 	if (!empty($settings['use_tabs']))
 	{
 		echo '
-	<p class="windowbg description">
+	<p class="description">
 		', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
 	</p>';
 
@@ -346,6 +331,6 @@ function template_generic_menu_tabs(&$menu_context)
 
 		echo '
 	</p>
-	<p class="windowbg description">', isset($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '</p>';
+	<p class="description">', isset($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '</p>';
 	}
 }

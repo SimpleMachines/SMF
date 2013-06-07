@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -374,12 +374,12 @@ function template_show_month_grid($grid_name)
 						if ($event['can_edit'])
 							echo '
 								<a class="modify_event" href="', $event['modify_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" title="' . $txt['modify'] . '" /></a>';
-						
+
 						if ($event['can_export'])
 							echo '
 								<a class="modify_event" href="', $event['export_href'], '"><img src="' . $settings['images_url'] . '/icons/calendar_export.png" alt=">" title="' . $txt['save'] . '"/></a>';
 
-								
+
 						echo '
 								', $event['link'], $event['is_last'] ? '' : '<br />';
 					}

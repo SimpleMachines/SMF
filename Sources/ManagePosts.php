@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -45,7 +45,7 @@ function ManagePostSettings()
 
 	$context['page_title'] = $txt['manageposts_title'];
 
-	// Tabs for browsing the different ban functions.
+	// Tabs for browsing the different post functions.
 	$context[$context['admin_menu_name']]['tab_data'] = array(
 		'title' => $txt['manageposts_title'],
 		'help' => 'posts_and_topics',
@@ -232,7 +232,7 @@ function ModifyPostSettings($return_config = false)
 				fatal_lang_error('convert_to_mediumtext', false, array($scripturl . '?action=admin;area=maintain;sa=database'));
 
 		}
-		
+
 		// If we're changing the post preview length let's check its valid
 		if (!empty($_POST['preview_characters']))
 			$_POST['preview_characters'] = (int) min(max(0, $_POST['preview_characters']), 512);
@@ -266,11 +266,15 @@ function ModifyBBCSettings($return_config = false)
 	$config_vars = array(
 			// Main tweaks
 			array('check', 'enableBBC'),
+			array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
 			array('check', 'enablePostHTML'),
 			array('check', 'autoLinkUrls'),
 		'',
 			array('bbc', 'disabledBBC'),
 	);
+
+	$context['settings_post_javascript'] = '
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
 
 	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
 

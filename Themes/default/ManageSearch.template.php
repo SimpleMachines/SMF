@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -83,12 +83,10 @@ function template_modify_weights()
 					<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_select_search_method()
@@ -102,7 +100,7 @@ function template_select_search_method()
 				<h3 class="catbg">', $txt['search_method'], '</h3>
 			</div>
 			<div class="information">
-				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqWin(this.href);">', $txt['search_create_index_why'], '</a></div>
+				<div class="smalltext" style="font-weight: normal;"><a href="', $scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', $txt['search_create_index_why'], '</a></div>
 			</div>
 			<div class="windowbg">
 				<div class="content">
@@ -125,7 +123,7 @@ function template_select_search_method()
 						</dd>';
 	echo '
 					</dl>
-					', $context['double_index'] ? '<div class="information">
+					', $context['double_index'] ? '<div class="noticebox">
 					' . $txt['search_double_index'] . '</div>' : '', '
 					<fieldset class="search_settings floatleft">
 						<legend>', $txt['search_index'], '</legend>
@@ -211,12 +209,10 @@ function template_select_search_method()
 					<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_create_index()
@@ -246,7 +242,6 @@ function template_create_index()
 					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 	</form>
@@ -273,7 +268,6 @@ function template_create_index_progress()
 					</div>
 					<hr class="hrcolor" />
 					<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 			<input type="hidden" name="step" value="', $context['step'], '" />
@@ -282,7 +276,6 @@ function template_create_index_progress()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
 	</div>
-	<br class="clear" />
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var countdown = 10;
 		doAutoSubmit();
@@ -319,8 +312,7 @@ function template_create_index_done()
 				</p>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Add or edit a search engine spider.
@@ -365,12 +357,10 @@ function template_spider_edit()
 					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Show... spider... logs...
@@ -385,28 +375,25 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
-		</div>
-		<form action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+		<br class="clear" />
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
+			</div>
 			<div class="windowbg">
 				<div class="content">
 					<p>
 						', $txt['spider_logs_delete_older'], '
 						<input type="text" name="older" id="older" value="7" size="3" class="input_text" />
 						', $txt['spider_logs_delete_day'], '
-					</p>	
-					<hr class="hrcolor" />
+					</p>
 					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Show... spider... stats...
@@ -439,6 +426,5 @@ function template_show_spider_stats()
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }

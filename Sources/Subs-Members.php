@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -203,6 +203,15 @@ function deleteMembers($users, $check_not_admin = false)
 	// Delete the member.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}members
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
+	// Delete any drafts...
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_drafts
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'users' => $users,
@@ -460,34 +469,16 @@ function registerMember(&$regOptions, $return_errors = false)
 			$regOptions['auth_method'] = 'password';
 	}
 
-	// No name?!  How can you register with no name?
-	if (empty($regOptions['username']))
-		$reg_errors[] = array('lang', 'need_username');
-
 	// Spaces and other odd characters are evil...
 	$regOptions['username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']);
-
-	// Don't use too long a name.
-	if ($smcFunc['strlen']($regOptions['username']) > 25)
-		$reg_errors[] = array('lang', 'error_long_name');
-
-	// Only these characters are permitted.
-	if (preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $regOptions['username'])) != 0 || $regOptions['username'] == '_' || $regOptions['username'] == '|' || strpos($regOptions['username'], '[code') !== false || strpos($regOptions['username'], '[/code') !== false)
-		$reg_errors[] = array('lang', 'error_invalid_characters_username');
-
-	if ($smcFunc['strtolower']($regOptions['username']) === $smcFunc['strtolower']($txt['guest_title']))
-		$reg_errors[] = array('lang', 'username_reserved', 'general', array($txt['guest_title']));
 
 	// @todo Separate the sprintf?
 	if (empty($regOptions['email']) || preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $regOptions['email']) === 0 || strlen($regOptions['email']) > 255)
 		$reg_errors[] = array('done', sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($regOptions['username'])));
 
-	if (!empty($regOptions['check_reserved_name']) && isReservedName($regOptions['username'], 0, false))
-	{
-		if ($regOptions['password'] == 'chocolate cake')
-			$reg_errors[] = array('done', 'Sorry, I don\'t take bribes... you\'ll need to come up with a different name.');
-		$reg_errors[] = array('done', '(' . htmlspecialchars($regOptions['username']) . ') ' . $txt['name_in_use']);
-	}
+	$username_validation_errors = validateUsername(0, $regOptions['username'], true, !empty($regOptions['check_reserved_name']));
+	if (!empty($username_validation_errors))
+		$reg_errors = array_merge($reg_errors, $username_validation_errors);
 
 	// Generate a validation code if it's supposed to be emailed.
 	$validation_code = '';
@@ -1187,7 +1178,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 			'memID' => $memID,
 		)
 	);
-	
+
 	// Allow mods with their own post tables to reattribute posts as well :)
  	call_integration_hook('integrate_reattribute_posts', array(&$memID, &$email, &$membername, &$post_count));
 }
@@ -1245,7 +1236,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 			mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)
-		WHERE ' . $where . '
+		WHERE ' . ($where == '1' ? '1=1' : $where) . '
 		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:per_page}',
 		array_merge($where_params, array(

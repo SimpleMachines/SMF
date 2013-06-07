@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -33,8 +33,7 @@ function template_download_language()
 				', $context['install_complete'], '
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 		return;
 	}
 
@@ -193,8 +192,7 @@ function template_download_language()
 				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button_submit" />
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// The javascript for expand and collapse of sections.
 	echo '
@@ -266,38 +264,38 @@ function template_modify_language_entries()
 				<div class="content">
 					<fieldset>
 						<legend>', $context['primary_settings']['name'], '</legend>
-					<dl class="settings">
-						<dt>
-							<label for="character_set">', $txt['languages_character_set'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="character_set" id="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
-						</dd>
-						<dt>
-							<label for="locale>', $txt['languages_locale'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="locale" id="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
-						</dd>
-						<dt>
-							<label for="dictionary">', $txt['languages_dictionary'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="dictionary" id="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
-						</dd>
-						<dt>
-							<label for="spelling">', $txt['languages_spelling'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" name="spelling" id="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
-						</dd>
-						<dt>
-							<label for="rtl">', $txt['languages_rtl'], ':</label>
-						</dt>
-						<dd>
-							<input type="checkbox" name="rtl" id="rtl" ', $context['primary_settings']['rtl'] ? ' checked="checked"' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' />
-						</dd>
-					</dl>
+						<dl class="settings">
+							<dt>
+								<label for="character_set">', $txt['languages_character_set'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" name="character_set" id="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							</dd>
+							<dt>
+								<label for="locale>', $txt['languages_locale'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" name="locale" id="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							</dd>
+							<dt>
+								<label for="dictionary">', $txt['languages_dictionary'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" name="dictionary" id="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							</dd>
+							<dt>
+								<label for="spelling">', $txt['languages_spelling'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" name="spelling" id="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' class="input_text" />
+							</dd>
+							<dt>
+								<label for="rtl">', $txt['languages_rtl'], ':</label>
+							</dt>
+							<dd>
+								<input type="checkbox" name="rtl" id="rtl" ', $context['primary_settings']['rtl'] ? ' checked="checked"' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' />
+							</dd>
+						</dl>
 					</fieldset>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
@@ -312,7 +310,6 @@ function template_modify_language_entries()
 	}
 
 	echo '
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
@@ -342,8 +339,9 @@ function template_modify_language_entries()
 					</select>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
-					<input type="submit" value="', $txt['go'], '" class="button_submit" />
-			</div>';
+					<input type="submit" value="', $txt['go'], '" class="button_submit" style="float: none"/>
+			</div>
+			<br class="clear" />';
 
 	// Is it not writable?
 	// Show an error.
@@ -414,7 +412,6 @@ function template_modify_language_entries()
 
 		echo '
 				</div>
-				<br class="clear" />
 			</div>';
 	}
 	echo '
@@ -472,6 +469,5 @@ function template_add_language()
 
 	echo '
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }

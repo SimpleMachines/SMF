@@ -6,16 +6,16 @@
  * core report generation is done in two areas. Firstly, a report "generator"
  * will fill context with relevant data. Secondly, the choice of sub-template
  * will determine how this data is shown to the user
- * 
+ *
  * Functions ending with "Report" are responsible for generating data for reporting.
  * They are all called from ReportsMain.
  * Never access the context directly, but use the data handling functions to do so.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -103,16 +103,16 @@ function ReportsMain()
 
 	// Make the page title more descriptive.
 	$context['page_title'] .= ' - ' . (isset($txt['gr_type_' . $context['report_type']]) ? $txt['gr_type_' . $context['report_type']] : $context['report_type']);
-	
+
 	// Build the reports button array.
 	$context['report_buttons'] = array(
 		'generate_reports' => array('text' => 'generate_reports', 'image' => 'print.png', 'lang' => true, 'url' => $scripturl . '?action=admin;area=reports', 'active' => true),
 		'print' => array('text' => 'print', 'image' => 'print.png', 'lang' => true, 'url' => $scripturl . '?action=admin;area=reports;rt=' . $context['report_type']. ';st=print', 'custom' => 'target="_blank"'),
 	);
-	
+
 	// Allow mods to add additional buttons here
-	call_integration_hook('integrate_report_buttons');	
-	
+	call_integration_hook('integrate_report_buttons');
+
 	// Now generate the data.
 	$context['report_types'][$context['report_type']]['function']();
 
@@ -785,7 +785,7 @@ function StaffReport()
  * context, ready for filling using addData().
  * Fills the context variable current_table with the ID of the table created.
  * Keeps track of the current table count using context variable table_count.
- * 
+ *
  * @param string $title = '' Title to be displayed with this data table.
  * @param string $default_value = '' Value to be displayed if a key is missing from a row.
  * @param string $shading = 'all' Should the left, top or both (all) parts of the table beshaded?
@@ -839,7 +839,7 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
  * if any key in the incoming data begins with '#sep#', the function
  * will add a separator accross the table at this point.
  * once the incoming data has been sanitized, it is added to the table.
- * 
+ *
  * @param array $inc_data
  * @param int $custom_table = null
  */
@@ -902,10 +902,10 @@ function addData($inc_data, $custom_table = null)
 
 /**
  * Add a separator row, only really used when adding data by rows.
- * 
+ *
  * @param string $title = ''
  * @param string $custom_table = null
- * 
+ *
  * @return bool returns false if there are no tables
  */
 function addSeparator($title = '', $custom_table = null)
@@ -966,7 +966,7 @@ function finishTables()
 
 /**
  * Set the keys in use by the tables - these ensure entries MUST exist if the data isn't sent.
- * 
+ *
  * sets the current set of "keys" expected in each data array passed to
  * addData. It also sets the way we are adding data to the data table.
  * method specifies whether the data passed to addData represents a new
@@ -975,7 +975,7 @@ function finishTables()
  * addData().
  * if reverse is set to true, then the values of the variable "keys"
  * are used as oppossed to the keys(!
- * 
+ *
  * @param string $method = 'rows' rows or cols
  * @param array $keys = array()
  * @param bool $reverse = false

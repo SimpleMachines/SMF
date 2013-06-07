@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; Reports
+// Version: 2.1; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -21,6 +21,8 @@ $txt['results'] = 'Results';
 
 // Board permissions
 $txt['board_perms_permission'] = 'Permission';
+$txt['board_perms_allow'] = 'Allow';
+$txt['board_perms_deny'] = 'Deny';
 $txt['board_perms_name_announce_topic'] = 'Announce topic';
 $txt['board_perms_name_approve_posts'] = 'Approve posts';
 $txt['board_perms_name_delete_any'] = 'Delete any posts';
@@ -128,7 +130,7 @@ $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
 $txt['group_perms_name_who_view'] = 'See who\'s online';
 
-$txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 members of staff!';
+$txt['report_error_too_many_staff'] = 'You have too many staff members. The report will not work with more than 300 staff members.';
 $txt['report_staff_position'] = 'Position';
 $txt['report_staff_moderates'] = 'Moderates';
 $txt['report_staff_posts'] = 'Posts';

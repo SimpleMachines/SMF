@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -18,7 +18,8 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * handles showing the post screen, loading the post to be modified, and loading any post quoted.
+ * Handles showing the post screen, loading the post to be modified, and loading any post quoted.
+ *
  * - additionally handles previews of posts.
  * - @uses the Post template and language file, main sub template.
  * - allows wireless access using the protocol_post sub template.
@@ -47,18 +48,6 @@ function Post($post_errors = array())
 		fatal_lang_error('no_board', false);
 
 	require_once($sourcedir . '/Subs-Post.php');
-
-	// Any files to include for post?
-	if (!isset($post_includes) && !empty($modSettings['integrate_post_include']))
-	{
-		$post_includes = explode(',', $modSettings['integrate_post_include']);
-		foreach ($post_includes as $include)
-		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-			if (file_exists($include))
-				require_once($include);
-		}
-	}
 
 	if (isset($_REQUEST['xml']))
 	{
@@ -464,7 +453,7 @@ function Post($post_errors = array())
 		}
 
 		// Only show the preview stuff if they hit Preview.
-		if ($really_previewing == true || isset($_REQUEST['xml']))
+		if (($really_previewing == true || isset($_REQUEST['xml'])) && !isset($_POST['id_draft']))
 		{
 			// Set up the preview message and subject and censor them...
 			$context['preview_message'] = $form_message;
@@ -509,16 +498,18 @@ function Post($post_errors = array())
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 					IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-					m.poster_time
+					m.poster_time, log.id_action
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
+					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 				WHERE m.id_msg = {int:id_msg}
 					AND m.id_topic = {int:current_topic}',
 				array(
 					'current_topic' => $topic,
 					'attachment_type' => 0,
 					'id_msg' => $_REQUEST['msg'],
+					'announce_action' => 'announce_topic',
 				)
 			);
 			// The message they were trying to edit was most likely deleted.
@@ -575,6 +566,12 @@ function Post($post_errors = array())
 				$smcFunc['db_free_result']($request);
 			}
 
+			if ($context['can_announce'] && !empty($row['id_action']))
+			{
+				loadLanguage('Errors');
+				$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+			}
+
 			// Allow moderators to change names....
 			if (allowedTo('moderate_forum') && !empty($topic))
 			{
@@ -615,22 +612,23 @@ function Post($post_errors = array())
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
-				m.poster_time
+				m.poster_time, log.id_action
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 				LEFT JOIN {db_prefix}attachments AS a ON (a.id_msg = m.id_msg AND a.attachment_type = {int:attachment_type})
+					LEFT JOIN {db_prefix}log_actions AS log ON (m.id_topic = log.id_topic AND log.action = {string:announce_action})
 			WHERE m.id_msg = {int:id_msg}
 				AND m.id_topic = {int:current_topic}',
 			array(
 				'current_topic' => $topic,
 				'attachment_type' => 0,
 				'id_msg' => $_REQUEST['msg'],
+				'announce_action' => 'announce_topic',
 			)
 		);
 		// The message they were trying to edit was most likely deleted.
-		//@todo Change this error message?
 		if ($smcFunc['db_num_rows']($request) == 0)
-			fatal_lang_error('no_board', false);
+			fatal_lang_error('no_message', false);
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		$attachment_stuff = array($row);
@@ -652,6 +650,12 @@ function Post($post_errors = array())
 			isAllowedTo('modify_replies');
 		else
 			isAllowedTo('modify_any');
+
+		if ($context['can_announce'] && !empty($row['id_action']))
+		{
+			loadLanguage('Errors');
+			$context['post_error']['messages'][] = $txt['error_topic_already_announced'];
+		}
 
 		// When was it last modified?
 		if (!empty($row['modified_time']))
@@ -799,17 +803,6 @@ function Post($post_errors = array())
 		// If there are attachments, calculate the total size and how many.
 		$context['attachments']['total_size'] = 0;
 		$context['attachments']['quantity'] = 0;
-		if (!empty($context['current_attachments']))
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
-			// Just use the current path for temp files.
-			$current_attach_dir = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$current_attach_dir = $modSettings['attachmentUploadDir'];
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg']))
@@ -913,12 +906,12 @@ function Post($post_errors = array())
 				// Show any errors which might of occured.
 				if (!empty($attachment['errors']))
 				{
-					$txt['error_attach_errrors'] = empty($txt['error_attach_errrors']) ? '<br />' : '';
-					$txt['error_attach_errrors'] .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br />' : '';
+					$txt['error_attach_errors'] .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
 					foreach ($attachment['errors'] as $error)
-						$txt['error_attach_errrors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br  />';
-					$txt['error_attach_errrors'] .= '</div>';
-					$post_errors[] = 'attach_errrors';
+						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br  />';
+					$txt['error_attach_errors'] .= '</div>';
+					$post_errors[] = 'attach_errors';
 
 					// Take out the trash.
 					unset($_SESSION['temp_attachments'][$attachID]);
@@ -1035,6 +1028,17 @@ function Post($post_errors = array())
 	$context['subject'] = addcslashes($form_subject, '"');
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
+	// Are post drafts enabled?
+	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+
+	// Build a list of drafts that they can load in to the editor
+	if (!empty($context['drafts_save']))
+	{
+		require_once($sourcedir . '/Drafts.php');
+		ShowDrafts($user_info['id'], $topic);
+	}
+
 	// Needed for the editor and message icons.
 	require_once($sourcedir . '/Subs-Editor.php');
 
@@ -1143,7 +1147,8 @@ function Post($post_errors = array())
 }
 
 /**
- * actually posts or saves the message composed with Post().
+ * Posts or saves the message composed with Post().
+ *
  * requires various permissions depending on the action.
  * handles attachment, post, and calendar saving.
  * sends off notifications, and allows for announcements and moderation.
@@ -1167,22 +1172,6 @@ function Post2()
 
 	// No need!
 	$context['robot_no_index'] = true;
-
-	// Any files to include for post?
-	if (!empty($modSettings['integrate_post_include']))
-	{
-		$post_includes = explode(',', $modSettings['integrate_post_include']);
-		foreach ($post_includes as $include)
-		{
-			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-			if (file_exists($include))
-				require_once($include);
-		}
-	}
-
-	// Previewing? Go back to start.
-	if (isset($_REQUEST['preview']))
-		return Post();
 
 	// Previewing? Go back to start.
 	if (isset($_REQUEST['preview']))
@@ -1212,6 +1201,10 @@ function Post2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 	loadLanguage('Post');
+
+	// Drafts enabled?
+	if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
 	if (isset($_POST['attach_del']))
@@ -1250,189 +1243,9 @@ function Post2()
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
 	if ($context['can_post_attachment'] && !empty($_FILES['attachment']) && empty($_POST['from_qr']))
 	{
-		// Make sure we're uploading to the right place.
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-			// The current directory, of course!
-			$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$context['attach_dir'] = $modSettings['attachmentUploadDir'];
-
-		// Is the attachments folder actualy there?
-		if (!is_dir($context['attach_dir']))
-		{
-			$initial_error = 'attach_folder_warning';
-			log_error(sprintf($txt['attach_folder_admin_warning'], $context['attach_dir']), 'critical');
-		}
-
-		// Check that the attachments folder is writable. No sense in proceeding if it isn't.
-		if (empty($initial_error) && !is_writable($context['attach_dir']))
-		{
-			// But, let's try to make it writable first.
-			chmod($context['attach_dir'], 0755);
-			if (!is_writable($context['attach_dir']))
-			{
-				chmod($context['attach_dir'], 0775);
-				if (!is_writable($context['attach_dir']))
-				{
-					chmod($context['attach_dir'], 0777);
-					if (!is_writable($context['attach_dir']))
-						$initial_error = 'attachments_no_write';
-				}
-			}
-		}
-
-		if (!isset($initial_error) && !isset($context['attachments']))
-		{
-			// If this isn't a new post, check the current attachments.
-			if (isset($_REQUEST['msg']))
-			{
-				$request = $smcFunc['db_query']('', '
-					SELECT COUNT(*), SUM(size)
-					FROM {db_prefix}attachments
-					WHERE id_msg = {int:id_msg}
-						AND attachment_type = {int:attachment_type}',
-					array(
-						'id_msg' => (int) $_REQUEST['msg'],
-						'attachment_type' => 0,
-					)
-				);
-				list ($context['attachments']['quantity'], $context['attachments']['total_size']) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
-			}
-			else
-				$context['attachments'] = array(
-					'quantity' => 0,
-					'total_size' => 0,
-				);
-		}
-
-		// Hmm. There are still files in session.
-		$ignore_temp = false;
-		if (!empty($_SESSION['temp_attachments']['post']['files']) && count($_SESSION['temp_attachments']) > 1)
-		{
-			// Let's try to keep them. But...
-			$ignore_temp = true;
-			// If new files are being added. We can't ignore those
-			foreach ($_FILES['attachment']['tmp_name'] as $dummy)
-				if (!empty($dummy))
-				{
-					$ignore_temp = false;
-					break;
-				}
-
-			// Need to make space for the new files. So, bye bye.
-			if (!$ignore_temp)
-			{
-				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
-					if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
-						unlink($attachment['tmp_name']);
-
-				$context['we_are_history'] = 'temp_attachments_flushed';
-				$_SESSION['temp_attachments'] = array();
-			}
-		}
-
-		if (!isset($_FILES['attachment']['name']))
-			$_FILES['attachment']['tmp_name'] = array();
-
-		if (!isset($_SESSION['temp_attachments']))
-			$_SESSION['temp_attachments'] = array();
-
-		// Remember where we are at. If it's anywhere at all.
-		if (!$ignore_temp)
-			$_SESSION['temp_attachments']['post'] = array(
-				'msg' => !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0,
-				'last_msg' => !empty($_REQUEST['last_msg']) ? $_REQUEST['last_msg'] : 0,
-				'topic' => !empty($topic) ? $topic : 0,
-				'board' => !empty($board) ? $board : 0,
-			);
-
-		// If we have an itital error, lets just display it.
-		if (!empty($initial_error))
-		{
-			$_SESSION['temp_attachments']['initial_error'] = $initial_error;
-
-			// And delete the files 'cos they ain't going nowhere.
-			foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy)
-				if (file_exists($_FILES['attachment']['tmp_name'][$n]))
-					unlink($_FILES['attachment']['tmp_name'][$n]);
-
-			$_FILES['attachment']['tmp_name'] = array();
-		}
-
-		// Loop through $_FILES['attachment'] array and move each file to the current attachments folder.
-		foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy)
-		{
-			if ($_FILES['attachment']['name'][$n] == '')
-				continue;
-
-			// First, let's first check for PHP upload errors.
-			$errors = array();
-			if (!empty($_FILES['attachment']['error'][$n]))
-			{
-				if ($_FILES['attachment']['error'][$n] == 2)
-					$errors[] = array('file_too_big', array($modSettings['attachmentSizeLimit']));
-				elseif ($_FILES['attachment']['error'][$n] == 6)
-					log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_6'], 'critical');
-				else
-					log_error($_FILES['attachment']['name'][$n] . ': ' . $txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
-				if (empty($errors))
-					$errors[] = 'attach_php_error';
-			}
-
-			// Try to move and rename the file before doing any more checks on it.
-			$attachID = 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand());
-			$destName = $context['attach_dir'] . '/' . $attachID;
-			if (empty($errors))
-			{
-				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
-					'tmp_name' => $destName,
-					'size' => $_FILES['attachment']['size'][$n],
-					'type' => $_FILES['attachment']['type'][$n],
-					'errors' => array(),
-				);
-
-				// Move the file to the attachments folder with a temp name for now.
-				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
-					@chmod($destName, 0644);
-				else
-				{
-					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
-					if (file_exists($_FILES['attachment']['tmp_name'][$n]))
-						unlink($_FILES['attachment']['tmp_name'][$n]);
-				}
-			}
-			else
-			{
-				$_SESSION['temp_attachments'][$attachID] = array(
-					'name' => htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
-					'tmp_name' => $destName,
-					'errors' => $errors,
-				);
-
-				if (file_exists($_FILES['attachment']['tmp_name'][$n]))
-					unlink($_FILES['attachment']['tmp_name'][$n]);
-			}
-			// If there's no errors to this pont. We still do need to apply some addtional checks before we are finished.
-			if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
-				attachmentChecks($attachID);
-		}
+		 require_once($sourcedir . '/Attachments.php');
+		 processAttachments();
 	}
-	// Mod authors, finally a hook to hang an alternate attachment upload system upon
-	// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand())
-	// Populate $_SESSION['temp_attachments'][$attachID] with the following:
-	//   name => The file name
-	//   tmp_name => Path to the temp file ($context['attach_dir'] . '/' . $attachID).
-	//   size => File size (required).
-	//   type => MIME type (optional if not available on upload).
-	//   errors => An array of errors (use the index of the $txt variable for that error).
-	// Template changes can be done using "integrate_upload_template".
-	call_integration_hook('integrate_attachment_upload');
 
 	// If this isn't a new topic load the topic info that we need.
 	if (!empty($topic))
@@ -1512,6 +1325,13 @@ function Post2()
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || $_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
+		// If drafts are enabled, then pass this off
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
+
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
 		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
@@ -1549,6 +1369,13 @@ function Post2()
 
 		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || empty($_POST['sticky']) || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
+
+		// Saving your new topic as a draft first?
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
+		}
 
 		$posterIsGuest = $user_info['is_guest'];
 	}
@@ -1624,6 +1451,13 @@ function Post2()
 			// Log it, assuming you're not modifying your own post.
 			if ($row['id_member'] != $user_info['id'])
 				$moderationAction = true;
+		}
+
+		// If drafts are enabled, then lets send this off to save
+		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		{
+			SaveDraft($post_errors);
+			return Post();
 		}
 
 		$posterIsGuest = empty($row['id_member']);
@@ -1856,6 +1690,7 @@ function Post2()
 				'tmp_name' => $attachment['tmp_name'],
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,
 				'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
+				'id_folder' => $attachment['id_folder'],
 				'approved' => !$modSettings['postmod_active'] || allowedTo('post_attachment'),
 				'errors' => $attachment['errors'],
 			);
@@ -1869,17 +1704,14 @@ function Post2()
 						$attachIDs[] = $attachmentOptions['thumb'];
 				}
 			}
+			else
+				$attach_errors[] = '<dt>&nbsp;</dt>';
 
 			if (!empty($attachmentOptions['errors']))
 			{
-				if (isset($br))
-					$attach_errors[] = '<dt>&nbsp;</dt>';
-				else
-					$br = '';
-
 				// Sort out the errors for display and delete any associated files.
 				$attach_errors[] = '<dt>' . vsprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
-				$log_these = array('attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
+				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
 				foreach ($attachmentOptions['errors'] as $error)
 				{
 					if (!is_array($error))
@@ -1931,7 +1763,7 @@ function Post2()
 			$pollOptions,
 			array('id_poll', 'id_choice')
 		);
-		
+
 		call_integration_hook('integrate_poll_add_edit', array($id_poll, false));
 	}
 	else
@@ -2185,6 +2017,7 @@ function Post2()
 		$context['error_message'] = '<dl>';
 		$context['error_message'] .= implode("\n", $attach_errors);
 		$context['error_message'] .= '</dl>';
+		$context['error_title'] = $txt['attach_error_title'];
 
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.0',
@@ -2212,7 +2045,8 @@ function Post2()
 }
 
 /**
- * handle the announce topic function (action=announce).
+ * Handle the announce topic function (action=announce).
+ *
  * checks the topic announcement permissions and loads the announcement template.
  * requires the announce_topic permission.
  * uses the ManageMembers template and Post language file.
@@ -2245,6 +2079,7 @@ function AnnounceTopic()
 
 /**
  * Allow a user to chose the membergroups to send the announcement to.
+ *
  * lets the user select the membergroups that will receive the topic announcement.
  */
 function AnnouncementSelectMembergroup()
@@ -2323,6 +2158,7 @@ function AnnouncementSelectMembergroup()
 
 /**
  * Send the announcement in chunks.
+ *
  * splits the members to be sent a topic announcement into chunks.
  * composes notification messages in all languages needed.
  * does the actual sending of the topic announcements in chunks.
@@ -2334,9 +2170,6 @@ function AnnouncementSend()
 	global $language, $scripturl, $txt, $user_info, $sourcedir, $smcFunc;
 
 	checkSession();
-
-	// @todo Might need an interface?
-	$chunkSize = empty($modSettings['mail_queue']) ? 50 : 500;
 
 	$context['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 	$groups = array_merge($board_info['groups'], array(1));
@@ -2377,26 +2210,27 @@ function AnnouncementSend()
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member, mem.email_address, mem.lngfile
 		FROM {db_prefix}members AS mem
-		WHERE mem.id_member != {int:current_member}' . (!empty($modSettings['allow_disableAnnounce']) ? '
+		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)' . (!empty($modSettings['allow_disableAnnounce']) ? '
 			AND mem.notify_announcements = {int:notify_announcements}' : '') . '
 			AND mem.is_activated = {int:is_activated}
-			AND (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)
 			AND mem.id_member > {int:start}
 		ORDER BY mem.id_member
-		LIMIT ' . $chunkSize,
+		LIMIT {int:chunk_size}',
 		array(
-			'current_member' => $user_info['id'],
 			'group_list' => $_POST['who'],
 			'notify_announcements' => 1,
 			'is_activated' => 1,
 			'start' => $context['start'],
 			'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
+			// @todo Might need an interface?
+			'chunk_size' => empty($modSettings['mail_queue']) ? 50 : 500,
 		)
 	);
 
 	// All members have received a mail. Go to the next screen.
 	if ($smcFunc['db_num_rows']($request) == 0)
 	{
+		logAction('announce_topic', array('topic' => $topic), 'user');
 		if (!empty($_REQUEST['move']) && allowedTo('move_any'))
 			redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 		elseif (!empty($_REQUEST['goback']))
@@ -2451,8 +2285,8 @@ function AnnouncementSend()
 }
 
 /**
- * notifies members who have requested notification for new topics
- * * posted on a board of said posts.
+ * Notifies members who have requested notification for new topics posted on a board of said posts.
+ *
  * receives data on the topics to send out notifications to by the passed in array.
  * only sends notifications to those who can *currently* see the topic (it doesn't matter if they could when they requested notification.)
  * loads the Post language file multiple times for each language if the userLanguage setting is set.
@@ -2610,6 +2444,7 @@ function notifyMembersBoard(&$topicData)
 
 /**
  * Get the topic for display purposes.
+ *
  * gets a summary of the most recent posts in a topic.
  * depends on the topicSummaryPosts setting.
  * if you are editing a post, only shows posts previous to that post.
@@ -2669,7 +2504,7 @@ function getTopic()
 }
 
 /**
- * loads a post an inserts it into the current editing text box.
+ * Loads a post an inserts it into the current editing text box.
  * uses the Post language file.
  * uses special (sadly browser dependent) javascript to parse entities for internationalization reasons.
  * accessed with ?action=quotefast.
@@ -2772,6 +2607,10 @@ function QuoteFast()
 		);
 }
 
+/**
+ * Used to edit the body or subject of a message inline
+ * called from action=jsmodify from script and topic js
+ */
 function JavaScriptModify()
 {
 	global $sourcedir, $modSettings, $board, $topic, $txt;

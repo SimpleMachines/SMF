@@ -14,7 +14,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -194,7 +194,7 @@ function smf_main()
 		fatal_lang_error('not_a_topic', false);
 
 	$no_stat_actions = array('dlattach', 'findmember', 'jsoption', 'requestmembers', 'smstats', '.xml', 'xmlhttp', 'verificationcode', 'viewquery', 'viewsmfile');
-	call_integration_hook('integrate_pre_log_stats', $no_stat_actions);
+	call_integration_hook('integrate_pre_log_stats', array(&$no_stat_actions));
 	// Do some logging, unless this is an attachment, avatar, toggle of editor buttons, theme option, XML feed etc.
 	if (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], $no_stat_actions))
 	{
@@ -235,7 +235,7 @@ function smf_main()
 		if (empty($board) && empty($topic))
 		{
 			$call = '';
-			call_integration_hook('integrate_default_action', $call);
+			call_integration_hook('integrate_default_action', array(&$call));
 			$call = strpos($call, '::') !== false ? explode('::', $call) : $call;
 			if (!empty($call) && is_callable($call))
 				return $call;
@@ -271,7 +271,6 @@ function smf_main()
 		'coppa' => array('Register.php', 'CoppaForm'),
 		'credits' => array('Who.php', 'Credits'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
-		'display' => array('Display.php', 'Display'),
 		'dlattach' => array('Display.php', 'Download'),
 		'editpoll' => array('Poll.php', 'EditPoll'),
 		'editpoll2' => array('Poll.php', 'EditPoll2'),
@@ -280,7 +279,6 @@ function smf_main()
 		'groups' => array('Groups.php', 'Groups'),
 		'help' => array('Help.php', 'ShowHelp'),
 		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
-		'im' => array('PersonalMessage.php', 'MessageMain'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
 		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),

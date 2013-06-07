@@ -719,7 +719,7 @@
 				emoticon;
 
 			$.each(emoticons, function (key, url) {
-				// @todo Why did I (emanuele) add this?
+				// In SMF an empty entry means a new line
 				if (key == '')
 					emoticon = document.createElement('br');
 				else
@@ -1155,8 +1155,8 @@
 		base.getWysiwygEditorValue = function (filter) {
 			// Possible replacement:
 			// if(!$.sceditor.isWysiwygSupported())
-			if (!base.options.supportedWysiwyg)
-				return;
+			//if (!base.options.supportedWysiwyg)
+			//	return;
 
 			var	$body = $wysiwygEditor.contents().find("body"),
 				html;
@@ -1243,7 +1243,7 @@
 			var emoticons = $.extend({}, base.options.emoticons.more, base.options.emoticons.dropdown, base.options.emoticons.hidden);
 
 			$.each(emoticons, function (key, url) {
-				// @todo Why did I (emanuele) add this?
+				// In SMF an empty entry means a new line
 				if (key == '')
 					return;
 				// escape the key before using it as a regex
@@ -3480,7 +3480,7 @@
 				if (popup_exists)
 				{
 					this.options.emoticons.more = this.options.emoticons.popup;
-					moreButton = $('<div class="sceditor-more-button" />').attr({class: "sceditor-more"}).text('[' + this._('More') + ']').click(function () {
+					moreButton = $('<div class="sceditor-more-button" />').attr({'class': "sceditor-more"}).text('[' + this._('More') + ']').click(function () {
 						if ($(".sceditor-smileyPopup").length > 0)
 						{
 							$(".sceditor-smileyPopup").fadeIn('fast');

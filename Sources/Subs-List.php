@@ -6,7 +6,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -30,6 +30,8 @@ function createList($listOptions)
 	assert((empty($listOptions['items_per_page']) || (isset($listOptions['get_count']['function'], $listOptions['base_href']) && is_numeric($listOptions['items_per_page']))));
 	assert((empty($listOptions['default_sort_col']) || isset($listOptions['columns'][$listOptions['default_sort_col']])));
 	assert((!isset($listOptions['form']) || isset($listOptions['form']['href'])));
+
+	call_integration_hook('integrate_' . $listOptions['id'], array(&$listOptions));
 
 	// All the context data will be easily accessible by using a reference.
 	$context[$listOptions['id']] = array();
@@ -151,9 +153,9 @@ function createList($listOptions)
 
 			// Allow for basic formatting.
 			if (!empty($column['data']['comma_format']))
-				$cur_data['value'] = comma_format($list_item[$column['data']['comma_format']]);
+				$cur_data['value'] = comma_format($cur_data['value']);
 			elseif (!empty($column['data']['timeformat']))
-				$cur_data['value'] = timeformat($list_item[$column['data']['timeformat']]);
+				$cur_data['value'] = timeformat($cur_data['value']);
 
 			// Set a style class for this column?
 			if (isset($column['data']['class']))

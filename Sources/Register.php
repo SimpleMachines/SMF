@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -105,7 +105,7 @@ function Register($reg_errors = array())
 			$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
 		else
 			$context['agreement'] = '';
-		
+
 		// Nothing to show, lets disable registration and inform the admin of this error
 		if (empty($context['agreement']))
 		{
@@ -522,7 +522,11 @@ function Register2($verifiedOpenID = false)
  */
 function Activate()
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $language;
+	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $language, $user_info;
+
+	// Logged in users should not bother to activate their accounts
+	if (!empty($user_info['id']))
+		redirectexit();
 
 	loadLanguage('Login');
 	loadTemplate('Login');
@@ -832,26 +836,14 @@ function RegisterCheckUsername()
 	// This is XML!
 	loadTemplate('Xml');
 	$context['sub_template'] = 'check_username';
-	$context['checked_username'] = isset($_GET['username']) ? $_GET['username'] : '';
+	$context['checked_username'] = isset($_GET['username']) ? un_htmlspecialchars($_GET['username']) : '';
 	$context['valid_username'] = true;
 
 	// Clean it up like mother would.
 	$context['checked_username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $context['checked_username']);
-	if ($smcFunc['strlen']($context['checked_username']) > 25)
-		$context['checked_username'] = $smcFunc['htmltrim']($smcFunc['substr']($context['checked_username'], 0, 25));
 
-	// Only these characters are permitted.
-	if (preg_match('~[<>&"\'=\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $context['checked_username'])) != 0 || $context['checked_username'] == '_' || $context['checked_username'] == '|' || strpos($context['checked_username'], '[code') !== false || strpos($context['checked_username'], '[/code') !== false)
-		$context['valid_username'] = false;
+	require_once($sourcedir . '/Subs-Auth.php');
+	$errors = validateUsername(0, $context['checked_username'], true);
 
-	if (stristr($context['checked_username'], $txt['guest_title']) !== false)
-		$context['valid_username'] = false;
-
-	if (trim($context['checked_username']) == '')
-		$context['valid_username'] = false;
-	else
-	{
-		require_once($sourcedir . '/Subs-Members.php');
-		$context['valid_username'] &= isReservedName($context['checked_username'], 0, false, false) ? 0 : 1;
-	}
+	$context['valid_username'] = empty($errors);
 }

@@ -180,10 +180,8 @@ smf_StatsCenter.prototype.onBeforeExpandMonth = function (oToggle)
 
 	if (oToggle.opt.aSwappableContainers.length == 0)
 	{
-		// A complicated way to call getXMLDocument, but stay in scope.
-		this.tmpMethod = getXMLDocument;
-		this.oXmlRequestHandle = this.tmpMethod(smf_prepareScriptUrl(smf_scripturl) + 'action=stats;expand=' + oToggle.opt.sMonthId + ';xml', this.onDocReceived);
-		delete this.tmpMethod;
+		// Make the xml call
+		sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + 'action=stats;expand=' + oToggle.opt.sMonthId + ';xml', '', this.onDocReceived);
 
 		if ('ajax_indicator' in window)
 			ajax_indicator(true);

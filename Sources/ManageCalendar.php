@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -162,7 +162,7 @@ function ModifyHolidays()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					
+
 					<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />
 					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday" style="margin: 0 1em">' . $txt['holidays_add'] . '</a>',
 				'style' => 'text-align: right;',

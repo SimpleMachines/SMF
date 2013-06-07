@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; ModerationCenter
+// Version: 2.1; ModerationCenter
 
 global $scripturl;
 
@@ -55,11 +55,11 @@ $txt['mc_groupr_reason'] = 'Reason';
 $txt['mc_groupr_none_found'] = 'There are currently no outstanding membergroup requests.';
 $txt['mc_groupr_submit'] = 'Submit';
 $txt['mc_groupr_reason_desc'] = 'Reason to reject %1$s\'s request to join &quot;%2$s&quot;';
-$txt['mc_groups_reason_title'] = 'Reasons for Rejection';
-$txt['with_selected'] = 'With Selected';
-$txt['mc_groupr_approve'] = 'Approve Request';
-$txt['mc_groupr_reject'] = 'Reject Request (No Reason)';
-$txt['mc_groupr_reject_w_reason'] = 'Reject Request with Reason';
+$txt['mc_groups_reason_title'] = 'Reasons for rejection';
+$txt['with_selected'] = 'With selected';
+$txt['mc_groupr_approve'] = 'Approve request';
+$txt['mc_groupr_reject'] = 'Reject request (No Reason)';
+$txt['mc_groupr_reject_w_reason'] = 'Reject request with reason';
 // Do not use numeric entries in the below string.
 $txt['mc_groupr_warning'] = 'Are you sure you wish to do this?';
 
@@ -72,10 +72,10 @@ $txt['mc_unapproved_replies'] = 'Replies';
 $txt['mc_unapproved_topics'] = 'Topics';
 $txt['mc_unapproved_by'] = 'by';
 $txt['mc_unapproved_sure'] = 'Are you sure you want to do this?';
-$txt['mc_unapproved_attach_name'] = 'Attachment Name';
+$txt['mc_unapproved_attach_name'] = 'Attachment name';
 $txt['mc_unapproved_attach_size'] = 'Filesize';
 $txt['mc_unapproved_attach_poster'] = 'Poster';
-$txt['mc_viewmodreport'] = 'Moderation Report for %1$s by %2$s';
+$txt['mc_viewmodreport'] = 'Moderation report for %1$s by %2$s';
 $txt['mc_modreport_summary'] = 'There have been %1$d report(s) concerning this post.  The last report was %2$s.';
 $txt['mc_modreport_whoreported_title'] = 'Members who have reported this post';
 $txt['mc_modreport_whoreported_data'] = 'Reported by %1$s on %2$s.  They left the following message:';
@@ -104,10 +104,10 @@ $txt['mc_watched_users_member'] = 'Member';
 $txt['mc_warnings_description'] = 'From this section you can see which warnings have been issued to members of the forum. You can also add and modify the notification templates used when sending a warning to a member.';
 $txt['mc_warning_log'] = 'Log';
 $txt['mc_warning_templates'] = 'Custom Templates';
-$txt['mc_warning_log_title'] = 'Viewing Warning Log';
-$txt['mc_warning_templates_title'] = 'Custom Warning Templates';
+$txt['mc_warning_log_title'] = 'Viewing warning log';
+$txt['mc_warning_templates_title'] = 'Custom warning templates';
 
-$txt['mc_warnings_none'] = 'No warnings have been issued yet!';
+$txt['mc_warnings_none'] = 'No warnings have been issued.';
 $txt['mc_warnings_recipient'] = 'Recipient';
 
 $txt['mc_warning_templates_none'] = 'No warning templates have been created yet';

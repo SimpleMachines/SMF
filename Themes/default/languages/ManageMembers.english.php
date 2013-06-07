@@ -1,5 +1,5 @@
 <?php
-// Version: 2.0; ManageMembers
+// Version: 2.1; ManageMembers
 
 global $context;
 
@@ -32,13 +32,13 @@ $txt['membergroups_edit_inherit_permissions_no'] = 'No - Use Unique Permissions'
 $txt['membergroups_edit_inherit_permissions_from'] = 'Inherit From';
 $txt['membergroups_edit_hidden'] = 'Visibility';
 $txt['membergroups_edit_hidden_no'] = 'Visible';
-$txt['membergroups_edit_hidden_boardindex'] = 'Visible - Except in Group Key';
+$txt['membergroups_edit_hidden_boardindex'] = 'Visible - Apart from in group key';
 $txt['membergroups_edit_hidden_all'] = 'Invisible';
 // Do not use numeric entities in the below string.
 $txt['membergroups_edit_hidden_warning'] = 'Are you sure you want to disallow assignment of this group as a users primary group?\\n\\nDoing so will restrict assignment to additional groups only, and will update all current &quot;primary&quot; members to have it as an additional group only.';
 $txt['membergroups_edit_desc'] = 'Group description';
-$txt['membergroups_edit_group_type'] = 'Group Type';
-$txt['membergroups_edit_select_group_type'] = 'Select Group Type';
+$txt['membergroups_edit_group_type'] = 'Group type';
+$txt['membergroups_edit_select_group_type'] = 'Select Group type';
 $txt['membergroups_group_type_private'] = 'Private <span class="smalltext">(Membership must be assigned)</span>';
 $txt['membergroups_group_type_protected'] = 'Protected <span class="smalltext">(Only administrators can manage and assign)</span>';
 $txt['membergroups_group_type_request'] = 'Requestable <span class="smalltext">(User may request membership)</span>';
@@ -53,7 +53,7 @@ $txt['membergroups_max_messages'] = 'Max personal messages';
 $txt['membergroups_max_messages_note'] = '0 = unlimited';
 $txt['membergroups_edit_save'] = 'Save';
 $txt['membergroups_delete'] = 'Delete';
-$txt['membergroups_confirm_delete'] = 'Are you sure you want to delete this group?!';
+$txt['membergroups_confirm_delete'] = 'Are you sure you want to delete this group?';
 
 $txt['membergroups_members_title'] = 'Viewing Group';
 $txt['membergroups_members_group_members'] = 'Group Members';
@@ -105,14 +105,14 @@ $txt['admin_browse_w_reject'] = 'Reject';
 $txt['admin_browse_w_remind'] = 'Remind';
 $txt['admin_browse_w_approve_deletion'] = 'Approve (Delete Accounts)';
 $txt['admin_browse_w_email'] = 'and send email';
-$txt['admin_browse_w_approve_require_activate'] = 'Approve and Require Activation';
+$txt['admin_browse_w_approve_require_activate'] = 'Approve and require activation';
 
 $txt['admin_browse_filter_by'] = 'Filter By';
 $txt['admin_browse_filter_show'] = 'Displaying';
-$txt['admin_browse_filter_type_0'] = 'Unactivated New Accounts';
-$txt['admin_browse_filter_type_2'] = 'Unactivated Email Changes';
-$txt['admin_browse_filter_type_3'] = 'Unapproved New Accounts';
-$txt['admin_browse_filter_type_4'] = 'Unapproved Account Deletions';
+$txt['admin_browse_filter_type_0'] = 'Unactivated new accounts';
+$txt['admin_browse_filter_type_2'] = 'Unactivated email changes';
+$txt['admin_browse_filter_type_3'] = 'Unapproved new accounts';
+$txt['admin_browse_filter_type_4'] = 'Unapproved account deletions';
 $txt['admin_browse_filter_type_5'] = 'Unapproved "Under Age" Accounts';
 
 $txt['admin_browse_outstanding'] = 'Outstanding Members';
@@ -121,8 +121,8 @@ $txt['admin_browse_outstanding_days_2'] = 'days ago';
 $txt['admin_browse_outstanding_perform'] = 'Perform the following action';
 $txt['admin_browse_outstanding_go'] = 'Perform Action';
 
-$txt['check_for_duplicate'] = 'Check for Duplicates';
-$txt['dont_check_for_duplicate'] = 'Don\'t Check for Duplicates';
+$txt['check_for_duplicate'] = 'Check for duplicates';
+$txt['dont_check_for_duplicate'] = 'Don\'t check for duplicates';
 $txt['duplicates'] = 'Duplicates';
 
 $txt['not_activated'] = 'Not activated';

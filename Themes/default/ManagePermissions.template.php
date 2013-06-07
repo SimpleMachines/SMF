@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -183,7 +183,6 @@ function template_permission_index()
 						</dl>
 					</fieldset>
 					<input type="submit" value="', $txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>';
 
@@ -257,8 +256,7 @@ function template_permission_index()
 
 	echo '
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_by_board()
@@ -282,9 +280,8 @@ function template_by_board()
 
 	if (!$context['edit_all'])
 		echo '
-			<div class="content">
+			<div class="content flow_auto">
 			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>
-			<br class="clear_right" />
 			</div>';
 
 	foreach ($context['categories'] as $category)
@@ -349,15 +346,13 @@ function template_by_board()
 			<input type="submit" name="save_changes" value="', $txt['save'], '" class="button_submit" />';
 	else
 		echo '
-			
 			<a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a>';
-
+	
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '" />
 		</div>
-	</form>
-	<br class="clear" />';
+	</form>';
 }
 
 // Edit permission profiles (predefined).
@@ -410,7 +405,7 @@ function template_edit_profiles()
 	echo '
 				</tbody>
 			</table>
-			<div class="righttext padding">
+			<div class="flow_auto righttext padding">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 				<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />';
 
@@ -420,7 +415,6 @@ function template_edit_profiles()
 
 	echo '
 				<input type="submit" name="delete" value="', $txt['quickmod_delete_selected'], '" class="button_submit" />
-				<br class="clear" />
 			</div>
 		</form>
 		<br />
@@ -455,12 +449,10 @@ function template_edit_profiles()
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '" />
 					<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit" />
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_modify_group()
@@ -552,7 +544,7 @@ function template_modify_group()
 
 	if ($context['profile']['can_modify'])
 		echo '
-			<div class="righttext padding">
+			<div class="padding">
 				<input type="submit" value="', $txt['permissions_commit'], '" class="button_submit" />
 			</div>';
 
@@ -560,8 +552,7 @@ function template_modify_group()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="', $context['admin-mp_token_var'], '" value="', $context['admin-mp_token'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 }
 
@@ -1091,7 +1082,7 @@ function template_postmod_permissions()
 
 	echo '
 					</select>
-					<input type="submit" value="', $txt['go'], '" class="button_submit" />
+					<input type="submit" value="', $txt['go'], '" class="button_submit" style="margin-top: 5px;" />
 			</div>
 			<table width="100%" class="table_grid">
 				<thead>
@@ -1171,6 +1162,5 @@ function template_postmod_permissions()
 			<img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" /> - ', $txt['permissions_post_moderation_moderate'], '<br />
 			<img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" /> - ', $txt['permissions_post_moderation_disallow'], '
 		</p>
-	</div>
-	<br class="clear" />';
+	</div>';
 }

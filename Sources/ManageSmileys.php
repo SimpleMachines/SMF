@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -207,7 +207,7 @@ function EditSmileySets()
 			$set_paths = explode(',', $modSettings['smiley_sets_known']);
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
-			{	
+			{
 				if (isset($set_paths[$id], $set_names[$id]) && !empty($id))
 					unset($set_paths[$id], $set_names[$id]);
 			}

@@ -1,20 +1,30 @@
 <?php
 
 /**
- * This class is an experiment for the job of correctly detecting browsers and settings
- * needed for them.
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2012 Simple Machines
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Alpha 1
+ */
+
+if (!defined('SMF'))
+	die('Hacking attempt...');
+
+/**
+ *  This class is an experiment for the job of correctly detecting browsers and settings needed for them.
  * - Detects the following browsers
  * - Opera, Webkit, Firefox, Web_tv, Konqueror, IE, Gecko
  * - Webkit variants: Chrome, iphone, blackberry, android, safari, ipad, ipod
- * - Opera Versions: 6, 7, 8, 9, 10 and mobile mini and mobi
+ * - Opera Versions: 6, 7, 8 ... 10 ... and mobile mini and mobi
  * - Firefox Versions: 1, 2, 3 .... 11 ...
  * - Chrome Versions: 1 ... 18 ...
- * - IE Versions: 4, 5, 5.5, 6, 7, 8, 9, 10 mobile and Mac
- * - Nokia 
+ * - IE Versions: 4, 5, 5.5, 6, 7, 8, 9, 10 ... mobile and Mac
+ * - Nokia
  */
- 
-if (!defined('SMF'))
-	die('Hacking attempt...');
 
 class browser_detector
 {
@@ -53,7 +63,7 @@ class browser_detector
 		// Old friend, old frenemy
 		elseif ($this->isIe())
 			$this->setupIe();
-		
+
 		// Just a few mobile checks
 		$this->isOperaMini();
 		$this->isOperaMobi();
@@ -122,7 +132,7 @@ class browser_detector
 	function isFirefox()
 	{
 		if (!isset($this->_browsers['is_firefox']))
-			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1;
+			$this->_browsers['is_firefox'] = preg_match('~(?:Firefox|Ice[wW]easel|IceCat|Shiretoko|Minefield)/~', $_SERVER['HTTP_USER_AGENT']) === 1 && $this->isGecko();
 		return $this->_browsers['is_firefox'];
 	}
 
@@ -319,18 +329,21 @@ class browser_detector
 			$context['browser_body_id'] = 'mobile';
 		else
 		{
+			// add in any specific detection conversions here if you want a special body id e.g. 'is_opera9' => 'opera9'
 			$browser_priority = array(
 				'is_ie6' => 'ie6',
 				'is_ie7' => 'ie7',
+				'is_ie8' => 'ie8',
+				'is_ie9' => 'ie9',
+				'is_ie10' => 'ie10',
 				'is_ie' => 'ie',
-				'is_firefox3' => 'firefox3',
-				'is_firefox4' => 'firefox4',
 				'is_firefox' => 'firefox',
 				'is_chrome' => 'chrome',
 				'is_safari' => 'safari',
-				'is_opera8' => 'opera8',
-				'is_opera9' => 'opera9',
 				'is_opera10' => 'opera10',
+				'is_opera11' => 'opera11',
+				'is_opera12' => 'opera12',
+				'is_opera' => 'opera',
 				'is_konqueror' => 'konqueror',
 			);
 
@@ -354,14 +367,17 @@ class browser_detector
 	function fillInformation()
 	{
 		$this->_browsers += array(
-			'is_webkit' => false,
+			'is_opera' => false,
 			'is_opera6' => false,
 			'is_opera7' => false,
 			'is_opera8' => false,
 			'is_opera9' => false,
 			'is_opera10' => false,
-			'is_ie4' => false,
+			'is_webkit' => false,
 			'is_mac_ie' => false,
+			'is_web_tv' => false,
+			'is_konqueror' => false,
+			'is_firefox' => false,
 			'is_firefox1' => false,
 			'is_firefox2' => false,
 			'is_firefox3' => false,
@@ -369,12 +385,17 @@ class browser_detector
 			'is_android' => false,
 			'is_chrome' => false,
 			'is_safari' => false,
+			'is_gecko'  => false,
 			'is_ie8' => false,
 			'is_ie7' => false,
 			'is_ie6' => false,
 			'is_ie5.5' => false,
 			'is_ie5' => false,
+			'is_ie' => false,
+			'is_ie4' => false,
 			'ie_standards_fix' => false,
+			'needs_size_fix' => false,
+			'possibly_robot' => false,
 		);
 	}
 }

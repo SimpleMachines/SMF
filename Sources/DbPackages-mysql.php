@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -621,7 +621,7 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
 function smf_db_create_query_column($column)
 {
 	global $smcFunc;
-	
+
 	// Auto increment is easy here!
 	if (!empty($column['auto']))
 	{

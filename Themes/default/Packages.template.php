@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -41,8 +41,8 @@ function template_view_package()
 	{
 		echo '
 		<div class="errorbox">
-			', $txt['package_will_fail_title'], '<br />
-			', $txt['package_will_fail_warning'], 
+			', sprintf($txt['package_will_fail_title'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]), '<br />
+			', sprintf($txt['package_will_fail_warning'], $txt['package_' . ($context['uninstalling'] ? 'uninstall' : 'install')]),
 			!empty($context['failure_details']) ? '<br /><br /><strong>' . $context['failure_details'] . '</strong>' : '', '
 		</div>';
 	}
@@ -68,7 +68,7 @@ function template_view_package()
 			</div>
 			<br />';
 	}
-	
+
 	// Did they specify a license to display?
 	if (isset($context['package_license']))
 	{
@@ -90,7 +90,7 @@ function template_view_package()
 			</div>
 			<br />';
 	}
-	
+
 	echo '
 		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['uninstalling'] ? 'uninstall' : 'install', $context['ftp_needed'] ? '' : '2', ';package=', $context['filename'], ';pid=', $context['install_id'], '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -142,7 +142,7 @@ function template_view_package()
 					<th scope="col" width="30"></th>
 					<th scope="col" class="lefttext">', $txt['package_install_type'], '</th>
 					<th scope="col" class="lefttext" width="50%">', $txt['package_install_action'], '</th>
-					<th class="last_th lefttext" scope="col" class="lefttext" width="20%">', $txt['package_install_desc'], '</th>
+					<th class="last_th lefttext" scope="col" width="20%">', $txt['package_install_desc'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -331,8 +331,7 @@ function template_view_package()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />', (isset($context['form_sequence_number']) && !$context['ftp_needed']) ? '
 			<input type="hidden" name="seqnum" value="' . $context['form_sequence_number'] . '" />' : '', '
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// Toggle options.
 	echo '
@@ -366,7 +365,7 @@ function template_view_package()
 
 	echo '
 	// ]]></script>';
-	
+
 	// Get the currently selected item from a select list
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -468,8 +467,7 @@ function template_extract_package()
 	}
 
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_list()
@@ -498,8 +496,7 @@ function template_list()
 				<a href="', $scripturl, '?action=admin;area=packages">[ ', $txt['back'], ' ]</a>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_examine()
@@ -520,8 +517,7 @@ function template_examine()
 				<a href="', $scripturl, '?action=admin;area=packages;sa=list;package=', $context['package'], '">[ ', $txt['list_files'], ' ]</a>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_browse()
@@ -589,7 +585,6 @@ function template_browse()
 
 	// the advanced (emulation) box, collapsed by default
 	echo '
-		<br class="clear" />
 		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['sub_action'], '" method="get">
 			<div id="advanced_box" >
 				<div class="cat_bar">
@@ -624,10 +619,10 @@ function template_browse()
 			<input type="hidden" name="area" value="packages" />
 			<input type="hidden" name="sa" value="', $context['sub_action'], '" />
 		</form>';
-	
+
 	echo '
 	</div>
-	<br class="clear" />
+	
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -818,12 +813,10 @@ function template_servers()
 					<hr class="hrcolor" />
 					<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit" />
 					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
-					<br class="clear_right" />
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_package_confirm()
@@ -841,8 +834,7 @@ function template_package_confirm()
 				<a href="', $context['proceed_href'], '">[ ', $txt['package_confirm_proceed'], ' ]</a> <a href="JavaScript:history.go(-1);">[ ', $txt['package_confirm_go_back'], ' ]</a>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_package_list()
@@ -872,7 +864,7 @@ function template_package_list()
 		{
 			echo '
 					<li>
-						<strong><img id="ps_img_', $i, '" src="', $settings['images_url'], '/upshrink.png" alt="*" style="display: none;" /> ', $packageSection['title'], '</strong>';
+						<strong><img id="ps_img_', $i, '" src="', $settings['images_url'], '/collapse.png" alt="*" style="display: none;" /> ', $packageSection['title'], '</strong>';
 
 			if (!empty($packageSection['text']))
 				echo '
@@ -912,7 +904,7 @@ function template_package_list()
 				{
 					// 1. Some mod [ Download ].
 					echo '
-							<strong><img id="ps_img_', $i, '_pkg_', $id, '" src="', $settings['images_url'], '/upshrink.png" alt="*" style="display: none;" /> ', $package['can_install'] ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . $txt['download'] . ' ]</a>': $package['name'];
+							<strong><img id="ps_img_', $i, '_pkg_', $id, '" src="', $settings['images_url'], '/collapse.png" alt="*" style="display: none;" /> ', $package['can_install'] ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . $txt['download'] . ' ]</a>': $package['name'];
 
 					// Mark as installed and current?
 					if ($package['is_installed'] && !$package['is_newer'])
@@ -968,7 +960,6 @@ function template_package_list()
 			<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
 		</div>
 	</div>
-	<br class="clear" />
 
 		';
 		// Now go through and turn off all the sections.
@@ -989,9 +980,9 @@ function template_package_list()
 					aSwapImages: [
 						{
 							sId: \'ps_img_', $section, '\',
-							srcExpanded: smf_images_url + \'/upshrink.png\',
+							srcExpanded: smf_images_url + \'/collapse.png\',
 							altExpanded: \'*\',
-							srcCollapsed: smf_images_url + \'/upshrink2.png\',
+							srcCollapsed: smf_images_url + \'/expand.png\',
 							altCollapsed: \'*\'
 						}
 					]
@@ -1010,9 +1001,9 @@ function template_package_list()
 					aSwapImages: [
 						{
 							sId: \'ps_img_', $section, '_pkg_', $id, '\',
-							srcExpanded: smf_images_url + \'/upshrink.png\',
+							srcExpanded: smf_images_url + \'/collapse.png\',
 							altExpanded: \'*\',
-							srcCollapsed: smf_images_url + \'/upshrink2.png\',
+							srcCollapsed: smf_images_url + \'/expand.png\',
 							altCollapsed: \'*\'
 						}
 					]
@@ -1046,8 +1037,7 @@ function template_downloaded()
 				<p><a href="', $scripturl, '?action=admin;area=packages;get', (isset($context['package_server']) ? ';sa=browse;server=' . $context['package_server'] : ''), '">[ ', $txt['back'], ' ]</a></p>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_install_options()
@@ -1101,12 +1091,10 @@ function template_install_options()
 					<hr class="hrcolor" />
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</form>
 			</div>
 		</div>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_control_chmod()
@@ -1616,7 +1604,6 @@ function template_file_permissions()
 				<hr class="hrcolor" />
 				<input type="hidden" name="action_changes" value="1" />
 				<input type="submit" value="', $txt['package_file_perms_go'], '" name="go" class="button_submit" />
-				<br class="clear_right" />
 			</div>
 		</div>';
 
@@ -1799,8 +1786,7 @@ function template_action_permissions()
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 
 	// Just the countdown stuff
 	echo '

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -28,14 +28,13 @@ function template_main()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">ent">
+			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-						<span class="smalltext">&#171;&nbsp;', $txt['last_post'], ' ', $txt['by'], ' <strong>', $post['poster']['link'], ' </strong> ', $txt['on'], '<em> ', $post['time'], '</em>&nbsp;&#187;</span>
+						<span class="smalltext">', $txt['last_post'], ' ', $txt['by'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
 					</div>
-					<div class="list_posts">', $post['message'], '</div>
-				</div>';
+					<div class="list_posts">', $post['message'], '</div>';
 
 		if ($post['can_reply'] || $post['can_mark_notify'] || $post['can_delete'])
 			echo '
@@ -168,7 +167,7 @@ function template_unread()
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
 			echo '
 									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
-									', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
+									', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
 									<p>
 										', $topic['first_post']['started_by'], '
 										<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
@@ -236,7 +235,7 @@ function template_unread()
 		<div class="description " id="topic_icons">
 			<p class="smalltext floatleft">
 				', !empty($modSettings['enableParticipation']) ? '
-				<img src="' . $settings['images_url'] . '/topic/my_normal_post.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
+				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
 				<img src="', $settings['images_url'], '/topic/normal_post.png" alt="" class="centericon" /> ', $txt['normal_topic'], '<br />
 				<img src="', $settings['images_url'], '/topic/hot_post.png" alt="" class="centericon" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
 				<img src="', $settings['images_url'], '/topic/veryhot_post.png" alt="" class="centericon" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
@@ -403,7 +402,7 @@ function template_replies()
 		<div class="description flow_auto" id="topic_icons">
 			<p class="smalltext floatleft">
 				', !empty($modSettings['enableParticipation']) ? '
-				<img src="' . $settings['images_url'] . '/topic/my_normal_post.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
+				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
 				<img src="', $settings['images_url'], '/topic/normal_post.png" alt="" class="centericon" /> ', $txt['normal_topic'], '<br />
 				<img src="', $settings['images_url'], '/topic/hot_post.png" alt="" class="centericon" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
 				<img src="', $settings['images_url'], '/topic/veryhot_post.png" alt="" class="centericon" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '

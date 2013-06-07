@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -543,7 +543,14 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
+						// Lead Developer
+						// 'Steven &quot;Fustrate&quot; Hoffman',
+						// Developers
+						'Brad &quot;IchBin&trade;&quot; Grow',
+						'emanuele',
 						'Norv',
+						// 'Spuds', // Doesn't want to be listed here
+						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern &quot;Bloc&quot; Kristiansen',
@@ -561,17 +568,22 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
+						// Lead Support Specialist
+						'Kat',
+						// Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
-						'JimM',
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
 						'Bigguy',
-						'CapadY',
 						'Chas Large',
 						'Duncan85',
-						'gbsothere',
-						'Jessica &quot;Miss All Sunday&quot; Gonzales',
-						'Kevin &quot;greyknight17&quot; Hou',
+						'JimM',
 						'Mashby',
+						'Old Fossil',
+						'Yoshi',
+						'ziycon',
+						// Former Support Specialists
+						'CapadY',
+						'gbsothere',
+						'Kevin &quot;greyknight17&quot; Hou',
 						'Michele &quot;Illori&quot; Davis',
 						'S-Ace',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
@@ -581,38 +593,49 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
-						'Brad &quot;IchBin&trade;&quot; Grow',
-						'Brannon &quot;B&quot; Hall',
-						'Bryan &quot;Runic&quot; Deakin',
+						// Lead Customizer
 						'Gary M. Gadsdon',
-						'Jonathan &quot;vbgamer45&quot; Valentin',
+						// Customizers
+						'Jessica Gonz&aacute;lez',
 						'Kays',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
-						'Spuds',
+						'Ricky.',
+						// Former Customizers
+						'Brannon &quot;B&quot; Hall',
 						'Joey &quot;Tyrsson&quot; Smith',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
-						'Joshua &quot;groundup&quot; Dickerson',
-						'AngellinaBelle',
-						'emanuele',
+						// Doc Coordinator
+						'AngelinaBelle',
+						// Doc Writers
 						'Graeme Spence',
+						'Joshua &quot;groundup&quot; Dickerson',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
+						// Lead Localizer
+						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						// Localizers
+						'Dr. Deejay',
 						'Relyana',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
+						// Marketing Coordinator
+						'Ralph &quot;[n3rve]&quot; Otowo',
+						// Marketing
+						'Bryan &quot;Runic&quot; Deakin',
+						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
+						// Former Marketing
 						'Kindred',
 						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
-						'Ralph &quot;[n3rve]&quot; Otowo',
 					),
 				),
 				array(
@@ -684,11 +707,12 @@ function Credits($in_admin = false)
 			),
 		),
 	);
-	
+
 	// Give credit to any graphic library's, software library's, plugins etc
 	$context['credits_software_graphics'] = array(
 		'graphics' => array(
 			'<a href="http://p.yusukekamiyamane.com/">Fugue Icons</a> | &copy; 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License',
+			'<a href="http://www.oxygen-icons.org/">Oxygen Icons</a> | These icons are licensed under <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">GNU LGPL 3</a>',
 		),
 		'software' => array(
 			'<a href="http://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="http://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
@@ -698,8 +722,8 @@ function Credits($in_admin = false)
 			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 	);
-	
-	// support for mods that use the <credits> tag via the package manager
+
+	// Support for mods that use the <credits> tag via the package manager
 	$context['credits_modifications'] = array();
 	if (($mods = cache_get_data('mods_credits', 86400)) === null)
 	{
@@ -716,15 +740,15 @@ function Credits($in_admin = false)
 				'empty' => '',
 			)
 		);
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$credit_info = unserialize($row['credits']);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
-			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ' ' . $smcFunc['htmlspecialchars']($credit_info['license']);
-			$version = $txt['credits_version'] . $row['version'];
-			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ' : ' . $version;
+			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . $smcFunc['htmlspecialchars']($credit_info['license']);
+			$version = $txt['credits_version'] . ' ' . $row['version'];
+			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ': ' . $version;
 
 			// build this one out and stash it away
 			$mod_name = empty($credit_info['url']) ? $title : '<a href="' . $credit_info['url'] . '">' . $title . '</a>';
@@ -733,7 +757,7 @@ function Credits($in_admin = false)
 		cache_put_data('mods_credits', $mods, 86400);
 	}
 	$context['credits_modifications'] = $mods;
-	
+
 	$context['copyrights'] = array(
 		'smf' => sprintf($forum_copyright, $forum_version),
 		/* Modification Authors:  You may add a copyright statement to this array for your mods.
@@ -744,10 +768,10 @@ function Credits($in_admin = false)
 		'mods' => array(
 		),
 	);
-	
+
 	// Support for those that want to use a hook as well
 	call_integration_hook('integrate_credits');
-	
+
 	if (!$in_admin)
 	{
 		loadTemplate('Who');

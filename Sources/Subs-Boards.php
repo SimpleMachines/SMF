@@ -3,12 +3,12 @@
 /**
  * This file is mainly concerned with minor tasks relating to boards, such as
  * marking them read, collapsing categories, or quick moderation.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -16,50 +16,6 @@
 
 if (!defined('SMF'))
 	die('Hacking attempt...');
-
-/*
-	void modifyBoard(int board_id, array boardOptions)
-		- general function to modify the settings and position of a board.
-		- used by ManageBoards.php to change the settings of a board.
-
-	int createBoard(array boardOptions)
-		- general function to create a new board and set its position.
-		- allows (almost) the same options as the modifyBoard() function.
-		- with the option inherit_permissions set, the parent board permissions
-		  will be inherited.
-		- returns the ID of the newly created board.
-
-	void deleteBoards(array boards_to_remove, moveChildrenTo = null)
-		- general function to delete one or more boards.
-		- allows to move the children of the board before deleting it
-		- if moveChildrenTo is set to null, the child boards will be deleted.
-		- deletes all topics that are on the given boards.
-		- deletes all information that's associated with the given boards.
-		- updates the statistics to reflect the new situation.
-
-	void reorderBoards()
-		- updates the database to put all boards in the right order.
-		- sorts the records of the boards table.
-		- used by modifyBoard(), deleteBoards(), modifyCategory(), and
-		  deleteCategories() functions.
-
-	void fixChildren(int parent, int newLevel, int newParent)
-		- recursively updates the children of parent's child_level and
-		  id_parent to newLevel and newParent.
-		- used when a board is deleted or moved, to affect its children.
-
-	bool isChildOf(int child, int parent)
-		- determines if child is a child of parent.
-		- recurses down the tree until there are no more parents.
-		- returns true if child is a child of parent.
-
-	void recursiveBoards()
-		- function used by getBoardTree to recursively get a list of boards.
-
-	bool isChildOf(int child, int parent)
-		- determine if a certain board id is a child of another board.
-		- the parent might be several levels higher than the child.
-*/
 
 /**
  * Mark a board or multiple boards read.
@@ -469,6 +425,8 @@ function getMsgMemberID($messageID)
 
 /**
  * Modify the settings and position of a board.
+ * Used by ManageBoards.php to change the settings of a board.
+ *
  * @param int $board_id
  * @param array &$boardOptions
  */
@@ -483,7 +441,8 @@ function modifyBoard($board_id, &$boardOptions)
 	if (!isset($boards[$board_id]) || (isset($boardOptions['target_board']) && !isset($boards[$boardOptions['target_board']])) || (isset($boardOptions['target_category']) && !isset($cat_tree[$boardOptions['target_category']])))
 		fatal_lang_error('no_board');
 
-	call_integration_hook('integrate_modify_board', array($board_id, &$boardOptions));
+	$id = $board_id;
+	call_integration_hook('integrate_pre_modify_board', array($id, &$boardOptions));
 
 	// All things that will be updated in the database will be in $boardUpdates.
 	$boardUpdates = array();
@@ -662,6 +621,9 @@ function modifyBoard($board_id, &$boardOptions)
 		$boardUpdateParameters['num_posts'] = (int) $boardOptions['num_posts'];
 	}
 
+	$id = $board_id;
+	call_integration_hook('integrate_modify_board', array($id, &$boardUpdates, &$boardUpdateParameters));
+
 	// Do the updates (if any).
 	if (!empty($boardUpdates))
 		$request = $smcFunc['db_query']('', '
@@ -752,6 +714,10 @@ function modifyBoard($board_id, &$boardOptions)
 
 /**
  * Create a new board and set its properties and position.
+ * Allows (almost) the same options as the modifyBoard() function.
+ * With the option inherit_permissions set, the parent board permissions
+ * will be inherited.
+ * 
  * @param array $boardOptions
  * @return int The new board id
  */
@@ -766,8 +732,6 @@ function createBoard($boardOptions)
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
 		trigger_error('createBoard(): Target board is not set', E_USER_ERROR);
 
-	call_integration_hook('integrate_create_board', array(&$boardOptions));
-
 	// Set every optional value to its default value.
 	$boardOptions += array(
 		'posts_count' => true,
@@ -780,18 +744,22 @@ function createBoard($boardOptions)
 		'inherit_permissions' => true,
 		'dont_log' => true,
 	);
+	$board_columns = array(
+		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
+		'member_groups' => 'string', 'redirect' => 'string',
+	);
+	$board_parameters = array(
+		$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
+		'-1,0', '',
+	);
+
+	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
 
 	// Insert a board, the settings are dealt with later.
 	$smcFunc['db_insert']('',
 		'{db_prefix}boards',
-		array(
-			'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
-			'member_groups' => 'string', 'redirect' => 'string',
-		),
-		array(
-			$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
-			'-1,0', '',
-		),
+		$board_columns,
+		$board_parameters,
 		array('id_board')
 	);
 	$board_id = $smcFunc['db_insert_id']('{db_prefix}boards', 'id_board');
@@ -845,6 +813,13 @@ function createBoard($boardOptions)
 
 /**
  * Remove one or more boards.
+ * Allows to move the children of the board before deleting it
+ * if moveChildrenTo is set to null, the child boards will be deleted.
+ * Deletes:
+ *   - all topics that are on the given boards;
+ *   - all information that's associated with the given boards;
+ * updates the statistics to reflect the new situation.
+ *
  * @param array $boards_to_remove
  * @param array $moveChildrenTo = null
  */
@@ -982,7 +957,8 @@ function deleteBoards($boards_to_remove, $moveChildrenTo = null)
 }
 
 /**
- * Put all boards in the right order.
+ * Put all boards in the right order and sorts the records of the boards table.
+ * Used by modifyBoard(), deleteBoards(), modifyCategory(), and deleteCategories() functions
  */
 function reorderBoards()
 {
@@ -1019,6 +995,8 @@ function reorderBoards()
 
 /**
  * Fixes the children of a board by setting their child_levels to new values.
+ * Used when a board is deleted or moved, to affect its children.
+ *
  * @param int $parent
  * @param int $newLevel
  * @param int $newParent
@@ -1179,6 +1157,8 @@ function getBoardTree()
 
 /**
  * Recursively get a list of boards.
+ * Used by getBoardTree 
+ *
  * @param array &$_boardList
  * @param array &$_tree
  */

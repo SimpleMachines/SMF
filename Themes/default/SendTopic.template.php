@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -89,15 +89,14 @@ function template_main()
 							</dd>
 						</dl>
 					</fieldset>
-					<div class="righttext">
+					<div class="flow_auto">
 						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					</div>
 				</div>
 			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Send an email to a user!
@@ -178,8 +177,9 @@ function template_custom_email()
 						</dd>
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
-					<br class="clear_right" />
+					<div class="flow_auto">
+						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
+					</div>
 				</div>
 			</div>';
 
@@ -190,8 +190,7 @@ function template_custom_email()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 function template_report()
@@ -224,7 +223,7 @@ function template_report()
 	}
 
 	echo '
-						<p>', $txt['report_to_mod_func'], '</p>
+						<p class="noticebox">', $txt['report_to_mod_func'], '</p>
 						<br />
 						<dl class="settings" id="report_post">';
 
@@ -260,13 +259,12 @@ function template_report()
 
 	echo '
 						</dl>
-						<div class="righttext">
+						<div class="flow_auto">
 							<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit" />
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						</div>
 					</div>
-					<br class="clear" />
 				</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 		</form>
 	</div>';
 }

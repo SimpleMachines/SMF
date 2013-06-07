@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -24,8 +24,12 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['form']))
 		echo '
-	<form action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">
+	<form class="generic_list_wrapper" action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">
 		<div class="generic_list">';
+
+	else
+		echo '
+		<div class="generic_list_wrapper">';
 
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
@@ -35,12 +39,10 @@ function template_show_list($list_id = null)
 					', $cur_list['title'], '
 				</h3>
 			</div>';
+
 	// This is for the old style menu with the arrows "> Test | Test 1"
 	if (empty($settings['use_tabs']) && isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'top'))
 		template_create_list_menu($cur_list['list_menu'], 'top');
-
-	if (isset($cur_list['additional_rows']['top_of_list']))
-		template_additional_rows('top_of_list', $cur_list);
 
 	if (isset($cur_list['additional_rows']['after_title']))
 	{
@@ -51,28 +53,23 @@ function template_show_list($list_id = null)
 			</div>';
 	}
 
+	if (isset($cur_list['additional_rows']['top_of_list']))
+		template_additional_rows('top_of_list', $cur_list);
+
 	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['above_column_headers']))
 	{
 		echo '
 			<div class="flow_auto">';
 
 		// Show the page index (if this list doesn't intend to show all items).
-		if (!empty($cur_list['items_per_page']))
+		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
 				<div class="floatleft">
-					<div class="pagesection">', $txt['pages'], ': ', $cur_list['page_index'], '</div>
+					<div class="pagesection">', $cur_list['page_index'], '</div>
 				</div>';
 
 		if (isset($cur_list['additional_rows']['above_column_headers']))
-		{
-			echo '
-				<div class="floatright">';
-
 			template_additional_rows('above_column_headers', $cur_list);
-
-			echo '
-				</div>';
-		}
 
 		echo '
 			</div>';
@@ -106,7 +103,7 @@ function template_show_list($list_id = null)
 		echo '
 				</tr>
 			</thead>';
-	} 
+	}
 
 		echo '
 			<tbody>';
@@ -142,43 +139,27 @@ function template_show_list($list_id = null)
 			</tbody>
 			</table>';
 
-	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['below_table_data']) || isset($cur_list['additional_rows']['bottom_of_list']))
+	if (!empty($cur_list['items_per_page']) || isset($cur_list['additional_rows']['below_table_data']))
 	{
 		echo '
 			<div class="flow_auto">';
 
 		// Show the page index (if this list doesn't intend to show all items).
-		if (!empty($cur_list['items_per_page']))
+		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
 				<div class="floatleft">
-					<div class="pagesection">', $txt['pages'], ': ', $cur_list['page_index'], '</div>
+					<div class="pagesection">', $cur_list['page_index'], '</div>
 				</div>';
 
 		if (isset($cur_list['additional_rows']['below_table_data']))
-		{
-			echo '
-				<div class="floatright">';
-
 			template_additional_rows('below_table_data', $cur_list);
-
-			echo '
-				</div>';
-		}
-
-		if (isset($cur_list['additional_rows']['bottom_of_list']))
-		{
-			echo '
-				<div class="floatright">';
-
-			template_additional_rows('bottom_of_list', $cur_list);
-
-			echo '
-				</div>';
-		}
 
 		echo '
 			</div>';
 	}
+
+	if (isset($cur_list['additional_rows']['bottom_of_list']))
+		template_additional_rows('bottom_of_list', $cur_list);
 
 	if (isset($cur_list['form']))
 	{
@@ -190,6 +171,10 @@ function template_show_list($list_id = null)
 		</div>
 	</form>';
 	}
+
+	else
+		echo '
+		</div>';
 
 	// Tabs at the bottom.  Usually bottom alligned.
 	if (!empty($settings['use_tabs']) && isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'bottom'))

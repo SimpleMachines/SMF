@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -28,7 +28,11 @@ if (!defined('SMF'))
  */
 function Login()
 {
-	global $txt, $context, $scripturl;
+	global $txt, $context, $scripturl, $user_info;
+
+	// You are already logged in, go take a tour of the boards
+	if (!empty($user_info['id']))
+		redirectexit();
 
 	// In wireless?  If so, use the correct sub template.
 	if (WIRELESS)
@@ -115,6 +119,11 @@ function Login2()
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
 			redirectexit();
+		elseif (!empty($_SESSION['login_url']) && (strpos('http://', $_SESSION['login_url']) === false && strpos('https://', $_SESSION['login_url']) === false))
+		{
+			unset ($_SESSION['login_url']);
+			redirectexit();
+		}
 		else
 		{
 			// Best not to clutter the session data too much...
@@ -292,7 +301,7 @@ function Login2()
 		$other_passwords = array();
 
 		// None of the below cases will be used most of the time (because the salt is normally set.)
-		if ($user_settings['password_salt'] == '')
+		if (!empty($modSettings['enable_password_conversion']) && $user_settings['password_salt'] == '')
 		{
 			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
 			$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
@@ -318,10 +327,10 @@ function Login2()
 			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
 		}
 		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
-		elseif (strlen($user_settings['passwd']) == 32)
+		elseif (!empty($modSettings['enable_password_conversion']) && strlen($user_settings['passwd']) == 32)
 		{
 			// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
-			$other_passwords[] = md5(md5($_POST['passwrd']) . $user_settings['password_salt']);
+			$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes($user_settings['password_salt']));
 
 			// Hmm.. p'raps it's Invision 2 style?
 			$other_passwords[] = md5(md5($user_settings['password_salt']) . md5($_POST['passwrd']));
@@ -336,7 +345,8 @@ function Login2()
 			$other_passwords[] = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 
 			// BurningBoard3 style of hashing.
-			$other_passwords[] = sha1($user_settings['password_salt'] . sha1($user_settings['password_salt'] . sha1($_POST['passwrd'])));
+			if (!empty($modSettings['enable_password_conversion']))
+				$other_passwords[] = sha1($user_settings['password_salt'] . sha1($user_settings['password_salt'] . sha1($_POST['passwrd'])));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if ($context['character_set'] == 'utf8' && !empty($modSettings['previousCharacterSet']) && $modSettings['previousCharacterSet'] != 'utf8')
@@ -357,6 +367,9 @@ function Login2()
 			require_once($sourcedir . '/Subs-Compat.php');
 			$other_passwords[] = sha1_smf(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 		}
+
+		// Allows mods to easily extend the $other_passwords array
+		call_integration_hook('integrate_other_passwords', array($other_passwords));
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array($user_settings['passwd'], $other_passwords))
@@ -607,6 +620,11 @@ function Logout($internal = false, $redirect = true)
 	{
 		if (empty($_SESSION['logout_url']))
 			redirectexit('', $context['server']['needs_login_fix']);
+		elseif (!empty($_SESSION['logout_url']) && (strpos('http://', $_SESSION['logout_url']) === false && strpos('https://', $_SESSION['logout_url']) === false))
+		{
+			unset ($_SESSION['logout_url']);
+			redirectexit();
+		}
 		else
 		{
 			$temp = $_SESSION['logout_url'];

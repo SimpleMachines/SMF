@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -73,7 +73,7 @@ function getServerVersions($checkFor)
 		$versions['memcache'] = array('title' => 'Memcached', 'version' => empty($memcached) ? '???' : memcache_get_version($memcached));
 	if (in_array('xcache', $checkFor) && function_exists('xcache_set'))
 		$versions['xcache'] = array('title' => 'XCache', 'version' => XCACHE_VERSION);
-	
+
 	if (in_array('php', $checkFor))
 		$versions['php'] = array('title' => 'PHP', 'version' => PHP_VERSION, 'more' => '?action=admin;area=serversettings;sa=phpinfo');
 
@@ -86,8 +86,8 @@ function getServerVersions($checkFor)
 /**
  * Search through source, theme and language files to determine their version.
  * Get detailed version information about the physical SMF files on the server.
- * 
- * - the input parameter allows to set whether to include SSI.php and whether 
+ *
+ * - the input parameter allows to set whether to include SSI.php and whether
  *   the results should be sorted.
  * - returns an array containing information on source files, templates and
  *   language files found in the default theme directory (grouped by language).
@@ -231,7 +231,7 @@ function getFileVersions(&$versionOptions)
  *
  * The most important function in this file for mod makers happens to be the
  * updateSettingsFile() function, but it shouldn't be used often anyway.
- * 
+ *
  * - updates the Settings.php file with the changes supplied in config_vars.
  * - expects config_vars to be an associative array, with the keys as the
  *   variable names in Settings.php, and the values the variable values.
@@ -240,7 +240,7 @@ function getFileVersions(&$versionOptions)
  * - writes nothing if the resulting file would be less than 10 lines
  *   in length (sanity check for read lock.)
  * - check for changes to db_last_error and passes those off to a separate handler
- * - attempts to create a backup file and will use it should the writing of the 
+ * - attempts to create a backup file and will use it should the writing of the
  *   new settings file fail
  *
  * @param array $config_vars
@@ -248,7 +248,7 @@ function getFileVersions(&$versionOptions)
 function updateSettingsFile($config_vars)
 {
 	global $boarddir, $cachedir, $context;
-	
+
 	// Updating the db_last_error, then don't mess around with Settings.php
 	if (count($config_vars) === 1 && isset($config_vars['db_last_error']))
 	{
@@ -261,7 +261,7 @@ function updateSettingsFile($config_vars)
 
 	// Load the settings file.
 	$settingsArray = trim(file_get_contents($boarddir . '/Settings.php'));
-	
+
 	// Break it up based on \r or \n, and then clean out extra characters.
 	if (strpos($settingsArray, "\n") !== false)
 		$settingsArray = explode("\n", $settingsArray);
@@ -309,10 +309,24 @@ function updateSettingsFile($config_vars)
 
 	// Still more variables to go?  Then lets add them at the end.
 	if (!empty($config_vars))
+<<<<<<< HEAD
 	{		
 		// Add in any newly defined vars that were passed
 		foreach ($config_vars as $var => $val)
 			$settingsArray[$i++] = '$' . $var . ' = ' . $val . ';' . "\n";
+=======
+	{
+		if (trim($settingsArray[$end]) == '?' . '>')
+			$settingsArray[$end++] = '';
+		else
+			$end++;
+
+		// Add in any newly defined vars that were passed
+		foreach ($config_vars as $var => $val)
+			$settingsArray[$end++] = '$' . $var . ' = ' . $val . ';' . "\n";
+
+		$settingsArray[$end] = '?' . '>';
+>>>>>>> 0f0f217c462afd53df641ca3381741af9b0585af
 	}
 	else
 		$settingsArray[$i] = trim($settingsArray[$i]);
@@ -329,7 +343,7 @@ function updateSettingsFile($config_vars)
 	// to validate that we even write things on this filesystem.
 	if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/cache'))
 		$cachedir = $boarddir . '/cache';
-	
+
 	$test_fp = @fopen($cachedir . '/settings_update.tmp', "w+");
 	if ($test_fp)
 	{
@@ -357,7 +371,7 @@ function updateSettingsFile($config_vars)
 		// write out the new
 		$write_settings = implode('', $settingsArray);
 		$written_bytes = file_put_contents($boarddir . '/Settings.php', $write_settings, LOCK_EX);
-		
+
 		// survey says ...
 		if ($written_bytes !== strlen($write_settings) && !$settings_backup_fail)
 		{
@@ -372,15 +386,15 @@ function updateSettingsFile($config_vars)
 
 /**
  * Saves the time of the last db error for the error log
- * - Done separately from updateSettingsFile to avoid race conditions 
+ * - Done separately from updateSettingsFile to avoid race conditions
  *   which can occur during a db error
  * - If it fails Settings.php will assume 0
  */
-function updateDbLastError($time) 
+function updateDbLastError($time)
 {
-	global $boarddir; 
-	
-	// Write out the db_last_error file with the error timestamp 
+	global $boarddir;
+
+	// Write out the db_last_error file with the error timestamp
 	file_put_contents($boarddir . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';', LOCK_EX);
 	@touch($boarddir . '/' . 'Settings.php');
 }

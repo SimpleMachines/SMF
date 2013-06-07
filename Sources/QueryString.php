@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -308,7 +308,7 @@ function isValidIPv6($ip)
 /**
  * Converts IPv6s to numbers.  This makes ban checks much easier.
  * @param string $ip ip address to be converted
- * @return array 
+ * @return array
  */
 function convertIPv6toInts($ip)
 {
@@ -373,7 +373,7 @@ function expandIPv6($addr, $strict_check = true)
 	// Save this incase of repeated use.
 	$converted[$addr] = $result;
 
-	// Quick check to make sure the length is as expected. 
+	// Quick check to make sure the length is as expected.
 	if (!$strict_check || strlen($result) == 39)
 		return $result;
 	else

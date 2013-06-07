@@ -4,12 +4,12 @@
  * Handles sound processing. In order to make sure the visual
  * verification is still accessible for all users, a sound clip is being addded
  * that reads the letters that are being shown.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Creates a wave file that spells the letters of $word.
  * Tries the user's language first, and defaults to english.
  * Used by VerificationCode() (Register.php).
- * 
+ *
  * @param string $word
  * @return bool false on failure
  */

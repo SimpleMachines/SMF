@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -432,7 +432,7 @@ function UnreadTopics()
 		header('HTTP/1.1 403 Forbidden');
 		die;
 	}
-	
+
 	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
 
 	$context['showing_all_topics'] = isset($_GET['all']);
@@ -1233,7 +1233,7 @@ function UnreadTopics()
 					'name' => $row['first_poster_name'],
 					'id' => $row['id_first_member'],
 					'href' => $scripturl . '?action=profile;u=' . $row['id_first_member'],
-					'link' => !empty($row['id_first_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_first_member'] . '" title="' . $txt['profile_of'] . ' ' . $row['first_poster_name'] . '">' . $row['first_poster_name'] . '</a>' : $row['first_poster_name']
+					'link' => !empty($row['id_first_member']) ? '<a class="preview" href="' . $scripturl . '?action=profile;u=' . $row['id_first_member'] . '" title="' . $txt['profile_of'] . ' ' . $row['first_poster_name'] . '">' . $row['first_poster_name'] . '</a>' : $row['first_poster_name']
 				),
 				'time' => timeformat($row['first_poster_time']),
 				'timestamp' => forum_time(true, $row['first_poster_time']),
@@ -1318,7 +1318,7 @@ function UnreadTopics()
 
 	$context['querystring_board_limits'] = sprintf($context['querystring_board_limits'], $_REQUEST['start']);
 	$context['topics_to_mark'] = implode('-', $topic_ids);
-	
+
 	if ($settings['show_mark_read'])
 	{
 		// Build the recent button array.
@@ -1335,9 +1335,9 @@ function UnreadTopics()
 					'lang' => true,
 					'url' => 'javascript:document.quickModForm.submit();',
 				);
-				
+
 			if (!empty($context['topics']) && !$context['showing_all_topics'])
-				$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);	
+				$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
 		}
 		elseif (!$is_topics && isset($context['topics_to_mark']))
 		{
@@ -1357,7 +1357,7 @@ function UnreadTopics()
 		// Allow mods to add additional buttons here
 		call_integration_hook('integrate_recent_buttons');
 	}
-	
+
 	// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)
  	call_integration_hook('integrate_unread_list');
 }

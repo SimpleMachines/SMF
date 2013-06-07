@@ -6,7 +6,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -517,7 +517,7 @@ function smf_openid_generate_private_key()
 }
 
 /**
- * 
+ *
  * Enter description here ...
  * @param string $openid_url
  * @return bool|array

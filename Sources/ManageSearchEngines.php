@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -459,7 +459,7 @@ function EditSpider()
 
 /**
  * Do we think the current user is a spider?
- * 
+ *
  * @todo Should this not be... you know... in a different file?
  * @return int
  */
@@ -538,7 +538,7 @@ function SpiderCheck()
 
 /**
  * Log the spider presence online.
- * 
+ *
  * @todo Different file?
  */
 function logSpider()
@@ -798,7 +798,7 @@ function SpiderLogs()
 
 /**
  * Callback function for createList()
- * 
+ *
  * @param int $start
  * @param int $items_per_page
  * @param string $sort

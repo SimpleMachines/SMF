@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -686,7 +686,7 @@ function ViewSubscribedUsers()
 			'payments_pending' => array(
 				'header' => array(
 					'value' => $txt['paid_payments_pending'],
-					'style' => 'text-align: left; width: 10%;',
+					'style' => 'text-align: left; width: 15%;',
 				),
 				'data' => array(
 					'db_htmlsafe' => 'pending',
@@ -758,9 +758,7 @@ function ViewSubscribedUsers()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<div class="floatleft">
-						<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit" />
-					</div>
+					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit" />
 					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit" />
 					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit" />
 				',
@@ -768,10 +766,9 @@ function ViewSubscribedUsers()
 			array(
 				'position' => 'top_of_list',
 				'value' => '
-
-					<div class="floatright">
-						<input type="text" name="sub_search" value="" class="input_text" />
-						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" />
+					<div class="flow_auto">
+						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" style="margin-top: 3px;" />
+						<input type="text" name="sub_search" value="" class="input_text floatright" />
 					</div>
 				',
 			),

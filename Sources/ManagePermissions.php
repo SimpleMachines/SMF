@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -1463,6 +1463,8 @@ function loadAllPermissions($loadType = 'classic')
 			'disable_censor' => array(false, 'general', 'disable_censor'),
 			'pm_read' => array(false, 'pm', 'use_pm_system'),
 			'pm_send' => array(false, 'pm', 'use_pm_system'),
+			'pm_draft' => array(false, 'pm', 'use_pm_system'),
+			'pm_autosave_draft' => array(false, 'pm', 'use_pm_system'),
 			'send_email_to_members' => array(false, 'pm', 'use_pm_system'),
 			'calendar_view' => array(false, 'calendar', 'view_basic_info'),
 			'calendar_post' => array(false, 'calendar', 'post_calendar'),
@@ -1492,6 +1494,8 @@ function loadAllPermissions($loadType = 'classic')
 			'moderate_board' => array(false, 'general_board', 'moderate'),
 			'approve_posts' => array(false, 'general_board', 'moderate'),
 			'post_new' => array(false, 'topic', 'make_posts'),
+			'post_draft' => array(false, 'topic', 'make_posts'),
+			'post_autosave_draft' => array(false, 'topic', 'make_posts'),
 			'post_unapproved_topics' => array(false, 'topic', 'make_unapproved_posts'),
 			'post_unapproved_replies' => array(true, 'topic', 'make_unapproved_posts', 'make_unapproved_posts'),
 			'post_reply' => array(true, 'topic', 'make_posts', 'make_posts'),
@@ -2249,6 +2253,8 @@ function loadIllegalGuestPermissions()
 		'modify_replies',
 		'send_mail',
 		'approve_posts',
+		'post_draft',
+		'post_autosave_draft',
 	);
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');

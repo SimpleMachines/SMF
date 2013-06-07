@@ -8,7 +8,7 @@
  * @package SMF
  * @author Simple Machines
  *
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -30,7 +30,7 @@ function AdminMain()
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin', 'admin');
-	loadJavascriptFile('admin.js?alp21', array('default_theme' => true));
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
@@ -39,14 +39,6 @@ function AdminMain()
 
 	// Some preferences.
 	$context['admin_preferences'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
-	$context['hooks_exist'] = false;
-	foreach ($modSettings as $key => $setting)
-	if (strpos($key, 'integrate') === 0)
-		if (!empty($setting))
-		{
-			$context['hooks_exist'] = true;
-			break;
-		}
 
 	// Define all the menu structure - see Subs-Menu.php for details!
 	$admin_areas = array(
@@ -189,7 +181,7 @@ function AdminMain()
 					'function' => 'ModifyModSettings',
 					'icon' => 'modifications.png',
 					'subsections' => array(
-						'hooks' => array($txt['hooks_title_list'], 'enabled' => $context['hooks_exist']),
+						'hooks' => array($txt['hooks_title_list']),
 						'general' => array($txt['mods_cat_modifications_misc']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
 						// 'shout' => array($txt['shout']),
@@ -226,6 +218,14 @@ function AdminMain()
 						'censor' => array($txt['admin_censored_words']),
 						'topics' => array($txt['manageposts_topic_settings']),
 					),
+				),
+				'managedrafts' => array(
+					'label' => $txt['manage_drafts'],
+					'file' => 'Drafts.php',
+					'function' => 'ModifyDraftSettings',
+					'icon' => 'logs.png',
+					'permission' => array('admin_forum'),
+					'enabled' => in_array('dr', $context['admin_features']),
 				),
 				'managecalendar' => array(
 					'label' => $txt['manage_calendar'],
@@ -276,6 +276,7 @@ function AdminMain()
 						'browse' => array($txt['attachment_manager_browse']),
 						'attachments' => array($txt['attachment_manager_settings']),
 						'avatars' => array($txt['attachment_manager_avatar_settings']),
+						'attachpaths' => array($txt['attach_directories']),
 						'maintenance' => array($txt['attachment_manager_maintenance']),
 					),
 				),
@@ -455,9 +456,6 @@ function AdminMain()
 				require_once($include);
 		}
 	}
-
-	// Let them modify admin areas easily.
-	call_integration_hook('integrate_admin_areas', array(&$admin_areas));
 
 	// Make sure the administrator has a valid session...
 	validateSession();
@@ -995,5 +993,5 @@ function AdminEndSession()
 		if (strpos($key, '-admin') !== false)
 			unset($_SESSION['token'][$key]);
 
-	redirectexit('?action=admin');
+	redirectexit('action=admin');
 }

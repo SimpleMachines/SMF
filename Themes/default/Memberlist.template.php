@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -17,6 +17,10 @@ function template_main()
 
 	echo '
 	<div class="main_section" id="memberlist">
+		<div class="pagesection">
+			', template_button_strip($context['memberlist_buttons'], 'right'), '
+			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
+		</div>
 		<div class="cat_bar">
 			<h4 class="catbg">
 				<span class="floatleft">', $txt['members_list'], '</span>';
@@ -25,10 +29,6 @@ function template_main()
 				<span class="floatright">', $context['letter_links'], '</span>';
 		echo '
 			</h4>
-		</div>
-		<div class="pagesection">
-			', template_button_strip($context['memberlist_buttons'], 'right'), '
-			<div class="pagelinks floatleft">', $txt['pages'], ': ', $context['page_index'], '</div>
 		</div>';
 
 	echo '
@@ -123,7 +123,7 @@ function template_main()
 
 		echo '
 				</tr>';
-				
+
 			$alternate = !$alternate;
 		}
 	}
@@ -138,7 +138,7 @@ function template_main()
 			</tbody>
 			</table>
 		</div>';
-		
+
 	// Show the page numbers again. (makes 'em easier to find!)
 	echo '
 		<div class="pagesection">
@@ -163,13 +163,13 @@ function template_search()
 	echo '
 	<form action="', $scripturl, '?action=mlist;sa=search" method="post" accept-charset="', $context['character_set'], '">
 		<div id="memberlist">
+			<div class="pagesection">
+				', template_button_strip($context['memberlist_buttons'], 'right'), '
+			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
 					', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search.png" alt="" class="icon" />' : '', $txt['mlist_search'], '
 				</h3>
-			</div>
-			<div class="pagesection">
-				', template_button_strip($context['memberlist_buttons'], 'right'), '
 			</div>
 			<div id="memberlist_search" class="clear">
 				<div class="roundframe">
@@ -194,8 +194,9 @@ function template_search()
 	echo '
 					</dl>
 					<hr class="hrcolor" />
-					<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
-					<br class="clear_right" />
+					<div class="flow_auto">
+						<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit" />
+					</div>
 				</div>
 			</div>
 		</div>

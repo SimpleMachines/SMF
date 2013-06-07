@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -17,7 +17,7 @@ if (!defined('SMF'))
 	die('Hacking attempt...');
 
 /**
- * sets the SMF-style login cookie and session based on the id_member and password passed.
+ * Sets the SMF-style login cookie and session based on the id_member and password passed.
  * - password should be already encrypted with the cookie salt.
  * - logs the user out if id_member is zero.
  * - sets the cookie and session to last the number of seconds specified by cookie_length.
@@ -193,7 +193,7 @@ function InMaintenance()
  *
  * @param string $type = 'admin'
  */
-function adminLogin($type = 'admin', $additionalToken = false)
+function adminLogin($type = 'admin')
 {
 	global $context, $scripturl, $txt, $user_info, $user_settings;
 
@@ -230,9 +230,6 @@ function adminLogin($type = 'admin', $additionalToken = false)
 	foreach ($_POST as $k => $v)
 		$context['post_data'] .= adminLogin_outputPostVars($k, $v);
 
-	if (!empty($additionalToken))
-		$context['post_data'] .= adminLogin_outputPostVars($context[$additionalToken . '_token_var'], $context[$additionalToken . '_token']);
-
 	// Now we'll use the admin_login sub template of the Login template.
 	$context['sub_template'] = 'admin_login';
 
@@ -250,7 +247,7 @@ function adminLogin($type = 'admin', $additionalToken = false)
 }
 
 /**
- * used by the adminLogin() function.
+ * Used by the adminLogin() function.
  * if 'value' is an array, the function is called recursively.
  *
  * @param string $key
@@ -402,7 +399,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 }
 
 /**
- * called by index.php?action=findmember.
+ * Called by index.php?action=findmember.
  * - is used as a popup for searching members.
  * - uses sub template find_members of the Help template.
  * - also used to add members for PM's sent using wap2/imode protocol.
@@ -474,7 +471,7 @@ function JSMembers()
 }
 
 /**
- * outputs each member name on its own line.
+ * Outputs each member name on its own line.
  * - used by javascript to find members matching the request.
  */
 function RequestMembers()
@@ -607,26 +604,44 @@ function resetPassword($memID, $username = null)
  * @param string $username
  * @return string Returns null if fine
  */
-function validateUsername($memID, $username)
+function validateUsername($memID, $username, $return_error = false, $check_reserved_name = true)
 {
-	global $sourcedir, $txt;
+	global $sourcedir, $txt, $smcFunc, $user_info;
+
+	$errors = array();
+
+	// Don't use too long a name.
+	if ($smcFunc['strlen']($username) > 25)
+		$errors[] = array('lang', 'error_long_name');
 
 	// No name?!  How can you register with no name?
 	if ($username == '')
-		fatal_lang_error('need_username', false);
+		$errors[] = array('lang', 'need_username');
 
 	// Only these characters are permitted.
 	if (in_array($username, array('_', '|')) || preg_match('~[<>&"\'=\\\\]~', preg_replace('~&#(?:\\d{1,7}|x[0-9a-fA-F]{1,6});~', '', $username)) != 0 || strpos($username, '[code') !== false || strpos($username, '[/code') !== false)
-		fatal_lang_error('error_invalid_characters_username', false);
+		$errors[] = array('lang', 'error_invalid_characters_username');
 
 	if (stristr($username, $txt['guest_title']) !== false)
-		fatal_lang_error('username_reserved', true, array($txt['guest_title']));
+		$errors[] = array('lang', 'username_reserved', 'general', array($txt['guest_title']));
 
-	require_once($sourcedir . '/Subs-Members.php');
-	if (isReservedName($username, $memID, false))
-		fatal_error('(' . htmlspecialchars($username) . ') ' . $txt['name_in_use'], false);
+	if ($check_reserved_name)
+	{
+		require_once($sourcedir . '/Subs-Members.php');
+		if (isReservedName($username, $memID, false))
+			$errors[] = array('done', '(' . htmlspecialchars($username) . ') ' . $txt['name_in_use']);
+	}
 
-	return null;
+	if ($return_error)
+		return $errors;
+	elseif (empty($errors))
+		return null;
+
+	loadLanguage('Errors');
+	$error = $errors[0];
+
+	$message = $error[0] == 'lang' ? (empty($error[3]) ? $txt[$error[1]] : vsprintf($txt[$error[1]], $error[3])) : $error[1];
+	fatal_error($message, empty($error[2]) || $user_info['is_admin'] ? false : $error[2]);
 }
 
 /**

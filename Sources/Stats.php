@@ -2,12 +2,12 @@
 
 /**
  * Provide a display for forum statistics
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -18,7 +18,7 @@ if (!defined('SMF'))
 
 /**
  * Display some useful/interesting board statistics.
- * 
+ *
  * gets all the statistics in order and puts them in.
  * uses the Stats template and language file. (and main sub template.)
  * requires the view_stats permission.
@@ -627,7 +627,7 @@ function DisplayStats()
 		return;
 
 	getDailyStats(implode(' OR ', $condition_text), $condition_params);
-	
+
 	// Custom stats (just add a template_layer to add it to the template!)
  	call_integration_hook('integrate_forum_stats');
 }
@@ -670,7 +670,7 @@ function getDailyStats($condition_string, $condition_parameters = array())
  * only returns anything if stats was enabled during installation.
  * can also be accessed by the admin, to show what stats sm.org collects.
  * does not return any data directly to sm.org, instead starts a new request for security.
- * 
+ *
  * @link http://www.simplemachines.org/about/stats.php for more info.
  */
 function SMStats()

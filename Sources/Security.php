@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -22,6 +22,7 @@ if (!defined('SMF'))
  * Makes sure the user is who they claim to be by requiring a password to be typed in every hour.
  * Is turned on and off by the securityDisable setting.
  * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
+ *
  * @param string $type = admin
  */
 function validateSession($type = 'admin')
@@ -97,6 +98,7 @@ function validateSession($type = 'admin')
  * Require a user who is logged in. (not a guest.)
  * Checks if the user is currently a guest, and if so asks them to login with a message telling them why.
  * Message is what to tell them when asking them to login.
+ *
  * @param string $message = ''
  */
 function is_not_guest($message = '')
@@ -162,6 +164,7 @@ function is_not_guest($message = '')
  * Checks if the user is banned, and if so dies with an error.
  * Caches this information for optimization purposes.
  * Forces a recheck if force_check is true.
+ *
  * @param bool $forceCheck = false
  */
 function is_not_banned($forceCheck = false)
@@ -491,6 +494,7 @@ function banPermissions()
  * Log a ban in the database.
  * Log the current user in the ban logs.
  * Increment the hit counters for the specified ban ID's (if any.)
+ *
  * @param array $ban_ids = array()
  * @param string $email = null
  */
@@ -525,6 +529,7 @@ function log_ban($ban_ids = array(), $email = null)
  * Checks if a given email address might be banned.
  * Check if a given email is banned.
  * Performs an immediate ban if the turns turns out positive.
+ *
  * @param string $email
  * @param string $restriction
  * @param string $error
@@ -594,6 +599,7 @@ function isBannedEmail($email, $restriction, $error)
  * Depends on the disableCheckUA setting, which is usually missing.
  * Will check GET, POST, or REQUEST depending on the passed type.
  * Also optionally checks the referring action if passed. (note that the referring action must be by GET.)
+ *
  * @param string $type = 'post' (post, get, request)
  * @param string $from_action = ''
  * @param bool $is_fatal = true
@@ -707,6 +713,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 
 /**
  * Check if a specific confirm parameter was given.
+ *
  * @param string $action
  */
 function checkConfirm($action)
@@ -727,6 +734,7 @@ function checkConfirm($action)
 
 /**
  * Lets give you a token of our appreciation.
+ *
  * @param string $action
  * @param string $type = 'post'
  * @return array
@@ -756,7 +764,7 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings, $sourcedir;
+	global $modSettings;
 
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
@@ -798,13 +806,6 @@ function validateToken($action, $type = 'post', $reset = true)
 		// I'm back baby.
 		createToken($action, $type);
 
-		// Need to type in a password for that, man.
-		if (!isset($_GET['xml']))
-		{
-			require_once($sourcedir . '/Subs-Auth.php');
-			adminLogin($type, $action);
-		}
-
 		fatal_lang_error('token_verify_fail', false);
 	}
 	// Remove this token as its useless
@@ -819,7 +820,10 @@ function validateToken($action, $type = 'post', $reset = true)
 }
 
 /**
- * Clean up a little.
+ * Removes old unused tokens from session
+ * defaults to 3 hours before a token is considered expired
+ * if $complete = true will remove all tokens
+ *
  * @param bool $complete = false
  */
 function cleanTokens($complete = false)
@@ -887,6 +891,7 @@ function checkSubmitOnce($action, $is_fatal = true)
  * checks whether the user is allowed to do permission. (ie. post_new.)
  * If boards is specified, checks those boards instead of the current one.
  * Always returns true if the user is an administrator.
+ *
  * @param string $permission
  * @param array $boards = null
  * @return bool if the user can do the permission
@@ -961,6 +966,7 @@ function allowedTo($permission, $boards = null)
  * Checks the passed boards or current board for the permission.
  * If they are not, it loads the Errors language file and shows an error using $txt['cannot_' . $permission].
  * If they are a guest and cannot do it, this calls is_not_guest().
+ *
  * @param string $permission
  * @param array $boards = null
  */
@@ -1016,10 +1022,11 @@ function isAllowedTo($permission, $boards = null)
 
 /**
  * Return the boards a user has a certain (board) permission on. (array(0) if all.)
- * returns a list of boards on which the user is allowed to do the specified permission.
- * Returns an array with only a 0 in it if the user has permission to do this on every board.
- * Returns an empty array if he or she cannot do this on any board.
+ *  - returns a list of boards on which the user is allowed to do the specified permission.
+ *  - returns an array with only a 0 in it if the user has permission to do this on every board.
+ *  - returns an empty array if he or she cannot do this on any board.
  * If check_access is true will also make sure the group has proper access to that board.
+ *
  * @param array $permissions
  * @param bool $check_access = true
  * @param bool $simple = true
@@ -1110,6 +1117,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  *  'no_through_forum': don't show the email address, but do allow
  *    things to be mailed using the built-in forum mailer.
  *  'no': keep the email address hidden.
+ *
  * @param bool $userProfile_hideEmail
  * @param int $userProfile_id
  * @return string (yes, yes_permission_override, no_through_forum, no)
@@ -1201,6 +1209,7 @@ function spamProtection($error_type)
 
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
+ *
  * @param string $path, the (absolute) directory path
  * @param boolean $attachments, if the directory is an attachments directory or not
  * @return true on success, error string if anything fails
@@ -1271,7 +1280,9 @@ else
 }
 
 /**
- * Another helper function that put together the
+ * Helper function that puts together a ban query for a given ip
+ * builds the query for ipv6, ipv4 or 255.255.255.255 depending on whats supplied
+ *
  * @param string $fullip An IP address either IPv6 or not
  * @return string A SQL condition
  */

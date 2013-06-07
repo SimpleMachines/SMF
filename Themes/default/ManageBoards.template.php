@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -92,18 +92,14 @@ function template_main()
 		// Button to add a new board.
 		echo '
 					</ul>
-					<hr class="hrcolor" />
 					<input type="submit" value="', $txt['mboards_new_board'], '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<br class="clear_right" />
 				</div>
 			</div>
-		</form>
-		<br class="clear" />';
+		</form>';
 	}
 	echo '
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Template for editing/adding a category on the forum.
@@ -158,8 +154,7 @@ function template_modify_category()
 
 	// Table footer.
 	echo '
-					</dl>
-					<hr class="hrcolor" />';
+					</dl>';
 
 	if (isset($context['category']['is_new']))
 		echo '
@@ -180,12 +175,10 @@ function template_modify_category()
 						<input type="hidden" name="empty" value="1" />';
 
 	echo '
-					<br class="clear_right" />
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
@@ -239,8 +232,7 @@ function template_confirm_category_delete()
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }
 
 // Below is the template for adding/editing an board on the forum.
@@ -545,7 +537,6 @@ function template_modify_board()
 		echo '<div class="information">', $txt['mboards_recycle_disabled_delete'], '</div>';
 
 	echo '
-					<hr class="hrcolor" />
 					<input type="hidden" name="rid" value="', $context['redirect_location'], '" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '" />';
@@ -567,12 +558,11 @@ function template_modify_board()
 		echo '
 					<span', $context['board']['is_recycle'] ? ' style="visibility:hidden">' : '>', '<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" onclick="return confirm(\'', $txt['boardConfirm'], '\');"', ' class="button_submit" /></span>';
 	echo '
-				<br class="clear_right" />
 				</div>
 			</div>
 		</form>
 	</div>
-	<br class="clear" />
+
 <script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 <script type="text/javascript"><!-- // --><![CDATA[
 	var oModeratorSuggest = new smc_AutoSuggest({
@@ -683,6 +673,5 @@ function template_confirm_board_delete()
 				</div>
 			</div>
 		</form>
-	</div>
-	<br class="clear" />';
+	</div>';
 }

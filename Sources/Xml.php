@@ -2,12 +2,12 @@
 
 /**
  * Maintains all XML-based interaction (mainly XMLhttp)
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -35,10 +35,10 @@ function XMLhttpMain()
 			'function' => 'RetrievePreview',
 		),
 	);
-	
+
 	// Easy adding of sub actions
  	call_integration_hook('integrate_xmlhttp', array(&$sub_actions));
-	
+
 	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
 
@@ -88,6 +88,18 @@ function EnableCoreFeatures()
 	$context['xml_data'] = array();
 	// Just in case, maybe we don't need it
 	loadLanguage('Errors');
+
+	// We need (at least) this to ensure that mod files are included
+	if (!empty($modSettings['integrate_admin_include']))
+	{
+		$admin_includes = explode(',', $modSettings['integrate_admin_include']);
+		foreach ($admin_includes as $include)
+		{
+			$include = strtr(trim($include), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+			if (file_exists($include))
+				require_once($include);
+		}
+	}
 
 	$errors = array();
 	$returns = array();

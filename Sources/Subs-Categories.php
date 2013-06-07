@@ -2,12 +2,12 @@
 
 /**
  * This file contains the functions to add, modify, remove, collapse and expand categories.
- * 
+ *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2011 Simple Machines
+ * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * Edit the position and properties of a category.
  * general function to modify the settings and position of a category.
  * used by ManageBoards.php to change the settings of a category.
- * 
+ *
  * @param int $category_id
  * @param array $catOptions
  */
@@ -31,7 +31,8 @@ function modifyCategory($category_id, $catOptions)
 	$catUpdates = array();
 	$catParameters = array();
 
-	call_integration_hook('integrate_modify_category', array($category_id, &$catOptions));
+	$cat_id = $category_id;
+	call_integration_hook('integrate_pre_modify_category', array($cat_id, &$catOptions));
 
 	// Wanna change the categories position?
 	if (isset($catOptions['move_after']))
@@ -93,6 +94,9 @@ function modifyCategory($category_id, $catOptions)
 		$catParameters['is_collapsible'] = $catOptions['is_collapsible'] ? 1 : 0;
 	}
 
+	$cat_id = $category_id;
+	call_integration_hook('integrate_modify_category', array($cat_id, &$catUpdates, &$catParameters));
+
 	// Do the updates (if any).
 	if (!empty($catUpdates))
 	{
@@ -117,15 +121,13 @@ function modifyCategory($category_id, $catOptions)
  * general function to create a new category and set its position.
  * allows (almost) the same options as the modifyCat() function.
  * returns the ID of the newly created category.
- * 
+ *
  * @param int $createCategory
  * @param array $catOptions
  */
 function createCategory($catOptions)
 {
 	global $smcFunc;
-
-	call_integration_hook('integrate_create_category', array(&$catOptions));
 
 	// Check required values.
 	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
@@ -139,15 +141,20 @@ function createCategory($catOptions)
 	// Don't log an edit right after.
 	$catOptions['dont_log'] = true;
 
+	$cat_columns = array(
+		'name' => 'string-48',
+	);
+	$cat_parameters = array(
+		$catOptions['cat_name'],
+	);
+	
+	call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
+
 	// Add the category to the database.
 	$smcFunc['db_insert']('',
 		'{db_prefix}categories',
-		array(
-			'name' => 'string-48',
-		),
-		array(
-			$catOptions['cat_name'],
-		),
+		$cat_columns,
+		$cat_parameters,
 		array('id_cat')
 	);
 
@@ -163,14 +170,14 @@ function createCategory($catOptions)
 	return $category_id;
 }
 
-/** 
+/**
  * Remove one or more categories.
  * general function to delete one or more categories.
  * allows to move all boards in the categories to a different category before deleting them.
  * if moveChildrenTo is set to null, all boards inside the given categorieswill be deleted.
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
- * 
+ *
  * @param array $categories_to_remove
  * @param int $moveChildrenTo = null
  */
@@ -246,12 +253,12 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	reorderBoards();
 }
 
-/** 
+/**
  * Collapse, expand or toggle one or more categories for one or more members.
  * if members is null, the category is collapsed/expanded for all members.
  * allows three changes to the status: 'expand', 'collapse' and 'toggle'.
  * if check_collapsable is set, only category allowed to be collapsed, will be collapsed.
- * 
+ *
  * @param array $categories
  * @param string $new_status
  * @param array $members = null

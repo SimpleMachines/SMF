@@ -165,6 +165,10 @@ INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
+INSERT INTO {$db_prefix}scheduled_tasks
+	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+VALUES
+	(0, 240, 1, 'd', 0, 'remove_old_drafts');
 ---#
 
 /******************************************************************************/
@@ -189,4 +193,77 @@ CHANGE body body mediumtext NOT NULL;
 ---# Altering the membergroup stars to icons
 ALTER TABLE {$db_prefix}membergroups
 CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
+--- Adding support for drafts
+/******************************************************************************/
+---# Creating draft table
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
+  id_draft int(10) unsigned NOT NULL auto_increment,
+  id_topic mediumint(8) unsigned NOT NULL default '0',
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_reply int(10) unsigned NOT NULL default '0',
+  type tinyint(4) NOT NULL default '0',
+  poster_time int(10) unsigned NOT NULL default '0',
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  subject varchar(255) NOT NULL default '',
+  smileys_enabled tinyint(4) NOT NULL default '1',
+  body mediumtext NOT NULL,
+  icon varchar(16) NOT NULL default 'xx',
+  locked tinyint(4) NOT NULL default '0',
+  is_sticky tinyint(4) NOT NULL default '0',
+  to_list varchar(255) NOT NULL default '',
+  outbox tinyint(4) NOT NULL default '0',
+  PRIMARY KEY id_draft(id_draft),
+  UNIQUE id_member (id_member, id_draft, type)
+) ENGINE=MyISAM{$db_collation};
+---#
+
+---# Adding draft permissions...
+---{
+// We cannot do this twice
+if (@$modSettings['smfVersion'] < '2.1')
+{
+	// Anyone who can currently post unapproved topics we assume can create drafts as well ...
+	$request = upgrade_query("
+		SELECT id_group, id_board, add_deny, permission
+		FROM {$db_prefix}board_permissions
+		WHERE permission = 'post_unapproved_topics'");
+	$inserts = array();
+	while ($row = mysql_fetch_assoc($request))
+	{
+		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
+		$inserts[] = "($row[id_group], $row[id_board], 'post_autosave_draft', $row[add_deny])";
+	}
+	mysql_free_result($request);
+
+	if (!empty($inserts))
+		upgrade_query("
+			INSERT IGNORE INTO {$db_prefix}board_permissions
+				(id_group, id_board, permission, add_deny)
+			VALUES
+				" . implode(',', $inserts));
+				
+	// Next we find people who can send PM's, and assume they can save pm_drafts as well
+	$request = upgrade_query("
+		SELECT id_group, add_deny, permission
+		FROM {$db_prefix}permissions
+		WHERE permission = 'pm_send'");
+	$inserts = array();
+	while ($row = mysql_fetch_assoc($request))
+	{
+		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'pm_autosave_draft', $row[add_deny])";
+	}
+	mysql_free_result($request);
+
+	if (!empty($inserts))
+		upgrade_query("
+			INSERT IGNORE INTO {$db_prefix}permissions
+				(id_group, permission, add_deny)
+			VALUES
+				" . implode(',', $inserts));
+}
+---}
 ---#
