@@ -214,6 +214,12 @@ function template_credits()
 					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['software']), '</dd>
 				</dl>';
 
+		if (!empty($context['credits_software_graphics']['fonts']))
+			echo '
+				<dl>
+					<dt><strong>', $txt['credits_fonts'], '</strong></dt>
+					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['fonts']), '</dd>
+				</dl>';
 		echo '
 			</div>
 		</div>';
