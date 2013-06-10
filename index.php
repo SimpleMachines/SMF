@@ -235,7 +235,7 @@ function smf_main()
 		}
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'register', 'register2', 'reminder', 'activate', 'help', 'smstats', 'mailq', 'verificationcode', 'openidreturn'))))
+	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'register', 'register2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'mailq', 'verificationcode', 'openidreturn'))))
 	{
 		require_once($sourcedir . '/Subs-Auth.php');
 		return 'KickGuest';
