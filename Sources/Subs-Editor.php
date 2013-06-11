@@ -2248,7 +2248,7 @@ function AutoSuggest_Search_MemberGroups()
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	// Find the group.
-	// Only return groups which are not post-based, not "Hidden", not the "Moderators" group and not "Protected"
+	// Only return groups which are not post-based and not "Hidden", but not the "Administrators" or "Moderators" groups.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
