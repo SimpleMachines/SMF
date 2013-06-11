@@ -433,7 +433,7 @@ function template_modify_board()
 							<span class="smalltext">', $txt['mboards_moderator_groups_desc'], '</span><br />
 						</dt>
 						<dd>
-							<input type="text" name="moderator_groups" id="moderator_groups" value="', $context['board']['moderator_group_list'], '" size="30" class="input_text" />
+							<input type="text" name="moderator_groups" id="moderator_groups" value="', $context['board']['moderator_groups_list'], '" size="30" class="input_text" />
 							<div id="moderator_group_container"></div>
 						</dd>
 					</dl>

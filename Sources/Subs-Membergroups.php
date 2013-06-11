@@ -671,14 +671,12 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts {raw:min_posts}' . (allowedTo('admin_forum') ? '' : '
-			AND mg.id_group != {int:mod_group}
-			AND mg.group_type != {int:is_protected}') . '
+			AND mg.id_group != {int:mod_group}') . '
 		ORDER BY {raw:sort}',
 		array(
 			'current_member' => $user_info['id'],
 			'min_posts' => ($membergroup_type === 'post_count' ? '!= ' : '= ') . -1,
 			'mod_group' => 3,
-			'is_protected' => 1,
 			'sort' => $sort,
 		)
 	);
