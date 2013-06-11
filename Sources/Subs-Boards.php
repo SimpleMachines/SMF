@@ -748,7 +748,7 @@ function modifyBoard($board_id, &$boardOptions)
 			if (!empty($moderator_groups))
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT id_group
+					SELECT id_group, min_posts
 					FROM {db_prefix}membergroups
 					WHERE group_name IN ({array_string:moderator_group_list})
 					LIMIT ' . count($moderator_groups),
@@ -757,7 +757,13 @@ function modifyBoard($board_id, &$boardOptions)
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
+				{
+					// Don't allow post groups, "Administrator" or "Moderator"
+					if ($row['min_posts'] != -1 || in_array($row['id_group'], array(1,3)))
+						continue;
+					
 					$boardOptions['moderator_groups'][] = $row['id_group'];
+				}
 				$smcFunc['db_free_result']($request);
 			}
 		}
