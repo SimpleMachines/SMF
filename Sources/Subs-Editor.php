@@ -2240,7 +2240,7 @@ function AutoSuggest_Search_Member()
  *
  * @return string
  */
-function AutoSuggest_Search_MemberGroup()
+function AutoSuggest_Search_MemberGroups()
 {
 	global $txt, $smcFunc, $context;
 
@@ -2248,20 +2248,18 @@ function AutoSuggest_Search_MemberGroup()
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
 
 	// Find the group.
-	// Only return groups which are not post-based, not "Hidden", not the "Moderators" group and not "Protected"
+	// Only return groups which are not post-based and not "Hidden", but not the "Administrators" or "Moderators" groups.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
 		WHERE group_name LIKE {string:search}
 			AND min_posts = {int:min_posts}
-			AND group_type != {int:is_protected}
-			AND id_group != {int:mod_group}
+			AND id_group NOT IN ({array_int:invalid_groups})
 			AND hidden != {int:hidden}
 		',
 		array(
 			'min_posts' => -1,
-			'is_protected' => 1,
-			'mod_group' => 3,
+			'invalid_groups' => array(1,3),
 			'hidden' => 2,
 			'search' => $_REQUEST['search'],
 		)
