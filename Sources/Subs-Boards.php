@@ -657,7 +657,7 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 
 	// Set moderators of this board.
-	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groups']) || isset($boardOptions['moderator_group_string']))
+	if (isset($boardOptions['moderators']) || isset($boardOptions['moderator_string']) || isset($boardOptions['moderator_groupss']) || isset($boardOptions['moderator_group_string']))
 	{
 		// Reset current moderators for this board - if there are any!
 		$smcFunc['db_query']('', '
@@ -683,7 +683,7 @@ function modifyBoard($board_id, &$boardOptions)
 					unset($moderators[$k]);
 			}
 
-			// Find all the id_group's for the group names in the list.
+			// Find all the id_member's for the member_name's in the list.
 			if (empty($boardOptions['moderators']))
 				$boardOptions['moderators'] = array();
 			if (!empty($moderators))
