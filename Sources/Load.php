@@ -2137,7 +2137,7 @@ function addInlineJavascript($javascript, $defer = false)
 function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
 {
 	global $user_info, $language, $settings, $context, $modSettings;
-	global $db_show_debug, $sourcedir, $txt;
+	global $db_show_debug, $sourcedir, $txt, $birthdayEmails, $txtBirthdayEmails;
 	static $already_loaded = array();
 
 	// Default to the user's language.
@@ -2223,6 +2223,10 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 			}
 			$txt['emails'] = array();
 		}
+		// For sake of backward compatibility: $birthdayEmails is supposed to be 
+		// empty in a normal install. If it isn't it means the forum is using 
+		// something "old" (it may be the translation, it may be a mod) and this
+		// code (like the piece above) takes care of converting it to the new format
 		if (!empty($birthdayEmails))
 		{
 			foreach ($birthdayEmails as $key => $value)
