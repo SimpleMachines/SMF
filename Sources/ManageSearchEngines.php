@@ -1117,5 +1117,3 @@ function sortSpiderTable()
 	// Remove the sorting column.
 	$smcFunc['db_remove_column']('{db_prefix}spiders', 'temp_order');
 }
-
-?>

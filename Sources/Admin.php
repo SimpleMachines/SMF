@@ -995,5 +995,3 @@ function AdminEndSession()
 
 	redirectexit('action=admin');
 }
-
-?>

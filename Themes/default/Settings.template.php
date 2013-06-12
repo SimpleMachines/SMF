@@ -280,5 +280,3 @@ function template_settings()
 		),
 	);
 }
-
-?>

@@ -621,5 +621,3 @@ function ob_sessrewrite($buffer)
 	// Return the changed buffer.
 	return $buffer;
 }
-
-?>

@@ -32,5 +32,3 @@ class standard_search
 		return false;
 	}
 }
-
-?>

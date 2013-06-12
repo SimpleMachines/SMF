@@ -306,5 +306,3 @@ function template_resend()
 			</div>
 		</form>';
 }
-
-?>

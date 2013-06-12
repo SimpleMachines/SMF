@@ -453,5 +453,3 @@ function sha1_raw($text)
 
 	return $raw;
 }
-
-?>

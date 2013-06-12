@@ -194,5 +194,3 @@ function template_ask()
 // ]]></script>';
 
 }
-
-?>

@@ -319,5 +319,3 @@ function template_admin_browse()
 	echo '
 	</div>';
 }
-
-?>

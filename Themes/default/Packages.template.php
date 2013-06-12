@@ -1809,5 +1809,3 @@ function template_action_permissions()
 	// ]]></script>';
 
 }
-
-?>

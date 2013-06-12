@@ -268,5 +268,3 @@ function template_report()
 		</form>
 	</div>';
 }
-
-?>

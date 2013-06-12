@@ -233,5 +233,3 @@ function sessionGC($max_lifetime)
 		)
 	);
 }
-
-?>

@@ -466,4 +466,3 @@ function template_info_center()
 		});
 	// ]]></script>';
 }
-?>

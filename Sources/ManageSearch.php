@@ -794,5 +794,3 @@ function detectFulltextIndex()
 		$smcFunc['db_free_result']($request);
 	}
 }
-
-?>

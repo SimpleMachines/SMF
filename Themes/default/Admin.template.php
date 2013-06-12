@@ -1651,5 +1651,3 @@ function template_clean_cache_button_below()
 		</div>
 	</div>';
 }
-
-?>

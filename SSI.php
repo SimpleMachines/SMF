@@ -2018,5 +2018,3 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 	echo '
 		</table>';
 }
-
-?>

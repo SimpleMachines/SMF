@@ -1164,5 +1164,3 @@ function template_postmod_permissions()
 		</p>
 	</div>';
 }
-
-?>

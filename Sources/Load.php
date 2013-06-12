@@ -2726,7 +2726,7 @@ function cache_put_data($key, $value, $ttl = 120)
 				@unlink($cachedir . '/data_' . $key . '.php');
 			else
 			{
-				$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
+				$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}';
 
 				// Write out the cache file, check that the cache write was successful; all the data must be written
 				// If it fails due to low diskspace, or other, remove the cache file
@@ -2877,5 +2877,3 @@ function get_memcached_server($level = 3)
 	if (!$memcached && $level > 0)
 		get_memcached_server($level - 1);
 }
-
-?>

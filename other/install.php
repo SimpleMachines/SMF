@@ -1911,9 +1911,6 @@ function updateSettingsFile($vars)
 			continue;
 		}
 
-		if (trim($settingsArray[$i]) == '?' . '>')
-			$settingsArray[$i] = '';
-
 		// Don't trim or bother with it if it's not a variable.
 		if (substr($settingsArray[$i], 0, 1) != '$')
 			continue;
@@ -1956,7 +1953,6 @@ function updateSettingsFile($vars)
 		if ($settingsArray[$i] != '' || @$settingsArray[$i - 1] != '')
 			fwrite($fp, strtr($settingsArray[$i], "\r", ''));
 	}
-	fwrite($fp, $settingsArray[$i] . '?' . '>');
 	fclose($fp);
 
 	return true;
@@ -1965,7 +1961,7 @@ function updateSettingsFile($vars)
 function updateDbLastError() 
 {
 	// Write out the db_last_error file with the error timestamp 
-	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
+	file_put_contents(dirname(__FILE__) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;');
 	
 	return true;
 }
@@ -2580,5 +2576,3 @@ function template_delete_install()
 		<br />
 		', $txt['good_luck'];
 }
-
-?>

@@ -993,5 +993,3 @@ function setKeys($method = 'rows', $keys = array(), $reverse = false)
 	// Rows or columns?
 	$context['key_method'] = $method == 'rows' ? 'rows' : 'cols';
 }
-
-?>

@@ -1761,5 +1761,3 @@ function scheduled_remove_old_drafts()
 
 	return true;
 }
-
-?>

@@ -1664,5 +1664,3 @@ function createSalvageArea()
 	// Restore the user's language.
 	loadLanguage('Admin');
 }
-
-?>

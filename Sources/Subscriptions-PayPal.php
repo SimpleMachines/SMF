@@ -314,5 +314,3 @@ class paypal_payment
 		$smcFunc['db_free_result']($request);
 	}
 }
-
-?>

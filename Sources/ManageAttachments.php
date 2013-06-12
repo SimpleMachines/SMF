@@ -2437,4 +2437,3 @@ function attachDirStatus($dir, $expected_files)
 		return array('ok', false, $num_files);
 }
 
-?>
