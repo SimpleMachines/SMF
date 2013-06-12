@@ -55,6 +55,7 @@ $txt['membergroups_max_messages_note'] = '0 = unlimited';
 $txt['membergroups_edit_save'] = 'Save';
 $txt['membergroups_delete'] = 'Delete';
 $txt['membergroups_confirm_delete'] = 'Are you sure you want to delete this group?';
+$txt['membergroups_confirm_delete_mod'] = 'This group is assigned to moderate one or more boards. Are you sure you want to delete it?';
 
 $txt['membergroups_members_title'] = 'Viewing Group';
 $txt['membergroups_members_group_members'] = 'Group Members';
