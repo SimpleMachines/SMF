@@ -531,7 +531,14 @@ VALUES
 	('last_mod_report_action', '0'),
 	('search_floodcontrol_time', '5'),
 	('next_task_time', UNIX_TIMESTAMP());
----#
+	
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('drafts_autosave_enabled', '1'),
+	('drafts_show_saved_enabled', '1');
+
+	---#
 
 ---# Changing stats settings.
 ---{

@@ -213,8 +213,11 @@ function UnapprovedPosts()
 	);
 	list ($context['total_unapproved_topics']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
+	
+	// Limit to how many? (obey the user setting)
+	$limit = !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=postmod;sa=' . $context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), $_GET['start'], $context['current_view'] == 'topics' ? $context['total_unapproved_topics'] : $context['total_unapproved_posts'], 10);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=postmod;sa=' . $context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), $_GET['start'], $context['current_view'] == 'topics' ? $context['total_unapproved_topics'] : $context['total_unapproved_posts'], $limit);
 	$context['start'] = $_GET['start'];
 
 	// We have enough to make some pretty tabs!
@@ -249,9 +252,10 @@ function UnapprovedPosts()
 			AND t.id_first_msg ' . ($context['current_view'] == 'topics' ? '=' : '!=') . ' m.id_msg
 			AND {query_see_board}
 			' . $approve_query . '
-		LIMIT ' . $context['start'] . ', 10',
+		LIMIT ' . $context['start'] . ', {int:limit}',
 		array(
 			'not_approved' => 0,
+			'limit' => $limit
 		)
 	);
 	$context['unapproved_items'] = array();
