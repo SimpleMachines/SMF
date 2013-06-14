@@ -174,9 +174,9 @@ function template_main()
 						<p>', $board['description'] , '</p>';
 
 				// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
-				if (!empty($board['moderators']))
+				if (!empty($board['link_moderators']))
 					echo '
-						<p class="moderators">', count($board['moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
+						<p class="moderators">', count($board['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
 
 				// Show some basic information about the number of posts, etc.
 					echo '
