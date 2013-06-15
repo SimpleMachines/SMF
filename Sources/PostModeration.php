@@ -252,9 +252,10 @@ function UnapprovedPosts()
 			AND t.id_first_msg ' . ($context['current_view'] == 'topics' ? '=' : '!=') . ' m.id_msg
 			AND {query_see_board}
 			' . $approve_query . '
-		LIMIT ' . $context['start'] . ', {int:limit}',
+		LIMIT {int:start}, {int:limit}',
 		array(
 			'not_approved' => 0,
+			'start' => $context['start'],
 			'limit' => $limit,
 		)
 	);
