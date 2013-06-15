@@ -50,7 +50,7 @@ function PostModerationMain()
  */
 function UnapprovedPosts()
 {
-	global $txt, $scripturl, $context, $user_info, $smcFunc;
+	global $txt, $scripturl, $context, $user_info, $smcFunc, $options, $modSettings;
 
 	$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
 	$context['page_title'] = $txt['mc_unapproved_posts'];
