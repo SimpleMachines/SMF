@@ -138,6 +138,7 @@ $txt['credits_modifications'] = 'Modifications';
 $txt['credits_software_graphics'] = 'Software/Graphics';
 $txt['credits_software'] = 'Software';
 $txt['credits_graphics'] = 'Graphics';
+$txt['credits_fonts'] = 'Fonts';
 $txt['credits_groups_pm'] = 'Project Manager';
 $txt['credits_groups_dev'] = 'Developers';
 $txt['credits_groups_support'] = 'Support Specialists';
