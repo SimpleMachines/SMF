@@ -2224,6 +2224,12 @@ div#pollmoderation {
 	font-weight: normal;
 	padding: 2px 4px 0 4px;
 }
+.subject_title a
+{
+	font-size: 0.9em;
+	color: #333;
+	font-weight: bold;
+}
 .inner {
 	padding: 7px 8px 2px 2px;
 	margin: 0 8x 0 0;
