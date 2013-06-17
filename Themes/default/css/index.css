@@ -3001,7 +3001,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .infobox  {
 	color: #222;
-	background: #efe url(../images/icons/field_valid.png) 10px 50% no-repeat;
+	background: #efe;
 	text-align: left;
 	border-top: 1px solid green;
 	border-bottom: 1px solid green;
