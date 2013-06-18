@@ -61,7 +61,6 @@ function ManageMaintenance()
 			'template' => 'maintain_database',
 			'activities' => array(
 				'optimize' => 'OptimizeTables',
-				'backup' => 'MaintainDownloadBackup',
 				'convertentities' => 'ConvertEntities',
 				'convertutf8' => 'ConvertUtf8',
 				'convertmsgbody' => 'ConvertMsgBody',
@@ -145,58 +144,6 @@ function MaintainDatabase()
 
 		$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
 		$context['convert_to_suggest'] = ($body_type != 'text' && !empty($modSettings['max_messageLength']) && $modSettings['max_messageLength'] < 65536);
-	}
-
-	// Check few things to give advices before make a backup
-	// If safe mod is enable the external tool is *always* the best (and probably the only) solution
-	$context['safe_mode_enable'] = @ini_get('safe_mode');
-	// This is just a...guess
-	$result = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}messages',
-		array()
-	);
-	list($messages) = $smcFunc['db_fetch_row']($result);
-	$smcFunc['db_free_result']($result);
-
-	// 256 is what we use in the backup script
-	setMemoryLimit('256M');
-	$memory_limit = memoryReturnBytes(ini_get('memory_limit')) / (1024 * 1024);
-	// Zip limit is set to more or less 1/4th the size of the available memory * 1500
-	// 1500 is an estimate of the number of messages that generates a database of 1 MB (yeah I know IT'S AN ESTIMATION!!!)
-	// Why that? Because the only reliable zip package is the one sent out the first time,
-	// so when the backup takes 1/5th (just to stay on the safe side) of the memory available
-	$zip_limit = $memory_limit * 1500 / 5;
-	// Here is more tricky: it depends on many factors, but the main idea is that
-	// if it takes "too long" the backup is not reliable. So, I know that on my computer it take
-	// 20 minutes to backup 2.5 GB, of course my computer is not representative, so I'll multiply by 4 the time.
-	// I would consider "too long" 5 minutes (I know it can be a long time, but let's start with that):
-	// 80 minutes for a 2.5 GB and a 5 minutes limit means 160 MB approx
-	$plain_limit = 240000;
-	// Last thing: are we able to gain time?
-	$current_time_limit = ini_get('max_execution_time');
-	@set_time_limit(159); //something strange just to be sure
-	$new_time_limit = ini_get('max_execution_time');
-
-	$context['use_maintenance'] = 0;
-
-	// External tool if:
-	//  * safe_mode enable OR
-	//  * cannot change the execution time OR
-	//  * cannot reset timeout
-	if ($context['safe_mode_enable'] || empty($new_time_limit) || ($current_time_limit == $new_time_limit && !function_exists('apache_reset_timeout')))
-		$context['suggested_method'] = 'use_external_tool';
-	elseif ($zip_limit < $plain_limit && $messages < $zip_limit)
-		$context['suggested_method'] = 'zipped_file';
-	elseif ($zip_limit > $plain_limit || ($zip_limit < $plain_limit && $plain_limit < $messages))
-	{
-		$context['suggested_method'] = 'use_external_tool';
-		$context['use_maintenance'] = empty($maintenance) ? 2 : 0;
-	}
-	else
-	{
-		$context['use_maintenance'] = 1;
-		$context['suggested_method'] = 'plain_text';
 	}
 
 	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
@@ -1770,19 +1717,6 @@ function MaintainReattributePosts()
 	reattributePosts($memID, $email, $membername, !empty($_POST['posts']));
 
 	$context['maintenance_finished'] = $txt['maintain_reattribute_posts'];
-}
-
-/**
- * Handling function for the backup stuff.
- */
-function MaintainDownloadBackup()
-{
-	global $sourcedir;
-
-	validateToken('admin-maint');
-
-	require_once($sourcedir . '/DumpDatabase.php');
-	DumpDatabase2();
 }
 
 /**
