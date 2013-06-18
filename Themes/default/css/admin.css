@@ -1150,9 +1150,6 @@ h3.grid_header {
 	.dropmenu li li a {
 		line-height: 3.2em;
 	}
-	#menu_toggle {
-		display: none;
-	}
 	h3.catbg #quick_search form {
 		margin: 0 0 8px 0;
 		padding: 0;
