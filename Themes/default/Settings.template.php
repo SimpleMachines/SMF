@@ -239,10 +239,6 @@ function template_settings()
 		),
 	'',
 		array(
-			'id' => 'subject_toggle',
-			'label' => $txt['subject_toggle'],
-		),
-		array(
 			'id' => 'show_modify',
 			'label' => $txt['last_modification'],
 		),

@@ -443,17 +443,10 @@ function template_main()
 							<div class="keyinfo">
 								<div class="messageicon" ', ($message['icon_url'] !== $settings['images_url'] . '/post/xx.png') ? '' : 'style="position: absolute; z-index: -1;"', '>
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
-								</div>';
-								
-								if (!empty($settings['subject_toggle']))
-								//Some people dont want subject ... 
-								echo'
-								<div id="subject_', $message['id'], '" class="subject_title">
-										<a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a>
-								</div>';
-									echo'
+								</div>
 								<h5 id="subject_', $message['id'], '">
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
+									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '">', $message['time'], '</a>';
+
 		// Show "<< Last Edit: Time by Person >>" if this post was edited.
 		if ($settings['show_modify'] && !empty($message['modified']['name']))
 			echo '
