@@ -570,14 +570,12 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
 }
 
-
-
 /* Sticky topics get a different background */
 .stickybg {
-	background: #e8d8cf;
+	background: #cfdce8;
 }
 .stickybg2 {
-	background: #f2e3d9;
+	background: #d9e7f2;
 }
 
 /* Plain locked topics just get the icon. */
@@ -2926,16 +2924,16 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 
 /* Sticky topics get a different background */
 .topic_table td.stickybg {
-	background:  #e8d8cf url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
+	background: #cfdce8 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
 }
 .topic_table td.stickybg2 {
-	background:  #f2e3d9 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
+	background: #cfdce8 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
 }
 .topic_table td.locked_sticky, .topic_table td.stickybglockedbg {
 	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.locked_sticky2, .topic_table td.stickybglockedbg2 {
-	background: #f2e3d9 url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
+	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
 
 /* Plain locked topics just get the icon. */
@@ -2944,7 +2942,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	background: #e7eaef url(../images/icons/quick_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.lockedbg2 {
-	background: #f0f4f7 url(../images/icons/quick_lock.png) no-repeat 98% 4px;
+	background: #e7eaef url(../images/icons/quick_lock.png) no-repeat 98% 4px;
 }
 
 /* Stop those damned icons popping up in every table cell! */
@@ -4280,12 +4278,6 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 .table_grid td.stickybg, .table_grid td.stickybg2, .table_grid td.locked_sticky, .table_grid td.locked_sticky2,
 .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
 	border-bottom: 1px solid #ccc;
-}
-.table_grid tr:nth-child(even) td {
-	background: #fdfdfd;
-}
-.table_grid tr:nth-child(odd) td {
-	background: #fafafa;
 }
 .table_grid td.whos_viewing {
 	font-size: 0.9em;
