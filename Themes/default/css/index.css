@@ -3299,6 +3299,10 @@ dl {
 img.centericon {
 	vertical-align: middle;
 }
+.sizefix {
+	width: 16px;
+	height: 16px;
+}
 .ignoreboards {
 	margin: 0 2%;
 	padding: 0;
