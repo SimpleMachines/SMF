@@ -413,18 +413,15 @@ function template_showPosts()
 	else
 		template_show_list('attachments');
 
-	// No posts? Just end the table with a informative message.
+	// No posts? Just end with a informative message.
 	if ((isset($context['attachments']) && empty($context['attachments'])) || (!isset($context['attachments']) && empty($context['posts'])))
 		echo '
-				<tr>
-					<td class="tborder windowbg2 padding centertext" colspan="4">
-						', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
-					</td>
-				</tr>';
-
-		echo '
-			</tbody>
-		</table>';
+			<div class="windowbg2 core_posts">
+				<div class="content">
+					', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
+				</div>
+			</div>
+		</div>';
 
 	// Show more page numbers.
 	if (!empty($context['page_index']))
