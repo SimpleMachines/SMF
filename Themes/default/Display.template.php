@@ -452,6 +452,9 @@ function template_main()
 										<a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a>
 								</div>';
 									echo'
+								<div class="page_number floatright">
+									&#35;', $message['counter'] ,'
+								</div>
 								<h5 id="subject_', $message['id'], '">
 									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
 		// Show "<< Last Edit: Time by Person >>" if this post was edited.
