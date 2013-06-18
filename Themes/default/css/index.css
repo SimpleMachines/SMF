@@ -2226,6 +2226,11 @@ div#pollmoderation {
 	font-weight: normal;
 	padding: 2px 4px 0 4px;
 }
+.page_number {
+	color: #ad6825;
+	font-weight: bold;
+	opacity: 0.4;
+}
 .inner {
 	padding: 7px 8px 2px 2px;
 	margin: 0 8x 0 0;
@@ -3003,7 +3008,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .infobox  {
 	color: #222;
-	background: #efe url(../images/icons/field_valid.png) 10px 50% no-repeat;
+	background: #efe;
 	text-align: left;
 	border-top: 1px solid green;
 	border-bottom: 1px solid green;
