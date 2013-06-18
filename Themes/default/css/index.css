@@ -1387,15 +1387,17 @@ img.sort {
 	padding: 1px;
 }
 #search_form .button_submit {
-	padding: 1px 2px;
-	margin: -1px 5px;
+	margin: 2px 5px;
+	padding: 1px 5px;
+	border-radius: 3px;
 	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	color: #333;
 }
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
 #ie #search_form .button_submit, #chrome #search_form .button_submit {
-	padding: 3px 5px;
+	padding: 2px 5px;
+	margin: 0 5px;
 }
 #search_form .button_submit:hover {
 	background: #fff url(../images/theme/upper_section.png) 0 45% repeat-x;
@@ -1467,7 +1469,7 @@ img#smflogo {
 .user ul{
 	padding: 0 0 5px 0;
 	font-size: 0.9em;
-	line-height: 1.5em;
+	line-height: 1.8em;
 }
 ul li.greeting {
 	font-weight: bold;
@@ -1543,8 +1545,8 @@ ul li.greeting {
 }
 .navigate_section ul li {
 	float: left;
-	padding: 0;
-	line-height: 1.8em;
+	padding-bottom: 3px;
+	line-height: 1.1em;
 	color: #444;
 	text-shadow: 1px 1px 0 #fff;
 }
@@ -4306,8 +4308,8 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* Styles for "Who" action.
--------------------------------------------------- */	
-.action_who #upper_show {	
+-------------------------------------------------- */
+.action_who #upper_show {
 	margin-top: 6px;
 }
 .action_who #lower_pagesection {
