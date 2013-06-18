@@ -2224,6 +2224,11 @@ div#pollmoderation {
 	font-weight: normal;
 	padding: 2px 4px 0 4px;
 }
+.page_number {
+	color: #ad6825;
+	font-weight: bold;
+	opacity: 0.4;
+}
 .inner {
 	padding: 7px 8px 2px 2px;
 	margin: 0 8x 0 0;
