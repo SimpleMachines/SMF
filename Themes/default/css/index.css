@@ -4236,21 +4236,10 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	box-shadow: none;
 	padding: 5px 5px 4px 10px;
 }
-#postmodify .roundframe .titlebg img {
-	border-radius: 3px;
-	padding: 4px 4px 0 4px;
-	background: #fff;
-	box-shadow: -1px -1px 3px rgba(96,134,166,0.2) inset;
-	border: 1px solid #ccc;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #afafaf;
-}
-#postmodify .roundframe .titlebg img:hover{
-	background: #fafafa;
-	box-shadow: 1px 1px 3px rgba(96,134,166,0.3) inset;
-	border: 1px solid #ccc;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
+#postmodify .roundframe .titlebg img, .titlebg img:hover {
+	padding: 1px 4px 0 4px;
+	background: none;
+	border: none;
 }
 #postmodify .roundframe div{
 	padding-right: 0;
