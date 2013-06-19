@@ -4236,8 +4236,12 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	box-shadow: none;
 	padding: 5px 5px 4px 10px;
 }
-#postmodify .roundframe .titlebg img, .titlebg img:hover {
-	padding: 1px 4px 0 4px;
+#postmodify .roundframe .titlebg img {
+	padding: 4px 4px 0 4px;
+	background: none;
+	border: none;
+}
+#postmodify .roundframe .titlebg img:hover{
 	background: none;
 	border: none;
 }
