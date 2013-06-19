@@ -1299,7 +1299,7 @@ img.sort {
 .buttonlist ul li a span {
 	display: block;
 	height: 2.2em;
-	line-height: 2.5em;
+	line-height: 2.2em;
 	padding: 0 8px;
 }
 /* the active one */
@@ -1386,7 +1386,7 @@ img.sort {
 }
 #search_form .button_submit {
 	margin: 2px 5px;
-	padding: 1px 5px;
+	padding: 1px 2px;
 	border-radius: 3px;
 	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	color: #333;
