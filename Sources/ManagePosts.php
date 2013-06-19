@@ -218,7 +218,7 @@ function ModifyPostSettings($return_config = false)
 		checkSession();
 
 		// If we're changing the message length (and we are using MySQL) let's check the column is big enough.
-		if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != $modSettings['max_messageLength'] && $db_type == 'mysql')
+		if (isset($_POST['max_messageLength']) && $_POST['max_messageLength'] != $modSettings['max_messageLength'] && ($db_type == 'mysql' || $db_type == 'mysqli'))
 		{
 			db_extend('packages');
 

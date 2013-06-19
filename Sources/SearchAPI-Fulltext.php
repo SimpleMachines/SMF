@@ -54,7 +54,7 @@ class fulltext_search
 	 * What databases support the fulltext index?
 	 * @var type
 	 */
-	protected $supported_databases = array('mysql');
+	protected $supported_databases = array('mysql', 'mysqli');
 
 	/**
 	 * fulltext_search::__construct()
