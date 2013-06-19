@@ -1367,8 +1367,12 @@ img.sort {
 	display: inline;
 	font-size: 0.9em;
 }
+.notice
+{
+ font-weight: bold;
+}
 #search_form {
-	padding: 4px 0 0 0;
+	padding: 8px 0 0 0;
 	text-align: right;
 	min-width: 30em;
 }
