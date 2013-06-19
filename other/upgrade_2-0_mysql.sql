@@ -368,12 +368,12 @@ foreach ($nameChanges as $table_name => $table)
 	$request = upgrade_query("
 		SHOW TABLES
 		LIKE '{$db_prefix}$table_name'");
-	if (mysql_num_rows($request) == 0)
+	if (smf_mysql_num_rows($request) == 0)
 	{
-		mysql_free_result($request);
+		smf_mysql_free_result($request);
 		continue;
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	// Check each column!
 	$actualChanges = array();
@@ -539,7 +539,7 @@ $request = upgrade_query("
 	SELECT value
 	FROM {$db_prefix}themes
 	WHERE variable = 'show_sp1_info'");
-if (mysql_num_rows($request) != 0)
+if (smf_mysql_num_rows($request) != 0)
 {
 	upgrade_query("
 		DELETE FROM {$db_prefix}themes
@@ -587,9 +587,9 @@ $request = upgrade_query("
 	SELECT value
 	FROM {$db_prefix}settings
 	WHERE variable = 'disable_visual_verification'");
-if (mysql_num_rows($request) != 0)
+if (smf_mysql_num_rows($request) != 0)
 {
-	list ($oldValue) = mysql_fetch_row($request);
+	list ($oldValue) = smf_mysql_fetch_row($request);
 	if ($oldValue != 0)
 	{
 		// We have changed the medium setting from SMF 1.1.2.
@@ -614,7 +614,7 @@ $request = upgrade_query("
 	SELECT value
 	FROM {$db_prefix}settings
 	WHERE variable = 'reg_verification'");
-if (mysql_num_rows($request) == 0)
+if (smf_mysql_num_rows($request) == 0)
 {
 	// Upgrade visual verification again!
 	if (!empty($modSettings['visual_verification_type']))
@@ -797,11 +797,11 @@ $request = upgrade_query("
 	WHERE variable = 'theme_layers'
 		OR variable = 'theme_dir'");
 $themeLayerChanges = array();
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	$themeLayerChanges[$row['id_theme']][$row['variable']] = $row['value'];
 }
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 foreach ($themeLayerChanges as $id_theme => $data)
 {
@@ -896,7 +896,7 @@ $request = upgrade_query("
 		AND active = 1
 		AND private != 2");
 $fields = array();
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	$fields[] = array(
 		'c' => strtr($row['col_name'], array('|' => '', ';' => '')),
@@ -904,11 +904,11 @@ while ($row = mysql_fetch_assoc($request))
 		'b' => ($row['bbc'] ? '1' : '0')
 	);
 }
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 upgrade_query("
 	UPDATE {$db_prefix}settings
-	SET value = '" . mysql_real_escape_string(serialize($fields)) . "'
+	SET value = '" . smf_mysql_real_escape_string(serialize($fields)) . "'
 	WHERE variable = 'displayFields'");
 }
 ---}
@@ -1079,11 +1079,11 @@ if (@$modSettings['smfVersion'] < '2.0')
 		FROM {$db_prefix}permissions
 		WHERE permission = 'calendar_edit_any'");
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$inserts[] = "($row[id_group], 'access_mod_center', $row[add_deny])";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -1407,11 +1407,11 @@ if (@$modSettings['smfVersion'] < '2.0')
 		FROM {$db_prefix}board_permissions
 		WHERE permission = 'modify_any'");
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$inserts[] = "($row[id_group], $row[id_board], 'approve_posts', $row[add_deny])";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -1440,8 +1440,8 @@ ADD line mediumint(8) unsigned NOT NULL default '0';
 $request = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}log_errors");
-list($totalActions) = mysql_fetch_row($request);
-mysql_free_result($request);
+list($totalActions) = smf_mysql_fetch_row($request);
+smf_mysql_free_result($request);
 
 $_GET['m'] = !empty($_GET['m']) ? (int) $_GET['m'] : '0';
 $step_progress['total'] = $totalActions;
@@ -1455,7 +1455,7 @@ while ($_GET['m'] < $totalActions)
 		SELECT id_error, message, file, line
 		FROM {$db_prefix}log_errors
 		LIMIT $_GET[m], 500");
-	while($row = mysql_fetch_assoc($request))
+	while($row = smf_mysql_fetch_assoc($request))
 	{
 		preg_match('~<br />(%1\$s: )?([\w\. \\\\/\-_:]+)<br />(%2\$s: )?([\d]+)~', $row['message'], $matches);
 		if (!empty($matches[2]) && !empty($matches[4]) && empty($row['file']) && empty($row['line']))
@@ -1630,9 +1630,9 @@ $request = upgrade_query("
 	FROM {$db_prefix}permission_profiles
 	WHERE profile_name = ''");
 $profiles = array();
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 	$profiles[] = $row['id_profile'];
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 if (!empty($profiles))
 {
@@ -1641,20 +1641,20 @@ if (!empty($profiles))
 		FROM {$db_prefix}boards
 		WHERE id_profile IN (" . implode(',', $profiles) . ")");
 	$done_ids = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		if (isset($done_ids[$row['id_profile']]))
 			continue;
 		$done_ids[$row['id_profile']] = true;
 
-		$row['name'] = mysql_real_escape_string($row['name']);
+		$row['name'] = smf_mysql_real_escape_string($row['name']);
 
 		upgrade_query("
 			UPDATE {$db_prefix}permission_profiles
 			SET profile_name = '$row[name]'
 			WHERE id_profile = $row[id_profile]");
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 }
 ---}
 ---#
@@ -1666,8 +1666,8 @@ if (!empty($profiles))
 $request = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}permission_profiles");
-list ($profileCount) = mysql_fetch_row($request);
-mysql_free_result($request);
+list ($profileCount) = smf_mysql_fetch_row($request);
+smf_mysql_free_result($request);
 
 if ($profileCount == 0)
 {
@@ -1698,16 +1698,16 @@ if ($profileCount == 0)
 		FROM {$db_prefix}board_permissions
 		WHERE id_profile = 0");
 	$all_perms = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 		$all_perms[$row['id_board']][$row['id_group']][$row['permission']] = $row['add_deny'];
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	// Now we have the profile profiles for this installation. We now need to go through each board and work out what the permission profile should be!
 	$request = upgrade_query("
 		SELECT id_board, name, permission_mode
 		FROM {$db_prefix}boards");
 	$board_updates = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$row['name'] = addslashes($row['name']);
 
@@ -1720,7 +1720,7 @@ if ($profileCount == 0)
 					(profile_name)
 				VALUES
 					('$row[name]')");
-			$board_updates[mysql_insert_id()][] = $row['id_board'];
+			$board_updates[smf_mysql_insert_id()][] = $row['id_board'];
 		}
 		// Otherwise, dear god, this is an old school "simple" permission...
 		elseif ($row['permission_mode'] > 1 && $row['permission_mode'] < 5)
@@ -1731,7 +1731,7 @@ if ($profileCount == 0)
 		else
 			$board_updates[1][] = $row['id_board'];
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	// Update the board tables.
 	foreach ($board_updates as $profile => $boards)
@@ -1810,7 +1810,7 @@ $request = upgrade_query("
 	WHERE id_group != 0
 		AND min_posts = -1");
 $inserts = array();
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	if ($row['id_group'] == 2 || $row['id_group'] == 3)
 	{
@@ -1831,7 +1831,7 @@ while ($row = mysql_fetch_assoc($request))
 			$inserts[] = "($row[id_group], 4, '$permission')";
 	}
 }
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 upgrade_query("
 	INSERT INTO {$db_prefix}board_permissions
@@ -1958,8 +1958,8 @@ ADD KEY id_log (id_log);
 $request = upgrade_query("
 	SELECT COUNT(*)
 	FROM {$db_prefix}log_actions");
-list($totalActions) = mysql_fetch_row($request);
-mysql_free_result($request);
+list($totalActions) = smf_mysql_fetch_row($request);
+smf_mysql_free_result($request);
 
 $_GET['m'] = !empty($_GET['m']) ? (int) $_GET['m'] : '0';
 $step_progress['total'] = $totalActions;
@@ -1974,7 +1974,7 @@ while ($_GET['m'] < $totalActions)
 		FROM {$db_prefix}log_actions
 		LIMIT $_GET[m], 500");
 
-	while ($row = mysql_fetch_assoc($mrequest))
+	while ($row = smf_mysql_fetch_assoc($mrequest))
 	{
 		if (!empty($row['id_board']) || !empty($row['id_topic']) || !empty($row['id_msg']))
 			continue;
@@ -2005,9 +2005,9 @@ while ($_GET['m'] < $totalActions)
 					FROM {$db_prefix}topics
 					WHERE id_topic=$topic_id
 					LIMIT 1");
-				if (mysql_num_rows($trequest))
-					list($board_id) = mysql_fetch_row($trequest);
-				mysql_free_result($trequest);
+				if (smf_mysql_num_rows($trequest))
+					list($board_id) = smf_mysql_fetch_row($trequest);
+				smf_mysql_free_result($trequest);
 			}
 		}
 		else
@@ -2024,9 +2024,9 @@ while ($_GET['m'] < $totalActions)
 					FROM {$db_prefix}messages
 					WHERE id_msg=$msg_id
 					LIMIT 1");
-				if (mysql_num_rows($trequest))
-					list($board_id, $topic_id) = mysql_fetch_row($trequest);
-				mysql_free_result($trequest);
+				if (smf_mysql_num_rows($trequest))
+					list($board_id, $topic_id) = smf_mysql_fetch_row($trequest);
+				smf_mysql_free_result($trequest);
 			}
 		}
 		else
@@ -2239,14 +2239,14 @@ $request = upgrade_query("
 	FROM {$db_prefix}subscriptions");
 $new_cols = array('repeatable', 'reminder', 'email_complete', 'allow_partial');
 $new_cols = array_flip($new_cols);
-while ($request && $row = mysql_fetch_row($request))
+while ($request && $row = smf_mysql_fetch_row($request))
 {
 	$row[0] = strtolower($row[0]);
 	if (isset($new_cols[$row[0]]))
 		unset($new_cols[$row[0]]);
 }
 if ($request)
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 if (isset($new_cols['repeatable']))
 	upgrade_query("
@@ -2270,13 +2270,13 @@ $request = upgrade_query("
 	FROM {$db_prefix}log_subscribed");
 $new_cols = array('reminder_sent', 'vendor_ref', 'payments_pending', 'pending_details');
 $new_cols = array_flip($new_cols);
-while ($request && $row = mysql_fetch_row($request))
+while ($request && $row = smf_mysql_fetch_row($request))
 {
 	if (isset($new_cols[$row[0]]))
 		unset($new_cols[$row[0]]);
 }
 if ($request)
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 if (isset($new_cols['reminder_sent']))
 	upgrade_query("
@@ -2561,25 +2561,25 @@ foreach ($nameChanges as $table_name => $table)
 	$request = upgrade_query("
 		SHOW TABLES
 		LIKE '{$db_prefix}$table_name'");
-	if (mysql_num_rows($request) == 0)
+	if (smf_mysql_num_rows($request) == 0)
 	{
-		mysql_free_result($request);
+		smf_mysql_free_result($request);
 		continue;
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	// Converting is intensive, so make damn sure that we need to do it.
 	$request = upgrade_query("
 		SHOW FIELDS
 		FROM `{$db_prefix}$table_name`");
 	$tinytextColumns = array();
-	while($row = mysql_fetch_assoc($request))
+	while($row = smf_mysql_fetch_assoc($request))
 	{
 		// Tinytext detected so store column name.
 		if ($row['Type'] == 'tinytext')
 			$tinytextColumns[$row['Field']] = $row['Field'];
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	// Check each column!
 	$actualChanges = array();
@@ -2774,7 +2774,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 		WHERE variable = 'theme_dir'
 			AND value LIKE '%core'");
 	// Only do the upgrade if it doesn't find the theme already.
-	if (mysql_num_rows($theme_request) == 0)
+	if (smf_mysql_num_rows($theme_request) == 0)
 	{
 		// Try to get some settings from the current default theme.
 		$request = upgrade_query("
@@ -2790,9 +2790,9 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 				AND t3.id_member = 0
 				AND t3.variable = 'images_url'
 			LIMIT 1");
-		if (mysql_num_rows($request) != 0)
+		if (smf_mysql_num_rows($request) != 0)
 		{
-			$curve = mysql_fetch_assoc($request);
+			$curve = smf_mysql_fetch_assoc($request);
 
 			if (substr_count($curve['theme_dir'], 'default') === 1)
 				$core['theme_dir'] = strtr($curve['theme_dir'], array('default' => 'core'));
@@ -2801,7 +2801,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 			if (substr_count($curve['images_url'], 'default') === 1)
 				$core['images_url'] = strtr($curve['images_url'], array('default' => 'core'));
 		}
-		mysql_free_result($request);
+		smf_mysql_free_result($request);
 
 		if (!isset($core['theme_dir']))
 			$core['theme_dir'] = addslashes($GLOBALS['boarddir']) . '/Themes/core';
@@ -2814,8 +2814,8 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 		$request = upgrade_query("
 			SELECT MAX(id_theme) + 1
 			FROM {$db_prefix}themes");
-		list ($id_core_theme) = mysql_fetch_row($request);
-		mysql_free_result($request);
+		list ($id_core_theme) = smf_mysql_fetch_row($request);
+		smf_mysql_free_result($request);
 
 		// Insert the core theme into the tables.
 		upgrade_query("
@@ -2841,7 +2841,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 				SELECT DISTINCT id_theme
 				FROM {$db_prefix}themes");
 			$themes = array();
-			while ($row = mysql_fetch_assoc($request))
+			while ($row = smf_mysql_fetch_assoc($request))
 				$themes[] = $row['id_theme'];
 			$modSettings['knownThemes'] = implode(',', $themes);
 			upgrade_query("
@@ -2872,9 +2872,9 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 				SELECT DISTINCT id_theme
 				FROM {$db_prefix}themes
 				WHERE variable = 'base_theme_dir'");
-			while ($row = mysql_fetch_assoc($request))
+			while ($row = smf_mysql_fetch_assoc($request))
 				$coreBasedThemes = array_diff($coreBasedThemes, array($row['id_theme']));
-			mysql_free_result($request);
+			smf_mysql_free_result($request);
 
 			// Only base themes if there are templates that need a fall-back.
 			$insertRows = array();
@@ -2884,7 +2884,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 				WHERE id_theme IN (" . implode(', ', $coreBasedThemes) . ")
 					AND id_member = 0
 					AND variable = 'theme_dir'");
-			while ($row = mysql_fetch_assoc($request))
+			while ($row = smf_mysql_fetch_assoc($request))
 			{
 				if (!file_exists($row['theme_dir'] . '/BoardIndex.template.php') || !file_exists($row['theme_dir'] . '/Display.template.php') || !file_exists($row['theme_dir'] . '/index.template.php') || !file_exists($row['theme_dir'] . '/MessageIndex.template.php') || !file_exists($row['theme_dir'] . '/Settings.template.php'))
 				{
@@ -2892,7 +2892,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 					$insertRows[] = "(0, $row[id_theme], 'base_theme_url', '" . addslashes($core['theme_url']) . "')";
 				}
 			}
-			mysql_free_result($request);
+			smf_mysql_free_result($request);
 
 			if (!empty($insertRows))
 				upgrade_query("
@@ -2903,7 +2903,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 						', $insertRows));
 		}
 	}
-	mysql_free_result($theme_request);
+	smf_mysql_free_result($theme_request);
 
 	// This ain't running twice either.
 	upgrade_query("
@@ -2989,7 +2989,7 @@ $request = upgrade_query("
 );
 
 // Drop the existing index before we recreate it.
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	if ($row['Key_name'] === 'real_name' && $row['Sub_part'] == 30)
 	{
@@ -3001,7 +3001,7 @@ while ($row = mysql_fetch_assoc($request))
 	}
 }
 
-mysql_free_result($request);
+smf_mysql_free_result($request);
 ---}
 ---#
 
@@ -3019,7 +3019,7 @@ $request = upgrade_query("
 );
 
 // Drop the existing index before we recreate it.
-while ($row = mysql_fetch_assoc($request))
+while ($row = smf_mysql_fetch_assoc($request))
 {
 	if ($row['Key_name'] === 'member_name' && $row['Sub_part'] == 30)
 	{
@@ -3031,7 +3031,7 @@ while ($row = mysql_fetch_assoc($request))
 	}
 }
 
-mysql_free_result($request);
+smf_mysql_free_result($request);
 
 ---}
 ---#
@@ -3100,8 +3100,8 @@ $request = upgrade_query("
 	FROM {$db_prefix}membergroups
 	WHERE id_group = 1
 	LIMIT 1");
-list ($admin_group_type) = mysql_fetch_row($request);
-mysql_free_result($request);
+list ($admin_group_type) = smf_mysql_fetch_row($request);
+smf_mysql_free_result($request);
 
 // Not protected means we haven't updated yet!
 if ($admin_group_type != 1)
