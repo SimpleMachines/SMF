@@ -1552,7 +1552,6 @@ ul li.greeting {
 .navigate_section ul li .dividers {
 	color: #3f6b8c;
 	font: 83.33%/150% Arial, sans-serif;
-	text-shadow: -2px -1px 0 rgba(0,0,0,0.4), -1px -1px 0 rgba(0,0,0,0.4), -2px 1px 0 rgba(0,0,0,0.4);
 	padding: 0 2px 0 6px;
 }
 .navigate_section ul li .board_moderators a {
