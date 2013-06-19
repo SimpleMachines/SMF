@@ -187,8 +187,7 @@ function template_body_above()
 		// Is the forum in maintenance mode?
 		if ($context['in_maintenance'] && $context['user']['is_admin'])
 			echo '
-				<li class="notice">', $txt['maintain_mode_on'], '</li>';
-		else
+				<li class="notice">', $txt['maintain_mode_on'], '<br /></li>';
 			echo '
 				<li>', $context['current_time'], '</li>';
 	}
