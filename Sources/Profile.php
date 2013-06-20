@@ -460,12 +460,12 @@ function ModifyProfile($post_errors = array())
 	unset($profile_areas);
 
 	// Now the context is setup have we got any security checks to carry out additional to that above?
-	if (isset($security_checks['validateToken']))
-		validateToken($token_name, $token_type);
 	if (isset($security_checks['session']))
 		checkSession($security_checks['session']);
 	if (isset($security_checks['validate']))
 		validateSession();
+	if (isset($security_checks['validateToken']))
+		validateToken($token_name, $token_type);
 	if (isset($security_checks['permission']))
 		isAllowedTo($security_checks['permission']);
 
