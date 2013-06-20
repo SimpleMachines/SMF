@@ -742,26 +742,29 @@ function modifyBoard($board_id, &$boardOptions)
 					unset($moderator_groups[$k]);
 			}
 
-			// Find all the id_group's for all the group names in the list
+			/* 	Find all the id_group's for all the group names in the list
+				But skip any invalid ones (invisible/post groups/Administrator/Moderator) */
 			if (empty($boardOptions['moderator_groups']))
 				$boardOptions['moderator_groups'] = array();
 			if (!empty($moderator_groups))
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT id_group, min_posts
+					SELECT id_group
 					FROM {db_prefix}membergroups
 					WHERE group_name IN ({array_string:moderator_group_list})
+						AND hidden = {int:visible}
+						AND min_posts = {int:negative_one}
+						AND id_group NOT IN ({array_int:invalid_groups})
 					LIMIT ' . count($moderator_groups),
 					array(
+						'visible' => 0,
+						'negative_one' => -1,
+						'invalid_groups' => array(1,3),
 						'moderator_group_list' => $moderator_groups,
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
-					// Don't allow post groups, "Administrator" or "Moderator"
-					if ($row['min_posts'] != -1 || in_array($row['id_group'], array(1,3)))
-						continue;
-					
 					$boardOptions['moderator_groups'][] = $row['id_group'];
 				}
 				$smcFunc['db_free_result']($request);
