@@ -450,7 +450,7 @@ function template_main()
 								<div class="page_number floatright">
 									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 								</div>
-								<h5 id="subject_', $message['id'], '">
+								<h5>
 									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
 
 		// Show "<< Last Edit: Time by Person >>" if this post was edited.
