@@ -253,6 +253,9 @@ upgrade_query("
 	ALTER TABLE {$db_prefix}log_topics
 	ADD COLUMN disregarded int NOT NULL DEFAULT '0'");
 
+UPDATE {$db_prefix}log_topics
+SET disregarded = 0;
+
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
