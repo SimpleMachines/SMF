@@ -299,7 +299,6 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
 					'token' => 'profile-iw%u',
-					'enabled' => !$context['user']['is_owner'],
 					'permission' => array(
 						'own' => array('issue_warning'),
 						'any' => array('issue_warning'),
