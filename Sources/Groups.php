@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -102,7 +102,15 @@ function GroupList()
 						else
 						{
 							$color_style = empty($rowData[\'online_color\']) ? \'\' : sprintf(\' style="color: %1$s;"\', $rowData[\'online_color\']);
-							$group_name = sprintf(\'<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $color_style, $rowData[\'group_name\']);
+							
+							if (allowedTo(\'manage_membergroups\'))
+							{
+								$group_name = sprintf(\'<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $color_style, $rowData[\'group_name\']);
+							}
+							else
+							{
+								$group_name = sprintf(\'<a href="%1$s?action=groups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $color_style, $rowData[\'group_name\']);
+							}
 						}
 
 						// Add a help option for moderator and administrator.
@@ -213,7 +221,7 @@ function MembergroupMembers()
 
 	// Fix the membergroup icons.
 	$context['group']['icons'] = explode('#', $context['group']['icons']);
-	$context['group']['icons'] = !empty($context['group']['icons'][0]) && !empty($context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $context['group']['icons'][1] . '" alt="*" />', $context['group']['icons'][0]) : '';
+	$context['group']['icons'] = !empty($context['group']['icons'][0]) && !empty($context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $context['group']['icons'][1] . '" alt="*" />', $context['group']['icons'][0]) : '';
 	$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || $context['group']['group_type'] != 1);
 
 	$context['linktree'][] = array(

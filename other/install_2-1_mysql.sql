@@ -1404,6 +1404,16 @@ CREATE TABLE {$db_prefix}moderators (
 ) ENGINE=MyISAM;
 
 #
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_group smallint(5) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group) 
+) ENGINE=MyISAM;
+
+#
 # Table structure for table `openid_assoc`
 #
 
@@ -1747,7 +1757,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('xmlnews_maxlen', '255'),
 	('hotTopicPosts', '15'),
 	('hotTopicVeryPosts', '25'),
-	('registration_method', '0'),
+	('registration_method', '{$registration_method}'),
 	('send_validation_onChange', '0'),
 	('send_welcomeEmail', '1'),
 	('allow_editDisplayName', '1'),
@@ -2007,7 +2017,7 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'enable_news', '1'),
 	(1, 'forum_width', '90%');
 
-INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '1');
+INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 # --------------------------------------------------------
 

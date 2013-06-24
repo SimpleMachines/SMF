@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -174,9 +174,9 @@ function template_main()
 						<p>', $board['description'] , '</p>';
 
 				// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
-				if (!empty($board['moderators']))
+				if (!empty($board['link_moderators']))
 					echo '
-						<p class="moderators">', count($board['moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
+						<p class="moderators">', count($board['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
 
 				// Show some basic information about the number of posts, etc.
 					echo '
@@ -248,7 +248,7 @@ function template_main()
 		</ul>';
 
 	// Show the mark all as read button?
-	if ($settings['show_mark_read'] && !empty($context['categories']))
+	if ($context['user']['is_logged'] && $settings['show_mark_read'] && !empty($context['categories']))
 	echo '
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 }

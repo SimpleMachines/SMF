@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -505,6 +505,7 @@ function template_admin_register()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	echo '
+	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 	<div id="admincenter">
 		<div id="admin_form_wrapper">
 			<form id="postForm" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm">

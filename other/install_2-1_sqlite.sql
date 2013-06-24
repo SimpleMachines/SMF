@@ -1524,6 +1524,16 @@ CREATE TABLE {$db_prefix}moderators (
 );
 
 #
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint NOT NULL default '0',
+  id_group smallint NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group) 
+);
+
+#
 # Table structure for table `openid_assoc`
 #
 
@@ -1889,7 +1899,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_enable', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_maxlen', '255');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicPosts', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicVeryPosts', '25');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '{$registration_method}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_validation_onChange', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_welcomeEmail', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_editDisplayName', '1');
@@ -2157,7 +2167,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additiona
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'forum_width', '90%');
-INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '1');
+INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 COMMIT;
 

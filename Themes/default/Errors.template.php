@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -37,7 +37,7 @@ function template_fatal_error()
 	// Show a back button (using javascript.)
 	echo '
 	<div class="centertext">
-		<a class="button_link" style="float:none" href="javascript:history.go(-1)">', $txt['back'], '</a>
+		<a class="button_link" style="float:none" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
 	</div>';
 }
 

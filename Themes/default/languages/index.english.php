@@ -8,7 +8,7 @@ global $forum_copyright, $forum_version, $webmaster_email, $scripturl, $context,
 //   - http://www.php.net/function.pspell-new
 //   - http://www.php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
-$txt['lang_locale'] = '';
+$txt['lang_locale'] = 'en_US';
 $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
 
@@ -297,6 +297,7 @@ $txt['very_hot_topics'] = 'Very Hot Topic (More than %1$d replies)';
 $txt['locked_topic'] = 'Locked Topic';
 $txt['normal_topic'] = 'Normal Topic';
 $txt['participation_caption'] = 'Topic you have posted in';
+$txt['moved_topic'] = 'Moved Topic';
 
 $txt['go_caps'] = 'GO';
 

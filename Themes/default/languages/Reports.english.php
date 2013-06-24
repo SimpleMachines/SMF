@@ -89,6 +89,7 @@ $txt['board_theme'] = 'Board Theme';
 $txt['board_override_theme'] = 'Force Board Theme';
 $txt['board_profile'] = 'Permissions Profile';
 $txt['board_moderators'] = 'Moderators';
+$txt['board_moderatr_groups'] = 'Moderator Groups';
 $txt['board_groups'] = 'Groups with Access';
 $txt['board_disallowed_groups'] = 'Groups with Access Denied';
 

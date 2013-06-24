@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -19,6 +19,15 @@ $GLOBALS['required_php_version'] = '5.1.0';
 $GLOBALS['required_mysql_version'] = '4.0.18';
 
 $databases = array(
+	'mysqli' => array(
+		'name' => 'MySQLi',
+		'version' => '4.0.18',
+		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
+		'utf8_support' => true,
+		'utf8_version' => '4.1.0',
+		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
+		'alter_support' => true,
+	),
 	'mysql' => array(
 		'name' => 'MySQL',
 		'version' => '4.0.18',
@@ -822,7 +831,7 @@ function loadEssentialData()
 		if ($db_connection === null)
 			die('Unable to connect to database - please check username and password are correct in Settings.php');
 
-		if ($db_type == 'mysql' && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
+		if (($db_type == 'mysql' || $db_type == 'mysqli') && isset($db_character_set) && preg_match('~^\w+$~', $db_character_set) === 1)
 			$smcFunc['db_query']('', '
 			SET NAMES ' . $db_character_set,
 			array(
@@ -884,11 +893,13 @@ function initialize_inputs()
 	{
 		@unlink(__FILE__);
 
+		$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+
 		// And the extra little files ;).
 		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
 		@unlink(dirname(__FILE__) . '/upgrade_1-1.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
-		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-0_' . $type . '.sql');
+		@unlink(dirname(__FILE__) . '/upgrade_2-1_' . $type . '.sql');
 		@unlink(dirname(__FILE__) . '/webinstall.php');
 
 		$dh = opendir(dirname(__FILE__));
@@ -943,15 +954,17 @@ function WelcomeLogin()
 
 	$upcontext['sub_template'] = 'welcome_message';
 
+	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists($sourcedir . '/QueryString.php')
 		&& @file_exists($sourcedir . '/Subs-Db-' . $db_type . '.php')
-		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . $db_type . '.sql');
+		&& @file_exists(dirname(__FILE__) . '/upgrade_2-1_' . $type . '.sql');
 
 	// Need legacy scripts?
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 2.1)
-		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . $db_type . '.sql');
+		$check &= @file_exists(dirname(__FILE__) . '/upgrade_2-0_' . $type . '.sql');
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 2.0)
 		$check &= @file_exists(dirname(__FILE__) . '/upgrade_1-1.sql');
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 1.1)
@@ -1059,7 +1072,7 @@ function checkLogin()
 
 		// Before 2.0 these column names were different!
 		$oldDB = false;
-		if (empty($db_type) || $db_type == 'mysql')
+		if (empty($db_type) || $db_type == 'mysql' || $db_type == 'mysqli')
 		{
 			$request = $smcFunc['db_query']('', '
 				SHOW COLUMNS
@@ -1459,13 +1472,15 @@ function DatabaseChanges()
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
 	$upcontext['page_title'] = 'Database Changes';
 
+	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+
 	// All possible files.
 	// Name, <version, insert_on_complete
 	$files = array(
 		array('upgrade_1-0.sql', '1.1', '1.1 RC0'),
 		array('upgrade_1-1.sql', '2.0', '2.0 a'),
-		array('upgrade_2-0_' . $db_type . '.sql', '2.1', '2.1 dev0'),
-		array('upgrade_2-1_' . $db_type . '.sql', '3.0', SMF_VERSION),
+		array('upgrade_2-0_' . $type . '.sql', '2.1', '2.1 dev0'),
+		array('upgrade_2-1_' . $type . '.sql', '3.0', SMF_VERSION),
 	);
 
 	// How many files are there in total?
@@ -1941,7 +1956,7 @@ function DeleteUpgrade()
 
 	// Save the current database version.
 	$server_version = $smcFunc['db_server_info']();
-	if ($db_type == 'mysql' && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
+	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
 		updateSettings(array('db_mysql_group_by_fix' => '1'));
 
 	if ($command_line)
@@ -2544,9 +2559,9 @@ function upgrade_query($string, $unbuffered = false)
 
 	$db_error_message = $smcFunc['db_error']($db_connection);
 	// If MySQL we do something more clever.
-	if ($db_type == 'mysql')
+	if ($db_type == 'mysql' || $db_type == 'mysqli')
 	{
-		$mysql_errno = mysql_errno($db_connection);
+		$mysql_errno = ($db_type == 'mysqli') ? mysqli_errno($db_connection) : mysql_errno($db_connection);
 		$error_query = in_array(substr(trim($string), 0, 11), array('INSERT INTO', 'UPDATE IGNO', 'ALTER TABLE', 'DROP TABLE ', 'ALTER IGNOR'));
 
 		// Error numbers:
@@ -2565,24 +2580,43 @@ function upgrade_query($string, $unbuffered = false)
 		if ($mysql_errno == 1016)
 		{
 			if (preg_match('~\'([^\.\']+)~', $db_error_message, $match) != 0 && !empty($match[1]))
-				mysql_query( '
-					REPAIR TABLE `' . $match[1] . '`');
-
-			$result = mysql_query($string);
-			if ($result !== false)
-				return $result;
+			{
+				if ($db_type == 'mysql')
+				{
+					mysql_query('REPAIR TABLE `' . $match[1] . '`');
+					$result = mysql_query($string);
+				}
+				else
+				{
+					mysqli_query($db_connection, 'REPAIR TABLE `' . $match[1] . '`');
+					$result = mysqli_query($db_connection, $string);
+				}
+				if ($result !== false)
+					return $result;
+			}
 		}
 		elseif ($mysql_errno == 2013)
 		{
 			$db_connection = mysql_connect($db_server, $db_user, $db_passwd);
-			mysql_select_db($db_name, $db_connection);
-
-			if ($db_connection)
+			if ($db_type == 'mysql')
 			{
-				$result = mysql_query($string);
-
-				if ($result !== false)
-					return $result;
+				mysql_select_db($db_name, $db_connection);
+				if ($db_connection)
+				{
+					$result = mysql_query($string);
+					if ($result !== false)
+						return $result;
+				}
+			}
+			else
+			{
+				mysqli_select_db($db_connection, $db_name);
+				if ($db_connection)
+				{
+					$result = mysqli_query($db_connection, $string);
+					if ($result !== false)
+						return $result;
+				}
 			}
 		}
 		// Duplicate column name... should be okay ;).
@@ -2653,6 +2687,42 @@ function upgrade_query($string, $unbuffered = false)
 		</div>';
 
 	upgradeExit();
+}
+
+function smf_mysql_fetch_assoc($rs)
+{
+	global $db_type;
+	return ($db_type == 'mysql') ? mysql_fetch_assoc($rs) : mysqli_fetch_assoc($rs);
+}
+
+function smf_mysql_fetch_row($rs)
+{
+	global $db_type;
+	return ($db_type == 'mysql') ? mysql_fetch_row($rs) : mysqli_fetch_row($rs);
+}
+
+function smf_mysql_free_result($rs)
+{
+	global $db_type;
+	return ($db_type == 'mysql') ? mysql_free_result($rs) : mysqli_free_result($rs);
+}
+
+function smf_mysql_insert_id($rs)
+{
+	global $db_type;
+	return ($db_type == 'mysql') ? mysql_insert_id($rs) : mysqli_insert_id($rs);
+}
+
+function smf_mysql_num_rows($rs)
+{
+	global $db_type;
+	return ($db_type == 'mysql') ? mysql_num_rows($rs) : mysqli_num_rows($rs);
+}
+
+function smf_mysql_real_escape_string($string)
+{
+	global $db_type, $db_connection;
+	return ($db_type == 'mysql') ? mysql_real_escape_string($string, $db_connection) : mysqli_real_escape_string($db_connection, $string);
 }
 
 // This performs a table alter, but does it unbuffered so the script can time out professionally.
@@ -2849,7 +2919,7 @@ function checkChange(&$change)
 	if (empty($database_version))
 	{
 		$database_version = $databases[$db_type]['version_check'];
-		$where_field_support = $db_type == 'mysql' && version_compare('5.0', $database_version, '<=');
+		$where_field_support = ($db_type == 'mysql' || $db_type == 'mysqli') && version_compare('5.0', $database_version, '<=');
 	}
 
 	// Not a column we need to check on?
@@ -3773,7 +3843,7 @@ function template_welcome_message()
 	echo '
 			</table><br />
 			<span class="smalltext">
-				<strong>Note:</strong> If necessary the above security check can be bypassed for users who may administrate a server but not have admin rights on the forum. In order to bypass the above check simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = 0;&quot; with &quot;$disable_security = 1;&quot; and refresh this page.
+				<strong>Note:</strong> If necessary the above security check can be bypassed for users who may administrate a server but not have admin rights on the forum. In order to bypass the above check simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.
 			</span>
 			<input type="hidden" name="login_attempt" id="login_attempt" value="1" />
 			<input type="hidden" name="js_works" id="js_works" value="0" />';
@@ -3838,7 +3908,7 @@ function template_upgrade_options()
 				<table cellpadding="1" cellspacing="0">
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'postgresql' ? ' disabled="disabled"' : '', ' class="input_check" />
+							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled="disabled"' : '', ' class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label>', isset($modSettings['smfVersion']) ? '' : ' (recommended!)', '

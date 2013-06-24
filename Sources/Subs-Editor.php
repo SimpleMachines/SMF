@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -2164,6 +2164,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	// These are all registered types.
 	$searchTypes = array(
 		'member' => 'Member',
+		'membergroups' => 'MemberGroups',
 		'versions' => 'SMFVersions',
 	);
 
@@ -2227,6 +2228,57 @@ function AutoSuggest_Search_Member()
 				'id' => $row['id_member'],
 			),
 			'value' => $row['real_name'],
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $xml_data;
+}
+
+/**
+ * Search for a membergroup by name
+ *
+ * @return string
+ */
+function AutoSuggest_Search_MemberGroups()
+{
+	global $txt, $smcFunc, $context;
+
+	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
+	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
+
+	// Find the group.
+	// Only return groups which are not post-based and not "Hidden", but not the "Administrators" or "Moderators" groups.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_group, group_name
+		FROM {db_prefix}membergroups
+		WHERE group_name LIKE {string:search}
+			AND min_posts = {int:min_posts}
+			AND id_group NOT IN ({array_int:invalid_groups})
+			AND hidden != {int:hidden}
+		',
+		array(
+			'min_posts' => -1,
+			'invalid_groups' => array(1,3),
+			'hidden' => 2,
+			'search' => $_REQUEST['search'],
+		)
+	);
+	$xml_data = array(
+		'items' => array(
+			'identifier' => 'item',
+			'children' => array(),
+		),
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$row['group_name'] = strtr($row['group_name'], array('&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;'));
+
+		$xml_data['items']['children'][] = array(
+			'attributes' => array(
+				'id' => $row['id_group'],
+			),
+			'value' => $row['group_name'],
 		);
 	}
 	$smcFunc['db_free_result']($request);

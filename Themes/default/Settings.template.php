@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -238,6 +238,10 @@ function template_settings()
 			'type' => 'number',
 		),
 	'',
+		array(
+			'id' => 'subject_toggle',
+			'label' => $txt['subject_toggle'],
+		),
 		array(
 			'id' => 'show_modify',
 			'label' => $txt['last_modification'],

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -21,6 +21,26 @@ $GLOBALS['required_php_version'] = '5.1.0';
 
 // Database info.
 $databases = array(
+	'mysqli' => array(
+		'name' => 'MySQLi',
+		'version' => '4.0.18',
+		'version_check' => 'return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
+		'supported' => function_exists('mysqli_connect'),
+		'default_user' => 'mysql.default_user',
+		'default_password' => 'mysql.default_password',
+		'default_host' => 'mysql.default_host',
+		'default_port' => 'mysql.default_port',
+		'utf8_support' => true,
+		'utf8_version' => '4.1.0',
+		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
+		'utf8_default' => true,
+		'utf8_required' => false,
+		'alter_support' => true,
+		'validate_prefix' => create_function('&$value', '
+			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
+			return true;
+		'),
+	),
 	'mysql' => array(
 		'name' => 'MySQL',
 		'version' => '4.0.18',
@@ -234,7 +254,10 @@ function initialize_inputs()
 			$ftp->unlink('webinstall.php');
 
 			foreach ($databases as $key => $dummy)
-				$ftp->unlink('install_' . $GLOBALS['db_script_version'] . '_' . $key . '.sql');
+			{
+				$type = ($key == 'mysqli') ? 'mysql' : $key;
+				$ftp->unlink('install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+			}
 
 			$ftp->close();
 
@@ -246,7 +269,10 @@ function initialize_inputs()
 			@unlink(dirname(__FILE__) . '/webinstall.php');
 
 			foreach ($databases as $key => $dummy)
-				@unlink(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $key . '.sql');
+			{
+				$type = ($key == 'mysqli') ? 'mysql' : $key;
+				@unlink(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
+			}
 		}
 
 		// Now just redirect to a blank.png...
@@ -339,7 +365,7 @@ function load_lang_file()
 function load_database()
 {
 	global $db_prefix, $db_connection, $db_character_set, $sourcedir, $language;
-	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user;
+	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -439,11 +465,12 @@ function Welcome()
 	{
 		if ($db['supported'])
 		{
-			if (!file_exists(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $key . '.sql'))
+			$type = ($key == 'mysqli') ? 'mysql' : $key;
+			if (!file_exists(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql'))
 			{
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $key . '.sql');
+				$txt['error_db_script_missing'] = sprintf($txt['error_db_script_missing'], 'install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql');
 			}
 			else
 			{
@@ -957,17 +984,6 @@ function ForumSettings()
 				updateSettingsFile(array('db_character_set' => 'utf8'));
 		}
 
-		//-- Set the registration mode...
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}settings
-			SET value = {int:reg_mode}
-			WHERE variable = {string:this_variable}',
-			array(
-				'reg_mode' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
-				'this_variable' => 'registration_method',
-			)
-		);
-
 		// Good, skip on.
 		return true;
 	}
@@ -1035,6 +1051,7 @@ function DatabasePopulation()
 		'{$smf_version}' => $GLOBALS['current_smf_version'],
 		'{$current_time}' => time(),
 		'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
+		'{$registration_method}' => isset($_POST['reg_mode']) ? $_POST['reg_mode'] : 0,
 	);
 
 	foreach ($txt as $key => $value)
@@ -1049,7 +1066,8 @@ function DatabasePopulation()
 		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
-	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $db_type . '.sql')), $replaces));
+	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';
@@ -1083,7 +1101,7 @@ function DatabasePopulation()
 		{
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
-			if (($db_type != 'mysql' || mysql_errno($db_connection) === 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
+			if ((($db_type != 'mysql' && $db_type != 'mysqli') || mysql_errno($db_connection) === 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				$exists[] = $match[1];
 				$incontext['sql_results']['table_dups']++;
@@ -1550,7 +1568,7 @@ function DeleteInstall()
 
 	// Check if we need some stupid MySQL fix.
 	$server_version = $smcFunc['db_server_info']();
-	if ($db_type == 'mysql' && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
+	if (($db_type == 'mysql' || $db_type == 'mysqli') && in_array(substr($server_version, 0, 6), array('5.0.50', '5.0.51')))
 		updateSettings(array('db_mysql_group_by_fix' => '1'));
 
 	// Some final context for the template.

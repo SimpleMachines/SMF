@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -4004,6 +4004,10 @@ function setupMenuContext()
 
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;
+
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && $context['open_mod_reports'] > 0)
+		$context['menu_buttons']['moderate']['title'] .= ' [<strong>' .$context['open_mod_reports'] . '</strong>]';
+
 
 	if (!$user_info['is_guest'] && $context['user']['unread_messages'] > 0 && isset($context['menu_buttons']['pm']))
 	{

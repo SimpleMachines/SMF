@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -527,19 +527,22 @@ function Credits($in_admin = false)
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
 
-	$context[$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['support_credits_title'],
-		'help' => '',
-		'description' => '',
-	);
-
+	if($in_admin)
+	{
+		$context[$context['admin_menu_name']]['tab_data'] = array(
+			'title' => $txt['support_credits_title'],
+			'help' => '',
+			'description' => '',
+		);
+	}
+	
 	$context['credits'] = array(
 		array(
 			'pretext' => $txt['credits_intro'],
 			'title' => $txt['credits_team'],
 			'groups' => array(
 				array(
-					'title' => $txt['credits_groups_ps'],
+					'title' => $txt['credits_groups_pm'],
 					'members' => array(
 						'Michael &quot;Oldiesmann&quot; Eshom',
 					),
@@ -725,6 +728,11 @@ function Credits($in_admin = false)
 			'<a href="http://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
+		'fonts' => array(
+			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> |&copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> |&copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> |&copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+		),						
 	);
 
 	// Support for mods that use the <credits> tag via the package manager

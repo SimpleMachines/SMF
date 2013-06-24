@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -428,6 +428,14 @@ function template_modify_board()
 							<input type="text" name="moderators" id="moderators" value="', $context['board']['moderator_list'], '" size="30" class="input_text" />
 							<div id="moderator_container"></div>
 						</dd>
+						<dt>
+							<strong>', $txt['mboards_moderator_groups'], ':</strong><br />
+							<span class="smalltext">', $txt['mboards_moderator_groups_desc'], '</span><br />
+						</dt>
+						<dd>
+							<input type="text" name="moderator_groups" id="moderator_groups" value="', $context['board']['moderator_groups_list'], '" size="30" class="input_text" />
+							<div id="moderator_group_container"></div>
+						</dd>
 					</dl>
 					<script type="text/javascript"><!-- // --><![CDATA[
 						$(document).ready(function () {
@@ -594,6 +602,31 @@ function template_modify_board()
 	echo '
 		]
 	});
+	
+	var oModeratorGroupSuggest = new smc_AutoSuggest({
+		sSelf: \'oModeratorGroupSuggest\',
+		sSessionId: smf_session_id,
+		sSessionVar: smf_session_var,
+		sSuggestId: \'moderator_groups\',
+		sControlId: \'moderator_groups\',
+		sSearchType: \'membergroups\',
+		bItemList: true,
+		sPostName: \'moderator_group_list\',
+		sURLMask: \'action=groups;sa=members;group=%item_id%\',
+		sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
+		sItemListContainerId: \'moderator_group_container\',
+		aListItems: [';
+		
+	foreach ($context['board']['moderator_groups'] as $id_group => $group_name)
+		echo '
+					{
+						sItemId: ', JavaScriptEscape($id_group), ',
+						sItemName: ', JavaScriptEscape($group_name), '
+					}', $id_group == $context['board']['last_moderator_group_id'] ? '' : ',';
+
+		echo '
+			]
+		});
 // ]]></script>';
 
 	// Javascript for deciding what to show.

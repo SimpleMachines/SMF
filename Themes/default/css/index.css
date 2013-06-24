@@ -570,14 +570,12 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
 }
 
-
-
 /* Sticky topics get a different background */
 .stickybg {
-	background: #e8d8cf;
+	background: #cfdce8;
 }
 .stickybg2 {
-	background: #f2e3d9;
+	background: #d9e7f2;
 }
 
 /* Plain locked topics just get the icon. */
@@ -1301,7 +1299,7 @@ img.sort {
 .buttonlist ul li a span {
 	display: block;
 	height: 2.2em;
-	line-height: 2.5em;
+	line-height: 2.2em;
 	padding: 0 8px;
 }
 /* the active one */
@@ -1369,8 +1367,12 @@ img.sort {
 	display: inline;
 	font-size: 0.9em;
 }
+.notice
+{
+ font-weight: bold;
+}
 #search_form {
-	padding: 4px 0 0 0;
+	padding: 8px 0 0 0;
 	text-align: right;
 	min-width: 30em;
 }
@@ -1387,15 +1389,17 @@ img.sort {
 	padding: 1px;
 }
 #search_form .button_submit {
+	margin: 2px 5px;
 	padding: 1px 2px;
-	margin: -1px 5px;
+	border-radius: 3px;
 	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	color: #333;
 }
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
 #ie #search_form .button_submit, #chrome #search_form .button_submit {
-	padding: 3px 5px;
+	padding: 2px 5px;
+	margin: 0 5px;
 }
 #search_form .button_submit:hover {
 	background: #fff url(../images/theme/upper_section.png) 0 45% repeat-x;
@@ -1467,7 +1471,7 @@ img#smflogo {
 .user ul{
 	padding: 0 0 5px 0;
 	font-size: 0.9em;
-	line-height: 1.5em;
+	line-height: 1.8em;
 }
 ul li.greeting {
 	font-weight: bold;
@@ -1502,21 +1506,9 @@ ul li.greeting {
 	padding: 0 0 0 4px;
 }
 /* The upshrink image needs some tweaking */
-#upshrink {
+#upshrink, #upshrink:hover {
 	padding: 5px 4px 3px 4px;
-	border-radius: 4px;
-	background: #fff;
-	box-shadow: -1px -1px 3px rgba(96,134,166,0.1) inset;
-	border: 1px solid #ccc;
-	border-right: 1px solid #c4c4c4;
-	border-bottom: 1px solid #bbb;
-}
-#upshrink:hover{
-	background: #fafafa;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1) inset;
-	border: 1px solid #ccc;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
+	background: #none;
 }
 
 /* The navigation list (i.e. linktree) */
@@ -1543,8 +1535,8 @@ ul li.greeting {
 }
 .navigate_section ul li {
 	float: left;
-	padding: 0;
-	line-height: 1.8em;
+	padding-bottom: 3px;
+	line-height: 1.1em;
 	color: #444;
 	text-shadow: 1px 1px 0 #fff;
 }
@@ -1560,7 +1552,6 @@ ul li.greeting {
 .navigate_section ul li .dividers {
 	color: #3f6b8c;
 	font: 83.33%/150% Arial, sans-serif;
-	text-shadow: -2px -1px 0 rgba(0,0,0,0.4), -1px -1px 0 rgba(0,0,0,0.4), -2px 1px 0 rgba(0,0,0,0.4);
 	padding: 0 2px 0 6px;
 }
 .navigate_section ul li .board_moderators a {
@@ -2044,9 +2035,11 @@ div#pollmoderation {
 	margin: 4px 0 0 0;
 }
 /* poster and postarea + moderation area underneath */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg,
-#forumposts .approvebg2, #personal_messages div.windowbg, #personal_messages div.windowbg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
+}
+#personal_messages div.windowbg2 {
+	overflow: auto;
 }
 .post_wrapper:after {
 	content:"";
@@ -2224,9 +2217,19 @@ div#pollmoderation {
 	font-weight: normal;
 	padding: 2px 4px 0 4px;
 }
+.subject_title a {
+	font-size: 0.9em;
+	color: #333;
+	font-weight: bold;
+}
+.page_number {
+	color: #ad6825;
+	font-weight: bold;
+	opacity: 0.4;
+}
 .inner {
 	padding: 7px 8px 2px 2px;
-	margin: 0 8x 0 0;
+	margin: 0 8px 0 0;
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	min-height: 85px;
@@ -2365,8 +2368,8 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 }
 .quickbuttons li.post_options {
-	padding: 0 0 0 0;
-	border-radius: 1px 4px 4px 1px;
+    padding: 0 4px 0 4px;
+    border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
@@ -2914,16 +2917,16 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 
 /* Sticky topics get a different background */
 .topic_table td.stickybg {
-	background:  #e8d8cf url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
+	background: #cfdce8 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
 }
 .topic_table td.stickybg2 {
-	background:  #f2e3d9 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
+	background: #cfdce8 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
 }
 .topic_table td.locked_sticky, .topic_table td.stickybglockedbg {
 	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.locked_sticky2, .topic_table td.stickybglockedbg2 {
-	background: #f2e3d9 url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
+	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
 
 /* Plain locked topics just get the icon. */
@@ -2932,7 +2935,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	background: #e7eaef url(../images/icons/quick_lock.png) no-repeat 98% 4px;
 }
 .topic_table td.lockedbg2 {
-	background: #f0f4f7 url(../images/icons/quick_lock.png) no-repeat 98% 4px;
+	background: #e7eaef url(../images/icons/quick_lock.png) no-repeat 98% 4px;
 }
 
 /* Stop those damned icons popping up in every table cell! */
@@ -2943,7 +2946,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 
 .errorfile_table {
 	background: #f0f4f7;
-	border-spacing: 3;
+	border-spacing: 3px;
 	border-collapse: collapse;
 }
 .errorfile_table td.current {
@@ -3001,7 +3004,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .infobox  {
 	color: #222;
-	background: #efe url(../images/icons/field_valid.png) 10px 50% no-repeat;
+	background: #efe;
 	text-align: left;
 	border-top: 1px solid green;
 	border-bottom: 1px solid green;
@@ -3290,6 +3293,10 @@ dl {
 }
 img.centericon {
 	vertical-align: middle;
+}
+.sizefix {
+	width: 16px;
+	height: 16px;
 }
 .ignoreboards {
 	margin: 0 2%;
@@ -4229,20 +4236,13 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	padding: 5px 5px 4px 10px;
 }
 #postmodify .roundframe .titlebg img {
-	border-radius: 3px;
 	padding: 4px 4px 0 4px;
-	background: #fff;
-	box-shadow: -1px -1px 3px rgba(96,134,166,0.2) inset;
-	border: 1px solid #ccc;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #afafaf;
+	background: none;
+	border: none;
 }
 #postmodify .roundframe .titlebg img:hover{
-	background: #fafafa;
-	box-shadow: 1px 1px 3px rgba(96,134,166,0.3) inset;
-	border: 1px solid #ccc;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
+	background: none;
+	border: none;
 }
 #postmodify .roundframe div{
 	padding-right: 0;
@@ -4268,12 +4268,6 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 .table_grid td.stickybg, .table_grid td.stickybg2, .table_grid td.locked_sticky, .table_grid td.locked_sticky2,
 .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
 	border-bottom: 1px solid #ccc;
-}
-.table_grid tr:nth-child(even) td {
-	background: #fdfdfd;
-}
-.table_grid tr:nth-child(odd) td {
-	background: #fafafa;
 }
 .table_grid td.whos_viewing {
 	font-size: 0.9em;
@@ -4306,8 +4300,8 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* Styles for "Who" action.
--------------------------------------------------- */	
-.action_who #upper_show {	
+-------------------------------------------------- */
+.action_who #upper_show {
 	margin-top: 6px;
 }
 .action_who #lower_pagesection {

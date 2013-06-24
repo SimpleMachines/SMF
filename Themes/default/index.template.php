@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -187,8 +187,7 @@ function template_body_above()
 		// Is the forum in maintenance mode?
 		if ($context['in_maintenance'] && $context['user']['is_admin'])
 			echo '
-				<li class="notice">', $txt['maintain_mode_on'], '</li>';
-		else
+				<li class="notice">', $txt['maintain_mode_on'], '<br /></li>';
 			echo '
 				<li>', $context['current_time'], '</li>';
 	}

@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -65,9 +65,9 @@ function template_main()
 						<p>', $board['description'] , '</p>';
 
 			// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
-			if (!empty($board['moderators']))
+			if (!empty($board['moderators']) || !empty($board['moderator_groups']))
 				echo '
-						<p class="moderators">', count($board['moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
+						<p class="moderators">', count($board['link_moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
 
 			// Show some basic information about the number of posts, etc.
 			echo '
@@ -380,7 +380,8 @@ function template_main()
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
 				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				'. ($modSettings['pollMode'] == '1' ? '<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '
+				'. ($modSettings['pollMode'] == '1' ? '<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '<br />
+				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix" /> ' . $txt['moved_topic'] . '<br />
 			</p>
 			<p>
 				<img src="' . $settings['images_url'] . '/icons/quick_lock.png" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />' . ($modSettings['enableStickyTopics'] == '1' ? '

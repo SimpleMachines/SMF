@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -605,6 +605,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		'',
 			// Reporting of personal messages?
 			array('check', 'enableReportPM'),
+		'',
+			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
 	);
 
 	call_integration_hook('integrate_general_security_settings', array(&$config_vars));

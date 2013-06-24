@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -736,6 +736,22 @@ function rebuildModCache()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$boards_mod[] = $row['id_board'];
 		$smcFunc['db_free_result']($request);
+		
+		// Can any of the groups they're in moderate any of the boards?
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board
+			FROM {db_prefix}moderator_groups
+			WHERE id_group IN({array_int:groups})',
+			array(
+				'groups' => $user_info['groups'],
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$boards_mod[] = $row['id_board'];
+		$smcFunc['db_free_result']($request);
+		
+		// Just in case we've got duplicates here...
+		$boards_mod = array_unique($boards_mod);
 	}
 
 	$mod_query = empty($boards_mod) ? '0=1' : 'b.id_board IN (' . implode(',', $boards_mod) . ')';

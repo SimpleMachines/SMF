@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -209,9 +209,10 @@ function deleteMembergroups($groups)
  * @param array $members
  * @param array $groups = null if groups is null, the specified members are stripped from all their membergroups.
  * @param bool $permissionCheckDone = false
+ * @param bool $ignoreProtected = false
  * @return boolean
  */
-function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false)
+function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false, $ignoreProtected = false)
 {
 	global $smcFunc, $user_info, $modSettings, $sourcedir;
 
@@ -312,7 +313,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 	$groups = array_diff($groups, $implicitGroups);
 
 	// Don't forget the protected groups.
-	if (!allowedTo('admin_forum'))
+	if (!allowedTo('admin_forum') && !$ignoreProtected)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_group
@@ -434,9 +435,10 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  * 	- auto              - Assigns a membergroup to the primary group if it's still
  * 						  available. If not, assign it to the additional group.
  * @param bool $permissionCheckDone
+ * @param bool $ignoreProtected
  * @return boolean success or failure
  */
-function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false)
+function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
 	global $smcFunc, $user_info, $modSettings, $sourcedir;
 
@@ -487,7 +489,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	if (!allowedTo('admin_forum') && $group == 1)
 		return false;
 	// ... and assign protected groups!
-	elseif (!allowedTo('admin_forum'))
+	elseif (!allowedTo('admin_forum') && !$ignoreProtected)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT group_type
@@ -669,14 +671,12 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts {raw:min_posts}' . (allowedTo('admin_forum') ? '' : '
-			AND mg.id_group != {int:mod_group}
-			AND mg.group_type != {int:is_protected}') . '
+			AND mg.id_group != {int:mod_group}') . '
 		ORDER BY {raw:sort}',
 		array(
 			'current_member' => $user_info['id'],
 			'min_posts' => ($membergroup_type === 'post_count' ? '!= ' : '= ') . -1,
 			'mod_group' => 3,
-			'is_protected' => 1,
 			'sort' => $sort,
 		)
 	);

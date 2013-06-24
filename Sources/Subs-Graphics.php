@@ -12,7 +12,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -848,8 +848,8 @@ function showCodeImage($code)
 	{
 		$font_list = array($font_list[0]);
 		// Try use Screenge if we can - it looks good!
-		if (in_array('Screenge.ttf', $ttfont_list))
-			$ttfont_list = array('Screenge.ttf');
+		if (in_array('AnonymousPro.ttf', $ttfont_list))
+			$ttfont_list = array('AnonymousPro.ttf');
 		else
 			$ttfont_list = empty($ttfont_list) ? array() : array($ttfont_list[0]);
 
@@ -873,7 +873,7 @@ function showCodeImage($code)
 		$loaded_fonts[$font_index] = imageloadfont($settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
 
 	// Determine the dimensions of each character.
-	$total_width = $character_spacing * strlen($code) + 20;
+	$total_width = $character_spacing * strlen($code) + 40;
 	$max_height = 0;
 	foreach ($characters as $char_index => $character)
 	{
@@ -922,6 +922,7 @@ function showCodeImage($code)
 		{
 			// Can we use true type fonts?
 			$can_do_ttf = function_exists('imagettftext');
+
 
 			// How much rotation will we give?
 			if ($rotationType == 'none')
@@ -1112,12 +1113,12 @@ function showLetterImage($letter)
 	$random_font = $font_list[array_rand($font_list)];
 
 	// Check if the given letter exists.
-	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.gif'))
+	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png'))
 		return false;
 
 	// Include it!
-	header('Content-type: image/gif');
-	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.gif');
+	header('Content-type: image/png');
+	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
 
 	// Nothing more to come.
 	die();

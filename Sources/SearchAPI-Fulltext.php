@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -54,7 +54,7 @@ class fulltext_search
 	 * What databases support the fulltext index?
 	 * @var type
 	 */
-	protected $supported_databases = array('mysql');
+	protected $supported_databases = array('mysql', 'mysqli');
 
 	/**
 	 * fulltext_search::__construct()

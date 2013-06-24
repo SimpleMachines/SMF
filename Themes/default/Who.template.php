@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -214,6 +214,12 @@ function template_credits()
 					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['software']), '</dd>
 				</dl>';
 
+		if (!empty($context['credits_software_graphics']['fonts']))
+			echo '
+				<dl>
+					<dt><strong>', $txt['credits_fonts'], '</strong></dt>
+					<dd>', implode('</dd><dd>', $context['credits_software_graphics']['fonts']), '</dd>
+				</dl>';
 		echo '
 			</div>
 		</div>';

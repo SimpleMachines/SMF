@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -308,7 +308,7 @@ function EditSearchMethod()
 	);
 
 	// Get some info about the messages table, to show its size and index size.
-	if ($db_type == 'mysql')
+	if ($db_type == 'mysql' || $db_type == 'mysqli')
 	{
 		if (preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) !== 0)
 			$request = $smcFunc['db_query']('', '

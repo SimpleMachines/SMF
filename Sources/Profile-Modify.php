@@ -9,7 +9,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -639,7 +639,7 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => create_function('&$value', '
 				global $smcFunc;
 
-				if ($smcFunc[\'strlen\'] > 50)
+				if ($smcFunc[\'strlen\']($value) > 50)
 					return \'user_title_too_long\';
 
 				return true;

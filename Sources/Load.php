@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -543,7 +543,7 @@ function loadBoard()
 	// Load this board only if it is specified.
 	if (empty($board) && empty($topic))
 	{
-		$board_info = array('moderators' => array());
+		$board_info = array('moderators' => array(), 'moderator_groups' => array());
 		return;
 	}
 
@@ -567,13 +567,16 @@ function loadBoard()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
-				b.id_parent, c.name AS cname, IFNULL(mem.id_member, 0) AS id_moderator,
+				b.id_parent, c.name AS cname, IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name,
+				IFNULL(mem.id_member, 0) AS id_moderator,
 				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
 				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
 				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
 			FROM {db_prefix}boards AS b' . (!empty($topic) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})' : '') . '
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
+				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = {raw:board_link})
+				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = {raw:board_link})
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
 			WHERE b.id_board = {raw:board_link}',
@@ -595,6 +598,7 @@ function loadBoard()
 			$board_info = array(
 				'id' => $board,
 				'moderators' => array(),
+				'moderator_groups' => array(),
 				'cat' => array(
 					'id' => $row['id_cat'],
 					'name' => $row['cname']
@@ -629,6 +633,14 @@ function loadBoard()
 						'name' => $row['real_name'],
 						'href' => $scripturl . '?action=profile;u=' . $row['id_moderator'],
 						'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
+					);
+
+				if (!empty($row['id_moderator_group']))
+					$board_info['moderator_groups'][$row['id_moderator_group']] = array(
+						'id' => $row['id_moderator_group'],
+						'name' => $row['group_name'],
+						'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
+						'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
 					);
 			}
 			while ($row = $smcFunc['db_fetch_assoc']($request));
@@ -671,6 +683,7 @@ function loadBoard()
 			// Otherwise the topic is invalid, there are no moderators, etc.
 			$board_info = array(
 				'moderators' => array(),
+				'moderator_groups' => array(),
 				'error' => 'exist'
 			);
 			$topic = null;
@@ -684,8 +697,11 @@ function loadBoard()
 
 	if (!empty($board))
 	{
+		// Get this into an array of keys for array_intersect
+		$moderator_groups = array_keys($board_info['moderator_groups']);
+		
 		// Now check if the user is a moderator.
-		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]);
+		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]) || count(array_intersect($user_info['groups'], $moderator_groups)) != 0;
 
 		if (count(array_intersect($user_info['groups'], $board_info['groups'])) == 0 && !$user_info['is_admin'])
 			$board_info['error'] = 'access';
@@ -925,11 +941,11 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	switch ($set)
 	{
 		case 'normal':
-			$select_columns .= ', mem.buddy_list';
+			$select_columns .= ', mem.buddy_list,  mem.additional_groups';
 			break;
 		case 'profile':
-			$select_columns .= ', mem.openid_uri, mem.id_theme, mem.pm_ignore_list, mem.pm_email_notify, mem.pm_receive_from,
-			mem.time_format, mem.secret_question,  mem.additional_groups, mem.smiley_set,
+			$select_columns .= ', mem.additional_groups, mem.openid_uri, mem.id_theme, mem.pm_ignore_list, mem.pm_email_notify, mem.pm_receive_from,
+			mem.time_format, mem.secret_question, mem.smiley_set,
 			mem.total_time_logged_in, mem.notify_announcements, mem.notify_regularity, mem.notify_send_body,
 			mem.notify_types, lo.url, mem.ignore_boards, mem.password_salt, mem.pm_prefs, mem.buddy_list';
 			break;
@@ -984,6 +1000,27 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		$smcFunc['db_free_result']($request);
 	}
 
+	$additional_mods = array();
+	
+	// Are any of these users in groups assigned to moderate this board?
+	if (!empty($loaded_ids) && !empty($board_info['moderator_groups']) && $set === 'normal')
+	{
+		foreach ($loaded_ids as $a_member)
+		{
+			if (!empty($user_profile[$a_member]['additional_groups']))
+				$groups = array_merge(array($user_profile[$a_member]['id_group']), explode(',', $user_profile[$a_member]['additional_groups']));
+			else
+				$groups = array($user_profile[$a_member]['id_group']);
+			
+			$temp = array_intersect($groups, array_keys($board_info['moderator_groups']));
+			
+			if (!empty($temp))
+			{
+				$additional_mods[] = $a_member;
+			}
+		}
+	}
+
 	if (!empty($new_loaded_ids) && !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 3)
 	{
 		for ($i = 0, $n = count($new_loaded_ids); $i < $n; $i++)
@@ -991,7 +1028,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	}
 
 	// Are we loading any moderators?  If so, fix their group data...
-	if (!empty($loaded_ids) && !empty($board_info['moderators']) && $set === 'normal' && count($temp_mods = array_intersect($loaded_ids, array_keys($board_info['moderators']))) !== 0)
+	if (!empty($loaded_ids) && (!empty($board_info['moderators']) || !empty($board_info['moderator_groups'])) && $set === 'normal' && count($temp_mods = array_merge(array_intersect($loaded_ids, array_keys($board_info['moderators'])), $additional_mods)) !== 0)
 	{
 		if (($row = cache_get_data('moderator_group_info', 480)) == null)
 		{
@@ -2100,7 +2137,7 @@ function addInlineJavascript($javascript, $defer = false)
 function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
 {
 	global $user_info, $language, $settings, $context, $modSettings;
-	global $db_show_debug, $sourcedir, $txt;
+	global $db_show_debug, $sourcedir, $txt, $birthdayEmails, $txtBirthdayEmails;
 	static $already_loaded = array();
 
 	// Default to the user's language.
@@ -2186,6 +2223,10 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 			}
 			$txt['emails'] = array();
 		}
+		// For sake of backward compatibility: $birthdayEmails is supposed to be 
+		// empty in a normal install. If it isn't it means the forum is using 
+		// something "old" (it may be the translation, it may be a mod) and this
+		// code (like the piece above) takes care of converting it to the new format
 		if (!empty($birthdayEmails))
 		{
 			foreach ($birthdayEmails as $key => $value)
@@ -2233,10 +2274,12 @@ function getBoardParents($id_parent)
 			$result = $smcFunc['db_query']('', '
 				SELECT
 					b.id_parent, b.name, {int:board_parent} AS id_board, IFNULL(mem.id_member, 0) AS id_moderator,
-					mem.real_name, b.child_level
+					mem.real_name, b.child_level, IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
+					LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board)
+					LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = modgs.id_group)
 				WHERE b.id_board = {int:board_parent}',
 				array(
 					'board_parent' => $id_parent,
@@ -2254,7 +2297,8 @@ function getBoardParents($id_parent)
 						'url' => $scripturl . '?board=' . $row['id_board'] . '.0',
 						'name' => $row['name'],
 						'level' => $row['child_level'],
-						'moderators' => array()
+						'moderators' => array(),
+						'moderator_groups' => array()
 					);
 				}
 				// If a moderator exists for this board, add that moderator for all children too.
@@ -2267,6 +2311,18 @@ function getBoardParents($id_parent)
 							'href' => $scripturl . '?action=profile;u=' . $row['id_moderator'],
 							'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
 						);
+					}
+				
+				// If a moderator group exists for this board, add that moderator group for all children too
+				if (!empty($row['id_moderator_group']))
+					foreach ($boards as $id => $dummy)
+					{
+						$boards[$id]['moderator_groups'][$row['id_moderator_group']] = array(
+							'id' => $row['id_moderator_group'],
+							'name' => $row['group_name'],
+							'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
+							'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
+						);					
 					}
 			}
 			$smcFunc['db_free_result']($result);

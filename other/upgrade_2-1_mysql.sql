@@ -194,6 +194,9 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ALTER TABLE {$db_prefix}log_topics
 ADD COLUMN disregarded tinyint(3) NOT NULL DEFAULT '0';
 
+UPDATE {$db_prefix}log_topics
+SET disregarded = 0;
+
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
@@ -252,12 +255,12 @@ if (@$modSettings['smfVersion'] < '2.1')
 		FROM {$db_prefix}board_permissions
 		WHERE permission = 'post_unapproved_topics'");
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
 		$inserts[] = "($row[id_group], $row[id_board], 'post_autosave_draft', $row[add_deny])";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -272,12 +275,12 @@ if (@$modSettings['smfVersion'] < '2.1')
 		FROM {$db_prefix}permissions
 		WHERE permission = 'pm_send'");
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = smf_mysql_fetch_assoc($request))
 	{
 		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'pm_autosave_draft', $row[add_deny])";
 	}
-	mysql_free_result($request);
+	smf_mysql_free_result($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -288,3 +291,13 @@ if (@$modSettings['smfVersion'] < '2.1')
 }
 ---}
 ---#
+
+/******************************************************************************/
+--- Adding support for group-based board moderation
+/******************************************************************************/
+---# Creating moderator_groups table
+CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_group smallint(5) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group)
+) ENGINE=MyISAM;

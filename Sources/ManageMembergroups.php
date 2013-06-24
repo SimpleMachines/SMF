@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -658,6 +658,21 @@ function EditMembergroup()
 	// Now, do we have a valid id?
 	if (empty($_REQUEST['group']))
 		fatal_lang_error('membergroup_does_not_exist', false);
+
+	// Can this group moderate any boards?
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(id_board)
+		FROM {db_prefix}moderator_groups
+		WHERE id_group = {int:current_group}',
+		array(
+			'current_group' => $_REQUEST['group'],
+		)
+	);
+	
+	// Why don't we have a $smcFunc['db_result'] function?
+	$result = $smcFunc['db_fetch_row']($request);
+	$context['is_moderator_group'] = ($result[0] > 0);
+	$smcFunc['db_free_result']($request);
 
 	// The delete this membergroup button was pressed.
 	if (isset($_POST['delete']))

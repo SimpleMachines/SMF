@@ -301,7 +301,7 @@ $txt['core_settings_welcome_msg_desc'] = 'To get you started we suggest you sele
 $txt['core_settings_item_cd'] = 'Calendar';
 $txt['core_settings_item_cd_desc'] = 'Enabling this feature will open up a selection of options to enable your users to view the calendar, add and review events, see users birthdates on a calendar and much, much more.';
 $txt['core_settings_item_dr'] = 'Drafts';
-$txt['core_settings_item_dr_desc'] = 'Enabling this feature will allow users to save drafts of their posts so they can return to them later to post them.';
+$txt['core_settings_item_dr_desc'] = 'Enabling this feature will allow users to save drafts of their posts so they can return later to post them.';
 $txt['core_settings_item_cp'] = 'Advanced Profile Fields';
 $txt['core_settings_item_cp_desc'] = 'This enables you to hide standard profile fields, add profile fields to registration, and create new profile fields for your forum.';
 $txt['core_settings_item_ih'] = 'Integration Hooks Management';
@@ -313,7 +313,7 @@ $txt['core_settings_item_ml_desc'] = 'Enable the moderation and administration l
 $txt['core_settings_item_pm'] = 'Post Moderation';
 $txt['core_settings_item_pm_desc'] = 'Post moderation enables you to select groups and boards within which posts must be approved before they become public. Upon enabling this feature be sure to visit the permission section to set up the relevant permissions.';
 $txt['core_settings_item_ps'] = 'Paid Subscriptions';
-$txt['core_settings_item_ps_desc'] = 'Paid subscriptions allow users to pay for subscriptions to change membergroup within the forum and thus change their access rights.';
+$txt['core_settings_item_ps_desc'] = 'Paid subscriptions allow users to pay for subscriptions to change membergroups within the forum and thus change their access rights.';
 $txt['core_settings_item_rg'] = 'Report Generation';
 $txt['core_settings_item_rg_desc'] = 'This administration feature allows the generation of reports (which can be printed) to present your current forum setup in an easy to view manner - particularly useful for large forums.';
 $txt['core_settings_item_sp'] = 'Search Engine Tracking';
@@ -383,5 +383,10 @@ $txt['languages_download_illegal_paths'] = 'Package contains illegal paths - ple
 $txt['languages_download_complete'] = 'Installation Complete';
 $txt['languages_download_complete_desc'] = 'Language pack installed successfully. Please click <a href="%1$s">here</a> to return to the languages page';
 $txt['languages_delete_confirm'] = 'Are you sure you want to delete this language?';
+
+$txt['setting_frame_security'] = 'Frame Security Options';
+$txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';
+$txt['setting_frame_security_DENY'] = 'Deny all frames';
+$txt['setting_frame_security_DISABLE'] = 'Disabled';
 
 ?>

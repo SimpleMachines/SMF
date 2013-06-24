@@ -15,7 +15,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -156,6 +156,19 @@ function BoardReport()
 		$moderators[$row['id_board']][] = $row['real_name'];
 	$smcFunc['db_free_result']($request);
 
+	// Get every moderator gruop.
+	$request = $smcFunc['db_query']('', '
+		SELECT modgs.id_board, modgs.id_group, memg.group_name
+		FROM {db_prefix}moderator_groups AS modgs
+			INNER JOIN {db_prefix}membergroups AS memg ON (memg.id_group = modgs.id_group)',
+		array(
+		)
+	);
+	$moderator_groups = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$moderator_groups[$row['id_board']][] = $row['group_name'];
+	$smcFunc['db_free_result']($request);
+
 	// Get all the possible membergroups!
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name, online_color
@@ -179,6 +192,7 @@ function BoardReport()
 		'override_theme' => $txt['board_override_theme'],
 		'profile' => $txt['board_profile'],
 		'moderators' => $txt['board_moderators'],
+		'moderator_groups' => $txt['board_moderator_groups'],
 		'groups' => $txt['board_groups'],
 	);
 	if (!empty($modSettings['deny_boards_access']))
@@ -223,6 +237,7 @@ function BoardReport()
 			'profile' => $profile_name,
 			'override_theme' => $row['override_theme'] ? $txt['yes'] : $txt['no'],
 			'moderators' => empty($moderators[$row['id_board']]) ? $txt['none'] : implode(', ', $moderators[$row['id_board']]),
+			'moderator_groups' => empty($moderator_groups[$row['id_board']]) ? $txt['none'] : implode(', ', $moderator_groups[$row['id_board']]),
 		);
 
 		// Work out the membergroups who can and cannot access it (but only if enabled).
@@ -309,8 +324,24 @@ function BoardPermissionsReport()
 		$boards[$row['id_board']] = array(
 			'name' => $row['name'],
 			'profile' => $row['id_profile'],
+			'mod_groups' => array(),
 		);
 		$profiles[] = $row['id_profile'];
+	}
+	$smcFunc['db_free_result']($request);
+	
+	// Get the ids of any groups allowed to moderate this board
+	// Limit it to any boards and/or groups we're looking at
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board, id_group
+		FROM {db_prefix}moderator_groups
+		WHERE ' . $board_clause .' AND ' . $group_clause,
+		array(
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$boards[$row['id_board']]['mod_groups'][] = $row['id_group'];
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -408,6 +439,11 @@ function BoardPermissionsReport()
 				{
 					// Set the data for this group to be the local permission.
 					$curData[$id_group] = $group_permissions[$ID_PERM];
+				}
+				// Is it inherited from Moderator?
+				elseif (in_array($id_group, $boards[$board]['mod_groups']) && !empty($groups[3]) && isset($groups[3][$ID_PERM]))
+				{
+					$curData[$id_group] = $groups[3][$ID_PERM];
 				}
 				// Otherwise means it's set to disallow..
 				else
@@ -701,6 +737,27 @@ function StaffReport()
 		$local_mods[$row['id_member']] = $row['id_member'];
 	}
 	$smcFunc['db_free_result']($request);
+
+	// Get any additional boards they can moderate through group-based board moderation
+	$request = $smcFunc['db_query']('', '
+		SELECT mem.id_member, modgs.id_board
+		FROM {db_prefix}members AS mem
+			INNER JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group = mem.id_group OR FIND_IN_SET(modgs.id_group, mem.additional_groups) != 0)',
+		array(
+		)
+	);
+	
+	// Add each board/member to the arrays, but only if they aren't already there
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// Either we don't have them as a moderator at all or at least not as a moderator of this board
+		if (!array_key_exists($row['id_member'], $moderators) || !in_array($row['id_board'], $moderators[$row['id_member']]))
+			$moderators[$row['id_member']][] = $row['id_board'];
+		
+		// We don't have them listed as a moderator yet
+		if (!array_key_exists($row['id_member'], $local_mods))
+			$local_mods[$row['id_member']] = $row['id_member'];
+	}
 
 	// Get a list of global moderators (i.e. members with moderation powers).
 	$global_mods = array_intersect(membersAllowedTo('moderate_board', 0), membersAllowedTo('approve_posts', 0), membersAllowedTo('remove_any', 0), membersAllowedTo('modify_any', 0));

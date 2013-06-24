@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -32,50 +32,6 @@ function template_maintain_database()
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=optimize" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['maintain_optimize_info'], '</p>
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
-				</form>
-			</div>
-		</div>
-
-		<div class="cat_bar">
-			<h3 class="catbg">
-			<a href="', $scripturl, '?action=helpadmin;help=maintenance_backup" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['maintain_backup'], '
-			</h3>
-		</div>
-
-		<div class="windowbg2">
-			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=backup" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['maintain_backup_info'], '</p>';
-
-	if ($db_type == 'sqlite')
-		echo '
-					<input type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" class="button_submit" />';
-	else
-	{
-		if ($context['safe_mode_enable'])
-			echo '
-					<div class="errorbox">', $txt['safe_mode_enabled'], '</div>';
-		else
-			echo '
-					<div class="', $context['suggested_method'] == 'use_external_tool' || $context['use_maintenance'] != 0 ? 'errorbox' : 'noticebox', '">
-						', $txt[$context['suggested_method']],
-						$context['use_maintenance'] != 0 ? '<br />' . $txt['enable_maintenance' . $context['use_maintenance']] : '',
-					'</div>';
-
-		echo '
-					<p>
-						<label for="struct"><input type="checkbox" name="struct" id="struct" onclick="document.getElementById(\'submitDump\').disabled = !document.getElementById(\'struct\').checked &amp;&amp; !document.getElementById(\'data\').checked;" class="input_check" checked="checked" /> ', $txt['maintain_backup_struct'], '</label><br />
-						<label for="data"><input type="checkbox" name="data" id="data" onclick="document.getElementById(\'submitDump\').disabled = !document.getElementById(\'struct\').checked &amp;&amp; !document.getElementById(\'data\').checked;" checked="checked" class="input_check" /> ', $txt['maintain_backup_data'], '</label><br />
-						<label for="compress"><input type="checkbox" name="compress" id="compress" value="gzip"', $context['suggested_method'] == 'zipped_file' ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['maintain_backup_gz'], '</label>
-					</p>
-					<p>
-						<input ', $context['use_maintenance'] == 2 ? 'disabled="disabled" ' : '', 'type="submit" value="', $txt['maintain_backup_save'], '" id="submitDump" onclick="return document.getElementById(\'struct\').checked || document.getElementById(\'data\').checked;" class="button_submit" />
-					</p>';
-	}
-
-	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>

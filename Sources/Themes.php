@@ -24,7 +24,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2012 Simple Machines
+ * @copyright 2013 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Alpha 1
@@ -1352,7 +1352,7 @@ function ThemeInstall()
 		mkdir($theme_dir . '/scripts', 0777);
 
 		// Copy over the default non-theme files.
-		$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/rtl.css', '/scripts/theme.js');
+		$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/rtl.css', '/css/admin.css', '/scripts/theme.js');
 		foreach ($to_copy as $file)
 		{
 			copy($settings['default_theme_dir'] . $file, $theme_dir . $file);
