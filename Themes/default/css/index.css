@@ -2229,7 +2229,7 @@ div#pollmoderation {
 }
 .inner {
 	padding: 7px 8px 2px 2px;
-	margin: 0 8x 0 0;
+	margin: 0 8px 0 0;
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	min-height: 85px;
@@ -2946,7 +2946,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 
 .errorfile_table {
 	background: #f0f4f7;
-	border-spacing: 3;
+	border-spacing: 3px;
 	border-collapse: collapse;
 }
 .errorfile_table td.current {
