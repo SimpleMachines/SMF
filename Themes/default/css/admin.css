@@ -1199,20 +1199,21 @@ h3.grid_header {
 		overflow: auto;
 	}
 	#manage_boards .catbg {
-	margin-top: 10px;
-}
+		margin-top: 10px;
+	}
 	#manage_boards .windowbg {
 		line-height: 3.2em;
-}
+	}
 	#manage_boards ul {
 		max-height: 120em;
 		padding: 0 0 10px 0;
-}
+	}
 	#manage_boards dd, #manage_boards dt {
 		width: 100%;
-}
+	}
 	#manage_boards dt {
 		line-height: 1.6em;
+	}
 }
 /* These kids and their new-fangled thingummys. :P */
 /* When I were a lad, things were different! */
