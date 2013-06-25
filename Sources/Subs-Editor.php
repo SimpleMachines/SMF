@@ -1945,8 +1945,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 
 		// Some javascript ma'am?
 		if (!empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
-			$context['html_headers'] .= '
-		<script type="text/javascript" src="' . $settings['default_theme_url'] . '/scripts/captcha.js"></script>';
+			loadJavascriptFile('captcha.js', array('default_theme' => true));
 
 		$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 
