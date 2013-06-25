@@ -365,6 +365,9 @@ function Display()
 
 	// Did we report a post to a moderator just now?
 	$context['report_sent'] = isset($_GET['reportsent']);
+	
+	// Did we send this topic to a friend?
+	$context['topic_sent'] = isset($_GET['topicsent']);
 
 	// Let's get nosey, who is viewing this topic?
 	if (!empty($settings['display_who_viewing']))
