@@ -295,11 +295,12 @@ function ViewModlog()
 	$context['sub_template'] = 'show_list';
 	$context['default_list'] = 'moderation_log_list';
 
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin' : 'moderation') . '_log'],
-		'help' => $context['log_type'] == 3 ? 'adminlog' : 'modlog',
-		'description' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin' : 'moderation') . '_log_desc']
-	);
+	if (isset($context['moderation_menu_name']))
+		$context[$context['moderation_menu_name']]['tab_data'] = array(
+			'title' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin' : 'moderation') . '_log'],
+			'help' => $context['log_type'] == 3 ? 'adminlog' : 'modlog',
+			'description' => $txt['modlog_' . ($context['log_type'] == 3 ? 'admin' : 'moderation') . '_log_desc']
+		);
 }
 
 /**
