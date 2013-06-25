@@ -22,6 +22,14 @@ function template_main()
 				', $txt['report_sent'], '
 			</div>';
 	}
+	// Topic was sent successfully
+	elseif ($context['topic_sent'])
+	{
+		echo '
+			<div class="infobox">
+				', $txt['topic_sent'], '
+			</div>';
+	}
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
