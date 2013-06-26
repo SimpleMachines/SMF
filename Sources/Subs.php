@@ -3213,7 +3213,7 @@ function template_javascript($do_defered = false)
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('pre_javascript_output');
+	call_integration_hook('integrate_pre_javascript_output');
 
 	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_defered)
@@ -3292,7 +3292,7 @@ function template_css()
 	global $context;
 
 	// Use this hook to minify/optimize CSS files
-	call_integration_hook('pre_css_output');
+	call_integration_hook('integrate_pre_css_output');
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '
