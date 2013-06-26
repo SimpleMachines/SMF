@@ -405,9 +405,8 @@ function template_edit_group()
 				group_hidden_text.style.color = !isChecked ? "" : "#888888";
 				document.forms.groupForm.group_moderators.disabled = isChecked;
 				group_moderators_text.style.color = !isChecked ? "" : "#888888";
-			}';
-			
-			echo '				
+			}
+				
 			swapPostGroup(', $context['group']['is_post_group'] ? 'true' : 'false', ');
 		// ]]></script>';
 }
