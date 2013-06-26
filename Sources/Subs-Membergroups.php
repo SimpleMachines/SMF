@@ -112,6 +112,13 @@ function deleteMembergroups($groups)
 			'group_list' => $groups,
 		)
 	);
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}moderator_groups
+		WHERE id_group IN ({array_int:group_list})',
+		array(
+			'group_list' => $groups,
+		)
+	);
 
 	// Delete any outstanding requests.
 	$smcFunc['db_query']('', '

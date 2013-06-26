@@ -365,10 +365,38 @@ function template_edit_group()
 		<script type="text/javascript"><!-- // --><![CDATA[
 			function swapPostGroup(isChecked)
 			{
+				var is_moderator_group = ', $context['is_moderator_group'], ';
+				var group_type = ', $context['group']['type'], ';
 				var min_posts_text = document.getElementById(\'min_posts_text\');
 				var group_desc_text = document.getElementById(\'group_desc_text\');
 				var group_hidden_text = document.getElementById(\'group_hidden_text\');
 				var group_moderators_text = document.getElementById(\'group_moderators_text\');
+				
+				// If it\'s a moderator group, warn of possible problems... and remember the group type
+				if (isChecked && is_moderator_group && !confirm(\'', $txt['membergroups_swap_mod'], '\'))
+				{
+					isChecked = false;
+
+					switch(group_type)
+					{
+						case 0:
+							document.getElementById(\'group_type_private\').checked = true;
+							break;
+						case 1:
+							document.getElementById(\'group_type_protected\').checked = true;
+							break;
+						case 2:
+							document.getElementById(\'group_type_request\').checked = true;
+							break;
+						case 3:
+							document.getElementById(\'group_type_free\').checked = true;
+							break;
+						default:
+							document.getElementById(\'group_type_private\').checked = true;
+							break;
+					}
+				}
+				
 				document.forms.groupForm.min_posts.disabled = !isChecked;
 				min_posts_text.style.color = isChecked ? "" : "#888888";
 				document.forms.groupForm.group_desc_input.disabled = isChecked;
@@ -378,6 +406,7 @@ function template_edit_group()
 				document.forms.groupForm.group_moderators.disabled = isChecked;
 				group_moderators_text.style.color = !isChecked ? "" : "#888888";
 			}
+				
 			swapPostGroup(', $context['group']['is_post_group'] ? 'true' : 'false', ');
 		// ]]></script>';
 }
