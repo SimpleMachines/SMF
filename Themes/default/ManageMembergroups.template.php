@@ -325,7 +325,7 @@ function template_edit_group()
 	echo '
 					</dl>
 					<input type="submit" name="save" value="', $txt['membergroups_edit_save'], '" class="button_submit" />', $context['group']['allow_delete'] ? '
-					<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" onclick="return confirm(\'' . ($context['is_moderator_group']) ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete'] . '\');" class="button_submit" />' : '', '
+					<input type="submit" name="delete" value="' . $txt['membergroups_delete'] . '" onclick="return confirm(\'' . ($context['is_moderator_group'] ? $txt['membergroups_confirm_delete_mod'] : $txt['membergroups_confirm_delete']) . '\');" class="button_submit" />' : '', '
 				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
