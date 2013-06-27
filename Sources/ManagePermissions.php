@@ -2258,6 +2258,9 @@ function loadIllegalGuestPermissions()
 		'approve_posts',
 		'post_draft',
 		'post_autosave_draft',
+		'pm_draft',
+		'pm_autosave_draft',
+		'disable_censor'
 	);
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');
