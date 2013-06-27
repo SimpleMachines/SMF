@@ -1508,7 +1508,7 @@ ul li.greeting {
 /* The upshrink image needs some tweaking */
 #upshrink, #upshrink:hover {
 	padding: 5px 4px 3px 4px;
-	background: #none;
+	background: none;
 }
 
 /* The navigation list (i.e. linktree) */
