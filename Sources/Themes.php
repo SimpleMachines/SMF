@@ -48,6 +48,7 @@ function ThemesMain()
 	// Load the important language files...
 	loadLanguage('Themes');
 	loadLanguage('Settings');
+	loadLanguage('Drafts');
 
 	// No funny business - guests only.
 	is_not_guest();
