@@ -150,12 +150,12 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'drafts_autosave_enable',
+			'id' => 'drafts_autosave_enabled',
 			'label'  => $txt['drafts_autosave_enabled'],
 			'default' => true,
 		),
 		array(
-			'id' => 'drafts_show_saved_enable',
+			'id' => 'drafts_show_saved_enabled',
 			'label'  => $txt['drafts_show_saved_enabled'],
 			'default' => true,
 		)
