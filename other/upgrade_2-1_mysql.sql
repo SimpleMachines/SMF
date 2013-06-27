@@ -290,6 +290,17 @@ if (@$modSettings['smfVersion'] < '2.1')
 				" . implode(',', $inserts));
 }
 ---}
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('drafts_autosave_enabled', '1'),
+	('drafts_show_saved_enabled', '1');
+
+INSERT INTO {$db_prefix}themes
+	(id_theme, variable, value)
+VALUES
+	('1', 'drafts_autosave_enabled', '1'),
+	('1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
