@@ -2550,7 +2550,7 @@ function upgrade_query($string, $unbuffered = false)
 	// Get the query result - working around some SMF specific security - just this once!
 	$modSettings['disableQueryCheck'] = true;
 	$db_unbuffered = $unbuffered;
-	$result = $smcFunc['db_query']('', $string, 'security_override');
+	$result = $smcFunc['db_query']('', $string, array('security_override' => true, 'db_error_skip' => true));
 	$db_unbuffered = false;
 
 	// Failure?!
