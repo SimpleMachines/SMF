@@ -822,7 +822,11 @@ h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg {
 	background: none;
 }
 h4.titlebg, h3.titlebg {
-	background: none;
+	background: #557EA0;
+	border-bottom: 1px solid #777;
+    border-radius: 6px 6px 0 0;
+	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
+	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
 h4.titlebg img.icon {
 	float: left;
@@ -2243,34 +2247,15 @@ div#pollmoderation {
 }
 /* @todo Re-code this a bit to give background on anchor. */
 .poster li.poster_online, .poster li.poster_online:hover {
-	border: 1px solid #ccc;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	border-radius: 2px;
 	padding: 1px 1px 1px 1px;
-	color: #222;
 	margin: 3px 10px;
-	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
-.poster li.poster_online a, .poster li.poster_online:hover a {
-	color: #333;
+.poster li.poster_online a {
+	color: #C06002;
 	line-height: 1.6em;
 }
-.poster li.poster_online:hover {
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.07) inset;
-	border: 1px solid #ccc;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
-	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+.poster li.poster_online:hover, .poster li.poster_online:hover a {
+	text-decoration: underline;
 }
 .poster li.warning a img {
 	vertical-align: bottom;
@@ -4343,10 +4328,12 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	font-size: 1em;
 	color: #444;
 	text-shadow: none;
+	background:none;
 }
 #info_center .title_barIC:first-child, #info_center .title_barIC:first-child .titlebg {
 	border-top: none;
 	box-shadow: 0 -1px 0 #999 inset;
+	background: none;
 }
 #postmodify .roundframe .title_bar{
 	background: #f7f7f7;
