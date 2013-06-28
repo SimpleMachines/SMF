@@ -1540,7 +1540,7 @@ img#smflogo {
 	width: 50%;
 	float: left;
 	overflow: auto;
-	padding: 0 4px;
+	padding: 0 4px 6px 4px;
 	font-size: 0.9em;
 }
 .user ul{
@@ -4239,7 +4239,7 @@ span.hidelink {
 .add_buddy .roundframe, .add_buddy .title_bar {
 	background: none;
 	border: none;
-	max-width: 70em;
+	max-width: 100%;
 }
 #activitytime .windowbg2 .flow_hidden {
 	background: none;
