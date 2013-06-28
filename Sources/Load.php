@@ -1813,6 +1813,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'ajax_notification_text' => JavaScriptEscape($txt['ajax_in_progress']),
 		'ajax_notification_cancel_text' => JavaScriptEscape($txt['modify_cancel']),
 		'help_popup_heading_text' => JavaScriptEscape($txt['help_popup']),
+		'header_is_collapsed' => JavaScriptEscape(!empty($options['collapse_header'])),
+		'show_txt' => JavaScriptEscape($txt['show']),
+		'hide_txt' => JavaScriptEscape($txt['hide']),
 	);
 
 	// Add the JQuery library to the list of files to load.

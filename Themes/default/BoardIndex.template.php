@@ -36,7 +36,7 @@ function template_newsfader()
 			<div id="newsfader">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;" />
+						<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" align="bottom" />
 						', $txt['news'], '
 					</h3>
 				</div>
@@ -59,32 +59,7 @@ function template_newsfader()
 				});
 		
 				// Create the news fader toggle.
-				var smfNewsFadeToggle = new smc_Toggle({
-					bToggleEnabled: true,
-					bCurrentlyCollapsed: ', empty($options['collapse_news_fader']) ? 'false' : 'true', ',
-					aSwappableContainers: [
-						\'smfFadeScrollerCont\'
-					],
-					aSwapImages: [
-						{
-							sId: \'newsupshrink\',
-							srcExpanded: smf_images_url + \'/collapse.png\',
-							altExpanded: ', JavaScriptEscape($txt['hide']), ',
-							srcCollapsed: smf_images_url + \'/expand.png\',
-							altCollapsed: ', JavaScriptEscape($txt['show']), '
-						}
-					],
-					oThemeOptions: {
-						bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
-						sOptionName: \'collapse_news_fader\',
-						sSessionVar: smf_session_var,
-						sSessionId: smf_session_id
-					},
-					oCookieOptions: {
-						bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
-						sCookieName: \'newsupshrink\'
-					}
-				});
+				toggleElementEvent("#smfFadeScrollerCont", "#newsupshrink", null, ', (!empty($options['collapse_news_fader']) ? 'true' : 'false'), ');
 			// ]]></script>
 		';
 	}

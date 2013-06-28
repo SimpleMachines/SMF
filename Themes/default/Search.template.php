@@ -159,16 +159,16 @@ function template_main()
 		<fieldset class="flow_hidden">
 			<div class="roundframe">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg pointer" id="expandBoards">
 						<span class="floatright">
-							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/></a>
+							<img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/>
 						</span>
 						<span>
-							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><strong>', $txt['choose_board'], '</strong></a>
+							<strong>', $txt['choose_board'], '</strong>
 						</span>
 					</h4>
 				</div>
-				<div class="flow_auto" id="searchBoardsExpand"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
+				<div class="flow_auto" id="searchBoardsExpand">
 					<ul class="ignoreboards floatleft">';
 
 	$i = 0;
@@ -218,7 +218,14 @@ function template_main()
 					<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit" />
 				</div>
 			</div>
-		</fieldset>';
+		</fieldset>
+		<script type="text/javascript">
+			//<![CDATA[
+			
+			toggleElementEvent("#searchBoardsExpand", "#expandBoards", {isimage: false, eimage: "#expandBoardsIcon"}, ', ($context['boards_check_all'] ? 'true' : 'false'), ');
+			
+			//]]>
+		</script>';
 		}
 	echo '
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
