@@ -277,6 +277,7 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
+$txt['topic_sent'] = 'Your email has been sent successfully.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
@@ -644,7 +645,7 @@ $txt['powered_by_php'] = 'Powered by PHP';
 $txt['powered_by_mysql'] = 'Powered by MySQL';
 $txt['valid_css'] = 'Valid CSS';
 
-// Current footer strings
+// Current footer strings, no longer used
 $txt['valid_html'] = 'Valid HTML 4.01';
 $txt['valid_xhtml'] = 'Valid XHTML 1.0';
 $txt['wap2'] = 'WAP2';

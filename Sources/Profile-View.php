@@ -218,8 +218,20 @@ function showPosts($memID)
 		),
 	);
 
+	// Shortcut used to determine which $txt['show*'] string to use for the title, based on the SA
+	$title = array(
+		'attach' => 'Attachments',
+		'disregardedtopics' => 'Disregarded',
+		'topics' => 'Topics'
+	);
+
 	// Set the page title
-	$context['page_title'] = $txt['showPosts'] . ' - ' . $user_profile[$memID]['real_name'];
+	if (isset($_GET['sa']) && array_key_exists($_GET['sa'], $title))
+		$context['page_title'] = $txt['show' . $title[$_GET['sa']]];
+	else
+		$context['page_title'] = $txt['showPosts'];
+
+	$context['page_title'] .= ' - ' . $user_profile[$memID]['real_name'];
 
 	// Is the load average too high to allow searching just now?
 	if (!empty($context['load_average']) && !empty($modSettings['loadavg_show_posts']) && $context['load_average'] >= $modSettings['loadavg_show_posts'])
@@ -567,12 +579,19 @@ function showAttachments($memID)
 		'columns' => array(
 			'filename' => array(
 				'header' => array(
-					'value' => $txt['show_attach_downloads'],
+					'value' => $txt['show_attach_filename'],
 					'class' => 'lefttext',
 					'style' => 'width: 25%;',
 				),
 				'data' => array(
-					'db' => 'filename',
+					'sprintf' => array(
+						'format' => '<a href="' . $scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>',
+						'params' => array(
+							'topic' => true,
+							'id' => true,
+							'filename' => false,
+						),
+					),
 				),
 				'sort' => array(
 					'default' => 'a.filename',
@@ -600,7 +619,13 @@ function showAttachments($memID)
 					'style' => 'width: 30%;',
 				),
 				'data' => array(
-					'db' => 'subject',
+					'sprintf' => array(
+						'format' => '<a href="' . $scripturl . '?msg=%1$d">%2$s</a>',
+						'params' => array(
+							'msg' => true,
+							'subject' => false,
+						),
+					),
 				),
 				'sort' => array(
 					'default' => 'm.subject',
