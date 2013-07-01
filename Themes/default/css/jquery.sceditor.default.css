@@ -2,7 +2,6 @@ html, body, p, code:before, table {
 	margin: 0;
 	padding: 0;
 	color: #111;
-	background: #ffffff;
 }
 html>body>p, html>body>div {
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Liberation Sans", "Nimbus Sans L", Arial, sans-serif;
@@ -80,8 +79,8 @@ blockquote cite a:link, blockquote cite a:visited {
 	color: #346;
 }
 div {
-	min-height: 1em; /*height:auto !important; height: 1em;*/
+	min-height: 1em; /*height:auto !important; height: 1em;*/ 
 }
 h1, h2, h3, h4, h5, h6 {
-	padding: 0; margin: 0;
+	padding: 0; margin: 0; 
 }
