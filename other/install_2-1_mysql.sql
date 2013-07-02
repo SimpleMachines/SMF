@@ -1857,7 +1857,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('avatar_paranoid', '0'),
 	('enable_disregard', '0'),
 	('drafts_autosave_enabled', '1'),
-	('drafts_show_saved_enabled', '1');
+	('drafts_show_saved_enabled', '1'),
+	('drafts_keep_days', '7');
 # --------------------------------------------------------
 
 #
