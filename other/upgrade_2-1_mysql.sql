@@ -294,7 +294,8 @@ INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
 	('drafts_autosave_enabled', '1'),
-	('drafts_show_saved_enabled', '1');
+	('drafts_show_saved_enabled', '1'),
+	('drafts_keep_days', '7');
 
 INSERT INTO {$db_prefix}themes
 	(id_theme, variable, value)
