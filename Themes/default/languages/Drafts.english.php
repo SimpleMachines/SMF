@@ -23,6 +23,7 @@ $txt['draft_retain'] = 'this will be retained for %s more days';
 $txt['draft_remove'] = 'Remove this draft';
 $txt['draft_saved'] = 'The contents have been saved as a draft, and will be accessible from the <a href="%1$s">Show Drafts area</a> of your profile.';
 $txt['draft_pm_saved'] = 'The contents have been saved as a draft, and will be accessible from the <a href="%1$s">Show Drafts area</a> of your message center.';
+$txt['draft_save_warning'] = 'Please note that all drafts will be automatically deleted after %1$d days.';
 
 // Admin options
 $txt['drafts_autosave_enabled'] = 'Enable automatic saving of drafts';
