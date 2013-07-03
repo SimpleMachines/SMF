@@ -85,11 +85,6 @@ img#smflogo {
 #step_progress {
 	background: #ffd000;
 }
-.overall_progress, .progress {
-	position: absolute;
-	top: 0.5em;
-	left: 0.5em;
-}
 #substep_progress {
 	height: 2.3em;
 	z-index: 1;

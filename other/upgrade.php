@@ -3536,17 +3536,11 @@ function template_upgrade_above()
 	</head>
 	<body>
 	<div id="header"><div class="frame">
-		<div id="top_section">
-			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
+				<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
-		</div>
-		<div id="upper_section" class="middletext flow_hidden">
-			<div class="user"></div>
-			<div class="news normaltext">
-			</div>
-		</div>
 	</div></div>
-	<div id="content_section"><div class="frame">
+	<div id="wrapper">
+	<div id="upper_section">
 		<div id="main_content_section">
 			<div id="main-steps">
 				<h2>', $txt['upgrade_progress'], '</h2>
@@ -3560,10 +3554,10 @@ function template_upgrade_above()
 					</ul>
 			</div>
 			<div style="float: left; width: 40%;">
-				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: auto;">
-					<div id="overall_text" style="color: #000; position: absolute; margin-left: -5em;">', $upcontext['overall_percent'], '%</div>
+				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: auto;">				
+					<div id="overall_text" style="color: #000; position: fixed; margin-left: -5em;">', $upcontext['overall_percent'], '%</div>
 					<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%; height: 12pt; z-index: 1; background-color: lime;">&nbsp;</div>
-					<div class="progress">', $txt['upgrade_overall_progress'], '</div>
+
 				</div>
 				';
 
@@ -3588,11 +3582,14 @@ function template_upgrade_above()
 	$mins = (int) ($elapsed / 60);
 	$seconds = $elapsed - $mins * 60;
 	echo '
-								<div class="smalltext" style="padding: 5px; text-align: center;">', $txt['upgrade_time_elapsed'], ':
+								<div class="smalltext" style="padding: 5px; text-align: center;">', $txt['upgrade_overall_progress'],'<br />', $txt['upgrade_time_elapsed'], ':
 									<span id="mins_elapsed">', $mins, '</span> ', $txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', $txt['upgrade_time_secs'], '.
 								</div>';
 	echo '
 			</div>
+			</div>
+			</div>
+			<div id="content_section">
 			<div id="main_screen" class="clear">
 				<h2>', $upcontext['page_title'], '</h2>
 				<div class="panel">
@@ -3636,10 +3633,12 @@ function template_upgrade_below()
 						</div>
 				</div>
 			</div>
+			</div>
 		</div>
-	</div></div>
 	<div id="footer_section"><div class="frame" style="height: 40px;">
-		<div class="smalltext"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy;2011, Simple Machines</a></div>
+	<ul class="reset">
+		<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy;2013, Simple Machines</a></li>
+	</ul>
 	</div></div>
 	</body>
 </html>';
