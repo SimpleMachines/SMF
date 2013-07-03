@@ -152,7 +152,6 @@ $txt['post_awaiting_approval'] = 'Note: This message is awaiting approval by a m
 $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awaiting approval in this board. Click <a href="%3$s">here</a> to view them all.';
 $txt['send_message'] = 'Send message';
 
-$txt['msg_alert_none'] = 'No messages...';
 $txt['msg_alert_you_have'] = 'you have'; //Deprecated
 $txt['msg_alert_messages'] = 'messages'; //Deprecated
 $txt['msg_alert_no_messages'] = 'you don\'t have any message';
@@ -161,6 +160,9 @@ $txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
 $txt['msg_alert_one_new'] = '1 is new';
 $txt['msg_alert_many_new'] = '%1$d are new';
 $txt['remove_message'] = 'Remove this message';
+
+$txt['topic_alert_none'] = 'No messages...';
+$txt['pm_alert_none'] = 'No messages...';
 
 $txt['online_users'] = 'Users Online';
 $txt['personal_message'] = 'Personal Message';

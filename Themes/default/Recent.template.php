@@ -215,7 +215,7 @@ function template_unread()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg centertext">
-					', $context['showing_all_topics'] ? $txt['msg_alert_none'] : $txt['unread_topics_visit_none'], '
+					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['unread_topics_visit_none'], '
 				</h3>
 			</div>';
 
@@ -374,7 +374,7 @@ function template_replies()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg centertext">
-					', $context['showing_all_topics'] ? $txt['msg_alert_none'] : $txt['unread_topics_visit_none'], '
+					', $context['showing_all_topics'] ? $txt['topic_alert_none'] : $txt['unread_topics_visit_none'], '
 				</h3>
 			</div>';
 
