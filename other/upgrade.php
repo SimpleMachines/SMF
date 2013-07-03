@@ -3542,7 +3542,7 @@ function template_upgrade_above()
 	<div id="wrapper">
 	<div id="upper_section">
 		<div id="main_content_section">
-			<div id="main-steps">
+			<div id="main_steps">
 				<h2>', $txt['upgrade_progress'], '</h2>
 				<ul>';
 
@@ -3553,7 +3553,7 @@ function template_upgrade_above()
 	echo '
 					</ul>
 			</div>
-			<div style="float: left; width: 40%;">
+			<div id="progress">
 				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: auto;">				
 					<div id="overall_text" style="color: #000; position: fixed; margin-left: -5em;">', $upcontext['overall_percent'], '%</div>
 					<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%; height: 12pt; z-index: 1; background-color: lime;">&nbsp;</div>

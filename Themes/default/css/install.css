@@ -149,3 +149,9 @@ img#smflogo {
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	/* End [WIP] */
 }
+
+#progress {
+	float: left;
+	width: 40%;
+	padding-top:20px;
+}
