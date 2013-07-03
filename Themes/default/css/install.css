@@ -4,7 +4,6 @@ a:link, a:hover, a:visited {
 /* These divisions wrap the forum sections when a forum width is set. */
 #wrapper, .frame {
 	width: 90%;
-	max-width: 1140px;
 }
 h1.forumtitle {
 	font-size: 2em;
@@ -15,6 +14,14 @@ h1.forumtitle {
 	font-weight: normal;
 	color: #a85400;
 	text-shadow: -1px -1px 0 rgba(0,0,0,0.5), 1px 1px 0 #fff;
+}
+#head {
+	padding: 5px 0px 0px 0px;
+	margin-left: auto;
+	margin-right: auto;
+}
+#content_section {
+	width: 90%;
 }
 /* Tweak the SMF logo */
 img#smflogo {
@@ -95,9 +102,6 @@ img#smflogo {
 	z-index: 1;
 	background: #eebaf4;
 }
-#main_screen {
-	padding: 1em 1em 0.5em 1em;
-}
 #main_screen h2 {
 	font-size: 1.2em;
 	border-bottom: 1px solid #d05800;
@@ -153,4 +157,8 @@ img#smflogo {
 	border-radius: 5px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	/* End [WIP] */
+}
+#progress {
+	float: left;
+	width: 40%;
 }
