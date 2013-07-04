@@ -77,11 +77,32 @@ img#smflogo {
 	top: 0.5em;
 	left: -3.3em;
 }
+
+#overall_text_upgrade, #step_text_upgrade {
+	z-index: 2;
+	color: #111;
+	font-weight: bold;
+	position: absolute;
+	top: 1em;
+	left: -3.3em;
+}
 #overall_progress, #step_progress {
 	height: 2.3em;
 	z-index: 1;
 	background: lime;
 }
+
+#overall_progress_upgrade, #step_progress_upgrade {
+	height: 3em;
+	z-index: 1;
+	background: lime;
+	margin: -15px 3px 0px 0px;
+}
+.over_progress {
+
+margin: -35px 5px 0 10px;
+}
+
 #step_progress {
 	background: #ffd000;
 }
@@ -151,7 +172,14 @@ img#smflogo {
 }
 
 #progress {
+	position: relative;
+	font-size: 1.2em;
+	height: 2.3em;
+	border: 1px solid black;
+	border-radius: 2px;
+	background: #fff;
 	float: left;
-	width: 40%;
+	margin: 0.6em 0 0 4em;
+	width: 33%;
 	padding-top:20px;
 }
