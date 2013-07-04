@@ -213,7 +213,7 @@ function template_main()
 		else
 			echo '
 					<th scope="col" class="first_th" width="8%">&nbsp;</th>
-					<th colspan="3"><strong>', $txt['msg_alert_none'], '</strong></th>
+					<th colspan="3"><strong>', $txt['topic_alert_none'], '</strong></th>
 					<th scope="col" class="last_th" width="8%">&nbsp;</th>';
 
 		echo '

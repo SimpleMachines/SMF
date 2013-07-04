@@ -598,7 +598,7 @@ function template_subject_list()
 	if (!$context['show_delete'])
 		echo '
 		<tr class="windowbg2">
-			<td colspan="5">', $txt['msg_alert_none'], '</td>
+			<td colspan="5">', $txt['pm_alert_none'], '</td>
 		</tr>';
 	$next_alternate = false;
 
