@@ -47,6 +47,7 @@ if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/c
 // Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Subs.php');
+require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 
 // If $maintenance is set specifically to 2, then we're upgrading or something.
