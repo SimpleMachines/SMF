@@ -515,45 +515,12 @@ function template_menu()
 	// If anyone is terrified of losing 40px out of the menu bar, set your theme to 92% instead of 90%. :P
 	echo '
 				<li id="collapse_button">
-					<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="padding: 4px 9px 3px 9px; display: none;" />
+					<img id="upshrink" src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['upshrink_description'], '" style="padding: 4px 9px 3px 9px" />
 				</li>';
 
 	echo '
 			</ul>
 		</div>';
-
-	// Define the upper_section toggle in JavaScript.
-	// Note that this definition had to be shifted for the js to work with the new markup.
-	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var oMainHeaderToggle = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', empty($options['collapse_header']) ? 'false' : 'true', ',
-				aSwappableContainers: [
-					\'inner_wrap\'
-				],
-				aSwapImages: [
-					{
-						sId: \'upshrink\',
-						srcExpanded: smf_images_url + \'/upshrink.png\',
-						altExpanded: ', JavaScriptEscape($txt['upshrink_description']), ',
-						srcCollapsed: smf_images_url + \'/upshrink2.png\',
-						altCollapsed: ', JavaScriptEscape($txt['upshrink_description']), '
-					}
-				],
-				oThemeOptions: {
-					bUseThemeSettings: smf_member_id == 0 ? false : true,
-					sOptionName: \'collapse_header\',
-					sSessionVar: smf_session_var,
-					sSessionId: smf_session_id
-				},
-				oCookieOptions: {
-					bUseCookie: smf_member_id == 0 ? true : false,
-					sCookieName: \'upshrink\'
-				}
-			});
-		// ]]></script>';
-
 }
 
 /**

@@ -75,6 +75,12 @@ ul.reset, ul.reset li {
 	list-style: none;
 }
 
+/* Class for pointers */
+.pointer
+{
+	cursor: pointer;
+}
+
 /* We can style the different types of input buttons to be uniform throughout different browsers and their color themes.
 	.button_submit - covers input[type=submit], input[type=button], button[type=submit] and button[type=button] in all browsers
 	.button_link   - covers links to make them look like a submit button

@@ -7,7 +7,73 @@ $(document).ready(function() {
 
 	// find all nested linked images and turn off the border
 	$('a.bbc_link img.bbc_img').parent().css('border', '0');
+	
+	// Allow us to click that lil button to collapse and expand stuff.
+	toggleElementEvent("#inner_wrap", "#upshrink", null, header_is_collapsed);
 });
+
+// Toggle an element.
+function toggleElement(element, image, imageoptions, duration)
+{
+	if ($(element).length == 0 || $(image).length == 0)
+		return;
+	
+	imageoptions = {
+		visibleimage: imageoptions && imageoptions.visibleimage || smf_images_url + "/upshrink.png",
+		hideimage: imageoptions && imageoptions.hideimage || smf_images_url + "/upshrink2.png",
+		visibletxt: imageoptions && imageoptions.visibletxt || hide_txt,
+		hidetxt: imageoptions && imageoptions.hidetxt || show_txt,
+		isimage: imageoptions && !imageoptions.isimage ? false : true,
+		eimage: imageoptions && imageoptions.eimage || null
+	};
+	
+	$(element).slideToggle(duration || "fast", "linear", function()
+	{
+		if (imageoptions.isimage || (!imageoptions.isimage && imageoptions.eimage))
+		{
+			mimage = (imageoptions.isimage === true ? image : imageoptions.eimage);
+			if ($(element).is(":visible"))
+			{
+				$(mimage).attr("src", imageoptions.visibleimage);
+				$(mimage).attr("title", imageoptions.visibletxt);
+			}
+			else
+			{
+				$(mimage).attr("src", imageoptions.hideimage);	
+				$(mimage).attr("title", imageoptions.hidetxt);
+			}
+		}
+	});
+}
+
+// Add the event for toggleElement.
+function toggleElementEvent(element, image, imageoptions, iscollapsed)
+{
+	if ($(element).length == 0 || $(image).length == 0)
+		return;
+		
+	imageoptions = {
+		visibleimage: imageoptions && imageoptions.visibleimage || smf_images_url + "/upshrink.png",
+		hideimage: imageoptions && imageoptions.hideimage || smf_images_url + "/upshrink2.png",
+		visibletxt: imageoptions && imageoptions.visibletxt || hide_txt,
+		hidetxt: imageoptions && imageoptions.hidetxt || show_txt,
+		isimage: imageoptions && !imageoptions.isimage ? false : true,
+		eimage: imageoptions && imageoptions.eimage || null
+	};
+		
+	$(image).click(function ()
+	{
+		toggleElement(element, image, imageoptions);
+	});
+	
+	// Add a nice pointer to this image if we got one.
+	if (imageoptions.isimage)
+		$(image).addClass("pointer");
+	
+	// If it is collapsed, toggle it now.
+	if (iscollapsed)
+		toggleElement(element, image, imageoptions, 0.1);
+}
 
 // The purpose of this code is to fix the height of overflow: auto blocks, because some browsers can't figure it out for themselves.
 function smf_codeBoxFix()
