@@ -450,7 +450,7 @@ function template_main()
 
 			//Some people dont want subject ... The div is still required or quick edit breaks...
 			echo'
-								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settiongs['subject_toggle']) ? '' : $message['subject']), '</div>';
+								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settiongs['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
 			echo'
 								<div class="page_number floatright">
