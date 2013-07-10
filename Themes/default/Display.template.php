@@ -167,7 +167,7 @@ function template_main()
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<img src="', $settings['images_url'], '/topic/', $context['class'], '.png" alt="" />
-						', $txt['topic'], ': ', $context['subject'], '&nbsp;<span>(', $context['num_views_text'], ')</span>
+						<span id="top_subject">', $txt['topic'], ': ', $context['subject'], '&nbsp;<span>(', $context['num_views_text'], ')</span></span>
 						<span class="nextlinks floatright">', $context['previous_next'], '</span>
 					</h3>
 				</div>';
@@ -447,14 +447,12 @@ function template_main()
 								<div class="messageicon" ', ($message['icon_url'] !== $settings['images_url'] . '/post/xx.png') ? '' : 'style="position: absolute; z-index: -1;"', '>
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
 								</div>';
-								
-								if (!empty($settings['subject_toggle']))
-								//Some people dont want subject ... 
-								echo'
-								<div id="subject_', $message['id'], '" class="subject_title">
-										<a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a>
-								</div>';
-									echo'
+
+			//Some people dont want subject ... The div is still required or quick edit breaks...
+			echo'
+								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settiongs['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
+
+			echo'
 								<div class="page_number floatright">
 									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 								</div>
