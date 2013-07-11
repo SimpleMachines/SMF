@@ -370,3 +370,12 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 );
+---#
+
+/******************************************************************************/
+--- Cleaning up integration hooks
+/******************************************************************************/
+---#
+DELETE FROM {$db_prefix}settings
+WHERE variable LIKE 'integrate_%';
+---#

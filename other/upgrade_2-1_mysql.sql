@@ -313,3 +313,12 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM;
+---#
+
+/******************************************************************************/
+--- Cleaning up integration hooks
+/******************************************************************************/
+---# Deleting integration hooks
+DELETE FROM {$db_prefix}settings
+WHERE variable LIKE 'integrate_%';
+---#
