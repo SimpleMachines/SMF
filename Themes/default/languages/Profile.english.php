@@ -377,7 +377,7 @@ $txt['profile_error_signature_max_image_height'] = 'Images in your signature mus
 $txt['profile_error_signature_max_image_count'] = 'You cannot have more than %1$d images in your signature';
 $txt['profile_error_signature_max_font_size'] = 'Text in your signature must be smaller than %1$s in size';
 $txt['profile_error_signature_allow_smilies'] = 'You are not allowed to use any smilies within your signature';
-$txt['profile_error_signature_max_smilies'] = 'You are not allowed to use more than %1$d smilies within your signature';
+$txt['profile_error_signature_max_smileys'] = 'You are not allowed to use more than %1$d smilies within your signature';
 $txt['profile_error_signature_disabled_bbc'] = 'The following BBC is not allowed within your signature: %1$s';
 
 $txt['profile_view_warnings'] = 'View Warnings';

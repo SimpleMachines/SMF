@@ -682,9 +682,9 @@ $txt['response_prefix'] = 'Re: ';
 $txt['current_icon'] = 'Current Icon';
 $txt['message_icon'] = 'Message Icon';
 
-$txt['smilies_current'] = 'Current Smiley Set';
-$txt['smilies_none'] = 'No Smilies';
-$txt['smilies_forum_board_default'] = 'Forum/Board Default';
+$txt['smileys_current'] = 'Current Smiley Set';
+$txt['smileys_none'] = 'No Smilies';
+$txt['smileys_forum_board_default'] = 'Forum/Board Default';
 
 $txt['search_results'] = 'Search Results';
 $txt['search_no_results'] = 'Sorry, no matches were found';

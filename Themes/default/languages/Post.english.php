@@ -160,9 +160,9 @@ $txt['more_attachments'] = 'more attachments';
 $txt['more_attachments_error'] = 'Sorry, you aren\'t allowed to post any more attachments.';
 
 $txt['more_smilies'] = 'more';
-$txt['more_smilies_title'] = 'Additional smilies';
-$txt['more_smilies_pick'] = 'Pick a smiley';
-$txt['more_smilies_close_window'] = 'Close Window';
+$txt['more_smileys_title'] = 'Additional smilies';
+$txt['more_smileys_pick'] = 'Pick a smiley';
+$txt['more_smileys_close_window'] = 'Close Window';
 
 $txt['error_new_reply'] = 'Warning - while you were typing a new reply has been posted. You may wish to review your post.';
 $txt['error_new_replies'] = 'Warning - while you were typing %1$d new replies have been posted. You may wish to review your post.';
