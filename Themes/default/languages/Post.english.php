@@ -38,8 +38,8 @@ $txt['navy'] = 'Navy';
 $txt['maroon'] = 'Maroon';
 $txt['lime_green'] = 'Lime Green';
 $txt['white'] = 'White';
-$txt['disable_smileys'] = 'Disable smileys';
-$txt['dont_use_smileys'] = 'Don\'t use smileys.';
+$txt['disable_smilies'] = 'Disable smilies';
+$txt['dont_use_smilies'] = 'Don\'t use smilies.';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['posted_on'] = 'Posted on';
 $txt['standard'] = 'Standard';
@@ -49,7 +49,7 @@ $txt['excamation_point'] = 'Exclamation point';
 $txt['question_mark'] = 'Question mark';
 $txt['icon_poll'] = 'Poll';
 $txt['lamp'] = 'Lamp';
-$txt['add_smileys'] = 'Add smileys';
+$txt['add_smilies'] = 'Add smilies';
 $txt['flash'] = 'Insert Flash';
 $txt['ftp'] = 'Insert FTP Link';
 $txt['image'] = 'Insert image';
@@ -159,10 +159,10 @@ $txt['more_attachments'] = 'more attachments';
 // Don't use entities in the below string.
 $txt['more_attachments_error'] = 'Sorry, you aren\'t allowed to post any more attachments.';
 
-$txt['more_smileys'] = 'more';
-$txt['more_smileys_title'] = 'Additional smileys';
-$txt['more_smileys_pick'] = 'Pick a smiley';
-$txt['more_smileys_close_window'] = 'Close Window';
+$txt['more_smilies'] = 'more';
+$txt['more_smilies_title'] = 'Additional smilies';
+$txt['more_smilies_pick'] = 'Pick a smiley';
+$txt['more_smilies_close_window'] = 'Close Window';
 
 $txt['error_new_reply'] = 'Warning - while you were typing a new reply has been posted. You may wish to review your post.';
 $txt['error_new_replies'] = 'Warning - while you were typing %1$d new replies have been posted. You may wish to review your post.';
