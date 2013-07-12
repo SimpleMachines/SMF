@@ -82,7 +82,7 @@ $txt['cannot_manage_bans'] = 'You\'re not allowed to change the list of bans.';
 $txt['cannot_manage_boards'] = 'You are not allowed to manage boards and categories.';
 $txt['cannot_manage_membergroups'] = 'You don\'t have permission to modify or assign membergroups.';
 $txt['cannot_manage_permissions'] = 'You don\'t have permission to manage permissions.';
-$txt['cannot_manage_smileys'] = 'You\'re not allowed to manage smileys and message icons.';
+$txt['cannot_manage_smilies'] = 'You\'re not allowed to manage smilies and message icons.';
 $txt['cannot_mark_any_notify'] = 'You don\'t have the permissions necessary to get notifications from this topic.';
 $txt['cannot_mark_notify'] = 'Sorry, but you are not permitted to request notifications from this board.';
 $txt['cannot_merge_any'] = 'You aren\'t allowed to merge topics on one of the selected board(s).';
@@ -274,10 +274,10 @@ $txt['smiley_set_dir_not_found'] = 'The directory of the smiley set %1$s is eith
 $txt['smiley_set_path_already_used'] = 'The URL of the smiley set is already being used by another smiley set.';
 $txt['smiley_set_unable_to_import'] = 'Unable to import smiley set. Either the directory is invalid or cannot be accessed.';
 
-$txt['smileys_upload_error'] = 'Failed to upload file.';
-$txt['smileys_upload_error_blank'] = 'All smiley sets must have an image.';
-$txt['smileys_upload_error_name'] = 'All smileys must have the same filename.';
-$txt['smileys_upload_error_illegal'] = 'Illegal Type.';
+$txt['smilies_upload_error'] = 'Failed to upload file.';
+$txt['smilies_upload_error_blank'] = 'All smiley sets must have an image.';
+$txt['smilies_upload_error_name'] = 'All smilies must have the same filename.';
+$txt['smilies_upload_error_illegal'] = 'Illegal Type.';
 
 $txt['search_invalid_weights'] = 'Search weights are not properly configured. At least one weight should be configure to be non-zero. Please report this error to an administrator.';
 $txt['unable_to_create_temporary'] = 'The search function was unable to create temporary tables.  Please try again.';
@@ -381,8 +381,8 @@ $txt['mboards_delete_board_error'] = 'No board selected.';
 $txt['mboards_parent_own_child_error'] = 'You can not make a parent its own child.';
 $txt['mboards_board_own_child_error'] = 'You can not make a board its own child.';
 
-$txt['smileys_upload_error_notwritable'] = 'The following smiley directories are not writable: %1$s';
-$txt['smileys_upload_error_types'] = 'Smiley images can only have the following extensions: %1$s.';
+$txt['smilies_upload_error_notwritable'] = 'The following smiley directories are not writable: %1$s';
+$txt['smilies_upload_error_types'] = 'Smiley images can only have the following extensions: %1$s.';
 
 $txt['change_email_success'] = 'Your email address has been changed, and a new activation email has been sent to it.';
 $txt['resend_email_success'] = 'A new activation email has successfully been sent.';

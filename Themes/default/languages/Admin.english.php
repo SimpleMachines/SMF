@@ -49,7 +49,7 @@ $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair All boards and topics';
 $txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;.  From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br /><br />If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page.  If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.<br />You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.png" alt="%2$s" title="%3$s" /> symbols for more information on the related functions.';
-$txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
+$txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smilies. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
 $txt['admin_activation_email'] = 'Send activation email to new members upon registration';
@@ -118,8 +118,8 @@ $txt['lfyi'] = 'You are unable to connect to simplemachines.org\'s latest news f
 $txt['manage_calendar'] = 'Calendar';
 $txt['manage_search'] = 'Search';
 
-$txt['smileys_manage'] = 'Smileys and Message Icons';
-$txt['smileys_manage_info'] = 'Install new smiley sets, add smileys to existing ones, or manage your message icons.';
+$txt['smilies_manage'] = 'Smilies and Message Icons';
+$txt['smilies_manage_info'] = 'Install new smiley sets, add smilies to existing ones, or manage your message icons.';
 $txt['package_info'] = 'Install new features or modify existing ones with this interface.';
 $txt['theme_admin'] = 'Themes and Layout';
 $txt['theme_admin_info'] = 'Setup and manage your themes, and set or reset theme options.';
@@ -268,8 +268,8 @@ $txt['dvc_default'] = 'Default Templates';
 $txt['dvc_templates'] = 'Current Templates';
 $txt['dvc_languages'] = 'Language Files';
 
-$txt['smileys_default_set_for_theme'] = 'Select default smiley set for this theme';
-$txt['smileys_no_default'] = '(use global default smiley set)';
+$txt['smilies_default_set_for_theme'] = 'Select default smiley set for this theme';
+$txt['smilies_no_default'] = '(use global default smiley set)';
 
 $txt['censor_test'] = 'Test censored words';
 $txt['censor_test_save'] = 'Test';
@@ -677,9 +677,9 @@ $txt['search_weights'] = 'Weights';
 $txt['search_method'] = 'Search Method';
 
 $txt['smiley_sets'] = 'Smiley Sets';
-$txt['smileys_add'] = 'Add Smiley';
-$txt['smileys_edit'] = 'Edit Smileys';
-$txt['smileys_set_order'] = 'Set Smiley order';
+$txt['smilies_add'] = 'Add Smiley';
+$txt['smilies_edit'] = 'Edit Smilies';
+$txt['smilies_set_order'] = 'Set Smiley order';
 $txt['icons_edit_message_icons'] = 'Edit message icons';
 
 $txt['membergroups_new_group'] = 'Add Membergroup';

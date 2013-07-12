@@ -206,8 +206,8 @@ $helptxt['theme_settings'] = '<strong>Theme Settings</strong><br />
 	The settings screen allows you to change settings specific to a theme. These settings include options such as the themes directory and URL information but
 	also options that affect the layout of a theme on your forum. Most themes will have a variety of user configurable options, allowing you to adapt a theme
 	to suit your individual forum needs.';
-$helptxt['smileys'] = '<strong>Smiley Center</strong><br />
-	Here you can add and remove smileys, and smiley sets.  Note importantly that if a smiley is in one set, it\'s in all sets - otherwise, it might
+$helptxt['smilies'] = '<strong>Smiley Center</strong><br />
+	Here you can add and remove smilies, and smiley sets.  Note importantly that if a smiley is in one set, it\'s in all sets - otherwise, it might
 	get confusing for your users using different sets.<br /><br />
 
 	You are also able to edit message icons from here, if you have them enabled on the settings page.';

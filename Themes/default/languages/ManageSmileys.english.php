@@ -9,18 +9,18 @@ $txt['smiley_sets_none'] = 'There are currently no smiley sets.';
 
 $txt['setting_smiley_sets_default'] = 'Default Smiley Set';
 $txt['setting_smiley_sets_enable'] = 'Enable smiley set selection by members';
-$txt['setting_smiley_enable'] = 'Enable customized smileys';
+$txt['setting_smiley_enable'] = 'Enable customized smilies';
 $txt['setting_smileys_url'] = 'Base URL to all smiley sets';
 $txt['setting_smileys_dir'] = 'Absolute path to all smiley sets';
 $txt['setting_messageIcons_enable'] = 'Enable customized message icons';
 $txt['setting_messageIcons_enable_note'] = '(otherwise, the default message icons will be used.)';
-$txt['groups_manage_smileys'] = 'Groups allowed to manage smileys and message icons';
+$txt['groups_manage_smileys'] = 'Groups allowed to manage smilies and message icons';
 
 $txt['smiley_sets_name'] = 'Name';
 $txt['smiley_sets_url'] = 'URL';
 $txt['smiley_sets_default'] = 'Default';
 
-$txt['smiley_sets_latest'] = 'Smileys of the moment';
+$txt['smiley_sets_latest'] = 'Smilies of the moment';
 $txt['smiley_sets_latest_fetch'] = 'Loading smiley information from simplemachines.org...';
 
 $txt['smileys_add_method'] = 'Image Source';
@@ -32,7 +32,7 @@ $txt['smileys_add_upload_all'] = 'Same image for all sets';
 $txt['smileys_add_upload_for1'] = 'Image for the';
 $txt['smileys_add_upload_for2'] = 'set';
 
-$txt['smileys_enable_note'] = '(otherwise, the default smileys will be used.)';
+$txt['smileys_enable_note'] = '(otherwise, the default smilies will be used.)';
 $txt['smileys_code'] = 'Code';
 $txt['smileys_filename'] = 'Filename';
 $txt['smileys_description'] = 'Tooltip or description';
@@ -46,19 +46,19 @@ $txt['smileys_make_hidden'] = 'Make Hidden';
 $txt['smileys_show_on_post'] = 'Show on post form';
 $txt['smileys_show_on_popup'] = 'Show on popup';
 
-$txt['smiley_settings_explain'] = 'These settings allow you to change the default smiley set, allow people to select their own smileys, and set paths and configuration data.';
-$txt['smiley_editsets_explain'] = 'Smiley Sets are groups of smileys your users can choose between.  For example, you might have yellow and red smileys.<br />Here you can change the name and location of each smiley set - remember, however, that all sets share the same smileys.';
-$txt['smiley_editsmileys_explain'] = 'Change your smileys here by clicking on the smiley you want to modify. Remember that these smileys all have to exist in all the sets or some smileys won\'t show up.  Don\'t forget to save after you are done editing.';
-$txt['smiley_setorder_explain'] = 'Change the order of the smileys here.';
+$txt['smiley_settings_explain'] = 'These settings allow you to change the default smiley set, allow people to select their own smilies, and set paths and configuration data.';
+$txt['smiley_editsets_explain'] = 'Smiley Sets are groups of smilies your users can choose between.  For example, you might have yellow and red smilies.<br />Here you can change the name and location of each smiley set - remember, however, that all sets share the same smilies.';
+$txt['smiley_editsmileys_explain'] = 'Change your smilies here by clicking on the smiley you want to modify. Remember that these smilies all have to exist in all the sets or some smilies won\'t show up.  Don\'t forget to save after you are done editing.';
+$txt['smiley_setorder_explain'] = 'Change the order of the smilies here.';
 $txt['smiley_addsmiley_explain'] = 'Here you can add a new smiley - either from an existing file or by uploading new ones.';
 
 $txt['smiley_set_select_default'] = 'Default Smiley set';
 $txt['smiley_set_new'] = 'Create new Smiley set';
 $txt['smiley_set_modify_existing'] = 'Modify existing Smiley set';
 $txt['smiley_set_modify'] = 'Modify';
-$txt['smiley_set_import_directory'] = 'Import smileys already in this directory';
+$txt['smiley_set_import_directory'] = 'Import smilies already in this directory';
 $txt['smiley_set_import_single'] = 'There is one smiley in this smiley set not yet imported. Click <a href="%1$s">here</a> to import it now.';
-$txt['smiley_set_import_multiple'] = 'There are %1$d smileys in the directory that have not yet been imported. Click <a href="%2$s">here</a> to import them now.';
+$txt['smiley_set_import_multiple'] = 'There are %1$d smilies in the directory that have not yet been imported. Click <a href="%2$s">here</a> to import them now.';
 
 $txt['smileys_location'] = 'Location';
 $txt['smileys_location_form'] = 'Post form';
@@ -71,13 +71,13 @@ $txt['smiley_new'] = 'Add new smiley';
 $txt['smiley_modify_existing'] = 'Modify smiley';
 $txt['smiley_preview'] = 'Preview';
 $txt['smiley_preview_using'] = 'using smiley set';
-$txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\n\\nNote: This won\\\'t remove the images, just the choices.';
-$txt['smileys_location_form_description'] = 'These smileys will appear above the text area, when posting a new forum message or Personal Message.';
-$txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'[more]\'';
+$txt['smileys_confirm'] = 'Are you sure you want to remove these smilies?\\n\\nNote: This won\\\'t remove the images, just the choices.';
+$txt['smileys_location_form_description'] = 'These smilies will appear above the text area, when posting a new forum message or Personal Message.';
+$txt['smileys_location_popup_description'] = 'These smilies will be shown in a popup, that is shown after a user has clicked \'[more]\'';
 $txt['smileys_move_select_destination'] = 'Select smiley destination';
 $txt['smileys_move_select_smiley'] = 'Select smiley to move';
 $txt['smileys_move_here'] = 'Move smiley to this location';
-$txt['smileys_no_entries'] = 'There are currently no smileys configured.';
+$txt['smileys_no_entries'] = 'There are currently no smilies configured.';
 
 $txt['icons_edit_icons_explain'] = 'From here you can change which message icons are available throughout your board. You can add, edit and remove icons, as well as limit their use to certain boards.';
 $txt['icons_edit_icons_all_boards'] = 'Available in all boards';
