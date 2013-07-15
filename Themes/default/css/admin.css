@@ -172,8 +172,7 @@ div.quick_tasks {
 	box-shadow: none;
 }
 #admin_form_wrapper div.cat_bar:first-child h3.catbg, #admin_newsletters div.cat_bar:first-child h3.catbg,
-#generate_reports_type div.cat_bar:first-child h3.catbg, #groupForm div.cat_bar:first-child h3.catbg,
-#admin_form_wrapper h3.titlebg, #mailqueue_stats div.cat_bar:first-child  h3.catbg,
+#generate_reports_type div.cat_bar:first-child h3.catbg, #groupForm div.cat_bar:first-child h3.catbg, #mailqueue_stats div.cat_bar:first-child  h3.catbg,
 #new_group div.cat_bar:first-child  h3.catbg, #view_group div.cat_bar  h3.catbg, #view_group div.cat_bar:first-child  h3.catbg {
 	color: #444;
 	text-shadow: none;
@@ -200,7 +199,7 @@ div.quick_tasks {
 	border-bottom: 1px solid #bbb;
 }
 #admin_form_wrapper h3.titlebg {
-	color: #666;
+	color: #fff;
 	border-bottom: none;
 	padding: 8px 6px 5px 6px;
 }
