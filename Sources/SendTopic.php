@@ -139,7 +139,7 @@ function SendTopic()
 	sendmail($_POST['r_email'], $emaildata['subject'], $emaildata['body'], $_POST['y_email']);
 
 	// Back to the topic!
-	redirectexit('topic=' . $topic . '.0');
+	redirectexit('topic=' . $topic . '.0;topicsent');
 }
 
 /**

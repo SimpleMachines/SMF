@@ -134,20 +134,28 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	padding: 2px 4px;
 	float: right;
 	cursor: pointer;
-	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .button_submit:hover, .button_reset:hover, .button_link:hover {
-	background: #fff url(../images/theme/upper_section.png) 0 45% repeat-x;
 	color: #af6700;
 	border: 1px solid #ccc;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
+	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 a.button_link {
 	color: #000;
@@ -390,6 +398,9 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
+.bbc_bold {
+	font-weight: bold;
+}
 .bbc_img {
 	border: 0;
 }
@@ -458,13 +469,21 @@ a img {
 	color: #444;
 	font-size: /*1.1em*/1em;
 	font-weight: bold;
-	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .catbg, .catbg2, tr.catbg td, tr.catbg2 td, tr.catbg th, tr.catbg2 th {
 	color: #fff;
 	font-size: 1.1em;
 	font-weight: bold;
-	background: #99abbf url(../images/theme/bars.png) 0 -170px repeat-x;
+	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 
 /* adjust the table versions of headers */
@@ -549,7 +568,6 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .topbottom {
 	display: block;
 	cursor: pointer;
-	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -558,16 +576,25 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	padding: 2px 7px 1px 7px;
 	margin: 5px 8px 0 0;
 	color: #222;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .topbottom:hover {
 	text-decoration: none;
-	background: #fff url(../images/theme/upper_section.png) 0 45% repeat-x;
 	color: #af6700;
 	text-decoration: none;
 	border: 1px solid #ccc;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
+	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 
 /* Sticky topics get a different background */
@@ -682,7 +709,8 @@ p.para2 {
 /* AJAX notification bar
 ------------------------------------------------------- */
 #ajax_in_progress {
-	background: url(../images/theme/loadingbar.png) repeat-x;
+	background: #fff;
+	border-bottom: 4px solid #f96f00;
 	color: #f96f00;
 	text-align: center;
 	font-size: 1.6em;
@@ -775,7 +803,10 @@ h3.catbg2 a:hover {
 	color: #fff;
 	text-decoration: none;
 }
-h3.titlebg a, h3.titlebg, h4.titlebg, h4.titlebg a {
+h3.titlebg, h4.titlebg {
+	color: #fff;
+}
+h3.titlebg a, h4.titlebg a {
 	color: #444;
 }
 h3.titlebg a:hover, h4.titlebg a:hover {
@@ -794,7 +825,11 @@ h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg {
 	background: none;
 }
 h4.titlebg, h3.titlebg {
-	background: none;
+	background: #557EA0;
+	border-bottom: 1px solid #777;
+    border-radius: 6px 6px 0 0;
+	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
+	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
 h4.titlebg img.icon {
 	float: left;
@@ -824,12 +859,14 @@ div.cat_bar {
 	height: 1.6em;
 }
 div.title_bar {
-	background: #c5cfd9 url(../images/theme/bars.png) 0 -340px repeat-x;
+	background: #557ea0;
+	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
+	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
 
 /* Info center title bars are a bit different. */ /* @todo */
 /*div.title_barIC {
-	background: #dde3e9 url(../images/theme/bars.png) 0 0 repeat-x;
+	background: #dde3e9 url(../images/theme/bars.png) IMAGE NO LONGER EXISTS;
 }*/
 div.title_barIC h4.titlebg {
 	font-size: 1.1em;
@@ -1050,12 +1087,16 @@ img.sort {
 	width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
-	background: #fff url(../images/theme/bars.png) 0 -580px repeat-x;
 	border: solid 1px #999;
 	border-left: solid 1px #bbb;
 	border-top: solid 1px #ccc;
 	border-radius: 2px 7px 0 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Level 2 link background. */
 .dropmenu li li {
@@ -1110,16 +1151,25 @@ img.sort {
 }
 /* Levels 2 and 3 hover effects. */
 .dropmenu li li:hover, .adm_section .dropmenu li li:hover {
-	background: none;
 	border: 1px solid #cfcfcf;
 	border-top: 1px solid #d4dee6;
 	border-bottom: 1px solid #cbdae6;
-	background: #e3e9ef url(../images/theme/lower_section.png) 0 0 repeat-x;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .dropmenu li li:hover>a, .dropmenu li li.sfhover a:focus, .dropmenu li li a:hover, .dropmenu li li a:focus {
 	color: #333;
 	text-decoration: none;
-	background: #e3e9ef url(../images/theme/lower_section.png) 0 0 repeat-x;
+	border: 1px solid #cfcfcf;
+	border-top: 1px solid #d4dee6;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Reposition Level 2 submenu as visible on hover. */
 .dropmenu li:hover ul, .dropmenu li.sfhover ul {
@@ -1195,7 +1245,11 @@ img.sort {
 }
 .adm_section .dropmenu {
 	padding: 4px 1px 9px 1px;
-	background: #fff url(../images/theme/upper_section.png) 0 -50px repeat-x;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	float: none;
 }
 .adm_section .dropmenu li {
@@ -1240,7 +1294,11 @@ img.sort {
 }
 .adm_section .dropmenu li li a:hover {
 	color: #333;
-	background: #e3e9ef url(../images/theme/lower_section.png) 0 0 repeat-x;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .adm_section .dropmenu ul a:focus {
@@ -1271,7 +1329,6 @@ img.sort {
 	display: block;
 	text-transform: uppercase;
 	cursor: pointer;
-	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -1282,19 +1339,28 @@ img.sort {
 	overflow: visible;
 	color: #444;
 	font-size: 0.8em;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .buttonlist ul li a {
 	font-size: 0.889em;
 }
 .buttonlist ul li a:hover {
-	background: #fff url(../images/theme/upper_section.png) 0 45% repeat-x;
 	color: #af6700;
 	text-decoration: none;
 	border: 1px solid #ccc;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
+	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 .buttonlist ul li a span {
 	display: block;
@@ -1345,9 +1411,13 @@ img.sort {
 #top_section {
 	margin: 0;
 	padding: 0 4px;
-	background: #e2e9f3 url(../images/theme/lower_section.png) 0 0 repeat-x;
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0,0,0,0.16);
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 #top_section .frame{
 	clear: both;
@@ -1372,7 +1442,7 @@ img.sort {
  font-weight: bold;
 }
 #search_form {
-	padding: 8px 0 0 0;
+	padding: 4px 0 0 0;
 	text-align: right;
 	min-width: 30em;
 }
@@ -1392,8 +1462,12 @@ img.sort {
 	margin: 2px 5px;
 	padding: 1px 2px;
 	border-radius: 3px;
-	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	color: #333;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
@@ -1402,9 +1476,13 @@ img.sort {
 	margin: 0 5px;
 }
 #search_form .button_submit:hover {
-	background: #fff url(../images/theme/upper_section.png) 0 45% repeat-x;
 	color: #a85400;
 	text-decoration: none;
+	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 /* The logo and slogan. */
 #header {
@@ -1453,7 +1531,11 @@ img#smflogo {
 #inner_section {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
-	background: #fff url(../images/theme/upper_section.png) 0 -43px repeat-x;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
 }
 #inner_section:after {
 	content:"";
@@ -1465,7 +1547,7 @@ img#smflogo {
 	width: 50%;
 	float: left;
 	overflow: auto;
-	padding: 0 4px;
+	padding: 0 4px 6px 4px;
 	font-size: 0.9em;
 }
 .user ul{
@@ -1508,7 +1590,7 @@ ul li.greeting {
 /* The upshrink image needs some tweaking */
 #upshrink, #upshrink:hover {
 	padding: 5px 4px 3px 4px;
-	background: #none;
+	background: none;
 }
 
 /* The navigation list (i.e. linktree) */
@@ -1527,11 +1609,15 @@ ul li.greeting {
 	padding: 0 10px;
 	font-size: 0.9em;
 	overflow: hidden;
-	background: #f0f4f7 url(../images/theme/upper_section.png) 0 -55px repeat-x;
 	border: 1px solid #ccc;
 	border-radius: 2px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .navigate_section ul li {
 	float: left;
@@ -1591,7 +1677,7 @@ ul li.greeting {
 	padding: 0;
 	overflow: auto;
 	background: #3e5a78;
-	border-top: 3px solid #bbb;
+	border-top: 3px solid #b2b6bd;
 
 }
 /* min-width should be equal to #wrapper min-width. */
@@ -1705,8 +1791,12 @@ ul li.greeting {
 	padding: 4px 0 0 0;
 }
 .table_list .icon, .table_list .info, .table_list .stats, .table_list .lastpost {
-	background: #fff url(../images/theme/upper_section.png) 0 -57px repeat-x;
 	border-top: double #ddd;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 /* Hiding unwanted border repeats. */
 .table_list .content tr:first-child .icon, .table_list .content tr:first-child .info,
@@ -2111,9 +2201,16 @@ div#pollmoderation {
 	width: 100%;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
-.poster .dropmenu  li ul li, .poster .dropmenu  li ul li:hover {
-	background: none;
+.poster .dropmenu  li ul li, .poster  {
 	border: none;
+}
+.dropmenu  li ul li:hover {
+	border: none;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .poster .dropmenu  li ul li.im_icons, .poster .dropmenu   ul ol li {
 	padding: 3px;
@@ -2153,26 +2250,15 @@ div#pollmoderation {
 }
 /* @todo Re-code this a bit to give background on anchor. */
 .poster li.poster_online, .poster li.poster_online:hover {
-	background: #fff url(../images/theme/lower_section.png) 0 40% repeat-x;
-	border: 1px solid #ccc;
-	border-right: 1px solid #bbb;
-	border-bottom: 1px solid #aaa;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	border-radius: 2px;
 	padding: 1px 1px 1px 1px;
-	color: #222;
 	margin: 3px 10px;
 }
-.poster li.poster_online a, .poster li.poster_online:hover a {
-	color: #333;
+.poster li.poster_online a {
+	color: #C06002;
 	line-height: 1.6em;
 }
-.poster li.poster_online:hover {
-	background: #fff url(../images/theme/upper_section.png) 0 -30px repeat-x;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.07) inset;
-	border: 1px solid #ccc;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
+.poster li.poster_online:hover, .poster li.poster_online:hover a {
+	text-decoration: underline;
 }
 .poster li.warning a img {
 	vertical-align: bottom;
@@ -2320,7 +2406,6 @@ ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
 }
 .quickbuttons li {
-	background: #fff url(../images/theme/lower_section.png) 0 45% repeat-x;
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -2330,17 +2415,27 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 	margin: 3px 19px;
 	overflow: visible;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .quickbuttons li:first-child {
 	border-radius: 4px 1px 1px 4px;
 	padding-bottom: 0;
 }
 .quickbuttons li:hover {
-	background: #fff url(../images/theme/upper_section.png) 0 -30px repeat-x;
-	box-shadow: 1px 1px 1px rgba(0,0,0,0.07) inset;
 	border: 1px solid #ccc;
-	border-left: 1px solid #bbb;
-	border-top: 1px solid #aaa;
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #aaa;
+	border-radius: 1px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
 	padding: 0 6px 0 22px;
@@ -2382,12 +2477,16 @@ ul.quickbuttons li.inline_mod_check {
 	padding: 0.5em;
 	font-weight: normal;
 	text-align: left;
-	background: #fff url(../images/theme/bars.png) 0 -580px repeat-x;
 	border: solid 1px #999;
 	border-left: solid 1px #aaa;
 	border-top: solid 1px #bbb;
 	border-radius: 4px 2px 4px 0;
 	box-shadow: 2px 3px 3px rgba(0,0,0,0.2);
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .quickbuttons li:hover ul, .quickbuttons li.sfhover ul {
 	left: auto;
@@ -2406,7 +2505,11 @@ ul.quickbuttons li.inline_mod_check {
 	border: 1px solid #cfcfcf;
 	border-top: 1px solid #d4dee6;
 	border-bottom: 1px solid #cbdae6;
-	background: #e3e9ef url(../images/theme/lower_section.png) 0 0 repeat-x;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .quickbuttons ul li a, .quickbuttons ul li a:focus {
 	padding: 0 6px 0 26px;
@@ -2418,7 +2521,11 @@ ul.quickbuttons li.inline_mod_check {
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
 	margin: 0 -9910px 0 9910px;
-	background: #e3e9ef url(../images/theme/lower_section.png) 0 0 repeat-x;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Cancel for hover and/or js access. */
 .quickbuttons ul li:hover a:focus, .quickbuttons ul li.sfhover a:focus {
@@ -3460,6 +3567,7 @@ dl.stats dd {
 	border-radius: 1px 0 0 1px;
 	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
 	display: block;
+
 	margin: 0 4px 0 0;
 	height: 1.4em;
 }
@@ -3910,7 +4018,11 @@ span.hidelink {
 	border-radius: 7px 7px 3px 3px;
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
-	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .popup_heading
 {
@@ -3928,13 +4040,17 @@ span.hidelink {
 	line-height: 1.6em;
 	max-height: 20em;
 	overflow: auto;
-	background: #fff url(../images/theme/upper_section.png) 0 -55px repeat-x;
 	margin: 0;
 	padding: 10px 8px;
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #ccc;
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .popup_heading .hide_popup
 {
@@ -4111,7 +4227,7 @@ span.hidelink {
 .add_buddy .roundframe, .add_buddy .title_bar {
 	background: none;
 	border: none;
-	max-width: 70em;
+	max-width: 100%;
 }
 #activitytime .windowbg2 .flow_hidden {
 	background: none;
@@ -4215,10 +4331,12 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	font-size: 1em;
 	color: #444;
 	text-shadow: none;
+	background:none;
 }
 #info_center .title_barIC:first-child, #info_center .title_barIC:first-child .titlebg {
 	border-top: none;
 	box-shadow: 0 -1px 0 #999 inset;
+	background: none;
 }
 #postmodify .roundframe .title_bar{
 	background: #f7f7f7;
@@ -4282,6 +4400,7 @@ tr.catbg th:last-child, #show_attachments th:last-child {
 	background: #fff2f2;
 }
 /* Color for background of *topics* requiring approval */
+
 .approvetbg {
 	color: #222;
 	background: #e4a17c;

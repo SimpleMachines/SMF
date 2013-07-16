@@ -22,6 +22,14 @@ function template_main()
 				', $txt['report_sent'], '
 			</div>';
 	}
+	// Topic was sent successfully
+	elseif ($context['topic_sent'])
+	{
+		echo '
+			<div class="infobox">
+				', $txt['topic_sent'], '
+			</div>';
+	}
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
@@ -159,7 +167,7 @@ function template_main()
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<img src="', $settings['images_url'], '/topic/', $context['class'], '.png" alt="" />
-						', $txt['topic'], ': ', $context['subject'], '&nbsp;<span>(', $context['num_views_text'], ')</span>
+						<span id="top_subject">', $txt['topic'], ': ', $context['subject'], '&nbsp;<span>(', $context['num_views_text'], ')</span></span>
 						<span class="nextlinks floatright">', $context['previous_next'], '</span>
 					</h3>
 				</div>';
@@ -439,14 +447,12 @@ function template_main()
 								<div class="messageicon" ', ($message['icon_url'] !== $settings['images_url'] . '/post/xx.png') ? '' : 'style="position: absolute; z-index: -1;"', '>
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
 								</div>';
-								
-								if (!empty($settings['subject_toggle']))
-								//Some people dont want subject ... 
-								echo'
-								<div id="subject_', $message['id'], '" class="subject_title">
-										<a href="', $message['href'], '" rel="nofollow">', $message['subject'], '</a>
-								</div>';
-									echo'
+
+			//Some people dont want subject ... The div is still required or quick edit breaks...
+			echo'
+								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settiongs['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
+
+			echo'
 								<div class="page_number floatright">
 									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 								</div>
@@ -900,7 +906,7 @@ function template_main()
 								<div id="quick_edit_body_container" style="width: 90%">
 									<div id="error_box" style="padding: 4px;" class="error"></div>
 									<textarea class="editor" name="message" rows="12" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 100%; min-width: 100%' : 'width: 100%') . '; margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br />
-									<input type="hidden" name="\' + smf_session_var + \'" value="\' + smf_session_id + \'" />
+									<input type="hidden" name="' . $context['session_var']  . '" value="' . $context['session_id'] . '" />
 									<input type="hidden" name="topic" value="' . $context['current_topic'] . '" />
 									<input type="hidden" name="msg" value="%msg_id%" />
 									<div class="righttext">

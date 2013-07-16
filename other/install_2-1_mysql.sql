@@ -1650,9 +1650,9 @@ VALUES
 	(8, 0, 0, 1, 'd', 1, 'birthdayemails'),
 	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance'),
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions'),
-	(11, 0, 120, 1, 'd', 1, 'remove_temp_attachments'),
-	(12, 0, 180, 1, 'd', 1, 'remove_topic_redirect'),
-	(13, 0, 240, 1, 'd', 1, 'remove_old_drafts');
+	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments'),
+	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect'),
+	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts');
 
 # --------------------------------------------------------
 
@@ -1855,7 +1855,10 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('attachment_thumb_png', '1'),
 	('avatar_reencode', '1'),
 	('avatar_paranoid', '0'),
-	('enable_disregard', '0');
+	('enable_disregard', '0'),
+	('drafts_autosave_enabled', '1'),
+	('drafts_show_saved_enabled', '1'),
+	('drafts_keep_days', '7');
 # --------------------------------------------------------
 
 #
@@ -2015,7 +2018,9 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'additional_options_collapsable', '1'),
 	(1, 'use_image_buttons', '1'),
 	(1, 'enable_news', '1'),
-	(1, 'forum_width', '90%');
+	(1, 'forum_width', '90%'),
+	(1, 'drafts_autosave_enabled', '1'),
+	(1, 'drafts_show_saved_enabled', '1');
 
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');

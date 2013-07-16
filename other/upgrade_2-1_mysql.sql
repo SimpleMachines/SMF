@@ -269,7 +269,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 			VALUES
 				" . implode(',', $inserts));
 
-	// Next we find people who can send PM's, and assume they can save pm_drafts as well
+	// Next we find people who can send PMs, and assume they can save pm_drafts as well
 	$request = upgrade_query("
 		SELECT id_group, add_deny, permission
 		FROM {$db_prefix}permissions
@@ -290,6 +290,18 @@ if (@$modSettings['smfVersion'] < '2.1')
 				" . implode(',', $inserts));
 }
 ---}
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('drafts_autosave_enabled', '1'),
+	('drafts_show_saved_enabled', '1'),
+	('drafts_keep_days', '7');
+
+INSERT INTO {$db_prefix}themes
+	(id_theme, variable, value)
+VALUES
+	('1', 'drafts_autosave_enabled', '1'),
+	('1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
@@ -301,3 +313,12 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM;
+---#
+
+/******************************************************************************/
+--- Cleaning up integration hooks
+/******************************************************************************/
+---# Deleting integration hooks
+DELETE FROM {$db_prefix}settings
+WHERE variable LIKE 'integrate_%';
+---#

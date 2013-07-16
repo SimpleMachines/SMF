@@ -2550,7 +2550,7 @@ function upgrade_query($string, $unbuffered = false)
 	// Get the query result - working around some SMF specific security - just this once!
 	$modSettings['disableQueryCheck'] = true;
 	$db_unbuffered = $unbuffered;
-	$result = $smcFunc['db_query']('', $string, 'security_override');
+	$result = $smcFunc['db_query']('', $string, array('security_override' => true, 'db_error_skip' => true));
 	$db_unbuffered = false;
 
 	// Failure?!
@@ -3536,19 +3536,13 @@ function template_upgrade_above()
 	</head>
 	<body>
 	<div id="header"><div class="frame">
-		<div id="top_section">
-			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
+				<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
-		</div>
-		<div id="upper_section" class="middletext flow_hidden">
-			<div class="user"></div>
-			<div class="news normaltext">
-			</div>
-		</div>
 	</div></div>
-	<div id="content_section"><div class="frame">
+	<div id="wrapper">
+	<div id="upper_section">
 		<div id="main_content_section">
-			<div id="main-steps">
+			<div id="main_steps">
 				<h2>', $txt['upgrade_progress'], '</h2>
 				<ul>';
 
@@ -3559,22 +3553,23 @@ function template_upgrade_above()
 	echo '
 					</ul>
 			</div>
-			<div style="float: left; width: 40%;">
-				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: auto;">
-					<div id="overall_text" style="color: #000; position: absolute; margin-left: -5em;">', $upcontext['overall_percent'], '%</div>
-					<div id="overall_progress" style="width: ', $upcontext['overall_percent'], '%; height: 12pt; z-index: 1; background-color: lime;">&nbsp;</div>
-					<div class="progress">', $txt['upgrade_overall_progress'], '</div>
-				</div>
-				';
+
+			<div id="progress">
+				<div id="overall_text_upgrade">', $upcontext['overall_percent'], '%</div>
+				<div id="overall_progress_upgrade" style="width: ', $upcontext['overall_percent'], '%;">&nbsp;</div>
+				<div class="over_progress">', $txt['upgrade_overall_progress'], '</div>
+			</div>';
 
 	if (isset($upcontext['step_progress']))
 		echo '
-				<div style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: 5px auto; ">
-					<div id="step_text" style="color: #000; position: absolute; margin-left: -5em;">', $upcontext['step_progress'], '%</div>
-					<div id="step_progress" style="width: ', $upcontext['step_progress'], '%; height: 12pt; z-index: 1; background-color: #ffd000;">&nbsp;</div>
-					<div class="progress">', $txt['upgrade_step_progress'], '</div>
-				</div>
-				';
+				
+				<br />
+				<br />
+				<div id="progress">
+					<div id="step_text_upgrade">', $upcontext['step_progress'], '%</div>
+					<div id="step_progress_upgrade" style="width: ', $upcontext['step_progress'], '%;background-color: #ffd000;">&nbsp;</div>
+					<div class="over_progress">', $txt['upgrade_step_progress'], '</div>
+					</div>';
 
 	echo '
 				<div id="substep_bar_div" class="smalltext" style="display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
@@ -3588,11 +3583,14 @@ function template_upgrade_above()
 	$mins = (int) ($elapsed / 60);
 	$seconds = $elapsed - $mins * 60;
 	echo '
-								<div class="smalltext" style="padding: 5px; text-align: center;">', $txt['upgrade_time_elapsed'], ':
+								<br /> <br /> <br /> <br />
+								<div class="smalltext" style="padding: 5px; text-align: center;"><br />', $txt['upgrade_time_elapsed'], ':
 									<span id="mins_elapsed">', $mins, '</span> ', $txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', $txt['upgrade_time_secs'], '.
 								</div>';
 	echo '
 			</div>
+			</div>
+			<div id="content_section">
 			<div id="main_screen" class="clear">
 				<h2>', $upcontext['page_title'], '</h2>
 				<div class="panel">
@@ -3636,10 +3634,12 @@ function template_upgrade_below()
 						</div>
 				</div>
 			</div>
+			</div>
 		</div>
-	</div></div>
 	<div id="footer_section"><div class="frame" style="height: 40px;">
-		<div class="smalltext"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy;2011, Simple Machines</a></div>
+	<ul class="reset">
+		<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy;2013, Simple Machines</a></li>
+	</ul>
 	</div></div>
 	</body>
 </html>';
@@ -3946,10 +3946,10 @@ function template_upgrade_options()
 					</tr>
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="stats" id="stats" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked="checked"', ' class="input_check" />
+							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked="checked"', ' class="input_check" />
 						</td>
 						<td width="100%">
-							<label for="stats">
+							<label for="stat">
 								Allow Simple Machines to Collect Basic Stats Monthly.<br />
 								<span class="smalltext">If enabled, this will allow Simple Machines to visit your site once a month to collect basic statistics. This will help us make decisions as to which configurations to optimise the software for. For more information please visit our <a href="http://www.simplemachines.org/about/stats.php" target="_blank">info page</a>.</span>
 							</label>

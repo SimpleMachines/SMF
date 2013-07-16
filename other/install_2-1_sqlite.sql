@@ -1792,9 +1792,9 @@ INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_r
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (8, 0, 0, 1, 'd', 1, 'birthdayemails');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (9, 0, 0, 1, 'w', 0, 'weekly_maintenance');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (11, 0, 120, 1, 'd', 1, 'remove_temp_attachments');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (12, 0, 180, 1, 'd', 1, 'remove_topic_redirect');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (13, 0, 240, 1, 'd', 1, 'remove_old_drafts');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (11, 0, 120, 1, 'd', 0, 'remove_temp_attachments');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (12, 0, 180, 1, 'd', 0, 'remove_topic_redirect');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (13, 0, 240, 1, 'd', 0, 'remove_old_drafts');
 COMMIT;
 
 # --------------------------------------------------------
@@ -2001,6 +2001,9 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_thumb_png
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_reencode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_disregard', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
 COMMIT;
 
 # --------------------------------------------------------
@@ -2167,6 +2170,8 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additiona
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'forum_width', '90%');
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'drafts_autosave_enabled', '1');
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 COMMIT;

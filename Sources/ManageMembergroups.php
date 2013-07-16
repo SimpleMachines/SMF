@@ -828,6 +828,15 @@ function EditMembergroup()
 
 			foreach ($updates as $additional_groups => $memberArray)
 				updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
+			
+			// Sorry, but post groups can't moderate boards
+			$request = $smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}moderator_groups
+				WHERE id_group = {int:current_group}',
+				array(
+					'current_group' => (int) $_REQUEST['group'],
+				)
+			);
 		}
 		elseif ($_REQUEST['group'] != 3)
 		{
@@ -857,6 +866,15 @@ function EditMembergroup()
 					WHERE id_group = {int:current_group}',
 					array(
 						'regular_member' => 0,
+						'current_group' => $_REQUEST['group'],
+					)
+				);
+				
+				// Hidden groups can't moderate boards
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}moderator_groups
+					WHERE id_group = {int:current_group}',
+					array(
 						'current_group' => $_REQUEST['group'],
 					)
 				);

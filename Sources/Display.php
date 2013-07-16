@@ -180,7 +180,23 @@ function Display()
 
 	// Is this a moved topic that we are redirecting to?
 	if (!empty($topicinfo['id_redirect_topic']))
+	{
+		if ($topicinfo['new_from'] === 0 && !$user_info['is_guest'])
+		{
+			// Mark this as read first
+			$smcFunc['db_insert']($topicinfo['new_from'] == 0 ? 'ignore' : 'replace',
+				'{db_prefix}log_topics',
+				array(
+					'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'disregarded' => 'int',
+				),
+				array(
+					$user_info['id'], $topicinfo['id'], $topicinfo['id_first_msg'], $topicinfo['disregarded'],
+				),
+				array('id_member', 'id_topic')
+			);
+		}
 		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0');
+	}
 
 	$context['real_num_replies'] = $context['num_replies'] = $topicinfo['num_replies'];
 	$context['topic_first_message'] = $topicinfo['id_first_msg'];
@@ -365,6 +381,9 @@ function Display()
 
 	// Did we report a post to a moderator just now?
 	$context['report_sent'] = isset($_GET['reportsent']);
+	
+	// Did we send this topic to a friend?
+	$context['topic_sent'] = isset($_GET['topicsent']);
 
 	// Let's get nosey, who is viewing this topic?
 	if (!empty($settings['display_who_viewing']))
@@ -1275,7 +1294,7 @@ function prepareDisplayContext($reset = false)
 		'alternate' => $counter % 2,
 		'id' => $message['id_msg'],
 		'href' => $scripturl . '?topic=' . $topic . '.msg' . $message['id_msg'] . '#msg' . $message['id_msg'],
-		'link' => '<a href="' . $scripturl . '?topic=' . $topic . '.msg' . $message['id_msg'] . '#msg' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
+		'link' => '<a href="' . $scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',

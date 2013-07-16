@@ -77,18 +77,33 @@ img#smflogo {
 	top: 0.5em;
 	left: -3.3em;
 }
-#overall_progress, #step_progress {
-	height: 2.3em;
-	z-index: 1;
-	background: lime;
+
+#overall_text_upgrade, #step_text_upgrade {
+	z-index: 2;
+	color: #111;
+	font-weight: bold;
+	position: absolute;
+	top: .5em;
+	left: -3.3em;
 }
+#overall_progress, #step_progress {
+	height: 2.5em;
+	z-index: 1;
+}
+
+#overall_progress_upgrade, #step_progress_upgrade {
+	height: 2.5em;
+	z-index: 1;
+	background: #6BB247;
+	margin: 0px 3px 0px 0px;
+}
+.over_progress {
+
+margin: -33px 5px 0 10px;
+}
+
 #step_progress {
 	background: #ffd000;
-}
-.overall_progress, .progress {
-	position: absolute;
-	top: 0.5em;
-	left: 0.5em;
 }
 #substep_progress {
 	height: 2.3em;
@@ -153,4 +168,16 @@ img#smflogo {
 	border-radius: 5px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	/* End [WIP] */
+}
+
+#progress {
+	position: relative;
+	font-size: 1.2em;
+	height: 2.5em;
+	border: 1px solid black;
+	border-radius: 2px;
+	background: #fff;
+	float: left;
+	margin: 0.6em 0 0 4em;
+	width: 33%;
 }

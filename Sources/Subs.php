@@ -1009,8 +1009,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'b',
-				'before' => '<strong>',
-				'after' => '</strong>',
+				'before' => '<span class="bbc_bold">',
+				'after' => '</span>',
 			),
 			array(
 				'tag' => 'bdo',
@@ -1373,7 +1373,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'quote',
 				'parameters' => array(
 					'author' => array('match' => '([^<>]{1,192}?)'),
-					'link' => array('match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|action=profile;u=\d+)'),
+					'link' => array('match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'),
 					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
 				),
 				'before' => '<div class="quoteheader"><div class="topslice_quote"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div></div><blockquote>',
@@ -2916,21 +2916,16 @@ function setupThemeContext($forceload = false)
 	if ($modSettings['avatar_action_too_large'] == 'option_js_resize' && (!empty($modSettings['avatar_max_width_external']) || !empty($modSettings['avatar_max_height_external'])))
 	{
 		// @todo Move this over to script.js?
-		$context['html_headers'] .= '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		var smf_avatarMaxWidth = ' . (int) $modSettings['avatar_max_width_external'] . ';
-		var smf_avatarMaxHeight = ' . (int) $modSettings['avatar_max_height_external'] . ';';
+		addJavascriptVar('smf_avatarMaxWidth', (int) $modSettings['avatar_max_width_external']);
+		addJavascriptVar('smf_avatarMaxHeight', (int) $modSettings['avatar_max_height_external']);
 
 		if (!isBrowser('ie'))
-			$context['html_headers'] .= '
-	window.addEventListener("load", smf_avatarResize, false);';
+			addInlineJavascript('window.addEventListener("load", smf_avatarResize, false);');
 		else
-			$context['html_headers'] .= '
-	var window_oldAvatarOnload = window.onload;
-	window.onload = smf_avatarResize;';
-
-		$context['html_headers'] .= '
-	// ]]></script>';
+		{
+			addJavascriptVar('window_oldAvatarOnload', 'window.onload');
+			addInlineJavascript('window.onload = smf_avatarResize;');
+		}
 	}
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
@@ -2949,10 +2944,7 @@ function setupThemeContext($forceload = false)
 	$context['common_stats']['boardindex_total_posts'] = sprintf($txt['boardindex_total_posts'], $context['common_stats']['total_posts'], $context['common_stats']['total_topics'], $context['common_stats']['total_members']);
 
 	if (empty($settings['theme_version']))
-		$context['html_headers'] .= '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		var smf_scripturl = "' . $scripturl . '";
-	// ]]></script>';
+		addJavascriptVar('smf_scripturl', $scripturl);
 
 	if (!isset($context['page_title']))
 		$context['page_title'] = '';
@@ -3213,7 +3205,7 @@ function template_javascript($do_defered = false)
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('pre_javascript_output');
+	call_integration_hook('integrate_pre_javascript_output');
 
 	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_defered)
@@ -3292,7 +3284,7 @@ function template_css()
 	global $context;
 
 	// Use this hook to minify/optimize CSS files
-	call_integration_hook('pre_css_output');
+	call_integration_hook('integrate_pre_css_output');
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '

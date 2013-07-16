@@ -128,6 +128,7 @@ function template_main()
 		echo '
 				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
 					sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
+					', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
 				</div>';
 
 	// The post header... important stuff

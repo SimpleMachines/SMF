@@ -739,7 +739,7 @@ function SendMailing($clean_only = false)
 				$context['recipients']['members'][] = (int) $member;
 	}
 	// Cleaning groups is simple - although deal with both checkbox and commas.
-	if (!empty($_POST['groups']))
+	if (isset($_POST['groups']))
 	{
 		if (is_array($_POST['groups']))
 		{
@@ -754,7 +754,7 @@ function SendMailing($clean_only = false)
 		}
 	}
 	// Same for excluded groups
-	if (!empty($_POST['exclude_groups']))
+	if (isset($_POST['exclude_groups']))
 	{
 		if (is_array($_POST['exclude_groups']))
 		{

@@ -317,13 +317,18 @@ if (@$modSettings['smfVersion'] < '2.1')
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
-		upgrade_query("
-			INSERT IGNORE INTO {$db_prefix}board_permissions
-				(id_group, id_board, permission, add_deny)
-			VALUES
-				" . implode(',', $inserts));
+	{
+		foreach ($inserts AS $insert)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}board_permissions
+					(id_group, id_board, permission, add_deny)
+				VALUES
+					" . $insert);
+		}
+	}
 
-	// Next we find people who can send PM's, and assume they can save pm_drafts as well
+	// Next we find people who can send PMs, and assume they can save pm_drafts as well
 	$request = upgrade_query("
 		SELECT id_group, add_deny, permission
 		FROM {$db_prefix}permissions
@@ -337,13 +342,23 @@ if (@$modSettings['smfVersion'] < '2.1')
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
-		upgrade_query("
-			INSERT IGNORE INTO {$db_prefix}permissions
-				(id_group, permission, add_deny)
-			VALUES
-				" . implode(',', $inserts));
+	{
+		foreach ($inserts AS $insert)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}permissions
+					(id_group, permission, add_deny)
+				VALUES
+					" . $insert);
+		}
+	}
 }
 ---}
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_autosave_enabled', '1');
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
@@ -355,3 +370,12 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 );
+---#
+
+/******************************************************************************/
+--- Cleaning up integration hooks
+/******************************************************************************/
+---#
+DELETE FROM {$db_prefix}settings
+WHERE variable LIKE 'integrate_%';
+---#

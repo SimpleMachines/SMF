@@ -22,10 +22,15 @@ body.action_admin #main_content_section {
 }
 body.action_admin .navigate_section ul {
 	padding: 5px 8px;
-	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+
 	border: 1px solid #b8b8b8;
 	border-radius: 5px;
 	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 body.action_admin .navigate_section ul li.unread_links {
 	display: none;
@@ -88,12 +93,17 @@ body.action_admin .navigate_section ul li a {
 	vertical-align: middle;
 }
 .action_admin .generic_list_wrapper .information {
-	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+
 	margin: 8px 0;
 	padding: 4px 12px 2px 12px;
 	border: 1px solid #ccc;
 	border-radius: 2px;
 	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .action_admin .generic_list_wrapper .information div {
 	background: none;
@@ -162,8 +172,7 @@ div.quick_tasks {
 	box-shadow: none;
 }
 #admin_form_wrapper div.cat_bar:first-child h3.catbg, #admin_newsletters div.cat_bar:first-child h3.catbg,
-#generate_reports_type div.cat_bar:first-child h3.catbg, #groupForm div.cat_bar:first-child h3.catbg,
-#admin_form_wrapper h3.titlebg, #mailqueue_stats div.cat_bar:first-child  h3.catbg,
+#generate_reports_type div.cat_bar:first-child h3.catbg, #groupForm div.cat_bar:first-child h3.catbg, #mailqueue_stats div.cat_bar:first-child  h3.catbg,
 #new_group div.cat_bar:first-child  h3.catbg, #view_group div.cat_bar  h3.catbg, #view_group div.cat_bar:first-child  h3.catbg {
 	color: #444;
 	text-shadow: none;
@@ -172,10 +181,15 @@ div.quick_tasks {
 	border-bottom: 1px solid #bbb;
 }
 #admin_form_wrapper div.title_bar {
-	background: #fff url(../images/theme/lower_section.png) 0 0 repeat-x;
+
 	border: 1px solid #ccc;
 	border-radius: 2px 2px 0 0;
 	margin: 0;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .action_admin .generic_list_wrapper .title_bar {
 	background: none;
@@ -185,7 +199,7 @@ div.quick_tasks {
 	border-bottom: 1px solid #bbb;
 }
 #admin_form_wrapper h3.titlebg {
-	color: #666;
+	color: #fff;
 	border-bottom: none;
 	padding: 8px 6px 5px 6px;
 }
@@ -233,19 +247,29 @@ div.quick_tasks {
 /* Newsletters screen.
 ---------------------------------------------*/
 #admin_newsletters .information {
-	background: #fff url(../images/theme/lower_section.png) 0 50% repeat-x;
+
 	margin: 8px 0;
 	padding: 8px 12px 6px 12px;
 	border: 1px solid #ccc;
 	border-radius: 2px;
 	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 #advanced_panel_header {
 	margin-bottom: 8px;
-	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+
 	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 	border: 1px solid #ccc;
 	border-radius: 2px;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 #advanced_panel_header a {
 	color: #444;
@@ -317,8 +341,13 @@ h3.catbg #quick_search form select option {
 }
 h3.catbg #quick_search form .button_submit {
 	font-weight: bold;
-	background: #fff url(../images/theme/lower_section.png) 0 100% repeat-x;
+
 	padding: 3px 6px 2px 6px;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 h3.catbg #quick_search form .button_submit:hover {
 	background: #fff;
@@ -407,10 +436,15 @@ body#chrome  #quick_search .button_submit {
 	border-top: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
 	border-radius: 0;
-	background: #fff url(../images/theme/upper_section.png) 0 -50px repeat-x;
+
 	box-shadow:  0 2px 2px rgba(255,255,255,0.5), 0 -1px 2px rgba(0,0,0,0.1);
 	height: 12em;
 	overflow: auto;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 #live_news div.content, #supportVersionsTable  div.content {
 	padding: 0;
@@ -784,7 +818,7 @@ pre.file_content {
 	padding: 0 0.5em;
 }
 #manage_boards span.modify_boards a {
-	background: #fff url(../images/theme/lower_section.png) 0 0 repeat-x;
+
 	border: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -792,12 +826,22 @@ pre.file_content {
 	font: 95%/115% verdana, Helvetica, sans-serif;
 	color: #222;
 	font-size: 1em;
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 #manage_boards span.modify_boards a:hover {
-	background: #fff url(../images/theme/upper_section.png) 0 -40px repeat-x;
+
 	text-decoration: none;
 	color: #444;
 	box-shadow: -1px -1px 1px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 #manage_boards .button_submit {
 	box-shadow: 1px 1px 2px rgba(0,0,0,0.1), 0 -1px 3px rgba(0,0,0,0.1) inset;
