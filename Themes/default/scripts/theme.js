@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	// menu drop downs
-	$('ul.dropmenu, ul.quickbuttons').superfish({delay : 600, speed: 200, sensitivity : 8, interval : 50, timeout : 1}); 
-	
+	$('ul.dropmenu, ul.quickbuttons').superfish({delay : 600, speed: 200, sensitivity : 8, interval : 50, timeout : 1});
+
 	// tooltips
 	$('.preview').SMFtooltip();
 
@@ -26,7 +26,7 @@ function smf_codeBoxFix()
 			'currentStyle' in $(tag) && $(tag)[0].currentStyle.overflow == 'auto'
 			&& ($(tag).innerHeight() == '' || $(tag).innerHeight() == 'auto')
 			&& ($(tag)[0].scrollWidth > $(tag).innerWidth() || $(tag).innerWidth == 0)
-			&& ($(tag).outerHeight() != 0)			
+			&& ($(tag).outerHeight() != 0)
 		)
 			$(tag).css({height: ($(tag).height + 24) + 'px'});
 	});

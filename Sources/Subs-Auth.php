@@ -736,7 +736,7 @@ function rebuildModCache()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$boards_mod[] = $row['id_board'];
 		$smcFunc['db_free_result']($request);
-		
+
 		// Can any of the groups they're in moderate any of the boards?
 		$request = $smcFunc['db_query']('', '
 			SELECT id_board
@@ -749,7 +749,7 @@ function rebuildModCache()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$boards_mod[] = $row['id_board'];
 		$smcFunc['db_free_result']($request);
-		
+
 		// Just in case we've got duplicates here...
 		$boards_mod = array_unique($boards_mod);
 	}

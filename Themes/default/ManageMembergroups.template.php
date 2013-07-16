@@ -271,11 +271,11 @@ function template_edit_group()
 						<dd>
 							<input type="text" name="icon_count" id="icon_count_input" value="', $context['group']['icon_count'], '" size="4" class="input_text" />
 						</dd>';
-        
-        // Do we have any possible icons to select from?
-       	if (!empty($context['possible_icons']))
-       	{
-       		echo '
+
+	// Do we have any possible icons to select from?
+	if (!empty($context['possible_icons']))
+	{
+	echo '
 						<dt>
 							<label for="icon_image_input"><strong>', $txt['membergroups_icon_image'], ':</strong></label><br />
 							<span class="smalltext">', $txt['membergroups_icon_image_note'], '</span>
@@ -290,18 +290,18 @@ function template_edit_group()
 			echo '
 								<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected="selected"' : '', '>', $icon, '</option>';
 		}
-	
+
 		echo '
 							</select>
 							<img id="icon_preview" src="" alt="*" />
 						</dd>';
 	}
-	
+
 	// No? Hide the entire control.
 	else
 		echo '
 						<input type="hidden" name="icon_image" value="" />';
-						
+
 	echo '
 						<dt>
 							<label for="max_messages_input"><strong>', $txt['membergroups_max_messages'], ':</strong></label><br />
@@ -371,7 +371,7 @@ function template_edit_group()
 				var group_desc_text = document.getElementById(\'group_desc_text\');
 				var group_hidden_text = document.getElementById(\'group_hidden_text\');
 				var group_moderators_text = document.getElementById(\'group_moderators_text\');
-				
+
 				// If it\'s a moderator group, warn of possible problems... and remember the group type
 				if (isChecked && is_moderator_group && !confirm(\'', $txt['membergroups_swap_mod'], '\'))
 				{
@@ -396,7 +396,7 @@ function template_edit_group()
 							break;
 					}
 				}
-				
+
 				document.forms.groupForm.min_posts.disabled = !isChecked;
 				min_posts_text.style.color = isChecked ? "" : "#888888";
 				document.forms.groupForm.group_desc_input.disabled = isChecked;
@@ -406,7 +406,7 @@ function template_edit_group()
 				document.forms.groupForm.group_moderators.disabled = isChecked;
 				group_moderators_text.style.color = !isChecked ? "" : "#888888";
 			}
-				
+
 			swapPostGroup(', $context['group']['is_post_group'] ? 'true' : 'false', ');
 		// ]]></script>';
 }

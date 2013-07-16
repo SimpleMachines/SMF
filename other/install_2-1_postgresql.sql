@@ -34,8 +34,8 @@ CREATE OR REPLACE FUNCTION IFNULL (int, boolean) RETURNS int AS
   'SELECT COALESCE($1, CAST($2 AS int)) AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS
-  'SELECT
+CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS '
+	SELECT
 	CASE WHEN
 		$1 !~ ''^[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?\.[0-9]?[0-9]?[0-9]?$'' THEN 0
 	ELSE
@@ -46,12 +46,12 @@ CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS
 	END AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION INET_NTOA(bigint) RETURNS text AS
-  'SELECT
-    (($1 >> 24) & 255::int8) || ''.'' ||
-    (($1 >> 16) & 255::int8) || ''.'' ||
-    (($1 >> 8) & 255::int8) || ''.'' ||
-    ($1 & 255::int8) AS result'
+CREATE OR REPLACE FUNCTION INET_NTOA(bigint) RETURNS text AS '
+	SELECT
+		(($1 >> 24) & 255::int8) || ''.'' ||
+		(($1 >> 16) & 255::int8) || ''.'' ||
+		(($1 >> 8) & 255::int8) || ''.'' ||
+		($1 & 255::int8) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
@@ -109,11 +109,11 @@ CREATE OR REPLACE FUNCTION HOUR (timestamp) RETURNS integer AS
   'SELECT CAST (EXTRACT(HOUR FROM $1) AS integer) AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION DATE_FORMAT (timestamp, text) RETURNS text AS
-  'SELECT
-    REPLACE(
-        REPLACE($2, ''%m'', to_char($1, ''MM'')),
-    ''%d'', to_char($1, ''DD'')) AS result'
+CREATE OR REPLACE FUNCTION DATE_FORMAT (timestamp, text) RETURNS text AS '
+	SELECT
+	REPLACE(
+		REPLACE($2, ''%m'', to_char($1, ''MM'')),
+		''%d'', to_char($1, ''DD'')) AS result'
 LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION TO_DAYS (timestamp) RETURNS integer AS
@@ -1844,7 +1844,7 @@ CREATE TABLE {$db_prefix}moderators (
 CREATE TABLE {$db_prefix}moderator_groups (
   id_board smallint NOT NULL default '0',
   id_group smallint NOT NULL default '0',
-  PRIMARY KEY (id_board, id_group) 
+  PRIMARY KEY (id_board, id_group)
 );
 
 #

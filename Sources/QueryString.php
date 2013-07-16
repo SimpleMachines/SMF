@@ -371,7 +371,7 @@ function expandIPv6($addr, $strict_check = true)
 
 	unset($p);
 
-    // Join segments.
+	// Join segments.
 	$result = implode(':', $part);
 
 	// Save this incase of repeated use.

@@ -3562,7 +3562,6 @@ function template_upgrade_above()
 
 	if (isset($upcontext['step_progress']))
 		echo '
-				
 				<br />
 				<br />
 				<div id="progress">

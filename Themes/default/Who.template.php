@@ -25,14 +25,14 @@ function template_main()
 			<div class="topic_table" id="mlist">
 				<div class="pagesection">
 					<div class="pagelinks floatleft">', $context['page_index'], '</div>';
-		echo '
+	echo '
 					<div class="selectbox floatright" id="upper_show">', $txt['who_show1'], '
 						<select name="show_top" onchange="document.forms.whoFilter.show.value = this.value; document.forms.whoFilter.submit();">';
 
-		foreach ($context['show_methods'] as $value => $label)
-			echo '
-							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+	foreach ($context['show_methods'] as $value => $label)
 		echo '
+							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+	echo '
 						</select>
 						<noscript>
 							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button_submit" />
@@ -104,15 +104,15 @@ function template_main()
 				</table>
 				<div class="pagesection" id="lower_pagesection">
 					<div class="pagelinks floatleft" id="lower_pagelinks">', $context['page_index'], '</div>';
-	
-		echo '
+
+	echo '
 					<div class="selectbox floatright">', $txt['who_show1'], '
 						<select name="show" onchange="document.forms.whoFilter.submit();">';
-	
-		foreach ($context['show_methods'] as $value => $label)
-			echo '
-							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+
+	foreach ($context['show_methods'] as $value => $label)
 		echo '
+							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+	echo '
 						</select>
 						<noscript>
 							<input type="submit" value="', $txt['go'], '" class="button_submit" />

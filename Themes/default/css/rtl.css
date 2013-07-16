@@ -521,7 +521,7 @@ ul.post_options li {
 ---------------------------------------------------- */
 
 #edit_poll fieldset input {
-	margin-right: 7em;	
+	margin-right: 7em;
 }
 #edit_poll ul.poll_main li {
 	padding-right: 1em;
@@ -539,7 +539,7 @@ ul.post_options li {
 	padding: 0 1em 0 0;
 }
 #edit_poll dl.poll_options dd input {
-	margin-right: 0; 
+	margin-right: 0;
 }
 
 /* Styles for the personal messages section.

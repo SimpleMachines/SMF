@@ -30,12 +30,12 @@ smf_DraftAutoSave.prototype.init = function ()
 		this.oDraftHandle.instanceRef = this;
 		this.oDraftHandle.onblur = function (oEvent) {return this.instanceRef.draftBlur(oEvent, true);};
 		this.oDraftHandle.onfocus = function (oEvent) {return this.instanceRef.draftFocus(oEvent, true);};
-		
+
 		// If we found the iframe window, set body focus/blur events for it
-		if (oIframeWindow.document) 
+		if (oIframeWindow.document)
 		{
 			var oIframeDoc = oIframeWindow.document;
-			// @todo oDraftAutoSave should use the this.opt.sSelf name not hardcoded 
+			// @todo oDraftAutoSave should use the this.opt.sSelf name not hardcoded
 			oIframeDoc.body.onblur = function (oEvent) {return parent.oDraftAutoSave.draftBlur(oEvent, false);};
 			oIframeDoc.body.onfocus = function (oEvent) {return parent.oDraftAutoSave.draftFocus(oEvent, false);};
 		};
@@ -52,7 +52,7 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 			this.draftPMSave();
 		else
 			this.draftSave();
-		
+
 		if (this.interval_id != "")
 			window.clearInterval(this.interval_id);
 		this.interval_id = "";
@@ -79,7 +79,7 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	// nothing to save or already posting or nothing changed?
 	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)
 		return false;
-	
+
 	// Still saving the last one or other?
 	if (this.bInDraftMode)
 		this.draftCancel();
@@ -113,7 +113,7 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 
 	// Send in document for saving and hope for the best
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=post2;board=" + this.opt.iBoard + ";xml", aSections.join("&"), this.onDraftDone);
-	
+
 	// Save the latest for compare
 	this.sCheckDraft = sPostdata;
 }
@@ -122,7 +122,7 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 smf_DraftAutoSave.prototype.draftPMSave = function ()
 {
 	var sPostdata = $('#' + this.opt.sSceditorID).data("sceditor").getText();
-	
+
 	// nothing to save or already posting or nothing changed?
 	if (isEmptyText(sPostdata) || smf_formSubmitted || this.sCheckDraft == sPostdata)
 		return false;
@@ -161,7 +161,7 @@ smf_DraftAutoSave.prototype.draftPMSave = function ()
 
 	// Send in (post) the document for saving
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=pm;sa=send2;xml", aSections.join("&"), this.onDraftDone);
-	
+
 	// Save the latest for compare
 	this.sCheckDraft = sPostdata;
 }

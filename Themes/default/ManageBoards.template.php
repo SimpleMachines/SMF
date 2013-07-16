@@ -602,7 +602,7 @@ function template_modify_board()
 	echo '
 		]
 	});
-	
+
 	var oModeratorGroupSuggest = new smc_AutoSuggest({
 		sSelf: \'oModeratorGroupSuggest\',
 		sSessionId: smf_session_id,
@@ -616,7 +616,7 @@ function template_modify_board()
 		sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 		sItemListContainerId: \'moderator_group_container\',
 		aListItems: [';
-		
+
 	foreach ($context['board']['moderator_groups'] as $id_group => $group_name)
 		echo '
 					{

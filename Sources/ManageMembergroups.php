@@ -668,7 +668,7 @@ function EditMembergroup()
 			'current_group' => $_REQUEST['group'],
 		)
 	);
-	
+
 	// Why don't we have a $smcFunc['db_result'] function?
 	$result = $smcFunc['db_fetch_row']($request);
 	$context['is_moderator_group'] = ($result[0] > 0);
@@ -828,7 +828,7 @@ function EditMembergroup()
 
 			foreach ($updates as $additional_groups => $memberArray)
 				updateMemberData($memberArray, array('additional_groups' => implode(',', array_diff(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
-			
+
 			// Sorry, but post groups can't moderate boards
 			$request = $smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}moderator_groups
@@ -869,7 +869,7 @@ function EditMembergroup()
 						'current_group' => $_REQUEST['group'],
 					)
 				);
-				
+
 				// Hidden groups can't moderate boards
 				$smcFunc['db_query']('', '
 					DELETE FROM {db_prefix}moderator_groups
@@ -1111,10 +1111,10 @@ function EditMembergroup()
 		if ($max_boards == 1)
 			$max_boards = 2;
 	}
-	
+
 	// Get a list of all the image formats we can select.
 	$imageExts = array('png', 'jpg', 'jpeg', 'bmp', 'gif');
-	
+
 	// Scan the directory.
 	$context['possible_icons'] = array();
 	if ($files = scandir($settings['default_theme_dir'] . '/images/membericons'))
@@ -1124,24 +1124,24 @@ function EditMembergroup()
 		{
 			// Grab the image extension.
 			$ext = pathinfo($settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
-			
-			// If the extension is not empty, and it is valid, 
+
+			// If the extension is not empty, and it is valid
 			if (!empty($ext) && in_array($ext, $imageExts))
 			{
 				// Get the size of the image.
 				$image_info = getimagesize($settings['default_theme_dir'] . '/images/membericons/' . $value);
-				
+
 				// If this is bigger than 128 in width or 32 in height, skip this one.
 				if ($image_info == false || $image_info[0] > 128 || $image_info[1] > 32)
 					continue;
-					
+
 				// Else it's valid. Add it in.
 				else
 					$context['possible_icons'][] = $value;
 			}
 		}
 	}
-	
+
 	// Insert our JS, if we have possible icons.
 	if (!empty($context['possible_icons']))
 		loadJavascriptFile('icondropdown.js', array('validate' => true));

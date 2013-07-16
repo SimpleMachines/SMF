@@ -50,14 +50,13 @@ function template_newsfader()
 			</div>
 			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
 			<script type="text/javascript"><!-- // --><![CDATA[
-		
 				// Create a news fader object.
 				var oNewsFader = new smc_NewsFader({
 					sFaderControlId: \'smfFadeScroller\',
 					sItemTemplate: ', JavaScriptEscape('%1$s'), ',
 					iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
 				});
-		
+
 				// Create the news fader toggle.
 				var smfNewsFadeToggle = new smc_Toggle({
 					bToggleEnabled: true,
