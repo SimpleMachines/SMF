@@ -398,6 +398,9 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
+.bbc_bold {
+	font-weight: bold;
+}
 .bbc_img {
 	border: 0;
 }
