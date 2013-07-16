@@ -1077,7 +1077,7 @@ function Post($post_errors = array())
 	// Are we starting a poll? if set the poll icon as selected if its available
 	if (isset($_REQUEST['poll']))
 	{
-	    foreach ($context['icons'] as $icons)
+		foreach ($context['icons'] as $icons)
 		{
 			if (isset($icons['value']) && $icons['value'] == 'poll')
 			{

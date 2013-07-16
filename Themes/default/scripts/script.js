@@ -28,7 +28,7 @@ if (!('XMLHttpRequest' in window) && 'ActiveXObject' in window)
 // Some older versions of Mozilla don't have this, for some reason.
 if (!('forms' in document))
 	document.forms = document.getElementsByTagName('form');
-	
+
 // Versions of ie < 9 do not have this built in
 if (!('getElementsByClassName' in document))
 {
@@ -314,7 +314,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading.gif" ></div>';
 	var sIcon = smf_images_url + '/' + (typeof(sIcon) == 'string' ? sIcon : 'helptopics.png');
 	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
-	
+
 	// Create the div that we are going to load
 	var oContainer = new smc_Popup({heading: sHeader, content: sAjax_indicator, icon: sIcon});
 	var oPopup_body = $('#' + oContainer.popup_id).find('.popup_content');
@@ -322,8 +322,8 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 	// Load the help page content (we just want the text to show)
 	$.ajax({
 		url: desktopURL,
-        type: "GET",
-        dataType: "html",
+		type: "GET",
+		dataType: "html",
 		beforeSend: function () {
 		},
 		success: function (data, textStatus, xhr) {
@@ -367,14 +367,14 @@ smc_Popup.prototype.show = function ()
 			popup_instance.hide();
 	});
 	$('#' + this.popup_id).find('.hide_popup').click(function (){ return popup_instance.hide(); });
-	
+
 	return false;
 }
 
 smc_Popup.prototype.hide = function ()
 {
 	$('#' + this.popup_id).fadeOut(300, function(){ $(this).remove(); });
-	
+
 	return false;
 }
 
@@ -638,7 +638,7 @@ function smf_avatarResize()
 		// Image.prototype.avatar = possibleAvatars[i];
 		tempAvatars[j] = new Image();
 		tempAvatars[j].avatar = possibleAvatars[i];
-		
+
 		tempAvatars[j].onload = function()
 		{
 			this.avatar.width = this.width;

@@ -213,7 +213,7 @@ function UnapprovedPosts()
 	);
 	list ($context['total_unapproved_topics']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
-	
+
 	// Limit to how many? (obey the user setting)
 	$limit = !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 

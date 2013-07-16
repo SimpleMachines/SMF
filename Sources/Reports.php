@@ -329,7 +329,7 @@ function BoardPermissionsReport()
 		$profiles[] = $row['id_profile'];
 	}
 	$smcFunc['db_free_result']($request);
-	
+
 	// Get the ids of any groups allowed to moderate this board
 	// Limit it to any boards and/or groups we're looking at
 	$request = $smcFunc['db_query']('', '
@@ -746,14 +746,14 @@ function StaffReport()
 		array(
 		)
 	);
-	
+
 	// Add each board/member to the arrays, but only if they aren't already there
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Either we don't have them as a moderator at all or at least not as a moderator of this board
 		if (!array_key_exists($row['id_member'], $moderators) || !in_array($row['id_board'], $moderators[$row['id_member']]))
 			$moderators[$row['id_member']][] = $row['id_board'];
-		
+
 		// We don't have them listed as a moderator yet
 		if (!array_key_exists($row['id_member'], $local_mods))
 			$local_mods[$row['id_member']] = $row['id_member'];

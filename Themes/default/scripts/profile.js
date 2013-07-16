@@ -55,12 +55,11 @@ function calcCharLeft()
 		if (is_opera)
 			currentChars = currentSignature.replace(/\r/g, "").length;
 
-		
 		if (currentChars > maxLength)
 			document.getElementById("signatureLeft").className = "error";
 		else
 			document.getElementById("signatureLeft").className = "";
-		
+
 		if (currentChars > maxLength && !$("#profile_error").is(":visible"))
 			ajax_getSignaturePreview(false);
 		else if (currentChars <= maxLength && $("#profile_error").is(":visible"))

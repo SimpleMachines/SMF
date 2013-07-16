@@ -699,7 +699,7 @@ function loadBoard()
 	{
 		// Get this into an array of keys for array_intersect
 		$moderator_groups = array_keys($board_info['moderator_groups']);
-		
+
 		// Now check if the user is a moderator.
 		$user_info['is_mod'] = isset($board_info['moderators'][$user_info['id']]) || count(array_intersect($user_info['groups'], $moderator_groups)) != 0;
 
@@ -1001,7 +1001,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	}
 
 	$additional_mods = array();
-	
+
 	// Are any of these users in groups assigned to moderate this board?
 	if (!empty($loaded_ids) && !empty($board_info['moderator_groups']) && $set === 'normal')
 	{
@@ -1011,9 +1011,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 				$groups = array_merge(array($user_profile[$a_member]['id_group']), explode(',', $user_profile[$a_member]['additional_groups']));
 			else
 				$groups = array($user_profile[$a_member]['id_group']);
-			
+
 			$temp = array_intersect($groups, array_keys($board_info['moderator_groups']));
-			
+
 			if (!empty($temp))
 			{
 				$additional_mods[] = $a_member;
@@ -1304,7 +1304,7 @@ function loadMemberCustomFields($users, $params)
 		c.show_display, c.show_profile, c.private, c.active, c.bbc, c.can_search, c.default_value, c.enclose, c.placement, t.variable, t.value, t.id_member
 		FROM {db_prefix}themes AS t
 			LEFT JOIN {db_prefix}custom_fields AS c ON (c.col_name = t.variable)
-		WHERE id_member IN ({array_int:loaded_ids}) 
+		WHERE id_member IN ({array_int:loaded_ids})
 			AND variable IN ({array_string:params})',
 		array(
 			'loaded_ids' => $users,
@@ -2223,8 +2223,8 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
 			}
 			$txt['emails'] = array();
 		}
-		// For sake of backward compatibility: $birthdayEmails is supposed to be 
-		// empty in a normal install. If it isn't it means the forum is using 
+		// For sake of backward compatibility: $birthdayEmails is supposed to be
+		// empty in a normal install. If it isn't it means the forum is using
 		// something "old" (it may be the translation, it may be a mod) and this
 		// code (like the piece above) takes care of converting it to the new format
 		if (!empty($birthdayEmails))
@@ -2312,7 +2312,7 @@ function getBoardParents($id_parent)
 							'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_moderator'] . '">' . $row['real_name'] . '</a>'
 						);
 					}
-				
+
 				// If a moderator group exists for this board, add that moderator group for all children too
 				if (!empty($row['id_moderator_group']))
 					foreach ($boards as $id => $dummy)
@@ -2322,7 +2322,7 @@ function getBoardParents($id_parent)
 							'name' => $row['group_name'],
 							'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'],
 							'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_moderator_group'] . '">' . $row['group_name'] . '</a>'
-						);					
+						);
 					}
 			}
 			$smcFunc['db_free_result']($result);
