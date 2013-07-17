@@ -43,12 +43,6 @@ $databases = array(
 		'version_check' => '$version = pg_version(); return $version[\'client\'];',
 		'always_has_db' => true,
 	),
-	'sqlite' => array(
-		'name' => 'SQLite',
-		'version' => '1',
-		'version_check' => 'return 1;',
-		'always_has_db' => true,
-	),
 );
 
 // General options for the script.
@@ -2637,9 +2631,6 @@ function upgrade_query($string, $unbuffered = false)
 		if (in_array(substr(trim($string), 0, 8), array('CREATE T', 'CREATE S', 'DROP TABL', 'ALTER TA', 'CREATE I')))
 		{
 			if (strpos($db_error_message, 'exist') !== false)
-				return true;
-			// SQLite
-			if (strpos($db_error_message, 'missing') !== false)
 				return true;
 		}
 		elseif (strpos(trim($string), 'INSERT ') !== false)

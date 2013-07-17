@@ -1100,10 +1100,6 @@ function OptimizeTables()
 		// Optimize the table!  We use backticks here because it might be a custom table.
 		$data_freed = $smcFunc['db_optimize_table']($table['table_name']);
 
-		// Optimizing one sqlite table optimizes them all.
-		if ($db_type == 'sqlite')
-			break;
-
 		if ($data_freed > 0)
 			$context['optimized_tables'][] = array(
 				'name' => $table['table_name'],

@@ -87,32 +87,6 @@ $databases = array(
 			return true;
 		'),
 	),
-	'sqlite' => array(
-		'name' => 'SQLite',
-		'version' => '1',
-		'function_check' => 'sqlite_open',
-		'version_check' => 'return 1;',
-		'supported' => function_exists('sqlite_open'),
-		'always_has_db' => true,
-		'utf8_default' => true,
-		'utf8_required' => true,
-		'utf8_support' => false,
-		'validate_prefix' => create_function('&$value', '
-			global $incontext, $txt;
-
-			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
-
-			// Is it reserved?
-			if ($value == \'sqlite_\')
-				return $txt[\'error_db_prefix_reserved\'];
-
-			// Is the prefix numeric?
-			if (preg_match(\'~^\d~\', $value))
-				return $txt[\'error_db_prefix_numeric\'];
-
-			return true;
-		'),
-	),
 );
 
 // Initialize everything and load the language files.
@@ -745,7 +719,7 @@ function DatabaseSettings()
 	if (isset($_POST['db_user']))
 	{
 		$incontext['db']['user'] = $_POST['db_user'];
-		$incontext['db']['name'] = $_POST['db_type'] == 'sqlite' && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
+		$incontext['db']['name'] = $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
 	}
@@ -761,22 +735,6 @@ function DatabaseSettings()
 	// Are we submitting?
 	if (isset($_POST['db_type']))
 	{
-		if (isset($_POST['db_filename']))
-		{
-			// You better enter enter a database name for SQLite.
-			if (trim($_POST['db_filename']) == '')
-			{
-				$incontext['error'] = $txt['error_db_filename'];
-				return false;
-			}
-			// Duplicate name in the same dir?  Can't do that with SQLite.  Weird things happen.
-			if (file_exists($_POST['db_filename'] . (substr($_POST['db_filename'], -3) != '.db' ? '.db' : '')))
-			{
-				$incontext['error'] = $txt['error_db_filename_exists'];
-				return false;
-			}
-		}
-
 		// What type are they trying?
 		$db_type = preg_replace('~[^A-Za-z0-9]~', '', $_POST['db_type']);
 		$db_prefix = $_POST['db_prefix'];
@@ -792,7 +750,7 @@ function DatabaseSettings()
 		// Take care of these variables...
 		$vars = array(
 			'db_type' => $db_type,
-			'db_name' => $_POST['db_type'] == 'sqlite' && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'],
+			'db_name' => $_POST['db_name'],
 			'db_user' => $_POST['db_user'],
 			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
 			'db_server' => $_POST['db_server'],
@@ -1113,7 +1071,7 @@ function DatabasePopulation()
 			// Don't error on duplicate indexes (or duplicate operators in PostgreSQL.)
 			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !($db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match)))
 			{
-				// MySQLi requires a connection object. It's optional with MySQL, Postgres and sqlite
+				// MySQLi requires a connection object. It's optional with MySQL and Postgres
 				$incontext['failures'][$count] = $smcFunc['db_error']($db_connection);
 			}
 		}
@@ -1247,10 +1205,6 @@ function DatabasePopulation()
 	{
 		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
 
-		// Optimizing one sqlite table, optimizes them all
-		if ($db_type == 'sqlite')
-			break;
-
 		if (!empty($db_messed))
 		{
 			$incontext['failures'][-1] = $smcFunc['db_error']();
@@ -1303,7 +1257,7 @@ function AdminAccount()
 	$incontext['username'] = htmlspecialchars(stripslashes($_POST['username']));
 	$incontext['email'] = htmlspecialchars(stripslashes($_POST['email']));
 
-	$incontext['require_db_confirm'] = empty($db_type) || $db_type != 'sqlite';
+	$incontext['require_db_confirm'] = empty($db_type);
 
 	// Only allow skipping if we think they already have an account setup.
 	$request = $smcFunc['db_query']('', '
@@ -2343,7 +2297,7 @@ function template_database_settings()
 						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected="selected"' : '', '>', $db['name'], '</option>';
 
 	echo '
-					</select><div id="db_sqlite_warning" style="color: blue; display: none;" class="smalltext">', $txt['db_sqlite_warning'], '</div>
+					</select>
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_type_info'], '</div>
 				</td>
 			</tr>';
@@ -2399,23 +2353,20 @@ function template_database_settings()
 			</tr>
 		</table>';
 
-	// Allow the toggling of input boxes for SQLite etc.
+	// Allow the toggling of input boxes.
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
 		function toggleDBInput()
 		{
 			// What state is it?';
 
-	if (!isset($incontext['supported_databases']['sqlite']))
-		echo '
-			var showAll = true;';
-	elseif (count($incontext['supported_databases']) < 2)
+	if (count($incontext['supported_databases']) < 2)
 		echo '
 			var showAll = false;';
-	// If we have more than one DB including SQLite, what should we be doing?
+	// If we have more than one DB, what should we be doing?
 	else
 		echo '
-			var showAll = document.getElementById(\'db_type_input\').value == \'sqlite\' ? false : true;';
+			var showAll = true;';
 
 	echo '
 			document.getElementById(\'db_passwd_contain\').style.display = showAll ? \'\' : \'none\';
@@ -2423,7 +2374,6 @@ function template_database_settings()
 			document.getElementById(\'db_user_contain\').style.display = showAll ? \'\' : \'none\';
 			document.getElementById(\'db_name_contain\').style.display = showAll ? \'\' : \'none\';
 			document.getElementById(\'db_filename_contain\').style.display = !showAll ? \'\' : \'none\';
-			document.getElementById(\'db_sqlite_warning\').style.display = !showAll ? \'\' : \'none\';
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
 				document.getElementById(\'db_name_info_warning\').style.display = \'none\';
 			else
