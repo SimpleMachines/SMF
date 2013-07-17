@@ -987,7 +987,7 @@ function WelcomeLogin()
 
 	// Do a quick version spot check.
 	$temp = substr(@implode('', @file($boarddir . '/index.php')), 0, 4096);
-	preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $temp, $match);
+	preg_match('~\*\s@version\s+(.+)[\s]{2}\s~i', $temp, $match);
 	if (empty($match[1]) || $match[1] != SMF_VERSION)
 		return throw_error('The upgrader found some old or outdated files.<br /><br />Please make certain you uploaded the new versions of all the files included in the package.');
 
