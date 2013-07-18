@@ -134,11 +134,11 @@ function template_options()
 			),
 			'default' => true,
 		),
-        array(
-            'id' => 'use_editor_quick_reply',
-            'label' => $txt['use_editor_quick_reply'],
-            'default' => true,
-        ),
+		array(
+			'id' => 'use_editor_quick_reply',
+			'label' => $txt['use_editor_quick_reply'],
+			'default' => true,
+		),
 		array(
 			'id' => 'display_quick_mod',
 			'label' => $txt['display_quick_mod'],

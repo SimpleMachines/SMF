@@ -13,7 +13,7 @@
 function template_print_above()
 {
 	global $context, $txt, $topic, $scripturl;
-	
+
 	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
 	$url_images = $url_text . ';images';
 
@@ -149,18 +149,18 @@ function template_main()
 			</div>
 			<div class="postbody">
 				', $post['body'];
-				
+
 		// Show attachment images
 		if (isset($_GET['images']) && !empty($context['printattach'][$post['id_msg']]))
 		{
 			echo '
 				<hr />';
-			
+
 			foreach ($context['printattach'][$post['id_msg']] as $attach)
 				echo '
 					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="" />';
 		}
-			
+
 		echo '
 			</div>';
 	}
@@ -169,10 +169,10 @@ function template_main()
 function template_print_below()
 {
 	global $topic, $txt, $scripturl;
-	
+
 	$url_text = $scripturl . '?action=printpage;topic=' . $topic . '.0';
 	$url_images = $url_text . ';images';
-	
+
 	echo '
 		</div>
 		<div class="print_options">';

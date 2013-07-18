@@ -560,7 +560,7 @@ function EditBoard()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$context['board']['moderator_groups'][$row['id_group']] = $context['groups'][$row['id_group']]['name'];
 	$smcFunc['db_free_result']($request);
-	
+
 	$context['board']['moderator_groups_list'] = empty($context['board']['moderator_groups']) ? '' : '&quot;' . implode('&quot;, &qout;', $context['board']['moderator_groups']) . '&quot;';
 
 	if (!empty($context['board']['moderator_groups']))
@@ -670,7 +670,7 @@ function EditBoard2()
 		}
 
 		$boardOptions['moderator_group_string'] = $_POST['moderator_groups'];
-		
+
 		if (isset($_POST['moderator_group_list']) && is_array($_POST['moderator_group_list']))
 		{
 			$moderator_groups = array();

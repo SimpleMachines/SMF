@@ -430,7 +430,7 @@ function BanEdit()
 						'data' => array(
 							'function' => create_function('$ban_item', '
 								global $txt, $context, $scripturl;
-								
+
 								return \'<a href="\' . $scripturl . \'?action=admin;area=ban;sa=edittrigger;bg=\' . $context[\'ban\'][\'id\'] . \';bi=\' . $ban_item[\'id\'] . \'">\' . $txt[\'ban_edit_trigger\'] . \'</a>\';
 							'),
 							'style' => 'text-align: center;',
@@ -702,7 +702,7 @@ function banLoadAdditionalIPs($member_id)
 	$search_list += array('ips_in_messages' => 'banLoadAdditionalIPsMember', 'ips_in_errors' => 'banLoadAdditionalIPsError');
 
 	$return = array();
-	foreach ($search_list as $key => $callable) 
+	foreach ($search_list as $key => $callable)
 		if (is_callable($callable))
 			$return[$key] = call_user_func($callable, $member_id);
 
@@ -788,7 +788,7 @@ function banEdit2()
 		$ban_info['cannot']['access'] = empty($ban_info['full_ban']) ? 0 : 1;
 		$ban_info['cannot']['post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
 		$ban_info['cannot']['register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
-		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;	
+		$ban_info['cannot']['login'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_login']) ? 0 : 1;
 
 		// Adding a new ban group
 		if (empty($_REQUEST['bg']))
@@ -844,7 +844,6 @@ function banEdit2()
 /**
  * Saves one or more ban triggers into a ban item: according to the suggestions
  * checks the $_POST variable to verify if the trigger is present
- * If 
  *
  * @param array $suggestions
  * @param int $ban_group
@@ -1006,7 +1005,7 @@ function removeBanLogs($ids = array())
 
 /**
  * This function validates the ban triggers
- * 
+ *
  * Errors in $context['ban_errors']
  *
  * @param array $triggers
@@ -1178,7 +1177,7 @@ function validateTriggers(&$triggers)
 
 /**
  * This function actually inserts the ban triggers into the database
- * 
+ *
  * Errors in $context['ban_errors']
  *
  * @param int $group_id
@@ -1271,7 +1270,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 
 /**
  * This function updates an existing ban trigger into the database
- * 
+ *
  * Errors in $context['ban_errors']
  *
  * @param int $ban_item
@@ -1322,7 +1321,7 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}ban_items
-		SET 
+		SET
 			hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
 			ip_low1 = {int:ip_low1}, ip_high1 = {int:ip_high1},
 			ip_low2 = {int:ip_low2}, ip_high2 = {int:ip_high2},
@@ -1376,7 +1375,7 @@ function logTriggersUpdates($logs, $new = true)
 /**
  * Updates an existing ban group
  * If the name doesn't exists a new one is created
- * 
+ *
  * Errors in $context['ban_errors']
  *
  * @param array $ban_info
@@ -1440,9 +1439,9 @@ function updateBanGroup($ban_info = array())
  * Creates a new ban group
  * If a ban group with the same name already exists or the group s sucessfully created the ID is returned
  * On error the error code is returned or false
- * 
+ *
  * Errors in $context['ban_errors']
- * 
+ *
  * @param array $ban_info
  * @return int the ban group's ID
  */

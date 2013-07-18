@@ -535,7 +535,7 @@ function Credits($in_admin = false)
 			'description' => '',
 		);
 	}
-	
+
 	$context['credits'] = array(
 		array(
 			'pretext' => $txt['credits_intro'],
@@ -732,7 +732,7 @@ function Credits($in_admin = false)
 			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> |&copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
 			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> |&copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> |&copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-		),						
+		),
 	);
 
 	// Support for mods that use the <credits> tag via the package manager

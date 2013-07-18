@@ -66,7 +66,7 @@ QuickModifyTopic.prototype.modify_topic = function (topic_id, first_msg_id)
 	this.bMouseOnDiv = true;
 	this.iCurTopicId = topic_id;
 
-	// Get the topics current subject 
+	// Get the topics current subject
 	ajax_indicator(true);
 	sendXMLDocument.call(this, smf_prepareScriptUrl(smf_scripturl) + "action=quotefast;quote=" + first_msg_id + ";modify;xml", '', this.onDocReceived_modify_topic);
 }
@@ -80,7 +80,7 @@ QuickModifyTopic.prototype.onDocReceived_modify_topic = function (XMLDoc)
 		this.modify_topic_cancel();
 		return true;
 	}
-	
+
 	this.sCurMessageId = XMLDoc.getElementsByTagName("message")[0].getAttribute("id");
 	this.oCurSubjectDiv = document.getElementById('msg_' + this.sCurMessageId.substr(4));
 	this.sBuffSubject = getInnerHTML(this.oCurSubjectDiv);
@@ -99,7 +99,7 @@ QuickModifyTopic.prototype.modify_topic_cancel = function ()
 	setInnerHTML(this.oCurSubjectDiv, this.sBuffSubject);
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
-	
+
 	return false;
 }
 
@@ -118,7 +118,7 @@ QuickModifyTopic.prototype.modify_topic_show_edit = function (subject)
 {
 	// Just template the subject.
 	setInnerHTML(this.oCurSubjectDiv, '<input type="text" name="subject" value="' + subject + '" size="60" style="width: 95%;" maxlength="80" class="input_text" /><input type="hidden" name="topic" value="' + this.iCurTopicId + '" /><input type="hidden" name="msg" value="' + this.sCurMessageId.substr(4) + '" />');
-	
+
 	// attach mouse over and out events to this new div
 	this.oCurSubjectDiv.instanceRef = this;
 	this.oCurSubjectDiv.onmouseout = function (oEvent) {return this.instanceRef.modify_topic_mouseout(oEvent);};
@@ -151,7 +151,7 @@ QuickModifyTopic.prototype.modify_topic_save = function (cur_session_id, cur_ses
 QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 {
 	ajax_indicator(false);
-	
+
 	// If it is not valid then clean up
 	if (!XMLDoc || !XMLDoc.getElementsByTagName('subject'))
 	{
@@ -175,7 +175,7 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	// redo tips if they are on since we just pulled the rug out on this one 
 	if ($.isFunction($.fn.SMFtooltip));
 		$('.preview').SMFtooltip().smf_tooltip_off;
-	
+
 	return false;
 }
 
@@ -708,22 +708,22 @@ function expandThumb(thumbID)
 {
 	var img = document.getElementById('thumb_' + thumbID);
 	var link = document.getElementById('link_' + thumbID);
-	
+
 	// save the currently displayed image attributes
 	var tmp_src = img.src;
 	var tmp_height = img.style.height;
 	var tmp_width = img.style.width;
-	
+
 	// set the displayed image attributes to the link attributes, this will expand in place
 	img.src = link.href;
 	img.style.width = link.style.width;
 	img.style.height = link.style.height;
-	
+
 	// place the image attributes back
 	link.href = tmp_src;
 	link.style.width = tmp_width;
 	link.style.height = tmp_height;
-	
+
 	return false;
 }
 

@@ -124,7 +124,7 @@ function MessageIndex()
 		foreach ($board_info['moderator_groups'] as $mod_group)
 			$context['link_moderators'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . $txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
 	}
-	
+
 	// Now we tack the info onto the end of the linktree
 	if (!empty($context['link_moderators']))
 	{

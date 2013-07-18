@@ -140,10 +140,10 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .button_submit:hover, .button_reset:hover, .button_link:hover {
 	color: #af6700;
@@ -152,10 +152,10 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
 	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 a.button_link {
 	color: #000;
@@ -470,20 +470,20 @@ a img {
 	font-size: /*1.1em*/1em;
 	font-weight: bold;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .catbg, .catbg2, tr.catbg td, tr.catbg2 td, tr.catbg th, tr.catbg2 th {
 	color: #fff;
 	font-size: 1.1em;
 	font-weight: bold;
 	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 
 /* adjust the table versions of headers */
@@ -577,10 +577,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	margin: 5px 8px 0 0;
 	color: #222;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .topbottom:hover {
 	text-decoration: none;
@@ -591,10 +591,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
 	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 
 /* Sticky topics get a different background */
@@ -827,7 +827,7 @@ h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg {
 h4.titlebg, h3.titlebg {
 	background: #557EA0;
 	border-bottom: 1px solid #777;
-    border-radius: 6px 6px 0 0;
+	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
@@ -1093,10 +1093,10 @@ img.sort {
 	border-radius: 2px 7px 0 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Level 2 link background. */
 .dropmenu li li {
@@ -1155,10 +1155,10 @@ img.sort {
 	border-top: 1px solid #d4dee6;
 	border-bottom: 1px solid #cbdae6;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .dropmenu li li:hover>a, .dropmenu li li.sfhover a:focus, .dropmenu li li a:hover, .dropmenu li li a:focus {
 	color: #333;
@@ -1166,10 +1166,10 @@ img.sort {
 	border: 1px solid #cfcfcf;
 	border-top: 1px solid #d4dee6;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Reposition Level 2 submenu as visible on hover. */
 .dropmenu li:hover ul, .dropmenu li.sfhover ul {
@@ -1246,10 +1246,10 @@ img.sort {
 .adm_section .dropmenu {
 	padding: 4px 1px 9px 1px;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	float: none;
 }
 .adm_section .dropmenu li {
@@ -1295,10 +1295,10 @@ img.sort {
 .adm_section .dropmenu li li a:hover {
 	color: #333;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .adm_section .dropmenu ul a:focus {
@@ -1340,10 +1340,10 @@ img.sort {
 	color: #444;
 	font-size: 0.8em;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .buttonlist ul li a {
@@ -1357,10 +1357,10 @@ img.sort {
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
 	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 .buttonlist ul li a span {
 	display: block;
@@ -1414,10 +1414,10 @@ img.sort {
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0,0,0,0.16);
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 #top_section .frame{
 	clear: both;
@@ -1464,10 +1464,10 @@ img.sort {
 	border-radius: 3px;
 	color: #333;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
@@ -1479,10 +1479,10 @@ img.sort {
 	color: #a85400;
 	text-decoration: none;
 	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 /* The logo and slogan. */
 #header {
@@ -1532,10 +1532,10 @@ img#smflogo {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 98%);
 }
 #inner_section:after {
 	content:"";
@@ -1614,10 +1614,10 @@ ul li.greeting {
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .navigate_section ul li {
 	float: left;
@@ -1793,10 +1793,10 @@ ul li.greeting {
 .table_list .icon, .table_list .info, .table_list .stats, .table_list .lastpost {
 	border-top: double #ddd;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 /* Hiding unwanted border repeats. */
 .table_list .content tr:first-child .icon, .table_list .content tr:first-child .info,
@@ -2207,10 +2207,10 @@ div#pollmoderation {
 .dropmenu  li ul li:hover {
 	border: none;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .poster .dropmenu  li ul li.im_icons, .poster .dropmenu   ul ol li {
 	padding: 3px;
@@ -2416,10 +2416,10 @@ ul.quickbuttons li.inline_mod_check {
 	margin: 3px 19px;
 	overflow: visible;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .quickbuttons li:first-child {
 	border-radius: 4px 1px 1px 4px;
@@ -2432,10 +2432,10 @@ ul.quickbuttons li.inline_mod_check {
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	background: linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
 	padding: 0 6px 0 22px;
@@ -2463,8 +2463,8 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 }
 .quickbuttons li.post_options {
-    padding: 0 4px 0 4px;
-    border-radius: 1px 4px 4px 1px;
+	padding: 0 4px 0 4px;
+	border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
@@ -2483,10 +2483,10 @@ ul.quickbuttons li.inline_mod_check {
 	border-radius: 4px 2px 4px 0;
 	box-shadow: 2px 3px 3px rgba(0,0,0,0.2);
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .quickbuttons li:hover ul, .quickbuttons li.sfhover ul {
 	left: auto;
@@ -2506,10 +2506,10 @@ ul.quickbuttons li.inline_mod_check {
 	border-top: 1px solid #d4dee6;
 	border-bottom: 1px solid #cbdae6;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .quickbuttons ul li a, .quickbuttons ul li a:focus {
 	padding: 0 6px 0 26px;
@@ -2522,10 +2522,10 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons ul li a:focus {
 	margin: 0 -9910px 0 9910px;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Cancel for hover and/or js access. */
 .quickbuttons ul li:hover a:focus, .quickbuttons ul li.sfhover a:focus {
@@ -4019,10 +4019,10 @@ span.hidelink {
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
 	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-    background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
+	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 }
 .popup_heading
 {
@@ -4047,10 +4047,10 @@ span.hidelink {
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-    background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 .popup_heading .hide_popup
 {

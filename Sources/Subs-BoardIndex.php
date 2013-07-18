@@ -176,7 +176,7 @@ function getBoardIndex($boardIndexOptions)
 				);
 				$this_category[$row_board['id_board']]['link_moderator_groups'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_group_name'] . '</a>';
 			}
-			
+
 			// Merge the two lists of moderators
 			if (!empty($this_category[$row_board['id_board']]['link_moderator_groups']))
 			{

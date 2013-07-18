@@ -496,7 +496,7 @@ function toggleBreakdown(id_group, forcedisplayType)
 		$(aContainer).fadeOut();
 	else
 		$(aContainer).show();
-		
+
 	// remove or add the separators
 	document.getElementById("group_hr_div_" + id_group).style.display = displayType
 

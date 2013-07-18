@@ -1410,7 +1410,7 @@ CREATE TABLE {$db_prefix}moderators (
 CREATE TABLE {$db_prefix}moderator_groups (
   id_board smallint(5) unsigned NOT NULL default '0',
   id_group smallint(5) unsigned NOT NULL default '0',
-  PRIMARY KEY (id_board, id_group) 
+  PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM;
 
 #

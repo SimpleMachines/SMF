@@ -304,7 +304,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	$connection = $connection === null ? $db_connection : $connection;
 
 	// Get a connection if we are shutting down, sometimes the link is closed before sessions are written
-        if (!is_object($connection))
+	if (!is_object($connection))
 	{
 		global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
 

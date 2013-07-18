@@ -1530,7 +1530,7 @@ CREATE TABLE {$db_prefix}moderators (
 CREATE TABLE {$db_prefix}moderator_groups (
   id_board smallint NOT NULL default '0',
   id_group smallint NOT NULL default '0',
-  PRIMARY KEY (id_board, id_group) 
+  PRIMARY KEY (id_board, id_group)
 );
 
 #

@@ -1055,10 +1055,10 @@ function groupsAllowedTo($permission, $board_id = null)
 				$moderator_groups[] = $row['id_group'];
 			}
 
-			$smcFunc['db_free_result']($request);			
+			$smcFunc['db_free_result']($request);
 		}
 
-		// "Inherit" any additional permissions from the "Moderators" group		
+		// "Inherit" any additional permissions from the "Moderators" group
 		foreach ($moderator_groups as $mod_group)
 		{
 			// If they're not specifically allowed, but the moderator group is, then allow it
@@ -1066,7 +1066,7 @@ function groupsAllowedTo($permission, $board_id = null)
 			{
 				$member_groups['allowed'][] = $mod_group;
 			}
-			
+
 			// They're not denied, but the moderator group is, so deny it
 			if (in_array(3, $member_groups['denied']) && !in_array($mod_group, $member_groups['denied']))
 			{
@@ -1097,7 +1097,7 @@ function membersAllowedTo($permission, $board_id = null)
 	global $smcFunc;
 
 	$member_groups = groupsAllowedTo($permission, $board_id);
-	
+
 	$all_groups = array_merge($member_groups['allowed'], $member_groups['denied']);
 
 	$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
