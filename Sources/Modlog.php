@@ -457,9 +457,9 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			$row['extra']['email'] = '<a href="mailto:' . $row['extra']['email'] . '">' . $row['extra']['email'] . '</a>';
 
 		// Bans are complex.
-		if ($row['action'] == 'ban')
+		if ($row['action'] == 'ban' || $row['action'] == 'banremove')
 		{
-			$row['action_text'] = $txt['modlog_ac_ban'];
+			$row['action_text'] = $txt['modlog_ac_ban' . ($row['action'] == 'banremove' ? '_remove' : '')];
 			foreach (array('member', 'email', 'ip_range', 'hostname') as $type)
 				if (isset($row['extra'][$type]))
 					$row['action_text'] .= $txt['modlog_ac_ban_trigger_' . $type];
