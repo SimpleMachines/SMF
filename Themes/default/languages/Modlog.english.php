@@ -48,6 +48,7 @@ $txt['modlog_ac_modify_warn_template'] = 'Edited the warning template: &quot;{te
 $txt['modlog_ac_delete_warn_template'] = 'Deleted the warning template: &quot;{template}&quot;';
 
 $txt['modlog_ac_ban'] = 'Added ban triggers:';
+$txt['modlog_ac_ban_remove'] = 'Removed ban triggers:';
 $txt['modlog_ac_ban_trigger_member'] = ' <em>Member:</em> {member}';
 $txt['modlog_ac_ban_trigger_email'] = ' <em>Email:</em> {email}';
 $txt['modlog_ac_ban_trigger_ip_range'] = ' <em>IP:</em> {ip_range}';
