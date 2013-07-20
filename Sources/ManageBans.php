@@ -908,8 +908,86 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	if (!is_array($items_ids))
 		$items_ids = array($items_ids);
 
-	if ($group_id !== false)
+	$log_info = array();
+	$ban_items = array();
+
+	// First order of business: Load up the info so we can log this...
+	$request = $smcFunc['db_query']('', '
+		SELECT
+			bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
+			bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4,
+			bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8,
+			IFNULL(mem.id_member, 0) AS id_member, mem.member_name, mem.real_name
+		FROM {db_prefix}ban_items AS bi
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)
+		WHERE bi.id_ban IN ({array_int:ban_list})',
+		array(
+			'ban_list' => $items_ids,
+		)
+	);
+
+	// Get all the info for the log
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (!empty($row['id_ban']))
+		{
+			$ban_items[$row['id_ban']] = array(
+				'id' => $row['id_ban'],
+			);
+			if (!empty($row['ip_high1']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'ip';
+				$ban_items[$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
+				
+				$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false); 
+				
+				$log_info[] = array(
+					'bantype' => ($is_range ? 'ip_range' : 'main_ip'),
+					'value' => $ban_items[$row['id_ban']]['ip'],
+				);
+			}
+			elseif (!empty($row['hostname']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'hostname';
+				$ban_items[$row['id_ban']]['hostname'] = str_replace('%', '*', $row['hostname']);
+				$log_info[] = array(
+					'bantype' => 'hostname',
+					'value' => $row['hostname'],
+				);
+			}
+			elseif (!empty($row['email_address']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'email';
+				$ban_items[$row['id_ban']]['email'] = str_replace('%', '*', $row['email_address']);
+				$log_info[] = array(
+					'bantype' => 'email',
+					'value' => $ban_items[$row['id_ban']]['email'],
+				);
+			}
+			elseif (!empty($row['id_member']))
+			{
+				$ban_items[$row['id_ban']]['type'] = 'user';
+				$ban_items[$row['id_ban']]['user'] = array(
+					'id' => $row['id_member'],
+					'name' => $row['real_name'],
+					'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+					'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
+				);
+				$log_info[] = array(
+					'bantype' => 'user',
+					'value' => $row['id_member'],
+				);
+			}
+		}
+	}
+
+	// Log this!
+	logTriggersUpdates($log_info, false, true);
+
+	$smcFunc['db_free_result']($request);
+
+	if ($group_id !== false)
+	{		
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}ban_items
 			WHERE id_ban IN ({array_int:ban_list})
@@ -1349,8 +1427,9 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
  *                - bantype: a known type of ban (ip_range, hostname, email, user, main_ip)
  *                - value: the value of the bantype (e.g. the IP or the email address banned)
  * @param bool $new if the trigger is new or an update of an existing one
+ * @param bool $removal if the trigger is being deleted
  */
-function logTriggersUpdates($logs, $new = true)
+function logTriggersUpdates($logs, $new = true, $removal = false)
 {
 	if (empty($logs))
 		return;
@@ -1365,9 +1444,10 @@ function logTriggersUpdates($logs, $new = true)
 
 	// Log the addion of the ban entries into the moderation log.
 	foreach ($logs as $log)
-		logAction('ban', array(
+		logAction('ban' . ($removal == true ? 'remove' : ''), array(
 			$log_name_map[$log['bantype']] => $log['value'],
 			'new' => empty($new) ? 0 : 1,
+			'remove' => empty($removal) ? 0 : 1,
 			'type' => $log['bantype'],
 		));
 }
