@@ -152,6 +152,7 @@ $txt['post_awaiting_approval'] = 'Note: This message is awaiting approval by a m
 $txt['there_are_unapproved_topics'] = 'There are %1$s topics and %2$s posts awaiting approval in this board. Click <a href="%3$s">here</a> to view them all.';
 $txt['send_message'] = 'Send message';
 
+$txt['msg_alert_none'] = 'No messages...'; //Deprecated
 $txt['msg_alert_you_have'] = 'you have'; //Deprecated
 $txt['msg_alert_messages'] = 'messages'; //Deprecated
 $txt['msg_alert_no_messages'] = 'you don\'t have any message';
