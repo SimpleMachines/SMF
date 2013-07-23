@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /attachments/
+Disallow: /avatars/
+Disallow: /cache/
+Disallow: /Packages/
+Disallow: /Smileys/
+Disallow: /Sources/
+Disallow: /Themes/
+Disallow: /index.php?action=register
+Disallow: /index.php?action=login
+Disallow: /index.php?action=logout
