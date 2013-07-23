@@ -6,6 +6,7 @@ html, body, p, code:before, table {
 html>body>p, html>body>div {
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Liberation Sans", "Nimbus Sans L", Arial, sans-serif;
 }
+
 ul, ol {
 	margin-top: 0;
 	margin-bottom: 0;
@@ -31,7 +32,9 @@ code {
 	border: 1px solid #aaa;
 	white-space: pre;
 	padding: .25em;
+	display: block;
 }
+
 code:before, code {
 	display: block;
 	text-align: left;
