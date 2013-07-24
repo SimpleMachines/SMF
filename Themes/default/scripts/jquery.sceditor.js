@@ -5355,7 +5355,7 @@
 	$.extend(true, $['sceditor'].prototype, extensionMethods);
 })(jQuery);
 
-$.sceditor.setCommand(
+$.sceditor.command.set(
 	'ftp',
 	function (caller) {
 		var	editor  = this,
@@ -5396,28 +5396,28 @@ $.sceditor.setCommand(
 	},
 	'Insert FTP Link'
 );
-$.sceditor.setCommand(
+$.sceditor.command.set(
 	'glow',
 	function () {
 		this.wysiwygEditorInsertHtml('[glow=red,2,300]', '[/glow]');
 	},
 	'Glow'
 );
-$.sceditor.setCommand(
+$.sceditor.command.set(
 	'shadow',
 	function () {
 		this.wysiwygEditorInsertHtml('[shadow=red,left]', '[/shadow]');
 	},
 	'Shadow'
 );
-$.sceditor.setCommand(
+$.sceditor.command.set(
 	'tt',
 	function () {
 		this.wysiwygEditorInsertHtml('<tt>', '</tt>');
 	},
 	'Teletype'
 );
-$.sceditor.setCommand(
+$.sceditor.command.set(
 	'pre',
 	function () {
 		this.wysiwygEditorInsertHtml('<pre>', '</pre>');
