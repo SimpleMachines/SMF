@@ -33,7 +33,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 				$("#', $editor_id, '").sceditorBBCodePlugin({
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,',
+					emoticonsCompat: true,
+					plugins: "bbcode",',
 					!empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white"';
@@ -106,7 +107,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();
 				$(".sceditor-container").width("100%").height("100%");',
 				$editor_context['rich_active'] ? '' : '
-				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
+				//$("#' . $editor_id . '").data("sceditor").setTextMode();', '
 				if (!(is_ie || is_ff || is_opera || is_safari || is_chrome))
 				{
 					$("#' . $editor_id . '").data("sceditor").setTextMode();
