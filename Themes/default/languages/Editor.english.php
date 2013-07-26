@@ -43,7 +43,7 @@ $editortxt['URL:'] = 'URL:';
 $editortxt['Insert a link'] = 'Insert a link';
 $editortxt['Unlink'] = 'Unlink';
 $editortxt['More'] = 'More';
-$editortxt['Insert an emoticon'] = 'Insert an emoticon';
+$editortxt['Insert an emoticon'] = 'Insert a smiley';
 $editortxt['Video URL:'] = 'Video URL:';
 $editortxt['Insert'] = 'Insert';
 $editortxt['Insert a YouTube video'] = 'Insert a YouTube video';
@@ -52,5 +52,31 @@ $editortxt['Insert current time'] = 'Insert current time';
 $editortxt['Print'] = 'Print';
 $editortxt['Preformatted Text'] = 'Preformatted Text';
 $editortxt['View source'] = 'View source';
+$editortxt['Marquee'] = 'Marquee';
+$editortxt['Teletype'] = 'Teletype';
+$editortxt['Glow'] = 'Glow';
+$editortxt['Shadow'] = 'Shadow';
+$editortxt['Pre'] = 'Preformatted text';
+// @todo flash doesn't seem to be there
+$editortxt['flash'] = 'Insert Flash';
 
+$editortxt['Insert FTP Link'] = 'Insert FTP Link';
+
+// @todo Not sure if these are really needed
+$editortxt['Black'] = 'Black';
+$editortxt['Red'] = 'Red';
+$editortxt['Yellow'] = 'Yellow';
+$editortxt['Pink'] = 'Pink';
+$editortxt['Green'] = 'Green';
+$editortxt['Orange'] = 'Orange';
+$editortxt['Purple'] = 'Purple';
+$editortxt['Blue'] = 'Blue';
+$editortxt['Beige'] = 'Beige';
+$editortxt['Brown'] = 'Brown';
+$editortxt['Teal'] = 'Teal';
+$editortxt['Navy'] = 'Navy';
+$editortxt['Maroon'] = 'Maroon';
+$editortxt['Lime Green'] = 'Lime Green';
+$editortxt['White'] = 'White';
+// end @todo
 ?>
