@@ -350,7 +350,9 @@ function template_folder()
 			}
 			echo '
 					</ul>
-				</li>
+				</li>';
+			if (!$message['member']['is_guest'])
+				echo '
 				<li class="icons">', $message['member']['group_icons'], '</li>';
 			// Show the member's primary group (like 'Administrator') if they have one.
 			if (isset($message['member']['group']) && $message['member']['group'] != '')
