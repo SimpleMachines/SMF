@@ -250,8 +250,8 @@ $.sceditor.command.set(
 );
 $.sceditor.command.set(
 	'move', {
-		tooltip: 'Teletype',
-		txtExec: ["[[move]", "[/move]"],
+		tooltip: 'Marquee',
+		txtExec: ["[move]", "[/move]"],
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<marquee>', '</marquee>');
 		}
