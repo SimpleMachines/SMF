@@ -179,9 +179,14 @@ function template_folder()
 				<li>
 					<h4>
 						<a id="msg', $message['id'], '"></a>';
-		// Show a link to the member's profile.
+						
+		
+		// Show a link to the member's profile (but only if the sender isn't a guest).
+		if (!$message['member']['is_guest'])
+			echo '
+						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">';
+		
 		echo '
-						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">
 							<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>';
 
 		// Show avatars, images, etc.?
@@ -190,8 +195,11 @@ function template_folder()
 
 							', $message['member']['avatar']['image'], '';
 
+		if (!$message['member']['is_guest'])
 			echo '
-						</a>
+						</a>';
+
+		echo '
 					</h4>
 					<ul class="smalltext" id="msg_', $message['id'], '_extra_info">';
 
