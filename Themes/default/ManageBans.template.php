@@ -101,7 +101,7 @@ function template_ban_edit()
 		echo '
 				<fieldset>
 					<legend>
-						', $txt['ban_triggers'], '
+						<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');" class="input_check"> ', $txt['ban_triggers'], '
 					</legend>
 					<dl class="settings">
 						<dt>
@@ -252,7 +252,7 @@ function template_ban_edit_trigger()
 				<div class="content">
 					<fieldset>
 						<legend>
-							', $txt['ban_triggers'], '
+							<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');" class="input_check"> ', $txt['ban_triggers'], '
 						</legend>
 						<dl class="settings">
 							<dt>
