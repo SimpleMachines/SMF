@@ -367,6 +367,10 @@ function EditSmileySets()
 	// This is our save haven.
 	createToken('admin-mss', 'request');
 
+	// In case we need to import smileys, we need to add the token in now.
+	if (isset($context['current_set']['import_url']))
+		$context['current_set']['import_url'] .= ';' . $context['admin-mss_token_var'] . '=' . $context['admin-mss_token'];
+
 	$listOptions = array(
 		'id' => 'smiley_set_list',
 		'title' => $txt['smiley_sets'],
