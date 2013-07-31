@@ -2393,9 +2393,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 function parsesmileys(&$message)
 {
 	global $modSettings, $txt, $user_info, $context, $smcFunc;
-//	static $smileyPregSearch = null, $smileyPregReplacements = array();
-	static $smileyPregSearch = null;
-	global $smileyPregReplacements;
+	static $smileyPregSearch = null, $smileyPregReplacements = array();
 
 	// No smiley set at all?!
 	if ($user_info['smiley_set'] == 'none' || trim($message) == '')
@@ -2462,7 +2460,6 @@ function parsesmileys(&$message)
 			}
 		}
 
-//		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~e' . ($context['utf8'] ? 'u' : '');
 		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
