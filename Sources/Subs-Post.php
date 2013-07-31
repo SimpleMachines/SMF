@@ -278,21 +278,6 @@ function un_preparsecode($message)
 	return preg_replace('~<br( /)?' . '>~', "\n", str_replace('&nbsp;', ' ', implode('', $parts)));
 }
 
-function un_preparsecodeCallback($matches)
-{
-			return '[html]' .
-				strtr(
-					htmlspecialchars('$matches[1]', ENT_QUOTES),
-					array(
-						'\\&quot;' => '&quot;',
-						'&amp;#13;' => '<br />',
-						'&amp;#32;' => ' ',
-						'&amp;#91;' => '[',
-						'&amp;#93;' => ']'
-					)
-				) . '[/html]';
-}
-
 /**
  * Fix any URLs posted - ie. remove 'javascript:'.
  * Used by preparsecode, fixes links in message and returns nothing.
