@@ -34,7 +34,7 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace('~\[nobbc\](.+?)\[/nobbc\]~ie', '\'[nobbc]\' . strtr(\'$1\', array(\'[\' => \'&#91;\', \']\' => \'&#93;\', \':\' => \'&#58;\', \'@\' => \'&#64;\')) . \'[/nobbc]\'', $message);
+	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~i', create_function('$m', ' return "[nobbc]" . strtr("$m[1]", array("[" => "&#91;", "]" => "&#93;", ":" => "&#58;", "@" => "&#64;")) . "[/nobbc]";'), $message);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -115,14 +115,14 @@ function preparsecode(&$message, $previewing = false)
 			}
 
 			// Let's look at the time tags...
-			$parts[$i] = preg_replace('~\[time(?:=(absolute))*\](.+?)\[/time\]~ie', '\'[time]\' . (is_numeric(\'$2\') || @strtotime(\'$2\') == 0 ? \'$2\' : strtotime(\'$2\') - (\'$1\' == \'absolute\' ? 0 : (($modSettings[\'time_offset\'] + $user_info[\'time_offset\']) * 3600))) . \'[/time]\'', $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', create_function('$m', 'global $modSettings, $user_info; return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";'), $parts[$i]);
 
 			// Change the color specific tags to [color=the color].
 			$parts[$i] = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $parts[$i]);  // First do the opening tags.
 			$parts[$i] = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $parts[$i]);   // And now do the closing tags
 
 			// Make sure all tags are lowercase.
-			$parts[$i] = preg_replace('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~ie', '\'[$1\' . strtolower(\'$2\') . \'$3]\'', $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', create_function('$m', ' return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";'), $parts[$i]);
 
 			$list_open = substr_count($parts[$i], '[list]') + substr_count($parts[$i], '[list ');
 			$list_close = substr_count($parts[$i], '[/list]');
@@ -267,11 +267,10 @@ function un_preparsecode($message)
 		// If $i is a multiple of four (0, 4, 8, ...) then it's not a code section...
 		if ($i % 4 == 0)
 		{
-			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', create_function('$m', 'return \'[html]\' . strtr(htmlspecialchars(\'$m[1]\', ENT_QUOTES), array(\'\\&quot;\' => \'&quot;\', \'&amp;#13;\' => \'<br />\', \'&amp;#32;\' => \' \', \'&amp;#91;\' => \'[\', \'&amp;#93;\' => \']\')) . \'[/html]\';
-'), $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', create_function('$m', 'return "[html]" . strtr(htmlspecialchars("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br />", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";'), $parts[$i]);
 
 			// Attempt to un-parse the time to something less awful.
-			$parts[$i] = preg_replace('~\[time\](\d{0,10})\[/time\]~i', create_function('$m', ' return \'[time]\' . timeformat(\'$m[1]\', false) . \'[/time]\';'), $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', create_function('$m', ' return "[time]" . timeformat("$m[1]", false) . "[/time]";'), $parts[$i]);
 		}
 	}
 
@@ -373,7 +372,7 @@ function fixTags(&$message)
 		fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 
 	// Now fix possible security problems with images loading links automatically...
-	$message = preg_replace('~(\[img.*?\])(.+?)\[/img\]~eis', '\'$1\' . preg_replace(\'~action(=|%3d)(?!dlattach)~i\', \'action-\', \'$2\') . \'[/img]\'', $message);
+	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', create_function('$m', '"$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$2") . "[/img]";'), $message);
 
 	// Limit the size of images posted?
 	if (!empty($modSettings['max_image_width']) || !empty($modSettings['max_image_height']))
