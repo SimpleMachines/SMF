@@ -2470,15 +2470,15 @@ function parsesmileys(&$message)
 	/*
 	* TODO: When SMF supports only PHP 5.3+, we can change this to "uses" keyword and simpifly this.
 	*/
-	$callback = smielyPregReplaceCurry('smielyPregReplaceCallback', 2);
+	$callback = pregReplaceCurry('smielyPregReplaceCallback', 2);
 	$message = preg_replace_callback($smileyPregSearch, $callback($smileyPregReplacements), $message);
 }
 
 /**
- * Smiely Replacment Curry.
+ * Preg Replacment Curry.
  *
  * This allows use to do delayed argument binding and bring in
- * the replacement variables for smiley replacments.
+ * the replacement variables for some preg replacments.
  *
  * Original code from: http://php.net/manual/en/function.preg-replace-callback.php#88013
  * This is needed until SMF only supports PHP 5.3+ and we change to "use"
@@ -2487,7 +2487,7 @@ function parsesmileys(&$message)
  * @param string $arity
  * @return function a lambda function bound to $func.
  */
-function smielyPregReplaceCurry($func, $arity)
+function pregReplaceCurry($func, $arity)
 {
 	return create_function('', "
 		\$args = func_get_args();
