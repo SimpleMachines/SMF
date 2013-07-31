@@ -630,14 +630,15 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 }
 
 /**
- * Smiely Replacment Callback.
+ * Mog Log Replacment Callback.
  *
- * Our callback that does the actual smiley replacments.
+ * Our callback that does the actual replacments.
  *
  * Original code from: http://php.net/manual/en/function.preg-replace-callback.php#88013
  * This is needed until SMF only supports PHP 5.3+ and we change to "use"
  *
- * @param string $replacements
+ * @param string $entries
+ * @param string $key
  * @param string $matches
  * @return string the replaced results.
  */
