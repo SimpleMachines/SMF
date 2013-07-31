@@ -1934,7 +1934,6 @@ function prepareSearchContext($reset = false)
 				foreach ($context['key_words'] as $keyword)
 				{
 					$keyword = un_htmlspecialchars($keyword);
-//					$keyword = preg_replace('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e', 'entity_fix__callback', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
 					$keyword = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
 
 					if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword) != 0)
