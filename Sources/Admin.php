@@ -127,7 +127,7 @@ function AdminMain()
 					'subsections' => array(
 						'general' => array($txt['mods_cat_security_general']),
 						'spam' => array($txt['antispam_title']),
-						'moderation' => array($txt['moderation_settings_short'], 'enabled' => in_array('w', $context['admin_features'])),
+						'moderation' => array($txt['moderation_settings_short'], 'enabled' => substr($modSettings['warning_settings'], 0, 1) == 1),
 					),
 				),
 				'languages' => array(
