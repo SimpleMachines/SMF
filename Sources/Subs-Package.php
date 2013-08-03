@@ -384,10 +384,10 @@ function url_exists($url)
  */
 function loadInstalledPackages()
 {
-	global $boarddir, $smcFunc;
+	global $boarddir, $packagesdir $smcFunc;
 
 	// First, check that the database is valid, installed.list is still king.
-	$install_file = implode('', file($boarddir . '/Packages/installed.list'));
+	$install_file = implode('', file($packagesdir . '/installed.list'));
 	if (trim($install_file) == '')
 	{
 		$smcFunc['db_query']('', '
@@ -454,13 +454,13 @@ function getPackageInfo($gzfilename)
 		$packageInfo = read_tgz_data(fetch_web_data($gzfilename, '', true), '*/package-info.xml', true);
 	else
 	{
-		if (!file_exists($boarddir . '/Packages/' . $gzfilename))
+		if (!file_exists($packagesdir . '/' . $gzfilename))
 			return 'package_get_error_not_found';
 
-		if (is_file($boarddir . '/Packages/' . $gzfilename))
-			$packageInfo = read_tgz_file($boarddir . '/Packages/' . $gzfilename, '*/package-info.xml', true);
-		elseif (file_exists($boarddir . '/Packages/' . $gzfilename . '/package-info.xml'))
-			$packageInfo = file_get_contents($boarddir . '/Packages/' . $gzfilename . '/package-info.xml');
+		if (is_file($packagesdir . '/' . $gzfilename))
+			$packageInfo = read_tgz_file($packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
+		elseif (file_exists($packagesdir . '/' . $gzfilename . '/package-info.xml'))
+			$packageInfo = file_get_contents($packagesdir . '/' . $gzfilename . '/package-info.xml');
 		else
 			return 'package_get_error_missing_xml';
 	}
@@ -469,7 +469,7 @@ function getPackageInfo($gzfilename)
 	if (empty($packageInfo))
 	{
 		// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
-		$packageInfo = read_tgz_file($boarddir . '/Packages/' . $gzfilename, '*/theme_info.xml', true);
+		$packageInfo = read_tgz_file($packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
 		if (!empty($packageInfo))
 			return 'package_get_error_is_theme';
 		else
@@ -1031,7 +1031,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
  */
 function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 {
-	global $boarddir, $forum_version, $context, $temp_path, $language;
+	global $boarddir, $packagesdir, $forum_version, $context, $temp_path, $language;
 
 	// Mayday!  That action doesn't exist!!
 	if (empty($packageXML) || !$packageXML->exists($method))
@@ -1088,7 +1088,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	$return = array();
 
 	$temp_auto = 0;
-	$temp_path = $boarddir . '/Packages/temp/' . (isset($context['base_path']) ? $context['base_path'] : '');
+	$temp_path = $packagesdir . '/temp/' . (isset($context['base_path']) ? $context['base_path'] : '');
 
 	$context['readmes'] = array();
 	$context['licences'] = array();
@@ -2943,11 +2943,11 @@ function package_create_backup($id = 'backup')
 		$listing->close();
 	}
 
-	if (!file_exists($boarddir . '/Packages/backups'))
-		mktree($boarddir . '/Packages/backups', 0777);
-	if (!is_writable($boarddir . '/Packages/backups'))
-		package_chmod($boarddir . '/Packages/backups');
-	$output_file = $boarddir . '/Packages/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+	if (!file_exists($packagesdir . '/backups'))
+		mktree($packagesdir . '/backups', 0777);
+	if (!is_writable($packagesdir . '/backups'))
+		package_chmod($packagesdir . '/backups');
+	$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 	$output_ext = '.tar' . (function_exists('gzopen') ? '.gz' : '');
 
 	if (file_exists($output_file . $output_ext))

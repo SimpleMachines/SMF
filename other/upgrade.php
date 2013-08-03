@@ -1239,7 +1239,7 @@ function checkLogin()
 // Step 1: Do the maintenance and backup.
 function UpgradeOptions()
 {
-	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc;
+	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir;
 	global $boarddir, $boardurl, $sourcedir, $maintenance, $mmessage, $cachedir, $upcontext, $db_type;
 
 	$upcontext['sub_template'] = 'upgrade_options';
@@ -1340,6 +1340,11 @@ function UpgradeOptions()
 	// Not had the database type added before?
 	if (empty($db_type))
 		$changes['db_type'] = 'mysql';
+
+	// Maybe we haven't had this option yet?
+	if (empty($packagesdir))
+		$changes['packagesdir'] = '\'' . fixRelativePath($boarddir) . '/Packages\'';
+
 
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
@@ -1561,7 +1566,7 @@ function DatabaseChanges()
 // Clean up any mods installed...
 function CleanupMods()
 {
-	global $db_prefix, $modSettings, $upcontext, $boarddir, $sourcedir, $settings, $smcFunc, $command_line;
+	global $db_prefix, $modSettings, $upcontext, $boarddir, $sourcedir, $packagesdir, $settings, $smcFunc, $command_line;
 
 	// Sorry. Not supported for command line users.
 	if ($command_line)
@@ -1599,6 +1604,10 @@ function CleanupMods()
 			return false;
 		}
 	}
+
+	// Make sure we have some sort of packages directory.
+	if (!isset($packagesdir))
+		$packagesdir = $boarddir . '/Packages';
 
 	// Load all theme paths....
 	$request = $smcFunc['db_query']('', '
@@ -1638,7 +1647,7 @@ function CleanupMods()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Work out the status.
-		if (!file_exists($boarddir . '/Packages/' . $row['filename']))
+		if (!file_exists($packagesdir . '/' . $row['filename']))
 		{
 			$status = 'Missing';
 			$status_color = 'red';
@@ -1656,7 +1665,7 @@ function CleanupMods()
 			'themes' => explode(',', $row['themes_installed']),
 			'name' => $row['name'],
 			'filename' => $row['filename'],
-			'missing_file' => file_exists($boarddir . '/Packages/' . $row['filename']) ? 0 : 1,
+			'missing_file' => file_exists($packagesdir . '/' . $row['filename']) ? 0 : 1,
 			'files' => array(),
 			'file_count' => 0,
 			'status' => $status,
@@ -1679,12 +1688,12 @@ function CleanupMods()
 	// Before we get started, don't report notice errors.
 	$oldErrorReporting = error_reporting(E_ALL ^ E_NOTICE);
 
-	if (!mktree($boarddir . '/Packages/temp', 0755))
+	if (!mktree($packagesdir . '/temp', 0755))
 	{
-		deltree($boarddir . '/Packages/temp', false);
-		if (!mktree($boarddir . '/Packages/temp', 0777))
+		deltree($packagesdir . '/temp', false);
+		if (!mktree($packagesdir . '/temp', 0777))
 		{
-			deltree($boarddir . '/Packages/temp', false);
+			deltree($packagesdir . '/temp', false);
 			// @todo Error here - plus chmod!
 		}
 	}
@@ -1721,10 +1730,10 @@ function CleanupMods()
 		if (isset($_POST['remove']))
 			$infoInstall = parsePackageInfo($packageInfo['xml'], true);
 
-		if (is_file($boarddir . '/Packages/' . $filename))
-			read_tgz_file($boarddir . '/Packages/' . $filename, $boarddir . '/Packages/temp');
+		if (is_file($packagesdir . '/' . $filename))
+			read_tgz_file($packagesdir . '/' . $filename, $packagesdir . '/temp');
 		else
-			copytree($boarddir . '/Packages/' . $filename, $boarddir . '/Packages/temp');
+			copytree($packagesdir . '/' . $filename, $packagesdir . '/temp');
 
 		// Work out how we uninstall...
 		$files = array();
@@ -1735,7 +1744,7 @@ function CleanupMods()
 			// 2) Whether it could be installed on the new version.
 			if ($change['type'] == 'modification')
 			{
-				$contents = @file_get_contents($boarddir . '/Packages/temp/' . $upcontext['base_path'] . $change['filename']);
+				$contents = @file_get_contents($packagesdir . '/temp/' . $upcontext['base_path'] . $change['filename']);
 				if ($change['boardmod'])
 					$results = parseBoardMod($contents, $test, $change['reverse'], $cur_theme_paths);
 				else
@@ -1768,10 +1777,10 @@ function CleanupMods()
 		if (isset($_POST['remove']) && !$test && isset($infoInstall))
 		{
 			// Need to extract again I'm afraid.
-			if (is_file($boarddir . '/Packages/' . $filename))
-				read_tgz_file($boarddir . '/Packages/' . $filename, $boarddir . '/Packages/temp');
+			if (is_file($packagesdir . '/' . $filename))
+				read_tgz_file($packagesdir . '/' . $filename, $packagesdir . '/temp');
 			else
-				copytree($boarddir . '/Packages/' . $filename, $boarddir . '/Packages/temp');
+				copytree($packagesdir . '/' . $filename, $packagesdir . '/temp');
 
 			$errors = false;
 			$upcontext['packages'][$id]['result'] = 'Removed';
@@ -1779,7 +1788,7 @@ function CleanupMods()
 			{
 				if ($change['type'] == 'modification')
 				{
-					$contents = @file_get_contents($boarddir . '/Packages/temp/' . $upcontext['base_path'] . $change['filename']);
+					$contents = @file_get_contents($packagesdir . '/temp/' . $upcontext['base_path'] . $change['filename']);
 					if ($change['boardmod'])
 						$results = parseBoardMod($contents, true, $change['reverse'], $cur_theme_paths);
 					else
@@ -1800,7 +1809,7 @@ function CleanupMods()
 				{
 					if ($change['type'] == 'modification')
 					{
-						$contents = @file_get_contents($boarddir . '/Packages/temp/' . $upcontext['base_path'] . $change['filename']);
+						$contents = @file_get_contents($packagesdir . '/temp/' . $upcontext['base_path'] . $change['filename']);
 						if ($change['boardmod'])
 							$results = parseBoardMod($contents, false, $change['reverse'], $cur_theme_paths);
 						else
@@ -1838,8 +1847,8 @@ function CleanupMods()
 		}
 	}
 
-	if (file_exists($boarddir . '/Packages/temp'))
-		deltree($boarddir . '/Packages/temp');
+	if (file_exists($packagesdir . '/temp'))
+		deltree($packagesdir . '/temp');
 
 	// Removing/Reinstalling any packages?
 	if (isset($_POST['remove']))
@@ -1858,7 +1867,7 @@ function CleanupMods()
 				WHERE id_install IN (' . implode(',', $deletes) . ')');
 
 		// Ensure we don't lose our changes!
-		package_put_contents($boarddir . '/Packages/installed.list', time());
+		package_put_contents($packagesdir . '/installed.list', time());
 
 		$upcontext['sub_template'] = 'cleanup_done';
 		return false;

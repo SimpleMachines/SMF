@@ -153,6 +153,11 @@ $boarddir = dirname(__FILE__);
  * @var string
  */
 $sourcedir = dirname(__FILE__) . '/Sources';
+/**
+ * Path to the Packages directory.
+ * @var string
+ */
+$packagesdir = dirname(__FILE__) . '/Packages';
 
 ########## Error-Catching ##########
 # Note: You shouldn't touch these settings.
