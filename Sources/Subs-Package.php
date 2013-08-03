@@ -2882,7 +2882,7 @@ function package_crypt($pass)
  */
 function package_create_backup($id = 'backup')
 {
-	global $sourcedir, $boarddir, $smcFunc;
+	global $sourcedir, $boarddir, $packagesdir, $smcFunc;
 
 	$files = array();
 
