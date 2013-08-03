@@ -384,7 +384,7 @@ function url_exists($url)
  */
 function loadInstalledPackages()
 {
-	global $boarddir, $packagesdir $smcFunc;
+	global $boarddir, $packagesdir, $smcFunc;
 
 	// First, check that the database is valid, installed.list is still king.
 	$install_file = implode('', file($packagesdir . '/installed.list'));

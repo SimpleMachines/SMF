@@ -5,6 +5,9 @@ cache/data*.php
 Packages/backups/*
 Packages/temp
 *.*~
+Packages/*.tgz
+Packages/*.tar.gz
+Packages/*.zip
 
 # Compiled source #
 ###################
