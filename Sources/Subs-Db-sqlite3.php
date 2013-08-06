@@ -78,17 +78,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	@$connection->exec('PRAGMA short_column_names = 1');
 
 	// Make some user defined functions!
-	
-	$connection->createFunction('unix_timestamp', 'smf_udf_unix_timestamp', 0);
-	$connection->createFunction('inet_aton', 'smf_udf_inet_aton', 1);
-	$connection->createFunction('inet_ntoa', 'smf_udf_inet_ntoa', 1);
-	$connection->createFunction('find_in_set', 'smf_udf_find_in_set', 2);
-	$connection->createFunction('year', 'smf_udf_year', 1);
-	$connection->createFunction('month', 'smf_udf_month', 1);
-	$connection->createFunction('dayofmonth', 'smf_udf_dayofmonth', 1);
-	$connection->createFunction('concat', 'smf_udf_concat');
-	$connection->createFunction('locate', 'smf_udf_locate', 2);
-	$connection->createFunction('regexp', 'smf_udf_regexp', 2);
+	smf_db_define_udfs($connection);
 
 	return $connection;
 }
@@ -112,21 +102,41 @@ function db_extend($type = 'extra')
  * Verify that we have a valid connection
  * 
  * @param resource $connection
- * Thanks to tinoet for this idea
+ * Thanks to tinoest for this idea
  */
 function smf_db_check_connection($connection)
 {
 	global $db_name;
 
- 	if (!is_object($connection))
+ 	if (!is_object($connection) || is_null($connection))
  	{
  		if (substr($db_name, -3) != '.db')
  			$db_name .= '.db';
 
-		$connection = new Sqlite3($connection);
+		$connection = new Sqlite3($db_name);
+
+		smf_db_define_udfs($connection);
 	}
- 	
+
 	return $connection;
+}
+
+/**
+ * Define user-defined functions for SQLite3
+ * @param resource $connection
+ */
+function smf_db_define_udfs(&$connection)
+{
+	$connection->createFunction('unix_timestamp', 'smf_udf_unix_timestamp', 0);
+	$connection->createFunction('inet_aton', 'smf_udf_inet_aton', 1);
+	$connection->createFunction('inet_ntoa', 'smf_udf_inet_ntoa', 1);
+	$connection->createFunction('find_in_set', 'smf_udf_find_in_set', 2);
+	$connection->createFunction('year', 'smf_udf_year', 1);
+	$connection->createFunction('month', 'smf_udf_month', 1);
+	$connection->createFunction('dayofmonth', 'smf_udf_dayofmonth', 1);
+	$connection->createFunction('concat', 'smf_udf_concat');
+	$connection->createFunction('locate', 'smf_udf_locate', 2);
+	$connection->createFunction('regexp', 'smf_udf_regexp', 2);
 }
 
 /**
@@ -215,7 +225,7 @@ function smf_db_replacement__callback($matches)
 					smf_db_error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 				foreach ($replacement as $key => $value)
-					$replacement[$key] = sprintf('\'%1$s\'', sqlite3::escape_string($value));
+					$replacement[$key] = sprintf('\'%1$s\'', SQLite3::escapeString($value));
 
 				return implode(', ', $replacement);
 			}
@@ -430,7 +440,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	$ret = @$connection->query($db_string);
 	if ($ret === false && empty($db_values['db_error_skip']))
 	{
-		$err_msg = $ret->lastErrorMsg();
+		$err_msg = $connection->lastErrorMsg();
 		$ret = smf_db_error($db_string . '#!#' . $err_msg, $connection);
 	}
 

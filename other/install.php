@@ -961,8 +961,7 @@ function ForumSettings()
 	$incontext['detected_url'] = 'http' . (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
 
 	// Check if the database sessions will even work.
-	// DB-driven sessions are borked on SQLite3 for some reason
-	$incontext['test_dbsession'] = (ini_get('session.auto_start') != 1 && $db_type != 'sqlite3');
+	$incontext['test_dbsession'] = (ini_get('session.auto_start') != 1);
 	$incontext['utf8_default'] = $databases[$db_type]['utf8_default'];
 	$incontext['utf8_required'] = $databases[$db_type]['utf8_required'];
 
