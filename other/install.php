@@ -129,7 +129,7 @@ $databases = array(
 			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
 
 			// Is it reserved?
-			if ($value == \'sqlite3_\')
+			if ($value == \'sqlite_\')
 				return $txt[\'error_db_prefix_reserved\'];
 
 			// Is the prefix numeric?
