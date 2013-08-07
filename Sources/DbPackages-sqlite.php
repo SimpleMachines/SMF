@@ -614,7 +614,7 @@ function smf_db_list_indexes($table_name, $detail = false, $parameters = array()
  */
 function smf_db_alter_table($table_name, $columns)
 {
-	global $smcFunc, $db_prefix, $db_name, $boarddir;
+	global $smcFunc, $db_prefix, $db_name, $boarddir, $packagesdir;
 
 	$db_file = substr($db_name, -3) === '.db' ? $db_name : $db_name . '.db';
 
@@ -666,7 +666,7 @@ function smf_db_alter_table($table_name, $columns)
 
 	// Let's make a backup of the current database.
 	// We only want the first backup of a table modification.  So if there is a backup file and older than an hour just delete and back up again
-	$db_backup_file = $boarddir . '/Packages/backups/backup_' . $table_name . '_' . basename($db_file) . md5($table_name . $db_file);
+	$db_backup_file = $packagesdir . '/backups/backup_' . $table_name . '_' . basename($db_file) . md5($table_name . $db_file);
 	if (file_exists($db_backup_file) && time() - filemtime($db_backup_file) > 3600)
 	{
 		@unlink($db_backup_file);

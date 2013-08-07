@@ -1403,7 +1403,7 @@ function EditSmileyOrder()
  */
 function InstallSmileySet()
 {
-	global $sourcedir, $boarddir, $modSettings, $smcFunc, $scripturl, $context, $txt, $user_info;
+	global $sourcedir, $boarddir, $packagesdir, $modSettings, $smcFunc, $scripturl, $context, $txt, $user_info;
 
 	isAllowedTo('manage_smileys');
 	checkSession('request');
@@ -1427,7 +1427,7 @@ function InstallSmileySet()
 		if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['set_gz']) == 0 || strpos($_REQUEST['set_gz'], 'dlattach') !== false)
 			fatal_lang_error('not_on_simplemachines');
 
-		$destination = $boarddir . '/Packages/' . $base_name;
+		$destination = $packagesdir . '/' . $base_name;
 
 		if (file_exists($destination))
 			fatal_lang_error('package_upload_error_exists');
@@ -1443,35 +1443,35 @@ function InstallSmileySet()
 		$name_pr = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 		$context['filename'] = $base_name;
 
-		$destination = $boarddir . '/Packages/' . basename($_REQUEST['package']);
+		$destination = $packagesdir . '/' . basename($_REQUEST['package']);
 	}
 
 	if (!file_exists($destination))
 		fatal_lang_error('package_no_file', false);
 
 	// Make sure temp directory exists and is empty.
-	if (file_exists($boarddir . '/Packages/temp'))
-		deltree($boarddir . '/Packages/temp', false);
+	if (file_exists($packagesdir . '/temp'))
+		deltree($packagesdir . '/temp', false);
 
-	if (!mktree($boarddir . '/Packages/temp', 0755))
+	if (!mktree($packagesdir . '/temp', 0755))
 	{
-		deltree($boarddir . '/Packages/temp', false);
-		if (!mktree($boarddir . '/Packages/temp', 0777))
+		deltree($packagesdir . '/temp', false);
+		if (!mktree($packagesdir . '/temp', 0777))
 		{
-			deltree($boarddir . '/Packages/temp', false);
+			deltree($packagesdir . '/temp', false);
 			// @todo not sure about url in destination_url
-			create_chmod_control(array($boarddir . '/Packages/temp/delme.tmp'), array('destination_url' => $scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true));
+			create_chmod_control(array($packagesdir . '/temp/delme.tmp'), array('destination_url' => $scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true));
 
-			deltree($boarddir . '/Packages/temp', false);
-			if (!mktree($boarddir . '/Packages/temp', 0777))
+			deltree($packagesdir . '/temp', false);
+			if (!mktree($packagesdir . '/temp', 0777))
 				fatal_lang_error('package_cant_download', false);
 		}
 	}
 
-	$extracted = read_tgz_file($destination, $boarddir . '/Packages/temp');
+	$extracted = read_tgz_file($destination, $packagesdir . '/temp');
 	if (!$extracted)
 		fatal_lang_error('packageget_unable', false, array('http://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name));
-	if ($extracted && !file_exists($boarddir . '/Packages/temp/package-info.xml'))
+	if ($extracted && !file_exists($packagesdir . '/temp/package-info.xml'))
 		foreach ($extracted as $file)
 			if (basename($file['filename']) == 'package-info.xml')
 			{
@@ -1482,7 +1482,7 @@ function InstallSmileySet()
 	if (!isset($base_path))
 		$base_path = '';
 
-	if (!file_exists($boarddir . '/Packages/temp/' . $base_path . 'package-info.xml'))
+	if (!file_exists($packagesdir . '/temp/' . $base_path . 'package-info.xml'))
 		fatal_lang_error('package_get_error_missing_xml', false);
 
 	$smileyInfo = getPackageInfo($context['filename']);
@@ -1521,8 +1521,8 @@ function InstallSmileySet()
 		{
 			$has_readme = true;
 			$type = 'package_' . $action['type'];
-			if (file_exists($boarddir . '/Packages/temp/' . $base_path . $action['filename']))
-				$context[$type] = htmlspecialchars(trim(file_get_contents($boarddir . '/Packages/temp/' . $base_path . $action['filename']), "\n\r"));
+			if (file_exists($packagesdir . '/temp/' . $base_path . $action['filename']))
+				$context[$type] = htmlspecialchars(trim(file_get_contents($packagesdir . '/temp/' . $base_path . $action['filename']), "\n\r"));
 			elseif (file_exists($action['filename']))
 				$context[$type] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
 
@@ -1545,7 +1545,7 @@ function InstallSmileySet()
 				'action' => $smcFunc['htmlspecialchars'](strtr($action['destination'], array($boarddir => '.')))
 			);
 
-			$file =  $boarddir . '/Packages/temp/' . $base_path . $action['filename'];
+			$file =  $packagesdir . '/temp/' . $base_path . $action['filename'];
 			if (isset($action['filename']) && (!file_exists($file) || !is_writable(dirname($action['destination']))))
 			{
 				$context['has_failure'] = true;
@@ -1596,7 +1596,7 @@ function InstallSmileySet()
 		package_flush_cache();
 
 		// Time to tell pacman we have a new package installed!
-		package_put_contents($boarddir . '/Packages/installed.list', time());
+		package_put_contents($packagesdir . '/installed.list', time());
 		// Credits tag?
 		$credits_tag = (empty($credits_tag)) ? '' : serialize($credits_tag);
 		$smcFunc['db_insert']('',
@@ -1622,8 +1622,8 @@ function InstallSmileySet()
 		cache_put_data('posting_smileys', null, 480);
 	}
 
-	if (file_exists($boarddir . '/Packages/temp'))
-		deltree($boarddir . '/Packages/temp');
+	if (file_exists($packagesdir . '/temp'))
+		deltree($packagesdir . '/temp');
 
 	if (!$testing)
 		redirectexit('action=admin;area=smileys');
