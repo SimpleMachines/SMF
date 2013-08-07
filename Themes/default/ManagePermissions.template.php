@@ -1,4 +1,5 @@
 <?php
+<?php
 /**
  * Simple Machines Forum (SMF)
  *
@@ -283,12 +284,7 @@ function template_by_board()
 				<h3 id="board_permissions" class="titlebg flow_hidden">
 					<span class="perm_name floatleft">', $txt['board_name'], '</span>
 					<span class="perm_profile floatleft">', $txt['permission_profile'], '</span>';
-
-	if (!$context['edit_all'])
-		echo '
-					<span class="floatright"><a class="button_link" href="', $scripturl, '?action=admin;area=permissions;sa=board;edit;', $context['session_var'], '=', $context['session_id'], '">', $txt['permissions_board_all'], '</a></span>';
-
-	echo '
+					echo '
 				</h3>
 			</div>';
 
@@ -296,7 +292,7 @@ function template_by_board()
 	{
 		echo '
 			<div class="title_bar">
-				<h3 class="titlebg"><strong>', $category['name'], '</strong></h3>
+				<h3 class="titlebg">', $category['name'], '</h3>
 			</div>';
 
 		if (!empty($category['boards']))
