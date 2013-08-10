@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1; Wireless
+// Version: 2.1 Alpha 1; Wireless
 
 $txt['wireless_error_home'] = 'Board index';
 
