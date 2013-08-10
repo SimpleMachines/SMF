@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1; ManagePermissions
+// Version: 2.1 Alpha 1; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
