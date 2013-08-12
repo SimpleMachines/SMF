@@ -779,11 +779,6 @@ function validateToken($action, $type = 'post', $reset = true)
 {
 	global $modSettings, $db_show_debug;
 
-	// Sorry, but token are not the best while debugging
-	// @todo: remove before commit...
-	if (!empty($db_show_debug))
-		return true;
-
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
 	// Logins are special: the token is used to has the password with javascript before POST it
