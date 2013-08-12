@@ -998,7 +998,6 @@ function WelcomeLogin()
 	);
 
 	require_once($sourcedir . '/Security.php');
-	$upcontext += createToken('login');
 
 	// Check the cache directory.
 	$cachedir_temp = empty($cachedir) ? $boarddir . '/cache' : $cachedir;
@@ -1053,6 +1052,8 @@ function WelcomeLogin()
 	// Either we're logged in or we're going to present the login.
 	if (checkLogin())
 		return true;
+
+	$upcontext += createToken('login');
 
 	return false;
 }
@@ -1126,7 +1127,8 @@ function checkLogin()
 				if (isset($_REQUEST['hash_passwrd']) && strlen($_REQUEST['hash_passwrd']) == 40)
 				{
 					// Challenge passed.
-					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid']))
+					$tk = validateToken('login');
+					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid'] . $tk))
 						$sha_passwd = $password;
 				}
 				else
