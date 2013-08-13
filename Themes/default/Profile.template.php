@@ -388,7 +388,7 @@ function template_showPosts()
 			// If they *can* quote?
 			if ($post['can_quote'])
 				echo '
-						<li><a href="', $scripturl . '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '" class="quote_button"><span>', $txt['quote'], '</span></a></li>';
+						<li><a href="', $scripturl . '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '" class="quote_button"><span>', $txt['quote_action'], '</span></a></li>';
 
 			// Can we request notification of topics?
 			if ($post['can_mark_notify'])
