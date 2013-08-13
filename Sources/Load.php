@@ -937,7 +937,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
 
-	// We add or replace according the the set
+	// We add or replace according to the set
 	switch ($set)
 	{
 		case 'normal':
@@ -2027,7 +2027,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	// Is this a local file?
 	if (strpos($filename, 'http') === false || !empty($params['local']))
 	{
-		// Are we validating the the file exists?
+		// Are we validating that the file exists?
 		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
 		{
 			// Maybe the default theme has it?
