@@ -586,12 +586,12 @@ function template_main()
 			// Can they reply? Have they turned on quick reply?
 			if ($context['can_quote'] && !empty($options['display_quick_reply']))
 				echo '
-							<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');" class="quote_button">', $txt['quote'], '</a></li>';
+							<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');" class="quote_button">', $txt['quote_action'], '</a></li>';
 
 			// So... quick reply is off, but they *can* reply?
 			elseif ($context['can_quote'])
 				echo '
-							<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" class="quote_button">', $txt['quote'], '</a></li>';
+							<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" class="quote_button">', $txt['quote_action'], '</a></li>';
 
 			// Can the user modify the contents of this post?  Show the modify inline image.
 			if ($message['can_modify'])

@@ -454,6 +454,7 @@ $txt['code'] = 'Code';
 $txt['code_select'] = '[Select]';
 $txt['quote_from'] = 'Quote from';
 $txt['quote'] = 'Quote';
+$txt['quote_action'] = 'Quote';
 $txt['fulledit'] = 'Full&nbsp;edit';
 $txt['edit'] = 'Edit';
 $txt['quick_edit'] = 'Quick Edit';
