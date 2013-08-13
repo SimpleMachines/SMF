@@ -479,7 +479,7 @@ function template_results()
 				// If they *can* quote?
 				if ($topic['can_quote'])
 					echo '
-								<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '" class="quote_button">', $txt['quote'], '</a></li>';
+								<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '" class="quote_button">', $txt['quote_action'], '</a></li>';
 
 				// Can we request notification of topics?
 				if ($topic['can_mark_notify'])
