@@ -127,6 +127,8 @@ function EditSearchSettings($return_config = false)
 
 		call_integration_hook('integrate_save_search_settings');
 
+		if (empty($_POST['search_results_per_page']))
+			$_POST['search_results_per_page'] = !empty($modSettings['search_results_per_page']) ? $modSettings['search_results_per_page'] : $modSettings['defaultMaxMessages'];
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managesearch;sa=settings;' . $context['session_var'] . '=' . $context['session_id']);
 	}
