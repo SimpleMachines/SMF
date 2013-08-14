@@ -113,6 +113,32 @@ $databases = array(
 			return true;
 		'),
 	),
+	'sqlite3' => array(
+		'name' => 'SQLite3',
+		'version' => '1',
+		'function_check' => 'SQLite3::version',
+		'version_check' => 'return 1;',
+		'supported' => is_callable(array('sqlite3', 'version')),
+		'always_has_db' => true,
+		'utf8_default' => true,
+		'utf8_required' => true,
+		'utf8_support' => false,
+		'validate_prefix' => create_function('&$value', '
+			global $incontext, $txt;
+
+			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
+
+			// Is it reserved?
+			if ($value == \'sqlite_\')
+				return $txt[\'error_db_prefix_reserved\'];
+
+			// Is the prefix numeric?
+			if (preg_match(\'~^\d~\', $value))
+				return $txt[\'error_db_prefix_numeric\'];
+
+			return true;
+		'),
+	),
 );
 
 // Initialize everything and load the language files.
@@ -745,7 +771,7 @@ function DatabaseSettings()
 	if (isset($_POST['db_user']))
 	{
 		$incontext['db']['user'] = $_POST['db_user'];
-		$incontext['db']['name'] = $_POST['db_type'] == 'sqlite' && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
+		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
 	}
@@ -792,7 +818,7 @@ function DatabaseSettings()
 		// Take care of these variables...
 		$vars = array(
 			'db_type' => $db_type,
-			'db_name' => $_POST['db_type'] == 'sqlite' && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'],
+			'db_name' => ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'],
 			'db_user' => $_POST['db_user'],
 			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
 			'db_server' => $_POST['db_server'],
@@ -935,7 +961,7 @@ function ForumSettings()
 	$incontext['detected_url'] = 'http' . (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '') . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
 
 	// Check if the database sessions will even work.
-	$incontext['test_dbsession'] = ini_get('session.auto_start') != 1;
+	$incontext['test_dbsession'] = (ini_get('session.auto_start') != 1);
 	$incontext['utf8_default'] = $databases[$db_type]['utf8_default'];
 	$incontext['utf8_required'] = $databases[$db_type]['utf8_required'];
 
@@ -1248,7 +1274,7 @@ function DatabasePopulation()
 		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
 
 		// Optimizing one sqlite table, optimizes them all
-		if ($db_type == 'sqlite')
+		if ($db_type == 'sqlite' || $db_type == 'sqlite3')
 			break;
 
 		if (!empty($db_messed))
@@ -1303,7 +1329,7 @@ function AdminAccount()
 	$incontext['username'] = htmlspecialchars(stripslashes($_POST['username']));
 	$incontext['email'] = htmlspecialchars(stripslashes($_POST['email']));
 
-	$incontext['require_db_confirm'] = empty($db_type) || $db_type != 'sqlite';
+	$incontext['require_db_confirm'] = empty($db_type) || ($db_type != 'sqlite' && $db_type != 'sqlite3');
 
 	// Only allow skipping if we think they already have an account setup.
 	$request = $smcFunc['db_query']('', '
@@ -2406,7 +2432,7 @@ function template_database_settings()
 		{
 			// What state is it?';
 
-	if (!isset($incontext['supported_databases']['sqlite']))
+	if (!isset($incontext['supported_databases']['sqlite']) && !isset($incontext['supported_databases']['sqlite3']))
 		echo '
 			var showAll = true;';
 	elseif (count($incontext['supported_databases']) < 2)
@@ -2415,7 +2441,7 @@ function template_database_settings()
 	// If we have more than one DB including SQLite, what should we be doing?
 	else
 		echo '
-			var showAll = document.getElementById(\'db_type_input\').value == \'sqlite\' ? false : true;';
+			var showAll = (document.getElementById(\'db_type_input\').value == \'sqlite\' || document.getElementById(\'db_type_input\').value == \'sqlite3\') ? false : true;';
 
 	echo '
 			document.getElementById(\'db_passwd_contain\').style.display = showAll ? \'\' : \'none\';

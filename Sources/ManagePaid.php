@@ -1339,6 +1339,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 			'is_active' => 1,
 		)
 	);
+
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		list ($id_sublog, $endtime, $starttime) = $smcFunc['db_fetch_row']($request);
@@ -1358,12 +1359,13 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 		// As everything else should be good, just update!
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_subscribed
-			SET end_time = {int:end_time}, start_time = {int:start_time}
+			SET end_time = {int:end_time}, start_time = {int:start_time}, reminder_sent = {int:no_reminder_sent}
 			WHERE id_sublog = {int:current_subscription_item}',
 			array(
 				'end_time' => $endtime,
 				'start_time' => $starttime,
 				'current_subscription_item' => $id_sublog,
+				'no_reminder_sent' => 0,
 			)
 		);
 
@@ -1380,6 +1382,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 			'current_member' => $id_member,
 		)
 	);
+
 	// Just in case the member doesn't exist.
 	if ($smcFunc['db_num_rows']($request) == 0)
 		return;
@@ -1435,6 +1438,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 			'current_member' => $id_member,
 		)
 	);
+
 	/**
 	 * @todo Don't really need to do this twice...
 	 */
@@ -1457,8 +1461,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 		// As everything else should be good, just update!
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_subscribed
-			SET start_time = {int:start_time}, end_time = {int:end_time}, old_id_group = {int:old_id_group}, status = {int:is_active},
-				reminder_sent = {int:no_reminder_sent}
+			SET start_time = {int:start_time}, end_time = {int:end_time}, old_id_group = {int:old_id_group}, status = {int:is_active}, reminder_sent = {int:no_reminder_sent}
 			WHERE id_sublog = {int:current_subscription_item}',
 			array(
 				'start_time' => $starttime,

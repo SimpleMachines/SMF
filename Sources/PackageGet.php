@@ -85,7 +85,7 @@ function PackageGet()
  */
 function PackageServers()
 {
-	global $txt, $scripturl, $context, $boarddir, $sourcedir, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context, $boarddir, $sourcedir, $packagesdir, $modSettings, $smcFunc;
 
 	// Ensure we use the correct template, and page title.
 	$context['sub_template'] = 'servers';
@@ -109,15 +109,15 @@ function PackageServers()
 	}
 	$smcFunc['db_free_result']($request);
 
-	$context['package_download_broken'] = !is_writable($boarddir . '/Packages') || !is_writable($boarddir . '/Packages/installed.list');
+	$context['package_download_broken'] = !is_writable($packagesdir) || !is_writable($packagesdir . '/installed.list');
 
 	if ($context['package_download_broken'])
 	{
-		@chmod($boarddir . '/Packages', 0777);
-		@chmod($boarddir . '/Packages/installed.list', 0777);
+		@chmod($packagesdir, 0777);
+		@chmod($packagesdir . '/installed.list', 0777);
 	}
 
-	$context['package_download_broken'] = !is_writable($boarddir . '/Packages') || !is_writable($boarddir . '/Packages/installed.list');
+	$context['package_download_broken'] = !is_writable($packagesdir) || !is_writable($packagesdir . '/installed.list');
 
 	if ($context['package_download_broken'])
 	{
@@ -147,7 +147,7 @@ function PackageServers()
 			elseif ($ftp->error !== false && !isset($ftp_error))
 				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
 
-			list ($username, $detect_path, $found_path) = $ftp->detect_path($boarddir);
+			list ($username, $detect_path, $found_path) = $ftp->detect_path($packagesdir);
 
 			if ($found_path || !isset($_POST['ftp_path']))
 				$_POST['ftp_path'] = $detect_path;
@@ -167,8 +167,8 @@ function PackageServers()
 		{
 			$context['package_download_broken'] = false;
 
-			$ftp->chmod('Packages', 0777);
-			$ftp->chmod('Packages/installed.list', 0777);
+			$ftp->chmod('.', 0777);
+			$ftp->chmod('installed.list', 0666);
 
 			$ftp->close();
 		}
@@ -512,7 +512,7 @@ function PackageGBrowse()
  */
 function PackageDownload()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir, $smcFunc;
+	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir, $smcFunc;
 
 	// Use the downloaded sub template.
 	$context['sub_template'] = 'downloaded';
@@ -559,7 +559,7 @@ function PackageDownload()
 	else
 		$package_name = basename($_REQUEST['package']);
 
-	if (isset($_REQUEST['conflict']) || (isset($_REQUEST['auto']) && file_exists($boarddir . '/Packages/' . $package_name)))
+	if (isset($_REQUEST['conflict']) || (isset($_REQUEST['auto']) && file_exists($packagesdir . '/' . $package_name)))
 	{
 		// Find the extension, change abc.tar.gz to abc_1.tar.gz...
 		if (strrpos(substr($package_name, 0, -3), '.') !== false)
@@ -572,7 +572,7 @@ function PackageDownload()
 
 		// Find the first available.
 		$i = 1;
-		while (file_exists($boarddir . '/Packages/' . $package_name . $i . $ext))
+		while (file_exists($packagesdir . '/' . $package_name . $i . $ext))
 			$i++;
 
 		$package_name = $package_name . $i . $ext;
@@ -584,8 +584,8 @@ function PackageDownload()
 		fatal_lang_error($packageInfo);
 
 	// Use FTP if necessary.
-	create_chmod_control(array($boarddir . '/Packages/' . $package_name), array('destination_url' => $scripturl . '?action=admin;area=packages;get;sa=download' . (isset($_GET['server']) ? ';server=' . $_GET['server'] : '') . (isset($_REQUEST['auto']) ? ';auto' : '') . ';package=' . $_REQUEST['package'] . (isset($_REQUEST['conflict']) ? ';conflict' : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'crash_on_error' => true));
-	package_put_contents($boarddir . '/Packages/' . $package_name, fetch_web_data($url . $_REQUEST['package']));
+	create_chmod_control(array($packagesdir . '/' . $package_name), array('destination_url' => $scripturl . '?action=admin;area=packages;get;sa=download' . (isset($_GET['server']) ? ';server=' . $_GET['server'] : '') . (isset($_REQUEST['auto']) ? ';auto' : '') . ';package=' . $_REQUEST['package'] . (isset($_REQUEST['conflict']) ? ';conflict' : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'crash_on_error' => true));
+	package_put_contents($packagesdir . '/' . $package_name, fetch_web_data($url . $_REQUEST['package']));
 
 	// Done!  Did we get this package automatically?
 	if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['package']) == 1 && strpos($_REQUEST['package'], 'dlattach') === false && isset($_REQUEST['auto']))
@@ -621,7 +621,7 @@ function PackageDownload()
  */
 function PackageUpload()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir;
+	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir;
 
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';
@@ -644,7 +644,7 @@ function PackageUpload()
 	$packageName = basename($_FILES['package']['name']);
 
 	// Setup the destination and throw an error if the file is already there!
-	$destination = $boarddir . '/Packages/' . $packageName;
+	$destination = $packagesdir . '/' . $packageName;
 	// @todo Maybe just roll it like we do for downloads?
 	if (file_exists($destination))
 		fatal_lang_error('package_upload_error_exists');
@@ -666,11 +666,11 @@ function PackageUpload()
 		fatal_lang_error('package_upload_error_broken', false, $txt[$context['package']]);
 	}
 	// Is it already uploaded, maybe?
-	elseif ($dir = @opendir($boarddir . '/Packages'))
+	elseif ($dir = @opendir($packagesdir))
 	{
 		while ($package = readdir($dir))
 		{
-			if ($package == '.' || $package == '..' || $package == 'temp' || $package == $packageName || (!(is_dir($boarddir . '/Packages/' . $package) && file_exists($boarddir . '/Packages/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
+			if ($package == '.' || $package == '..' || $package == 'temp' || $package == $packageName || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
 				continue;
 
 			$packageInfo = getPackageInfo($package);

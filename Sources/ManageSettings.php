@@ -510,7 +510,8 @@ function ModifyBasicSettings($return_config = false)
 			array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note']),
 		'',
 			// Jquery source
-			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'])),
+			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'], 'custom' => $txt['jquery_custom']), 'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'),
+			array('text', 'jquery_custom', 'javascript' => 'disabled', 'size' => 75),
 		'',
 			// SEO stuff
 			array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),

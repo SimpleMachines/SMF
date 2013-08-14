@@ -809,8 +809,8 @@ function MessageFolder()
 
 			// Seperate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
-				SELECT pm.id_pm, pm.subject, pm.id_member_from, pm.msgtime, IFNULL(mem.real_name, pm.from_name) AS from_name,
-					IFNULL(mem.id_member, 0) AS not_guest
+				SELECT pm.id_pm, pm.subject, IFNULL(pm.id_member_from, 0) AS not_guest, pm.msgtime, IFNULL(mem.real_name, pm.from_name) AS from_name,
+					mem.id_member
 				FROM {db_prefix}personal_messages AS pm
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
 				WHERE pm.id_pm IN ({array_int:pm_list})

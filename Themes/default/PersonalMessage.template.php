@@ -179,9 +179,14 @@ function template_folder()
 				<li>
 					<h4>
 						<a id="msg', $message['id'], '"></a>';
-		// Show a link to the member's profile.
+						
+		
+		// Show a link to the member's profile (but only if the sender isn't a guest).
+		if (!$message['member']['is_guest'])
+			echo '
+						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">';
+		
 		echo '
-						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">
 							<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>';
 
 		// Show avatars, images, etc.?
@@ -190,8 +195,11 @@ function template_folder()
 
 							', $message['member']['avatar']['image'], '';
 
+		if (!$message['member']['is_guest'])
 			echo '
-						</a>
+						</a>';
+
+		echo '
 					</h4>
 					<ul class="smalltext" id="msg_', $message['id'], '_extra_info">';
 
@@ -350,7 +358,9 @@ function template_folder()
 			}
 			echo '
 					</ul>
-				</li>
+				</li>';
+			if (!$message['member']['is_guest'])
+				echo '
 				<li class="icons">', $message['member']['group_icons'], '</li>';
 			// Show the member's primary group (like 'Administrator') if they have one.
 			if (isset($message['member']['group']) && $message['member']['group'] != '')
@@ -432,7 +442,7 @@ function template_folder()
 
 					echo '
 					<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';u=', $message['member']['id'], '" class="reply_button">', $txt['reply'], '</a></li>
-					<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote', $context['folder'] == 'sent' ? '' : ';u=' . $message['member']['id'], '" class="quote_button">', $txt['quote'], '</a></li>';
+					<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote', $context['folder'] == 'sent' ? '' : ';u=' . $message['member']['id'], '" class="quote_button">', $txt['quote_action'], '</a></li>';
 				}
 				// This is for "forwarding" - even if the member is gone.
 				else

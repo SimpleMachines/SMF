@@ -154,6 +154,7 @@ function KickGuest()
 
 	loadLanguage('Login');
 	loadTemplate('Login');
+	createToken('login');
 
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
@@ -174,6 +175,7 @@ function InMaintenance()
 
 	loadLanguage('Login');
 	loadTemplate('Login');
+	createToken('login');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');

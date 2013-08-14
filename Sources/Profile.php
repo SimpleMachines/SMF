@@ -295,12 +295,12 @@ function ModifyProfile($post_errors = array())
 				),
 				'issuewarning' => array(
 					'label' => $txt['profile_issue_warning'],
-					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && (!$context['user']['is_owner'] || $context['user']['is_admin']),
+					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1,
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
 					'token' => 'profile-iw%u',
 					'permission' => array(
-						'own' => array('issue_warning'),
+						'own' => array(),
 						'any' => array('issue_warning'),
 					),
 				),

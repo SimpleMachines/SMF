@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1; ManageSettings
+// Version: 2.1 Alpha 1; ManageSettings
 
 global $scripturl;
 
@@ -67,6 +67,8 @@ $txt['autoFixDatabase'] = 'Automatically fix broken tables';
 $txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
 $txt['jquery_source'] = 'Source for the jQuery Library';
+$txt['jquery_custom_label'] = 'Custom';
+$txt['jquery_custom'] = 'Custom url to the jQuery Library';
 $txt['jquery_local'] = 'Local';
 $txt['jquery_cdn'] = 'Google CDN';
 $txt['jquery_auto'] = 'Auto';

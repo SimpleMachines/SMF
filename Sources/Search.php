@@ -1934,7 +1934,7 @@ function prepareSearchContext($reset = false)
 				foreach ($context['key_words'] as $keyword)
 				{
 					$keyword = un_htmlspecialchars($keyword);
-					$keyword = preg_replace('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e', 'entity_fix__callback', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
+					$keyword = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', strtr($keyword, array('\\\'' => '\'', '&' => '&amp;')));
 
 					if (preg_match('~[\'\.,/@%&;:(){}\[\]_\-+\\\\]$~', $keyword) != 0 || preg_match('~^[\'\.,/@%&;:(){}\[\]_\-+\\\\]~', $keyword) != 0)
 						$force_partial_word = true;
@@ -1958,7 +1958,7 @@ function prepareSearchContext($reset = false)
 			}
 
 			// Re-fix the international characters.
-			$message['body'] = preg_replace('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~e', 'entity_fix__callback', $message['body']);
+			$message['body'] = preg_replace_callback('~(&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $message['body']);
 		}
 	}
 	else
@@ -2088,7 +2088,7 @@ function prepareSearchContext($reset = false)
 		$query = trim($query, "\*+");
 		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
 
-		$body_highlighted = preg_replace('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/ie' . ($context['utf8'] ? 'u' : ''), "'\$2' == '\$1' ? stripslashes('\$1') : '<strong class=\"highlight\">\$1</strong>'", $body_highlighted);
+		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), create_function('$m', 'return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";'), $body_highlighted);
 		$subject_highlighted = preg_replace('/(' . preg_quote($query, '/') . ')/i' . ($context['utf8'] ? 'u' : ''), '<strong class="highlight">$1</strong>', $subject_highlighted);
 	}
 

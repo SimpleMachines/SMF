@@ -1,3 +1,5 @@
+# SMF Generated Files #
+#######################
 Settings.php
 Settings_bak.php
 db_last_error.php
@@ -5,6 +7,11 @@ cache/data*.php
 Packages/backups/*
 Packages/temp
 *.*~
+Packages/*.tgz
+Packages/*.tar.gz
+Packages/*.zip
+Packages/*/
+/upgrade.php
 
 # Compiled source #
 ###################
@@ -16,6 +23,7 @@ Packages/temp
 *.so
 *.bat
 *.session
+
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -43,7 +51,11 @@ ehthumbs.db
 Icon?
 Thumbs.db
 *.lnk
+
+# Test / Private files #
+########################
 /nbproject/private/
 /nbproject/
 .directory
 .idea/
+/test.php
