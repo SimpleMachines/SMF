@@ -539,7 +539,7 @@ function smf_db_num_fields($handle)
 */
 function smf_db_escape_string($string)
 {
-	return SQLite3::escapeString();
+	return SQLite3::escapeString($string);
 }
 
 /**
