@@ -545,26 +545,52 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_devs'],
 					'members' => array(
-					'Spuds',
-					'Michael &quot;Oldiesmann&quot; Eshom',
-					'emanuele',
-					'Matthew &quot;Labradoodle-360&quot; Kerle',
-					'MissAllSunday',
-					'norv',
-					'Fustrate',
-					'Bjoern &quot;Bloc&quot; Kristiansen',
-					'IchBin',
+					//A
 					'Aaron van Geffen',
 					'Antechinus',
+					//B
+					'Bjoern &quot;Bloc&quot; Kristiansen',
+					//C
+					//D
+					//E
+					'emanuele',
+					//F
+					'Fustrate',
+					//G
+					//H
 					'Hendrik Jan &quot;Compuart&quot; Visser',
+					//I
+					'IchBin&#8482;',
+					//J
 					'Juan &quot;JayBachatero&quot; Hernandez',
+					//K
 					'Karl &quot;RegularExpression&quot; Benson',
+					//L
 					'Matt &quot;Grudge&quot; Wolf',
+					'Matthew &quot;Labradoodle-360&quot; Kerle',
+					'Michael &quot;Oldiesmann&quot; Eshom',
 					'Michael &quot;Thantos&quot; Miller',
+					'MissAllSunday',
+					//N
+					'N.N.',
+					//O
+					//P
+					//Q
+					//R
+					'Ren&eacute;-Gilles &quot;Nao &#23578;&quot; Deberdt',
+					//S
 					'Selman &quot;[SiNaN]&quot; Eser',
+					'Spuds',
+					//T
 					'Theodore &quot;Orstio&quot; Hildebrandt',
 					'Thorsten &quot;TE&quot; Eurich',
+					//U
+					//V
+					//W
 					'winrules', 
+					//X
+					//Y
+					//Z
 					),
 				),
 				array(
@@ -612,53 +638,65 @@ function Credits($in_admin = false)
 		'groups' => array(
 			array(
 				'title' => $txt['credits_groups_team'],
-									'members' => array(
-						//PM
-						'Bryan &quot;Runic&quot; Deakin',
-						// Lead Developer
-						'Michael &quot;Oldiesmann&quot; Eshom',
-						// Developers
-						'emanuele',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
-						// Lead Support Specialist
-						'Kat',
-						// Support Specialists
-						'Bigguy',
-						'Colin &quot;shadow82x&quot; Blaber',
-						'Kindred',
-						'Old Fossil',
-						'Mashby',
-						'Nova &quot;ChalkCat&quot; Howard',
-						'Storman&#8482;',
-						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
-						'Yoshi2889',
-						'ziycon',
-						// Lead Customizer
-						'Gary M. Gadsdon',
-						// Customizers
-						'bluedevil',
-						'Colin Schoen',
-						'Jack &quot;akabugeyes&quot; Thorsen',
-						'Kays',
-						'Ricky.',
-						// Doc Coordinator
-						'Michele &quot;Illori&quot; Davis',
-						// Doc Writers
+				'members' => array(
+						//A
+						//'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
 						'AngelinaBelle',
-						'Graeme Spence',
-						'Irisado',
-						// Lead Localizer
-						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
-						// Localizers
 						'Antes',
+						//B
+						'Bigguy',
+						'bluedevil',
+						'Bryan &quot;Runic&quot; Deakin',
+						//C
+						'Colin Schoen',
+						'Colin &quot;shadow82x&quot; Blaber',
+						//D
+						//'Derek Schwab',
 						'Dr. Deejay',
-						// Marketing
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
-						// Site Team
-						'Jeremy &quot;SleePy&quot; Darwood',
-						// Servers Team
-						'Derek Schwab',
-						'Liroy &quot;CoreISP&quot; van Hoewijk',
+						//E
+						'emanuele',
+						//F
+						//G
+						'Gary M. Gadsdon',
+						'Graeme Spence',
+						//H
+						//I
+						'Irisado',
+						//J
+						'Jack &quot;akabugeyes&quot; Thorsen',
+						//'Jeremy &quot;SleePy&quot; Darwood',
+						//K
+						'Kat',
+						'Kays',
+						'Kindred',
+						//L
+						//'Liroy &quot;CoreISP&quot; van Hoewijk',
+						//M
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
+						'Mashby',
+						'Michael &quot;Oldiesmann&quot; Eshom',
+						'Michele &quot;Illori&quot; Davis',
+						//N
+						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						'Nova &quot;ChalkCat&quot; Howard',
+						//O
+						'Old Fossil',
+						//P
+						//Q
+						//R
+						'Ricky.',
+						//S
+						'Storman&#8482;',
+						//T
+						//U
+						//V
+						//W
+						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
+						//X
+						//Y
+						'Yoshi2889',
+						//Z
+						'ziycon',
 					),
 			),
 			array(
@@ -832,6 +870,12 @@ function Credits($in_admin = false)
 		'title' => $txt['credits_special'],
 		'posttext' => $txt['credits_anyone'],
 		'groups' => array(
+		array(
+				'title' => $txt['credits_groups_sm'],
+				'members' => array(
+					$txt['credits_sm_message'],
+				),
+			),
 					array(
 				'title' => $txt['credits_groups_consultants'],
 				'members' => array(

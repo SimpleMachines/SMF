@@ -159,6 +159,8 @@ $txt['credits_groups_orignal_pm'] = 'Original Project Managers';
 $txt['credits_groups_devs'] = 'Past and Current Developers';
 $txt['credits_groups_team'] = 'The SMF Team';
 $txt['development_credits'] = 'Developers';
+$txt['credits_groups_sm'] = 'Simple Machines';
+$txt['credits_sm_message'] = 'We would also like to thank the Corporation Teams of Marketing, Site and Server, as well as the current Members and Board of Directors of Simple Machines';
 
 // List of people who have made more than a token contribution to this translation. (blank for English)
 $txt['translation_credits'] = array();
