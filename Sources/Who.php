@@ -539,129 +539,283 @@ function Credits($in_admin = false)
 	$context['credits'] = array(
 		array(
 			'pretext' => $txt['credits_intro'],
-			'title' => $txt['credits_team'],
+			'posttext' => $txt['github_contrib_text'],
+			'title' => $txt['development_credits'],
 			'groups' => array(
 				array(
-					'title' => $txt['credits_groups_pm'],
+					'title' => $txt['credits_groups_devs'],
 					'members' => array(
-						'Michael &quot;Oldiesmann&quot; Eshom',
+					'Spuds',
+					'Michael &quot;Oldiesmann&quot; Eshom',
+					'emanuele',
+					'Matthew &quot;Labradoodle-360&quot; Kerle',
+					'MissAllSunday',
+					'norv',
+					'Fustrate',
+					'Bjoern &quot;Bloc&quot; Kristiansen',
+					'IchBin',
+					'Aaron van Geffen',
+					'Antechinus',
+					'Hendrik Jan &quot;Compuart&quot; Visser',
+					'Juan &quot;JayBachatero&quot; Hernandez',
+					'Karl &quot;RegularExpression&quot; Benson',
+					'Matt &quot;Grudge&quot; Wolf',
+					'Michael &quot;Thantos&quot; Miller',
+					'Selman &quot;[SiNaN]&quot; Eser',
+					'Theodore &quot;Orstio&quot; Hildebrandt',
+					'Thorsten &quot;TE&quot; Eurich',
+					'winrules', 
 					),
 				),
 				array(
-					'title' => $txt['credits_groups_dev'],
-					'members' => array(
+			'title' => $txt['github_contrib'],
+				'members' => array(
+					'emanuele45',
+					'Spuds',
+					'Oldiesmann',
+					'live627',
+					'Labradoodle360',
+					'MissAllSunday',
+					'smfrunic',
+					'norv',
+					'Trekkie101',
+					'Kays48',
+					'Antes',
+					'illori',
+					'marcusforsberg',
+					'ziycon',
+					'Yoshi2889',
+					'colinschoen',
+					'PortaMx',
+					'MikeMill',
+					'The-Craw',
+					'hhy89',
+					'AngelinaBelle',
+					'NIBIGO',
+					'Fustrate',
+					'motokochan',
+					'eurich',
+					'jdarwood007',
+					'ElPlayer',
+					'sicommnend',
+					'DrDeejay',
+					'gnif',
+					'grafitus',
+					'IchBin',
+					),
+				),
+			),	
+		),
+	);
+	$context['credits'][] = array(
+		'title' => $txt['credits_team'],
+		'groups' => array(
+			array(
+				'title' => $txt['credits_groups_team'],
+									'members' => array(
+						//PM
+						'Bryan &quot;Runic&quot; Deakin',
 						// Lead Developer
-						// 'Steven &quot;Fustrate&quot; Hoffman',
+						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
-						'Brad &quot;IchBin&trade;&quot; Grow',
 						'emanuele',
-						'Norv',
-						// 'Spuds', // Doesn't want to be listed here
-						// Former Developers
-						'Aaron van Geffen',
-						'Antechinus',
-						'Bjoern &quot;Bloc&quot; Kristiansen',
-						'Hendrik Jan &quot;Compuart&quot; Visser',
-						'Juan &quot;JayBachatero&quot; Hernandez',
-						'Karl &quot;RegularExpression&quot; Benson',
-						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
-						'Michael &quot;Thantos&quot; Miller',
-						'Selman &quot;[SiNaN]&quot; Eser',
-						'Theodore &quot;Orstio&quot; Hildebrandt',
-						'Thorsten &quot;TE&quot; Eurich',
-						'winrules',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_support'],
-					'members' => array(
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						// Lead Support Specialist
 						'Kat',
 						// Support Specialists
-						'Aleksi &quot;Lex&quot; Kilpinen',
 						'Bigguy',
-						'Chas Large',
-						'Duncan85',
-						'JimM',
-						'Mashby',
+						'Colin &quot;shadow82x&quot; Blaber',
+						'Kindred',
 						'Old Fossil',
-						'Yoshi',
-						'ziycon',
-						// Former Support Specialists
-						'CapadY',
-						'gbsothere',
-						'Kevin &quot;greyknight17&quot; Hou',
-						'Michele &quot;Illori&quot; Davis',
-						'S-Ace',
+						'Mashby',
+						'Nova &quot;ChalkCat&quot; Howard',
+						'Storman&#8482;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
-						'xenovanis',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_customize'],
-					'members' => array(
+						'Yoshi2889',
+						'ziycon',
 						// Lead Customizer
 						'Gary M. Gadsdon',
 						// Customizers
-						'Jessica Gonz&aacute;lez',
+						'bluedevil',
+						'Colin Schoen',
+						'Jack &quot;akabugeyes&quot; Thorsen',
 						'Kays',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Ricky.',
-						// Former Customizers
-						'Brannon &quot;B&quot; Hall',
-						'Joey &quot;Tyrsson&quot; Smith',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_docs'],
-					'members' => array(
 						// Doc Coordinator
-						'AngelinaBelle',
+						'Michele &quot;Illori&quot; Davis',
 						// Doc Writers
+						'AngelinaBelle',
 						'Graeme Spence',
-						'Joshua &quot;groundup&quot; Dickerson',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_internationalizers'],
-					'members' => array(
+						'Irisado',
 						// Lead Localizer
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
 						// Localizers
+						'Antes',
 						'Dr. Deejay',
-						'Relyana',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_marketing'],
-					'members' => array(
-						// Marketing Coordinator
-						'Ralph &quot;[n3rve]&quot; Otowo',
 						// Marketing
-						'Bryan &quot;Runic&quot; Deakin',
 						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
-						// Former Marketing
-						'Kindred',
-						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_site'],
-					'members' => array(
+						// Site Team
 						'Jeremy &quot;SleePy&quot; Darwood',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_servers'],
-					'members' => array(
+						// Servers Team
 						'Derek Schwab',
 						'Liroy &quot;CoreISP&quot; van Hoewijk',
 					),
-				),
 			),
+			array(
+				'title' => $txt['credits_groups_friends'],
+				'members' => array(
+					//A
+					'Aaron',
+					'AcF',
+					'Alexandre P.',
+					'Alex Rolko',
+					'Alexsi &quot;Lex&quot; Kilpinen',
+					'alienine',
+					'A.M.A',
+					'Amacythe',
+					'andrea',
+					'Anguz',
+					'Antechnius',
+					'Arantor',
+					//B
+					'B',
+					'babylonking',
+					'Ben_S',
+					'Big P',
+					'Bloc',
+					'Bouminok',
+					'Bugo',
+					'Bulakbol',
+					'Burpee',
+					//C
+					'Capady',
+					'Chas Large',
+					'Chis Cromer',
+					'Compuart',
+					//D
+					'Daniel15',
+					'Daniel D.',
+					'Dannii',
+					'David',
+					'diplomat.',
+					'Douglas',
+					'dtm.exe',
+					//E
+					'eFishie',
+					'Eliana Tamerin',
+					'Elmacik',
+					'Eren Ya&#350;arkut',
+					//F
+					'Fiery',
+					'Fizzy',
+					'Fustrate',
+					//G
+					'gbsothere',
+					'Gobalopper',
+					'Goosemoose',
+					'greyknight17',
+					'Grudge',
+					//H
+					'H',
+					'Harro',
+					'HotMetal',
+					//I
+					'IchBin&#8482;',
+					//J
+					'Jack.R.Abbit',
+					'Jade Elizabeth',
+					'James Woodcock',
+					'JayBachatero',
+					'JBlaze',
+					'Jeff Lewis',
+					'Jerry',
+					'jerm',
+					'Jim Yarbo',
+					'JimM',
+					'Joey Smith&#8482;',
+					'Joker&#8482;',
+					'Joseph Fung',
+					'Joshua Dickerson',
+					'Justyne',
+					'Juvenall Wilson',
+					//K
+					'karlbenson',
+					'kegobeer',
+					'Kermit',
+					'kevin_mip',
+					'KGIII',
+					'Kill Em All',
+					'Killer Possum',
+					'Kirby',
+					//L
+					//M
+					'Marcus Forsberg',
+					'mattsiegman',
+					'mediaman',
+					'Meriadoc',
+					'metallica48423',
+					'Metho',
+					'MrPhil',
+					'Mystica',
+					//N
+					'N3RVE',
+					'Nathaneiel',
+					'Nemesis',
+					'Nibigo',
+					'Niko',
+					'N.N.',
+					//O
+					'Omar Bazavilvazo',
+					'Owdy',
+					//P
+					'Parham',
+					'Paul_Pauline', // Rest in Peace
+					'Pause',
+					'Peter Duggan',
+					'Pitti',
+					//Q
+					//R
+					'redone',
+					'Relyana',
+					'Ren&eacute;-Gilles &quot;Nao &#23578;&quot; Deberdt',
+					'Rumbaar',
+					//S
+					'sAce',
+					'Sarge',
+					'Shoeb Omar',
+					'Skoen',
+					'SlammedDime',
+					'snork13',
+					'Spaceman-Spiff',
+					'Spuds',
+					'Suki',
+					//T
+					'Thantos',
+					'Tim',
+					'Tippmaster',
+					'Tony Reid',
+					'Tomer',
+					//U
+					'Unknown W. &quot;[Unknown]&quot; Brackets',
+					//V
+					'vbgamer45',
+					//W
+					'winrules',
+					//X
+					'xenovanis',
+					//Y
+					//Z
+					'Zef Hemel',
+					//SYMBOLS			
+					'[darksteel]',
+					'青山 素子',
+					'ディン1031',
+					'(Ha)&sup2;',
+					'[Sinan]',
+				),
+			),	
 		),
 	);
-
 	// Give the translators some credit for their hard work.
 	if (!empty($txt['translation_credits']))
 		$context['credits'][] = array(
@@ -678,12 +832,11 @@ function Credits($in_admin = false)
 		'title' => $txt['credits_special'],
 		'posttext' => $txt['credits_anyone'],
 		'groups' => array(
-			array(
+					array(
 				'title' => $txt['credits_groups_consultants'],
 				'members' => array(
 					'Brett Flannigan',
 					'Mark Rose',
-					'Ren&eacute;-Gilles &quot;Nao &#23578;&quot; Deberdt',
 				),
 			),
 			array(
@@ -693,9 +846,15 @@ function Credits($in_admin = false)
 				),
 			),
 			array(
-				'title' => $txt['credits_groups_translators'],
+				'title' => $txt['credits_groups_localization_teams'],
 				'members' => array(
-					$txt['credits_translators_message'],
+					$txt['credits_localization_teams'],
+				),
+			),
+			array(
+				'title' => $txt['credits_groups_grandfather'],
+				'members' => array(
+					'Zef Hemel',
 				),
 			),
 			array(
