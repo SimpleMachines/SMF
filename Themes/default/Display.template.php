@@ -415,6 +415,10 @@ function template_main()
 			echo '
 								<li class="membergroup">', $message['member']['group'], '</li>';
 
+		// Show custom HTML after_group
+		if (!empty($message['cust_html']['after_group']))
+			echo $message['cust_html']['after_group'];
+
 		// Show the member's custom title, if they have one.
 		if (!empty($message['member']['title']))
 			echo '
