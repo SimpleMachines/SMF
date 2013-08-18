@@ -1320,6 +1320,7 @@ function prepareDisplayContext($reset = false)
 		'cust_html' => array(
 			'begin_poster' => '',
 			'after_avatar' => '',
+			'after_personal_text' => '',
 			'after_group' => '',
 			'end_dropdown' => '',
 			'end_poster' => '',
