@@ -240,9 +240,13 @@ function template_main()
 
 											', $message['member']['avatar']['image'], '';
 
-			echo '
+		echo '
 										</a>
 									</h4>';
+
+		// Show custom HTML after_avatar
+		if (!empty($message['cust_html']['after_avatar']))
+			echo $message['cust_html']['after_avatar'];
 
 		// [WIP] The new member info dropdown starts here. Note that conditionals have not been fully checked yet.
 			echo '
