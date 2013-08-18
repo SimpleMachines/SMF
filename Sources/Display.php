@@ -1321,7 +1321,7 @@ function prepareDisplayContext($reset = false)
 			'begin_poster' => '',
 			'after_avatar' => '',
 			'after_group' => '',
-			'before_custom_fields' => '',
+			'after_personal_text' => '',
 			'after_info' => '',
 			'end_poster' => '',
 		),

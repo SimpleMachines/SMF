@@ -292,6 +292,10 @@ function template_main()
 				echo '
 										<li class="blurb">', $message['member']['blurb'], '</li>';
 
+			// Show custom HTML after_personal_text
+			if (!empty($message['cust_html']['after_personal_text']))
+				echo $message['cust_html']['after_personal_text'];
+
 			// Any custom fields to show as icons?
 			if (!empty($message['member']['custom_fields']))
 			{
