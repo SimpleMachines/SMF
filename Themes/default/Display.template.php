@@ -460,9 +460,11 @@ function template_main()
 			echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '" />', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
-			echo '
+		// Done with the information about the poster... on to the post itself.
+		echo '
 							</ul>';
-			echo '
+
+		echo '
 						</div>
 						<div class="postarea">
 							<div class="keyinfo">
@@ -470,11 +472,11 @@ function template_main()
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
 								</div>';
 
-			//Some people dont want subject ... The div is still required or quick edit breaks...
-			echo'
+		//Some people don't want subject ... The div is still required or quick edit breaks...
+		echo'
 								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settiongs['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
-			echo'
+		echo'
 								<div class="page_number floatright">
 									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 								</div>
