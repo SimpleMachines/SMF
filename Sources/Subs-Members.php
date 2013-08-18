@@ -541,6 +541,9 @@ function registerMember(&$regOptions, $return_errors = false)
 		$reg_errors[] = array('lang', 'email_in_use', false, array(htmlspecialchars($regOptions['email'])));
 	$smcFunc['db_free_result']($request);
 
+	// Perhaps someone else wants to check this user
+	call_integration_hook('integrate_register_check', array($$regOptions, &$reg_errors));
+
 	// If we found any errors we need to do something about it right away!
 	foreach ($reg_errors as $key => $error)
 	{
