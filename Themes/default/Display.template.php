@@ -219,7 +219,13 @@ function template_main()
 		// Show information about the poster of this message.
 		echo '
 						<div class="poster">
-							<ul class="dropmenu">
+							<ul class="dropmenu">';
+
+		// Show custom HTML begin_poster
+		if (!empty($message['cust_html']['begin_poster']))
+			echo $message['cust_html']['begin_poster'];
+
+		echo '
 								<li>
 									<h4>';
 
