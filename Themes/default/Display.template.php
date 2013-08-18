@@ -221,7 +221,7 @@ function template_main()
 						<div class="poster">
 							<ul class="dropmenu">';
 
-		// Show custom HTML begin_poster
+		// Show custom HTML begin_poster.
 		if (!empty($message['cust_html']['begin_poster']))
 			echo $message['cust_html']['begin_poster'];
 
@@ -244,7 +244,7 @@ function template_main()
 										</a>
 									</h4>';
 
-		// Show custom HTML after_avatar
+		// Show custom HTML after_avatar.
 		if (!empty($message['cust_html']['after_avatar']))
 			echo $message['cust_html']['after_avatar'];
 
@@ -292,7 +292,7 @@ function template_main()
 				echo '
 										<li class="blurb">', $message['member']['blurb'], '</li>';
 
-			// Show custom HTML after_personal_text
+			// Show custom HTML after_personal_text.
 			if (!empty($message['cust_html']['after_personal_text']))
 				echo $message['cust_html']['after_personal_text'];
 
@@ -404,7 +404,7 @@ function template_main()
 			echo '
 										<li class="poster_ip">', $txt['logged'], '</li>';
 
-		// Show custom HTML end_dropdown
+		// Show custom HTML end_dropdown.
 		if (!empty($message['cust_html']['end_dropdown']))
 			echo $message['cust_html']['end_dropdown'];
 
@@ -423,7 +423,7 @@ function template_main()
 			echo '
 								<li class="membergroup">', $message['member']['group'], '</li>';
 
-		// Show custom HTML after_group
+		// Show custom HTML after_group.
 		if (!empty($message['cust_html']['after_group']))
 			echo $message['cust_html']['after_group'];
 
@@ -460,7 +460,7 @@ function template_main()
 			echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '" />', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
-		// Show custom HTML end_poster
+		// Show custom HTML end_poster.
 		if (!empty($message['cust_html']['end_poster']))
 			echo $message['cust_html']['end_poster'];
 
