@@ -404,7 +404,7 @@ function template_main()
 			echo '
 										<li class="poster_ip">', $txt['logged'], '</li>';
 
-		// Done with the information about the poster... on to the post itself.
+		// Done with the member info dropdown.
 			echo '
 									</ul>
 								</li>';
