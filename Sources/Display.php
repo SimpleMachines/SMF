@@ -1321,8 +1321,7 @@ function prepareDisplayContext($reset = false)
 			'begin_poster' => '',
 			'after_avatar' => '',
 			'after_group' => '',
-			'after_personal_text' => '',
-			'after_info' => '',
+			'end_dropdown' => '',
 			'end_poster' => '',
 		),
 	);

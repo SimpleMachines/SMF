@@ -404,6 +404,10 @@ function template_main()
 			echo '
 										<li class="poster_ip">', $txt['logged'], '</li>';
 
+		// Show custom HTML end_dropdown
+		if (!empty($message['cust_html']['end_dropdown']))
+			echo $message['cust_html']['end_dropdown'];
+
 		// Done with the member info dropdown.
 			echo '
 									</ul>
