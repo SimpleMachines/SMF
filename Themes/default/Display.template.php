@@ -460,6 +460,10 @@ function template_main()
 			echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '" />', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
+		// Show custom HTML end_poster
+		if (!empty($message['cust_html']['end_poster']))
+			echo $message['cust_html']['end_poster'];
+
 		// Done with the information about the poster... on to the post itself.
 		echo '
 							</ul>';
