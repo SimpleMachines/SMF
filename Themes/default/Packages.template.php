@@ -100,14 +100,14 @@ function template_view_package()
 			</div>';
 
 	/* Are there any new custom inputs from the mod author? */	
-	if ((!empty($context['package_inputs'])) && is_array($context['package_inputs']))
+	if ((!empty($context['new_package_inputs'])) && is_array($context['new_package_inputs']))
 	{	
 		echo '
 			<div class="windowbg2">
 				<span class="topslice"><span></span></span>
 				<div class="content">';
 
-		foreach ($context['package_inputs'] as $new_input)
+		foreach ($context['new_package_inputs'] as $new_input)
 			echo $new_input;
 
 		echo '
