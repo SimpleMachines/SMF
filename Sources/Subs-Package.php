@@ -1098,8 +1098,195 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 	{
 		$actionType = $action->name();
 
-		if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'redirect', 'license')))
-		{
+
+if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'redirect', 'license', 'input')))	
+{
+                    /* Add the input/textarea html tag where xml input was selected */
+                    if ($actionType == 'input')
+                    {
+                        if (empty($action->array[0]["value"]) || !$action->array[0]["value"])
+                            continue;
+                            
+                        /* These looped values must first be null */
+                        $null_values = array(array(), false, false, false, false, false, false, false, false, false, false, 0, 0);
+                        list ($inputValues, $newType, $newTextAfter, $newTextBefore, $lineBreaks, $styleBefore, $styleAfter, $textArea, $class, $classBefore, $classAfter, $breakCount, $newBreak) = $null_values;
+                                                        
+                        /* Now extract all new values into an array from the xml input tag */
+                        $input_structures = explode('}{', $action->array[0]["value"]);
+                        foreach ($input_structures as $input_structure)
+                        {
+                            $input_structure = trim($input_structure, '{');
+                            $input_structure = trim($input_structure, '}');
+                            if (strpos($input_structure, 'text=') !== true)
+                                $input_structure = trim($input_structure);
+                                
+                            $inputValues[] = $input_structure;
+                        }
+                            
+                        /* Set up the necessary arrays */
+                        $input_types = array('button', 'checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'hidden', 'image', 'month', 'number', 'password', 'radio', 'range', 'reset', 'search', 'submit', 'tel', 'text', 'textarea', 'time', 'url', 'week');
+                        $input_commands = array(
+                                                'alt' => array('image', 'string'),
+                                                'autocomplete' => array('text, search, url, tel, email, password, datepickers, range, color', 'string'),
+                                                'autofocus' => array('all', 'true'),
+                                                'break' => array('all', 'int'),
+                                                'checked' => array('radio, checkbox', 'true'),
+                                                'class' => array('all', 'string'),
+                                                'class_before' => array('all', 'string'),
+                                                'class_after' => array('all', 'string'),
+                                                'cols' => array('textarea', 'int'),
+                                                'disable' => array('all', 'true'),
+                                                'height' => array('all', 'int'),
+                                                'maxlength' => array('all', 'int'),
+                                                'name' => array('all', 'string'),
+                                                'placeholder' => array('text, search, url, tel, email, password, textarea', 'string'),
+                                                'readonly' => array('all', 'true'),
+                                                'required' => array('text, search, url, tel, email, password, date pickers, number, checkbox, radio, textarea', 'true'),
+                                                'rows' => array('textarea', 'int'),
+                                                'size' => array('all', 'int'),
+                                                'src' => array('image', 'int'),
+                                                'style' => array('all', 'string'),
+                                                'tabindex' => array('all', 'int'),
+                                                'text_before' => array('all', 'string'),
+                                                'text_after' => array('all', 'string'),
+                                                'style_after' => array('all', 'string'),
+                                                'style_before' => array('all', 'string'),
+                                                'value' => array('all', 'string'),
+                                                'width' => array('all', 'int'),
+                                                'wrap' => array('textarea', 'string')
+                                            );
+                            
+                            /* If the type is valid set it as such else skip the process */
+                            foreach ($input_types as $input_type)
+                            {
+                                foreach ($inputValues as $value)
+                                {
+                                    if (strpos('type="'.$input_type.'"',strtolower(trim($value))) !== false)
+                                    {
+                                        if ($input_type === 'textarea')
+                                            $inputString = '';
+                                        else
+                                            $inputString = '<input type="'.$input_type.'" ';
+                                            
+                                        $newType = $input_type;
+                                    }
+                                }
+                            }
+                            
+                            if (!$newType)
+                                continue;
+                            
+                            /* Loop through the commands and set it if we find a match */
+                            foreach ($input_commands as $key => $command)
+                            {
+                                $check = explode(',', $command[0]);
+                                
+                                foreach ($inputValues as $value)
+                                {
+                                    
+                                    if (strpos(strtolower($value), 'type=') !== false)
+                                        continue;
+                                    
+                                    if (strpos(strtolower($value), $key.'=') !== false)
+                                    {
+                                        $setCommand = $key;
+                                                                                
+                                        if (!in_array($newType, $check) && $check[0] !== 'all')
+                                            continue;
+                                        
+                                        $value = str_replace($key.'=', '', $value);
+                                        $value = trim(substr($value, 1, (strlen($value)-2)));                                       
+                                        
+                                        if ($command[1] === 'int')
+                                            $value = (int)$value;
+                                        elseif ($command[1] === 'string' && $key !== 'text_before' && $key !== 'text_after' && $key !== 'value' && $key !== 'name' && $key !== 'class_before' && $key !== 'class_after' && $key !== 'class')
+                                            $value = strtolower($value);
+                                        elseif ($command[1] == 'true')
+                                            $value = 'true';
+                                        
+                                        switch($key)
+                                        {
+                                            case 'break':
+                                                $newBreak = (int)$value;
+                                                continue 2;
+                                            case 'text_before':
+                                                $newTextBefore = $value . ' ';
+                                                continue 2;
+                                            case 'text_after':
+                                                $newTextAfter = ' ' . $value;
+                                                continue 2;
+                                            case 'name':
+                                                $inputString .= $setCommand . '="new_inputs['.$value.']" ';
+                                                continue 2;
+                                            case 'true':
+                                                $inputString .= $setCommand . ' ';
+                                                continue 2;
+                                            case 'style_before':
+                                                $styleBefore = $value;
+                                                continue 2;
+                                            case 'style_after':
+                                                $styleAfter = $value;
+                                                continue 2;
+                                            case 'class_before':
+                                                $classBefore = 'class="' . $value . '" ';
+                                                continue 2;
+                                            case 'class_after':
+                                                $classAfter = 'class="' . $value . '" ';
+                                                continue 2;
+                                            case 'class':
+                                                $class = 'class="' . $value . '" ';
+                                                continue 2;
+                                            case 'value':
+                                                if ($newType == 'textarea')
+                                                    $textArea = trim($value);
+                                                continue 2;
+                                            default:
+                                                $inputString .= $setCommand . '="'. $value .'" ';
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            /* Figure out how many line breaks were opted */
+                            if ((int)$newBreak > 0)
+                            {
+                                while ((int)$breakCount < (int)$newBreak)
+                                {
+                                    /* Stop the loop just in case... 10 line breaks is too many anyhow! */
+                                    if ((int)$breakCount > 9)
+                                        break;
+                                    
+                                    $lineBreaks .= '<br />';
+                                    $breakCount++;
+                                }
+                            }
+                                                        
+                            /* Close the input/textarea and add it to the appropriate $context array */
+                            if ($newType === 'textarea')
+                            {
+                                if ($styleBefore && $newTextBefore)
+                                    $newTextBefore = '<span ' . $classBefore . 'style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
+                                
+                                if ($styleAfter && $newTextAfter)
+                                    $newTextAfter = '<span ' . $classAfter . 'style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
+                                    
+                                $context['new_package_inputs'][] = $newTextBefore . '<textarea ' . $class . $inputString . '>' . $textArea . '</textarea>' . $newTextAfter . $lineBreaks;
+                            }
+                            else
+                            {
+                                if ($styleBefore && $newTextBefore)
+                                    $newTextBefore = '<span ' . $classBefore . 'style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
+                                
+                                if ($styleAfter && $newTextAfter)
+                                    $newTextAfter = '<span ' . $classAfter . 'style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
+                                    
+                                $inputString .= ' ' . $class . '/>';
+                                $context['new_package_inputs'][] = $newTextBefore . $inputString . $newTextAfter . $lineBreaks;
+                            }
+                            
+                          continue;
+                        }
+                        
 			// Allow for translated readme and license files.
 			if ($actionType == 'readme' || $actionType == 'license')
 			{
