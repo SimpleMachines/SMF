@@ -1001,9 +1001,7 @@ function PackageInstall()
 				
 				$context['new_inputs'] = array();
 				if (!empty($_POST['new_inputs']))
-				{					
 					$context['new_inputs'] = $_POST['new_inputs'];				
-				}
 				
 				// Now include the file and be done with it ;).
 				if (file_exists($boarddir . '/Packages/temp/' . $context['base_path'] . $action['filename']))
