@@ -1242,6 +1242,7 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                                                 continue 2;
                                             default:
                                                 $inputString .= $setCommand . '="'. $value .'" ';
+                                                continue 2;
                                         }
                                     }
                                 }
