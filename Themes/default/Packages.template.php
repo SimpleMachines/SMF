@@ -99,6 +99,23 @@ function template_view_package()
 				</h3>
 			</div>';
 
+	/* Are there any new custom inputs from the mod author? */		
+	if (isset($context['new_package_inputs']))
+	{		
+		echo '
+			<div class="windowbg2">
+				<span class="topslice"><span></span></span>
+				<div class="content">';
+				
+			foreach ($context['new_package_inputs'] as $new_input)
+				echo $new_input;
+			
+			echo '	
+		        	</div>
+				<span class="botslice"><span></span></span>
+			</div>';			
+	}
+	
 	// Are there data changes to be removed?
 	if ($context['uninstalling'] && !empty($context['database_changes']))
 	{

@@ -23,3 +23,7 @@ Developer's Certificate of Origin 1.1
           personal information I submit with it, including my sign-off) is
           maintained indefinitely and may be redistributed consistent with
           this project or the open source license(s) involved.
+
+Signed,
+Underdog @ askusaquestion.net     
+Underdog-01 @ github.com            
