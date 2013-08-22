@@ -1238,8 +1238,9 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                                                 continue 2;
                                             case 'value':
                                                 if ($newType == 'textarea')
-                                                    $textArea = trim($value);
-                                                $inputString .= $setCommand . '="'. $value .'" ';
+                                                	$textArea = trim($value);
+                                                else
+                                                	$inputString .= $setCommand . '="'. $value .'" ';
                                                 continue 2;
                                             default:
                                                 $inputString .= $setCommand . '="'. $value .'" ';
