@@ -1525,7 +1525,7 @@ CREATE TABLE {$db_prefix}log_topics (
   id_member int NOT NULL default '0',
   id_topic int NOT NULL default '0',
   id_msg int NOT NULL default '0',
-  disregarded int NOT NULL default '0',
+  unwatched int NOT NULL default '0',
   PRIMARY KEY (id_member, id_topic)
 );
 
@@ -2344,7 +2344,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_image_par
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_thumb_png', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_reencode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_disregard', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_unwatch', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');

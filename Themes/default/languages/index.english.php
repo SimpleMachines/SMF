@@ -385,8 +385,8 @@ $txt['geek'] = 'I am a geek!!';
 $txt['info_center_title'] = '%1$s - Info Center';
 
 $txt['send_topic'] = 'Send this topic';
-$txt['disregard'] = 'Disregard';
-$txt['undisregard'] = 'Stop disregarding';
+$txt['watch'] = 'Watch';
+$txt['unwatch'] = 'Stop watching';
 
 $txt['sendtopic_title'] = 'Send the topic &quot;%1$s&quot; to a friend.';
 $txt['sendtopic_sender_name'] = 'Your name';
