@@ -1159,7 +1159,7 @@ CREATE TABLE {$db_prefix}log_topics (
   id_member mediumint(8) unsigned NOT NULL default '0',
   id_topic mediumint(8) unsigned NOT NULL default '0',
   id_msg int(10) unsigned NOT NULL default '0',
-  disregarded tinyint(3) NOT NULL default '0',
+  unwatched tinyint(3) NOT NULL default '0',
   PRIMARY KEY (id_member, id_topic),
   KEY id_topic (id_topic)
 ) ENGINE=MyISAM;
@@ -1855,7 +1855,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('attachment_thumb_png', '1'),
 	('avatar_reencode', '1'),
 	('avatar_paranoid', '0'),
-	('enable_disregard', '0'),
+	('enable_unwatch', '0'),
 	('drafts_autosave_enabled', '1'),
 	('drafts_show_saved_enabled', '1'),
 	('drafts_keep_days', '7');

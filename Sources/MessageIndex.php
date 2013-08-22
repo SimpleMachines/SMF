@@ -1160,7 +1160,7 @@ function QuickModeration()
 	if (!empty($markCache))
 	{
 		$smcFunc['db_query']('', '
-			SELECT id_topic, disregarded
+			SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
 				AND id_member = {int:current_user}',
@@ -1171,7 +1171,7 @@ function QuickModeration()
 		);
 		$logged_topics = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$logged_topics[$row['id_topic']] = $row['disregarded'];
+			$logged_topics[$row['id_topic']] = $row['unwatched'];
 		$smcFunc['db_free_result']($request);
 
 		$markArray = array();
@@ -1180,7 +1180,7 @@ function QuickModeration()
 
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'disregarded' => 'int'),
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
 			$markArray,
 			array('id_member', 'id_topic')
 		);

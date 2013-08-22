@@ -753,7 +753,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	// Copy log topic entries.
 	// @todo This should really be chunked.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, id_msg, disregarded
+		SELECT id_member, id_msg, unwatched
 		FROM {db_prefix}log_topics
 		WHERE id_topic = {int:id_topic}',
 		array(
@@ -764,11 +764,11 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	{
 		$replaceEntries = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$replaceEntries[] = array($row['id_member'], $split2_ID_TOPIC, $row['id_msg'], $row['disregarded']);
+			$replaceEntries[] = array($row['id_member'], $split2_ID_TOPIC, $row['id_msg'], $row['unwatched']);
 
 		$smcFunc['db_insert']('ignore',
 			'{db_prefix}log_topics',
-			array('id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'disregarded' => 'int'),
+			array('id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
 			$replaceEntries,
 			array('id_member', 'id_topic')
 		);
@@ -1432,9 +1432,9 @@ function MergeExecute($topics = array())
 	);
 
 	// Merge log topic entries.
-	// The disregard setting comes from the oldest topic
+	// The unwatch setting comes from the oldest topic
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, MIN(id_msg) AS new_id_msg, disregarded
+		SELECT id_member, MIN(id_msg) AS new_id_msg, unwatched
 		FROM {db_prefix}log_topics
 		WHERE id_topic IN ({array_int:topics})
 		GROUP BY id_member',
@@ -1446,11 +1446,11 @@ function MergeExecute($topics = array())
 	{
 		$replaceEntries = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$replaceEntries[] = array($row['id_member'], $id_topic, $row['new_id_msg'], $row['disregarded']);
+			$replaceEntries[] = array($row['id_member'], $id_topic, $row['new_id_msg'], $row['unwatched']);
 
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'disregarded' => 'int'),
+			array('id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
 			$replaceEntries,
 			array('id_member', 'id_topic')
 		);
