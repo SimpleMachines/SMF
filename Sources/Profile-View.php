@@ -211,7 +211,7 @@ function showPosts($memID)
 			),
 			'topics' => array(
 			),
-			'disregardedtopics' => array(
+			'unwatchedtopics' => array(
 			),
 			'attach' => array(
 			),
@@ -221,7 +221,7 @@ function showPosts($memID)
 	// Shortcut used to determine which $txt['show*'] string to use for the title, based on the SA
 	$title = array(
 		'attach' => 'Attachments',
-		'disregardedtopics' => 'Disregarded',
+		'unwatchedtopics' => 'Unwatched',
 		'topics' => 'Topics'
 	);
 
@@ -240,9 +240,9 @@ function showPosts($memID)
 	// If we're specifically dealing with attachments use that function!
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
-	// Instead, if we're dealing with disregarded topics (and the feature is enabled) use that other function.
-	elseif (isset($_GET['sa']) && $_GET['sa'] == 'disregardedtopics' && $modSettings['enable_disregard'])
-		return showDisregarded($memID);
+	// Instead, if we're dealing with unwatched topics (and the feature is enabled) use that other function.
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && $modSettings['enable_unwatch'])
+		return showUnwatched($memID);
 
 	// Are we just viewing topics?
 	$context['is_topics'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? true : false;
@@ -754,36 +754,36 @@ function list_getNumAttachments($boardsAllowed, $memID)
 }
 
 /**
- * Show all the disregarded topics.
+ * Show all the unwatched topics.
  *
  * @param int $memID id_member
  */
-function showDisregarded($memID)
+function showUnwatched($memID)
 {
 	global $txt, $user_info, $scripturl, $modSettings, $board, $context, $sourcedir, $smcFunc;
 
 	// Only the owner can see the list (if the function is enabled of course)
-	if ($user_info['id'] != $memID || !$modSettings['enable_disregard'])
+	if ($user_info['id'] != $memID || !$modSettings['enable_unwatch'])
 		return;
 
 	require_once($sourcedir . '/Subs-List.php');
 
 	// And here they are: the topics you don't like
 	$listOptions = array(
-		'id' => 'disregarded_topics',
+		'id' => 'unwatched_topics',
 		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxMessages'],
-		'no_items_label' => $txt['disregarded_topics_none'],
-		'base_href' => $scripturl . '?action=profile;area=showposts;sa=disregardedtopics;u=' . $memID,
+		'no_items_label' => $txt['unwatched_topics_none'],
+		'base_href' => $scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . $memID,
 		'default_sort_col' => 'started_on',
 		'get_items' => array(
-			'function' => 'list_getDisregarded',
+			'function' => 'list_getUnwatched',
 			'params' => array(
 				$memID,
 			),
 		),
 		'get_count' => array(
-			'function' => 'list_getNumDisregarded',
+			'function' => 'list_getNumUnwatched',
 			'params' => array(
 				$memID,
 			),
@@ -872,13 +872,13 @@ function showDisregarded($memID)
 	createList($listOptions);
 
 	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'disregarded_topics';
+	$context['default_list'] = 'unwatched_topics';
 }
 
 /**
- * Get the relevant topics in the disregarded list
+ * Get the relevant topics in the unwatched list
  */
-function list_getDisregarded($start, $items_per_page, $sort, $memID)
+function list_getUnwatched($start, $items_per_page, $sort, $memID)
 {
 	global $smcFunc, $board, $modSettings, $context;
 
@@ -891,7 +891,7 @@ function list_getDisregarded($start, $items_per_page, $sort, $memID)
 			LEFT JOIN {db_prefix}messages as m ON (t.id_first_msg = m.id_msg)' . (in_array($sort, array('mem.real_name', 'mem.real_name DESC', 'mem.poster_time', 'mem.poster_time DESC')) ? '
 			LEFT JOIN {db_prefix}members as mem ON (m.id_member = mem.id_member)' : '') . '
 		WHERE lt.id_member = {int:current_member}
-			AND disregarded = 1
+			AND unwatched = 1
 			AND {query_see_board}
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
@@ -934,11 +934,11 @@ function list_getDisregarded($start, $items_per_page, $sort, $memID)
 }
 
 /**
- * Count the number of topics in the disregarded list
+ * Count the number of topics in the unwatched list
  *
  * @param int $memID
  */
-function list_getNumDisregarded($memID)
+function list_getNumUnwatched($memID)
 {
 	global $smcFunc, $user_info;
 
@@ -949,16 +949,16 @@ function list_getNumDisregarded($memID)
 		LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
 		LEFT JOIN {db_prefix}boards as b ON (t.id_board = b.id_board)
 		WHERE id_member = {int:current_member}
-			AND disregarded = 1
+			AND unwatched = 1
 			AND {query_see_board}',
 		array(
 			'current_member' => $memID,
 		)
 	);
-	list ($disregardedCount) = $smcFunc['db_fetch_row']($request);
+	list ($unwatchedCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	return $disregardedCount;
+	return $unwatchedCount;
 }
 
 /**

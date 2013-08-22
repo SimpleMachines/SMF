@@ -110,7 +110,7 @@ function markBoardsRead($boards, $unread = false)
 				AND t.id_board IN ({array_int:board_list}))
 		WHERE lt.id_member = {int:current_member}
 			AND lt.id_topic >= {int:lowest_topic}
-			AND lt.disregarded != 1',
+			AND lt.unwatched != 1',
 		array(
 			'current_member' => $user_info['id'],
 			'board_list' => $boards,
@@ -179,7 +179,7 @@ function MarkRead()
 		$topics = array_map('intval', explode('-', $_REQUEST['topics']));
 
 		$smcFunc['db_query']('', '
-			SELECT id_topic, disregarded
+			SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
 				AND id_member = {int:current_user}',
@@ -190,7 +190,7 @@ function MarkRead()
 		);
 		$logged_topics = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$logged_topics[$row['id_topic']] = $row['disregarded'];
+			$logged_topics[$row['id_topic']] = $row['unwatched'];
 		$smcFunc['db_free_result']($request);
 
 		$markRead = array();
@@ -199,7 +199,7 @@ function MarkRead()
 
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'disregarded' => 'int'),
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
 			$markRead,
 			array('id_member', 'id_topic')
 		);
@@ -215,7 +215,7 @@ function MarkRead()
 	{
 		// First, let's figure out what the latest message is.
 		$result = $smcFunc['db_query']('', '
-			SELECT t.id_first_msg, t.id_last_msg, IFNULL(lt.disregarded, 0) as disregarded
+			SELECT t.id_first_msg, t.id_last_msg, IFNULL(lt.unwatched, 0) as unwatched
 			FROM {db_prefix}topics as t
 			LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			WHERE t.id_topic = {int:current_topic}',
@@ -279,8 +279,8 @@ function MarkRead()
 		// Blam, unread!
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}log_topics',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'disregarded' => 'int'),
-			array($earlyMsg, $user_info['id'], $topic, $topicinfo['disregarded']),
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'),
+			array($earlyMsg, $user_info['id'], $topic, $topicinfo['unwatched']),
 			array('id_member', 'id_topic')
 		);
 

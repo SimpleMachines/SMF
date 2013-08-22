@@ -858,7 +858,7 @@ function removeMessage($message, $decreasePostCount = true)
 			if (!$user_info['is_guest'])
 				$smcFunc['db_insert']('replace',
 					'{db_prefix}log_topics',
-					array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'disregarded' => 'int'),
+					array('id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'),
 					array($topicID, $user_info['id'], $modSettings['maxMsgID'], 0),
 					array('id_topic', 'id_member')
 				);
