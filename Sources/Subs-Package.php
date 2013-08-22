@@ -1102,7 +1102,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'redirect', 'license', 'input')))	
 {
                     /* Add the input/textarea html tag where xml input was selected */
-                    if ($actionType == 'input')
+                    if ($actionType === 'input')
                     {
                         if (empty($action->array[0]["value"]) || !$action->array[0]["value"])
                             continue;
@@ -1161,12 +1161,12 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                             {
                                 foreach ($inputValues as $value)
                                 {
-                                    if (strpos('type="'.$input_type.'"',strtolower(trim($value))) !== false)
+                                    if (strpos('type="' . $input_type . '"',strtolower(trim($value))) !== false)
                                     {
                                         if ($input_type === 'textarea')
                                             $inputString = '';
                                         else
-                                            $inputString = '<input type="'.$input_type.'" ';
+                                            $inputString = '<input type="' . $input_type . '" ';
                                             
                                         $newType = $input_type;
                                     }
@@ -1201,7 +1201,7 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                                             $value = (int)$value;
                                         elseif ($command[1] === 'string' && $key !== 'text_before' && $key !== 'text_after' && $key !== 'value' && $key !== 'name' && $key !== 'class_before' && $key !== 'class_after' && $key !== 'class')
                                             $value = strtolower($value);
-                                        elseif ($command[1] == 'true')
+                                        elseif ($command[1] === 'true')
                                             $value = 'true';
                                         
                                         switch($key)
@@ -1216,7 +1216,7 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                                                 $newTextAfter = ' ' . $value;
                                                 continue 2;
                                             case 'name':
-                                                $inputString .= $setCommand . '="new_inputs['.$value.']" ';
+                                                $inputString .= $setCommand . '="new_inputs[' . $value . ']" ';
                                                 continue 2;
                                             case 'true':
                                                 $inputString .= $setCommand . ' ';
@@ -1237,13 +1237,13 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                                                 $class = 'class="' . $value . '" ';
                                                 continue 2;
                                             case 'value':
-                                                if ($newType == 'textarea')
+                                                if ($newType === 'textarea')
                                                 	$textArea = trim($value);
                                                 else
-                                                	$inputString .= $setCommand . '="'. $value .'" ';
+                                                	$inputString .= $setCommand . '="' . $value . '" ';
                                                 continue 2;
                                             default:
-                                                $inputString .= $setCommand . '="'. $value .'" ';
+                                                $inputString .= $setCommand . '="' . $value . '" ';
                                                 continue 2;
                                         }
                                     }
@@ -1268,20 +1268,20 @@ if (in_array($actionType, array('readme', 'code', 'database', 'modification', 'r
                             if ($newType === 'textarea')
                             {
                                 if ($styleBefore && $newTextBefore)
-                                    $newTextBefore = '<span ' . $classBefore . 'style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
+                                    $newTextBefore = '<span ' . $classBefore . 'style ="' . $styleBefore . '">' . $newTextBefore . '</span>';
                                 
                                 if ($styleAfter && $newTextAfter)
-                                    $newTextAfter = '<span ' . $classAfter . 'style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
+                                    $newTextAfter = '<span ' . $classAfter . 'style ="' . $styleAfter . '">' . $newTextAfter . '</span>';
                                     
                                 $context['new_package_inputs'][] = $newTextBefore . '<textarea ' . $class . $inputString . '>' . $textArea . '</textarea>' . $newTextAfter . $lineBreaks;
                             }
                             else
                             {
                                 if ($styleBefore && $newTextBefore)
-                                    $newTextBefore = '<span ' . $classBefore . 'style ="'.$styleBefore.'">' . $newTextBefore . '</span>';
+                                    $newTextBefore = '<span ' . $classBefore . 'style ="' . $styleBefore . '">' . $newTextBefore . '</span>';
                                 
                                 if ($styleAfter && $newTextAfter)
-                                    $newTextAfter = '<span ' . $classAfter . 'style ="'.$styleAfter.'">' . $newTextAfter . '</span>';
+                                    $newTextAfter = '<span ' . $classAfter . 'style ="' . $styleAfter . '">' . $newTextAfter . '</span>';
                                     
                                 $inputString .= ' ' . $class . '/>';
                                 $context['new_package_inputs'][] = $newTextBefore . $inputString . $newTextAfter . $lineBreaks;
