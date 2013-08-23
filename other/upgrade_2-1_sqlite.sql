@@ -221,14 +221,14 @@ $smcFunc['db_alter_table']('{db_prefix}boards', array(
 ---#
 
 /******************************************************************************/
---- Adding support for topic disregard
+--- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to log_topics...
 ---{
 $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 	'add' => array(
-		'disregarded' => array(
-			'name' => 'disregarded',
+		'unwatched' => array(
+			'name' => 'unwatched',
 			'null' => false,
 			'default' => 0,
 			'type' => 'int',
@@ -238,12 +238,12 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 ));
 
 UPDATE {$db_prefix}log_topics
-SET disregarded = 0;
+SET unwatched = 0;
 
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enable_disregard', 0);
+	('enable_unwatch', 0);
 ---}
 ---#
 

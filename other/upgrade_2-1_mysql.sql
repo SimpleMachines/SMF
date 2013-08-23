@@ -188,19 +188,19 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
---- Adding support for topic disregard
+--- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN disregarded tinyint(3) NOT NULL DEFAULT '0';
+ADD COLUMN unwatched tinyint(3) NOT NULL DEFAULT '0';
 
 UPDATE {$db_prefix}log_topics
-SET disregarded = 0;
+SET unwatched = 0;
 
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enable_disregard', 0);
+	('enable_unwatch', 0);
 ---#
 
 /******************************************************************************/
