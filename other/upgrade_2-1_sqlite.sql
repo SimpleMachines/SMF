@@ -247,6 +247,22 @@ VALUES
 ---}
 ---#
 
+---# Fixing column name change...
+---{
+$smcFunc['db_alter_table']('{db_prefix}log_topics', array(
+	'change' => array(
+		'disregarded' => array(
+			'name' => 'unwatched',
+			'null' => false,
+			'default' => 0,
+			'type' => 'int',
+			'auto' => false,
+		),
+	)
+));
+---}
+---#
+
 /******************************************************************************/
 --- Name changes
 /******************************************************************************/
