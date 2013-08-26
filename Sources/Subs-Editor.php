@@ -1471,7 +1471,8 @@ function create_control_richedit($editorOptions)
 			$context['drafts_autosave_frequency'] = empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000;
 
 		// This really has some WYSIWYG stuff.
-		loadTemplate('GenericControls', 'jquery.sceditor');
+		loadCSSFile('jquery.sceditor', array('force_current' => false));
+		loadTemplate('GenericControls');
 
 		// JS makes the editor go round
 		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
