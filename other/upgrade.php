@@ -13,7 +13,7 @@
 
 // Version information...
 define('SMF_VERSION', '2.1 Alpha 1');
-define('SMF_LANG_VERSION', '2.1');
+define('SMF_LANG_VERSION', '2.1 Alpha 1');
 
 $GLOBALS['required_php_version'] = '5.1.0';
 $GLOBALS['required_mysql_version'] = '4.0.18';
