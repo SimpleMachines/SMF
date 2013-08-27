@@ -2031,7 +2031,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
 		{
 			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
+			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
 				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
 			else
 				$filename = false;
