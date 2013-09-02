@@ -1,4 +1,3 @@
-/*!pl SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
 /**
  * SCEditor BBCode Plugin
  * http://www.sceditor.com/
@@ -10,7 +9,6 @@
  *
  * @fileoverview SCEditor BBCode Plugin
  * @author Sam Clarke
- * @version 1.4.2
  * @requires jQuery
  */
 
@@ -69,16 +67,12 @@
 			close:   'close'
 		};
 
-		// Make tokenType enum read-only in browsers that support it.
-		if(Object.freeze)
-			Object.freeze(tokenType);
-
 		/**
 		 * Tokenize token class
 		 *
 		 * @param  {String} type The type of token this is, should be one of tokenType
 		 * @param  {String} name The name of this token
-		 * @param  {String} val The originaly matched string
+		 * @param  {String} val The originally matched string
 		 * @param  {Array} attrs Any attributes. Only set on tokenType.open tokens
 		 * @param  {Array} children Any children of this token
 		 * @param  {TokenizeToken} closing This tokens closing tag. Only set on tokenType.open tokens
@@ -96,7 +90,7 @@
 			base.closing  = closing || null;
 		};
 
-		// Declaring mthods via prototype instead of in the constructor
+		// Declaring methods via prototype instead of in the constructor
 		// to reduce memory usage as there could be a lot or these
 		// objects created.
 		TokenizeToken.prototype = {
@@ -128,7 +122,7 @@
 					splitAtLength = 0,
 					childrenLen   = base.children.length;
 
-				if(typeof object !== "number")
+				if(typeof object !== 'number')
 					splitAt = $.inArray(splitAt, base.children);
 
 				if(splitAt < 0 || splitAt > childrenLen)
@@ -220,7 +214,7 @@
 				if(str.length)
 					toks.push(tokenizeTag(tokenType.content, str));
 
-				str = "";
+				str = '';
 			}
 
 			return toks;
@@ -238,20 +232,20 @@
 
 			// Extract the name and attributes from opening tags and
 			// just the name from closing tags.
-			if(type === "open" && (matches = val.match(/\[([^\]\s=]+)(?:([^\]]+))?\]/)))
+			if(type === 'open' && (matches = val.match(/\[([^\]\s=]+)(?:([^\]]+))?\]/)))
 			{
 				name = lower(matches[1]);
 
 				if(matches[2] && (matches[2] = $.trim(matches[2])))
 					attrs = tokenizeAttrs(matches[2]);
 			}
-			else if(type === "close" && (matches = val.match(/\[\/([^\[\]]+)\]/)))
+			else if(type === 'close' && (matches = val.match(/\[\/([^\[\]]+)\]/)))
 				name = lower(matches[1]);
-			else if(type === "newline")
+			else if(type === 'newline')
 				name = '#newline';
 
 			// Treat all tokens without a name and all unknown BBCodes as content
-			if(!name || (type === "open" || type === "close") && !$.sceditor.plugins.bbcode.bbcodes[name])
+			if(!name || (type === 'open' || type === 'close') && !$.sceditor.plugins.bbcode.bbcodes[name])
 			{
 				type = 'content';
 				name = '#';
@@ -292,12 +286,12 @@
 				ret         = {};
 
 			// if only one attribute then remove the = from the start and strip any quotes
-			if(attrs.charAt(0) === "=" && attrs.indexOf('=', 1) < 0)
+			if(attrs.charAt(0) === '=' && attrs.indexOf('=', 1) < 0)
 				ret.defaultattr = unquote(attrs.substr(1));
 			else
 			{
-				if(attrs.charAt(0) === "=")
-					attrs = "defaultattr" + attrs;
+				if(attrs.charAt(0) === '=')
+					attrs = 'defaultattr' + attrs;
 
 				// No need to strip quotes here, the regex will do that.
 				while((matches = atribsRegex.exec(attrs)))
@@ -559,7 +553,7 @@
 		 * with a line break [*] list item two [/list]
 		 *
 		 * Which makes it easier to convert to HTML or add
-		 * the formmating new lines back in when converting
+		 * the formatting new lines back in when converting
 		 * back to BBCode
 		 *
 		 * @param  {Array} children
@@ -677,7 +671,7 @@
 		 *
 		 * @param {Array} children
 		 * @param {Array} [parents] Null if there is no parents
-		 * @param {Array} [insideInline] Boolean, if insdie an inline element
+		 * @param {Array} [insideInline] Boolean, if inside an inline element
 		 * @param {Array} [rootArr] Root array if there is one
 		 * @return {Array}
 		 * @private
@@ -711,7 +705,7 @@
 					if((parentIndex = $.inArray(parent, parentParentChildren)) > -1)
 					{
 						// remove the block level token from the right side of the split
-						// inlnie element
+						// inline element
 						right.children.splice($.inArray(token, right.children), 1);
 
 						// insert the block level token and the right side after the left
@@ -791,14 +785,14 @@
 		 * @private
 		 */
 		removeEmpty = function(tokens) {
-			var	token, bbcode, allWhiteSpace,
+			var	token, bbcode, isTokenWhiteSpace,
 				i = tokens.length;
 
 			/**
 			 * Checks if all children are whitespace or not
 			 * @private
 			 */
-			allWhiteSpace = function(children) {
+			isTokenWhiteSpace = function(children) {
 				var j = children.length;
 
 				while(j--)
@@ -828,7 +822,7 @@
 				// removed this one doesn't think it's not empty.
 				removeEmpty(token.children);
 
-				if(allWhiteSpace(token.children) && bbcode && !bbcode.isSelfClosing && !bbcode.allowsEmpty)
+				if(isTokenWhiteSpace(token.children) && bbcode && !bbcode.isSelfClosing && !bbcode.allowsEmpty)
 					tokens.splice.apply(tokens, $.merge([i, 1], token.children));
 			}
 		};
@@ -853,7 +847,7 @@
 				ret = [];
 
 			isInline = function(bbcode) {
-				return (!bbcode || (typeof bbcode.isHtmlInline !== "undefined" ? bbcode.isHtmlInline : bbcode.isInline)) !== false;
+				return (!bbcode || (typeof bbcode.isHtmlInline !== 'undefined' ? bbcode.isHtmlInline : bbcode.isInline)) !== false;
 			};
 
 			while(tokens.length > 0)
@@ -874,9 +868,9 @@
 						if(!isInline(bbcode) && isInline(base.bbcodes[lastChild.name]) && !bbcode.isPreFormatted && !bbcode.skipLastLineBreak)
 						{
 							// Add placeholder br to end of block level elements in all browsers apart from IE < 9 which
-							// handle new lines diffrently and doesn't need one.
+							// handle new lines differently and doesn't need one.
 							if(!$.sceditor.ie)
-								content += "<br />";
+								content += '<br />';
 						}
 
 						if($.isFunction(bbcode.html))
@@ -895,34 +889,37 @@
 						continue;
 					}
 
-					// if already in a block wrap then just closing it
-					// will act as a line-break.
-					if(blockWrapOpen)
+					// If not already in a block wrap then start a new block
+					if(!blockWrapOpen)
 					{
-						ret.push('</div>\n');
-						blockWrapOpen = false;
-						continue;
+						ret.push('<div>');
+
+						// If it's an empty DIV and compatibility mode is below IE8 then
+						// we must add a non-breaking space to the div otherwise the div
+						// will be collapsed. Adding a BR works but when you press enter
+						// to make a newline it suddenly goes back to the normal IE div
+						// behaviour and creates two lines, one for the newline and one
+						// for the BR. I'm sure there must be a better fix but I've yet to
+						// find one.
+						// Cannot do zoom: 1; or set a height on the div to fix it as that
+						// causes resize handles to be added to the div when it's clicked on/
+						if((document.documentMode && document.documentMode < 8) || $.sceditor.ie < 8)
+							ret.push('\u00a0');
 					}
 
-					ret.push('<div>');
-
-					// Putting BR in a div in IE9 causes it to do a double line break.
+					// Putting BR in a div in IE causes it to do a double line break.
 					if(!$.sceditor.ie)
 						ret.push('<br />');
 
-					// If it's an empty DIV and compatibility mode is below IE8 then
-					// we must add a non-breaking space to the div otherwise the div
-					// will be collapsed. Adding a BR works but when you press enter
-					// to make a newline it suddenly goes back to the normal IE div
-					// behaviour and creates two lines, one for the newline and one
-					// for the BR. I'm sure there must be a better fix but I've yet to
-					// find one.
-					// Cannot do zoom: 1; or set a height on the div to fix it as that
-					// causes resize handles to be added to the div when it's clicked on/
-					if((document.documentMode && document.documentMode < 8) || $.sceditor.ie < 8)
-						ret.push('\u00a0');
+					// Normally the div acts as a line-break with by moving whatever comes
+					// after onto a new line.
+					// If this is the last token, add an extra line-break so it shows as
+					// there will be nothing after it.
+					if(!tokens.length)
+						ret.push('<br />');
 
 					ret.push('</div>\n');
+					blockWrapOpen = false;
 					continue;
 				}
 				else // content
@@ -1130,15 +1127,11 @@
 		never: 2,
 
 		/**
-		 * Only quote the attributes value when it contains spaces ot equals
+		 * Only quote the attributes value when it contains spaces to equals
 		 * @type {Number}
 		 */
 		auto: 3
 	};
-
-	// Make AttributeQuoteType enum read-only in browsers that support it.
-	if(Object.freeze)
-		Object.freeze($.sceditor.BBCodeParser.QuoteType);
 
 	/**
 	 * Default BBCode parser options
@@ -1279,91 +1272,129 @@
 		};
 
 		mergeSourceModeCommands = function(editor) {
+			var getCommand = $.sceditor.command.get;
+
 			var merge = {
-				bold: { txtExec: ["[b]", "[/b]"] },
-				italic: { txtExec: ["[i]", "[/i]"] },
-				underline: { txtExec: ["[u]", "[/u]"] },
-				strike: { txtExec: ["[s]", "[/s]"] },
-				subscript: { txtExec: ["[sub]", "[/sub]"] },
-				superscript: { txtExec: ["[sup]", "[/sup]"] },
-				left: { txtExec: ["[left]", "[/left]"] },
-				center: { txtExec: ["[center]", "[/center]"] },
-				right: { txtExec: ["[right]", "[/right]"] },
-				justify: { txtExec: ["[justify]", "[/justify]"] },
-				font: { txtExec: function(caller) {
-					var editor = this;
+				bold: { txtExec: ['[b]', '[/b]'] },
+				italic: { txtExec: ['[i]', '[/i]'] },
+				underline: { txtExec: ['[u]', '[/u]'] },
+				strike: { txtExec: ['[s]', '[/s]'] },
+				subscript: { txtExec: ['[sub]', '[/sub]'] },
+				superscript: { txtExec: ['[sup]', '[/sup]'] },
+				left: { txtExec: ['[left]', '[/left]'] },
+				center: { txtExec: ['[center]', '[/center]'] },
+				right: { txtExec: ['[right]', '[/right]'] },
+				justify: { txtExec: ['[justify]', '[/justify]'] },
+				font: {
+					txtExec: function(caller) {
+						var editor = this;
 
-					$.sceditor.command.get('font')._dropDown(
-						editor,
-						caller,
-						function(fontName) {
-							editor.insertText("[font="+fontName+"]", "[/font]");
-						}
-					);
-				} },
-				size: { txtExec: function(caller) {
-					var editor = this;
+						getCommand('font')._dropDown(
+							editor,
+							caller,
+							function(fontName) {
+								editor.insertText('[font='+fontName+']', '[/font]');
+							}
+						);
+					}
+				},
+				size: {
+					txtExec: function(caller) {
+						var editor = this;
 
-					$.sceditor.command.get('size')._dropDown(
-						editor,
-						caller,
-						function(fontSize) {
-							editor.insertText("[size="+fontSize+"]", "[/size]");
-						}
-					);
-				} },
-				color: { txtExec: function(caller) {
-					var editor = this;
+						getCommand('size')._dropDown(
+							editor,
+							caller,
+							function(fontSize) {
+								editor.insertText('[size='+fontSize+']', '[/size]');
+							}
+						);
+					}
+				},
+				color: {
+					txtExec: function(caller) {
+						var editor = this;
 
-					$.sceditor.command.get('color')._dropDown(
-						editor,
-						caller,
-						function(color) {
-							editor.insertText("[color="+color+"]", "[/color]");
-						}
-					);
-				} },
-				bulletlist: { txtExec: ["[ul][li]", "[/li][/ul]"] },
-				orderedlist: { txtExec: ["[ol][li]", "[/li][/ol]"] },
-				table: { txtExec: ["[table][tr][td]", "[/td][/tr][/table]"] },
-				horizontalrule: { txtExec: ["[hr]"] },
-				code: { txtExec: ["[code]", "[/code]"] },
-				image: { txtExec: function(caller, selected) {
-					var url = prompt(this._("Enter the image URL:"), selected);
+						getCommand('color')._dropDown(
+							editor,
+							caller,
+							function(color) {
+								editor.insertText('[color='+color+']', '[/color]');
+							}
+						);
+					}
+				},
+				bulletlist: {
+					txtExec: function(caller, selected) {
+						var content = '';
 
-					if(url)
-						this.insertText("[img]" + url + "[/img]");
-				} },
-				email: { txtExec: function(caller, selected) {
-					var	display = selected && selected.indexOf('@') > -1 ? null : selected,
-						email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected)),
-						text	= prompt(this._("Enter the displayed text:"), display || email) || email;
+						$.each(selected.split(/\r?\n/), function() {
+							content += (content ? '\n' : '') + '[li]' + this + '[/li]';
+						});
 
-					if(email)
-						this.insertText("[email=" + email + "]" + text + "[/email]");
-				} },
-				link: { txtExec: function(caller, selected) {
-					var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
-						url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected)),
-						text	= prompt(this._("Enter the displayed text:"), display || url) || url;
+						editor.insertText('[ul]\n' + content + '\n[/ul]');
+					}
+				},
+				orderedlist: {
+					txtExec: function(caller, selected) {
+						var content = '';
 
-					if(url)
-						this.insertText("[url=" + url + "]" + text + "[/url]");
-				} },
-				quote: { txtExec: ["[quote]", "[/quote]"] },
-				youtube: { txtExec: function(caller) {
-					var editor = this;
+						$.each(selected.split(/\r?\n/), function() {
+							content += (content ? '\n' : '') + '[li]' + this + '[/li]';
+						});
 
-					$.sceditor.command.get('youtube')._dropDown(
-						editor,
-						caller,
-						function(id) {
-							editor.insertText("[youtube]" + id + "[/youtube]");
-						}
-					);
-				} },
-				rtl: { txtExec: ["[rtl]", "[/rtl]"] },
-				ltr: { txtExec: ["[ltr]", "[/ltr]"] }
+						$.sceditor.plugins.bbcode.bbcode.get('');
+
+						editor.insertText('[ol]\n' + content + '\n[/ol]');
+					}
+				},
+				table: { txtExec: ['[table][tr][td]', '[/td][/tr][/table]'] },
+				horizontalrule: { txtExec: ['[hr]'] },
+				code: { txtExec: ['[code]', '[/code]'] },
+				image: {
+					txtExec: function(caller, selected) {
+						var url = prompt(this._('Enter the image URL:'), selected);
+
+						if(url)
+							this.insertText('[img]' + url + '[/img]');
+					}
+				},
+				email: {
+					txtExec: function(caller, selected) {
+						var	display = selected && selected.indexOf('@') > -1 ? null : selected,
+							email	= prompt(this._('Enter the e-mail address:'), (display ? '' : selected)),
+							text	= prompt(this._('Enter the displayed text:'), display || email) || email;
+
+						if(email)
+							this.insertText('[email=' + email + ']' + text + '[/email]');
+					}
+				},
+				link: {
+					txtExec: function(caller, selected) {
+						var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
+							url	= prompt(this._('Enter URL:'), (display ? 'http://' : selected)),
+							text	= prompt(this._('Enter the displayed text:'), display || url) || url;
+
+						if(url)
+							this.insertText('[url=' + url + ']' + text + '[/url]');
+					}
+				},
+				quote: { txtExec: ['[quote]', '[/quote]'] },
+				youtube: {
+					txtExec: function(caller) {
+						var editor = this;
+
+						getCommand('youtube')._dropDown(
+							editor,
+							caller,
+							function(id) {
+								editor.insertText('[youtube]' + id + '[/youtube]');
+							}
+						);
+					}
+				},
+				rtl: { txtExec: ['[rtl]', '[/rtl]'] },
+				ltr: { txtExec: ['[ltr]', '[/ltr]'] }
 			};
 
 			editor.commands = $.extend(true, {}, merge, editor.commands);
@@ -1411,17 +1442,17 @@
 			name = propertyCache[property];
 
 			// add exception for align
-			if("text-align" === property)
+			if('text-align' === property)
 			{
 				$elm      = $(element);
 				dir       = style.direction;
 				textAlign = style[name] || $elm.css(property);
-			
+				// @SMF code: TBH I don't remember why this was added, though it should be useful somehow
 				if(!element.style)
 					return null;
 
 				if($elm.parent().css(property) !== textAlign &&
-					$elm.css('display') === "block" && !$elm.is('hr') && !$elm.is('th'))
+					$elm.css('display') === 'block' && !$elm.is('hr') && !$elm.is('th'))
 					ret = textAlign;
 
 				// IE changes text-align to the same as the current direction so skip unless overridden by user
@@ -1437,11 +1468,10 @@
 		/**
 		 * Checks if any bbcode styles match the elements styles
 		 *
-		 * @private
 		 * @return string Content with any matching bbcode tags wrapped around it.
-		 * @Private
+		 * @private
 		 */
-		handleStyles = function(element, content, blockLevel) {
+		handleStyles = function($element, content, blockLevel) {
 			var	elementPropVal;
 
 			// convert blockLevel to boolean
@@ -1451,18 +1481,18 @@
 				return content;
 
 			$.each(stylesToBbcodes[blockLevel], function(property, bbcodes) {
-				elementPropVal = getStyle(element[0], property);
+				elementPropVal = getStyle($element[0], property);
 
 				// if the parent has the same style use that instead of this one
 				// so you don't end up with [i]parent[i]child[/i][/i]
-				if(!elementPropVal || getStyle(element.parent()[0], property) === elementPropVal)
+				if(!elementPropVal || getStyle($element.parent()[0], property) === elementPropVal)
 					return;
 
 				$.each(bbcodes, function(bbcode, values) {
 					if(!values || $.inArray(elementPropVal.toString(), values) > -1)
 					{
 						if($.isFunction(base.bbcodes[bbcode].format))
-							content = base.bbcodes[bbcode].format.call(base, element, content);
+							content = base.bbcodes[bbcode].format.call(base, $element, content);
 						else
 							content = formatString(base.bbcodes[bbcode].format, content);
 					}
@@ -1475,15 +1505,16 @@
 		/**
 		 * Handles a HTML tag and finds any matching bbcodes
 		 *
-		 * @private
 		 * @param {jQuery} element The element to convert
 		 * @param {String} content The Tags text content
 		 * @param {Bool} blockLevel If to convert block level tags
 		 * @return {String} Content with any matching bbcode tags wrapped around it.
-		 * @Private
+		 * @private
 		 */
 		handleTags = function($element, content, blockLevel) {
-			var tag = $element[0].nodeName.toLowerCase();
+			var	convertBBCode,
+				element = $element[0],
+				tag     = element.nodeName.toLowerCase();
 
 			// convert blockLevel to boolean
 			blockLevel = !!blockLevel;
@@ -1493,8 +1524,9 @@
 				$.each(tagsToBbcodes[tag][blockLevel], function(bbcode, bbcodeAttribs) {
 					// if the bbcode requires any attributes then check this has
 					// all needed
-					if(bbcodeAttribs) {
-						var runBbcode = false;
+					if(bbcodeAttribs)
+					{
+						convertBBCode = false;
 
 						// loop all the bbcode attribs
 						$.each(bbcodeAttribs, function(attrib, values) {
@@ -1504,11 +1536,11 @@
 								return;
 
 							// break this loop as we have matched this bbcode
-							runBbcode = true;
+							convertBBCode = true;
 							return false;
 						});
 
-						if(!runBbcode)
+						if(!convertBBCode)
 							return;
 					}
 
@@ -1519,26 +1551,31 @@
 				});
 			}
 
-			if(blockLevel && (!$.sceditor.dom.isInline($element[0], true) || tag === "br"))
+			if(blockLevel && (!$.sceditor.dom.isInline(element, true) || tag === 'br'))
 			{
-				var	parent		= $element[0].parentNode,
-					previousSibling = $element[0].previousSibling,
-					parentIsInline	= $.sceditor.dom.isInline(parent, true) || parent.nodeName.toLowerCase() === "body";
+				var	parent		    = element.parentNode,
+					parentLastChild = parent.lastChild,
+					previousSibling = element.previousSibling,
+					parentIsInline	= $.sceditor.dom.isInline(parent, true);
 
 				// skips selection makers and other ignored items
 				while(previousSibling && $(previousSibling).hasClass('sceditor-ignore'))
 					previousSibling = previousSibling.previousSibling;
 
-				// If this br/block element inside an inline element.
-				// If this is not the last block level as the last block level is collapsed.
-				// If this is an li element.
-				// If IE and the tag is BR. IE never collapses BR's
-				if(parentIsInline || parent.lastChild !== $element[0] || tag === "li" || (tag === "br" && $.sceditor.ie))
-					content += "\n";
+				while($(parentLastChild).hasClass('sceditor-ignore'))
+					parentLastChild = parentLastChild.previousSibling;
+
+				// If this is
+				//	A br/block element inside an inline element.
+				//	The last block level as the last block level is collapsed.
+				//	Is an li element.
+				//	Is IE and the tag is BR. IE never collapses BR's
+				if(parentIsInline || parentLastChild !== element || tag === 'li' || (tag === 'br' && $.sceditor.ie))
+					content += '\n';
 
 				// Check for <div>text<div>This needs a newline prepended</div></div>
-				if("br" !== tag && previousSibling && previousSibling.nodeName.toLowerCase() != 'br' && $.sceditor.dom.isInline(previousSibling, true))
-					content = "\n" + content;
+				if('br' !== tag && previousSibling && previousSibling.nodeName.toLowerCase() !== 'br' && $.sceditor.dom.isInline(previousSibling, true))
+					content = '\n' + content;
 			}
 
 			return content;
@@ -1557,7 +1594,7 @@
 
 			if(!$body)
 			{
-				if(typeof html === "string")
+				if(typeof html === 'string')
 				{
 					$tmpContainer = $('<div />').css('visibility', 'hidden').appendTo(document.body).html(html);
 					$body = $tmpContainer;
@@ -1575,7 +1612,12 @@
 			if($tmpContainer)
 				$tmpContainer.remove();
 
-			return $.trim(parser.toBBCode(bbcode, true));
+			bbcode = parser.toBBCode(bbcode, true);
+
+			if(base.opts.bbcodeTrim)
+				bbcode = $.trim(bbcode);
+
+			return bbcode;
 		};
 
 		/**
@@ -1593,16 +1635,21 @@
 				var ret = '';
 // TODO: Move to BBCode class?
 				$.sceditor.dom.traverse(node, function(node) {
-					var	$node		= $(node),
-						curTag		= '',
-						nodeType        = node.nodeType,
-						tag		= node.nodeName.toLowerCase(),
-						vChild		= validChildren[tag],
-						isValidChild	= true;
+					var	$node        = $(node),
+						curTag       = '',
+						nodeType     = node.nodeType,
+						tag          = node.nodeName.toLowerCase(),
+						vChild       = validChildren[tag],
+						firstChild   = node.firstChild,
+						isValidChild = true;
 
 					if(typeof vChildren === 'object')
 					{
 						isValidChild = $.inArray(tag, vChildren) > -1;
+
+						// Emoticons should always be converted
+						if($node.is('img') && $node.data('sceditor-emoticon'))
+							isValidChild = true;
 
 						// if this tag is one of the parents allowed children
 						// then set this tags allowed children to whatever it allows,
@@ -1611,25 +1658,35 @@
 							vChild = vChildren;
 					}
 
-					// 3 = text
-					// 1 = element
+					// 3 = text and 1 = element
 					if(nodeType !== 3 && nodeType !== 1)
 						return;
 
 					if(nodeType === 1)
 					{
-						// skip ignored elments
-						if($node.hasClass("sceditor-ignore"))
+						// skip ignored elements
+						if($node.hasClass('sceditor-ignore'))
 							return;
+
+						// skip empty nlf elements (new lines automatically added after block level elements like quotes)
+						if($node.hasClass('sceditor-nlf'))
+						{
+							if(!firstChild || (!$.sceditor.ie && node.childNodes.length === 1 && /br/i.test(firstChild.nodeName)))
+							{
+								return;
+							}
+						}
 
 						// don't loop inside iframes
 						if(tag !== 'iframe')
 							curTag = toBBCode(node, vChild);
-// TODO: isValidChild is no longer needed. Should use valid children bbcodes instead
+
+// TODO: isValidChild is no longer needed. Should use valid children bbcodes instead by
+// creating BBCode tokens like the parser.
 						if(isValidChild)
 						{
 							// code tags should skip most styles
-							if(tag !== "code")
+							if(tag !== 'code')
 							{
 								// handle inline bbcodes
 								curTag = handleStyles($node, curTag);
@@ -1657,7 +1714,7 @@
 				}, false, true);
 
 				return ret;
-			}($element.get(0)));
+			}($element[0]));
 		};
 
 		/**
@@ -1670,7 +1727,7 @@
 		 */
 		base.signalToWysiwyg = function(text, asFragment) {
 			var	parser = new $.sceditor.BBCodeParser(base.opts.parserOptions),
-				html   = parser.toHTML($.trim(text));
+				html   = parser.toHTML(base.opts.bbcodeTrim ? $.trim(text) : text);
 
 			return asFragment ? removeFirstLastDiv(html) : html;
 		};
@@ -1689,18 +1746,21 @@
 				output  = $output[0];
 
 			removeDiv = function(node, isFirst) {
-				// Don't remove divs that have styleing
-				if(node.className || $(node).attr('style') || !$.isEmptyObject($(node).data()))
+				// Don't remove divs that have styling
+				if($.sceditor.dom.hasStyling(node))
 					return;
 
-				while((next = node.firstChild))
-					output.insertBefore(next, node);
+				if($.sceditor.ie || (node.childNodes.length !== 1 || !$(node.firstChild).is('br')))
+				{
+					while((next = node.firstChild))
+						output.insertBefore(next, node);
+				}
 
 				if(isFirst)
 				{
 					var lastChild = output.lastChild;
 
-					if(node !== lastChild && $(lastChild).is("div") && node.nextSibling === lastChild)
+					if(node !== lastChild && $(lastChild).is('div') && node.nextSibling === lastChild)
 						output.insertBefore(document.createElement('br'), node);
 				}
 
@@ -1709,10 +1769,10 @@
 
 			output.innerHTML = html.replace(/<\/div>\n/g, '</div>');
 
-			if((node = output.firstChild) && $(node).is("div"))
+			if((node = output.firstChild) && $(node).is('div'))
 				removeDiv(node, true);
 
-			if((node = output.lastChild) && $(node).is("div"))
+			if((node = output.lastChild) && $(node).is('div'))
 				removeDiv(node);
 
 			output = output.innerHTML;
@@ -1729,7 +1789,7 @@
 	 * @since v1.4.0
 	 */
 	$.sceditor.plugins.bbcode.stripQuotes = function(str) {
-		return str ? str.replace(/\\(.)/g, "$1").replace(/^(["'])(.*?)\1$/, "$2") : str;
+		return str ? str.replace(/\\(.)/g, '$1').replace(/^(["'])(.*?)\1$/, '$2') : str;
 	};
 
 	/**
@@ -1744,7 +1804,7 @@
 	$.sceditor.plugins.bbcode.formatString = function() {
 		var args = arguments;
 		return args[0].replace(/\{(\d+)\}/g, function(str, p1) {
-			return typeof args[p1-0+1] !== "undefined" ?
+			return typeof args[p1-0+1] !== 'undefined' ?
 				args[p1-0+1] :
 				'{' + p1 + '}';
 		});
@@ -1757,19 +1817,21 @@
 	 * @param {String} color
 	 * @return {String}
 	 */
-	$.sceditor.plugins.bbcode.normaliseColour = function(color) {
-		var m;
+	var normaliseColour = $.sceditor.plugins.bbcode.normaliseColour = function(color) {
+		var m, toHex;
 
-		function toHex(n) {
+		toHex = function (n) {
 			n = parseInt(n, 10);
 
 			if(isNaN(n))
-				return "00";
+				return '00';
 
-			n = Math.max(0,Math.min(n,255)).toString(16);
+			n = Math.max(0, Math.min(n, 255)).toString(16);
 
-			return n.length<2 ? '0'+n : n;
-		}
+			return n.length < 2 ? '0' + n : n;
+		};
+
+		color = color || '#000';
 
 		// rgb(n,n,n);
 		if((m = color.match(/rgb\((\d{1,3}),\s*?(\d{1,3}),\s*?(\d{1,3})\)/i)))
@@ -1791,9 +1853,9 @@
 			},
 			styles: {
 				// 401 is for FF 3.5
-				"font-weight": ["bold", "bolder", "401", "700", "800", "900"]
+				'font-weight': ['bold', 'bolder', '401', '700', '800', '900']
 			},
-			format: "[b]{0}[/b]",
+			format: '[b]{0}[/b]',
 			html: '<strong>{0}</strong>'
 		},
 		// END_COMMAND
@@ -1805,7 +1867,7 @@
 				em: null
 			},
 			styles: {
-				"font-style": ["italic", "oblique"]
+				'font-style': ['italic', 'oblique']
 			},
 			format: "[i]{0}[/i]",
 			html: '<em>{0}</em>'
@@ -1818,9 +1880,9 @@
 				u: null
 			},
 			styles: {
-				"text-decoration": ["underline"]
+				'text-decoration': ['underline']
 			},
-			format: "[u]{0}[/u]",
+			format: '[u]{0}[/u]',
 			html: '<u>{0}</u>'
 		},
 		// END_COMMAND
@@ -1832,9 +1894,9 @@
 				strike: null
 			},
 			styles: {
-				"text-decoration": ["line-through"]
+				'text-decoration': ['line-through']
 			},
-			format: "[s]{0}[/s]",
+			format: '[s]{0}[/s]',
 			html: '<s>{0}</s>'
 		},
 		// END_COMMAND
@@ -1844,7 +1906,7 @@
 			tags: {
 				sub: null
 			},
-			format: "[sub]{0}[/sub]",
+			format: '[sub]{0}[/sub]',
 			html: '<sub>{0}</sub>'
 		},
 		// END_COMMAND
@@ -1854,7 +1916,7 @@
 			tags: {
 				sup: null
 			},
-			format: "[sup]{0}[/sup]",
+			format: '[sup]{0}[/sup]',
 			html: '<sup>{0}</sup>'
 		},
 		// END_COMMAND
@@ -1867,13 +1929,13 @@
 				}
 			},
 			styles: {
-				"font-family": null
+				'font-family': null
 			},
 			quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 			format: function(element, content) {
 				var font;
 
-				if(element[0].nodeName.toLowerCase() !== "font" || !(font = element.attr('face')))
+				if(element[0].nodeName.toLowerCase() !== 'font' || !(font = element.attr('face')))
 					font = element.css('font-family');
 
 				return '[font=' + this.stripQuotes(font) + ']' + content + '[/font]';
@@ -1892,7 +1954,7 @@
 				}
 			},
 			styles: {
-				"font-size": null
+				'font-size': null
 			},
 			format: function(element, content) {
 				var	fontSize = element.attr('size'),
@@ -1902,9 +1964,9 @@
 					fontSize = element.css('fontSize');
 
 				// Most browsers return px value but IE returns 1-7
-				if(fontSize.indexOf("px") > -1) {
+				if(fontSize.indexOf('px') > -1) {
 					// convert size to an int
-					fontSize = fontSize.replace("px", "") - 0;
+					fontSize = fontSize.replace('px', '') - 0;
 
 					if(fontSize > 12)
 						size = 2;
@@ -1945,13 +2007,13 @@
 				var	color,
 					element = $element[0];
 
-				if(element.nodeName.toLowerCase() !== "font" || !(color = $element.attr('color')))
+				if(element.nodeName.toLowerCase() !== 'font' || !(color = $element.attr('color')))
 					color = element.style.color || $element.css('color');
 
-				return '[color=' + $.sceditor.plugins.bbcode.normaliseColour(color) + ']' + content + '[/color]';
+				return '[color=' + normaliseColour(color) + ']' + content + '[/color]';
 			},
 			html: function(token, attrs, content) {
-				return '<font color="' + attrs.defaultattr + '">' + content + '</font>';
+				return '<font color="' + normaliseColour(attrs.defaultattr) + '">' + content + '</font>';
 			}
 		},
 		// END_COMMAND
@@ -1964,7 +2026,7 @@
 			breakStart: true,
 			isInline: false,
 			skipLastLineBreak: true,
-			format: "[ul]{0}[/ul]",
+			format: '[ul]{0}[/ul]',
 			html: '<ul>{0}</ul>'
 		},
 		list: {
@@ -1980,7 +2042,7 @@
 			breakStart: true,
 			isInline: false,
 			skipLastLineBreak: true,
-			format: "[ol]{0}[/ol]",
+			format: '[ol]{0}[/ol]',
 			html: '<ol>{0}</ol>'
 		},
 		li: {
@@ -1989,10 +2051,10 @@
 			},
 			isInline: false,
 			closedBy: ['/ul', '/ol', '/list', '*', 'li'],
-			format: "[li]{0}[/li]",
+			format: '[li]{0}[/li]',
 			html: '<li>{0}</li>'
 		},
-		"*": {
+		'*': {
 			isInline: false,
 			closedBy: ['/ul', '/ol', '/list', '*', 'li'],
 			html: '<li>{0}</li>'
@@ -2007,7 +2069,7 @@
 			isInline: false,
 			isHtmlInline: true,
 			skipLastLineBreak: true,
-			format: "[table]{0}[/table]",
+			format: '[table]{0}[/table]',
 			html: '<table>{0}</table>'
 		},
 		tr: {
@@ -2016,7 +2078,7 @@
 			},
 			isInline: false,
 			skipLastLineBreak: true,
-			format: "[tr]{0}[/tr]",
+			format: '[tr]{0}[/tr]',
 			html: '<tr>{0}</tr>'
 		},
 		th: {
@@ -2025,7 +2087,7 @@
 			},
 			allowsEmpty: true,
 			isInline: false,
-			format: "[th]{0}[/th]",
+			format: '[th]{0}[/th]',
 			html: '<th>{0}</th>'
 		},
 		td: {
@@ -2034,7 +2096,7 @@
 			},
 			allowsEmpty: true,
 			isInline: false,
-			format: "[td]{0}[/td]",
+			format: '[td]{0}[/td]',
 			html: '<td>{0}</td>'
 		},
 		// END_COMMAND
@@ -2045,13 +2107,11 @@
 			tags: {
 				img: {
 					src: null,
-					"data-sceditor-emoticon": null
+					'data-sceditor-emoticon': null
 				}
 			},
 			format: function(element, content) {
-				if (element.attr('data-sceditor-emoticon') == '')
-					return content;
-				return element.attr('data-sceditor-emoticon') + content;
+				return element.data('sceditor-emoticon') + content;
 			},
 			html: '{0}'
 		},
@@ -2065,8 +2125,8 @@
 			allowsEmpty: true,
 			isSelfClosing: true,
 			isInline: false,
-			format: "[hr]{0}",
-			html: "<hr />"
+			format: '[hr]{0}',
+			html: '<hr />'
 		},
 		// END_COMMAND
 
@@ -2088,7 +2148,7 @@
 					};
 
 				// check if this is an emoticon image
-				if(typeof $element.attr('data-sceditor-emoticon') !== "undefined")
+				if($element.attr('data-sceditor-emoticon'))
 					return content;
 
 				w = $element.attr('width') || style('width');
@@ -2142,10 +2202,7 @@
 				return '[url=' + decodeURI(url) + ']' + content + '[/url]';
 			},
 			html: function(token, attrs, content) {
-				if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-					attrs.defaultattr = content;
-
-				return '<a href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
+				return '<a href="' + encodeURI(attrs.defaultattr || content) + '">' + content + '</a>';
 			}
 		},
 		// END_COMMAND
@@ -2154,10 +2211,7 @@
 		email: {
 			quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 			html: function(token, attrs, content) {
-				if(typeof attrs.defaultattr === "undefined")
-					attrs.defaultattr = content;
-
-				return '<a href="mailto:' + attrs.defaultattr + '">' + content + '</a>';
+				return '<a href="mailto:' + (attrs.defaultattr || content) + '">' + content + '</a>';
 			}
 		},
 		// END_COMMAND
@@ -2172,26 +2226,25 @@
 			format: function(element, content) {
 				var	author = '',
 					$elm  = $(element),
-					$cite = $elm.children("cite").first();
+					$cite = $elm.children('cite').first();
 
-				if($cite.length === 1 || $elm.data("author")) {
-					author = $cite.text() || $elm.data("author");
+				if($cite.length === 1 || $elm.data('author'))
+				{
+					author = $cite.text() || $elm.data('author');
 
-					$elm.data("author", author);
+					$elm.data('author', author);
 					$cite.remove();
-
-					$elm.children("cite").replaceWith(function() {
-						return $(this).text();
-					});
 
 					content	= this.elementToBbcode($(element));
 					author  = '=' + author;
+
+					$elm.prepend($cite);
 				}
 
 				return '[quote' + author + ']' + content + '[/quote]';
 			},
 			html: function(token, attrs, content) {
-				if(typeof attrs.defaultattr !== "undefined")
+				if(attrs.defaultattr)
 					content = '<cite>' + attrs.defaultattr + '</cite>' + content;
 
 				return '<blockquote>' + content + '</blockquote>';
@@ -2206,7 +2259,7 @@
 			},
 			isInline: false,
 			allowedChildren: ['#', '#newline'],
-			format: "[code]{0}[/code]",
+			format: '[code]{0}[/code]',
 			html: '<code>{0}</code>'
 		},
 		// END_COMMAND
@@ -2215,10 +2268,10 @@
 		// START_COMMAND: Left
 		left: {
 			styles: {
-				"text-align": ["left", "-webkit-left", "-moz-left", "-khtml-left"]
+				'text-align': ['left', '-webkit-left', '-moz-left', '-khtml-left']
 			},
 			isInline: false,
-			format: "[left]{0}[/left]",
+			format: '[left]{0}[/left]',
 			html: '<div align="left">{0}</div>'
 		},
 		// END_COMMAND
@@ -2226,10 +2279,10 @@
 		// START_COMMAND: Centre
 		center: {
 			styles: {
-				"text-align": ["center", "-webkit-center", "-moz-center", "-khtml-center"]
+				'text-align': ['center', '-webkit-center', '-moz-center', '-khtml-center']
 			},
 			isInline: false,
-			format: "[center]{0}[/center]",
+			format: '[center]{0}[/center]',
 			html: '<div align="center">{0}</div>'
 		},
 		// END_COMMAND
@@ -2237,10 +2290,10 @@
 		// START_COMMAND: Right
 		right: {
 			styles: {
-				"text-align": ["right", "-webkit-right", "-moz-right", "-khtml-right"]
+				'text-align': ['right', '-webkit-right', '-moz-right', '-khtml-right']
 			},
 			isInline: false,
-			format: "[right]{0}[/right]",
+			format: '[right]{0}[/right]',
 			html: '<div align="right">{0}</div>'
 		},
 		// END_COMMAND
@@ -2248,10 +2301,10 @@
 		// START_COMMAND: Justify
 		justify: {
 			styles: {
-				"text-align": ["justify", "-webkit-justify", "-moz-justify", "-khtml-justify"]
+				'text-align': ['justify', '-webkit-justify', '-moz-justify', '-khtml-justify']
 			},
 			isInline: false,
-			format: "[justify]{0}[/justify]",
+			format: '[justify]{0}[/justify]',
 			html: '<div align="justify">{0}</div>'
 		},
 		// END_COMMAND
@@ -2265,10 +2318,9 @@
 				}
 			},
 			format: function(element, content) {
-				if(!(element = element.attr('data-youtube-id')))
-					return content;
+				element = element.attr('data-youtube-id');
 
-				return '[youtube]' + element + '[/youtube]';
+				return element ? '[youtube]' + element + '[/youtube]' : content;
 			},
 			html: '<iframe width="560" height="315" src="http://www.youtube.com/embed/{0}?wmode=opaque' +
 				'" data-youtube-id="{0}" frameborder="0" allowfullscreen></iframe>'
@@ -2279,9 +2331,9 @@
 		// START_COMMAND: Rtl
 		rtl: {
 			styles: {
-				"direction": ["rtl"]
+				'direction': ['rtl']
 			},
-			format: "[rtl]{0}[/rtl]",
+			format: '[rtl]{0}[/rtl]',
 			html: '<div style="direction: rtl">{0}</div>'
 		},
 		// END_COMMAND
@@ -2289,9 +2341,9 @@
 		// START_COMMAND: Ltr
 		ltr: {
 			styles: {
-				"direction": ["ltr"]
+				'direction': ['ltr']
 			},
-			format: "[ltr]{0}[/ltr]",
+			format: '[ltr]{0}[/ltr]',
 			html: '<div style="direction: ltr">{0}</div>'
 		},
 		// END_COMMAND
