@@ -219,7 +219,13 @@ function template_main()
 		// Show information about the poster of this message.
 		echo '
 						<div class="poster">
-							<ul class="dropmenu">
+							<ul class="dropmenu">';
+
+		// Show custom HTML begin_poster.
+		if (!empty($message['cust_html']['begin_poster']))
+			echo $message['cust_html']['begin_poster'];
+
+		echo '
 								<li>
 									<h4>';
 
@@ -234,9 +240,13 @@ function template_main()
 
 											', $message['member']['avatar']['image'], '';
 
-			echo '
+		echo '
 										</a>
 									</h4>';
+
+		// Show custom HTML after_avatar.
+		if (!empty($message['cust_html']['after_avatar']))
+			echo $message['cust_html']['after_avatar'];
 
 		// [WIP] The new member info dropdown starts here. Note that conditionals have not been fully checked yet.
 			echo '
@@ -281,6 +291,10 @@ function template_main()
 			if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
 				echo '
 										<li class="blurb">', $message['member']['blurb'], '</li>';
+
+			// Show custom HTML after_personal_text.
+			if (!empty($message['cust_html']['after_personal_text']))
+				echo $message['cust_html']['after_personal_text'];
 
 			// Any custom fields to show as icons?
 			if (!empty($message['member']['custom_fields']))
@@ -390,7 +404,11 @@ function template_main()
 			echo '
 										<li class="poster_ip">', $txt['logged'], '</li>';
 
-		// Done with the information about the poster... on to the post itself.
+		// Show custom HTML end_dropdown.
+		if (!empty($message['cust_html']['end_dropdown']))
+			echo $message['cust_html']['end_dropdown'];
+
+		// Done with the member info dropdown.
 			echo '
 									</ul>
 								</li>';
@@ -404,6 +422,10 @@ function template_main()
 		if (!empty($message['member']['group']))
 			echo '
 								<li class="membergroup">', $message['member']['group'], '</li>';
+
+		// Show custom HTML after_group.
+		if (!empty($message['cust_html']['after_group']))
+			echo $message['cust_html']['after_group'];
 
 		// Show the member's custom title, if they have one.
 		if (!empty($message['member']['title']))
@@ -438,9 +460,15 @@ function template_main()
 			echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '" />', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
-			echo '
+		// Show custom HTML end_poster.
+		if (!empty($message['cust_html']['end_poster']))
+			echo $message['cust_html']['end_poster'];
+
+		// Done with the information about the poster... on to the post itself.
+		echo '
 							</ul>';
-			echo '
+
+		echo '
 						</div>
 						<div class="postarea">
 							<div class="keyinfo">
@@ -448,11 +476,11 @@ function template_main()
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', ' />
 								</div>';
 
-			//Some people dont want subject ... The div is still required or quick edit breaks...
-			echo'
+		//Some people don't want subject ... The div is still required or quick edit breaks...
+		echo'
 								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settiongs['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
-			echo'
+		echo'
 								<div class="page_number floatright">
 									', !empty($message['counter']) ? ' #' . $message['counter'] : '', ' ', '
 								</div>
