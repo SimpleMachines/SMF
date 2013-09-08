@@ -643,7 +643,7 @@ function template_browse()
 				}
 			],
 			oThemeOptions: {
-				bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+				bUseThemeSettings: true,
 				sOptionName: \'admin_preferences\',
 				sSessionVar: smf_session_var,
 				sSessionId: smf_session_id,
