@@ -1343,10 +1343,13 @@ function UpgradeOptions()
 	if (empty($db_type))
 		$changes['db_type'] = 'mysql';
 
+	// For now we offer a option, this may change in future versions when mysql is completely removed.
+	if (!empty($_POST['convertMysql']) && $db_type == 'mysql')
+		$changes['db_type'] = '\'mysqli\'';
+
 	// Maybe we haven't had this option yet?
 	if (empty($packagesdir))
 		$changes['packagesdir'] = '\'' . fixRelativePath($boarddir) . '/Packages\'';
-
 
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
@@ -3937,7 +3940,22 @@ function template_upgrade_options()
 								<textarea name="mainmessage" rows="3" cols="50">', htmlspecialchars($mmessage), '</textarea>
 							</div>
 						</td>
-					</tr>
+					</tr>';
+
+	// Offer mysql users to switch to mysqli
+	if ($db_type == 'mysql')
+		echo '
+					<tr valign="top">
+						<td width="2%">
+							<input type="checkbox" name="convertMysql" id="convertMysql" value="1"', function_exists('mysqli_query') ? ' checked="checked"' : '', ' class="input_check" />
+						</td>
+						<td width="100%">
+							<label for="convertMysql">Use MySQLi functionality (MySQL compatible).</span>
+							<strong class="smalltext"><a href="http://wiki.simplemachines.org/smf/Upgrading-MySQLi-Functionality" target="_blank">More information about MySQLi</a></strong>', !function_exists('mysqli_query') ? '<br /> MySQLi Support is <b>NOT</b> detected on this server!' : '', '<br />
+						</td>
+					</tr>';
+
+	echo '
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="debug" id="debug" value="1" class="input_check" />
