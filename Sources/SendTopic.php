@@ -470,97 +470,78 @@ function ReportToModerator2()
 	$moderators = membersAllowedTo('moderate_board', $board);
 
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, email_address, lngfile, mod_prefs
-		FROM {db_prefix}members
-		WHERE id_member IN ({array_int:moderator_list})
-			AND notify_types != {int:notify_types}
-		ORDER BY lngfile',
+		SELECT id_report, ignore_all
+		FROM {db_prefix}log_reported
+		WHERE id_msg = {int:id_msg}
+			AND (closed = {int:not_closed} OR ignore_all = {int:ignored})
+		ORDER BY ignore_all DESC',
 		array(
-			'moderator_list' => $moderators,
-			'notify_types' => 4,
+			'id_msg' => $_POST['msg'],
+			'not_closed' => 0,
+			'ignored' => 1,
 		)
 	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+		list ($id_report, $ignore) = $smcFunc['db_fetch_row']($request);
 
-	// Check that moderators do exist!
-	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('no_mods', false);
+	$smcFunc['db_free_result']($request);
 
-	// If we get here, I believe we should make a record of this, for historical significance, yabber.
-	if (empty($modSettings['disable_log_report']))
-	{
-		$request2 = $smcFunc['db_query']('', '
-			SELECT id_report, ignore_all
-			FROM {db_prefix}log_reported
-			WHERE id_msg = {int:id_msg}
-				AND (closed = {int:not_closed} OR ignore_all = {int:ignored})
-			ORDER BY ignore_all DESC',
+	// If we're just going to ignore these, then who gives a monkeys...
+	if (!empty($ignore))
+		redirectexit('topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
+
+	// Already reported? My god, we could be dealing with a real rogue here...
+	if (!empty($id_report))
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}log_reported
+			SET num_reports = num_reports + 1, time_updated = {int:current_time}
+			WHERE id_report = {int:id_report}',
 			array(
-				'id_msg' => $_POST['msg'],
-				'not_closed' => 0,
-				'ignored' => 1,
+				'current_time' => time(),
+				'id_report' => $id_report,
 			)
 		);
-		if ($smcFunc['db_num_rows']($request2) != 0)
-			list ($id_report, $ignore) = $smcFunc['db_fetch_row']($request2);
-		$smcFunc['db_free_result']($request2);
+	// Otherwise, we shall make one!
+	else
+	{
+		if (empty($message['real_name']))
+			$message['real_name'] = $message['poster_name'];
 
-		// If we're just going to ignore these, then who gives a monkeys...
-		if (!empty($ignore))
-			redirectexit('topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
+		$smcFunc['db_insert']('',
+			'{db_prefix}log_reported',
+			array(
+				'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
+				'subject' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
+				'num_reports' => 'int', 'closed' => 'int',
+			),
+			array(
+				$_POST['msg'], $message['id_topic'], $message['id_board'], $message['id_poster'], $message['real_name'],
+				$message['subject'], $message['body'] , time(), time(), 1, 0,
+			),
+			array('id_report')
+		);
+		$id_report = $smcFunc['db_insert_id']('{db_prefix}log_reported', 'id_report');
+	}
 
-		// Already reported? My god, we could be dealing with a real rogue here...
-		if (!empty($id_report))
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_reported
-				SET num_reports = num_reports + 1, time_updated = {int:current_time}
-				WHERE id_report = {int:id_report}',
-				array(
-					'current_time' => time(),
-					'id_report' => $id_report,
-				)
-			);
-		// Otherwise, we shall make one!
-		else
-		{
-			if (empty($message['real_name']))
-				$message['real_name'] = $message['poster_name'];
-
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_reported',
-				array(
-					'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'subject' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					'num_reports' => 'int', 'closed' => 'int',
-				),
-				array(
-					$_POST['msg'], $message['id_topic'], $message['id_board'], $message['id_poster'], $message['real_name'],
-					$message['subject'], $message['body'] , time(), time(), 1, 0,
-				),
-				array('id_report')
-			);
-			$id_report = $smcFunc['db_insert_id']('{db_prefix}log_reported', 'id_report');
-		}
-
-		// Now just add our report...
-		if ($id_report)
-		{
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_reported_comments',
-				array(
-					'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string', 'email_address' => 'string',
-					'member_ip' => 'string', 'comment' => 'string', 'time_sent' => 'int',
-				),
-				array(
-					$id_report, $user_info['id'], $user_info['name'], $user_info['email'],
-					$user_info['ip'], $poster_comment, time(),
-				),
-				array('id_comment')
-			);
-		}
+	// Now just add our report...
+	if ($id_report)
+	{
+		$smcFunc['db_insert']('',
+			'{db_prefix}log_reported_comments',
+			array(
+				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string', 'email_address' => 'string',
+				'member_ip' => 'string', 'comment' => 'string', 'time_sent' => 'int',
+			),
+			array(
+				$id_report, $user_info['id'], $user_info['name'], $user_info['email'],
+				$user_info['ip'], $poster_comment, time(),
+			),
+			array('id_comment')
+		);
 	}
 
 	// Find out who the real moderators are - for mod preferences.
-	$request2 = $smcFunc['db_query']('', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_member
 		FROM {db_prefix}moderators
 		WHERE id_board = {int:current_board}',
@@ -569,12 +550,12 @@ function ReportToModerator2()
 		)
 	);
 	$real_mods = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request2))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$real_mods[] = $row['id_member'];
 	$smcFunc['db_free_result']($request2);
 
 	// Get any additional members who are in groups assigned to moderate this board
-	$request3 = $smcFunc['db_query']('', '
+	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member
 		FROM {db_prefix}members AS mem, {db_prefix}moderator_groups AS bm
 		WHERE bm.id_board = {int:current_board}
@@ -587,12 +568,25 @@ function ReportToModerator2()
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request3))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$real_mods[] = $row['id_member'];
-	$smcFunc['db_free_result']($request3);
+	$smcFunc['db_free_result']($request);
 
 	// Make sure we don't have any duplicates
 	$real_mods = array_unique($real_mods);
+
+	// Get the mods who want to be notified of stuff...
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, email_address, lngfile, mod_prefs
+		FROM {db_prefix}members
+		WHERE id_member IN ({array_int:moderator_list})
+			AND notify_types != {int:notify_types}
+		ORDER BY lngfile',
+		array(
+			'moderator_list' => $moderators,
+			'notify_types' => 4,
+		)
+	);
 
 	// Send every moderator an email.
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -620,7 +614,7 @@ function ReportToModerator2()
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], $user_info['email'], null, false, 2);
 	}
 	$smcFunc['db_free_result']($request);
-
+	
 	// Keep track of when the mod reports get updated, that way we know when we need to look again.
 	updateSettings(array('last_mod_report_action' => time()));
 
