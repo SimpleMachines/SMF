@@ -3943,7 +3943,7 @@ function template_upgrade_options()
 					</tr>';
 
 	// Offer mysql users to switch to mysqli
-	if ($db_type == 'mysql')
+	if ($db_type == 'mysql' && function_exists('mysqli_query'))
 		echo '
 					<tr valign="top">
 						<td width="2%">
