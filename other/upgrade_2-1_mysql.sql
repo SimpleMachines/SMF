@@ -203,6 +203,11 @@ VALUES
 	('enable_unwatch', 0);
 ---#
 
+---# Fixing column name change...
+ALTER TABLE {$db_prefix}log_topics
+CHANGE COLUMN disregarded unwatched tinyint(3) NOT NULL DEFAULT '0';
+---#
+
 /******************************************************************************/
 --- Fixing mail queue for long messages
 /******************************************************************************/

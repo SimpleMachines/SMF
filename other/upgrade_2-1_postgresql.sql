@@ -263,6 +263,14 @@ VALUES
 ---}
 ---#
 
+---# Fixing column name change...
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}log_topics
+	CHANGE COLUMN disregarded unwatched tinyint(3) NOT NULL DEFAULT '0';");
+---}
+---#
+
 /******************************************************************************/
 --- Name changes
 /******************************************************************************/
