@@ -3947,11 +3947,11 @@ function template_upgrade_options()
 		echo '
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="convertMysql" id="convertMysql" value="1"', function_exists('mysqli_query') ? ' checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" name="convertMysql" id="convertMysql" value="1" checked="checked" class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="convertMysql">Use MySQLi functionality (MySQL compatible).</span>
-							<strong class="smalltext"><a href="http://wiki.simplemachines.org/smf/Upgrading-MySQLi-Functionality" target="_blank">More information about MySQLi</a></strong>', !function_exists('mysqli_query') ? '<br /> MySQLi Support is <b>NOT</b> detected on this server!' : '', '<br />
+							<strong class="smalltext"><a href="http://wiki.simplemachines.org/smf/Upgrading-MySQLi-Functionality" target="_blank">More information about MySQLi</a></strong><br />
 						</td>
 					</tr>';
 
