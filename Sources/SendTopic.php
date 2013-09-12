@@ -614,7 +614,7 @@ function ReportToModerator2()
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], $user_info['email'], null, false, 2);
 	}
 	$smcFunc['db_free_result']($request);
-	
+
 	// Keep track of when the mod reports get updated, that way we know when we need to look again.
 	updateSettings(array('last_mod_report_action' => time()));
 
