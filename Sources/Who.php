@@ -599,7 +599,7 @@ function Credits($in_admin = false)
 						// Customizers
 						'bluedevil',
 						'Bugo',
-						'Colin',
+						'Colin Schoen',
 						'Kays',
 						'Jack &quot;akabugeyes&quot; Thorsen',
 						'Joker&trade;',
