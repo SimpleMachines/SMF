@@ -3345,7 +3345,7 @@ function template_css()
  * Get an attachment's encrypted filename. If $new is true, won't check for file existence.
  * @todo this currently returns the hash if new, and the full filename otherwise.
  * Something messy like that.
- * @todo and of course everything relies on this behavior and work around it. :P.
+ * @todo and of course everything relies on this behaviour and work around it. :P.
  * Converters included.
  *
  * @param $filename
@@ -3395,7 +3395,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
-	return $path . '/' . $attachment_id . '_' . $file_hash;
+	// Add a generic extension, kudos to FileZilla!
+	return $path . '/' . $attachment_id . '_' . $file_hash . '.iso';
 }
 
 /**
