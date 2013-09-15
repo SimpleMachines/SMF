@@ -417,7 +417,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 		breakStart: true,
 		isInline: false,
 		html: '<ul>{0}</ul>',
-		format: function(element, attrs, content) {
+		format: function(element, content) {
 			if ($(element[0]).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
