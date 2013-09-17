@@ -219,6 +219,75 @@ ALTER TABLE {$db_prefix}membergroups
 CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT '';
 ---#
 
+---# Renaming default theme...
+upgrade_query("
+	UPDATE {$db_prefix}themes
+	SET value = 'SMF Default Theme - Curve2'
+	WHERE value LIKE 'SMF Default Theme%'");
+---#
+
+/******************************************************************************/
+--- Cleaning up after old themes...
+/******************************************************************************/
+---# Checking for "core" and removing it if necessary...
+---{
+// Do they have "core" installed?
+if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
+{
+	$core_dir = $GLOBALS['boarddir'] . '/Themes/core';
+	$theme_request = upgrade_query("
+		SELECT id_theme
+		FROM {$db_prefix}themes
+		WHERE variable = {str:variable}
+			AND value ='$core_dir'");
+
+	// Don't do anything if this theme is already uninstalled
+	if (smf_mysql_num_rows($theme_request) == 1)
+	{
+		$id_theme = mysql_result($theme_request, 0);
+		mysql_free_result($theme_request);
+
+		$known_themes = explode(', ', $modSettings['knownThemes']);
+
+		// Remove this value...
+		$known_themes = array_diff($known_themes, array($id_theme));
+
+		// Change back to a string...
+		$known_themes = implode(', ', $known_themes);
+
+		// Update the database
+		upgrade_query("
+			REPLACE INTO {$db_prefix}settings (variable, value)
+			VALUES ('knownThemes', '$known_themes')");
+
+		// Delete any info about this theme
+		upgrade_query("
+			DELETE FROM {$db_prefix}themes
+			WHERE id_theme = $id_theme");
+
+		// Set any members or boards using this theme to the default
+		upgrade_query("
+			UPDATE {$db_prefix}members
+			SET id_theme = 0
+			WHERE id_theme = $id_theme");
+
+		upgrade_query("
+			UPDATE {$db_prefix}boards
+			SET id_theme = 0
+			WHERE id_theme = $id_theme");
+
+		if ($modSettings['theme_guests'] == $id_theme)
+		{
+			upgrade_query("
+				REPLACE INTO {$db_prefix}settings
+				(variable, value)
+				VALUES('theme_guests', 0)");
+		}
+	}
+}
+---}
+---#
+
 /******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
