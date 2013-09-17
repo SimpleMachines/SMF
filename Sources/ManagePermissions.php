@@ -1144,7 +1144,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// Moderator - ie. moderators :P.  They can do what standard can, and more.
 	$groupLevels['global']['moderator'] = array_merge($groupLevels['global']['standard'], array(
 		'calendar_post',
-		'calendar_edit_own',
+		'calen	ddar_edit_own',
 		'access_mod_center',
 		'issue_warning',
 	));
@@ -2260,7 +2260,21 @@ function loadIllegalGuestPermissions()
 		'post_autosave_draft',
 		'pm_draft',
 		'pm_autosave_draft',
-		'disable_censor'
+		'disable_censor',
+		'report_any',
+		'make_sticky',
+		'merge_any',
+		'split_any',
+		'lock_any',
+		'move_any',
+		'modify_any',
+		'remove_any',
+		'moderate_board',
+		'poll_add_any',
+		'poll_edit_any',
+		'poll_lock_any',
+		'poll_remove_any',
+		'announce_topic'
 	);
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');
