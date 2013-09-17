@@ -2757,162 +2757,65 @@ if (!isset($modSettings['attachment_thumb_png']))
 ---#
 
 /******************************************************************************/
---- Installing new default theme...
+--- Cleaning up after old themes...
 /******************************************************************************/
 
----# Installing theme settings...
+---# Checking for "babylon" and removing it if necessary...
 ---{
-// This is Grudge's secret "I'm not a developer" theme install code - keep this quiet ;)
-
-// Firstly, I'm going out of my way to not do this twice!
-if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC5' || $modSettings['smfVersion'] === '2.0 a') && empty($modSettings['dont_repeat_theme_core']))
+// Do they have "babylon" installed?
+if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 {
-	// Check it's not already here, just in case.
+	$babylon_dir = $GLOBALS['boarddir'] . '/Themes/babylon';
 	$theme_request = upgrade_query("
-		SELECT id_theme
+		SELECT ID_THEME
 		FROM {$db_prefix}themes
 		WHERE variable = 'theme_dir'
-			AND value LIKE '%core'");
-	// Only do the upgrade if it doesn't find the theme already.
-	if (smf_mysql_num_rows($theme_request) == 0)
+			AND value ='$babylon_dir'");
+
+	// Don't do anything if this theme is already uninstalled
+	if (smf_mysql_num_rows($theme_request) == 1)
 	{
-		// Try to get some settings from the current default theme.
-		$request = upgrade_query("
-			SELECT t1.value AS theme_dir, t2.value AS theme_url, t3.value AS images_url
-			FROM ({$db_prefix}themes AS t1, {$db_prefix}themes AS t2, {$db_prefix}themes AS t3)
-			WHERE t1.id_theme = 1
-				AND t1.id_member = 0
-				AND t1.variable = 'theme_dir'
-				AND t2.id_theme = 1
-				AND t2.id_member = 0
-				AND t2.variable = 'theme_url'
-				AND t3.id_theme = 1
-				AND t3.id_member = 0
-				AND t3.variable = 'images_url'
-			LIMIT 1");
-		if (smf_mysql_num_rows($request) != 0)
-		{
-			$curve = smf_mysql_fetch_assoc($request);
+		$id_theme = mysql_result($theme_request, 0);
+		mysql_free_result($theme_request);
 
-			if (substr_count($curve['theme_dir'], 'default') === 1)
-				$core['theme_dir'] = strtr($curve['theme_dir'], array('default' => 'core'));
-			if (substr_count($curve['theme_url'], 'default') === 1)
-				$core['theme_url'] = strtr($curve['theme_url'], array('default' => 'core'));
-			if (substr_count($curve['images_url'], 'default') === 1)
-				$core['images_url'] = strtr($curve['images_url'], array('default' => 'core'));
-		}
-		smf_mysql_free_result($request);
+		$known_themes = explode(', ', $modSettings['knownThemes']);
 
-		if (!isset($core['theme_dir']))
-			$core['theme_dir'] = addslashes($GLOBALS['boarddir']) . '/Themes/core';
-		if (!isset($core['theme_url']))
-			$core['theme_url'] = $GLOBALS['boardurl'] . '/Themes/core';
-		if (!isset($core['images_url']))
-			$core['images_url'] = $GLOBALS['boardurl'] . '/Themes/core/images';
+		// Remove this value...
+		$known_themes = array_diff($known_themes, array($id_theme));
 
-		// Get an available id_theme first...
-		$request = upgrade_query("
-			SELECT MAX(id_theme) + 1
-			FROM {$db_prefix}themes");
-		list ($id_core_theme) = smf_mysql_fetch_row($request);
-		smf_mysql_free_result($request);
+		// Change back to a string...
+		$known_themes = implode(', ', $known_themes);
 
-		// Insert the core theme into the tables.
+		// Update the database
 		upgrade_query("
-			INSERT INTO {$db_prefix}themes
-				(id_member, id_theme, variable, value)
-			VALUES
-				(0, $id_core_theme, 'name', 'Core Theme'),
-				(0, $id_core_theme, 'theme_url', '$core[theme_url]'),
-				(0, $id_core_theme, 'images_url', '$core[images_url]'),
-				(0, $id_core_theme, 'theme_dir', '$core[theme_dir]')");
+			REPLACE INTO {$db_prefix}settings (variable, value)
+			VALUES ('knownThemes', '$known_themes')");
 
-		// Update the name of the default theme in the database.
+		// Delete any info about this theme
 		upgrade_query("
-			UPDATE {$db_prefix}themes
-			SET value = 'SMF Default Theme - Curve'
-			WHERE id_theme = 1
-				AND variable = 'name'");
+			DELETE FROM {$db_prefix}themes
+			WHERE id_theme = $id_theme");
 
-		// If known themes aren't set, let's just pick all themes available.
-		if (empty($modSettings['knownThemes']))
+		// Set any members or boards using this theme to the default
+		upgrade_query("
+			UPDATE {$db_prefix}members
+			SET id_theme = 0
+			WHERE id_theme = $id_theme");
+
+		upgrade_query("
+			UPDATE {$db_prefix}boards
+			SET id_theme = 0
+			WHERE id_theme = $id_theme");
+
+		if ($modSettings['theme_guests'] == $id_theme)
 		{
-			$request = upgrade_query("
-				SELECT DISTINCT id_theme
-				FROM {$db_prefix}themes");
-			$themes = array();
-			while ($row = smf_mysql_fetch_assoc($request))
-				$themes[] = $row['id_theme'];
-			$modSettings['knownThemes'] = implode(',', $themes);
 			upgrade_query("
-				UPDATE {$db_prefix}settings
-				SET value = '$modSettings[knownThemes]'
-				WHERE variable = 'knownThemes'");
-		}
-
-		// Known themes.
-		$allThemes = explode(',', $modSettings['knownThemes']);
-		$allThemes[] = $id_core_theme;
-		$newSettings = array();
-		$newSettings[] = "('knownThemes', '" . implode(',', $allThemes) . "')";
-
-		upgrade_query("
-			REPLACE INTO {$db_prefix}settings
+				REPLACE INTO {$db_prefix}settings
 				(variable, value)
-			VALUES
-				" . implode(', ', $newSettings));
-
-		// The other themes used to use core as their base theme.
-		if (isset($core['theme_dir']) && isset($core['theme_url']))
-		{
-			$coreBasedThemes = array_diff($allThemes, array(1));
-
-			// Exclude the themes that already have a base_theme_dir.
-			$request = upgrade_query("
-				SELECT DISTINCT id_theme
-				FROM {$db_prefix}themes
-				WHERE variable = 'base_theme_dir'");
-			while ($row = smf_mysql_fetch_assoc($request))
-				$coreBasedThemes = array_diff($coreBasedThemes, array($row['id_theme']));
-			smf_mysql_free_result($request);
-
-			// Only base themes if there are templates that need a fall-back.
-			$insertRows = array();
-			$request = upgrade_query("
-				SELECT id_theme, value AS theme_dir
-				FROM {$db_prefix}themes
-				WHERE id_theme IN (" . implode(', ', $coreBasedThemes) . ")
-					AND id_member = 0
-					AND variable = 'theme_dir'");
-			while ($row = smf_mysql_fetch_assoc($request))
-			{
-				if (!file_exists($row['theme_dir'] . '/BoardIndex.template.php') || !file_exists($row['theme_dir'] . '/Display.template.php') || !file_exists($row['theme_dir'] . '/index.template.php') || !file_exists($row['theme_dir'] . '/MessageIndex.template.php') || !file_exists($row['theme_dir'] . '/Settings.template.php'))
-				{
-					$insertRows[] = "(0, $row[id_theme], 'base_theme_dir', '" . addslashes($core['theme_dir']) . "')";
-					$insertRows[] = "(0, $row[id_theme], 'base_theme_url', '" . addslashes($core['theme_url']) . "')";
-				}
-			}
-			smf_mysql_free_result($request);
-
-			if (!empty($insertRows))
-				upgrade_query("
-					INSERT IGNORE INTO {$db_prefix}themes
-						(id_member, id_theme, variable, value)
-					VALUES
-						" . implode(',
-						', $insertRows));
+				VALUES('theme_guests', 0)");
 		}
 	}
-	smf_mysql_free_result($theme_request);
-
-	// This ain't running twice either.
-	upgrade_query("
-		REPLACE INTO {$db_prefix}settings
-			(variable, value)
-		VALUES
-			('dont_repeat_theme_core', '1')");
 }
-
 ---}
 ---#
 
