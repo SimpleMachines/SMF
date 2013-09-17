@@ -529,11 +529,11 @@ function ReportToModerator2()
 		$smcFunc['db_insert']('',
 			'{db_prefix}log_reported_comments',
 			array(
-				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string', 'email_address' => 'string',
+				'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
 				'member_ip' => 'string', 'comment' => 'string', 'time_sent' => 'int',
 			),
 			array(
-				$id_report, $user_info['id'], $user_info['name'], $user_info['email'],
+				$id_report, $user_info['id'], $user_info['name'],
 				$user_info['ip'], $poster_comment, time(),
 			),
 			array('id_comment')
@@ -611,7 +611,7 @@ function ReportToModerator2()
 		$emaildata = loadEmailTemplate('report_to_moderator', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Send it to the moderator.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], $user_info['email'], null, false, 2);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
 	}
 	$smcFunc['db_free_result']($request);
 
