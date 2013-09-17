@@ -220,10 +220,9 @@ CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT '';
 ---#
 
 ---# Renaming default theme...
-upgrade_query("
-	UPDATE {$db_prefix}themes
-	SET value = 'SMF Default Theme - Curve2'
-	WHERE value LIKE 'SMF Default Theme%'");
+UPDATE {$db_prefix}themes
+SET value = 'SMF Default Theme - Curve2'
+WHERE value LIKE 'SMF Default Theme%';
 ---#
 
 /******************************************************************************/

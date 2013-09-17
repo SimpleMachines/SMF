@@ -259,10 +259,9 @@ upgrade_query("
 ---#
 
 ---# Renaming default theme...
-upgrade_query("
-	UPDATE {$db_prefix}themes
-	SET value = 'SMF Default Theme - Curve2'
-	WHERE value LIKE 'SMF Default Theme%'");
+UPDATE {$db_prefix}themes
+SET value = 'SMF Default Theme - Curve2'
+WHERE value LIKE 'SMF Default Theme%';
 ---#
 
 /******************************************************************************/
