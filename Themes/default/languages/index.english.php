@@ -500,7 +500,7 @@ $txt['seconds_with'] = ' seconds with '; //Deprecated
 $txt['queries'] = ' queries.'; //Deprecated
 $txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
 
-$txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.<br /><em>Please note that your email address will be revealed to the moderators if you use this.</em>';
+$txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.';
 
 $txt['online'] = 'Online';
 $txt['member_is_online'] = '%1$s is online';
