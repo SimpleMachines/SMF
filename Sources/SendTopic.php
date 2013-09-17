@@ -287,6 +287,9 @@ function ReportToModerator()
 
 	$context['robot_no_index'] = true;
 
+	// No guests!
+	is_not_guest();
+
 	// You can't use this if it's off or you are not allowed to do it.
 	isAllowedTo('report_any');
 
@@ -319,18 +322,6 @@ function ReportToModerator()
 	list ($_REQUEST['msg'], $member, $starter) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
-	// Do we need to show the visual verification image?
-	$context['require_verification'] = $user_info['is_guest'] && !empty($modSettings['guests_report_require_captcha']);
-	if ($context['require_verification'])
-	{
-		require_once($sourcedir . '/Subs-Editor.php');
-		$verificationOptions = array(
-			'id' => 'report',
-		);
-		$context['require_verification'] = create_control_verification($verificationOptions);
-		$context['visual_verification_id'] = $verificationOptions['id'];
-	}
-
 	// Show the inputs for the comment, etc.
 	loadLanguage('Post');
 	loadTemplate('SendTopic');
@@ -359,7 +350,6 @@ function ReportToModerator()
 	});', true);
 
 	$context['comment_body'] = !isset($_POST['comment']) ? '' : trim($_POST['comment']);
-	$context['email_address'] = !isset($_POST['email']) ? '' : trim($_POST['email']);
 
 	// This is here so that the user could, in theory, be redirected back to the topic.
 	$context['start'] = $_REQUEST['start'];
@@ -379,6 +369,9 @@ function ReportToModerator()
 function ReportToModerator2()
 {
 	global $txt, $scripturl, $topic, $board, $user_info, $modSettings, $sourcedir, $language, $context, $smcFunc;
+
+	// Sorry, no guests allowed... Probably just trying to spam us anyway
+	is_not_guest();
 
 	// You must have the proper permissions!
 	isAllowedTo('report_any');
