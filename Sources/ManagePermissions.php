@@ -2260,7 +2260,8 @@ function loadIllegalGuestPermissions()
 		'post_autosave_draft',
 		'pm_draft',
 		'pm_autosave_draft',
-		'disable_censor'
+		'disable_censor',
+		'report_any'
 	);
 
 	call_integration_hook('integrate_load_illegal_guest_permissions');

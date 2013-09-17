@@ -232,17 +232,6 @@ function template_report()
 						<br />
 						<dl class="settings" id="report_post">';
 
-	if ($context['user']['is_guest'])
-	{
-		echo '
-							<dt>
-								<label for="email_address">', $txt['email'], '</label>:
-							</dt>
-							<dd>
-								<input type="text" id="email_address" name="email" value="', $context['email_address'], '" size="25" maxlength="255" />
-							</dd>';
-	}
-
 	echo '
 							<dt>
 								<label for="report_comment">', $txt['enter_comment'], '</label>:
@@ -250,17 +239,6 @@ function template_report()
 							<dd>
 								<textarea type="text" id="report_comment" name="comment" rows="5">', $context['comment_body'], '</textarea>
 							</dd>';
-
-	if ($context['require_verification'])
-	{
-		echo '
-							<dt>
-								', $txt['verification'], ':
-							</dt>
-							<dd>
-								', template_control_verification($context['visual_verification_id'], 'all'), '
-							</dd>';
-	}
 
 	echo '
 						</dl>
