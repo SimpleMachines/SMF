@@ -34,8 +34,8 @@ function template_show_list($list_id = null)
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
 		echo '
-			<div class="title_bar clear_right">
-				<h3 class="titlebg">
+			<div class="cat_bar clear_right">
+				<h3 class="catbg">
 					', $cur_list['title'], '
 				</h3>
 			</div>';
