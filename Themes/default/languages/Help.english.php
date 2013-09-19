@@ -356,8 +356,8 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
-$helptxt['themes'] = 'Here you can select whether the default theme can be chosen, what theme guests will use,
-	as well as other options. Click on a theme to the right to change the settings for it.';
+$helptxt['themes'] = 'Here you can select which theme guests will use, whether or not users can choose their own 
+	theme and, if so, which themes they can choose.';
 $helptxt['theme_install'] = 'This allows you to install new themes.  You can do this from an already created directory, by uploading an archive for the theme, or by copying the default theme.<br /><br />Note that the archive or directory must have a <tt>theme_info.xml</tt> definition file.';
 $helptxt['enableEmbeddedFlash'] = 'This option will allow your users to use Flash directly inside their posts,
 	just like images.  This could pose a security risk, although few have successfully exploited it.
