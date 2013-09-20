@@ -1542,7 +1542,7 @@ function template_profile_theme_settings()
 								<input type="checkbox" name="default_options[show_no_signatures]" id="show_no_signatures" value="1"', !empty($context['member']['options']['show_no_signatures']) ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>';
 
-	if ($settings['allow_no_censored'])
+	if ($modSettings['allow_no_censored'])
 		echo '
 							<dt>
 								<label for="show_no_censored">' . $txt['show_no_censored'] . '</label>

@@ -581,7 +581,7 @@ function loadProfileFields($force_reload = false)
 
 				$context[\'allow_no_censored\'] = false;
 				if ($user_info[\'is_admin\'] || $context[\'user\'][\'is_owner\'])
-					$context[\'allow_no_censored\'] = allowedTo(\'disable_censor\');
+					$context[\'allow_no_censored\'] = $modSettings[\'allow_no_censored\'];
 
 				return true;
 			'),
