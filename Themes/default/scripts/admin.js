@@ -98,7 +98,6 @@ smf_AdminIndex.prototype.checkUpdateAvailable = function ()
 	// If we decide to override life into "red" mode, do it.
 	if ('smfUpdateCritical' in window)
 	{
-		document.getElementById('update_table').style.backgroundColor = '#aa2222';
 		document.getElementById('update_title').style.backgroundColor = '#dd2222';
 		document.getElementById('update_title').style.color = 'white';
 		document.getElementById('update_message').style.backgroundColor = '#eebbbb';
