@@ -124,6 +124,7 @@ function SetCensor()
 		$updates = array(
 			'censor_vulgar' => implode("\n", $censored_vulgar),
 			'censor_proper' => implode("\n", $censored_proper),
+			'allow_no_censor' => empty($_POST['allow_no_censor']) ? '0' : '1',
 			'censorWholeWord' => empty($_POST['censorWholeWord']) ? '0' : '1',
 			'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
 		);
@@ -159,6 +160,9 @@ function SetCensor()
 	}
 
 	call_integration_hook('integrate_censors');
+	
+	// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
+	loadLanguage('Themes');
 
 	$context['sub_template'] = 'edit_censored';
 	$context['page_title'] = $txt['admin_censored_words'];

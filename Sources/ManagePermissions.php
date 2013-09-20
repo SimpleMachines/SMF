@@ -1408,7 +1408,6 @@ function loadAllPermissions($loadType = 'classic')
 		'membergroup' => array(
 			'simple' => array(
 				'view_basic_info',
-				'disable_censor',
 				'use_pm_system',
 				'post_calendar',
 				'edit_profile',
@@ -1463,7 +1462,6 @@ function loadAllPermissions($loadType = 'classic')
 			'who_view' => array(false, 'general', 'view_basic_info'),
 			'search_posts' => array(false, 'general', 'view_basic_info'),
 			'karma_edit' => array(false, 'general', 'moderate_general'),
-			'disable_censor' => array(false, 'general', 'disable_censor'),
 			'pm_read' => array(false, 'pm', 'use_pm_system'),
 			'pm_send' => array(false, 'pm', 'use_pm_system'),
 			'pm_draft' => array(false, 'pm', 'use_pm_system'),
@@ -2260,7 +2258,6 @@ function loadIllegalGuestPermissions()
 		'post_autosave_draft',
 		'pm_draft',
 		'pm_autosave_draft',
-		'disable_censor',
 		'report_any',
 		'make_sticky',
 		'merge_any',
