@@ -202,10 +202,6 @@ function template_settings()
 			'label' => $txt['enable_mark_as_read'],
 		),
 		array(
-			'id' => 'allow_no_censored',
-			'label' => $txt['allow_no_censored'],
-		),
-		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),
