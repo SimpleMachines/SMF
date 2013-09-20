@@ -28,6 +28,35 @@ if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['pac
 ---}
 ---#
 
+---# Copying the current "allow users to disable word censor" setting...
+---{
+if (!isset($modSettings['allow_no_censor']))
+{
+	$request = upgrade_query("
+		SELECT value
+		FROM {$db_prefix}settings
+		WHERE variable='allow_no_censor'
+		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
+	");
+	
+	// Is it set for either "default" or the one they've set as default?
+	while ($row = mysql_fetch_assoc($request))
+	{
+		if ($row['value'] == 1)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}settings
+				VALUES ('allow_no_censor', 1)
+			");
+			
+			// Don't do this twice...
+			break;
+		}
+	}
+}
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
