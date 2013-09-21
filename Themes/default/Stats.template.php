@@ -21,7 +21,7 @@ function template_main()
 		</div>
 		<div class="flow_hidden">
 			<div class="title_bar">
-				<h4 class="titlebg">
+				<h4 class="titlebg statstitle">
 					<img src="', $settings['images_url'], '/stats_info.png" class="icon" alt="" /> ', $txt['general_stats'], '
 				</h4>
 			</div>
@@ -87,7 +87,7 @@ function template_main()
 		<div class="flow_hidden">
 			<div id="top_posters">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg statstitle">
 						<img src="', $settings['images_url'], '/stats_posters.png" class="icon" alt="" /> ', $txt['top_posters'], '
 					</h4>
 				</div>
@@ -121,7 +121,7 @@ function template_main()
 			</div>
 			<div id="top_boards">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg statstitle">
 						<img src="', $settings['images_url'], '/stats_board.png" class="icon" alt="" /> ', $txt['top_boards'], '
 					</h4>
 				</div>
@@ -156,7 +156,7 @@ function template_main()
 		<div class="flow_hidden">
 			<div id="top_topics_replies">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg statstitle">
 						<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_topics_replies'], '
 					</h4>
 				</div>
@@ -189,7 +189,7 @@ function template_main()
 
 			<div id="top_topics_views">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg statstitle">
 						<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['top_topics_views'], '
 					</h4>
 				</div>
@@ -223,7 +223,7 @@ function template_main()
 		<div class="flow_hidden">
 			<div id="top_topics_starter">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg statstitle">
 						<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_starters'], '
 					</h4>
 				</div>
@@ -257,7 +257,7 @@ function template_main()
 			</div>
 			<div id="most_online">
 				<div class="title_bar">
-					<h4 class="titlebg">
+					<h4 class="titlebg statstitle">
 						<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['most_time_online'], '
 					</h4>
 				</div>
