@@ -544,91 +544,130 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
-						// Current Project Manager
 						'Kindred',
-						// Former Project Manager
+						'Amacythe',
 						'Bryan &quot;Runic&quot; Deakin',
+						'Justin &quot;metallica48423&quot; O\'Leary',
+						'Motoko-chan',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
-						// Lead Developer
 						'Michael &quot;Oldiesmann&quot; Eshom',
-						// Developers
-						'emanuele',
-						// Former Developers
+						'Aaron van Geffen',
 						'Antechinus',
+						'Bjoern &quot;Bloc&quot; Kristiansen',
 						'Brad &quot;IchBin&trade;&quot; Grow',
-						'Joshua &quot;groundup&quot; Dickerson',
-						'Steven &quot;Fustrate&quot; Hoffman',
+						'emanuele',
+						'Hendrik Jan &quot;Compuart&quot; Visser',
 						'Jessica Gonz&aacute;lez',
+						'Joshua &quot;groundup&quot; Dickerson',
+						'Juan &quot;JayBachatero&quot; Hernandez',
+						'Karl &quot;RegularExpression&quot; Benson',
+						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Norv',
+						'Selman &quot;[SiNaN]&quot; Eser',
+						'Steven &quot;Fustrate&quot; Hoffman',
+						'Theodore &quot;Orstio&quot; Hildebrandt',
+						'Thorsten &quot;TE&quot; Eurich',
+						'winrules',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
-						// Lead Support Specialist
 						'K@',
-						// Support Specialists
-						'Bigguy',
-						'Colin &quot;Shadow82x&quot; Blaber',
-						'Mashby',
-						'Nova &quot;ChalkCat&quot; Howard',
-						'Old Fossil',
-						'Storman&trade;',
-						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
-						'Yoshi2889',
-						'ziycon',
-						// Former Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
+						'Ben Scott',
+						'Bigguy',
 						'CapadY',
 						'Chas Large',
+						'Colin &quot;Shadow82x&quot; Blaber',
 						'Duncan85',
+						'Eliana Tamerin',
+						'Fiery',
+						'gbsothere',
+						'Harro',
+						'Huw',
+						'Jan-Olof &quot;Owdy&quot; Eriksson',
+						'Jeremy &quot;jerm&quot; Strike',
 						'JimM',
+						'Kevin &quot;greyknight17&quot; Hou',
+						'KGIII',
+						'Kill Em All',
+						'Mattitude',
+						'Mashby',
+						'MrPhil',
+						'Nick &quot;Fizzy&quot; Dyer',
+						'Nick &quot;Ha&sup2;&quot;',
+						'Nova &quot;ChalkCat&quot; Howard',
+						'Old Fossil',
+						'Paul_Pauline',
+						'Piro &quot;Sarge&quot; Dhima',
+						'Rumbaar',
+						'Pitti',
+						'RedOne',
+						'Storman&trade;',
 						'S-Ace',
+						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
+						'xenovanis',
+						'Yoshi2889',
+						'ziycon',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
-						// Lead Customizer
 						'Gary M. Gadsdon',
-						// Customizers
-						'bluedevil',
-						'Bugo',
-						'Colin Schoen',
-						'Kays',
-						'Jack &quot;akabugeyes&quot; Thorsen',
-						'Joker&trade;',
-						'Ricky.',
-						// Former Customizers
+						'&#12487;&#12451;&#12531;1031',
 						'Brannon &quot;B&quot; Hall',
+						'Bugo',
+						'Bulakbol',
+						'Colin Schoen',
+						'Daniel15',
+						'Eren Yasarkurt',
+						'Jason &quot;JBlaze&quot; Clemons',
+						'Jerry',
+						'Jonathan &quot;vbgamer45&quot; Valentin',
+						'Kays',
+						'Killer Possum',
+						'Kirby',
+						'Jack &quot;akabugeyes&quot; Thorsen',
+						'Joey &quot;Tyrsson&quot; Smith',
+						'Joker&trade;',
+						'Matt &quot;SlammedDime&quot; Zuba',
+						'Mick G.',
+						'Nibogo',
+						'Niko',
+						'Peter &quot;Arantor&quot; Spicer',
+						'Ricky.',
+						'snork13',
 						'Joey &quot;Tyrsson&quot; Smith',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
-						// Doc Coordinator
 						'Michele &quot;Illori&quot; Davis',
-						// Doc Writers
 						'AngelinaBelle',
+						'Daniel Diehl',
+						'Dannii Willis',
 						'Graeme Spence',
+						'Jade Elizabeth Trainor',
 						'Irisado',
+						'Peter Duggan',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
-						// Lead Localizer
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
-						// Localizers
+						'Akyhne',
 						'Antes',
 						'Dr. Deejay',
-						// Former Localizers
+						'GravuTrad',
 						'Relyana',
 					),
 				),
@@ -654,20 +693,17 @@ function Credits($in_admin = false)
 			array(
 				'title' => $txt['credits_groups_marketing'],
 				'members' => array(
-					// Marketing
 					'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
-					// Former Marketing
 					'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
 					'Ralph &quot;[n3rve]&quot; Otowo',
+					'rickC',
+					'Tony Reid'
 				),
 			),
 			array(
 				'title' => $txt['credits_groups_site'],
 				'members' => array(
-					// Site Team
 					'Jeremy &quot;SleePy&quot; Darwood',
-					// Former Site Team
-					'Michael &quot;Thantos&quot; Miller',
 				),
 			),
 			array(
@@ -701,6 +737,7 @@ function Credits($in_admin = false)
 				'members' => array(
 					'Brett Flannigan',
 					'Mark Rose',
+					'Ren&eacute;-Gilles &quot;Nao &#23578;&quot; Deberdt',
 				),
 			),
 			array(
