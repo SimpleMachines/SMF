@@ -548,7 +548,6 @@ function Credits($in_admin = false)
 						'Amacythe',
 						'Bryan &quot;Runic&quot; Deakin',
 						'Justin &quot;metallica48423&quot; O\'Leary',
-						'Motoko-chan',
 					),
 				),
 				array(
@@ -569,6 +568,7 @@ function Credits($in_admin = false)
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Norv',
 						'Selman &quot;[SiNaN]&quot; Eser',
+						'Spuds',
 						'Steven &quot;Fustrate&quot; Hoffman',
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
