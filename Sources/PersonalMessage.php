@@ -1155,7 +1155,7 @@ function MessageSearch2()
 
 		for ($k = 0, $n = count($possible_users); $k < $n; $k++)
 		{
-			$possible_users[$k] = trim($possible_users[$k]);
+			$possible_users[$k] = addcslashes(trim($possible_users[$k]), '\\\'');
 
 			if (strlen($possible_users[$k]) == 0)
 				unset($possible_users[$k]);
