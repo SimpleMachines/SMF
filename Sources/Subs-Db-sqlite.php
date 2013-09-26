@@ -545,10 +545,6 @@ function smf_db_error($db_string, $connection = null)
 	else
 		$context['error_message'] = $txt['try_again'];
 
-	// A database error is often the sign of a database in need of updgrade.  Check forum versions, and if not identical suggest an upgrade... (not for Demo/CVS versions!)
-	if (allowedTo('admin_forum') && !empty($forum_version) && $forum_version != 'SMF ' . @$modSettings['smfVersion'] && strpos($forum_version, 'Demo') === false && strpos($forum_version, 'CVS') === false)
-		$context['error_message'] .= '<br /><br />' . sprintf($txt['database_error_versions'], $forum_version, $modSettings['smfVersion']);
-
 	if (allowedTo('admin_forum') && isset($db_show_debug) && $db_show_debug === true)
 	{
 		$context['error_message'] .= '<br /><br />' . nl2br($db_string);
