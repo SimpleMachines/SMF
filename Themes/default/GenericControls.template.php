@@ -238,15 +238,6 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			echo '
 			<div id="verification_control_', $i, '" class="verification_control">';
 
-		// Display empty field, but only if we have one, and it's the first time.
-		if ($verify_context['empty_field'] && empty($i))
-			echo '
-				<div class="smalltext vv_special">
-					', $txt['visual_verification_hidden'], ':
-					<input type="text" name="', $_SESSION[$verify_id . '_vv']['empty_field'], '" autocomplete="off" size="30" value="" />
-				</div>
-				<br />';
-
 		// Do the actual stuff - image first?
 		if ($i == 0 && $verify_context['show_visual'])
 		{

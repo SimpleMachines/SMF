@@ -95,15 +95,6 @@ function Register($reg_errors = array())
 		'name' => $txt['register'],
 	);
 
-	// Prepare the time gate! Do it like so, in case later steps want to reset the limit for any reason, but make sure the time is the current one.
-	if (!isset($_SESSION['register']))
-		$_SESSION['register'] = array(
-			'timenow' => time(),
-			'limit' => 10, // minimum number of seconds required on this page for registration
-		);
-	else
-		$_SESSION['register']['timenow'] = time();
-
 	// If you have to agree to the agreement, it needs to be fetched from the file.
 	if ($context['require_agreement'])
 	{
@@ -259,17 +250,6 @@ function Register2($verifiedOpenID = false)
 			// @todo This should be put in Errors, imho.
 			loadLanguage('Login');
 			fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
-		}
-
-		// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
-		if (empty($_SESSION['register']['timenow']) || empty($_SESSION['register']['limit']))
-			redirectexit('action=register');
-		// Failing that, check the time on it.
-		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
-		{
-			// @todo This too should be put in Errors, imho.
-			loadLanguage('Login');
-			$reg_errors[] = $txt['error_too_quickly'];
 		}
 
 		// Check whether the visual verification code was entered correctly.
@@ -465,7 +445,6 @@ function Register2($verifiedOpenID = false)
 	if (!empty($reg_errors))
 	{
 		$_REQUEST['step'] = 2;
-		$_SESSION['register']['limit'] = 5; // If they've filled in some details, they won't need the full 10 seconds of the limit.
 		return Register($reg_errors);
 	}
 	// If they're wanting to use OpenID we need to validate them first.
