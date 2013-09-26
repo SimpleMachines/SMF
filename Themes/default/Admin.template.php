@@ -584,7 +584,7 @@ function template_edit_censored()
 					<hr width="100%" size="1" class="hrcolor clear" />
 					<dl class="settings">
 						<dt>
-							<strong><label for="allow_no_ccensored">', $txt['allow_no_censored'], ':</label></strong>
+							<strong><label for="allow_no_censored">', $txt['allow_no_censored'], ':</label></strong>
 						</dt>
 						<dd>
 							<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty($modSettings['allow_no_censored']) ? '' : ' checked="checked"', ' class="input_check" />
