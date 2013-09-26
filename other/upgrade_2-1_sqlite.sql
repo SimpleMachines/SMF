@@ -361,7 +361,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 ---{
 	$request = upgrade_query("
 		SELECT value
-		FROM {$db_prefix}settings
+		FROM {$db_prefix}themes
 		WHERE variable='allow_no_censor'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
