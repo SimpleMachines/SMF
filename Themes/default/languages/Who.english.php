@@ -127,7 +127,7 @@ $txt['who_poll'] = 'Posting a new poll in <a href="' . $scripturl . '?board=%1$d
 
 // Credits text
 $txt['credits'] = 'Credits';
-$txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today; shaping and directing our project, all through the thick and the thin. It wouldn\'t have been possible without you. This includes our users, especially <a href="https://github.com/SimpleMachines/SMF2.1/graphs/contributors/">Code Contributors</a>. Friends and Former Members of the Project and Charter Members - Thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
+$txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today; shaping and directing our project, all through the thick and the thin. It wouldn\'t have been possible without you. This includes our users, especially <a href="https://github.com/SimpleMachines/SMF2.1/graphs/contributors/">Code Contributors</a>. Friends, Former Members of the Project and Charter Members - Thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
 $txt['credits_team'] = 'SMF Team';
 $txt['credits_npo'] = 'Corporate Team';
 $txt['credits_special'] = 'Special Thanks';
