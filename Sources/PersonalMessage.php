@@ -1161,34 +1161,47 @@ function MessageSearch2()
 				unset($possible_users[$k]);
 		}
 
-		// Who matches those criteria?
-		// @todo This doesn't support sent item searching.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}members
-			WHERE real_name LIKE {raw:real_name_implode}',
-			array(
-				'real_name_implode' => '\'' . implode('\' OR real_name LIKE \'', $possible_users) . '\'',
-			)
-		);
-		// Simply do nothing if there're too many members matching the criteria.
-		if ($smcFunc['db_num_rows']($request) > $maxMembersToSearch)
-			$userQuery = '';
-		elseif ($smcFunc['db_num_rows']($request) == 0)
+		if (!empty($possible_users))
 		{
-			$userQuery = 'AND pm.id_member_from = 0 AND (pm.from_name LIKE {raw:guest_user_name_implode})';
-			$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR pm.from_name LIKE \'', $possible_users) . '\'';
+			// We need to bring this into the query and do it nice and cleanly.
+			$where_params = array();
+			$where_clause = array();
+			foreach ($possible_users as $k => $v)
+			{
+				$where_params['name_' . $k] = $v;
+				$where_clause[] = 'real_name LIKE {string:name_' . $k . '}';
+			}
+
+			// Who matches those criteria?
+			// @todo This doesn't support sent item searching.
+			$request = $smcFunc['db_query']('', '
+				SELECT id_member
+				FROM {db_prefix}members
+				WHERE ' . implode(' OR ', $where_clause),
+				$where_params
+			);
+
+			// Simply do nothing if there're too many members matching the criteria.
+			if ($smcFunc['db_num_rows']($request) > $maxMembersToSearch)
+				$userQuery = '';
+			elseif ($smcFunc['db_num_rows']($request) == 0)
+			{
+				$userQuery = 'AND pm.id_member_from = 0 AND (pm.from_name LIKE {raw:guest_user_name_implode})';
+				$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR pm.from_name LIKE \'', $possible_users) . '\'';
+			}
+			else
+			{
+				$memberlist = array();
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$memberlist[] = $row['id_member'];
+				$userQuery = 'AND (pm.id_member_from IN ({array_int:member_list}) OR (pm.id_member_from = 0 AND (pm.from_name LIKE {raw:guest_user_name_implode})))';
+				$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR pm.from_name LIKE \'', $possible_users) . '\'';
+				$searchq_parameters['member_list'] = $memberlist;
+			}
+			$smcFunc['db_free_result']($request);
 		}
 		else
-		{
-			$memberlist = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$memberlist[] = $row['id_member'];
-			$userQuery = 'AND (pm.id_member_from IN ({array_int:member_list}) OR (pm.id_member_from = 0 AND (pm.from_name LIKE {raw:guest_user_name_implode})))';
-			$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR pm.from_name LIKE \'', $possible_users) . '\'';
-			$searchq_parameters['member_list'] = $memberlist;
-		}
-		$smcFunc['db_free_result']($request);
+			$userQuery = '';
 	}
 
 	// Setup the sorting variables...
