@@ -654,7 +654,8 @@ function showProfileDrafts($memID, $draft_type = 0)
 
 	// Menu tab
 	$context[$context['profile_menu_name']]['tab_data'] = array(
-		'title' => $txt['drafts_show'] . ' - ' . $context['member']['name'],
+		'title' => $txt['drafts_show'],
+		'description' => $txt['drafts_show_desc'],
 		'icon' => 'message_sm.png'
 	);
 	$context['sub_template'] = 'showDrafts';
