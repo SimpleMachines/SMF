@@ -146,6 +146,7 @@ $txt['reply_number'] = 'Reply #%1$s';
 $txt['approve'] = 'Approve';
 $txt['unapprove'] = 'Unapprove';
 $txt['approve_all'] = 'approve all';
+$txt['issue_warning'] = 'Issue Warning';
 $txt['awaiting_approval'] = 'Awaiting Approval';
 $txt['attach_awaiting_approve'] = 'Attachments awaiting approval';
 $txt['post_awaiting_approval'] = 'Note: This message is awaiting approval by a moderator.';
@@ -632,7 +633,6 @@ $txt['notification_enable_topic'] = 'Are you sure you wish to enable notificatio
 $txt['notification_disable_topic'] = 'Are you sure you wish to disable notification of new replies for this topic?';
 
 $txt['report_to_mod'] = 'Report to moderator';
-$txt['issue_warning_post'] = 'Issue a warning because of this message';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
 $txt['unread_topics_visit_none'] = 'No unread topics found since your last visit.  <a href="' . $scripturl . '?action=unread;all">Click here to try all unread topics</a>.';

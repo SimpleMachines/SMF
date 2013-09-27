@@ -2226,7 +2226,7 @@ div#pollmoderation {
 .poster .dropmenu  li.karma_allow, .poster .dropmenu  li.gender, .poster .dropmenu  li.blurb {
 	padding: 0 10px 0 10px;
 }
-.poster .dropmenu  li ul li.report_link, .poster .dropmenu  li ul li.issue_warning, .poster .dropmenu  li ul li.poster_ip {
+.poster .dropmenu  li ul li.report_link, .poster .dropmenu  li ul li.poster_ip {
 	margin: 0 0 0 0;
 	padding: 0 0 0 0;
 	float: left;
@@ -2405,6 +2405,9 @@ ul.quickbuttons li a.notify_button {
 }
 ul.quickbuttons li a.unapprove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
+}
+ul.quickbuttons li a.warn_button {
+	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
