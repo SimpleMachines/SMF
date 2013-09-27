@@ -189,12 +189,6 @@ function template_folder()
 		echo '
 							<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>';
 
-		// Show avatars, images, etc.?
-		if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
-			echo '
-
-							', $message['member']['avatar']['image'], '';
-
 		if (!$message['member']['is_guest'])
 			echo '
 						</a>';
@@ -290,11 +284,6 @@ function template_folder()
 					echo '
 						<li class="report_link"><a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '">' . $txt['pm_report_to_admin'] . '</a></li>';
 
-		// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
-		if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
-			echo '
-										<li class="issue_warning"><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '"><img src="', $settings['images_url'], '/warn.png" alt="', $txt['issue_warning_post'], '" title="', $txt['issue_warning_post'], '" /></a></li>';
-
 		// Show the IP to this user for this post - because you can moderate?
 		if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
 			echo '
@@ -359,6 +348,14 @@ function template_folder()
 			echo '
 					</ul>
 				</li>';
+
+			// Show the user's avatar.
+			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+				echo '
+				<li class="avatar">
+					<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
+				</li>';
+
 			if (!$message['member']['is_guest'])
 				echo '
 				<li class="icons">', $message['member']['group_icons'], '</li>';

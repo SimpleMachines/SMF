@@ -226,15 +226,7 @@ function template_main()
 		// Show a link to the member's profile.
 		echo '
 										<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">
-											<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>';
-
-		// Show avatars, images, etc.?
-		if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
-			echo '
-
-											', $message['member']['avatar']['image'], '';
-
-			echo '
+											<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>
 										</a>
 									</h4>';
 
@@ -362,11 +354,6 @@ function template_main()
 		echo '
 										<li style="height: 2px; background: #ccc; box-shadow: 0 -1px 0 #fff inset;"></li>';
 
-		// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
-		if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
-			echo '
-										<li class="issue_warning"><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '"><img src="', $settings['images_url'], '/warn.png" alt="', $txt['issue_warning_post'], '" title="', $txt['issue_warning_post'], '" /></a></li>';
-
 			//echo '
 			//						<img class="centericon" src="', $settings['images_url'], '/ip.png" alt="" />';
 
@@ -390,9 +377,16 @@ function template_main()
 			echo '
 										<li class="poster_ip">', $txt['logged'], '</li>';
 
-		// Done with the information about the poster... on to the post itself.
+		// Done with the popup of information about the poster... on to the post itself.
 			echo '
 									</ul>
+								</li>';
+
+		// Show the user's avatar.
+		if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+			echo '
+								<li class="avatar">
+									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 								</li>';
 
 		// Show the post group icons, but not for guests.
@@ -619,6 +613,11 @@ function template_main()
 					if ($context['can_split'] && !empty($context['real_num_replies']))
 						echo '
 									<li><a href="', $scripturl, '?action=splittopics;topic=', $context['current_topic'], '.0;at=', $message['id'], '" class="split_button">', $txt['split'], '</a></li>';
+
+					// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
+					if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
+						echo '
+									<li><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '" class="warn_button">', $txt['issue_warning'], '</a></li>';
 
 					// Can we restore topics?
 					if ($context['can_restore_msg'])
