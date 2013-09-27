@@ -3366,7 +3366,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	$return_file = '';
 
 	// Give credit where credit is due...
-	$FileZilla_ext = '.iso';
+	$FileZilla_ext = '.dat';
 
 	// Grab the file hash if it wasn't added.
 	// @todo: Locate all places that don't call a hash and fix that.
