@@ -437,9 +437,14 @@ function template_showDrafts()
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="pagesection" style="margin-bottom: 0;">
-			<div class="pagelinks">', $context['page_index'], '</div>
-		</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['drafts'], ' - ', $context['member']['name'], '
+			</h3>
+		</div>', !empty($context['page_index']) ? '
+		<div class="pagesection">
+			<div class="pagelinks">' . $context['page_index'] . '</div>
+		</div>' : '';
 
 	// Button shortcuts
 	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
