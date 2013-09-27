@@ -1962,6 +1962,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	if ($isNew)
 		$context['controls']['verification'][$verificationOptions['id']] = array(
 			'id' => $verificationOptions['id'],
+			'empty_field' => empty($verificationOptions['no_empty_field']),
 			'show_visual' => !empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])),
 			'number_questions' => isset($verificationOptions['override_qs']) ? $verificationOptions['override_qs'] : (!empty($modSettings['qa_verification_number']) ? $modSettings['qa_verification_number'] : 0),
 			'max_errors' => isset($verificationOptions['max_errors']) ? $verificationOptions['max_errors'] : 3,
@@ -2031,6 +2032,12 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		// ... nor this!
 		if ($thisVerification['number_questions'] && (!isset($_SESSION[$verificationOptions['id'] . '_vv']['q']) || !isset($_REQUEST[$verificationOptions['id'] . '_vv']['q'])))
 			fatal_lang_error('no_access', false);
+		// Hmm, it's requested but not actually declared. This shouldn't happen.
+		if ($thisVerification['empty_field'] && empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']))
+			fatal_lang_error('no_access', false);
+		// While we're here, did the user do something bad?
+		if ($thisVerification['empty_field'] && !empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']) && !empty($_REQUEST[$_SESSION[$verificationOptions['id'] . '_vv']['empty_field']]))
+			$verification_errors[] = 'wrong_verification_answer';
 
 		if ($thisVerification['show_visual'] && (empty($_REQUEST[$verificationOptions['id'] . '_vv']['code']) || empty($_SESSION[$verificationOptions['id'] . '_vv']['code']) || strtoupper($_REQUEST[$verificationOptions['id'] . '_vv']['code']) !== $_SESSION[$verificationOptions['id'] . '_vv']['code']))
 			$verification_errors[] = 'wrong_verification_code';
@@ -2083,6 +2090,17 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		$_SESSION[$verificationOptions['id'] . '_vv']['q'] = array();
 		$_SESSION[$verificationOptions['id'] . '_vv']['code'] = '';
 
+		// Make our magic empty field.
+		if ($thisVerification['empty_field'])
+		{
+			// We're building a field that lives in the template, that we hope to be empty later. But at least we give it a believable name.
+			$terms = array('gadget', 'device', 'uid', 'gid', 'guid', 'uuid', 'unique', 'identifier');
+			$second_terms = array('hash', 'cipher', 'code', 'key', 'unlock', 'bit', 'value');
+			$start = mt_rand(0, 27);
+			$hash = substr(md5(time()), $start, 4);
+			$_SESSION[$verificationOptions['id'] . '_vv']['empty_field'] = $terms[array_rand($terms)] . '-' . $second_terms[array_rand($second_terms)] . '-' . $hash;
+		}
+
 		// Generating a new image.
 		if ($thisVerification['show_visual'])
 		{
@@ -2110,6 +2128,14 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		// Same questions as before.
 		$questionIDs = !empty($_SESSION[$verificationOptions['id'] . '_vv']['q']) ? $_SESSION[$verificationOptions['id'] . '_vv']['q'] : array();
 		$thisVerification['text_value'] = !empty($_REQUEST[$verificationOptions['id'] . '_vv']['code']) ? $smcFunc['htmlspecialchars']($_REQUEST[$verificationOptions['id'] . '_vv']['code']) : '';
+	}
+
+	// If we do have an empty field, it would be nice to hide it from legitimate users who shouldn't be populating it anyway.
+	if (!empty($_SESSION[$verificationOptions['id'] . '_vv']['empty_field']))
+	{
+		if (!isset($context['html_headers']))
+			$context['html_headers'] = '';
+		$context['html_headers'] .= '<style type="text/css">.vv_special { display:none; }</style>';
 	}
 
 	// Have we got some questions to load?
