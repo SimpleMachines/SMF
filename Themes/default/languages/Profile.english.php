@@ -14,7 +14,6 @@ $txt['current_signature'] = 'Current signature';
 $txt['signature_preview'] = 'Signature preview';
 $txt['delete_user'] = 'Delete user';
 $txt['current_status'] = 'Current Status:';
-$txt['personal_text'] = 'Personal Text';
 $txt['personal_picture'] = 'Personalized Picture';
 $txt['no_avatar'] = 'No avatar';
 $txt['choose_avatar_gallery'] = 'Choose avatar from gallery';
