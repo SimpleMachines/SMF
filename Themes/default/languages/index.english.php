@@ -201,6 +201,7 @@ $txt['recent_posts'] = 'Recent Posts';
 
 $txt['location'] = 'Location';
 $txt['gender'] = 'Gender';
+$txt['personal_text'] = 'Personal Text';
 $txt['date_registered'] = 'Date Registered';
 
 $txt['recent_view'] = 'View the most recent posts on the forum.';
