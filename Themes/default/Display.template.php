@@ -322,7 +322,6 @@ function template_main()
 			if ($message['member']['has_messenger'] && $message['member']['can_view_profile'])
 				echo '
 								<li class="im_icons">
-									<hr />
 									<ol>
 										', !empty($message['member']['icq']['link']) ? '<li>' . $message['member']['icq']['link'] . '</li>' : '', '
 										', !empty($message['member']['skype']['link']) ? '<li>' . $message['member']['skype']['link'] . '</li>' : '', '
@@ -336,7 +335,7 @@ function template_main()
 			{
 				echo '
 								<li class="profile">
-									<ol>';
+									<ol class="profile_icons">';
 
 				// Don't show an icon if they haven't specified a website.
 				if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
