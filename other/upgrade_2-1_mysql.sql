@@ -271,7 +271,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 	$theme_request = upgrade_query("
 		SELECT id_theme
 		FROM {$db_prefix}themes
-		WHERE variable = {str:variable}
+		WHERE variable = 'theme_dir'
 			AND value ='$core_dir'");
 
 	// Don't do anything if this theme is already uninstalled
