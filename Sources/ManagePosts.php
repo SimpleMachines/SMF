@@ -137,7 +137,7 @@ function SetCensor()
 	if (isset($_POST['censortest']))
 	{
 		require_once($sourcedir . '/Subs-Post.php');
-		$censorText = htmlspecialchars($_POST['censortest'], ENT_QUOTES);
+		$censorText = $smcFunc['htmlspecialchars']($_POST['censortest'], ENT_QUOTES);
 		preparsecode($censorText);
 		$context['censor_test'] = strtr(censorText($censorText), array('"' => '&quot;'));
 	}
@@ -156,11 +156,11 @@ function SetCensor()
 		if (trim(strtr($censor_vulgar[$i], '*', ' ')) == '')
 			continue;
 
-		$context['censored_words'][htmlspecialchars(trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? htmlspecialchars($censor_proper[$i]) : '';
+		$context['censored_words'][$smcFunc['htmlspecialchars'](trim($censor_vulgar[$i]))] = isset($censor_proper[$i]) ? $smcFunc['htmlspecialchars']($censor_proper[$i]) : '';
 	}
 
 	call_integration_hook('integrate_censors');
-	
+
 	// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
 	loadLanguage('Themes');
 
