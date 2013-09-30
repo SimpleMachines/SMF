@@ -491,8 +491,8 @@ function ComposeMailing()
 	$context['page_title'] = $txt['admin_newsletters'];
 	$context['sub_template'] = 'email_members_compose';
 
-	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
-	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : $smcFunc['htmlspecialchars']($context['forum_name'] . ': ' . $txt['subject']);
+	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
 
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -791,8 +791,8 @@ function SendMailing($clean_only = false)
 	$_POST['message'] = !empty($_POST['message']) ? $_POST['message'] : '';
 
 	// Save the message and its subject in $context
-	$context['subject'] = htmlspecialchars($_POST['subject']);
-	$context['message'] = htmlspecialchars($_POST['message']);
+	$context['subject'] = $smcFunc['htmlspecialchars']($_POST['subject'], ENT_QUOTES);
+	$context['message'] = $smcFunc['htmlspecialchars']($_POST['message'] ENT_QUOTES);
 
 	// Prepare the message for sending it as HTML
 	if (!$context['send_pm'] && !empty($_POST['send_html']))
