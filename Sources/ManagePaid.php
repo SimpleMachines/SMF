@@ -545,7 +545,7 @@ function ModifySubscription()
 				'repeatable' => $row['repeatable'],
 				'allow_partial' => $row['allow_partial'],
 				'duration' => $isFlexible ? 'flexible' : 'fixed',
-				'email_complete' => htmlspecialchars($row['email_complete']),
+				'email_complete' => $smcFunc['htmlspecialchars']($row['email_complete']),
 				'reminder' => $row['reminder'],
 			);
 		}
