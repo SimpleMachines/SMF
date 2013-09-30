@@ -66,7 +66,8 @@ function ManageLanguages()
  */
 function AddLanguage()
 {
-	global $context, $sourcedir, $forum_version, $boarddir, $txt, $smcFunc, $scripturl;
+	global $context, $sourcedir, $forum_version, $boarddir, $txt;
+	global $smcFunc, $scripturl;
 
 	// Are we searching for new languages courtesy of Simple Machines?
 	if (!empty($_POST['smf_add_sub']))
@@ -74,7 +75,7 @@ function AddLanguage()
 		// Need fetch_web_data.
 		require_once($sourcedir . '/Subs-Package.php');
 
-		$context['smf_search_term'] = htmlspecialchars(trim($_POST['smf_add']));
+		$context['smf_search_term'] = $smcFunc['htmlspecialchars'](trim($_POST['smf_add']));
 
 		$listOptions = array(
 			'id' => 'smf_languages',
