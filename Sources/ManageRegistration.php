@@ -18,7 +18,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Entrance point for the registration center, it checks permisions and forwards
+ * Entrance point for the registration center, it checks permissions and forwards
  * to the right function based on the subaction.
  * Accessed by ?action=admin;area=regcenter.
  * Requires either the moderate_forum or the admin_forum permission.
@@ -212,7 +212,7 @@ function EditAgreement()
 		updateSettings(array('requireAgreement' => !empty($_POST['requireAgreement'])));
 	}
 
-	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? htmlspecialchars(file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
+	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? $smcFunc['htmlspecialchars'](file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
 	$context['warning'] = is_writable($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? '' : $txt['agreement_not_writable'];
 	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 
