@@ -230,9 +230,9 @@ function ViewSpiders()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						global $scripturl;
+						global $scripturl, $smcFunc;
 
-						return sprintf(\'<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>\', $scripturl, $rowData[\'id_spider\'], htmlspecialchars($rowData[\'spider_name\']));
+						return sprintf(\'<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>\', $scripturl, $rowData[\'id_spider\'], $smcFunc[\'htmlspecialchars\']($rowData[\'spider_name\']));
 					'),
 				),
 				'sort' => array(
