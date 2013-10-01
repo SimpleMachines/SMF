@@ -120,7 +120,7 @@ function db_fix_prefix (&$db_prefix, $db_name)
  */
 function smf_db_replacement__callback($matches)
 {
-	global $db_callback, $user_info, $db_prefix;
+	global $db_callback, $user_info, $db_prefix, $smcFunc;
 
 	list ($values, $connection) = $db_callback;
 
@@ -137,7 +137,7 @@ function smf_db_replacement__callback($matches)
 		smf_db_error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 	if (!isset($values[$matches[2]]))
-		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
+		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
 
 	$replacement = $values[$matches[2]];
 
