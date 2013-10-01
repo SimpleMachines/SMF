@@ -1025,9 +1025,9 @@ function MessageSearch()
 		$context['search_params']['search'] = un_htmlspecialchars($_REQUEST['search']);
 
 	if (isset($context['search_params']['search']))
-		$context['search_params']['search'] = htmlspecialchars($context['search_params']['search']);
+		$context['search_params']['search'] = $smcFunc['htmlspecialchars']($context['search_params']['search']);
 	if (isset($context['search_params']['userspec']))
-		$context['search_params']['userspec'] = htmlspecialchars($context['search_params']['userspec']);
+		$context['search_params']['userspec'] = $smcFunc['htmlspecialchars']($context['search_params']['userspec']);
 
 	if (!empty($context['search_params']['searchtype']))
 		$context['search_params']['searchtype'] = 2;
@@ -1322,9 +1322,9 @@ function MessageSearch2()
 	// Sort out the search query so the user can edit it - if they want.
 	$context['search_params'] = $search_params;
 	if (isset($context['search_params']['search']))
-		$context['search_params']['search'] = htmlspecialchars($context['search_params']['search']);
+		$context['search_params']['search'] = $smcFunc['htmlspecialchars']($context['search_params']['search']);
 	if (isset($context['search_params']['userspec']))
-		$context['search_params']['userspec'] = htmlspecialchars($context['search_params']['userspec']);
+		$context['search_params']['userspec'] = $smcFunc['htmlspecialchars']($context['search_params']['userspec']);
 
 	// Now we have all the parameters, combine them together for pagination and the like...
 	$context['params'] = array();
@@ -1729,7 +1729,7 @@ function MessagePost()
 			if ($row_quoted['id_member'] != $user_info['id'])
 				$context['recipients']['to'][] = array(
 					'id' => $row_quoted['id_member'],
-					'name' => htmlspecialchars($row_quoted['real_name']),
+					'name' => $smcFunc['htmlspecialchars']($row_quoted['real_name']),
 				);
 
 			// Now to get the others.
