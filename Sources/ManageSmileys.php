@@ -273,8 +273,8 @@ function EditSmileySets()
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
-			'path' => htmlspecialchars($set),
-			'name' => htmlspecialchars($set_names[$i]),
+			'path' => $smcFunc['htmlspecialchars']($set),
+			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -536,7 +536,8 @@ function list_getNumSmileySets()
  */
 function AddSmiley()
 {
-	global $modSettings, $context, $settings, $txt, $boarddir, $smcFunc;
+	global $modSettings, $context, $settings, $txt, $boarddir,
+	global $smcFunc;
 
 	// Get a list of all known smiley sets.
 	$context['smileys_dir'] = empty($modSettings['smileys_dir']) ? $boarddir . '/Smileys' : $modSettings['smileys_dir'];
@@ -546,8 +547,8 @@ function AddSmiley()
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
-			'path' => htmlspecialchars($set),
-			'name' => htmlspecialchars($set_names[$i]),
+			'path' => $smcFunc['htmlspecialchars']($set),
+			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -759,7 +760,7 @@ function AddSmiley()
 			{
 				if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
 					$context['filenames'][strtolower($entry)] = array(
-						'id' => htmlspecialchars($entry),
+						'id' => $smcFunc['htmlspecialchars']($entry),
 						'selected' => false,
 					);
 			}
@@ -909,8 +910,8 @@ function EditSmileys()
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
-			'path' => htmlspecialchars($set),
-			'name' => htmlspecialchars($set_names[$i]),
+			'path' => $smcFunc['htmlspecialchars']($set),
+			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -1012,7 +1013,8 @@ function EditSmileys()
 					),
 					'data' => array(
 						'function' => create_function('$rowData', empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']) ? '
-							return htmlspecialchars($rowData[\'description\']);
+							global $smcFunc;
+							return $smcFunc[\'htmlspecialchars\']($rowData[\'description\']);
 						' : '
 							global $context, $txt, $modSettings;
 
@@ -1022,7 +1024,7 @@ function EditSmileys()
 								if (!file_exists(sprintf(\'%1$s/%2$s/%3$s\', $modSettings[\'smileys_dir\'], $smiley_set[\'path\'], $rowData[\'filename\'])))
 									$missing_sets[] = $smiley_set[\'path\'];
 
-							$description = htmlspecialchars($rowData[\'description\']);
+							$description = $smcFunc[\'htmlspecialchars\']($rowData[\'description\']);
 
 							if (!empty($missing_sets))
 								$description .= sprintf(\'<br /><span class="smalltext"><strong>%1$s:</strong> %2$s</span>\', $txt[\'smileys_not_found_in_set\'], implode(\', \', $missing_sets));
