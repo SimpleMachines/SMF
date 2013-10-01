@@ -321,9 +321,9 @@ function PackageInstallTest()
 		{
 			$type = 'package_' . $action['type'];
 			if (file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']))
-				$context[$type] = htmlspecialchars(trim(file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']), "\n\r"));
+				$context[$type] = $smcFunc['htmlspecialchars'](trim(file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']), "\n\r"));
 			elseif (file_exists($action['filename']))
-				$context[$type] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
+				$context[$type] = $smcFunc['htmlspecialchars'](trim(file_get_contents($action['filename']), "\n\r"));
 
 			if (!empty($action['parse_bbc']))
 			{
@@ -1241,7 +1241,8 @@ function PackageList()
  */
 function ExamineFile()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir;
+	global $txt, $scripturl, $boarddir, $context, $sourcedir;
+	global $smcFunc, $packagesdir;
 
 	require_once($sourcedir . '/Subs-Package.php');
 
@@ -1283,9 +1284,9 @@ function ExamineFile()
 	else
 	{
 		if (is_file($packagesdir . '/' . $_REQUEST['package']))
-			$context['filedata'] = htmlspecialchars(read_tgz_file($packagesdir . '/' . $_REQUEST['package'], $_REQUEST['file'], true));
+			$context['filedata'] = $smcFunc['htmlspecialchars'](read_tgz_file($packagesdir . '/' . $_REQUEST['package'], $_REQUEST['file'], true));
 		elseif (is_dir($packagesdir . '/' . $_REQUEST['package']))
-			$context['filedata'] = htmlspecialchars(file_get_contents($packagesdir . '/' . $_REQUEST['package'] . '/' . $_REQUEST['file']));
+			$context['filedata'] = $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/' . $_REQUEST['package'] . '/' . $_REQUEST['file']));
 
 		if (strtolower(strrchr($_REQUEST['file'], '.')) == '.php')
 			$context['filedata'] = highlight_php_code($context['filedata']);
@@ -1896,8 +1897,8 @@ function ViewOperations()
 
 	// Ok lets get the content of the file.
 	$context['operations'] = array(
-		'search' => strtr(htmlspecialchars($mod_actions[$_REQUEST['operation_key']]['search_original']), array('[' => '&#91;', ']' => '&#93;')),
-		'replace' => strtr(htmlspecialchars($mod_actions[$_REQUEST['operation_key']]['replace_original']), array('[' => '&#91;', ']' => '&#93;')),
+		'search' => strtr($smcFunc['htmlspecialchars']($mod_actions[$_REQUEST['operation_key']]['search_original']), array('[' => '&#91;', ']' => '&#93;')),
+		'replace' => strtr($smcFunc['htmlspecialchars']($mod_actions[$_REQUEST['operation_key']]['replace_original']), array('[' => '&#91;', ']' => '&#93;')),
 		'position' => $mod_actions[$_REQUEST['operation_key']]['position'],
 	);
 
