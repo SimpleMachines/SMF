@@ -27,7 +27,8 @@ if (!defined('SMF'))
  */
 function ViewQuery()
 {
-	global $scripturl, $user_info, $settings, $context, $db_connection, $modSettings, $boarddir, $smcFunc, $txt, $db_show_debug;
+	global $scripturl, $user_info, $settings, $context, $db_connection;
+	global $modSettings, $boarddir, $smcFunc, $txt, $db_show_debug;
 
 	// We should have debug mode enabled, as well as something to display!
 	if (!isset($db_show_debug) || $db_show_debug !== true || !isset($_SESSION['debug']))
@@ -121,7 +122,7 @@ function ViewQuery()
 		echo '
 		<div id="qq', $q, '" style="margin-bottom: 2ex;">
 			<a', $is_select_query ? ' href="' . $scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '"' : '', ' style="font-weight: bold; text-decoration: none;">
-				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', htmlspecialchars($query_data['q']))), '
+				', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', $smcFunc['htmlspecialchars']($query_data['q']))), '
 			</a><br />';
 
 		if (!empty($query_data['f']) && !empty($query_data['l']))
