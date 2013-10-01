@@ -573,7 +573,7 @@ function MessageIndex()
 			if (!empty($settings['avatars_on_indexes']))
 				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
 					'name' => $row['avatar'],
-					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : (stristr($row['avatar'], 'http://') ? '<img class="avatar" src="' . $row['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . htmlspecialchars($row['avatar']) . '" alt="" />'),
+					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : (stristr($row['avatar'], 'http://') ? '<img class="avatar" src="' . $row['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row['avatar']) . '" alt="" />'),
 					'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : (stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar']),
 					'url' => $row['avatar'] == '' ? '' : (stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'])
 				);
@@ -611,7 +611,7 @@ function MessageIndex()
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
-		'board_name' => htmlspecialchars(strtr(strip_tags($board_info['name']), array('&amp;' => '&'))),
+		'board_name' => $smcFunc['htmlspecialchars'](strtr(strip_tags($board_info['name']), array('&amp;' => '&'))),
 		'child_level' => $board_info['child_level'],
 	);
 
