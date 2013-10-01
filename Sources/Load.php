@@ -1649,7 +1649,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$context['forum_name'] = $mbname;
 	$context['forum_name_html_safe'] = $smcFunc['htmlspecialchars']($context['forum_name']);
 	$context['header_logo_url_html_safe'] = empty($settings['header_logo_url']) ? '' : $smcFunc['htmlspecialchars']($settings['header_logo_url']);
-	$context['current_action'] = isset($_REQUEST['action']) ? $_REQUEST['action'] : null;
+	$context['current_action'] = isset($_REQUEST['action']) ? $smcFunc['htmlspecialchars']($_REQUEST['action']) : null;
 	$context['current_subaction'] = isset($_REQUEST['sa']) ? $_REQUEST['sa'] : null;
 	$context['can_register'] = empty($modSettings['registration_method']) || $modSettings['registration_method'] != 3;
 	if (isset($modSettings['load_average']))

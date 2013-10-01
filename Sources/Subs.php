@@ -2856,7 +2856,7 @@ function setupThemeContext($forceload = false)
 
 	$context['in_maintenance'] = !empty($maintenance);
 	$context['current_time'] = timeformat(time(), false);
-	$context['current_action'] = isset($_GET['action']) ? $_GET['action'] : '';
+	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
 	$context['show_quick_login'] = !empty($modSettings['enableVBStyleLogin']) && $user_info['is_guest'];
 
 	// Get some news...
