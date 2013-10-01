@@ -217,7 +217,7 @@ function ShowXmlFeed()
 			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml, 240);
 	}
 
-	$feed_title = htmlspecialchars(strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
+	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
 
 	// This is an xml file....
 	ob_end_clean();
@@ -572,7 +572,7 @@ function getXmlMembers($xml_format)
 		else
 			$data[] = array(
 				'name' => cdata_parse($row['real_name']),
-				'time' => htmlspecialchars(strip_tags(timeformat($row['date_registered']))),
+				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered']))),
 				'id' => $row['id_member'],
 				'link' => $scripturl . '?action=profile;u=' . $row['id_member']
 			);
@@ -694,7 +694,7 @@ function getXmlNews($xml_format)
 		// The biggest difference here is more information.
 		else
 			$data[] = array(
-				'time' => htmlspecialchars(strip_tags(timeformat($row['poster_time']))),
+				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_topic'],
 				'subject' => cdata_parse($row['subject']),
 				'body' => cdata_parse($row['body']),
@@ -846,7 +846,7 @@ function getXmlRecent($xml_format)
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else
 			$data[] = array(
-				'time' => htmlspecialchars(strip_tags(timeformat($row['poster_time']))),
+				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_msg'],
 				'subject' => cdata_parse($row['subject']),
 				'body' => cdata_parse($row['body']),
