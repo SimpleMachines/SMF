@@ -22,7 +22,8 @@ if (!defined('SMF'))
 
 function createList($listOptions)
 {
-	global $context, $settings, $options, $txt, $modSettings, $scripturl;
+	global $context, $settings, $options, $txt, $modSettings;
+	global $scripturl, $smcFunc;
 
 	assert(isset($listOptions['id']));
 	assert(isset($listOptions['columns']));
@@ -126,14 +127,14 @@ function createList($listOptions)
 
 			// Take the value from the database and make it HTML safe.
 			elseif (isset($column['data']['db_htmlsafe']))
-				$cur_data['value'] = htmlspecialchars($list_item[$column['data']['db_htmlsafe']]);
+				$cur_data['value'] = $smcFunc['htmlspecialchars']($list_item[$column['data']['db_htmlsafe']]);
 
 			// Using sprintf is probably the most readable way of injecting data.
 			elseif (isset($column['data']['sprintf']))
 			{
 				$params = array();
 				foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe)
-					$params[] = $htmlsafe ? htmlspecialchars($list_item[$sprintf_param]) : $list_item[$sprintf_param];
+					$params[] = $htmlsafe ? $smcFunc['htmlspecialchars']($list_item[$sprintf_param]) : $list_item[$sprintf_param];
 				$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
 			}
 
