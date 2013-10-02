@@ -2843,8 +2843,8 @@ function determineTopicClass(&$topic_context)
  */
 function setupThemeContext($forceload = false)
 {
-	global $modSettings, $user_info, $scripturl, $context, $settings;
-	global $user_settings, $smcFunc, $options, $txt, $maintenance;
+	global $modSettings, $user_info, $scripturl, $context, $settings, $options, $txt, $maintenance;
+	global $user_settings, $smcFunc;
 	static $loaded = false;
 
 	// Under SSI this function can be called more then once.  That can cause some problems.

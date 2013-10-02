@@ -66,8 +66,7 @@ function ManageLanguages()
  */
 function AddLanguage()
 {
-	global $context, $sourcedir, $forum_version, $boarddir, $txt;
-	global $smcFunc, $scripturl;
+	global $context, $sourcedir, $forum_version, $boarddir, $txt, $smcFunc, $scripturl;
 
 	// Are we searching for new languages courtesy of Simple Machines?
 	if (!empty($_POST['smf_add_sub']))

@@ -1241,8 +1241,7 @@ function PackageList()
  */
 function ExamineFile()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir;
-	global $smcFunc, $packagesdir;
+	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Package.php');
 

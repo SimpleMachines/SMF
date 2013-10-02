@@ -1031,8 +1031,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
  */
 function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 {
-	global $boarddir, $packagesdir, $forum_version, $context, $temp_path;
-	global $language, $smcFunc;
+	global $boarddir, $packagesdir, $forum_version, $context, $temp_path, $language, $smcFunc;
 
 	// Mayday!  That action doesn't exist!!
 	if (empty($packageXML) || !$packageXML->exists($method))

@@ -582,8 +582,7 @@ function prepareServerSettingsContext(&$config_vars)
  */
 function prepareDBSettingContext(&$config_vars)
 {
-	global $txt, $helptxt, $context, $modSettings, $sourcedir;
-	global $smcFunc;
+	global $txt, $helptxt, $context, $modSettings, $sourcedir, $smcFunc;
 
 	loadLanguage('Help');
 

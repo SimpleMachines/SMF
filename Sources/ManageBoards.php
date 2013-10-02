@@ -81,8 +81,7 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList,
-	global $scripturl, $sourcedir, $txt, $smcFunc;
+	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $txt, $smcFunc;
 
 	loadTemplate('ManageBoards');
 
@@ -217,8 +216,7 @@ function ManageBoardsMain()
  */
 function EditCategory()
 {
-	global $txt, $context, $cat_tree, $boardList, $boards, 
-	global $smcFunc, $sourcedir;
+	global $txt, $context, $cat_tree, $boardList, $boards, $smcFunc, $sourcedir;
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');

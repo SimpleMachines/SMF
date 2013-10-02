@@ -202,8 +202,7 @@ function logLastDatabaseError()
 function displayDebug()
 {
 	global $context, $scripturl, $boarddir, $modSettings, $boarddir;
-	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits;
-	global $smcFunc, $txt;
+	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
 	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery') || WIRELESS)

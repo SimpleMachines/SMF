@@ -536,8 +536,7 @@ function list_getNumSmileySets()
  */
 function AddSmiley()
 {
-	global $modSettings, $context, $settings, $txt, $boarddir,
-	global $smcFunc;
+	global $modSettings, $context, $settings, $txt, $boarddir, $smcFunc;
 
 	// Get a list of all known smiley sets.
 	$context['smileys_dir'] = empty($modSettings['smileys_dir']) ? $boarddir . '/Smileys' : $modSettings['smileys_dir'];
