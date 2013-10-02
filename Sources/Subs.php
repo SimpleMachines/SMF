@@ -416,9 +416,8 @@ function updateMemberData($members, $data)
  *
  * @param array $changeArray
  * @param bool $update = false
- * @param bool $debug = false
  */
-function updateSettings($changeArray, $update = false, $debug = false)
+function updateSettings($changeArray, $update = false)
 {
 	global $modSettings, $smcFunc;
 
