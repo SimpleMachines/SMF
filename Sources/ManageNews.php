@@ -792,7 +792,7 @@ function SendMailing($clean_only = false)
 
 	// Save the message and its subject in $context
 	$context['subject'] = $smcFunc['htmlspecialchars']($_POST['subject'], ENT_QUOTES);
-	$context['message'] = $smcFunc['htmlspecialchars']($_POST['message'] ENT_QUOTES);
+	$context['message'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
 
 	// Prepare the message for sending it as HTML
 	if (!$context['send_pm'] && !empty($_POST['send_html']))
