@@ -658,7 +658,7 @@ function ComposeMailing()
 	// For progress bar!
 	$context['total_emails'] = count($context['recipients']['emails']);
 	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_member)
+		SELECT COUNT(*)
 		FROM {db_prefix}members',
 		array(
 		)
