@@ -39,49 +39,6 @@ function template_moderation_center()
 	<br class="clear" />';
 }
 
-function template_latest_news()
-{
-	global $settings, $options, $context, $txt, $scripturl;
-
-	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
-			</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				<div id="smfAnnouncements" class="smalltext">', $txt['mc_cannot_connect_sm'], '</div>
-			</div>
-		</div>';
-
-	// This requires a lot of javascript...
-	// @todo Put this in it's own file!!
-	echo '
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var oAdminIndex = new smf_AdminIndex({
-				sSelf: \'oAdminCenter\',
-
-				bLoadAnnouncements: true,
-				sAnnouncementTemplate: ', JavaScriptEscape('
-					<dl>
-						%content%
-					</dl>
-				'), ',
-				sAnnouncementMessageTemplate: ', JavaScriptEscape('
-					<dt><a href="%href%">%subject%</a> ' . $txt['on'] . ' %time%</dt>
-					<dd>
-						%message%
-					</dd>
-				'), ',
-				sAnnouncementContainerId: \'smfAnnouncements\'
-			});
-		// ]]></script>';
-
-}
-
 // Show all the group requests the user can see.
 function template_group_requests_block()
 {
