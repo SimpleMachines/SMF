@@ -2066,10 +2066,8 @@ function ModerationSettings()
 	);
 
 	// What blocks can this user see?
-	$context['homepage_blocks'] = array(
-		'n' => $txt['mc_prefs_latest_news'],
-		'p' => $txt['mc_notes'],
-	);
+	$context['homepage_blocks'] = array();
+
 	if ($context['can_moderate_groups'])
 		$context['homepage_blocks']['g'] = $txt['mc_group_requests'];
 	if ($context['can_moderate_boards'])
