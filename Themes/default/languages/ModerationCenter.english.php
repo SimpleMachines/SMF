@@ -20,6 +20,7 @@ $txt['mc_scratch_board'] = 'Moderator Scratch Board';
 $txt['mc_latest_news'] = 'Simple Machines Latest News';
 $txt['mc_recent_reports'] = 'Recent Topic Reports';
 $txt['mc_warnings'] = 'Warnings';
+$txt['mc_notes'] = 'Moderator Notes';
 
 $txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
@@ -131,6 +132,7 @@ $txt['mc_settings'] = 'Change Settings';
 $txt['mc_prefs_title'] = 'Moderation Preferences';
 $txt['mc_prefs_desc'] = 'This section allows you to set some personal preferences for moderation related activities such as email notifications.';
 $txt['mc_prefs_homepage'] = 'Items to show on moderation homepage';
+$txt['mc_prefs_latest_news'] = 'SM News';
 $txt['mc_prefs_show_reports'] = 'Show open report count in forum header';
 $txt['mc_prefs_notify_report'] = 'Notify of topic reports';
 $txt['mc_prefs_notify_report_never'] = 'Never';

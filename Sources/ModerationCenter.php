@@ -224,11 +224,12 @@ function ModerationHome()
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
 
+	// Handle moderators notes.
+	ModBlockNotes();
+
 	// Load what blocks the user actually can see...
-	$valid_blocks = array(
-		'n' => 'LatestNews',
-		'p' => 'Notes',
-	);
+	$valid_blocks = array();
+
 	if ($context['can_moderate_groups'])
 		$valid_blocks['g'] = 'GroupRequests';
 	if ($context['can_moderate_boards'])
@@ -254,19 +255,6 @@ function ModerationHome()
 				$context['mod_blocks'][] = $block();
 		}
 	}
-}
-
-/**
- * Just prepares the time stuff for the simple machines latest news.
- */
-function ModBlockLatestNews()
-{
-	global $context, $user_info;
-
-	$context['time_format'] = urlencode($user_info['time_format']);
-
-	// Return the template to use.
-	return 'latest_news';
 }
 
 /**
@@ -320,7 +308,7 @@ function ModBlockNotes()
 	global $context, $smcFunc, $scripturl, $txt, $user_info;
 
 	// Are we saving a note?
-	if (isset($_POST['makenote']) && isset($_POST['new_note']))
+	if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 	{
 		checkSession();
 
