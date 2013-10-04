@@ -1617,6 +1617,19 @@ CREATE TABLE {$db_prefix}poll_choices (
 ) ENGINE=MyISAM;
 
 #
+# Table structure for table `qanda`
+#
+
+CREATE TABLE {$db_prefix}qanda (
+  id_question smallint(5) unsigned NOT NULL auto_increment,
+  lngfile varchar(255) NOT NULL default '',
+  question varchar(255) NOT NULL default '',
+  answers text NOT NULL,
+  PRIMARY KEY (id_question),
+  KEY lngfile (lngfile)
+) ENGINE=MyISAM;
+
+#
 # Table structure for table `scheduled_tasks`
 #
 

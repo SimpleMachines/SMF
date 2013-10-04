@@ -1936,7 +1936,7 @@ function create_control_richedit($editorOptions)
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
 	global $txt, $modSettings, $options, $smcFunc;
-	global $context, $settings, $user_info, $sourcedir, $scripturl;
+	global $context, $settings, $user_info, $sourcedir, $scripturl, $language;
 
 	// First verification means we need to set up some bits...
 	if (empty($context['controls']['verification']))
@@ -1988,23 +1988,33 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// If we want questions do we have a cache of all the IDs?
 	if (!empty($thisVerification['number_questions']) && empty($modSettings['question_id_cache']))
 	{
-		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestionIds', 300)) == null)
+		if (($modSettings['question_id_cache'] = cache_get_data('verificationQuestions', 300)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT id_comment
-				FROM {db_prefix}log_comments
-				WHERE comment_type = {string:ver_test}',
-				array(
-					'ver_test' => 'ver_test',
-				)
+				SELECT id_question, lngfile, question, answers
+				FROM {db_prefix}qanda',
+				array()
 			);
-			$modSettings['question_id_cache'] = array();
+			$modSettings['question_id_cache'] = array(
+				'questions' => array(),
+				'langs' => array(),
+			);
+			// This is like Captain Kirk climbing a mountain in some ways. This is L's fault, mkay? :P
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$modSettings['question_id_cache'][] = $row['id_comment'];
+			{
+				$id_question = $row['id_question'];
+				unset ($row['id_question']);
+				// Make them all lowercase. We can't directly use $smcFunc['strtolower'] with array_walk, so do it manually, eh?
+				$row['answers'] = unserialize($row['answers']);
+				foreach ($row['answers'] as $k => $v)
+					$row['answers'][$k] = $smcFunc['strtolower']($v);
+
+				$modSettings['question_id_cache']['questions'][$id_question] = $row;
+				$modSettings['question_id_cache']['langs'][$row['lngfile']][] = $id_question;
+			}
 			$smcFunc['db_free_result']($request);
 
-			if (!empty($modSettings['cache_enable']))
-				cache_put_data('verificationQuestionIds', $modSettings['question_id_cache'], 300);
+			cache_put_data('verificationQuestions', $modSettings['question_id_cache'], 300);
 		}
 	}
 
@@ -2043,24 +2053,27 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 			$verification_errors[] = 'wrong_verification_code';
 		if ($thisVerification['number_questions'])
 		{
-			// Get the answers and see if they are all right!
-			$request = $smcFunc['db_query']('', '
-				SELECT id_comment, recipient_name AS answer
-				FROM {db_prefix}log_comments
-				WHERE comment_type = {string:ver_test}
-					AND id_comment IN ({array_int:comment_ids})',
-				array(
-					'ver_test' => 'ver_test',
-					'comment_ids' => $_SESSION[$verificationOptions['id'] . '_vv']['q'],
-				)
-			);
 			$incorrectQuestions = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			foreach ($_SESSION[$verificationOptions['id'] . '_vv']['q'] as $q)
 			{
-				if (!isset($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$row['id_comment']]) || trim($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$row['id_comment']]) == '' || trim($smcFunc['htmlspecialchars'](strtolower($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$row['id_comment']]))) != strtolower($row['answer']))
-					$incorrectQuestions[] = $row['id_comment'];
+				// We don't have this question any more, thus no answers.
+				if (!isset($modSettings['question_id_cache']['questions'][$q]))
+					continue;
+				// This is quite complex. We have our question but it might have multiple answers.
+				// First, did they actually answer this question?
+				if (!isset($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) || trim($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) == '')
+				{
+					$incorrectQuestions[] = $q;
+					continue;
+				}
+				// Second, is their answer in the list of possible answers?
+				else
+				{
+					$given_answer = trim($smcFunc['htmlspecialchars'](strtolower($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q])));
+					if (!in_array($given_answer, $modSettings['question_id_cache']['questions'][$q]['answers']))
+						$incorrectQuestions[] = $q;
+				}
 			}
-			$smcFunc['db_free_result']($request);
 
 			if (!empty($incorrectQuestions))
 				$verification_errors[] = 'wrong_verification_answer';
@@ -2114,13 +2127,27 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		// Getting some new questions?
 		if ($thisVerification['number_questions'])
 		{
-			// Pick some random IDs
+			// Attempt to try the current page's language, followed by the user's preference, followed by the site default.
+			$possible_langs = array();
+			if (isset($_SESSION['language']))
+				$possible_langs[] = strtr($_SESSION['language'], array('-utf8' => ''));
+			if (!empty($user_info['language']));
+			$possible_langs[] = $user_info['language'];
+			$possible_langs[] = $language;
+
 			$questionIDs = array();
-			if ($thisVerification['number_questions'] == 1)
-				$questionIDs[] = $modSettings['question_id_cache'][array_rand($modSettings['question_id_cache'], $thisVerification['number_questions'])];
-			else
-				foreach (array_rand($modSettings['question_id_cache'], $thisVerification['number_questions']) as $index)
-					$questionIDs[] = $modSettings['question_id_cache'][$index];
+			foreach ($possible_langs as $lang)
+			{
+				$lang = strtr($lang, array('-utf8' => ''));
+				if (isset($modSettings['question_id_cache']['langs'][$lang]))
+				{
+					// If we find questions for this, grab the ids from this language's ones, randomize the array and take just the number we need.
+					$questionIDs = $modSettings['question_id_cache']['langs'][$lang];
+					shuffle($questionIDs);
+					$questionIDs = array_slice($questionIDs, 0, $thisVerification['number_questions']);
+					break;
+				}
+			}
 		}
 	}
 	else
@@ -2141,29 +2168,20 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// Have we got some questions to load?
 	if (!empty($questionIDs))
 	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_comment, body AS question
-			FROM {db_prefix}log_comments
-			WHERE comment_type = {string:ver_test}
-				AND id_comment IN ({array_int:comment_ids})',
-			array(
-				'ver_test' => 'ver_test',
-				'comment_ids' => $questionIDs,
-			)
-		);
 		$_SESSION[$verificationOptions['id'] . '_vv']['q'] = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		foreach ($questionIDs as $q)
 		{
+			// Bit of a shortcut this.
+			$row = &$modSettings['question_id_cache']['questions'][$q];
 			$thisVerification['questions'][] = array(
-				'id' => $row['id_comment'],
+				'id' => $q,
 				'q' => parse_bbc($row['question']),
-				'is_error' => !empty($incorrectQuestions) && in_array($row['id_comment'], $incorrectQuestions),
+				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
-				'a' => isset($_REQUEST[$verificationOptions['id'] . '_vv'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'][$row['id_comment']]) ? $smcFunc['htmlspecialchars']($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$row['id_comment']]) : '',
+				'a' => isset($_REQUEST[$verificationOptions['id'] . '_vv'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'], $_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) ? $smcFunc['htmlspecialchars']($_REQUEST[$verificationOptions['id'] . '_vv']['q'][$q]) : '',
 			);
-			$_SESSION[$verificationOptions['id'] . '_vv']['q'][] = $row['id_comment'];
+			$_SESSION[$verificationOptions['id'] . '_vv']['q'][] = $q;
 		}
-		$smcFunc['db_free_result']($request);
 	}
 
 	$_SESSION[$verificationOptions['id'] . '_vv']['count'] = empty($_SESSION[$verificationOptions['id'] . '_vv']['count']) ? 1 : $_SESSION[$verificationOptions['id'] . '_vv']['count'] + 1;

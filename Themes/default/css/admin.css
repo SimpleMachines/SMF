@@ -927,6 +927,13 @@ dl.right dt {
 	margin: 0 0 6px 0;
 }
 
+/* Styles for the question and answers
+------------------------------------------------- */
+fieldset.qa_fieldset {
+	clear: both;
+	display: none;
+}
+
 /* Styles for the manage calendar section.
 ------------------------------------------------- */
 dl.settings dt.small_caption {
