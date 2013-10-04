@@ -2100,6 +2100,30 @@ CREATE TABLE {$db_prefix}poll_choices (
 );
 
 #
+# Sequence for table `qanda`
+#
+
+CREATE SEQUENCE {$db_prefix}qanda_seq;
+
+#
+# Table structure for table `qanda`
+#
+
+CREATE TABLE {$db_prefix}qanda (
+  id_question smallint default nextval('{$db_prefix}qanda_seq'),
+  lngfile varchar(255) NOT NULL default '',
+  question varchar(255) NOT NULL default '',
+  answers text NOT NULL,
+  PRIMARY KEY (id_question)
+) ENGINE=MyISAM;
+
+#
+# Indexes for table `qanda`
+#
+
+CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile);
+
+#
 # Sequence for table `scheduled_tasks`
 #
 

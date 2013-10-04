@@ -1398,45 +1398,48 @@ function template_callback_question_answer_list()
 {
 	global $txt, $context, $settings;
 
-	echo '
-			<dt>
-				<strong>', $txt['setup_verification_question'], '</strong>
-			</dt>
-			<dd>
-				<strong>', $txt['setup_verification_answer'], '</strong>
-			</dd>';
+	foreach ($context['languages'] as $lang_id => $lang)
+	{
+		$lang_id = strtr($lang_id, array('-utf8' => ''));
+		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
 
-	foreach ($context['question_answers'] as $data)
 		echo '
+						<dt id="qa_dt_', $lang_id, '" class="qa_link">
+							<a href="javascript:void(0);">[ ', $lang['name'], ' ]</a>
+						</dt>
+						<fieldset id="qa_fs_', $lang_id, '" class="qa_fieldset">
+							<legend><a href="javascript:void(0);">', $lang['name'], '</a></legend>
+							<dl class="settings">
+								<dt>
+									<strong>', $txt['setup_verification_question'], '</strong>
+								</dt>
+								<dd>
+									<strong>', $txt['setup_verification_answer'], '</strong>
+								</dd>';
 
-			<dt>
-				<input type="text" name="question[', $data['id'], ']" value="', $data['question'], '" size="50" class="input_text verification_question" />
-			</dt>
-			<dd>
-				<input type="text" name="answer[', $data['id'], ']" value="', $data['answer'], '" size="50" class="input_text verification_answer" />
-			</dd>';
+		if (!empty($context['qa_by_lang'][$lang_id]))
+			foreach ($context['qa_by_lang'][$lang_id] as $q_id)
+			{
+				$question = $context['question_answers'][$q_id];
+				echo '
+								<dt>
+									<input type="text" name="question[', $lang_id, '][', $q_id, ']" value="', $question['question'], '" size="50" class="input_text verification_question" />
+								</dt>
+								<dd>';
+				foreach ($question['answers'] as $answer)
+					echo '
+									<input type="text" name="answer[', $lang_id, '][', $q_id, '][]" value="', $answer, '" size="50" class="input_text verification_answer" />';
 
-	// Some blank ones.
-	for ($count = 0; $count < 3; $count++)
+				echo '
+									<div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ ', $txt['setup_verification_add_answer'], ' ]</a></div>
+								</dd>';
+			}
+
 		echo '
-			<dt>
-				<input type="text" name="question[]" size="50" class="input_text verification_question" />
-			</dt>
-			<dd>
-				<input type="text" name="answer[]" size="50" class="input_text verification_answer" />
-			</dd>';
-
-	echo '
-		<dt id="add_more_question_placeholder" style="display: none;"></dt><dd></dd>
-		<dt id="add_more_link_div" style="display: none;">
-			<a href="#" onclick="addAnotherQuestion(); return false;">&#171; ', $txt['setup_verification_add_more'], ' &#187;</a>
-		</dt><dd></dd>';
-
-	// The javascript needs to go at the end but we'll put it in this template for looks.
-	$context['settings_post_javascript'] .= '
-		var placeHolder = document.getElementById(\'add_more_question_placeholder\');
-		document.getElementById(\'add_more_link_div\').style.display = \'\';
-	';
+								<dt class="qa_add_question"><a href="javascript:void(0);">[ ', $txt['setup_verification_add_more'], ' ]</a></dt>
+							</dl>
+						</fieldset>';
+	}
 }
 
 // Repairing boards.
