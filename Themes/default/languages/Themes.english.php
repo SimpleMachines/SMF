@@ -14,7 +14,7 @@ $txt['theme_remove'] = 'remove';
 $txt['theme_remove_confirm'] = 'Are you sure you want to permanently remove this theme?';
 
 $txt['theme_install'] = 'Install a New Theme';
-$txt['theme_install_file'] = 'From a file';
+$txt['theme_install_file'] = 'From an archive (e.g. .zip, .tar.gz)';
 $txt['theme_install_dir'] = 'From a directory on the server';
 $txt['theme_install_error'] = 'That theme directory doesn\'t exist, or doesn\'t contain a theme.';
 $txt['theme_install_write_error'] = 'The Themes directory must be writable to continue.';
