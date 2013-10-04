@@ -224,11 +224,12 @@ function ModerationHome()
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
 
+	// Handle moderators notes.
+	ModBlockNotes();
+
 	// Load what blocks the user actually can see...
-	$valid_blocks = array(
-		'n' => 'LatestNews',
-		'p' => 'Notes',
-	);
+	$valid_blocks = array();
+
 	if ($context['can_moderate_groups'])
 		$valid_blocks['g'] = 'GroupRequests';
 	if ($context['can_moderate_boards'])
@@ -254,19 +255,6 @@ function ModerationHome()
 				$context['mod_blocks'][] = $block();
 		}
 	}
-}
-
-/**
- * Just prepares the time stuff for the simple machines latest news.
- */
-function ModBlockLatestNews()
-{
-	global $context, $user_info;
-
-	$context['time_format'] = urlencode($user_info['time_format']);
-
-	// Return the template to use.
-	return 'latest_news';
 }
 
 /**
@@ -320,7 +308,7 @@ function ModBlockNotes()
 	global $context, $smcFunc, $scripturl, $txt, $user_info;
 
 	// Are we saving a note?
-	if (isset($_POST['makenote']) && isset($_POST['new_note']))
+	if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 	{
 		checkSession();
 
@@ -427,7 +415,7 @@ function ModBlockNotes()
 		$context['notes'][] = array(
 			'author' => array(
 				'id' => $note['id_member'],
-				'link' => $note['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $note['id_member'] . '" title="' . $txt['on'] . ' ' . strip_tags(timeformat($note['log_time'])) . '">' . $note['member_name'] . '</a>') : $note['member_name'],
+				'link' => $note['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
 			),
 			'time' => timeformat($note['log_time']),
 			'text' => parse_bbc($note['body']),
@@ -2066,10 +2054,8 @@ function ModerationSettings()
 	);
 
 	// What blocks can this user see?
-	$context['homepage_blocks'] = array(
-		'n' => $txt['mc_prefs_latest_news'],
-		'p' => $txt['mc_notes'],
-	);
+	$context['homepage_blocks'] = array();
+
 	if ($context['can_moderate_groups'])
 		$context['homepage_blocks']['g'] = $txt['mc_group_requests'];
 	if ($context['can_moderate_boards'])
