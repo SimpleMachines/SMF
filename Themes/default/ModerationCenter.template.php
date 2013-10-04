@@ -14,6 +14,9 @@ function template_moderation_center()
 {
 	global $settings, $options, $context, $txt, $scripturl;
 
+	// Show moderators notes.
+	template_notes();
+
 	// Show a welcome message to the user.
 	echo '
 	<div id="modcenter">';
@@ -37,49 +40,6 @@ function template_moderation_center()
 	echo '
 	</div>
 	<br class="clear" />';
-}
-
-function template_latest_news()
-{
-	global $settings, $options, $context, $txt, $scripturl;
-
-	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
-			</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				<div id="smfAnnouncements" class="smalltext">', $txt['mc_cannot_connect_sm'], '</div>
-			</div>
-		</div>';
-
-	// This requires a lot of javascript...
-	// @todo Put this in it's own file!!
-	echo '
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var oAdminIndex = new smf_AdminIndex({
-				sSelf: \'oAdminCenter\',
-
-				bLoadAnnouncements: true,
-				sAnnouncementTemplate: ', JavaScriptEscape('
-					<dl>
-						%content%
-					</dl>
-				'), ',
-				sAnnouncementMessageTemplate: ', JavaScriptEscape('
-					<dt><a href="%href%">%subject%</a> ' . $txt['on'] . ' %time%</dt>
-					<dd>
-						%message%
-					</dd>
-				'), ',
-				sAnnouncementContainerId: \'smfAnnouncements\'
-			});
-		// ]]></script>';
-
 }
 
 // Show all the group requests the user can see.
@@ -189,39 +149,41 @@ function template_notes()
 	global $settings, $options, $context, $txt, $scripturl;
 
 	echo '
-		<form action="', $scripturl, '?action=moderate;area=index" method="post">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_notes'], '</h3>
-			</div>
-			<div class="windowbg">
-				<div class="content modbox">';
+		<div class="modnotes">
+			<form action="', $scripturl, '?action=moderate;area=index;modnote" method="post">
+				<div class="cat_bar">
+					<h3 class="catbg">', $txt['mc_notes'], '</h3>
+				</div>
+				<div class="windowbg">
+					<div class="content modbox">';
 
 		if (!empty($context['notes']))
 		{
 			echo '
-					<ul class="reset moderation_notes">';
+						<ul class="reset moderation_notes">';
 
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)
 				echo '
-						<li class="smalltext"><a href="', $note['delete_href'], '"><img src="', $settings['images_url'], '/pm_recipient_delete.png" alt="" /></a> <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
+							<li class="smalltext"><a href="', $note['delete_href'], '"><img src="', $settings['images_url'], '/pm_recipient_delete.png" alt="" /></a>', $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
 
 			echo '
-					</ul>
-					<div class="pagesection notes">
-						<span class="smalltext">', $context['page_index'], '</span>
-					</div>';
+						</ul>
+						<div class="pagesection notes">
+							<span class="smalltext">', $context['page_index'], '</span>
+						</div>';
 		}
 
 		echo '
-					<div class="floatleft post_note">
+						<div class="floatleft post_note">
 						<input type="text" name="new_note" value="', $txt['mc_click_add_note'], '" style="width: 95%;" onclick="if (this.value == \'', $txt['mc_click_add_note'], '\') this.value = \'\';" class="input_text" />
+						</div>
+						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit" />
 					</div>
-					<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit" />
 				</div>
-			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-		</form>';
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			</form>
+		</div>';
 }
 
 function template_reported_posts()
