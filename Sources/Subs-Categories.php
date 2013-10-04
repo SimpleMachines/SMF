@@ -321,7 +321,7 @@ function collapseCategories($categories, $new_status, $members = null, $check_co
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			if (empty($row['is_collapsed']) && (!empty($row['can_collapse']) || !$check_collapsable))
-				$updates['insert'][] = array($row['id_member'], $row['id_cat']);
+				$updates['insert'][] = array($row['id_cat'], $row['id_member']);
 			elseif (!empty($row['is_collapsed']))
 				$updates['remove'][] = '(id_member = ' . $row['id_member'] . ' AND id_cat = ' . $row['id_cat'] . ')';
 		}
