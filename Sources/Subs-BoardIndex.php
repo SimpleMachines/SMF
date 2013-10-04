@@ -117,10 +117,6 @@ function getBoardIndex($boardIndexOptions)
 			// Avoid showing category unread link where it only has redirection boards.
 			$categories[$row_board['id_cat']]['show_unread'] = !empty($categories[$row_board['id_cat']]['show_unread']) ? 1 : !$row_board['is_redirect'];
 
-			// Collapsed category - don't do any of this.
-			if ($categories[$row_board['id_cat']]['is_collapsed'])
-				continue;
-
 			// Let's save some typing.  Climbing the array might be slower, anyhow.
 			$this_category = &$categories[$row_board['id_cat']]['boards'];
 		}

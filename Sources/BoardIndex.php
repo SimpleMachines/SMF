@@ -141,11 +141,15 @@ function CollapseCategory()
 	{
 		// And collapse/expand/toggle the category.
 		require_once($sourcedir . '/Subs-Categories.php');
+
 		collapseCategories(array((int) $_REQUEST['c']), $_REQUEST['sa'], array($user_info['id']));
 	}
 
-	// And go back to the board index.
-	BoardIndex();
+	// Check we came from where.
+	if (!isset($_REQUEST['ajax']))
+		BoardIndex();
+	else
+		die('true');
 }
 
 ?>

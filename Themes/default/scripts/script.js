@@ -949,6 +949,26 @@ smc_Toggle.prototype.toggle = function()
 	this.changeState(!this.bCollapsed);
 }
 
+/**
+ * Collapse or expand categories with AJAX.
+ */
+function smc_ToggleCategory(id, session_var, session_id)
+{
+	ajax_indicator(true);
+
+	$.ajax({
+		url: smf_prepareScriptUrl(smf_scripturl) + 'action=collapse;sa=toggle;ajax',
+		type: 'POST',
+		dataType: 'html',
+		data: 'c=' + id + '&' + session_var + '=' + session_id,
+	}).done(function(response) {
+		if (response == 'true') {
+			$('#category_' + id + '_boards').fadeToggle('slow');
+		}
+	}).always(function() {
+		ajax_indicator(false);
+	});
+}
 
 function ajax_indicator(turn_on)
 {
