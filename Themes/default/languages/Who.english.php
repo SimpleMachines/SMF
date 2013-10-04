@@ -127,8 +127,9 @@ $txt['who_poll'] = 'Posting a new poll in <a href="' . $scripturl . '?board=%1$d
 
 // Credits text
 $txt['credits'] = 'Credits';
-$txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF 2.0 what it is today; shaping and directing our project, all through the thick and the thin. It wouldn\'t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
-$txt['credits_team'] = 'The Team';
+$txt['credits_intro'] = 'Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today; shaping and directing our project, all through the thick and the thin. It wouldn\'t have been possible without you. This includes our users, especially <a href="https://github.com/SimpleMachines/SMF2.1/graphs/contributors/">Code Contributors</a>. Friends, Former Members of the Project and Charter Members - Thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions.';
+$txt['credits_team'] = 'SMF Team';
+$txt['credits_npo'] = 'Corporate Team';
 $txt['credits_special'] = 'Special Thanks';
 $txt['credits_and'] = 'and';
 $txt['credits_anyone'] = 'And for anyone we may have missed, thank you!';
@@ -139,15 +140,15 @@ $txt['credits_software_graphics'] = 'Software/Graphics';
 $txt['credits_software'] = 'Software';
 $txt['credits_graphics'] = 'Graphics';
 $txt['credits_fonts'] = 'Fonts';
-$txt['credits_groups_pm'] = 'Project Manager';
+$txt['credits_groups_pm'] = 'Project Managers';
 $txt['credits_groups_dev'] = 'Developers';
 $txt['credits_groups_support'] = 'Support Specialists';
 $txt['credits_groups_customize'] = 'Customizers';
 $txt['credits_groups_docs'] = 'Documentation Writers';
 $txt['credits_groups_marketing'] = 'Marketing';
 $txt['credits_groups_internationalizers'] = 'Localizers';
-$txt['credits_groups_servers'] = 'Servers Administrators';
-$txt['credits_groups_site'] = 'Site Administrators';
+$txt['credits_groups_servers'] = 'Server Team';
+$txt['credits_groups_site'] = 'Site Team';
 $txt['credits_license'] = 'License';
 $txt['credits_copyright'] = 'Copyright';
 $txt['credits_version'] = 'Version';

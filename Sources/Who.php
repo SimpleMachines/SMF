@@ -544,29 +544,32 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
-						'Michael &quot;Oldiesmann&quot; Eshom',
+						'Kindred',
+						'Amacythe',
+						'Bryan &quot;Runic&quot; Deakin',
+						'Justin &quot;metallica48423&quot; O\'Leary',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
-						// Lead Developer
-						// 'Steven &quot;Fustrate&quot; Hoffman',
-						// Developers
-						'Brad &quot;IchBin&trade;&quot; Grow',
-						'emanuele',
-						'Norv',
-						// 'Spuds', // Doesn't want to be listed here
-						// Former Developers
+						'Michael &quot;Oldiesmann&quot; Eshom',
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern &quot;Bloc&quot; Kristiansen',
+						'Brad &quot;IchBin&trade;&quot; Grow',
+						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
+						'Jessica Gonz&aacute;lez',
+						'Joshua &quot;groundup&quot; Dickerson',
 						'Juan &quot;JayBachatero&quot; Hernandez',
 						'Karl &quot;RegularExpression&quot; Benson',
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
-						'Michael &quot;Thantos&quot; Miller',
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
+						'Norv',
 						'Selman &quot;[SiNaN]&quot; Eser',
+						'Spuds',
+						'Steven &quot;Fustrate&quot; Hoffman',
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
@@ -575,87 +578,97 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
-						// Lead Support Specialist
-						'Kat',
-						// Support Specialists
+						'K@',
 						'Aleksi &quot;Lex&quot; Kilpinen',
+						'Ben Scott',
 						'Bigguy',
-						'Chas Large',
-						'Duncan85',
-						'JimM',
-						'Mashby',
-						'Old Fossil',
-						'Yoshi',
-						'ziycon',
-						// Former Support Specialists
 						'CapadY',
+						'Chas Large',
+						'Colin &quot;Shadow82x&quot; Blaber',
+						'Duncan85',
+						'Eliana Tamerin',
+						'Fiery',
 						'gbsothere',
+						'Harro',
+						'Huw',
+						'Jan-Olof &quot;Owdy&quot; Eriksson',
+						'Jeremy &quot;jerm&quot; Strike',
+						'JimM',
 						'Kevin &quot;greyknight17&quot; Hou',
-						'Michele &quot;Illori&quot; Davis',
+						'KGIII',
+						'Kill Em All',
+						'Mattitude',
+						'Mashby',
+						'MrPhil',
+						'Nick &quot;Fizzy&quot; Dyer',
+						'Nick &quot;Ha&sup2;&quot;',
+						'Nova &quot;ChalkCat&quot; Howard',
+						'Old Fossil',
+						'Paul_Pauline',
+						'Piro &quot;Sarge&quot; Dhima',
+						'Rumbaar',
+						'Pitti',
+						'RedOne',
+						'Storman&trade;',
 						'S-Ace',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'xenovanis',
+						'Yoshi2889',
+						'ziycon',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_customize'],
 					'members' => array(
-						// Lead Customizer
 						'Gary M. Gadsdon',
-						// Customizers
-						'Jessica Gonz&aacute;lez',
-						'Kays',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
-						'Ricky.',
-						// Former Customizers
+						'&#12487;&#12451;&#12531;1031',
 						'Brannon &quot;B&quot; Hall',
+						'Bugo',
+						'Bulakbol',
+						'Colin Schoen',
+						'Daniel15',
+						'Eren Yasarkurt',
+						'Jason &quot;JBlaze&quot; Clemons',
+						'Jerry',
+						'Jonathan &quot;vbgamer45&quot; Valentin',
+						'Kays',
+						'Killer Possum',
+						'Kirby',
+						'Jack &quot;akabugeyes&quot; Thorsen',
+						'Joey &quot;Tyrsson&quot; Smith',
+						'Joker&trade;',
+						'Matt &quot;SlammedDime&quot; Zuba',
+						'Mick G.',
+						'Nibogo',
+						'Niko',
+						'Peter &quot;Arantor&quot; Spicer',
+						'Ricky.',
+						'snork13',
 						'Joey &quot;Tyrsson&quot; Smith',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
-						// Doc Coordinator
+						'Michele &quot;Illori&quot; Davis',
 						'AngelinaBelle',
-						// Doc Writers
+						'Daniel Diehl',
+						'Dannii Willis',
 						'Graeme Spence',
-						'Joshua &quot;groundup&quot; Dickerson',
+						'Jade Elizabeth Trainor',
+						'Irisado',
+						'Peter Duggan',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
-						// Lead Localizer
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
-						// Localizers
+						'Akyhne',
+						'Antes',
 						'Dr. Deejay',
+						'GravuTrad',
 						'Relyana',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_marketing'],
-					'members' => array(
-						// Marketing Coordinator
-						'Ralph &quot;[n3rve]&quot; Otowo',
-						// Marketing
-						'Bryan &quot;Runic&quot; Deakin',
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
-						// Former Marketing
-						'Kindred',
-						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_site'],
-					'members' => array(
-						'Jeremy &quot;SleePy&quot; Darwood',
-					),
-				),
-				array(
-					'title' => $txt['credits_groups_servers'],
-					'members' => array(
-						'Derek Schwab',
-						'Liroy &quot;CoreISP&quot; van Hoewijk',
 					),
 				),
 			),
@@ -673,11 +686,52 @@ function Credits($in_admin = false)
 				),
 			),
 		);
+		
+	$context['credits'][] = array(
+		'title' => $txt['credits_npo'],
+		'groups' => array(
+			array(
+				'title' => $txt['credits_groups_marketing'],
+				'members' => array(
+					'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
+					'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
+					'Ralph &quot;[n3rve]&quot; Otowo',
+					'rickC',
+					'Tony Reid'
+				),
+			),
+			array(
+				'title' => $txt['credits_groups_site'],
+				'members' => array(
+					'Jeremy &quot;SleePy&quot; Darwood',
+				),
+			),
+			array(
+				'title' => $txt['credits_groups_servers'],
+				'members' => array(
+					'Derek Schwab',
+					'Liroy &quot;CoreISP&quot; van Hoewijk',
+				),
+			),
+		),
+	);
 
 	$context['credits'][] = array(
 		'title' => $txt['credits_special'],
 		'posttext' => $txt['credits_anyone'],
 		'groups' => array(
+			array(
+				'title' => $txt['credits_groups_friends'],
+				'members' => array(
+					$txt['credits_friends_message'],
+				),
+			),
+			array(
+				'title' => $txt['credits_groups_github'],
+				'members' => array(
+					$txt['credits_github_message'],
+				),
+			),
 			array(
 				'title' => $txt['credits_groups_consultants'],
 				'members' => array(
