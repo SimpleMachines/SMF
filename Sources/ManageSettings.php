@@ -815,7 +815,7 @@ function ModifyModerationSettings($return_config = false)
  */
 function ModifySpamSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc, $language;
 
 	// Generate a sample registration image.
 	$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
@@ -848,25 +848,58 @@ function ModifySpamSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Load any question and answers!
+	// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
+	getLanguages();
+	$context['qa_languages'] = array();
+	foreach ($context['languages'] as $lang_id => $lang)
+	{
+		$lang_id = strtr($lang_id, array('-utf8' => ''));
+		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
+		$context['qa_languages'][$lang_id] = $lang;
+	}
+
+	// Secondly, load any questions we currently have.
 	$context['question_answers'] = array();
 	$request = $smcFunc['db_query']('', '
-		SELECT id_comment, body AS question, recipient_name AS answer
-		FROM {db_prefix}log_comments
-		WHERE comment_type = {string:ver_test}',
-		array(
-			'ver_test' => 'ver_test',
-		)
+		SELECT id_question, lngfile, question, answers
+		FROM {db_prefix}qanda'
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['question_answers'][$row['id_comment']] = array(
-			'id' => $row['id_comment'],
+		$lang = strtr($row['lngfile'], array('-utf8' => ''));
+		$context['question_answers'][$row['id_question']] = array(
+			'lngfile' => $lang,
 			'question' => $row['question'],
-			'answer' => $row['answer'],
+			'answers' => unserialize($row['answers']),
 		);
+		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
-	$smcFunc['db_free_result']($request);
+
+	// Thirdly, push some JavaScript for the form to make it work.
+	addInlineJavascript('
+	var nextrow = ' . (!empty($context['question_answers']) ? max(array_keys($context['question_answers'])) + 1 : 1) . ';
+	$(".qa_link a").click(function() {
+		var id = $(this).parent().attr("id").substring(6);
+		$("#qa_fs_" + id).show();
+		$(this).parent().hide();
+	});
+	$(".qa_fieldset legend a").click(function() {
+		var id = $(this).closest("fieldset").attr("id").substring(6);
+		$("#qa_dt_" + id).show();
+		$(this).closest("fieldset").hide();
+	});
+	$(".qa_add_question a").click(function() {
+		var id = $(this).closest("fieldset").attr("id").substring(6);
+		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="input_text verification_question" /></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="input_text verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
+		nextrow++;
+	});
+	function addAnswer(obj)
+	{
+		var attr = $(obj).closest("dd").find(".verification_answer:last").attr("name");
+		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="input_text verification_answer" />\').insertBefore($(obj).closest("div"));
+		return false;
+	}
+	$("#qa_dt_' . $language . ' a").click();', true);
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -886,71 +919,124 @@ function ModifySpamSettings($return_config = false)
 		$save_vars[] = array('text', 'pm_spam_settings');
 
 		// Handle verification questions.
-		$questionInserts = array();
-		$count_questions = 0;
-		foreach ($_POST['question'] as $id => $question)
+		$changes = array(
+			'insert' => array(),
+			'replace' => array(),
+			'delete' => array(),
+		);
+		$qs_per_lang = array();
+		foreach ($context['qa_languages'] as $lang_id => $dummy)
 		{
-			$question = trim($smcFunc['htmlspecialchars']($question, ENT_COMPAT, $context['character_set']));
-			$answer = trim($smcFunc['strtolower']($smcFunc['htmlspecialchars']($_POST['answer'][$id], ENT_COMPAT, $context['character_set'])));
+			// If we had some questions for this language before, but don't now, delete everything from that language.
+			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
+				$changes['delete'] = array_merge($questions['delete'], $context['qa_by_lang'][$lang_id]);
 
-			// Already existed?
-			if (isset($context['question_answers'][$id]))
+			// Now step through and see if any existing questions no longer exist.
+			if (!empty($context['qa_by_lang'][$lang_id]))
+				foreach ($context['qa_by_lang'][$lang_id] as $q_id)
+					if (empty($_POST['question'][$lang_id][$q_id]))
+						$changes['delete'][] = $q_id;
+
+			// Now let's see if there are new questions or ones that need updating.
+			foreach ($_POST['question'][$lang_id] as $q_id => $question)
 			{
-				$count_questions++;
-				// Changed?
-				if ($context['question_answers'][$id]['question'] != $question || $context['question_answers'][$id]['answer'] != $answer)
+				// Ignore junky ids.
+				$q_id = (int) $q_id;
+				if ($q_id <= 0)
+					continue;
+
+				// Check the question isn't empty (because they want to delete it?)
+				if (empty($question) || trim($question) == '')
 				{
-					if ($question == '' || $answer == '')
-					{
-						$smcFunc['db_query']('', '
-							DELETE FROM {db_prefix}log_comments
-							WHERE comment_type = {string:ver_test}
-								AND id_comment = {int:id}',
-							array(
-								'id' => $id,
-								'ver_test' => 'ver_test',
-							)
-						);
-						$count_questions--;
-					}
-					else
-						$request = $smcFunc['db_query']('', '
-							UPDATE {db_prefix}log_comments
-							SET body = {string:question}, recipient_name = {string:answer}
-							WHERE comment_type = {string:ver_test}
-								AND id_comment = {int:id}',
-							array(
-								'id' => $id,
-								'ver_test' => 'ver_test',
-								'question' => $question,
-								'answer' => $answer,
-							)
-						);
+					if (isset($context['question_answers'][$q_id]))
+						$changes['delete'][] = $q_id;
+					continue;
 				}
+				$question = $smcFunc['htmlspecialchars'](trim($question));
+
+				// Get the answers. Firstly check there actually might be some.
+				if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id]))
+				{
+					if (isset($context['question_answers'][$q_id]))
+						$changes['delete'][] = $q_id;
+					continue;
+				}
+				// Now get them and check that they might be viable.
+				$answers = array();
+				foreach ($_POST['answer'][$lang_id][$q_id] as $answer)
+					if (!empty($answer) && trim($answer) !== '')
+						$answers[] = $smcFunc['htmlspecialchars'](trim($answer));
+				if (empty($answers))
+				{
+					if (isset($context['question_answers'][$q_id]))
+						$changes['delete'][] = $q_id;
+					continue;
+				}
+				$answers = serialize($answers);
+
+				// At this point we know we have a question and some answers. What are we doing with it?
+				if (!isset($context['question_answers'][$q_id]))
+				{
+					// New question. Now, we don't want to randomly consume ids, so we'll set those, rather than trusting the browser's supplied ids.
+					$changes['insert'][] = array($lang_id, $question, $answers);
+				}
+				else
+				{
+					// It's an existing question. Let's see what's changed, if anything.
+					if ($lang_id != $context['question_answers'][$q_id]['lngfile'] || $question != $context['question_answers'][$q_id]['question'] || $answers != $context['question_answers'][$q_id]['answers'])
+						$changes['replace'][$q_id] = array('lngfile' => $lang_id, 'question' => $question, 'answers' => $answers);
+				}
+
+				if (!isset($qs_per_lang[$lang_id]))
+					$qs_per_lang[$lang_id] = 0;
+				$qs_per_lang[$lang_id]++;
 			}
-			// It's so shiney and new!
-			elseif ($question != '' && $answer != '')
+		}
+
+		// OK, so changes?
+		if (!empty($changes['delete']))
+		{
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}qanda
+				WHERE id_question IN ({array_int:questions})',
+				array(
+					'questions' => $changes['delete'],
+				)
+			);
+		}
+
+		if (!empty($changes['replace']))
+		{
+			foreach ($changes['replace'] as $q_id => $question)
 			{
-				$questionInserts[] = array(
-					'comment_type' => 'ver_test',
-					'body' => $question,
-					'recipient_name' => $answer,
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}qanda
+					SET lngfile = {string:lngfile},
+						question = {string:question},
+						answers = {string:answers}
+					WHERE id_question = {int:id_question}',
+					array(
+						'id_question' => $q_id,
+						'lngfile' => $question['lngfile'],
+						'question' => $question['question'],
+						'answers' => $question['answers'],
+					)
 				);
 			}
 		}
 
-		// Any questions to insert?
-		if (!empty($questionInserts))
+		if (!empty($changes['insert']))
 		{
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_comments',
-				array('comment_type' => 'string', 'body' => 'string-65535', 'recipient_name' => 'string-80'),
-				$questionInserts,
-				array('id_comment')
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}qanda',
+				array('lngfile' => 'string-50', 'question' => 'string-255', 'answers' => 'string-65534'),
+				$changes['insert'],
+				array('id_question')
 			);
-			$count_questions++;
 		}
 
+		// Lastly, the count of messages needs to be no more than the lowest number of questions for any one language.
+		$count_questions = empty($qs_per_lang) ? 0 : min($qs_per_lang);
 		if (empty($count_questions) || $_POST['qa_verification_number'] > $count_questions)
 			$_POST['qa_verification_number'] = $count_questions;
 
@@ -959,7 +1045,7 @@ function ModifySpamSettings($return_config = false)
 		// Now save.
 		saveDBSettings($save_vars);
 
-		cache_put_data('verificationQuestionIds', null, 300);
+		cache_put_data('verificationQuestions', null, 300);
 
 		redirectexit('action=admin;area=securitysettings;sa=spam');
 	}

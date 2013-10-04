@@ -187,6 +187,7 @@ $txt['setup_verification_questions_desc'] = '<span class="smalltext">If you want
 $txt['setup_verification_question'] = 'Question';
 $txt['setup_verification_answer'] = 'Answer';
 $txt['setup_verification_add_more'] = 'Add another question';
+$txt['setup_verification_add_answer'] = 'Add another answer';
 
 $txt['moderation_settings'] = 'Moderation Settings';
 $txt['setting_warning_enable'] = 'Enable User Warning System';

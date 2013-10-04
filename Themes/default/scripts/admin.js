@@ -410,30 +410,6 @@ function createNamedElement(type, name, customFields)
 	return element;
 }
 
-function addAnotherQuestion()
-{
-	var newDT = document.createElement("dt");
-
-	var newInput = createNamedElement("input", "question[]");
-	newInput.type = "text";
-	newInput.className = "input_text";
-	newInput.size = "50";
-	newInput.setAttribute("class", "verification_question");
-	newDT.appendChild(newInput);
-
-	newDD = document.createElement("dd");
-
-	newInput = createNamedElement("input", "answer[]");
-	newInput.type = "text";
-	newInput.className = "input_text";
-	newInput.size = "50";
-	newInput.setAttribute("class", "verification_answer");
-	newDD.appendChild(newInput);
-
-	placeHolder.parentNode.insertBefore(newDT, placeHolder);
-	placeHolder.parentNode.insertBefore(newDD, placeHolder);
-}
-
 function smfSetLatestThemes()
 {
 	if (typeof(window.smfLatestThemes) != "undefined")
