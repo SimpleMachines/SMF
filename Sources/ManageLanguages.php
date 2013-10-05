@@ -973,7 +973,7 @@ function ModifyLanguage()
 		// Members can no longer use this language.
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}members
-			SET lngfile = {string:empty_string}
+			SET lngfile = {empty}
 			WHERE lngfile = {string:current_language}',
 			array(
 				'empty_string' => '',
