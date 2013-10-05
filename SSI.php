@@ -832,7 +832,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 	$query_where = '
 		id_group = {int:id_group}
 		OR id_post_group = {int:id_group}
-		OR FIND_IN_SET({int:id_group}, additional_groups)';
+		OR FIND_IN_SET({int:id_group}, additional_groups) != 0';
 
 	$query_where_params = array(
 		'id_group' => $group_id,
@@ -1651,7 +1651,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		SELECT id_board
 		FROM {db_prefix}boards
 		WHERE ' . ($board === null ? '' : 'id_board = {int:current_board}
-			AND ') . 'FIND_IN_SET(-1, member_groups)
+			AND ') . 'FIND_IN_SET(-1, member_groups) != 0
 		LIMIT 1',
 		array(
 			'current_board' => $board,
