@@ -353,7 +353,6 @@ $txt['attachmentEnable_enable_all'] = 'Enable all attachments';
 $txt['attachmentEnable_disable_new'] = 'Disable new attachments';
 $txt['attachmentCheckExtensions'] = 'Check attachment\'s extension';
 $txt['attachmentExtensions'] = 'Allowed attachment extensions';
-$txt['attachmentRecodeLineEndings'] = 'Recode line endings in textual attachments';
 $txt['attachmentShowImages'] = 'Display image attachments as pictures under post';
 $txt['attachmentUploadDir'] = 'Attachments directory';
 $txt['attachmentUploadDir_multiple_configure'] = 'Manage attachment directories';
