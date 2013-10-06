@@ -664,7 +664,7 @@ function ReportedPosts()
 			'topic' => array(
 				'id' => $row['id_topic'],
 				'id_msg' => $row['id_msg'],
-				'id_board' => $row['if_board'],
+				'id_board' => $row['id_board'],
 				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			),
 			'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
