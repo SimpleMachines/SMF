@@ -731,7 +731,7 @@ function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 		replacement += '<a class="navPages" href="' + baseURL.replace(/%1\$d/, i).replace(/%%/g, '%') + '">' + (1 + i / perPage) + '</a> ';
 
 	if (oldLastPage > 0)
-		replacement += '<span class="expand_pages" onclick="expandPages(this, \'' + baseURL + '\', ' + lastPage + ', ' + oldLastPage + ', ' + perPage + ');"><strong> ... </strong></span>';
+		replacement += '<span class="expand_pages" onclick="expandPages(this, \'' + baseURL + '\', ' + lastPage + ', ' + oldLastPage + ', ' + perPage + ');"> ... </span>';
 
 	// Replace the dots by the new page links.
 	setOuterHTML(spanNode, replacement);
