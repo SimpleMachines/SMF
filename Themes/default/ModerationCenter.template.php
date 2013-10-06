@@ -236,6 +236,11 @@ function template_reported_posts()
 					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
 					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>';
 
+		// Delete message button.
+		if (allowedTo('remove_any', $report['topic']['id_board']))
+			echo '
+					<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,'" onclick="return confirm(\'' , $txt['mc_reportedp_delete_confirm'] , '\');>', $delete_button, '</a></li>';
+
 		// Ban this user button.
 		if (allowedTo('manage_bans', $report['topic']['id_board']))
 			echo '
