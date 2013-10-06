@@ -45,6 +45,8 @@ $txt['mc_reportedp_close'] = 'Close';
 $txt['mc_reportedp_open'] = 'Open';
 $txt['mc_reportedp_ignore'] = 'Ignore';
 $txt['mc_reportedp_unignore'] = 'Un-Ignore';
+$txt['mc_reportedp_delete'] = 'Delete';
+$txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.
 $txt['mc_reportedp_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this message?\\n\\nThis will turn off further reports for all moderators of the forum.';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
