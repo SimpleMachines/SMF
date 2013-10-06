@@ -544,6 +544,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .navPages {
 	padding: 0 1px;
 }
+.expand_pages {
+	font-weight: bold;
+	cursor: pointer;
+}
 .next_page, .previous_page {
 	text-transform: capitalize;
 	padding: 0 2px;
