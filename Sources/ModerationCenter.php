@@ -661,7 +661,12 @@ function ReportedPosts()
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			'topic' => array(
+				'id' => $row['id_topic'],
+				'id_msg' => $row['id_msg'],
+				'id_board' => $row['if_board'],
+				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			),
 			'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
