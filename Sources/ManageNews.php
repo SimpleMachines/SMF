@@ -522,7 +522,6 @@ function ComposeMailing()
 		$context['recipients']['emails'] = !empty($_POST['emails']) ? explode(';', $_POST['emails']) : array();
 		$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
 		$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
-		$context['max_id_member'] = !empty($_POST['max_id_member']) ? (int) $_POST['max_id_member'] : 0;
 		$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 		$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
 
@@ -659,12 +658,12 @@ function ComposeMailing()
 	// For progress bar!
 	$context['total_emails'] = count($context['recipients']['emails']);
 	$request = $smcFunc['db_query']('', '
-		SELECT MAX(id_member)
+		SELECT COUNT(*)
 		FROM {db_prefix}members',
 		array(
 		)
 	);
-	list ($context['max_id_member']) = $smcFunc['db_fetch_row']($request);
+	list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Clean up the arrays.
@@ -708,9 +707,22 @@ function SendMailing($clean_only = false)
 	$context['email_force'] = !empty($_POST['email_force']) ? 1 : 0;
 	$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 	$context['total_emails'] = !empty($_POST['total_emails']) ? (int) $_POST['total_emails'] : 0;
-	$context['max_id_member'] = !empty($_POST['max_id_member']) ? (int) $_POST['max_id_member'] : 0;
 	$context['send_html'] = !empty($_POST['send_html']) ? '1' : '0';
 	$context['parse_html'] = !empty($_POST['parse_html']) ? '1' : '0';
+
+	//One can't simply nullify things around
+	if(empty($_REQUEST['total_members'])) {
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(id_member)
+			FROM {db_prefix}members',
+			array(
+			)
+		);
+		list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	} else {
+		$context['total_members'] = (int) $_REQUEST['total_members'];
+	}
 
 	// Create our main context.
 	$context['recipients'] = array(
@@ -884,8 +896,6 @@ function SendMailing($clean_only = false)
 		$i++;
 	}
 
-	// Got some more to send this batch?
-	$last_id_member = 0;
 	if ($i < $num_at_once)
 	{
 		// Need to build quite a query!
@@ -937,16 +947,13 @@ function SendMailing($clean_only = false)
 		$result = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
 			FROM {db_prefix}members AS mem
-			WHERE mem.id_member > {int:min_id_member}
-				AND mem.id_member < {int:max_id_member}
-				AND ' . $sendQuery . '
+			WHERE ' . $sendQuery . '
 				AND mem.is_activated = {int:is_activated}
 			ORDER BY mem.id_member ASC
-			LIMIT {int:atonce}',
+			LIMIT {int:start}, {int:atonce}',
 			array_merge($sendParams, array(
-				'min_id_member' => $context['start'],
-				'max_id_member' => $context['start'] + $num_at_once - $i,
-				'atonce' => $num_at_once - $i,
+				'start' => $context['start'],
+				'atonce' => $num_at_once,
 				'regular_group' => 0,
 				'notify_announcements' => 1,
 				'is_activated' => 1,
@@ -955,8 +962,6 @@ function SendMailing($clean_only = false)
 
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
-			$last_id_member = $row['id_member'];
-
 			// What groups are we looking at here?
 			if (empty($row['additional_groups']))
 				$groups = array($row['id_group'], $row['id_post_group']);
@@ -999,26 +1004,18 @@ function SendMailing($clean_only = false)
 		$smcFunc['db_free_result']($result);
 	}
 
-	// If used our batch assume we still have a member.
-	if ($i >= $num_at_once)
-		$last_id_member = $context['start'];
-	// Or we didn't have one in range?
-	elseif (empty($last_id_member) && $context['start'] + $num_at_once < $context['max_id_member'])
-		$last_id_member = $context['start'] + $num_at_once;
-	// If we have no id_member then we're done.
-	elseif (empty($last_id_member) && empty($context['recipients']['emails']))
+
+	$context['start'] = $context['start'] + $num_at_once;
+	if (empty($context['recipients']['emails']) && ($context['start'] >= $context['total_members']))
 	{
 		// Log this into the admin log.
 		logAction('newsletter', array(), 'admin');
-
 		redirectexit('action=admin');
 	}
 
-	$context['start'] = $last_id_member;
-
 	// Working out progress is a black art of sorts.
-	$percentEmails = $context['total_emails'] == 0 ? 0 : ((count($context['recipients']['emails']) / $context['total_emails']) * ($context['total_emails'] / ($context['total_emails'] + $context['max_id_member'])));
-	$percentMembers = ($context['start'] / $context['max_id_member']) * ($context['max_id_member'] / ($context['total_emails'] + $context['max_id_member']));
+	$percentEmails = $context['total_emails'] == 0 ? 0 : ((count($context['recipients']['emails']) / $context['total_emails']) * ($context['total_emails'] / ($context['total_emails'] + $context['total_members'])));
+	$percentMembers = ($context['start'] / $context['total_members']) * ($context['total_members'] / ($context['total_emails'] + $context['total_members']));
 	$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
 
 	$context['page_title'] = $txt['admin_newsletters'];
