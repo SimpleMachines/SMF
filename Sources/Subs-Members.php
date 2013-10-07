@@ -729,6 +729,9 @@ function registerMember(&$regOptions, $return_errors = false)
 	);
 	$memberID = $smcFunc['db_insert_id']('{db_prefix}members', 'id_member');
 
+	// Call an optional function as notification of registration.
+	call_integration_hook('integrate_post_register', array(&$regOptions, &$theme_vars, &$memberID));
+
 	// Update the number of members and latest member's info - and pass the name, but remove the 's.
 	if ($regOptions['register_vars']['is_activated'] == 1)
 		updateStats('member', $memberID, $regOptions['register_vars']['real_name']);
