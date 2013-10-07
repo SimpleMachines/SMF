@@ -123,6 +123,7 @@ $txt['mc_warning_template_delete'] = 'Delete Selected';
 $txt['mc_warning_template_delete_confirm'] = 'Are you sure you want to delete the selected templates?';
 $txt['report_action_message_deleted'] = 'The message was successfully deleted.';
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
+$txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
 $txt['report_action_open'] = 'The report was successfully open.';
 $txt['report_action_close_all'] = 'You successfully closed all selected reports.';

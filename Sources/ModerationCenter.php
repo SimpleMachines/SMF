@@ -593,7 +593,7 @@ function ReportedPosts()
 		);
 
 		// Tell the user about it.
-		$context['report_post_action'] = isset($_GET['ignore']) ? 'ignore' : (isset($_GET['close']) ? 'close' : 'open');
+		$context['report_post_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
 
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
