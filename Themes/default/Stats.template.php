@@ -69,7 +69,10 @@ function template_main()
 							<dt>', $txt['latest_member'], ':</dt>
 							<dd>', $context['common_stats']['latest_member']['link'], '</dd>
 							<dt>', $txt['average_online'], ':</dt>
-							<dd>', $context['average_online'], '</dd>
+							<dd>', $context['average_online'], '</dd>';
+
+	if (!empty($context['gender']))
+		echo '
 							<dt>', $txt['gender_ratio'], ':</dt>
 							<dd>', $context['gender']['ratio'], '</dd>';
 
