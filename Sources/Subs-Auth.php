@@ -130,7 +130,7 @@ function url_parts($local, $global)
 
 	// Globalize cookies across domains (filter out IP-addresses)?
 	elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
-			$parsed_url['host'] = '.' . $parts[1];
+		$parsed_url['host'] = '.' . $parts[1];
 
 	// We shouldn't use a host at all if both options are off.
 	elseif (!$local && !$global)
