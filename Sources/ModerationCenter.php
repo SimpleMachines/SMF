@@ -655,9 +655,11 @@ function ReportedPosts()
 	);
 	$context['reports'] = array();
 	$report_ids = array();
+	$report_boards_ids = array();
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$report_ids[] = $row['id_report'];
+		$report_boards_ids[] = $row['id_board'];
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
@@ -715,6 +717,10 @@ function ReportedPosts()
 		}
 		$smcFunc['db_free_result']($request);
 	}
+
+	// Get the boards where the current user can remove any message.
+	$context['report_remove_any_boards'] = $user_info['is_admin'] ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
+	$context['report_manage_bans'] = allowedTo('manage_bans');
 }
 
 /**
