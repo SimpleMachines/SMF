@@ -205,7 +205,10 @@ function MessageMain()
 	);
 
 	if (!isset($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
+	{
+		$_REQUEST['sa'] = '';
 		MessageFolder();
+	}
 	else
 	{
 		if (!isset($_REQUEST['xml']))
