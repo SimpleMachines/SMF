@@ -303,20 +303,27 @@ $helptxt['simpleSearch'] = 'This will show a simple search form and a link to a 
 $helptxt['search_dropdown'] = 'This will show a search selection dropdown next to the quick search box.  From this you can choose to search the current site, current board (if in a board_, current topic (if in a topic) or search for members.';
 $helptxt['max_image_width'] = 'This allows you to set a maximum size for posted pictures. Pictures smaller than the maximum will not be affected. This also determines how attached images are displayed when a thumbnail is clicked on.';
 $helptxt['mail_type'] = 'This setting allows you to choose either PHP\'s default settings, or to override those settings with SMTP.  PHP doesn\'t support using authentication with SMTP (which many hosts require, now) so if you want that you should select SMTP.  Please note that SMTP can be slower, and some servers will not take usernames and passwords.<br /><br />You don\'t need to fill in the SMTP settings if this is set to PHP\'s default.';
-$helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload, and attach to a post.<br /><br />
-		<strong>Check attachment extension</strong>:<br /> Do you want to check the extension of the files?<br />
-		<strong>Allowed attachment extensions</strong>:<br /> You can set the allowed extensions of attached files.<br />
-		<strong>Attachments directory</strong>:<br /> The path to your attachment folder<br />(example: /home/sites/yoursite/www/forum/attachments)<br />
-		<strong>Max attachment directory space</strong> (in KB):<br /> Select how large the attachment folder can be, including all files within it.<br />
-		<strong>Max attachment size per post</strong> (in KB):<br /> Select the maximum filesize of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.<br />
-		<strong>Max size per attachment</strong> (in KB):<br /> Select the maximum filesize of each separate attachment.<br />
-		<strong>Max number of attachments per post</strong>:<br /> Select the number of attachments a person can make, per post.<br />
-		<strong>Display attachment as picture in posts</strong>:<br /> If the uploaded file is a picture, this will show it underneath the post.<br />
-		<strong>Resize images when showing under posts</strong>:<br /> If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.<br />
-		<strong>Maximum width and height of thumbnails</strong>:<br /> Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width and height to resize attachments down from.  They will be resized proportionally.';
+$helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload and attach to a post.<br /><br />';
+$helptxt['attachmentCheckExtensions'] = 'Do you want to check the extension of the files?';
+$helptxt['attachmentExtensions'] = 'You can set the allowed extensions of attached files.';
+$helptxt['attachmentUploadDir'] = 'The path to your attachment folder<br />(example: /home/sites/yoursite/www/forum/attachments)';
+$helptxt['attachmentDirSizeLimit'] = ' Select how large the attachment folder can be, including all files within it.';
+$helptxt['attachmentPostLimit'] = ' Select the maximum filesize (in KB) of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.';
+$helptxt['attachmentSizeLimit'] = 'Select the maximum filesize of each separate attachment.';
+$helptxt['attachmentNumPerPostLimit'] = ' Select the number of attachments a person can make per post.';
+$helptxt['attachmentShowImages'] = 'If the uploaded file is a picture, it will be displayed underneath the post.';
+$helptxt['attachmentThumbnails'] = 'If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.';
+$helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width to resize attachments down from.  They will be resized proportionally.';
+$helptxt['attachmentThumbHeight'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum height to resize attachments down from.  They will be resized proportionally.';
+$helptxt['attachmentDirFileLimit'] = 'Max number of files per directory help text';
+$helptxt['attachmentEnable'] = 'Enable/Disable attachments or enable new ones.';
 $helptxt['attachment_image_paranoid'] = 'Selecting this option will enable very strict security checks on image attachments. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with image re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if image re-encoding is not enabled, all attachments failing checks will be rejected.';
 $helptxt['attachment_image_reencode'] = 'Selecting this option will enable trying to re-encode the uploaded image attachments. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br /> This feature is only possible if the GD module is installed on your server.';
 $helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br />Checking this option, the system will estimate the required memory and will then request that amount.  If successful, only then will it attempt to create the thumbnail.<br />This will result in fewer white screen errors but may result in fewer thumbnails being created.  Leaving this unchecked the system will always try to create the thumbnail (with a fixed amount of memory).  This may result in more white screen errors.';
+$helptxt['attachmentRecodeLineEndings'] = 'The script will re-code line endings according to your server.';
+$helptxt['automanage_attachments'] = 'Decide how the attachments will be handled.';
+$helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
+$helptxt['max_image_height'] = 'The maximum height an attached image can be.';
 $helptxt['avatar_paranoid'] = 'Selecting this option will enable very strict security checks on avatars. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with avatars re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if re-encoding of avatars is not enabled, all avatars failing checks will be rejected.';
 $helptxt['avatar_reencode'] = 'Selecting this option will enable trying to re-encode the uploaded avatars. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br /> This feature is only possible if the GD module is installed on your server.';
 $helptxt['karmaMode'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can
@@ -357,8 +364,8 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
-$helptxt['themes'] = 'Here you can select which theme guests will use, whether or not users can choose their own 
-	theme and, if so, which themes they can choose.';
+$helptxt['themes'] = 'Here you can select whether the default theme can be chosen, what theme guests will use,
+	as well as other options. Click on a theme to the right to change the settings for it.';
 $helptxt['theme_install'] = 'This allows you to install new themes.  You can do this from an already created directory, by uploading an archive for the theme, or by copying the default theme.<br /><br />Note that the archive or directory must have a <tt>theme_info.xml</tt> definition file.';
 $helptxt['enableEmbeddedFlash'] = 'This option will allow your users to use Flash directly inside their posts,
 	just like images.  This could pose a security risk, although few have successfully exploited it.
