@@ -239,12 +239,12 @@ function template_reported_posts()
 		// Delete message button.
 		if (allowedTo('remove_any', $report['topic']['id_board']))
 			echo '
-					<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,'" onclick="return confirm(\'' , $txt['mc_reportedp_delete_confirm'] , '\');>', $delete_button, '</a></li>';
+					<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'' , $txt['mc_reportedp_delete_confirm'] , '\');">', $delete_button, '</a></li>';
 
 		// Ban this user button.
 		if (allowedTo('manage_bans', $report['topic']['id_board']))
 			echo '
-					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['author']['id'] ,'">', $ban_button, '</a></li>';
+					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['author']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
 		echo '
 					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check" />' : '', '</li>
