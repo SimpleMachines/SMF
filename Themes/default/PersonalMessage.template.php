@@ -11,7 +11,7 @@
  */
 
 
-// This is the main sidebar for the personal messages section.
+// This is for stuff above the menu in the personal messages section.
 function template_pm_above()
 {
 	global $context, $settings, $options, $txt;

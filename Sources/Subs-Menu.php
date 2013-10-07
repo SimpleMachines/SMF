@@ -245,20 +245,11 @@ function createMenu($menuData, $menuOptions = array())
 		return false;
 	}
 
-	// What type of menu is this?
-	if (empty($menuOptions['menu_type']))
-	{
-		$menuOptions['menu_type'] = '_' . (empty($options['use_sidebar_menu']) ? 'dropdown' : 'sidebar');
-		$menu_context['can_toggle_drop_down'] = !$user_info['is_guest'] && isset($settings['theme_version']) && $settings['theme_version'] >= 2.0;
-	}
-	else
-		$menu_context['can_toggle_drop_down'] = !empty($menuOptions['can_toggle_drop_down']);
-
 	// Almost there - load the template and add to the template layers.
 	if (!WIRELESS)
 	{
 		loadTemplate(isset($menuOptions['template_name']) ? $menuOptions['template_name'] : 'GenericMenu');
-		$menu_context['layer_name'] = (isset($menuOptions['layer_name']) ? $menuOptions['layer_name'] : 'generic_menu') . $menuOptions['menu_type'];
+		$menu_context['layer_name'] = (isset($menuOptions['layer_name']) ? $menuOptions['layer_name'] : 'generic_menu') . '_dropdown';
 		$context['template_layers'][] = $menu_context['layer_name'];
 	}
 
