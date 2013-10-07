@@ -2067,8 +2067,7 @@ VALUES
 	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s'),
 	(4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s'),
 	(5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s'),
-	(6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s'),
-	(7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s');
+	(6, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s');
 ---#
 
 ---# Ensure that the table has the filetype column

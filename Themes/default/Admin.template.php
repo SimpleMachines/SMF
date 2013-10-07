@@ -214,19 +214,6 @@ function template_credits()
 				</div>
 			</div>';
 
-	// Display latest support questions from simplemachines.org.
-	echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '
-				</h3>
-			</div>
-			<div class="windowbg">
-				<div class="content">
-					<div id="latestSupport">', $txt['support_latest_fetch'], '</div>
-				</div>
-			</div>';
-
 	// The most important part - the credits :P.
 	echo '
 			<div id="credits_sections" class="cat_bar">
@@ -289,8 +276,7 @@ function template_credits()
 	echo '
 		// ]]></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-support.js"></script>';
+		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
 	// This sets the latest support stuff.
 	echo '
