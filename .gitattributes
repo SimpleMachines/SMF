@@ -8,3 +8,4 @@
 *.tgz binary
 *.zip binary
 *.tar.gz binary
+*.ttf binary

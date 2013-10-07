@@ -766,7 +766,7 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace('~\[html\](.+?)\[/html\]~ise', '\'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br />\', \'$1\') . \'[/html]\'', $parts[$i]);
+						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br />\', "$m[1]") . \'[/html]\';'), $parts[$i]);
 				}
 				$form_message = implode('', $parts);
 			}
