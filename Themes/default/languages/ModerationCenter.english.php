@@ -121,6 +121,11 @@ $txt['mc_warning_template_add'] = 'Add Template';
 $txt['mc_warning_template_modify'] = 'Edit Template';
 $txt['mc_warning_template_delete'] = 'Delete Selected';
 $txt['mc_warning_template_delete_confirm'] = 'Are you sure you want to delete the selected templates?';
+$txt['report_action_message_deleted'] = 'The message was successfully deleted.';
+$txt['report_action_ignore'] = 'The report was successfully ignored.';
+$txt['report_action_close'] = 'The report was successfully closed.';
+$txt['report_action_open'] = 'The report was successfully open.';
+$txt['report_action_close_all'] = 'You successfully closed all selected reports.';
 
 $txt['mc_warning_template_desc'] = 'Use this page to fill in the details of the template. Note that the subject for the email is not part of the template. Note that as the notification is sent by PM you can use BBC within the template. Note if you use the {MESSAGE} variable then this template will not be available when issuing a generic warning (i.e. A warning not linked to a post).';
 $txt['mc_warning_template_title'] = 'Template Title';

@@ -548,6 +548,9 @@ function ReportedPosts()
 
 	loadTemplate('ModerationCenter');
 
+	// Set an empty var for the server response.
+	$context['report_post_action'] = '';
+
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_reported_posts'],
@@ -589,6 +592,9 @@ function ReportedPosts()
 			)
 		);
 
+		// Tell the user about it.
+		$context['report_post_action'] = isset($_GET['ignore']) ? 'ignore' : (isset($_GET['close']) ? 'close' : 'open');
+
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
 		recountOpenReports();
@@ -619,6 +625,9 @@ function ReportedPosts()
 			updateSettings(array('last_mod_report_action' => time()));
 			recountOpenReports();
 		}
+
+		// Go on and tell the result.
+		$context['report_post_action'] = 'close_all';
 	}
 
 	// How many entries are we viewing?
@@ -721,6 +730,10 @@ function ReportedPosts()
 	// Get the boards where the current user can remove any message.
 	$context['report_remove_any_boards'] = $user_info['is_admin'] ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
 	$context['report_manage_bans'] = allowedTo('manage_bans');
+
+	// Do we deleted a message?
+	if (isset($_REQUEST['done']))
+		$context['report_post_action'] = 'message_deleted';
 }
 
 /**

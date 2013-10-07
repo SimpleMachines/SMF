@@ -136,7 +136,9 @@ function DeleteMessage()
 		logAction('delete', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
 
 	// We want to redirect back to recent action.
-	if (isset($_REQUEST['recent']))
+	if (isset($_REQUEST['modcenter']))
+		redirectexit('action=moderate;area=reports;done');
+	elseif (isset($_REQUEST['recent']))
 		redirectexit('action=recent');
 	elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u']))
 		redirectexit('action=profile;u=' . $_REQUEST['u'] . ';area=showposts;start=' . $_REQUEST['start']);
