@@ -493,7 +493,7 @@ function Post($post_errors = array())
 		// Previewing an edit?
 		if (isset($_REQUEST['msg']) && !empty($topic))
 		{
-			// Get the existing message.
+			// Get the existing message. Previewing.
 			$request = $smcFunc['db_query']('', '
 				SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
@@ -607,7 +607,7 @@ function Post($post_errors = array())
 	{
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-		// Get the existing message.
+		// Get the existing message. Editing.
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.smileys_enabled, m.body,
