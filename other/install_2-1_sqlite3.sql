@@ -2181,7 +2181,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_mark
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_board_desc', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'allow_no_censored', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');

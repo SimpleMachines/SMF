@@ -32,12 +32,12 @@ if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['pac
 
 ---# Copying the current "allow users to disable word censor" setting...
 ---{
-if (!isset($modSettings['allow_no_censor']))
+if (!isset($modSettings['allow_no_censored']))
 {
 	$request = upgrade_query("
 		SELECT value
 		FROM {$db_prefix}themes
-		WHERE variable='allow_no_censor'
+		WHERE variable='allow_no_censored'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
 	
@@ -48,7 +48,7 @@ if (!isset($modSettings['allow_no_censor']))
 		{
 			upgrade_query("
 				INSERT INTO {$db_prefix}settings
-				VALUES ('allow_no_censor', 1)
+				VALUES ('allow_no_censored', 1)
 			");
 			
 			// Don't do this twice...
