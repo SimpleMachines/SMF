@@ -303,10 +303,10 @@ $helptxt['simpleSearch'] = 'This will show a simple search form and a link to a 
 $helptxt['search_dropdown'] = 'This will show a search selection dropdown next to the quick search box.  From this you can choose to search the current site, current board (if in a board_, current topic (if in a topic) or search for members.';
 $helptxt['max_image_width'] = 'This allows you to set a maximum size for posted pictures. Pictures smaller than the maximum will not be affected. This also determines how attached images are displayed when a thumbnail is clicked on.';
 $helptxt['mail_type'] = 'This setting allows you to choose either PHP\'s default settings, or to override those settings with SMTP.  PHP doesn\'t support using authentication with SMTP (which many hosts require, now) so if you want that you should select SMTP.  Please note that SMTP can be slower, and some servers will not take usernames and passwords.<br /><br />You don\'t need to fill in the SMTP settings if this is set to PHP\'s default.';
-$helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload and attach to a post.<br /><br />';
+$helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload and attach to a post. Different sites may use these in different ways, which you can configure here.';
 $helptxt['attachmentCheckExtensions'] = 'Do you want to check the extension of the files?';
 $helptxt['attachmentExtensions'] = 'You can set the allowed extensions of attached files.';
-$helptxt['attachmentUploadDir'] = 'The path to your attachment folder<br />(example: /home/sites/yoursite/www/forum/attachments)';
+$helptxt['attachmentUploadDir'] = 'The path to your attachment folder on the server<br />(example: /home/sites/yoursite/www/forum/attachments)';
 $helptxt['attachmentDirSizeLimit'] = ' Select how large the attachment folder can be, including all files within it.';
 $helptxt['attachmentPostLimit'] = ' Select the maximum filesize (in KB) of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.';
 $helptxt['attachmentSizeLimit'] = 'Select the maximum filesize of each separate attachment.';
@@ -316,12 +316,26 @@ $helptxt['attachmentThumbnails'] = 'If the above option is selected, this will s
 $helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width to resize attachments down from.  They will be resized proportionally.';
 $helptxt['attachmentThumbHeight'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum height to resize attachments down from.  They will be resized proportionally.';
 $helptxt['attachmentDirFileLimit'] = 'Max number of files per directory help text';
-$helptxt['attachmentEnable'] = 'Enable/Disable attachments or enable new ones.';
+$helptxt['attachmentEnable'] = 'This option enables you to configure how attachments can be made.<br /><br />
+	<ul class="normallist">
+		<li>
+			<strong>Disable all attachments</strong><br />
+			All attachments are disabled, existing attachments are not available; it is as if they were never attached, nor can any new attachments be made, regardless of permissions.<br /><br />
+		</li>
+		<li>
+			<strong>Enable all attachments</strong><br />
+			Everything behaves as normal, users who are permitted to view attachments can do so, users who are permitted to upload can do so.<br /><br />
+		</li>
+		<li>
+			<strong>Disable new attachments</strong><br />
+			Existing attachments are still accessible, but no new attachments can be added, regardless of permission.
+		</li>
+	</ul>';
 $helptxt['attachment_image_paranoid'] = 'Selecting this option will enable very strict security checks on image attachments. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with image re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if image re-encoding is not enabled, all attachments failing checks will be rejected.';
 $helptxt['attachment_image_reencode'] = 'Selecting this option will enable trying to re-encode the uploaded image attachments. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br /> This feature is only possible if the GD module is installed on your server.';
 $helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br />Checking this option, the system will estimate the required memory and will then request that amount.  If successful, only then will it attempt to create the thumbnail.<br />This will result in fewer white screen errors but may result in fewer thumbnails being created.  Leaving this unchecked the system will always try to create the thumbnail (with a fixed amount of memory).  This may result in more white screen errors.';
 $helptxt['attachmentRecodeLineEndings'] = 'The script will re-code line endings according to your server.';
-$helptxt['automanage_attachments'] = 'Decide how the attachments will be handled.';
+$helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single folder. For most sites this is not a problem, but as a site grows it can be useful to have multiple folders to store attachments in.<br /><br />This option allows you to set whether you manage these folders yourself (e.g. creating a second folder and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down folders by years or even months on very busy sites.';
 $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
 $helptxt['max_image_height'] = 'The maximum height an attached image can be.';
 $helptxt['avatar_paranoid'] = 'Selecting this option will enable very strict security checks on avatars. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with avatars re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if re-encoding of avatars is not enabled, all avatars failing checks will be rejected.';
