@@ -2589,7 +2589,7 @@ function redirectexit($setLocation = '', $refresh = false)
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
-			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html\' . SID. (isset($m[2]) ? "$m[2]?" : "?");'), $setLocation);
+			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html?\' . SID. (isset($m[2]) ? "$m[2]" : "");'), $setLocation);
 		else
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html\' . (isset($m[2]) ? "$m[2]" : "");'), $setLocation);
 	}
