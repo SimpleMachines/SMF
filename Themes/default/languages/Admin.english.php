@@ -64,7 +64,6 @@ $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(0 to disable)';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['modSettings_info'] = 'Change or set options that control how this forum operates.';
 $txt['database_server'] = 'Database Server';
 $txt['database_user'] = 'Database Username';
 $txt['database_password'] = 'Database Password';
@@ -119,12 +118,8 @@ $txt['manage_calendar'] = 'Calendar';
 $txt['manage_search'] = 'Search';
 
 $txt['smileys_manage'] = 'Smileys and Message Icons';
-$txt['smileys_manage_info'] = 'Install new smiley sets, add smileys to existing ones, or manage your message icons.';
-$txt['package_info'] = 'Install new features or modify existing ones with this interface.';
 $txt['theme_admin'] = 'Themes and Layout';
-$txt['theme_admin_info'] = 'Setup and manage your themes, and set or reset theme options.';
 $txt['registration_center'] = 'Registration';
-$txt['member_center_info'] = 'View the member list, search for members, or manage account approvals and activations.';
 
 $txt['viewmembers_name'] = 'Username (display name)';
 $txt['viewmembers_online'] = 'Last Online';
@@ -296,7 +291,6 @@ $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
 
 $txt['support_credits_title'] = 'Support and Credits';
-$txt['support_credits_info'] = 'Links to support for common issues, and version information to give if you have problems.';
 $txt['support_title'] = 'Support Information';
 $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
@@ -310,7 +304,6 @@ $txt['support_resources'] = 'Support Resources';
 $txt['support_resources_p1'] = 'Our <a href="%1$s">Online Manual</a> provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain <a href="%2$s">Features</a>, <a href="%3$s">Settings</a>, <a href="%4$s">Themes</a>, <a href="%5$s">Packages</a>, etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly.';
 $txt['support_resources_p2'] = 'If you can\'t find the answers to your questions in the Online Manual, you may want to search our <a href="%1$s">Support Community</a> or ask for assistance in either our <a href="%2$s">English</a> or one of our many <a href="%3$s">international support boards</a>. The SMF Support Community can be used for <a href="%4$s">support</a>, <a href="%5$s">customization</a>, and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators.';
 
-$txt['edit_permissions_info'] = 'Change restrictions and available features, globally or in specific boards.';
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
 $txt['membergroups_add_group'] = 'Add group';

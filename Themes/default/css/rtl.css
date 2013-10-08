@@ -162,7 +162,7 @@ table.table_list a.collapse {
 	right: 14.5em;
 }
 /* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
-.dropmenu li li.subsections a:after, .adm_section .dropmenu li.subsections a:after{
+.dropmenu li li.subsections a:after {
 	left: 2px;
 	right: auto;
 	background: url(../images/admin/subsection_rtl.png) no-repeat;
@@ -605,16 +605,6 @@ div#admin_menu {
 #admin_content {
 	clear: right;
 }
-/* Styles for sidebar menus.
-------------------------------------------------------- */
-#left_admsection {
-	float: right;
-	padding-right: 0;
-	padding-left: 10px;
-}
-.left_admmenu li {
-	padding: 0 0.5em 0 0;
-}
 /* Styles for generic tables.
 ------------------------------------------------------- */
 .topic_table td.stickybg2 {
@@ -661,19 +651,6 @@ div#admin_menu {
 }
 #avatar_server_stored div {
 	float: right;
-}
-
-#main_admsection #basicinfo h4 {
-	float: right;
-}
-#main_admsection #basicinfo img.avatar {
-	float: left;
-}
-#main_admsection #basicinfo ul {
-	clear: right;
-}
-#main_admsection #basicinfo span#userstatus {
-	clear: right;
 }
 
 /* Profile statistics */
