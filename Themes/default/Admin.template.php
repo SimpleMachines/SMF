@@ -78,7 +78,6 @@ function template_admin()
 			</div>
 		</div>';
 
-	//print_r($context[$context['admin_menu_name']]);
 	$use_bg2 = true;
 	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
 	{
@@ -101,24 +100,6 @@ function template_admin()
 		</fieldset>';
 		$use_bg2 = !$use_bg2;
 	}
-
-	/*echo '
-		<div class="windowbg2 quick_tasks">
-			<div class="content">
-				<ul id="quick_tasks" class="flow_hidden">';
-
-	foreach ($context['quick_admin_tasks'] as $task)
-		echo '
-					<li>
-						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image" /></a>' : '', '
-						<h5>', $task['link'], '</h5>
-						<span class="task">', $task['description'],'</span>
-					</li>';
-
-	echo '
-				</ul>
-			</div>
-		</div>';*/
 
 	echo '
 	</div>';
