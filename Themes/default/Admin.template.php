@@ -12,7 +12,7 @@
 
 function template_maint_warning_above()
 {
-	global $txt, $context;
+	global $txt, $context, $scripturl;
 
 	echo '
 	<div class="errorbox" id="errors">
