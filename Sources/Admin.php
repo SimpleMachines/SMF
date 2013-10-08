@@ -141,20 +141,6 @@ function AdminMain()
 						'settings' => array($txt['language_settings']),
 					),
 				),
-				'serversettings' => array(
-					'label' => $txt['admin_server_settings'],
-					'file' => 'ManageServer.php',
-					'function' => 'ModifySettings',
-					'icon' => 'server.png',
-					'subsections' => array(
-						'general' => array($txt['general_settings']),
-						'database' => array($txt['database_paths_settings']),
-						'cookie' => array($txt['cookies_sessions_settings']),
-						'cache' => array($txt['caching_settings']),
-						'loads' => array($txt['load_balancing_settings']),
-						'phpinfo' => array($txt['phpinfo_settings']),
-					),
-				),
 				'current_theme' => array(
 					'label' => $txt['theme_current_settings'],
 					'file' => 'Themes.php',
@@ -223,7 +209,7 @@ function AdminMain()
 					'label' => $txt['manage_drafts'],
 					'file' => 'Drafts.php',
 					'function' => 'ModifyDraftSettings',
-					'icon' => 'logs.png',
+					'icon' => 'drafts.png',
 					'permission' => array('admin_forum'),
 					'enabled' => in_array('dr', $context['admin_features']),
 				),
@@ -381,6 +367,20 @@ function AdminMain()
 			'title' => $txt['admin_maintenance'],
 			'permission' => array('admin_forum'),
 			'areas' => array(
+				'serversettings' => array(
+					'label' => $txt['admin_server_settings'],
+					'file' => 'ManageServer.php',
+					'function' => 'ModifySettings',
+					'icon' => 'server.png',
+					'subsections' => array(
+						'general' => array($txt['general_settings']),
+						'database' => array($txt['database_paths_settings']),
+						'cookie' => array($txt['cookies_sessions_settings']),
+						'cache' => array($txt['caching_settings']),
+						'loads' => array($txt['load_balancing_settings']),
+						'phpinfo' => array($txt['phpinfo_settings']),
+					),
+				),
 				'maintain' => array(
 					'label' => $txt['maintain_title'],
 					'file' => 'ManageMaintenance.php',
@@ -461,7 +461,7 @@ function AdminMain()
 	validateSession();
 
 	// Actually create the menu!
-	$admin_include_data = createMenu($admin_areas);
+	$admin_include_data = createMenu($admin_areas, array('do_big_icons' => true));
 	unset($admin_areas);
 
 	// Nothing valid?

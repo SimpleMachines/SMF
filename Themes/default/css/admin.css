@@ -409,10 +409,9 @@ body#chrome  #quick_search .button_submit {
 /* Admin and moderation could generally do with a clean up everywhere.
 /* Live news from smf.org and support information. */
 #admin_main_section {
-	margin: 12px 0 0 0;
-	padding: 8px 12px 4px 12px;
-	border-radius: 7px 7px 0 0;
-	border-bottom: none;
+	margin: 12px 0;
+	padding: 8px 12px;
+	border-radius: 7px;
 }
 #admin_main_section .cat_bar {
 	background: none;
@@ -470,6 +469,20 @@ body#chrome  #quick_search .button_submit {
 	margin: 0;
 	padding: 6px 12px;
 	border-top: double #ddd;
+}
+
+fieldset.admin_group legend {
+	background: #eaf1f4;
+	border: 1px solid #cacdd3;
+	padding: 1px 5px;
+	border-radius: 3px;
+}
+fieldset.admin_group a {
+	display: inline-block;
+	width: 100px;
+	font-size: 85%;
+	text-align: center;
+	vertical-align: top;
 }
 
 /* The update warning. */
