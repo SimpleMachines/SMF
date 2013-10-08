@@ -10,6 +10,28 @@
  * @version 2.1 Alpha 1
  */
 
+function template_maint_warning_above()
+{
+	global $txt, $context;
+
+	echo '
+	<div class="errorbox" id="errors">
+		<dl>
+			<dt>
+				<strong id="error_serious">', $txt['forum_in_maintainence'], '</strong>
+			</dt>
+			<dd class="error" id="error_list">
+				', sprintf($txt['maintenance_page'], $scripturl . '?action=admin;area=serversettings;' . $context['session_var'] . '=' . $context['session_id']), '
+			</dd>
+		</dl>
+	</div>';
+}
+
+function template_maint_warning_below()
+{
+
+}
+
 /**
  * This is the administration center home.
  */
