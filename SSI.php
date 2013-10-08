@@ -471,9 +471,9 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		)
 	);
 	$topics = array();
-	while ($row = wesql::fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$topics[$row['id_topic']] = $row;
-	wesql::free_result($request);
+	$smcFunc['db_free_result']($request);
 
 	// Did we find anything? If not, bail.
 	if (empty($topics))
