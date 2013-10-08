@@ -78,23 +78,30 @@ function template_admin()
 			</div>
 		</div>';
 
-	echo '
-		<div class="windowbg2 quick_tasks">
-			<div class="content">
-				<ul id="quick_tasks" class="flow_hidden">';
-
-	foreach ($context['quick_admin_tasks'] as $task)
+	$use_bg2 = true;
+	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
+	{
 		echo '
-					<li>
-						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image" /></a>' : '', '
-						<h5>', $task['link'], '</h5>
-						<span class="task">', $task['description'],'</span>
-					</li>';
+		<fieldset id="group_', $area_id, '" class="', $use_bg2 ? 'windowbg2' : 'windowbg', ' admin_group">
+			<legend>', $area['title'], '</legend>';
+
+		foreach ($area['areas'] as $item_id => $item)
+		{
+			// No point showing the 'home' page here, we're already on it!
+			if ($area_id == 'forum' && $item_id == 'index')
+				continue;
+
+			$url = isset($item['url']) ? $item['url'] : $scripturl . '?action=admin;area=' . $item_id . (!empty($context[$context['admin_menu_name']]['extra_parameters']) ? $context[$context['admin_menu_name']]['extra_parameters'] : '');
+			echo '
+				<a href="', $url, '"><img src="', $item['bigicon'], '" alt="" /><br />', $item['label'], '</a>';
+		}
+
+		echo '
+		</fieldset>';
+		$use_bg2 = !$use_bg2;
+	}
 
 	echo '
-				</ul>
-			</div>
-		</div>
 	</div>';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.

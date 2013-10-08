@@ -26,9 +26,6 @@ function createMenu($menuData, $menuOptions = array())
 {
 	global $context, $settings, $options, $txt, $modSettings, $scripturl, $smcFunc, $user_info, $sourcedir, $options;
 
-	// Work out where we should get our images from.
-	$context['menu_image_path'] = file_exists($settings['theme_dir'] . '/images/admin/change_menu.png') ? $settings['images_url'] . '/admin' : $settings['default_images_url'] . '/admin';
-
 	/* Note menuData is array of form:
 
 		Possible fields:
@@ -127,9 +124,28 @@ function createMenu($menuData, $menuOptions = array())
 						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
 							$menu_context['sections'][$section_id]['areas'][$area_id] = unserialize(base64_decode('YTozOntzOjU6ImxhYmVsIjtzOjEyOiJPb21wYSBMb29tcGEiO3M6MzoidXJsIjtzOjQzOiJodHRwOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL09vbXBhX0xvb21wYXM/IjtzOjQ6Imljb24iO3M6ODY6IjxpbWcgc3JjPSJodHRwOi8vd3d3LnNpbXBsZW1hY2hpbmVzLm9yZy9pbWFnZXMvb29tcGEuZ2lmIiBhbHQ9IkknbSBhbiBPb21wYSBMb29tcGEiIC8+Ijt9'));
 						elseif (isset($area['icon']))
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $context['menu_image_path'] . '/' . $area['icon'] . '" alt="" />&nbsp;&nbsp;';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = file_exists($settings['theme_dir'] . '/images/admin/' . $area['icon']) ? '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="" />&nbsp;&nbsp;' : '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="" />&nbsp;&nbsp;';
 						else
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '';
+
+						// Mod authors may wish to just set such an icon. Easy here, just drop in a URL.
+						if (!empty($menuOptions['do_big_icons']))
+						{
+							if (isset($area['bigicon']))
+								$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $area['bigicon'];
+							// Otherwise we try to use the big icon, which has the same filename as the small one but in another folder.
+							elseif (isset($area['icon']))
+							{
+								if (file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
+									$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['images_url'] . '/admin/big/' . $area['icon'];
+								elseif (file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
+									$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['default_images_url'] . '/admin/big/' . $area['icon'];
+							}
+
+							// They do need an icon. Have they got one?
+							if (empty($menu_context['sections'][$section_id]['areas'][$area_id]['bigicon']))
+								$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['default_images_url'] . '/admin/big/default.png';
+						}
 
 						// Did it have subsections?
 						if (!empty($area['subsections']))
@@ -245,20 +261,11 @@ function createMenu($menuData, $menuOptions = array())
 		return false;
 	}
 
-	// What type of menu is this?
-	if (empty($menuOptions['menu_type']))
-	{
-		$menuOptions['menu_type'] = '_' . (empty($options['use_sidebar_menu']) ? 'dropdown' : 'sidebar');
-		$menu_context['can_toggle_drop_down'] = !$user_info['is_guest'] && isset($settings['theme_version']) && $settings['theme_version'] >= 2.0;
-	}
-	else
-		$menu_context['can_toggle_drop_down'] = !empty($menuOptions['can_toggle_drop_down']);
-
 	// Almost there - load the template and add to the template layers.
 	if (!WIRELESS)
 	{
 		loadTemplate(isset($menuOptions['template_name']) ? $menuOptions['template_name'] : 'GenericMenu');
-		$menu_context['layer_name'] = (isset($menuOptions['layer_name']) ? $menuOptions['layer_name'] : 'generic_menu') . $menuOptions['menu_type'];
+		$menu_context['layer_name'] = (isset($menuOptions['layer_name']) ? $menuOptions['layer_name'] : 'generic_menu') . '_dropdown';
 		$context['template_layers'][] = $menu_context['layer_name'];
 	}
 

@@ -72,7 +72,7 @@ $txt['pm_msg_label_remove'] = 'Remove label';
 $txt['pm_msg_label_inbox'] = 'Inbox';
 $txt['pm_sel_label_title'] = 'Label selected';
 
-// Sidebar Headings.
+// Menu headings.
 $txt['pm_labels'] = 'Labels';
 $txt['pm_messages'] = 'Messages';
 $txt['pm_actions'] = 'Actions';

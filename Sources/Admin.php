@@ -141,20 +141,6 @@ function AdminMain()
 						'settings' => array($txt['language_settings']),
 					),
 				),
-				'serversettings' => array(
-					'label' => $txt['admin_server_settings'],
-					'file' => 'ManageServer.php',
-					'function' => 'ModifySettings',
-					'icon' => 'server.png',
-					'subsections' => array(
-						'general' => array($txt['general_settings']),
-						'database' => array($txt['database_paths_settings']),
-						'cookie' => array($txt['cookies_sessions_settings']),
-						'cache' => array($txt['caching_settings']),
-						'loads' => array($txt['load_balancing_settings']),
-						'phpinfo' => array($txt['phpinfo_settings']),
-					),
-				),
 				'current_theme' => array(
 					'label' => $txt['theme_current_settings'],
 					'file' => 'Themes.php',
@@ -223,7 +209,7 @@ function AdminMain()
 					'label' => $txt['manage_drafts'],
 					'file' => 'Drafts.php',
 					'function' => 'ModifyDraftSettings',
-					'icon' => 'logs.png',
+					'icon' => 'drafts.png',
 					'permission' => array('admin_forum'),
 					'enabled' => in_array('dr', $context['admin_features']),
 				),
@@ -381,6 +367,20 @@ function AdminMain()
 			'title' => $txt['admin_maintenance'],
 			'permission' => array('admin_forum'),
 			'areas' => array(
+				'serversettings' => array(
+					'label' => $txt['admin_server_settings'],
+					'file' => 'ManageServer.php',
+					'function' => 'ModifySettings',
+					'icon' => 'server.png',
+					'subsections' => array(
+						'general' => array($txt['general_settings']),
+						'database' => array($txt['database_paths_settings']),
+						'cookie' => array($txt['cookies_sessions_settings']),
+						'cache' => array($txt['caching_settings']),
+						'loads' => array($txt['load_balancing_settings']),
+						'phpinfo' => array($txt['phpinfo_settings']),
+					),
+				),
 				'maintain' => array(
 					'label' => $txt['maintain_title'],
 					'file' => 'ManageMaintenance.php',
@@ -461,7 +461,7 @@ function AdminMain()
 	validateSession();
 
 	// Actually create the menu!
-	$admin_include_data = createMenu($admin_areas);
+	$admin_include_data = createMenu($admin_areas, array('do_big_icons' => true));
 	unset($admin_areas);
 
 	// Nothing valid?
@@ -560,52 +560,6 @@ function AdminHome()
 				<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
 				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
 		);
-
-
-	// The format of this array is: permission, action, title, description, icon.
-	$quick_admin_tasks = array(
-		array('', 'credits', 'support_credits_title', 'support_credits_info', 'support_and_credits.png'),
-		array('admin_forum', 'featuresettings', 'modSettings_title', 'modSettings_info', 'features_and_options.png'),
-		array('admin_forum', 'maintain', 'maintain_title', 'maintain_info', 'forum_maintenance.png'),
-		array('manage_permissions', 'permissions', 'edit_permissions', 'edit_permissions_info', 'permissions_lg.png'),
-		array('admin_forum', 'theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id'], 'theme_admin', 'theme_admin_info', 'themes_and_layout.png'),
-		array('admin_forum', 'packages', 'package', 'package_info', 'packages_lg.png'),
-		array('manage_smileys', 'smileys', 'smileys_manage', 'smileys_manage_info', 'smilies_and_messageicons.png'),
-		array('moderate_forum', 'viewmembers', 'admin_users', 'member_center_info', 'members_lg.png'),
-	);
-
-	$context['quick_admin_tasks'] = array();
-	foreach ($quick_admin_tasks as $task)
-	{
-		if (!empty($task[0]) && !allowedTo($task[0]))
-			continue;
-
-		$context['quick_admin_tasks'][] = array(
-			'href' => $scripturl . '?action=admin;area=' . $task[1],
-			'link' => '<a href="' . $scripturl . '?action=admin;area=' . $task[1] . '">' . $txt[$task[2]] . '</a>',
-			'title' => $txt[$task[2]],
-			'description' => $txt[$task[3]],
-			'icon' => $task[4],
-			'is_last' => false
-		);
-	}
-
-	if (count($context['quick_admin_tasks']) % 2 == 1)
-	{
-		$context['quick_admin_tasks'][] = array(
-			'href' => '',
-			'link' => '',
-			'title' => '',
-			'description' => '',
-			'is_last' => true
-		);
-		$context['quick_admin_tasks'][count($context['quick_admin_tasks']) - 2]['is_last'] = true;
-	}
-	elseif (count($context['quick_admin_tasks']) != 0)
-	{
-		$context['quick_admin_tasks'][count($context['quick_admin_tasks']) - 1]['is_last'] = true;
-		$context['quick_admin_tasks'][count($context['quick_admin_tasks']) - 2]['is_last'] = true;
-	}
 
 	// Lastly, fill in the blanks in the support resources paragraphs.
 	$txt['support_resources_p1'] = sprintf($txt['support_resources_p1'],
