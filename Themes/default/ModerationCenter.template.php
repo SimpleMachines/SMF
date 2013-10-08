@@ -253,7 +253,7 @@ function template_reported_posts()
 		// Ban this user button.
 		if (!$report['closed'] && !empty($context['report_manage_bans']))
 			echo '
-					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['author']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u='. $report['author']['id'] : ';msg='. $report['topic']['id_msg']) ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
 		echo '
 					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check" />' : '', '</li>
