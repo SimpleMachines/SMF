@@ -360,23 +360,37 @@ function ManageAvatarSettings($return_config = false)
  *  and ?action=admin;area=manageattachments;sa=browse;avatars for avatars.
  * Allows sorting by name, date, size and member.
  * Paginates results.
- *
- *  @uses the 'browse' sub template
  */
 function BrowseFiles()
 {
 	global $context, $txt, $scripturl, $options, $modSettings;
-	global $smcFunc, $sourcedir;
-
-	$context['sub_template'] = 'browse';
+	global $smcFunc, $sourcedir, $settings;
 
 	// Attachments or avatars?
 	$context['browse_type'] = isset($_REQUEST['avatars']) ? 'avatars' : (isset($_REQUEST['thumbs']) ? 'thumbs' : 'attachments');
 
+	$titles = array(
+		'attachments' => array('?action=admin;area=manageattachments;sa=browse', $txt['attachment_manager_attachments']),
+		'avatars' => array('?action=admin;area=manageattachments;sa=browse;avatars', $txt['attachment_manager_avatars']),
+		'thumbs' => array('?action=admin;area=manageattachments;sa=browse;thumbs', $txt['attachment_manager_thumbs']),
+	);
+
+	$list_title = $txt['attachment_manager_browse_files'] . ': ';
+	foreach ($titles as $browse_type => $details)
+	{
+		if ($browse_type != 'attachments')
+			$list_title .= ' | ';
+
+		if ($context['browse_type'] == $browse_type)
+			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ';
+
+		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
+	}
+
 	// Set the options for the list component.
 	$listOptions = array(
 		'id' => 'file_list',
-		'title' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ($context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments'))],
+		'title' => $list_title,
 		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
@@ -545,6 +559,9 @@ function BrowseFiles()
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
+
+	$context['sub_template'] = 'show_list';
+	$context['default_list'] = 'file_list';
 }
 
 /**
