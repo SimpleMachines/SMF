@@ -33,28 +33,6 @@ function template_avatar_settings_below()
 ';
 }
 
-function template_browse()
-{
-	global $context, $settings, $options, $scripturl, $txt;
-
-	echo '
-	<div id="manage_attachments">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['attachment_manager_browse_files'], '</h3>
-		</div>
-		<div class="windowbg2">
-			<div class="content">
-				<a href="', $scripturl, '?action=admin;area=manageattachments;sa=browse">', $context['browse_type'] === 'attachments' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '', $txt['attachment_manager_attachments'], '</a> |
-				<a href="', $scripturl, '?action=admin;area=manageattachments;sa=browse;avatars">', $context['browse_type'] === 'avatars' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '', $txt['attachment_manager_avatars'], '</a> |
-				<a href="', $scripturl, '?action=admin;area=manageattachments;sa=browse;thumbs">', $context['browse_type'] === 'thumbs' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '', $txt['attachment_manager_thumbs'], '</a>
-			</div>
-		</div>
-	</div>';
-
-	template_show_list('file_list');
-
-}
-
 function template_maintenance()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
