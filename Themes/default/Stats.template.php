@@ -111,6 +111,9 @@ function template_main()
 									<div class="bar" style="width: ', $poster['post_percent'] + 4, 'px;">
 										<div style="width: ', $poster['post_percent'], 'px;"></div>
 									</div>';
+		else
+			echo '
+									<div class="bar empty"></div>';
 
 		echo '
 									<span class="righttext">', $poster['num_posts'], '</span>
@@ -145,6 +148,10 @@ function template_main()
 									<div class="bar" style="width: ', $board['post_percent'] + 4, 'px;">
 										<div style="width: ', $board['post_percent'], 'px;"></div>
 									</div>';
+		else
+			echo '
+									<div class="bar empty"></div>';
+
 		echo '
 									<span class="righttext">', $board['num_posts'], '</span>
 								</dd>';
@@ -179,6 +186,9 @@ function template_main()
 									<div class="bar" style="width: ', $topic['post_percent'] + 4, 'px;">
 										<div style="width: ', $topic['post_percent'], 'px;"></div>
 									</div>';
+		else
+			echo '
+									<div class="bar empty"></div>';
 
 		echo '
 									<span class="righttext">' . $topic['num_replies'] . '</span>
@@ -211,6 +221,9 @@ function template_main()
 								<div class="bar" style="width: ', $topic['post_percent'] + 4, 'px;">
 									<div style="width: ', $topic['post_percent'], 'px;"></div>
 								</div>';
+		else
+			echo '
+									<div class="bar empty"></div>';
 
 		echo '
 								<span class="righttext">' . $topic['num_views'] . '</span>
@@ -281,6 +294,9 @@ function template_main()
 								<div class="bar" style="width: ', $poster['time_percent'] + 4, 'px;">
 									<div style="width: ', $poster['time_percent'], 'px;"></div>
 								</div>';
+		else
+			echo '
+									<div class="bar empty"></div>';
 
 		echo '
 								<span>', $poster['time_online'], '</span>

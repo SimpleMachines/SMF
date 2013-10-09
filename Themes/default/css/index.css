@@ -3453,6 +3453,10 @@ dl.stats dd {
 	margin: 0 4px 0 0;
 	height: 1.4em;
 }
+.statsbar div.bar.empty {
+	width: 0;
+	border-right: none;
+}
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 dl.stats dd span {
 	padding: 0 2px;
