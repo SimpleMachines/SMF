@@ -957,6 +957,7 @@ function PickTheme()
 		'url' => $scripturl . '?action=theme;sa=pick;u=' . (!empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0),
 		'name' => $txt['theme_pick'],
 	);
+	$context['default_theme_id'] = $modSettings['theme_default'];
 
 	$_SESSION['id_theme'] = 0;
 
