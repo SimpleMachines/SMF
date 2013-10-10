@@ -700,13 +700,7 @@ $txt['totalTimeLogged5'] = 'd ';
 $txt['totalTimeLogged6'] = 'h ';
 $txt['totalTimeLogged7'] = 'm';
 
-$txt['approve_thereis'] = 'There is'; //Deprecated
-$txt['approve_thereare'] = 'There are'; //Deprecated
-$txt['approve_member'] = 'one member'; //Deprecated
-$txt['approve_members'] = 'members'; //Deprecated
-$txt['approve_members_waiting'] = 'awaiting approval.'; //Deprecated
-$txt['approve_one_member_waiting'] = 'There is <a href="%1$s">one member</a> awaiting approval.';
-$txt['approve_many_members_waiting'] = 'There are <a href="%1$s">%2$d members</a> awaiting approval.';
+$txt['approve_members_waiting'] = 'Member Approvals';
 
 $txt['notifyboard_turnon'] = 'Do you want a notification email when someone posts a new topic in this board?';
 $txt['notifyboard_turnoff'] = 'Are you sure you do not want to receive new topic notifications for this board?';
@@ -769,7 +763,7 @@ $txt['unapproved_posts'] = 'Unapproved Posts (Topics: %1$d, Posts: %2$d)';
 
 $txt['ajax_in_progress'] = 'Loading...';
 
-$txt['mod_reports_waiting'] = 'There are currently %1$d moderator reports open.';
+$txt['mod_reports_waiting'] = 'Reported Posts';
 
 $txt['view_unread_category'] = 'Unread Posts';
 $txt['new_posts_in_category'] = 'Click to see the new posts in %1$s';
