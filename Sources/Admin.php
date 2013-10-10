@@ -119,7 +119,7 @@ function AdminMain()
 						'layout' => array($txt['mods_cat_layout']),
 						'karma' => array($txt['karma'], 'enabled' => in_array('k', $context['admin_features'])),
 						'sig' => array($txt['signature_settings_short']),
-						'profile' => array($txt['custom_profile_shorttitle'], 'enabled' => in_array('cp', $context['admin_features'])),
+						'profile' => array($txt['custom_profile_shorttitle']),
 					),
 				),
 				'securitysettings' => array(
@@ -417,7 +417,6 @@ function AdminMain()
 					),
 				),
 				'reports' => array(
-					'enabled' => in_array('rg', $context['admin_features']),
 					'label' => $txt['generate_reports'],
 					'file' => 'Reports.php',
 					'function' => 'ReportsMain',
