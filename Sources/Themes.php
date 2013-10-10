@@ -957,6 +957,7 @@ function PickTheme()
 		'url' => $scripturl . '?action=theme;sa=pick;u=' . (!empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0),
 		'name' => $txt['theme_pick'],
 	);
+	$context['default_theme_id'] = $modSettings['theme_default'];
 
 	$_SESSION['id_theme'] = 0;
 
@@ -1224,7 +1225,7 @@ function PickTheme()
 		$context['available_themes'][$id_theme]['description'] = $txt['theme_description'];
 
 		// Are there any variants?
-		if (file_exists($theme_data['theme_dir'] . '/index.template.php') && empty($theme_data['disable_user_variant']))
+		if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || allowedTo('admin_forum'))
 		{
 			$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
 			if (preg_match('~\$settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches))
