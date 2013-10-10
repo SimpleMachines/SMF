@@ -188,8 +188,15 @@ function template_body_above()
 		if ($context['in_maintenance'] && $context['user']['is_admin'])
 			echo '
 				<li class="notice">', $txt['maintain_mode_on'], '<br /></li>';
+
+		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
 			echo '
-				<li>', $context['current_time'], '</li>';
+				<li class="modnotice"><a href="', $scripturl, '?action=moderate;area=reports">', $txt['mod_reports_waiting'], '</a>: <span class="amt">', $context['open_mod_reports'], '</span></li>';
+
+		// Are there any members waiting for approval?
+		if (!empty($context['unapproved_members']))
+			echo '
+				<li class="modnotice"><a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $txt['approve_members_waiting'], '</a>: <span class="amt">', $context['unapproved_members'], '</span></li>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	else
@@ -301,20 +308,11 @@ function template_body_above()
 		if (!empty($context['user']['avatar']))
 			echo '
 						<a href="', $scripturl, '?action=profile" class="avatar">', $context['user']['avatar']['image'], '</a>';
-			echo '
-						<ul>
-							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>';
-
-		// Are there any members waiting for approval?
-		if (!empty($context['unapproved_members']))
-			echo '
-							<li>', $context['unapproved_members_text'], '</li>';
-
-		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
-			echo '
-							<li><a href="', $scripturl, '?action=moderate;area=reports">', sprintf($txt['mod_reports_waiting'], $context['open_mod_reports']), '</a></li>';
 
 		echo '
+						<ul>
+							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>
+							<li>', $context['current_time'], '</li>
 						</ul>';
 	}
 
