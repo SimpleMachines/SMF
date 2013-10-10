@@ -417,7 +417,6 @@ function AdminMain()
 					),
 				),
 				'reports' => array(
-					'enabled' => in_array('rg', $context['admin_features']),
 					'label' => $txt['generate_reports'],
 					'file' => 'Reports.php',
 					'function' => 'ReportsMain',

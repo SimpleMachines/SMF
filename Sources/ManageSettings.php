@@ -317,10 +317,6 @@ function ModifyCoreFeatures($return_config = false)
 				}
 			'),
 		),
-		// rg = report generator.
-		'rg' => array(
-			'url' => 'action=admin;area=reports',
-		),
 		// w = warning.
 		'w' => array(
 			'url' => 'action=admin;area=securitysettings;sa=moderation',
