@@ -63,11 +63,7 @@ function ModifyFeatureSettings()
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
 
-	// If Advanced Profile Fields are disabled don't show the setting page
-	if (!in_array('cp', $context['admin_features']))
-		unset($subActions['profile']);
-
-	// Same for Karma
+	// If karma is disabled don't show the setting page.
 	if (!in_array('k', $context['admin_features']))
 		unset($subActions['karma']);
 
@@ -202,29 +198,6 @@ function ModifyCoreFeatures($return_config = false)
 				'cal_enabled' => 1,
 			),
 		),
-		// cp = custom profile fields.
-		'cp' => array(
-			'url' => 'action=admin;area=featuresettings;sa=profile',
-			'save_callback' => create_function('$value', '
-				global $smcFunc;
-				if (!$value)
-				{
-					$smcFunc[\'db_query\'](\'\', \'
-						UPDATE {db_prefix}custom_fields
-						SET active = 0\');
-				}
-			'),
-			'setting_callback' => create_function('$value', '
-				if (!$value)
-					return array(
-						\'disabled_profile_fields\' => \'\',
-						\'registration_fields\' => \'\',
-						\'displayFields\' => \'\',
-					);
-				else
-					return array();
-			'),
-		),
 		// dr = drafts
 		'dr' => array(
 			'url' => 'action=admin;area=managedrafts',
@@ -316,10 +289,6 @@ function ModifyCoreFeatures($return_config = false)
 					CalculateNextTrigger(\'paid_subscriptions\');
 				}
 			'),
-		),
-		// rg = report generator.
-		'rg' => array(
-			'url' => 'action=admin;area=reports',
 		),
 		// w = warning.
 		'w' => array(
