@@ -1337,12 +1337,24 @@ img.sort {
 }
 #top_section ul li {
 	margin-bottom: 2px;
+	margin-right: 7px;
 	display: inline;
 	font-size: 0.9em;
 }
 .notice
 {
  font-weight: bold;
+}
+.modnotice
+{
+	padding: 4px;
+}
+.modnotice .amt
+{
+	padding: 0 4px;
+	color: white;
+	background: #6d90ad;
+	border-radius: 4px;
 }
 #search_form {
 	padding: 4px 0 0 0;
