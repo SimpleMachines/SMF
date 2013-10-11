@@ -33,7 +33,7 @@ function SaveDraft(&$post_errors)
 	global $context, $user_info, $smcFunc, $modSettings, $board;
 
 	// can you be, should you be ... here?
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
+	if (empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
 
 	// read in what they sent us, if anything
@@ -183,7 +183,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	global $context, $user_info, $smcFunc, $modSettings;
 
 	// PM survey says ... can you stay or must you go
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
+	if (empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
 		return false;
 
 	// read in what you sent us
@@ -848,7 +848,7 @@ function showPMDrafts($memID = -1)
  */
 function ModifyDraftSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -885,23 +885,35 @@ function ModifyDraftSettings($return_config = false)
 		checkSession();
 
 		// Protect them from themselves.
-		$_POST['drafts_autosave_frequency'] = $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
+		$_POST['drafts_autosave_frequency'] = !isset($_POST['drafts_autosave_frequency']) || $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
+
+		// Also disable the scheduled task if we're not using it.
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}scheduled_tasks
+			SET disabled = {int:disabled}
+			WHERE task = {string:task}',
+			array(
+				'disabled' => !empty($_POST['drafts_keep_days']) ? 0 : 1,
+				'task' => 'remove_old_drafts',
+			)
+		);
+		require_once($sourcedir . '/ScheduledTasks.php');
+		CalculateNextTrigger();
+
+		// Save everything else and leave.
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managedrafts');
 	}
 
 	// some javascript to enable / disable the frequency input box
 	$context['settings_post_javascript'] = '
-		var autosave = document.getElementById(\'drafts_autosave_enabled\');
-		createEventListener(autosave)
-		autosave.addEventListener(\'change\', toggle);
-		toggle();
-
 		function toggle()
 		{
-			var select_elem = document.getElementById(\'drafts_autosave_frequency\');
-			select_elem.disabled = !autosave.checked;
-		}
+			$("#drafts_autosave_frequency").prop("disabled", !($("#drafts_autosave_enabled").prop("checked")));
+		};
+		toggle();
+
+		$("#drafts_autosave_enabled").click(function() { toggle(); });
 	';
 
 	// Final settings...
