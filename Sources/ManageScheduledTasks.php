@@ -157,7 +157,18 @@ function ScheduledTasks()
 			}
 		}
 		$smcFunc['db_free_result']($request);
+
+		// If we had any errors, push them to session so we can pick them up next time to tell the user.
+		if (!empty($context['scheduled_errors']))
+			$_SESSION['st_error'] = $context['scheduled_errors'];
+
 		redirectexit('action=admin;area=scheduledtasks;done');
+	}
+
+	if (isset($_SESSION['st_error']))
+	{
+		$context['scheduled_errors'] = $_SESSION['st_error'];
+		unset ($_SESSION['st_error']);
 	}
 
 	$listOptions = array(
