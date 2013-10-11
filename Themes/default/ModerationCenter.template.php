@@ -224,7 +224,7 @@ function template_reported_posts()
 		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
 			<div class="content">
 				<h5>
-					<strong><a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+					<strong>', !empty($report['topic']['board_name']) ? '<a href="' . $scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
 				</h5>
 				<div class="smalltext">
 					', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
