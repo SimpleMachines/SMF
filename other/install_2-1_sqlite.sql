@@ -1872,6 +1872,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('userLanguage', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('titlesEnable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topicSummaryPosts', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableErrorLogging', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('log_ban_hits', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_image_width', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_image_height', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('onlineEnable', '0');

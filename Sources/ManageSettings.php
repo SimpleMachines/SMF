@@ -2144,6 +2144,7 @@ function ModifyLogSettings($return_config = false)
 	$config_vars = array(
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
+			array('check', 'log_ban_hits'),
 			// Even do the pruning?
 			array('title', 'pruning_title'),
 			array('desc', 'pruning_desc'),
