@@ -2248,11 +2248,12 @@ function AutoSuggest_Search_Member()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, real_name
 		FROM {db_prefix}members
-		WHERE real_name LIKE {string:search}' . (!empty($context['search_param']['buddies']) ? '
+		WHERE {raw:real_name} LIKE {string:search}' . (!empty($context['search_param']['buddies']) ? '
 			AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
 		LIMIT ' . ($smcFunc['strlen']($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
+			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'buddy_list' => $user_info['buddies'],
 			'search' => $_REQUEST['search'],
 		)
@@ -2296,12 +2297,13 @@ function AutoSuggest_Search_MemberGroups()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name
 		FROM {db_prefix}membergroups
-		WHERE group_name LIKE {string:search}
+		WHERE {raw:group_name} LIKE {string:search}
 			AND min_posts = {int:min_posts}
 			AND id_group NOT IN ({array_int:invalid_groups})
 			AND hidden != {int:hidden}
 		',
 		array(
+			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name}' : 'group_name',
 			'min_posts' => -1,
 			'invalid_groups' => array(1,3),
 			'hidden' => 2,

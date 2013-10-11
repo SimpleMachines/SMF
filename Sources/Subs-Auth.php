@@ -492,11 +492,12 @@ function RequestMembers()
 	$request = $smcFunc['db_query']('', '
 		SELECT real_name
 		FROM {db_prefix}members
-		WHERE real_name LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
+		WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 			AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
 		LIMIT ' . ($smcFunc['strlen']($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
+			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'buddy_list' => $user_info['buddies'],
 			'search' => $_REQUEST['search'],
 		)
