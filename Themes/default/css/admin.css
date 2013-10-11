@@ -162,7 +162,7 @@ div.quick_tasks {
 #mailqueue_stats .windowbg .content {
 	padding: 12px 9px 0 9px;
 }
-#admin_form_wrapper div.cat_bar:first-child, #admin_newsletters div.cat_bar:first-child,
+#admin_newsletters div.cat_bar:first-child,
 #generate_reports_type div.cat_bar:first-child, #groupForm div.cat_bar:first-child,
 #admin_form_wrapper div.title_bar, #mailqueue_stats div.cat_bar:first-child,
 #new_group div.cat_bar:first-child, #view_group div.cat_bar, #view_group div.cat_bar:first-child {
@@ -171,7 +171,7 @@ div.quick_tasks {
 	border-bottom: 1px solid #fff;
 	box-shadow: none;
 }
-#admin_form_wrapper div.cat_bar:first-child h3.catbg, #admin_newsletters div.cat_bar:first-child h3.catbg,
+#admin_newsletters div.cat_bar:first-child h3.catbg,
 #generate_reports_type div.cat_bar:first-child h3.catbg, #groupForm div.cat_bar:first-child h3.catbg, #mailqueue_stats div.cat_bar:first-child  h3.catbg,
 #new_group div.cat_bar:first-child  h3.catbg, #view_group div.cat_bar  h3.catbg, #view_group div.cat_bar:first-child  h3.catbg {
 	color: #444;
@@ -181,8 +181,6 @@ div.quick_tasks {
 	border-bottom: 1px solid #bbb;
 }
 #admin_form_wrapper div.title_bar {
-
-	border: 1px solid #ccc;
 	border-radius: 2px 2px 0 0;
 	margin: 0;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
