@@ -1869,6 +1869,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('avatar_reencode', '1'),
 	('avatar_paranoid', '0'),
 	('enable_unwatch', '0'),
+	('drafts_post_enabled', '1'),
+	('drafts_pm_enabled', '1'),
 	('drafts_autosave_enabled', '1'),
 	('drafts_show_saved_enabled', '1'),
 	('drafts_keep_days', '7');

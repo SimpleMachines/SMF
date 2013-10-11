@@ -213,7 +213,6 @@ function AdminMain()
 					'function' => 'ModifyDraftSettings',
 					'icon' => 'drafts.png',
 					'permission' => array('admin_forum'),
-					'enabled' => in_array('dr', $context['admin_features']),
 				),
 				'managecalendar' => array(
 					'label' => $txt['manage_calendar'],

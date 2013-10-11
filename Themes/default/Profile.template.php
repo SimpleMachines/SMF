@@ -104,7 +104,7 @@ function template_summary()
 	echo '
 					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
 
-	if ($context['user']['is_owner'] && !empty($modSettings['drafts_enabled']))
+	if ($context['user']['is_owner'] && !empty($modSettings['drafts_post_enabled']))
 		echo '
 					<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '">', $txt['drafts_show'], '</a><br />';
 
@@ -1638,7 +1638,7 @@ function template_profile_theme_settings()
 								</select>
 							</dd>';
 
-	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_autosave_enabled']))
+	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_autosave_enabled']))
 		echo '
 							<dt>
 								<label for="drafts_autosave_enabled">', $txt['drafts_autosave_enabled'], '</label>
@@ -1647,7 +1647,7 @@ function template_profile_theme_settings()
 								<input type="hidden" name="default_options[drafts_autosave_enabled]" value="0" />
 								<label for="drafts_autosave_enabled"><input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked="checked"' : '', ' class="input_check" /></label>
 							</dd>';
-	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_show_saved_enabled']))
+	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_show_saved_enabled']))
 		echo '
 							<dt>
 								<label for="drafts_show_saved_enabled">', $txt['drafts_show_saved_enabled'], '</label>

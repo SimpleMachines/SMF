@@ -195,31 +195,6 @@ function ModifyCoreFeatures($return_config = false)
 				'cal_enabled' => 1,
 			),
 		),
-		// dr = drafts
-		'dr' => array(
-			'url' => 'action=admin;area=managedrafts',
-			'settings' => array(
-				'drafts_enabled' => 1,
-				'drafts_post_enabled' => 2,
-				'drafts_pm_enabled' => 2,
-				'drafts_autosave_enabled' => 2,
-				'drafts_show_saved_enabled' => 2,
-			),
-			'setting_callback' => create_function('$value', '
-				global $smcFunc, $sourcedir;
-
-				// Set the correct disabled value for the scheduled task.
-				$smcFunc[\'db_query\'](\'\', \'
-					UPDATE {db_prefix}scheduled_tasks
-					SET disabled = {int:disabled}
-					WHERE task = {string:task}\',
-					array(
-						\'disabled\' => $value ? 0 : 1,
-						\'task\' => \'remove_old_drafts\',
-					)
-				);
-			'),
-		),
 		// k = karma.
 		'k' => array(
 			'url' => 'action=admin;area=featuresettings;sa=karma',

@@ -2018,6 +2018,8 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_thumb_png
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_reencode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_unwatch', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_post_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_pm_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
