@@ -697,6 +697,29 @@ function ReportedPosts()
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Get the names of boards those topics are in. Slightly faster this way.
+	if (!empty($report_boards_ids))
+	{
+		$report_boards_ids = array_unique($report_boards_ids);
+		$board_names = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board, name
+			FROM {db_prefix}boards
+			WHERE id_board IN ({array_int:boards})',
+			array(
+				'boards' => $report_boards_ids,
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$board_names[$row['id_board']] = $row['name'];
+		$smcFunc['db_free_result']($request);
+
+		foreach ($context['reports'] as $id_report => $report)
+			if (!empty($board_names[$report['topic']['id_board']]))
+				$context['reports'][$id_report]['topic']['board_name'] = $board_names[$report['topic']['id_board']];
+	}
+
 	// Now get all the people who reported it.
 	if (!empty($report_ids))
 	{
