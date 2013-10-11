@@ -536,6 +536,27 @@ function BanEdit()
 					$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 				}
 			}
+
+			// We come from the mod center.
+			elseif(isset($_GET['msg']) && !empty($_GET['msg']))
+			{
+				$request = $smcFunc['db_query']('', '
+					SELECT poster_name, poster_ip, poster_email
+					FROM {db_prefix}messages
+					WHERE id_msg = {int:message}
+					LIMIT 1',
+					array(
+						'message' => (int) $_REQUEST['msg'],
+					)
+				);
+				if ($smcFunc['db_num_rows']($request) > 0)
+					list ($context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
+				$smcFunc['db_free_result']($request);
+
+				// Can't hurt to ban base on the guest name...
+				$context['ban']['name'] = $context['ban_suggestions']['member']['name'];
+				$context['ban']['from_user'] = true;
+			}
 		}
 	}
 
@@ -938,9 +959,9 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 			{
 				$ban_items[$row['id_ban']]['type'] = 'ip';
 				$ban_items[$row['id_ban']]['ip'] = range2ip(array($row['ip_low1'], $row['ip_low2'], $row['ip_low3'], $row['ip_low4'] ,$row['ip_low5'], $row['ip_low6'], $row['ip_low7'], $row['ip_low8']), array($row['ip_high1'], $row['ip_high2'], $row['ip_high3'], $row['ip_high4'], $row['ip_high5'], $row['ip_high6'], $row['ip_high7'], $row['ip_high8']));
-				
-				$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false); 
-				
+
+				$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false);
+
 				$log_info[] = array(
 					'bantype' => ($is_range ? 'ip_range' : 'main_ip'),
 					'value' => $ban_items[$row['id_ban']]['ip'],
@@ -987,7 +1008,7 @@ function removeBanTriggers($items_ids = array(), $group_id = false)
 	$smcFunc['db_free_result']($request);
 
 	if ($group_id !== false)
-	{		
+	{
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}ban_items
 			WHERE id_ban IN ({array_int:ban_list})
