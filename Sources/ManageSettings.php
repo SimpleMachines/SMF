@@ -237,13 +237,6 @@ function ModifyCoreFeatures($return_config = false)
 				'karmaMode' => 2,
 			),
 		),
-		// ml = moderation log.
-		'ml' => array(
-			'url' => 'action=admin;area=logs;sa=modlog',
-			'settings' => array(
-				'modlog_enabled' => 1,
-			),
-		),
 		// pm = post moderation.
 		'pm' => array(
 			'url' => 'action=admin;area=permissions;sa=postmod',
@@ -564,9 +557,6 @@ function ModifyGeneralSecuritySettings($return_config = false)
 		'',
 			array('int', 'failed_login_threshold'),
 			array('int', 'loginHistoryDays'),
-		'',
-			array('check', 'enableErrorLogging'),
-			array('check', 'enableErrorQueryLogging'),
 		'',
 			array('check', 'securityDisable'),
 			array('check', 'securityDisable_moderate'),
@@ -2142,17 +2132,21 @@ function EditCustomProfiles()
  * Allow to edit the settings on the pruning screen.
  * @param $return_config
  */
-function ModifyPruningSettings($return_config = false)
+function ModifyLogSettings($return_config = false)
 {
 	global $txt, $scripturl, $sourcedir, $context, $settings, $sc, $modSettings;
 
 	// Make sure we understand what's going on.
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['pruning_title'];
+	$context['page_title'] = $txt['log_settings'];
 
 	$config_vars = array(
+			array('check', 'enableErrorLogging'),
+			array('check', 'enableErrorQueryLogging'),
 			// Even do the pruning?
+			array('title', 'pruning_title'),
+			array('desc', 'pruning_desc'),
 			// The array indexes are there so we can remove/change them before saving.
 			'pruningOptions' => array('check', 'pruningOptions'),
 		'',
@@ -2167,10 +2161,27 @@ function ModifyPruningSettings($return_config = false)
 			// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
 	);
 
-	call_integration_hook('integrate_prune_settings', array(&$config_vars));
+	// We want to be toggling some of these for a nice user experience. If you want to add yours to the list of those magically hidden when the 'pruning' option is off, add to this.
+	$prune_toggle = array('pruneErrorLog', 'pruneModLog', 'pruneBanLog', 'pruneReportLog', 'pruneScheduledTaskLog', 'pruneSpiderHitLog');
+
+	call_integration_hook('integrate_prune_settings', array(&$config_vars, &$prune_toggle));
+
+	$prune_toggle_dt = array();
+	foreach ($prune_toggle as $item)
+		$prune_toggle_dt[] = 'setting_' . $item;
 
 	if ($return_config)
 		return $config_vars;
+
+	addInlineJavascript('
+	function togglePruned()
+	{
+		var newval = $("#pruningOptions").prop("checked");
+		$("#' . implode(', #', $prune_toggle) . '").closest("dd").toggle(newval);
+		$("#' . implode(', #', $prune_toggle_dt) . '").closest("dt").toggle(newval);
+	};
+	togglePruned();
+	$("#pruningOptions").click(function() { togglePruned(); });', true);
 
 	// We'll need this in a bit.
 	require_once($sourcedir . '/ManageServer.php');
@@ -2200,11 +2211,11 @@ function ModifyPruningSettings($return_config = false)
 			$_POST['pruningOptions'] = '';
 
 		saveDBSettings($savevar);
-		redirectexit('action=admin;area=logs;sa=pruning');
+		redirectexit('action=admin;area=logs;sa=settings');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=logs;save;sa=pruning';
-	$context['settings_title'] = $txt['pruning_title'];
+	$context['post_url'] = $scripturl . '?action=admin;area=logs;save;sa=settings';
+	$context['settings_title'] = $txt['log_settings'];
 	$context['sub_template'] = 'show_settings';
 
 	// Get the actual values

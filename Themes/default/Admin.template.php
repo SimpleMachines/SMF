@@ -752,8 +752,8 @@ function template_show_settings()
 			if ($config_var['type'] == 'title')
 			{
 				echo '
-					<div class="cat_bar">
-						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
+					<div class="title_bar">
+						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'titlebg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
 							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
 							', $config_var['label'], '
 						</h3>
