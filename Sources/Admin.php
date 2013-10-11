@@ -433,7 +433,7 @@ function AdminMain()
 						'banlog' => array($txt['ban_log'], 'manage_bans'),
 						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => in_array('sp', $context['admin_features'])),
 						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
-						'pruning' => array($txt['pruning_title'], 'admin_forum'),
+						'settings' => array($txt['log_settings'], 'admin_forum'),
 					),
 				),
 				'repairboards' => array(
@@ -722,7 +722,7 @@ function AdminSearchInternal()
 		array('ModifyRegistrationSettings', 'area=regcenter;sa=settings'),
 		array('ManageSearchEngineSettings', 'area=sengines;sa=settings'),
 		array('ModifySubscriptionSettings', 'area=paidsubscribe;sa=settings'),
-		array('ModifyPruningSettings', 'area=logs;sa=pruning'),
+		array('ModifyLogSettings', 'area=logs;sa=settings'),
 	);
 
 	call_integration_hook('integrate_admin_search', array(&$language_files, &$include_files, &$settings_search));
@@ -900,7 +900,7 @@ function AdminLogs()
 		'banlog' => array('ManageBans.php', 'BanLog'),
 		'spiderlog' => array('ManageSearchEngines.php', 'SpiderLogs'),
 		'tasklog' => array('ManageScheduledTasks.php', 'TaskLog'),
-		'pruning' => array('ManageSettings.php', 'ModifyPruningSettings'),
+		'settings' => array('ManageSettings.php', 'ModifyLogSettings'),
 	);
 
 	call_integration_hook('integrate_manage_logs', array(&$log_functions));
@@ -935,8 +935,8 @@ function AdminLogs()
 			'tasklog' => array(
 				'description' => $txt['scheduled_log_desc'],
 			),
-			'pruning' => array(
-				'description' => $txt['pruning_log_desc'],
+			'settings' => array(
+				'description' => $txt['log_settings_desc'],
 			),
 		),
 	);

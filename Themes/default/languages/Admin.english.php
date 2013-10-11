@@ -239,7 +239,7 @@ $txt['admin_log_desc'] = 'Lists administrative tasks that have been performed by
 $txt['moderation_log'] = 'Moderation Log';
 $txt['moderation_log_desc'] = 'Lists moderation activities that have been performed by moderators on your forum.';
 $txt['spider_log_desc'] = 'Review the entries related to search engine spider activity on your forum.';
-$txt['pruning_log_desc'] = 'Use these tools to prune older entries in the various logs.';
+$txt['log_settings_desc'] = 'Use these options to configure how logging works on your forum.';
 
 $txt['mailqueue_title'] = 'Mail';
 
@@ -654,6 +654,8 @@ $txt['moderation_settings_short'] = 'Moderation';
 $txt['signature_settings_short'] = 'Signatures';
 $txt['custom_profile_shorttitle'] = 'Profile Fields';
 $txt['pruning_title'] = 'Log Pruning';
+$txt['pruning_desc'] = 'The following options are useful for keeping your logs from growing too big, because most of the time older entries are not really of that much use.';
+$txt['log_settings'] = 'Log Settings';
 
 $txt['core_settings_activation_message'] = 'The feature {core_feature} has been activated, click on the title to configure it';
 $txt['core_settings_deactivation_message'] = 'The feature {core_feature} has been deactivated';
