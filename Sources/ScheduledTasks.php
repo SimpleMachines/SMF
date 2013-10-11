@@ -1246,7 +1246,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc;
+	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '
@@ -1285,9 +1285,10 @@ function scheduled_fetchSMfiles()
 		// Get the file
 		$file_data = fetch_web_data($url);
 
-		// If we got an error - give up - the site might be down.
+		// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 		if ($file_data === false)
 		{
+			$context['scheduled_errors']['fetchSMfiles'][] = sprintf($txt['st_cannot_retrieve_file'], $url);
 			log_error(sprintf($txt['st_cannot_retrieve_file'], $url));
 			return false;
 		}
@@ -1663,7 +1664,7 @@ function scheduled_paid_subscriptions()
  */
 function scheduled_remove_temp_attachments()
 {
-	global $modSettings;
+	global $modSettings, $context, $txt;
 
 	// We need to know where this thing is going.
 	if (!empty($modSettings['currentAttachmentUploadDir']))
@@ -1681,7 +1682,16 @@ function scheduled_remove_temp_attachments()
 
 	foreach ($attach_dirs as $attach_dir)
 	{
-		$dir = @opendir($attach_dir) or fatal_lang_error('cant_access_upload_path', 'critical');
+		$dir = @opendir($attach_dir);
+		if (!$dir)
+		{
+			loadEssentialThemeData();
+			loadLanguage('Post');
+			$context['scheduled_errors']['remove_temp_attachments'][] = $txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
+			log_error($txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
+			return false;
+		}
+
 		while ($file = readdir($dir))
 		{
 			if ($file == '.' || $file == '..')
@@ -1696,6 +1706,8 @@ function scheduled_remove_temp_attachments()
 		}
 		closedir($dir);
 	}
+
+	return true;
 }
 
 /**
@@ -1747,7 +1759,7 @@ function scheduled_remove_old_drafts()
 		return true;
 
 	// init
-	$drafts= array();
+	$drafts = array();
 
 	// We need this for lanaguage items
 	loadEssentialThemeData();

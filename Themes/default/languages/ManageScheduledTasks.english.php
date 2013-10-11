@@ -11,6 +11,7 @@ $txt['scheduled_tasks_run_now'] = 'Run Now';
 $txt['scheduled_tasks_save_changes'] = 'Save Changes';
 $txt['scheduled_tasks_time_offset'] = '<strong>Note:</strong> All times given below are <em>server time</em> and do not take any time offsets setup within SMF into account.';
 $txt['scheduled_tasks_were_run'] = 'All selected tasks were completed';
+$txt['scheduled_tasks_were_run_errors'] = 'All selected tasks were completed but some had errors:';
 
 $txt['scheduled_tasks_na'] = 'N/A';
 $txt['scheduled_task_approval_notification'] = 'Approval Notifications';
