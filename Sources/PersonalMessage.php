@@ -175,7 +175,7 @@ function MessageMain()
 	$context['can_issue_warning'] = in_array('w', $context['admin_features']) && allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1;
 
 	// Are PM drafts enabled?
-	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
 
 	// Build the linktree for all the actions...
@@ -247,7 +247,7 @@ function messageIndexBar($area)
 					'label' => $txt['drafts_show'],
 					'custom_url' => $scripturl . '?action=pm;sa=showpmdrafts',
 					'permission' => allowedTo('pm_draft'),
-					'enabled' => !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']),
+					'enabled' => !empty($modSettings['drafts_pm_enabled']),
 				),
 			),
 		),
