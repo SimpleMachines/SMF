@@ -171,7 +171,6 @@ function AdminMain()
 					'icon' => 'modifications.png',
 					'subsections' => array(
 						'general' => array($txt['mods_cat_modifications_misc']),
-						'hooks' => array($txt['hooks_title_list']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
 						// 'shout' => array($txt['shout']),
 						// Note the comma!! The setting with automatically appear with the first mod to be added.
@@ -394,6 +393,7 @@ function AdminMain()
 						'database' => array($txt['maintain_sub_database'], 'admin_forum'),
 						'members' => array($txt['maintain_sub_members'], 'admin_forum'),
 						'topics' => array($txt['maintain_sub_topics'], 'admin_forum'),
+						'hooks' => array($txt['hooks_title_list'], 'admin_forum'),
 					),
 				),
 				'scheduledtasks' => array(
