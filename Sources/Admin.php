@@ -128,7 +128,6 @@ function AdminMain()
 					'function' => 'ModifySecuritySettings',
 					'icon' => 'security.png',
 					'subsections' => array(
-						'general' => array($txt['mods_cat_security_general']),
 						'spam' => array($txt['antispam_title']),
 						'moderation' => array($txt['moderation_settings_short'], 'enabled' => in_array('w', $context['admin_features'])),
 					),
@@ -267,6 +266,20 @@ function AdminMain()
 						'maintenance' => array($txt['attachment_manager_maintenance']),
 					),
 				),
+				'sengines' => array(
+					'label' => $txt['search_engines'],
+					'enabled' => in_array('sp', $context['admin_features']),
+					'file' => 'ManageSearchEngines.php',
+					'icon' => 'engines.png',
+					'function' => 'SearchEngines',
+					'permission' => 'admin_forum',
+					'subsections' => array(
+						'stats' => array($txt['spider_stats']),
+						'logs' => array($txt['spider_logs']),
+						'spiders' => array($txt['spiders']),
+						'settings' => array($txt['settings']),
+					),
+				),
 			),
 		),
 		'members' => array(
@@ -348,20 +361,6 @@ function AdminMain()
 						'settings' => array($txt['settings']),
 					),
 				),
-				'sengines' => array(
-					'label' => $txt['search_engines'],
-					'enabled' => in_array('sp', $context['admin_features']),
-					'file' => 'ManageSearchEngines.php',
-					'icon' => 'engines.png',
-					'function' => 'SearchEngines',
-					'permission' => 'admin_forum',
-					'subsections' => array(
-						'stats' => array($txt['spider_stats']),
-						'logs' => array($txt['spider_logs']),
-						'spiders' => array($txt['spiders']),
-						'settings' => array($txt['settings']),
-					),
-				),
 			),
 		),
 		'maintenance' => array(
@@ -377,6 +376,7 @@ function AdminMain()
 						'general' => array($txt['general_settings']),
 						'database' => array($txt['database_paths_settings']),
 						'cookie' => array($txt['cookies_sessions_settings']),
+						'security' => array($txt['security_settings']),
 						'cache' => array($txt['caching_settings']),
 						'loads' => array($txt['load_balancing_settings']),
 						'phpinfo' => array($txt['phpinfo_settings']),

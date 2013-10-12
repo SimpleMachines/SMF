@@ -104,7 +104,6 @@ function ModifySecuritySettings()
 	$context['page_title'] = $txt['admin_security_moderation'];
 
 	$subActions = array(
-		'general' => 'ModifyGeneralSecuritySettings',
 		'spam' => 'ModifySpamSettings',
 		'moderation' => 'ModifyModerationSettings',
 	);
@@ -115,7 +114,7 @@ function ModifySecuritySettings()
 	if (!in_array('w', $context['admin_features']))
 		unset($subActions['moderation']);
 
-	loadGeneralSettingParameters($subActions, 'general');
+	loadGeneralSettingParameters($subActions, 'spam');
 
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -123,8 +122,6 @@ function ModifySecuritySettings()
 		'help' => 'securitysettings',
 		'description' => $txt['security_settings_desc'],
 		'tabs' => array(
-			'general' => array(
-			),
 			'spam' => array(
 				'description' => $txt['antispam_Settings_desc'] ,
 			),
@@ -503,63 +500,6 @@ function ModifyBasicSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=basic';
 	$context['settings_title'] = $txt['mods_cat_features'];
-
-	prepareDBSettingContext($config_vars);
-}
-
-/**
- * Settings really associated with general security aspects.
- *
- * @param $return_config
- */
-function ModifyGeneralSecuritySettings($return_config = false)
-{
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
-
-	$config_vars = array(
-			array('check', 'guest_hideContacts'),
-			array('check', 'make_email_viewable'),
-		'',
-			array('int', 'failed_login_threshold'),
-			array('int', 'loginHistoryDays'),
-		'',
-			array('check', 'securityDisable'),
-			array('check', 'securityDisable_moderate'),
-		'',
-			// Reactive on email, and approve on delete
-			array('check', 'send_validation_onChange'),
-			array('check', 'approveAccountDeletion'),
-		'',
-			// Password strength.
-			array('select', 'password_strength', array($txt['setting_password_strength_low'], $txt['setting_password_strength_medium'], $txt['setting_password_strength_high'])),
-			array('check', 'enable_password_conversion'),
-		'',
-			// Reporting of personal messages?
-			array('check', 'enableReportPM'),
-		'',
-			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
-	);
-
-	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
-
-	if ($return_config)
-		return $config_vars;
-
-	// Saving?
-	if (isset($_GET['save']))
-	{
-		checkSession();
-
-		saveDBSettings($config_vars);
-
-		call_integration_hook('integrate_save_general_security_settings');
-
-		writeLog();
-		redirectexit('action=admin;area=securitysettings;sa=general');
-	}
-
-	$context['post_url'] = $scripturl . '?action=admin;area=securitysettings;save;sa=general';
-	$context['settings_title'] = $txt['mods_cat_security_general'];
 
 	prepareDBSettingContext($config_vars);
 }
