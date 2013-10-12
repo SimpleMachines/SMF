@@ -3819,6 +3819,9 @@ span.hidelink {
 #searchform p.clear {
 	clear: both;
 }
+#searchform .roundframe h4.titlebg {
+	border-bottom: none;
+}
 
 /* Styles for the search results page.
 ------------------------------------------------- */
@@ -4190,7 +4193,7 @@ div#editlang_desc {
 #show_attachments th {
 	text-align: left;
 }
-#info_center .cat_bar {
+#info_center .cat_bar, #searchform .roundframe .title_bar {
 	border-right: 1px solid #ddd;
 	border-left: 1px solid #ddd;
 	margin: 0 -1px;
@@ -4204,17 +4207,17 @@ tr.catbg th:first-child, #show_attachments th:first-child {
 tr.catbg th:last-child, #show_attachments th:last-child {
 	border-right: 1px solid #ddd;
 }
-#info_center .catbg {
+#info_center .catbg, #searchform .roundframe .titlebg {
 	padding: 6px 12px 5px 12px;
 	background: none;
 	font-size: 1.1em;
 }
-#info_center .catbg, #info_center .catbg a, .table_grid tr.catbg th a {
+#info_center .catbg, #info_center .catbg a, .table_grid tr.catbg th a, #searchform .roundframe .titlebg {
 	color: #555;
 	text-shadow: none;
 }
 #info_center .title_barIC, #postmodify .roundframe .title_bar,
-#activitytime .cat_bar, #popularposts .cat_bar, #popularactivity .cat_bar{
+#activitytime .cat_bar, #popularposts .cat_bar, #popularactivity .cat_bar {
 	background: none;
 	border-top: 1px solid #999;
 	border-bottom: 1px solid #fff;
