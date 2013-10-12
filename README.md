@@ -30,5 +30,11 @@ by signing off your contributions, you acknowledge that you can and do license y
 * You should never send any pull request against the master branch
 For more informations, the ideal branching we would like to follow is the one described in [this article](http://nvie.com/posts/a-successful-git-branching-model/)
 
-Finally, feel free to play around. That's what we're doing. ;)
+Please, feel free to play around. That's what we're doing. ;)
 
+######Security matters:
+
+Lastly, if you have a security issue you would like to notify us about regarding SMF - not just for 2.1, but for any version -
+please file a [security report](http://www.simplemachines.org/about/smf/security.php) on our website: http://www.simplemachines.org/about/smf/security.php
+
+This will enable the team to review it and prepare patches as appropriate before exploits are widely known, which helps keep everyone safe.
