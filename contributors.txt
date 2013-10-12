@@ -55,6 +55,7 @@ Third Party Software and Graphics;
 Graphics
 Fugue Icons | © 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License
 Oxygen Icons | These icons are licensed under CC BY-SA 3.0
+Crystal Project Icons | These icons are licensed under the GNU Lesser General Public Licence
 
 Software
 JQuery | © John Resig | Licensed under The MIT License (MIT)
@@ -64,9 +65,9 @@ SCEditor | © Sam Clarke | Licensed under The MIT License (MIT)
 animaDrag | © Abel Mohler | Licensed under The MIT License (MIT)
 
 Fonts
-Anonymous Pro |© 2009 | This font is licensed under the SIL Open Font License, Version 1.1
-ConsolaMono |© 2012 | This font is licensed under the SIL Open Font License, Version 1.1
-Phennig |© 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1
+Anonymous Pro | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1
+ConsolaMono | © 2012 | This font is licensed under the SIL Open Font License, Version 1.1
+Phennig | © 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1
 
 
 

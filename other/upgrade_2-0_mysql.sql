@@ -476,7 +476,8 @@ VALUES
 	(16, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
 	(17, 'Alexa', 'ia_archiver', ''),
 	(18, 'Omgili', 'omgilibot', ''),
-	(19, 'EntireWeb', 'Speedy Spider', '');
+	(19, 'EntireWeb', 'Speedy Spider', ''),
+	(20, 'Yandex', 'yandex', '');
 ---#
 
 ---# Removing a spider.
