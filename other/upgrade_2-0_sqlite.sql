@@ -114,7 +114,8 @@ $smcFunc['db_insert']('ignore',
 		array(16, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
 		array(17, 'Alexa', 'ia_archiver', ''),
 		array(18, 'Omgili', 'omgilibot', ''),
-		array(19, 'EntireWeb', 'Speedy Spider', '')
+		array(19, 'EntireWeb', 'Speedy Spider', ''),
+		array(20, 'Yandex', 'yandex', '')
 	),
 	array('user_agent')
 );
