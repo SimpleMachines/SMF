@@ -6,7 +6,7 @@ global $settings, $scripturl;
 $txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
 $txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
 
-$txt['admin_boards'] = 'Boards';
+$txt['admin_boards'] = 'Boards and Categories';
 $txt['admin_users'] = 'Members';
 $txt['admin_newsletters'] = 'Newsletters';
 $txt['admin_edit_news'] = 'News';
