@@ -2262,8 +2262,7 @@ CREATE TABLE {$db_prefix}user_drafts (
   icon varchar(16) NOT NULL default 'xx',
   locked smallint NOT NULL default '0',
   is_sticky smallint NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
-  outbox smallint NOT NULL default '0'
+  to_list varchar(255) NOT NULL default ''
 );
 
 #
