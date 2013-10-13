@@ -71,11 +71,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'copy_to_outbox',
-			'label' => $txt['copy_to_outbox'],
-			'default' => true,
-		),
-		array(
 			'id' => 'pm_remove_inbox_label',
 			'label' => $txt['pm_remove_inbox_label'],
 			'default' => true,

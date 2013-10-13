@@ -340,7 +340,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
   locked tinyint(4) NOT NULL default '0',
   is_sticky tinyint(4) NOT NULL default '0',
   to_list varchar(255) NOT NULL default '',
-  outbox tinyint(4) NOT NULL default '0',
   PRIMARY KEY id_draft(id_draft),
   UNIQUE id_member (id_member, id_draft, type)
 ) ENGINE=MyISAM{$db_collation};
