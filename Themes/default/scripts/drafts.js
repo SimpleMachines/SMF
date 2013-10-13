@@ -151,10 +151,6 @@ smf_DraftAutoSave.prototype.draftPMSave = function ()
 		smf_session_var + '=' + smf_session_id,
 	];
 
-	// Saving a copy in the outbox?
-	if (document.getElementById('outbox'))
-		aSections[aSections.length] = 'outbox=' + parseInt(document.getElementById('outbox').value);
-
 	// account for wysiwyg
 	if (this.opt.sType == 'post')
 		aSections[aSections.length] = 'message_mode=' + parseInt(document.forms.postmodify.elements['message_mode'].value);

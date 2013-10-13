@@ -213,7 +213,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 
 	// prepare the data we got from the form
 	$reply_id = empty($_POST['replied_to']) ? 0 : (int) $_POST['replied_to'];
-	$outbox = empty($_POST['outbox']) ? 0 : 1;
 	$draft['body'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
 	$draft['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 
@@ -232,8 +231,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				poster_time = {int:poster_time},
 				subject = {string:subject},
 				body = {string:body},
-				to_list = {string:to_list},
-				outbox = {int:outbox}
+				to_list = {string:to_list}
 			WHERE id_draft = {int:id_pm_draft}
 			LIMIT 1',
 			array(
@@ -244,7 +242,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 				'body' => $draft['body'],
 				'id_pm_draft' => $id_pm_draft,
 				'to_list' => serialize($recipientList),
-				'outbox' => $outbox,
 			)
 		);
 
@@ -265,7 +262,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 				'subject' => 'string-255',
 				'body' => 'string-65534',
 				'to_list' => 'string-255',
-				'outbox' => 'int',
 			),
 			array(
 				$reply_id,
@@ -275,7 +271,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 				$draft['subject'],
 				$draft['body'],
 				serialize($recipientList),
-				$outbox,
 			),
 			array(
 				'id_draft'
@@ -373,7 +368,6 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 		elseif ($type === 1)
 		{
 			// one of those pm drafts? then set it up like we have an error
-			$_REQUEST['outbox'] = !empty($draft_info['outbox']);
 			$_REQUEST['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
 			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br />', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$_REQUEST['replied_to'] = !empty($draft_info['id_reply']) ? $draft_info['id_reply'] : 0;
@@ -745,7 +739,7 @@ function showPMDrafts($memID = -1)
 	// Load in this user's PM drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.outbox, ud.id_reply, ud.to_list
+			ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.id_reply, ud.to_list
 		FROM {db_prefix}user_drafts AS ud
 		WHERE ud.id_member = {int:current_member}
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
