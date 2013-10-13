@@ -166,6 +166,19 @@ function ModifySubscriptionSettings($return_config = false)
 	{
 		checkSession();
 
+		// Check the email addresses were actually email addresses.
+		if (!empty($_POST['paid_email_to']))
+		{
+			$email_addresses = array();
+			foreach (explode(',', $_POST['paid_email_to']) as $email)
+			{
+				$email = trim($email);
+				if (!empty($email) && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $email))
+					$email_addresses[] = $email;
+				$_POST['paid_email_to'] = implode(',', $email_addresses);
+			}
+		}
+
 		// Sort out the currency stuff.
 		if ($_POST['paid_currency'] != 'other')
 		{
