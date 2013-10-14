@@ -170,6 +170,15 @@ function template_registration_form()
 					</dl>';
 	}
 
+		echo '
+
+					<dl class="register_form" id="signature2">
+						<dt><strong>Signature:</strong></dt>
+						<dd>
+							<input type="text" name="signature" id="signature" size="30" tabindex="', $context['tabindex']++, '" value="" class="input_text signature_login" />
+						</dd>
+					</dl>';
+
 	// If there is any field marked as required, show it here!
 	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
 	{
