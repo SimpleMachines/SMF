@@ -247,6 +247,9 @@ function cleanRequest()
 	// Find the user's IP address. (but don't let it give you 'unknown'!)
 	foreach ($reverseIPheaders as $proxyIPheader)
 	{
+		if (isset($modSettings['proxy_ip_servers']) && in_array($_SERVER['REMOTE_ADDR'], explode(',', $modSettings['proxy_ip_servers'])) == 0)
+			continue;
+
 		// If there are commas, get the last one.. probably.
 		if (strpos($_SERVER[$proxyIPheader], ',') !== false)
 		{
