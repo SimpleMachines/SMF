@@ -247,8 +247,12 @@ function cleanRequest()
 	// Find the user's IP address. (but don't let it give you 'unknown'!)
 	foreach ($reverseIPheaders as $proxyIPheader)
 	{
-		if (isset($modSettings['proxy_ip_servers']) && in_array($_SERVER['REMOTE_ADDR'], explode(',', $modSettings['proxy_ip_servers'])) == 0)
-			continue;
+		if (isset($modSettings['proxy_ip_servers']))
+		{
+			foreach (explode(',', $modSettings['proxy_ip_servers']) as $proxy)
+				if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy))
+					continue;
+		}
 
 		// If there are commas, get the last one.. probably.
 		if (strpos($_SERVER[$proxyIPheader], ',') !== false)
@@ -403,6 +407,20 @@ function expandIPv6($addr, $strict_check = true)
 		return false;
 }
 
+
+/**
+ * Detect if a IP is in a CIDR address
+ * - returns true or false
+ *
+ * @param string IP address to check
+ * @param string CIDR address to verify
+ * @return bool
+*/
+function matchIPtoCIDR($ip_address, $cidr_address)
+{
+    list ($cidr_network, $cidr_subnetmask) = split('/', $cidr_address);
+    return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
+}
 
 /**
  * Adds slashes to the array/variable.
