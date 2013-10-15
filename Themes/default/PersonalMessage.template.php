@@ -818,7 +818,7 @@ function template_search()
 						srcExpanded: smf_images_url + \'/collapse.png\',
 						altExpanded: ', JavaScriptEscape($txt['hide']), ',
 						srcCollapsed: smf_images_url + \'/expand.png\',
-						altCollapsed: ', JavaScriptEscape($txt['hide']), '
+						altCollapsed: ', JavaScriptEscape($txt['show']), '
 					}
 				],
 				aSwapLinks: [

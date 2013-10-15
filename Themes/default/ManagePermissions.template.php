@@ -208,7 +208,7 @@ function template_permission_index()
 					srcExpanded: smf_images_url + \'/collapse.png\',
 					altExpanded: ', JavaScriptEscape($txt['hide']), ',
 					srcCollapsed: smf_images_url + \'/expand.png\',
-					altCollapsed: ', JavaScriptEscape($txt['hide']), '
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
 			aSwapLinks: [
