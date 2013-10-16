@@ -178,7 +178,7 @@ $txt['setting_image_verification_extreme'] = 'Extreme - Angled letters, noise, l
 $txt['setting_image_verification_sample'] = 'Sample';
 $txt['setting_image_verification_nogd'] = '<strong>Note:</strong> as this server does not have the GD library installed the different complexity settings will have no effect.';
 $txt['setup_verification_questions'] = 'Verification Questions';
-$txt['setup_verification_questions_desc'] = '<span class="smalltext">If you want users to answer verification questions in order to stop spam bots, you should setup a number of questions in the table below. You should choose questions which relate to the subject of your forum. Genuine users will be able to answer these questions, while spam bots will not.  Answers are not case sensitive. You may use BBC in the questions for formatting.  To remove a question simply delete the contents of that line.</span>';
+$txt['setup_verification_questions_desc'] = '<span class="smalltext">If you want users to answer verification questions in order to stop spam bots, you should setup a number of questions in the table below. You should choose questions which relate to the subject of your forum. Genuine users will be able to answer these questions, while spam bots will not. Answers are not case sensitive. You may use BBC in the questions for formatting.  To remove a question simply delete the contents of that line.</span>';
 $txt['setup_verification_question'] = 'Question';
 $txt['setup_verification_answer'] = 'Answer';
 $txt['setup_verification_add_more'] = 'Add another question';
