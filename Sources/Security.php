@@ -684,7 +684,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		}
 
 		// remove 'www' from all URL's
-		f (isset($parsed_url['host']))
+		if (isset($parsed_url['host']))
 			$parsed_url['host'] = str_ireplace('www.', '', $parsed_url['host']);
 		$referrer['host'] = str_ireplace('www.', '', $referrer['host']);
 		$real_host = str_ireplace('www.', '', $real_host);
