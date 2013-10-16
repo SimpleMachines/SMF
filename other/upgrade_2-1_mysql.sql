@@ -446,7 +446,7 @@ $get_questions = upgrade_query("
 	FROM {$db_prefix}log_comments
 	WHERE comment_type = 'ver_test'");
 
-	while ($row = smf_mysql_fetch_assoc($get_questions))
+	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
 	{
 		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
 	}
