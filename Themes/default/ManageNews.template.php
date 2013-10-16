@@ -261,8 +261,7 @@ function template_email_members_compose()
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 			<input type="hidden" name="email_force" value="', $context['email_force'], '" />
-			<input type="hidden" name="total_emails" value="', $context['total_emails'], '" />
-			<input type="hidden" name="max_id_member" value="', $context['max_id_member'], '" />';
+			<input type="hidden" name="total_emails" value="', $context['total_emails'], '" />';
 
 	foreach ($context['recipients'] as $key => $values)
 		echo '
@@ -420,8 +419,8 @@ function template_email_members_send()
 					<input type="hidden" name="subject" value="', $context['subject'], '" />
 					<input type="hidden" name="message" value="', $context['message'], '" />
 					<input type="hidden" name="start" value="', $context['start'], '" />
+					<input type="hidden" name="total_members" value="', $context['total_members'], '" />
 					<input type="hidden" name="total_emails" value="', $context['total_emails'], '" />
-					<input type="hidden" name="max_id_member" value="', $context['max_id_member'], '" />
 					<input type="hidden" name="send_pm" value="', $context['send_pm'], '" />
 					<input type="hidden" name="send_html" value="', $context['send_html'], '" />
 					<input type="hidden" name="parse_html" value="', $context['parse_html'], '" />';

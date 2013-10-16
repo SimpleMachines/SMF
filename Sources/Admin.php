@@ -25,12 +25,15 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $txt, $context, $scripturl, $modSettings, $settings, $sourcedir, $options, $boarddir;
+	global $txt, $context, $scripturl, $modSettings, $settings, $sourcedir, $options, $boarddir, $maintenance;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin', 'admin');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
+
+	if (!empty($maintenance))
+		$context['template_layers'][] = 'maint_warning';
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
@@ -116,7 +119,7 @@ function AdminMain()
 						'layout' => array($txt['mods_cat_layout']),
 						'karma' => array($txt['karma'], 'enabled' => in_array('k', $context['admin_features'])),
 						'sig' => array($txt['signature_settings_short']),
-						'profile' => array($txt['custom_profile_shorttitle'], 'enabled' => in_array('cp', $context['admin_features'])),
+						'profile' => array($txt['custom_profile_shorttitle']),
 					),
 				),
 				'securitysettings' => array(
@@ -125,7 +128,6 @@ function AdminMain()
 					'function' => 'ModifySecuritySettings',
 					'icon' => 'security.png',
 					'subsections' => array(
-						'general' => array($txt['mods_cat_security_general']),
 						'spam' => array($txt['antispam_title']),
 						'moderation' => array($txt['moderation_settings_short'], 'enabled' => in_array('w', $context['admin_features'])),
 					),
@@ -139,20 +141,6 @@ function AdminMain()
 						'edit' => array($txt['language_edit']),
 						'add' => array($txt['language_add']),
 						'settings' => array($txt['language_settings']),
-					),
-				),
-				'serversettings' => array(
-					'label' => $txt['admin_server_settings'],
-					'file' => 'ManageServer.php',
-					'function' => 'ModifySettings',
-					'icon' => 'server.png',
-					'subsections' => array(
-						'general' => array($txt['general_settings']),
-						'database' => array($txt['database_paths_settings']),
-						'cookie' => array($txt['cookies_sessions_settings']),
-						'cache' => array($txt['caching_settings']),
-						'loads' => array($txt['load_balancing_settings']),
-						'phpinfo' => array($txt['phpinfo_settings']),
 					),
 				),
 				'current_theme' => array(
@@ -182,7 +170,6 @@ function AdminMain()
 					'icon' => 'modifications.png',
 					'subsections' => array(
 						'general' => array($txt['mods_cat_modifications_misc']),
-						'hooks' => array($txt['hooks_title_list']),
 						// Mod Authors for a "ADD AFTER" on this line. Ensure you end your change with a comma. For example:
 						// 'shout' => array($txt['shout']),
 						// Note the comma!! The setting with automatically appear with the first mod to be added.
@@ -223,9 +210,8 @@ function AdminMain()
 					'label' => $txt['manage_drafts'],
 					'file' => 'Drafts.php',
 					'function' => 'ModifyDraftSettings',
-					'icon' => 'logs.png',
+					'icon' => 'drafts.png',
 					'permission' => array('admin_forum'),
-					'enabled' => in_array('dr', $context['admin_features']),
 				),
 				'managecalendar' => array(
 					'label' => $txt['manage_calendar'],
@@ -278,6 +264,20 @@ function AdminMain()
 						'avatars' => array($txt['attachment_manager_avatar_settings']),
 						'attachpaths' => array($txt['attach_directories']),
 						'maintenance' => array($txt['attachment_manager_maintenance']),
+					),
+				),
+				'sengines' => array(
+					'label' => $txt['search_engines'],
+					'enabled' => in_array('sp', $context['admin_features']),
+					'file' => 'ManageSearchEngines.php',
+					'icon' => 'engines.png',
+					'function' => 'SearchEngines',
+					'permission' => 'admin_forum',
+					'subsections' => array(
+						'stats' => array($txt['spider_stats']),
+						'logs' => array($txt['spider_logs']),
+						'spiders' => array($txt['spiders']),
+						'settings' => array($txt['settings']),
 					),
 				),
 			),
@@ -361,26 +361,27 @@ function AdminMain()
 						'settings' => array($txt['settings']),
 					),
 				),
-				'sengines' => array(
-					'label' => $txt['search_engines'],
-					'enabled' => in_array('sp', $context['admin_features']),
-					'file' => 'ManageSearchEngines.php',
-					'icon' => 'engines.png',
-					'function' => 'SearchEngines',
-					'permission' => 'admin_forum',
-					'subsections' => array(
-						'stats' => array($txt['spider_stats']),
-						'logs' => array($txt['spider_logs']),
-						'spiders' => array($txt['spiders']),
-						'settings' => array($txt['settings']),
-					),
-				),
 			),
 		),
 		'maintenance' => array(
 			'title' => $txt['admin_maintenance'],
 			'permission' => array('admin_forum'),
 			'areas' => array(
+				'serversettings' => array(
+					'label' => $txt['admin_server_settings'],
+					'file' => 'ManageServer.php',
+					'function' => 'ModifySettings',
+					'icon' => 'server.png',
+					'subsections' => array(
+						'general' => array($txt['general_settings']),
+						'database' => array($txt['database_paths_settings']),
+						'cookie' => array($txt['cookies_sessions_settings']),
+						'security' => array($txt['security_settings']),
+						'cache' => array($txt['caching_settings']),
+						'loads' => array($txt['load_balancing_settings']),
+						'phpinfo' => array($txt['phpinfo_settings']),
+					),
+				),
 				'maintain' => array(
 					'label' => $txt['maintain_title'],
 					'file' => 'ManageMaintenance.php',
@@ -391,6 +392,7 @@ function AdminMain()
 						'database' => array($txt['maintain_sub_database'], 'admin_forum'),
 						'members' => array($txt['maintain_sub_members'], 'admin_forum'),
 						'topics' => array($txt['maintain_sub_topics'], 'admin_forum'),
+						'hooks' => array($txt['hooks_title_list'], 'admin_forum'),
 					),
 				),
 				'scheduledtasks' => array(
@@ -414,7 +416,6 @@ function AdminMain()
 					),
 				),
 				'reports' => array(
-					'enabled' => in_array('rg', $context['admin_features']),
 					'label' => $txt['generate_reports'],
 					'file' => 'Reports.php',
 					'function' => 'ReportsMain',
@@ -431,7 +432,7 @@ function AdminMain()
 						'banlog' => array($txt['ban_log'], 'manage_bans'),
 						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => in_array('sp', $context['admin_features'])),
 						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
-						'pruning' => array($txt['pruning_title'], 'admin_forum'),
+						'settings' => array($txt['log_settings'], 'admin_forum'),
 					),
 				),
 				'repairboards' => array(
@@ -461,7 +462,7 @@ function AdminMain()
 	validateSession();
 
 	// Actually create the menu!
-	$admin_include_data = createMenu($admin_areas);
+	$admin_include_data = createMenu($admin_areas, array('do_big_icons' => true));
 	unset($admin_areas);
 
 	// Nothing valid?
@@ -560,52 +561,6 @@ function AdminHome()
 				<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
 				' . sprintf($txt['admin_main_welcome'], $txt['admin_center'], $txt['help'], $txt['help']),
 		);
-
-
-	// The format of this array is: permission, action, title, description, icon.
-	$quick_admin_tasks = array(
-		array('', 'credits', 'support_credits_title', 'support_credits_info', 'support_and_credits.png'),
-		array('admin_forum', 'featuresettings', 'modSettings_title', 'modSettings_info', 'features_and_options.png'),
-		array('admin_forum', 'maintain', 'maintain_title', 'maintain_info', 'forum_maintenance.png'),
-		array('manage_permissions', 'permissions', 'edit_permissions', 'edit_permissions_info', 'permissions_lg.png'),
-		array('admin_forum', 'theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id'], 'theme_admin', 'theme_admin_info', 'themes_and_layout.png'),
-		array('admin_forum', 'packages', 'package', 'package_info', 'packages_lg.png'),
-		array('manage_smileys', 'smileys', 'smileys_manage', 'smileys_manage_info', 'smilies_and_messageicons.png'),
-		array('moderate_forum', 'viewmembers', 'admin_users', 'member_center_info', 'members_lg.png'),
-	);
-
-	$context['quick_admin_tasks'] = array();
-	foreach ($quick_admin_tasks as $task)
-	{
-		if (!empty($task[0]) && !allowedTo($task[0]))
-			continue;
-
-		$context['quick_admin_tasks'][] = array(
-			'href' => $scripturl . '?action=admin;area=' . $task[1],
-			'link' => '<a href="' . $scripturl . '?action=admin;area=' . $task[1] . '">' . $txt[$task[2]] . '</a>',
-			'title' => $txt[$task[2]],
-			'description' => $txt[$task[3]],
-			'icon' => $task[4],
-			'is_last' => false
-		);
-	}
-
-	if (count($context['quick_admin_tasks']) % 2 == 1)
-	{
-		$context['quick_admin_tasks'][] = array(
-			'href' => '',
-			'link' => '',
-			'title' => '',
-			'description' => '',
-			'is_last' => true
-		);
-		$context['quick_admin_tasks'][count($context['quick_admin_tasks']) - 2]['is_last'] = true;
-	}
-	elseif (count($context['quick_admin_tasks']) != 0)
-	{
-		$context['quick_admin_tasks'][count($context['quick_admin_tasks']) - 1]['is_last'] = true;
-		$context['quick_admin_tasks'][count($context['quick_admin_tasks']) - 2]['is_last'] = true;
-	}
 
 	// Lastly, fill in the blanks in the support resources paragraphs.
 	$txt['support_resources_p1'] = sprintf($txt['support_resources_p1'],
@@ -741,7 +696,6 @@ function AdminSearchInternal()
 		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
 		array('ModifyKarmaSettings', 'area=featuresettings;sa=karma'),
 		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
-		array('ModifyGeneralSecuritySettings', 'area=securitysettings;sa=general'),
 		array('ModifySpamSettings', 'area=securitysettings;sa=spam'),
 		array('ModifyModerationSettings', 'area=securitysettings;sa=moderation'),
 		array('ModifyGeneralModSettings', 'area=modsettings;sa=general'),
@@ -761,12 +715,13 @@ function AdminSearchInternal()
 		array('ModifyGeneralSettings', 'area=serversettings;sa=general'),
 		array('ModifyDatabaseSettings', 'area=serversettings;sa=database'),
 		array('ModifyCookieSettings', 'area=serversettings;sa=cookie'),
+		array('ModifyGeneralSecuritySettings', 'area=serversettings;sa=security'),
 		array('ModifyCacheSettings', 'area=serversettings;sa=cache'),
 		array('ModifyLanguageSettings', 'area=languages;sa=settings'),
 		array('ModifyRegistrationSettings', 'area=regcenter;sa=settings'),
 		array('ManageSearchEngineSettings', 'area=sengines;sa=settings'),
 		array('ModifySubscriptionSettings', 'area=paidsubscribe;sa=settings'),
-		array('ModifyPruningSettings', 'area=logs;sa=pruning'),
+		array('ModifyLogSettings', 'area=logs;sa=settings'),
 	);
 
 	call_integration_hook('integrate_admin_search', array(&$language_files, &$include_files, &$settings_search));
@@ -944,7 +899,7 @@ function AdminLogs()
 		'banlog' => array('ManageBans.php', 'BanLog'),
 		'spiderlog' => array('ManageSearchEngines.php', 'SpiderLogs'),
 		'tasklog' => array('ManageScheduledTasks.php', 'TaskLog'),
-		'pruning' => array('ManageSettings.php', 'ModifyPruningSettings'),
+		'settings' => array('ManageSettings.php', 'ModifyLogSettings'),
 	);
 
 	call_integration_hook('integrate_manage_logs', array(&$log_functions));
@@ -979,8 +934,8 @@ function AdminLogs()
 			'tasklog' => array(
 				'description' => $txt['scheduled_log_desc'],
 			),
-			'pruning' => array(
-				'description' => $txt['pruning_log_desc'],
+			'settings' => array(
+				'description' => $txt['log_settings_desc'],
 			),
 		),
 	);

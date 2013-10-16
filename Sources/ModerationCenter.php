@@ -224,11 +224,12 @@ function ModerationHome()
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';
 
+	// Handle moderators notes.
+	ModBlockNotes();
+
 	// Load what blocks the user actually can see...
-	$valid_blocks = array(
-		'n' => 'LatestNews',
-		'p' => 'Notes',
-	);
+	$valid_blocks = array();
+
 	if ($context['can_moderate_groups'])
 		$valid_blocks['g'] = 'GroupRequests';
 	if ($context['can_moderate_boards'])
@@ -254,19 +255,6 @@ function ModerationHome()
 				$context['mod_blocks'][] = $block();
 		}
 	}
-}
-
-/**
- * Just prepares the time stuff for the simple machines latest news.
- */
-function ModBlockLatestNews()
-{
-	global $context, $user_info;
-
-	$context['time_format'] = urlencode($user_info['time_format']);
-
-	// Return the template to use.
-	return 'latest_news';
 }
 
 /**
@@ -320,7 +308,7 @@ function ModBlockNotes()
 	global $context, $smcFunc, $scripturl, $txt, $user_info;
 
 	// Are we saving a note?
-	if (isset($_POST['makenote']) && isset($_POST['new_note']))
+	if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 	{
 		checkSession();
 
@@ -427,7 +415,7 @@ function ModBlockNotes()
 		$context['notes'][] = array(
 			'author' => array(
 				'id' => $note['id_member'],
-				'link' => $note['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $note['id_member'] . '" title="' . $txt['on'] . ' ' . strip_tags(timeformat($note['log_time'])) . '">' . $note['member_name'] . '</a>') : $note['member_name'],
+				'link' => $note['id_member'] ? ('<a href="' . $scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
 			),
 			'time' => timeformat($note['log_time']),
 			'text' => parse_bbc($note['body']),
@@ -560,6 +548,9 @@ function ReportedPosts()
 
 	loadTemplate('ModerationCenter');
 
+	// Set an empty var for the server response.
+	$context['report_post_action'] = '';
+
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_reported_posts'],
@@ -601,6 +592,9 @@ function ReportedPosts()
 			)
 		);
 
+		// Tell the user about it.
+		$context['report_post_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
+
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
 		recountOpenReports();
@@ -631,6 +625,9 @@ function ReportedPosts()
 			updateSettings(array('last_mod_report_action' => time()));
 			recountOpenReports();
 		}
+
+		// Go on and tell the result.
+		$context['report_post_action'] = 'close_all';
 	}
 
 	// How many entries are we viewing?
@@ -667,13 +664,20 @@ function ReportedPosts()
 	);
 	$context['reports'] = array();
 	$report_ids = array();
+	$report_boards_ids = array();
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$report_ids[] = $row['id_report'];
+		$report_boards_ids[] = $row['id_board'];
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			'topic' => array(
+				'id' => $row['id_topic'],
+				'id_msg' => $row['id_msg'],
+				'id_board' => $row['id_board'],
+				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+			),
 			'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
@@ -692,6 +696,29 @@ function ReportedPosts()
 		);
 	}
 	$smcFunc['db_free_result']($request);
+
+	// Get the names of boards those topics are in. Slightly faster this way.
+	if (!empty($report_boards_ids))
+	{
+		$report_boards_ids = array_unique($report_boards_ids);
+		$board_names = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board, name
+			FROM {db_prefix}boards
+			WHERE id_board IN ({array_int:boards})',
+			array(
+				'boards' => $report_boards_ids,
+			)
+		);
+
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$board_names[$row['id_board']] = $row['name'];
+		$smcFunc['db_free_result']($request);
+
+		foreach ($context['reports'] as $id_report => $report)
+			if (!empty($board_names[$report['topic']['id_board']]))
+				$context['reports'][$id_report]['topic']['board_name'] = $board_names[$report['topic']['id_board']];
+	}
 
 	// Now get all the people who reported it.
 	if (!empty($report_ids))
@@ -722,6 +749,14 @@ function ReportedPosts()
 		}
 		$smcFunc['db_free_result']($request);
 	}
+
+	// Get the boards where the current user can remove any message.
+	$context['report_remove_any_boards'] = $user_info['is_admin'] ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
+	$context['report_manage_bans'] = allowedTo('manage_bans');
+
+	// Do we deleted a message?
+	if (isset($_REQUEST['done']))
+		$context['report_post_action'] = 'message_deleted';
 }
 
 /**
@@ -2066,10 +2101,8 @@ function ModerationSettings()
 	);
 
 	// What blocks can this user see?
-	$context['homepage_blocks'] = array(
-		'n' => $txt['mc_prefs_latest_news'],
-		'p' => $txt['mc_notes'],
-	);
+	$context['homepage_blocks'] = array();
+
 	if ($context['can_moderate_groups'])
 		$context['homepage_blocks']['g'] = $txt['mc_group_requests'];
 	if ($context['can_moderate_boards'])

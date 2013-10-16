@@ -45,6 +45,9 @@ $txt['mc_reportedp_close'] = 'Close';
 $txt['mc_reportedp_open'] = 'Open';
 $txt['mc_reportedp_ignore'] = 'Ignore';
 $txt['mc_reportedp_unignore'] = 'Un-Ignore';
+$txt['mc_reportedp_delete'] = 'Delete message';
+$txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
+$txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.
 $txt['mc_reportedp_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this message?\\n\\nThis will turn off further reports for all moderators of the forum.';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
@@ -118,6 +121,12 @@ $txt['mc_warning_template_add'] = 'Add Template';
 $txt['mc_warning_template_modify'] = 'Edit Template';
 $txt['mc_warning_template_delete'] = 'Delete Selected';
 $txt['mc_warning_template_delete_confirm'] = 'Are you sure you want to delete the selected templates?';
+$txt['report_action_message_deleted'] = 'The message was successfully deleted.';
+$txt['report_action_ignore'] = 'The report was successfully ignored.';
+$txt['report_action_unignore'] = 'The report was successfully un-ignored.';
+$txt['report_action_close'] = 'The report was successfully closed.';
+$txt['report_action_open'] = 'The report was successfully open.';
+$txt['report_action_close_all'] = 'You successfully closed all selected reports.';
 
 $txt['mc_warning_template_desc'] = 'Use this page to fill in the details of the template. Note that the subject for the email is not part of the template. Note that as the notification is sent by PM you can use BBC within the template. Note if you use the {MESSAGE} variable then this template will not be available when issuing a generic warning (i.e. A warning not linked to a post).';
 $txt['mc_warning_template_title'] = 'Template Title';

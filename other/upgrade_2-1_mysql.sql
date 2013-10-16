@@ -30,12 +30,12 @@ if (!isset($modSettings['package_make_full_backups']) && isset($modSettings['pac
 
 ---# Copying the current "allow users to disable word censor" setting...
 ---{
-if (!isset($modSettings['allow_no_censor']))
+if (!isset($modSettings['allow_no_censored']))
 {
 	$request = upgrade_query("
 		SELECT value
 		FROM {$db_prefix}themes
-		WHERE variable='allow_no_censor'
+		WHERE variable='allow_no_censored'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
 	
@@ -46,7 +46,7 @@ if (!isset($modSettings['allow_no_censor']))
 		{
 			upgrade_query("
 				INSERT INTO {$db_prefix}settings
-				VALUES ('allow_no_censor', 1)
+				VALUES ('allow_no_censored', 1)
 			");
 			
 			// Don't do this twice...
@@ -340,7 +340,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
   locked tinyint(4) NOT NULL default '0',
   is_sticky tinyint(4) NOT NULL default '0',
   to_list varchar(255) NOT NULL default '',
-  outbox tinyint(4) NOT NULL default '0',
   PRIMARY KEY id_draft(id_draft),
   UNIQUE id_member (id_member, id_draft, type)
 ) ENGINE=MyISAM{$db_collation};

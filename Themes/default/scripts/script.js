@@ -719,10 +719,6 @@ function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 	var replacement = '', i, oldLastPage = 0;
 	var perPageLimit = 50;
 
-	// The dots were bold, the page numbers are not (in most cases).
-	spanNode.style.fontWeight = 'normal';
-	spanNode.onclick = '';
-
 	// Prevent too many pages to be loaded at once.
 	if ((lastPage - firstPage) / perPage > perPageLimit)
 	{
@@ -735,10 +731,10 @@ function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 		replacement += '<a class="navPages" href="' + baseURL.replace(/%1\$d/, i).replace(/%%/g, '%') + '">' + (1 + i / perPage) + '</a> ';
 
 	if (oldLastPage > 0)
-		replacement += '<span style="font-weight: bold; cursor: pointer" onclick="expandPages(this, \'' + baseURL + '\', ' + lastPage + ', ' + oldLastPage + ', ' + perPage + ');"> ... </span> ';
+		replacement += '<span class="expand_pages" onclick="expandPages(this, \'' + baseURL + '\', ' + lastPage + ', ' + oldLastPage + ', ' + perPage + ');"> ... </span>';
 
 	// Replace the dots by the new page links.
-	setInnerHTML(spanNode, replacement);
+	setOuterHTML(spanNode, replacement);
 }
 
 function smc_preCacheImage(sSrc)

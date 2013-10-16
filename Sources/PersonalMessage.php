@@ -175,7 +175,7 @@ function MessageMain()
 	$context['can_issue_warning'] = in_array('w', $context['admin_features']) && allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1;
 
 	// Are PM drafts enabled?
-	$context['drafts_pm_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
+	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
 
 	// Build the linktree for all the actions...
@@ -205,7 +205,10 @@ function MessageMain()
 	);
 
 	if (!isset($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
+	{
+		$_REQUEST['sa'] = '';
 		MessageFolder();
+	}
 	else
 	{
 		if (!isset($_REQUEST['xml']))
@@ -244,7 +247,7 @@ function messageIndexBar($area)
 					'label' => $txt['drafts_show'],
 					'custom_url' => $scripturl . '?action=pm;sa=showpmdrafts',
 					'permission' => allowedTo('pm_draft'),
-					'enabled' => !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_pm_enabled']),
+					'enabled' => !empty($modSettings['drafts_pm_enabled']),
 				),
 			),
 		),
@@ -1169,7 +1172,9 @@ function MessageSearch2()
 			foreach ($possible_users as $k => $v)
 			{
 				$where_params['name_' . $k] = $v;
-				$where_clause[] = 'real_name LIKE {string:name_' . $k . '}';
+				$where_clause[] = '{raw:real_name} LIKE {string:name_' . $k . '}';
+				if (!isset($where_params['real_name']))
+					$where_params['real_name'] = $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name';
 			}
 
 			// Who matches those criteria?
@@ -1186,17 +1191,19 @@ function MessageSearch2()
 				$userQuery = '';
 			elseif ($smcFunc['db_num_rows']($request) == 0)
 			{
-				$userQuery = 'AND pm.id_member_from = 0 AND (pm.from_name LIKE {raw:guest_user_name_implode})';
-				$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR pm.from_name LIKE \'', $possible_users) . '\'';
+				$userQuery = 'AND pm.id_member_from = 0 AND ({raw:pm_from_name} LIKE {raw:guest_user_name_implode})';
+				$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(pm.from_name)' : 'pm.from_name') . ' LIKE \'', $possible_users) . '\'';
+				$searchq_parameters['pm_from_name'] = $smcFunc['db_case_sensitive'] ? 'LOWER(pm.from_name)' : 'pm.from_name';
 			}
 			else
 			{
 				$memberlist = array();
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 					$memberlist[] = $row['id_member'];
-				$userQuery = 'AND (pm.id_member_from IN ({array_int:member_list}) OR (pm.id_member_from = 0 AND (pm.from_name LIKE {raw:guest_user_name_implode})))';
-				$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR pm.from_name LIKE \'', $possible_users) . '\'';
+				$userQuery = 'AND (pm.id_member_from IN ({array_int:member_list}) OR (pm.id_member_from = 0 AND ({raw:pm_from_name} LIKE {raw:guest_user_name_implode})))';
+				$searchq_parameters['guest_user_name_implode'] = '\'' . implode('\' OR ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(pm.from_name)' : 'pm.from_name') . ' LIKE \'', $possible_users) . '\'';
 				$searchq_parameters['member_list'] = $memberlist;
+				$searchq_parameters['pm_from_name'] = $smcFunc['db_case_sensitive'] ? 'LOWER(pm.from_name)' : 'pm.from_name';
 			}
 			$smcFunc['db_free_result']($request);
 		}
@@ -1791,7 +1798,6 @@ function MessagePost()
 	$context['subject'] = $form_subject;
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 	$context['post_error'] = array();
-	$context['copy_to_outbox'] = !empty($options['copy_to_outbox']);
 
 	// And build the link tree.
 	$context['linktree'][] = array(
@@ -1915,7 +1921,6 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	// Set everything up like before....
 	$context['subject'] = isset($_REQUEST['subject']) ? $smcFunc['htmlspecialchars']($_REQUEST['subject']) : '';
 	$context['message'] = isset($_REQUEST['message']) ? str_replace(array('  '), array('&nbsp; '), $smcFunc['htmlspecialchars']($_REQUEST['message'])) : '';
-	$context['copy_to_outbox'] = !empty($_REQUEST['outbox']);
 	$context['reply'] = !empty($_REQUEST['replied_to']);
 
 	if ($context['reply'])
@@ -2291,7 +2296,7 @@ function MessagePost2()
 
 	// Do the actual sending of the PM.
 	if (!empty($recipientList['to']) || !empty($recipientList['bcc']))
-		$context['send_log'] = sendpm($recipientList, $_REQUEST['subject'], $_REQUEST['message'], !empty($_REQUEST['outbox']), null, !empty($_REQUEST['pm_head']) ? (int) $_REQUEST['pm_head'] : 0);
+		$context['send_log'] = sendpm($recipientList, $_REQUEST['subject'], $_REQUEST['message'], true, null, !empty($_REQUEST['pm_head']) ? (int) $_REQUEST['pm_head'] : 0);
 	else
 		$context['send_log'] = array(
 			'sent' => array(),

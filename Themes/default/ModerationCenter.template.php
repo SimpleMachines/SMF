@@ -14,6 +14,9 @@ function template_moderation_center()
 {
 	global $settings, $options, $context, $txt, $scripturl;
 
+	// Show moderators notes.
+	template_notes();
+
 	// Show a welcome message to the user.
 	echo '
 	<div id="modcenter">';
@@ -37,49 +40,6 @@ function template_moderation_center()
 	echo '
 	</div>
 	<br class="clear" />';
-}
-
-function template_latest_news()
-{
-	global $settings, $options, $context, $txt, $scripturl;
-
-	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a> ', $txt['mc_latest_news'], '
-			</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				<div id="smfAnnouncements" class="smalltext">', $txt['mc_cannot_connect_sm'], '</div>
-			</div>
-		</div>';
-
-	// This requires a lot of javascript...
-	// @todo Put this in it's own file!!
-	echo '
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var oAdminIndex = new smf_AdminIndex({
-				sSelf: \'oAdminCenter\',
-
-				bLoadAnnouncements: true,
-				sAnnouncementTemplate: ', JavaScriptEscape('
-					<dl>
-						%content%
-					</dl>
-				'), ',
-				sAnnouncementMessageTemplate: ', JavaScriptEscape('
-					<dt><a href="%href%">%subject%</a> ' . $txt['on'] . ' %time%</dt>
-					<dd>
-						%message%
-					</dd>
-				'), ',
-				sAnnouncementContainerId: \'smfAnnouncements\'
-			});
-		// ]]></script>';
-
 }
 
 // Show all the group requests the user can see.
@@ -189,44 +149,55 @@ function template_notes()
 	global $settings, $options, $context, $txt, $scripturl;
 
 	echo '
-		<form action="', $scripturl, '?action=moderate;area=index" method="post">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_notes'], '</h3>
-			</div>
-			<div class="windowbg">
-				<div class="content modbox">';
+		<div class="modnotes">
+			<form action="', $scripturl, '?action=moderate;area=index;modnote" method="post">
+				<div class="cat_bar">
+					<h3 class="catbg">', $txt['mc_notes'], '</h3>
+				</div>
+				<div class="windowbg">
+					<div class="content modbox">';
 
 		if (!empty($context['notes']))
 		{
 			echo '
-					<ul class="reset moderation_notes">';
+						<ul class="reset moderation_notes">';
 
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)
 				echo '
-						<li class="smalltext"><a href="', $note['delete_href'], '"><img src="', $settings['images_url'], '/pm_recipient_delete.png" alt="" /></a> <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
+							<li class="smalltext"><a href="', $note['delete_href'], '"><img src="', $settings['images_url'], '/pm_recipient_delete.png" alt="" /></a>', $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
 
 			echo '
-					</ul>
-					<div class="pagesection notes">
-						<span class="smalltext">', $context['page_index'], '</span>
-					</div>';
+						</ul>
+						<div class="pagesection notes">
+							<span class="smalltext">', $context['page_index'], '</span>
+						</div>';
 		}
 
 		echo '
-					<div class="floatleft post_note">
+						<div class="floatleft post_note">
 						<input type="text" name="new_note" value="', $txt['mc_click_add_note'], '" style="width: 95%;" onclick="if (this.value == \'', $txt['mc_click_add_note'], '\') this.value = \'\';" class="input_text" />
+						</div>
+						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit" />
 					</div>
-					<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit" />
 				</div>
-			</div>
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-		</form>';
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			</form>
+		</div>';
 }
 
 function template_reported_posts()
 {
 	global $settings, $options, $context, $txt, $scripturl;
+
+	// Let them know the action was a success.
+	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
+	{
+		echo '
+			<div class="infobox">
+				', $txt['report_action_'. $context['report_post_action']], '
+			</div>';
+	}
 
 	echo '
 	<form id="reported_posts" action="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -244,6 +215,8 @@ function template_reported_posts()
 	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'class="centericon"');
 	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
 	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
+	$ban_button = create_button('close.png', 'mc_reportedp_ban', 'mc_reportedp_ban', 'class="centericon"');
+	$delete_button = create_button('delete.png', 'mc_reportedp_delete', 'mc_reportedp_delete', 'class="centericon"');
 
 	foreach ($context['reports'] as $report)
 	{
@@ -251,7 +224,7 @@ function template_reported_posts()
 		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
 			<div class="content">
 				<h5>
-					<strong><a href="', $report['topic_href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+					<strong>', !empty($report['topic']['board_name']) ? '<a href="' . $scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
 				</h5>
 				<div class="smalltext">
 					', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
@@ -270,7 +243,19 @@ function template_reported_posts()
 				<ul class="quickbuttons">
 					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
 					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>';
+
+		// Delete message button.
+		if (!$report['closed'] && (is_array($context['report_remove_any_boards']) && in_array($report['topic']['id_board'], $context['report_remove_any_boards'])))
+			echo '
+					<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,';modcenter;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'' , $txt['mc_reportedp_delete_confirm'] , '\');">', $delete_button, '</a></li>';
+
+		// Ban this user button.
+		if (!$report['closed'] && !empty($context['report_manage_bans']))
+			echo '
+					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u='. $report['author']['id'] : ';msg='. $report['topic']['id_msg']) ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+
+		echo '
 					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check" />' : '', '</li>
 				</ul>
 			</div>

@@ -30,8 +30,7 @@ INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, d
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript');
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (6, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 COMMIT;
 
 # --------------------------------------------------------
@@ -1757,6 +1756,23 @@ CREATE TABLE {$db_prefix}poll_choices (
 );
 
 #
+# Table structure for table `qanda`
+#
+
+CREATE TABLE {$db_prefix}qanda (
+  id_question integer primary key,
+  lngfile varchar(255) NOT NULL default '',
+  question varchar(255) NOT NULL default '',
+  answers text NOT NULL
+) ENGINE=MyISAM;
+
+#
+# Indexes for table `qanda`
+#
+
+CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile);
+
+#
 # Table structure for table `scheduled_tasks`
 #
 
@@ -1856,6 +1872,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('userLanguage', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('titlesEnable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topicSummaryPosts', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableErrorLogging', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('log_ban_hits', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_image_width', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_image_height', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('onlineEnable', '0');
@@ -2001,6 +2018,8 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_thumb_png
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_reencode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_unwatch', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_post_enabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_pm_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
@@ -2097,6 +2116,7 @@ INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VA
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (17, 'Alexa', 'ia_archiver', '');
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (18, 'Omgili', 'omgilibot', '');
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (19, 'EntireWeb', 'Speedy Spider', '');
+INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '');
 
 #
 # Table structure for table `subscriptions`
@@ -2165,7 +2185,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_mark
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_board_desc', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'allow_no_censored', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
@@ -2243,8 +2262,7 @@ CREATE TABLE {$db_prefix}user_drafts (
   icon varchar(16) NOT NULL default 'xx',
   locked smallint NOT NULL default '0',
   is_sticky smallint NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
-  outbox smallint NOT NULL default '0'
+  to_list varchar(255) NOT NULL default ''
 );
 
 #

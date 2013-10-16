@@ -33,7 +33,7 @@ function SaveDraft(&$post_errors)
 	global $context, $user_info, $smcFunc, $modSettings, $board;
 
 	// can you be, should you be ... here?
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
+	if (empty($modSettings['drafts_post_enabled']) || !allowedTo('post_draft') || !isset($_POST['save_draft']) || !isset($_POST['id_draft']))
 		return false;
 
 	// read in what they sent us, if anything
@@ -183,7 +183,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	global $context, $user_info, $smcFunc, $modSettings;
 
 	// PM survey says ... can you stay or must you go
-	if (empty($modSettings['drafts_enabled']) || empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
+	if (empty($modSettings['drafts_pm_enabled']) || !allowedTo('pm_draft') || !isset($_POST['save_draft']))
 		return false;
 
 	// read in what you sent us
@@ -213,7 +213,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 
 	// prepare the data we got from the form
 	$reply_id = empty($_POST['replied_to']) ? 0 : (int) $_POST['replied_to'];
-	$outbox = empty($_POST['outbox']) ? 0 : 1;
 	$draft['body'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
 	$draft['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 
@@ -232,8 +231,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 				poster_time = {int:poster_time},
 				subject = {string:subject},
 				body = {string:body},
-				to_list = {string:to_list},
-				outbox = {int:outbox}
+				to_list = {string:to_list}
 			WHERE id_draft = {int:id_pm_draft}
 			LIMIT 1',
 			array(
@@ -244,7 +242,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 				'body' => $draft['body'],
 				'id_pm_draft' => $id_pm_draft,
 				'to_list' => serialize($recipientList),
-				'outbox' => $outbox,
 			)
 		);
 
@@ -265,7 +262,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 				'subject' => 'string-255',
 				'body' => 'string-65534',
 				'to_list' => 'string-255',
-				'outbox' => 'int',
 			),
 			array(
 				$reply_id,
@@ -275,7 +271,6 @@ function SavePMDraft(&$post_errors, $recipientList)
 				$draft['subject'],
 				$draft['body'],
 				serialize($recipientList),
-				$outbox,
 			),
 			array(
 				'id_draft'
@@ -373,7 +368,6 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 		elseif ($type === 1)
 		{
 			// one of those pm drafts? then set it up like we have an error
-			$_REQUEST['outbox'] = !empty($draft_info['outbox']);
 			$_REQUEST['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
 			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br />', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$_REQUEST['replied_to'] = !empty($draft_info['id_reply']) ? $draft_info['id_reply'] : 0;
@@ -745,7 +739,7 @@ function showPMDrafts($memID = -1)
 	// Load in this user's PM drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.outbox, ud.id_reply, ud.to_list
+			ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.id_reply, ud.to_list
 		FROM {db_prefix}user_drafts AS ud
 		WHERE ud.id_member = {int:current_member}
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
@@ -848,7 +842,7 @@ function showPMDrafts($memID = -1)
  */
 function ModifyDraftSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $scripturl;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -885,23 +879,35 @@ function ModifyDraftSettings($return_config = false)
 		checkSession();
 
 		// Protect them from themselves.
-		$_POST['drafts_autosave_frequency'] = $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
+		$_POST['drafts_autosave_frequency'] = !isset($_POST['drafts_autosave_frequency']) || $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
+
+		// Also disable the scheduled task if we're not using it.
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}scheduled_tasks
+			SET disabled = {int:disabled}
+			WHERE task = {string:task}',
+			array(
+				'disabled' => !empty($_POST['drafts_keep_days']) ? 0 : 1,
+				'task' => 'remove_old_drafts',
+			)
+		);
+		require_once($sourcedir . '/ScheduledTasks.php');
+		CalculateNextTrigger();
+
+		// Save everything else and leave.
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=managedrafts');
 	}
 
 	// some javascript to enable / disable the frequency input box
 	$context['settings_post_javascript'] = '
-		var autosave = document.getElementById(\'drafts_autosave_enabled\');
-		createEventListener(autosave)
-		autosave.addEventListener(\'change\', toggle);
-		toggle();
-
 		function toggle()
 		{
-			var select_elem = document.getElementById(\'drafts_autosave_frequency\');
-			select_elem.disabled = !autosave.checked;
-		}
+			$("#drafts_autosave_frequency").prop("disabled", !($("#drafts_autosave_enabled").prop("checked")));
+		};
+		toggle();
+
+		$("#drafts_autosave_enabled").click(function() { toggle(); });
 	';
 
 	// Final settings...

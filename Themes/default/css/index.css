@@ -544,6 +544,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .navPages {
 	padding: 0 1px;
 }
+.expand_pages {
+	font-weight: bold;
+	cursor: pointer;
+}
 .next_page, .previous_page {
 	text-transform: capitalize;
 	padding: 0 2px;
@@ -1211,111 +1215,6 @@ img.sort {
 	overflow: hidden;
 }
 
-/* Styles for sidebar menus.
-------------------------------------------------------- */
-#main_container {
-	position: relative;
-}
-#main_container:after {
-	content:"";
-	display: block;
-	clear: both;
-}
-#main_admsection {
-	position: relative;
-	left: 0;
-	right: 0;
-	overflow: auto;
-}
-#left_admsection {
-	width: 180px;
-	float: left;
-	padding: 0 10px 1em 0;
-}
-.adm_section .cat_bar {
-	background: #f0f4f7;
-	border: 1px solid #c8c8c8;
-	border-left: 1px solid #d8d8d8;
-	border-top: 1px solid #e2e2e2;
-	border-radius: 4px 4px 0 0;
-	box-shadow: 0 -2px 4px rgba(0,0,0,0.07) inset;
-	margin: 0;
-}
-.adm_section h4.catbg {
-	padding: 6px 8px;
-	font-size: 1em;
-	color: #444;
-	text-shadow: none;
-}
-.adm_section .dropmenu {
-	padding: 4px 1px 9px 1px;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	float: none;
-}
-.adm_section .dropmenu li {
-	margin: 2px 0;
-	padding: 0;
-	line-height: 1.7em;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	float: none;
-}
-.adm_section .dropmenu li:hover, .adm_section .dropmenu li.sfhover, #menu_current_area {
-	background: #fafafa;
-	box-shadow: -1px -1px 2px rgba(0,0,0,0.1), 2px 2px 2px rgba(96,134,166,0.07) inset;
-	border: 1px solid #dfdfdf;
-	border-left: 1px solid #cfcfcf;
-	border-top: 1px solid #c7c7c7;
-}
-.adm_section .dropmenu a, .adm_section .dropmenu a:hover, .adm_section .dropmenu li:hover a,
-.adm_section .dropmenu li.sfhover a, .adm_section .dropmenu>li>a:focus, #menu_current_area>strong>a:focus {
-	background: none;
-	text-decoration: none;
-	border: none;
-	padding: 3px 7px 1px 7px;
-}
-.adm_section .dropmenu a:hover, .adm_section .dropmenu li:hover a, .adm_section .dropmenu li.sfhover a, .adm_section .dropmenu>li a:focus {
-	color: #333;
-}
-.adm_section .dropmenu li ul {
-	top: -1px;
-}
-.adm_section .dropmenu li:hover ul, .adm_section .dropmenu li.sfhover ul {
-	left: 155px;
-}
-.adm_section .dropmenu li li, .adm_section .dropmenu li li:hover {
-	padding: 0;
-	background: none;
-	box-shadow: none;
-}
-.adm_section .dropmenu li li a, .adm_section .dropmenu li:hover li a, .adm_section .dropmenu li.sfhover li a {
-	color: #346;
-	padding: 0 7px;
-}
-.adm_section .dropmenu li li a:hover {
-	color: #333;
-	background: linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-	background: -o-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-	background: -moz-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-	background: -ms-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-}
-/* Note: The next declarations are for keyboard access with js disabled. */
-.adm_section .dropmenu ul a:focus {
-	margin-left: 10150px;
-	width: 17em;
-}
-/* Cancel those for hover and/or js access. */
-.adm_section .dropmenu ul li:hover a:focus, .adm_section .dropmenu ul li.sfhover a:focus {
-	margin-left: 0;
-	width: auto;
-}
-/*End sidebar flyout coding. */
-
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
 
@@ -1438,12 +1337,24 @@ img.sort {
 }
 #top_section ul li {
 	margin-bottom: 2px;
+	margin-right: 7px;
 	display: inline;
 	font-size: 0.9em;
 }
 .notice
 {
  font-weight: bold;
+}
+.modnotice
+{
+	padding: 4px;
+}
+.modnotice .amt
+{
+	padding: 0 4px;
+	color: white;
+	background: #6d90ad;
+	border-radius: 4px;
 }
 #search_form {
 	padding: 4px 0 0 0;
@@ -3225,30 +3136,6 @@ dl {
 #avatar_upload {
 	overflow: auto;
 }
-#main_admsection #basicinfo, #main_admsection #detailedinfo {
-	width: 100%;
-}
-#main_admsection #basicinfo h4 {
-	float: left;
-	width: 35%;
-}
-#main_admsection #basicinfo img.avatar {
-	float: right;
-	vertical-align: top;
-}
-#main_admsection #basicinfo ul {
-	clear: left;
-}
-#main_admsection #basicinfo span#userstatus {
-	clear: left;
-}
-#main_admsection #basicinfo p#infolinks {
-	display: none;
-	clear: both;
-}
-#main_admsection #basicinfo .botslice {
-	clear: both;
-}
 
 /* Profile statistics */
 #generalstats div.content dt {
@@ -3577,6 +3464,10 @@ dl.stats dd {
 
 	margin: 0 4px 0 0;
 	height: 1.4em;
+}
+.statsbar div.bar.empty {
+	width: 0;
+	border-right: none;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 dl.stats dd span {
@@ -3927,6 +3818,9 @@ span.hidelink {
 }
 #searchform p.clear {
 	clear: both;
+}
+#searchform .roundframe h4.titlebg {
+	border-bottom: none;
 }
 
 /* Styles for the search results page.
@@ -4299,7 +4193,7 @@ div#editlang_desc {
 #show_attachments th {
 	text-align: left;
 }
-#info_center .cat_bar {
+#info_center .cat_bar, #searchform .roundframe .title_bar {
 	border-right: 1px solid #ddd;
 	border-left: 1px solid #ddd;
 	margin: 0 -1px;
@@ -4313,17 +4207,17 @@ tr.catbg th:first-child, #show_attachments th:first-child {
 tr.catbg th:last-child, #show_attachments th:last-child {
 	border-right: 1px solid #ddd;
 }
-#info_center .catbg {
+#info_center .catbg, #searchform .roundframe .titlebg {
 	padding: 6px 12px 5px 12px;
 	background: none;
 	font-size: 1.1em;
 }
-#info_center .catbg, #info_center .catbg a, .table_grid tr.catbg th a {
+#info_center .catbg, #info_center .catbg a, .table_grid tr.catbg th a, #searchform .roundframe .titlebg {
 	color: #555;
 	text-shadow: none;
 }
 #info_center .title_barIC, #postmodify .roundframe .title_bar,
-#activitytime .cat_bar, #popularposts .cat_bar, #popularactivity .cat_bar{
+#activitytime .cat_bar, #popularposts .cat_bar, #popularactivity .cat_bar {
 	background: none;
 	border-top: 1px solid #999;
 	border-bottom: 1px solid #fff;

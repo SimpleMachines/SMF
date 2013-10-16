@@ -10,6 +10,28 @@
  * @version 2.1 Alpha 1
  */
 
+function template_maint_warning_above()
+{
+	global $txt, $context, $scripturl;
+
+	echo '
+	<div class="errorbox" id="errors">
+		<dl>
+			<dt>
+				<strong id="error_serious">', $txt['forum_in_maintainence'], '</strong>
+			</dt>
+			<dd class="error" id="error_list">
+				', sprintf($txt['maintenance_page'], $scripturl . '?action=admin;area=serversettings;' . $context['session_var'] . '=' . $context['session_id']), '
+			</dd>
+		</dl>
+	</div>';
+}
+
+function template_maint_warning_below()
+{
+
+}
+
 /**
  * This is the administration center home.
  */
@@ -78,23 +100,30 @@ function template_admin()
 			</div>
 		</div>';
 
-	echo '
-		<div class="windowbg2 quick_tasks">
-			<div class="content">
-				<ul id="quick_tasks" class="flow_hidden">';
-
-	foreach ($context['quick_admin_tasks'] as $task)
+	$use_bg2 = true;
+	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
+	{
 		echo '
-					<li>
-						', !empty($task['icon']) ? '<a href="' . $task['href'] . '"><img src="' . $settings['default_images_url'] . '/admin/' . $task['icon'] . '" alt="" class="home_image" /></a>' : '', '
-						<h5>', $task['link'], '</h5>
-						<span class="task">', $task['description'],'</span>
-					</li>';
+		<fieldset id="group_', $area_id, '" class="', $use_bg2 ? 'windowbg2' : 'windowbg', ' admin_group">
+			<legend>', $area['title'], '</legend>';
+
+		foreach ($area['areas'] as $item_id => $item)
+		{
+			// No point showing the 'home' page here, we're already on it!
+			if ($area_id == 'forum' && $item_id == 'index')
+				continue;
+
+			$url = isset($item['url']) ? $item['url'] : $scripturl . '?action=admin;area=' . $item_id . (!empty($context[$context['admin_menu_name']]['extra_parameters']) ? $context[$context['admin_menu_name']]['extra_parameters'] : '');
+			echo '
+				<a href="', $url, '"><img src="', $item['bigicon'], '" alt="" /><br />', $item['label'], '</a>';
+		}
+
+		echo '
+		</fieldset>';
+		$use_bg2 = !$use_bg2;
+	}
 
 	echo '
-				</ul>
-			</div>
-		</div>
 	</div>';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
@@ -214,19 +243,6 @@ function template_credits()
 				</div>
 			</div>';
 
-	// Display latest support questions from simplemachines.org.
-	echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=latest_support" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['support_latest'], '
-				</h3>
-			</div>
-			<div class="windowbg">
-				<div class="content">
-					<div id="latestSupport">', $txt['support_latest_fetch'], '</div>
-				</div>
-			</div>';
-
 	// The most important part - the credits :P.
 	echo '
 			<div id="credits_sections" class="cat_bar">
@@ -289,8 +305,7 @@ function template_credits()
 	echo '
 		// ]]></script>
 		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>
-		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-support.js"></script>';
+		<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
 	// This sets the latest support stuff.
 	echo '
@@ -737,8 +752,8 @@ function template_show_settings()
 			if ($config_var['type'] == 'title')
 			{
 				echo '
-					<div class="cat_bar">
-						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
+					<div class="title_bar">
+						<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'titlebg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
 							', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" class="icon" alt="' . $txt['help'] . '" /></a>' : ''), '
 							', $config_var['label'], '
 						</h3>
@@ -1398,45 +1413,48 @@ function template_callback_question_answer_list()
 {
 	global $txt, $context, $settings;
 
-	echo '
-			<dt>
-				<strong>', $txt['setup_verification_question'], '</strong>
-			</dt>
-			<dd>
-				<strong>', $txt['setup_verification_answer'], '</strong>
-			</dd>';
+	foreach ($context['languages'] as $lang_id => $lang)
+	{
+		$lang_id = strtr($lang_id, array('-utf8' => ''));
+		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
 
-	foreach ($context['question_answers'] as $data)
 		echo '
+						<dt id="qa_dt_', $lang_id, '" class="qa_link">
+							<a href="javascript:void(0);">[ ', $lang['name'], ' ]</a>
+						</dt>
+						<fieldset id="qa_fs_', $lang_id, '" class="qa_fieldset">
+							<legend><a href="javascript:void(0);">', $lang['name'], '</a></legend>
+							<dl class="settings">
+								<dt>
+									<strong>', $txt['setup_verification_question'], '</strong>
+								</dt>
+								<dd>
+									<strong>', $txt['setup_verification_answer'], '</strong>
+								</dd>';
 
-			<dt>
-				<input type="text" name="question[', $data['id'], ']" value="', $data['question'], '" size="50" class="input_text verification_question" />
-			</dt>
-			<dd>
-				<input type="text" name="answer[', $data['id'], ']" value="', $data['answer'], '" size="50" class="input_text verification_answer" />
-			</dd>';
+		if (!empty($context['qa_by_lang'][$lang_id]))
+			foreach ($context['qa_by_lang'][$lang_id] as $q_id)
+			{
+				$question = $context['question_answers'][$q_id];
+				echo '
+								<dt>
+									<input type="text" name="question[', $lang_id, '][', $q_id, ']" value="', $question['question'], '" size="50" class="input_text verification_question" />
+								</dt>
+								<dd>';
+				foreach ($question['answers'] as $answer)
+					echo '
+									<input type="text" name="answer[', $lang_id, '][', $q_id, '][]" value="', $answer, '" size="50" class="input_text verification_answer" />';
 
-	// Some blank ones.
-	for ($count = 0; $count < 3; $count++)
+				echo '
+									<div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ ', $txt['setup_verification_add_answer'], ' ]</a></div>
+								</dd>';
+			}
+
 		echo '
-			<dt>
-				<input type="text" name="question[]" size="50" class="input_text verification_question" />
-			</dt>
-			<dd>
-				<input type="text" name="answer[]" size="50" class="input_text verification_answer" />
-			</dd>';
-
-	echo '
-		<dt id="add_more_question_placeholder" style="display: none;"></dt><dd></dd>
-		<dt id="add_more_link_div" style="display: none;">
-			<a href="#" onclick="addAnotherQuestion(); return false;">&#171; ', $txt['setup_verification_add_more'], ' &#187;</a>
-		</dt><dd></dd>';
-
-	// The javascript needs to go at the end but we'll put it in this template for looks.
-	$context['settings_post_javascript'] .= '
-		var placeHolder = document.getElementById(\'add_more_question_placeholder\');
-		document.getElementById(\'add_more_link_div\').style.display = \'\';
-	';
+								<dt class="qa_add_question"><a href="javascript:void(0);">[ ', $txt['setup_verification_add_more'], ' ]</a></dt>
+							</dl>
+						</fieldset>';
+	}
 }
 
 // Repairing boards.

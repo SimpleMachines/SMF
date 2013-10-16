@@ -730,6 +730,9 @@ function registerMember(&$regOptions, $return_errors = false)
 	);
 	$memberID = $smcFunc['db_insert_id']('{db_prefix}members', 'id_member');
 
+	// Call an optional function as notification of registration.
+	call_integration_hook('integrate_post_register', array(&$regOptions, &$theme_vars, &$memberID));
+
 	// Update the number of members and latest member's info - and pass the name, but remove the 's.
 	if ($regOptions['register_vars']['is_activated'] == 1)
 		updateStats('member', $memberID, $regOptions['register_vars']['real_name']);
@@ -928,9 +931,11 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE ' . (empty($current_ID_MEMBER) ? '' : 'id_member != {int:current_member}
-			AND ') . '(real_name LIKE {string:check_name} OR member_name LIKE {string:check_name})
+			AND ') . '({raw:real_name} LIKE {string:check_name} OR {raw:member_name} LIKE {string:check_name})
 		LIMIT 1',
 		array(
+			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
+			'member_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name',
 			'current_member' => $current_ID_MEMBER,
 			'check_name' => $checkName,
 		)
@@ -945,9 +950,10 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group
 		FROM {db_prefix}membergroups
-		WHERE group_name LIKE {string:check_name}
+		WHERE {raw:group_name} LIKE {string:check_name}
 		LIMIT 1',
 		array(
+			'group_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(group_name)' : 'group_name',
 			'check_name' => $checkName,
 		)
 	);

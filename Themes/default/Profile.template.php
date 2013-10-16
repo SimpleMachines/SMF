@@ -104,7 +104,7 @@ function template_summary()
 	echo '
 					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '">', $txt['showPosts'], '</a><br />';
 
-	if ($context['user']['is_owner'] && !empty($modSettings['drafts_enabled']))
+	if ($context['user']['is_owner'] && !empty($modSettings['drafts_post_enabled']))
 		echo '
 					<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '">', $txt['drafts_show'], '</a><br />';
 
@@ -1431,7 +1431,7 @@ function template_profile_pm_settings()
 									<label for="pm_prefs">', $txt['pm_display_mode'], ':</label>
 								</dt>
 								<dd>
-									<select name="pm_prefs" id="pm_prefs" onchange="if (this.value == 2 &amp;&amp; !document.getElementById(\'copy_to_outbox\').checked) alert(\'', $txt['pm_recommend_enable_outbox'], '\');">
+									<select name="pm_prefs" id="pm_prefs">
 										<option value="0"', $context['display_mode'] == 0 ? ' selected="selected"' : '', '>', $txt['pm_display_mode_all'], '</option>
 										<option value="1"', $context['display_mode'] == 1 ? ' selected="selected"' : '', '>', $txt['pm_display_mode_one'], '</option>
 										<option value="2"', $context['display_mode'] == 2 ? ' selected="selected"' : '', '>', $txt['pm_display_mode_linked'], '</option>
@@ -1489,13 +1489,6 @@ function template_profile_pm_settings()
 						<hr />
 						<dl>
 								<dt>
-										<label for="copy_to_outbox"> ', $txt['copy_to_outbox'], '</label>
-								</dt>
-								<dd>
-										<input type="hidden" name="default_options[copy_to_outbox]" value="0" />
-										<input type="checkbox" name="default_options[copy_to_outbox]" id="copy_to_outbox" value="1"', !empty($context['member']['options']['copy_to_outbox']) ? ' checked="checked"' : '', ' class="input_check" />
-								</dd>
-								<dt>
 										<label for="pm_remove_inbox_label">', $txt['pm_remove_inbox_label'], '</label>
 								</dt>
 								<dd>
@@ -1526,13 +1519,6 @@ function template_profile_theme_settings()
 								<input type="checkbox" name="default_options[show_children]" id="show_children" value="1"', !empty($context['member']['options']['show_children']) ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>
 							<dt>
-								<label for="use_sidebar_menu">', $txt['use_sidebar_menu'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[use_sidebar_menu]" value="0" />
-								<input type="checkbox" name="default_options[use_sidebar_menu]" id="use_sidebar_menu" value="1"', !empty($context['member']['options']['use_sidebar_menu']) ? ' checked="checked"' : '', ' class="input_check" />
-							</dd>
-							<dt>
 								<label for="show_no_avatars">', $txt['show_no_avatars'], '</label>
 							</dt>
 							<dd>
@@ -1547,7 +1533,7 @@ function template_profile_theme_settings()
 								<input type="checkbox" name="default_options[show_no_signatures]" id="show_no_signatures" value="1"', !empty($context['member']['options']['show_no_signatures']) ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>';
 
-	if ($modSettings['allow_no_censored'])
+	if (!empty($modSettings['allow_no_censored']))
 		echo '
 							<dt>
 								<label for="show_no_censored">' . $txt['show_no_censored'] . '</label>
@@ -1645,7 +1631,7 @@ function template_profile_theme_settings()
 								</select>
 							</dd>';
 
-	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_autosave_enabled']))
+	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_autosave_enabled']))
 		echo '
 							<dt>
 								<label for="drafts_autosave_enabled">', $txt['drafts_autosave_enabled'], '</label>
@@ -1654,7 +1640,7 @@ function template_profile_theme_settings()
 								<input type="hidden" name="default_options[drafts_autosave_enabled]" value="0" />
 								<label for="drafts_autosave_enabled"><input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked="checked"' : '', ' class="input_check" /></label>
 							</dd>';
-	if (!empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_show_saved_enabled']))
+	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_show_saved_enabled']))
 		echo '
 							<dt>
 								<label for="drafts_show_saved_enabled">', $txt['drafts_show_saved_enabled'], '</label>

@@ -278,7 +278,6 @@ $txt['poster'] = 'Poster';
 
 $txt['board_desc_inside'] = 'Show board descriptions inside boards.';
 $txt['show_children'] = 'Show child boards on every page inside boards, not just the first.';
-$txt['use_sidebar_menu'] = 'Use sidebar menus instead of dropdown menus when possible.';
 $txt['show_no_avatars'] = 'Don\'t show users\' avatars.';
 $txt['show_no_signatures'] = 'Don\'t show users\' signatures.';
 $txt['show_no_censored'] = 'Leave words uncensored.';
@@ -448,15 +447,12 @@ $txt['pm_receive_from_ignore'] = 'All members, except those on my ignore list';
 $txt['pm_receive_from_admins'] = 'Administrators only';
 $txt['pm_receive_from_buddies'] = 'Buddies and Administrators only';
 
-$txt['copy_to_outbox'] = 'Save a copy of each personal message in my sent items by default.';
 $txt['popup_messages'] = 'Show a popup when I receive new messages.';
 $txt['pm_remove_inbox_label'] = 'Remove the inbox label when applying another label';
 $txt['pm_display_mode'] = 'Display personal messages';
 $txt['pm_display_mode_all'] = 'All at once';
 $txt['pm_display_mode_one'] = 'One at a time';
 $txt['pm_display_mode_linked'] = 'As a conversation';
-// Use entities in the below string.
-$txt['pm_recommend_enable_outbox'] = 'To make the most of this setting we suggest you enable &quot;Save a copy of each Personal Message in my sent items by default&quot;\\n\\nThis will help ensure that the conversations flow better as you can see both sides of the conversation.';
 
 $txt['tracking'] = 'Tracking';
 $txt['tracking_description'] = 'This section allows you to review certain profile actions performed on this member\'s profile as well as track their IP address and login history.';

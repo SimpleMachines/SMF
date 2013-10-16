@@ -1144,7 +1144,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// Moderator - ie. moderators :P.  They can do what standard can, and more.
 	$groupLevels['global']['moderator'] = array_merge($groupLevels['global']['standard'], array(
 		'calendar_post',
-		'calen	ddar_edit_own',
+		'calendar_edit_own',
 		'access_mod_center',
 		'issue_warning',
 	));

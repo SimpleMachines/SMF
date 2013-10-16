@@ -26,11 +26,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'use_sidebar_menu',
-			'label' => $txt['use_sidebar_menu'],
-			'default' => true,
-		),
-		array(
 			'id' => 'show_no_avatars',
 			'label' => $txt['show_no_avatars'],
 			'default' => true,
@@ -73,11 +68,6 @@ function template_options()
 		array(
 			'id' => 'popup_messages',
 			'label' => $txt['popup_messages'],
-			'default' => true,
-		),
-		array(
-			'id' => 'copy_to_outbox',
-			'label' => $txt['copy_to_outbox'],
 			'default' => true,
 		),
 		array(

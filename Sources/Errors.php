@@ -79,6 +79,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'database',
 		'undefined_vars',
 		'user',
+		'ban',
 		'template',
 		'debug',
 	);

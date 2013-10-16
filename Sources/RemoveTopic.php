@@ -136,7 +136,9 @@ function DeleteMessage()
 		logAction('delete', array('topic' => $topic, 'subject' => $subject, 'member' => $poster, 'board' => $board));
 
 	// We want to redirect back to recent action.
-	if (isset($_REQUEST['recent']))
+	if (isset($_REQUEST['modcenter']))
+		redirectexit('action=moderate;area=reports;done');
+	elseif (isset($_REQUEST['recent']))
 		redirectexit('action=recent');
 	elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u']))
 		redirectexit('action=profile;u=' . $_REQUEST['u'] . ';area=showposts;start=' . $_REQUEST['start']);
@@ -658,23 +660,6 @@ function removeMessage($message, $decreasePostCount = true)
 			isAllowedTo('approve_posts');
 	}
 
-	// Close any moderation reports for this message.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}log_reported
-		SET closed = {int:is_closed}
-		WHERE id_msg = {int:id_msg}',
-		array(
-			'is_closed' => 1,
-			'id_msg' => $message,
-		)
-	);
-	if ($smcFunc['db_affected_rows']() != 0)
-	{
-		require_once($sourcedir . '/ModerationCenter.php');
-		updateSettings(array('last_mod_report_action' => time()));
-		recountOpenReports();
-	}
-
 	// Delete the *whole* topic, but only if the topic consists of one message.
 	if ($row['id_first_msg'] == $message)
 	{
@@ -992,6 +977,23 @@ function removeMessage($message, $decreasePostCount = true)
 		updateLastMessages(array($row['id_board'], $modSettings['recycle_board']));
 	else
 		updateLastMessages($row['id_board']);
+
+	// Close any moderation reports for this message.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}log_reported
+		SET closed = {int:is_closed}
+		WHERE id_msg = {int:id_msg}',
+		array(
+			'is_closed' => 1,
+			'id_msg' => $message,
+		)
+	);
+	if ($smcFunc['db_affected_rows']() != 0)
+	{
+		require_once($sourcedir . '/ModerationCenter.php');
+		updateSettings(array('last_mod_report_action' => time()));
+		recountOpenReports();
+	}
 
 	return false;
 }

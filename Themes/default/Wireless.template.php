@@ -597,7 +597,6 @@ function template_imode_pm()
 						</tr></td>
 						<tr><td>
 							<input type="submit" value="', $txt['send_message'], '" class="button_submit" />
-							<input type="hidden" name="outbox" value="', $context['copy_to_outbox'] ? '1' : '0', '" />
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 							<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />
 							<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '" />
@@ -1249,7 +1248,6 @@ function template_wap2_pm()
 					</p>
 					<p class="windowbg">
 						<input type="submit" value="', $txt['send_message'], '" class="button_submit" />
-						<input type="hidden" name="outbox" value="', $context['copy_to_outbox'] ? '1' : '0', '" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 						<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '" />
 						<input type="hidden" name="replied_to" value="', !empty($context['quoted_message']['id']) ? $context['quoted_message']['id'] : 0, '" />

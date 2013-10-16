@@ -36,7 +36,6 @@ $txt['pm_error_data_limit_reached'] = 'PM could not be sent to \'%1$s\' as their
 $txt['pm_error_user_cannot_read'] = 'User \'%1$s\' can not receive personal messages.';
 $txt['pm_successfully_sent'] = 'PM successfully sent to \'%1$s\'.';
 $txt['pm_send_report'] = 'Send report';
-$txt['pm_save_outbox'] = 'Save a copy in my outbox';
 $txt['pm_undisclosed_recipients'] = 'Undisclosed recipients';
 $txt['pm_too_many_recipients'] = 'You may not send personal messages to more than %1$d recipient(s) at once.';
 
@@ -72,7 +71,7 @@ $txt['pm_msg_label_remove'] = 'Remove label';
 $txt['pm_msg_label_inbox'] = 'Inbox';
 $txt['pm_sel_label_title'] = 'Label selected';
 
-// Sidebar Headings.
+// Menu headings.
 $txt['pm_labels'] = 'Labels';
 $txt['pm_messages'] = 'Messages';
 $txt['pm_actions'] = 'Actions';

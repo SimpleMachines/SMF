@@ -1,0 +1,77 @@
+﻿Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today!
+Those who contributed their time and effort in the form of code submissions, and in SMF's various teams including;
+Project Management, Support Specialists, Customizers, Doc Writers, Localizers, Marketing, Site Team and Server Team.
+
+
+
+Code Contributors; 
+
+Aaron van Geffen, AngelinaBelle, Antechinus, Antes, Bjoern "Bloc" Kristiansen, Brad "IchBin™" Grow, 
+Bryan "Runic" Deakin, Colin Schoen, Dr. Deejay, ElPlayer, emanuele, Feline, Graeme Spence, grafitus, gnif, 
+Hendrik Jan "Compuart" Visser, hhy89, Jessica González, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood, 
+Juan "JayBachatero" Hernandez, Karl "RegularExpression" Benson, Kays, live627, Marcus "cσσкιє мσηѕтєя" Forsberg, 
+Matt "Grudge" Wolf, Matthew "Labradoodle-360" Kerle, Michael "Oldiesmann" Eshom, Michele "Illori" Davis, NIBOGO, Norv, 
+Peter "Arantor" Spicer, René-Gilles "Nao 尚" Deberdt, Selman "[SiNaN]" Eser, sicommnend, Spuds, 
+Steven "Fustrate" Hoffman, Theodore "Orstio" Hildebrandt, Unknown W. "[Unknown]" Brackets, The-Craw, 
+Thorsten "TE" Eurich, winrules, Yoshi2889 and ziycon.
+
+
+
+SMF Team and Friends;
+
+Aaron van Geffen, Adam "Bostasp" Southall, Adish "(F.L.A.M.E.R)" Patel, Akyhne, Alienine (Adrian), 
+Aleksi "Lex" Kilpinen, Alexandre "Ap2" Patenaude, Amacythe, Andrea Hubacher, AngelinaBelle, Antechinus, Antes, A.M.A,
+babylonking, Ben Scott, Bigguy, Bjoern "Bloc" Kristiansen, BlackouT, Brad "IchBin™" Grow, Bryan "Runic" Deakin, 
+Bugo, Bulakbol, Burpee, Chas Large, Chris Cromer, Colin "Shadow82x" Blaber, Colin Schoen, Cristián "Anguz" Lávaque, 
+Daniel15, Daniel Diehl, Dannii Willis, [darksteel], David Recordon, Derek Schwab, ディン1031, diplomat, 
+Douglas "The Bear" Hazard, Dr. Deejay, dtm.exe, Duncan85, eldacar, Eliana Tamerin, emanuele, Eren Yasarkurt, 
+Fiery, Gary M. Gadsdon, gbsothere, Goosemoose, Graeme Spence, GravuTrad, Harro, Hendrik Jan "Compuart" Visser, 
+Horseman, Huw, Hyper Piranha, Irisado, Jack "akabugeyes" Thorsen, Jack.R.Abbit, Jade Elizabeth Trainor, 
+James "Cheschire" Yarbro, Jan-Olof "Owdy" Eriksson, Jason "JBlaze" Clemons, Jeff Lewis, Jesse "Gobalopper" Reid, 
+Jessica González, Jeremy "SleePy" Darwood, Jeremy "jerm" Strike, jerm, Jerry, JimM, Joey "Tyrsson" Smith, Joker™, 
+Jonathan "vbgamer45" Valentin, Joseph Fung, Joshua "groundup" Dickerson, Juan "JayBachatero" Hernandez, 
+Justin "metallica48423" O'Leary, Justyne, Karl "RegularExpression" Benson, Kays, Kevin "greyknight17" Hou, 
+kegobeer, KGIII, Killer Possum, Kill Em All, Kindred, Kirby, K@, Liroy "CoreISP" van Hoewijk, 
+Marcus "cσσкιє мσηѕтєя" Forsberg, Mashby, Matt "Grudge" Wolf, Matt "SlammedDime" Zuba, Matthew "Mattitude" Hall, 
+Matthew "Labradoodle-360" Kerle, Mattitude, Mediman, Metho, Michael "Oldiesmann" Eshom, Michele "Illori" Davis, 
+Mick G., MrPhil, Mystica, Nave, Nibogo, Nick "Fizzy" Dyer, Nick "Ha²", Nico "aliencowfarm" Boer, Niko, 
+Nikola "Dzonny" Novaković, Norv, Nova "ChalkCat" Howard, Old Fossil, Omar Bazavilvazo, Paul_Pauline, Peter Duggan, 
+Peter "Arantor" Spicer, Philip "Meriadoc" Renich, Piro "Sarge" Dhima, Pitti, Ralph "[n3rve]" Otowo, RedOne, Relyana, 
+rickC, Ricky., Rumbaar, Selman "[SiNaN]" Eser, snork13, Steven "Fustrate" Hoffman, Storman™, S-Ace, 
+Theodore "Orstio" Hildebrandt, Thorsten "TE" Eurich, Tim, Tippmaster, Tomer "Lamper" Dean, Tony Reid, 
+Wade "sησω" Poulsen, winrules, xenovanis, Yoshi2889 and ziycon.
+
+
+
+Special Thanks;
+
+Simple Machines NPO, Board of Directors and it's Members.
+Consultanting Developers, Beta Testers, Native Lanaguage Support Specialists, Language Moderators, Translators.
+
+
+
+Third Party Software and Graphics;
+
+Graphics
+Fugue Icons | © 2012 Yusuke Kamiyamane | These icons are licensed under a Creative Commons Attribution 3.0 License
+Oxygen Icons | These icons are licensed under CC BY-SA 3.0
+Crystal Project Icons | These icons are licensed under the GNU Lesser General Public Licence
+
+Software
+JQuery | © John Resig | Licensed under The MIT License (MIT)
+hoverIntent | © Brian Cherne | Licensed under The MIT License (MIT)
+Superfish | © Joel Birch | Licensed under The MIT License (MIT)
+SCEditor | © Sam Clarke | Licensed under The MIT License (MIT)
+animaDrag | © Abel Mohler | Licensed under The MIT License (MIT)
+
+Fonts
+Anonymous Pro | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1
+ConsolaMono | © 2012 | This font is licensed under the SIL Open Font License, Version 1.1
+Phennig | © 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1
+
+
+
+Copyright
+
+Forum
+SMF 2.1 Alpha 1 | SMF © 2013, Simple Machines

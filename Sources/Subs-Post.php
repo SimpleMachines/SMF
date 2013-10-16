@@ -360,7 +360,7 @@ function fixTags(&$message)
 		fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 
 	// Now fix possible security problems with images loading links automatically...
-	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', create_function('$m', '"$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$2") . "[/img]";'), $message);
+	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', create_function('$m', 'return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";'), $message);
 
 	// Limit the size of images posted?
 	if (!empty($modSettings['max_image_width']) || !empty($modSettings['max_image_height']))

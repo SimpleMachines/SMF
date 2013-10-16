@@ -282,6 +282,7 @@ $helptxt['enableCompressedOutput'] = 'This option will compress output to lower 
 		zlib to be installed.';
 $helptxt['disableTemplateEval'] = 'By default, templates are evaluated instead of just included. This helps with showing more useful debug information in case a template contains an error.<br /><br />
 		On large forums however, this customised inclusion process may be significantly slower. Therefore, advanced users may wish to disable it.';
+$helptxt['httponlyCookies'] = 'Cookies won\'t be accessible by scripting languages, such as JavaScript. This setting can help to reduce identity theft through XSS attacks. This can cause issues with third party scripts but should be on wherever possible.';
 $helptxt['databaseSession_enable'] = 'This option makes use of the database for session storage - it is best for load balanced servers, but helps with all timeout issues and can make the forum faster.';
 $helptxt['databaseSession_loose'] = 'Turning this on will decrease the bandwidth your forum uses, and make it so clicking back will not reload the page - the downside is that the (new) icons won\'t update, among other things. (unless you click to that page instead of going back to it.)';
 $helptxt['databaseSession_lifetime'] = 'This is the number of seconds for sessions to last after they haven\'t been accessed.  If a session is not accessed for too long, it is said to have &quot;timed out&quot;.  Anything higher than 2400 is recommended.';
@@ -290,6 +291,7 @@ $helptxt['cache_memcached'] = 'If you are using memcached you need to provide th
 $helptxt['cache_cachedir'] = 'This setting is only for the smf file based cache system. It specifies the path to the cache directory.  It is recommended that you place this in /tmp/ if you are going to use this, although it will work in any directory';
 $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login, so you can see what went wrong.';
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log.  Requires error logging to be turned on.<br /><br /><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
+$helptxt['log_ban_hits'] = 'If enabled, every time a banned user tries to access the site, this will be logged in the error log. If you do not care whether, or how often, banned users attempt to access the site, you can turn this off for a performance boost.';
 $helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
 $helptxt['disallow_sendBody'] = 'This option removes the option to receive the text of replies, posts and personal messages in notification emails.<br /><br />Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library.  Auto will use the CDN first and if not available fall back to the local source.  Local will only use the local source, CDN will only load it from Googles CDN network';
@@ -302,20 +304,41 @@ $helptxt['simpleSearch'] = 'This will show a simple search form and a link to a 
 $helptxt['search_dropdown'] = 'This will show a search selection dropdown next to the quick search box.  From this you can choose to search the current site, current board (if in a board_, current topic (if in a topic) or search for members.';
 $helptxt['max_image_width'] = 'This allows you to set a maximum size for posted pictures. Pictures smaller than the maximum will not be affected. This also determines how attached images are displayed when a thumbnail is clicked on.';
 $helptxt['mail_type'] = 'This setting allows you to choose either PHP\'s default settings, or to override those settings with SMTP.  PHP doesn\'t support using authentication with SMTP (which many hosts require, now) so if you want that you should select SMTP.  Please note that SMTP can be slower, and some servers will not take usernames and passwords.<br /><br />You don\'t need to fill in the SMTP settings if this is set to PHP\'s default.';
-$helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload, and attach to a post.<br /><br />
-		<strong>Check attachment extension</strong>:<br /> Do you want to check the extension of the files?<br />
-		<strong>Allowed attachment extensions</strong>:<br /> You can set the allowed extensions of attached files.<br />
-		<strong>Attachments directory</strong>:<br /> The path to your attachment folder<br />(example: /home/sites/yoursite/www/forum/attachments)<br />
-		<strong>Max attachment directory space</strong> (in KB):<br /> Select how large the attachment folder can be, including all files within it.<br />
-		<strong>Max attachment size per post</strong> (in KB):<br /> Select the maximum filesize of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.<br />
-		<strong>Max size per attachment</strong> (in KB):<br /> Select the maximum filesize of each separate attachment.<br />
-		<strong>Max number of attachments per post</strong>:<br /> Select the number of attachments a person can make, per post.<br />
-		<strong>Display attachment as picture in posts</strong>:<br /> If the uploaded file is a picture, this will show it underneath the post.<br />
-		<strong>Resize images when showing under posts</strong>:<br /> If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.<br />
-		<strong>Maximum width and height of thumbnails</strong>:<br /> Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width and height to resize attachments down from.  They will be resized proportionally.';
+$helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload and attach to a post. Different sites may use these in different ways, which you can configure here.';
+$helptxt['attachmentCheckExtensions'] = 'For some communities, you may wish to limit the types of files that users can upload by checking the extension: e.g. myphoto.jpg has an extension of jpg.';
+$helptxt['attachmentExtensions'] = 'If "check attachment\'s extension" above is ticked, these are the extensions that will be permitted for new attachments.';
+$helptxt['attachmentUploadDir'] = 'The path to your attachment folder on the server<br />(example: /home/sites/yoursite/www/forum/attachments)';
+$helptxt['attachmentDirSizeLimit'] = ' Select how large the attachment folder can be, including all files within it.';
+$helptxt['attachmentPostLimit'] = ' Select the maximum filesize (in KB) of all attachments made per post.  If this is lower than the per-attachment limit, this will be the limit.';
+$helptxt['attachmentSizeLimit'] = 'Select the maximum filesize of each separate attachment.';
+$helptxt['attachmentNumPerPostLimit'] = ' Select the number of attachments a person can make per post.';
+$helptxt['attachmentShowImages'] = 'If the uploaded file is a picture, it will be displayed underneath the post.';
+$helptxt['attachmentThumbnails'] = 'If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.';
+$helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width to resize attachments down from.  They will be resized proportionally.';
+$helptxt['attachmentThumbHeight'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum height to resize attachments down from.  They will be resized proportionally.';
+$helptxt['attachmentDirFileLimit'] = 'Max number of files per directory help text';
+$helptxt['attachmentEnable'] = 'This option enables you to configure how attachments can be made.<br /><br />
+	<ul class="normallist">
+		<li>
+			<strong>Disable all attachments</strong><br />
+			All attachments are disabled, existing attachments are not available; it is as if they were never attached, nor can any new attachments be made, regardless of permissions.<br /><br />
+		</li>
+		<li>
+			<strong>Enable all attachments</strong><br />
+			Everything behaves as normal, users who are permitted to view attachments can do so, users who are permitted to upload can do so.<br /><br />
+		</li>
+		<li>
+			<strong>Disable new attachments</strong><br />
+			Existing attachments are still accessible, but no new attachments can be added, regardless of permission.
+		</li>
+	</ul>';
 $helptxt['attachment_image_paranoid'] = 'Selecting this option will enable very strict security checks on image attachments. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with image re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if image re-encoding is not enabled, all attachments failing checks will be rejected.';
 $helptxt['attachment_image_reencode'] = 'Selecting this option will enable trying to re-encode the uploaded image attachments. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br /> This feature is only possible if the GD module is installed on your server.';
 $helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br />Checking this option, the system will estimate the required memory and will then request that amount.  If successful, only then will it attempt to create the thumbnail.<br />This will result in fewer white screen errors but may result in fewer thumbnails being created.  Leaving this unchecked the system will always try to create the thumbnail (with a fixed amount of memory).  This may result in more white screen errors.';
+$helptxt['attachmentRecodeLineEndings'] = 'The script will re-code line endings according to your server.';
+$helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single folder. For most sites this is not a problem, but as a site grows it can be useful to have multiple folders to store attachments in.<br /><br />This option allows you to set whether you manage these folders yourself (e.g. creating a second folder and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down folders by years or even months on very busy sites.';
+$helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
+$helptxt['max_image_height'] = 'As with the maximum width, this option indicates the maximum height a posted image can be.';
 $helptxt['avatar_paranoid'] = 'Selecting this option will enable very strict security checks on avatars. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with avatars re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if re-encoding of avatars is not enabled, all avatars failing checks will be rejected.';
 $helptxt['avatar_reencode'] = 'Selecting this option will enable trying to re-encode the uploaded avatars. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br /> This feature is only possible if the GD module is installed on your server.';
 $helptxt['karmaMode'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can
@@ -337,11 +360,11 @@ $helptxt['cal_enabled'] = 'The calendar can be used for showing birthdays, or fo
 		<strong>Max number of days an event can span</strong>:<br />Select the maximum days that an event can span.<br /><br />
 		Remember that usage of the calendar (posting events, viewing events, etc.) is controlled by permissions set on the permissions screen.';
 $helptxt['localCookies'] = 'SMF uses cookies to store login information on the client computer.
-	Cookies can be stored globally (myserver.com) or locally (myserver.com/path/to/forum).<br />
-	Check this option if you\'re experiencing problems with users getting logged out automatically.<hr />
+	Cookies can be stored globally (myserver.com) or locally (myserver.com/path/to/forum).<br /><br />
+	Try this option if you\'re experiencing problems with users getting logged out automatically.<hr />
 	Globally stored cookies are less secure when used on a shared webserver (like Tripod).<hr />
-	Local cookies don\'t work outside the forum directory so, if your forum is stored at www.myserver.com/forum, pages like www.myserver.com/index.php cannot access the account information.
-	Especially when using SSI.php, global cookies are recommended.';
+	Local cookies don\'t work outside the forum directory so, if your forum is stored at www.myserver.com/forum, pages like www.myserver.com/index.php cannot access the account information.<br /><br />
+	Global cookies are especially recommended when using SSI.php but work well for most sites on their own domain.';
 $helptxt['enableBBC'] = 'Selecting this option will allow your members to use Bulletin Board Code (BBC) throughout the forum, allowing users to format their posts with images, type formatting and more.';
 $helptxt['time_offset'] = 'Not all forum administrators want their forum to use the same time zone as the server upon which it is hosted. Use this option to specify a time difference (in hours) from which the forum should operate from the server time. Negative and decimal values are permitted.';
 $helptxt['default_timezone'] = 'The server timezone tells PHP where your server is located. You should ensure this is set correctly, preferably to the country/city in which the server is located. You can find out more information on the <a href="http://www.php.net/manual/en/timezones.php" target="_blank">PHP Site</a>.';
@@ -356,8 +379,8 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
-$helptxt['themes'] = 'Here you can select which theme guests will use, whether or not users can choose their own 
-	theme and, if so, which themes they can choose.';
+$helptxt['themes'] = 'Here you can select whether the default theme can be chosen, what theme guests will use,
+	as well as other options. Click on a theme to the right to change the settings for it.';
 $helptxt['theme_install'] = 'This allows you to install new themes.  You can do this from an already created directory, by uploading an archive for the theme, or by copying the default theme.<br /><br />Note that the archive or directory must have a <tt>theme_info.xml</tt> definition file.';
 $helptxt['enableEmbeddedFlash'] = 'This option will allow your users to use Flash directly inside their posts,
 	just like images.  This could pose a security risk, although few have successfully exploited it.
@@ -365,15 +388,16 @@ $helptxt['enableEmbeddedFlash'] = 'This option will allow your users to use Flas
 // !!! Add more information about how to use them here.
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" class="new_win">Recent news</a>
 	and similar data.  It is also recommended that you limit the size of recent posts/news because, when rss data
-	is displayed in some clients, like Trillian, it is expected to be truncated.';
+	is displayed in some clients, it is expected to be truncated.';
 $helptxt['hotTopicPosts'] = 'Change the number of posts for a topic to reach the state of a &quot;hot&quot; or
 	&quot;very hot&quot; topic.';
 $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains.  For example, if...<br />
-	Your site is at http://www.simplemachines.org/,<br />
-	And your forum is at http://forum.simplemachines.org/,<br />
-	Using this option will allow you to access the forum\'s cookie on your site.  Do not enable this if there are other subdomains (like hacker.simplemachines.org) not controlled by you.';
-$helptxt['globalCookiesDomain'] = 'Define the main domain to be used when log in cookies are available across subdomains';
-$helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site as it will break cookie handling otherwise!';
+	your site is http://www.example.com/,<br />
+	and your forum is http://forum.example.com/,<br />
+	Using this option will allow you to access the forum\'s cookie on your site.  Do not enable this if there are other subdomains (like hacker.example.com) not controlled by you.<br /><br />
+	This option does not function when local cookies are enabled.';
+$helptxt['globalCookiesDomain'] = 'When using subdomain independent cookies, you can specify what domain should be used for them. This should, of course, be set to your main domain - for example if you are using forum.example.com and www.example.com, the domain is example.com in this case. You should not put the http:// part in front of it.';
+$helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site as it will mean no-one will be able to log in properly!';
 $helptxt['securityDisable'] = 'This <em>disables</em> the additional password check for the administration section. This is not recommended!';
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br /><br />Having to type this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
 $helptxt['securityDisable_moderate'] = 'This <em>disables</em> the additional password check for the moderation section. This is not recommended!';
@@ -492,7 +516,6 @@ $helptxt['allow_hideOnline'] = 'With this option enabled all members will be abl
 $helptxt['make_email_viewable'] = 'If this option is enabled instead of users email addresses being hidden to normal members and guests they will be publicly viewable on the forum. Enabling this will put your users at greater risk of being victims of spam as a result of email harvesters visiting your forum. Note this setting does not override the user setting for hiding their email address from users. Enabling this setting is <strong>not</strong> recommended.';
 $helptxt['meta_keywords'] = 'These keywords are sent in the output of every page to indicate to search engines (etc) the key content of your site. They should be a comma separated list of words, and should not use HTML.';
 
-$helptxt['latest_support'] = 'This panel shows you some of the most common problems and questions on your server configuration. Don\'t worry, this information isn\'t logged or anything.<br /><br />If this stays as &quot;Retrieving support information...&quot;, your computer probably cannot connect to <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>.';
 $helptxt['latest_packages'] = 'Here you can see some of the most popular and some random packages or mods, with quick and easy installations.<br /><br />If this section doesn\'t show up, your computer probably cannot connect to <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>.';
 $helptxt['latest_themes'] = 'This area shows a few of the latest and most popular themes from <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>.  It may not show up properly if your computer can\'t find <a href="http://www.simplemachines.org/" target="_blank" class="new_win">www.simplemachines.org</a>, though.';
 

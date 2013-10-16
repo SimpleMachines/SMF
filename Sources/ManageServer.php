@@ -94,6 +94,7 @@ function ModifySettings()
 		'general' => 'ModifyGeneralSettings',
 		'database' => 'ModifyDatabaseSettings',
 		'cookie' => 'ModifyCookieSettings',
+		'security' => 'ModifyGeneralSecuritySettings',
 		'cache' => 'ModifyCacheSettings',
 		'loads' => 'ModifyLoadBalancingSettings',
 		'phpinfo' => 'ShowPHPinfoSettings',
@@ -262,17 +263,34 @@ function ModifyCookieSettings($return_config = false)
 		// Cookies...
 		array('cookiename', $txt['cookie_name'], 'file', 'text', 20),
 		array('cookieTime', $txt['cookieTime'], 'db', 'int', 'postinput' => $txt['minutes']),
-		array('localCookies', $txt['localCookies'], 'subtext' => $txt['localCookies_note'], 'db', 'check', false, 'localCookies'),
-		array('globalCookies', $txt['globalCookies'], 'subtext' => $txt['globalCookies_note'], 'db', 'check', false, 'globalCookies'),
-		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'subtext' => $txt['globalCookiesDomain_note'], 'db', 'text', false, 'globalCookiesDomain'),
-		array('secureCookies', $txt['secureCookies'], 'subtext' => $txt['secureCookies_note'], 'db', 'check', false, 'secureCookies',  'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
-		array('httponlyCookies', $txt['httponlyCookies'], 'subtext' => $txt['httponlyCookies_note'], 'db', 'check', false, 'httponlyCookies'),
+		array('localCookies', $txt['localCookies'], 'db', 'check', false, 'localCookies'),
+		array('globalCookies', $txt['globalCookies'], 'db', 'check', false, 'globalCookies'),
+		array('globalCookiesDomain', $txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'),
+		array('secureCookies', $txt['secureCookies'], 'db', 'check', false, 'secureCookies',  'disabled' => !isset($_SERVER['HTTPS']) || !(strtolower($_SERVER['HTTPS']) == 'on' || strtolower($_SERVER['HTTPS']) == '1')),
+		array('httponlyCookies', $txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'),
 		'',
 		// Sessions
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
 		array('databaseSession_loose', $txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'),
 		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => $txt['seconds']),
 	);
+
+	addInlineJavascript('
+	function hideGlobalCookies()
+	{
+		var usingLocal = $("#localCookies").prop("checked");
+		$("#setting_globalCookies").closest("dt").toggle(!usingLocal);
+		$("#globalCookies").closest("dd").toggle(!usingLocal);
+
+		var usingGlobal = !usingLocal && $("#globalCookies").prop("checked");
+		$("#setting_globalCookiesDomain").closest("dt").toggle(usingGlobal);
+		$("#globalCookiesDomain").closest("dd").toggle(usingGlobal);
+	};
+	hideGlobalCookies();
+
+	$("#localCookies, #globalCookies").click(function() {
+		hideGlobalCookies();
+	});', true);
 
 	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
 
@@ -286,6 +304,10 @@ function ModifyCookieSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_cookie_settings');
+
+		// Local and global do not play nicely together.
+		if (!empty($_POST['localCookies']) && empty($_POST['globalCookies']))
+			unset ($_POST['globalCookies']);
 
 		if (!empty($_POST['globalCookiesDomain']) && strpos($boardurl, $_POST['globalCookiesDomain']) === false)
 			fatal_lang_error('invalid_cookie_domain', false);
@@ -313,6 +335,61 @@ function ModifyCookieSettings($return_config = false)
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);
+}
+
+/**
+ * Settings really associated with general security aspects.
+ *
+ * @param $return_config
+ */
+function ModifyGeneralSecuritySettings($return_config = false)
+{
+	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
+
+	$config_vars = array(
+			array('check', 'guest_hideContacts'),
+			array('check', 'make_email_viewable'),
+		'',
+			array('int', 'failed_login_threshold'),
+			array('int', 'loginHistoryDays'),
+		'',
+			array('check', 'securityDisable'),
+			array('check', 'securityDisable_moderate'),
+		'',
+			// Reactive on email, and approve on delete
+			array('check', 'send_validation_onChange'),
+			array('check', 'approveAccountDeletion'),
+		'',
+			// Password strength.
+			array('select', 'password_strength', array($txt['setting_password_strength_low'], $txt['setting_password_strength_medium'], $txt['setting_password_strength_high'])),
+			array('check', 'enable_password_conversion'),
+		'',
+			// Reporting of personal messages?
+			array('check', 'enableReportPM'),
+		'',
+			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
+	);
+
+	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		saveDBSettings($config_vars);
+
+		call_integration_hook('integrate_save_general_security_settings');
+
+		writeLog();
+		redirectexit('action=admin;area=serversettings;sa=security;' . $context['session_var'] . '=' . $context['session_id']);
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;save;sa=security';
+	$context['settings_title'] = $txt['security_settings'];
+
+	prepareDBSettingContext($config_vars);
 }
 
 /**

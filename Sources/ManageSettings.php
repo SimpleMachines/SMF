@@ -63,11 +63,7 @@ function ModifyFeatureSettings()
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
 
-	// If Advanced Profile Fields are disabled don't show the setting page
-	if (!in_array('cp', $context['admin_features']))
-		unset($subActions['profile']);
-
-	// Same for Karma
+	// If karma is disabled don't show the setting page.
 	if (!in_array('k', $context['admin_features']))
 		unset($subActions['karma']);
 
@@ -108,7 +104,6 @@ function ModifySecuritySettings()
 	$context['page_title'] = $txt['admin_security_moderation'];
 
 	$subActions = array(
-		'general' => 'ModifyGeneralSecuritySettings',
 		'spam' => 'ModifySpamSettings',
 		'moderation' => 'ModifyModerationSettings',
 	);
@@ -119,7 +114,7 @@ function ModifySecuritySettings()
 	if (!in_array('w', $context['admin_features']))
 		unset($subActions['moderation']);
 
-	loadGeneralSettingParameters($subActions, 'general');
+	loadGeneralSettingParameters($subActions, 'spam');
 
 	// Load up all the tabs...
 	$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -127,8 +122,6 @@ function ModifySecuritySettings()
 		'help' => 'securitysettings',
 		'description' => $txt['security_settings_desc'],
 		'tabs' => array(
-			'general' => array(
-			),
 			'spam' => array(
 				'description' => $txt['antispam_Settings_desc'] ,
 			),
@@ -152,7 +145,6 @@ function ModifyModSettings()
 
 	$subActions = array(
 		'general' => 'ModifyGeneralModSettings',
-		'hooks' => 'list_integration_hooks',
 		// Mod authors, once again, if you have a whole section to add do it AFTER this line, and keep a comma at the end.
 	);
 
@@ -168,8 +160,6 @@ function ModifyModSettings()
 		'description' => $txt['modification_settings_desc'],
 		'tabs' => array(
 			'general' => array(
-			),
-			'hooks' => array(
 			),
 		),
 	);
@@ -202,73 +192,11 @@ function ModifyCoreFeatures($return_config = false)
 				'cal_enabled' => 1,
 			),
 		),
-		// cp = custom profile fields.
-		'cp' => array(
-			'url' => 'action=admin;area=featuresettings;sa=profile',
-			'save_callback' => create_function('$value', '
-				global $smcFunc;
-				if (!$value)
-				{
-					$smcFunc[\'db_query\'](\'\', \'
-						UPDATE {db_prefix}custom_fields
-						SET active = 0\');
-				}
-			'),
-			'setting_callback' => create_function('$value', '
-				if (!$value)
-					return array(
-						\'disabled_profile_fields\' => \'\',
-						\'registration_fields\' => \'\',
-						\'displayFields\' => \'\',
-					);
-				else
-					return array();
-			'),
-		),
-		// dr = drafts
-		'dr' => array(
-			'url' => 'action=admin;area=managedrafts',
-			'settings' => array(
-				'drafts_enabled' => 1,
-				'drafts_post_enabled' => 2,
-				'drafts_pm_enabled' => 2,
-				'drafts_autosave_enabled' => 2,
-				'drafts_show_saved_enabled' => 2,
-			),
-			'setting_callback' => create_function('$value', '
-				global $smcFunc, $sourcedir;
-
-				// Set the correct disabled value for the scheduled task.
-				$smcFunc[\'db_query\'](\'\', \'
-					UPDATE {db_prefix}scheduled_tasks
-					SET disabled = {int:disabled}
-					WHERE task = {string:task}\',
-					array(
-						\'disabled\' => $value ? 0 : 1,
-						\'task\' => \'remove_old_drafts\',
-					)
-				);
-			'),
-		),
-		// ih = Integration Hooks Handling.
-		'ih' => array(
-			'url' => 'action=admin;area=modsettings;sa=hooks',
-			'settings' => array(
-				'handlinghooks_enabled' => 1,
-			),
-		),
 		// k = karma.
 		'k' => array(
 			'url' => 'action=admin;area=featuresettings;sa=karma',
 			'settings' => array(
 				'karmaMode' => 2,
-			),
-		),
-		// ml = moderation log.
-		'ml' => array(
-			'url' => 'action=admin;area=logs;sa=modlog',
-			'settings' => array(
-				'modlog_enabled' => 1,
 			),
 		),
 		// pm = post moderation.
@@ -316,10 +244,6 @@ function ModifyCoreFeatures($return_config = false)
 					CalculateNextTrigger(\'paid_subscriptions\');
 				}
 			'),
-		),
-		// rg = report generator.
-		'rg' => array(
-			'url' => 'action=admin;area=reports',
 		),
 		// w = warning.
 		'w' => array(
@@ -581,66 +505,6 @@ function ModifyBasicSettings($return_config = false)
 }
 
 /**
- * Settings really associated with general security aspects.
- *
- * @param $return_config
- */
-function ModifyGeneralSecuritySettings($return_config = false)
-{
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
-
-	$config_vars = array(
-			array('check', 'guest_hideContacts'),
-			array('check', 'make_email_viewable'),
-		'',
-			array('int', 'failed_login_threshold'),
-			array('int', 'loginHistoryDays'),
-		'',
-			array('check', 'enableErrorLogging'),
-			array('check', 'enableErrorQueryLogging'),
-		'',
-			array('check', 'securityDisable'),
-			array('check', 'securityDisable_moderate'),
-		'',
-			// Reactive on email, and approve on delete
-			array('check', 'send_validation_onChange'),
-			array('check', 'approveAccountDeletion'),
-		'',
-			// Password strength.
-			array('select', 'password_strength', array($txt['setting_password_strength_low'], $txt['setting_password_strength_medium'], $txt['setting_password_strength_high'])),
-			array('check', 'enable_password_conversion'),
-		'',
-			// Reporting of personal messages?
-			array('check', 'enableReportPM'),
-		'',
-			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
-	);
-
-	call_integration_hook('integrate_general_security_settings', array(&$config_vars));
-
-	if ($return_config)
-		return $config_vars;
-
-	// Saving?
-	if (isset($_GET['save']))
-	{
-		checkSession();
-
-		saveDBSettings($config_vars);
-
-		call_integration_hook('integrate_save_general_security_settings');
-
-		writeLog();
-		redirectexit('action=admin;area=securitysettings;sa=general');
-	}
-
-	$context['post_url'] = $scripturl . '?action=admin;area=securitysettings;save;sa=general';
-	$context['settings_title'] = $txt['mods_cat_security_general'];
-
-	prepareDBSettingContext($config_vars);
-}
-
-/**
  * Allows modifying the global layout settings in the forum
  * Accessed through ?action=admin;area=featuresettings;sa=layout;
  *
@@ -815,7 +679,7 @@ function ModifyModerationSettings($return_config = false)
  */
 function ModifySpamSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc, $language;
 
 	// Generate a sample registration image.
 	$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
@@ -848,25 +712,58 @@ function ModifySpamSettings($return_config = false)
 	if ($return_config)
 		return $config_vars;
 
-	// Load any question and answers!
+	// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
+	getLanguages();
+	$context['qa_languages'] = array();
+	foreach ($context['languages'] as $lang_id => $lang)
+	{
+		$lang_id = strtr($lang_id, array('-utf8' => ''));
+		$lang['name'] = strtr($lang['name'], array('-utf8' => ''));
+		$context['qa_languages'][$lang_id] = $lang;
+	}
+
+	// Secondly, load any questions we currently have.
 	$context['question_answers'] = array();
 	$request = $smcFunc['db_query']('', '
-		SELECT id_comment, body AS question, recipient_name AS answer
-		FROM {db_prefix}log_comments
-		WHERE comment_type = {string:ver_test}',
-		array(
-			'ver_test' => 'ver_test',
-		)
+		SELECT id_question, lngfile, question, answers
+		FROM {db_prefix}qanda'
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['question_answers'][$row['id_comment']] = array(
-			'id' => $row['id_comment'],
+		$lang = strtr($row['lngfile'], array('-utf8' => ''));
+		$context['question_answers'][$row['id_question']] = array(
+			'lngfile' => $lang,
 			'question' => $row['question'],
-			'answer' => $row['answer'],
+			'answers' => unserialize($row['answers']),
 		);
+		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
-	$smcFunc['db_free_result']($request);
+
+	// Thirdly, push some JavaScript for the form to make it work.
+	addInlineJavascript('
+	var nextrow = ' . (!empty($context['question_answers']) ? max(array_keys($context['question_answers'])) + 1 : 1) . ';
+	$(".qa_link a").click(function() {
+		var id = $(this).parent().attr("id").substring(6);
+		$("#qa_fs_" + id).show();
+		$(this).parent().hide();
+	});
+	$(".qa_fieldset legend a").click(function() {
+		var id = $(this).closest("fieldset").attr("id").substring(6);
+		$("#qa_dt_" + id).show();
+		$(this).closest("fieldset").hide();
+	});
+	$(".qa_add_question a").click(function() {
+		var id = $(this).closest("fieldset").attr("id").substring(6);
+		$(\'<dt><input type="text" name="question[\' + id + \'][\' + nextrow + \']" value="" size="50" class="input_text verification_question" /></dt><dd><input type="text" name="answer[\' + id + \'][\' + nextrow + \'][]" value="" size="50" class="input_text verification_answer" / ><div class="qa_add_answer"><a href="javascript:void(0);" onclick="return addAnswer(this);">[ \' + ' . JavaScriptEscape($txt['setup_verification_add_answer']) . ' + \' ]</a></div></dd>\').insertBefore($(this).parent());
+		nextrow++;
+	});
+	function addAnswer(obj)
+	{
+		var attr = $(obj).closest("dd").find(".verification_answer:last").attr("name");
+		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="input_text verification_answer" />\').insertBefore($(obj).closest("div"));
+		return false;
+	}
+	$("#qa_dt_' . $language . ' a").click();', true);
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -886,71 +783,124 @@ function ModifySpamSettings($return_config = false)
 		$save_vars[] = array('text', 'pm_spam_settings');
 
 		// Handle verification questions.
-		$questionInserts = array();
-		$count_questions = 0;
-		foreach ($_POST['question'] as $id => $question)
+		$changes = array(
+			'insert' => array(),
+			'replace' => array(),
+			'delete' => array(),
+		);
+		$qs_per_lang = array();
+		foreach ($context['qa_languages'] as $lang_id => $dummy)
 		{
-			$question = trim($smcFunc['htmlspecialchars']($question, ENT_COMPAT, $context['character_set']));
-			$answer = trim($smcFunc['strtolower']($smcFunc['htmlspecialchars']($_POST['answer'][$id], ENT_COMPAT, $context['character_set'])));
+			// If we had some questions for this language before, but don't now, delete everything from that language.
+			if ((!isset($_POST['question'][$lang_id]) || !is_array($_POST['question'][$lang_id])) && !empty($context['qa_by_lang'][$lang_id]))
+				$changes['delete'] = array_merge($questions['delete'], $context['qa_by_lang'][$lang_id]);
 
-			// Already existed?
-			if (isset($context['question_answers'][$id]))
+			// Now step through and see if any existing questions no longer exist.
+			if (!empty($context['qa_by_lang'][$lang_id]))
+				foreach ($context['qa_by_lang'][$lang_id] as $q_id)
+					if (empty($_POST['question'][$lang_id][$q_id]))
+						$changes['delete'][] = $q_id;
+
+			// Now let's see if there are new questions or ones that need updating.
+			foreach ($_POST['question'][$lang_id] as $q_id => $question)
 			{
-				$count_questions++;
-				// Changed?
-				if ($context['question_answers'][$id]['question'] != $question || $context['question_answers'][$id]['answer'] != $answer)
+				// Ignore junky ids.
+				$q_id = (int) $q_id;
+				if ($q_id <= 0)
+					continue;
+
+				// Check the question isn't empty (because they want to delete it?)
+				if (empty($question) || trim($question) == '')
 				{
-					if ($question == '' || $answer == '')
-					{
-						$smcFunc['db_query']('', '
-							DELETE FROM {db_prefix}log_comments
-							WHERE comment_type = {string:ver_test}
-								AND id_comment = {int:id}',
-							array(
-								'id' => $id,
-								'ver_test' => 'ver_test',
-							)
-						);
-						$count_questions--;
-					}
-					else
-						$request = $smcFunc['db_query']('', '
-							UPDATE {db_prefix}log_comments
-							SET body = {string:question}, recipient_name = {string:answer}
-							WHERE comment_type = {string:ver_test}
-								AND id_comment = {int:id}',
-							array(
-								'id' => $id,
-								'ver_test' => 'ver_test',
-								'question' => $question,
-								'answer' => $answer,
-							)
-						);
+					if (isset($context['question_answers'][$q_id]))
+						$changes['delete'][] = $q_id;
+					continue;
 				}
+				$question = $smcFunc['htmlspecialchars'](trim($question));
+
+				// Get the answers. Firstly check there actually might be some.
+				if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id]))
+				{
+					if (isset($context['question_answers'][$q_id]))
+						$changes['delete'][] = $q_id;
+					continue;
+				}
+				// Now get them and check that they might be viable.
+				$answers = array();
+				foreach ($_POST['answer'][$lang_id][$q_id] as $answer)
+					if (!empty($answer) && trim($answer) !== '')
+						$answers[] = $smcFunc['htmlspecialchars'](trim($answer));
+				if (empty($answers))
+				{
+					if (isset($context['question_answers'][$q_id]))
+						$changes['delete'][] = $q_id;
+					continue;
+				}
+				$answers = serialize($answers);
+
+				// At this point we know we have a question and some answers. What are we doing with it?
+				if (!isset($context['question_answers'][$q_id]))
+				{
+					// New question. Now, we don't want to randomly consume ids, so we'll set those, rather than trusting the browser's supplied ids.
+					$changes['insert'][] = array($lang_id, $question, $answers);
+				}
+				else
+				{
+					// It's an existing question. Let's see what's changed, if anything.
+					if ($lang_id != $context['question_answers'][$q_id]['lngfile'] || $question != $context['question_answers'][$q_id]['question'] || $answers != $context['question_answers'][$q_id]['answers'])
+						$changes['replace'][$q_id] = array('lngfile' => $lang_id, 'question' => $question, 'answers' => $answers);
+				}
+
+				if (!isset($qs_per_lang[$lang_id]))
+					$qs_per_lang[$lang_id] = 0;
+				$qs_per_lang[$lang_id]++;
 			}
-			// It's so shiney and new!
-			elseif ($question != '' && $answer != '')
+		}
+
+		// OK, so changes?
+		if (!empty($changes['delete']))
+		{
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}qanda
+				WHERE id_question IN ({array_int:questions})',
+				array(
+					'questions' => $changes['delete'],
+				)
+			);
+		}
+
+		if (!empty($changes['replace']))
+		{
+			foreach ($changes['replace'] as $q_id => $question)
 			{
-				$questionInserts[] = array(
-					'comment_type' => 'ver_test',
-					'body' => $question,
-					'recipient_name' => $answer,
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}qanda
+					SET lngfile = {string:lngfile},
+						question = {string:question},
+						answers = {string:answers}
+					WHERE id_question = {int:id_question}',
+					array(
+						'id_question' => $q_id,
+						'lngfile' => $question['lngfile'],
+						'question' => $question['question'],
+						'answers' => $question['answers'],
+					)
 				);
 			}
 		}
 
-		// Any questions to insert?
-		if (!empty($questionInserts))
+		if (!empty($changes['insert']))
 		{
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_comments',
-				array('comment_type' => 'string', 'body' => 'string-65535', 'recipient_name' => 'string-80'),
-				$questionInserts,
-				array('id_comment')
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}qanda',
+				array('lngfile' => 'string-50', 'question' => 'string-255', 'answers' => 'string-65534'),
+				$changes['insert'],
+				array('id_question')
 			);
-			$count_questions++;
 		}
 
+		// Lastly, the count of messages needs to be no more than the lowest number of questions for any one language.
+		$count_questions = empty($qs_per_lang) ? 0 : min($qs_per_lang);
 		if (empty($count_questions) || $_POST['qa_verification_number'] > $count_questions)
 			$_POST['qa_verification_number'] = $count_questions;
 
@@ -959,7 +909,7 @@ function ModifySpamSettings($return_config = false)
 		// Now save.
 		saveDBSettings($save_vars);
 
-		cache_put_data('verificationQuestionIds', null, 300);
+		cache_put_data('verificationQuestions', null, 300);
 
 		redirectexit('action=admin;area=securitysettings;sa=spam');
 	}
@@ -2087,17 +2037,22 @@ function EditCustomProfiles()
  * Allow to edit the settings on the pruning screen.
  * @param $return_config
  */
-function ModifyPruningSettings($return_config = false)
+function ModifyLogSettings($return_config = false)
 {
 	global $txt, $scripturl, $sourcedir, $context, $settings, $sc, $modSettings;
 
 	// Make sure we understand what's going on.
 	loadLanguage('ManageSettings');
 
-	$context['page_title'] = $txt['pruning_title'];
+	$context['page_title'] = $txt['log_settings'];
 
 	$config_vars = array(
+			array('check', 'enableErrorLogging'),
+			array('check', 'enableErrorQueryLogging'),
+			array('check', 'log_ban_hits'),
 			// Even do the pruning?
+			array('title', 'pruning_title'),
+			array('desc', 'pruning_desc'),
 			// The array indexes are there so we can remove/change them before saving.
 			'pruningOptions' => array('check', 'pruningOptions'),
 		'',
@@ -2112,10 +2067,27 @@ function ModifyPruningSettings($return_config = false)
 			// Mod Developers: Do NOT use the pruningOptions master variable for this as SMF Core may overwrite your setting in the future!
 	);
 
-	call_integration_hook('integrate_prune_settings', array(&$config_vars));
+	// We want to be toggling some of these for a nice user experience. If you want to add yours to the list of those magically hidden when the 'pruning' option is off, add to this.
+	$prune_toggle = array('pruneErrorLog', 'pruneModLog', 'pruneBanLog', 'pruneReportLog', 'pruneScheduledTaskLog', 'pruneSpiderHitLog');
+
+	call_integration_hook('integrate_prune_settings', array(&$config_vars, &$prune_toggle));
+
+	$prune_toggle_dt = array();
+	foreach ($prune_toggle as $item)
+		$prune_toggle_dt[] = 'setting_' . $item;
 
 	if ($return_config)
 		return $config_vars;
+
+	addInlineJavascript('
+	function togglePruned()
+	{
+		var newval = $("#pruningOptions").prop("checked");
+		$("#' . implode(', #', $prune_toggle) . '").closest("dd").toggle(newval);
+		$("#' . implode(', #', $prune_toggle_dt) . '").closest("dt").toggle(newval);
+	};
+	togglePruned();
+	$("#pruningOptions").click(function() { togglePruned(); });', true);
 
 	// We'll need this in a bit.
 	require_once($sourcedir . '/ManageServer.php');
@@ -2145,11 +2117,11 @@ function ModifyPruningSettings($return_config = false)
 			$_POST['pruningOptions'] = '';
 
 		saveDBSettings($savevar);
-		redirectexit('action=admin;area=logs;sa=pruning');
+		redirectexit('action=admin;area=logs;sa=settings');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=logs;save;sa=pruning';
-	$context['settings_title'] = $txt['pruning_title'];
+	$context['post_url'] = $scripturl . '?action=admin;area=logs;save;sa=settings';
+	$context['settings_title'] = $txt['log_settings'];
 	$context['sub_template'] = 'show_settings';
 
 	// Get the actual values
@@ -2210,436 +2182,6 @@ function ModifyGeneralModSettings($return_config = false)
 
 	// This line is to help mod authors do a search/add after if you want to add something here. Keyword: RED INK IS FOR TEACHERS AND THOSE WHO LIKE PAIN!
 	prepareDBSettingContext($config_vars);
-}
-
-/**
- * Generates a list of integration hooks for display
- * Accessed through ?action=admin;area=modsettings;sa=hooks;
- * Allows for removal or disabing of selected hooks
- */
-function list_integration_hooks()
-{
-	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
-
-	$context['filter_url'] = '';
-	$context['current_filter'] = '';
-	$currentHooks = get_integration_hooks();
-	if (isset($_GET['filter']) && in_array($_GET['filter'], array_keys($currentHooks)))
-	{
-		$context['filter_url'] = ';filter=' . $_GET['filter'];
-		$context['current_filter'] = $_GET['filter'];
-	}
-
-	if (!empty($modSettings['handlinghooks_enabled']))
-	{
-		if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
-		{
-			checkSession('request');
-			validateToken('admin-hook', 'request');
-
-			if ($_REQUEST['do'] == 'remove')
-				remove_integration_function($_REQUEST['hook'], urldecode($_REQUEST['function']));
-			else
-			{
-				if ($_REQUEST['do'] == 'disable')
-				{
-					// It's a hack I know...but I'm way too lazy!!!
-					$function_remove = $_REQUEST['function'];
-					$function_add = $_REQUEST['function'] . ']';
-				}
-				else
-				{
-					$function_remove = $_REQUEST['function'] . ']';
-					$function_add = $_REQUEST['function'];
-				}
-				$file = !empty($_REQUEST['includedfile']) ? urldecode($_REQUEST['includedfile']) : '';
-
-				remove_integration_function($_REQUEST['hook'], $function_remove, $file);
-				add_integration_function($_REQUEST['hook'], $function_add, $file);
-
-				redirectexit('action=admin;area=modsettings;sa=hooks' . $context['filter_url']);
-			}
-		}
-	}
-
-	$list_options = array(
-		'id' => 'list_integration_hooks',
-		'title' => $txt['hooks_title_list'],
-		'items_per_page' => 20,
-		'base_href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-		'default_sort_col' => 'hook_name',
-		'get_items' => array(
-			'function' => 'get_integration_hooks_data',
-		),
-		'get_count' => array(
-			'function' => 'get_integration_hooks_count',
-		),
-		'no_items_label' => $txt['hooks_no_hooks'],
-		'columns' => array(
-			'hook_name' => array(
-				'header' => array(
-					'value' => $txt['hooks_field_hook_name'],
-				),
-				'data' => array(
-					'db' => 'hook_name',
-				),
-				'sort' =>  array(
-					'default' => 'hook_name',
-					'reverse' => 'hook_name DESC',
-				),
-			),
-			'function_name' => array(
-				'header' => array(
-					'value' => $txt['hooks_field_function_name'],
-				),
-				'data' => array(
-					'function' => create_function('$data', '
-						global $txt;
-
-						if (!empty($data[\'included_file\']))
-							return $txt[\'hooks_field_function\'] . \': \' . $data[\'real_function\'] . \'<br />\' . $txt[\'hooks_field_included_file\'] . \': \' . $data[\'included_file\'];
-						else
-							return $data[\'real_function\'];
-					'),
-				),
-				'sort' =>  array(
-					'default' => 'function_name',
-					'reverse' => 'function_name DESC',
-				),
-			),
-			'file_name' => array(
-				'header' => array(
-					'value' => $txt['hooks_field_file_name'],
-				),
-				'data' => array(
-					'db' => 'file_name',
-				),
-				'sort' =>  array(
-					'default' => 'file_name',
-					'reverse' => 'file_name DESC',
-				),
-			),
-			'status' => array(
-				'header' => array(
-					'value' => $txt['hooks_field_hook_exists'],
-					'style' => 'width:3%;',
-				),
-				'data' => array(
-					'function' => create_function('$data', '
-						global $txt, $settings, $scripturl, $context;
-
-						$change_status = array(\'before\' => \'\', \'after\' => \'\');
-						if ($data[\'can_be_disabled\'] && $data[\'status\'] != \'deny\')
-						{
-							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'real_function\'] . (!empty($data[\'included_file\']) ? \';includedfile=\' . urlencode($data[\'included_file\']) : \'\') . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
-							$change_status[\'after\'] = \'</a>\';
-						}
-						return $change_status[\'before\'] . \'<img src="\' . $settings[\'images_url\'] . \'/admin/post_moderation_\' . $data[\'status\'] . \'.png" alt="\' . $data[\'img_text\'] . \'" title="\' . $data[\'img_text\'] . \'" />\' . $change_status[\'after\'];
-					'),
-					'class' => 'centertext',
-				),
-				'sort' =>  array(
-					'default' => 'status',
-					'reverse' => 'status DESC',
-				),
-			),
-		),
-		'additional_rows' => array(
-			array(
-				'position' => 'after_title',
-				'value' => $txt['hooks_disable_instructions'] . '<br />
-					' . $txt['hooks_disable_legend'] . ':
-									<ul style="list-style: none;">
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_allow.png" alt="' . $txt['hooks_active'] . '" title="' . $txt['hooks_active'] . '" /> ' . $txt['hooks_disable_legend_exists'] . '</li>
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_moderate.png" alt="' . $txt['hooks_disabled'] . '" title="' . $txt['hooks_disabled'] . '" /> ' . $txt['hooks_disable_legend_disabled'] . '</li>
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_deny.png" alt="' . $txt['hooks_missing'] . '" title="' . $txt['hooks_missing'] . '" /> ' . $txt['hooks_disable_legend_missing'] . '</li>
-				</ul>'
-			),
-		),
-	);
-
-	if (!empty($modSettings['handlinghooks_enabled']))
-	{
-		createToken('admin-hook', 'request');
-
-		$list_options['columns']['remove'] = array(
-			'header' => array(
-				'value' => $txt['hooks_button_remove'],
-				'style' => 'width:3%',
-			),
-			'data' => array(
-				'function' => create_function('$data', '
-					global $txt, $settings, $scripturl, $context;
-
-					if (!$data[\'hook_exists\'])
-						return \'
-						<a href="\' . $scripturl . \'?action=admin;area=modsettings;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
-							<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="\' . $txt[\'hooks_button_remove\'] . \'" title="\' . $txt[\'hooks_button_remove\'] . \'" />
-						</a>\';
-				'),
-				'class' => 'centertext',
-			),
-		);
-		$list_options['form'] = array(
-			'href' => $scripturl . '?action=admin;area=modsettings;sa=hooks' . $context['filter_url'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-			'name' => 'list_integration_hooks',
-		);
-	}
-
-
-	require_once($sourcedir . '/Subs-List.php');
-	createList($list_options);
-
-	$context['page_title'] = $txt['hooks_title_list'];
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'list_integration_hooks';
-}
-
-/**
- * Gets all of the files in a directory and its chidren directories
- *
- * @param type $dir_path
- * @return array
- */
-function get_files_recursive($dir_path)
-{
-	$files = array();
-
-	if ($dh = opendir($dir_path))
-	{
-		while (($file = readdir($dh)) !== false)
-		{
-			if ($file != '.' && $file != '..')
-			{
-				if (is_dir($dir_path . '/' . $file))
-					$files = array_merge($files, get_files_recursive($dir_path . '/' . $file));
-				else
-					$files[] = array('dir' => $dir_path, 'name' => $file);
-			}
-		}
-	}
-	closedir($dh);
-
-	return $files;
-}
-
-/**
- * Callback function for the integration hooks list (list_integration_hooks)
- * Gets all of the hooks in the system and their status
- * Would be better documented if Ema was not lazy
- *
- * @param type $start
- * @param type $per_page
- * @param type $sort
- * @return array
- */
-function get_integration_hooks_data($start, $per_page, $sort)
-{
-	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl, $modSettings;
-
-	$hooks = $temp_hooks = get_integration_hooks();
-	$hooks_data = $temp_data = $hook_status = array();
-
-	$files = get_files_recursive($sourcedir);
-	if (!empty($files))
-	{
-		foreach ($files as $file)
-		{
-			if (is_file($file['dir'] . '/' . $file['name']) && substr($file['name'], -4) === '.php')
-			{
-				$fp = fopen($file['dir'] . '/' . $file['name'], 'rb');
-				$fc = fread($fp, filesize($file['dir'] . '/' . $file['name']));
-				fclose($fp);
-
-				foreach ($temp_hooks as $hook => $functions)
-				{
-					foreach ($functions as $function_o)
-					{
-						$hook_name = str_replace(']', '', $function_o);
-						if (strpos($hook_name, '::') !== false)
-						{
-							$function = explode('::', $hook_name);
-							$function = $function[1];
-						}
-						else
-							$function = $hook_name;
-						$function = explode(':', $function);
-						$function = $function[0];
-
-						if (substr($hook, -8) === '_include')
-						{
-							$hook_status[$hook][$function]['exists'] = file_exists(strtr(trim($function), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
-							// I need to know if there is at least one function called in this file.
-							$temp_data['include'][basename($function)] = array('hook' => $hook, 'function' => $function);
-							unset($temp_hooks[$hook][$function_o]);
-						}
-						elseif (strpos(str_replace(' (', '(', $fc), 'function ' . trim($function) . '(') !== false)
-						{
-							$hook_status[$hook][$hook_name]['exists'] = true;
-							$hook_status[$hook][$hook_name]['in_file'] = $file['name'];
-							// I want to remember all the functions called within this file (to check later if they are enabled or disabled and decide if the integrare_*_include of that file can be disabled too)
-							$temp_data['function'][$file['name']][] = $function_o;
-							unset($temp_hooks[$hook][$function_o]);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	$sort_types = array(
-		'hook_name' => array('hook', SORT_ASC),
-		'hook_name DESC' => array('hook', SORT_DESC),
-		'function_name' => array('function', SORT_ASC),
-		'function_name DESC' => array('function', SORT_DESC),
-		'file_name' => array('file_name', SORT_ASC),
-		'file_name DESC' => array('file_name', SORT_DESC),
-		'status' => array('status', SORT_ASC),
-		'status DESC' => array('status', SORT_DESC),
-	);
-
-	$sort_options = $sort_types[$sort];
-	$sort = array();
-	$hooks_filters = array();
-
-	foreach ($hooks as $hook => $functions)
-	{
-		$hooks_filters[] = '<option ' . ($context['current_filter'] == $hook ? 'selected="selected" ' : '') . 'onclick="window.location = \'' . $scripturl . '?action=admin;area=modsettings;sa=hooks;filter=' . $hook . '\';">' . $hook . '</option>';
-		foreach ($functions as $function)
-		{
-			$enabled = strstr($function, ']') === false;
-			$function = str_replace(']', '', $function);
-
-			// This is a not an include and the function is included in a certain file (if not it doesn't exists so don't care)
-			if (substr($hook, -8) !== '_include' && isset($hook_status[$hook][$function]['in_file']))
-			{
-				$current_hook = isset($temp_data['include'][$hook_status[$hook][$function]['in_file']]) ? $temp_data['include'][$hook_status[$hook][$function]['in_file']] : '';
-				$enabled = false;
-
-				// Checking all the functions within this particular file
-				// if any of them is enable then the file *must* be included and the integrate_*_include hook cannot be disabled
-				foreach ($temp_data['function'][$hook_status[$hook][$function]['in_file']] as $func)
-					$enabled = $enabled || strstr($func, ']') !== false;
-
-				if (!$enabled &&  !empty($current_hook))
-					$hook_status[$current_hook['hook']][$current_hook['function']]['enabled'] = true;
-			}
-		}
-	}
-
-	if (!empty($hooks_filters))
-		$context['insert_after_template'] .= '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;"><option>---</option><option onclick="window.location = \'' . $scripturl . '?action=admin;area=modsettings;sa=hooks\';">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
-		// ]]></script>';
-
-	$temp_data = array();
-	$id = 0;
-
-	foreach ($hooks as $hook => $functions)
-	{
-		if (empty($context['filter']) || (!empty($context['filter']) && $context['filter'] == $hook))
-		{
-			foreach ($functions as $function)
-			{
-				$enabled = strstr($function, ']') === false;
-				$function = str_replace(']', '', $function);
-				$hook_exists = !empty($hook_status[$hook][$function]['exists']);
-				$file_name = isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ((substr($hook, -8) === '_include') ? 'zzzzzzzzz' : 'zzzzzzzza');
-				$sort[] = $$sort_options[0];
-
-				if (strpos($function, '::') !== false)
-				{
-					$function = explode('::', $function);
-					$function = $function[1];
-				}
-				$exploded = explode(':', $function);
-
-				$temp_data[] = array(
-					'id' => 'hookid_' . $id++,
-					'hook_name' => $hook,
-					'function_name' => $function,
-					'real_function' => $exploded[0],
-					'included_file' => isset($exploded[1]) ? strtr(trim($exploded[1]), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])) : '',
-					'file_name' => (isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ''),
-					'hook_exists' => $hook_exists,
-					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
-					'img_text' => $txt['hooks_' . ($hook_exists ? ($enabled ? 'active' : 'disabled') : 'missing')],
-					'enabled' => $enabled,
-					'can_be_disabled' => !empty($modSettings['handlinghooks_enabled']) && !isset($hook_status[$hook][$function]['enabled']),
-				);
-			}
-		}
-	}
-
-	array_multisort($sort, $sort_options[1], $temp_data);
-
-	$counter = 0;
-	$start++;
-
-	foreach ($temp_data as $data)
-	{
-		if (++$counter < $start)
-			continue;
-		elseif ($counter == $start + $per_page)
-			break;
-
-		$hooks_data[] = $data;
-	}
-
-	return $hooks_data;
-}
-
-/**
- * Simply returns the total count of integraion hooks
- * Used but the intergation hooks list function (list_integration_hooks)
- *
- * @global type $context
- * @return int
- */
-function get_integration_hooks_count()
-{
-	global $context;
-
-	$hooks = get_integration_hooks();
-	$hooks_count = 0;
-
-	$context['filter'] = false;
-	if (isset($_GET['filter']))
-		$context['filter'] = $_GET['filter'];
-
-	foreach ($hooks as $hook => $functions)
-	{
-		if (empty($context['filter']) || (!empty($context['filter']) && $context['filter'] == $hook))
-			$hooks_count += count($functions);
-	}
-
-	return $hooks_count;
-}
-
-/**
- * Parses modSettings to create integration hook array
- *
- * @staticvar type $integration_hooks
- * @return type
- */
-function get_integration_hooks()
-{
-	global $modSettings;
-	static $integration_hooks;
-
-	if (!isset($integration_hooks))
-	{
-		$integration_hooks = array();
-		foreach ($modSettings as $key => $value)
-		{
-			if (!empty($value) && substr($key, 0, 10) === 'integrate_')
-				$integration_hooks[$key] = explode(',', $value);
-		}
-	}
-
-	return $integration_hooks;
 }
 
 ?>

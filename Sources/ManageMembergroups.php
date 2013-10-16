@@ -507,7 +507,7 @@ function AddMembergroup()
 		));
 
 		// We did it.
-		logAction('add_group', array('group' => $_POST['group_name']), 'admin');
+		logAction('add_group', array('group' => $smcFunc['htmlspecialchars']($_POST['group_name'])), 'admin');
 
 		// Go change some more settings.
 		redirectexit('action=admin;area=membergroups;sa=edit;group=' . $id_group);
@@ -996,7 +996,7 @@ function EditMembergroup()
 		));
 
 		// Log the edit.
-		logAction('edited_group', array('group' => $_POST['group_name']), 'admin');
+		logAction('edited_group', array('group' => $smcFunc['htmlspecialchars']($_POST['group_name'])), 'admin');
 
 		redirectexit('action=admin;area=membergroups');
 	}

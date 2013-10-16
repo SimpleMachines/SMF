@@ -3,7 +3,10 @@
 
 global $settings, $scripturl;
 
-$txt['admin_boards'] = 'Boards';
+$txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
+$txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
+
+$txt['admin_boards'] = 'Boards and Categories';
 $txt['admin_users'] = 'Members';
 $txt['admin_newsletters'] = 'Newsletters';
 $txt['admin_edit_news'] = 'News';
@@ -64,7 +67,6 @@ $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(0 to disable)';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['modSettings_info'] = 'Change or set options that control how this forum operates.';
 $txt['database_server'] = 'Database Server';
 $txt['database_user'] = 'Database Username';
 $txt['database_password'] = 'Database Password';
@@ -119,12 +121,8 @@ $txt['manage_calendar'] = 'Calendar';
 $txt['manage_search'] = 'Search';
 
 $txt['smileys_manage'] = 'Smileys and Message Icons';
-$txt['smileys_manage_info'] = 'Install new smiley sets, add smileys to existing ones, or manage your message icons.';
-$txt['package_info'] = 'Install new features or modify existing ones with this interface.';
 $txt['theme_admin'] = 'Themes and Layout';
-$txt['theme_admin_info'] = 'Setup and manage your themes, and set or reset theme options.';
 $txt['registration_center'] = 'Registration';
-$txt['member_center_info'] = 'View the member list, search for members, or manage account approvals and activations.';
 
 $txt['viewmembers_name'] = 'Username (display name)';
 $txt['viewmembers_online'] = 'Last Online';
@@ -241,7 +239,7 @@ $txt['admin_log_desc'] = 'Lists administrative tasks that have been performed by
 $txt['moderation_log'] = 'Moderation Log';
 $txt['moderation_log_desc'] = 'Lists moderation activities that have been performed by moderators on your forum.';
 $txt['spider_log_desc'] = 'Review the entries related to search engine spider activity on your forum.';
-$txt['pruning_log_desc'] = 'Use these tools to prune older entries in the various logs.';
+$txt['log_settings_desc'] = 'Use these options to configure how logging works on your forum.';
 
 $txt['mailqueue_title'] = 'Mail';
 
@@ -296,7 +294,6 @@ $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
 
 $txt['support_credits_title'] = 'Support and Credits';
-$txt['support_credits_info'] = 'Links to support for common issues, and version information to give if you have problems.';
 $txt['support_title'] = 'Support Information';
 $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
@@ -310,10 +307,6 @@ $txt['support_resources'] = 'Support Resources';
 $txt['support_resources_p1'] = 'Our <a href="%1$s">Online Manual</a> provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain <a href="%2$s">Features</a>, <a href="%3$s">Settings</a>, <a href="%4$s">Themes</a>, <a href="%5$s">Packages</a>, etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly.';
 $txt['support_resources_p2'] = 'If you can\'t find the answers to your questions in the Online Manual, you may want to search our <a href="%1$s">Support Community</a> or ask for assistance in either our <a href="%2$s">English</a> or one of our many <a href="%3$s">international support boards</a>. The SMF Support Community can be used for <a href="%4$s">support</a>, <a href="%5$s">customization</a>, and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators.';
 
-$txt['support_latest'] = 'Common support &amp; issues';
-$txt['support_latest_fetch'] = 'Retrieving support information...';
-
-$txt['edit_permissions_info'] = 'Change restrictions and available features, globally or in specific boards.';
 $txt['membergroups_members'] = 'Regular Members';
 $txt['membergroups_guests'] = 'Guests';
 $txt['membergroups_add_group'] = 'Add group';
@@ -353,7 +346,6 @@ $txt['attachmentEnable_enable_all'] = 'Enable all attachments';
 $txt['attachmentEnable_disable_new'] = 'Disable new attachments';
 $txt['attachmentCheckExtensions'] = 'Check attachment\'s extension';
 $txt['attachmentExtensions'] = 'Allowed attachment extensions';
-$txt['attachmentRecodeLineEndings'] = 'Recode line endings in textual attachments';
 $txt['attachmentShowImages'] = 'Display image attachments as pictures under post';
 $txt['attachmentUploadDir'] = 'Attachments directory';
 $txt['attachmentUploadDir_multiple_configure'] = 'Manage attachment directories';
@@ -371,8 +363,6 @@ $txt['attachment_image_paranoid'] = 'Perform extensive security checks on upload
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
 $txt['attachment_thumb_png'] = 'Save thumbnails as PNG';
 $txt['attachment_thumb_memory'] = 'Adaptive thumbnail memory';
-$txt['attachment_thumb_memory_note2'] = 'If the system can not get the memory no thumbnail will be created.';
-$txt['attachment_thumb_memory_note1'] = 'Leave this unchecked to always attempt to create a thumbnail';
 $txt['attachmentThumbWidth'] = 'Maximum width of thumbnails';
 $txt['attachmentThumbHeight'] = 'Maximum height of thumbnails';
 $txt['attachment_thumbnail_settings'] = 'Thumbnail Settings';
@@ -605,6 +595,7 @@ $txt['not_done_continue'] = 'Continue';
 $txt['general_settings'] = 'General';
 $txt['database_paths_settings'] = 'Database and Paths';
 $txt['cookies_sessions_settings'] = 'Cookies and Sessions';
+$txt['security_settings'] = 'Security';
 $txt['caching_settings'] = 'Caching';
 $txt['load_balancing_settings'] = 'Load Balancing';
 $txt['phpinfo_settings'] = 'PHP Info';
@@ -655,7 +646,6 @@ $txt['admin_search_section_settings'] = 'Setting';
 $txt['core_settings_title'] = 'Core Features';
 $txt['core_settings_desc'] = 'This page allows you to turn on or off optional features of your forum.';
 $txt['mods_cat_features'] = 'General';
-$txt['mods_cat_security_general'] = 'General';
 $txt['antispam_title'] = 'Anti-Spam';
 $txt['mods_cat_modifications_misc'] = 'Miscellaneous';
 $txt['mods_cat_layout'] = 'Layout';
@@ -664,6 +654,9 @@ $txt['moderation_settings_short'] = 'Moderation';
 $txt['signature_settings_short'] = 'Signatures';
 $txt['custom_profile_shorttitle'] = 'Profile Fields';
 $txt['pruning_title'] = 'Log Pruning';
+$txt['pruning_desc'] = 'The following options are useful for keeping your logs from growing too big, because most of the time older entries are not really of that much use.';
+$txt['log_settings'] = 'Log Settings';
+$txt['log_ban_hits'] = 'Log ban hits in the error log?';
 
 $txt['core_settings_activation_message'] = 'The feature {core_feature} has been activated, click on the title to configure it';
 $txt['core_settings_deactivation_message'] = 'The feature {core_feature} has been deactivated';

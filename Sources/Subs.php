@@ -416,9 +416,8 @@ function updateMemberData($members, $data)
  *
  * @param array $changeArray
  * @param bool $update = false
- * @param bool $debug = false
  */
-function updateSettings($changeArray, $update = false, $debug = false)
+function updateSettings($changeArray, $update = false)
 {
 	global $modSettings, $smcFunc;
 
@@ -2590,9 +2589,9 @@ function redirectexit($setLocation = '', $refresh = false)
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
-			$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$/e', "\$scripturl . '/' . strtr('\$1', '&;=', '//,') . '.html?' . SID . '\$2'", $setLocation);
+			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html?\' . SID. (isset($m[2]) ? "$m[2]" : "");'), $setLocation);
 		else
-			$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$/e', "\$scripturl . '/' . strtr('\$1', '&;=', '//,') . '.html\$2'", $setLocation);
+			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html\' . (isset($m[2]) ? "$m[2]" : "");'), $setLocation);
 	}
 
 	// Maybe integrations want to change where we are heading?
@@ -2885,10 +2884,8 @@ function setupThemeContext($forceload = false)
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-		{
 			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 2) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
-			$context['unapproved_members_text'] = $context['unapproved_members'] == 1 ? sprintf($txt['approve_one_member_waiting'],  $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve') : sprintf($txt['approve_many_members_waiting'],  $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve', $context['unapproved_members']);
-		}
+
 		$context['show_open_reports'] = empty($user_settings['mod_prefs']) || $user_settings['mod_prefs'][0] == 1;
 
 		$context['user']['avatar'] = array();

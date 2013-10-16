@@ -28,8 +28,7 @@ VALUES
 	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
 	(4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
 	(5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(6, 'latest-support.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(7, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+	(6, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 # --------------------------------------------------------
 
 #
@@ -1617,6 +1616,19 @@ CREATE TABLE {$db_prefix}poll_choices (
 ) ENGINE=MyISAM;
 
 #
+# Table structure for table `qanda`
+#
+
+CREATE TABLE {$db_prefix}qanda (
+  id_question smallint(5) unsigned NOT NULL auto_increment,
+  lngfile varchar(255) NOT NULL default '',
+  question varchar(255) NOT NULL default '',
+  answers text NOT NULL,
+  PRIMARY KEY (id_question),
+  KEY lngfile (lngfile)
+) ENGINE=MyISAM;
+
+#
 # Table structure for table `scheduled_tasks`
 #
 
@@ -1714,6 +1726,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('titlesEnable', '1'),
 	('topicSummaryPosts', '15'),
 	('enableErrorLogging', '1'),
+	('log_ban_hits', '1'),
 	('max_image_width', '0'),
 	('max_image_height', '0'),
 	('onlineEnable', '0'),
@@ -1856,6 +1869,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('avatar_reencode', '1'),
 	('avatar_paranoid', '0'),
 	('enable_unwatch', '0'),
+	('drafts_post_enabled', '1'),
+	('drafts_pm_enabled', '1'),
 	('drafts_autosave_enabled', '1'),
 	('drafts_show_saved_enabled', '1'),
 	('drafts_keep_days', '7');
@@ -1953,7 +1968,8 @@ VALUES (1, 'Google', 'googlebot', ''),
 	(16, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
 	(17, 'Alexa', 'ia_archiver', ''),
 	(18, 'Omgili', 'omgilibot', ''),
-	(19, 'EntireWeb', 'Speedy Spider', '');
+	(19, 'EntireWeb', 'Speedy Spider', ''),
+	(20, 'Yandex', 'yandex', '');
 
 #
 # Table structure for table `subscriptions`
@@ -2014,7 +2030,6 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_stats_index', '1'),
 	(1, 'show_board_desc', '1'),
 	(1, 'newsfader_time', '5000'),
-	(1, 'allow_no_censored', '0'),
 	(1, 'additional_options_collapsable', '1'),
 	(1, 'use_image_buttons', '1'),
 	(1, 'enable_news', '1'),
@@ -2088,7 +2103,6 @@ CREATE TABLE {$db_prefix}user_drafts (
   locked tinyint(4) NOT NULL default '0',
   is_sticky tinyint(4) NOT NULL default '0',
   to_list varchar(255) NOT NULL default '',
-  outbox tinyint(4) NOT NULL default '0',
   PRIMARY KEY (id_draft),
   UNIQUE id_member (id_member, id_draft, type)
 ) ENGINE=MyISAM;

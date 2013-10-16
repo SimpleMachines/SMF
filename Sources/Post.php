@@ -493,7 +493,7 @@ function Post($post_errors = array())
 		// Previewing an edit?
 		if (isset($_REQUEST['msg']) && !empty($topic))
 		{
-			// Get the existing message.
+			// Get the existing message. Previewing.
 			$request = $smcFunc['db_query']('', '
 				SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
@@ -607,7 +607,7 @@ function Post($post_errors = array())
 	{
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
-		// Get the existing message.
+		// Get the existing message. Editing.
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.smileys_enabled, m.body,
@@ -766,7 +766,7 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace('~\[html\](.+?)\[/html\]~ise', '\'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br />\', \'$1\') . \'[/html]\'', $parts[$i]);
+						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br />\', "$m[1]") . \'[/html]\';'), $parts[$i]);
 				}
 				$form_message = implode('', $parts);
 			}
@@ -1034,7 +1034,7 @@ function Post($post_errors = array())
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
 	// Are post drafts enabled?
-	$context['drafts_save'] = !empty($modSettings['drafts_enabled']) && !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
+	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
 
 	// Build a list of drafts that they can load in to the editor
@@ -1208,7 +1208,7 @@ function Post2()
 	loadLanguage('Post');
 
 	// Drafts enabled and needed?
-	if (!empty($modSettings['drafts_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
+	if (!empty($modSettings['drafts_post_enabled']) && (isset($_POST['save_draft']) || isset($_POST['id_draft'])))
 		require_once($sourcedir . '/Drafts.php');
 
 	// First check to see if they are trying to delete any current attachments.
@@ -1331,7 +1331,7 @@ function Post2()
 			unset($_POST['sticky']);
 
 		// If drafts are enabled, then pass this off
-		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
 			SaveDraft($post_errors);
 			return Post();
@@ -1376,7 +1376,7 @@ function Post2()
 			unset($_POST['sticky']);
 
 		// Saving your new topic as a draft first?
-		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
 			SaveDraft($post_errors);
 			return Post();
@@ -1459,7 +1459,7 @@ function Post2()
 		}
 
 		// If drafts are enabled, then lets send this off to save
-		if (!empty($modSettings['drafts_enabled']) && isset($_POST['save_draft']))
+		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
 		{
 			SaveDraft($post_errors);
 			return Post();
@@ -1695,7 +1695,7 @@ function Post2()
 				'tmp_name' => $attachment['tmp_name'],
 				'size' => isset($attachment['size']) ? $attachment['size'] : 0,
 				'mime_type' => isset($attachment['type']) ? $attachment['type'] : '',
-				'id_folder' => $attachment['id_folder'],
+				'id_folder' => isset($attachment['id_folder']) ? $attachment['id_folder'] : $modSettings['currentAttachmentUploadDir'],
 				'approved' => !$modSettings['postmod_active'] || allowedTo('post_attachment'),
 				'errors' => $attachment['errors'],
 			);
@@ -1831,7 +1831,7 @@ function Post2()
 	}
 
 	// If we had a draft for this, its time to remove it since it was just posted
-	if (!empty($modSettings['drafts_enabled']) && !empty($_POST['id_draft']))
+	if (!empty($modSettings['drafts_post_enabled']) && !empty($_POST['id_draft']))
 		DeleteDraft($_POST['id_draft']);
 
 	// Editing or posting an event?

@@ -11,7 +11,7 @@
  */
 
 
-// This is the main sidebar for the personal messages section.
+// This is for stuff above the menu in the personal messages section.
 function template_pm_above()
 {
 	global $context, $settings, $options, $txt;
@@ -1108,9 +1108,6 @@ function template_send()
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<p>
-					<label for="outbox"><input type="checkbox" name="outbox" id="outbox" value="1" tabindex="', $context['tabindex']++, '"', $context['copy_to_outbox'] ? ' checked="checked"' : '', ' class="input_check" /> ', $txt['pm_save_outbox'], '</label>
-				</p>
 				<hr class="hrcolor" />
 				<span id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
@@ -1127,7 +1124,7 @@ function template_send()
 	</form>';
 
 	// If the admin enabled the pm drafts feature, show a draft selection box
-	if (!empty($modSettings['drafts_enabled']) && !empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
+	if (!empty($context['drafts_pm_save']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
 			<br />
@@ -1180,7 +1177,7 @@ function template_send()
 					var x = new Array();
 					var textFields = [\'subject\', ', JavaScriptEscape($context['post_box_name']), ', \'to\', \'bcc\'];
 					var numericFields = [\'recipient_to[]\', \'recipient_bcc[]\'];
-					var checkboxFields = [\'outbox\'];
+					var checkboxFields = [];
 
 					for (var i = 0, n = textFields.length; i < n; i++)
 						if (textFields[i] in document.forms.postmodify)

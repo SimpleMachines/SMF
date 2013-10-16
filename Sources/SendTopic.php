@@ -545,7 +545,7 @@ function ReportToModerator2()
 	$real_mods = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$real_mods[] = $row['id_member'];
-	$smcFunc['db_free_result']($request2);
+	$smcFunc['db_free_result']($request);
 
 	// Get any additional members who are in groups assigned to moderate this board
 	$request = $smcFunc['db_query']('', '

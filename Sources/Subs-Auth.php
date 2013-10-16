@@ -130,7 +130,7 @@ function url_parts($local, $global)
 
 	// Globalize cookies across domains (filter out IP-addresses)?
 	elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $parsed_url['host']) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $parsed_url['host'], $parts) == 1)
-			$parsed_url['host'] = '.' . $parts[1];
+		$parsed_url['host'] = '.' . $parts[1];
 
 	// We shouldn't use a host at all if both options are off.
 	elseif (!$local && !$global)
@@ -492,11 +492,12 @@ function RequestMembers()
 	$request = $smcFunc['db_query']('', '
 		SELECT real_name
 		FROM {db_prefix}members
-		WHERE real_name LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
+		WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 			AND id_member IN ({array_int:buddy_list})' : '') . '
 			AND is_activated IN (1, 11)
 		LIMIT ' . ($smcFunc['strlen']($_REQUEST['search']) <= 2 ? '100' : '800'),
 		array(
+			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'buddy_list' => $user_info['buddies'],
 			'search' => $_REQUEST['search'],
 		)

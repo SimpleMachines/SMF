@@ -575,13 +575,13 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_extra',
 			'is_dummy' => true,
 			'preload' => create_function('', '
-				global $context, $user_info;
+				global $context, $user_info, $modSettings;
 
 				loadLanguage(\'Settings\');
 
 				$context[\'allow_no_censored\'] = false;
 				if ($user_info[\'is_admin\'] || $context[\'user\'][\'is_owner\'])
-					$context[\'allow_no_censored\'] = $modSettings[\'allow_no_censored\'];
+					$context[\'allow_no_censored\'] = !empty($modSettings[\'allow_no_censored\']);
 
 				return true;
 			'),
