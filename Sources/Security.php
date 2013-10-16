@@ -683,6 +683,12 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 				$real_host = $parts[1];
 		}
 
+		// remove 'www' from all URL's
+		f (isset($parsed_url['host']))
+			$parsed_url['host'] = str_ireplace('www.', '', $parsed_url['host']);
+		$referrer['host'] = str_ireplace('www.', '', $referrer['host']);
+		$real_host = str_ireplace('www.', '', $real_host);
+
 		// Okay: referrer must either match parsed_url or real_host.
 		if (isset($parsed_url['host']) && strtolower($referrer['host']) != strtolower($parsed_url['host']) && strtolower($referrer['host']) != strtolower($real_host))
 		{
