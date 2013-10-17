@@ -448,7 +448,7 @@ $get_questions = upgrade_query("
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
 	{
-		$questions[] = "($language, $row['question'], serialize(array($row['answer'])))";
+		$questions[] = "($language, $row[question], serialize(array($row[answer])))";
 	}
 
 	$smcFunc['db_free_result']($get_questions);
