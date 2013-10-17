@@ -522,6 +522,5 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 			WHERE comment_type = 'ver_test'
 		");
 	}
-}
 ---}
 ---#
