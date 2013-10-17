@@ -532,6 +532,5 @@ CREATE TABLE {$db_prefix}qanda (
 			WHERE comment_type = 'ver_test'
 		");
 	}
-}
 ---}
 ---#

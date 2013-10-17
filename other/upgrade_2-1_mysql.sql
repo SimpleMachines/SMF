@@ -413,7 +413,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_board smallint(5) unsigned NOT NULL default '0',
   id_group smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM{$db_collation};
 ---#
 
 /******************************************************************************/
@@ -435,7 +435,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
   answers text NOT NULL,
   PRIMARY KEY (id_question),
   KEY lngfile (lngfile)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM{$db_collation};
 ---#
 
 ---# Moving questions and answers to the new table
@@ -467,6 +467,5 @@ $get_questions = upgrade_query("
 			WHERE comment_type = 'ver_test'
 		");
 	}
-}
 ---}
 ---#
