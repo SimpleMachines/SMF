@@ -510,7 +510,7 @@ CREATE TABLE {$db_prefix}qanda (
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
 	{
-		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
+		$questions[] = "($language, $row['question'], serialize(array($row['answer'])))";
 	}
 
 	$smcFunc['db_free_result']($get_questions);
