@@ -833,7 +833,6 @@ h4.titlebg, h3.titlebg {
 	border-bottom: 1px solid #777;
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
 h4.titlebg img.icon {
 	float: left;
@@ -869,7 +868,6 @@ div.cat_bar {
 div.title_bar {
 	background: #557ea0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
 
 /* Info center title bars are a bit different. */ /* @todo */
