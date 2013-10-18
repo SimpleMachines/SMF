@@ -511,8 +511,8 @@ function template_editBuddies()
 
 	echo '
 	<div class="generic_list_wrapper" id="edit_buddies">
-		<div class="title_bar">
-			<h3 class="titlebg">
+		<div class="cat_bar">
+			<h3 class="catbg">
 				<img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '
 			</h3>
 		</div>
@@ -578,8 +578,8 @@ function template_editBuddies()
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder add_buddy">
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['buddy_add'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['buddy_add'], '</h3>
 			</div>
 			<div class="roundframe">
 				<dl class="settings">
@@ -623,8 +623,8 @@ function template_editIgnoreList()
 
 	echo '
 	<div class="generic_list_wrapper" id="edit_buddies">
-		<div class="title_bar">
-			<h3 class="titlebg">
+		<div class="cat_bar">
+			<h3 class="catbg">
 				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['editIgnoreList'], '
 			</h3>
 		</div>
@@ -680,8 +680,8 @@ function template_editIgnoreList()
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder add_buddy">
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['ignore_add'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['ignore_add'], '</h3>
 			</div>
 			<div class="roundframe">
 				<dl class="settings">
@@ -726,8 +726,8 @@ function template_trackActivity()
 	// The first table shows IP information about the user.
 	echo '
 		<div class="generic_list_wrapper">
-			<div class="title_bar">
-				<h3 class="titlebg"><strong>', $txt['view_ips_by'], ' ', $context['member']['name'], '</strong></h3>
+			<div class="cat_bar">
+				<h3 class="catbg"><strong>', $txt['view_ips_by'], ' ', $context['member']['name'], '</strong></h3>
 			</div>';
 
 	// The last IP the user used.
@@ -810,8 +810,8 @@ function template_trackIP()
 	if ($context['single_ip'])
 	{
 		echo '
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 			</div>
 			<div class="windowbg2">
 				<div class="padding">';
@@ -825,8 +825,8 @@ function template_trackIP()
 
 	// The second table lists all the members who have been logged as using this IP address.
 	echo '
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['members_from_ip'], ' ', $context['ip'], '</h3>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['members_from_ip'], ' ', $context['ip'], '</h3>
 		</div>';
 	if (empty($context['ips']))
 		echo '
@@ -2426,8 +2426,8 @@ function template_deleteAccount()
 	// The main containing header.
 	echo '
 		<form action="', $scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['deleteAccount'], '
 				</h3>
 			</div>';
