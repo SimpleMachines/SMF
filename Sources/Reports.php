@@ -192,7 +192,7 @@ function BoardReport()
 		'override_theme' => $txt['board_override_theme'],
 		'profile' => $txt['board_profile'],
 		'moderators' => $txt['board_moderators'],
-		'moderator_groups' => $txt['board_moderator_groups'],
+		'moderator_groups' => $txt['board_moderator'],
 		'groups' => $txt['board_groups'],
 	);
 	if (!empty($modSettings['deny_boards_access']))
