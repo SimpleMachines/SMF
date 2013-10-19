@@ -482,6 +482,10 @@ fieldset.admin_group a {
 	text-align: center;
 	vertical-align: top;
 }
+fieldset.admin_group .inactive {
+	opacity: 0.4;
+	filter:Alpha(opacity=40);
+}
 
 /* The update warning. */
 #update_section {
