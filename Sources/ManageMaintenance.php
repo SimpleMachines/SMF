@@ -2415,7 +2415,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 	foreach ($hooks as $hook => $functions)
 	{
-		$hooks_filters[] = '<option ' . ($context['current_filter'] == $hook ? 'selected="selected" ' : '') . 'onclick="window.location = \'' . $scripturl . '?action=admin;area=maintain;sa=hooks;filter=' . $hook . '\';">' . $hook . '</option>';
+		$hooks_filters[] = '<option ' . ($context['current_filter'] == $hook ? 'selected="selected" ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 		foreach ($functions as $function)
 		{
 			$enabled = strstr($function, ']') === false;
@@ -2442,7 +2442,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 		$context['insert_after_template'] .= '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;"><option>---</option><option onclick="window.location = \'' . $scripturl . '?action=admin;area=maintain;sa=hooks\';">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
+			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
 		// ]]></script>';
 
 	$temp_data = array();
