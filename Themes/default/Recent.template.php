@@ -139,29 +139,35 @@ function template_unread()
 
 		foreach ($context['topics'] as $topic)
 		{
-			// Calculate the color class of the topic.
-			$color_class = '';
-			if (strpos($topic['class'], 'sticky') !== false)
+			// We start with locked and sticky topics.
+			if ($topic['is_sticky'] && $topic['is_locked'])
+				$color_class = 'stickybg locked_sticky';
+			// Sticky topics should get a different color, too.
+			elseif ($topic['is_sticky'])
 				$color_class = 'stickybg';
-			if (strpos($topic['class'], 'locked') !== false)
-				$color_class .= 'lockedbg';
+			// Locked topics get special treatment as well.
+			elseif ($topic['is_locked'])
+				$color_class = 'lockedbg';
+			// Last, but not least: regular topics.
+			else
+				$color_class = 'windowbg';
 
-			$color_class2 = !empty($color_class) ? $color_class . '2' : '';
+			$color_class2 = !empty($color_class) ? $color_class . '2' : 'windowbg2';
 
 			// [WIP] There is trial code here to hide the topic icon column. Hardly anyone will miss it.
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 						<tr>
-							<td class="', $color_class, ' icon1 windowbg" style="display: none;">
+							<td class="', $color_class, ' icon1" style="display: none;">
 								<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
 							</td>
-							<td class="', $color_class, ' icon2 windowbg">
+							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
 									<img src="', $topic['first_post']['icon_url'], '" alt="" />
 									', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
 								</div>
 							</td>
-							<td class="subject ', $color_class2, ' windowbg2">
+							<td class="subject ', $color_class2, '">
 								<div>';
 
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
@@ -174,12 +180,12 @@ function template_unread()
 									</p>
 								</div>
 							</td>
-							<td class="', $color_class, ' stats windowbg">
+							<td class="', $color_class, ' stats">
 								', $topic['replies'], ' ', $txt['replies'], '
 								<br />
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
-							<td class="', $color_class2, ' lastpost windowbg2">
+							<td class="', $color_class2, ' lastpost">
 								<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" class="floatright" /></a>
 								', $topic['last_post']['time'], '<br />
 								', $txt['by'], ' ', $topic['last_post']['member']['link'], '
@@ -187,7 +193,7 @@ function template_unread()
 
 			if ($context['showCheckboxes'])
 				echo '
-							<td class="' . (!empty($color_class) ? $color_class : 'windowbg2') . ' moderation" valign="middle" align="center">
+							<td class="', $color_class2, ' moderation" valign="middle" align="center">
 								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
 							</td>';
 			echo '
@@ -302,12 +308,18 @@ function template_replies()
 
 		foreach ($context['topics'] as $topic)
 		{
-			// Calculate the color class of the topic.
-			$color_class = '';
-			if (strpos($topic['class'], 'sticky') !== false)
+			// We start with locked and sticky topics.
+			if ($topic['is_sticky'] && $topic['is_locked'])
+				$color_class = 'stickybg locked_sticky';
+			// Sticky topics should get a different color, too.
+			elseif ($topic['is_sticky'])
 				$color_class = 'stickybg';
-			if (strpos($topic['class'], 'locked') !== false)
-				$color_class .= 'lockedbg';
+			// Locked topics get special treatment as well.
+			elseif ($topic['is_locked'])
+				$color_class = 'lockedbg';
+			// Last, but not least: regular topics.
+			else
+				$color_class = 'windowbg';
 
 			$color_class2 = !empty($color_class) ? $color_class . '2' : '';
 
@@ -315,16 +327,16 @@ function template_replies()
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 						<tr>
-							<td class="', $color_class, ' icon1 windowbg" style="display: none;">
+							<td class="', $color_class, ' icon1" style="display: none;">
 								<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
 							</td>
-							<td class="', $color_class, ' icon2 windowbg">
+							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
 									<img src="', $topic['first_post']['icon_url'], '" alt="" />
 									', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
 								</div>
 							</td>
-							<td class="subject ', $color_class2, ' windowbg2">
+							<td class="subject ', $color_class2, '">
 								<div>';
 
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
@@ -337,12 +349,12 @@ function template_replies()
 									</p>
 								</div>
 							</td>
-							<td class="', $color_class, ' stats windowbg">
+							<td class="', $color_class, ' stats">
 								', $topic['replies'], ' ', $txt['replies'], '
 								<br />
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
-							<td class="', $color_class2, ' lastpost windowbg2">
+							<td class="', $color_class2, ' lastpost">
 								<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" class="floatright" /></a>
 								', $topic['last_post']['time'], '<br />
 								', $txt['by'], ' ', $topic['last_post']['member']['link'], '
@@ -350,7 +362,7 @@ function template_replies()
 
 			if ($context['showCheckboxes'])
 				echo '
-							<td class="' . (!empty($color_class) ? $color_class : 'windowbg2') . ' moderation" valign="middle" align="center">
+							<td class="', $color_class2, ' moderation" valign="middle" align="center">
 								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
 							</td>';
 			echo '

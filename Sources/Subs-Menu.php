@@ -147,6 +147,9 @@ function createMenu($menuData, $menuOptions = array())
 								$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['default_images_url'] . '/admin/big/default.png';
 						}
 
+						// Some areas may be listed but not active, which we show as greyed out.
+						$menu_context['sections'][$section_id]['areas'][$area_id]['inactive'] = !empty($area['inactive']);
+
 						// Did it have subsections?
 						if (!empty($area['subsections']))
 						{
