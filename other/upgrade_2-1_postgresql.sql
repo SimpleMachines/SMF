@@ -484,3 +484,53 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
 DELETE FROM {$db_prefix}settings
 WHERE variable LIKE 'integrate_%';
 ---#
+
+/******************************************************************************/
+--- Upgrading "verification questions" feature
+/******************************************************************************/
+---# Creating qanda table
+CREATE TABLE {$db_prefix}qanda (
+  id_question smallint(5) unsigned NOT NULL auto_increment,
+  lngfile varchar(255) NOT NULL default '',
+  question varchar(255) NOT NULL default '',
+  answers text NOT NULL,
+  PRIMARY KEY (id_question),
+  KEY lngfile (lngfile)
+);
+---#
+
+---# Moving questions and answers to the new table
+---{
+	$questions = array();
+
+	$get_questions = upgrade_query("
+		SELECT body AS question, recipient_name AS answer
+		FROM {$db_prefix}log_comments
+		WHERE comment_type = 'ver_test'");
+
+	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	{
+		$questions[] = "($language, $row[question], serialize(array($row[answer])))";
+	}
+
+	$smcFunc['db_free_result']($get_questions);
+
+	if (!empty($questions))
+	{
+		foreach ($questions as $question)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}qanda
+					(lngfile, question, answers)
+				VALUES
+					" . $question);
+		}
+
+		// Delete the questions from log_comments now
+		upgrade_query("
+			DELETE FROM {$db_prefix}log_comments
+			WHERE comment_type = 'ver_test'
+		");
+	}
+---}
+---#

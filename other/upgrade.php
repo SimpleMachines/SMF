@@ -1126,6 +1126,9 @@ function checkLogin()
 				// Figure out the password using SMF's encryption - if what they typed is right.
 				if (isset($_REQUEST['hash_passwrd']) && strlen($_REQUEST['hash_passwrd']) == 40)
 				{
+					// This is needed for validateToken, but isn't always included for some reason...
+					include_once($sourcedir . '/Security.php');
+
 					// Challenge passed.
 					$tk = validateToken('login');
 					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid'] . $tk))

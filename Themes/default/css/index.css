@@ -2151,6 +2151,10 @@ div#pollmoderation {
 .poster .dropmenu  li ul li.poster_ip a {
 	display: table-cell;
 }
+.poster .profile .profile_icons li {
+	display: table-cell;
+	padding-left: 5px;
+}
 
 /* The visible stuff below the avatar. */
 .poster>ul>li.icons, .poster li.membergroup, .poster li.title, .poster li.poster_online, .poster li.warning,

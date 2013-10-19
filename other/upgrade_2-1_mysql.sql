@@ -413,7 +413,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
   id_board smallint(5) unsigned NOT NULL default '0',
   id_group smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM{$db_collation};
 ---#
 
 /******************************************************************************/
@@ -422,4 +422,50 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
 ---# Deleting integration hooks
 DELETE FROM {$db_prefix}settings
 WHERE variable LIKE 'integrate_%';
+---#
+
+/******************************************************************************/
+--- Upgrading "verification questions" feature
+/******************************************************************************/
+---# Creating qanda table
+CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
+  id_question smallint(5) unsigned NOT NULL auto_increment,
+  lngfile varchar(255) NOT NULL default '',
+  question varchar(255) NOT NULL default '',
+  answers text NOT NULL,
+  PRIMARY KEY (id_question),
+  KEY lngfile (lngfile)
+) ENGINE=MyISAM{$db_collation};
+---#
+
+---# Moving questions and answers to the new table
+---{
+$questions = array();
+$get_questions = upgrade_query("
+	SELECT body AS question, recipient_name AS answer
+	FROM {$db_prefix}log_comments
+	WHERE comment_type = 'ver_test'");
+
+	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	{
+		$questions[] = "($language, $row[question], serialize(array($row[answer])))";
+	}
+
+	$smcFunc['db_free_result']($get_questions);
+
+	if (!empty($questions))
+	{
+		upgrade_query("
+			INSERT INTO {$db_prefix}qanda
+				(lngfile, question, answers)
+			VALUES
+				" . implode(',', $questions));
+
+		// Delete the questions from log_comments now
+		upgrade_query("
+			DELETE FROM {$db_prefix}log_comments
+			WHERE comment_type = 'ver_test'
+		");
+	}
+---}
 ---#
