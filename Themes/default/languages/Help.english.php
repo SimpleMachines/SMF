@@ -172,6 +172,8 @@ $helptxt['modlog'] = '<strong>Moderation Log</strong><br />
 $helptxt['adminlog'] = '<strong>Administration Log</strong><br />
 	This section allows members of the admin team to track some of the administrative actions that have occurred on the forum. To ensure that
 	admins cannot remove references to the actions they have performed, entries may not be deleted until 24 hours after the action was taken.';
+$helptxt['userlog'] = '<strong>Profile Edits Log</strong><br />
+	This section allows members of the admin team to view changes users make to their profiles, and is available from inside a user\'s profile area.';
 $helptxt['warning_enable'] = '<strong>User Warning System</strong><br />
 	This feature enables members of the admin and moderation team to issue warnings to members - and to use a members warning level to determine the
 	actions available to them on the forum. Upon enabling this feature a permission will be available within the permissions section to define
@@ -457,8 +459,6 @@ $helptxt['pm_posts_verification'] = 'This setting will force users to enter a co
 $helptxt['pm_posts_per_hour'] = 'This will limit the number of personal messages which may be sent by a user in a one hour period. This does not affect admins or moderators.';
 
 $helptxt['default_personal_text'] = 'Sets the default text a new user will have as their &quot;personal text.&quot; This option is not available when personal text is disabled, or when users can set personal text on registration for themselves.';
-
-$helptxt['modlog_enabled'] = 'Logs all moderation actions.';
 
 $helptxt['guest_hideContacts'] = 'If selected this option will hide the email addresses and messenger contact details
 	of all members from any guests on your forum';

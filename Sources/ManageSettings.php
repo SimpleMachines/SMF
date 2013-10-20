@@ -2023,6 +2023,12 @@ function ModifyLogSettings($return_config = false)
 	$context['page_title'] = $txt['log_settings'];
 
 	$config_vars = array(
+			array('check', 'modlog_enabled', 'help' => 'modlog'),
+			array('check', 'adminlog_enabled', 'help' => 'adminlog'),
+			array('check', 'userlog_enabled', 'help' => 'userlog'),
+			// The error log is a wonderful thing.
+			array('title', 'errlog'),
+			array('desc', 'error_log_desc'),
 			array('check', 'enableErrorLogging'),
 			array('check', 'enableErrorQueryLogging'),
 			array('check', 'log_ban_hits'),
@@ -2046,7 +2052,7 @@ function ModifyLogSettings($return_config = false)
 	// We want to be toggling some of these for a nice user experience. If you want to add yours to the list of those magically hidden when the 'pruning' option is off, add to this.
 	$prune_toggle = array('pruneErrorLog', 'pruneModLog', 'pruneBanLog', 'pruneReportLog', 'pruneScheduledTaskLog', 'pruneSpiderHitLog');
 
-	call_integration_hook('integrate_prune_settings', array(&$config_vars, &$prune_toggle));
+	call_integration_hook('integrate_prune_settings', array(&$config_vars, &$prune_toggle, false));
 
 	$prune_toggle_dt = array();
 	foreach ($prune_toggle as $item)
@@ -2073,9 +2079,18 @@ function ModifyLogSettings($return_config = false)
 	{
 		checkSession();
 
+		// Because of the excitement attached to combining pruning log items, we need to duplicate everything here.
 		$savevar = array(
+			array('check', 'modlog_enabled'),
+			array('check', 'adminlog_enabled'),
+			array('check', 'userlog_enabled'),
+			array('check', 'enableErrorLogging'),
+			array('check', 'enableErrorQueryLogging'),
+			array('check', 'log_ban_hits'),
 			array('text', 'pruningOptions')
 		);
+
+		call_integration_hook('integrate_prune_settings', array(&$savevar, &$prune_toggle, true));
 
 		if (!empty($_POST['pruningOptions']))
 		{

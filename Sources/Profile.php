@@ -143,7 +143,7 @@ function ModifyProfile($post_errors = array())
 					'subsections' => array(
 						'activity' => array($txt['trackActivity'], 'moderate_forum'),
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
-						'edits' => array($txt['trackEdits'], 'moderate_forum'),
+						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
 						'logins' => array($txt['trackLogins'], array('profile_view_own', 'moderate_forum')),
 					),
 					'permission' => array(
