@@ -32,18 +32,23 @@ function ManagePaidSubscriptions()
 	loadLanguage('ManagePaid');
 	loadTemplate('ManagePaid');
 
-	$subActions = array(
-		'modify' => array('ModifySubscription', 'admin_forum'),
-		'modifyuser' => array('ModifyUserSubscription', 'admin_forum'),
-		'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
-		'view' => array('ViewSubscriptions', 'admin_forum'),
-		'viewsub' => array('ViewSubscribedUsers', 'admin_forum'),
-	);
+	if (!empty($modSettings['paid_enabled']))
+		$subActions = array(
+			'modify' => array('ModifySubscription', 'admin_forum'),
+			'modifyuser' => array('ModifyUserSubscription', 'admin_forum'),
+			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
+			'view' => array('ViewSubscriptions', 'admin_forum'),
+			'viewsub' => array('ViewSubscribedUsers', 'admin_forum'),
+		);
+	else
+		$subActions = array(
+			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
+		);
 
 	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
 
 	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
-	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) ? 'view' : 'settings');
+	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) && !empty($modSettings['paid_enabled']) ? 'view' : 'settings');
 
 	// Make sure you can do this.
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
@@ -55,15 +60,16 @@ function ManagePaidSubscriptions()
 		'title' => $txt['paid_subscriptions'],
 		'help' => '',
 		'description' => $txt['paid_subscriptions_desc'],
-		'tabs' => array(
+	);
+	if (!empty($modSettings['paid_enabled']))
+		$context[$context['admin_menu_name']]['tab_data']['tabs'] = array(
 			'view' => array(
 				'description' => $txt['paid_subs_view_desc'],
 			),
 			'settings' => array(
 				'description' => $txt['paid_subs_settings_desc'],
 			),
-		),
-	);
+		);
 
 	// Call the right function for this sub-action.
 	$subActions[$_REQUEST['sa']][0]();
@@ -81,54 +87,45 @@ function ModifySubscriptionSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $sourcedir, $smcFunc, $scripturl;
 
-	// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
-	$modSettings['paid_currency'] = !empty($modSettings['paid_currency_code']) ? $modSettings['paid_currency_code'] : '';
-	if (!empty($modSettings['paid_currency_code']) && !in_array($modSettings['paid_currency_code'], array('usd', 'eur', 'gbp')))
-		$modSettings['paid_currency'] = 'other';
-
-	// These are all the default settings.
-	$config_vars = array(
-			array('select', 'paid_email', array(0 => $txt['paid_email_no'], 1 => $txt['paid_email_error'], 2 => $txt['paid_email_all']), 'subtext' => $txt['paid_email_desc']),
-			array('text', 'paid_email_to', 'subtext' => $txt['paid_email_to_desc'], 'size' => 60),
-		'',
-			'dummy_currency' => array('select', 'paid_currency', array('usd' => $txt['usd'], 'eur' => $txt['eur'], 'gbp' => $txt['gbp'], 'other' => $txt['other']), 'javascript' => 'onchange="toggleOther();"'),
-			array('text', 'paid_currency_code', 'subtext' => $txt['paid_currency_code_desc'], 'size' => 5, 'force_div_id' => 'custom_currency_code_div'),
-			array('text', 'paid_currency_symbol', 'subtext' => $txt['paid_currency_symbol_desc'], 'size' => 8, 'force_div_id' => 'custom_currency_symbol_div'),
-			array('check', 'paidsubs_test', 'subtext' => $txt['paidsubs_test_desc'], 'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . $txt['paidsubs_test_confirm'] . '\') : true;'),
-	);
-
-	// Now load all the other gateway settings.
-	$gateways = loadPaymentGateways();
-	foreach ($gateways as $gateway)
+	if (!empty($modSettings['paid_enabled']))
 	{
-		$gatewayClass = new $gateway['display_class']();
-		$setting_data = $gatewayClass->getGatewaySettings();
-		if (!empty($setting_data))
+		// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
+		$modSettings['paid_currency'] = !empty($modSettings['paid_currency_code']) ? $modSettings['paid_currency_code'] : '';
+		if (!empty($modSettings['paid_currency_code']) && !in_array($modSettings['paid_currency_code'], array('usd', 'eur', 'gbp')))
+			$modSettings['paid_currency'] = 'other';
+
+		// These are all the default settings.
+		$config_vars = array(
+				array('check', 'paid_enabled'),
+			'',
+				array('select', 'paid_email', array(0 => $txt['paid_email_no'], 1 => $txt['paid_email_error'], 2 => $txt['paid_email_all']), 'subtext' => $txt['paid_email_desc']),
+				array('text', 'paid_email_to', 'subtext' => $txt['paid_email_to_desc'], 'size' => 60),
+			'',
+				'dummy_currency' => array('select', 'paid_currency', array('usd' => $txt['usd'], 'eur' => $txt['eur'], 'gbp' => $txt['gbp'], 'other' => $txt['other']), 'javascript' => 'onchange="toggleOther();"'),
+				array('text', 'paid_currency_code', 'subtext' => $txt['paid_currency_code_desc'], 'size' => 5, 'force_div_id' => 'custom_currency_code_div'),
+				array('text', 'paid_currency_symbol', 'subtext' => $txt['paid_currency_symbol_desc'], 'size' => 8, 'force_div_id' => 'custom_currency_symbol_div'),
+				array('check', 'paidsubs_test', 'subtext' => $txt['paidsubs_test_desc'], 'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . $txt['paidsubs_test_confirm'] . '\') : true;'),
+		);
+
+		// Now load all the other gateway settings.
+		$gateways = loadPaymentGateways();
+		foreach ($gateways as $gateway)
 		{
-			$config_vars[] = array('title', $gatewayClass->title, 'text_label' => (isset($txt['paidsubs_gateway_title_' . $gatewayClass->title]) ? $txt['paidsubs_gateway_title_' . $gatewayClass->title] : $gatewayClass->title));
-			$config_vars = array_merge($config_vars, $setting_data);
+			$gatewayClass = new $gateway['display_class']();
+			$setting_data = $gatewayClass->getGatewaySettings();
+			if (!empty($setting_data))
+			{
+				$config_vars[] = array('title', $gatewayClass->title, 'text_label' => (isset($txt['paidsubs_gateway_title_' . $gatewayClass->title]) ? $txt['paidsubs_gateway_title_' . $gatewayClass->title] : $gatewayClass->title));
+				$config_vars = array_merge($config_vars, $setting_data);
+			}
 		}
-	}
 
-	// Just searching?
-	if ($return_config)
-		return $config_vars;
+		$context['settings_message'] = $txt['paid_note'];
+		$context[$context['admin_menu_name']]['current_subsection'] = 'settings';
+		$context['settings_title'] = $txt['settings'];
 
-	// Get the settings template fired up.
-	require_once($sourcedir . '/ManageServer.php');
-
-	// Some important context stuff
-	$context['page_title'] = $txt['settings'];
-	$context['sub_template'] = 'show_settings';
-	$context['settings_message'] = $txt['paid_note'];
-	$context[$context['admin_menu_name']]['current_subsection'] = 'settings';
-
-	// Get the final touches in place.
-	$context['post_url'] = $scripturl . '?action=admin;area=paidsubscribe;save;sa=settings';
-	$context['settings_title'] = $txt['settings'];
-
-	// We want javascript for our currency options.
-	$context['settings_insert_below'] = '
+		// We want javascript for our currency options.
+		$context['settings_insert_below'] = '
 		<script type="text/javascript"><!-- // --><![CDATA[
 			function toggleOther()
 			{
@@ -160,11 +157,53 @@ function ModifySubscriptionSettings($return_config = false)
 			}
 			toggleOther();
 		// ]]></script>';
+	}
+	else
+	{
+		$config_vars = array(
+			array('check', 'paid_enabled'),
+		);
+		$context['settings_title'] = $txt['paid_subscriptions'];
+	}
+
+	// Just searching?
+	if ($return_config)
+		return $config_vars;
+
+	// Get the settings template fired up.
+	require_once($sourcedir . '/ManageServer.php');
+
+	// Some important context stuff
+	$context['page_title'] = $txt['settings'];
+	$context['sub_template'] = 'show_settings';
+
+	// Get the final touches in place.
+	$context['post_url'] = $scripturl . '?action=admin;area=paidsubscribe;save;sa=settings';
 
 	// Saving the settings?
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		$old = !empty($modSettings['paid_enabled']);
+		$new = !empty($_POST['paid_enabled']);
+		if ($old != $new)
+		{
+			// So we're changing this fundamental status. Great.
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}scheduled_tasks
+				SET disabled = {int:disabled}
+				WHERE task = {string:task}',
+				array(
+					'disabled' => $new ? 0 : 1,
+					'task' => 'paid_subscriptions',
+				)
+			);
+
+			// This may well affect the next trigger, whether we're enabling or not.
+			require_once($sourcedir . '/ScheduledTasks.php');
+			CalculateNextTrigger('paid_subscriptions');
+		}
 
 		// Check the email addresses were actually email addresses.
 		if (!empty($_POST['paid_email_to']))
@@ -179,13 +218,17 @@ function ModifySubscriptionSettings($return_config = false)
 			}
 		}
 
-		// Sort out the currency stuff.
-		if ($_POST['paid_currency'] != 'other')
+		// Can only handle this stuff if it's already enabled...
+		if (!empty($modSettings['paid_enabled']))
 		{
-			$_POST['paid_currency_code'] = $_POST['paid_currency'];
-			$_POST['paid_currency_symbol'] = $txt[$_POST['paid_currency'] . '_symbol'];
+			// Sort out the currency stuff.
+			if ($_POST['paid_currency'] != 'other')
+			{
+				$_POST['paid_currency_code'] = $_POST['paid_currency'];
+				$_POST['paid_currency_symbol'] = $txt[$_POST['paid_currency'] . '_symbol'];
+			}
+			unset($config_vars['dummy_currency']);
 		}
-		unset($config_vars['dummy_currency']);
 
 		saveDBSettings($config_vars);
 

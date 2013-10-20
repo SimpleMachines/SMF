@@ -1912,8 +1912,6 @@ if (!isset($modSettings['admin_features']))
 	// Work out what they used to have enabled.
 	if (!empty($modSettings['karmaMode']))
 		$enabled_features[] = 'k';
-	if (!empty($modSettings['paid_enabled']))
-		$enabled_features[] = 'ps';
 
 	$enabled_features = implode(',', $enabled_features);
 
