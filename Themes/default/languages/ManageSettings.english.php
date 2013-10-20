@@ -296,8 +296,6 @@ $txt['standard_profile_field'] = 'Field';
 
 $txt['core_settings_welcome_msg'] = 'Welcome to Your New Forum';
 $txt['core_settings_welcome_msg_desc'] = 'To get you started we suggest you select which of SMF\'s core features you want to enable. We\'d recommend only enabling with those features you need!';
-$txt['core_settings_item_cd'] = 'Calendar';
-$txt['core_settings_item_cd_desc'] = 'Enabling this feature will open up a selection of options to enable your users to view the calendar, add and review events, see users birthdates on a calendar and much, much more.';
 $txt['core_settings_item_k'] = 'Karma';
 $txt['core_settings_item_k_desc'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can \'applaud\' or \'smite\' other members, which is how their popularity is calculated.';
 $txt['core_settings_item_ml'] = 'Moderation, Administration and User Logs';
@@ -306,8 +304,6 @@ $txt['core_settings_item_pm'] = 'Post Moderation';
 $txt['core_settings_item_pm_desc'] = 'Post moderation enables you to select groups and boards within which posts must be approved before they become public. Upon enabling this feature be sure to visit the permission section to set up the relevant permissions.';
 $txt['core_settings_item_ps'] = 'Paid Subscriptions';
 $txt['core_settings_item_ps_desc'] = 'Paid subscriptions allow users to pay for subscriptions to change membergroups within the forum and thus change their access rights.';
-$txt['core_settings_item_sp'] = 'Search Engine Tracking';
-$txt['core_settings_item_sp_desc'] = 'Enabling this feature will allow administrators to track search engines as they index your forum.';
 $txt['core_settings_item_w'] = 'Warning System';
 $txt['core_settings_item_w_desc'] = 'This system allows administrators and moderators to issue warnings to users, and can automatically remove user rights as their warning level increases. To take full advantage of this system, &quot;Post Moderation&quot; should be enabled.';
 $txt['core_settings_switch_on'] = 'Click to Enable';
