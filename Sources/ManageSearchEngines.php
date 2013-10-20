@@ -21,25 +21,36 @@ if (!defined('SMF'))
  */
 function SearchEngines()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
 	isAllowedTo('admin_forum');
 
 	loadLanguage('Search');
 	loadTemplate('ManageSearch');
 
-	$subActions = array(
-		'editspiders' => 'EditSpider',
-		'logs' => 'SpiderLogs',
-		'settings' => 'ManageSearchEngineSettings',
-		'spiders' => 'ViewSpiders',
-		'stats' => 'SpiderStats',
-	);
+	if (!empty($modSettings['spider_mode']))
+	{
+		$subActions = array(
+			'editspiders' => 'EditSpider',
+			'logs' => 'SpiderLogs',
+			'settings' => 'ManageSearchEngineSettings',
+			'spiders' => 'ViewSpiders',
+			'stats' => 'SpiderStats',
+		);
+		$default = 'stats';
+	}
+	else
+	{
+		$subActions = array(
+			'settings' => 'ManageSearchEngineSettings',
+		);
+		$default = 'settings';
+	}
 
 	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
 
 	// Ensure we have a valid subaction.
-	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'stats';
+	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
 	$context['page_title'] = $txt['search_engines'];
 

@@ -1797,7 +1797,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$modSettings['memberCount'] = $modSettings['totalMembers'];
 
 	// This allows us to change the way things look for the admin.
-	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('cd,k,w,ml,pm');
+	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('k,w,pm');
 
 	// Default JS variables for use in every theme
 	$context['javascript_vars'] = array(

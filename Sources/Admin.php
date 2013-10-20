@@ -219,9 +219,9 @@ function AdminMain()
 					'function' => 'ManageCalendar',
 					'icon' => 'calendar.png',
 					'permission' => array('admin_forum'),
-					'enabled' => in_array('cd', $context['admin_features']),
-					'subsections' => array(
-						'holidays' => array($txt['manage_holidays'], 'admin_forum', 'enabled' => !empty($modSettings['cal_enabled'])),
+					'inactive' => empty($modSettings['cal_enabled']),
+					'subsections' => empty($modSettings['cal_enabled']) ? array() : array(
+						'holidays' => array($txt['manage_holidays'], 'admin_forum'),
 						'settings' => array($txt['calendar_settings'], 'admin_forum'),
 					),
 				),
@@ -268,12 +268,12 @@ function AdminMain()
 				),
 				'sengines' => array(
 					'label' => $txt['search_engines'],
-					'enabled' => in_array('sp', $context['admin_features']),
+					'inactive' => empty($modSettings['spider_mode']),
 					'file' => 'ManageSearchEngines.php',
 					'icon' => 'engines.png',
 					'function' => 'SearchEngines',
 					'permission' => 'admin_forum',
-					'subsections' => array(
+					'subsections' => empty($modSettings['spider_mode']) ? array() : array(
 						'stats' => array($txt['spider_stats']),
 						'logs' => array($txt['spider_logs']),
 						'spiders' => array($txt['spiders']),
@@ -351,7 +351,7 @@ function AdminMain()
 				),
 				'paidsubscribe' => array(
 					'label' => $txt['paid_subscriptions'],
-					'enabled' => in_array('ps', $context['admin_features']),
+					'inactive' => !in_array('ps', $context['admin_features']),
 					'file' => 'ManagePaid.php',
 					'icon' => 'paid.png',
 					'function' => 'ManagePaidSubscriptions',
@@ -430,7 +430,7 @@ function AdminMain()
 						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => in_array('ml', $context['admin_features'])),
 						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => in_array('ml', $context['admin_features'])),
 						'banlog' => array($txt['ban_log'], 'manage_bans'),
-						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => in_array('sp', $context['admin_features'])),
+						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => !empty($modSettings['spider_mode'])),
 						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
 						'settings' => array($txt['log_settings'], 'admin_forum'),
 					),

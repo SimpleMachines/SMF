@@ -1910,13 +1910,8 @@ ADD INDEX id_poll (id_poll, id_member, id_choice);
 if (!isset($modSettings['admin_features']))
 {
 	// Work out what they used to have enabled.
-	$enabled_features = array('rg');
-	if (!empty($modSettings['cal_enabled']))
-		$enabled_features[] = 'cd';
 	if (!empty($modSettings['karmaMode']))
 		$enabled_features[] = 'k';
-	if (!empty($modSettings['modlog_enabled']))
-		$enabled_features[] = 'ml';
 	if (!empty($modSettings['paid_enabled']))
 		$enabled_features[] = 'ps';
 
