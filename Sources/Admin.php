@@ -427,8 +427,8 @@ function AdminMain()
 					'icon' => 'logs.png',
 					'subsections' => array(
 						'errorlog' => array($txt['errlog'], 'admin_forum', 'enabled' => !empty($modSettings['enableErrorLogging']), 'url' => $scripturl . '?action=admin;area=logs;sa=errorlog;desc'),
-						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => in_array('ml', $context['admin_features'])),
-						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => in_array('ml', $context['admin_features'])),
+						'adminlog' => array($txt['admin_log'], 'admin_forum', 'enabled' => !empty($modSettings['adminlog_enabled'])),
+						'modlog' => array($txt['moderation_log'], 'admin_forum', 'enabled' => !empty($modSettings['modlog_enabled'])),
 						'banlog' => array($txt['ban_log'], 'manage_bans'),
 						'spiderlog' => array($txt['spider_logs'], 'admin_forum', 'enabled' => !empty($modSettings['spider_mode'])),
 						'tasklog' => array($txt['scheduled_log'], 'admin_forum'),
@@ -889,13 +889,13 @@ function AdminSearchOM()
  */
 function AdminLogs()
 {
-	global $sourcedir, $context, $txt, $scripturl;
+	global $sourcedir, $context, $txt, $scripturl, $modSettings;
 
 	// These are the logs they can load.
 	$log_functions = array(
 		'errorlog' => array('ManageErrors.php', 'ViewErrorLog'),
-		'adminlog' => array('Modlog.php', 'ViewModlog'),
-		'modlog' => array('Modlog.php', 'ViewModlog', 'disabled' => !in_array('ml', $context['admin_features'])),
+		'adminlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty($modSettings['adminlog_enabled'])),
+		'modlog' => array('Modlog.php', 'ViewModlog', 'disabled' => empty($modSettings['modlog_enabled'])),
 		'banlog' => array('ManageBans.php', 'BanLog'),
 		'spiderlog' => array('ManageSearchEngines.php', 'SpiderLogs'),
 		'tasklog' => array('ManageScheduledTasks.php', 'TaskLog'),
