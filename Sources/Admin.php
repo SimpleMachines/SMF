@@ -351,12 +351,12 @@ function AdminMain()
 				),
 				'paidsubscribe' => array(
 					'label' => $txt['paid_subscriptions'],
-					'inactive' => !in_array('ps', $context['admin_features']),
+					'inactive' => empty($modSettings['paid_enabled']),
 					'file' => 'ManagePaid.php',
 					'icon' => 'paid.png',
 					'function' => 'ManagePaidSubscriptions',
 					'permission' => 'admin_forum',
-					'subsections' => array(
+					'subsections' => empty($modSettings['paid_enabled']) ? array() : array(
 						'view' => array($txt['paid_subs_view']),
 						'settings' => array($txt['settings']),
 					),
