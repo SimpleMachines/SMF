@@ -39,7 +39,7 @@ function ModifyPermissions()
 		'modify2' => array('ModifyMembergroup2', 'manage_permissions'),
 		'quick' => array('SetQuickGroups', 'manage_permissions'),
 		'quickboard' => array('SetQuickBoards', 'manage_permissions'),
-		'postmod' => array('ModifyPostModeration', 'manage_permissions', 'disabled' => !in_array('pm', $context['admin_features'])),
+		'postmod' => array('ModifyPostModeration', 'manage_permissions'),
 		'profiles' => array('EditPermissionProfiles', 'manage_permissions'),
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
@@ -2282,7 +2282,7 @@ function loadIllegalGuestPermissions()
  */
 function ModifyPostModeration()
 {
-	global $context, $txt, $smcFunc, $modSettings;
+	global $context, $txt, $smcFunc, $modSettings, $sourcedir;
 
 	// Just in case.
 	checkSession('get');
@@ -2370,47 +2370,73 @@ function ModifyPostModeration()
 	{
 		validateToken('admin-mppm');
 
-		// Start by deleting all the permissions relevant.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}board_permissions
-			WHERE id_profile = {int:current_profile}
-				AND permission IN ({array_string:permissions})
-				AND id_group IN ({array_int:profile_group_list})',
-			array(
-				'profile_group_list' => array_keys($context['profile_groups']),
-				'current_profile' => $context['current_profile'],
-				'permissions' => $all_permissions,
-			)
-		);
-
-		// Do it group by group.
-		$new_permissions = array();
-		foreach ($context['profile_groups'] as $id => $group)
+		// First, are we saving a new value for enabled post moderation?
+		$new_setting = !empty($_POST['postmod_active']);
+		if ($new_setting != $modSettings['postmod_active'])
 		{
-			foreach ($mappings as $index => $data)
+			if ($new_setting)
 			{
-				if (isset($_POST[$index][$group['id']]))
-				{
-					if ($_POST[$index][$group['id']] == 'allow')
-					{
-						// Give them both sets for fun.
-						$new_permissions[] = array($context['current_profile'], $group['id'], $data[0], 1);
-						$new_permissions[] = array($context['current_profile'], $group['id'], $data[1], 1);
-					}
-					elseif ($_POST[$index][$group['id']] == 'moderate')
-						$new_permissions[] = array($context['current_profile'], $group['id'], $data[1], 1);
-				}
+				// Turning it on. This seems easy enough.
+				updateSettings(array('postmod_active' => 1));
+			}
+			else
+			{
+				// Turning it off. Not so straightforward. We have to turn off warnings to moderation level, and make everything approved.
+				updateSettings(array(
+					'postmod_active' => 0,
+					'warning_moderate' => 0,
+				));
+				
+				require_once($sourcedir . '/PostModeration.php');
+				approveAllData();
 			}
 		}
+		elseif ($modSettings['postmod_active'])
+		{
+			// We're not saving a new setting - and if it's still enabled we have more work to do.
 
-		// Insert new permissions.
-		if (!empty($new_permissions))
-			$smcFunc['db_insert']('',
-				'{db_prefix}board_permissions',
-				array('id_profile' => 'int', 'id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
-				$new_permissions,
-				array('id_profile', 'id_group', 'permission')
+			// Start by deleting all the permissions relevant.
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}board_permissions
+				WHERE id_profile = {int:current_profile}
+					AND permission IN ({array_string:permissions})
+					AND id_group IN ({array_int:profile_group_list})',
+				array(
+					'profile_group_list' => array_keys($context['profile_groups']),
+					'current_profile' => $context['current_profile'],
+					'permissions' => $all_permissions,
+				)
 			);
+
+			// Do it group by group.
+			$new_permissions = array();
+			foreach ($context['profile_groups'] as $id => $group)
+			{
+				foreach ($mappings as $index => $data)
+				{
+					if (isset($_POST[$index][$group['id']]))
+					{
+						if ($_POST[$index][$group['id']] == 'allow')
+						{
+							// Give them both sets for fun.
+							$new_permissions[] = array($context['current_profile'], $group['id'], $data[0], 1);
+							$new_permissions[] = array($context['current_profile'], $group['id'], $data[1], 1);
+						}
+						elseif ($_POST[$index][$group['id']] == 'moderate')
+							$new_permissions[] = array($context['current_profile'], $group['id'], $data[1], 1);
+					}
+				}
+			}
+
+			// Insert new permissions.
+			if (!empty($new_permissions))
+				$smcFunc['db_insert']('',
+					'{db_prefix}board_permissions',
+					array('id_profile' => 'int', 'id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'),
+					$new_permissions,
+					array('id_profile', 'id_group', 'permission')
+				);
+		}
 	}
 
 	// Now get all the permissions!
@@ -2451,7 +2477,6 @@ function ModifyPostModeration()
 	$smcFunc['db_free_result']($request);
 
 	createToken('admin-mppm');
-
 }
 
 ?>
