@@ -192,24 +192,6 @@ function ModifyCoreFeatures($return_config = false)
 				'karmaMode' => 2,
 			),
 		),
-		// pm = post moderation.
-		'pm' => array(
-			'url' => 'action=admin;area=permissions;sa=postmod',
-			'setting_callback' => create_function('$value', '
-				global $sourcedir;
-
-				// Cant use warning post moderation if disabled!
-				if (!$value)
-				{
-					require_once($sourcedir . \'/PostModeration.php\');
-					approveAllData();
-
-					return array(\'warning_moderate\' => 0);
-				}
-				else
-					return array();
-			'),
-		),
 		// w = warning.
 		'w' => array(
 			'url' => 'action=admin;area=securitysettings;sa=moderation',

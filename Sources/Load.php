@@ -172,8 +172,8 @@ function reloadSettings()
 			display_loadavg_error();
 	}
 
-	// Is post moderation alive and well?
-	$modSettings['postmod_active'] = isset($modSettings['admin_features']) ? in_array('pm', explode(',', $modSettings['admin_features'])) : true;
+	// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.
+	$modSettings['postmod_active'] = !empty($modSettings['postmod_active']);
 
 	// Here to justify the name of this function. :P
 	// It should be added to the install and upgrade scripts.
@@ -1797,7 +1797,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$modSettings['memberCount'] = $modSettings['totalMembers'];
 
 	// This allows us to change the way things look for the admin.
-	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('k,w,pm');
+	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('k,w');
 
 	// Default JS variables for use in every theme
 	$context['javascript_vars'] = array(
