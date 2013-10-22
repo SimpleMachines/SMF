@@ -1196,9 +1196,6 @@ img.sort {
 	content: "";
 	background: url(../images/admin/subsection.png) no-repeat;
 }
-.dropmenu li li.subsections li a:after, .adm_section .dropmenu li.subsections li a:after{
-	display: none;
-}
 /* Highlighting of current section */
 .dropmenu li li a.chosen {
 	font-weight: bold;
