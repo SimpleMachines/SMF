@@ -483,8 +483,9 @@ fieldset.admin_group a {
 	vertical-align: top;
 }
 fieldset.admin_group .inactive {
-	opacity: 0.4;
 	filter:Alpha(opacity=40);
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
+	opacity: 0.4;
 }
 
 /* The update warning. */
