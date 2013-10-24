@@ -102,9 +102,9 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	// Get the locked an/or sticky values if they have been selected or set that is
 	if (this.opt.sType == 'post')
 	{
-		if (document.getElementById('check_lock').checked)
+		if (document.getElementById('check_lock') && document.getElementById('check_lock').checked)
 			aSections[aSections.length] = 'lock=1';
-		if (document.getElementById('check_sticky').checked)
+		if (document.getElementById('check_sticky') && document.getElementById('check_sticky').checked)
 			aSections[aSections.length] = 'sticky=1';
 	}
 
