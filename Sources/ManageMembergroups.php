@@ -918,7 +918,7 @@ function EditMembergroup()
 			// Get all the usernames from the string
 			if (!empty($moderator_string))
 			{
-				$moderator_string = strtr(preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', htmlspecialchars($moderator_string), ENT_QUOTES), array('&quot;' => '"'));
+				$moderator_string = strtr(preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $smcFunc['htmlspecialchars']($moderator_string, ENT_QUOTES)), array('&quot;' => '"'));
 				preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
 				$moderators = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)));
 				for ($k = 0, $n = count($moderators); $k < $n; $k++)
@@ -1021,7 +1021,7 @@ function EditMembergroup()
 	$context['group'] = array(
 		'id' => $_REQUEST['group'],
 		'name' => $row['group_name'],
-		'description' => htmlspecialchars($row['description']),
+		'description' => $smcFunc['htmlspecialchars']($row['description'], ENT_QUOTES),
 		'editable_name' => $row['group_name'],
 		'color' => $row['online_color'],
 		'min_posts' => $row['min_posts'],

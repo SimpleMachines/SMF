@@ -223,7 +223,7 @@ function Post($post_errors = array())
 
 		// Start loading up the event info.
 		$context['event'] = array();
-		$context['event']['title'] = isset($_REQUEST['evtitle']) ? htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : '';
+		$context['event']['title'] = isset($_REQUEST['evtitle']) ? $smcFunc['htmlspecialchars'](stripslashes($_REQUEST['evtitle'])) : '';
 
 		$context['event']['id'] = isset($_REQUEST['eventid']) ? (int) $_REQUEST['eventid'] : -1;
 		$context['event']['new'] = $context['event']['id'] == -1;
@@ -446,9 +446,9 @@ function Post($post_errors = array())
 			$_REQUEST['guestname'] = !isset($_REQUEST['guestname']) ? '' : trim($_REQUEST['guestname']);
 			$_REQUEST['email'] = !isset($_REQUEST['email']) ? '' : trim($_REQUEST['email']);
 
-			$_REQUEST['guestname'] = htmlspecialchars($_REQUEST['guestname']);
+			$_REQUEST['guestname'] = $smcFunc['htmlspecialchars']($_REQUEST['guestname']);
 			$context['name'] = $_REQUEST['guestname'];
-			$_REQUEST['email'] = htmlspecialchars($_REQUEST['email']);
+			$_REQUEST['email'] = $smcFunc['htmlspecialchars']($_REQUEST['email']);
 			$context['email'] = $_REQUEST['email'];
 
 			$user_info['name'] = $_REQUEST['guestname'];
@@ -565,7 +565,7 @@ function Post($post_errors = array())
 					if ($row['filesize'] <= 0)
 						continue;
 					$context['current_attachments'][] = array(
-						'name' => htmlspecialchars($row['filename']),
+						'name' => $smcFunc['htmlspecialchars']($row['filename']),
 						'size' => $row['filesize'],
 						'id' => $row['id_attach'],
 						'approved' => $row['approved'],
@@ -593,8 +593,8 @@ function Post($post_errors = array())
 
 				if (empty($row['id_member']))
 				{
-					$context['name'] = htmlspecialchars($row['poster_name']);
-					$context['email'] = htmlspecialchars($row['poster_email']);
+					$context['name'] = $smcFunc['htmlspecialchars']($row['poster_name']);
+					$context['email'] = $smcFunc['htmlspecialchars']($row['poster_email']);
 				}
 			}
 		}
@@ -694,7 +694,7 @@ function Post($post_errors = array())
 		foreach ($temp as $attachment)
 		{
 			$context['current_attachments'][] = array(
-				'name' => htmlspecialchars($attachment['filename']),
+				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
 				'id' => $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
@@ -704,8 +704,8 @@ function Post($post_errors = array())
 		// Allow moderators to change names....
 		if (allowedTo('moderate_forum') && empty($row['id_member']))
 		{
-			$context['name'] = htmlspecialchars($row['poster_name']);
-			$context['email'] = htmlspecialchars($row['poster_email']);
+			$context['name'] = $smcFunc['htmlspecialchars']($row['poster_name']);
+			$context['email'] = $smcFunc['htmlspecialchars']($row['poster_email']);
 		}
 
 		// Set the destinaton.
@@ -938,7 +938,7 @@ function Post($post_errors = array())
 					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
 				$context['current_attachments'][] = array(
-					'name' => '<u>' . htmlspecialchars($attachment['name']) . '</u>',
+					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
 					'size' => $attachment['size'],
 					'id' => $attachID,
 					'unchecked' => false,
@@ -1613,8 +1613,8 @@ function Post2()
 
 	// Add special html entities to the subject, name, and email.
 	$_POST['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
-	$_POST['guestname'] = htmlspecialchars($_POST['guestname']);
-	$_POST['email'] = htmlspecialchars($_POST['email']);
+	$_POST['guestname'] = $smcFunc['htmlspecialchars']($_POST['guestname']);
+	$_POST['email'] = $smcFunc['htmlspecialchars']($_POST['email']);
 
 	// At this point, we want to make sure the subject isn't too long.
 	if ($smcFunc['strlen']($_POST['subject']) > 100)
@@ -1659,7 +1659,7 @@ function Post2()
 			$_POST['poll_hide'] = 1;
 
 		// Clean up the question and answers.
-		$_POST['question'] = htmlspecialchars($_POST['question']);
+		$_POST['question'] = $smcFunc['htmlspecialchars']($_POST['question']);
 		$_POST['question'] = $smcFunc['truncate']($_POST['question'], 255);
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
 		$_POST['options'] = htmlspecialchars__recursive($_POST['options']);

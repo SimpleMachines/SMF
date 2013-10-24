@@ -414,7 +414,7 @@ function BrowseFiles()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						global $modSettings, $context, $scripturl;
+						global $modSettings, $context, $scripturl, $smcFunc;
 
 						$link = \'<a href="\';
 
@@ -436,7 +436,7 @@ function BrowseFiles()
 						if (!empty($rowData[\'width\']) && !empty($rowData[\'height\']))
 							$link .= sprintf(\' onclick="return reqWin(this.href\' . ($rowData[\'attachment_type\'] == 1 ? \'\' : \' + \\\';image\\\'\') . \', %1$d, %2$d, true);"\', $rowData[\'width\'] + 20, $rowData[\'height\'] + 20);
 
-						$link .= sprintf(\'>%1$s</a>\', preg_replace(\'~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~\', \'&#\\\\1;\', htmlspecialchars($rowData[\'filename\'])));
+						$link .= sprintf(\'>%1$s</a>\', preg_replace(\'~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~\', \'&#\\\\1;\', $smcFunc[\'htmlspecialchars\']($rowData[\'filename\'])));
 
 						// Show the dimensions.
 						if (!empty($rowData[\'width\']) && !empty($rowData[\'height\']))
@@ -472,11 +472,11 @@ function BrowseFiles()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						global $scripturl;
+						global $scripturl, $smcFunc;
 
 						// In case of an attachment, return the poster of the attachment.
 						if (empty($rowData[\'id_member\']))
-							return htmlspecialchars($rowData[\'poster_name\']);
+							return $smcFunc[\'htmlspecialchars\']($rowData[\'poster_name\']);
 
 						// Otherwise it must be an avatar, return the link to the owner of it.
 						else
@@ -2209,7 +2209,7 @@ function ManageAttachmentPaths()
 		if (!empty($_POST['new_base_dir']))
 		{
 			require_once($sourcedir . '/Subs-Attachments.php');
-			$_POST['new_base_dir'] = htmlspecialchars($_POST['new_base_dir'], ENT_QUOTES);
+			$_POST['new_base_dir'] = $smcFunc['htmlspecialchars']($_POST['new_base_dir'], ENT_QUOTES);
 
 			$current_dir = $modSettings['currentAttachmentUploadDir'];
 

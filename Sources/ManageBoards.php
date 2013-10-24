@@ -81,7 +81,7 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $txt;
+	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $txt, $smcFunc;
 
 	loadTemplate('ManageBoards');
 
@@ -137,7 +137,7 @@ function ManageBoardsMain()
 	{
 		createToken('admin-bm-' . $context['move_board'], 'request');
 
-		$context['move_title'] = sprintf($txt['mboards_select_destination'], htmlspecialchars($boards[$context['move_board']]['name']));
+		$context['move_title'] = sprintf($txt['mboards_select_destination'], $smcFunc['htmlspecialchars']($boards[$context['move_board']]['name']));
 		foreach ($cat_tree as $catid => $tree)
 		{
 			$prev_child_level = 0;
@@ -150,7 +150,7 @@ function ManageBoardsMain()
 				if (!isset($context['categories'][$catid]['move_link']))
 					$context['categories'][$catid]['move_link'] = array(
 						'child_level' => 0,
-						'label' => $txt['mboards_order_before'] . ' \'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
+						'label' => $txt['mboards_order_before'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
 						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 					);
 
@@ -158,12 +158,12 @@ function ManageBoardsMain()
 				$context['categories'][$catid]['boards'][$boardid]['move_links'] = array(
 					array(
 						'child_level' => $boards[$boardid]['level'],
-						'label' => $txt['mboards_order_after'] . '\'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
+						'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
 						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 					),
 					array(
 						'child_level' => $boards[$boardid]['level'] + 1,
-						'label' => $txt['mboards_order_child_of'] . ' \'' . htmlspecialchars($boards[$boardid]['name']) . '\'',
+						'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
 						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 					),
 				);
@@ -192,7 +192,7 @@ function ManageBoardsMain()
 			if (empty($boardList[$catid]))
 				$context['categories'][$catid]['move_link'] = array(
 					'child_level' => 0,
-					'label' => $txt['mboards_order_before'] . ' \'' . htmlspecialchars($tree['node']['name']) . '\'',
+					'label' => $txt['mboards_order_before'] . ' \'' . $smcFunc['htmlspecialchars']($tree['node']['name']) . '\'',
 					'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 				);
 		}
@@ -216,7 +216,7 @@ function ManageBoardsMain()
  */
 function EditCategory()
 {
-	global $txt, $context, $cat_tree, $boardList, $boards, $sourcedir;
+	global $txt, $context, $cat_tree, $boardList, $boards, $smcFunc, $sourcedir;
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');
@@ -241,7 +241,7 @@ function EditCategory()
 		$context['category'] = array(
 			'id' => 0,
 			'name' => $txt['mboards_new_cat_name'],
-			'editable_name' => htmlspecialchars($txt['mboards_new_cat_name']),
+			'editable_name' => $smcFunc['htmlspecialchars']($txt['mboards_new_cat_name']),
 			'can_collapse' => true,
 			'is_new' => true,
 			'is_empty' => true
@@ -255,7 +255,7 @@ function EditCategory()
 		$context['category'] = array(
 			'id' => $_REQUEST['cat'],
 			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
-			'editable_name' => htmlspecialchars($cat_tree[$_REQUEST['cat']]['node']['name']),
+			'editable_name' => $smcFunc['htmlspecialchars']($cat_tree[$_REQUEST['cat']]['node']['name']),
 			'can_collapse' => !empty($cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
 			'children' => array(),
 			'is_empty' => empty($cat_tree[$_REQUEST['cat']]['children'])
@@ -372,7 +372,8 @@ function EditCategory2()
  */
 function EditBoard()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $context, $cat_tree, $boards, $boardList;
+	global $sourcedir, $smcFunc, $modSettings;
 
 	loadTemplate('ManageBoards');
 	require_once($sourcedir . '/Subs-Boards.php');
@@ -425,8 +426,8 @@ function EditBoard()
 		// Just some easy shortcuts.
 		$curBoard = &$boards[$_REQUEST['boardid']];
 		$context['board'] = $boards[$_REQUEST['boardid']];
-		$context['board']['name'] = htmlspecialchars(strtr($context['board']['name'], array('&amp;' => '&')));
-		$context['board']['description'] = htmlspecialchars($context['board']['description']);
+		$context['board']['name'] = $smcFunc['htmlspecialchars'](strtr($context['board']['name'], array('&amp;' => '&')));
+		$context['board']['description'] = $smcFunc['htmlspecialchars']($context['board']['description']);
 		$context['board']['no_children'] = empty($boards[$_REQUEST['boardid']]['tree']['children']);
 		$context['board']['is_recycle'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $context['board']['id'];
 	}

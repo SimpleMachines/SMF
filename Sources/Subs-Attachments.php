@@ -439,7 +439,7 @@ function processAttachments()
 		if (empty($errors))
 		{
 			$_SESSION['temp_attachments'][$attachID] = array(
-				'name' => htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
+				'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 				'tmp_name' => $destName,
 				'size' => $_FILES['attachment']['size'][$n],
 				'type' => $_FILES['attachment']['type'][$n],
@@ -460,7 +460,7 @@ function processAttachments()
 		else
 		{
 			$_SESSION['temp_attachments'][$attachID] = array(
-				'name' => htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
+				'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 				'tmp_name' => $destName,
 				'errors' => $errors,
 			);

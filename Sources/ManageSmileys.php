@@ -273,8 +273,8 @@ function EditSmileySets()
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
-			'path' => htmlspecialchars($set),
-			'name' => htmlspecialchars($set_names[$i]),
+			'path' => $smcFunc['htmlspecialchars']($set),
+			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -546,8 +546,8 @@ function AddSmiley()
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
-			'path' => htmlspecialchars($set),
-			'name' => htmlspecialchars($set_names[$i]),
+			'path' => $smcFunc['htmlspecialchars']($set),
+			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -759,7 +759,7 @@ function AddSmiley()
 			{
 				if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
 					$context['filenames'][strtolower($entry)] = array(
-						'id' => htmlspecialchars($entry),
+						'id' => $smcFunc['htmlspecialchars']($entry),
 						'selected' => false,
 					);
 			}
@@ -909,8 +909,8 @@ function EditSmileys()
 	foreach ($context['smiley_sets'] as $i => $set)
 		$context['smiley_sets'][$i] = array(
 			'id' => $i,
-			'path' => htmlspecialchars($set),
-			'name' => htmlspecialchars($set_names[$i]),
+			'path' => $smcFunc['htmlspecialchars']($set),
+			'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 			'selected' => $set == $modSettings['smiley_sets_default']
 		);
 
@@ -1012,9 +1012,10 @@ function EditSmileys()
 					),
 					'data' => array(
 						'function' => create_function('$rowData', empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']) ? '
-							return htmlspecialchars($rowData[\'description\']);
+							global $smcFunc;
+							return $smcFunc[\'htmlspecialchars\']($rowData[\'description\']);
 						' : '
-							global $context, $txt, $modSettings;
+							global $context, $txt, $modSettings, $smcFunc;
 
 							// Check if there are smileys missing in some sets.
 							$missing_sets = array();
@@ -1022,7 +1023,7 @@ function EditSmileys()
 								if (!file_exists(sprintf(\'%1$s/%2$s/%3$s\', $modSettings[\'smileys_dir\'], $smiley_set[\'path\'], $rowData[\'filename\'])))
 									$missing_sets[] = $smiley_set[\'path\'];
 
-							$description = htmlspecialchars($rowData[\'description\']);
+							$description = $smcFunc[\'htmlspecialchars\']($rowData[\'description\']);
 
 							if (!empty($missing_sets))
 								$description .= sprintf(\'<br /><span class="smalltext"><strong>%1$s:</strong> %2$s</span>\', $txt[\'smileys_not_found_in_set\'], implode(\', \', $missing_sets));
@@ -1144,8 +1145,8 @@ function EditSmileys()
 		foreach ($context['smiley_sets'] as $i => $set)
 			$context['smiley_sets'][$i] = array(
 				'id' => $i,
-				'path' => htmlspecialchars($set),
-				'name' => htmlspecialchars($set_names[$i]),
+				'path' => $smcFunc['htmlspecialchars']($set),
+				'name' => $smcFunc['htmlspecialchars']($set_names[$i]),
 				'selected' => $set == $modSettings['smiley_sets_default']
 			);
 
@@ -1165,7 +1166,7 @@ function EditSmileys()
 				{
 					if (!in_array($entry, $context['filenames']) && in_array(strrchr($entry, '.'), array('.jpg', '.gif', '.jpeg', '.png')))
 						$context['filenames'][strtolower($entry)] = array(
-							'id' => htmlspecialchars($entry),
+							'id' => $smcFunc['htmlspecialchars']($entry),
 							'selected' => false,
 						);
 				}
@@ -1187,9 +1188,9 @@ function EditSmileys()
 		$context['current_smiley'] = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
-		$context['current_smiley']['code'] = htmlspecialchars($context['current_smiley']['code']);
-		$context['current_smiley']['filename'] = htmlspecialchars($context['current_smiley']['filename']);
-		$context['current_smiley']['description'] = htmlspecialchars($context['current_smiley']['description']);
+		$context['current_smiley']['code'] = $smcFunc['htmlspecialchars']($context['current_smiley']['code']);
+		$context['current_smiley']['filename'] = $smcFunc['htmlspecialchars']($context['current_smiley']['filename']);
+		$context['current_smiley']['description'] = $smcFunc['htmlspecialchars']($context['current_smiley']['description']);
 
 		if (isset($context['filenames'][strtolower($context['current_smiley']['filename'])]))
 			$context['filenames'][strtolower($context['current_smiley']['filename'])]['selected'] = true;
@@ -1339,9 +1340,9 @@ function EditSmileyOrder()
 		$location = empty($row['hidden']) ? 'postform' : 'popup';
 		$context['smileys'][$location]['rows'][$row['smiley_row']][] = array(
 			'id' => $row['id_smiley'],
-			'code' => htmlspecialchars($row['code']),
-			'filename' => htmlspecialchars($row['filename']),
-			'description' => htmlspecialchars($row['description']),
+			'code' => $smcFunc['htmlspecialchars']($row['code']),
+			'filename' => $smcFunc['htmlspecialchars']($row['filename']),
+			'description' => $smcFunc['htmlspecialchars']($row['description']),
 			'row' => $row['smiley_row'],
 			'order' => $row['smiley_order'],
 			'selected' => !empty($_REQUEST['move']) && $_REQUEST['move'] == $row['id_smiley'],
@@ -1526,9 +1527,9 @@ function InstallSmileySet()
 			$has_readme = true;
 			$type = 'package_' . $action['type'];
 			if (file_exists($packagesdir . '/temp/' . $base_path . $action['filename']))
-				$context[$type] = htmlspecialchars(trim(file_get_contents($packagesdir . '/temp/' . $base_path . $action['filename']), "\n\r"));
+				$context[$type] = $smcFunc['htmlspecialchars'](trim(file_get_contents($packagesdir . '/temp/' . $base_path . $action['filename']), "\n\r"));
 			elseif (file_exists($action['filename']))
-				$context[$type] = htmlspecialchars(trim(file_get_contents($action['filename']), "\n\r"));
+				$context[$type] = $smcFunc['htmlspecialchars'](trim(file_get_contents($action['filename']), "\n\r"));
 
 			if (!empty($action['parse_bbc']))
 			{
@@ -1868,10 +1869,10 @@ function EditMessageIcons()
 			'icon' => array(
 				'data' => array(
 					'function' => create_function('$rowData', '
-						global $settings;
+						global $settings, $smcFunc;
 
 						$images_url = $settings[file_exists(sprintf(\'%1$s/images/post/%2$s.png\', $settings[\'theme_dir\'], $rowData[\'filename\'])) ? \'actual_images_url\' : \'default_images_url\'];
-						return sprintf(\'<img src="%1$s/post/%2$s.png" alt="%3$s" />\', $images_url, $rowData[\'filename\'], htmlspecialchars($rowData[\'title\']));
+						return sprintf(\'<img src="%1$s/post/%2$s.png" alt="%3$s" />\', $images_url, $rowData[\'filename\'], $smcFunc[\'htmlspecialchars\']($rowData[\'title\']));
 					'),
 					'class' => 'centercol',
 				),
