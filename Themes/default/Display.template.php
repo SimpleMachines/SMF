@@ -219,17 +219,22 @@ function template_main()
 		// Show information about the poster of this message.
 		echo '
 						<div class="poster">
-							<ul>
-								<li>
 									<h4>';
+									
+		// Show online and offline buttons?
+		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
+			echo '
+								', $context['can_send_pm'] ? '<a href="' . $message['member']['online']['href'] . '" title="' . $message['member']['online']['label'] . '">' : '', '<img src="', $message['member']['online']['image_href'], '" alt="', $message['member']['online']['text'], '" />', $context['can_send_pm'] ? '</a>' : '';
+
 
 		// Show a link to the member's profile.
 		echo '
-										<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">
-											<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>
-										</a>
-									</h4>
-								</li>';
+								', $message['member']['link'], '
+									</h4>';
+									
+		echo '
+								<ul>';
+								
 
 		// Show the user's avatar.
 		if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
@@ -347,6 +352,12 @@ function template_main()
 					echo '
 										<li><a href="', $scripturl, '?action=emailuser;sa=email;msg=', $message['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
 
+										
+				// Since we know this person isn't a guest, you *can* message them.
+				if ($context['can_send_pm'])
+					echo '
+										<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . '.png" alt="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '" />' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+
 					echo '
 									</ol>
 								</li>';
@@ -387,28 +398,6 @@ function template_main()
 		else
 			echo '
 								<li class="poster_ip">', $txt['logged'], '</li>';
-
-		// Show online and offline buttons? PHP could do with a little bit of cleaning up here for brevity, but it works.
-		// The plan is to make these buttons act sensibly, and link to your own inbox in your own posts (with new PM notification).
-		// Still has a little bit of hard-coded text. This may be a place where translators should be able to write inclusive strings,
-		// instead of dealing with $txt['by'] etc in the markup. Must be brief to work, anyway. Cannot ramble on at all.
-		if ($context['can_send_pm'] && $message['is_message_author'])
-		{
-			echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm">', $txt['pm_short'], ' ', $context['user']['unread_messages'] > 0 ? '[<strong>'. $context['user']['unread_messages'] . '</strong>]' : '' , '</a></li>';
-		}
-		elseif ($context['can_send_pm'] && !$message['is_message_author'] && !$message['member']['is_guest'])
-		{
-			if (!empty($modSettings['onlineEnable']))
-				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
-			else
-				echo '
-								<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], ' </a></li>';
-		}
-		elseif (!$context['can_send_pm'] && !empty($modSettings['onlineEnable']))
-			echo '
-								<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
 
 		// Are we showing the warning status?
 		// Don't show these things for guests.
