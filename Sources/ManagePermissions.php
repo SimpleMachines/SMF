@@ -1551,7 +1551,7 @@ function loadAllPermissions($loadType = 'classic')
 		$hiddenPermissions[] = 'calendar_post';
 		$hiddenPermissions[] = 'calendar_edit';
 	}
-	if (!in_array('w', $context['admin_features']))
+	if ($modSettings['warning_settings'][0] == 0)
 		$hiddenPermissions[] = 'issue_warning';
 	if (!in_array('k', $context['admin_features']))
 		$hiddenPermissions[] = 'karma_edit';

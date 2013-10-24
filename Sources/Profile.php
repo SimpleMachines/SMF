@@ -153,7 +153,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'viewwarning' => array(
 					'label' => $txt['profile_view_warnings'],
-					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'] && (!empty($modSettings['warning_show']) && ($context['user']['is_owner'] || $modSettings['warning_show'] == 2)),
+					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'] && (!empty($modSettings['warning_show']) && ($context['user']['is_owner'] || $modSettings['warning_show'] == 2)),
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
 					'permission' => array(
@@ -295,7 +295,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'issuewarning' => array(
 					'label' => $txt['profile_issue_warning'],
-					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1,
+					'enabled' => $modSettings['warning_settings'][0] == 1,
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
 					'token' => 'profile-iw%u',

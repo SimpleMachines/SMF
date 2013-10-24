@@ -95,46 +95,6 @@ function ModifyFeatureSettings()
 }
 
 /**
- * This function passes control through to the relevant security tab.
- */
-function ModifySecuritySettings()
-{
-	global $context, $txt, $scripturl, $modSettings, $settings;
-
-	$context['page_title'] = $txt['admin_security_moderation'];
-
-	$subActions = array(
-		'spam' => 'ModifySpamSettings',
-		'moderation' => 'ModifyModerationSettings',
-	);
-
-	call_integration_hook('integrate_modify_security', array(&$subActions));
-
-	// If Warning System is disabled don't show the setting page
-	if (!in_array('w', $context['admin_features']))
-		unset($subActions['moderation']);
-
-	loadGeneralSettingParameters($subActions, 'spam');
-
-	// Load up all the tabs...
-	$context[$context['admin_menu_name']]['tab_data'] = array(
-		'title' => $txt['admin_security_moderation'],
-		'help' => 'securitysettings',
-		'description' => $txt['security_settings_desc'],
-		'tabs' => array(
-			'spam' => array(
-				'description' => $txt['antispam_Settings_desc'] ,
-			),
-			'moderation' => array(
-			),
-		),
-	);
-
-	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
-}
-
-/**
  * This my friend, is for all the mod authors out there.
  */
 function ModifyModSettings()
@@ -191,36 +151,6 @@ function ModifyCoreFeatures($return_config = false)
 			'settings' => array(
 				'karmaMode' => 2,
 			),
-		),
-		// w = warning.
-		'w' => array(
-			'url' => 'action=admin;area=securitysettings;sa=moderation',
-			'setting_callback' => create_function('$value', '
-				global $modSettings;
-				list ($modSettings[\'warning_enable\'], $modSettings[\'user_limit\'], $modSettings[\'warning_decrement\']) = explode(\',\', $modSettings[\'warning_settings\']);
-				$warning_settings = ($value ? 1 : 0) . \',\' . $modSettings[\'user_limit\'] . \',\' . $modSettings[\'warning_decrement\'];
-				if (!$value)
-				{
-					$returnSettings = array(
-						\'warning_watch\' => 0,
-						\'warning_moderate\' => 0,
-						\'warning_mute\' => 0,
-					);
-				}
-				elseif (empty($modSettings[\'warning_enable\']) && $value)
-				{
-					$returnSettings = array(
-						\'warning_watch\' => 10,
-						\'warning_moderate\' => 35,
-						\'warning_mute\' => 60,
-					);
-				}
-				else
-					$returnSettings = array();
-
-				$returnSettings[\'warning_settings\'] = $warning_settings;
-				return $returnSettings;
-			'),
 		),
 	);
 
@@ -540,21 +470,36 @@ function ModifyKarmaSettings($return_config = false)
  *
  * @param bool $return_config = false
  */
-function ModifyModerationSettings($return_config = false)
+function ModifyWarningSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
+	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $sourcedir;
+
+	// You need to be an admin to edit settings!
+	isAllowedTo('admin_forum');
+
+	loadLanguage('Help');
+	loadLanguage('ManageSettings');
+
+	// We need the existing ones for this
+	list ($currently_enabled, $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 
 	$config_vars = array(
 			// Warning system?
-			array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'], 'help' => 'warning_enable'),
-			'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note']),
-			array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
-			'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
-			'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note']),
-			array('select', 'warning_show', 'subtext' => $txt['setting_warning_show_note'], array($txt['setting_warning_show_mods'], $txt['setting_warning_show_user'], $txt['setting_warning_show_all'])),
+			'enable' => array('check', 'warning_enable'),
 	);
 
-	call_integration_hook('integrate_moderation_settings', array(&$config_vars));
+	if (!empty($modSettings['warning_settings']) && $currently_enabled)
+		$config_vars += array(
+			'',
+				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'], 'help' => 'warning_enable'),
+				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note']),
+				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
+				'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
+				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note']),
+				array('select', 'warning_show', 'subtext' => $txt['setting_warning_show_note'], array($txt['setting_warning_show_mods'], $txt['setting_warning_show_user'], $txt['setting_warning_show_all'])),
+		);
+
+	call_integration_hook('integrate_warning_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -563,17 +508,37 @@ function ModifyModerationSettings($return_config = false)
 	if (!$modSettings['postmod_active'])
 		unset($config_vars['moderate']);
 
+	// Will need the utility functions from here.
+	require_once($sourcedir . '/ManageServer.php');
+
 	// Saving?
 	if (isset($_GET['save']))
 	{
 		checkSession();
 
 		// Make sure these don't have an effect.
-		if (substr($modSettings['warning_settings'], 0, 1) != 1)
+		if (!$currently_enabled && empty($_POST['warning_enable']))
 		{
 			$_POST['warning_watch'] = 0;
 			$_POST['warning_moderate'] = 0;
 			$_POST['warning_mute'] = 0;
+		}
+		// If it was disabled and we're enabling it now, set some sane defaults.
+		elseif (!$currently_enabled && !empty($_POST['warning_enable']))
+		{
+			// Need to add these, these weren't there before...
+			$vars = array(
+				'warning_watch' => 10,
+				'warning_mute' => 60,
+			);
+			if ($modSettings['postmod_active'])
+				$vars['warning_moderate'] = 35;
+
+			foreach ($vars as $var => $value)
+			{
+				$config_vars[] = array('int', $var);
+				$_POST[$var] = $value;
+			}
 		}
 		else
 		{
@@ -582,23 +547,35 @@ function ModifyModerationSettings($return_config = false)
 			$_POST['warning_mute'] = min($_POST['warning_mute'], 100);
 		}
 
+		// We might not have these already depending on how we got here.
+		$_POST['user_limit'] = isset($_POST['user_limit']) ? (int) $_POST['user_limit'] : $modSettings['user_limit'];
+		$_POST['warning_decrement'] = isset($_POST['warning_decrement']) ? (int) $_POST['warning_decrement'] : $modSettings['warning_decrement'];
+
 		// Fix the warning setting array!
-		$_POST['warning_settings'] = '1,' . min(100, (int) $_POST['user_limit']) . ',' . min(100, (int) $_POST['warning_decrement']);
+		$_POST['warning_settings'] = (!empty($_POST['warning_enable']) ? 1 : 0) . ',' . min(100, $_POST['user_limit']) . ',' . min(100, $_POST['warning_decrement']);
 		$save_vars = $config_vars;
 		$save_vars[] = array('text', 'warning_settings');
-		unset($save_vars['rem1'], $save_vars['rem2']);
+		unset($save_vars['enable'], $save_vars['rem1'], $save_vars['rem2']);
 
-		call_integration_hook('integrate_save_karma_settings', array(&$save_vars));
+		call_integration_hook('integrate_save_warning_settings', array(&$save_vars));
 
 		saveDBSettings($save_vars);
-		redirectexit('action=admin;area=securitysettings;sa=moderation');
+		redirectexit('action=admin;area=warnings');
 	}
 
 	// We actually store lots of these together - for efficiency.
 	list ($modSettings['warning_enable'], $modSettings['user_limit'], $modSettings['warning_decrement']) = explode(',', $modSettings['warning_settings']);
 
-	$context['post_url'] = $scripturl . '?action=admin;area=securitysettings;save;sa=moderation';
-	$context['settings_title'] = $txt['moderation_settings'];
+	$context['sub_template'] = 'show_settings';
+	$context['post_url'] = $scripturl . '?action=admin;area=warnings;save';
+	$context['settings_title'] = $txt['warnings'];
+	$context['page_title'] = $txt['warnings'];
+
+	$context[$context['admin_menu_name']]['tab_data'] = array(
+		'title' => $txt['warnings'],
+		'help' => '',
+		'description' => $txt['warnings_desc'],
+	);
 
 	prepareDBSettingContext($config_vars);
 }
@@ -607,9 +584,12 @@ function ModifyModerationSettings($return_config = false)
  * Let's try keep the spam to a minimum ah Thantos?
  * @param bool $return_config = false
  */
-function ModifySpamSettings($return_config = false)
+function ModifyAntispamSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc, $language;
+	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc, $language, $sourcedir;
+
+	loadLanguage('Help');
+	loadLanguage('ManageSettings');
 
 	// Generate a sample registration image.
 	$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
@@ -641,6 +621,9 @@ function ModifySpamSettings($return_config = false)
 
 	if ($return_config)
 		return $config_vars;
+
+	// You need to be an admin to edit settings!
+	isAllowedTo('admin_forum');
 
 	// Firstly, figure out what languages we're dealing with, and do a little processing for the form's benefit.
 	getLanguages();
@@ -694,6 +677,9 @@ function ModifySpamSettings($return_config = false)
 		return false;
 	}
 	$("#qa_dt_' . $language . ' a").click();', true);
+
+	// Will need the utility functions from here.
+	require_once($sourcedir . '/ManageServer.php');
 
 	// Saving?
 	if (isset($_GET['save']))
@@ -841,7 +827,7 @@ function ModifySpamSettings($return_config = false)
 
 		cache_put_data('verificationQuestions', null, 300);
 
-		redirectexit('action=admin;area=securitysettings;sa=spam');
+		redirectexit('action=admin;area=antispam');
 	}
 
 	$character_range = array_merge(range('A', 'H'), array('K', 'M', 'N', 'P', 'R'), range('T', 'Y'));
@@ -877,8 +863,16 @@ function ModifySpamSettings($return_config = false)
 		$context['settings_post_javascript'] .= '
 		document.getElementById(\'guests_require_captcha\').disabled = true;';
 
-	$context['post_url'] = $scripturl . '?action=admin;area=securitysettings;save;sa=spam';
+	// And everything else.
+	$context['post_url'] = $scripturl . '?action=admin;area=antispam;save';
 	$context['settings_title'] = $txt['antispam_Settings'];
+	$context['page_title'] = $txt['antispam_title'];
+	$context['sub_template'] = 'show_settings';
+
+	$context[$context['admin_menu_name']]['tab_data'] = array(
+		'title' => $txt['antispam_title'],
+		'description' => $txt['antispam_Settings_desc'],
+	);
 
 	prepareDBSettingContext($config_vars);
 }
