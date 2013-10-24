@@ -2114,7 +2114,7 @@ CREATE TABLE {$db_prefix}qanda (
   question varchar(255) NOT NULL default '',
   answers text NOT NULL,
   PRIMARY KEY (id_question)
-) ENGINE=MyISAM;
+);
 
 #
 # Indexes for table `qanda`
