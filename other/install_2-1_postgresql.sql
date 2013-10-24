@@ -1962,8 +1962,8 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_v
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view_any');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_autosave_draft');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_autosave_draft');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_stats');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'who_view');
@@ -2114,7 +2114,7 @@ CREATE TABLE {$db_prefix}qanda (
   question varchar(255) NOT NULL default '',
   answers text NOT NULL,
   PRIMARY KEY (id_question)
-) ENGINE=MyISAM;
+);
 
 #
 # Indexes for table `qanda`
