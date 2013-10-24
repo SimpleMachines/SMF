@@ -30,12 +30,14 @@ function ManagePostSettings()
 
 	// Make sure you can be here.
 	isAllowedTo('admin_forum');
+	loadLanguage('Drafts');
 
 	$subActions = array(
 		'posts' => 'ModifyPostSettings',
 		'bbc' => 'ModifyBBCSettings',
 		'censor' => 'SetCensor',
 		'topics' => 'ModifyTopicSettings',
+		'drafts' => 'ModifyDraftSettings',
 	);
 
 	call_integration_hook('integrate_manage_posts', array(&$subActions));
@@ -62,6 +64,9 @@ function ManagePostSettings()
 			),
 			'topics' => array(
 				'description' => $txt['manageposts_topic_settings_description'],
+			),
+			'drafts' => array(
+				'description' => $txt['drafts_show_desc'],
 			),
 		),
 	);
@@ -381,6 +386,85 @@ function ModifyTopicSettings($return_config = false)
 	// Final settings...
 	$context['post_url'] = $scripturl . '?action=admin;area=postsettings;save;sa=topics';
 	$context['settings_title'] = $txt['manageposts_topic_settings'];
+
+	// Prepare the settings...
+	prepareDBSettingContext($config_vars);
+}
+
+/**
+ * Modify any setting related to drafts.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=postsettings;sa=drafts
+ *
+ * @param bool $return_config = false
+ * @uses Admin template, edit_topic_settings sub-template.
+ */
+function ModifyDraftSettings($return_config = false)
+{
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
+
+	// Here are all the draft settings, a bit lite for now, but we can add more :P
+	$config_vars = array(
+		// Draft settings ...
+		array('check', 'drafts_post_enabled'),
+		array('check', 'drafts_pm_enabled'),
+		array('check', 'drafts_show_saved_enabled', 'subtext' => $txt['drafts_show_saved_enabled_subnote']),
+		array('int', 'drafts_keep_days', 'postinput' => $txt['days_word'], 'subtext' => $txt['drafts_keep_days_subnote']),
+		'',
+		array('check', 'drafts_autosave_enabled', 'subtext' => $txt['drafts_autosave_enabled_subnote']),
+		array('int', 'drafts_autosave_frequency', 'postinput' => $txt['manageposts_seconds'], 'subtext' => $txt['drafts_autosave_frequency_subnote']),
+	);
+
+	if ($return_config)
+		return $config_vars;
+
+	// Get the settings template ready.
+	require_once($sourcedir . '/ManageServer.php');
+
+	// Setup the template.
+	$context['page_title'] = $txt['managedrafts_settings'];
+	$context['sub_template'] = 'show_settings';
+
+	// Saving them ?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		// Protect them from themselves.
+		$_POST['drafts_autosave_frequency'] = !isset($_POST['drafts_autosave_frequency']) || $_POST['drafts_autosave_frequency'] < 30 ? 30 : $_POST['drafts_autosave_frequency'];
+
+		// Also disable the scheduled task if we're not using it.
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}scheduled_tasks
+			SET disabled = {int:disabled}
+			WHERE task = {string:task}',
+			array(
+				'disabled' => !empty($_POST['drafts_keep_days']) ? 0 : 1,
+				'task' => 'remove_old_drafts',
+			)
+		);
+		require_once($sourcedir . '/ScheduledTasks.php');
+		CalculateNextTrigger();
+
+		// Save everything else and leave.
+		saveDBSettings($config_vars);
+		redirectexit('action=admin;area=postsettings;sa=drafts');
+	}
+
+	// some javascript to enable / disable the frequency input box
+	$context['settings_post_javascript'] = '
+		function toggle()
+		{
+			$("#drafts_autosave_frequency").prop("disabled", !($("#drafts_autosave_enabled").prop("checked")));
+		};
+		toggle();
+
+		$("#drafts_autosave_enabled").click(function() { toggle(); });
+	';
+
+	// Final settings...
+	$context['post_url'] = $scripturl . '?action=admin;area=postsettings;sa=drafts;save';
+	$context['settings_title'] = $txt['managedrafts_settings'];
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);

@@ -200,14 +200,8 @@ function AdminMain()
 						'bbc' => array($txt['manageposts_bbc_settings']),
 						'censor' => array($txt['admin_censored_words']),
 						'topics' => array($txt['manageposts_topic_settings']),
+						'drafts' => array($txt['manage_drafts']),
 					),
-				),
-				'managedrafts' => array(
-					'label' => $txt['manage_drafts'],
-					'file' => 'Drafts.php',
-					'function' => 'ModifyDraftSettings',
-					'icon' => 'drafts.png',
-					'permission' => array('admin_forum'),
 				),
 				'managecalendar' => array(
 					'label' => $txt['manage_calendar'],
@@ -683,7 +677,7 @@ function AdminSearchInternal()
 	// Load a lot of language files.
 	$language_files = array(
 		'Help', 'ManageMail', 'ManageSettings', 'ManageCalendar', 'ManageBoards', 'ManagePaid', 'ManagePermissions', 'Search',
-		'Login', 'ManageSmileys',
+		'Login', 'ManageSmileys', 'Drafts',
 	);
 
 	// All the files we need to include.
@@ -713,6 +707,7 @@ function AdminSearchInternal()
 		array('ModifyPostSettings', 'area=postsettings;sa=posts'),
 		array('ModifyBBCSettings', 'area=postsettings;sa=bbc'),
 		array('ModifyTopicSettings', 'area=postsettings;sa=topics'),
+		array('ModifyDraftSettings', 'area=postsettings;sa=drafts'),
 		array('EditSearchSettings', 'area=managesearch;sa=settings'),
 		array('EditSmileySettings', 'area=smileys;sa=settings'),
 		array('ModifyGeneralSettings', 'area=serversettings;sa=general'),
