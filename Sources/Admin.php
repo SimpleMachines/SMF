@@ -768,7 +768,7 @@ function AdminSearchInternal()
 		$config_vars = $setting_area[0](true);
 
 		foreach ($config_vars as $var)
-			if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch')))
+			if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch', 'desc')))
 				$search_data['settings'][] = array($var[(isset($var[2]) && in_array($var[2], array('file', 'db'))) ? 0 : 1], $setting_area[1]);
 	}
 
