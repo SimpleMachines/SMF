@@ -20,7 +20,6 @@ $txt['admin_censored_desc'] = 'Due to the public nature of forums there may be s
 $txt['admin_reserved_names'] = 'Reserved Names';
 $txt['admin_template_edit'] = 'Edit your forum template';
 $txt['admin_modifications'] = 'Modification Settings';
-$txt['admin_security_moderation'] = 'Security and Moderation';
 $txt['admin_server_settings'] = 'Server Settings';
 $txt['admin_reserved_set'] = 'Set reserved names';
 $txt['admin_reserved_line'] = 'One reserved word per line.';
@@ -146,6 +145,9 @@ $txt['email_force'] = 'Send this to members even if they have chosen not to rece
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
 $txt['email_done'] = 'done.';
+
+$txt['warnings'] = 'Warnings';
+$txt['warnings_desc'] = 'This system allows administrators and moderators to issue warnings to users, and can automatically remove user rights as their warning level increases. To take full advantage of this system, &quot;Post Moderation&quot; should be enabled.';
 
 $txt['ban_title'] = 'Ban List';
 $txt['ban_ip'] = 'IP banning: (e.g. 192.168.12.213 or 128.0.*.*) - one entry per line';

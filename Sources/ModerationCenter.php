@@ -83,7 +83,7 @@ function ModerationMain($dont_call = false)
 				),
 				'warnings' => array(
 					'label' => $txt['mc_warnings'],
-					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
+					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWarnings',
 					'subsections' => array(
 						'log' => array($txt['mc_warning_log']),
@@ -132,7 +132,7 @@ function ModerationMain($dont_call = false)
 			'areas' => array(
 				'userwatch' => array(
 					'label' => $txt['mc_watched_users_title'],
-					'enabled' => in_array('w', $context['admin_features']) && $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
+					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWatchedUsers',
 					'subsections' => array(
 						'member' => array($txt['mc_watched_users_member']),

@@ -102,9 +102,6 @@ $helptxt['ban_members'] = '<strong>Ban Members</strong><br />
 $helptxt['featuresettings'] = '<strong>Features and Options</strong><br />
 	There are several features in this section that can be changed to your preference.';
 
-$helptxt['securitysettings'] = '<strong>Security and Moderation</strong><br />
-	This section contains settings relating to the security and moderation of your forum.';
-
 $helptxt['modsettings'] = '<strong>Modification Settings</strong><br />
 	This section should contain any settings added by modifications installed on your forum.';
 

@@ -122,15 +122,11 @@ function AdminMain()
 						'profile' => array($txt['custom_profile_shorttitle']),
 					),
 				),
-				'securitysettings' => array(
-					'label' => $txt['admin_security_moderation'],
+				'antispam' => array(
+					'label' => $txt['antispam_title'],
 					'file' => 'ManageSettings.php',
-					'function' => 'ModifySecuritySettings',
+					'function' => 'ModifyAntispamSettings',
 					'icon' => 'security.png',
-					'subsections' => array(
-						'spam' => array($txt['antispam_title']),
-						'moderation' => array($txt['moderation_settings_short'], 'enabled' => in_array('w', $context['admin_features'])),
-					),
 				),
 				'languages' => array(
 					'label' => $txt['language_configuration'],
@@ -335,6 +331,13 @@ function AdminMain()
 						'reservednames' => array($txt['admin_reserved_set'], 'admin_forum'),
 						'settings' => array($txt['settings'], 'admin_forum'),
 					),
+				),
+				'warnings' => array(
+					'label' => $txt['warnings'],
+					'file' => 'ManageSettings.php',
+					'function' => 'ModifyWarningSettings',
+					'icon' => 'warning.png',
+					'inactive' => $modSettings['warning_settings'][0] == 0,
 				),
 				'ban' => array(
 					'label' => $txt['ban_title'],
@@ -696,8 +699,8 @@ function AdminSearchInternal()
 		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
 		array('ModifyKarmaSettings', 'area=featuresettings;sa=karma'),
 		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
-		array('ModifySpamSettings', 'area=securitysettings;sa=spam'),
-		array('ModifyModerationSettings', 'area=securitysettings;sa=moderation'),
+		array('ModifyAntispamSettings', 'area=antispam'),
+		array('ModifyWarningSettings', 'area=warnings'),
 		array('ModifyGeneralModSettings', 'area=modsettings;sa=general'),
 		// Mod authors if you want to be "real freaking good" then add any setting pages for your mod BELOW this line!
 		array('ManageAttachmentSettings', 'area=manageattachments;sa=attachments'),
@@ -743,7 +746,7 @@ function AdminSearchInternal()
 		),
 		'settings' => array(
 			array('COPPA', 'area=regcenter;sa=settings'),
-			array('CAPTCHA', 'area=securitysettings;sa=spam'),
+			array('CAPTCHA', 'area=antispam'),
 		),
 	);
 
@@ -768,7 +771,7 @@ function AdminSearchInternal()
 		$config_vars = $setting_area[0](true);
 
 		foreach ($config_vars as $var)
-			if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch')))
+			if (!empty($var[1]) && !in_array($var[0], array('permissions', 'switch', 'desc')))
 				$search_data['settings'][] = array($var[(isset($var[2]) && in_array($var[2], array('file', 'db'))) ? 0 : 1], $setting_area[1]);
 	}
 
