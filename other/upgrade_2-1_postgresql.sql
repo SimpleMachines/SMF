@@ -534,3 +534,10 @@ CREATE TABLE {$db_prefix}qanda (
 	}
 ---}
 ---#
+
+/******************************************************************************/
+--- Fixing log_online table
+/******************************************************************************/
+---# Changing ip to bigint
+ALTER TABLE {$db_prefix}log_online ALTER ip TYPE bigint;
+---#
