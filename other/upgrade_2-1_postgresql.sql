@@ -385,15 +385,15 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 /******************************************************************************/
 ---# Creating drafts table.
 CREATE TABLE {$db_prefix}user_drafts (
-	id_draft int unsigned NOT NULL auto_increment,
-	id_topic int unsigned NOT NULL default '0',
-	id_board smallint unsigned NOT NULL default '0',
-	id_reply int unsigned NOT NULL default '0',
+	id_draft int NOT NULL auto_increment,
+	id_topic int NOT NULL default '0',
+	id_board smallint NOT NULL default '0',
+	id_reply int NOT NULL default '0',
 	type smallint NOT NULL default '0',
-	poster_time int unsigned NOT NULL default '0',
-	id_member int unsigned NOT NULL default '0',
+	poster_time int NOT NULL default '0',
+	id_member int NOT NULL default '0',
 	subject varchar(255) NOT NULL default '',
-	smileys_enabled smallint NOT NULL default '1',
+	smileys_enabled NOT NULL default '1',
 	body text NOT NULL,
 	icon varchar(16) NOT NULL default 'xx',
 	locked smallint NOT NULL default '0',
