@@ -994,8 +994,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'acronym',
 				'type' => 'unparsed_equals',
-				'before' => '<acronym title="$1">',
-				'after' => '</acronym>',
+				'before' => '<abbr title="$1">',
+				'after' => '</abbr>',
 				'quoted' => 'optional',
 				'disabled_after' => ' ($1)',
 			),

@@ -2720,6 +2720,9 @@ function TransferAttachments()
 			$moved = array();
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
+				$source = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
+				$dest = $modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
+
 				// Size and file count check
 				if (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit']))
 				{
@@ -2754,9 +2757,6 @@ function TransferAttachments()
 						}
 					}
 				}
-
-				$source = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
-				$dest = $modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
 
 				if (@rename($source, $dest))
 				{
