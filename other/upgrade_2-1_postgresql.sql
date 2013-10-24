@@ -393,7 +393,7 @@ CREATE TABLE {$db_prefix}user_drafts (
 	poster_time int NOT NULL default '0',
 	id_member int NOT NULL default '0',
 	subject varchar(255) NOT NULL default '',
-	smileys_enabled NOT NULL default '1',
+	smileys_enabled smallint NOT NULL default '1',
 	body text NOT NULL,
 	icon varchar(16) NOT NULL default 'xx',
 	locked smallint NOT NULL default '0',
