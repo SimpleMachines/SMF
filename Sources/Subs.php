@@ -3417,8 +3417,7 @@ function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $ne
 			'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
 		$clean_name = strtr($clean_name, array("\xde" => 'TH', "\xfe" =>
 			'th', "\xd0" => 'DH', "\xf0" => 'dh', "\xdf" => 'ss', "\x8c" => 'OE',
-			// @todo My IDE is showing \c6 as a bad escape sequence.
-			"\x9c" => 'oe', "\c6" => 'AE', "\xe6" => 'ae', "\xb5" => 'u'));
+			"\x9c" => 'oe', "\xc6" => 'AE', "\xe6" => 'ae', "\xb5" => 'u'));
 	}
 	// Sorry, no spaces, dots, or anything else but letters allowed.
 	$clean_name = preg_replace(array('/\s/', '/[^\w_\.\-]/'), array('_', ''), $clean_name);
