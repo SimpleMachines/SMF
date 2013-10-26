@@ -1278,7 +1278,7 @@ img.sort {
 	font-weight: bold;
 	border-radius: 3px;
 	border: 1px solid #558080;
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 1);
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 .buttonlist ul li a.active:hover {
 	color: #ffc187;
