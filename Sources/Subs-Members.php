@@ -470,11 +470,11 @@ function registerMember(&$regOptions, $return_errors = false)
 	}
 
 	// Spaces and other odd characters are evil...
-	$regOptions['username'] = preg_replace('~[\t\n\r\x0B\0' . ($context['utf8'] ? '\x{A0}' : '\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']);
+	$regOptions['username'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? ($context['server']['complex_preg_chars'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']));
 
 	// @todo Separate the sprintf?
 	if (empty($regOptions['email']) || preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $regOptions['email']) === 0 || strlen($regOptions['email']) > 255)
-		$reg_errors[] = array('done', sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($regOptions['username'])));
+		$reg_errors[] = array('lang', 'profile_error_bad_email');
 
 	$username_validation_errors = validateUsername(0, $regOptions['username'], true, !empty($regOptions['check_reserved_name']));
 	if (!empty($username_validation_errors))
@@ -506,7 +506,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	}
 
 	// Now perform hard password validation as required.
-	if (!empty($regOptions['check_password_strength']))
+	if (!empty($regOptions['check_password_strength']) && $regOptions['password'] != '')
 	{
 		$passwordError = validatePassword($regOptions['password'], $regOptions['username'], array($regOptions['email']));
 

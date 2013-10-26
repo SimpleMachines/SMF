@@ -340,7 +340,6 @@ function ModifyProfile($post_errors = array())
 					'function' => 'activateAccount',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
-					'select' => 'summary',
 					'permission' => array(
 						'own' => array(),
 						'any' => array('moderate_forum'),
