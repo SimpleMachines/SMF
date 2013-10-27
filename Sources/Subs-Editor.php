@@ -2366,6 +2366,9 @@ function AutoSuggest_Search_SMFVersions()
 		'SMF 1.1.14',
 		'SMF 1.1.15',
 		'SMF 1.1.16',
+		'SMF 1.1.17',
+		'SMF 1.1.18',
+		'SMF 1.1.19',
 		'SMF 2.0 beta 1',
 		'SMF 2.0 beta 1.2',
 		'SMF 2.0 beta 2',
@@ -2377,6 +2380,10 @@ function AutoSuggest_Search_SMFVersions()
 		'SMF 2.0',
 		'SMF 2.0.1',
 		'SMF 2.0.2',
+		'SMF 2.0.3',
+		'SMF 2.0.4',
+		'SMF 2.0.5',
+		'SMF 2.0.6',
 	);
 
 	foreach ($versions as $id => $version)
