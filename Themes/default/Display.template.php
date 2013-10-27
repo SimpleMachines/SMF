@@ -691,7 +691,7 @@ function template_main()
 			<div class="tborder" id="quickreplybox">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<a href="javascript:oQuickReply.swap();"><img src="', $settings['images_url'], '/', $options['display_quick_reply'] > 1 ? 'collapse' : 'expand', '.png" alt="+" id="quickReplyExpand" class="icon" /></a>
+						<a href="javascript:oQuickReply.swap();" class="', $options['display_quick_reply'] > 1 ? 'toggle_up' : 'toggle_down', '" id="quickReplyExpand"></a>
 						<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
 					</h3>
 				</div>
@@ -834,8 +834,8 @@ function template_main()
 						sImagesUrl: smf_images_url,
 						sContainerId: "quickReplyOptions",
 						sImageId: "quickReplyExpand",
-						sImageCollapsed: "collapse.png",
-						sImageExpanded: "expand.png",
+						sClassCollapsed: "toggle_up",
+						sClassExpanded: "toggle_down",
 						sJumpAnchor: "quickreply",
 						bIsFull: ', !empty($options['use_editor_quick_reply']) ? 'true' : 'false', '
 					});';

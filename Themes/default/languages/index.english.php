@@ -115,6 +115,7 @@ $txt['first_post'] = 'First post';
 $txt['last_poster'] = 'Last post by';
 //$txt['last_post_message'] = '<strong>Last post</strong> by %1$s<br />in %2$s<br />on %3$s';
 $txt['last_post_message'] = '<strong>Last post: </strong>%3$s<br />%2$s by %1$s';
+$txt['last_post_topic'] = '%1$s<br />by %2$s';
 $txt['boardindex_total_posts'] = '%1$s Posts in %2$s Topics by %3$s Members';
 $txt['show'] = 'Show';
 $txt['hide'] = 'Hide';
@@ -705,8 +706,6 @@ $txt['help_popup'] = 'A little lost? Let me explain:';
 
 $txt['previous_next_back'] = 'previous topic';
 $txt['previous_next_forward'] = 'next topic';
-
-$txt['upshrink_description'] = 'Shrink or expand the header.';
 
 $txt['mark_unread'] = 'Mark unread';
 

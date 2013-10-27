@@ -431,6 +431,18 @@ a img {
 	border: 0;
 }
 
+/* Those collapse and expand icons are wonderful.  */
+.toggle_up, .toggle_down, .go_up, .go_down {
+	width: 17px;
+	height: 17px;
+	display: inline-block;
+	background: url(../images/toggle.png) no-repeat 0 0px;
+	text-indent: -100em;
+	overflow: hidden;
+}
+.toggle_down, .go_down {
+	background-position: 0 -17px;
+}
 /* Generally, those [?] icons.  This makes your cursor a help icon. */
 .help {
 	cursor: help;
@@ -885,10 +897,14 @@ div.title_barIC h4.titlebg {
 	margin: 0;
 	padding: 6px;
 }
-img#upshrink_ic, img#newsupshrink, img.panel_toggle, img#quickReplyExpand {
+img#upshrink_ic, img#newsupshrink, img.panel_toggle {
 	float: right;
 	margin: 0;
 	padding: 4px 4px 0 4px;
+}
+#quickReplyExpand {
+	float: right;
+	margin: 2px 2px 0 2px;
 }
 table.table_list a.unreadlink, table.table_list a.collapse {
 	float: right;

@@ -362,7 +362,7 @@ function template_body_below()
 
 	// There is now a global "Go to top" link at the right.
 		echo '
-			<a href="#top" id="bot"><img src="', $settings['images_url'], '/upshrink.png" alt="*" title="', $txt['go_up'], '" /></a>
+			<a href="#top" id="bot" class="go_up">', $txt['go_up'], '</a>
 			<ul class="reset">
 				<li class="copyright">', theme_copyright(), '</li>
 			</ul>';
