@@ -1796,9 +1796,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!isset($settings['theme_version']))
 		$modSettings['memberCount'] = $modSettings['totalMembers'];
 
-	// This allows us to change the way things look for the admin.
-	$context['admin_features'] = isset($modSettings['admin_features']) ? explode(',', $modSettings['admin_features']) : array('k,w');
-
 	// Default JS variables for use in every theme
 	$context['javascript_vars'] = array(
 		'smf_theme_url' => '"' . $settings['theme_url'] . '"',

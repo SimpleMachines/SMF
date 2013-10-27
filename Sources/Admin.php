@@ -103,12 +103,6 @@ function AdminMain()
 			'title' => $txt['admin_config'],
 			'permission' => array('admin_forum'),
 			'areas' => array(
-				'corefeatures' => array(
-					'label' => $txt['core_settings_title'],
-					'file' => 'ManageSettings.php',
-					'function' => 'ModifyCoreFeatures',
-					'icon' => 'corefeatures.png',
-				),
 				'featuresettings' => array(
 					'label' => $txt['modSettings_title'],
 					'file' => 'ManageSettings.php',
@@ -117,7 +111,7 @@ function AdminMain()
 					'subsections' => array(
 						'basic' => array($txt['mods_cat_features']),
 						'layout' => array($txt['mods_cat_layout']),
-						'karma' => array($txt['karma'], 'enabled' => in_array('k', $context['admin_features'])),
+						'karma' => array($txt['karma']),
 						'sig' => array($txt['signature_settings_short']),
 						'profile' => array($txt['custom_profile_shorttitle']),
 					),
@@ -688,7 +682,6 @@ function AdminSearchInternal()
 
 	// This is a special array of functions that contain setting data - we query all these to simply pull all setting bits!
 	$settings_search = array(
-		array('ModifyCoreFeatures', 'area=corefeatures'),
 		array('ModifyBasicSettings', 'area=featuresettings;sa=basic'),
 		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
 		array('ModifyKarmaSettings', 'area=featuresettings;sa=karma'),
