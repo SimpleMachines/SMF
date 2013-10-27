@@ -706,8 +706,6 @@ $txt['help_popup'] = 'A little lost? Let me explain:';
 $txt['previous_next_back'] = 'previous topic';
 $txt['previous_next_forward'] = 'next topic';
 
-$txt['upshrink_description'] = 'Shrink or expand the header.';
-
 $txt['mark_unread'] = 'Mark unread';
 
 $txt['ssi_not_direct'] = 'Please don\'t access SSI.php by URL directly; you may want to use the path (%1$s) or add ?ssi_function=something.';
