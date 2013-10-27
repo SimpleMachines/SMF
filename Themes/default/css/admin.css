@@ -49,11 +49,11 @@ body.action_admin .navigate_section ul li a {
 /* Can be simplified quite a lot before production builds. */
 
 /* Re-style default cat bars to get rid of header bar mania. */
-#manage_maintenance .cat_bar, #core_features .cat_bar, #support_credits .cat_bar {
+#manage_maintenance .cat_bar, #support_credits .cat_bar {
 	border: none;
 	border-top: 1px solid #bbb;
 }
-#manage_maintenance .cat_bar .catbg, #manage_boards .cat_bar .catbg, #core_features .cat_bar .catbg,
+#manage_maintenance .cat_bar .catbg, #manage_boards .cat_bar .catbg,
 #support_credits .cat_bar .catbg, .generic_list_wrapper .cat_bar .catbg {
 	border: none;
 	border-top: 1px solid #fff;
@@ -131,7 +131,7 @@ body.action_admin .navigate_section ul li a {
 /* A general admin wrapper class. */
 #admin_main_section, div.quick_tasks,
 #support_credits, #admin_newsletters,
-#core_features, #generate_reports_type,
+#generate_reports_type,
 #groupForm, #mailqueue_stats, #manage_maintenance,
 #new_group, #view_group, #admin_form_wrapper, .action_admin .generic_list_wrapper{
 	background: #f0f4f7;
@@ -592,59 +592,6 @@ div.quick_tasks {
 }
 #support_credits dd {
 	padding: 6px 0;
-}
-
-/* Styles for the core features screen.
-/* Cleaned up a  bit for clarity.
-------------------------------------------------------- */
-#core_features {
-	padding: 20px 0;
-}
-#core_features hr {
-	padding: 0;
-	margin: 4px 0 12px 0;
-}
-#core_features .content {
-	padding: 0 12px;
-	overflow: auto;
-}
-
-.cf_notification {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-}
-
-/* Keep your enemies close, and your submit buttons if your screen is huge. */
-/* Speaking of which, I can't see the last submit that is in the markup. */
-/* Still works without it if you reload the page, but rather odd that it's hiding. */
-.features_image {
-	float: left;
-	margin: 0 12px 0 0;
-}
-.features_switch {
-	margin: -20px 0 6px 6px;
-	float: right;
-}
-.features_separate {
-	margin-bottom: 12px;
-	border-bottom: 2px solid #ccc;
-}
-.features h4 {
-	padding: 0;
-	margin: 0 6px 0 105px;
-	font-size: 1.1em;
-	overflow: hidden;
-	white-space: pre;
-	text-overflow: ellipsis;
-	min-height: 1.6em;
-	max-height: 1.6em;
-}
-.features p {
-	margin: 0 6px 0 105px;
-	padding: 0;
-	min-height: 56px;
 }
 
 /* Styles for the package manager.
@@ -1188,15 +1135,7 @@ h3.grid_header {
 }
 
 /* Try out some nifty small screen friendliness, for the cost of a few more bytes. */
-/*@media screen and (max-width: 85em) {
-	.features p {
-		margin: 0;
-		padding: 0;
-		min-height: 10em;
-		max-height: 10em;
-	}
 
-}*/
 @media screen and (max-width: 490px),(max-width: 32em) {
 	body {
 		padding: 0;
@@ -1248,22 +1187,6 @@ h3.grid_header {
 	}
 	#credits_page img {
 		right: 6px;
-	}
-	#core_features .features_image {
-		display: none;
-	}
-	#core_features .features_switch {
-		margin: -24px 0 0 5px;
-	}
-	#core_features .features h4 {
-		padding: 0 0 10px 0;
-	}
-	#core_features .features p {
-		margin: 0;
-		padding: 0;
-		min-height: 0;
-		max-height: 5em;
-		overflow: auto;
 	}
 	#manage_boards .catbg {
 		margin-top: 10px;

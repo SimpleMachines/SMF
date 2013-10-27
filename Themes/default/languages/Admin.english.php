@@ -648,8 +648,6 @@ $txt['admin_search_results_none'] = 'No results found.';
 $txt['admin_search_section_sections'] = 'Section';
 $txt['admin_search_section_settings'] = 'Setting';
 
-$txt['core_settings_title'] = 'Core Features';
-$txt['core_settings_desc'] = 'This page allows you to turn on or off optional features of your forum.';
 $txt['mods_cat_features'] = 'General';
 $txt['antispam_title'] = 'Anti-Spam';
 $txt['mods_cat_modifications_misc'] = 'Miscellaneous';
@@ -662,10 +660,6 @@ $txt['pruning_title'] = 'Log Pruning';
 $txt['pruning_desc'] = 'The following options are useful for keeping your logs from growing too big, because most of the time older entries are not really of that much use.';
 $txt['log_settings'] = 'Log Settings';
 $txt['log_ban_hits'] = 'Log ban hits in the error log?';
-
-$txt['core_settings_activation_message'] = 'The feature {core_feature} has been activated, click on the title to configure it';
-$txt['core_settings_deactivation_message'] = 'The feature {core_feature} has been deactivated';
-$txt['core_settings_generic_error'] = 'An unforeseen error occurred, please relod the page and try again';
 
 $txt['boardsEdit'] = 'Modify Boards';
 $txt['mboards_new_cat'] = 'Create new category';

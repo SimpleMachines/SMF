@@ -1553,7 +1553,7 @@ function loadAllPermissions($loadType = 'classic')
 	}
 	if ($modSettings['warning_settings'][0] == 0)
 		$hiddenPermissions[] = 'issue_warning';
-	if (!in_array('k', $context['admin_features']))
+	if (empty($modSettings['karmaMode']))
 		$hiddenPermissions[] = 'karma_edit';
 
 	// Post moderation?

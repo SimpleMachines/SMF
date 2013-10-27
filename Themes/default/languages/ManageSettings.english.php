@@ -294,15 +294,6 @@ $txt['custom_edit_delete_sure'] = 'Are you sure you wish to delete this field - 
 $txt['standard_profile_title'] = 'Standard Profile Fields';
 $txt['standard_profile_field'] = 'Field';
 
-$txt['core_settings_welcome_msg'] = 'Welcome to Your New Forum';
-$txt['core_settings_welcome_msg_desc'] = 'To get you started we suggest you select which of SMF\'s core features you want to enable. We\'d recommend only enabling with those features you need!';
-$txt['core_settings_item_k'] = 'Karma';
-$txt['core_settings_item_k_desc'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can \'applaud\' or \'smite\' other members, which is how their popularity is calculated.';
-$txt['core_settings_switch_on'] = 'Click to Enable';
-$txt['core_settings_switch_off'] = 'Click to Disable';
-$txt['core_settings_enabled'] = 'Enabled';
-$txt['core_settings_disabled'] = 'Disabled';
-
 $txt['languages_lang_name'] = 'Language Name';
 $txt['languages_locale'] = 'Locale';
 $txt['languages_default'] = 'Default';

@@ -2001,7 +2001,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('warning_settings', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('warning_watch', '10');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('warning_moderate', '35');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('warning_mute', '60');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_features', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('last_mod_report_action', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pruningOptions', '30,180,180,180,30,0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('modlog_enabled', '1');
