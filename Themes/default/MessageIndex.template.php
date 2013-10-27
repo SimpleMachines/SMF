@@ -239,7 +239,7 @@ function template_main()
 				$color_class = !$topic['approved'] ? 'approvetbg' : 'approvebg';
 			// We start with locked and sticky topics.
 			elseif ($topic['is_sticky'] && $topic['is_locked'])
-				$color_class = 'stickybg locked_sticky';
+				$color_class = 'locked_sticky stickybg';
 			// Sticky topics should get a different color, too.
 			elseif ($topic['is_sticky'])
 				$color_class = 'stickybg';
