@@ -436,12 +436,24 @@ a img {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
-	background: url(../images/toggle.png) no-repeat 0 0px;
+	background: url(../images/toggle.png) no-repeat 0 0;
 	text-indent: -100em;
 	overflow: hidden;
 }
 .toggle_down, .go_down {
 	background-position: 0 -17px;
+}
+/* And the sort up/down icons too. */
+.sort_up, .sort_down {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/sort.png) no-repeat 0 0;
+	text-indent: -100em;
+	overflow: hidden;
+}
+.sort_down {
+	background-position: 0 -16px;
 }
 /* Generally, those [?] icons.  This makes your cursor a help icon. */
 .help {
@@ -939,7 +951,7 @@ table.table_grid td {
 .additional_row {
 	padding: 6px 0 6px 0;
 }
-img.sort {
+img.sort, .sort {
 	margin-bottom: -4px;
 	margin-left: 4px;
 }
