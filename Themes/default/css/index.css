@@ -897,10 +897,14 @@ div.title_barIC h4.titlebg {
 	margin: 0;
 	padding: 6px;
 }
-img#upshrink_ic, img#newsupshrink, img.panel_toggle, img#quickReplyExpand {
+img#upshrink_ic, img#newsupshrink, img.panel_toggle {
 	float: right;
 	margin: 0;
 	padding: 4px 4px 0 4px;
+}
+#quickReplyExpand {
+	float: right;
+	margin: 2px 2px 0 2px;
 }
 table.table_list a.unreadlink, table.table_list a.collapse {
 	float: right;
