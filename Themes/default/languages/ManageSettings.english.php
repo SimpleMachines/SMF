@@ -161,7 +161,6 @@ $txt['posts_require_captcha_desc'] = '(0 for no limit, moderators are exempt)';
 $txt['search_enable_captcha'] = 'Require verification on all guest searches';
 $txt['setting_guests_require_captcha'] = 'Guests must pass verification when making a post';
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
-$txt['guests_report_require_captcha'] = 'Guests must pass verification when reporting a post'; // Deprecated
 
 $txt['configure_verification_means'] = 'Configure Verification Methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
