@@ -36,6 +36,9 @@
  * 		array('permissions', 'manage_groups'),
  * - A BBC selection box.
  * 		array('bbc', 'sig_bbc'),
+ * - A list of boards to choose from
+ *  	array('boards', 'likes_boards'),
+ *  	Note that the storage in the database is as 1,2,3,4
  *
  * For each option:
  * 	- type (see above), variable name, size/possible values.
@@ -659,13 +662,14 @@ function prepareServerSettingsContext(&$config_vars)
  */
 function prepareDBSettingContext(&$config_vars)
 {
-	global $txt, $helptxt, $context, $modSettings, $sourcedir;
+	global $txt, $helptxt, $context, $modSettings, $sourcedir, $smcFunc;
 
 	loadLanguage('Help');
 
 	$context['config_vars'] = array();
 	$inlinePermissions = array();
 	$bbcChoice = array();
+	$board_list = false;
 	foreach ($config_vars as $config_var)
 	{
 		// HR?
@@ -683,9 +687,47 @@ function prepareDBSettingContext(&$config_vars)
 			elseif ($config_var[0] == 'permissions')
 				continue;
 
+			if ($config_var[0] == 'boards')
+				$board_list = true;
+
 			// Are we showing the BBC selection box?
 			if ($config_var[0] == 'bbc')
 				$bbcChoice[] = $config_var[1];
+
+			// We need to do some parsing of the value before we pass it in.
+			if (isset($modSettings[$config_var[1]]))
+			{
+				switch ($config_var[0])
+				{
+					case 'select':
+						$value = $modSettings[$config_var[1]];
+						break;
+					case 'boards':
+						$value = explode(',', $modSettings[$config_var[1]]);
+						break;
+					default:
+						$value = $smcFunc['htmlspecialchars']($modSettings[$config_var[1]]);
+				}
+			}
+			else
+			{
+				// Darn, it's empty. What type is expected?
+				switch ($config_var[0])
+				{
+					case 'int':
+					case 'float':
+						$value = 0;
+						break;
+					case 'select':
+						$value = !empty($config_var['multiple']) ? serialize(array()) : '';
+						break;
+					case 'boards':
+						$value = array();
+						break;
+					default:
+						$value = '';
+				}
+			}
 
 			$context['config_vars'][$config_var[1]] = array(
 				'label' => isset($config_var['text_label']) ? $config_var['text_label'] : (isset($txt[$config_var[1]]) ? $txt[$config_var[1]] : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
@@ -694,7 +736,7 @@ function prepareDBSettingContext(&$config_vars)
 				'size' => !empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], array('int', 'float')) ? 6 : 0),
 				'data' => array(),
 				'name' => $config_var[1],
-				'value' => isset($modSettings[$config_var[1]]) ? ($config_var[0] == 'select' ? $modSettings[$config_var[1]] : htmlspecialchars($modSettings[$config_var[1]])) : (in_array($config_var[0], array('int', 'float')) ? 0 : (!empty($config_var['multiple']) ? serialize(array()) : '')),
+				'value' => $value,
 				'disabled' => false,
 				'invalid' => !empty($config_var['invalid']),
 				'javascript' => '',
@@ -757,6 +799,12 @@ function prepareDBSettingContext(&$config_vars)
 	{
 		require_once($sourcedir . '/ManagePermissions.php');
 		init_inline_permissions($inlinePermissions, isset($context['permissions_excluded']) ? $context['permissions_excluded'] : array());
+	}
+
+	if ($board_list)
+	{
+		require_once($sourcedir . '/Subs-MessageIndex.php');
+		$context['board_list'] = getBoardList();
 	}
 
 	// What about any BBC selection boxes?
@@ -922,7 +970,8 @@ function saveSettings(&$config_vars)
  */
 function saveDBSettings(&$config_vars)
 {
-	global $sourcedir, $context;
+	global $sourcedir, $context, $smcFunc;
+	static $board_list = null;
 
 	validateToken('admin-dbsc');
 
@@ -947,6 +996,28 @@ function saveDBSettings(&$config_vars)
 					$options[] = $invar;
 
 			$setArray[$var[1]] = serialize($options);
+		}
+		// List of boards!
+		elseif ($var[0] == 'boards')
+		{
+			// We just need a simple list of valid boards, nothing more.
+			if ($board_list === null)
+			{
+				$board_list = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board
+					FROM {db_prefix}boards');
+				while ($row = $smcFunc['db_fetch_row']($request))
+					$board_list[$row[0]] = true;
+				$smcFunc['db_free_result']($request);
+			}
+
+			$options = array();
+			foreach ($_POST[$var[1]] as $invar => $dummy)
+				if (isset($board_list[$invar]))
+					$options[] = $invar;
+
+			$setArray[$var[1]] = implode(',', $options);
 		}
 		// Integers!
 		elseif ($var[0] == 'int')
