@@ -2650,4 +2650,4 @@ CREATE TABLE {$db_prefix}user_drafts (
 # Indexes for table `user_drafts`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);

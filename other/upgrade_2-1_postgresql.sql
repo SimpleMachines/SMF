@@ -401,6 +401,7 @@ CREATE TABLE {$db_prefix}user_drafts (
 	to_list varchar(255) NOT NULL default '',
 	PRIMARY KEY (id_draft)
 );
+CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 ---#
 
 ---# Adding draft permissions...
