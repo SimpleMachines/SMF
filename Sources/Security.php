@@ -443,6 +443,7 @@ function banPermissions()
 			'manage_attachments', 'manage_smileys', 'manage_boards', 'admin_forum', 'manage_permissions',
 			'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news',
 			'profile_identity_any', 'profile_extra_any', 'profile_title_any',
+			'profile_forum_any', 'profile_other_any', 'profile_signature_any',
 			'post_new', 'post_reply_own', 'post_reply_any',
 			'delete_own', 'delete_any', 'delete_replies',
 			'make_sticky',
