@@ -389,7 +389,7 @@ function MLAll()
 
 			if ($this_letter != $last_letter && preg_match('~[a-z]~', $this_letter) === 1)
 			{
-				$context['members'][$i]['sort_letter'] = htmlspecialchars($this_letter);
+				$context['members'][$i]['sort_letter'] = $smcFunc['htmlspecialchars']($this_letter);
 				$last_letter = $this_letter;
 			}
 		}
@@ -572,7 +572,7 @@ function MLSearch()
 		$context['search_defaults'] = array('name', 'email');
 
 		$context['sub_template'] = 'search';
-		$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? htmlspecialchars($_POST['search']) : '');
+		$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? $smcFunc['htmlspecialchars']($_POST['search']) : '');
 	}
 
 	$context['linktree'][] = array(

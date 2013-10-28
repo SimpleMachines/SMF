@@ -722,7 +722,7 @@ function SetThemeSettings()
 		'' => $txt['smileys_no_default']
 	);
 	foreach ($sets as $i => $set)
-		$context['smiley_sets'][$set] = htmlspecialchars($set_names[$i]);
+		$context['smiley_sets'][$set] = $smcFunc['htmlspecialchars']($set_names[$i]);
 
 	$old_id = $settings['theme_id'];
 	$old_settings = $settings;
@@ -1920,11 +1920,11 @@ function EditTheme()
 
 			// Recycle the submitted data.
 			if (is_array($_POST['entire_file']))
-				$context['entire_file'] = htmlspecialchars(implode("\n", $_POST['entire_file']));
+				$context['entire_file'] = $smcFunc['htmlspecialchars'](implode("\n", $_POST['entire_file']));
 			else
-				$context['entire_file'] = htmlspecialchars($_POST['entire_file']);
+				$context['entire_file'] = $smcFunc['htmlspecialchars']($_POST['entire_file']);
 
-			$context['edit_filename'] = htmlspecialchars($_POST['filename']);
+			$context['edit_filename'] = $smcFunc['htmlspecialchars']($_POST['filename']);
 
 			// You were able to submit it, so it's reasonable to assume you are allowed to save.
 			$context['allow_save'] = true;
@@ -1938,13 +1938,13 @@ function EditTheme()
 
 	$context['allow_save'] = is_writable($theme_dir . '/' . $_REQUEST['filename']);
 	$context['allow_save_filename'] = strtr($theme_dir . '/' . $_REQUEST['filename'], array($boarddir => '...'));
-	$context['edit_filename'] = htmlspecialchars($_REQUEST['filename']);
+	$context['edit_filename'] = $smcFunc['htmlspecialchars']($_REQUEST['filename']);
 
 	if (substr($_REQUEST['filename'], -4) == '.css')
 	{
 		$context['sub_template'] = 'edit_style';
 
-		$context['entire_file'] = htmlspecialchars(strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 	elseif (substr($_REQUEST['filename'], -13) == '.template.php')
 	{
@@ -1975,16 +1975,16 @@ function EditTheme()
 			}
 
 			$context['file_parts'][$j]['lines']++;
-			$context['file_parts'][$j]['data'] .= htmlspecialchars(strtr($file_data[$i], array("\t" => '   ')));
+			$context['file_parts'][$j]['data'] .= $smcFunc['htmlspecialchars'](strtr($file_data[$i], array("\t" => '   ')));
 		}
 
-		$context['entire_file'] = htmlspecialchars(strtr(implode('', $file_data), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(implode('', $file_data), array("\t" => '   ')));
 	}
 	else
 	{
 		$context['sub_template'] = 'edit_file';
 
-		$context['entire_file'] = htmlspecialchars(strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 
 	// Create a special token to allow editing of multiple files.

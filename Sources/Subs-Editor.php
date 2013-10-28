@@ -147,7 +147,7 @@ function html_to_bbc($text)
 				$found = array_search($file, $smileysto);
 				// Note the weirdness here is to stop double spaces between smileys.
 				if ($found)
-					$matches[1][$k] = '-[]-smf_smily_start#|#' . htmlspecialchars($smileysfrom[$found]) . '-[]-smf_smily_end#|#';
+					$matches[1][$k] = '-[]-smf_smily_start#|#' . $smcFunc['htmlspecialchars']($smileysfrom[$found]) . '-[]-smf_smily_end#|#';
 				else
 					$matches[1][$k] = '';
 			}
@@ -172,7 +172,7 @@ function html_to_bbc($text)
 				);
 				$mappings = array();
 				while ($row = $smcFunc['db_fetch_assoc']($request))
-					$mappings[$row['filename']] = htmlspecialchars($row['code']);
+					$mappings[$row['filename']] = $smcFunc['htmlspecialchars']($row['code']);
 				$smcFunc['db_free_result']($request);
 
 				foreach ($matches[1] as $k => $file)
@@ -1478,6 +1478,7 @@ function create_control_richedit($editorOptions)
 		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
 		loadJavascriptFile('jquery.sceditor.js', array('default_theme' => true));
 		loadJavascriptFile('jquery.sceditor.bbcode.js', array('default_theme' => true));
+		loadJavascriptFile('jquery.sceditor.smf.js', array('default_theme' => true));
 		addInlineJavascript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes($txt['quote_from'], "'") . '\';
@@ -1893,8 +1894,8 @@ function create_control_richedit($editorOptions)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
-					$row['filename'] = htmlspecialchars($row['filename']);
-					$row['description'] = htmlspecialchars($row['description']);
+					$row['filename'] = $smcFunc['htmlspecialchars']($row['filename']);
+					$row['description'] = $smcFunc['htmlspecialchars']($row['description']);
 
 					$context['smileys'][empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}

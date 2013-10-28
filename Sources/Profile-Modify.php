@@ -541,7 +541,7 @@ function loadProfileFields($force_reload = false)
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
 			'preload' => create_function('', '
-				global $modSettings, $context, $txt, $cur_profile;
+				global $modSettings, $context, $txt, $cur_profile, $smcFunc;
 
 				$context[\'member\'][\'smiley_set\'][\'id\'] = empty($cur_profile[\'smiley_set\']) ? \'\' : $cur_profile[\'smiley_set\'];
 				$context[\'smiley_sets\'] = explode(\',\', \'none,,\' . $modSettings[\'smiley_sets_known\']);
@@ -549,8 +549,8 @@ function loadProfileFields($force_reload = false)
 				foreach ($context[\'smiley_sets\'] as $i => $set)
 				{
 					$context[\'smiley_sets\'][$i] = array(
-						\'id\' => htmlspecialchars($set),
-						\'name\' => htmlspecialchars($set_names[$i]),
+						\'id\' => $smcFunc[\'htmlspecialchars\']($set),
+						\'name\' => $smcFunc[\'htmlspecialchars\']($set_names[$i]),
 						\'selected\' => $set == $context[\'member\'][\'smiley_set\'][\'id\']
 					);
 
@@ -1649,7 +1649,7 @@ function pmprefs($memID)
  */
 function getAvatars($directory, $level)
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt, $modSettings, $smcFunc;
 
 	$result = array();
 
@@ -1692,9 +1692,9 @@ function getAvatars($directory, $level)
 		$tmp = getAvatars($directory . (!empty($directory) ? '/' : '') . $line, $level + 1);
 		if (!empty($tmp))
 			$result[] = array(
-				'filename' => htmlspecialchars($line),
+				'filename' => $smcFunc['htmlspecialchars']($line),
 				'checked' => strpos($context['member']['avatar']['server_pic'], $line . '/') !== false,
-				'name' => '[' . htmlspecialchars(str_replace('_', ' ', $line)) . ']',
+				'name' => '[' . $smcFunc['htmlspecialchars'](str_replace('_', ' ', $line)) . ']',
 				'is_dir' => true,
 				'files' => $tmp
 		);
@@ -1711,9 +1711,9 @@ function getAvatars($directory, $level)
 			continue;
 
 		$result[] = array(
-			'filename' => htmlspecialchars($line),
+			'filename' => $smcFunc['htmlspecialchars']($line),
 			'checked' => $line == $context['member']['avatar']['server_pic'],
-			'name' => htmlspecialchars(str_replace('_', ' ', $filename)),
+			'name' => $smcFunc['htmlspecialchars'](str_replace('_', ' ', $filename)),
 			'is_dir' => false
 		);
 		if ($level == 1)
@@ -3070,7 +3070,7 @@ function profileValidateSignature(&$value)
 	// Too long?
 	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && $smcFunc['strlen'](str_replace('<br />', "\n", $value)) > $sig_limits[1])
 	{
-		$_POST['signature'] = trim(htmlspecialchars(str_replace('<br />', "\n", $value), ENT_QUOTES));
+		$_POST['signature'] = trim($smcFunc['htmlspecialchars'](str_replace('<br />', "\n", $value), ENT_QUOTES));
 		$txt['profile_error_signature_max_length'] = sprintf($txt['profile_error_signature_max_length'], $sig_limits[1]);
 		return 'signature_max_length';
 	}

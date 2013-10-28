@@ -175,27 +175,23 @@ function template_folder()
 			echo '
 	<div class="', $window_class, '">
 		<div class="poster">
-			<ul>
-				<li>
 					<h4>
 						<a id="msg', $message['id'], '"></a>';
 						
-		
+		// Show online and offline buttons?
+		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
+			echo '
+				<img src="', $message['member']['online']['image_href'], '" alt="', $message['member']['online']['text'], '" />';
+	
 		// Show a link to the member's profile (but only if the sender isn't a guest).
-		if (!$message['member']['is_guest'])
-			echo '
-						<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">';
-		
-		echo '
-							<span style="padding: 6px; display: block;">', $message['member']['name'], '</span>';
-
-		if (!$message['member']['is_guest'])
-			echo '
-						</a>';
+				echo '
+					', $message['member']['link'], '';
 
 		echo '
-					</h4>
-				</li>';
+					</h4>';
+					
+		echo '
+								<ul>';
 
 			// Show the user's avatar.
 			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
@@ -268,14 +264,14 @@ function template_folder()
 							$shown = true;
 							echo '
 				<li class="im_icons">
-					<ul>';
+					<ol>';
 						}
 						echo '
 						<li>', $custom['value'], '</li>';
 					}
 					if ($shown)
 					echo '
-					</ul>
+					</ol>
 				</li>';
 				}
 
@@ -283,17 +279,13 @@ function template_folder()
 				if ($message['member']['has_messenger'] && $message['member']['can_view_profile'])
 					echo '
 				<li class="im_icons">
-					<ul>
+					<ol>
 						', !isset($context['disabled_fields']['icq']) && !empty($message['member']['icq']['link']) ? '<li>' . $message['member']['icq']['link'] . '</li>' : '', '
 						', !isset($context['disabled_fields']['skype']) && !empty($message['member']['skype']['link']) ? '<li>' . $message['member']['skype']['link'] . '</li>' : '', '
 						', !isset($context['disabled_fields']['aim']) && !empty($message['member']['aim']['link']) ? '<li>' . $message['member']['aim']['link'] . '</li>' : '', '
 						', !isset($context['disabled_fields']['yim']) && !empty($message['member']['yim']['link']) ? '<li>' . $message['member']['yim']['link'] . '</li>' : '', '
-					</ul>
+					</ol>
 				</li>';
-
-				// Stuff for the staff to wallop them with.
-				echo '
-				<li>';
 
 				if ($message['can_report'])
 					echo '
@@ -319,7 +311,7 @@ function template_folder()
 				{
 					echo '
 				<li class="profile">
-					<ul class="profile_icons">';
+					<ol class="profile_icons">';
 
 					// Show the profile button
 					if ($message['member']['can_view_profile'])
@@ -342,7 +334,7 @@ function template_folder()
 						<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . '.png" alt="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '" />' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
 
 					echo '
-					</ul>
+					</ol>
 				</li>';
 				}
 
@@ -360,29 +352,6 @@ function template_folder()
 				echo '
 				<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '" />', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 			}
-
-		// Show online and offline buttons? PHP could do with a little bit of cleaning up here for brevity, but it works.
-		// The plan is to make these buttons act sensibly, and link to your own inbox in your own posts (with new PM notification).
-		// Still has a little bit of hard-coded text. This may be a place where translators should be able to write inclusive strings,
-		// instead of dealing with $txt['by'] etc in the markup. Must be brief to work, anyway. Cannot ramble on at all.
-		if ($context['can_send_pm'] && $message['is_message_author'])
-		{
-			echo '
-				<li class="poster_online"><a href="', $scripturl,'?action=pm">', $txt['pm_short'], ' ', $context['user']['unread_messages'] > 0 ? '[<strong>'. $context['user']['unread_messages'] . '</strong>]' : '' , '</a></li>';
-		}
-		elseif ($context['can_send_pm'] && !$message['is_message_author'] && !$message['member']['is_guest'])
-		{
-			if (!empty($modSettings['onlineEnable']))
-				echo '
-				<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['member_online_text'], '">', $txt['send_message'], ' <img src="'. $message['member']['online']['image_href']. '" alt="" /></a></li>';
-			else
-				echo '
-				<li class="poster_online"><a href="', $scripturl,'?action=pm;sa=send;u=', $message['member']['id'], '">', $txt['send_message'], '</a></li>';
-		}
-		elseif (!$context['can_send_pm'] && !empty($modSettings['onlineEnable']))
-			echo '
-				<li class="poster_online">', ($message['member']['online']['is_online']) ? $txt['online'] : $txt['offline'], '<img src="'. $message['member']['online']['image_href']. '" alt="" /></li>';
-
 
 			// Done with the information about the poster... on to the post itself.
 			echo '

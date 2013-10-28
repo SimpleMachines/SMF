@@ -115,9 +115,9 @@ div.sceditor-smileyPopup {
 }
 .sceditor-fontsize-option, .sceditor-font-option {
 	display: block;
-	padding: 4px 6px;
+	padding: 6px;
 	cursor: pointer;
-	font-size: 14px;
+	font-size: 1.2em;
 	text-decoration: none;
 	color: #222;
 }

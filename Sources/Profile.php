@@ -41,9 +41,13 @@ function ModifyProfile($post_errors = array())
 	// ... or by id_member?
 	elseif (!empty($_REQUEST['u']))
 		$memberResult = loadMemberData((int) $_REQUEST['u'], false, 'profile');
-	// If it was just ?action=profile, edit your own profile.
+	// If it was just ?action=profile, edit your own profile, but only if you're not a guest.
 	else
+	{
+		// Members only...
+		is_not_guest();
 		$memberResult = loadMemberData($user_info['id'], false, 'profile');
+	}
 
 	// Check if loadMemberData() has returned a valid result.
 	if (!is_array($memberResult))
