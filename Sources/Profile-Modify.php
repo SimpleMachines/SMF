@@ -476,13 +476,13 @@ function loadProfileFields($force_reload = false)
 			'),
 		),
 		'real_name' => array(
-			'type' => allowedTo('moderate_forum') ? 'text' : 'label',
+			'type' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum') ? 'text' : 'label',
 			'label' => $txt['name'],
 			'subtext' => $txt['display_name_desc'],
 			'log_change' => true,
 			'input_attr' => array('maxlength="60"'),
 			'permission' => 'profile_displayed_name',
-			'enabled' => allowedTo('moderate_forum'),
+			'enabled' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum'),
 			'input_validate' => create_function('&$value', '
 				global $context, $smcFunc, $sourcedir, $cur_profile;
 
