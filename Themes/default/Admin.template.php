@@ -845,6 +845,34 @@ function template_show_settings()
 					echo '
 							</select>';
 				}
+				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
+				elseif ($config_var['type'] == 'boards')
+				{
+					$board_list = true;
+					$first = true;
+					echo '
+							<a href="#" class="board_selector">[ ', $txt['select_boards_from_list'], ' ]</a>
+							<fieldset>
+								<legend class="board_selector"><a href="#">', $txt['select_boards_from_list'], '</a></legend>';
+					foreach ($context['board_list'] as $id_cat => $cat)
+					{
+						if (!$first)
+							echo '
+								<hr />';
+						echo '
+								<strong>', $cat['name'], '</strong>
+								<ul>';
+						foreach ($cat['boards'] as $id_board => $brd)
+							echo '
+									<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1" class="input_check"', in_array($brd['id'], $config_var['value']) ? ' checked="checked"' : '', ' /> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
+
+						echo '
+								</ul>';
+						$first = false;
+					}
+					echo '
+							</fieldset>';
+				}
 				// Text area?
 				elseif ($config_var['type'] == 'large_text')
 					echo '
@@ -943,6 +971,19 @@ function template_show_settings()
 
 	if (!empty($context['settings_insert_below']))
 		echo $context['settings_insert_below'];
+
+	// We may have added a board listing. If we did, we need to make it work.
+	addInlineJavascript('
+	$("legend.board_selector").closest("fieldset").hide();
+	$("a.board_selector").click(function(e) {
+		e.preventDefault();
+		$(this).hide().next("fieldset").show();
+	});
+	$("fieldset legend.board_selector a").click(function(e) {
+		e.preventDefault();
+		$(this).closest("fieldset").hide().prev("a").show();
+	});
+	', true);
 }
 
 // Template for showing custom profile fields.

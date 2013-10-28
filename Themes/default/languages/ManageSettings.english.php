@@ -358,4 +358,6 @@ $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';
 $txt['setting_frame_security_DENY'] = 'Deny all frames';
 $txt['setting_frame_security_DISABLE'] = 'Disabled';
 
+$txt['select_boards_from_list'] = 'Select boards which apply';
+
 ?>
