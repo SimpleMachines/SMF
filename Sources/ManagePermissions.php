@@ -1185,6 +1185,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_signature_any',
 		'profile_forum_own',
 		'profile_other_any',
+		'profile_displayed_name_any',
 		'profile_password_any',
 		'profile_title_any',
 	));
@@ -1498,6 +1499,7 @@ function loadAllPermissions($loadType = 'classic')
 			'profile_signature' => array(true, 'profile', 'edit_profile', 'moderate_general'),
 			'profile_other' => array(true, 'profile', 'edit_profile', 'moderate_general'),
 			'profile_title' => array(true, 'profile', 'edit_profile', 'moderate_general'),
+			'profile_displayed_name' => array(true, 'profile', 'edit_profile', 'moderate_general'),
 			'profile_blurb' => array(true, 'profile', 'edit_profile', 'moderate_general'),
 			'profile_remove' => array(true, 'profile', 'delete_account', 'moderate_general'),
 			'profile_server_avatar' => array(false, 'profile', 'use_avatar'),

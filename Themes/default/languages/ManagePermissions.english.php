@@ -34,6 +34,12 @@ $txt['permissions_profile_used_by_many'] = '%1$d Boards';
 $txt['permissions_profile_used_by_none'] = 'No Boards';
 $txt['permissions_profile_do_edit'] = 'Edit';
 $txt['permissions_profile_do_delete'] = 'Delete';
+
+$txt['permissionname_profile_displayed_name'] = 'Edit displayed name';
+$txt['permissionhelp_profile_displayed_name'] = 'Allow the member to edit the displayed name field in their profile';
+$txt['permissionname_profile_displayed_name_own'] = 'Own displayed name';
+$txt['permissionname_profile_displayed_name_any'] = 'Any displayed name';
+
 $txt['permissionname_profile_signature'] = 'Edit signature';
 $txt['permissionhelp_profile_signature'] = 'Allow the member to edit the signature field in their profile';
 $txt['permissionname_profile_signature_own'] = 'Own signature';
