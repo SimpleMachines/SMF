@@ -3037,7 +3037,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .errorbox p.alert {
 	padding: 0;
-	margin: 0;
+	margin: 0 4px 0 0;
 	float: left;
 	width: 12px;
 	font-size: 1.5em;
