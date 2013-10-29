@@ -168,7 +168,7 @@ function smf_db_replacement__callback($matches)
 		smf_db_error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 	if ($matches[1] === 'literal')
-		return mysqli_real_escape_string($connection, $matches[2]);
+		return '\'' . mysqli_real_escape_string($connection, $matches[2]) . '\'';
 
 	if (!isset($values[$matches[2]]))
 		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
