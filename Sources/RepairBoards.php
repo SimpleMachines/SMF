@@ -615,7 +615,7 @@ function loadForumTests()
 					AND t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_board',
 			'fix_processing' => create_function('$row', '
-				global $smcFunc, $salvageCatID;
+				global $smcFunc, $salvageCatID, $txt;
 				createSalvageArea();
 
 				$row[\'my_num_topics\'] = (int) $row[\'my_num_topics\'];
@@ -624,7 +624,7 @@ function loadForumTests()
 				$smcFunc[\'db_insert\'](\'\',
 					\'{db_prefix}boards\',
 					array(\'id_cat\' => \'int\', \'name\' => \'string\', \'description\' => \'string\', \'num_topics\' => \'int\', \'num_posts\' => \'int\', \'member_groups\' => \'string\'),
-					array($salvageCatID, \'Salvaged board\', \'\', $row[\'my_num_topics\'], $row[\'my_num_posts\'], \'1\'),
+					array($salvageCatID, $txt[\'salvaged_board_name\'], $txt[\'salvaged_board_description\'], $row[\'my_num_topics\'], $row[\'my_num_posts\'], \'1\'),
 					array(\'id_board\')
 				);
 				$newBoardID = $smcFunc[\'db_insert_id\'](\'{db_prefix}boards\', \'id_board\');
