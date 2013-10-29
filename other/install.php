@@ -1131,7 +1131,7 @@ function DatabasePopulation()
 
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
-			if ((($db_type != 'mysql' && $db_type != 'mysqli') || $db_errno($db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
+			if ((($db_type != 'mysql' && $db_type != 'mysqli') || $db_errorno($db_connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				$exists[] = $match[1];
 				$incontext['sql_results']['table_dups']++;
