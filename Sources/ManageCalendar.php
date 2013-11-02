@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function ManageCalendar()
 {
-	global $context, $txt;
+	global $context, $txt, $modSettings;
 
 	isAllowedTo('admin_forum');
 
@@ -42,7 +42,7 @@ function ManageCalendar()
 			'holidays' => 'ModifyHolidays',
 			'settings' => 'ModifyCalendarSettings'
 		);
-		$default = 'editholiday';
+		$default = 'holidays';
 	}
 	else
 	{
