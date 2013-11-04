@@ -106,6 +106,7 @@ $txt['lock_unlock'] = 'Lock/Unlock Topic';
 $txt['post'] = 'Post';
 $txt['error_occured'] = 'An Error Has Occurred';
 $txt['at'] = 'at';
+$txt['by'] = 'by';
 $txt['logout'] = 'Logout';
 $txt['started_by'] = 'Started by';
 $txt['topic_started_by'] = 'Started by <strong>%1$s</strong> in <em>%2$s</em>';
