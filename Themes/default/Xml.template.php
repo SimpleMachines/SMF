@@ -393,7 +393,7 @@ function template_webslice_recent_posts()
 	{
 		echo '
 		<div style="background-color: ', $alternate ? '#ECEDF3' : '#F6F6F6', '; font-size: 90%; padding: 2px;">
-			<strong><a href="', $item['link'], '">', cleanXml(sprintf($txt['post_by_member'], $item['subject'], !empty($item['poster']['link']) ? '<a href="' . $item['poster']['link'] . '">' . $item['poster']['name'] . '</a>' : $item['poster']['name'])), '<br />
+			<strong><a href="', $item['link'], '">', cleanXml(sprintf($txt['post_by_member'], $item['subject'], !empty($item['poster']['link']) ? '<a href="' . $item['poster']['link'] . '">' . $item['poster']['name'] . '</a>' : $item['poster']['name'])), '
 		</div>';
 		$alternate = !$alternate;
 	}
