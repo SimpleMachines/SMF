@@ -102,7 +102,7 @@ function template_select()
 						<div class="content">
 							<div class="message_header">
 								<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_select.png" alt="-&gt;" /></a>
-								<strong>', $message['subject'], '</strong> ', $txt['by'], ' <strong>', $message['poster'], '</strong><br />
+								', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br />
 								<em>', $message['time'], '</em>
 							</div>
 							<div class="post">', $message['body'], '</div>
@@ -134,7 +134,7 @@ function template_select()
 						<div class="content">
 							<div class="message_header">
 								<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_deselect.png" alt="&lt;-" /></a>
-								<strong>', $message['subject'], '</strong> ', $txt['by'], ' <strong>', $message['poster'], '</strong><br />
+								', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br />
 								<em>', $message['time'], '</em>
 							</div>
 							<div class="post">', $message['body'], '</div>

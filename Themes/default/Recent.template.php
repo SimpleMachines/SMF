@@ -32,7 +32,7 @@ function template_main()
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-						<span class="smalltext">', $txt['last_post'], ' ', $txt['by'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
+						<span class="smalltext">', $txt['last_poster'], ' <strong>', $post['poster']['link'], ' </strong> - ', $post['time'], '</span>
 					</div>
 					<div class="list_posts">', $post['message'], '</div>';
 
@@ -187,8 +187,7 @@ function template_unread()
 							</td>
 							<td class="', $color_class2, ' lastpost">
 								<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" class="floatright" /></a>
-								', $topic['last_post']['time'], '<br />
-								', $txt['by'], ' ', $topic['last_post']['member']['link'], '
+								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 							</td>';
 
 			if ($context['showCheckboxes'])
@@ -356,8 +355,7 @@ function template_replies()
 							</td>
 							<td class="', $color_class2, ' lastpost">
 								<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" class="floatright" /></a>
-								', $topic['last_post']['time'], '<br />
-								', $txt['by'], ' ', $topic['last_post']['member']['link'], '
+								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 							</td>';
 
 			if ($context['showCheckboxes'])
