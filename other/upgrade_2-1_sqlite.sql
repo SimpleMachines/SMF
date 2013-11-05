@@ -458,6 +458,27 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 ---#
 
 /******************************************************************************/
+--- Adding support for likes
+/******************************************************************************/
+---# Creating likes table.
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
+  id_member int NOT NULL default '0',
+  content_type char(6) default '',
+  content_id int NOT NULL default '0',
+  like_time int NOT NULL default '0',
+  PRIMARY KEY (content_id, content_type, id_member)
+);
+
+CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
+CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+---#
+
+---# Adding count to the messages table.
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN likes smallint NOT NULL default '0';
+---#
+
+/******************************************************************************/
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table

@@ -406,6 +406,26 @@ VALUES
 ---#
 
 /******************************************************************************/
+--- Adding support for likes
+/******************************************************************************/
+---# Creating likes table.
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  content_type char(6) default '',
+  content_id int(10) unsigned NOT NULL default '0',
+  like_time int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (content_id, content_type, id_member),
+  INDEX content (content_id, content_type),
+  INDEX liker (id_member)
+) ENGINE=MyISAM;
+---#
+
+---# Adding count to the messages table.
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN likes smallint(5) unsigned NOT NULL DEFAULT '0';
+---#
+
+/******************************************************************************/
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table
