@@ -571,3 +571,11 @@ CREATE TABLE {$db_prefix}qanda (
 ---# Changing ip to bigint
 ALTER TABLE {$db_prefix}log_online ALTER ip TYPE bigint;
 ---#
+
+/******************************************************************************/
+--- Marking packages as uninstalled...
+/******************************************************************************/
+upgrade_query("
+	UPDATE {$db_prefix}log_packages
+	SET install_state = 0
+");

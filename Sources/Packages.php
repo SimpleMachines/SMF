@@ -1058,9 +1058,6 @@ function PackageInstall()
 
 		package_flush_cache();
 
-		// First, ensure this change doesn't get removed by putting a stake in the ground (So to speak).
-		package_put_contents($packagesdir . '/installed.list', time());
-
 		// See if this is already installed, and change it's state as required.
 		$request = $smcFunc['db_query']('', '
 			SELECT package_id, install_state, db_changes
@@ -1318,9 +1315,6 @@ function FlushInstall()
 
 	include_once($sourcedir . '/Subs-Package.php');
 
-	// Record when we last did this.
-	package_put_contents($packagesdir . '/installed.list', time());
-
 	// Set everything as uninstalled.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_packages
@@ -1344,7 +1338,7 @@ function PackageRemove()
 	checkSession('get');
 
 	// Ack, don't allow deletion of arbitrary files here, could become a security hole somehow!
-	if (!isset($_GET['package']) || $_GET['package'] == 'index.php' || $_GET['package'] == 'installed.list' || $_GET['package'] == 'backups')
+	if (!isset($_GET['package']) || $_GET['package'] == 'index.php' || $_GET['package'] == 'backups')
 		redirectexit('action=admin;area=packages;sa=browse');
 	$_GET['package'] = preg_replace('~[\.]+~', '.', strtr($_GET['package'], array('/' => '_', '\\' => '_')));
 
@@ -2023,10 +2017,6 @@ function PackagePermissions()
 						),
 						'backup' => array(
 							'type' => 'dir',
-						),
-						'installed.list' => array(
-							'type' => 'file',
-							'writable_on' => 'standard',
 						),
 					),
 				),
