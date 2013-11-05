@@ -109,15 +109,14 @@ function PackageServers()
 	}
 	$smcFunc['db_free_result']($request);
 
-	$context['package_download_broken'] = !is_writable($packagesdir) || !is_writable($packagesdir . '/installed.list');
+	$context['package_download_broken'] = !is_writable($packagesdir);
 
 	if ($context['package_download_broken'])
 	{
 		@chmod($packagesdir, 0777);
-		@chmod($packagesdir . '/installed.list', 0777);
 	}
 
-	$context['package_download_broken'] = !is_writable($packagesdir) || !is_writable($packagesdir . '/installed.list');
+	$context['package_download_broken'] = !is_writable($packagesdir);
 
 	if ($context['package_download_broken'])
 	{
@@ -168,8 +167,6 @@ function PackageServers()
 			$context['package_download_broken'] = false;
 
 			$ftp->chmod('.', 0777);
-			$ftp->chmod('installed.list', 0666);
-
 			$ftp->close();
 		}
 	}

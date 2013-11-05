@@ -542,7 +542,6 @@ function CheckFilesWritable()
 		'avatars',
 		'cache',
 		'Packages',
-		'Packages/installed.list',
 		'Smileys',
 		'Themes',
 		'agreement.txt',
