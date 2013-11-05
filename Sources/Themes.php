@@ -1422,6 +1422,7 @@ function ThemeInstall()
 			fclose($fp);
 		}
 	}
+
 	elseif (isset($_REQUEST['theme_dir']) && $method == 'path')
 	{
 		if (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
@@ -1430,7 +1431,8 @@ function ThemeInstall()
 		$theme_name = basename($_REQUEST['theme_dir']);
 		$theme_dir = $_REQUEST['theme_dir'];
 	}
-	elseif ($method = 'upload')
+
+	elseif ($method == 'upload')
 	{
 		// Hopefully the themes directory is writable, or we might have a problem.
 		if (!is_writable($boarddir . '/Themes'))
@@ -1459,7 +1461,7 @@ function ThemeInstall()
 			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	// Something go wrong?
+	// Something went wrong?
 	if ($theme_dir != '' && basename($theme_dir) != 'Themes')
 	{
 		// Defaults.
