@@ -218,9 +218,6 @@ function ModifyDatabaseSettings($return_config = false)
 		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase'),
 		array('autoOptMaxOnline', $txt['autoOptMaxOnline'], 'subtext' => $txt['zero_for_no_limit'], 'db', 'int'),
 		'',
-		array('boardurl', $txt['admin_url'], 'file', 'text', 36),
-		array('boarddir', $txt['boarddir'], 'file', 'text', 36),
-		array('sourcedir', $txt['sourcesdir'], 'file', 'text', 36),
 		array('cachedir', $txt['cachedir'], 'file', 'text', 36),
 	);
 
