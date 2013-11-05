@@ -1299,6 +1299,9 @@ function ThemeInstall()
 
 	loadTemplate('Themes');
 
+	// Make it easier to change the path.
+	$themedir = $boarddir . '/Themes';
+
 	if (isset($_GET['theme_id']))
 	{
 		$result = $smcFunc['db_query']('', '
@@ -1329,7 +1332,7 @@ function ThemeInstall()
 
 	if ((!empty($_FILES['theme_gz']) && (!isset($_FILES['theme_gz']['error']) || $_FILES['theme_gz']['error'] != 4)) || !empty($_REQUEST['theme_gz']))
 		$method = 'upload';
-	elseif (isset($_REQUEST['theme_dir']) && rtrim(realpath($_REQUEST['theme_dir']), '/\\') != realpath($boarddir . '/Themes') && file_exists($_REQUEST['theme_dir']))
+	elseif (isset($_REQUEST['theme_dir']) && rtrim(realpath($_REQUEST['theme_dir']), '/\\') != realpath($themedir) && file_exists($_REQUEST['theme_dir']))
 		$method = 'path';
 	else
 		$method = 'copy';
@@ -1337,10 +1340,10 @@ function ThemeInstall()
 	if (!empty($_REQUEST['copy']) && $method == 'copy')
 	{
 		// Hopefully the themes directory is writable, or we might have a problem.
-		if (!is_writable($boarddir . '/Themes'))
+		if (!is_writable($themedir))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
-		$theme_dir = $boarddir . '/Themes/' . preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
+		$theme_dir = $themedir . '/' . preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 		umask(0);
 		mkdir($theme_dir, 0777);
@@ -1366,7 +1369,7 @@ function ThemeInstall()
 		package_flush_cache();
 
 		$theme_name = $_REQUEST['copy'];
-		$images_url = $boardurl . '/Themes/' . basename($theme_dir) . '/images';
+		$images_url = $themedir . '/' . basename($theme_dir) . '/images';
 		$theme_dir = realpath($theme_dir);
 
 		// Lets get some data for the new theme.
@@ -1435,7 +1438,7 @@ function ThemeInstall()
 	elseif ($method == 'upload')
 	{
 		// Hopefully the themes directory is writable, or we might have a problem.
-		if (!is_writable($boarddir . '/Themes'))
+		if (!is_writable($themedir))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
 		// This happens when the admin session is gone and the user has to login again
@@ -1445,17 +1448,17 @@ function ThemeInstall()
 		// Set the default settings...
 		$theme_name = strtok(basename(isset($_FILES['theme_gz']) ? $_FILES['theme_gz']['name'] : $_REQUEST['theme_gz']), '.');
 		$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
-		$theme_dir = $boarddir . '/Themes/' . $theme_name;
+		$theme_dir = $themedir . '/' . $theme_name;
 
 		if (isset($_FILES['theme_gz']) && is_uploaded_file($_FILES['theme_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['theme_gz']['tmp_name'])))
-			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $boarddir . '/Themes/' . $theme_name, false, true);
+			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $themedir . '/' . $theme_name, false, true);
 		elseif (isset($_REQUEST['theme_gz']))
 		{
 			// Check that the theme is from simplemachines.org, for now... maybe add mirroring later.
 			if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['theme_gz']) == 0 || strpos($_REQUEST['theme_gz'], 'dlattach') !== false)
 				fatal_lang_error('not_on_simplemachines');
 
-			$extracted = read_tgz_file($_REQUEST['theme_gz'], $boarddir . '/Themes/' . $theme_name, false, true);
+			$extracted = read_tgz_file($_REQUEST['theme_gz'], $themedir . '/' . $theme_name, false, true);
 		}
 		else
 			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
