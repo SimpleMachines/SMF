@@ -66,13 +66,8 @@ $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(0 to disable)';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['database_server'] = 'Database Server';
-$txt['database_user'] = 'Database Username';
-$txt['database_password'] = 'Database Password';
-$txt['database_name'] = 'Database Name';
 $txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
-$txt['database_prefix'] = 'Database Tables Prefix';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
