@@ -484,7 +484,7 @@ function MLSearch()
 		else
 			$fields = array();
 		// Search for messengers...
-		if (in_array('messenger', $_POST['fields']) && (!$user_info['is_guest'] || empty($modSettings['guest_hideContacts'])))
+		if (in_array('messenger', $_POST['fields']) && !$user_info['is_guest'])
 			$fields += array(3 => 'aim', 'icq', 'yim', 'skype');
 		// Search for websites.
 		if (in_array('website', $_POST['fields']))

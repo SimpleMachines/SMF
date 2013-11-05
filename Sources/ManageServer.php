@@ -350,7 +350,6 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
 
 	$config_vars = array(
-			array('check', 'guest_hideContacts'),
 			array('check', 'make_email_viewable'),
 		'',
 			array('int', 'failed_login_threshold'),

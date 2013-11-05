@@ -966,13 +966,13 @@ function getXmlProfile($xml_format)
 		if ($profile['title'] != '')
 			$data['title'] = cdata_parse($profile['title']);
 
-		if (!empty($profile['icq']['name']) && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
+		if (!empty($profile['icq']['name']) && !$user_info['is_guest'])
 			$data['icq'] = $profile['icq']['name'];
-		if ($profile['aim']['name'] != '' && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
+		if ($profile['aim']['name'] != '' && !$user_info['is_guest'])
 			$data['aim'] = $profile['aim']['name'];
-		if ($profile['yim']['name'] != '' && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
+		if ($profile['yim']['name'] != '' && !$user_info['is_guest'])
 			$data['yim'] = $profile['yim']['name'];
-		if (!empty($profile['skype']['name']) && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
+		if (!empty($profile['skype']['name']) && !$user_info['is_guest'])
 			$data['skype'] = $profile['skype']['name'];
 
 		if ($profile['website']['title'] != '')

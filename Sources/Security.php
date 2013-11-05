@@ -1164,7 +1164,7 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 	// If the forum is set to show full email addresses: yes.
 	// Otherwise: no_through_forum.
 
-	if ((!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']) || isset($_SESSION['ban']['cannot_post']))
+	if ($user_info['is_guest'] || isset($_SESSION['ban']['cannot_post']))
 		return 'no';
 	elseif ((!$user_info['is_guest'] && $user_info['id'] == $userProfile_id && !$userProfile_hideEmail) || allowedTo('moderate_forum'))
 		return 'yes_permission_override';
