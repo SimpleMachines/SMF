@@ -1485,7 +1485,8 @@ CREATE TABLE {$db_prefix}messages (
   modified_name varchar(255) NOT NULL,
   body text NOT NULL,
   icon varchar(16) NOT NULL default 'xx',
-  approved smallint NOT NULL default '1'
+  approved smallint NOT NULL default '1',
+  likes smallint NOT NULL default '0'
 );
 
 #
@@ -2270,3 +2271,22 @@ CREATE TABLE {$db_prefix}user_drafts (
 #
 
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+
+#
+# Table structure for table `user_likes`
+#
+
+CREATE TABLE {$db_prefix}user_likes (
+  id_member int NOT NULL default '0',
+  content_type char(6) default '',
+  content_id int NOT NULL default '0',
+  like_time int NOT NULL default '0',
+  PRIMARY KEY (content_id, content_type, id_member)
+);
+
+#
+# Indexes for table `user_likes`
+#
+
+CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
+CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);

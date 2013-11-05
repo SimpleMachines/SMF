@@ -1369,6 +1369,7 @@ CREATE TABLE {$db_prefix}messages (
   body text NOT NULL,
   icon varchar(16) NOT NULL default 'xx',
   approved tinyint(3) NOT NULL default '1',
+  likes smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_msg),
   UNIQUE topic (id_topic, id_msg),
   UNIQUE id_board (id_board, id_msg),
@@ -2105,4 +2106,18 @@ CREATE TABLE {$db_prefix}user_drafts (
   to_list varchar(255) NOT NULL default '',
   PRIMARY KEY (id_draft),
   UNIQUE id_member (id_member, id_draft, type)
+) ENGINE=MyISAM;
+
+#
+# Table structure for table `user_likes`
+#
+
+CREATE TABLE {$db_prefix}user_likes (
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  content_type char(6) default '',
+  content_id int(10) unsigned NOT NULL default '0',
+  like_time int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (content_id, content_type, id_member),
+  INDEX content (content_id, content_type),
+  INDEX liker (id_member)
 ) ENGINE=MyISAM;
