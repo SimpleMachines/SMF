@@ -1158,25 +1158,25 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
 			'location' => $profile['location'],
-			'icq' => $profile['icq'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
+			'icq' => $profile['icq'] != '' && !$user_info['is_guest'] ? array(
 				'name' => $profile['icq'],
 				'href' => 'http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'],
 				'link' => '<a class="icq new_win" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" target="_blank" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '"><img src="http://status.icq.com/online.png?img=5&amp;icq=' . $profile['icq'] . '" alt="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '" width="18" height="18" /></a>',
 				'link_text' => '<a class="icq extern" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '">' . $profile['icq'] . '</a>',
 			) : array('name' => '', 'add' => '', 'href' => '', 'link' => '', 'link_text' => ''),
-			'aim' => $profile['aim'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
+			'aim' => $profile['aim'] != '' && !$user_info['is_guest'] ? array(
 				'name' => $profile['aim'],
 				'href' => 'aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'],
 				'link' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '"><img src="' . $settings['images_url'] . '/aim.png" alt="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '" /></a>',
 				'link_text' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '">' . $profile['aim'] . '</a>'
 			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
-			'yim' => $profile['yim'] != '' && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
+			'yim' => $profile['yim'] != '' && !$user_info['is_guest'] ? array(
 				'name' => $profile['yim'],
 				'href' => 'http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']),
 				'link' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"><img src="http://opi.yahoo.com/online?u=' . urlencode($profile['yim']) . '&amp;m=g&amp;t=0" alt="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '" /></a>',
 				'link_text' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '">' . $profile['yim'] . '</a>'
 			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
-			'skype' => !empty($profile['skype']) && (empty($modSettings['guest_hideContacts']) || !$user_info['is_guest']) ? array(
+			'skype' => !empty($profile['skype']) && !$user_info['is_guest'] ? array(
 				'name' => $profile['skype'],
 				'href' => 'skype:' . $profile['skype'] . '?chat',
 				'link' => '<a class="skype new_win" href="skype:' . $profile['skype'] . '?chat" title="' . $txt['skype'] . ' - ' . $profile['skype'] . '"><img src="' . $settings['images_url'] . '/skype.png" alt="' . $txt['skype'] . ' - ' . $profile['skype'] . '" /></a>',

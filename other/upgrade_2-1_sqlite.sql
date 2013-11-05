@@ -477,6 +477,14 @@ WHERE variable LIKE 'integrate_%';
 ---#
 
 /******************************************************************************/
+--- Cleaning up old settings
+/******************************************************************************/
+---# Showing contact details to guests should never happen.
+DELETE FROM {$db_prefix}settings
+WHERE variable = 'guest_hideContacts';
+---#
+
+/******************************************************************************/
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table

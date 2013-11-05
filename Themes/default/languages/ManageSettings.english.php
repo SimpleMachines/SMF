@@ -16,7 +16,6 @@ $txt['allow_guestAccess'] = 'Allow guests to browse the forum';
 $txt['userLanguage'] = 'Enable user-selectable language support';
 $txt['allow_editDisplayName'] = 'Allow users to edit their displayed name';
 $txt['allow_hideOnline'] = 'Allow non-administrators to hide their online status';
-$txt['guest_hideContacts'] = 'Do not reveal contact details of members to guests';
 $txt['titlesEnable'] = 'Enable custom titles';
 $txt['enable_buddylist'] = 'Enable buddy/ignore lists';
 $txt['enable_unwatch'] = 'Enable unwatch topics';
