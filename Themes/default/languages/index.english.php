@@ -609,6 +609,15 @@ $txt['notification_disable_board'] = 'Are you sure you wish to disable notificat
 $txt['notification_enable_topic'] = 'Are you sure you wish to enable notification of new replies for this topic?';
 $txt['notification_disable_topic'] = 'Are you sure you wish to disable notification of new replies for this topic?';
 
+$txt['like'] = 'Like';
+$txt['unlike'] = 'Unlike';
+// Translators, if you need to make more strings to suit your language, e.g. $txt['likes_2'] = 'Two people like this', please do so.
+$txt['likes_1'] = '<a href="%1$s">1 person</a> likes this.';
+$txt['likes_n'] = '<a href="%1$s">%2$s people</a> like this.';
+$txt['you_likes_0'] = 'You like this.';
+$txt['you_likes_1'] = 'You and <a href="%1$s">1 other person</a> like this.';
+$txt['you_likes_n'] = 'You and <a href="%1$s">%2$s other people</a> like this.';
+
 $txt['report_to_mod'] = 'Report to moderator';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
