@@ -1452,6 +1452,7 @@ function ThemeInstall()
 
 		if (isset($_FILES['theme_gz']) && is_uploaded_file($_FILES['theme_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['theme_gz']['tmp_name'])))
 			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $themedir . '/' . $theme_name, false, true);
+
 		elseif (isset($_REQUEST['theme_gz']))
 		{
 			// Check that the theme is from simplemachines.org, for now... maybe add mirroring later.
@@ -1469,8 +1470,8 @@ function ThemeInstall()
 	{
 		// Defaults.
 		$install_info = array(
-			'theme_url' => $boardurl . '/Themes/' . basename($theme_dir),
-			'images_url' => isset($images_url) ? $images_url : $boardurl . '/Themes/' . basename($theme_dir) . '/images',
+			'theme_url' => $themedir . '/' . basename($theme_dir),
+			'images_url' => isset($images_url) ? $images_url : $themedir . '/' . basename($theme_dir) . '/images',
 			'theme_dir' => $theme_dir,
 			'name' => $theme_name
 		);
@@ -1478,12 +1479,14 @@ function ThemeInstall()
 		if (file_exists($theme_dir . '/theme_info.xml'))
 		{
 			$theme_info = file_get_contents($theme_dir . '/theme_info.xml');
+
 			// Parse theme-info.xml into an xmlArray.
 			require_once($sourcedir . '/Class-Package.php');
 			$theme_info_xml = new xmlArray($theme_info);
-			// @todo Error message of some sort?
+
+			// Error message, there isn't any valid info
 			if (!$theme_info_xml->exists('theme-info[0]'))
-				return 'package_get_error_packageinfo_corrupt';
+				fatal_lang_error('package_get_error_packageinfo_corrupt');
 
 			$theme_info_xml = $theme_info_xml->path('theme-info[0]');
 			$theme_info_xml = $theme_info_xml->to_array();
