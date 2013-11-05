@@ -240,10 +240,6 @@ function ModifyLayoutSettings($return_config = false)
 			array('check', 'onlineEnable'),
 			array('check', 'enableVBStyleLogin'),
 		'',
-			// Automagic image resizing.
-			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
-			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
-		'',
 			// This is like debugging sorta.
 			array('check', 'timeLoadPageEnable'),
 	);

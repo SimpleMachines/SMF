@@ -205,6 +205,10 @@ function ModifyPostSettings($return_config = false)
 			array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
 			array('int', 'edit_disable_time', 'subtext' => $txt['edit_disable_time_zero'], 'postinput' => $txt['manageposts_minutes']),
 		'',
+			// Automagic image resizing.
+			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
+			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+		'',
 			// First & Last message preview lengths
 			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
 	);
