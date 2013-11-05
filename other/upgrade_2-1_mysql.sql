@@ -497,3 +497,11 @@ $get_questions = upgrade_query("
 	}
 ---}
 ---#
+
+/******************************************************************************/
+--- Marking packages as uninstalled...
+/******************************************************************************/
+upgrade_query("
+	UPDATE {$db_prefix}log_packages
+	SET install_state = 0
+");

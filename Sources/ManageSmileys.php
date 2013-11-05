@@ -1600,8 +1600,6 @@ function InstallSmileySet()
 
 		package_flush_cache();
 
-		// Time to tell pacman we have a new package installed!
-		package_put_contents($packagesdir . '/installed.list', time());
 		// Credits tag?
 		$credits_tag = (empty($credits_tag)) ? '' : serialize($credits_tag);
 		$smcFunc['db_insert']('',

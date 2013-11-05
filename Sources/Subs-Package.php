@@ -376,7 +376,6 @@ function url_exists($url)
 
 /**
  * Loads and returns an array of installed packages.
- * - gets this information from Packages/installed.list.
  * - returns the array of data.
  * - default sort order is package_installed time
  *
@@ -384,23 +383,7 @@ function url_exists($url)
  */
 function loadInstalledPackages()
 {
-	global $boarddir, $packagesdir, $smcFunc;
-
-	// First, check that the database is valid, installed.list is still king.
-	$install_file = implode('', file($packagesdir . '/installed.list'));
-	if (trim($install_file) == '')
-	{
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}log_packages
-			SET install_state = {int:not_installed}',
-			array(
-				'not_installed' => 0,
-			)
-		);
-
-		// Don't have anything left, so send an empty array.
-		return array();
-	}
+	global $smcFunc;
 
 	// Load the packages from the database - note this is ordered by install time to ensure latest package uninstalled first.
 	$request = $smcFunc['db_query']('', '
