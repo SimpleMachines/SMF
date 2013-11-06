@@ -1016,7 +1016,7 @@ function Display()
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, body,
-				smileys_enabled, poster_name, poster_email, approved,
+				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
 				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
 			FROM {db_prefix}messages
@@ -1025,6 +1025,9 @@ function Display()
 			ORDER BY id_msg' . (empty($options['view_newest_first']) ? '' : ' DESC'),
 			$msg_parameters
 		);
+
+		// And the likes
+		$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext();
 
 		// Go to the last message if the given time is beyond the time of the last message.
 		if (isset($context['start_from']) && $context['start_from'] >= $topicinfo['num_replies'])
@@ -1042,6 +1045,8 @@ function Display()
 		$messages_request = false;
 		$context['first_message'] = 0;
 		$context['first_new_message'] = false;
+
+		$context['likes'] = array();
 	}
 
 	$context['jump_to'] = array(
@@ -1306,6 +1311,11 @@ function prepareDisplayContext($reset = false)
 			'time' => timeformat($message['modified_time']),
 			'timestamp' => forum_time(true, $message['modified_time']),
 			'name' => $message['modified_name']
+		),
+		'likes' => array(
+			'count' => $message['likes'],
+			'you' => in_array($message['id_msg'], $context['my_likes']),
+			'can_like' => !$context['user']['is_guest'], // @todo!
 		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),
@@ -1842,6 +1852,37 @@ function QuickInTopicModeration()
 	}
 
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
+}
+
+function prepareLikesContext()
+{
+	global $context, $smcFunc, $topic;
+
+	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
+	$cache_key = 'likes_topic_' . $topic . '_' . $context['user']['id'];
+	$ttl = 180;
+
+	if ($temp = cache_get_data($cache_key, $ttl) === null)
+	{
+		$temp = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT content_id
+			FROM {db_prefix}user_likes AS l
+				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
+			WHERE l.id_member = {int:current_user}
+				AND l.content_type = {literal:msg}
+				AND m.id_topic = {int:topic}',
+			array(
+				'current_user' => $context['user']['id'],
+				'topic' => $topic,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$temp[] = (int) $row['content_id'];
+
+		cache_put_data($cache_key, $temp, $ttl);
+	}
+	return $temp;
 }
 
 ?>
