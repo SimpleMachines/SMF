@@ -706,6 +706,13 @@ function template_show_settings()
 {
 	global $context, $txt, $settings, $scripturl;
 
+	if (!empty($context['saved_successful']))
+		echo '
+	<div class="infobox">', $txt['settings_saved'], '</div>';
+	elseif (!empty($context['saved_failed']))
+		echo '
+	<div class="errorbox">', sprintf($txt['settings_not_saved'], $context['saved_failed']), '</div>';
+
 	if (!empty($context['settings_pre_javascript']))
 		echo '
 	<script type="text/javascript"><!-- // --><![CDATA[', $context['settings_pre_javascript'], '// ]]></script>';

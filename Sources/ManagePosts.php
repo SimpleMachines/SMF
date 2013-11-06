@@ -242,7 +242,6 @@ function ModifyPostSettings($return_config = false)
 
 			if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text')
 				fatal_lang_error('convert_to_mediumtext', false, array($scripturl . '?action=admin;area=maintain;sa=database'));
-
 		}
 
 		// If we're changing the post preview length let's check its valid
@@ -252,6 +251,7 @@ function ModifyPostSettings($return_config = false)
 		call_integration_hook('integrate_save_post_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=posts');
 	}
 
@@ -321,6 +321,7 @@ function ModifyBBCSettings($return_config = false)
 		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=bbc');
 	}
 
@@ -384,6 +385,7 @@ function ModifyTopicSettings($return_config = false)
 		call_integration_hook('integrate_save_topic_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=topics');
 	}
 
@@ -452,6 +454,7 @@ function ModifyDraftSettings($return_config = false)
 
 		// Save everything else and leave.
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=postsettings;sa=drafts');
 	}
 
