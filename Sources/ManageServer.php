@@ -373,6 +373,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		call_integration_hook('integrate_save_general_security_settings');
 
@@ -488,7 +489,11 @@ function ModifyLoadBalancingSettings($return_config = false)
 	$context['settings_message'] = $txt['loadavg_disabled_conf'];
 
 	if (stripos(PHP_OS, 'win') === 0)
+	{
 		$context['settings_message'] = $txt['loadavg_disabled_windows'];
+		if (isset($_GET['save']))
+			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
+	}
 	else
 	{
 		$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
@@ -558,6 +563,8 @@ function ModifyLoadBalancingSettings($return_config = false)
 		call_integration_hook('integrate_save_loadavg_settings');
 
 		saveDBSettings($config_vars);
+		if (!isset($_SESSION['adm-save']))
+			$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
