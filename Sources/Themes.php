@@ -1404,7 +1404,8 @@ function ThemeInstall()
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
 	<!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
 	<id>smf:' . $smcFunc['strtolower'](str_replace(array(' '), '_', $_REQUEST['copy'])) . '</id>
-	<version>' . $modSettings['smfVersion'] . '</version>
+	<!-- The theme\'s version, please try to use vemantic versioning. -->
+	<version>1.0</version>
 	<!-- Theme name, used purely for aesthetics. -->
 	<name>' . $_REQUEST['copy'] . '</name>
 	<!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1517,11 +1518,60 @@ function ThemeInstall()
 				'theme_layers' => 'layers',
 				'theme_templates' => 'templates',
 				'based_on' => 'based-on',
+				'version' => 'version',
 			);
 
 			foreach ($xml_elements as $var => $name)
 				if (!empty($theme_info_xml[$name]))
 					$install_info[$var] = $theme_info_xml[$name];
+
+			// OK, is this a newer version of an already installed theme?
+			if (!empty($install_info['version']))
+			{
+				$to_update = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT th.value AS name, th.id_theme, th2.value AS version
+					FROM {db_prefix}themes AS th
+						INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
+							AND th2.id_member = {int:no_member}
+							AND th2.variable = {string:version})
+					WHERE th.id_member = {int:no_member}
+						AND th.variable = {string:name}
+						AND th.value LIKE {string:name_value}
+					LIMIT 1',
+					array(
+						'no_member' => 0,
+						'name' => 'name',
+						'version' => 'version',
+						'name_value' => '%'. $install_info['name'] .'%',
+					)
+				);
+				$to_update = $smcFunc['db_fetch_assoc']($request);
+				$smcFunc['db_free_result']($request);
+
+				// Got something, lets figure it out what to do next.
+				if (!empty($to_update) && !empty($to_update['version']))
+					switch (compareVersions($install_info['version'], $to_update['version'])) 
+					{
+						case 0: // This is exactly the same theme.
+						case -1: // The one being installed is older than the one already installed.
+							fatal_lang_error('package_get_error_theme_no_new_version', false, array($install_info['version'], $to_update['version']))
+							break;
+						case 1: // Got a newer version, update the old entry.
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}themes
+								SET value = {string:new_value}
+								WHERE variable = {string:version}
+									AND id_theme = {int:id_theme}',
+								array(
+									'new_value' => $install_info['version'],
+									'version' => 'version',
+									'id_theme' => $to_update['id_theme'],
+								)
+							);
+							break;
+					}
+			}
 
 			if (!empty($theme_info_xml['images']))
 			{
