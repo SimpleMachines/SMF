@@ -1551,10 +1551,11 @@ function ThemeInstall()
 
 				// Got something, lets figure it out what to do next.
 				if (!empty($to_update) && !empty($to_update['version']))
-					switch (compareVersions($install_info['version'], $to_update['version'])) 
+					switch (compareVersions($install_info['version'], $to_update['version']))
 					{
 						case 0: // This is exactly the same theme.
 						case -1: // The one being installed is older than the one already installed.
+						default: // Any other possible result.
 							fatal_lang_error('package_get_error_theme_no_new_version', false, array($install_info['version'], $to_update['version']))
 							break;
 						case 1: // Got a newer version, update the old entry.
@@ -1569,6 +1570,9 @@ function ThemeInstall()
 									'id_theme' => $to_update['id_theme'],
 								)
 							);
+
+							// Do a redirect and set a nice updated message.
+							redirectexit('action=admin;area=theme;sa=install;theme_id=' . $id_theme . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
 							break;
 					}
 			}
