@@ -1288,7 +1288,8 @@ function PickTheme()
  */
 function ThemeInstall()
 {
-	global $sourcedir, $boarddir, $boardurl, $txt, $context, $settings, $modSettings, $smcFunc;
+	global $sourcedir, $boarddir, $boardurl, $txt, $context;
+	global $settings, $modSettings, $scripturl, $smcFunc;
 
 	checkSession('request');
 
@@ -1298,6 +1299,7 @@ function ThemeInstall()
 	require_once($sourcedir . '/Subs-Package.php');
 
 	loadTemplate('Themes');
+	loadLanguage('Errors');
 
 	// Make it easier to change the path.
 	$themedir = $boarddir . '/Themes';
@@ -1465,7 +1467,7 @@ function ThemeInstall()
 			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	// Something went wrong?
+	// Let us proceed with the install.
 	if ($theme_dir != '' && basename($theme_dir) != 'Themes')
 	{
 		// Defaults.
@@ -1476,7 +1478,14 @@ function ThemeInstall()
 			'name' => $theme_name
 		);
 
-		if (file_exists($theme_dir . '/theme_info.xml'))
+		// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
+		if (file_exists($theme_dir . '/package-info.xml'))
+		{
+			$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
+			fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
+		}
+
+		elseif (file_exists($theme_dir . '/theme_info.xml'))
 		{
 			$theme_info = file_get_contents($theme_dir . '/theme_info.xml');
 
