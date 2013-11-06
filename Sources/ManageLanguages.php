@@ -825,6 +825,8 @@ function ModifyLanguageSettings($return_config = false)
 		call_integration_hook('integrate_save_language_settings', array(&$config_vars));
 
 		saveSettings($config_vars);
+		if (!$settings_not_writable && !$settings_backup_fail)
+			$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=languages;sa=settings');
 	}
 
