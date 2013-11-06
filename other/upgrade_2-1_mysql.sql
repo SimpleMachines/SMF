@@ -503,5 +503,5 @@ $get_questions = upgrade_query("
 /******************************************************************************/
 ---# Updating log_packages
 UPDATE {$db_prefix}log_packages
-SET install_state = 0
+SET install_state = 0;
 ---#

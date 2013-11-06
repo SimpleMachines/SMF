@@ -560,5 +560,5 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 /******************************************************************************/
 ---# Updating log_packages
 UPDATE {$db_prefix}log_packages
-SET install_state = 0
+SET install_state = 0;
 ---#
