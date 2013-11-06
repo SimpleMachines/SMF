@@ -657,6 +657,16 @@ function prepareDBSettingContext(&$config_vars)
 
 	loadLanguage('Help');
 
+	if (isset($_SESSION['adm-save']))
+	{
+		if ($_SESSION['adm-save'] === true)
+			$context['saved_successful'] = true;
+		else
+			$context['saved_failed'] = $_SESSION['adm-save'];
+
+		unset($_SESSION['adm-save']);
+	}
+
 	$context['config_vars'] = array();
 	$inlinePermissions = array();
 	$bbcChoice = array();
