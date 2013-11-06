@@ -395,6 +395,7 @@ function ModifyCalendarSettings($return_config = false)
 			'calendar_updated' => time(),
 		));
 
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=managecalendar;sa=settings');
 	}
 
