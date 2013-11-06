@@ -1158,6 +1158,7 @@ function ShowCustomProfiles()
 		// What we have left!
 		$changes['registration_fields'] = empty($reg_fields) ? '' : implode(',', $reg_fields);
 
+		$_SESSION['adm-save'] = true;
 		if (!empty($changes))
 			updateSettings($changes);
 	}
@@ -1341,6 +1342,14 @@ function ShowCustomProfiles()
 		),
 	);
 	createList($listOptions);
+
+	// There are two different ways we could get to this point. To keep it simple, they both do
+	// the same basic thing.
+	if (isset($_SESSION['adm-save']))
+	{
+		$context['saved_successful'] = true;
+		unset ($_SESSION['adm-save']);
+	}
 }
 
 /**
@@ -1812,6 +1821,7 @@ function EditCustomProfiles()
 		$smcFunc['db_free_result']($request);
 
 		updateSettings(array('displayFields' => serialize($fields)));
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=profile');
 	}
 
