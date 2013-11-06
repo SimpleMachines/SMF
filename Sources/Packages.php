@@ -1799,6 +1799,7 @@ function PackageOptions()
 			'package_make_backups' => !empty($_POST['package_make_backups']),
 			'package_make_full_backups' => !empty($_POST['package_make_full_backups'])
 		));
+		$_SESSION['adm-save'] = true;
 
 		redirectexit('action=admin;area=packages;sa=options');
 	}
@@ -1816,6 +1817,12 @@ function PackageOptions()
 	$context['package_ftp_username'] = isset($modSettings['package_username']) ? $modSettings['package_username'] : $default_username;
 	$context['package_make_backups'] = !empty($modSettings['package_make_backups']);
 	$context['package_make_full_backups'] = !empty($modSettings['package_make_full_backups']);
+
+	if (!empty($_SESSION['adm-save']))
+	{
+		$context['saved_successful'] = true;
+		unset ($_SESSION['adm-save']);
+	}
 }
 
 /**
