@@ -1289,7 +1289,7 @@ function PickTheme()
 function ThemeInstall()
 {
 	global $sourcedir, $boarddir, $boardurl, $txt, $context;
-	global $settings, $modSettings, $scripturl, $smcFunc;
+	global $settings, $modSettings, $scripturl, $smcFunc, $forum_version;
 
 	checkSession('request');
 
@@ -1496,11 +1496,18 @@ function ThemeInstall()
 
 			// Error message, there isn't any valid info
 			if (!$theme_info_xml->exists('theme-info[0]'))
-				fatal_lang_error('package_get_error_packageinfo_corrupt');
+				fatal_lang_error('package_get_error_packageinfo_corrupt', false);
 
 			// Check for compatibility with 2.1 or greater.
 			if (!$theme_info_xml->exists('theme-info/install'))
 				fatal_lang_error('package_get_error_not_compatible');
+
+			// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
+			$the_version = strtr($forum_version, array('SMF ' => ''));
+			$install_versions = $theme_info_xml->path('theme-info/install/@for');
+
+			if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
+				fatal_lang_error('package_get_error_not_compatible', false);
 
 			$theme_info_xml = $theme_info_xml->path('theme-info[0]');
 			$theme_info_xml = $theme_info_xml->to_array();
