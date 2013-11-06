@@ -665,6 +665,10 @@ function template_edit_reserved_words()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
+	if (!empty($context['saved_successful']))
+		echo '
+	<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	echo '
 		<form id="admin_form_wrapper" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
