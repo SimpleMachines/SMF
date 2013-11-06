@@ -341,7 +341,7 @@ function smf_main()
 		'sticky' => array('Topic.php', 'Sticky'),
 		'theme' => array('Themes.php', 'ThemesMain'),
 		'trackip' => array('Profile-View.php', 'trackIP'),
-		'about:unknown' => array('Karma.php', 'BookOfUnknown'),
+		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
 		'unwatchtopic' => array('Notify.php', 'TopicUnwatch'),
