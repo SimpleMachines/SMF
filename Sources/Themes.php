@@ -1485,6 +1485,7 @@ function ThemeInstall()
 			fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
 		}
 
+		// Get the theme info.
 		elseif (file_exists($theme_dir . '/theme_info.xml'))
 		{
 			$theme_info = file_get_contents($theme_dir . '/theme_info.xml');
@@ -1496,6 +1497,10 @@ function ThemeInstall()
 			// Error message, there isn't any valid info
 			if (!$theme_info_xml->exists('theme-info[0]'))
 				fatal_lang_error('package_get_error_packageinfo_corrupt');
+
+			// Check for compatibility with 2.1 or greater.
+			if (!$theme_info_xml->exists('theme-info/install'))
+				fatal_lang_error('package_get_error_not_compatible');
 
 			$theme_info_xml = $theme_info_xml->path('theme-info[0]');
 			$theme_info_xml = $theme_info_xml->to_array();
