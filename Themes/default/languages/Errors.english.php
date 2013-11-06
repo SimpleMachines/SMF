@@ -301,6 +301,9 @@ $txt['package_get_error_packageinfo_corrupt'] = 'SMF was unable to find any vali
 $txt['package_get_error_is_theme'] = 'You can\'t install a Theme from this section, please use the <a href="{MANAGETHEMEURL}">Themes and Layout</a> management page to upload it';
 $txt['package_get_error_is_mod'] = 'You can\'t install a mod from this section, please use the <a href="{MANAGEMODURL}">Package manager</a> page to upload it';
 $txt['package_get_error_theme_not_compatible'] = 'Your theme does not show it has compatibility with %1$s. Please contact the theme author.';
+$txt['package_get_error_theme_no_based_on_found'] = 'The theme you\'re trying to install depends on another theme: %1$s, you need to install that theme first.';
+
+
 $txt['no_membergroup_selected'] = 'No membergroup selected';
 $txt['membergroup_does_not_exist'] = 'The membergroup doesn\'t exist or is invalid.';
 

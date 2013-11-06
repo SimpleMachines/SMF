@@ -1518,11 +1518,10 @@ function ThemeInstall()
 				'theme_templates' => 'templates',
 				'based_on' => 'based-on',
 			);
+
 			foreach ($xml_elements as $var => $name)
-			{
 				if (!empty($theme_info_xml[$name]))
 					$install_info[$var] = $theme_info_xml[$name];
-			}
 
 			if (!empty($theme_info_xml['images']))
 			{
@@ -1536,11 +1535,14 @@ function ThemeInstall()
 
 		if (isset($install_info['based_on']))
 		{
+			// No need for elaborated stuff when the theme is based on the default one.
 			if ($install_info['based_on'] == 'default')
 			{
 				$install_info['theme_url'] = $settings['default_theme_url'];
 				$install_info['images_url'] = $settings['default_images_url'];
 			}
+
+			// Custom theme based on another custom theme, lets get some info.
 			elseif ($install_info['based_on'] != '')
 			{
 				$install_info['based_on'] = preg_replace('~[^A-Za-z0-9\-_ ]~', '', $install_info['based_on']);
@@ -1570,7 +1572,7 @@ function ThemeInstall()
 				$temp = $smcFunc['db_fetch_assoc']($request);
 				$smcFunc['db_free_result']($request);
 
-				// @todo An error otherwise?
+				// Found the based on theme info, add it to the current one being installed.
 				if (is_array($temp))
 				{
 					$install_info = $temp + $install_info;
@@ -1578,6 +1580,10 @@ function ThemeInstall()
 					if (empty($explicit_images) && !empty($install_info['base_theme_url']))
 						$install_info['theme_url'] = $install_info['base_theme_url'];
 				}
+
+				// Nope, sorry, couldn't find any theme already installed.
+				else
+					fatal_lang_error('package_get_error_theme_no_based_on_found', false, $install_info['based_on']);
 			}
 
 			unset($install_info['based_on']);
