@@ -595,6 +595,16 @@ function prepareServerSettingsContext(&$config_vars)
 {
 	global $context, $modSettings, $smcFunc;
 
+	if (isset($_SESSION['adm-save']))
+	{
+		if ($_SESSION['adm-save'] === true)
+			$context['saved_successful'] = true;
+		else
+			$context['saved_failed'] = $_SESSION['adm-save'];
+
+		unset($_SESSION['adm-save']);
+	}
+
 	$context['config_vars'] = array();
 	foreach ($config_vars as $identifier => $config_var)
 	{

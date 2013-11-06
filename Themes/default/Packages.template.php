@@ -1040,6 +1040,10 @@ function template_install_options()
 {
 	global $context, $settings, $options, $txt, $scripturl;
 
+	if (!empty($context['saved_successful']))
+		echo '
+	<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	echo '
 	<div id="admincenter">
 		<div class="cat_bar">

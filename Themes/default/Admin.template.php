@@ -1002,6 +1002,10 @@ function template_show_custom_profile()
 {
 	global $context, $txt, $settings, $scripturl;
 
+	if (!empty($context['saved_successful']))
+		echo '
+	<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	// Standard fields.
 	template_show_list('standard_profile_fields');
 
