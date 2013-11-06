@@ -558,7 +558,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 /******************************************************************************/
 --- Marking packages as uninstalled...
 /******************************************************************************/
-upgrade_query("
-	UPDATE {$db_prefix}log_packages
-	SET install_state = 0
-");
+---# Updating log_packages
+UPDATE {$db_prefix}log_packages
+SET install_state = 0
+---#
