@@ -1500,14 +1500,14 @@ function ThemeInstall()
 
 			// Check for compatibility with 2.1 or greater.
 			if (!$theme_info_xml->exists('theme-info/install'))
-				fatal_lang_error('package_get_error_not_compatible');
+				fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
 
 			// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
 			$the_version = strtr($forum_version, array('SMF ' => ''));
 			$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
 			if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
-				fatal_lang_error('package_get_error_not_compatible', false);
+				fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
 
 			$theme_info_xml = $theme_info_xml->path('theme-info[0]');
 			$theme_info_xml = $theme_info_xml->to_array();
