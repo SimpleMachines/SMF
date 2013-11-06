@@ -138,6 +138,7 @@ function ManageSearchEngineSettings($return_config = false)
 		call_integration_hook('integrate_save_search_engine_settings');
 		saveDBSettings($config_vars);
 		recacheSpiderNames();
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=sengines;sa=settings');
 	}
 

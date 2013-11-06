@@ -565,6 +565,10 @@ function template_edit_censored()
 {
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
+	if (!empty($context['saved_successful']))
+		echo '
+	<div class="infobox">', $txt['settings_saved'], '</div>';
+
 	// First section is for adding/removing words from the censored list.
 	echo '
 	<div id="admincenter">

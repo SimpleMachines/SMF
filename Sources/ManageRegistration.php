@@ -314,7 +314,7 @@ function ModifyRegistrationSettings($return_config = false)
 		call_integration_hook('integrate_save_registration_settings');
 
 		saveDBSettings($config_vars);
-
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=regcenter;sa=settings');
 	}
 

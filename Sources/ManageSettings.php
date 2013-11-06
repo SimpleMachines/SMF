@@ -207,6 +207,7 @@ function ModifyBasicSettings($return_config = false)
 		call_integration_hook('integrate_save_basic_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		writeLog();
 		redirectexit('action=admin;area=featuresettings;sa=basic');
@@ -257,6 +258,7 @@ function ModifyLayoutSettings($return_config = false)
 		call_integration_hook('integrate_save_layout_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		writeLog();
 
 		redirectexit('action=admin;area=featuresettings;sa=layout');
@@ -311,6 +313,7 @@ function ModifyKarmaSettings($return_config = false)
 		call_integration_hook('integrate_save_karma_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=karma');
 	}
 
@@ -415,6 +418,7 @@ function ModifyWarningSettings($return_config = false)
 		call_integration_hook('integrate_save_warning_settings', array(&$save_vars));
 
 		saveDBSettings($save_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=warnings');
 	}
 
@@ -679,6 +683,7 @@ function ModifyAntispamSettings($return_config = false)
 
 		// Now save.
 		saveDBSettings($save_vars);
+		$_SESSION['adm-save'] = true;
 
 		cache_put_data('verificationQuestions', null, 300);
 
@@ -1063,6 +1068,7 @@ function ModifySignatureSettings($return_config = false)
 		$save_vars[] = array('text', 'signature_settings');
 
 		saveDBSettings($save_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=sig');
 	}
 
@@ -1911,6 +1917,7 @@ function ModifyLogSettings($return_config = false)
 			$_POST['pruningOptions'] = '';
 
 		saveDBSettings($savevar);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=logs;sa=settings');
 	}
 
@@ -1969,6 +1976,9 @@ function ModifyGeneralModSettings($return_config = false)
 
 		// This line is to help mod authors do a search/add after if you want to add something here. Keyword: FOOT TAPPING SUCKS!
 		saveDBSettings($save_vars);
+
+		// This line is to remind mod authors that it's nice to let the users know when something has been saved.
+		$_SESSION['adm-save'] = true;
 
 		// This line is to help mod authors do a search/add after if you want to add something here. Keyword: I LOVE TEA!
 		redirectexit('action=admin;area=modsettings;sa=general');

@@ -136,6 +136,7 @@ function SetCensor()
 
 		call_integration_hook('integrate_save_censors', array(&$updates));
 
+		$context['saved_successful'] = true;
 		updateSettings($updates);
 	}
 

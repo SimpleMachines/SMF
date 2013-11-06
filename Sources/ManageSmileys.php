@@ -171,6 +171,7 @@ function EditSmileySettings($return_config = false)
 		call_integration_hook('integrate_save_smiley_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		cache_put_data('parsing_smileys', null, 480);
 		cache_put_data('posting_smileys', null, 480);

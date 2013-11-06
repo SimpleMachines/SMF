@@ -1062,6 +1062,7 @@ function GeneralPermissionSettings($return_config = false)
 			);
 		}
 
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=permissions;sa=settings');
 	}
 
