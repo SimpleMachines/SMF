@@ -56,6 +56,8 @@ $txt['verify_url_fail'] = 'Unable to verify referring url.  Please go back and t
 $txt['token_verify_fail'] = 'Token verification failed.  Please go back and try again.';
 $txt['guest_vote_disabled'] = 'Guests cannot vote in this poll.';
 
+$txt['cannot_like_content'] = 'You are not able to like that content.';
+$txt['cannot_view_likes'] = 'You are not able to view who liked that content.';
 $txt['cannot_access_mod_center'] = 'You do not have permission to access the moderation center.';
 $txt['cannot_admin_forum'] = 'You are not allowed to administrate this forum.';
 $txt['cannot_announce_topic'] = 'You are not allowed to announce topics on this board.';

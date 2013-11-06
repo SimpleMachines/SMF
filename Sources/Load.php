@@ -191,7 +191,7 @@ function reloadSettings()
 	{
 		$integration_settings = unserialize(SMF_INTEGRATION_SETTINGS);
 		foreach ($integration_settings as $hook => $function)
-			add_integration_function($hook, $function, false);
+			add_integration_function($hook, $function, '', false);
 	}
 
 	// Any files to pre include?

@@ -46,6 +46,19 @@ body#help_popup {
 	padding: 12px;
 }
 
+ul#likes li {
+	clear: both;
+}
+
+ul#likes span.avatar {
+	width: 45px;
+	height: 45px;
+	padding: 2px;
+}
+ul#likes span.avatar img {
+	max-height: 40px;
+}
+
 /* Tables should show empty cells. */
 table {
 	empty-cells: show;
@@ -650,7 +663,7 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 }
 
 /* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
-.signature, .attachments, .custom_fields_above_signature {
+.signature, .attachments, .under_message, .custom_fields_above_signature {
 	width: 100%;
 	overflow: auto;
 	clear: right;
@@ -660,6 +673,19 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	line-height: 1.4em;
 	font-size: 0.9em;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+
+/* While we're doing stuff under the message, time to do some likes stuff. */
+.like_button .like, .like_button .unlike {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/likes.png) no-repeat 0 0;
+	padding-right: 2px;
+	margin-bottom: -1px;
+}
+.like_button .unlike {
+	background-position: 0 -16px;
 }
 
 /* Sometimes there will be an error when you post */

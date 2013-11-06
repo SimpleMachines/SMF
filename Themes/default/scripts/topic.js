@@ -754,3 +754,12 @@ function ignore_toggles(msgids, text)
 		});
 	}
 }
+
+function add_like_popup()
+{
+	$(".like_count a").click(function(e) {
+		e.preventDefault();
+		var title = $(this).parent().text();
+		return reqOverlayDiv($(this).prop("href"), title);
+	});
+}
