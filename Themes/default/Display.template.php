@@ -552,7 +552,7 @@ function template_main()
 		if (!empty($message['likes']['can_like']))
 		{
 			echo '
-									<li class="like_button"><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button"><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 		}
 
 		if (!empty($message['likes']['count']))

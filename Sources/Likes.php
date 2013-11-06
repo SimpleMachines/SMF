@@ -104,6 +104,7 @@ function Likes()
 	{
 		// Only registered users may actually like content.
 		is_not_guest();
+		checkSession('get');
 		issueLike($like_type, $like_content);
 	}
 }
