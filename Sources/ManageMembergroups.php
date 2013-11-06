@@ -1211,6 +1211,7 @@ function ModifyMembergroupsettings()
 
 		// Yeppers, saving this...
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=membergroups;sa=settings');
 	}
 

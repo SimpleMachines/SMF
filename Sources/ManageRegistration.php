@@ -246,6 +246,7 @@ function SetReserved()
 			'reserveName' => (isset($_POST['matchname']) ? '1' : '0'),
 			'reserveNames' => str_replace("\r", '', $_POST['reserved'])
 		));
+		$context['saved_successful'] = true;
 	}
 
 	// Get the reserved word options and words.
