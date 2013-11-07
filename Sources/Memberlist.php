@@ -328,7 +328,7 @@ function MLAll()
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $_REQUEST['start'],
 		'name' => &$context['page_title'],
-		'extra_after' => ' (' . sprintf($txt['of_total_members'], $context['num_members']) . ')'
+		'extra_after' => '(' . sprintf($txt['of_total_members'], $context['num_members']) . ')'
 	);
 
 	$limit = $_REQUEST['start'];

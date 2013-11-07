@@ -1022,8 +1022,8 @@ function Post($post_errors = array())
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'],
 			'name' => $form_subject,
-			'extra_before' => '<span><strong class="nav">' . $context['page_title'] . ' ( </strong></span>',
-			'extra_after' => '<span><strong class="nav"> )</strong></span>'
+			'extra_before' => '<span><strong class="nav">' . $context['page_title'] . ' (</strong></span>',
+			'extra_after' => '<span><strong class="nav">)</strong></span>'
 		);
 
 	// Give wireless a linktree url to the post screen, so that they can switch to full version.
@@ -2031,7 +2031,7 @@ function Post2()
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?topic=' . $topic . '.0',
 			'name' => $_POST['subject'],
-			'extra_before' => !empty($settings['linktree_inline']) ? $txt['topic'] . ': ' : ''
+			'extra_before' => !empty($settings['linktree_inline']) ? $txt['topic'] . ':' : ''
 		);
 
 		if (isset($_REQUEST['msg']))
