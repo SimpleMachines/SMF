@@ -181,13 +181,10 @@ function template_body_above()
 		<div class="frame">
 			<ul class="floatleft">';
 
-	// If the user is logged in, display the time, or a maintenance warning for admins.
+	// If the user is logged in, display some things that might be useful.
 	if ($context['user']['is_logged'])
 	{
-		// Is the forum in maintenance mode?
-		if ($context['in_maintenance'] && $context['user']['is_admin'])
-			echo '
-				<li class="notice">', $txt['maintain_mode_on'], '<br /></li>';
+		// @todo There needs to be something else here.
 
 		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
 			echo '
@@ -551,6 +548,28 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				implode('', $buttons), '
 			</ul>
 		</div>';
+}
+
+function template_maint_warning_above()
+{
+	global $txt, $context, $scripturl;
+
+	echo '
+	<div class="errorbox" id="errors">
+		<dl>
+			<dt>
+				<strong id="error_serious">', $txt['forum_in_maintainence'], '</strong>
+			</dt>
+			<dd class="error" id="error_list">
+				', sprintf($txt['maintenance_page'], $scripturl . '?action=admin;area=serversettings;' . $context['session_var'] . '=' . $context['session_id']), '
+			</dd>
+		</dl>
+	</div>';
+}
+
+function template_maint_warning_below()
+{
+
 }
 
 ?>

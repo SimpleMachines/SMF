@@ -342,7 +342,8 @@ $txt['yim_title'] = 'Yahoo Instant Messenger';
 
 $txt['skype'] = 'Skype';
 
-$txt['maintain_mode_on'] = 'Remember, this forum is in \'Maintenance Mode\'.';
+$txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
+$txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
 
 $txt['read_one_time'] = 'Read 1 time';
 $txt['read_many_times'] = 'Read %1$d times';

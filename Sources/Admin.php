@@ -25,15 +25,12 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $txt, $context, $scripturl, $modSettings, $settings, $sourcedir, $options, $boarddir, $maintenance;
+	global $txt, $context, $scripturl, $modSettings, $settings, $sourcedir, $options, $boarddir;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin', 'admin');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
-
-	if (!empty($maintenance))
-		$context['template_layers'][] = 'maint_warning';
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
