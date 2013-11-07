@@ -20,7 +20,7 @@ if (!defined('SMF'))
 /**
  * Prepares the information from the moderation log for viewing.
  * Show the moderation log.
- * Disallows the deletion of events within twenty-four hours of now.
+ * If clearing the log, leaves a message in the log to indicate it was cleared, by whom and when.
  * Requires the admin_forum permission.
  * Accessed via ?action=moderate;area=modlog.
  *
@@ -49,8 +49,6 @@ function ViewModlog()
 
 	// The number of entries to show per page of log file.
 	$context['displaypage'] = 30;
-	// Amount of hours that must pass before allowed to delete file.
-	$context['hoursdisable'] = 24;
 
 	// Handle deletion...
 	if (isset($_POST['removeall']) && $context['can_delete'])
@@ -60,28 +58,31 @@ function ViewModlog()
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
-			WHERE id_log = {int:moderate_log}
-				AND log_time < {int:twenty_four_hours_wait}',
+			WHERE id_log = {int:moderate_log}',
 			array(
-				'twenty_four_hours_wait' => time() - $context['hoursdisable'] * 3600,
 				'moderate_log' => $context['log_type'],
 			)
 		);
+
+		$log_type = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'adminlog' ? 'admin' : 'moderate';
+		logAction('clearlog_' . $log_type, array(), $log_type);
+		
 	}
 	elseif (!empty($_POST['remove']) && isset($_POST['delete']) && $context['can_delete'])
 	{
 		checkSession();
 		validateToken('mod-ml');
 
+		// No sneaky removing the 'cleared the log' entries.
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:moderate_log}
 				AND id_action IN ({array_string:delete_actions})
-				AND log_time < {int:twenty_four_hours_wait}',
+				AND action NOT LIKE {string:clearlog}',
 			array(
-				'twenty_four_hours_wait' => time() - $context['hoursdisable'] * 3600,
 				'delete_actions' => array_unique($_POST['delete']),
 				'moderate_log' => $context['log_type'],
+				'clearlog' => 'clearlog_%',
 			)
 		);
 	}
@@ -357,10 +358,6 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 
 	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : ($user_info['mod_cache']['bq'] == '0=1' ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
 
-	// Do a little bit of self protection.
-	if (!isset($context['hoursdisable']))
-		$context['hoursdisable'] = 24;
-
 	// Can they see the IP address?
 	$seeIP = allowedTo('moderate_forum');
 
@@ -473,7 +470,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 			'moderator_link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? ($txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 			'time' => timeformat($row['log_time']),
 			'timestamp' => forum_time(true, $row['log_time']),
-			'editable' => time() > $row['log_time'] + $context['hoursdisable'] * 3600,
+			'editable' => substr($row['action'], 0, 8) !== 'clearlog',
 			'extra' => $row['extra'],
 			'action' => $row['action'],
 			'action_text' => isset($row['action_text']) ? $row['action_text'] : '',

@@ -227,7 +227,7 @@ $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
 
 $txt['scheduled_log'] = 'Task Log';
-$txt['scheduled_log_desc'] = 'Lists logs of the tasks that have be ran.';
+$txt['scheduled_log_desc'] = 'This log shows all the scheduled tasks that have been run on your forum.';
 $txt['admin_log'] = 'Administration Log';
 $txt['admin_log_desc'] = 'Lists administrative tasks that have been performed by admins of your forum.';
 $txt['moderation_log'] = 'Moderation Log';
