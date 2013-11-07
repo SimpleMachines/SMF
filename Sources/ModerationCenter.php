@@ -55,15 +55,18 @@ function ModerationMain($dont_call = false)
 				'index' => array(
 					'label' => $txt['moderation_center'],
 					'function' => 'ModerationHome',
+					'icon' => 'administration.png',
 				),
 				'settings' => array(
 					'label' => $txt['mc_settings'],
 					'function' => 'ModerationSettings',
+					'icon' => 'features.png',
 				),
 				'modlogoff' => array(
 					'label' => $txt['mc_logoff'],
 					'function' => 'ModEndSession',
 					'enabled' => empty($modSettings['securityDisable_moderate']),
+					'icon' => 'exit.png',
 				),
 				'notice' => array(
 					'file' => 'ModerationCenter.php',
@@ -80,11 +83,13 @@ function ModerationMain($dont_call = false)
 					'enabled' => !empty($modSettings['modlog_enabled']) && $context['can_moderate_boards'],
 					'file' => 'Modlog.php',
 					'function' => 'ViewModlog',
+					'icon' => 'logs.png',
 				),
 				'warnings' => array(
 					'label' => $txt['mc_warnings'],
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWarnings',
+					'icon' => 'warning.png',
 					'subsections' => array(
 						'log' => array($txt['mc_warning_log']),
 						'templates' => array($txt['mc_warning_templates'], 'issue_warning'),
@@ -101,6 +106,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
+					'icon' => 'posts.png',
 					'custom_url' => $scripturl . '?action=moderate;area=postmod',
 					'subsections' => array(
 						'posts' => array($txt['mc_unapproved_replies']),
@@ -112,6 +118,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
+					'icon' => 'post_moderation_attach.png',
 					'custom_url' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
 				),
 				'reports' => array(
@@ -119,6 +126,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_boards'],
 					'file' => 'ModerationCenter.php',
 					'function' => 'ReportedPosts',
+					'icon' => 'reports.png',
 					'subsections' => array(
 						'open' => array($txt['mc_reportedp_active']),
 						'closed' => array($txt['mc_reportedp_closed']),
@@ -134,6 +142,7 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['mc_watched_users_title'],
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWatchedUsers',
+					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'member' => array($txt['mc_watched_users_member']),
 						'post' => array($txt['mc_watched_users_post']),
@@ -143,12 +152,14 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['mc_group_requests'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
+					'icon' => 'members_request.png',
 					'custom_url' => $scripturl . '?action=moderate;area=groups;sa=requests',
 				),
 				'viewgroups' => array(
 					'label' => $txt['mc_view_groups'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
+					'icon' => 'membergroups.png',
 				),
 			),
 		),
