@@ -425,7 +425,7 @@ function theme_linktree($force_show = false)
 
 		// Show something before the link?
 		if (isset($tree['extra_before']))
-			echo $tree['extra_before'];
+			echo $tree['extra_before'], ' ';
 
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '
@@ -433,7 +433,7 @@ function theme_linktree($force_show = false)
 
 		// Show something after the link...?
 		if (isset($tree['extra_after']))
-			echo $tree['extra_after'];
+			echo ' ', $tree['extra_after'];
 
 		echo '
 			</li>';
