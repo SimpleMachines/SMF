@@ -218,6 +218,15 @@ function deleteMembers($users, $check_not_admin = false)
 		)
 	);
 
+	// Delete anything they liked.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_likes
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
 	// Delete the logs...
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_actions
@@ -1159,6 +1168,12 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 {
 	global $smcFunc;
 
+	$updated = array(
+		'messages' => 0,
+		'topics' => 0,
+		'reports' => 0,
+	);
+
 	// Firstly, if email and username aren't passed find out the members email address and name.
 	if ($email === false && $membername === false)
 	{
@@ -1220,20 +1235,40 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 			'member_name' => $membername,
 		)
 	);
+	$updated['messages'] = $smcFunc['db_affected_rows']();
 
-	// ...and the topics too!
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics as t, {db_prefix}messages as m
-		SET t.id_member_started = {int:memID}
-		WHERE m.id_member = {int:memID}
-			AND t.id_first_msg = m.id_msg',
-		array(
-			'memID' => $memID,
-		)
-	);
+	// Did we update any messages?
+	if ($updated['messages'] > 0)
+	{
+		// First, check for updated topics.
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}topics as t, {db_prefix}messages as m
+			SET t.id_member_started = {int:memID}
+			WHERE m.id_member = {int:memID}
+				AND t.id_first_msg = m.id_msg',
+			array(
+				'memID' => $memID,
+			)
+		);
+		$updated['topics'] = $smcFunc['db_affected_rows']();
+
+		// Second, check for updated reports.
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}log_reported AS lr, {db_prefix}messages AS m
+			SET lr.id_member = {int:memID}
+			WHERE lr.id_msg = m.id_msg
+				AND m.id_member = {int:memID}',
+			array(
+				'memID' => $memID,
+			)
+		);
+		$updated['reports'] = $smcFunc['db_affected_rows']();
+	}
 
 	// Allow mods with their own post tables to reattribute posts as well :)
- 	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count));
+ 	call_integration_hook('integrate_reattribute_posts', array($memID, $email, $membername, $post_count, &$updated));
+
+	return $updated;
 }
 
 /**
