@@ -1087,21 +1087,21 @@ function template_postmod_permissions()
 		// Got advanced permissions - if so warn!
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
-				<div class="information">', $txt['permissions_post_moderation_deny_note'], '</div>';
+			<div class="information">', $txt['permissions_post_moderation_deny_note'], '</div>';
 
 		echo '
-				<div class="padding righttext">
-					', $txt['permissions_post_moderation_select'], ':
-					<select name="pid" onchange="document.forms.postmodForm.submit();">';
+			<div class="padding righttext">
+				', $txt['permissions_post_moderation_select'], ':
+				<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
 		foreach ($context['profiles'] as $profile)
 			if ($profile['can_modify'])
 				echo '
-						<option value="', $profile['id'], '" ', $profile['id'] == $context['current_profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
+					<option value="', $profile['id'], '" ', $profile['id'] == $context['current_profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
 
 		echo '
-					</select>
-					<input type="submit" value="', $txt['go'], '" class="button_submit" />
+				</select>
+				<input type="submit" value="', $txt['go'], '" class="button_submit" />
 			</div>
 			<table width="100%" class="table_grid">
 				<thead>
