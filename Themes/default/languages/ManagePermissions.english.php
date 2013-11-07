@@ -34,6 +34,32 @@ $txt['permissions_profile_used_by_many'] = '%1$d Boards';
 $txt['permissions_profile_used_by_none'] = 'No Boards';
 $txt['permissions_profile_do_edit'] = 'Edit';
 $txt['permissions_profile_do_delete'] = 'Delete';
+
+$txt['permissionname_profile_displayed_name'] = 'Edit displayed name';
+$txt['permissionhelp_profile_displayed_name'] = 'Allow the member to edit the displayed name field in their profile';
+$txt['permissionname_profile_displayed_name_own'] = 'Own displayed name';
+$txt['permissionname_profile_displayed_name_any'] = 'Any displayed name';
+
+$txt['permissionname_profile_signature'] = 'Edit signature';
+$txt['permissionhelp_profile_signature'] = 'Allow the member to edit the signature field in their profile';
+$txt['permissionname_profile_signature_own'] = 'Own signature';
+$txt['permissionname_profile_signature_any'] = 'Any signature';
+$txt['permissionname_profile_forum'] = 'Allow Forum Profile edits';
+$txt['permissionhelp_profile_forum'] = 'This option will allow a member to edit their Forum Profile';
+$txt['permissionname_profile_forum_own'] = 'Own profile';
+$txt['permissionname_profile_forum_any'] = 'Any profile';
+$txt['permissionname_profile_other'] = 'Edit website and location';
+$txt['permissionhelp_profile_other'] = 'Allow the member to edit the website, and location fields in their profile';
+$txt['permissionname_profile_other_own'] = 'Own profile';
+$txt['permissionname_profile_other_any'] = 'Any profile';
+$txt['permissionname_profile_password'] = 'Change password';
+$txt['permissionhelp_profile_password'] = 'Allow the member to change the password or the secret question fields';
+$txt['permissionname_profile_password_own'] = 'Own profile';
+$txt['permissionname_profile_password_any'] = 'Any profile';
+$txt['permissionname_profile_blurb'] = 'Edit personal text';
+$txt['permissionhelp_profile_blurb'] = 'Allow the member to edit the personal text field in their profile';
+$txt['permissionname_profile_blurb_own'] = 'Own profile';
+$txt['permissionname_profile_blurb_any'] = 'Any profile';
 $txt['permissions_profile_copy_from'] = 'Copy Permissions From';
 
 $txt['permissions_includes_inherited'] = 'Inherited Groups';

@@ -179,8 +179,8 @@ function ModifyProfile($post_errors = array())
 					'token' => 'profile-ac%u',
 					'password' => true,
 					'permission' => array(
-						'own' => array('profile_identity_any', 'profile_identity_own', 'manage_membergroups'),
-						'any' => array('profile_identity_any', 'manage_membergroups'),
+						'own' => array('profile_identity_any', 'profile_identity_own', 'profile_password_any', 'profile_password_own', 'manage_membergroups'),
+						'any' => array('profile_identity_any', 'profile_password_any', 'manage_membergroups'),
 					),
 				),
 				'forumprofile' => array(
@@ -190,8 +190,8 @@ function ModifyProfile($post_errors = array())
 					'sc' => 'post',
 					'token' => 'profile-fp%u',
 					'permission' => array(
-						'own' => array('profile_extra_any', 'profile_extra_own', 'profile_title_own', 'profile_title_any'),
-						'any' => array('profile_extra_any', 'profile_title_any'),
+						'own' => array('profile_forum_any', 'profile_forum_own'),
+						'any' => array('profile_forum_any'),
 					),
 				),
 				'theme' => array(
@@ -215,8 +215,8 @@ function ModifyProfile($post_errors = array())
 					'hidden' => empty($modSettings['enableOpenID']) && empty($cur_profile['openid_uri']),
 					'password' => true,
 					'permission' => array(
-						'own' => array('profile_identity_any', 'profile_identity_own'),
-						'any' => array('profile_identity_any'),
+						'own' => array('profile_password_any', 'profile_password_own'),
+						'any' => array('profile_password_any'),
 					),
 				),
 				'notification' => array(

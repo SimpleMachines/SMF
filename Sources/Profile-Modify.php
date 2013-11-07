@@ -180,7 +180,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['user_email_address'],
 			'subtext' => $txt['valid_email'],
 			'log_change' => true,
-			'permission' => 'profile_identity',
+			'permission' => 'profile_password',
 			'input_validate' => create_function('&$value', '
 				global $context, $old_profile, $context, $profile_vars, $sourcedir, $modSettings;
 
@@ -334,7 +334,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['location'],
 			'log_change' => true,
 			'size' => 50,
-			'permission' => 'profile_extra',
+			'permission' => 'profile_other',
 		),
 		// The username is not always editable - so adjust it as such.
 		'member_name' => array(
@@ -383,7 +383,7 @@ function loadProfileFields($force_reload = false)
 			'size' => 20,
 			'value' => '',
 			'enabled' => empty($cur_profile['openid_uri']),
-			'permission' => 'profile_identity',
+			'permission' => 'profile_password',
 			'save_key' => 'passwd',
 			// Note this will only work if passwrd2 also exists!
 			'input_validate' => create_function('&$value', '
@@ -416,7 +416,7 @@ function loadProfileFields($force_reload = false)
 			'enabled' => empty($cur_profile['openid_uri']),
 			'size' => 20,
 			'value' => '',
-			'permission' => 'profile_identity',
+			'permission' => 'profile_password',
 			'is_dummy' => true,
 		),
 		'personal_text' => array(
@@ -425,7 +425,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
-			'permission' => 'profile_extra',
+			'permission' => 'profile_blurb',
 			'input_validate' => create_function('&$value', '
 				global $smcFunc;
 
@@ -476,13 +476,13 @@ function loadProfileFields($force_reload = false)
 			'),
 		),
 		'real_name' => array(
-			'type' => !empty($modSettings['allow_editDisplayName']) || allowedTo('moderate_forum') ? 'text' : 'label',
+			'type' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum') ? 'text' : 'label',
 			'label' => $txt['name'],
 			'subtext' => $txt['display_name_desc'],
 			'log_change' => true,
 			'input_attr' => array('maxlength="60"'),
-			'permission' => 'profile_identity',
-			'enabled' => !empty($modSettings['allow_editDisplayName']) || allowedTo('moderate_forum'),
+			'permission' => 'profile_displayed_name',
+			'enabled' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum'),
 			'input_validate' => create_function('&$value', '
 				global $context, $smcFunc, $sourcedir, $cur_profile;
 
@@ -506,7 +506,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['secret_question'],
 			'subtext' => $txt['secret_desc'],
 			'size' => 50,
-			'permission' => 'profile_identity',
+			'permission' => 'profile_password',
 		),
 		'secret_answer' => array(
 			'type' => 'text',
@@ -515,7 +515,7 @@ function loadProfileFields($force_reload = false)
 			'size' => 20,
 			'postinput' => '<span class="smalltext" style="margin-left: 4ex;">[<a href="' . $scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);">' . $txt['secret_why_blank'] . '</a>]</span>',
 			'value' => '',
-			'permission' => 'profile_identity',
+			'permission' => 'profile_password',
 			'input_validate' => create_function('&$value', '
 				$value = $value != \'\' ? md5($value) : \'\';
 				return true;
@@ -524,7 +524,7 @@ function loadProfileFields($force_reload = false)
 		'signature' => array(
 			'type' => 'callback',
 			'callback_func' => 'signature_modify',
-			'permission' => 'profile_extra',
+			'permission' => 'profile_signature',
 			'enabled' => substr($modSettings['signature_settings'], 0, 1) == 1,
 			'preload' => 'profileLoadSignatureData',
 			'input_validate' => 'profileValidateSignature',
@@ -634,7 +634,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
-			'permission' => 'profile_title',
+			'permission' => 'profile_other',
 			'enabled' => !empty($modSettings['titlesEnable']),
 			'input_validate' => create_function('&$value', '
 				global $smcFunc;
@@ -650,7 +650,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['website_title'],
 			'subtext' => $txt['include_website_url'],
 			'size' => 50,
-			'permission' => 'profile_extra',
+			'permission' => 'profile_other',
 			'link_with' => 'website',
 		),
 		'website_url' => array(
@@ -658,7 +658,7 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['website_url'],
 			'subtext' => $txt['complete_url'],
 			'size' => 50,
-			'permission' => 'profile_extra',
+			'permission' => 'profile_other',
 			// Fix the URL...
 			'input_validate' => create_function('&$value', '
 
@@ -941,13 +941,13 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	// Permissions...
 	if ($context['user']['is_owner'])
 	{
-		$changeIdentity = allowedTo(array('profile_identity_any', 'profile_identity_own'));
-		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own'));
+		$changeIdentity = allowedTo(array('profile_identity_any', 'profile_identity_own', 'profile_password_any', 'profile_password_own'));
+		$changeOther = allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_other_any', 'profile_other_own', 'profile_signature_any', 'profile_signature_own'));
 	}
 	else
 	{
-		$changeIdentity = allowedTo('profile_identity_any');
-		$changeOther = allowedTo('profile_extra_any');
+		$changeIdentity = allowedTo('profile_identity_any', 'profile_signature_any');
+		$changeOther = allowedTo('profile_extra_any', 'profile_other_any', 'profile_signature_any');
 	}
 
 	// Arrays of all the changes - makes things easier.
@@ -1572,7 +1572,7 @@ function account($memID)
 	global $context, $txt;
 
 	loadThemeOptions($memID);
-	if (allowedTo(array('profile_identity_own', 'profile_identity_any')))
+	if (allowedTo(array('profile_identity_own', 'profile_identity_any', 'profile_password_own', 'profile_password_any')))
 		loadCustomFields($memID, 'account');
 
 	$context['sub_template'] = 'edit_options';
@@ -1599,7 +1599,7 @@ function forumProfile($memID)
 	global $context, $txt;
 
 	loadThemeOptions($memID);
-	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
+	if (allowedTo(array('profile_forum_own', 'profile_forum_any')))
 		loadCustomFields($memID, 'forumprofile');
 
 	$context['sub_template'] = 'edit_options';
