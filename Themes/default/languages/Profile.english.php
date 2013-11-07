@@ -348,7 +348,7 @@ $txt['ignore_add_button'] = 'Add';
 $txt['no_ignore'] = 'Your ignore list is currently empty';
 
 $txt['regular_members'] = 'Registered Members';
-$txt['regular_members_desc'] = 'Every member of the forum is a member of this group.';
+$txt['regular_members_desc'] = 'Every member of the forum, without a different badge or title, is a member of this group.';
 $txt['group_membership_msg_free'] = 'Your group membership was successfully updated.';
 $txt['group_membership_msg_request'] = 'Your request has been submitted, please be patient while the request is considered.';
 $txt['group_membership_msg_primary'] = 'Your primary group has been updated';

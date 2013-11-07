@@ -470,7 +470,7 @@ function template_add_edit_group_boards_list($collapse = true)
 
 	if (empty($modSettings['deny_boards_access']))
 		echo '
-								<br />
+								<br class="clear" /><br />
 								<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'boardaccess\');" /> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
 							</fieldset>';
 	else
