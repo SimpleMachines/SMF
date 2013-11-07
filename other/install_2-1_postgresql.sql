@@ -1954,6 +1954,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_b
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_displayed_name_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_signature_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_other_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_forum_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_extra_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remove_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
@@ -1978,6 +1979,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_b
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_displayed_name_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_signature_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_other_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_forum_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_extra_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remove_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
