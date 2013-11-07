@@ -1404,7 +1404,7 @@ function ThemeInstall()
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
 	<!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
 	<id>smf:' . $smcFunc['strtolower'](str_replace(array(' '), '_', $_REQUEST['copy'])) . '</id>
-	<!-- The theme\'s version, please try to use vemantic versioning. -->
+	<!-- The theme\'s version, please try to use semantic versioning. -->
 	<version>1.0</version>
 	<!-- Theme name, used purely for aesthetics. -->
 	<name>' . $_REQUEST['copy'] . '</name>
@@ -1521,6 +1521,7 @@ function ThemeInstall()
 				'version' => 'version',
 			);
 
+			// Assign the values to be stored.
 			foreach ($xml_elements as $var => $name)
 				if (!empty($theme_info_xml[$name]))
 					$install_info[$var] = $theme_info_xml[$name];
