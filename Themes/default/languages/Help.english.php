@@ -320,7 +320,7 @@ $helptxt['attachmentEnable'] = 'This option enables you to configure how attachm
 	<ul class="normallist">
 		<li>
 			<strong>Disable all attachments</strong><br />
-			All attachments are disabled, existing attachments are not available; it is as if they were never attached, nor can any new attachments be made, regardless of permissions.<br /><br />
+			All attachments are disabled. Existing attachments are not deleted, but they are hidden from view (even administrators cannot see them). New attachments cannot be made either, regardless of permissions.<br /><br />
 		</li>
 		<li>
 			<strong>Enable all attachments</strong><br />
@@ -396,7 +396,7 @@ $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains.  
 	Using this option will allow you to access the forum\'s cookie on your site.  Do not enable this if there are other subdomains (like hacker.example.com) not controlled by you.<br /><br />
 	This option does not function when local cookies are enabled.';
 $helptxt['globalCookiesDomain'] = 'When using subdomain independent cookies, you can specify what domain should be used for them. This should, of course, be set to your main domain - for example if you are using forum.example.com and www.example.com, the domain is example.com in this case. You should not put the http:// part in front of it.';
-$helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site as it will mean no-one will be able to log in properly!';
+$helptxt['secureCookies'] = 'Enabling this option will force the cookies created for users on your forum to be marked as secure. Only enable this option if you are using HTTPS throughout your site, otherwise it will mean no-one will be able to log in properly!';
 $helptxt['securityDisable'] = 'This <em>disables</em> the additional password check for the administration section. This is not recommended!';
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br /><br />Having to type this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
 $helptxt['securityDisable_moderate'] = 'This <em>disables</em> the additional password check for the moderation section. This is not recommended!';
