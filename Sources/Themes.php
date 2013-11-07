@@ -1288,7 +1288,8 @@ function PickTheme()
  */
 function ThemeInstall()
 {
-	global $sourcedir, $boarddir, $boardurl, $txt, $context, $settings, $modSettings, $smcFunc;
+	global $sourcedir, $boarddir, $boardurl, $txt, $context;
+	global $settings, $modSettings, $scripturl, $smcFunc, $forum_version;
 
 	checkSession('request');
 
@@ -1298,6 +1299,10 @@ function ThemeInstall()
 	require_once($sourcedir . '/Subs-Package.php');
 
 	loadTemplate('Themes');
+	loadLanguage('Errors');
+
+	// Make it easier to change the path.
+	$themedir = $boarddir . '/Themes';
 
 	if (isset($_GET['theme_id']))
 	{
@@ -1329,7 +1334,7 @@ function ThemeInstall()
 
 	if ((!empty($_FILES['theme_gz']) && (!isset($_FILES['theme_gz']['error']) || $_FILES['theme_gz']['error'] != 4)) || !empty($_REQUEST['theme_gz']))
 		$method = 'upload';
-	elseif (isset($_REQUEST['theme_dir']) && rtrim(realpath($_REQUEST['theme_dir']), '/\\') != realpath($boarddir . '/Themes') && file_exists($_REQUEST['theme_dir']))
+	elseif (isset($_REQUEST['theme_dir']) && rtrim(realpath($_REQUEST['theme_dir']), '/\\') != realpath($themedir) && file_exists($_REQUEST['theme_dir']))
 		$method = 'path';
 	else
 		$method = 'copy';
@@ -1337,10 +1342,10 @@ function ThemeInstall()
 	if (!empty($_REQUEST['copy']) && $method == 'copy')
 	{
 		// Hopefully the themes directory is writable, or we might have a problem.
-		if (!is_writable($boarddir . '/Themes'))
+		if (!is_writable($themedir))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
-		$theme_dir = $boarddir . '/Themes/' . preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
+		$theme_dir = $themedir . '/' . preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 		umask(0);
 		mkdir($theme_dir, 0777);
@@ -1366,7 +1371,7 @@ function ThemeInstall()
 		package_flush_cache();
 
 		$theme_name = $_REQUEST['copy'];
-		$images_url = $boardurl . '/Themes/' . basename($theme_dir) . '/images';
+		$images_url = $themedir . '/' . basename($theme_dir) . '/images';
 		$theme_dir = realpath($theme_dir);
 
 		// Lets get some data for the new theme.
@@ -1398,8 +1403,11 @@ function ThemeInstall()
 		$xml_info = '<' . '?xml version="1.0"?' . '>
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
 	<!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
-	<id>smf:' . $smcFunc['strtolower'](str_replace(array(' '), '_', $_REQUEST['copy'])) . '</id>
-	<version>' . $modSettings['smfVersion'] . '</version>
+	<id>smf:' . $smcFunc['strtolower'](trim(str_replace(array(' '), '_', $_REQUEST['copy']))) . '</id>
+	<!-- The theme\'s version, please try to use semantic versioning. -->
+	<version>1.0</version>
+	<!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
+	<install for="2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')) .'" />
 	<!-- Theme name, used purely for aesthetics. -->
 	<name>' . $_REQUEST['copy'] . '</name>
 	<!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1422,6 +1430,7 @@ function ThemeInstall()
 			fclose($fp);
 		}
 	}
+
 	elseif (isset($_REQUEST['theme_dir']) && $method == 'path')
 	{
 		if (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
@@ -1430,10 +1439,11 @@ function ThemeInstall()
 		$theme_name = basename($_REQUEST['theme_dir']);
 		$theme_dir = $_REQUEST['theme_dir'];
 	}
-	elseif ($method = 'upload')
+
+	elseif ($method == 'upload')
 	{
 		// Hopefully the themes directory is writable, or we might have a problem.
-		if (!is_writable($boarddir . '/Themes'))
+		if (!is_writable($themedir))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
 		// This happens when the admin session is gone and the user has to login again
@@ -1443,42 +1453,65 @@ function ThemeInstall()
 		// Set the default settings...
 		$theme_name = strtok(basename(isset($_FILES['theme_gz']) ? $_FILES['theme_gz']['name'] : $_REQUEST['theme_gz']), '.');
 		$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
-		$theme_dir = $boarddir . '/Themes/' . $theme_name;
+		$theme_dir = $themedir . '/' . $theme_name;
 
 		if (isset($_FILES['theme_gz']) && is_uploaded_file($_FILES['theme_gz']['tmp_name']) && (ini_get('open_basedir') != '' || file_exists($_FILES['theme_gz']['tmp_name'])))
-			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $boarddir . '/Themes/' . $theme_name, false, true);
+			$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $themedir . '/' . $theme_name, false, true);
+
 		elseif (isset($_REQUEST['theme_gz']))
 		{
 			// Check that the theme is from simplemachines.org, for now... maybe add mirroring later.
 			if (preg_match('~^http://[\w_\-]+\.simplemachines\.org/~', $_REQUEST['theme_gz']) == 0 || strpos($_REQUEST['theme_gz'], 'dlattach') !== false)
 				fatal_lang_error('not_on_simplemachines');
 
-			$extracted = read_tgz_file($_REQUEST['theme_gz'], $boarddir . '/Themes/' . $theme_name, false, true);
+			$extracted = read_tgz_file($_REQUEST['theme_gz'], $themedir . '/' . $theme_name, false, true);
 		}
 		else
 			redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	// Something go wrong?
+	// Let us proceed with the install.
 	if ($theme_dir != '' && basename($theme_dir) != 'Themes')
 	{
 		// Defaults.
 		$install_info = array(
 			'theme_url' => $boardurl . '/Themes/' . basename($theme_dir),
-			'images_url' => isset($images_url) ? $images_url : $boardurl . '/Themes/' . basename($theme_dir) . '/images',
+			'images_url' => isset($images_url) ? $images_url : $themedir . '/' . basename($theme_dir) . '/images',
 			'theme_dir' => $theme_dir,
 			'name' => $theme_name
 		);
 
-		if (file_exists($theme_dir . '/theme_info.xml'))
+		// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
+		if (file_exists($theme_dir . '/package-info.xml'))
+		{
+			$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
+			fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
+		}
+
+		// Get the theme info.
+		elseif (file_exists($theme_dir . '/theme_info.xml'))
 		{
 			$theme_info = file_get_contents($theme_dir . '/theme_info.xml');
+
 			// Parse theme-info.xml into an xmlArray.
 			require_once($sourcedir . '/Class-Package.php');
 			$theme_info_xml = new xmlArray($theme_info);
-			// @todo Error message of some sort?
+
+			// Error message, there isn't any valid info.
 			if (!$theme_info_xml->exists('theme-info[0]'))
-				return 'package_get_error_packageinfo_corrupt';
+				fatal_lang_error('package_get_error_packageinfo_corrupt', false);
+
+			// Check for compatibility with 2.1 or greater.
+			if (!$theme_info_xml->exists('theme-info/install'))
+				fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+
+			// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
+			$the_version = strtr($forum_version, array('SMF ' => ''));
+			$install_versions = $theme_info_xml->path('theme-info/install/@for');
+
+			// The theme isn't compatible with the current SMF version.
+			if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
+				fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
 
 			$theme_info_xml = $theme_info_xml->path('theme-info[0]');
 			$theme_info_xml = $theme_info_xml->to_array();
@@ -1488,11 +1521,64 @@ function ThemeInstall()
 				'theme_layers' => 'layers',
 				'theme_templates' => 'templates',
 				'based_on' => 'based-on',
+				'version' => 'version',
 			);
+
+			// Assign the values to be stored.
 			foreach ($xml_elements as $var => $name)
-			{
 				if (!empty($theme_info_xml[$name]))
 					$install_info[$var] = $theme_info_xml[$name];
+
+			// OK, is this a newer version of an already installed theme?
+			if (!empty($install_info['version']))
+			{
+				$to_update = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT th.value AS name, th.id_theme, th2.value AS version
+					FROM {db_prefix}themes AS th
+						INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
+							AND th2.id_member = {int:no_member}
+							AND th2.variable = {string:version})
+					WHERE th.id_member = {int:no_member}
+						AND th.variable = {string:name}
+						AND th.value LIKE {string:name_value}
+					LIMIT 1',
+					array(
+						'no_member' => 0,
+						'name' => 'name',
+						'version' => 'version',
+						'name_value' => '%'. $install_info['name'] .'%',
+					)
+				);
+				$to_update = $smcFunc['db_fetch_assoc']($request);
+				$smcFunc['db_free_result']($request);
+
+				// Got something, lets figure it out what to do next.
+				if (!empty($to_update) && !empty($to_update['version']))
+					switch (compareVersions($install_info['version'], $to_update['version']))
+					{
+						case 0: // This is exactly the same theme.
+						case -1: // The one being installed is older than the one already installed.
+						default: // Any other possible result.
+							fatal_lang_error('package_get_error_theme_no_new_version', false, array($install_info['version'], $to_update['version']));
+							break;
+						case 1: // Got a newer version, update the old entry.
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}themes
+								SET value = {string:new_value}
+								WHERE variable = {string:version}
+									AND id_theme = {int:id_theme}',
+								array(
+									'new_value' => $install_info['version'],
+									'version' => 'version',
+									'id_theme' => $to_update['id_theme'],
+								)
+							);
+
+							// Do a redirect and set a nice updated message.
+							redirectexit('action=admin;area=theme;sa=install;theme_id=' . $to_update['id_theme'] . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
+							break;
+					}
 			}
 
 			if (!empty($theme_info_xml['images']))
@@ -1507,11 +1593,14 @@ function ThemeInstall()
 
 		if (isset($install_info['based_on']))
 		{
+			// No need for elaborated stuff when the theme is based on the default one.
 			if ($install_info['based_on'] == 'default')
 			{
 				$install_info['theme_url'] = $settings['default_theme_url'];
 				$install_info['images_url'] = $settings['default_images_url'];
 			}
+
+			// Custom theme based on another custom theme, lets get some info.
 			elseif ($install_info['based_on'] != '')
 			{
 				$install_info['based_on'] = preg_replace('~[^A-Za-z0-9\-_ ]~', '', $install_info['based_on']);
@@ -1541,7 +1630,7 @@ function ThemeInstall()
 				$temp = $smcFunc['db_fetch_assoc']($request);
 				$smcFunc['db_free_result']($request);
 
-				// @todo An error otherwise?
+				// Found the based on theme info, add it to the current one being installed.
 				if (is_array($temp))
 				{
 					$install_info = $temp + $install_info;
@@ -1549,6 +1638,10 @@ function ThemeInstall()
 					if (empty($explicit_images) && !empty($install_info['base_theme_url']))
 						$install_info['theme_url'] = $install_info['base_theme_url'];
 				}
+
+				// Nope, sorry, couldn't find any theme already installed.
+				else
+					fatal_lang_error('package_get_error_theme_no_based_on_found', false, $install_info['based_on']);
 			}
 
 			unset($install_info['based_on']);
