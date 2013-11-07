@@ -3097,6 +3097,21 @@ function template_header()
 
 	header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
+	// We need to splice this in after the body layer, or after the main layer for older stuff.
+	if ($context['in_maintenance'] && $context['user']['is_admin'])
+	{
+		$position = array_search('body', $context['template_layers']);
+		if ($position === false)
+			$position = array_search('main', $context['template_layers']);
+
+		if ($position !== false)
+		{
+			$before = array_slice($context['template_layers'], 0, $position + 1);
+			$after = array_slice($context['template_layers'], $position + 1);
+			$context['template_layers'] = array_merge($before, array('maint_warning'), $after);
+		}
+	}
+
 	$checked_securityFiles = false;
 	$showed_banned = false;
 	foreach ($context['template_layers'] as $layer)
