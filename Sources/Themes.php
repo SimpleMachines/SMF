@@ -1406,6 +1406,8 @@ function ThemeInstall()
 	<id>smf:' . $smcFunc['strtolower'](str_replace(array(' '), '_', $_REQUEST['copy'])) . '</id>
 	<!-- The theme\'s version, please try to use semantic versioning. -->
 	<version>1.0</version>
+	<!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
+	<install for="2.1 - 2.1.99" />
 	<!-- Theme name, used purely for aesthetics. -->
 	<name>' . $_REQUEST['copy'] . '</name>
 	<!-- Author: your email address or contact information. The name attribute is optional. -->
