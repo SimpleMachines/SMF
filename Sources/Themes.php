@@ -1473,7 +1473,7 @@ function ThemeInstall()
 	{
 		// Defaults.
 		$install_info = array(
-			'theme_url' => $themedir . '/' . basename($theme_dir),
+			'theme_url' => $boardurl . '/Themes/' . basename($theme_dir),
 			'images_url' => isset($images_url) ? $images_url : $themedir . '/' . basename($theme_dir) . '/images',
 			'theme_dir' => $theme_dir,
 			'name' => $theme_name
