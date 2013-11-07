@@ -1403,7 +1403,7 @@ function ThemeInstall()
 		$xml_info = '<' . '?xml version="1.0"?' . '>
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
 	<!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
-	<id>smf:' . $smcFunc['strtolower'](str_replace(array(' '), '_', $_REQUEST['copy'])) . '</id>
+	<id>smf:' . $smcFunc['strtolower'](trim(str_replace(array(' '), '_', $_REQUEST['copy']))) . '</id>
 	<!-- The theme\'s version, please try to use semantic versioning. -->
 	<version>1.0</version>
 	<!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
@@ -1497,7 +1497,7 @@ function ThemeInstall()
 			require_once($sourcedir . '/Class-Package.php');
 			$theme_info_xml = new xmlArray($theme_info);
 
-			// Error message, there isn't any valid info
+			// Error message, there isn't any valid info.
 			if (!$theme_info_xml->exists('theme-info[0]'))
 				fatal_lang_error('package_get_error_packageinfo_corrupt', false);
 
@@ -1509,6 +1509,7 @@ function ThemeInstall()
 			$the_version = strtr($forum_version, array('SMF ' => ''));
 			$install_versions = $theme_info_xml->path('theme-info/install/@for');
 
+			// The theme isn't compatible with the current SMF version.
 			if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
 				fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
 
@@ -1575,7 +1576,7 @@ function ThemeInstall()
 							);
 
 							// Do a redirect and set a nice updated message.
-							redirectexit('action=admin;area=theme;sa=install;theme_id=' . $id_theme . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
+							redirectexit('action=admin;area=theme;sa=install;theme_id=' . $to_update['id_theme'] . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
 							break;
 					}
 			}
