@@ -1407,7 +1407,7 @@ function ThemeInstall()
 	<!-- The theme\'s version, please try to use semantic versioning. -->
 	<version>1.0</version>
 	<!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-	<install for="2.1 - 2.1.99" />
+	<install for="2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')) .'" />
 	<!-- Theme name, used purely for aesthetics. -->
 	<name>' . $_REQUEST['copy'] . '</name>
 	<!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1559,7 +1559,7 @@ function ThemeInstall()
 						case 0: // This is exactly the same theme.
 						case -1: // The one being installed is older than the one already installed.
 						default: // Any other possible result.
-							fatal_lang_error('package_get_error_theme_no_new_version', false, array($install_info['version'], $to_update['version']))
+							fatal_lang_error('package_get_error_theme_no_new_version', false, array($install_info['version'], $to_update['version']));
 							break;
 						case 1: // Got a newer version, update the old entry.
 							$smcFunc['db_query']('', '
