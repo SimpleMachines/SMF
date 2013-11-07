@@ -1090,8 +1090,7 @@ function template_postmod_permissions()
 				<div class="information">', $txt['permissions_post_moderation_deny_note'], '</div>';
 
 		echo '
-				<div class="padding">
-					<span class="righttext" style="float: right">
+				<div class="padding righttext">
 					', $txt['permissions_post_moderation_select'], ':
 					<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
@@ -1103,7 +1102,6 @@ function template_postmod_permissions()
 		echo '
 					</select>
 					<input type="submit" value="', $txt['go'], '" class="button_submit" />
-					</span>
 			</div>
 			<table width="100%" class="table_grid">
 				<thead>
