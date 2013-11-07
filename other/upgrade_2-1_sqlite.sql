@@ -562,3 +562,70 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
 UPDATE {$db_prefix}log_packages
 SET install_state = 0;
 ---#
+
+/******************************************************************************/
+--- Updating profile permissions...
+/******************************************************************************/
+---# Adding "profile_password_own"
+---{
+$inserts = array();
+
+$request = upgrade_query("
+	SELECT id_group, add_deny
+	FROM {$db_prefix}permissions
+	WHERE permission = 'profile_identity_own'");
+	
+	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	{
+		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
+	}
+
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+	{
+		foreach ($inserts as $insert)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}permissions
+					(id_group, permission, add_deny)
+				VALUES
+					" . $insert);
+		}
+	}
+---}
+---#
+
+---# Adding other profile permissions
+---{
+$inserts = array();
+
+$request = upgrade_query("
+	SELECT id_group, add_deny
+	FROM {$db_prefix}permissions
+	WHERE permission = 'profile_extra_own'");
+	
+	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	{
+		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_other_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
+	}
+
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+	{
+		foreach ($inserts as $insert)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}permissions
+					(id_group, permission, add_deny)
+				VALUES
+					" . $insert);
+		}
+	}
+---}
+---#
