@@ -1073,12 +1073,14 @@ function template_postmod_permissions()
 
 	// First, we have the bit where we can enable or disable this bad boy.
 	echo '
-			<div class="content">
-				<dl class="settings">
-					<dt>', $txt['permissions_post_moderation_enable'], '</dt>
-					<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked="checked"' : '', ' /></dd>
-				</dl>
-				<hr class="hrcolor clear" />
+			<div class="windowbg2">
+				<div class="content">
+					<dl class="settings">
+						<dt>', $txt['permissions_post_moderation_enable'], '</dt>
+						<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked="checked"' : '', ' /></dd>
+					</dl>
+					<hr class="hrcolor clear" />
+				</div>
 			</div>';
 
 	// If we're not active, there's a bunch of stuff we don't need to show.
