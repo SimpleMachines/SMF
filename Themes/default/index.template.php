@@ -473,8 +473,8 @@ function template_menu()
 			foreach ($button['sub_buttons'] as $childbutton)
 			{
 				echo '
-						<li ', !empty($childbutton['sub_buttons']) ? 'class="subsections"' :'', '>
-							<a href="', $childbutton['href'], '" ' , isset($childbutton['target']) ? 'target="' . $childbutton['target'] . '"' : '', '>
+						<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' :'', '>
+							<a href="', $childbutton['href'], '"' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
 								', $childbutton['title'], '
 							</a>';
 				// 3rd level menus :)
@@ -486,7 +486,7 @@ function template_menu()
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
 								<li>
-									<a href="', $grandchildbutton['href'], '" ' , isset($grandchildbutton['target']) ? 'target="' . $grandchildbutton['target'] . '"' : '', '>
+									<a href="', $grandchildbutton['href'], '"' , isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
 										', $grandchildbutton['title'], '
 									</a>
 								</li>';
