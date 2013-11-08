@@ -347,7 +347,6 @@ function ModifyTopicSettings($return_config = false)
 	// Here are all the topic settings.
 	$config_vars = array(
 			// Some simple bools...
-			array('check', 'enableStickyTopics'),
 			array('check', 'enableParticipation'),
 		'',
 			// Pagination etc...
