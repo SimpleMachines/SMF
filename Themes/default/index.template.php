@@ -400,28 +400,28 @@ function theme_linktree($force_show = false)
 		return;
 
 	echo '
-	<div class="navigate_section">
-		<ul>';
+				<div class="navigate_section">
+					<ul>';
 
 	if ($context['user']['is_logged'])
 	echo '
-			<li class="unread_links">
-				<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
-				<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
-			</li>';
+						<li class="unread_links">
+							<a href="', $scripturl, '?action=unread" title="', $txt['unread_since_visit'], '">', $txt['view_unread_category'], '</a>
+							<a href="', $scripturl, '?action=unreadreplies" title="', $txt['show_unread_replies'], '">', $txt['unread_replies'], '</a>
+						</li>';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
 	foreach ($context['linktree'] as $link_num => $tree)
 	{
 		echo '
-			<li', ($link_num == count($context['linktree']) - 1) ? ' class="last"' : '', '>';
+						<li', ($link_num == count($context['linktree']) - 1) ? ' class="last"' : '', '>';
 
 		// Don't show a separator for the first one.
 		// Better here. Always points to the next level when the linktree breaks to a second line.
 		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
 		if ($link_num != 0)
 			echo '
-				<span class="dividers">', $context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+							<span class="dividers">', $context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
 
 		// Show something before the link?
 		if (isset($tree['extra_before']))
@@ -429,19 +429,19 @@ function theme_linktree($force_show = false)
 
 		// Show the link, including a URL if it should have one.
 		echo $settings['linktree_link'] && isset($tree['url']) ? '
-				<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>' : '<span>' . $tree['name'] . '</span>';
+							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>' : '<span>' . $tree['name'] . '</span>';
 
 		// Show something after the link...?
 		if (isset($tree['extra_after']))
 			echo ' ', $tree['extra_after'];
 
 		echo '
-			</li>';
+						</li>';
 	}
 
 	echo '
-		</ul>
-	</div>';
+					</ul>
+				</div>';
 
 	$shown_linktree = true;
 }
@@ -454,60 +454,60 @@ function template_menu()
 	global $context, $settings, $options, $scripturl, $txt;
 
 	echo '
-		<div id="main_menu">
-			<ul class="dropmenu" id="menu_nav">';
+				<div id="main_menu">
+					<ul class="dropmenu" id="menu_nav">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-				<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
-					<a class="', $button['active_button'] ? 'active' : '', '" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-						', $button['title'], '
-					</a>';
+						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
+							<a class="', $button['active_button'] ? 'active' : '', '" href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
+								', $button['title'], '
+							</a>';
 		if (!empty($button['sub_buttons']))
 		{
 			echo '
-					<ul>';
+							<ul>';
 
 			foreach ($button['sub_buttons'] as $childbutton)
 			{
 				echo '
-						<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' :'', '>
-							<a href="', $childbutton['href'], '"' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
-								', $childbutton['title'], '
-							</a>';
+								<li', !empty($childbutton['sub_buttons']) ? ' class="subsections"' :'', '>
+									<a href="', $childbutton['href'], '"' , isset($childbutton['target']) ? ' target="' . $childbutton['target'] . '"' : '', '>
+										', $childbutton['title'], '
+									</a>';
 				// 3rd level menus :)
 				if (!empty($childbutton['sub_buttons']))
 				{
 					echo '
-							<ul>';
+									<ul>';
 
 					foreach ($childbutton['sub_buttons'] as $grandchildbutton)
 						echo '
-								<li>
-									<a href="', $grandchildbutton['href'], '"' , isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
-										', $grandchildbutton['title'], '
-									</a>
-								</li>';
+										<li>
+											<a href="', $grandchildbutton['href'], '"' , isset($grandchildbutton['target']) ? ' target="' . $grandchildbutton['target'] . '"' : '', '>
+												', $grandchildbutton['title'], '
+											</a>
+										</li>';
 
 					echo '
-							</ul>';
+									</ul>';
 				}
 
 				echo '
-						</li>';
+								</li>';
 			}
 				echo '
-					</ul>';
+							</ul>';
 		}
 		echo '
-				</li>';
+						</li>';
 	}
 
 	echo '
-			</ul>
-		</div>';
+					</ul>
+				</div>';
 }
 
 /**
