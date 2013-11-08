@@ -111,10 +111,6 @@ function Sticky()
 	// Make sure the user can sticky it, and they are stickying *something*.
 	isAllowedTo('make_sticky');
 
-	// You shouldn't be able to (un)sticky a topic if the setting is disabled.
-	if (empty($modSettings['enableStickyTopics']))
-		fatal_lang_error('cannot_make_sticky', false);
-
 	// You can't sticky a board or something!
 	if (empty($topic))
 		fatal_lang_error('not_a_topic', false);

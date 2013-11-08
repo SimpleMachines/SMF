@@ -932,7 +932,7 @@ function MergeIndex()
 		array(
 			'id_board' => $_REQUEST['targetboard'],
 			'id_topic' => $_GET['from'],
-			'sort' => (!empty($modSettings['enableStickyTopics']) ? 't.is_sticky DESC, ' : '') . 't.id_last_msg DESC',
+			'sort' => 't.is_sticky DESC, t.id_last_msg DESC',
 			'offset' => $_REQUEST['start'],
 			'limit' => $modSettings['defaultMaxTopics'],
 			'is_approved' => 1,

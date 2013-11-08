@@ -512,7 +512,7 @@ WHERE variable LIKE 'integrate_%';
 /******************************************************************************/
 ---# Showing contact details to guests should never happen.
 DELETE FROM {$db_prefix}settings
-WHERE variable = 'guest_hideContacts';
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts');
 ---#
 
 /******************************************************************************/

@@ -129,7 +129,7 @@ function Post($post_errors = array())
 			$context['becomes_approved'] = true;
 
 		$context['can_lock'] = allowedTo('lock_any') || ($user_info['id'] == $id_member_poster && allowedTo('lock_own'));
-		$context['can_sticky'] = allowedTo('make_sticky') && !empty($modSettings['enableStickyTopics']);
+		$context['can_sticky'] = allowedTo('make_sticky');
 
 		$context['notify'] = !empty($context['notify']);
 		$context['sticky'] = isset($_REQUEST['sticky']) ? !empty($_REQUEST['sticky']) : $sticky;
@@ -153,7 +153,7 @@ function Post($post_errors = array())
 
 		// @todo These won't work if you're making an event.
 		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'));
-		$context['can_sticky'] = allowedTo('make_sticky') && !empty($modSettings['enableStickyTopics']);
+		$context['can_sticky'] = allowedTo('make_sticky');
 
 		$context['notify'] = !empty($context['notify']);
 		$context['sticky'] = !empty($_REQUEST['sticky']);
@@ -1327,7 +1327,7 @@ function Post2()
 		}
 
 		// So you wanna (un)sticky this...let's see.
-		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || $_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
+		if (isset($_POST['sticky']) && ($_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
 		// If drafts are enabled, then pass this off
@@ -1372,7 +1372,7 @@ function Post2()
 				$_POST['lock'] = allowedTo('lock_any') ? 1 : 2;
 		}
 
-		if (isset($_POST['sticky']) && (empty($modSettings['enableStickyTopics']) || empty($_POST['sticky']) || !allowedTo('make_sticky')))
+		if (isset($_POST['sticky']) && (empty($_POST['sticky']) || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
 
 		// Saving your new topic as a draft first?
@@ -1794,7 +1794,7 @@ function Post2()
 		'board' => $board,
 		'poll' => isset($_REQUEST['poll']) ? $id_poll : null,
 		'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
-		'sticky_mode' => isset($_POST['sticky']) && !empty($modSettings['enableStickyTopics']) ? (int) $_POST['sticky'] : null,
+		'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 		'mark_as_read' => true,
 		'is_approved' => !$modSettings['postmod_active'] || empty($topic) || !empty($board_info['cur_topic_approved']),
 	);
@@ -1959,7 +1959,7 @@ function Post2()
 	if (isset($_POST['lock']) && $_POST['lock'] != 2)
 		logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
-	if (isset($_POST['sticky']) && !empty($modSettings['enableStickyTopics']))
+	if (isset($_POST['sticky']))
 		logAction('sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
 	// Notify any members who have notification turned on for this topic - only do this if it's going to be approved(!)
@@ -2756,7 +2756,7 @@ function JavaScriptModify()
 			'id' => $topic,
 			'board' => $board,
 			'lock_mode' => isset($_POST['lock']) ? (int) $_POST['lock'] : null,
-			'sticky_mode' => isset($_POST['sticky']) && !empty($modSettings['enableStickyTopics']) ? (int) $_POST['sticky'] : null,
+			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,
 		);
 		$posterOptions = array();

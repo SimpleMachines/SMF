@@ -247,8 +247,6 @@ $helptxt['manage_files'] = '
 
 $helptxt['topicSummaryPosts'] = 'This allows you to set the number of previous posts shown in the topic summary at the reply screen.';
 $helptxt['enableAllMessages'] = 'Set this to the <em>maximum</em> number of posts a topic can have to show the all link.  Setting this lower than &quot;Maximum messages to display in a topic page&quot; will simply mean it never gets shown, and setting it too high could slow down your forum.';
-$helptxt['enableStickyTopics'] = 'Stickies are topics that remain on top of the topic list. They are mostly used for important
-		messages. Although you can change this with permissions, by default only moderators and administrators can make topics sticky.';
 $helptxt['allow_guestAccess'] = 'Unchecking this box will stop guests from doing anything but very basic actions - login, register, password reminder, etc. - on your forum.  This is not the same as disallowing guest access to boards.';
 $helptxt['userLanguage'] = 'Turning this option on will allow users to select which language file they use. It will not affect the
 		default selection.';

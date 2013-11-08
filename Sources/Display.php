@@ -78,13 +78,12 @@ function Display()
 			$request = $smcFunc['db_query']('', '
 				SELECT t2.id_topic
 				FROM {db_prefix}topics AS t
-					INNER JOIN {db_prefix}topics AS t2 ON (' . (empty($modSettings['enableStickyTopics']) ? '
-					t2.id_last_msg ' . $gt_lt . ' t.id_last_msg' : '
-					(t2.id_last_msg ' . $gt_lt . ' t.id_last_msg AND t2.is_sticky ' . $gt_lt . '= t.is_sticky) OR t2.is_sticky ' . $gt_lt . ' t.is_sticky') . ')
+					INNER JOIN {db_prefix}topics AS t2 ON (
+					(t2.id_last_msg ' . $gt_lt . ' t.id_last_msg AND t2.is_sticky ' . $gt_lt . '= t.is_sticky) OR t2.is_sticky ' . $gt_lt . ' t.is_sticky)
 				WHERE t.id_topic = {int:current_topic}
 					AND t2.id_board = {int:current_board}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND (t2.approved = {int:is_approved} OR (t2.id_member_started != {int:id_member_started} AND t2.id_member_started = {int:current_member}))') . '
-				ORDER BY' . (empty($modSettings['enableStickyTopics']) ? '' : ' t2.is_sticky' . $order . ',') . ' t2.id_last_msg' . $order . '
+				ORDER BY t2.is_sticky' . $order . ', t2.id_last_msg' . $order . '
 				LIMIT 1',
 				array(
 					'current_board' => $board,
@@ -106,7 +105,7 @@ function Display()
 					FROM {db_prefix}topics
 					WHERE id_board = {int:current_board}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 						AND (approved = {int:is_approved} OR (id_member_started != {int:id_member_started} AND id_member_started = {int:current_member}))') . '
-					ORDER BY' . (empty($modSettings['enableStickyTopics']) ? '' : ' is_sticky' . $order . ',') . ' id_last_msg' . $order . '
+					ORDER BY is_sticky' . $order . ', id_last_msg' . $order . '
 					LIMIT 1',
 					array(
 						'current_board' => $board,
@@ -372,9 +371,6 @@ function Display()
 	// Censor the title...
 	censorText($topicinfo['subject']);
 	$context['page_title'] = $topicinfo['subject'];
-
-	// Is this topic sticky, or can it even be?
-	$topicinfo['is_sticky'] = empty($modSettings['enableStickyTopics']) ? '0' : $topicinfo['is_sticky'];
 
 	// Default this topic to not marked for notifications... of course...
 	$context['is_marked_notify'] = false;
@@ -1095,7 +1091,6 @@ function Display()
 
 	// Cleanup all the permissions with extra stuff...
 	$context['can_mark_notify'] &= !$context['user']['is_guest'];
-	$context['can_sticky'] &= !empty($modSettings['enableStickyTopics']);
 	$context['calendar_post'] &= !empty($modSettings['cal_enabled']);
 	$context['can_add_poll'] &= $modSettings['pollMode'] == '1' && $topicinfo['id_poll'] <= 0;
 	$context['can_remove_poll'] &= $modSettings['pollMode'] == '1' && $topicinfo['id_poll'] > 0;
