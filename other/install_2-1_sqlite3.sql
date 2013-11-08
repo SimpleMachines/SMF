@@ -1845,7 +1845,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smfVersion', '{$smf_
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('news', '{$default_news}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('compactTopicPagesContiguous', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('compactTopicPagesEnable', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableStickyTopics', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('todayMod', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaMode', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaTimeRestrictAdmins', '1');
