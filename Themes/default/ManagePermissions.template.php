@@ -1091,13 +1091,14 @@ function template_postmod_permissions()
 
 		echo '		
 				<div class="padding">
-					<p class="smalltext" style="padding-left: 10px; float: left;">
+					<p class="smalltext" style="padding-left: 10px; padding-bottom: 10px; float: left;">
 						<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br />
 						<img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" /> - ', $txt['permissions_post_moderation_allow'], '<br />
 						<img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" /> - ', $txt['permissions_post_moderation_moderate'], '<br />
 						<img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" /> - ', $txt['permissions_post_moderation_disallow'], '
 					</p>
 					<span class="righttext" style="float: right">
+					<br /><br /><br />
 					', $txt['permissions_post_moderation_select'], ':
 					<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
@@ -1216,15 +1217,6 @@ function template_postmod_permissions()
 				<input type="hidden" name="', $context['admin-mppm_token_var'], '" value="', $context['admin-mppm_token'], '" />
 			</div>
 		</form>';
-
-	if (!empty($modSettings['postmod_active']))
-		echo '
-		<p class="smalltext" style="padding-left: 10px;">
-			<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br />
-			<img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" /> - ', $txt['permissions_post_moderation_allow'], '<br />
-			<img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" /> - ', $txt['permissions_post_moderation_moderate'], '<br />
-			<img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" /> - ', $txt['permissions_post_moderation_disallow'], '
-		</p>';
 
 	echo '
 	</div>';
