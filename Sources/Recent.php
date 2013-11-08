@@ -1273,7 +1273,7 @@ function UnreadTopics()
 			'new_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['new_from'] . ';topicseen#new',
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . ($row['num_replies'] == 0 ? '.0' : '.msg' . $row['new_from']) . ';topicseen' . ($row['num_replies'] == 0 ? '' : 'new'),
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($row['num_replies'] == 0 ? '.0' : '.msg' . $row['new_from']) . ';topicseen#msg' . $row['new_from'] . '" rel="nofollow">' . $row['first_subject'] . '</a>',
-			'is_sticky' => !empty($modSettings['enableStickyTopics']) && !empty($row['is_sticky']),
+			'is_sticky' => !empty($row['is_sticky']),
 			'is_locked' => !empty($row['locked']),
 			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
 			'is_hot' => $row['num_replies'] >= $modSettings['hotTopicPosts'],
