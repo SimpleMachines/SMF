@@ -994,69 +994,70 @@ function template_inline_permissions()
 {
 	global $context, $settings, $options, $txt, $modSettings;
 
+	// This looks really weird, but it keeps things nested properly...
 	echo '
-		<fieldset id="', $context['current_permission'], '">
-			<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'block\'; return false;">', $txt['avatar_select_permission'], '</a></legend>';
+											<fieldset id="', $context['current_permission'], '">
+												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'block\'; return false;">', $txt['avatar_select_permission'], '</a></legend>';
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
-			<ul class="permission_groups">';
+												<ul class="permission_groups">';
 	else
 		echo '
-			<div class="information">', $txt['permissions_option_desc'], '</div>
-			<dl class="settings">
-				<dt>
-					<span class="perms"><strong>', $txt['permissions_option_on'], '</strong></span>
-					<span class="perms"><strong>', $txt['permissions_option_off'], '</strong></span>
-					<span class="perms" style="color: red;"><strong>', $txt['permissions_option_deny'], '</strong></span>
-				</dt>
-				<dd>
-				</dd>';
+												<div class="information">', $txt['permissions_option_desc'], '</div>
+												<dl class="settings">
+													<dt>
+														<span class="perms"><strong>', $txt['permissions_option_on'], '</strong></span>
+														<span class="perms"><strong>', $txt['permissions_option_off'], '</strong></span>
+														<span class="perms" style="color: red;"><strong>', $txt['permissions_option_deny'], '</strong></span>
+													</dt>
+													<dd>
+													</dd>';
 	foreach ($context['member_groups'] as $group)
 	{
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
-				<dt>';
+													<dt>';
 		else
 			echo '
-				<li>';
+													<li>';
 
 		if (empty($modSettings['permission_enable_deny']))
 			echo '
-					<input type="checkbox" name="', $context['current_permission'], '[', $group['id'], ']" value="on"', $group['status'] == 'on' ? ' checked="checked"' : '', ' class="input_check" />';
+														<input type="checkbox" name="', $context['current_permission'], '[', $group['id'], ']" value="on"', $group['status'] == 'on' ? ' checked="checked"' : '', ' class="input_check" />';
 		else
 			echo '
-					<span class="perms"><input type="radio" name="', $context['current_permission'], '[', $group['id'], ']" value="on"', $group['status'] == 'on' ? ' checked="checked"' : '', ' class="input_radio" /></span>
-					<span class="perms"><input type="radio" name="', $context['current_permission'], '[', $group['id'], ']" value="off"', $group['status'] == 'off' ? ' checked="checked"' : '', ' class="input_radio" /></span>
-					<span class="perms"><input type="radio" name="', $context['current_permission'], '[', $group['id'], ']" value="deny"', $group['status'] == 'deny' ? ' checked="checked"' : '', ' class="input_radio" /></span>';
+														<span class="perms"><input type="radio" name="', $context['current_permission'], '[', $group['id'], ']" value="on"', $group['status'] == 'on' ? ' checked="checked"' : '', ' class="input_radio" /></span>
+														<span class="perms"><input type="radio" name="', $context['current_permission'], '[', $group['id'], ']" value="off"', $group['status'] == 'off' ? ' checked="checked"' : '', ' class="input_radio" /></span>
+														<span class="perms"><input type="radio" name="', $context['current_permission'], '[', $group['id'], ']" value="deny"', $group['status'] == 'deny' ? ' checked="checked"' : '', ' class="input_radio" /></span>';
 
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
-				</dt>
-				<dd>
-					<span', $group['is_postgroup'] ? ' style="font-style: italic;"' : '', '>', $group['name'], '</span>
-				</dd>';
+													</dt>
+													<dd>
+														<span', $group['is_postgroup'] ? ' style="font-style: italic;"' : '', '>', $group['name'], '</span>
+													</dd>';
 		else
 			echo '
-					<span', $group['is_postgroup'] ? ' style="font-style: italic;"' : '', '>', $group['name'], '</span>
-				</li>';
+														<span', $group['is_postgroup'] ? ' style="font-style: italic;"' : '', '>', $group['name'], '</span>
+													</li>';
 	}
 
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
-			</ul>';
+												</ul>';
 	else
 		echo '
-			</dl>';
+												</dl>';
 
 	echo '
-		</fieldset>
-
-		<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;">[ ', $txt['avatar_select_permission'], ' ]</a>
-
-		<script type="text/javascript"><!-- // --><![CDATA[
-			document.getElementById("', $context['current_permission'], '").style.display = "none";
-			document.getElementById("', $context['current_permission'], '_groups_link").style.display = "";
-		// ]]></script>';
+											</fieldset>
+				
+											<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;">[ ', $txt['avatar_select_permission'], ' ]</a>
+									
+											<script type="text/javascript"><!-- // --><![CDATA[
+												document.getElementById("', $context['current_permission'], '").style.display = "none";
+												document.getElementById("', $context['current_permission'], '_groups_link").style.display = "";
+											// ]]></script>';
 }
 
 // Edit post moderation permissions.
@@ -1065,23 +1066,23 @@ function template_postmod_permissions()
 	global $context, $settings, $options, $scripturl, $txt, $modSettings;
 
 	echo '
-	<div id="admin_form_wrapper">
-		<form action="', $scripturl, '?action=admin;area=permissions;sa=postmod;', $context['session_var'], '=', $context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['permissions_post_moderation'], '</h3>
-			</div>';
+					<div id="admin_form_wrapper">
+						<form action="', $scripturl, '?action=admin;area=permissions;sa=postmod;', $context['session_var'], '=', $context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="', $context['character_set'], '">
+							<div class="cat_bar">
+								<h3 class="catbg">', $txt['permissions_post_moderation'], '</h3>
+							</div>';
 
 	// First, we have the bit where we can enable or disable this bad boy.
 	echo '
-			<div class="windowbg2">
-				<div class="content">
-					<dl class="settings">
-						<dt>', $txt['permissions_post_moderation_enable'], '</dt>
-						<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked="checked"' : '', ' /></dd>
-					</dl>
-					<hr class="hrcolor clear" />
-				</div>
-			</div>';
+							<div class="windowbg2">
+								<div class="content">
+									<dl class="settings">
+										<dt>', $txt['permissions_post_moderation_enable'], '</dt>
+										<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked="checked"' : '', ' /></dd>
+									</dl>
+									<hr class="hrcolor clear" />
+								</div>
+							</div>';
 
 	// If we're not active, there's a bunch of stuff we don't need to show.
 	if (!empty($modSettings['postmod_active']))
@@ -1089,139 +1090,139 @@ function template_postmod_permissions()
 		// Got advanced permissions - if so warn!
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
-				<div class="information">', $txt['permissions_post_moderation_deny_note'], '</div>';
+							<div class="information">', $txt['permissions_post_moderation_deny_note'], '</div>';
 
 		echo '		
-				<div class="padding">
-					<p class="smalltext" style="padding-left: 10px; padding-bottom: 10px; float: left;">
-						<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br />
-						<img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" /> - ', $txt['permissions_post_moderation_allow'], '<br />
-						<img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" /> - ', $txt['permissions_post_moderation_moderate'], '<br />
-						<img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" /> - ', $txt['permissions_post_moderation_disallow'], '
-					</p>
-					<span class="righttext" style="float: right">
-					<br /><br /><br />
-					', $txt['permissions_post_moderation_select'], ':
-					<select name="pid" onchange="document.forms.postmodForm.submit();">';
+							<div class="padding">
+								<p class="smalltext" style="padding-left: 10px; padding-bottom: 10px; float: left;">
+									<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br />
+									<img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" /> - ', $txt['permissions_post_moderation_allow'], '<br />
+									<img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" /> - ', $txt['permissions_post_moderation_moderate'], '<br />
+									<img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" /> - ', $txt['permissions_post_moderation_disallow'], '
+								</p>
+								<span class="righttext" style="float: right">
+									<br /><br /><br />
+									', $txt['permissions_post_moderation_select'], ':
+									<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
 		foreach ($context['profiles'] as $profile)
 			if ($profile['can_modify'])
 				echo '
-						<option value="', $profile['id'], '" ', $profile['id'] == $context['current_profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
+										<option value="', $profile['id'], '" ', $profile['id'] == $context['current_profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
 
 		echo '
-					</select>
-					<input type="submit" value="', $txt['go'], '" class="button_submit" />
-					</span>
-			</div>
-			<table width="100%" class="table_grid">
-				<thead>
-					<tr class="catbg">
-						<th class="first_th"></th>
-						<th class="centercol" colspan="3">
-							', $txt['permissions_post_moderation_new_topics'], '
-						</th>
-						<th class="centercol" colspan="3">
-							', $txt['permissions_post_moderation_replies_own'], '
-						</th>
-						<th class="centercol" colspan="3">
-							', $txt['permissions_post_moderation_replies_any'], '
-						</th>';
+									</select>
+									<input type="submit" value="', $txt['go'], '" class="button_submit" />
+								</span>
+							</div>
+							<table width="100%" class="table_grid">
+								<thead>
+									<tr class="catbg">
+										<th class="first_th"></th>
+										<th class="centercol" colspan="3">
+											', $txt['permissions_post_moderation_new_topics'], '
+										</th>
+										<th class="centercol" colspan="3">
+											', $txt['permissions_post_moderation_replies_own'], '
+										</th>
+										<th class="centercol" colspan="3">
+											', $txt['permissions_post_moderation_replies_any'], '
+										</th>';
 						
 		if ($modSettings['attachmentEnable'] == 1)
 			echo '
-						<th class="last_th centercol" colspan="3">
-							', $txt['permissions_post_moderation_attachments'], '
-						</th>';
+										<th class="last_th centercol" colspan="3">
+											', $txt['permissions_post_moderation_attachments'], '
+										</th>';
 		
 		echo '
-					</tr>
-					<tr class="titlebg">
-						<th width="30%">
-							', $txt['permissions_post_moderation_group'], '
-						</th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>';
+									</tr>
+									<tr class="titlebg">
+										<th width="30%">
+											', $txt['permissions_post_moderation_group'], '
+										</th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>';
 
 		if ($modSettings['attachmentEnable'] == 1)
 			echo '
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
-						<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>';
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '" /></th>
+										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '" /></th>';
 
 		echo '
-					</tr>
-				</thead>
-				<tbody>';
+									</tr>
+								</thead>
+								<tbody>';
 
 		foreach ($context['profile_groups'] as $group)
 		{
 			echo '
-					<tr>
-						<td width="40%" class="windowbg">
-							<span ', ($group['color'] ? 'style="color: ' . $group['color'] . '"' : ''), '>', $group['name'], '</span>';
+									<tr>
+										<td width="40%" class="windowbg">
+											<span ', ($group['color'] ? 'style="color: ' . $group['color'] . '"' : ''), '>', $group['name'], '</span>';
 				if (!empty($group['children']))
 					echo '
-							<br /><span class="smalltext">', $txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
+											<br /><span class="smalltext">', $txt['permissions_includes_inherited'], ': &quot;', implode('&quot;, &quot;', $group['children']), '&quot;</span>';
 
 				echo '
-						</td>
-						<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="allow" ', $group['new_topic'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="moderate" ', $group['new_topic'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="disallow" ', $group['new_topic'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
+										</td>
+										<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="allow" ', $group['new_topic'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="moderate" ', $group['new_topic'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="disallow" ', $group['new_topic'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
 			
 				// Guests can't have "own" permissions
 				if ($group['id'] == '-1')
 				{
 				echo '
-						<td align="center" class="windowbg" colspan="3"></td>';
+										<td align="center" class="windowbg" colspan="3"></td>';
 				}
 				else
 				{
 					echo '
-						<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="allow" ', $group['replies_own'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="moderate" ', $group['replies_own'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="disallow" ', $group['replies_own'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
+										<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="allow" ', $group['replies_own'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="moderate" ', $group['replies_own'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="disallow" ', $group['replies_own'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
 				}
 			
 				echo '
-						<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="allow" ', $group['replies_any'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="moderate" ', $group['replies_any'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="disallow" ', $group['replies_any'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
+										<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="allow" ', $group['replies_any'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="moderate" ', $group['replies_any'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="disallow" ', $group['replies_any'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
 	
 				if ($modSettings['attachmentEnable'] == 1)
 				{
 					echo '
-						<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="allow" ', $group['attachment'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="moderate" ', $group['attachment'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
-						<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="disallow" ', $group['attachment'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
+										<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="allow" ', $group['attachment'] == 'allow' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="moderate" ', $group['attachment'] == 'moderate' ? 'checked="checked"' : '', ' class="input_radio" /></td>
+										<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="disallow" ', $group['attachment'] == 'disallow' ? 'checked="checked"' : '', ' class="input_radio" /></td>';
 				}
 		
 				echo '
-					</tr>';
+									</tr>';
 		}
 
 		echo '
-				</tbody>
-			</table>';
+								</tbody>
+							</table>';
 	}
 
 	echo '
-			<div class="righttext padding">
-				<input type="submit" name="save_changes" value="', $txt['permissions_commit'], '" class="button_submit" />
-				<input type="hidden" name="', $context['admin-mppm_token_var'], '" value="', $context['admin-mppm_token'], '" />
-			</div>
-		</form>';
+							<div class="righttext padding">
+								<input type="submit" name="save_changes" value="', $txt['permissions_commit'], '" class="button_submit" />
+								<input type="hidden" name="', $context['admin-mppm_token_var'], '" value="', $context['admin-mppm_token'], '" />
+							</div>
+						</form>';
 
 	echo '
-	</div>';
+					</div>';
 }
 
 ?>

@@ -20,17 +20,17 @@ function template_generic_menu_dropdown_above()
 	$menu_context = &$context['menu_data_' . $context['cur_menu_id']];
 
 	echo '
-<div id="admin_menu">';
+				<div id="admin_menu">';
 
 	echo '
-	<ul class="dropmenu" id="dropdown_menu_', $context['cur_menu_id'], '">';
+					<ul class="dropmenu" id="dropdown_menu_', $context['cur_menu_id'], '">';
 
 	// Main areas first.
 	foreach ($menu_context['sections'] as $section)
 	{
 		echo '
-			<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'] , '</a>
-				<ul>';
+						<li ', !empty($section['areas']) ? 'class="subsections"' : '', '><a class="', !empty($section['selected']) ? 'active ' : '', '" href="', $section['url'], $menu_context['extra_parameters'], '">', $section['title'] , '</a>
+							<ul>';
 
 		// For every area of this section show a link to that area (bold if it's currently selected.)
 		// @todo Code for additional_items class was deprecated and has been removed. Suggest following up in Sources if required.
@@ -41,10 +41,10 @@ function template_generic_menu_dropdown_above()
 				continue;
 
 			echo '
-					<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
+								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
 
 			echo '
-						<a ', !empty($area['selected']) ? 'class="chosen" ' : '', 'href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
+									<a ', !empty($area['selected']) ? 'class="chosen" ' : '', 'href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
@@ -54,7 +54,7 @@ function template_generic_menu_dropdown_above()
 			if (!empty($area['subsections']))
 			{
 				echo '
-						<ul>';
+									<ul>';
 
 				foreach ($area['subsections'] as $sa => $sub)
 				{
@@ -64,30 +64,30 @@ function template_generic_menu_dropdown_above()
 					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
-							<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>
-								<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
-							</li>';
+										<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>
+											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
+										</li>';
 				}
 
 				echo '
-						</ul>';
+									</ul>';
 			}
 
 			echo '
-					</li>';
+								</li>';
 		}
 		echo '
-				</ul>
-			</li>';
+							</ul>
+						</li>';
 	}
 
 	echo '
-	</ul>
-</div>';
+					</ul>
+				</div>';
 
 	// This is the main table - we need it so we can keep the content to the right of it.
 	echo '
-<div id="admin_content">';
+				<div id="admin_content">';
 
 	// It's possible that some pages have their own tabs they wanna force...
 // 	if (!empty($context['tabs']))
@@ -114,8 +114,8 @@ function template_generic_menu_tabs(&$menu_context)
 	if (!empty($tab_context['title']))
 	{
 		echo '
-	<div class="cat_bar">
-		<h3 class="catbg">';
+					<div class="cat_bar">
+						<h3 class="catbg">';
 
 		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
 		if (function_exists('template_admin_quick_search'))
@@ -189,24 +189,24 @@ function template_generic_menu_tabs(&$menu_context)
 		}
 
 		echo '
-		</h3>
-	</div>';
+						</h3>
+					</div>';
 	}
 
 	// Shall we use the tabs? Yes, it's the only known way!
 	if (!empty($selected_tab['description']) || !empty($tab_context['description']))
 		echo '
-	<p class="description">
-		', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
-	</p>';
+					<p class="description">
+						', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
+					</p>';
 
 	// Print out all the items in this tab (if any).
 	if (!empty($context['tabs']))
 	{
 		// The admin tabs.
 		echo '
-	<div id="adm_submenus">
-		<ul class="dropmenu">';
+					<div id="adm_submenus">
+						<ul class="dropmenu">';
 
 		foreach ($tab_context['tabs'] as $sa => $tab)
 		{
@@ -216,22 +216,22 @@ function template_generic_menu_tabs(&$menu_context)
 			if (!empty($tab['is_selected']))
 			{
 				echo '
-			<li>
-				<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-			</li>';
+							<li>
+								<a class="active" href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+							</li>';
 			}
 			else
 				echo '
-			<li>
-				<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
-			</li>';
+							<li>
+								<a href="', isset($tab['url']) ? $tab['url'] : $menu_context['base_url'] . ';area=' . $menu_context['current_area'] . ';sa=' . $sa, $menu_context['extra_parameters'], isset($tab['add_params']) ? $tab['add_params'] : '', '">', $tab['label'], '</a>
+							</li>';
 		}
 
 		// the end of tabs
 		echo '
-		</ul>
-	</div>
-	<br class="clear" />';
+						</ul>
+					</div>
+					<br class="clear" />';
 
 	}
 }
