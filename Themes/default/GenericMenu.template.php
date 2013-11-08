@@ -100,7 +100,7 @@ function template_generic_menu_dropdown_below()
 	global $context, $settings, $options;
 
 	echo '
-</div>';
+				</div>';
 }
 
 // Some code for showing a tabbed view.
@@ -185,7 +185,7 @@ function template_generic_menu_tabs(&$menu_context)
 		else
 		{
 			echo '
-				', $tab_context['title'];
+							', $tab_context['title'];
 		}
 
 		echo '
