@@ -592,7 +592,7 @@ $request = upgrade_query("
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_identity_own'");
 	
-	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
 	}
@@ -622,7 +622,7 @@ $request = upgrade_query("
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_extra_own'");
 	
-	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_displayed_name_own', $row[add_deny])";
