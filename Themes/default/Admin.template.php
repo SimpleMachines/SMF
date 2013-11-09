@@ -116,7 +116,7 @@ function template_admin()
 					<script type="text/javascript"><!-- // --><![CDATA[
 						var oAdminIndex = new smf_AdminIndex({
 							sSelf: \'oAdminCenter\',
-			
+
 							bLoadAnnouncements: true,
 							sAnnouncementTemplate: ', JavaScriptEscape('
 								<dl>
@@ -130,35 +130,28 @@ function template_admin()
 								</dd>
 							'), ',
 							sAnnouncementContainerId: \'smfAnnouncements\',
-			
+
 							bLoadVersions: true,
 							sSmfVersionContainerId: \'smfVersion\',
 							sYourVersionContainerId: \'yourVersion\',
 							sVersionOutdatedTemplate: ', JavaScriptEscape('
 								<span class="alert">%currentVersion%</span>
 							'), ',
-			
+
 							bLoadUpdateNotification: true,
 							sUpdateNotificationContainerId: \'update_section\',
 							sUpdateNotificationDefaultTitle: ', JavaScriptEscape($txt['update_available']), ',
 							sUpdateNotificationDefaultMessage: ', JavaScriptEscape($txt['update_message']), ',
 							sUpdateNotificationTemplate: ', JavaScriptEscape('
-								<div class="cat_bar">
-									<h3 id="update_title" class="catbg">
-										%title%
-									</h3>
-								</div>
-								<div class="windowbg">
-									<span class="topslice"><span></span></span>
-									<div class="content">
-										<div id="update_message" class="smalltext">
-											%message%
-										</div>
-									</div>
+								<h3 id="update_title">
+									%title%
+								</h3>
+								<div id="update_message" class="smalltext">
+									%message%
 								</div>
 							'), ',
 							sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
-			
+
 						});
 					// ]]></script>';
 }
@@ -271,7 +264,7 @@ function template_credits()
 	echo '
 						<script type="text/javascript"><!-- // --><![CDATA[
 							var smfSupportVersions = {};
-				
+
 							smfSupportVersions.forum = "', $context['forum_version'], '";';
 
 	// Don't worry, none of this is logged, it's just used to give information that might be of use.
@@ -291,15 +284,15 @@ function template_credits()
 							function smfCurrentVersion()
 							{
 								var smfVer, yourVer;
-				
+
 								if (!window.smfVersion)
 									return;
-				
+
 								smfVer = document.getElementById("smfVersion");
 								yourVer = document.getElementById("yourVersion");
-				
+
 								setInnerHTML(smfVer, window.smfVersion);
-				
+
 								var currentVersion = getInnerHTML(yourVer);
 								if (currentVersion != window.smfVersion)
 									setInnerHTML(yourVer, "<span class=\"alert\">" + currentVersion + "</span>");
@@ -368,7 +361,7 @@ function template_view_versions()
 									</tr>
 								</tbody>
 							</table>
-				
+
 							<table id="Sources" width="100%" class="table_grid">
 							<tbody>';
 
@@ -391,7 +384,7 @@ function template_view_versions()
 	echo '
 							</tbody>
 							</table>
-				
+
 							<table width="100%" class="table_grid">
 								<tbody>
 									<tr>
@@ -407,7 +400,7 @@ function template_view_versions()
 									</tr>
 								</tbody>
 							</table>
-				
+
 							<table id="Default" width="100%" class="table_grid">
 								<tbody>';
 
@@ -429,7 +422,7 @@ function template_view_versions()
 	echo '
 								</tbody>
 							</table>
-				
+
 							<table width="100%" class="table_grid">
 								<tbody>
 									<tr>
@@ -445,7 +438,7 @@ function template_view_versions()
 									</tr>
 								</tbody>
 							</table>
-				
+
 							<table id="Languages" width="100%" class="table_grid">
 								<tbody>';
 
@@ -489,7 +482,7 @@ function template_view_versions()
 									</tr>
 								</tbody>
 							</table>
-				
+
 							<table id="Templates" width="100%" class="table_grid">
 								<tbody>';
 
@@ -619,7 +612,7 @@ function template_edit_censored()
 									</p>
 								</div>
 							</div>
-				
+
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 							<input type="hidden" name="', $context['admin-censor_token_var'], '" value="', $context['admin-censor_token'], '" />
 						</form>
@@ -667,17 +660,17 @@ function template_not_done()
 					<script type="text/javascript"><!-- // --><![CDATA[
 						var countdown = ', $context['continue_countdown'], ';
 						doAutoSubmit();
-				
+
 						function doAutoSubmit()
 						{
 							if (countdown == 0)
 								document.forms.autoSubmit.submit();
 							else if (countdown == -1)
 								return;
-				
+
 							document.forms.autoSubmit.cont.value = "', $txt['not_done_continue'], ' (" + countdown + ")";
 							countdown--;
-				
+
 							setTimeout("doAutoSubmit();", 1000);
 						}
 					// ]]></script>';
@@ -1033,7 +1026,7 @@ function template_edit_profile_field()
 								<div class="content">
 									<fieldset>
 										<legend>', $txt['custom_edit_general'], '</legend>
-				
+
 										<dl class="settings">
 											<dt>
 												<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong>
@@ -1075,7 +1068,7 @@ function template_edit_profile_field()
 											<dd>
 												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked="checked"' : '', ' class="input_check" />
 											</dd>
-				
+
 											<dt>
 												<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
 											</dt>
@@ -1425,17 +1418,17 @@ function template_repair_boards()
 					<script type="text/javascript"><!-- // --><![CDATA[
 						var countdown = 5;
 						doAutoSubmit();
-				
+
 						function doAutoSubmit()
 						{
 							if (countdown == 0)
 								document.forms.recount_form.submit();
 							else if (countdown == -1)
 								return;
-				
+
 							document.forms.recount_form.recount_now.value = "', $txt['errors_recount_now'], ' (" + countdown + ")";
 							countdown--;
-				
+
 							setTimeout("doAutoSubmit();", 1000);
 						}
 					// ]]></script>';
