@@ -564,13 +564,13 @@ function template_edit_censored()
 	foreach ($context['censored_words'] as $vulgar => $proper)
 		echo '
 									<div style="margin-top: 1ex;">
-										<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30" /> => <input type="text" name="censor_proper[]" value="', $proper, '" size="30" />
+										<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30" /> =&gt; <input type="text" name="censor_proper[]" value="', $proper, '" size="30" />
 									</div>';
 
 	// Now provide a way to censor more words.
 	echo '
 									<div style="margin-top: 1ex;">
-										<input type="text" name="censor_vulgar[]" size="30" class="input_text" /> => <input type="text" name="censor_proper[]" size="30" class="input_text" />
+										<input type="text" name="censor_vulgar[]" size="30" class="input_text" /> =&gt; <input type="text" name="censor_proper[]" size="30" class="input_text" />
 									</div>
 									<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
 										<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br />
