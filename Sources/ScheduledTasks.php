@@ -873,11 +873,10 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:next_mail_send}
-			WHERE variable = {string:mail_next_send}
+			WHERE variable = {literal:mail_next_send}
 				AND value = {string:last_send}',
 			array(
 				'next_mail_send' => time() + $delay,
-				'mail_next_send' => 'mail_next_send',
 				'last_send' => $modSettings['mail_next_send'],
 			)
 		);
@@ -953,11 +952,10 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:no_send}
-			WHERE variable = {string:mail_next_send}
+			WHERE variable = {literal:mail_next_send}
 				AND value = {string:last_mail_send}',
 			array(
 				'no_send' => '0',
-				'mail_next_send' => 'mail_next_send',
 				'last_mail_send' => $modSettings['mail_next_send'],
 			)
 		);
@@ -1013,12 +1011,11 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		if ($modSettings['mail_failed_attempts'] > 5)
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}settings
-				SET value = {string:mail_next_send}
-				WHERE variable = {string:next_mail_send}
+				SET value = {string:next_mail_send}
+				WHERE variable = {literal:mail_next_send}
 					AND value = {string:last_send}',
 				array(
 					'next_mail_send' => time() + 60,
-					'mail_next_send' => 'mail_next_send',
 					'last_send' => $modSettings['mail_next_send'],
 			));
 
