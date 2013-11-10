@@ -846,7 +846,7 @@ dl.settings dt a img {
 h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
 	overflow: hidden;
 	font-size: 1.1em;
-	font-family: tahoma;/* @todo */
+	font-family: "Tahoma", sans-serif;
 	font-weight: bold;
 	line-height: 1.5em;
 	padding: 8px;
@@ -1474,7 +1474,7 @@ img.sort, .sort {
 /* The main title. */
 h1.forumtitle {
 	font-size: 1.8em;
-	font-family: tahoma;
+	font-family: "Tahoma", sans-serif;
 	margin: 0;
 	padding: 22px 12px 6px 12px;
 	float: left;
