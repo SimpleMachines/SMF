@@ -1482,7 +1482,7 @@ h1.forumtitle {
 }
 h1.forumtitle a {
 	color: #a85400;
-	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5), 1px 1px 0 #fff;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
 }
 /* Float these items to the right */
 #siteslogan, img#smflogo {
