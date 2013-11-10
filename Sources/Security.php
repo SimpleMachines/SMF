@@ -1171,8 +1171,6 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 		return 'yes_permission_override';
 	elseif ($userProfile_hideEmail)
 		return 'no';
-	elseif (!empty($modSettings['make_email_viewable']) )
-		return 'yes';
 	else
 		return 'no_through_forum';
 }
