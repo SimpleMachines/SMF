@@ -675,6 +675,15 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 
+.under_message {
+	overflow: visible;
+}
+.under_message:after {
+	clear: both;
+	content: "";
+	display: block;
+}
+
 /* While we're doing stuff under the message, time to do some likes stuff. */
 .like_button .like, .like_button .unlike {
 	width: 16px;
@@ -2287,7 +2296,7 @@ div#pollmoderation {
 }
 .inner {
 	padding: 7px 8px 2px 2px;
-	margin: 0 8px 0 0;
+	margin: 0;
 	border-top: 1px solid #bfbfbf;
 	box-shadow: 0 1px 0 #fff inset;
 	min-height: 85px;
