@@ -362,7 +362,7 @@ function loadProfileFields($force_reload = false)
 						resetPassword($context[\'id_member\'], $value);
 					elseif ($value !== null)
 					{
-						validateUsername($context[\'id_member\'], trim(preg_replace(\'~[\t\n\r \x0B\0\' . ($context[\'utf8\'] ? ($context[\'server\'][\'complex_preg_chars\'] ? \'\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}\' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : \'\x00-\x08\x0B\x0C\x0E-\x19\xA0\') . \']+~\' . ($context[\'utf8\'] ? \'u\' : \'\'), \' \', $value)));
+						validateUsername($context[\'id_member\'], trim(preg_replace(\'~[\t\n\r \x0B\0\' . ($context[\'utf8\'] ? \'\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}\' : \'\x00-\x08\x0B\x0C\x0E-\x19\xA0\') . \']+~\' . ($context[\'utf8\'] ? \'u\' : \'\'), \' \', $value)));
 						updateMemberData($context[\'id_member\'], array(\'member_name\' => $value));
 					}
 				}
@@ -486,7 +486,7 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => create_function('&$value', '
 				global $context, $smcFunc, $sourcedir, $cur_profile;
 
-				$value = trim(preg_replace(\'~[\t\n\r \x0B\0\' . ($context[\'utf8\'] ? ($context[\'server\'][\'complex_preg_chars\'] ? \'\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}\' : "\xC2\xA0\xC2\xAD\xE2\x80\x80-\xE2\x80\x8F\xE2\x80\x9F\xE2\x80\xAF\xE2\x80\x9F\xE3\x80\x80\xEF\xBB\xBF") : \'\x00-\x08\x0B\x0C\x0E-\x19\xA0\') . \']+~\' . ($context[\'utf8\'] ? \'u\' : \'\'), \' \', $value));
+				$value = trim(preg_replace(\'~[\t\n\r \x0B\0\' . ($context[\'utf8\'] ? \'\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}\' : \'\x00-\x08\x0B\x0C\x0E-\x19\xA0\') . \']+~\' . ($context[\'utf8\'] ? \'u\' : \'\'), \' \', $value));
 
 				if (trim($value) == \'\')
 					return \'no_name\';
