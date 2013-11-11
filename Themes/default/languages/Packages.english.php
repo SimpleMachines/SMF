@@ -75,8 +75,8 @@ $txt['package_installed_redirecting'] = 'Redirecting...';
 $txt['package_installed_redirect_go_now'] = 'Redirect Now';
 $txt['package_installed_redirect_cancel'] = 'Return to Package Manager';
 
-$txt['packages_latest'] = 'Latest Packages';
-$txt['packages_latest_fetch'] = 'Attempting to fetch the most popular and recent packages from www.simplemachines.org...';
+$txt['packages_adding_title'] = 'Obtaining Packages';
+$txt['packages_adding'] = 'You can always find new packages for your forum from the SMF modifications area - <strong><a href="http://custom.simplemachines.org/mods/" target="_blank">http://custom.simplemachines.org/mods/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br /><br />If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['package_upgrade'] = 'Upgrade';
 $txt['package_uninstall_readme'] = 'Uninstallation Readme';

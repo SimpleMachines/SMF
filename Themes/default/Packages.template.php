@@ -534,13 +534,11 @@ function template_browse()
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
+					', $txt['packages_adding_title'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<div class="content">
-					<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
-				</div>
+				', $txt['packages_adding'], '
 			</div>
 
 			<script type="text/javascript"><!-- // --><![CDATA[
@@ -584,11 +582,6 @@ function template_browse()
 			// ]]></script>';
 
 		echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
-				var tempOldOnload;
-				smfSetLatestPackages();
-			// ]]></script>
-
 		</div>';
 	}
 
@@ -605,6 +598,9 @@ function template_browse()
 	if (!$mods_available)
 		echo '
 		<div class="descbox">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
+	else
+		echo '
+		<br />';
 
 	// the advanced (emulation) box, collapsed by default
 	echo '
