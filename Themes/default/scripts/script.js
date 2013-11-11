@@ -1593,15 +1593,6 @@ function updateActionDef(optNum)
 	}
 }
 
-function smfSetLatestPackages()
-{
-	if (typeof(window.smfLatestPackages) != "undefined")
-		setInnerHTML(document.getElementById("packagesLatest"), window.smfLatestPackages);
-
-	if (tempOldOnload)
-	tempOldOnload();
-}
-
 function updateAuthMethod()
 {
 	// What authentication method is being used?

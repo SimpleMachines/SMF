@@ -516,6 +516,15 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts');
 ---#
 
 /******************************************************************************/
+--- Removing old Simple Machines files we do not need to fetch any more
+/******************************************************************************/
+---# We no longer call on the latest packages list.
+DELETE FROM {$db_prefix}admin_info_files
+WHERE filename = 'latest-packages.js'
+	AND path = '/smf/';
+---#
+
+/******************************************************************************/
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table
