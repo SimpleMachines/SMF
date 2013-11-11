@@ -530,6 +530,7 @@ function template_browse()
 	if ($context['sub_action'] == 'browse')
 	{
 		echo '
+		<div id="update_section"></div>
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -551,11 +552,36 @@ function template_browse()
 		echo '
 				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 				window.smfVersion = "', $context['forum_version'], '";
-			// ]]></script>';
+			// ]]></script>
+			<div id="yourVersion" style="display:none">', $context['forum_version'], '</div>';
 
 		if (empty($modSettings['disable_smf_js']))
 			echo '
-			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
+			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
+
+		// This sets the announcements and current versions themselves ;).
+		echo '
+			<script type="text/javascript"><!-- // --><![CDATA[
+				var oAdminIndex = new smf_AdminIndex({
+					sSelf: \'oAdminCenter\',
+					bLoadAnnouncements: false,
+					bLoadVersions: false,
+					bLoadUpdateNotification: true,
+					sUpdateNotificationContainerId: \'update_section\',
+					sUpdateNotificationDefaultTitle: ', JavaScriptEscape($txt['update_available']), ',
+					sUpdateNotificationDefaultMessage: ', JavaScriptEscape($txt['update_message']), ',
+					sUpdateNotificationTemplate: ', JavaScriptEscape('
+						<h3 id="update_title">
+							%title%
+						</h3>
+						<div id="update_message" class="smalltext">
+							%message%
+						</div>
+					'), ',
+					sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
+	
+				});
+			// ]]></script>';
 
 		echo '
 			<script type="text/javascript"><!-- // --><![CDATA[
