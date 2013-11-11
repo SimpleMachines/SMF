@@ -825,5 +825,5 @@ $txt['debug_hide_queries'] = '[Hide Queries]';
 $txt['debug_tokens'] = 'Tokens: ';
 $txt['debug_browser'] = 'Browser ID: ';
 $txt['debug_hooks'] = 'Hooks called: ';
-
+$txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 ?>
