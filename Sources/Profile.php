@@ -93,8 +93,8 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-View.php',
 					'function' => 'summary',
 					'permission' => array(
-						'own' => 'profile_view_own',
-						'any' => 'profile_view_any',
+						'own' => 'is_not_guest',
+						'any' => 'profile_view',
 					),
 				),
 				'statistics' => array(
@@ -102,8 +102,8 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-View.php',
 					'function' => 'statPanel',
 					'permission' => array(
-						'own' => 'profile_view_own',
-						'any' => 'profile_view_any',
+						'own' => 'is_not_guest',
+						'any' => 'profile_view',
 					),
 				),
 				'showposts' => array(
@@ -111,14 +111,14 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-View.php',
 					'function' => 'showPosts',
 					'subsections' => array(
-						'messages' => array($txt['showMessages'], array('profile_view_own', 'profile_view_any')),
-						'topics' => array($txt['showTopics'], array('profile_view_own', 'profile_view_any')),
-						'unwatchedtopics' => array($txt['showUnwatched'], array('profile_view_own', 'profile_view_any'), 'enabled' => $modSettings['enable_unwatch'] && $context['user']['is_owner']),
-						'attach' => array($txt['showAttachments'], array('profile_view_own', 'profile_view_any')),
+						'messages' => array($txt['showMessages'], array('is_not_guest', 'profile_view')),
+						'topics' => array($txt['showTopics'], array('is_not_guest', 'profile_view')),
+						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $modSettings['enable_unwatch'] && $context['user']['is_owner']),
+						'attach' => array($txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(
-						'own' => 'profile_view_own',
-						'any' => 'profile_view_any',
+						'own' => 'is_not_guest',
+						'any' => 'profile_view',
 					),
 				),
 				'showdrafts' => array(
@@ -127,7 +127,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'showProfileDrafts',
 					'enabled' => !empty($modSettings['drafts_post_enabled']) && $context['user']['is_owner'],
 					'permission' => array(
-						'own' => 'profile_view_own',
+						'own' => 'is_not_guest',
 						'any' =>  array(),
 					),
 				),
@@ -148,7 +148,7 @@ function ModifyProfile($post_errors = array())
 						'activity' => array($txt['trackActivity'], 'moderate_forum'),
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
 						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
-						'logins' => array($txt['trackLogins'], array('profile_view_own', 'moderate_forum')),
+						'logins' => array($txt['trackLogins'], array('is_not_guest', 'moderate_forum')),
 					),
 					'permission' => array(
 						'own' => 'moderate_forum',
@@ -161,7 +161,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
 					'permission' => array(
-						'own' => 'profile_view_own',
+						'own' => 'is_not_guest', // @todo this needs to be a view-own warning
 						'any' => 'issue_warning',
 					),
 				),
@@ -280,7 +280,7 @@ function ModifyProfile($post_errors = array())
 					'token' => 'profile-gm%u',
 					'token_type' => 'request',
 					'permission' => array(
-						'own' => array('profile_view_own'),
+						'own' => array('is_not_guest'),
 						'any' => array('manage_membergroups'),
 					),
 				),
@@ -323,7 +323,7 @@ function ModifyProfile($post_errors = array())
 					'function' => 'subscriptions',
 					'enabled' => !empty($modSettings['paid_enabled']),
 					'permission' => array(
-						'own' => array('profile_view_own'),
+						'own' => array('is_not_guest'),
 						'any' => array('moderate_forum'),
 					),
 				),

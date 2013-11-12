@@ -879,6 +879,14 @@ function loadPermissions()
 		}
 		else
 			$user_info['mod_cache'] = $_SESSION['mc'];
+
+		// This is a useful phantom permission added to the current user, and only the current user while they are logged in.
+		// For example this drastically simplifies certain changes to the profile area.
+		$user_info['permissions'][] = 'is_not_guest';
+		// And now some backwards compatibility stuff for mods and whatnot that aren't expecting the new permissions.
+		$user_info['permissions'][] = 'profile_view_own';
+		if (in_array('profile_view', $user_info['permissions']))
+			$user_info['permissions'][] = 'profile_view_any';
 	}
 }
 
