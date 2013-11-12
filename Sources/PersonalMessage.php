@@ -2592,7 +2592,7 @@ function MessageActionsApply()
 				$request2 = $smcFunc['db_query']('', '
 					SELECT l.id_label, pml.id_pm
 					FROM {db_prefix}pm_labels AS l
-						INNER JOIN {db_prefix}pm_labeled_messages ON (pml.id_label = l.id_label)
+						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 					WHERE l.id_member = {int:current_member}
 						AND pml.id_pm = {int:current_pm}',
 					array(
