@@ -178,29 +178,49 @@ function template_body_above()
 	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
 	echo '
 	<div id="top_section">
-		<div class="frame">
-			<ul class="floatleft">';
+		<div class="frame">';
 
 	// If the user is logged in, display some things that might be useful.
 	if ($context['user']['is_logged'])
 	{
-		// @todo There needs to be something else here.
+		// Firstly, the user's menu
+		$is_current_user = $context['current_action'] == 'profile' && !empty($context['user']['is_owner']);
+		echo '
+			<ul class="floatleft dropmenu" id="top_info">
+				<li>
+					<a href="', $scripturl, '?action=profile"', $is_current_user ? ' class="active"' : '', '>', $context['user']['name'], !empty($context['profile_menu']) ? ' &#9660;' : '', '</a>';
+		if (!empty($context['profile_menu']))
+		{
+			echo '
+					<ul>';
+			foreach ($context['profile_menu'] as $key => $item)
+				echo '
+						<li>', !empty($item['href']) ? '<a href="' . $item['href'] . '">' . $item['title'] . '</a>' : $item['title'], '</li>';
+			echo '
+					</ul>';
+		}
 
+		echo '
+				</li>';
+
+		// This will only apply if we're powerful and can actually see reports.
 		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
 			echo '
-				<li class="modnotice"><a href="', $scripturl, '?action=moderate;area=reports">', $txt['mod_reports_waiting'], '</a>: <span class="amt">', $context['open_mod_reports'], '</span></li>';
+				<li class="modnotice"><a href="', $scripturl, '?action=moderate;area=reports">', $txt['mod_reports_waiting'], ' <span class="amt">', $context['open_mod_reports'], '</span></a></li>';
 
 		// Are there any members waiting for approval?
 		if (!empty($context['unapproved_members']))
 			echo '
-				<li class="modnotice"><a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $txt['approve_members_waiting'], '</a>: <span class="amt">', $context['unapproved_members'], '</span></li>';
+				<li class="modnotice"><a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $txt['approve_members_waiting'], ' <span class="amt">', $context['unapproved_members'], '</span></a></li>';
+
+		echo '
+			</ul>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
 	else
 		echo '
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</li>';
-
-	echo '
+			<ul class="floatleft" id="top_info">
+				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</li>
 			</ul>';
 
 	if ($context['allow_search'])

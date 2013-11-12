@@ -3790,13 +3790,41 @@ function setupMenuContext()
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
 	$context['allow_admin'] = allowedTo(array('admin_forum', 'manage_boards', 'manage_permissions', 'moderate_forum', 'manage_membergroups', 'manage_bans', 'send_mail', 'edit_news', 'manage_attachments', 'manage_smileys'));
-	$context['allow_edit_profile'] = !$user_info['is_guest'];
+
 	$context['allow_memberlist'] = allowedTo('view_mlist');
 	$context['allow_calendar'] = allowedTo('calendar_view') && !empty($modSettings['cal_enabled']);
 	$context['allow_moderation_center'] = $context['user']['can_mod'];
 	$context['allow_pm'] = allowedTo('pm_read');
 
 	$cacheTime = $modSettings['lastActive'] * 60;
+
+	// This is for showing the nice profile menu up top. Sub-menus are not supported.
+	$profile_menu = array(
+		'account' => array(
+			'title' => $txt['account'],
+			'href' => $scripturl . '?action=profile;area=account',
+			'show' => allowedTo(array('profile_forum_any', 'profile_forum_own')),
+		),
+		'profile' => array(
+			'title' => $txt['forumprofile'],
+			'href' => $scripturl . '?action=profile;area=forumprofile',
+			'show' => allowedTo(array('profile_forum_any', 'profile_forum_own')),
+		),
+		'theme' => array(
+			'title' => $txt['theme'],
+			'href' => $scripturl . '?action=profile;area=theme',
+			'show' => allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_extra_any')),
+		),
+	);
+	call_integration_hook('integrate_profile_buttons', array(&$profile_menu));
+	foreach ($profile_menu as $item => $details)
+	{
+		if ((isset($details['enabled']) && empty($details['enabled'])) || empty($details['show']))
+			unset ($profile_menu[$item]);
+		// OK, so the item's good. Let's push this into $context but save a little memory as we do.
+		unset ($details['show']);
+		$context['profile_menu'][$item] = $details;
+	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
 	if (($menu_buttons = cache_get_data('menu_buttons-' . implode('_', $user_info['groups']) . '-' . $user_info['language'], $cacheTime)) === null || time() - $cacheTime <= $modSettings['settings_updated'])
@@ -3848,6 +3876,11 @@ function setupMenuContext()
 						'title' => $txt['edit_permissions'],
 						'href' => $scripturl . '?action=admin;area=permissions',
 						'show' => allowedTo('manage_permissions'),
+					),
+					'memberapprove' => array(
+						'title' => $txt['approve_members_waiting'],
+						'href' => $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
+						'show' => !empty($context['unapproved_members']),
 						'is_last' => true,
 					),
 				),
@@ -3877,29 +3910,6 @@ function setupMenuContext()
 						'href' => $scripturl . '?action=moderate;area=reports',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
 						'is_last' => true,
-					),
-				),
-			),
-			'profile' => array(
-				'title' => $txt['profile'],
-				'href' => $scripturl . '?action=profile',
-				'show' => $context['allow_edit_profile'],
-				'sub_buttons' => array(
-					'account' => array(
-						'title' => $txt['account'],
-						'href' => $scripturl . '?action=profile;area=account',
-						'show' => allowedTo(array('profile_identity_any', 'profile_identity_own', 'manage_membergroups')),
-					),
-					'profile' => array(
-						'title' => $txt['forumprofile'],
-						'href' => $scripturl . '?action=profile;area=forumprofile',
-						'show' => allowedTo(array('profile_forum_any', 'profile_forum_own')),
-						'is_last' => true,
-					),
-					'theme' => array(
-						'title' => $txt['theme'],
-						'href' => $scripturl . '?action=profile;area=theme',
-						'show' => allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_extra_any')),
 					),
 				),
 			),
@@ -4060,13 +4070,15 @@ function setupMenuContext()
 		$context['menu_buttons'][$current_action]['active_button'] = true;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && $context['open_mod_reports'] > 0)
-		$context['menu_buttons']['moderate']['title'] .= ' [<strong>' .$context['open_mod_reports'] . '</strong>]';
+		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
 
+	if (!empty($context['unapproved_members']))
+		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 
 	if (!$user_info['is_guest'] && $context['user']['unread_messages'] > 0 && isset($context['menu_buttons']['pm']))
 	{
 		$context['menu_buttons']['pm']['alttitle'] = $context['menu_buttons']['pm']['title'] . ' [' . $context['user']['unread_messages'] . ']';
-		$context['menu_buttons']['pm']['title'] .= ' [<strong>' . $context['user']['unread_messages'] . '</strong>]';
+		$context['menu_buttons']['pm']['title'] .= ' <span class="amt">' . $context['user']['unread_messages'] . '</span>';
 	}
 }
 
