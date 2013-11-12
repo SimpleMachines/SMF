@@ -160,10 +160,8 @@ $txt['permissionname_issue_warning'] = 'Issue warnings to members';
 $txt['permissionhelp_issue_warning'] = 'Issue a warning to members of the forum and change that members\' warning level. Requires the warning system to be enabled.';
 
 $txt['permissiongroup_profile'] = 'Member Profiles';
-$txt['permissionname_profile_view'] = 'View profile summary and stats';
-$txt['permissionhelp_profile_view'] = 'This permission allows users clicking on a username to see a summary of profile settings, some statistics and all posts of the user.';
-$txt['permissionname_profile_view_own'] = 'Own profile';
-$txt['permissionname_profile_view_any'] = 'Any profile';
+$txt['permissionname_profile_view'] = 'View other members\' profile summary and stats pages';
+$txt['permissionhelp_profile_view'] = 'This permission allows users clicking on a username to see a summary of other users\' profile settings, some statistics and their posts.';
 $txt['permissionname_profile_identity'] = 'Edit account settings';
 $txt['permissionhelp_profile_identity'] = 'Account settings are the basic settings of a profile, like password, email address, membergroup and preferred language.';
 $txt['permissionname_profile_identity_own'] = 'Own profile';
@@ -314,8 +312,7 @@ $txt['permissiongroup_simple_administrate'] = 'Carry out administrative duties';
 
 $txt['permissionname_simple_calendar_edit_own'] = 'Edit their own calendar events';
 $txt['permissionname_simple_calendar_edit_any'] = 'Edit other people\'s calendar events';
-$txt['permissionname_simple_profile_view_own'] = 'View their own profile';
-$txt['permissionname_simple_profile_view_any'] = 'View other people\'s profiles';
+$txt['permissionname_simple_profile_view'] = 'View other people\'s profiles';
 $txt['permissionname_simple_profile_identity_own'] = 'Edit their account settings';
 $txt['permissionname_simple_profile_identity_any'] = 'Edit other people\'s account settings';
 $txt['permissionname_simple_profile_extra_own'] = 'Edit their additional profile options';

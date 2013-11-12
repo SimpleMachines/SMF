@@ -1101,7 +1101,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'calendar_view',
 		'view_stats',
 		'who_view',
-		'profile_view_own',
 		'profile_identity_own',
 	);
 	$groupLevels['board']['restrict'] = array(
@@ -1124,7 +1123,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'pm_read',
 		'pm_send',
 		'send_email_to_members',
-		'profile_view_any',
+		'profile_view',
 		'profile_extra_own',
 		'profile_signature_own',
 		'profile_forum_own',
@@ -1493,7 +1492,7 @@ function loadAllPermissions($loadType = 'classic')
 			'manage_bans' => array(false, 'member_admin', 'administrate'),
 			'send_mail' => array(false, 'member_admin', 'administrate'),
 			'issue_warning' => array(false, 'member_admin', 'moderate_general'),
-			'profile_view' => array(true, 'profile', 'view_basic_info', 'view_basic_info'),
+			'profile_view' => array(false, 'profile', 'view_basic_info'),
 			'profile_identity' => array(true, 'profile', 'edit_profile', 'moderate_general'),
 			'profile_forum' => array(true, 'profile', 'edit_profile', 'moderate_general'),
 			'profile_password' => array(true, 'profile', 'edit_profile', 'moderate_general'),
@@ -2259,7 +2258,6 @@ function loadIllegalGuestPermissions()
 		'profile_server_avatar',
 		'profile_upload_avatar',
 		'profile_remote_avatar',
-		'profile_view_own',
 		'mark_any_notify',
 		'mark_notify',
 		'admin_forum',
