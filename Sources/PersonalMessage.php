@@ -108,7 +108,7 @@ function MessageMain()
 				AND in_inbox = {int:in_inbox}',
 			array(
 				'current_member' => $user_info['id'],
-				'in_inbox' => 0,
+				'in_inbox' => 1,
 			)
 		);
 		
@@ -3196,7 +3196,7 @@ function ManageLabels()
 			$inserts = array();
 			foreach($labels_to_add AS $label)
 			{
-				$inserts[] = array($label, $user_info['id']);
+				$inserts[] = array($user_info['id'], $label);
 			}
 			
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());

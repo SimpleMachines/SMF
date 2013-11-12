@@ -720,7 +720,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '0';
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minus_one}, message_labels)',
+			WHERE FIND_IN_SET({int:minus_one}, labels)',
 			array(
 				'in_inbox' => 1,
 				'minus_one' => -1,

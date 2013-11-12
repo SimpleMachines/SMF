@@ -1829,7 +1829,7 @@ function template_add_rule()
 		foreach ($context['labels'] as $label)
 			if ($label['id'] != -1)
 				echo '
-							<option value="', ($label['id'] + 1), '" ', $action['t'] == 'lab' && $action['v'] == $label['id'] ? 'selected="selected"' : '', '>', $label['name'], '</option>';
+							<option value="', ($label['id']), '" ', $action['t'] == 'lab' && $action['v'] == $label['id'] ? 'selected="selected"' : '', '>', $label['name'], '</option>';
 
 		echo '
 						</select>
