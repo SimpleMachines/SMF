@@ -129,6 +129,7 @@ function ManageBoardsMain()
 				'child_level' => &$boards[$boardid]['level'],
 				'move' => $move_cat && ($boardid == $context['move_board'] || isChildOf($boardid, $context['move_board'])),
 				'permission_profile' => &$boards[$boardid]['profile'],
+				'is_redirect' => !empty($boards[$boardid]['redirect']),
 			);
 		}
 	}
