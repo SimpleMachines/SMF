@@ -3099,7 +3099,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .infobox  {
 	color: #222;
-	background: #efe;
+	background: #cfc url(../images/warning_watch.png) 8px 50% no-repeat;
 	text-align: left;
 	border-top: 1px solid green;
 	border-bottom: 1px solid green;
