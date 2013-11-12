@@ -641,7 +641,8 @@ $request = upgrade_query("
 				INSERT INTO {$db_prefix}permissions
 					(id_group, permission, add_deny)
 				VALUES
-					" . $insert);
+					" . $insert
+			);
 		}
 	}
 ---}
@@ -679,8 +680,8 @@ ADD COLUMN in_inbox smallint NOT NULL default '0';
 ---# Moving label info to new tables and updating rules...
 ---{
 	// First see if we still have a message_labels column
-	$results = $smcFunc['db_list_columns']('{db_prefix}_members', false);
-	if (array_key_exists('message_labels', $results))
+	$results = $smcFunc['db_list_columns']('{db_prefix}members', false);
+	if (in_array('message_labels', $results))
 	{
 		// They've still got it, so pull the label info
 		$get_labels = $smcFunc['db_query']('', '
@@ -712,17 +713,17 @@ ADD COLUMN in_inbox smallint NOT NULL default '0';
 
 		if (!empty($inserts))
 		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member', 'name'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 		}
 
 		// This is the easy part - update the inbox stuff
 		$smcFunc['db_query']('', '
-			UPDATE TABLE {db_prefix}pm_recipients
+			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minusone}, message_labels)',
+			WHERE FIND_IN_SET({int:minus_one}, message_labels)',
 			array(
 				'in_inbox' => 1,
-				'minusone' => -1,
+				'minus_one' => -1,
 			)
 		);
 
@@ -766,14 +767,15 @@ ADD COLUMN in_inbox smallint NOT NULL default '0';
 				if ($a_label == '-1')
 					continue;
 
-				$inserts[] = "($row[id_pm], $label_info_2[$row[id_member]][$a_label])"; 
+				$new_label_info = $label_info_2[$row['id_member']][$a_label];
+				$inserts[] = array($row['id_pm'], $new_label_info); 
 			}
 		}
 
 		$smcFunc['db_free_result']($get_pm_labels);
 
 		// Insert the new data
-		$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm', 'id_label'), $inserts, array());
+		$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 
 		// Final step of this ridiculously massive process
 		$get_pm_rules = $smcFunc['db_query']('', '

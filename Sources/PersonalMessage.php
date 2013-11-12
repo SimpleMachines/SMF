@@ -2673,10 +2673,10 @@ function MessageActionsApply()
 				$inserts = array();
 				foreach($labels_to_add AS $label)
 				{
-					$inserts[] = "($row[id_pm], $label)";
+					$inserts[] = array($row['id_pm'], $label);
 				}
 				
-				$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm', 'id_label'), $inserts, array());
+				$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 			}
 		}
 		$smcFunc['db_free_result']($request);
@@ -3196,10 +3196,10 @@ function ManageLabels()
 			$inserts = array();
 			foreach($labels_to_add AS $label)
 			{
-				$inserts[] = '($label, $user_info[id]}';
+				$inserts[] = array($label, $user_info['id']);
 			}
 			
-			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member', 'name'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 		}
 		
 		// Update existing labels as needed
@@ -3910,12 +3910,12 @@ function ApplyRules($all_messages = false)
 
 			$inserts = array();
 			// Now we insert the label info
-			foreach($realLabels AS $a_label)
+			foreach($realLabels as $a_label)
 			{
-				$inserts[] = "($user_info[id], $pm, $label)";
+				$inserts[] = array($user_info['id'], $pm, $label);
 			}
 
-			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm', 'id_label'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 		}
 	}
 }
