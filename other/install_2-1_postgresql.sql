@@ -2023,7 +2023,7 @@ CREATE INDEX {$db_prefix}personal_messages_msgtime ON {$db_prefix}personal_messa
 CREATE INDEX {$db_prefix}personal_messages_id_pm_head ON {$db_prefix}personal_messages (id_pm_head);
 
 #
-# Sequence for table `pm_recipients`
+# Sequence for table `pm_labels`
 #
 
 CREATE SEQUENCE {$db_prefix}pm_labels_seq;
@@ -2061,6 +2061,7 @@ CREATE TABLE {$db_prefix}pm_recipients (
   is_read smallint NOT NULL default '0',
   is_new smallint NOT NULL default '0',
   deleted smallint NOT NULL default '0',
+  in_inbox smallint NOT NULL default '1',
   PRIMARY KEY (id_pm, id_member)
 );
 

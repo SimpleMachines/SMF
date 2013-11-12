@@ -1591,6 +1591,7 @@ CREATE TABLE {$db_prefix}pm_recipients (
   is_read tinyint(3) unsigned NOT NULL default '0',
   is_new tinyint(3) unsigned NOT NULL default '0',
   deleted tinyint(3) unsigned NOT NULL default '0',
+  in_inbox tinyint(3) unsigned NOT NULL default '1',
   PRIMARY KEY (id_pm, id_member),
   UNIQUE id_member (id_member, deleted, id_pm)
 ) ENGINE=MyISAM;

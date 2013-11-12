@@ -1724,6 +1724,7 @@ CREATE TABLE {$db_prefix}pm_recipients (
   is_read smallint NOT NULL default '0',
   is_new smallint NOT NULL default '0',
   deleted smallint NOT NULL default '0',
+  in_inbox smallint NOT NULL default '1',
   PRIMARY KEY (id_pm, id_member)
 );
 

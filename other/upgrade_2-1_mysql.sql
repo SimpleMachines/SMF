@@ -591,7 +591,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 
 ---# Adding "in_inbox" column to pm_recipients
 ALTER TABLE {$db_prefix}pm_recipients
-ADD COLUMN in_inbox tinyint(3) NOT NULL default '0';
+ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 ---#
 
 ---# Moving label info to new tables and updating rules...
