@@ -230,19 +230,6 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_extra_any'),
 					),
 				),
-				// Without profile_extra_own, settings are accessible from the PM section.
-				'pmprefs' => array(
-					'label' => $txt['pmprefs'],
-					'file' => 'Profile-Modify.php',
-					'function' => 'pmprefs',
-					'enabled' => allowedTo(array('profile_extra_own', 'profile_extra_any')),
-					'sc' => 'post',
-					'token' => 'profile-pm%u',
-					'permission' => array(
-						'own' => array('pm_read'),
-						'any' => array('profile_extra_any'),
-					),
-				),
 				'ignoreboards' => array(
 					'label' => $txt['ignoreboards'],
 					'file' => 'Profile-Modify.php',
@@ -590,7 +577,7 @@ function ModifyProfile($post_errors = array())
 		{
 			authentication($memID, true);
 		}
-		elseif (in_array($current_area, array('account', 'forumprofile', 'theme', 'pmprefs')))
+		elseif (in_array($current_area, array('account', 'forumprofile', 'theme')))
 			saveProfileFields();
 		else
 		{

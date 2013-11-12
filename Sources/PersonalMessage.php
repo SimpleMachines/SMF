@@ -3091,6 +3091,8 @@ function MessageSettings()
 	loadLanguage('Profile');
 	loadTemplate('Profile');
 
+	// Since this is internally handled with the profile code because that's how it was done ages ago
+	// we have to set everything up for handling this...
 	$context['page_title'] = $txt['pm_settings'];
 	$context['user']['is_owner'] = true;
 	$context['id_member'] = $user_info['id'];
@@ -3098,6 +3100,11 @@ function MessageSettings()
 	$context['menu_item_selected'] = 'settings';
 	$context['submit_button_text'] = $txt['pm_settings'];
 	$context['profile_header_text'] = $txt['personal_messages'];
+	$context['sub_template'] = 'edit_options';
+	$context['page_desc'] = $txt['pm_settings_desc'];
+
+	loadThemeOptions($user_info['id']);
+	loadCustomFields($user_info['id'], 'pmprefs');
 
 	// Add our position to the linktree.
 	$context['linktree'][] = array(
@@ -3121,8 +3128,11 @@ function MessageSettings()
 			updateMemberData($user_info['id'], $profile_vars);
 	}
 
-	// Load up the fields.
-	pmprefs($user_info['id']);
+	setupProfileContext(
+		array(
+			'pm_prefs',
+		)
+	);
 }
 
 /**

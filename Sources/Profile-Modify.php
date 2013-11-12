@@ -1619,28 +1619,6 @@ function forumProfile($memID)
 }
 
 /**
- * Allow the edit of *someone elses* personal message settings.
- *
- * @param int $memID id_member
- */
-function pmprefs($memID)
-{
-	global $sourcedir, $context, $txt, $scripturl;
-
-	loadThemeOptions($memID);
-	loadCustomFields($memID, 'pmprefs');
-
-	$context['sub_template'] = 'edit_options';
-	$context['page_desc'] = $txt['pm_settings_desc'];
-
-	setupProfileContext(
-		array(
-			'pm_prefs',
-		)
-	);
-}
-
-/**
  * Recursive function to retrieve server-stored avatar files
  *
  * @param string $directory
