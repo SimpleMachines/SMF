@@ -518,6 +518,17 @@ SET install_state = 0;
 /******************************************************************************/
 --- Updating profile permissions...
 /******************************************************************************/
+---# Removing the old "view your own profile" permission
+DELETE FROM {$db_prefix}permissions
+WHERE permission = 'profile_view_own';
+---#
+
+---# Updating the old "view any profile" permission
+UPDATE {$db_prefix}permissions
+SET permission = 'profile_view'
+WHERE permission = 'profile_view_any';
+---#
+
 ---# Adding "profile_password_own"
 ---{
 $inserts = array();
