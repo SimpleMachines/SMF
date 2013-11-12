@@ -1614,8 +1614,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'calendar
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'view_stats');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view_any');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_send');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
@@ -1639,8 +1638,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_emai
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view_any');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');
