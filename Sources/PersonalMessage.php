@@ -1299,7 +1299,7 @@ function MessageSearch2()
 			if (in_array(-1, $_REQUEST['searchlabel']))
 			{
 				$labelQuery = '	AND pmr.in_inbox = {int:in_inbox}';
-				$searchqparameters['in_inbox'] = 1;
+				$searchq_parameters['in_inbox'] = 1;
 
 				// Now we get rid of that...
 				$temp = array_diff($_REQUEST['searchlabel'], array(-1));
@@ -1322,7 +1322,7 @@ function MessageSearch2()
 					$labelJoin = ' LEFT JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_pm = pmr.id_pm)';
 				}
 
-				$searchqparameters['labels'] = $_REQUEST['searchlabel'];
+				$searchq_parameters['labels'] = $_REQUEST['searchlabel'];
 			}
 		}
 	}
@@ -2916,6 +2916,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 				WHERE label_id IN ({array_int:labels})' . $where,
 				array(
 					'labels' => $labels,
+					'pm_list' => $personal_messages !== null ? array_unique($personal_messages) : array(),
 				)
 			);
 		}
