@@ -1634,7 +1634,6 @@ CREATE TABLE {$db_prefix}members (
   pm_ignore_list varchar(255) NOT NULL,
   pm_prefs int NOT NULL default '0',
   mod_prefs varchar(20) NOT NULL default '',
-  message_labels text NOT NULL,
   passwd varchar(64) NOT NULL default '',
   openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL,
@@ -2022,6 +2021,33 @@ CREATE TABLE {$db_prefix}personal_messages (
 CREATE INDEX {$db_prefix}personal_messages_id_member ON {$db_prefix}personal_messages (id_member_from, deleted_by_sender);
 CREATE INDEX {$db_prefix}personal_messages_msgtime ON {$db_prefix}personal_messages (msgtime);
 CREATE INDEX {$db_prefix}personal_messages_id_pm_head ON {$db_prefix}personal_messages (id_pm_head);
+
+#
+# Sequence for table `pm_recipients`
+#
+
+CREATE SEQUENCE {$db_prefix}pm_labels_seq;
+
+#
+# Table structure for table `pm_labels`
+#
+
+CREATE TABLE {$db_prefix}pm_labels (
+  id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
+  id_member int NOT NULL default '0',
+  name varchar(30) NOT NULL default '',
+  PRIMARY KEY (id_label)
+);
+
+#
+# Table structure for table `pm_labeled_messages`
+#
+
+CREATE TABLE {$db_prefix}pm_labeled_messages (
+  id_label int NOT NULL default '0',
+  id_pm int NOT NULL default '0',
+  PRIMARY KEY (id_label, id_pm)
+);
 
 #
 # Table structure for table `pm_recipients`

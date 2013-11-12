@@ -1607,7 +1607,7 @@ function template_add_rule()
 	foreach ($context['labels'] as $label)
 		if ($label['id'] != -1)
 			echo '
-			labels[', ($label['id'] + 1), '] = "', addslashes($label['name']), '";';
+			labels[', ($label['id']), '] = "', addslashes($label['name']), '";';
 
 	echo '
 			function addCriteriaOption()
@@ -1642,7 +1642,7 @@ function template_add_rule()
 
 	foreach ($context['labels'] as $label)
 		if ($label['id'] != -1)
-			echo '<option value="', ($label['id'] + 1), '">', addslashes($label['name']), '<\' + \'/option>';
+			echo '<option value="', ($label['id']), '">', addslashes($label['name']), '<\' + \'/option>';
 
 	echo '<\' + \'/select><\' + \'/span><span id="actionAddHere"><\' + \'/span>\');
 			}
