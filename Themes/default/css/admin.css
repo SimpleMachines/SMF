@@ -774,6 +774,9 @@ pre.file_content {
 #manage_boards li#recycle_board {
 	background-color: #dee;
 }
+#manage_boards li.redirect_board {
+	background-color: #eed;
+}
 .move_links {
 	padding: 0 13px 0 0;
 }
