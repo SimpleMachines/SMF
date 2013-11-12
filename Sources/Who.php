@@ -484,8 +484,10 @@ function determineActions($urls, $preferred_prefix = false)
 		$smcFunc['db_free_result']($result);
 	}
 
-	// Load member names for the profile.
-	if (!empty($profile_ids) && (allowedTo('profile_view_any') || allowedTo('profile_view_own')))
+	// Load member names for the profile. (is_not_guest permission for viewing their own profile)
+	$allow_view_own = allowedTo('is_not_guest');
+	$allow_view_any = allowedTo('profile_view');
+	if (!empty($profile_ids) && ($allow_view_any || $allow_view_own))
 	{
 		$result = $smcFunc['db_query']('', '
 			SELECT id_member, real_name
@@ -499,7 +501,7 @@ function determineActions($urls, $preferred_prefix = false)
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			// If they aren't allowed to view this person's profile, skip it.
-			if (!allowedTo('profile_view_any') && $user_info['id'] != $row['id_member'])
+			if (!$allow_view_any && ($user_info['id'] != $row['id_member']))
 				continue;
 
 			// Set their action on each - session/text to sprintf.
