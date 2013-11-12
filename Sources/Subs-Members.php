@@ -998,7 +998,7 @@ function groupsAllowedTo($permission, $board_id = null)
 		'denied' => array(),
 	);
 
-	// Assume we're dealing with regular permissions (like profile_view_own).
+	// Assume we're dealing with regular permissions (like profile_view).
 	if ($board_id === null)
 	{
 		$request = $smcFunc['db_query']('', '
