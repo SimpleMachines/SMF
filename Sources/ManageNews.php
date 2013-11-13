@@ -711,7 +711,8 @@ function SendMailing($clean_only = false)
 	$context['parse_html'] = !empty($_POST['parse_html']) ? '1' : '0';
 
 	//One can't simply nullify things around
-	if(empty($_REQUEST['total_members'])) {
+	if (empty($_REQUEST['total_members']))
+	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}members',
@@ -720,7 +721,9 @@ function SendMailing($clean_only = false)
 		);
 		list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
-	} else {
+	}
+	else
+	{
 		$context['total_members'] = (int) $_REQUEST['total_members'];
 	}
 

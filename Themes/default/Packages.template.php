@@ -530,16 +530,15 @@ function template_browse()
 	if ($context['sub_action'] == 'browse')
 	{
 		echo '
+		<div id="update_section"></div>
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=latest_packages" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" /></a> ', $txt['packages_latest'], '
+					', $txt['packages_adding_title'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<div class="content">
-					<div id="packagesLatest">', $txt['packages_latest_fetch'], '</div>
-				</div>
+				', $txt['packages_adding'], '
 			</div>
 
 			<script type="text/javascript"><!-- // --><![CDATA[
@@ -551,18 +550,38 @@ function template_browse()
 		echo '
 				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 				window.smfVersion = "', $context['forum_version'], '";
-			// ]]></script>';
+			// ]]></script>
+			<div id="yourVersion" style="display:none">', $context['forum_version'], '</div>';
 
 		if (empty($modSettings['disable_smf_js']))
 			echo '
-			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-packages.js"></script>';
+			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
+		// This sets the announcements and current versions themselves ;).
 		echo '
 			<script type="text/javascript"><!-- // --><![CDATA[
-				var tempOldOnload;
-				smfSetLatestPackages();
-			// ]]></script>
+				var oAdminIndex = new smf_AdminIndex({
+					sSelf: \'oAdminCenter\',
+					bLoadAnnouncements: false,
+					bLoadVersions: false,
+					bLoadUpdateNotification: true,
+					sUpdateNotificationContainerId: \'update_section\',
+					sUpdateNotificationDefaultTitle: ', JavaScriptEscape($txt['update_available']), ',
+					sUpdateNotificationDefaultMessage: ', JavaScriptEscape($txt['update_message']), ',
+					sUpdateNotificationTemplate: ', JavaScriptEscape('
+						<h3 id="update_title">
+							%title%
+						</h3>
+						<div id="update_message" class="smalltext">
+							%message%
+						</div>
+					'), ',
+					sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
+	
+				});
+			// ]]></script>';
 
+		echo '
 		</div>';
 	}
 
@@ -579,6 +598,9 @@ function template_browse()
 	if (!$mods_available)
 		echo '
 		<div class="descbox">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
+	else
+		echo '
+		<br />';
 
 	// the advanced (emulation) box, collapsed by default
 	echo '

@@ -92,42 +92,46 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['summary'],
 					'file' => 'Profile-View.php',
 					'function' => 'summary',
+					'icon' => 'administration.png',
 					'permission' => array(
-						'own' => 'profile_view_own',
-						'any' => 'profile_view_any',
+						'own' => 'is_not_guest',
+						'any' => 'profile_view',
 					),
 				),
 				'statistics' => array(
 					'label' => $txt['statPanel'],
 					'file' => 'Profile-View.php',
 					'function' => 'statPanel',
+					'icon' => 'stats.png',
 					'permission' => array(
-						'own' => 'profile_view_own',
-						'any' => 'profile_view_any',
+						'own' => 'is_not_guest',
+						'any' => 'profile_view',
 					),
 				),
 				'showposts' => array(
 					'label' => $txt['showPosts'],
 					'file' => 'Profile-View.php',
 					'function' => 'showPosts',
+					'icon' => 'posts.png',
 					'subsections' => array(
-						'messages' => array($txt['showMessages'], array('profile_view_own', 'profile_view_any')),
-						'topics' => array($txt['showTopics'], array('profile_view_own', 'profile_view_any')),
-						'unwatchedtopics' => array($txt['showUnwatched'], array('profile_view_own', 'profile_view_any'), 'enabled' => $modSettings['enable_unwatch'] && $context['user']['is_owner']),
-						'attach' => array($txt['showAttachments'], array('profile_view_own', 'profile_view_any')),
+						'messages' => array($txt['showMessages'], array('is_not_guest', 'profile_view')),
+						'topics' => array($txt['showTopics'], array('is_not_guest', 'profile_view')),
+						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $modSettings['enable_unwatch'] && $context['user']['is_owner']),
+						'attach' => array($txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(
-						'own' => 'profile_view_own',
-						'any' => 'profile_view_any',
+						'own' => 'is_not_guest',
+						'any' => 'profile_view',
 					),
 				),
 				'showdrafts' => array(
 					'label' => $txt['drafts_show'],
 					'file' => 'Drafts.php',
 					'function' => 'showProfileDrafts',
+					'icon' => 'drafts.png',
 					'enabled' => !empty($modSettings['drafts_post_enabled']) && $context['user']['is_owner'],
 					'permission' => array(
-						'own' => 'profile_view_own',
+						'own' => 'is_not_guest',
 						'any' =>  array(),
 					),
 				),
@@ -135,6 +139,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['showPermissions'],
 					'file' => 'Profile-View.php',
 					'function' => 'showPermissions',
+					'icon' => 'permissions.png',
 					'permission' => array(
 						'own' => 'manage_permissions',
 						'any' => 'manage_permissions',
@@ -144,11 +149,12 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['trackUser'],
 					'file' => 'Profile-View.php',
 					'function' => 'tracking',
+					'icon' => 'logs.png',
 					'subsections' => array(
 						'activity' => array($txt['trackActivity'], 'moderate_forum'),
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
 						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
-						'logins' => array($txt['trackLogins'], array('profile_view_own', 'moderate_forum')),
+						'logins' => array($txt['trackLogins'], array('is_not_guest', 'moderate_forum')),
 					),
 					'permission' => array(
 						'own' => 'moderate_forum',
@@ -160,8 +166,9 @@ function ModifyProfile($post_errors = array())
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'] && (!empty($modSettings['warning_show']) && ($context['user']['is_owner'] || $modSettings['warning_show'] == 2)),
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
+					'icon' => 'warning.png',
 					'permission' => array(
-						'own' => 'profile_view_own',
+						'own' => 'is_not_guest', // @todo this needs to be a view-own warning
 						'any' => 'issue_warning',
 					),
 				),
@@ -174,6 +181,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'account',
+					'icon' => 'maintain.png',
 					'enabled' => $context['user']['is_admin'] || ($cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups']))),
 					'sc' => 'post',
 					'token' => 'profile-ac%u',
@@ -187,6 +195,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['forumprofile'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'forumProfile',
+					'icon' => 'members.png',
 					'sc' => 'post',
 					'token' => 'profile-fp%u',
 					'permission' => array(
@@ -198,6 +207,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['theme'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'theme',
+					'icon' => 'features.png',
 					'sc' => 'post',
 					'token' => 'profile-th%u',
 					'permission' => array(
@@ -209,6 +219,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['authentication'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'authentication',
+					'icon' => 'openid.png',
 					'enabled' => !empty($modSettings['enableOpenID']) || !empty($cur_profile['openid_uri']),
 					'sc' => 'post',
 					'token' => 'profile-au%u',
@@ -223,6 +234,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['notification'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'notification',
+					'icon' => 'mail.png',
 					'sc' => 'post',
 					'token' => 'profile-nt%u',
 					'permission' => array(
@@ -230,23 +242,11 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_extra_any'),
 					),
 				),
-				// Without profile_extra_own, settings are accessible from the PM section.
-				'pmprefs' => array(
-					'label' => $txt['pmprefs'],
-					'file' => 'Profile-Modify.php',
-					'function' => 'pmprefs',
-					'enabled' => allowedTo(array('profile_extra_own', 'profile_extra_any')),
-					'sc' => 'post',
-					'token' => 'profile-pm%u',
-					'permission' => array(
-						'own' => array('pm_read'),
-						'any' => array('profile_extra_any'),
-					),
-				),
 				'ignoreboards' => array(
 					'label' => $txt['ignoreboards'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'ignoreboards',
+					'icon' => 'boards.png',
 					'enabled' => !empty($modSettings['allow_ignore_boards']),
 					'sc' => 'post',
 					'token' => 'profile-ib%u',
@@ -259,6 +259,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['editBuddyIgnoreLists'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'editBuddyIgnoreLists',
+					'icon' => 'frenemy.png',
 					'enabled' => !empty($modSettings['enable_buddylist']) && $context['user']['is_owner'],
 					'sc' => 'post',
 					'token' => 'profile-bl%u',
@@ -275,12 +276,13 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['groupmembership'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'groupMembership',
+					'icon' => 'membergroups.png',
 					'enabled' => !empty($modSettings['show_group_membership']) && $context['user']['is_owner'],
 					'sc' => 'request',
 					'token' => 'profile-gm%u',
 					'token_type' => 'request',
 					'permission' => array(
-						'own' => array('profile_view_own'),
+						'own' => array('is_not_guest'),
 						'any' => array('manage_membergroups'),
 					),
 				),
@@ -292,6 +294,7 @@ function ModifyProfile($post_errors = array())
 				'sendpm' => array(
 					'label' => $txt['profileSendIm'],
 					'custom_url' => $scripturl . '?action=pm;sa=send',
+					'icon' => 'personal_message.png',
 					'permission' => array(
 						'own' => array(),
 						'any' => array('pm_send'),
@@ -302,6 +305,7 @@ function ModifyProfile($post_errors = array())
 					'enabled' => $modSettings['warning_settings'][0] == 1,
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
+					'icon' => 'warning.png',
 					'token' => 'profile-iw%u',
 					'permission' => array(
 						'own' => array(),
@@ -311,6 +315,7 @@ function ModifyProfile($post_errors = array())
 				'banuser' => array(
 					'label' => $txt['profileBanUser'],
 					'custom_url' => $scripturl . '?action=admin;area=ban;sa=add',
+					'icon' => 'ban.png',
 					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
 					'permission' => array(
 						'own' => array(),
@@ -321,9 +326,10 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['subscriptions'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'subscriptions',
+					'icon' => 'paid.png',
 					'enabled' => !empty($modSettings['paid_enabled']),
 					'permission' => array(
-						'own' => array('profile_view_own'),
+						'own' => array('is_not_guest'),
 						'any' => array('moderate_forum'),
 					),
 				),
@@ -331,6 +337,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'deleteAccount',
+					'icon' => 'members_delete.png',
 					'sc' => 'post',
 					'token' => 'profile-da%u',
 					'password' => true,
@@ -342,6 +349,7 @@ function ModifyProfile($post_errors = array())
 				'activateaccount' => array(
 					'file' => 'Profile-Actions.php',
 					'function' => 'activateAccount',
+					'icon' => 'regcenter.png',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
 					'permission' => array(
@@ -590,7 +598,7 @@ function ModifyProfile($post_errors = array())
 		{
 			authentication($memID, true);
 		}
-		elseif (in_array($current_area, array('account', 'forumprofile', 'theme', 'pmprefs')))
+		elseif (in_array($current_area, array('account', 'forumprofile', 'theme')))
 			saveProfileFields();
 		else
 		{

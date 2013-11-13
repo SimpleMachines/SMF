@@ -897,7 +897,7 @@ function getXmlProfile($xml_format)
 	// Make sure the id is a number and not "I like trying to hack the database".
 	$_GET['u'] = (int) $_GET['u'];
 	// Load the member's contextual information!
-	if (!loadMemberContext($_GET['u']) || !allowedTo('profile_view_any'))
+	if (!loadMemberContext($_GET['u']) || !allowedTo('profile_view'))
 		return array();
 
 	// Okay, I admit it, I'm lazy.  Stupid $_GET['u'] is long and hard to type.

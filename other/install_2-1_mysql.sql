@@ -26,9 +26,8 @@ VALUES
 	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
 	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
 	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
-	(4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(6, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+	(4, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
+	(5, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 # --------------------------------------------------------
 
 #
@@ -1489,8 +1488,7 @@ VALUES (-1, 'search_posts'),
 	(-1, 'view_stats'),
 	(0, 'view_mlist'),
 	(0, 'search_posts'),
-	(0, 'profile_view_own'),
-	(0, 'profile_view_any'),
+	(0, 'profile_view'),
 	(0, 'pm_read'),
 	(0, 'pm_send'),
 	(0, 'pm_draft'),
@@ -1514,8 +1512,7 @@ VALUES (-1, 'search_posts'),
 	(0, 'karma_edit'),
 	(2, 'view_mlist'),
 	(2, 'search_posts'),
-	(2, 'profile_view_own'),
-	(2, 'profile_view_any'),
+	(2, 'profile_view'),
 	(2, 'pm_read'),
 	(2, 'pm_send'),
 	(2, 'pm_draft'),

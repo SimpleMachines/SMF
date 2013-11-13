@@ -453,6 +453,15 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts');
 ---#
 
 /******************************************************************************/
+--- Removing old Simple Machines files we do not need to fetch any more
+/******************************************************************************/
+---# We no longer call on the latest packages list.
+DELETE FROM {$db_prefix}admin_info_files
+WHERE filename = 'latest-packages.js'
+	AND path = '/smf/';
+---#
+
+/******************************************************************************/
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table
@@ -509,6 +518,17 @@ SET install_state = 0;
 /******************************************************************************/
 --- Updating profile permissions...
 /******************************************************************************/
+---# Removing the old "view your own profile" permission
+DELETE FROM {$db_prefix}permissions
+WHERE permission = 'profile_view_own';
+---#
+
+---# Updating the old "view any profile" permission
+UPDATE {$db_prefix}permissions
+SET permission = 'profile_view'
+WHERE permission = 'profile_view_any';
+---#
+
 ---# Adding "profile_password_own"
 ---{
 $inserts = array();

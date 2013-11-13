@@ -28,9 +28,8 @@ BEGIN TRANSACTION;
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript');
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-packages.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (5, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (6, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (5, 'latest-themes.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 COMMIT;
 
 # --------------------------------------------------------
@@ -1615,8 +1614,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'calendar
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'view_stats');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view_any');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_send');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
@@ -1640,8 +1638,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_emai
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view_any');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');

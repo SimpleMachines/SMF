@@ -727,7 +727,7 @@ function template_trackActivity()
 	echo '
 		<div class="generic_list_wrapper">
 			<div class="cat_bar">
-				<h3 class="catbg"><strong>', $txt['view_ips_by'], ' ', $context['member']['name'], '</strong></h3>
+				<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
 			</div>';
 
 	// The last IP the user used.

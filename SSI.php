@@ -1521,7 +1521,7 @@ function ssi_todaysBirthdays($output_method = 'echo')
 {
 	global $scripturl, $modSettings, $user_info;
 
-	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view_any'))
+	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view') || !allowedTo('profile_view'))
 		return;
 
 	$eventOptions = array(
@@ -1595,7 +1595,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 		return;
 
 	$eventOptions = array(
-		'include_birthdays' => allowedTo('profile_view_any'),
+		'include_birthdays' => allowedTo('profile_view'),
 		'include_holidays' => true,
 		'include_events' => true,
 		'num_days_shown' => empty($modSettings['cal_days_for_index']) || $modSettings['cal_days_for_index'] < 1 ? 1 : $modSettings['cal_days_for_index'],

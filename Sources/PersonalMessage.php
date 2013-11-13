@@ -1014,7 +1014,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	}
 	else
 	{
-		$memberContext[$message['id_member_from']]['can_view_profile'] = allowedTo('profile_view_any') || ($message['id_member_from'] == $user_info['id'] && allowedTo('profile_view_own'));
+		$memberContext[$message['id_member_from']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member_from'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member_from']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member_from']]['warning_status'] && ($context['user']['can_mod'] || (!empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $message['id_member_from'] == $user_info['id'])));
 	}
 
@@ -3359,6 +3359,8 @@ function MessageSettings()
 	loadLanguage('Profile');
 	loadTemplate('Profile');
 
+	// Since this is internally handled with the profile code because that's how it was done ages ago
+	// we have to set everything up for handling this...
 	$context['page_title'] = $txt['pm_settings'];
 	$context['user']['is_owner'] = true;
 	$context['id_member'] = $user_info['id'];
@@ -3366,6 +3368,11 @@ function MessageSettings()
 	$context['menu_item_selected'] = 'settings';
 	$context['submit_button_text'] = $txt['pm_settings'];
 	$context['profile_header_text'] = $txt['personal_messages'];
+	$context['sub_template'] = 'edit_options';
+	$context['page_desc'] = $txt['pm_settings_desc'];
+
+	loadThemeOptions($user_info['id']);
+	loadCustomFields($user_info['id'], 'pmprefs');
 
 	// Add our position to the linktree.
 	$context['linktree'][] = array(
@@ -3389,8 +3396,11 @@ function MessageSettings()
 			updateMemberData($user_info['id'], $profile_vars);
 	}
 
-	// Load up the fields.
-	pmprefs($user_info['id']);
+	setupProfileContext(
+		array(
+			'pm_prefs',
+		)
+	);
 }
 
 /**

@@ -95,14 +95,7 @@ smf_AdminIndex.prototype.checkUpdateAvailable = function ()
 	// Parse in the package download URL if it exists in the string.
 	document.getElementById('update-link').href = this.opt.sUpdateNotificationLink.replace('%package%', window.smfUpdatePackage);
 
-	// If we decide to override life into "red" mode, do it.
-	if ('smfUpdateCritical' in window)
-	{
-		document.getElementById('update_title').style.backgroundColor = '#dd2222';
-		document.getElementById('update_title').style.color = 'white';
-		document.getElementById('update_message').style.backgroundColor = '#eebbbb';
-		document.getElementById('update_message').style.color = 'black';
-	}
+	oContainer.className = ('smfUpdateCritical' in window) ? 'errorbox' : 'noticebox';
 }
 
 

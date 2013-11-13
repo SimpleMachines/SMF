@@ -18,7 +18,7 @@ function template_maintain_database()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="maintenance_finished">
+			<div class="infobox">
 				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 			</div>';
 
@@ -113,7 +113,7 @@ function template_maintain_routine()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="maintenance_finished">
+			<div class="infobox">
 				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 			</div>';
 
@@ -252,7 +252,7 @@ function template_maintain_members()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 	echo '
-		<div class="maintenance_finished">
+		<div class="infobox">
 			', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 		</div>';
 
@@ -365,7 +365,7 @@ function template_maintain_topics()
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))
 		echo '
-			<div class="maintenance_finished">
+			<div class="infobox">
 				', sprintf($txt['maintain_done'], $context['maintenance_finished']), '
 			</div>';
 
