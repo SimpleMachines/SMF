@@ -1288,6 +1288,9 @@ function ThemeInstall()
 	// Make it easier to change the path.
 	$themedir = $boarddir . '/Themes';
 
+	// Set a nice empty array.
+	$install_info = array();
+
 	if (isset($_GET['theme_id']))
 	{
 		$result = $smcFunc['db_query']('', '
@@ -1358,6 +1361,9 @@ function ThemeInstall()
 		$images_url = $boardurl . '/Themes/' . basename($theme_dir) . '/images';
 		$theme_dir = realpath($theme_dir);
 
+		// This is a copy, it means it will always be versioned at 1.0.
+		$install_info['version'] = '1.0';
+
 		// Lets get some data for the new theme.
 		$request = $smcFunc['db_query']('', '
 			SELECT variable, value
@@ -1389,7 +1395,7 @@ function ThemeInstall()
 	<!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
 	<id>smf:' . $smcFunc['strtolower'](trim(str_replace(array(' '), '_', $_REQUEST['copy']))) . '</id>
 	<!-- The theme\'s version, please try to use semantic versioning. -->
-	<version>1.0</version>
+	<version>'. $install_info['version'] .'</version>
 	<!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
 	<install for="2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')) .'" />
 	<!-- Theme name, used purely for aesthetics. -->
