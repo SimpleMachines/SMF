@@ -64,7 +64,7 @@ function template_main()
 				</h3>
 			</div>
 			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=file" method="post" accept-charset="', $context['character_set'], '" class="windowbg2">
+				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=file" method="post" accept-charset="', $context['character_set'], '">
 					<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
 				</form>
@@ -79,7 +79,7 @@ function template_main()
 				</h3>
 			</div>
 			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=copy" method="post" accept-charset="', $context['character_set'], '" class="windowbg2">
+				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=copy" method="post" accept-charset="', $context['character_set'], '">
 					<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40" class="input_text" />
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
 				</form>
@@ -95,8 +95,8 @@ function template_main()
 				</h3>
 			</div>
 			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=dir" method="post" accept-charset="', $context['character_set'], '" class="windowbg2">
-					<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 70%;" class="input_text" />
+				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=dir" method="post" accept-charset="', $context['character_set'], '">
+					<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;" class="input_text" />
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
 				</form>
 			</div>';
