@@ -1276,9 +1276,7 @@ function ThemeInstall()
 	global $settings, $modSettings, $scripturl, $smcFunc, $forum_version;
 
 	checkSession('request');
-
 	isAllowedTo('admin_forum');
-	checkSession('request');
 
 	require_once($sourcedir . '/Subs-Package.php');
 
