@@ -1284,16 +1284,6 @@ function ThemeInstall()
 	loadTemplate('Themes');
 	loadLanguage('Errors');
 
-	// Everything went better than expected!
-	if (isset($_GET['theme_id']) && empty($_GET['theme_id']))
-	{
-		$context['sub_template'] = 'installed';
-		$context['page_title'] = $txt['theme_installed'];
-		$context['installed_theme'] = get_single_theme($_GET['theme_id']);
-
-		return;
-	}
-
 	$subActions = array(
 		'file' => 'InstallFile',
 		'copy' => 'InstallCopy',
@@ -1302,11 +1292,36 @@ function ThemeInstall()
 
 	// Call the right function.
 	if (isset($_GET['do']) && empty($_GET['do']) && isset($subActions[$_GET['do']]))
-		$subActions[$_GET['do']]();
+	{
+		$result = $subActions[$_GET['do']]();
+
+		// Everything went better than expected!
+		if (!empty($result) && !empty($result['id']))
+		{
+			$context['sub_template'] = 'installed';
+			$context['page_title'] = $txt['theme_installed'];
+			$context['installed_theme'] = get_single_theme($_GET['theme_id']);
+
+			// Safety.
+			$context['theme_message'] = false;
+
+			return;
+		}
+
+		// Nope, there was an error, show it along with some info about it.
+		elseif (!empty($result) && !empty($result['message']))
+			$context['theme_message'] = $result['message'];
+	}
 
 	// Nope, show a nice error.
 	else
 		fatal_lang_error('theme_install_no_action', false);
+}
+
+function InstallFile()
+{
+	// Such pessimist, looking for errors first, nah, just cautious :P
+
 }
 
 /**

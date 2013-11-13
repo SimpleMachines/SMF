@@ -736,25 +736,38 @@ function template_pick()
 	</div>';
 }
 
-// Okay, that theme was installed successfully!
+// Okay, that theme was installed/updated successfully!
 function template_installed()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
-	// Not much to show except a link back...
+	// The aftermath.
 	echo '
 	<div id="admincenter">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<div class="content">
+			<div class="content">';
+
+	// Oops! there was an error :(
+	if (!empty($context['theme_message']))
+		echo '
+				<p>
+					', $context['theme_message'] ,'
+				</p>';
+
+	// Not much to show except a link back...
+	else
+		echo '
 				<p>
 					<a href="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['installed_theme']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $context['installed_theme']['name'], '</a> ', $txt['theme_'. (isset($_GET['updated']) ? 'updated' : 'installed') .'_message'], '
 				</p>
 				<p>
 					<a href="', $scripturl, '?action=admin;area=theme;sa=admin;', $context['session_var'], '=', $context['session_id'], '">', $txt['back'], '</a>
-				</p>
+				</p>';
+
+	echo '
 			</div>
 		</div>
 	</div>';
