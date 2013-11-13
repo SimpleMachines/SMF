@@ -26,7 +26,9 @@ function get_single_theme($id)
 	if (empty($id))
 		return false;
 
-	$single = array();
+	$single = array(
+		'id' => $id,
+	);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
