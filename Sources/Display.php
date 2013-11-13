@@ -1305,7 +1305,8 @@ function prepareDisplayContext($reset = false)
 		'modified' => array(
 			'time' => timeformat($message['modified_time']),
 			'timestamp' => forum_time(true, $message['modified_time']),
-			'name' => $message['modified_name']
+			'name' => $message['modified_name'],
+			'reason' => $message['modified_reason']
 		),
 		'likes' => array(
 			'count' => $message['likes'],
@@ -1328,6 +1329,10 @@ function prepareDisplayContext($reset = false)
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 	if (!empty($output['modified']['name']))
 		$output['modified']['last_edit_text'] = sprintf($txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
+	
+	// Did they give a reason for editing?
+	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
+		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
 
 	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 

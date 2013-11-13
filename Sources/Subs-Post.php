@@ -2141,6 +2141,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	{
 		$messages_columns['modified_time'] = $msgOptions['modify_time'];
 		$messages_columns['modified_name'] = $msgOptions['modify_name'];
+		$messages_columns['modified_reason'] = $msgOptions['modify_reason'];
 		$messages_columns['id_msg_modified'] = $modSettings['maxMsgID'];
 	}
 	if (isset($msgOptions['smileys_enabled']))

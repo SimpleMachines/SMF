@@ -357,6 +357,18 @@ function template_main()
 	echo '
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
+	// If we're editing and displaying edit details, show a box where they can say why
+	if (isset($context['editing']) && $settings['show_last_edit'])
+		echo '
+					<dl>
+						<dt class="clear">
+							<span id="caption_edit_reason">', $txt['reason_for_edit'], ':</span>
+						</dt>
+						<dd>
+							<input type="text" name="modify_reason"', $context['last_modified_reason'] == '' ? '' : ' value="' . $context['modified_reason'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" />
+						</dd>
+					</dl>';
+
 	// If this message has been edited in the past - display when it was.
 	if (isset($context['last_modified']))
 		echo '
