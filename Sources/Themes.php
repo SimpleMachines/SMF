@@ -58,8 +58,8 @@ function ThemesMain()
 
 	// Theme administration, removal, choice, or installation...
 	$subActions = array(
-		'list' => 'ThemeList',
 		'admin' => 'ThemeAdmin',
+		'list' => 'ThemeList',
 		'reset' => 'SetThemeOptions',
 		'options' => 'SetThemeOptions',
 		'install' => 'ThemeInstall',
@@ -77,11 +77,11 @@ function ThemesMain()
 			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
-				'list' => array(
-					'description' => $txt['themeadmin_list_desc'],
-				),
 				'admin' => array(
 					'description' => $txt['themeadmin_admin_desc'],
+				),
+				'list' => array(
+					'description' => $txt['themeadmin_list_desc'],
 				),
 				'reset' => array(
 					'description' => $txt['themeadmin_reset_desc'],
@@ -93,12 +93,11 @@ function ThemesMain()
 		);
 	}
 
-	// Follow the sa or just go to settings page.
+	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
 		$subActions[$_GET['sa']]();
-
 	else
-		$subActions['list']();
+		$subActions['admin']();
 }
 
 /**
@@ -117,23 +116,26 @@ function ThemeAdmin()
 
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
-	loadTemplate('Themes');
-	createToken('admin-tm');
-
-	// Can we create a new theme?
-	$context['can_create_new'] = is_writable($boarddir . '/Themes');
-	$context['new_theme_dir'] = substr(realpath($boarddir . '/Themes/default'), 0, -7);
-
-	// Look for a non existent theme directory. (ie theme87.)
-	$theme_dir = $boarddir . '/Themes/theme';
-	$i = 1;
-	while (file_exists($theme_dir . $i))
-		$i++;
-
-	$context['new_theme_name'] = 'theme' . $i;
 
 	// If we aren't submitting - that is, if we are about to...
-	if (isset($_POST['save']))
+	if (!isset($_POST['save']))
+	{
+		loadTemplate('Themes');
+
+		// Can we create a new theme?
+		$context['can_create_new'] = is_writable($boarddir . '/Themes');
+		$context['new_theme_dir'] = substr(realpath($boarddir . '/Themes/default'), 0, -7);
+
+		// Look for a non existent theme directory. (ie theme87.)
+		$theme_dir = $boarddir . '/Themes/theme';
+		$i = 1;
+		while (file_exists($theme_dir . $i))
+			$i++;
+		$context['new_theme_name'] = 'theme' . $i;
+
+		createToken('admin-tm');
+	}
+	else
 	{
 		checkSession();
 		validateToken('admin-tm');
@@ -171,7 +173,6 @@ function ThemeList()
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
 
-	// If there is a theme then go to its specific settings.
 	if (isset($_REQUEST['th']))
 		return SetThemeSettings();
 
@@ -241,11 +242,12 @@ function ThemeList()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE variable IN ({string:name}, {string:theme_dir}, {string:theme_url}, {string:images_url})
+		WHERE variable IN ({string:name}, {string:version}, {string:theme_dir}, {string:theme_url}, {string:images_url})
 			AND id_member = {int:no_member}',
 		array(
 			'no_member' => 0,
 			'name' => 'name',
+			'version' => 'version',
 			'theme_dir' => 'theme_dir',
 			'theme_url' => 'theme_url',
 			'images_url' => 'images_url',
@@ -268,7 +270,8 @@ function ThemeList()
 	{
 		$context['themes'][$i]['theme_dir'] = realpath($context['themes'][$i]['theme_dir']);
 
-		if (file_exists($context['themes'][$i]['theme_dir'] . '/index.template.php'))
+		// Fetch the version if there isn't one stored on te DB.
+		if (empty($context['themes'][$i]['version']) && file_exists($context['themes'][$i]['theme_dir'] . '/index.template.php'))
 		{
 			// Fetch the header... a good 256 bytes should be more than enough.
 			$fp = fopen($context['themes'][$i]['theme_dir'] . '/index.template.php', 'rb');
@@ -287,6 +290,7 @@ function ThemeList()
 	$context['reset_url'] = $boardurl . '/Themes';
 
 	$context['sub_template'] = 'list_themes';
+	createToken('admin-ti');
 	createToken('admin-tl');
 	createToken('admin-tr', 'request');
 }

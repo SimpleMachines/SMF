@@ -95,6 +95,9 @@ $txt['hide_post_group_desc'] = 'Enabling this will not display a member\'s post 
 
 $txt['subject_toggle'] = 'Show subjects in topics.';
 
+$txt['theme_adding_title'] = 'Obtaining Packages';
+$txt['theme_adding'] = 'You can always find new packages for your forum from the SMF modifications area - <strong><a href="http://custom.simplemachines.org/mods/" target="_blank">http://custom.simplemachines.org/mods/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br /><br />If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
+
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings.  Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';
 
