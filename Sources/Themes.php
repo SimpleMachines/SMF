@@ -1284,12 +1284,29 @@ function ThemeInstall()
 	loadTemplate('Themes');
 	loadLanguage('Errors');
 
+	// Everything went better than expected!
 	if (isset($_GET['theme_id']) && empty($_GET['theme_id']))
 	{
 		$context['sub_template'] = 'installed';
 		$context['page_title'] = $txt['theme_installed'];
 		$context['installed_theme'] = get_single_theme($_GET['theme_id']);
+
+		return;
 	}
+
+	$subActions = array(
+		'file' => 'InstallFile',
+		'copy' => 'InstallCopy',
+		'dir' => 'InstallDir',
+	);
+
+	// Call the right function.
+	if (isset($_GET['do']) && empty($_GET['do']) && isset($subActions[$_GET['do']]))
+		$subActions[$_GET['do']]();
+
+	// Nope, show a nice error.
+	else
+		fatal_lang_error('theme_install_no_action', false);
 }
 
 /**

@@ -25,6 +25,7 @@ $txt['theme_install_writable'] = 'Warning - you cannot create or install a new t
 $txt['theme_installed'] = 'Installed Successfully';
 $txt['theme_installed_message'] = 'was installed successfully.';
 $txt['theme_updated_message'] = 'was updated successfully.';
+$txt['theme_install_no_action'] = 'This isn\'t a valid install action.';
 
 $txt['theme_latest'] = 'Latest and Greatest Themes';
 $txt['theme_latest_fetch'] = 'Fetching latest themes from www.simplemachines.org...';
