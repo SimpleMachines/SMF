@@ -1272,8 +1272,7 @@ function PickTheme()
  */
 function ThemeInstall()
 {
-	global $sourcedir, $boarddir, $boardurl, $txt, $context;
-	global $settings, $modSettings, $scripturl, $smcFunc, $forum_version;
+	global $sourcedir, $txt, $context;
 
 	checkSession('request');
 	isAllowedTo('admin_forum');
@@ -1282,7 +1281,6 @@ function ThemeInstall()
 	require_once($sourcedir . '/Subs-Themes.php');
 
 	loadTemplate('Themes');
-	loadLanguage('Errors');
 
 	$subActions = array(
 		'file' => 'InstallFile',
@@ -1290,27 +1288,30 @@ function ThemeInstall()
 		'dir' => 'InstallDir',
 	);
 
-	// Call the right function.
+	// Is there a function to call?
 	if (isset($_GET['do']) && empty($_GET['do']) && isset($subActions[$_GET['do']]))
 	{
+		// Call the function and handle the result.
 		$result = $subActions[$_GET['do']]();
+
+		// Safety.
+		$context['error_message'] = false;
+		$context['installed_theme'] = false;
+		$context['sub_template'] = 'installed';
 
 		// Everything went better than expected!
 		if (!empty($result) && !empty($result['id']))
 		{
-			$context['sub_template'] = 'installed';
 			$context['page_title'] = $txt['theme_installed'];
 			$context['installed_theme'] = get_single_theme($_GET['theme_id']);
-
-			// Safety.
-			$context['theme_message'] = false;
-
-			return;
 		}
 
 		// Nope, there was an error, show it along with some info about it.
 		elseif (!empty($result) && !empty($result['message']))
-			$context['theme_message'] = $result['message'];
+		{
+			$context['error_message'] = $result['message'];
+			$context['page_title'] = $txt['theme_install_error_title'];
+		}
 	}
 
 	// Nope, show a nice error.

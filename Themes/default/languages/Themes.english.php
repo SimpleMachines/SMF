@@ -26,6 +26,8 @@ $txt['theme_installed'] = 'Installed Successfully';
 $txt['theme_installed_message'] = 'was installed successfully.';
 $txt['theme_updated_message'] = 'was updated successfully.';
 $txt['theme_install_no_action'] = 'This isn\'t a valid install action.';
+$txt['theme_install_error_title'] = 'An error occurred while installing the theme.';
+
 
 $txt['theme_latest'] = 'Latest and Greatest Themes';
 $txt['theme_latest_fetch'] = 'Fetching latest themes from www.simplemachines.org...';

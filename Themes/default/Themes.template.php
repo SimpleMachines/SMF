@@ -751,10 +751,10 @@ function template_installed()
 			<div class="content">';
 
 	// Oops! there was an error :(
-	if (!empty($context['theme_message']))
+	if (!empty($context['error_message']))
 		echo '
 				<p>
-					', $context['theme_message'] ,'
+					', $context['error_message'] ,'
 				</p>';
 
 	// Not much to show except a link back...
