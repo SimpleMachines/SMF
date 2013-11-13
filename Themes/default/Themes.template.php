@@ -64,7 +64,7 @@ function template_main()
 				</h3>
 			</div>
 			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=file" method="post" accept-charset="', $context['character_set'], '">
+				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=file" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
 					<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
 				</form>
