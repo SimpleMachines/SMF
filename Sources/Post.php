@@ -83,7 +83,7 @@ function Post($post_errors = array())
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				t.locked, IFNULL(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
-				t.id_first_msg, mf.subject,
+				t.id_first_msg, mf.subject, ml.modified_reason,
 				CASE WHEN ml.poster_time > ml.modified_time THEN ml.poster_time ELSE ml.modified_time END AS last_post_time
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}log_notify AS ln ON (ln.id_topic = t.id_topic AND ln.id_member = {int:current_member})
@@ -96,7 +96,7 @@ function Post($post_errors = array())
 				'current_topic' => $topic,
 			)
 		);
-		list ($locked, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $lastPostTime) = $smcFunc['db_fetch_row']($request);
+		list ($locked, $context['notify'], $sticky, $pollID, $context['topic_last_message'], $id_member_poster, $id_first_msg, $first_subject, $editReason, $lastPostTime) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If this topic already has a poll, they sure can't add another.
@@ -605,12 +605,14 @@ function Post($post_errors = array())
 	// Editing a message...
 	elseif (isset($_REQUEST['msg']) && !empty($topic))
 	{
+		$context['editing'] = true;
+
 		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
 
 		// Get the existing message. Editing.
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				m.id_member, m.modified_time, m.modified_name, m.smileys_enabled, m.body,
+				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
 				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
@@ -663,7 +665,8 @@ function Post($post_errors = array())
 		if (!empty($row['modified_time']))
 		{
 			$context['last_modified'] = timeformat($row['modified_time']);
-			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']);
+			$context['last_modified_reason'] = censorText($row['modified_reason']);
+			$context['last_modified_text'] = sprintf($txt['last_edit_by'], $context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . $txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
 		}
 
 		// Get the stuff ready for the form.
@@ -1615,10 +1618,15 @@ function Post2()
 	$_POST['subject'] = strtr($smcFunc['htmlspecialchars']($_POST['subject']), array("\r" => '', "\n" => '', "\t" => ''));
 	$_POST['guestname'] = $smcFunc['htmlspecialchars']($_POST['guestname']);
 	$_POST['email'] = $smcFunc['htmlspecialchars']($_POST['email']);
+	$_POST['modify_reason'] = empty($_POST['modify_reason']) ? '' : strtr($smcFunc['htmlspecialchars']($_POST['modify_reason']), array("\r" => '', "\n" => '', "\t" => ''));
 
 	// At this point, we want to make sure the subject isn't too long.
 	if ($smcFunc['strlen']($_POST['subject']) > 100)
 		$_POST['subject'] = $smcFunc['substr']($_POST['subject'], 0, 100);
+
+	// Same with the "why did you edit this" text.
+	if ($smcFunc['strlen']($_POST['modify_reason']) > 100)
+		$_POST['modify_reason'] = $smcFunc['substr']($_POST['modify_reason'], 0, 100);
 
 	// Make the poll...
 	if (isset($_REQUEST['poll']))
@@ -1813,6 +1821,7 @@ function Post2()
 		{
 			$msgOptions['modify_time'] = time();
 			$msgOptions['modify_name'] = $user_info['name'];
+			$msgOptions['modify_reason'] = $_POST['modify_reason']; 
 		}
 
 		// This will save some time...
@@ -2638,7 +2647,7 @@ function JavaScriptModify()
 		SELECT
 			t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 			m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
-			m.modified_time, m.modified_name, m.approved
+			m.modified_time, m.modified_name, m.modified_reason, m.approved
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 		WHERE m.id_msg = {raw:id_msg}
@@ -2744,6 +2753,15 @@ function JavaScriptModify()
 	if (isset($_POST['sticky']) && !allowedTo('make_sticky'))
 		unset($_POST['sticky']);
 
+	if (isset($_POST['modify_reason']))
+	{
+		$_POST['modify_reason'] = strtr($smcFunc['htmlspecialchars']($_POST['modify_reason']), array("\r" => '', "\n" => '', "\t" => ''));
+
+		// Maximum number of characters.
+		if ($smcFunc['strlen']($_POST['modify_reason']) > 100)
+			$_POST['modify_reason'] = $smcFunc['substr']($_POST['modify_reason'], 0, 100);
+	}
+
 	if (empty($post_errors))
 	{
 		$msgOptions = array(
@@ -2769,6 +2787,7 @@ function JavaScriptModify()
 			{
 				$msgOptions['modify_time'] = time();
 				$msgOptions['modify_name'] = $user_info['name'];
+				$msgOptions['modify_reason'] = isset($_POST['modify_reason']) ? $_POST['modify_reason'] : '';
 			}
 		}
 		// If nothing was changed there's no need to add an entry to the moderation log.
@@ -2782,6 +2801,7 @@ function JavaScriptModify()
 		{
 			$msgOptions['modify_time'] = $row['modified_time'];
 			$msgOptions['modify_name'] = $row['modified_name'];
+			$msgOptions['modify_reason'] = $row['modified_reason'];
 		}
 
 		// Changing the first subject updates other subjects to 'Re: new_subject'.

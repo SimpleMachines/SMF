@@ -822,3 +822,11 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 	}
 }
+
+/******************************************************************************/
+--- Adding support for edit reasons
+/******************************************************************************/
+---# Adding "modified_reason" column to messages
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN modified_reason varchar(255) NOT NULL default '';
+---#
