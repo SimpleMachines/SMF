@@ -58,8 +58,8 @@ function ThemesMain()
 
 	// Theme administration, removal, choice, or installation...
 	$subActions = array(
-		'admin' => 'ThemeAdmin',
 		'list' => 'ThemeList',
+		'admin' => 'ThemeAdmin',
 		'reset' => 'SetThemeOptions',
 		'options' => 'SetThemeOptions',
 		'install' => 'ThemeInstall',
@@ -77,11 +77,11 @@ function ThemesMain()
 			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
-				'admin' => array(
-					'description' => $txt['themeadmin_admin_desc'],
-				),
 				'list' => array(
 					'description' => $txt['themeadmin_list_desc'],
+				),
+				'admin' => array(
+					'description' => $txt['themeadmin_admin_desc'],
 				),
 				'reset' => array(
 					'description' => $txt['themeadmin_reset_desc'],
@@ -97,7 +97,7 @@ function ThemesMain()
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
 		$subActions[$_GET['sa']]();
 	else
-		$subActions['admin']();
+		$subActions['list']();
 }
 
 /**
