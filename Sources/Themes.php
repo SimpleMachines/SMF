@@ -1519,6 +1519,9 @@ function ThemeInstall()
 				if (!empty($theme_info_xml[$name]))
 					$install_info[$var] = $theme_info_xml[$name];
 
+			// Append the install for info.
+			$install_info['install_for'] = $install_versions;
+
 			// OK, is this a newer version of an already installed theme?
 			if (!empty($install_info['version']))
 			{
