@@ -1272,7 +1272,8 @@ function PickTheme()
  */
 function ThemeInstall()
 {
-	global $sourcedir, $txt, $context;
+	global $sourcedir, $txt, $context, $boarddir, $boardurl;
+	global $themedir, $themeurl;
 
 	checkSession('request');
 	isAllowedTo('admin_forum');
@@ -1291,6 +1292,10 @@ function ThemeInstall()
 	// Is there a function to call?
 	if (isset($_GET['do']) && empty($_GET['do']) && isset($subActions[$_GET['do']]))
 	{
+		// Hopefully the themes directory is writable, or we might have a problem.
+		if (!is_writable($themedir))
+			fatal_lang_error('theme_install_write_error', 'critical');
+
 		// Call the function and handle the result.
 		$result = $subActions[$_GET['do']]();
 
@@ -1299,18 +1304,15 @@ function ThemeInstall()
 		$context['installed_theme'] = false;
 		$context['sub_template'] = 'installed';
 
+		// Make it easier to change the path and url.
+		$themedir = $boarddir . '/Themes';
+		$themeurl = $boardurl . '/Themes';
+
 		// Everything went better than expected!
-		if (!empty($result) && !empty($result['id']))
+		if (!empty($result) && true == $result)
 		{
 			$context['page_title'] = $txt['theme_installed'];
-			$context['installed_theme'] = get_single_theme($_GET['theme_id']);
-		}
-
-		// Nope, there was an error, show it along with some info about it.
-		elseif (!empty($result) && !empty($result['message']))
-		{
-			$context['error_message'] = $result['message'];
-			$context['page_title'] = $txt['theme_install_error_title'];
+			$context['installed_theme'] = get_single_theme($result);
 		}
 	}
 
@@ -1321,16 +1323,40 @@ function ThemeInstall()
 
 function InstallFile()
 {
-	global $txt;
+	global $themedir, $themeurl, $context;
 
 	$result = array();
 
-	// Such pessimist, looking for errors first, nah, just cautious :P
-	if (!isset($_FILES) || (empty($_FILES['theme_gz']) || !empty($_REQUEST['theme_gz']))
+	// This happens when the admin session is gone and the user has to login again.
+	if (!isset($_FILES) || !isset($_FILES['theme_gz']) || empty($_FILES['theme_gz']))
+		redirectexit('action=admin;area=theme;sa=admin;' . $context['session_var'] . '=' . $context['session_id']);
 
-	// Another error check layer.
+	// Another error check layer, something went wrong with the upload.
 	if (isset($_FILES['theme_gz']['error']) && $_FILES['theme_gz']['error'] != 0)
-		$result['message'] =  $txt['theme_install_error_file_'. $_FILES['theme_gz']['error']];
+		fatal_lang_error('theme_install_error_file_'. $_FILES['theme_gz']['error'], false);
+
+	// Get the theme's name.
+	$theme_name = strtok(basename($_FILES['theme_gz']['name']);
+	$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
+
+	// Start setting some vars.
+	$context['to_install'] = array(
+		'name' => $theme_name,
+		'dir' => $themedir . '/' . $theme_name,
+	);
+
+	// Extract the file on the proper themes dir.
+	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $context['to_install']['dir'], false, true);
+
+	// Read its info form the XML file.
+
+	// Install the theme.
+
+	// return the ID.
+}
+
+function InstallDir()
+{
 
 }
 
