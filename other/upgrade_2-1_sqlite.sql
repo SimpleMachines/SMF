@@ -733,7 +733,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		);
 
 		$label_info_2 = array();
-		while ($label_row = $smcFunc['db_query']($get_new_label_ids))
+		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
 			$old_index = $label_info[$row['id_member']][$row['label_name']];
@@ -748,7 +748,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			SELECT id_pm, id_member, labels
 			FROM {db_prefix}pm_recipients
 			WHERE deleted = {int:not_deleted}
-				AND labels != {int:minus_one}',
+				AND labels != {string:minus_one}',
 			array(
 				'not_deleted' => 0,
 				'minus_one' => -1,
