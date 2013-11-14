@@ -638,7 +638,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			$labels = explode(',', $row['message_labels']);
 
 			// Build some inserts
-			foreach($labels AS $index => $label)
+			foreach ($labels AS $index => $label)
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
@@ -673,7 +673,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		);
 
 		$label_info_2 = array();
-		while ($label_row = $smcFunc['db_query']($get_new_label_ids))
+		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
 			$old_index = $label_info[$row['id_member']][$row['label_name']];
@@ -688,7 +688,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			SELECT id_pm, id_member, labels
 			FROM {db_prefix}pm_recipients
 			WHERE deleted = {int:not_deleted}
-				AND labels != {int:minus_one}',
+				AND labels != {string:minus_one}',
 			array(
 				'not_deleted' => 0,
 				'minus_one' => -1,
@@ -699,7 +699,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		{
 			$labels = explode(',', $row['labels']);
 			
-			foreach($labels as $a_label)
+			foreach ($labels as $a_label)
 			{
 				if ($a_label == '-1')
 					continue;
