@@ -1357,7 +1357,17 @@ function InstallFile()
 
 function InstallDir()
 {
+	global $themedir;
 
+	// Cannot use the theme dir as a theme dir.
+	elseif (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))
+		fatal_lang_error('theme_install_invalid_dir', false);
+
+	// Check is there is "somthing" on the dir.
+	elseif (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
+		fatal_lang_error('theme_install_error', false);
+
+	// All good!
 }
 
 /**

@@ -33,6 +33,8 @@ $txt['theme_install_error_file_3'] = 'The uploaded file was only partially uploa
 $txt['theme_install_error_file_4'] = 'No file was uploaded.';
 $txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
 $txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
+$txt['theme_install_invalid_dir'] = 'You did not add a path for your actual theme, you cannot re-add the default theme';
+
 
 
 $txt['theme_latest'] = 'Latest and Greatest Themes';
