@@ -27,6 +27,12 @@ $txt['theme_installed_message'] = 'was installed successfully.';
 $txt['theme_updated_message'] = 'was updated successfully.';
 $txt['theme_install_no_action'] = 'This isn\'t a valid install action.';
 $txt['theme_install_error_title'] = 'An error occurred while installing the theme.';
+$txt['theme_install_error_file_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini.';
+$txt['theme_install_error_file_2'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.';
+$txt['theme_install_error_file_3'] = 'The uploaded file was only partially uploaded.';
+$txt['theme_install_error_file_4'] = 'No file was uploaded.';
+$txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
+$txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
 
 
 $txt['theme_latest'] = 'Latest and Greatest Themes';

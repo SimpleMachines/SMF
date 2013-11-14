@@ -1321,7 +1321,16 @@ function ThemeInstall()
 
 function InstallFile()
 {
+	global $txt;
+
+	$result = array();
+
 	// Such pessimist, looking for errors first, nah, just cautious :P
+	if (!isset($_FILES) || (empty($_FILES['theme_gz']) || !empty($_REQUEST['theme_gz']))
+
+	// Another error check layer.
+	if (isset($_FILES['theme_gz']['error']) && $_FILES['theme_gz']['error'] != 0)
+		$result['message'] =  $txt['theme_install_error_file_'. $_FILES['theme_gz']['error']];
 
 }
 
