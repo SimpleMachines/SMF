@@ -859,7 +859,7 @@ function MessageFolder()
 
 			// Seperate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
-				SELECT pm.id_pm, pm.subject, IFNULL(pm.id_member_from, 0) AS not_guest, pm.msgtime, IFNULL(mem.real_name, pm.from_name) AS from_name,
+				SELECT pm.id_pm, pm.subject, IFNULL(pm.id_member_from, 0) AS id_member_from, pm.msgtime, IFNULL(mem.real_name, pm.from_name) AS from_name,
 					mem.id_member
 				FROM {db_prefix}personal_messages AS pm
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
@@ -961,7 +961,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 			'member' => array(
 				'id' => $subject['id_member_from'],
 				'name' => $subject['from_name'],
-				'link' => $subject['not_guest'] ? '<a href="' . $scripturl . '?action=profile;u=' . $subject['id_member_from'] . '">' . $subject['from_name'] . '</a>' : $subject['from_name'],
+				'link' => ($subject['id_member_from'] != 0) ? '<a href="' . $scripturl . '?action=profile;u=' . $subject['id_member_from'] . '">' . $subject['from_name'] . '</a>' : $subject['from_name'],
 			),
 			'recipients' => &$recipients[$subject['id_pm']],
 			'subject' => $subject['subject'],
