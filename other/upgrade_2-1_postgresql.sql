@@ -721,7 +721,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 			$labels = explode(',', $row['message_labels']);
 
 			// Build some inserts
-			foreach($labels AS $index => $label)
+			foreach ($labels AS $index => $label)
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
@@ -782,7 +782,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		{
 			$labels = explode(',', $row['labels']);
 
-			foreach($labels as $a_label)
+			foreach ($labels as $a_label)
 			{
 				if ($a_label == '-1')
 					continue;
