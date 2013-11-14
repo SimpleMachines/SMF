@@ -938,7 +938,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $smcFunc, $db_connection, $db_type;
+	global $txt, $incontext, $databases, $smcFunc, $db_connection, $db_type, $boardurl;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
