@@ -1348,11 +1348,21 @@ function InstallFile()
 	// Extract the file on the proper themes dir.
 	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $context['to_install']['dir'], false, true);
 
-	// Read its info form the XML file.
+	if ($extracted)
+	{
 
-	// Install the theme.
+		// Read its info form the XML file.
+		$context['to_install'] += get_theme_info($context['to_install']['dir']);
 
-	// return the ID.
+		// Install the theme. theme_install() will take care of possible errors.
+		$id = theme_install($context['to_install']);
+
+		// return the ID.
+		return $id;
+	}
+
+	else
+		fatal_lang_error('theme_install_error_title', false);
 }
 
 function InstallDir()
@@ -1367,7 +1377,11 @@ function InstallDir()
 	elseif (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
 		fatal_lang_error('theme_install_error', false);
 
-	// All good!
+	// All good! set some needed vars.
+		$context['to_install'] = array(
+		'name' => $theme_name,
+		'dir' => $themedir . '/' . $theme_name,
+	);
 }
 
 /**

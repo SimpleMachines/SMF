@@ -56,129 +56,148 @@ function get_single_theme($id)
 	return $single;
 }
 
-function theme_install()
+function get_theme_info($path)
 {
+	global $sourcedir, $forum_version;
+
+	if (empty($path))
+		return false;
+
+	$xml_data = array();
+
+	// Parse theme-info.xml into an xmlArray.
+	require_once($sourcedir . '/Class-Package.php');
+	$theme_info_xml = new xmlArray(file_get_contents($path . '/theme_info.xml'));
+
+	// Error message, there isn't any valid info.
+	if (!$theme_info_xml->exists('theme-info[0]'))
+		fatal_lang_error('package_get_error_packageinfo_corrupt', false);
+
+	// Check for compatibility with 2.1 or greater.
+	if (!$theme_info_xml->exists('theme-info/install'))
+		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+
+	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
+	$the_version = strtr($forum_version, array('SMF ' => ''));
+	$install_versions = $theme_info_xml->path('theme-info/install/@for');
+
+	// The theme isn't compatible with the current SMF version.
+	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
+		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+
+	$theme_info_xml = $theme_info_xml->path('theme-info[0]');
+	$theme_info_xml = $theme_info_xml->to_array();
+
+	$xml_elements = array(
+		'name' => 'name',
+		'theme_layers' => 'layers',
+		'theme_templates' => 'templates',
+		'based_on' => 'based-on',
+		'version' => 'version',
+	);
+
+	// Assign the values to be stored.
+	foreach ($xml_elements as $var => $name)
+		if (!empty($theme_info_xml[$name]))
+			$xml_data[$var] = $theme_info_xml[$name];
+
+	return $xml_data;
+}
+
+function theme_install($to_install = array())
+{
+	global $sourcedir, $txt, $context, $boarddir, $boardurl;
+	global $themedir, $themeurl;
+
+	// External use? no problem!
+	if ($to_install)
+		$context['to_install'] = $to_install;
+
+	// We kinda need this and it should have been previously set.
+	if (empty($context['to_install']))
+		return false;
+
 	// One last check.
-	if ($theme_dir != '' && basename($theme_dir) != 'Themes')
+	if ($context['to_install']['dir'] != '' && basename($context['to_install']['dir']) != 'Themes')
 		return false;
 
 	// Defaults.
 	$context['to_install'] = array(
-		'theme_url' => $boardurl . '/Themes/' . basename($theme_dir),
-		'images_url' => isset($images_url) ? $images_url : $boardurl . '/Themes/' . basename($theme_dir) . '/images',
-		'theme_dir' => $theme_dir,
+		'theme_url' => $boardurl . '/Themes/' . basename($context['to_install']['dir']),
 		'name' => $theme_name
 	);
 
+	// This vars could have been set, it all depends from where are we coming.
+	if (empty($context['to_install']['images_url']))
+		$context['to_install']['images_url'] = $boardurl . '/Themes/' . basename($context['to_install']['dir']) . '/images';
+
 	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
-	if (file_exists($theme_dir . '/package-info.xml'))
+	if (file_exists($context['to_install']['dir'] . '/package-info.xml'))
 	{
 		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
 		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
 	}
 
-	// Get the theme info.
-	elseif (file_exists($theme_dir . '/theme_info.xml'))
+	// OK, is this a newer version of an already installed theme?
+	if (!empty($context['to_install']['version']))
 	{
-		$theme_info = file_get_contents($theme_dir . '/theme_info.xml');
-
-		// Parse theme-info.xml into an xmlArray.
-		require_once($sourcedir . '/Class-Package.php');
-		$theme_info_xml = new xmlArray($theme_info);
-
-		// Error message, there isn't any valid info.
-		if (!$theme_info_xml->exists('theme-info[0]'))
-			fatal_lang_error('package_get_error_packageinfo_corrupt', false);
-
-		// Check for compatibility with 2.1 or greater.
-		if (!$theme_info_xml->exists('theme-info/install'))
-			fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
-
-		// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
-		$the_version = strtr($forum_version, array('SMF ' => ''));
-		$install_versions = $theme_info_xml->path('theme-info/install/@for');
-
-		// The theme isn't compatible with the current SMF version.
-		if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
-			fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
-
-		$theme_info_xml = $theme_info_xml->path('theme-info[0]');
-		$theme_info_xml = $theme_info_xml->to_array();
-
-		$xml_elements = array(
-			'name' => 'name',
-			'theme_layers' => 'layers',
-			'theme_templates' => 'templates',
-			'based_on' => 'based-on',
-			'version' => 'version',
+		$to_update = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT th.value AS name, th.id_theme, th2.value AS version
+			FROM {db_prefix}themes AS th
+				INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
+					AND th2.id_member = {int:no_member}
+					AND th2.variable = {string:version})
+			WHERE th.id_member = {int:no_member}
+				AND th.variable = {string:name}
+				AND th.value LIKE {string:name_value}
+			LIMIT 1',
+			array(
+				'no_member' => 0,
+				'name' => 'name',
+				'version' => 'version',
+				'name_value' => '%'. $context['to_install']['name'] .'%',
+			)
 		);
+		$to_update = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
 
-		// Assign the values to be stored.
-		foreach ($xml_elements as $var => $name)
-			if (!empty($theme_info_xml[$name]))
-				$context['to_install'][$var] = $theme_info_xml[$name];
+		// Got something, lets figure it out what to do next.
+		if (!empty($to_update) && !empty($to_update['version']))
+			switch (compareVersions($context['to_install']['version'], $to_update['version']))
+			{
+				case 0: // This is exactly the same theme.
+				case -1: // The one being installed is older than the one already installed.
+				default: // Any other possible result.
+					fatal_lang_error('package_get_error_theme_no_new_version', false, array($context['to_install']['version'], $to_update['version']));
+					break;
+				case 1: // Got a newer version, update the old entry.
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}themes
+						SET value = {string:new_value}
+						WHERE variable = {string:version}
+							AND id_theme = {int:id_theme}',
+						array(
+							'new_value' => $context['to_install']['version'],
+							'version' => 'version',
+							'id_theme' => $to_update['id_theme'],
+						)
+					);
 
-		// OK, is this a newer version of an already installed theme?
-		if (!empty($context['to_install']['version']))
-		{
-			$to_update = array();
-			$request = $smcFunc['db_query']('', '
-				SELECT th.value AS name, th.id_theme, th2.value AS version
-				FROM {db_prefix}themes AS th
-					INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
-						AND th2.id_member = {int:no_member}
-						AND th2.variable = {string:version})
-				WHERE th.id_member = {int:no_member}
-					AND th.variable = {string:name}
-					AND th.value LIKE {string:name_value}
-				LIMIT 1',
-				array(
-					'no_member' => 0,
-					'name' => 'name',
-					'version' => 'version',
-					'name_value' => '%'. $context['to_install']['name'] .'%',
-				)
-			);
-			$to_update = $smcFunc['db_fetch_assoc']($request);
-			$smcFunc['db_free_result']($request);
-
-			// Got something, lets figure it out what to do next.
-			if (!empty($to_update) && !empty($to_update['version']))
-				switch (compareVersions($context['to_install']['version'], $to_update['version']))
-				{
-					case 0: // This is exactly the same theme.
-					case -1: // The one being installed is older than the one already installed.
-					default: // Any other possible result.
-						fatal_lang_error('package_get_error_theme_no_new_version', false, array($context['to_install']['version'], $to_update['version']));
-						break;
-					case 1: // Got a newer version, update the old entry.
-						$smcFunc['db_query']('', '
-							UPDATE {db_prefix}themes
-							SET value = {string:new_value}
-							WHERE variable = {string:version}
-								AND id_theme = {int:id_theme}',
-							array(
-								'new_value' => $context['to_install']['version'],
-								'version' => 'version',
-								'id_theme' => $to_update['id_theme'],
-							)
-						);
-
-						// Do a redirect and set a nice updated message.
-						redirectexit('action=admin;area=theme;sa=install;theme_id=' . $to_update['id_theme'] . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
-						break;
-				}
-		}
-
-		if (!empty($theme_info_xml['images']))
-		{
-			$context['to_install']['images_url'] = $context['to_install']['theme_url'] . '/' . $theme_info_xml['images'];
-			$explicit_images = true;
-		}
-
-		if (!empty($theme_info_xml['extra']))
-			$context['to_install'] += unserialize($theme_info_xml['extra']);
+					// Do a redirect and set a nice updated message.
+					redirectexit('action=admin;area=theme;sa=install;theme_id=' . $to_update['id_theme'] . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
+					break;
+			}
 	}
+
+	if (!empty($theme_info_xml['images']))
+	{
+		$context['to_install']['images_url'] = $context['to_install']['theme_url'] . '/' . $theme_info_xml['images'];
+		$explicit_images = true;
+	}
+
+	if (!empty($theme_info_xml['extra']))
+		$context['to_install'] += unserialize($theme_info_xml['extra']);
 
 	if (isset($context['to_install']['based_on']))
 	{
