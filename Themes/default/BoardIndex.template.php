@@ -220,17 +220,7 @@ function template_main()
 	}
 	echo '
 		</table>
-	</div>
-		<ul id="posting_icons">';
-
-	if ($context['user']['is_logged'])
-	echo '
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_some.png" alt="" /> ', $txt['new_posts'], '</li>';
-
-	echo '
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_none.png" alt="" /> ', $txt['old_posts'], '</li>
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_redirect.png" alt="" /> ', $txt['redirect_board'], '</li>
-		</ul>';
+	</div>';
 
 	// Show the mark all as read button?
 	if ($context['user']['is_logged'] && $settings['show_mark_read'] && !empty($context['categories']))

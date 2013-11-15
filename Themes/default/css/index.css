@@ -1760,25 +1760,12 @@ ul li.greeting {
 }
 
 /* the posting icons */
-#posting_icons {
-	padding: 0 12px 6px 0;
-	margin: -6px 0 16px -8px;
-	line-height: 12px;
-	float: left;
-}
-#posting_icons li {
-	font-size: 0.9em;
-}
-#posting_icons img {
-	vertical-align: middle;
-	margin: 0 0 0 12px;
-}
 #postbuttons_upper ul li a span {
 	line-height: 19px;
 	padding: 0 0 0 6px;
 }
 .mark_read {
-	margin: -5px 0 0 0;
+	margin: -5px 0 16px 0;
 	padding: 0;
 	float: right;
 }
