@@ -707,6 +707,9 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		if (!empty($inserts))
 		{
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'int'), $inserts, array());
+
+			// Clear this out for our next query below
+			$inserts = array();
 		}
 
 		// This is the easy part - update the inbox stuff
@@ -768,7 +771,10 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		$smcFunc['db_free_result']($get_pm_labels);
 
 		// Insert the new data
-		$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm', 'id_label'), $inserts, array());
+		if (!empty($inserts))
+		{
+			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm', 'id_label'), $inserts, array());
+		}
 
 		// Final step of this ridiculously massive process
 		$get_pm_rules = $smcFunc['db_query']('', '

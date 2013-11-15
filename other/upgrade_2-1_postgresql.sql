@@ -721,7 +721,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
-				$inserts[] = "($row[id_member], $label)";
+				$inserts[] = array($row['id_member'], $label);
 			}
 		}
 		
@@ -730,6 +730,9 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		if (!empty($inserts))
 		{
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
+
+			// Clear this out for our next query below
+			$inserts = array();
 		}
 
 		// This is the easy part - update the inbox stuff
@@ -791,7 +794,10 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_free_result']($get_pm_labels);
 
 		// Insert the new data
-		$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+		if (!empty($inserts))
+		{
+			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+		}
 
 		// Final step of this ridiculously massive process
 		$get_pm_rules = $smcFunc['db_query']('', '
