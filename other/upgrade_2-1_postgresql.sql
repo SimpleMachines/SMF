@@ -821,7 +821,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 			$actions = serialize($actions);
 
 			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}rules
+				UPDATE {db_prefix}pm_rules
 				SET actions = {string:actions}
 				WHERE id_rule = {int:id_rule}',
 				array(
