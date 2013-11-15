@@ -57,6 +57,7 @@ $txt['language_extracted'] = 'The language pack has been installed, you can now 
 
 $txt['mod_name'] = 'Mod Name';
 $txt['mod_version'] = 'Version';
+$txt['mod_installed_time'] = 'Installed';
 $txt['mod_author'] = 'Author';
 $txt['author_website'] = 'Author\'s Homepage';
 $txt['package_no_description'] = 'No description given';

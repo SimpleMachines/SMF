@@ -1428,7 +1428,6 @@ function PackageBrowse()
 				'version' . $type => array(
 					'header' => array(
 						'value' => $txt['mod_version'],
-						'style' => 'width: 25%;',
 					),
 					'data' => array(
 						'function' => create_function('$package_md5', '
@@ -1441,6 +1440,24 @@ function PackageBrowse()
 					'sort' => array(
 						'default' => 'version',
 						'reverse' => 'version',
+					),
+				),
+				'time_installed' . $type => array(
+					'header' => array(
+						'value' => $txt['mod_installed_time'],
+					),
+					'data' => array(
+						'function' => create_function('$package_md5', '
+							global $context, $txt;
+
+							if (isset($context[\'available_' . $type . '\'][$package_md5]))
+								return !empty($context[\'available_' . $type . '\'][$package_md5][\'time_installed\']) ? timeformat($context[\'available_' . $type . '\'][$package_md5][\'time_installed\']) : $txt[\'not_applicable\'];
+						'),
+						'class' => 'smalltext',
+					),
+					'sort' => array(
+						'default' => 'time_installed',
+						'reverse' => 'time_installed',
 					),
 				),
 				'operations' . $type => array(
@@ -1561,6 +1578,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 			$installed_mods[$installed_mod['package_id']] = array(
 				'id' => $installed_mod['id'],
 				'version' => $installed_mod['version'],
+				'time_installed' => $installed_mod['time_installed'],
 			);
 
 		// Get a list of all the ids installed, so the latest packages won't include already installed ones.
@@ -1579,6 +1597,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				'filename' => $installed_mod['filename'],
 				'installed_id' => $installed_mod['id'],
 				'version' => $installed_mod['version'],
+				'time_installed' => $installed_mod['time_installed'],
 				'is_installed' => true,
 				'is_current' => true,
 			);
@@ -1639,6 +1658,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 			if (!empty($packageInfo))
 			{
 				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
+				$packageInfo['time_installed'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['time_installed'] : 0;
 
 				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
