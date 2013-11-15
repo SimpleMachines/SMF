@@ -343,6 +343,12 @@ function getBoardIndex($boardIndexOptions)
 	if (!empty($boardIndexOptions['set_latest_post']) && !empty($latest_post['ref']))
 		$context['latest_post'] = $latest_post['ref'];
 
+	// I can't remember why but trying to make a ternary to get this all in one line is actually a Very Bad Idea.
+	if ($boardIndexOptions['include_categories'])
+		call_integration_hook('integrate_getboardtree', array($boardIndexOptions, &$categories));
+	else
+		call_integration_hook('integrate_getboardtree', array($boardIndexOptions, &$this_category));
+
 	return $boardIndexOptions['include_categories'] ? $categories : $this_category;
 }
 
