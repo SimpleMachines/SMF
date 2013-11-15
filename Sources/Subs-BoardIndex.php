@@ -162,6 +162,7 @@ function getBoardIndex($boardIndexOptions)
 				if ($this_category[$row_board['id_board']]['is_redirect'])
 				{
 					$this_category[$row_board['id_board']]['board_class'] = 'redirect';
+					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['redirect_board'];
 				}
 				elseif ($this_category[$row_board['id_board']]['new'] || $context['user']['is_guest'])
 				{
