@@ -153,8 +153,26 @@ function getBoardIndex($boardIndexOptions)
 					'unapproved_posts' => $row_board['unapproved_posts'] - $row_board['unapproved_topics'],
 					'can_approve_posts' => !empty($user_info['mod_cache']['ap']) && ($user_info['mod_cache']['ap'] == array(0) || in_array($row_board['id_board'], $user_info['mod_cache']['ap'])),
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
-					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>'
+					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
+					'board_class' => 'off',
 				);
+
+				// We can do some of the figuring-out-what-icon now.
+				// For certain types of thing we also set up what the tooltip is.
+				if ($this_category[$row_board['id_board']]['is_redirect'])
+				{
+					$this_category[$row_board['id_board']]['board_class'] = 'redirect';
+				}
+				elseif ($this_category[$row_board['id_board']]['new'] || $context['user']['is_guest'])
+				{
+					// If we're showing to guests, we want to give them the idea that something interesting is going on!
+					$this_category[$row_board['id_board']]['board_class'] = 'on';
+					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['new_posts'];
+				}
+				else
+				{
+					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['old_posts'];
+				}
 			}
 			if (!empty($row_board['id_moderator']))
 			{
@@ -214,6 +232,13 @@ function getBoardIndex($boardIndexOptions)
 
 			// Does this board contain new boards?
 			$this_category[$row_board['id_parent']]['children_new'] |= empty($row_board['is_read']);
+
+			// Update the icon if appropriate
+			if ($this_category[$row_board['id_parent']]['board_class'] == 'off')
+			{
+				$this_category[$row_board['id_parent']]['board_class'] = 'on2';
+				$this_category[$row_board['id_parent']]['board_tooltip'] = $txt['new_posts'];
+			}
 
 			// This is easier to use in many cases for the theme....
 			$this_category[$row_board['id_parent']]['link_children'][] = &$this_category[$row_board['id_parent']]['children'][$row_board['id_board']]['link'];

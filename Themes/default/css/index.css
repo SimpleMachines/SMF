@@ -1666,7 +1666,7 @@ ul li.greeting {
 	margin: 0 0 0 1px;
 	padding: 8px 0 0 0;
 	width: 5%;
-	min-width: 50px;
+	min-width: 60px;
 	/*Top aligned is much nicer for the icon. */
 	vertical-align: top;
 	border-left: 1px solid #ddd;
@@ -1728,6 +1728,25 @@ ul li.greeting {
 	border-top: double #ddd;
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
+}
+/* The board index and its icons. */
+.table_list .icon span {
+	background: url(../images/boardicons.png) no-repeat 0 0;
+	display: inline-block;
+	width: 45px;
+	height: 45px;
+}
+.table_list .icon span.board_on {
+	background-position: 0 0;
+}
+.table_list .icon span.board_on2 {
+	background-position: -45px 0;
+}
+.table_list .icon span.board_off {
+	background-position: 0 -45px;
+}
+.table_list .icon span.board_redirect {
+	background-position: -45px -45px;
 }
 /* Hiding unwanted border repeats. */
 .table_list .content tr:first-child .icon, .table_list .content tr:first-child .info,
