@@ -484,19 +484,18 @@ $get_questions = upgrade_query("
 	WHERE comment_type = 'ver_test'");
 
 	while ($row = $smcFunc['db_fetch_assoc']($get_questions))
-	{
-		$questions[] = "($language, $row[question], serialize(array($row[answer])))";
-	}
+		$questions[] = array($language, $row['question'], serialize(array($row['answer'])));
 
 	$smcFunc['db_free_result']($get_questions);
 
 	if (!empty($questions))
 	{
-		upgrade_query("
-			INSERT INTO {$db_prefix}qanda
-				(lngfile, question, answers)
-			VALUES
-				" . implode(',', $questions));
+		$smcFunc['db_insert']('',
+			'{db_prefix}qanda',
+			array('lngfile' => 'string', 'question' => 'string', 'answers' => 'string'),
+			$questions,
+			array('id_question')
+		);
 
 		// Delete the questions from log_comments now
 		upgrade_query("
