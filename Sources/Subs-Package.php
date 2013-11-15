@@ -387,7 +387,7 @@ function loadInstalledPackages()
 
 	// Load the packages from the database - note this is ordered by install time to ensure latest package uninstalled first.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_install, package_id, filename, name, version
+		SELECT id_install, package_id, filename, name, version, time_installed
 		FROM {db_prefix}log_packages
 		WHERE install_state != {int:not_installed}
 		ORDER BY time_installed DESC',
@@ -411,6 +411,7 @@ function loadInstalledPackages()
 			'filename' => $row['filename'],
 			'package_id' => $row['package_id'],
 			'version' => $row['version'],
+			'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 		);
 	}
 	$smcFunc['db_free_result']($request);
