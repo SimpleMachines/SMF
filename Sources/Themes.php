@@ -1341,7 +1341,6 @@ function InstallFile()
 
 	// Start setting some vars.
 	$context['to_install'] = array(
-		'name' => $theme_name,
 		'dir' => $themedir . '/' . $theme_name,
 	);
 
@@ -1350,7 +1349,6 @@ function InstallFile()
 
 	if ($extracted)
 	{
-
 		// Read its info form the XML file.
 		$context['to_install'] += get_theme_info($context['to_install']['dir']);
 
@@ -1379,9 +1377,17 @@ function InstallDir()
 
 	// All good! set some needed vars.
 		$context['to_install'] = array(
-		'name' => $theme_name,
-		'dir' => $themedir . '/' . $theme_name,
+		'dir' => $_REQUEST['theme_dir'],
 	);
+
+	// Read its info form the XML file.
+	$context['to_install'] += get_theme_info($context['to_install']['dir']);
+
+	// Install the theme. theme_install() will take care of possible errors.
+	$id = theme_install($context['to_install']);
+
+	// return the ID.
+	return $id;
 }
 
 /**

@@ -124,7 +124,6 @@ function theme_install($to_install = array())
 	// Defaults.
 	$context['to_install'] = array(
 		'theme_url' => $boardurl . '/Themes/' . basename($context['to_install']['dir']),
-		'name' => $theme_name
 	);
 
 	// This vars could have been set, it all depends from where are we coming.
