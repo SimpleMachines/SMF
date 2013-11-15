@@ -605,7 +605,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
   id_label int(10) unsigned NOT NULL default '0',
   id_pm int(10) unsigned NOT NULL default '0',
   PRIMARY KEY (id_label, id_pm)
-);
+) ENGINE=MyISAM;
 ---#
 
 ---# Adding "in_inbox" column to pm_recipients
@@ -650,6 +650,9 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		if (!empty($inserts))
 		{
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
+			
+			// Clear this out for our next query below
+			$inserts = array();
 		}
 
 		// This is the easy part - update the inbox stuff
@@ -711,7 +714,10 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		$smcFunc['db_free_result']($get_pm_labels);
 
 		// Insert the new data
-		$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+		if (!empty($inserts))
+		{
+			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+		}
 
 		// Final step of this ridiculously massive process
 		$get_pm_rules = $smcFunc['db_query']('', '
