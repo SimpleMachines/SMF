@@ -972,22 +972,6 @@ function create_ajax_indicator_ele()
 	// Set the id so it'll load the style properly.
 	ajax_indicator_ele.id = 'ajax_in_progress';
 
-	// Add the image in and link to turn it off.
-	var cancel_link = document.createElement('a');
-	cancel_link.href = 'javascript:ajax_indicator(false)';
-	var cancel_img = document.createElement('img');
-	cancel_img.src = smf_images_url + '/icons/quick_remove.png';
-
-	if (typeof(ajax_notification_cancel_text) != 'undefined')
-	{
-		cancel_img.alt = ajax_notification_cancel_text;
-		cancel_img.title = ajax_notification_cancel_text;
-	}
-
-	// Add the cancel link and image to the indicator.
-	cancel_link.appendChild(cancel_img);
-	ajax_indicator_ele.appendChild(cancel_link);
-
 	// Set the text.  (Note:  You MUST append here and not overwrite.)
 	ajax_indicator_ele.innerHTML += ajax_notification_text;
 
