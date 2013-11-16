@@ -24,11 +24,11 @@ if (!defined('SMF'))
  * Example use:
  *  die(log_error($msg));
  *
- * @param string $error_message
- * @param string $error_type = 'general'
- * @param string $file = null
- * @param int $line = null
- * @return string, the error message
+ * @param string $error_message The message to log
+ * @param string $error_type The type of error
+ * @param string $file The name of the file where this error occurred
+ * @param int $line The line where the error occurred
+ * @return string The message that was logged
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
@@ -116,8 +116,8 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 /**
  * An irrecoverable error. This function stops execution and displays an error message.
  * It logs the error message if $log is specified.
- * @param string $error
- * @param string $log = 'general'
+ * @param string $error The error message
+ * @param string $log = 'general' What type of error to log this as (false to not log it))
  */
 function fatal_error($error, $log = 'general')
 {
@@ -140,9 +140,9 @@ function fatal_error($error, $log = 'general')
  *  - uses Errors language file and applies the $sprintf information if specified.
  *  - the information is logged if log is specified.
  *
- * @param $error
- * @param $log
- * @param $sprintf
+ * @param string $error The error message
+ * @param string $log The type of error, or false to not log it
+ * @param array $sprintf An array of data to be sprintf()'d into the specified message
  */
 function fatal_lang_error($error, $log = 'general', $sprintf = array())
 {
@@ -183,10 +183,10 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 /**
  * Handler for standard error messages, standard PHP error handler replacement.
  * It dies with fatal_error() if the error_level matches with error_reporting.
- * @param int $error_level
- * @param string $error_string
- * @param string $file
- * @param int $line
+ * @param int $error_level A pre-defined error-handling constant (see {@link http://www.php.net/errorfunc.constants})
+ * @param string $error_string The error message
+ * @param string $file The file where the error occurred
+ * @param int $line The line where the error occurred
  */
 function error_handler($error_level, $error_string, $file, $line)
 {
@@ -258,11 +258,11 @@ function error_handler($error_level, $error_string, $file, $line)
 }
 
 /**
- * It is called by fatal_error() and fatal_lang_error().
+ * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
  * @uses Errors template, fatal_error sub template, or Wireless template, error sub template.
  *
- * @param string $error_message
- * @param type $error_code
+ * @param string $error_message The error message
+ * @param string $error_code An error code
  */
 function setup_fatal_error_context($error_message, $error_code)
 {

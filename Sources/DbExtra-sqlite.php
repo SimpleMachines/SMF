@@ -37,8 +37,8 @@ function db_extra_init()
 
 /**
  * Backup $table to $backup_table.
- * @param string $table
- * @param string $backup_table
+ * @param string $table The name of the table to backup
+ * @param string $backup_table The name of the backup table for this table
  * @return resource -the request handle to the table creation query
  */
 function smf_db_backup_table($table, $backup_table)
@@ -130,8 +130,8 @@ function smf_db_backup_table($table, $backup_table)
 
 /**
  * This function optimizes a table.
- * @param string $table - the table to be optimized
- * @return how much it was gained
+ * @param string $table The table to be optimized
+ * @return int How much space was gained
  */
 function smf_db_optimize_table($table)
 {
@@ -159,9 +159,9 @@ function smf_db_optimize_table($table)
  * This function lists all tables in the database.
  * The listing could be filtered according to $filter.
  *
- * @param mixed $db string holding the table name, or false, default false
- * @param mixed $filter string to filter by, or false, default false
- * @return array an array of table names. (strings)
+ * @param string|boolean $db string The database name or false to use the current DB
+ * @param string|boolean $filter String to filter by or false to list all tables
+ * @return array An array of table names
  */
 function smf_db_list_tables($db = false, $filter = false)
 {
@@ -192,9 +192,9 @@ function smf_db_list_tables($db = false, $filter = false)
  * Gets all the necessary INSERTs for the table named table_name.
  * It goes in 250 row segments.
  *
- * @param string $tableName - the table to create the inserts for.
- * @param bool new_table
- * @return string the query to insert the data back in, or an empty string if the table was empty.
+ * @param string $tableName The table to create the inserts for.
+ * @param boolean $new_table Whether or not this a new table
+ * @return string The query to insert the data back in, or an empty string if the table was empty.
  */
 function smf_db_insert_sql($tableName, $new_table = false)
 {
@@ -276,8 +276,8 @@ function smf_db_insert_sql($tableName, $new_table = false)
 /**
  * Dumps the schema (CREATE) for a table.
  * @todo why is this needed for?
- * @param string $tableName - the table
- * @return string - the CREATE statement as string
+ * @param string $tableName The name of the table
+ * @return string The "CREATE TABLE" SQL string for this table
  */
 function smf_db_table_sql($tableName)
 {
@@ -331,7 +331,7 @@ function smf_db_table_sql($tableName)
 
 /**
  *  Get the version number.
- *  @return string - the version
+ *  @return string The version
  */
 function smf_db_get_version()
 {
@@ -340,7 +340,7 @@ function smf_db_get_version()
 
 /**
  * Simply return the database - and die!
- * Used by DumpDatabase.php.
+ * Used by {@link DumpDatabase.php}.
  */
 function smf_db_get_backup()
 {
