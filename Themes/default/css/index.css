@@ -2146,7 +2146,8 @@ div#pollmoderation {
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
 .poster .dropmenu  li ul li.im_icons, .poster .dropmenu   ul ol li {
-	padding: 3px;
+	display: inline;
+	
 }
 .poster .dropmenu   ul ol li {
 	display: table-cell;
