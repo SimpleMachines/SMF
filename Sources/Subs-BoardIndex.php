@@ -235,7 +235,7 @@ function getBoardIndex($boardIndexOptions)
 			$this_category[$row_board['id_parent']]['children_new'] |= empty($row_board['is_read']);
 
 			// Update the icon if appropriate
-			if ($this_category[$row_board['id_parent']]['board_class'] == 'off')
+			if ($this_category[$row_board['id_parent']]['children_new'] && $this_category[$row_board['id_parent']]['board_class'] == 'off')
 			{
 				$this_category[$row_board['id_parent']]['board_class'] = 'on2';
 				$this_category[$row_board['id_parent']]['board_tooltip'] = $txt['new_posts'];
