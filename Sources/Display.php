@@ -1862,7 +1862,7 @@ function prepareLikesContext()
 	$cache_key = 'likes_topic_' . $topic . '_' . $context['user']['id'];
 	$ttl = 180;
 
-	if ($temp = cache_get_data($cache_key, $ttl) === null)
+	if (($temp = cache_get_data($cache_key, $ttl)) === null)
 	{
 		$temp = array();
 		$request = $smcFunc['db_query']('', '
