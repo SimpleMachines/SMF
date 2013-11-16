@@ -37,7 +37,7 @@ class browser_detector
 	/**
 	 * Holds if the detected device may be a mobile one
 	 *
-	 * @var type
+	 * @var boolean
 	 */
 	private $_is_mobile = null;
 

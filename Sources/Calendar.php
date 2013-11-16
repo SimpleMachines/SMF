@@ -166,8 +166,8 @@ function CalendarMain()
 /**
  * This function processes posting/editing/deleting a calendar event.
  *
- * 	- calls Post() function if event is linked to a post.
- *  - calls insertEvent() to insert the event if not linked to post.
+ * 	- calls {@link Post.php|Post() Post()} function if event is linked to a post.
+ *  - calls {@link Subs-Calendar.php|insertEvent() insertEvent()} to insert the event if not linked to post.
  *
  * It requires the calendar_post permission to use.
  * It uses the event_post sub template in the Calendar template.

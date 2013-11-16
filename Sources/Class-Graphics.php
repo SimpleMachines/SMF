@@ -22,6 +22,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+/**
+ * An implementation of the LZW compression algorithm
+ */
 class gif_lzw_compression
 {
 	public $MAX_LZW_BITS;

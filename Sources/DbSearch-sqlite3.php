@@ -35,7 +35,8 @@ function db_search_init()
 /**
  * This function will tell you whether this database type supports this search type.
  *
- * @param string $search_type
+ * @param string $search_type The search type.
+ * @return boolean Whether or not the specified search type is supported by this DB system.
  */
 function smf_db_search_support($search_type)
 {
@@ -47,10 +48,11 @@ function smf_db_search_support($search_type)
 /**
  * Returns the correct query for this search type.
  *
- * @param string $identifier
- * @param string $db_string
- * @param array $db_values default array()
- * @param resource $connection
+ * @param string $identifier A query identifier
+ * @param string $db_string The query text
+ * @param array $db_values An array of values to pass to $smcFunc['db_query']
+ * @param resource $connection The current DB connection resource
+ * @return resource The query result resource from $smcFunc['db_query']
  */
 function smf_db_search_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
@@ -86,7 +88,7 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 /**
  * Highly specific function, to create the custom word index table.
  *
- * @param $size
+ * @param string $size The column size type (int, mediumint (8), etc.). Not used here.
  */
 function smf_db_create_word_search($size)
 {
