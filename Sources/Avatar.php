@@ -17,6 +17,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+/**
+ * Shows an avatar based on $_GET['attach']
+ */
 function showAvatar()
 {
 	global $smcFunc, $modSettings, $maintenance;

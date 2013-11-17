@@ -25,8 +25,8 @@ loadLanguage('Drafts');
  * Determines if this is a new or an existing draft
  * Returns errors in $post_errors for display in the template
  *
- * @param string $post_errors
- * @return boolean
+ * @param string $post_errors Any errors encountered trying to save this draft
+ * @return boolean Always returns true
  */
 function SaveDraft(&$post_errors)
 {
@@ -170,13 +170,9 @@ function SaveDraft(&$post_errors)
  * The core draft feature must be enabled, as well as the pm draft option
  * Determines if this is a new or and update to an existing pm draft
  *
- * @global type $context
- * @global type $user_info
- * @global type $smcFunc
- * @global type $modSettings
- * @param string $post_errors
- * @param type $recipientList
- * @return boolean
+ * @param string $post_errors A string of info about errors encountered trying to save this draft
+ * @param array $recipientList An array of data about who this PM is being sent to
+ * @return boolean false if you can't save the draft, true if we're doing this via XML more than 5 seconds after the last save, nothing otherwise
  */
 function SavePMDraft(&$post_errors, $recipientList)
 {
@@ -302,15 +298,14 @@ function SavePMDraft(&$post_errors, $recipientList)
 
 /**
  * Reads a draft in from the user_drafts table
- * Only loads the draft of a given type 0 for post, 1 for pm draft
- * validates that the draft is the users draft
+ * Validates that the draft is the user''s draft
  * Optionally loads the draft in to context or superglobal for loading in to the form
  *
- * @param type $id_draft - draft to load
- * @param type $type - type of draft
- * @param type $check - validate the user
- * @param type $load - load it for use in a form
- * @return boolean
+ * @param int $id_draft ID of the draft to load
+ * @param int $type Type of draft - 0 for post or 1 for PM
+ * @param boolean $check Validate that this draft belongs to the current user
+ * @param boolean $load Whether or not to load the data into variables for use on a form
+ * @return boolean|array False if the data couldn't be loaded, true if it's a PM draft or an array of info about the draft if it's a post draft
  */
 function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 {
@@ -392,9 +387,9 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
  * Validates the drafts are from the user
  * is supplied an array of drafts will attempt to remove all of them
  *
- * @param type $id_draft
- * @param type $check
- * @return boolean
+ * @param int $id_draft The ID of the draft to delete
+ * @param boolean $check Whether or not to check that the draft belongs to the current user
+ * @return boolean False if it couldn't be deleted (doesn't return anything otherwise)
  */
 function DeleteDraft($id_draft, $check = true)
 {
@@ -423,12 +418,12 @@ function DeleteDraft($id_draft, $check = true)
  * Loads in a group of drafts for the user of a given type (0/posts, 1/pm's)
  * loads a specific draft for forum use if selected.
  * Used in the posting screens to allow draft selection
- * WIll load a draft if selected is supplied via post
+ * Will load a draft if selected is supplied via post
  *
- * @param type $member_id
- * @param type $topic
- * @param type $draft_type
- * @return boolean
+ * @param int $member_id ID of the member to show drafts for
+ * @param boolean|integer If $type is 1, this can be set to only load drafts for posts in the specific topic
+ * @param int $draft_type The type of drafts to show - 0 for post drafts, 1 for PM drafts
+ * @return boolean False if the drafts couldn't be loaded, nothing otherwise
  */
 function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 {

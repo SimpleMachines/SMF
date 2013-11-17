@@ -1205,7 +1205,8 @@ function Display()
  * This function will start over from the beginning if reset is set to true, which is
  * useful for showing an index before or after the posts.
  *
- * @param bool $reset default false.
+ * @param bool $reset Whether or not to reset the db seek pointer
+ * @return array A large array of contextual data for the posts
  */
 function prepareDisplayContext($reset = false)
 {
@@ -1550,8 +1551,8 @@ function Download()
  * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
  * the max_image_width and max_image_height settings.
  *
- * @param type $id_msg message number to load attachments for
- * @return array of attachemnts
+ * @param int $id_msg ID of the post to load attachments for
+ * @return array An array of attachemnt info
  */
 function loadAttachmentContext($id_msg)
 {
@@ -1719,9 +1720,9 @@ function loadAttachmentContext($id_msg)
 
 /**
  * A sort function for putting unapproved attachments first.
- * @param $a
- * @param $b
- * @return int, -1, 0, 1
+ * @param $a An array of info about one attachment
+ * @param $b An array of info about a second attachment
+ * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't
  */
 function approved_attach_sort($a, $b)
 {
@@ -1854,6 +1855,11 @@ function QuickInTopicModeration()
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
+/**
+ * Prepares an array of "likes" info for the topic specified by $topic
+ * @uses $topic and $context['user']['id']
+ * @return Array an array of IDs of messages in the specified topic that the current user likes
+ */
 function prepareLikesContext()
 {
 	global $context, $smcFunc, $topic;
