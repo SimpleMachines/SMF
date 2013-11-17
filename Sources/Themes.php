@@ -1336,7 +1336,7 @@ function InstallFile()
 		fatal_lang_error('theme_install_error_file_'. $_FILES['theme_gz']['error'], false);
 
 	// Get the theme's name.
-	$theme_name = strtok(basename($_FILES['theme_gz']['name']);
+	$theme_name = strtok(basename($_FILES['theme_gz']['name']));
 	$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
 
 	// Start setting some vars.
@@ -1481,10 +1481,10 @@ function InstallDir()
 	global $themedir;
 
 	// Cannot use the theme dir as a theme dir.
-	elseif (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))
+	if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))
 		fatal_lang_error('theme_install_invalid_dir', false);
 
-	// Check is there is "somthing" on the dir.
+	// Check is there is "something" on the dir.
 	elseif (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
 		fatal_lang_error('theme_install_error', false);
 

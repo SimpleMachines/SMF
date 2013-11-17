@@ -123,12 +123,12 @@ function theme_install($to_install = array())
 
 	// Defaults.
 	$context['to_install'] = array(
-		'theme_url' => $boardurl . '/Themes/' . basename($context['to_install']['dir']),
+		'theme_url' => $themeurl . '/' . basename($context['to_install']['dir']),
 	);
 
 	// This vars could have been set, it all depends from where are we coming.
 	if (empty($context['to_install']['images_url']))
-		$context['to_install']['images_url'] = $boardurl . '/Themes/' . basename($context['to_install']['dir']) . '/images';
+		$context['to_install']['images_url'] = $themeurl . '/' . basename($context['to_install']['dir']) . '/images';
 
 	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 	if (file_exists($context['to_install']['dir'] . '/package-info.xml'))
