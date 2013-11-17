@@ -144,8 +144,8 @@ function AdminMain()
 					'custom_url' => $scripturl . '?action=admin;area=theme',
 					'icon' => 'themes.png',
 					'subsections' => array(
-						'list' => array($txt['themeadmin_list_title']),
 						'admin' => array($txt['themeadmin_admin_title']),
+						'list' => array($txt['themeadmin_list_title']),
 						'reset' => array($txt['themeadmin_reset_title']),
 						'edit' => array($txt['themeadmin_edit_title']),
 					),

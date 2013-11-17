@@ -79,11 +79,11 @@ function ThemesMain()
 			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
-				'list' => array(
-					'description' => $txt['themeadmin_list_desc'],
-				),
 				'admin' => array(
 					'description' => $txt['themeadmin_admin_desc'],
+				),
+				'list' => array(
+					'description' => $txt['themeadmin_list_desc'],
 				),
 				'reset' => array(
 					'description' => $txt['themeadmin_reset_desc'],
@@ -99,7 +99,7 @@ function ThemesMain()
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
 		$subActions[$_GET['sa']]();
 	else
-		$subActions['list']();
+		$subActions['admin']();
 }
 
 /**
@@ -142,6 +142,7 @@ function ThemeAdmin()
 	createToken('admin-t-copy');
 	createToken('admin-t-dir');
 
+	// Are handling any settings?
 	if (isset($_POST['save']))
 	{
 		checkSession();
@@ -1253,6 +1254,10 @@ function ThemeInstall()
 	if (isset($_GET['do']) && !empty($_GET['do']) && isset($subActions[$_GET['do']]))
 	{
 		$action = $smcFunc['htmlspecialchars'](trim($_GET['do']));
+
+		// Got any info from the specific form?
+		if (!isset($_POST['save_'. $action]))
+			fatal_lang_error('theme_install_no_action', false);
 
 		validateToken('admin-t-'. $action);
 

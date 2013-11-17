@@ -18,7 +18,19 @@ function template_main()
 	echo '
 	<div id="admincenter">';
 
+	// Theme install info.
 	echo '
+		<div class="cat_bar">
+		<h3 class="catbg">
+			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a>
+			', $txt['themeadmin_title'], '
+		</h3>
+		</div>
+		<div class="information">
+			', $txt['themeadmin_explain'], '
+		</div>';
+
+	echo '<br />
 		<form action="', $scripturl, '?action=admin;area=theme;sa=admin" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">',
@@ -91,20 +103,7 @@ function template_main()
 					<input type="hidden" value="0" name="options[theme_allow]" />
 				</div>
 			</div>
-		</form>
-		<br />';
-
-	// Theme install info.
-	echo '
-		<div class="cat_bar">
-		<h3 class="catbg">
-			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a>
-			', $txt['themeadmin_title'], '
-		</h3>
-		</div>
-		<div class="information">
-			', $txt['themeadmin_explain'], '
-		</div>';
+		</form>';
 
 	// Link to simplemachines.org for latest themes and info!
 	echo '
