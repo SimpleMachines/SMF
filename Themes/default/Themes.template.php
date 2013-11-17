@@ -18,112 +18,6 @@ function template_main()
 	echo '
 	<div id="admincenter">';
 
-	// Theme install info.
-	echo '
-		<div class="cat_bar">
-		<h3 class="catbg">
-			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a>
-			', $txt['themeadmin_title'], '
-		</h3>
-		</div>
-		<div class="information">
-			', $txt['themeadmin_explain'], '
-		</div>';
-
-	// Link to simplemachines.org for latest themes and info!
-	echo '
-		<br />
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['theme_adding_title'], '
-			</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				', $txt['theme_adding'], '
-			</div>
-		</div>';
-
-	// All the install options.
-	echo '
-		<div id="admin_form_wrapper">
-			<div class="cat_bar">
-				<h3 class="catbg2">
-					', $txt['theme_install'], '
-				</h3>
-			</div>';
-
-	if ($context['can_create_new'])
-	{
-		// From a file.
-		echo '
-			<br />
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['theme_install_file'], '
-				</h3>
-			</div>
-			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=file" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
-					<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
-					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-				</form>
-			</div>';
-
-		// Copied from the default.
-		echo '
-			<br />
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['theme_install_new'], '
-				</h3>
-			</div>
-			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=copy" method="post" accept-charset="', $context['character_set'], '">
-					<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40" class="input_text" />
-					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-				</form>
-			</div>';
-	}
-
-	// From a dir.
-	echo '
-			<br />
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['theme_install_dir'], '
-				</h3>
-			</div>
-			<div class="content">
-				<form action="', $scripturl, '?action=admin;area=theme;sa=admin;do=dir" method="post" accept-charset="', $context['character_set'], '">
-					<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;" class="input_text" />
-					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-				</form>
-			</div>';
-
-	echo '
-		</div>';
-
-	echo '
-	</div>';
-
-	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
-		window.smfForum_scripturl = smf_scripturl;
-		window.smfForum_sessionid = smf_session_id;
-		window.smfForum_sessionvar = smf_session_var;
-		window.smfThemes_writable = ', $context['can_create_new'] ? 'true' : 'false', ';
-	// ]]></script>';
-}
-
-function template_list_themes()
-{
-	global $context, $settings, $options, $scripturl, $txt;
-	global $modSettings;
-
-	echo '
-	<div id="admincenter">';
-
 	echo '
 		<form action="', $scripturl, '?action=admin;area=theme;sa=admin" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
@@ -193,12 +87,121 @@ function template_list_themes()
 					</dl>
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-ti_token_var'], '" value="', $context['admin-ti_token'], '" />
+					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '" />
 					<input type="hidden" value="0" name="options[theme_allow]" />
 				</div>
 			</div>
 		</form>
 		<br />';
+
+	// Theme install info.
+	echo '
+		<div class="cat_bar">
+		<h3 class="catbg">
+			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '" /></a>
+			', $txt['themeadmin_title'], '
+		</h3>
+		</div>
+		<div class="information">
+			', $txt['themeadmin_explain'], '
+		</div>';
+
+	// Link to simplemachines.org for latest themes and info!
+	echo '
+		<br />
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['theme_adding_title'], '
+			</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				', $txt['theme_adding'], '
+			</div>
+		</div>';
+
+	// All the install options.
+	echo '
+		<div id="admin_form_wrapper">
+			<div class="cat_bar">
+				<h3 class="catbg2">
+					', $txt['theme_install'], '
+				</h3>
+			</div>';
+
+	if ($context['can_create_new'])
+	{
+		// From a file.
+		echo '
+			<br />
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['theme_install_file'], '
+				</h3>
+			</div>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=file" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data">
+					<input type="hidden" name="', $context['admin-t-file_token_var'], '" value="', $context['admin-t-file_token'], '" />
+					<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file" />
+					<input type="submit" name="save_file" value="' . $txt['save'] . '" class="button_submit" />
+				</form>
+			</div>';
+
+		// Copied from the default.
+		echo '
+			<br />
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['theme_install_new'], '
+				</h3>
+			</div>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=copy" method="post" accept-charset="', $context['character_set'], '">
+					<input type="hidden" name="', $context['admin-t-copy_token_var'], '" value="', $context['admin-t-copy_token'], '" />
+					<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40" class="input_text" />
+					<input type="submit" name="save_copy" value="' . $txt['save'] . '" class="button_submit" />
+				</form>
+			</div>';
+	}
+
+	// From a dir.
+	echo '
+			<br />
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['theme_install_dir'], '
+				</h3>
+			</div>
+			<div class="content">
+				<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=dir" method="post" accept-charset="', $context['character_set'], '">
+					<input type="hidden" name="', $context['admin-t-dir_token_var'], '" value="', $context['admin-t-dir_token'], '" />
+					<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;" class="input_text" />
+					<input type="submit" name="save_dir" value="' . $txt['save'] . '" class="button_submit" />
+				</form>
+			</div>';
+
+	echo '
+		</div>';
+
+	echo '
+	</div>';
+
+	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+		window.smfForum_scripturl = smf_scripturl;
+		window.smfForum_sessionid = smf_session_id;
+		window.smfForum_sessionvar = smf_session_var;
+		window.smfThemes_writable = ', $context['can_create_new'] ? 'true' : 'false', ';
+	// ]]></script>';
+}
+
+function template_list_themes()
+{
+	global $context, $settings, $options, $scripturl, $txt;
+	global $modSettings;
+
+	echo '
+	<div id="admincenter">';
 
 	echo '
 		<div class="cat_bar">

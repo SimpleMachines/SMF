@@ -43,7 +43,7 @@ if (!defined('SMF'))
  */
 function ThemesMain()
 {
-	global $txt, $context, $scripturl;
+	global $txt, $context, $scripturl, $sourcedir;
 
 	// Load the important language files...
 	loadLanguage('Themes');
@@ -52,6 +52,8 @@ function ThemesMain()
 
 	// No funny business - guests only.
 	is_not_guest();
+
+	require_once($sourcedir . '/Subs-Themes.php');
 
 	// Default the page title to Theme Administration by default.
 	$context['page_title'] = $txt['themeadmin_title'];
@@ -77,11 +79,11 @@ function ThemesMain()
 			'help' => 'themes',
 			'description' => $txt['themeadmin_description'],
 			'tabs' => array(
-				'admin' => array(
-					'description' => $txt['themeadmin_admin_desc'],
-				),
 				'list' => array(
 					'description' => $txt['themeadmin_list_desc'],
+				),
+				'admin' => array(
+					'description' => $txt['themeadmin_admin_desc'],
 				),
 				'reset' => array(
 					'description' => $txt['themeadmin_reset_desc'],
@@ -97,7 +99,7 @@ function ThemesMain()
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
 		$subActions[$_GET['sa']]();
 	else
-		$subActions['admin']();
+		$subActions['list']();
 }
 
 /**
@@ -112,30 +114,35 @@ function ThemesMain()
  */
 function ThemeAdmin()
 {
-	global $context, $boarddir, $modSettings, $smcFunc;
+	global $context, $boarddir, $modSettings, $smcFunc, $sourcedir;
+
+	require_once($sourcedir . '/Subs-Package.php');
 
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
+	loadTemplate('Themes');
 
-	// If we aren't submitting - that is, if we are about to...
-	if (!isset($_POST['save']))
-	{
-		loadTemplate('Themes');
+	// List all installed themes.
+	get_all_themes();
 
-		// Can we create a new theme?
-		$context['can_create_new'] = is_writable($boarddir . '/Themes');
-		$context['new_theme_dir'] = substr(realpath($boarddir . '/Themes/default'), 0, -7);
+	// Can we create a new theme?
+	$context['can_create_new'] = is_writable($boarddir . '/Themes');
+	$context['new_theme_dir'] = substr(realpath($boarddir . '/Themes/default'), 0, -7);
 
-		// Look for a non existent theme directory. (ie theme87.)
-		$theme_dir = $boarddir . '/Themes/theme';
-		$i = 1;
-		while (file_exists($theme_dir . $i))
-			$i++;
-		$context['new_theme_name'] = 'theme' . $i;
+	// Look for a non existent theme directory. (ie theme87.)
+	$theme_dir = $boarddir . '/Themes/theme';
+	$i = 1;
+	while (file_exists($theme_dir . $i))
+		$i++;
+	$context['new_theme_name'] = 'theme' . $i;
 
-		createToken('admin-tm');
-	}
-	else
+	// A bunch of tokens for a bunch of forms.
+	createToken('admin-tm');
+	createToken('admin-t-file');
+	createToken('admin-t-copy');
+	createToken('admin-t-dir');
+
+	if (isset($_POST['save']))
 	{
 		checkSession();
 		validateToken('admin-tm');
@@ -236,61 +243,13 @@ function ThemeList()
 
 	loadTemplate('Themes');
 
-	// Make our known themes a little easier to work with.
-	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',',$modSettings['knownThemes']) : array();
-
-	$request = $smcFunc['db_query']('', '
-		SELECT id_theme, variable, value
-		FROM {db_prefix}themes
-		WHERE variable IN ({string:name}, {string:version}, {string:theme_dir}, {string:theme_url}, {string:images_url})
-			AND id_member = {int:no_member}',
-		array(
-			'no_member' => 0,
-			'name' => 'name',
-			'version' => 'version',
-			'theme_dir' => 'theme_dir',
-			'theme_url' => 'theme_url',
-			'images_url' => 'images_url',
-		)
-	);
-	$context['themes'] = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (!isset($context['themes'][$row['id_theme']]))
-			$context['themes'][$row['id_theme']] = array(
-				'id' => $row['id_theme'],
-				'name' => $row['value'],
-				'known' => in_array($row['id_theme'], $knownThemes),
-			);
-		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	foreach ($context['themes'] as $i => $theme)
-	{
-		$context['themes'][$i]['theme_dir'] = realpath($context['themes'][$i]['theme_dir']);
-
-		// Fetch the version if there isn't one stored on te DB.
-		if (empty($context['themes'][$i]['version']) && file_exists($context['themes'][$i]['theme_dir'] . '/index.template.php'))
-		{
-			// Fetch the header... a good 256 bytes should be more than enough.
-			$fp = fopen($context['themes'][$i]['theme_dir'] . '/index.template.php', 'rb');
-			$header = fread($fp, 256);
-			fclose($fp);
-
-			// Can we find a version comment, at all?
-			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1)
-				$context['themes'][$i]['version'] = $match[1];
-		}
-
-		$context['themes'][$i]['valid_path'] = file_exists($context['themes'][$i]['theme_dir']) && is_dir($context['themes'][$i]['theme_dir']);
-	}
+	// Get all installed themes.
+	get_all_themes();
 
 	$context['reset_dir'] = realpath($boarddir . '/Themes');
 	$context['reset_url'] = $boardurl . '/Themes';
 
 	$context['sub_template'] = 'list_themes';
-	createToken('admin-ti');
 	createToken('admin-tl');
 	createToken('admin-tr', 'request');
 }
@@ -1273,13 +1232,14 @@ function PickTheme()
 function ThemeInstall()
 {
 	global $sourcedir, $txt, $context, $boarddir, $boardurl;
-	global $themedir, $themeurl;
+	global $themedir, $themeurl, $smcFunc;
 
 	checkSession('request');
 	isAllowedTo('admin_forum');
 
-	require_once($sourcedir . '/Subs-Package.php');
-	require_once($sourcedir . '/Subs-Themes.php');
+	// Make it easier to change the path and url.
+	$themedir = $boarddir . '/Themes';
+	$themeurl = $boardurl . '/Themes';
 
 	loadTemplate('Themes');
 
@@ -1290,27 +1250,23 @@ function ThemeInstall()
 	);
 
 	// Is there a function to call?
-	if (isset($_GET['do']) && empty($_GET['do']) && isset($subActions[$_GET['do']]))
+	if (isset($_GET['do']) && !empty($_GET['do']) && isset($subActions[$_GET['do']]))
 	{
+		$action = $smcFunc['htmlspecialchars'](trim($_GET['do']));
+
+		validateToken('admin-t-'. $action);
+
 		// Hopefully the themes directory is writable, or we might have a problem.
 		if (!is_writable($themedir))
 			fatal_lang_error('theme_install_write_error', 'critical');
 
 		// Call the function and handle the result.
-		$result = $subActions[$_GET['do']]();
-
-		// Safety.
-		$context['error_message'] = false;
-		$context['installed_theme'] = false;
-		$context['sub_template'] = 'installed';
-
-		// Make it easier to change the path and url.
-		$themedir = $boarddir . '/Themes';
-		$themeurl = $boardurl . '/Themes';
+		$result = $subActions[$action]();
 
 		// Everything went better than expected!
 		if (!empty($result) && true == $result)
 		{
+			$context['sub_template'] = 'installed';
 			$context['page_title'] = $txt['theme_installed'];
 			$context['installed_theme'] = get_single_theme($result);
 		}
@@ -1365,14 +1321,14 @@ function InstallFile()
 
 function InstallCopy()
 {
-	global $thmedir, $settings;
+	global $themedir, $settings;
 
 	// There's gotta be something to work with.
-	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
+	if (!isset($_POST['copy']) || empty($_POST['copy']))
 		fatal_lang_error('theme_install_error_title', false);
 
 	// Get a cleaner version.
-	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
+	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_POST['copy']);
 
 	$context['to_install'] = array(
 		'dir' => $themedir . '/' . $name,

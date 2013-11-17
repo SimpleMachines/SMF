@@ -56,14 +56,72 @@ function get_single_theme($id)
 	return $single;
 }
 
+function get_all_themes()
+{
+	global $modSettings, $context, $smcFunc;
+
+	// Make our known themes a little easier to work with.
+	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',',$modSettings['knownThemes']) : array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_theme, variable, value
+		FROM {db_prefix}themes
+		WHERE variable IN ({string:name}, {string:version}, {string:theme_dir}, {string:theme_url}, {string:images_url})
+			AND id_member = {int:no_member}',
+		array(
+			'no_member' => 0,
+			'name' => 'name',
+			'version' => 'version',
+			'theme_dir' => 'theme_dir',
+			'theme_url' => 'theme_url',
+			'images_url' => 'images_url',
+		)
+	);
+	$context['themes'] = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!isset($context['themes'][$row['id_theme']]))
+			$context['themes'][$row['id_theme']] = array(
+				'id' => $row['id_theme'],
+				'name' => $row['value'],
+				'known' => in_array($row['id_theme'], $knownThemes),
+			);
+		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
+	}
+	$smcFunc['db_free_result']($request);
+
+	foreach ($context['themes'] as $i => $theme)
+	{
+		$context['themes'][$i]['theme_dir'] = realpath($context['themes'][$i]['theme_dir']);
+
+		// Fetch the version if there isn't one stored on the DB. @todo get it from the .xml file.
+		if (empty($context['themes'][$i]['version']) && file_exists($context['themes'][$i]['theme_dir'] . '/index.template.php'))
+		{
+			// Fetch the header... a good 256 bytes should be more than enough.
+			$fp = fopen($context['themes'][$i]['theme_dir'] . '/index.template.php', 'rb');
+			$header = fread($fp, 256);
+			fclose($fp);
+
+			// Can we find a version comment, at all?
+			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1)
+				$context['themes'][$i]['version'] = $match[1];
+		}
+
+		$context['themes'][$i]['valid_path'] = file_exists($context['themes'][$i]['theme_dir']) && is_dir($context['themes'][$i]['theme_dir']);
+	}
+
+	return $context['themes'];
+}
+
 function get_theme_info($path)
 {
-	global $sourcedir, $forum_version;
+	global $sourcedir, $forum_version, $explicit_images;
 
 	if (empty($path))
 		return false;
 
 	$xml_data = array();
+	$explicit_images = false;
 
 	// Parse theme-info.xml into an xmlArray.
 	require_once($sourcedir . '/Class-Package.php');
@@ -101,13 +159,22 @@ function get_theme_info($path)
 		if (!empty($theme_info_xml[$name]))
 			$xml_data[$var] = $theme_info_xml[$name];
 
+	if (!empty($theme_info_xml['images']))
+	{
+		$xml_data['images_url'] = $path . '/' . $theme_info_xml['images'];
+		$explicit_images = true;
+	}
+
+	if (!empty($theme_info_xml['extra']))
+		$xml_data += unserialize($theme_info_xml['extra']);
+
 	return $xml_data;
 }
 
 function theme_install($to_install = array())
 {
 	global $sourcedir, $txt, $context, $boarddir, $boardurl;
-	global $themedir, $themeurl;
+	global $themedir, $themeurl, $explicit_images;
 
 	// External use? no problem!
 	if ($to_install)
@@ -184,19 +251,10 @@ function theme_install($to_install = array())
 					);
 
 					// Do a redirect and set a nice updated message.
-					redirectexit('action=admin;area=theme;sa=install;theme_id=' . $to_update['id_theme'] . ';updated;' . $context['session_var'] . '=' . $context['session_id']);
-					break;
+					return $to_update['id_theme'];
+					break; // Just for reference.
 			}
 	}
-
-	if (!empty($theme_info_xml['images']))
-	{
-		$context['to_install']['images_url'] = $context['to_install']['theme_url'] . '/' . $theme_info_xml['images'];
-		$explicit_images = true;
-	}
-
-	if (!empty($theme_info_xml['extra']))
-		$context['to_install'] += unserialize($theme_info_xml['extra']);
 
 	if (isset($context['to_install']['based_on']))
 	{
@@ -280,6 +338,8 @@ function theme_install($to_install = array())
 		);
 
 	updateSettings(array('knownThemes' => strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','))));
+
+	return $id_theme;
 }
 
 ?>
