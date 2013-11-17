@@ -1236,7 +1236,6 @@ CREATE TABLE {$db_prefix}members (
   pm_ignore_list varchar(255) NOT NULL default '',
   pm_prefs mediumint(8) NOT NULL default '0',
   mod_prefs varchar(20) NOT NULL default '',
-  message_labels text NOT NULL,
   passwd varchar(64) NOT NULL default '',
   openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL default '',
@@ -1365,6 +1364,7 @@ CREATE TABLE {$db_prefix}messages (
   smileys_enabled tinyint(4) NOT NULL default '1',
   modified_time int(10) unsigned NOT NULL default '0',
   modified_name varchar(255) NOT NULL default '',
+  modified_reason varchar(255) NOT NULL default '',
   body text NOT NULL,
   icon varchar(16) NOT NULL default 'xx',
   approved tinyint(3) NOT NULL default '1',
@@ -1560,17 +1560,36 @@ CREATE TABLE {$db_prefix}personal_messages (
 ) ENGINE=MyISAM;
 
 #
+# Table structure for table `pm_labels`
+#
+CREATE TABLE {$db_prefix}pm_labels (
+  id_label int(10) unsigned NOT NULL auto_increment,
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  name varchar(30) NOT NULL default '',
+  PRIMARY KEY (id_label)
+) ENGINE=MyISAM;
+
+#
+# Table structure for table `pm_labeled_messages`
+#
+CREATE TABLE {$db_prefix}pm_labeled_messages (
+  id_label int(10) unsigned NOT NULL default '0',
+  id_pm int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_label, id_pm)
+) ENGINE=MyISAM;
+
+#
 # Table structure for table `pm_recipients`
 #
 
 CREATE TABLE {$db_prefix}pm_recipients (
   id_pm int(10) unsigned NOT NULL default '0',
   id_member mediumint(8) unsigned NOT NULL default '0',
-  labels varchar(60) NOT NULL default '-1',
   bcc tinyint(3) unsigned NOT NULL default '0',
   is_read tinyint(3) unsigned NOT NULL default '0',
   is_new tinyint(3) unsigned NOT NULL default '0',
   deleted tinyint(3) unsigned NOT NULL default '0',
+  in_inbox tinyint(3) unsigned NOT NULL default '1',
   PRIMARY KEY (id_pm, id_member),
   UNIQUE id_member (id_member, deleted, id_pm)
 ) ENGINE=MyISAM;

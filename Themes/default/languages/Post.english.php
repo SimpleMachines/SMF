@@ -9,35 +9,7 @@ $txt['subject_not_filled'] = 'The subject field was not filled out. It is requir
 $txt['message_body_not_filled'] = 'The message body was not filled out. It is required.';
 // Use numeric entities in the below string.
 $txt['add_bbc'] = 'Add BBC tags';
-$txt['bold'] = 'Bold'; // deprecated
-$txt['italic'] = 'Italicized'; // deprecated
-$txt['underline'] = 'Underline'; // deprecated
-$txt['center'] = 'Centered'; // deprecated
-$txt['hyperlink'] = 'Insert Hyperlink'; // deprecated
-$txt['insert_email'] = 'Insert Email'; // deprecated
-$txt['bbc_code'] = 'Insert Code'; // deprecated
-// Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
-$txt['bbc_quote'] = 'Insert Quote'; // deprecated
-$txt['list'] = 'Insert List'; // deprecated
-$txt['list_unordered'] = 'Insert unordered list'; // deprecated
-$txt['list_ordered'] = 'Insert ordered list'; // deprecated
 
-$txt['change_color'] = 'Change color'; // deprecated
-$txt['black'] = 'Black'; // deprecated
-$txt['red'] = 'Red'; // deprecated
-$txt['yellow'] = 'Yellow'; // deprecated
-$txt['pink'] = 'Pink'; // deprecated
-$txt['green'] = 'Green'; // deprecated
-$txt['orange'] = 'Orange'; // deprecated
-$txt['purple'] = 'Purple'; // deprecated
-$txt['blue'] = 'Blue'; // deprecated
-$txt['beige'] = 'Beige'; // deprecated
-$txt['brown'] = 'Brown'; // deprecated
-$txt['teal'] = 'Teal'; // deprecated
-$txt['navy'] = 'Navy'; // deprecated
-$txt['maroon'] = 'Maroon'; // deprecated
-$txt['lime_green'] = 'Lime Green'; // deprecated
-$txt['white'] = 'White'; // deprecated
 $txt['disable_smileys'] = 'Disable smileys';
 $txt['dont_use_smileys'] = 'Don\'t use smileys.';
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
@@ -50,33 +22,9 @@ $txt['question_mark'] = 'Question mark';
 $txt['icon_poll'] = 'Poll';
 $txt['lamp'] = 'Lamp';
 $txt['add_smileys'] = 'Add smileys';
-$txt['flash'] = 'Insert Flash'; // deprecated
-$txt['ftp'] = 'Insert FTP Link'; // deprecated
-$txt['image'] = 'Insert image'; // deprecated
-$txt['table'] = 'Insert table'; // deprecated
-$txt['table_td'] = 'Insert table column'; // deprecated
 $txt['topic_notify_no'] = 'There are no topics with notification.';
-$txt['marquee'] = 'Marquee'; // deprecated
-$txt['teletype'] = 'Teletype'; // deprecated
-$txt['strike'] = 'Strikethrough'; // deprecated
-$txt['glow'] = 'Glow'; // deprecated
-$txt['shadow'] = 'Shadow'; // deprecated
-$txt['preformatted'] = 'Preformatted text'; // deprecated
-$txt['left_align'] = 'Left align'; // deprecated
-$txt['right_align'] = 'Right align'; // deprecated
-$txt['superscript'] = 'Superscript'; // deprecated
-$txt['subscript'] = 'Subscript'; // deprecated
-$txt['table_tr'] = 'Insert table row'; // deprecated
 // post_too_long seems unused (duplicate in Errors: error_post_too_long
 $txt['post_too_long'] = 'Your message is too long. Please go back and shorten it, then try again.';
-$txt['horizontal_rule'] = 'Horizontal Rule'; // deprecated
-$txt['font_size'] = 'Font size'; // deprecated
-$txt['font_face'] = 'Font face'; // deprecated
-$txt['toggle_view'] = 'Toggle view'; // deprecated
-$txt['unformat_text'] = 'Remove formatting'; // deprecated
-
-$txt['rich_edit_wont_work'] = 'Your browser does not support Rich Text editing.'; // deprecated
-$txt['rich_edit_function_disabled'] = 'Your browser does not support this function.'; // deprecated
 
 // Use numeric entities in the below five strings.
 $txt['notifyUnsubscribe'] = 'Unsubscribe to this topic by clicking here';

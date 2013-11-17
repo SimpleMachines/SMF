@@ -4070,7 +4070,10 @@ function setupMenuContext()
 		$context['menu_buttons'][$current_action]['active_button'] = true;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && $context['open_mod_reports'] > 0)
+	{
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+	}
 
 	if (!empty($context['unapproved_members']))
 	{

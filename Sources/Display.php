@@ -1011,7 +1011,7 @@ function Display()
 			loadMemberData($posters);
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT
-				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, body,
+				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
 				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
 				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
@@ -1205,7 +1205,8 @@ function Display()
  * This function will start over from the beginning if reset is set to true, which is
  * useful for showing an index before or after the posts.
  *
- * @param bool $reset default false.
+ * @param bool $reset Whether or not to reset the db seek pointer
+ * @return array A large array of contextual data for the posts
  */
 function prepareDisplayContext($reset = false)
 {
@@ -1305,7 +1306,8 @@ function prepareDisplayContext($reset = false)
 		'modified' => array(
 			'time' => timeformat($message['modified_time']),
 			'timestamp' => forum_time(true, $message['modified_time']),
-			'name' => $message['modified_name']
+			'name' => $message['modified_name'],
+			'reason' => $message['modified_reason']
 		),
 		'likes' => array(
 			'count' => $message['likes'],
@@ -1328,6 +1330,10 @@ function prepareDisplayContext($reset = false)
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 	if (!empty($output['modified']['name']))
 		$output['modified']['last_edit_text'] = sprintf($txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
+	
+	// Did they give a reason for editing?
+	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
+		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
 
 	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 
@@ -1545,8 +1551,8 @@ function Download()
  * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
  * the max_image_width and max_image_height settings.
  *
- * @param type $id_msg message number to load attachments for
- * @return array of attachemnts
+ * @param int $id_msg ID of the post to load attachments for
+ * @return array An array of attachemnt info
  */
 function loadAttachmentContext($id_msg)
 {
@@ -1714,9 +1720,9 @@ function loadAttachmentContext($id_msg)
 
 /**
  * A sort function for putting unapproved attachments first.
- * @param $a
- * @param $b
- * @return int, -1, 0, 1
+ * @param $a An array of info about one attachment
+ * @param $b An array of info about a second attachment
+ * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't
  */
 function approved_attach_sort($a, $b)
 {
@@ -1849,6 +1855,11 @@ function QuickInTopicModeration()
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
+/**
+ * Prepares an array of "likes" info for the topic specified by $topic
+ * @uses $topic and $context['user']['id']
+ * @return Array an array of IDs of messages in the specified topic that the current user likes
+ */
 function prepareLikesContext()
 {
 	global $context, $smcFunc, $topic;
@@ -1857,7 +1868,7 @@ function prepareLikesContext()
 	$cache_key = 'likes_topic_' . $topic . '_' . $context['user']['id'];
 	$ttl = 180;
 
-	if ($temp = cache_get_data($cache_key, $ttl) === null)
+	if (($temp = cache_get_data($cache_key, $ttl)) === null)
 	{
 		$temp = array();
 		$request = $smcFunc['db_query']('', '

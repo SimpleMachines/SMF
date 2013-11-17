@@ -142,22 +142,8 @@ function template_main()
 				echo '
 				<tr id="board_', $board['id'], '" class="windowbg2">
 					<td class="windowbg icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
-						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">';
-
-				// If the board or children is new, show an indicator.
-				if ($board['new'] || $board['children_new'])
-					echo '
-							<img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'on', $board['new'] ? '' : '2', '.png" alt="', $txt['new_posts'], '" title="', $txt['new_posts'], '" />';
-				// Is it a redirection board?
-				elseif ($board['is_redirect'])
-					echo '
-							<img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'redirect.png" alt="*" title="*" />';
-				// No new posts at all! The agony!!
-				else
-					echo '
-							<img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'off.png" alt="', $txt['old_posts'], '" title="', $txt['old_posts'], '" />';
-
-				echo '
+						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
+							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
 					</td>
 					<td class="info">
@@ -234,17 +220,7 @@ function template_main()
 	}
 	echo '
 		</table>
-	</div>
-		<ul id="posting_icons">';
-
-	if ($context['user']['is_logged'])
-	echo '
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_some.png" alt="" /> ', $txt['new_posts'], '</li>';
-
-	echo '
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_none.png" alt="" /> ', $txt['old_posts'], '</li>
-			<li class="floatleft"><img src="', $settings['images_url'], '/', $context['theme_variant_url'], 'new_redirect.png" alt="" /> ', $txt['redirect_board'], '</li>
-		</ul>';
+	</div>';
 
 	// Show the mark all as read button?
 	if ($context['user']['is_logged'] && $settings['show_mark_read'] && !empty($context['categories']))

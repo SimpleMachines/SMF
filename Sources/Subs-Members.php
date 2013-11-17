@@ -623,7 +623,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		'lngfile' => '',
 		'buddy_list' => '',
 		'pm_ignore_list' => '',
-		'message_labels' => '',
 		'website_title' => '',
 		'website_url' => '',
 		'location' => '',

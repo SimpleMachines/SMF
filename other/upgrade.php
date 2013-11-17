@@ -1391,6 +1391,9 @@ function BackupDatabase()
 
 	// Some useful stuff here.
 	db_extend();
+	
+	// Might need this as well
+	db_extend('packages');
 
 	// Get all the table names.
 	$filter = str_replace('_', '\_', preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) != 0 ? $match[2] : $db_prefix) . '%';
