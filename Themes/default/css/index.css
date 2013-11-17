@@ -2090,84 +2090,10 @@ div#pollmoderation {
 	padding: 0 0 0 0;
 	color: #c06002;
 }
-/* Nifty new flyout menu for the poster info. */
-/* @todo Can probably clean up the CSS here a bit. */
-/* Check inheritance with font size in the dropdown. */
-.poster .dropmenu {
-	padding: 0 0 0 0;
-	margin: -8px 0 0 0;
-	float: none;
-}
-.poster .dropmenu>li, .poster .dropmenu>li:hover, .poster .dropmenu>li.sfhover
-.poster .dropmenu>li h4, .poster .dropmenu>li:hover h4, .poster .dropmenu>li.sfhover h4,
-.poster .dropmenu>li h4 a,.poster .dropmenu>li:hover h4 a, .poster .dropmenu>li.sfhover h4 a {
-	padding: 0 0 0 0;
-	margin: 0 0 0 0;
-	float: none;
-	border: none;
-	background: none;
-	line-height: 1.5em;
-	text-align: center;
-}
-.poster .dropmenu li:hover a, .poster .dropmenu li.sfhover a, .poster .dropmenu li a:hover,
-.poster .dropmenu li:hover a:hover, .poster .dropmenu li.sfhover a:hover, .poster .dropmenu li a {
-	background: none;
-	border: none;
-}
-.poster .dropmenu>li.sfhover>ul, .poster .dropmenu>li:hover>ul  {
-	top: 3em;
-	float: none;
-	left: 0;
-	padding: 6px 0.5em 4px  0.5em;
-	width: 15.2em;
-}
-.poster .dropmenu>li>ul>li, .poster .dropmenu>li>ul>li:hover {
-	float: none;
-	text-align: left;
-	clear: both;
-	background: none;
-	border: none;
-	width: 14em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-.poster .dropmenu ul ol {
-	padding: 0 0 0 0;
-	margin: 6px 0 0 0;
-	float: left;
-	width: 100%;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-.poster .dropmenu  li ul li, .poster  {
-	border: none;
-}
 .dropmenu  li ul li:hover {
 	border: none;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
-}
-.poster .dropmenu  li ul li.im_icons, .poster .dropmenu   ul ol li {
-	padding: 3px;
-}
-.poster .dropmenu   ul ol li {
-	display: table-cell;
-}
-.poster .dropmenu  li.postgroup, .poster .dropmenu  li.postcount, .poster .dropmenu  li.karma,
-.poster .dropmenu  li.karma_allow, .poster .dropmenu  li.gender, .poster .dropmenu  li.blurb {
-	padding: 0 10px 0 10px;
-}
-.poster .dropmenu  li ul li.report_link, .poster .dropmenu  li ul li.poster_ip {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
-	float: left;
-	width: 100%;
-	font-size: 1.1em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-.poster .dropmenu  li ul li hr {
-	margin: 4px 3px;
-}
-.poster .dropmenu  li ul li.poster_ip a {
-	display: table-cell;
 }
 .poster .profile .profile_icons li {
 	display: table-cell;
