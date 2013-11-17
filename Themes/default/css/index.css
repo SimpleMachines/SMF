@@ -1214,9 +1214,7 @@ img.sort, .sort {
 }
 /* Levels 2 and 3 hover effects. */
 .dropmenu li li:hover, .adm_section .dropmenu li li:hover {
-	border: 1px solid #cfcfcf;
-	border-top: 1px solid #d4dee6;
-	border-bottom: 1px solid #cbdae6;
+	border: none;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
@@ -2090,11 +2088,7 @@ div#pollmoderation {
 	padding: 0 0 0 0;
 	color: #c06002;
 }
-.dropmenu  li ul li:hover {
-	border: none;
-	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
-	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
-}
+
 .poster .profile .profile_icons li {
 	display: table-cell;
 	padding-left: 5px;
