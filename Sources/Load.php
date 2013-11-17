@@ -1169,7 +1169,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'icq' => $profile['icq'] != '' && !$user_info['is_guest'] ? array(
 				'name' => $profile['icq'],
 				'href' => 'http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'],
-				'link' => '<a class="icq new_win" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" target="_blank" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '"><img src="http://status.icq.com/online.png?img=5&amp;icq=' . $profile['icq'] . '" alt="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '" width="18" height="18" /></a>',
+				'link' => '<a class="icq new_win" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" target="_blank" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '"><img src="' . $settings['images_url'] . '/icq.png" alt="' . $txt['icq'] . ' - ' . $profile['icq'] . '" /></a>',
 				'link_text' => '<a class="icq extern" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '">' . $profile['icq'] . '</a>',
 			) : array('name' => '', 'add' => '', 'href' => '', 'link' => '', 'link_text' => ''),
 			'aim' => $profile['aim'] != '' && !$user_info['is_guest'] ? array(
@@ -1181,7 +1181,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'yim' => $profile['yim'] != '' && !$user_info['is_guest'] ? array(
 				'name' => $profile['yim'],
 				'href' => 'http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']),
-				'link' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"><img src="http://opi.yahoo.com/online?u=' . urlencode($profile['yim']) . '&amp;m=g&amp;t=0" alt="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '" /></a>',
+				'link' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"><img src="' . $settings['images_url'] . '/yahoo.png" alt="' . $txt['yim_title'] . ' - ' . $profile['yahoo'] . '" /></a>',
 				'link_text' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '">' . $profile['yim'] . '</a>'
 			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
 			'skype' => !empty($profile['skype']) && !$user_info['is_guest'] ? array(
