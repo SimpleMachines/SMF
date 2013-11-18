@@ -372,4 +372,61 @@ function remove_dir($path)
 	rmdir($path);
 }
 
+function disable_theme($themeID)
+{
+	global $smcFunc, $modSetting;
+
+	if (empty($themeID))
+		return false;
+
+	$known = explode(',', $modSettings['knownThemes']);
+
+	// Remove it from the list of known themes.
+	for ($i = 0, $n = count($known); $i < $n; $i++)
+		if ($known[$i] == $themeID)
+			unset($known[$i]);
+
+	// Remove it from the themes table.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}themes
+		WHERE id_theme = {int:current_theme}',
+		array(
+			'current_theme' => $themeID,
+		)
+	);
+
+	// Update users preferences.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}members
+		SET id_theme = {int:default_theme}
+		WHERE id_theme = {int:current_theme}',
+		array(
+			'default_theme' => 0,
+			'current_theme' => $themeID,
+		)
+	);
+
+	// Some boards may have it as preferred theme.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}boards
+		SET id_theme = {int:default_theme}
+		WHERE id_theme = {int:current_theme}',
+		array(
+			'default_theme' => 0,
+			'current_theme' => $themeID,
+		)
+	);
+
+	$known = strtr(implode(',', $known), array(',,' => ','));
+
+	// Fix it if the theme was the overall default theme.
+	if ($modSettings['theme_guests'] == $themeID)
+		updateSettings(array('theme_guests' => '1', 'knownThemes' => $known));
+
+	else
+		updateSettings(array('knownThemes' => $known));
+
+	return true;
+}
+
 ?>
