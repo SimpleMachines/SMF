@@ -1269,11 +1269,11 @@ function ThemeInstall()
 		$result = $subActions[$action]();
 
 		// Everything went better than expected!
-		if (!empty($result) && true == $result)
+		if (!empty($result))
 		{
 			$context['sub_template'] = 'installed';
 			$context['page_title'] = $txt['theme_installed'];
-			$context['installed_theme'] = get_single_theme($result);
+			$context['installed_theme'] = $result;
 		}
 	}
 
@@ -1326,13 +1326,13 @@ function InstallFile()
 		$context['to_install'] += $theme_info;
 
 		// Install the theme. theme_install() will take care of possible errors.
-		$id = theme_install($context['to_install']);
+		$context['to_install']['id'] = theme_install($context['to_install']);
 
 		// Rename the temp dir to the actual theme name.
 		rename($dirtemp, $context['to_install']['theme_dir']);
 
-		// return the ID.
-		return $id;
+		// return all the info.
+		return $context['to_install'];
 	}
 
 	else
@@ -1455,10 +1455,10 @@ function InstallCopy()
 	}
 
 	// Install the theme. theme_install() will take care of possible errors.
-	$id = theme_install($context['to_install']);
+	$context['to_install']['id'] = theme_install($context['to_install']);
 
-	// return the ID.
-	return $id;
+	// return the info.
+	return $context['to_install'];
 }
 
 function InstallDir()
@@ -1488,10 +1488,10 @@ function InstallDir()
 	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
-	$id = theme_install($context['to_install']);
+	$context['to_install']['id'] = theme_install($context['to_install']);
 
-	// return the ID.
-	return $id;
+	// return the info.
+	return $context['to_install'];
 }
 
 /**
