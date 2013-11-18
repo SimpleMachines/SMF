@@ -1156,7 +1156,7 @@ img.sort, .sort {
 	border: solid 1px #999;
 	border-left: solid 1px #bbb;
 	border-top: solid 1px #ccc;
-	border-radius: 2px 7px 0 4px;
+	border-radius: 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
