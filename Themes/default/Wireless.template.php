@@ -302,7 +302,7 @@ function template_imode_messageindex()
 	if (!empty($context['boards']))
 	{
 		echo '
-		<tr bgcolor="#b6dbff"><td>', $txt['parent_boards'], '</td></tr>';
+		<tr bgcolor="#b6dbff"><td>', $txt['sub_boards'], '</td></tr>';
 		foreach ($context['boards'] as $board)
 			echo '
 		<tr><td>', $board['new'] ? '<font color="#ff0000">-</font> ' : ($board['children_new'] ? '-<font color="#ff0000">.</font>' : '- '), '<a href="', $scripturl, '?board=', $board['id'], '.0;imode">', $board['name'], '</a></td></tr>';
@@ -956,7 +956,7 @@ function template_wap2_messageindex()
 	if (!empty($context['boards']))
 	{
 		echo '
-		<p class="titlebg">', $txt['parent_boards'], '</p>';
+		<p class="titlebg">', $txt['sub_boards'], '</p>';
 		foreach ($context['boards'] as $board)
 			echo '
 		<p class="windowbg">', $board['new'] ? '<span class="updated">[-] </span>' : ($board['children_new'] ? '[-<span class="updated">] </span>' : '[-] '), '<a href="', $scripturl, '?board=', $board['id'], '.0;wap2">', $board['name'], '</a></p>';

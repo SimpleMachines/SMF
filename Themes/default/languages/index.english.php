@@ -544,7 +544,7 @@ $txt['movetopic_expires'] = 'Automatically remove the redirection topic';
 $txt['theme_template_error'] = 'Unable to load the \'%1$s\' template.';
 $txt['theme_language_error'] = 'Unable to load the \'%1$s\' language file.';
 
-$txt['parent_boards'] = 'Child Boards';
+$txt['sub_boards'] = 'Sub-Boards';
 
 $txt['smtp_no_connect'] = 'Could not connect to SMTP host';
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers.';

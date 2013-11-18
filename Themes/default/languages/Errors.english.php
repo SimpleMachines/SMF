@@ -383,8 +383,8 @@ $txt['ignoreboards_disallowed'] = 'The option to ignore boards has not been enab
 $txt['mboards_delete_error'] = 'No category selected.';
 $txt['mboards_delete_board_error'] = 'No board selected.';
 
-$txt['mboards_parent_own_child_error'] = 'You can not make a parent its own child.';
-$txt['mboards_board_own_child_error'] = 'You can not make a board its own child.';
+$txt['mboards_parent_own_child_error'] = 'You can not make a board into a sub-board of itself.';
+$txt['mboards_board_own_child_error'] = 'You can not make a board into its own sub-board.';
 
 $txt['smileys_upload_error_notwritable'] = 'The following smiley directories are not writable: %1$s';
 $txt['smileys_upload_error_types'] = 'Smiley images can only have the following extensions: %1$s.';
