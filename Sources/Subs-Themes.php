@@ -33,7 +33,7 @@ function get_single_theme($id)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for})
+		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on})
 			AND id_theme = {int:id_theme}
 			AND id_member = {int:no_member}',
 		array(
@@ -47,6 +47,7 @@ function get_single_theme($id)
 			'theme_templates' => 'theme_templates',
 			'version' => 'version',
 			'install_for' => 'install_for',
+			'based_on' => 'based_on',
 		)
 	);
 
@@ -66,15 +67,19 @@ function get_all_themes()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE variable IN ({string:name}, {string:version}, {string:theme_dir}, {string:theme_url}, {string:images_url})
+		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on})
 			AND id_member = {int:no_member}',
 		array(
 			'no_member' => 0,
-			'name' => 'name',
-			'version' => 'version',
 			'theme_dir' => 'theme_dir',
-			'theme_url' => 'theme_url',
 			'images_url' => 'images_url',
+			'theme_url' => 'theme_url',
+			'name' => 'name',
+			'theme_layers' => 'theme_layers',
+			'theme_templates' => 'theme_templates',
+			'version' => 'version',
+			'install_for' => 'install_for',
+			'based_on' => 'based_on',
 		)
 	);
 	$context['themes'] = array();
@@ -147,7 +152,6 @@ function get_theme_info($path)
 	$theme_info_xml = $theme_info_xml->to_array();
 
 	$xml_elements = array(
-		'name' => 'name',
 		'theme_layers' => 'layers',
 		'theme_templates' => 'templates',
 		'based_on' => 'based-on',
@@ -158,6 +162,9 @@ function get_theme_info($path)
 	foreach ($xml_elements as $var => $name)
 		if (!empty($theme_info_xml[$name]))
 			$xml_data[$var] = $theme_info_xml[$name];
+
+	// Add the supported versions.
+	$xml_data['install_for'] = $install_versions;
 
 	// Overwrite the default images folder.
 	if (!empty($theme_info_xml['images']))

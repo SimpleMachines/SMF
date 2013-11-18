@@ -1337,11 +1337,15 @@ function InstallCopy()
 	// Get a cleaner version.
 	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
+	// This is a brand new theme so set all possible values.
 	$context['to_install'] = array(
 		'dir' => $themedir . '/' . $name,
 		'url' => $themeurl . '/' . $name,
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
+		'version' => '1.0',
+		'install_for' => '2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')) .'',
+		'based_on' => '',
 	);
 
 	// Create the specific dir.
@@ -1397,6 +1401,11 @@ function InstallCopy()
 
 	$smcFunc['db_free_result']($request);
 
+	$context['to_install'] += array(
+		'theme_layers' => empty($theme_layers) ? 'html,body' : $theme_layers,
+		'theme_templates' => empty($theme_templates) ? 'index' : $theme_templates,
+	);
+
 	// Lets add a theme_info.xml to this theme.
 	$xml_info = '<' . '?xml version="1.0"?' . '>
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
@@ -1405,7 +1414,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')) .'" />
+<install for="'. $context['to_install']['install_for'] .'" />
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1413,9 +1422,9 @@ function InstallCopy()
 <!-- Website... where to get updates and more information. -->
 <website>http://www.simplemachines.org/</website>
 <!-- Template layers to use, defaults to "html,body". -->
-<layers>' . (empty($theme_layers) ? 'html,body' : $theme_layers) . '</layers>
+<layers>' . $context['to_install']['theme_layers'] . '</layers>
 <!-- Templates to load on startup. Default is "index". -->
-<templates>' . (empty($theme_templates) ? 'index' : $theme_templates) . '</templates>
+<templates>' . $context['to_install']['theme_templates'] . '</templates>
 <!-- Base this theme off another? Default is blank, or no. It could be "default". -->
 <based-on></based-on>
 </theme-info>';
@@ -1427,11 +1436,6 @@ function InstallCopy()
 		fwrite($fp, $xml_info);
 		fclose($fp);
 	}
-
-	// Read its info form the XML file.
-	$theme_info = get_theme_info($context['to_install']['dir']);
-
-	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
 	$id = theme_install($context['to_install']);
