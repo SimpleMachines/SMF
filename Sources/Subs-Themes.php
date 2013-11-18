@@ -121,7 +121,7 @@ function get_all_themes()
 function get_theme_info($path)
 {
 	global $sourcedir, $forum_version, $txt, $scripturl, $context;
-	global $explicit_images;
+	global $explicit_images, $dirtemp;
 
 	if (empty($path))
 		return false;
@@ -134,6 +134,9 @@ function get_theme_info($path)
 	{
 		loadLanguage('Errors');
 
+		// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
+		remove_dir($path);
+
 		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
 		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
 	}
@@ -144,11 +147,17 @@ function get_theme_info($path)
 
 	// Error message, there isn't any valid info.
 	if (!$theme_info_xml->exists('theme-info[0]'))
+	{
+		remove_dir($path);
 		fatal_lang_error('package_get_error_packageinfo_corrupt', false);
+	}
 
 	// Check for compatibility with 2.1 or greater.
 	if (!$theme_info_xml->exists('theme-info/install'))
+	{
+		remove_dir($path);
 		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+	}
 
 	// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
 	$the_version = strtr($forum_version, array('SMF ' => ''));
@@ -156,7 +165,10 @@ function get_theme_info($path)
 
 	// The theme isn't compatible with the current SMF version.
 	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
+	{
+		rmdir($path);
 		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
+	}
 
 	$theme_info_xml = $theme_info_xml->path('theme-info[0]');
 	$theme_info_xml = $theme_info_xml->to_array();
@@ -338,6 +350,30 @@ function theme_install($to_install = array())
 	updateSettings(array('knownThemes' => strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','))));
 
 	return $id_theme;
+}
+
+function remove_dir($path)
+{
+	if (empty($path))
+		return false;
+
+	if (is_dir($path))
+	{
+		$objects = scandir($path);
+
+		foreach ($objects as $object)
+			if ($object != '.' && $object != '..')
+			{
+				if (filetype($path .'/'. $object) == 'dir')
+					remove_dir($path .'/'.$object);
+
+				else
+					unlink($path .'/'. $object);
+			}
+	}
+
+	reset($objects);
+	rmdir($path);
 }
 
 ?>

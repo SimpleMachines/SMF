@@ -1284,9 +1284,17 @@ function ThemeInstall()
 
 function InstallFile()
 {
-	global $themedir, $themeurl, $context;
+	global $themedir, $themeurl, $context, $dirtemp;
 
-	$result = array();
+	// Set a temp dir for dumping all required files on it.
+	$dirtemp = $themedir .'/temp';
+
+	// Create the temp dir.
+	mkdir($dirtemp, 0777);
+
+	// Hopefully the temp directory is writable, or we might have a problem.
+	if (!is_writable($dirtemp))
+		fatal_lang_error('theme_install_write_error', 'critical');
 
 	// This happens when the admin session is gone and the user has to login again.
 	if (!isset($_FILES) || !isset($_FILES['theme_gz']) || empty($_FILES['theme_gz']))
@@ -1309,16 +1317,19 @@ function InstallFile()
 	);
 
 	// Extract the file on the proper themes dir.
-	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $context['to_install']['theme_dir'], false, true);
+	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
 
 	if ($extracted)
 	{
 		// Read its info form the XML file.
-		$theme_info = get_theme_info($context['to_install']['theme_dir']);
+		$theme_info = get_theme_info($dirtemp);
 		$context['to_install'] += $theme_info;
 
 		// Install the theme. theme_install() will take care of possible errors.
 		$id = theme_install($context['to_install']);
+
+		// Rename the temp dir to the actual theme name.
+		rename($dirtemp, $context['to_install']['theme_dir']);
 
 		// return the ID.
 		return $id;
