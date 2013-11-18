@@ -859,7 +859,7 @@ function RemoveTheme()
 		)
 	);
 
-	// Some boards may have it as prefered theme.
+	// Some boards may have it as preferred theme.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}boards
 		SET id_theme = {int:default_theme}

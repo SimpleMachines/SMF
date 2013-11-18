@@ -33,7 +33,7 @@ function get_single_theme($id)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on})
+		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on}, {string:enable})
 			AND id_theme = {int:id_theme}
 			AND id_member = {int:no_member}',
 		array(
@@ -48,6 +48,7 @@ function get_single_theme($id)
 			'version' => 'version',
 			'install_for' => 'install_for',
 			'based_on' => 'based_on',
+			'enable' => 'enable',
 		)
 	);
 
@@ -67,7 +68,7 @@ function get_all_themes()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on})
+		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on}, {string:enable})
 			AND id_member = {int:no_member}',
 		array(
 			'no_member' => 0,
@@ -80,6 +81,7 @@ function get_all_themes()
 			'version' => 'version',
 			'install_for' => 'install_for',
 			'based_on' => 'based_on',
+			'enable' => 'enable',
 		)
 	);
 	$context['themes'] = array();
@@ -99,18 +101,9 @@ function get_all_themes()
 	{
 		$context['themes'][$i]['theme_dir'] = realpath($context['themes'][$i]['theme_dir']);
 
-		// Fetch the version if there isn't one stored on the DB. @todo get it from the .xml file.
-		if (empty($context['themes'][$i]['version']) && file_exists($context['themes'][$i]['theme_dir'] . '/index.template.php'))
-		{
-			// Fetch the header... a good 256 bytes should be more than enough.
-			$fp = fopen($context['themes'][$i]['theme_dir'] . '/index.template.php', 'rb');
-			$header = fread($fp, 256);
-			fclose($fp);
-
-			// Can we find a version comment, at all?
-			if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1)
-				$context['themes'][$i]['version'] = $match[1];
-		}
+		// Fetch some more info directly form the xml file.
+		if (file_exists($context['themes'][$i]['theme_dir'] . '/theme_info.xml'))
+			$context['themes'][$i] += get_theme_info($context['themes'][$i]['theme_dir']);}
 
 		$context['themes'][$i]['valid_path'] = file_exists($context['themes'][$i]['theme_dir']) && is_dir($context['themes'][$i]['theme_dir']);
 	}
