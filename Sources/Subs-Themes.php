@@ -261,7 +261,10 @@ function theme_install($to_install = array())
 					);
 
 					// Done with the update, tell the user about it.
-					return $to_update['id_theme'];
+					$context['to_install']['updated'] = true;
+					$context['to_install']['id'] = $to_update['id_theme'];
+
+					return $context['to_install'];
 					break; // Just for reference.
 			}
 	}
