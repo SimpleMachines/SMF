@@ -132,7 +132,7 @@ function ModifyProfile($post_errors = array())
 					'enabled' => !empty($modSettings['drafts_post_enabled']) && $context['user']['is_owner'],
 					'permission' => array(
 						'own' => 'is_not_guest',
-						'any' =>  array(),
+						'any' => array(),
 					),
 				),
 				'permissions' => array(
