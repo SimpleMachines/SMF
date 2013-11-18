@@ -275,6 +275,16 @@ function checkImagick()
 }
 
 /**
+ * Checks whether the MagickWand extension is present.
+ *
+ * @return whether or not MagickWand is available.
+ */
+ function checkMagickWand()
+ {
+ 	return function_exists('newMagickWand');
+ }
+
+/**
  * See if we have enough memory to thumbnail an image
  *
  * @param array $sizes image size
@@ -317,8 +327,8 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 {
 	global $sourcedir;
 
-	// Nothing to do without GD or IM
-	if (!checkGD() && !checkImagick())
+	// Nothing to do without GD or IM/MW
+	if (!checkGD() && !checkImagick() && !checkMagickWand())
 		return false;
 
 	static $default_formats = array(
@@ -362,12 +372,13 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 		$sizes = array(-1, -1, -1);
 
 	// See if we have -or- can get the needed memory for this operation
-	if (checkGD() && !imageMemoryCheck($sizes))
+	// ImageMagick isn't subject to PHP's memory limits :)
+	if (!(checkIMagick() || checkMagickWand()) && checkGD() && !imageMemoryCheck($sizes))
 		return false;
 
 	// A known and supported format?
 	// @todo test PSD and gif.
-	if (checkImagick() && isset($default_formats[$sizes[2]]))
+	if ((checkImagick() || checkMagickWand()) && isset($default_formats[$sizes[2]]))
 	{
 		return resizeImage(null, $destination, null, null, $max_width, $max_height, true, $preferred_format);
 	}
@@ -404,7 +415,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 {
 	global $gd2, $modSettings;
 
-	if (checkImagick())
+	if (checkImagick() || checkMagickWand())
 	{
 		static $default_formats = array(
 			'1' => 'gif',
@@ -415,15 +426,32 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		);
 		$preferred_format = empty($preferred_format) || !isset($default_formats[$preferred_format]) ? 2 : $preferred_format;
 
-		$imagick = New Imagick($destName);
-		$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
-		$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
-		$dest_width = empty($max_width) ? $src_width : $max_width;
-		$dest_height = empty($max_height) ? $src_height : $max_height;
+		if (checkImagick())
+		{
 
-		$imagick->setImageFormat($default_formats[$preferred_format]);
-		$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
-		$success = $imagick->writeImage($destName);
+			$imagick = New Imagick($destName);
+			$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
+			$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
+			$dest_width = empty($max_width) ? $src_width : $max_width;
+			$dest_height = empty($max_height) ? $src_height : $max_height;
+
+			$imagick->setImageFormat($default_formats[$preferred_format]);
+			$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
+			$success = $imagick->writeImage($destName);
+		}
+		else
+		{
+			$magick_wand = newMagickWand();
+			MagickReadImage($magick_wand, $destName);
+			$src_width = empty($src_width) ? MagickGetImageWidth($magick_wand) : $src_width;
+			$src_height = empty($src_height) ? MagickGetImageSize($magick_wand) : $src_height;
+			$dest_width = empty($max_width) ? $src_width : $max_width;
+			$dest_height = empty($max_height) ? $src_height : $max_height;
+			
+			MagickSetImageFormat($magick_wand, $default_formats[$preferred_format]);
+			MagickResizeImage($magic_wand, $dest_width, $dest_height, MW_LanczosFilter, 1, true);
+			$success = MagickWriteImage($magick_wand, $destName);
+		}
 
 		return !empty($success);
 	}
