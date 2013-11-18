@@ -1337,6 +1337,10 @@ function InstallCopy()
 	// Get a cleaner version.
 	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
+	// Is there a theme already named like this?
+	if (file_exists($themedir .'/'. $name))
+		fatal_lang_error('theme_install_already_dir', false);
+
 	// This is a brand new theme so set all possible values.
 	$context['to_install'] = array(
 		'dir' => $themedir . '/' . $name,
@@ -1344,8 +1348,7 @@ function InstallCopy()
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
-		'install_for' => '2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')) .'',
-		'based_on' => '',
+		'install_for' => '2.1 - 2.1.99, '. strtr($forum_version, array('SMF ' => '')),
 	);
 
 	// Create the specific dir.

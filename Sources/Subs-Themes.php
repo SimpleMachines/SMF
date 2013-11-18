@@ -182,28 +182,15 @@ function get_theme_info($path)
 function theme_install($to_install = array())
 {
 	global $sourcedir, $txt, $context, $boarddir, $boardurl;
-	global $themedir, $themeurl, $explicit_images;
+	global $themedir, $themeurl, $settings, $explicit_images;
 
 	// External use? no problem!
 	if ($to_install)
 		$context['to_install'] = $to_install;
 
-	// We kinda need this and it should have been previously set.
-	if (empty($context['to_install']))
-		return false;
-
 	// One last check.
 	if ($context['to_install']['dir'] != '' && basename($context['to_install']['dir']) != 'Themes')
-		return false;
-
-	// Defaults.
-	$context['to_install'] = array(
-		'theme_url' => $themeurl . '/' . basename($context['to_install']['dir']),
-	);
-
-	// This vars could have been set, it all depends from where are we coming.
-	if (empty($context['to_install']['images_url']))
-		$context['to_install']['images_url'] = $themeurl . '/' . basename($context['to_install']['dir']) . '/images';
+		fatal_lang_error('theme_install_invalid_dir', false);
 
 	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 	if (file_exists($context['to_install']['dir'] . '/package-info.xml'))
@@ -258,13 +245,13 @@ function theme_install($to_install = array())
 						)
 					);
 
-					// Do a redirect and set a nice updated message.
+					// Done with the update, tell the user about it.
 					return $to_update['id_theme'];
 					break; // Just for reference.
 			}
 	}
 
-	if (isset($context['to_install']['based_on']))
+	if (!empty($context['to_install']['based_on']))
 	{
 		// No need for elaborated stuff when the theme is based on the default one.
 		if ($context['to_install']['based_on'] == 'default')
