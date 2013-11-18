@@ -1181,7 +1181,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'yim' => $profile['yim'] != '' && !$user_info['is_guest'] ? array(
 				'name' => $profile['yim'],
 				'href' => 'http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']),
-				'link' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"><img src="' . $settings['images_url'] . '/yahoo.png" alt="' . $txt['yim_title'] . ' - ' . $profile['yahoo'] . '" /></a>',
+				'link' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"><img src="' . $settings['images_url'] . '/yahoo.png" alt="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '" /></a>',
 				'link_text' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '">' . $profile['yim'] . '</a>'
 			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
 			'skype' => !empty($profile['skype']) && !$user_info['is_guest'] ? array(
