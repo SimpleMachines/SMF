@@ -1050,7 +1050,7 @@ img.sort, .sort {
 	float: left;
 	width: 100%;
 }
-.dropmenu {
+.dropmenu, #top_info {
 	float: left;
 	width: 100%;
 	position: relative;
@@ -1060,7 +1060,7 @@ img.sort, .sort {
 	padding: 0 40px 0 0;
 }
 /* Level 1 button background. */
-.dropmenu li {
+.dropmenu li, #top_info > li {
 	margin: 0 2px 0 2px;
 	padding: 0 0 0.3em 0;
 	float: left;
@@ -1069,17 +1069,18 @@ img.sort, .sort {
 	position: relative;
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
-.dropmenu li .amt
-{
+.dropmenu li .amt, #top_info li .amt {
 	padding: 0 4px;
 	color: white;
 	background: #6d90ad;
 	border-radius: 4px;
 }
-.dropmenu li .active .amt
-{
+.dropmenu li .active .amt, #top_info li .active .amt {
 	background: none;
 	color: inherit;
+}
+#top_info .top_menu.visible {
+	margin-left: 9999px;
 }
 /* Needed for new PM notifications. */
 .dropmenu li strong {
@@ -1091,7 +1092,7 @@ img.sort, .sort {
 	top: 0;
 	right: 0;
 }
-.dropmenu li a {
+.dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
 	margin: 0 0 0 0;
 	display: block;
@@ -1099,7 +1100,7 @@ img.sort, .sort {
 	border-radius: 4px;
 }
 /* Level 1 active button. */
-.dropmenu li a.active {
+.dropmenu li a.active, #top_info li a.active {
 	background: orange;
 	color: #fff;
 	font-weight: bold;
@@ -1108,7 +1109,7 @@ img.sort, .sort {
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 /* Level 1 hover effects. */
-.dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus {
+.dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus, #top_info > li > a:hover, #top_info > li:hover > a, #top_info > li > a.open {
 	background: #597b9f;
 	border: 1px solid #4a6b8c;
 	color: #fff;
@@ -1124,6 +1125,36 @@ img.sort, .sort {
 	color: #444;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
 	text-shadow: none;
+}
+/* User information. */
+#profile_menu a.avatar {
+	float: left;
+	margin: 0 20px 0 10px;
+}
+#profile_menu a.avatar img {
+	height: 100%;
+	width: 100%;
+	max-width: 50px;
+	max-height: 50px;
+}
+#profile_menu .profile_user_info ol {
+	float: left;
+	max-width: 70%;
+}
+#profile_menu .profile_username {
+	max-width: 95%;
+	overflow: hidden;
+	font-size: 150%;
+}
+#profile_menu .profile_user_links ol {
+	margin: 10px;
+}
+#profile_menu .profile_user_links li {
+	float: left;
+	width: 50%;
+}
+#profile_menu .profile_user_links li img {
+	margin-bottom: -1px;
 }
 /* This CSS is for adding top level subsection indicators, just in case anyone wants them. */
 /* I'm not that keen on them, but perhaps the commented code should be left as a handy demo. */
@@ -1145,7 +1176,7 @@ img.sort, .sort {
 }
 */
 /* Levels 2 and 3 submenu wrapper. */
-.dropmenu li ul {
+.dropmenu li ul, .top_menu {
 	z-index: 90;
 	position: absolute;
 	top: 2.25em;
@@ -1182,6 +1213,10 @@ img.sort, .sort {
 .dropmenu li li a>img {
 	vertical-align: middle;
 	margin: 0 0 0 -4px;
+}
+/* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
+.top_menu {
+	width: 25em;
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .dropmenu ul a:focus, .dropmenu ul ul a:focus {
@@ -1372,7 +1407,7 @@ img.sort, .sort {
 	margin: 0;
 	padding: 5px 9px 4px 9px;
 	line-height: 1.3em;
-	width: 50%;
+	width: auto;
 }
 /*#top_section ul li {
 	margin-bottom: 2px;
@@ -1497,18 +1532,6 @@ ul li.greeting {
 #guest_form {
 	overflow: hidden;
 	font-size: 0.9em;
-}
-/* User information. */
-#inner_wrap a.avatar {
-	float: left;
-	margin: 0 10px 5px 0;
-}
-/* No more huge avatars up top. YAY! */
-#inner_wrap a.avatar img {
-	height: 100%;
-	width: 100%;
-	max-width: 40px;
-	max-height: 40px;
 }
 /* News section. */
 #inner_wrap .news {

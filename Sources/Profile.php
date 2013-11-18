@@ -98,6 +98,14 @@ function ModifyProfile($post_errors = array())
 						'any' => 'profile_view',
 					),
 				),
+				'popup' => array(
+					'function' => 'profile_popup',
+					'permission' => array(
+						'own' => 'is_not_guest',
+						'any' => array(),
+					),
+					'select' => 'summary',
+				),
 				'statistics' => array(
 					'label' => $txt['statPanel'],
 					'file' => 'Profile-View.php',
@@ -687,6 +695,81 @@ function ModifyProfile($post_errors = array())
 	// Set the page title if it's not already set...
 	if (!isset($context['page_title']))
 		$context['page_title'] = $txt['profile'] . (isset($txt[$current_area]) ? ' - ' . $txt[$current_area] : '');
+}
+
+/**
+ * Set up the requirements for the profile popup - the area that is shown as the popup menu for the current user.
+ *
+ * @param int $memID
+ */
+function profile_popup($memID)
+{
+	global $context, $scripturl, $txt;
+
+	// We only want to output our little layer here.
+	$context['template_layers'] = array();
+
+	// This list will pull from the master list wherever possible. Hopefully it should be clear what does what.
+	$profile_items = array(
+		array(
+			'menu' => 'info',
+			'area' => 'summary',
+			'title' => $txt['popup_summary'],
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'account',
+		),
+		array(
+			'menu' => 'info',
+			'area' => 'showposts',
+			'title' => $txt['popup_showposts'],
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'forumprofile',
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'notification',
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'theme',
+			'title' => $txt['popup_preferences'],
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'ignoreboards',
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'lists',
+			'url' => $scripturl . '?action=profile;area=lists;sa=ignore',
+			'title' => $txt['popup_ignore'],
+		),
+		array(
+			'menu' => 'edit_profile',
+			'area' => 'groupmembership',
+		),
+		array(
+			'menu' => 'profile_action',
+			'area' => 'subscriptions',
+		),
+	);
+
+	call_integration_hook('integrate_profile_popup', array(&$profile_items));
+
+	// Now check if these items are available
+	$context['profile_items'] = array();
+	$menu_context = &$context[$context['profile_menu_name']]['sections'];
+	foreach ($profile_items as $item)
+	{
+		if (isset($menu_context[$item['menu']]['areas'][$item['area']]))
+		{
+			$context['profile_items'][] = $item;
+		}
+	}
 }
 
 /**

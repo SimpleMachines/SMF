@@ -337,6 +337,77 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 	return false;
 }
 
+// Create the popup menus for the top level/user menu area.
+function smc_PopupMenu(oOptions)
+{
+	this.opt = (typeof oOptions == 'object') ? oOptions : {};
+	this.opt.menus = {};
+}
+
+smc_PopupMenu.prototype.add = function (sItem, sUrl)
+{
+	var $menu = $('#' + sItem + '_menu'), $item = $('#' + sItem + '_menu_top');
+	if ($item.length == 0)
+		return;
+
+	this.opt.menus[sItem] = {open: false, loaded: false, sUrl: sUrl, itemObj: $item, menuObj: $menu };
+
+	$item.click({obj: this}, function (e) {
+		e.preventDefault();
+		if (e.target != this)
+			return;
+			
+		e.data.obj.toggle(sItem);
+	});
+}
+
+smc_PopupMenu.prototype.toggle = function (sItem)
+{
+	if (!!this.opt.menus[sItem].open)
+		this.close(sItem);
+	else
+		this.open(sItem);
+}
+
+smc_PopupMenu.prototype.open = function (sItem)
+{
+	this.closeAll();
+
+	if (!this.opt.menus[sItem].loaded)
+	{
+		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
+		this.opt.menus[sItem].menuObj.load(this.opt.menus[sItem].sUrl);
+		this.opt.menus[sItem].loaded = true;
+	}
+
+	this.opt.menus[sItem].menuObj.addClass('visible');
+	this.opt.menus[sItem].itemObj.addClass('open');
+	this.opt.menus[sItem].open = true;
+
+	// Now set up closing the menu if we click off.
+	$(document).on('click.menu', {obj: this}, function(e) {
+		if ($(e.target).closest('#top_info').length)
+			return;
+		e.data.obj.closeAll();
+		$(document).off('click.menu');
+	});
+}
+
+smc_PopupMenu.prototype.close = function (sItem)
+{
+	this.opt.menus[sItem].menuObj.removeClass('visible');
+	this.opt.menus[sItem].itemObj.removeClass('open');
+	this.opt.menus[sItem].open = false;
+	$(document).off('click.menu');
+}
+
+smc_PopupMenu.prototype.closeAll = function ()
+{
+	for (var prop in this.opt.menus)
+		if (!!this.opt.menus[prop].open)
+			this.close(prop);
+}
+
 // *** smc_Popup class.
 function smc_Popup(oOptions)
 {
