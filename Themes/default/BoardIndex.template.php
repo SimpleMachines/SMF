@@ -203,7 +203,7 @@ function template_main()
 				echo '
 					<tr id="board_', $board['id'], '_children" class="windowbg2">
 						<td colspan="3" class="windowbg children">
-							<p><strong>', $txt['parent_boards'], '</strong>: ', implode(', ', $children), '</p>
+							<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
 						</td>
 					</tr>';
 				}
