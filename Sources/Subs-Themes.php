@@ -166,7 +166,7 @@ function get_theme_info($path)
 	// The theme isn't compatible with the current SMF version.
 	if (!$install_versions || !matchPackageVersion($the_version, $install_versions))
 	{
-		rmdir($path);
+		remove_dir($path);
 		fatal_lang_error('package_get_error_theme_not_compatible', false, $forum_version);
 	}
 
