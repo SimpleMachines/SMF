@@ -120,13 +120,23 @@ function get_all_themes()
 
 function get_theme_info($path)
 {
-	global $sourcedir, $forum_version, $explicit_images;
+	global $sourcedir, $forum_version, $txt, $scripturl, $context;
+	global $explicit_images;
 
 	if (empty($path))
 		return false;
 
 	$xml_data = array();
 	$explicit_images = false;
+
+	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
+	if (file_exists($path . '/package-info.xml'))
+	{
+		loadLanguage('Errors');
+
+		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
+		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
+	}
 
 	// Parse theme-info.xml into an xmlArray.
 	require_once($sourcedir . '/Class-Package.php');
@@ -181,8 +191,8 @@ function get_theme_info($path)
 
 function theme_install($to_install = array())
 {
-	global $smcFunc, $txt, $context, $themedir, $themeurl;
-	global $settings, $explicit_images, $modSettings;
+	global $smcFunc, $context, $themedir, $themeurl, $modSettings;
+	global $settings, $explicit_images;
 
 	// External use? no problem!
 	if ($to_install)
@@ -191,13 +201,6 @@ function theme_install($to_install = array())
 	// One last check.
 	if (empty($context['to_install']['theme_dir']) || basename($context['to_install']['theme_dir']) == 'Themes')
 		fatal_lang_error('theme_install_invalid_dir', false);
-
-	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
-	if (file_exists($context['to_install']['theme_dir'] . '/package-info.xml'))
-	{
-		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
-		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
-	}
 
 	// OK, is this a newer version of an already installed theme?
 	if (!empty($context['to_install']['version']))

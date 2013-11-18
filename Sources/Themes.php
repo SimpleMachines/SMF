@@ -1304,6 +1304,8 @@ function InstallFile()
 	$context['to_install'] = array(
 		'theme_dir' => $themedir . '/' . $name,
 		'theme_url' => $themeurl . '/' . $name,
+		'images_url' => $themeurl . '/' . $name . '/images',
+		'name' => $name,
 	);
 
 	// Extract the file on the proper themes dir.
@@ -1312,6 +1314,7 @@ function InstallFile()
 	if ($extracted)
 	{
 		// Read its info form the XML file.
+		$theme_info = get_theme_info($context['to_install']['theme_dir']);
 		$context['to_install'] += $theme_info;
 
 		// Install the theme. theme_install() will take care of possible errors.
