@@ -826,55 +826,60 @@ function RemoveTheme()
 	validateToken('admin-tr', 'request');
 
 	// The theme's ID must be an integer.
-	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
+	$themeID = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
 	// You can't delete the default theme!
 	if ($_GET['th'] == 1)
 		fatal_lang_error('no_access', false);
 
 	$known = explode(',', $modSettings['knownThemes']);
-	for ($i = 0, $n = count($known); $i < $n; $i++)
-	{
-		if ($known[$i] == $_GET['th'])
-			unset($known[$i]);
-	}
 
+	// Remove it from the list of known themes.
+	for ($i = 0, $n = count($known); $i < $n; $i++)
+		if ($known[$i] == $themeID)
+			unset($known[$i]);
+
+	// Remove it from the themes table.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}themes
 		WHERE id_theme = {int:current_theme}',
 		array(
-			'current_theme' => $_GET['th'],
+			'current_theme' => $themeID,
 		)
 	);
 
+	// Update users preferences.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}members
 		SET id_theme = {int:default_theme}
 		WHERE id_theme = {int:current_theme}',
 		array(
 			'default_theme' => 0,
-			'current_theme' => $_GET['th'],
+			'current_theme' => $themeID,
 		)
 	);
 
+	// Some boards may have it as prefered theme.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}boards
 		SET id_theme = {int:default_theme}
 		WHERE id_theme = {int:current_theme}',
 		array(
 			'default_theme' => 0,
-			'current_theme' => $_GET['th'],
+			'current_theme' => $themeID,
 		)
 	);
 
 	$known = strtr(implode(',', $known), array(',,' => ','));
 
 	// Fix it if the theme was the overall default theme.
-	if ($modSettings['theme_guests'] == $_GET['th'])
+	if ($modSettings['theme_guests'] == $themeID)
 		updateSettings(array('theme_guests' => '1', 'knownThemes' => $known));
+
 	else
 		updateSettings(array('knownThemes' => $known));
 
+	// Go back to the list page.
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
 }
 
