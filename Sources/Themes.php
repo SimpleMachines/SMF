@@ -1284,7 +1284,7 @@ function ThemeInstall()
 
 function InstallFile()
 {
-	global $themedir, $themeurl, $context, $dirtemp;
+	global $themedir, $themeurl, $context;
 
 	// Set a temp dir for dumping all required files on it.
 	$dirtemp = $themedir .'/temp';
@@ -1463,7 +1463,7 @@ function InstallCopy()
 
 function InstallDir()
 {
-	global $themedir;
+	global $themedir, $themeurl, $context;
 
 	// Cannot use the theme dir as a theme dir.
 	if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))

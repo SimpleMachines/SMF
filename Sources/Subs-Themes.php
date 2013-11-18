@@ -121,7 +121,7 @@ function get_all_themes()
 function get_theme_info($path)
 {
 	global $sourcedir, $forum_version, $txt, $scripturl, $context;
-	global $explicit_images, $dirtemp;
+	global $explicit_images;
 
 	if (empty($path))
 		return false;
