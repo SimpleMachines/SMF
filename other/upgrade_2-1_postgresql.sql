@@ -852,3 +852,50 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
+
+/******************************************************************************/
+--- Cleaning up guest permissions
+/******************************************************************************/
+---# Removing permissions guests can no longer have...
+---{
+	$illegal_board_permissions = array(
+		'announce_topic',
+		'delete_any',
+		'lock_any',
+		'make_sticky',
+		'merge_any',
+		'modify_any',
+		'modify_replies',
+		'move_any',
+		'poll_add_any',
+		'poll_edit_any',
+		'poll_lock_any',
+		'poll_remove_any',
+		'remove_any',
+		'report_any',
+		'split_any'
+	);
+
+	$illegal_permissions = array('calendar_edit_any', 'moderate_board', 'moderate_forum', 'send_email_to_members');
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}board_permissions
+		WHERE id_group = {int:guests}
+		AND permission IN ({array_string:illegal_board_perms})',
+		array(
+			'guests' => -1,
+			'illegal_board_perms' => $illegal_board_permissions,
+		)
+	);
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE id_group = {int:guests}
+		AND permission IN ({array_string:illegal_perms}',
+		array(
+			'guests' => -1,
+			'illegal_perms' => $illegal_permissions,
+		)
+	);
+---}
+---#
