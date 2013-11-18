@@ -525,6 +525,7 @@ function AdminHome()
 	$checkFor = array(
 		'gd',
 		'imagick',
+		'magickwand',
 		'db_server',
 		'mmcache',
 		'eaccelerator',

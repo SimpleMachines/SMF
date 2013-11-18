@@ -43,6 +43,13 @@ function getServerVersions($checkFor)
 		$versions['imagick'] = array('title' => $txt['support_versions_imagick'], 'version' => $temp2['versionString']);
 	}
 
+	// Don't forget MagickWand either!
+	if (in_array('magickwand', $checkFor) && function_exists('MagickGetVersionString'))
+	{
+		$temp = MagickGetVersionString();
+		$versions['magickwand'] = array('title' => $txt['support_versions_magickwand'], 'version' => $temp);
+	}
+
 	// Now lets check for the Database.
 	if (in_array('db_server', $checkFor))
 	{
