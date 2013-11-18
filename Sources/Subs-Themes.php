@@ -159,6 +159,7 @@ function get_theme_info($path)
 		if (!empty($theme_info_xml[$name]))
 			$xml_data[$var] = $theme_info_xml[$name];
 
+	// Overwrite the default images folder.
 	if (!empty($theme_info_xml['images']))
 	{
 		$xml_data['images_url'] = $path . '/' . $theme_info_xml['images'];

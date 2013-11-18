@@ -114,9 +114,7 @@ function ThemesMain()
  */
 function ThemeAdmin()
 {
-	global $context, $boarddir, $modSettings, $smcFunc, $sourcedir;
-
-	require_once($sourcedir . '/Subs-Package.php');
+	global $context, $boarddir, $modSettings, $smcFunc;
 
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
@@ -1238,6 +1236,8 @@ function ThemeInstall()
 	checkSession('request');
 	isAllowedTo('admin_forum');
 
+	require_once($sourcedir . '/Subs-Package.php');
+
 	// Make it easier to change the path and url.
 	$themedir = $boarddir . '/Themes';
 	$themeurl = $boardurl . '/Themes';
@@ -1297,12 +1297,13 @@ function InstallFile()
 		fatal_lang_error('theme_install_error_file_'. $_FILES['theme_gz']['error'], false);
 
 	// Get the theme's name.
-	$theme_name = strtok(basename($_FILES['theme_gz']['name']));
-	$theme_name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $theme_name);
+	$name = strtok(basename($_FILES['theme_gz']['name']));
+	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// Start setting some vars.
 	$context['to_install'] = array(
-		'dir' => $themedir . '/' . $theme_name,
+		'dir' => $themedir . '/' . $name,
+		'url' => $themeurl . '/' . $name,
 	);
 
 	// Extract the file on the proper themes dir.
@@ -1311,7 +1312,7 @@ function InstallFile()
 	if ($extracted)
 	{
 		// Read its info form the XML file.
-		$context['to_install'] += get_theme_info($context['to_install']['dir']);
+		$context['to_install'] += $theme_info;
 
 		// Install the theme. theme_install() will take care of possible errors.
 		$id = theme_install($context['to_install']);
@@ -1326,18 +1327,21 @@ function InstallFile()
 
 function InstallCopy()
 {
-	global $themedir, $settings;
+	global $themedir, $themeurl, $settings, $smcFunc, $context;
+	global $forum_version;
 
 	// There's gotta be something to work with.
-	if (!isset($_POST['copy']) || empty($_POST['copy']))
+	if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy']))
 		fatal_lang_error('theme_install_error_title', false);
 
 	// Get a cleaner version.
-	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_POST['copy']);
+	$name = preg_replace('~[^A-Za-z0-9_\- ]~', '', $_REQUEST['copy']);
 
 	$context['to_install'] = array(
 		'dir' => $themedir . '/' . $name,
+		'url' => $themeurl . '/' . $name,
 		'name' => $name,
+		'images_url' => $themeurl . '/' . $name . '/images',
 	);
 
 	// Create the specific dir.
@@ -1366,11 +1370,6 @@ function InstallCopy()
 	copytree($settings['default_theme_dir'] . '/images', $context['to_install']['dir'] . '/images');
 	package_flush_cache();
 
-	$context['to_install']['dir'] = realpath($context['to_install']['dir']);
-	$context['to_install'] = array(
-		'images_url' => $themeurl . '/' . $name,
-	);
-
 	// Lets get some data for the new theme.
 	$request = $smcFunc['db_query']('', '
 		SELECT variable, value
@@ -1385,6 +1384,7 @@ function InstallCopy()
 			'theme_layers' => 'theme_layers',
 		)
 	);
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['variable'] == 'theme_templates')
@@ -1394,13 +1394,14 @@ function InstallCopy()
 		else
 			continue;
 	}
+
 	$smcFunc['db_free_result']($request);
 
 	// Lets add a theme_info.xml to this theme.
 	$xml_info = '<' . '?xml version="1.0"?' . '>
 <theme-info xmlns="http://www.simplemachines.org/xml/theme-info" xmlns:smf="http://www.simplemachines.org/">
 <!-- For the id, always use something unique - put your name, a colon, and then the package name. -->
-<id>smf:' . $smcFunc['strtolower'](trim(str_replace(array(' '), '_', $_REQUEST['copy']))) . '</id>
+<id>smf:' . $smcFunc['strtolower']($context['to_install']['name']) . '</id>
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
@@ -1420,7 +1421,7 @@ function InstallCopy()
 </theme-info>';
 
 	// Now write it.
-	$fp = @fopen($theme_dir . '/theme_info.xml', 'w+');
+	$fp = @fopen($context['to_install']['dir'] . '/theme_info.xml', 'w+');
 	if ($fp)
 	{
 		fwrite($fp, $xml_info);
@@ -1428,7 +1429,9 @@ function InstallCopy()
 	}
 
 	// Read its info form the XML file.
-	$context['to_install'] += get_theme_info($context['to_install']['dir']);
+	$theme_info = get_theme_info($context['to_install']['dir']);
+
+	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
 	$id = theme_install($context['to_install']);
@@ -1449,13 +1452,19 @@ function InstallDir()
 	elseif (!is_dir($_REQUEST['theme_dir']) || !file_exists($_REQUEST['theme_dir'] . '/theme_info.xml'))
 		fatal_lang_error('theme_install_error', false);
 
+	$name = basename($_REQUEST['theme_dir']);
+	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
+
 	// All good! set some needed vars.
 		$context['to_install'] = array(
 		'dir' => $_REQUEST['theme_dir'],
+		'url' => $themeurl . '/' . $name,
+		'name' => $name,
+		'images_url' => $themeurl . '/' . $name . '/images',
 	);
 
 	// Read its info form the XML file.
-	$context['to_install'] += get_theme_info($context['to_install']['dir']);
+	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
 	$id = theme_install($context['to_install']);
