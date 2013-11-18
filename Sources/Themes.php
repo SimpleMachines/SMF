@@ -1302,12 +1302,12 @@ function InstallFile()
 
 	// Start setting some vars.
 	$context['to_install'] = array(
-		'dir' => $themedir . '/' . $name,
-		'url' => $themeurl . '/' . $name,
+		'theme_dir' => $themedir . '/' . $name,
+		'theme_url' => $themeurl . '/' . $name,
 	);
 
 	// Extract the file on the proper themes dir.
-	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $context['to_install']['dir'], false, true);
+	$extracted = read_tgz_file($_FILES['theme_gz']['tmp_name'], $context['to_install']['theme_dir'], false, true);
 
 	if ($extracted)
 	{
@@ -1343,8 +1343,8 @@ function InstallCopy()
 
 	// This is a brand new theme so set all possible values.
 	$context['to_install'] = array(
-		'dir' => $themedir . '/' . $name,
-		'url' => $themeurl . '/' . $name,
+		'theme_dir' => $themedir . '/' . $name,
+		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 		'version' => '1.0',
@@ -1353,7 +1353,7 @@ function InstallCopy()
 
 	// Create the specific dir.
 	umask(0);
-	mkdir($context['to_install']['dir'], 0777);
+	mkdir($context['to_install']['theme_dir'], 0777);
 
 	// Buy some time.
 	@set_time_limit(600);
@@ -1361,20 +1361,20 @@ function InstallCopy()
 		@apache_reset_timeout();
 
 	// Create subdirectories for css and javascript files.
-	mkdir($context['to_install']['dir'] . '/css', 0777);
-	mkdir($context['to_install']['dir'] . '/scripts', 0777);
+	mkdir($context['to_install']['theme_dir'] . '/css', 0777);
+	mkdir($context['to_install']['theme_dir'] . '/scripts', 0777);
 
 	// Copy over the default non-theme files.
 	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/rtl.css', '/css/admin.css', '/scripts/theme.js');
 
 	foreach ($to_copy as $file)
 	{
-		copy($settings['default_theme_dir'] . $file, $context['to_install']['dir'] . $file);
-		@chmod($context['to_install']['dir'] . $file, 0777);
+		copy($settings['default_theme_dir'] . $file, $context['to_install']['theme_dir'] . $file);
+		@chmod($context['to_install']['theme_dir'] . $file, 0777);
 	}
 
 	// And now the entire images directory!
-	copytree($settings['default_theme_dir'] . '/images', $context['to_install']['dir'] . '/images');
+	copytree($settings['default_theme_dir'] . '/images', $context['to_install']['theme_dir'] . '/images');
 	package_flush_cache();
 
 	// Lets get some data for the new theme.
@@ -1433,7 +1433,7 @@ function InstallCopy()
 </theme-info>';
 
 	// Now write it.
-	$fp = @fopen($context['to_install']['dir'] . '/theme_info.xml', 'w+');
+	$fp = @fopen($context['to_install']['theme_dir'] . '/theme_info.xml', 'w+');
 	if ($fp)
 	{
 		fwrite($fp, $xml_info);
@@ -1465,7 +1465,7 @@ function InstallDir()
 	// All good! set some needed vars.
 		$context['to_install'] = array(
 		'dir' => $_REQUEST['theme_dir'],
-		'url' => $themeurl . '/' . $name,
+		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 	);

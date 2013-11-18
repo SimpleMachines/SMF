@@ -181,19 +181,19 @@ function get_theme_info($path)
 
 function theme_install($to_install = array())
 {
-	global $sourcedir, $txt, $context, $boarddir, $boardurl;
-	global $themedir, $themeurl, $settings, $explicit_images;
+	global $smcFunc, $txt, $context, $themedir, $themeurl;
+	global $settings, $explicit_images, $modSettings;
 
 	// External use? no problem!
 	if ($to_install)
 		$context['to_install'] = $to_install;
 
 	// One last check.
-	if ($context['to_install']['dir'] != '' && basename($context['to_install']['dir']) != 'Themes')
+	if (empty($context['to_install']['theme_dir']) || basename($context['to_install']['theme_dir']) == 'Themes')
 		fatal_lang_error('theme_install_invalid_dir', false);
 
 	// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
-	if (file_exists($context['to_install']['dir'] . '/package-info.xml'))
+	if (file_exists($context['to_install']['theme_dir'] . '/package-info.xml'))
 	{
 		$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', $scripturl . '?action=admin;area=packages;' . $context['session_var'] . '=' . $context['session_id'], $txt['package_get_error_is_mod']);
 		fatal_lang_error('package_theme_upload_error_broken', false, $txt['package_get_error_is_mod']);
