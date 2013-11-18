@@ -184,23 +184,11 @@ function template_body_above()
 	if ($context['user']['is_logged'])
 	{
 		// Firstly, the user's menu
-		$is_current_user = $context['current_action'] == 'profile' && !empty($context['user']['is_owner']);
 		echo '
-			<ul class="floatleft dropmenu" id="top_info">
+			<ul class="floatleft" id="top_info">
 				<li>
-					<a href="', $scripturl, '?action=profile"', $is_current_user ? ' class="active"' : '', '>', $context['user']['name'], !empty($context['profile_menu']) ? ' &#9660;' : '', '</a>';
-		if (!empty($context['profile_menu']))
-		{
-			echo '
-					<ul>';
-			foreach ($context['profile_menu'] as $key => $item)
-				echo '
-						<li>', !empty($item['href']) ? '<a href="' . $item['href'] . '">' . $item['title'] . '</a>' : $item['title'], '</li>';
-			echo '
-					</ul>';
-		}
-
-		echo '
+					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">', $context['user']['name'], ' &#9660;</a>
+					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
 		// Are there any members waiting for approval?
@@ -219,7 +207,7 @@ function template_body_above()
 	// Otherwise they're a guest. Ask them to either register or login.
 	else
 		echo '
-			<ul class="floatleft" id="top_info">
+			<ul class="floatleft">
 				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</li>
 			</ul>';
 
@@ -288,7 +276,7 @@ function template_body_above()
 		<div id="upper_section">
 			<div id="inner_section">
 				<div id="inner_wrap">
-					<div class="user floatright">';
+					<div class="user">';
 
 	// Otherwise they're a guest - this time ask them to either register or login - lazy bums...
 	if (!empty($context['show_login_bar']))
@@ -318,19 +306,10 @@ function template_body_above()
 							<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
 						</form>';
 	}
-
-		// If the user is logged in, display stuff like their name, new messages, etc.
-	if ($context['user']['is_logged'])
+	else
 	{
-		if (!empty($context['user']['avatar']))
-			echo '
-						<a href="', $scripturl, '?action=profile" class="avatar">', $context['user']['avatar']['image'], '</a>';
-
 		echo '
-						<ul>
-							<li class="greeting">', $txt['hello_member_ndt'], ' <span>', $context['user']['name'], '</span></li>
-							<li>', $context['current_time'], '</li>
-						</ul>';
+						', $context['current_time'];
 	}
 
 	echo'

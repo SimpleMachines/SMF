@@ -3798,32 +3798,12 @@ function setupMenuContext()
 
 	$cacheTime = $modSettings['lastActive'] * 60;
 
-	// This is for showing the nice profile menu up top. Sub-menus are not supported.
-	$profile_menu = array(
-		'account' => array(
-			'title' => $txt['account'],
-			'href' => $scripturl . '?action=profile;area=account',
-			'show' => allowedTo(array('profile_forum_any', 'profile_forum_own')),
-		),
-		'profile' => array(
-			'title' => $txt['forumprofile'],
-			'href' => $scripturl . '?action=profile;area=forumprofile',
-			'show' => allowedTo(array('profile_forum_any', 'profile_forum_own')),
-		),
-		'theme' => array(
-			'title' => $txt['theme'],
-			'href' => $scripturl . '?action=profile;area=theme',
-			'show' => allowedTo(array('profile_extra_any', 'profile_extra_own', 'profile_extra_any')),
-		),
-	);
-	call_integration_hook('integrate_profile_buttons', array(&$profile_menu));
-	foreach ($profile_menu as $item => $details)
+	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
+	if (!$context['user']['is_guest'])
 	{
-		if ((isset($details['enabled']) && empty($details['enabled'])) || empty($details['show']))
-			unset ($profile_menu[$item]);
-		// OK, so the item's good. Let's push this into $context but save a little memory as we do.
-		unset ($details['show']);
-		$context['profile_menu'][$item] = $details;
+		addInlineJavascript('
+	var user_menus = new smc_PopupMenu();
+	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");', true);
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
@@ -4062,6 +4042,12 @@ function setupMenuContext()
 	elseif ($context['current_action'] == 'groups' && $context['allow_moderation_center'])
 		$current_action = 'moderate';
 
+	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
+	if ($context['current_action'] == 'profile' && !empty($context['user']['is_owner']))
+	{
+		$current_action = 'self_profile';
+		$context['self_profile'] = true;
+	}
 	// Not all actions are simple.
 	if (!empty($needs_action_hook))
 		call_integration_hook('integrate_current_action', array(&$current_action));

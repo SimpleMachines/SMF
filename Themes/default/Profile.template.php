@@ -42,6 +42,51 @@ function template_profile_below()
 {
 }
 
+// Tempate for showing off the spiffy popup of the menu
+function template_profile_popup()
+{
+	global $context, $scripturl;
+
+	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
+
+	echo '
+		<div class="profile_user_info">';
+
+	// Firstly, an avatar.
+	if (!empty($context['user']['avatar']))
+		echo '
+			<a href="', $scripturl, '?action=profile" class="avatar">', $context['user']['avatar']['image'], '</a>';
+
+	// Then a couple of bits and pieces that might be interesting
+	echo '
+			<ol>
+				<li class="profile_username"><a href="', $scripturl, '?action=profile">', $context['user']['name'], '</a></li>
+				<li class="profile_group">', $context['member']['group'], '</li>
+			</ol>
+			<br class="clear" />';
+
+	echo '
+		</div>
+		<div class="profile_user_links">
+			<ol>';
+
+	$menu_context = &$context[$context['profile_menu_name']];
+	foreach ($context['profile_items'] as $item)
+	{
+		$area = &$menu_context['sections'][$item['menu']]['areas'][$item['area']];
+		$item_url = (isset($item['url']) ? $item['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $item['area'])) . $menu_context['extra_parameters'];
+		echo '
+				<li>
+					', $area['icon'], '<a href="', $item_url, '">', !empty($item['title']) ? $item['title'] : $area['label'], '</a>
+				</li>';
+	}
+
+	echo '
+			</ol>
+			<br class="clear" />
+		</div>';
+}
+
 // This template displays users details without any option to edit them.
 function template_summary()
 {
