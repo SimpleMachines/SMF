@@ -191,15 +191,15 @@ function template_body_above()
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
-		// Are there any members waiting for approval?
-		if (!empty($context['unapproved_members']))
+		// Secondly, PMs if we're doing them
+		if ($context['allow_pm'])
+		{
 			echo '
-				<li><a href="', $scripturl, '?action=admin;area=viewmembers;sa=browse;type=approve">', $txt['approve_members_waiting'], ' <span class="amt">', $context['unapproved_members'], '</span></a></li>';
-
-		// This will only apply if we're powerful and can actually see reports.
-		if (!empty($context['open_mod_reports']) && $context['show_open_reports'])
-			echo '
-				<li><a href="', $scripturl, '?action=moderate;area=reports">', $txt['mod_reports_waiting'], ' <span class="amt">', $context['open_mod_reports'], '</span></a></li>';
+				<li>
+					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
+					<div id="pm_menu" class="top_menu"></div>
+				</li>';
+		}
 
 		echo '
 			</ul>';

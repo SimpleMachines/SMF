@@ -191,6 +191,7 @@ function MessageMain()
 	$context['display_mode'] = WIRELESS ? 0 : $user_settings['pm_prefs'] & 3;
 
 	$subActions = array(
+		'popup' => 'MessagePopup',
 		'addbuddy' => 'WirelessAddBuddy',
 		'manlabels' => 'ManageLabels',
 		'manrules' => 'ManageRules',
@@ -214,7 +215,7 @@ function MessageMain()
 	}
 	else
 	{
-		if (!isset($_REQUEST['xml']))
+		if (!isset($_REQUEST['xml']) && $_REQUEST['sa'] != 'popup')
 			messageIndexBar($_REQUEST['sa']);
 		$subActions[$_REQUEST['sa']]();
 	}
@@ -370,6 +371,86 @@ function messageIndexBar($area)
 	// Set the template for this area and add the profile layer.
 	if (!WIRELESS && !isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
+}
+
+/**
+ * The popup for when we ask for the popup from the user.
+ */
+function MessagePopup()
+{
+	global $context, $modSettings, $smcFunc, $memberContext, $scripturl, $user_settings;
+
+	// We only want to output our little layer here.
+	$context['template_layers'] = array();
+	$context['sub_template'] = 'pm_popup';
+
+	$context['can_send_pm'] = allowedTo('pm_send');
+	$context['can_draft'] = allowedTo('pm_draft') && !empty($modSettings['drafts_pm_enabled']);
+
+	// So are we loading stuff?
+	$request = $smcFunc['db_query']('', '
+		SELECT id_pm
+		FROM {db_prefix}pm_recipients AS pmr
+		WHERE pmr.id_member = {int:current_member}
+			AND is_read = {int:not_read}
+		ORDER BY id_pm',
+		array(
+			'current_member' => $context['user']['id'],
+			'not_read' => 0,
+		)
+	);
+	$pms = array();
+	while ($row = $smcFunc['db_fetch_row']($request))
+		$pms[] = $row[0];
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($pms))
+	{
+		// Just quickly, it's possible that the number of PMs can get out of sync.
+		$count_unread = count($pms);
+		if ($count_unread != $user_settings['unread_messages'])
+		{
+			updateMemberData($context['user']['id'], array('unread_messages' => $count_unread));
+			$context['user']['unread_messages'] = count($pms);
+		}
+
+		// Now, actually fetch me some PMs. Make sure we track the senders, got some work to do for them.
+		$senders = array();
+
+		$request = $smcFunc['db_query']('', '
+			SELECT pm.id_pm, pm.id_pm_head, IFNULL(mem.id_member, pm.id_member_from) AS id_member_from,
+				IFNULL(mem.real_name, pm.from_name) AS member_from, pm.msgtime AS timestamp, pm.subject
+			FROM {db_prefix}personal_messages AS pm
+				LEFT JOIN {db_prefix}members AS mem ON (pm.id_member_from = mem.id_member)
+			WHERE pm.id_pm IN ({array_int:id_pms})',
+			array(
+				'id_pms' => $pms,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['id_member_from']))
+				$senders[] = $row['id_member_from'];
+
+			$row['replied_to_you'] = $row['id_pm'] != $row['id_pm_head'];
+			$row['time'] = timeformat($row['timestamp']);
+			$row['pm_link'] = '<a href="' . $scripturl . '?action=pm;f=inbox;pmsg=' . $row['id_pm'] . '">' . $row['subject'] . '</a>';
+			$context['unread_pms'][$row['id_pm']] = $row;
+		}
+		$smcFunc['db_free_result']($request);
+
+		if (!empty($senders))
+		{
+			$senders = loadMemberData($senders);
+			foreach ($senders as $member)
+				loadMemberContext($member);
+		}
+
+		// Having loaded everyone, attach them to the PMs.
+		foreach ($context['unread_pms'] as $id_pm => $details)
+			if (!empty($memberContext[$details['id_member_from']]))
+				$context['unread_pms'][$id_pm]['member'] = &$memberContext[$details['id_member_from']];
+	}
 }
 
 /**

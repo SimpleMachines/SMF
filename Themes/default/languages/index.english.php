@@ -744,8 +744,6 @@ $txt['pm_short'] = 'My Messages';
 $txt['pm_menu_read'] = 'Read your messages';
 $txt['pm_menu_send'] = 'Send a message';
 
-$txt['hello_member_ndt'] = 'Hello';
-
 $txt['unapproved_posts'] = 'Unapproved Posts (Topics: %1$d, Posts: %2$d)';
 
 $txt['ajax_in_progress'] = 'Loading...';

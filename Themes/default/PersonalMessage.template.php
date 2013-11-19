@@ -49,6 +49,52 @@ function template_pm_below()
 	</div>';
 }
 
+function template_pm_popup()
+{
+	global $context, $txt, $scripturl, $settings;
+
+	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
+	echo '
+		<div class="pm_bar">
+			<div class="pm_sending floatright">
+				', $context['can_send_pm'] ? '<a href="' . $scripturl . '?action=pm;sa=send">' . $txt['pm_new_short'] . '</a> | ' : '', '
+				', $context['can_draft'] ? '<a href="' . $scripturl . '?action=pm;sa=showpmdrafts">' . $txt['pm_drafts_short'] . '</a> | ' : '', '
+				<a href="', $scripturl, '?action=pm;sa=settings">', $txt['pm_settings_short'], '</a>
+			</div>
+			<div class="pm_mailbox floatleft">
+				', $txt['pm_unread'], '
+				| <a href="', $scripturl, '?action=pm">', $txt['inbox'], '</a>
+				| <a href="', $scripturl, '?action=pm;f=sent">', $txt['pm_sent_short'], '</a>
+			</div>
+		</div>
+		<div class="pm_unread">';
+
+	if (empty($context['unread_pms']))
+	{
+		echo '
+			<div class="no_unread">', $txt['pm_no_unread'], '</div>';
+	}
+	else
+	{
+		foreach ($context['unread_pms'] as $id_pm => $pm_details)
+		{
+			echo '
+			<div class="unread">
+				<div class="avatar floatleft">', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '</div>
+				<div class="details floatleft">
+					<div class="subject">', $pm_details['pm_link'], '</div>
+					<div class="sender">', $pm_details['replied_to_you'] ? '<img src="' . $settings['images_url'] . '/icons/pm_replied.png" style="margin-right: 4px;" alt="' . $txt['pm_you_were_replied_to'] . '" title="' . $txt['pm_you_were_replied_to'] . '" />' : '<img src="' . $settings['images_url'] . '/icons/pm_read.png" style="margin-right: 4px;" alt="' . $txt['pm_was_sent_to_you'] . '" title="' . $txt['pm_was_sent_to_you'] . '" />',
+					!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '</div>
+				</div>
+				<br class="clear" />
+			</div>';
+		}
+	}
+
+	echo '
+		</div>';
+}
+
 function template_folder()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
