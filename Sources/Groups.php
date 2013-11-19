@@ -774,12 +774,12 @@ function list_getGroupRequestCount($where, $where_parameters)
 /**
  * Callback function for createList()
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
- * @param string $where
- * @param string $where_parameters
- * @return array, an array of group requests
+ * @param int $start The result to start with
+ * @param int $items_per_page The number of items per page
+ * @param string $sort An SQL sort expression (column/direction)
+ * @param string $where Data for the WHERE clause 
+ * @param string $where_parameters Parameter values to be inerted into the WHERE clause
+ * @return array An array of group requests
  * Each group request has:
  * 		'id'
  * 		'member_link'

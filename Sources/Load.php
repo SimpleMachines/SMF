@@ -21,7 +21,6 @@ if (!defined('SMF'))
  *
  * @todo okay question of the day: why a function for loading settings is called reloadSettings()
  *
- * @global array $modSettings is a giant array of all of the forum-wide settings and statistics.
  */
 function reloadSettings()
 {
@@ -893,10 +892,10 @@ function loadPermissions()
 /**
  * Loads an array of users' data by ID or member_name.
  *
- * @param mixed $users An array of users by id or name
- * @param bool $is_name = false $users is by name or by id
- * @param string $set = 'normal' What kind of data to load (normal, profile, minimal)
- * @return array|bool The ids of the members loaded or false
+ * @param array|string $users An array of users by id or name or a single username/id
+ * @param bool $is_name Whether $users contains names
+ * @param string $set What kind of data to load (normal, profile, minimal)
+ * @return array|bool The ids of the members loaded or false if no data was loaded
  */
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
@@ -1075,9 +1074,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 /**
  * Loads the user's basic values... meant for template/theme usage.
  *
- * @param int $user
- * @param bool $display_custom_fields = false
- * @return boolean
+ * @param int $user The ID of a user previously loaded by {@link loadMemberData()}
+ * @param bool $display_custom_fields Whether or not to display custom profile fields
+ * @return boolean Whether or not the data was loaded successfully
  */
 function loadMemberContext($user, $display_custom_fields = false)
 {
@@ -1290,9 +1289,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 /**
  * Loads the user's custom profile fields
  *
- * @param mixed $users either an integer or an array of integers
- * @param mixed $param either a string or an array of strings with profile fields names
- * @return array
+ * @param integer|array $users A single user ID or an array of user IDs
+ * @param string|array $param Either a string or an array of strings with profile field names
+ * @return array|boolean An array of data about the fields and their values or false if nothing was loaded
  */
 function loadMemberCustomFields($users, $params)
 {
@@ -1369,7 +1368,7 @@ function detectBrowser()
  * Are we using this browser?
  *
  * Wrapper function for detectBrowser
- * @param $browser: browser we are checking for.
+ * @param string $browser The browser we are checking for.
 */
 function isBrowser($browser)
 {
@@ -1408,8 +1407,8 @@ function isBrowser($browser)
 /**
  * Load a theme, by ID.
  *
- * @param int $id_theme = 0
- * @param bool $initialize = true
+ * @param int $id_theme The ID of the theme to load
+ * @param bool $initialize Whether or not to initialize a bunch of theme-related variables/settings
  */
 function loadTheme($id_theme = 0, $initialize = true)
 {
@@ -1893,10 +1892,10 @@ function loadTheme($id_theme = 0, $initialize = true)
  *  - detects a wrong default theme directory and tries to work around it.
  *
  * @uses the template_include() function to include the file.
- * @param string $template_name
- * @param array $style_sheets = array()
- * @param bool $fatal = true if fatal is true, dies with an error message if the template cannot be found
- * @return boolean
+ * @param string $template_name The name of the template to load
+ * @param array|string $style_sheets The name of a single stylesheet or an array of names of stylesheets to load
+ * @param bool $fatal If true, dies with an error message if the template cannot be found
+ * @return boolean True if the template was loaded, false otherwise
  */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
@@ -1976,8 +1975,8 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  *
  * @todo get rid of reading $_REQUEST directly
  *
- * @param string $sub_template_name
- * @param bool $fatal = false, $fatal = true is for templates that shouldn't get a 'pretty' error screen.
+ * @param string $sub_template_name The name of the sub-template to load
+ * @param bool Whether to die with an error if the sub-template can't be loaded
  */
 function loadSubTemplate($sub_template_name, $fatal = false)
 {
@@ -2006,15 +2005,15 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 /**
  * Add a CSS file for output later
  *
- * @param string $filename
- * @param array $params
+ * @param string $filename THe name of the file to load
+ * @param array $params An array of parameters
  * Keys are the following:
  * 	- ['local'] (true/false): define if the file is local
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
- * @param string $id
+ * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($filename, $params = array(), $id = '')
 {
@@ -2052,8 +2051,8 @@ function loadCSSFile($filename, $params = array(), $id = '')
 /**
  * Add a Javascript file for output later
 
- * @param string $filename
- * @param array $params
+ * @param string $filename The name of the file to load
+ * @param array $params An array of parameter info
  * Keys are the following:
  * 	- ['local'] (true/false): define if the file is local
  * 	- ['default_theme'] (true/false): force use of default theme url
@@ -2064,7 +2063,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *
- * @param string $id
+ * @param string $id An ID to stik on the end of the filename
  */
 function loadJavascriptFile($filename, $params = array(), $id = '')
 {
@@ -2103,9 +2102,9 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
  * Add a Javascript variable for output later (for feeding text strings and similar to JS)
  * Cleaner and easier (for modders) than to use the function below.
  *
- * @param string $key
- * @param string $value
- * @param bool $escape = false, whether or not to escape the value
+ * @param string $key The key for this variable
+ * @param string $value The value
+ * @param bool $escape Whether or not to escape the value
  */
 function addJavascriptVar($key, $value, $escape = false)
 {
@@ -2122,8 +2121,8 @@ function addJavascriptVar($key, $value, $escape = false)
  *   or for scripts that require help from PHP/whatever, this can be useful.
  * - all code added with this function is added to the same <script> tag so do make sure your JS is clean!
  *
- * @param string $javascript
- * @param bool $defer = false, define if the script should load in <head> or before the closing <html> tag
+ * @param string $javascript Some JS code
+ * @param bool Whether the script should load in <head> or before the closing <html> tag
  */
 function addInlineJavascript($javascript, $defer = false)
 {
@@ -2134,10 +2133,10 @@ function addInlineJavascript($javascript, $defer = false)
 /**
  * Load a language file.  Tries the current and default themes as well as the user and global languages.
  *
- * @param string $template_name
- * @param string $lang
- * @param bool $fatal = true
- * @param bool $force_reload = false
+ * @param string $template_name The name of a template file
+ * @param string $lang A specific language to load this file from
+ * @param bool $fatal Whether to die with an error if it can't be loaded
+ * @param bool $force_reload Whether to load the file again if it's already loaded
  * @return string The language actually loaded.
  */
 function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload = false)
@@ -2261,8 +2260,8 @@ function loadLanguage($template_name, $lang = '', $fatal = true, $force_reload =
  * It finds all the parents of id_parent, and that board itself.
  * Additionally, it detects the moderators of said boards.
  *
- * @param int $id_parent
- * @return an array of information about the boards found.
+ * @param int $id_parent The ID of the parent board
+ * @return array An array of information about the boards found.
  */
 function getBoardParents($id_parent)
 {
@@ -2344,9 +2343,9 @@ function getBoardParents($id_parent)
  * Attempt to reload our known languages.
  * It will try to choose only utf8 or non-utf8 languages.
  *
- * @param bool $use_cache = true
- * @param bool $favor_utf8 = true
- * @return array
+ * @param bool $use_cache Whether or not to use the cache
+ * @param bool $favor_utf8 Whether or not to favor UTF-8 files
+ * @return array An array of information about available languages
  */
 function getLanguages($use_cache = true, $favor_utf8 = true)
 {
@@ -2420,8 +2419,8 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  *    show_no_censored is enabled, does not censor, unless force is also set.
  *  - it caches the list of censored words to reduce parsing.
  *
- * @param string &$text
- * @param bool $force = false
+ * @param string &$text The text to censor
+ * @param bool $force Whether to censor the text regardless of settings
  * @return string The censored text
  */
 function censorText(&$text, $force = false)
@@ -2469,8 +2468,8 @@ function censorText(&$text, $force = false)
  * 	- outputs a parse error if the file did not exist or contained errors.
  * 	- attempts to detect the error and line, and show detailed information.
  *
- * @param string $filename
- * @param bool $once = false, if true only includes the file once (like include_once)
+ * @param string $filename The name of the file to include
+ * @param bool $once If true only includes the file once (like include_once)
  */
 function template_include($filename, $once = false)
 {
@@ -2697,12 +2696,12 @@ function loadDatabase()
 /**
  * Try to retrieve a cache entry. On failure, call the appropriate function.
  *
- * @param string $key
- * @param string $file
- * @param string $function
- * @param array $params
- * @param int $level = 1
- * @return string
+ * @param string $key The key for this entry
+ * @param string $file The file associated with this entry
+ * @param string $function The function to call
+ * @param array $params Parameters to be passed to the specified function
+ * @param int $level The cache level
+ * @return string The cached data
  */
 function cache_quick_get($key, $file, $function, $params, $level = 1)
 {
@@ -2753,9 +2752,9 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  *     Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
  *     Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
- * @param string $key
- * @param mixed $value
- * @param int $ttl = 120
+ * @param string $key A key for this value
+ * @param mixed $value The data to cache
+ * @param int $ttl How long (in seconds) the data should be cached for
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
@@ -2876,9 +2875,9 @@ function cache_put_data($key, $value, $ttl = 120)
  * - It may often "miss", so shouldn't be depended on.
  * - It supports the same as cache_put_data().
  *
- * @param string $key
- * @param int $ttl = 120
- * @return string
+ * @param string $key The key for the value to retrieve
+ * @param int $ttl The maximum age of the cached data
+ * @return string The cached data or null if nothing was loaded
  */
 function cache_get_data($key, $ttl = 120)
 {
@@ -2973,7 +2972,7 @@ function cache_get_data($key, $ttl = 120)
  * - It attempts to connect to a random server in the cache_memcached setting.
  * - It recursively calls itself up to $level times.
  *
- * @param int $level = 3
+ * @param int $level The maximum number of times to call this function recursively
  */
 function get_memcached_server($level = 3)
 {
