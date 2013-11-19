@@ -19,14 +19,27 @@ if (!defined('SMF'))
 
 function get_single_theme($id)
 {
-	global $smcFunc, $context, $modSettings;
+	global $smcFunc, $modSettings;
 
 	// No data, no fun!
 	if (empty($id))
 		return false;
 
+	// List of all possible  values.
+	$themeValues = array(
+		'theme_dir',
+		'images_url',
+		'theme_url',
+		'name',
+		'theme_layers',
+		'theme_templates',
+		'version',
+		'install_for',
+		'based_on',
+	);
+
 	$single = array(
-		'id' => $id,
+		'id' => (int) $id,
 	);
 
 	// Make our known/enable themes a little easier to work with.
@@ -36,10 +49,11 @@ function get_single_theme($id)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
-		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on}, {string:enable})
-			AND id_theme = {int:id_theme}
+		WHERE variable IN ({array_string:theme_values})
+			AND id_theme = ({int:id_theme})
 			AND id_member = {int:no_member}',
 		array(
+			'theme_values' => $themeValues,
 			'id_theme' => $id,
 			'no_member' => 0,
 		)
@@ -76,7 +90,6 @@ function get_all_themes($enable_only = false)
 		'version',
 		'install_for',
 		'based_on',
-		'enable',
 	);
 
 	// So, what is it going to be?
@@ -351,7 +364,9 @@ function theme_install($to_install = array())
 			array('id_theme', 'variable')
 		);
 
+	// Update the known and enable Theme's settings.
 	updateSettings(array('knownThemes' => strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','))));
+	updateSettings(array('enableThemes' => strtr($modSettings['enableThemes'] . ',' . $id_theme, array(',,' => ','))));
 
 	return $id_theme;
 }
@@ -388,11 +403,17 @@ function remove_theme($themeID)
 		return false;
 
 	$known = explode(',', $modSettings['knownThemes']);
+	$enable = explode(',', $modSettings['enableThemes']);
 
 	// Remove it from the list of known themes.
 	for ($i = 0, $n = count($known); $i < $n; $i++)
 		if ($known[$i] == $themeID)
 			unset($known[$i]);
+
+	// And the enable list too.
+	for ($i = 0, $n = count($enable); $i < $n; $i++)
+		if ($enable[$i] == $themeID)
+			unset($enable[$i]);
 
 	// Remove it from the themes table.
 	$smcFunc['db_query']('', '
@@ -426,13 +447,17 @@ function remove_theme($themeID)
 	);
 
 	$known = strtr(implode(',', $known), array(',,' => ','));
+	$enable = strtr(implode(',', $enable), array(',,' => ','));
 
 	// Fix it if the theme was the overall default theme.
 	if ($modSettings['theme_guests'] == $themeID)
 		updateSettings(array('theme_guests' => '1', 'knownThemes' => $known));
 
 	else
+	{
 		updateSettings(array('knownThemes' => $known));
+		updateSettings(array('enableThemes' => $enable));
+	}
 
 	return true;
 }
