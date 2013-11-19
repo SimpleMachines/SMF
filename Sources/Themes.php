@@ -68,6 +68,7 @@ function ThemesMain()
 		'remove' => 'RemoveTheme',
 		'pick' => 'PickTheme',
 		'edit' => 'EditTheme',
+		'enable' => 'EnableTheme',
 		'copy' => 'CopyTemplate',
 	);
 
@@ -832,54 +833,46 @@ function RemoveTheme()
 	if ($_GET['th'] == 1)
 		fatal_lang_error('no_access', false);
 
-	$known = explode(',', $modSettings['knownThemes']);
+	$theme_info = get_single_theme($themeID);
 
-	// Remove it from the list of known themes.
-	for ($i = 0, $n = count($known); $i < $n; $i++)
-		if ($known[$i] == $themeID)
-			unset($known[$i]);
+	// Remove it from the DB.
+	remove_theme($themeID);
 
-	// Remove it from the themes table.
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}themes
-		WHERE id_theme = {int:current_theme}',
-		array(
-			'current_theme' => $themeID,
-		)
-	);
-
-	// Update users preferences.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}members
-		SET id_theme = {int:default_theme}
-		WHERE id_theme = {int:current_theme}',
-		array(
-			'default_theme' => 0,
-			'current_theme' => $themeID,
-		)
-	);
-
-	// Some boards may have it as preferred theme.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}boards
-		SET id_theme = {int:default_theme}
-		WHERE id_theme = {int:current_theme}',
-		array(
-			'default_theme' => 0,
-			'current_theme' => $themeID,
-		)
-	);
-
-	$known = strtr(implode(',', $known), array(',,' => ','));
-
-	// Fix it if the theme was the overall default theme.
-	if ($modSettings['theme_guests'] == $themeID)
-		updateSettings(array('theme_guests' => '1', 'knownThemes' => $known));
-
-	else
-		updateSettings(array('knownThemes' => $known));
+	// And remove all its files and folders too.
+	if (!empty($theme_info) && !empty($theme_info['theme_dir']))
+		remove_dir($theme_info['theme_dir']);
 
 	// Go back to the list page.
+	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
+}
+
+function EnableTheme()
+{
+	checkSession('get');
+
+	isAllowedTo('admin_forum');
+	validateToken('admin-tre', 'request');
+
+	$enable = '1';
+
+	// The theme's ID must be an integer.
+	$themeID = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
+
+	// Are we disabling it?
+	if (isset($_GET['disabled']))
+		$enable = '0';
+
+	// Make the query.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}themes
+		SET value = {string:enable}
+		WHERE id_theme = {int:theme}',
+		array(
+			'enable' => $enable,
+			'theme' => $themeID,
+		)
+	);
+
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
 }
 

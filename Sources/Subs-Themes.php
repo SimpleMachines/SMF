@@ -100,11 +100,6 @@ function get_all_themes()
 	foreach ($context['themes'] as $i => $theme)
 	{
 		$context['themes'][$i]['theme_dir'] = realpath($context['themes'][$i]['theme_dir']);
-
-		// Fetch some more info directly form the xml file.
-		if (file_exists($context['themes'][$i]['theme_dir'] . '/theme_info.xml'))
-			$context['themes'][$i] += get_theme_info($context['themes'][$i]['theme_dir']);}
-
 		$context['themes'][$i]['valid_path'] = file_exists($context['themes'][$i]['theme_dir']) && is_dir($context['themes'][$i]['theme_dir']);
 	}
 
@@ -372,7 +367,7 @@ function remove_dir($path)
 	rmdir($path);
 }
 
-function disable_theme($themeID)
+function remove_theme($themeID)
 {
 	global $smcFunc, $modSetting;
 
