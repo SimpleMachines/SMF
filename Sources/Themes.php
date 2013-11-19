@@ -836,26 +836,26 @@ function EnableTheme()
 	isAllowedTo('admin_forum');
 	validateToken('admin-tre', 'request');
 
-	$enable = '1';
-
 	// The theme's ID must be an integer.
 	$themeID = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
+	// Get the current list.
+	$enable = explode(',', $modSettings['enableThemes']);
+
 	// Are we disabling it?
 	if (isset($_GET['disabled']))
-		$enable = '0';
+	{
+		for ($i = 0, $n = count($enable); $i < $n; $i++)
+			if ($enable[$i] == $themeID)
+				unset($enable[$i]);
 
-	// Make the query.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}themes
-		SET value = {string:enable}
-		WHERE id_theme = {int:theme}',
-		array(
-			'enable' => $enable,
-			'theme' => $themeID,
-		)
-	);
+		updateSettings(array('knownThemes' => $enable));
+	}
 
+	// Nope? then enable it!
+	updateSettings(array('enableThemes' => strtr($modSettings['enableThemes'] . ',' . $themeID, array(',,' => ','))));
+
+	// Done!
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
 }
 
