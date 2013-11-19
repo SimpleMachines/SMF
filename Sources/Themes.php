@@ -121,8 +121,8 @@ function ThemeAdmin()
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
 
-	// List all installed themes.
-	get_all_themes();
+	// List all installed and enabled themes.
+	get_all_themes(true);
 
 	// Can we create a new theme?
 	$context['can_create_new'] = is_writable($boarddir . '/Themes');
@@ -188,25 +188,7 @@ function ThemeList()
 		checkSession();
 		validateToken('admin-tl');
 
-		$request = $smcFunc['db_query']('', '
-			SELECT id_theme, variable, value
-			FROM {db_prefix}themes
-			WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:base_theme_dir}, {string:base_theme_url}, {string:base_images_url})
-				AND id_member = {int:no_member}',
-			array(
-				'no_member' => 0,
-				'theme_dir' => 'theme_dir',
-				'theme_url' => 'theme_url',
-				'images_url' => 'images_url',
-				'base_theme_dir' => 'base_theme_dir',
-				'base_theme_url' => 'base_theme_url',
-				'base_images_url' => 'base_images_url',
-			)
-		);
-		$themes = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$themes[$row['id_theme']][$row['variable']] = $row['value'];
-		$smcFunc['db_free_result']($request);
+		$themes = get_all_themes();
 
 		$setValues = array();
 		foreach ($themes as $id => $theme)
@@ -252,6 +234,7 @@ function ThemeList()
 	$context['sub_template'] = 'list_themes';
 	createToken('admin-tl');
 	createToken('admin-tr', 'request');
+	createToken('admin-tre', 'request');
 }
 
 /**

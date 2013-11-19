@@ -11,7 +11,12 @@ $txt['theme_nochange'] = 'No change';
 $txt['theme_forum_default'] = 'Forum Default';
 
 $txt['theme_remove'] = 'remove';
+$txt['theme_enable'] = 'enable';
+$txt['theme_disable'] = 'disable';
 $txt['theme_remove_confirm'] = 'Are you sure you want to permanently remove this theme?';
+$txt['theme_enable_confirm'] = 'Are you sure you want to enable this theme?';
+$txt['theme_disable_confirm'] = 'Are you sure you want to disablethis theme?';
+
 
 $txt['theme_install'] = 'Install a New Theme';
 $txt['theme_install_file'] = 'From an archive (e.g. .zip, .tar.gz)';

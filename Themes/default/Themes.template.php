@@ -218,18 +218,33 @@ function template_list_themes()
 			</div>
 			<br />';
 
-	// Show each theme.... with X for delete and a link to settings.
+	// Show each theme.... with X for delete, an enable/disable link and a link to their own settings page.
 	foreach ($context['themes'] as $theme)
 	{
 		echo '
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<span class="floatleft"><strong><a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=list">', $theme['name'], '</a></strong>', !empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : '', '</span>';
+					<span class="floatleft">
+						<strong>', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="'. $scripturl .'?action=admin;area=theme;th='. $theme['id'] .';'. $context['session_var'] .'='. $context['session_id'] .';sa=list">'. $theme['name'] .'</a>' : $theme['name'] ),'</strong>', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
+					</span>';
 
-			// You *cannot* delete the default theme. It's important!
+			// You *cannot* disable/enable/delete the default theme. It's important!
 			if ($theme['id'] != 1)
+			{
 				echo '
-					<span class="floatright"><a href="', $scripturl, '?action=admin;area=theme;sa=remove;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tr_token_var'], '=', $context['admin-tr_token'], '" onclick="return confirm(\'', $txt['theme_remove_confirm'], '\');"><img src="', $settings['images_url'], '/icons/delete.png" alt="', $txt['theme_remove'], '" title="', $txt['theme_remove'], '" /></a></span>';
+					<span class="floatright">';
+
+				// Enable/Disable.
+				echo '
+					<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : '') ,'" onclick="return confirm(\'', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable') .'_confirm'], '\');">', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable')] ,'</a>';
+
+				// Deleting.
+				echo '
+						<a href="', $scripturl, '?action=admin;area=theme;sa=remove;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tr_token_var'], '=', $context['admin-tr_token'], '" onclick="return confirm(\'', $txt['theme_remove_confirm'], '\');"><img src="', $settings['images_url'], '/icons/delete.png" alt="', $txt['theme_remove'], '" title="', $txt['theme_remove'], '" /></a>';
+
+				echo '
+					</span>';
+			}
 
 			echo '
 				</h3>
