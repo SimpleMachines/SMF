@@ -53,7 +53,7 @@ function getServerVersions($checkFor)
 
 		// We already know it's ImageMagick and the website isn't needed...
 		$im_version = str_replace(array('ImageMagick ', ' http://www.imagemagick.org'), '', $im_version);
-		$versions['imagemagick'] = array('title' => $txt['support_versions_imagemagick'], 'version' => $im_version . '(' . $extension_version . ')');
+		$versions['imagemagick'] = array('title' => $txt['support_versions_imagemagick'], 'version' => $im_version . ' (' . $extension_version . ')');
 	}
 
 	// Now lets check for the Database.
