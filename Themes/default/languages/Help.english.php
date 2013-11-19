@@ -24,7 +24,7 @@ $helptxt['manage_boards'] = '
 					<ul class="normallist">
 						<li>
 							<strong>Stats</strong>
-							&nbsp;- A child board under the board of &quot;Baseball&quot;
+							&nbsp;- A sub-board under the board of &quot;Baseball&quot;
 						</li>
 					</ul>
 				</li>
@@ -440,7 +440,7 @@ $helptxt['db_persist'] = 'Keeps the connection active to increase performance.  
 $helptxt['ssi_db_user'] = 'Optional setting to use a different database user and password when you are using SSI.php.';
 
 $helptxt['queryless_urls'] = 'This changes the format of URLs a little so search engines will like them better.  They will look like index.php/topic,1.0.html.<br /><br />This feature will ' . (isset($_SERVER['SERVER_SOFTWARE']) && (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false || strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false) ? '' : 'not') . ' work on your server.';
-$helptxt['countChildPosts'] = 'Checking this option will mean that posts and topics in a board\'s child board will count toward its totals on the index page.<br /><br />This will make things notably slower, but means that a parent with no posts in it won\'t show \'0\'.';
+$helptxt['countChildPosts'] = 'Checking this option will mean that posts and topics in a board\'s sub-board will count toward its totals on the index page.<br /><br />This will make things notably slower, but means that a parent with no posts in it won\'t show \'0\'.';
 $helptxt['allow_ignore_boards'] = 'Checking this option will allow users to select boards they wish to ignore.';
 $helptxt['deny_boards_access'] = 'Checking this option will allow you to deny access to certain boards based on membergroup access';
 
