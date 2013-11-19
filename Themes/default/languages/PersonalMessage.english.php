@@ -3,6 +3,16 @@
 
 global $context;
 
+// Things for the popup
+$txt['pm_unread'] = 'Unread';
+$txt['pm_sent_short'] = 'Sent';
+$txt['pm_new_short'] = 'New';
+$txt['pm_drafts_short'] = 'Drafts';
+$txt['pm_settings_short'] = 'Settings';
+$txt['pm_no_unread'] = 'No unread messages.';
+$txt['pm_was_sent_to_you'] = 'You received a message.';
+$txt['pm_you_were_replied_to'] = 'A message of yours was replied to.';
+
 $txt['pm_inbox'] = 'Personal Messages Index';
 $txt['send_message'] = 'Send message';
 $txt['pm_add'] = 'Add';

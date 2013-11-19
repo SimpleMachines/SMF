@@ -3804,6 +3804,9 @@ function setupMenuContext()
 		addInlineJavascript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");', true);
+		if ($context['allow_pm'])
+			addInlineJavascript('
+	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
@@ -3889,24 +3892,6 @@ function setupMenuContext()
 						'title' => $txt['mc_reported_posts'],
 						'href' => $scripturl . '?action=moderate;area=reports',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
-						'is_last' => true,
-					),
-				),
-			),
-			'pm' => array(
-				'title' => $txt['pm_short'],
-				'href' => $scripturl . '?action=pm',
-				'show' => $context['allow_pm'],
-				'sub_buttons' => array(
-					'pm_read' => array(
-						'title' => $txt['pm_menu_read'],
-						'href' => $scripturl . '?action=pm',
-						'show' => allowedTo('pm_read'),
-					),
-					'pm_send' => array(
-						'title' => $txt['pm_menu_send'],
-						'href' => $scripturl . '?action=pm;sa=send',
-						'show' => allowedTo('pm_send'),
 						'is_last' => true,
 					),
 				),
@@ -4048,6 +4033,12 @@ function setupMenuContext()
 		$current_action = 'self_profile';
 		$context['self_profile'] = true;
 	}
+	elseif ($context['current_action'] == 'pm')
+	{
+		$current_action = 'self_pm';
+		$context['self_pm'] = true;
+	}
+
 	// Not all actions are simple.
 	if (!empty($needs_action_hook))
 		call_integration_hook('integrate_current_action', array(&$current_action));
@@ -4065,12 +4056,6 @@ function setupMenuContext()
 	{
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
-	}
-
-	if (!$user_info['is_guest'] && $context['user']['unread_messages'] > 0 && isset($context['menu_buttons']['pm']))
-	{
-		$context['menu_buttons']['pm']['alttitle'] = $context['menu_buttons']['pm']['title'] . ' [' . $context['user']['unread_messages'] . ']';
-		$context['menu_buttons']['pm']['title'] .= ' <span class="amt">' . $context['user']['unread_messages'] . '</span>';
 	}
 }
 

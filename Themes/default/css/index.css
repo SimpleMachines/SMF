@@ -1156,6 +1156,46 @@ img.sort, .sort {
 #profile_menu .profile_user_links li img {
 	margin-bottom: -1px;
 }
+#pm_menu .pm_unread {
+	margin-top: 2px;
+	padding-top: 3px;
+	border-top: 1px solid #ddd;
+	clear: both;
+}
+#pm_menu .pm_unread .no_unread {
+	padding-top: 3px;
+	text-align: center;
+}
+#pm_menu .pm_unread .windowbg, #pm_menu .pm_unread .windowbg2 {
+	clear: both;
+	padding: 2px;
+}
+#pm_menu .pm_unread div > .avatar {
+	width: 40px;
+	height: 40px;
+	margin: 1px 6px 0 1px;
+}
+#pm_menu .pm_unread .avatar img {
+	width: 100%;
+	height: 100%;
+	max-width: 40px;
+	max-height: 40px;
+}
+#pm_menu .unread .subject {
+	font-weight: bold;
+}
+#pm_menu .unread {
+	border-bottom: 1px solid #ddd;
+}
+#pm_menu .unread:hover {
+	background: #eee;
+}
+#pm_menu .unread:last-of-type {
+	border-bottom: 1px solid transparent;
+}
+#pm_menu .details {
+	max-width: 80%;
+}
 /* This CSS is for adding top level subsection indicators, just in case anyone wants them. */
 /* I'm not that keen on them, but perhaps the commented code should be left as a handy demo. */
 /*
