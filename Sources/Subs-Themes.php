@@ -55,21 +55,40 @@ function get_single_theme($id)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$single[$row['variable']] = $row['value'];
 
+	// Fix the path and tell if its a valid one.
+	$single['theme_dir'] = realpath($single['theme_dir']);
+	$single['valid_path'] = file_exists($single['theme_dir']) && is_dir($single['theme_dir']);
+
 	return $single;
 }
 
-function get_all_themes()
+function get_all_themes($enable_only = false)
 {
 	global $modSettings, $context, $smcFunc;
 
 	// Make our known themes a little easier to work with.
 	$knownThemes = !empty($modSettings['knownThemes']) ? explode(',',$modSettings['knownThemes']) : array();
 
-	$request = $smcFunc['db_query']('', '
+	// All of them or just the enable ones? each will have a pretty different query.
+	if ($enable_only)
+		$query = '
+		SELECT th.id_theme, th.variable, th.value, th2.value AS enable
+		FROM {db_prefix}themes AS th
+			INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
+				AND th2.id_member = {int:no_member}
+				AND th2.variable = {string:enable})
+		WHERE th.variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on}, {string:enable})
+			AND th.id_member = {int:no_member}';
+
+	else
+		$query = '
 		SELECT id_theme, variable, value
 		FROM {db_prefix}themes
 		WHERE variable IN ({string:theme_dir}, {string:theme_url}, {string:images_url}, {string:name}, {string:theme_layers}, {string:theme_templates}, {string:version}, {string:install_for}, {string:based_on}, {string:enable})
-			AND id_member = {int:no_member}',
+			AND id_member = {int:no_member}';
+
+	// Perform the query as requested.
+	$request = $smcFunc['db_query']('', $query,
 		array(
 			'no_member' => 0,
 			'theme_dir' => 'theme_dir',
@@ -84,24 +103,24 @@ function get_all_themes()
 			'enable' => 'enable',
 		)
 	);
+
 	$context['themes'] = array();
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (!isset($context['themes'][$row['id_theme']]))
-			$context['themes'][$row['id_theme']] = array(
-				'id' => $row['id_theme'],
-				'name' => $row['value'],
-				'known' => in_array($row['id_theme'], $knownThemes),
-			);
+		$context['themes'][$row['id_theme']]['id'] = (int) $row['id_theme'];
+
+		// Fix the path and tell if its a valid one.
+		if ($row['variable'] == 'theme_dir')
+		{
+			$context['themes'][$row['id_theme']][$row['variable']] = realpath($row['value']);
+			$context['themes'][$row['id_theme']]['valid_path'] = file_exists(realpath($row['value'])) && is_dir(realpath($row['value']));
+		}
+
 		$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 	}
-	$smcFunc['db_free_result']($request);
 
-	foreach ($context['themes'] as $i => $theme)
-	{
-		$context['themes'][$i]['theme_dir'] = realpath($context['themes'][$i]['theme_dir']);
-		$context['themes'][$i]['valid_path'] = file_exists($context['themes'][$i]['theme_dir']) && is_dir($context['themes'][$i]['theme_dir']);
-	}
+	$smcFunc['db_free_result']($request);
 
 	return $context['themes'];
 }
