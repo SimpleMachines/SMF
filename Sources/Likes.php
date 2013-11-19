@@ -109,6 +109,10 @@ function Likes()
 	}
 }
 
+/**
+ * @param string $like_type The type of content being liked
+ * @param integer $like_content The ID of the content being liked
+ */
 function issueLike($like_type, $like_content)
 {
 	global $context, $smcFunc;
@@ -186,6 +190,9 @@ function issueLike($like_type, $like_content)
  * Callback attached to integrate_issue_like.
  * Partly it indicates how it's supposed to work and partly it deals with updating the count of likes
  * attached to this message now.
+ * @param string $like_type The type of content being liked - should always be 'msg'
+ * @param int $like_content The ID of the post being liked
+ * @param int $num_likes The number of likes this message has received
  */
 function msg_issue_like($like_type, $like_content, $num_likes)
 {
@@ -213,6 +220,8 @@ function msg_issue_like($like_type, $like_content, $num_likes)
  * This is for viewing the people who liked a thing.
  * Accessed from index.php?action=likes;view and should generally load in a popup.
  * We use a template for this in case themers want to style it.
+ * @param string $like_type The type of content being liked
+ * @param integer $like_content The ID of the content being liked
  */
 function viewLikes($like_type, $like_content)
 {

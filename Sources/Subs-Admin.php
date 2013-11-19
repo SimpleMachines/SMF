@@ -35,19 +35,25 @@ function getServerVersions($checkFor)
 		$versions['gd'] = array('title' => $txt['support_versions_gd'], 'version' => $temp['GD Version']);
 	}
 
-	// Why not have a look at ImageMagick? If it is, we should show version information for it too.
-	if (in_array('imagick', $checkFor) && class_exists('Imagick'))
+	// Why not have a look at ImageMagick? If it's installed, we should show version information for it too.
+	if (in_array('imagemagick', $checkFor) && (class_exists('Imagick') || function_exists('MagickGetVersionString')))
 	{
-		$temp = New Imagick;
-		$temp2 = $temp->getVersion();
-		$versions['imagick'] = array('title' => $txt['support_versions_imagick'], 'version' => $temp2['versionString']);
-	}
+		if (class_exists('Imagick'))
+		{
+			$temp = New Imagick;
+			$temp2 = $temp->getVersion();
+			$im_version = $temp2['versionString'];
+			$extension_version = 'Imagick ' . phpversion('Imagick');
+		}
+		else
+		{
+			$im_version = MagickGetVersionString();
+			$extension_version = 'MagickWand ' . phpversion('MagickWand');
+		}
 
-	// Don't forget MagickWand either!
-	if (in_array('magickwand', $checkFor) && function_exists('MagickGetVersionString'))
-	{
-		$temp = MagickGetVersionString();
-		$versions['magickwand'] = array('title' => $txt['support_versions_magickwand'], 'version' => $temp);
+		// We already know it's ImageMagick and the website isn't needed...
+		$im_version = str_replace(array('ImageMagick ', ' http://www.imagemagick.org'), '', $im_version);
+		$versions['imagemagick'] = array('title' => $txt['support_versions_imagemagick'], 'version' => $im_version . ' (' . $extension_version . ')');
 	}
 
 	// Now lets check for the Database.
