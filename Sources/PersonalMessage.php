@@ -3053,7 +3053,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 		{
 			$total_unread += $row['num'];
 
-			if ($owner != $user_info['id'])
+			if ($owner != $user_info['id'] || empty($row['id_pm']))
 				continue;
 
 			$this_labels = array();
