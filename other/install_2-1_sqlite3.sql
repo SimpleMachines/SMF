@@ -1990,7 +1990,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('recycle_board', '0')
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('maxMsgID', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableAllMessages', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('fixLongWords', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('knownThemes', '1,2,3');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('knownThemes', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableThemes', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('who_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('time_offset', '0');
