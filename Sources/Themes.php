@@ -829,7 +829,7 @@ function RemoveTheme()
 		remove_dir($theme_info['theme_dir']);
 
 	// Go back to the list page.
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing'));
+	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing');
 }
 
 function EnableTheme()
@@ -1056,7 +1056,7 @@ function PickTheme()
 				'theme_dir' => 'theme_dir',
 				'images_url' => 'images_url',
 				'disable_user_variant' => 'disable_user_variant',
-				'known_themes' => explode(',', $modSettings['knownThemes'],
+				'known_themes' => explode(',', $modSettings['knownThemes']),
 				'enable_themes' => explode(',', $modSettings['enableThemes']),
 			)
 		);
@@ -1621,63 +1621,16 @@ function EditTheme()
 
 	if (empty($_GET['th']))
 	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_theme, variable, value
-			FROM {db_prefix}themes
-			WHERE variable IN ({string:name}, {string:theme_dir}, {string:theme_templates}, {string:theme_layers})
-				AND id_member = {int:no_member}',
-			array(
-				'name' => 'name',
-				'theme_dir' => 'theme_dir',
-				'theme_templates' => 'theme_templates',
-				'theme_layers' => 'theme_layers',
-				'no_member' => 0,
-			)
-		);
-		$context['themes'] = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			if (!isset($context['themes'][$row['id_theme']]))
-				$context['themes'][$row['id_theme']] = array(
-					'id' => $row['id_theme'],
-					'num_default_options' => 0,
-					'num_members' => 0,
-				);
-			$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
-		}
-		$smcFunc['db_free_result']($request);
+		get_all_themes();
 
 		foreach ($context['themes'] as $key => $theme)
 		{
 			// There has to be a Settings template!
 			if (!file_exists($theme['theme_dir'] . '/index.template.php') && !file_exists($theme['theme_dir'] . '/css/index.css'))
 				unset($context['themes'][$key]);
+
 			else
-			{
-				if (!isset($theme['theme_templates']))
-					$templates = array('index');
-				else
-					$templates = explode(',', $theme['theme_templates']);
-
-				foreach ($templates as $template)
-					if (file_exists($theme['theme_dir'] . '/' . $template . '.template.php'))
-					{
-						// Fetch the header... a good 256 bytes should be more than enough.
-						$fp = fopen($theme['theme_dir'] . '/' . $template . '.template.php', 'rb');
-						$header = fread($fp, 256);
-						fclose($fp);
-
-						// Can we find a version comment, at all?
-						if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1)
-						{
-							$ver = $match[1];
-							if (!isset($context['themes'][$key]['version']) || $context['themes'][$key]['version'] > $ver)
-								$context['themes'][$key]['version'] = $ver;
-						}
-					}
-
 				$context['themes'][$key]['can_edit_style'] = file_exists($theme['theme_dir'] . '/css/index.css');
-			}
 		}
 
 		$context['sub_template'] = 'edit_list';
@@ -1688,21 +1641,9 @@ function EditTheme()
 	$context['session_error'] = false;
 
 	// Get the directory of the theme we are editing.
-	$request = $smcFunc['db_query']('', '
-		SELECT value, id_theme
-		FROM {db_prefix}themes
-		WHERE variable = {string:theme_dir}
-			AND id_theme = {int:current_theme}
-		LIMIT 1',
-		array(
-			'current_theme' => $_GET['th'],
-			'theme_dir' => 'theme_dir',
-		)
-	);
-	list ($theme_dir, $context['theme_id']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+	$currentTheme = get_single_theme($_GET['th']);
 
-	if (!file_exists($theme_dir . '/index.template.php') && !file_exists($theme_dir . '/css/index.css'))
+	if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css'))
 		fatal_lang_error('theme_edit_missing', false);
 
 	if (!isset($_REQUEST['filename']))
@@ -1715,7 +1656,7 @@ function EditTheme()
 			{
 				$_GET['directory'] = preg_replace(array('~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'), array('', '/', '/'), $_GET['directory']);
 
-				$temp = realpath($theme_dir . '/' . $_GET['directory']);
+				$temp = realpath($currentTheme['theme_dir'] . '/' . $_GET['directory']);
 				if (empty($temp) || substr($temp, 0, strlen(realpath($theme_dir))) != realpath($theme_dir))
 					$_GET['directory'] = '';
 			}
@@ -1723,12 +1664,12 @@ function EditTheme()
 
 		if (isset($_GET['directory']) && $_GET['directory'] != '')
 		{
-			$context['theme_files'] = get_file_listing($theme_dir . '/' . $_GET['directory'], $_GET['directory'] . '/');
+			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'] . '/' . $_GET['directory'], $_GET['directory'] . '/');
 
 			$temp = dirname($_GET['directory']);
 			array_unshift($context['theme_files'], array(
 				'filename' => $temp == '.' || $temp == '' ? '/ (..)' : $temp . ' (..)',
-				'is_writable' => is_writable($theme_dir . '/' . $temp),
+				'is_writable' => is_writable($currentTheme['theme_dir'] . '/' . $temp),
 				'is_directory' => true,
 				'is_template' => false,
 				'is_image' => false,
@@ -1738,7 +1679,7 @@ function EditTheme()
 			));
 		}
 		else
-			$context['theme_files'] = get_file_listing($theme_dir, '');
+			$context['theme_files'] = get_file_listing($currentTheme['theme_dir'], '');
 
 		$context['sub_template'] = 'edit_browse';
 
@@ -1752,8 +1693,8 @@ function EditTheme()
 		{
 			$_REQUEST['filename'] = preg_replace(array('~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'), array('', '/', '/'), $_REQUEST['filename']);
 
-			$temp = realpath($theme_dir . '/' . $_REQUEST['filename']);
-			if (empty($temp) || substr($temp, 0, strlen(realpath($theme_dir))) != realpath($theme_dir))
+			$temp = realpath($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
+			if (empty($temp) || substr($temp, 0, strlen(realpath($theme_dir))) != realpath($currentTheme['theme_dir']))
 				$_REQUEST['filename'] = '';
 		}
 
@@ -1767,39 +1708,26 @@ function EditTheme()
 		{
 			if (is_array($_POST['entire_file']))
 				$_POST['entire_file'] = implode("\n", $_POST['entire_file']);
+
 			$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], array("\r" => '', '   ' => "\t")));
 
 			// Check for a parse error!
-			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($theme_dir) && ini_get('display_errors'))
+			if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($currentTheme['theme_dir']) && ini_get('display_errors'))
 			{
-				$request = $smcFunc['db_query']('', '
-					SELECT value
-					FROM {db_prefix}themes
-					WHERE variable = {string:theme_url}
-						AND id_theme = {int:current_theme}
-					LIMIT 1',
-					array(
-						'current_theme' => $_GET['th'],
-						'theme_url' => 'theme_url',
-					)
-				);
-				list ($theme_url) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
-
-				$fp = fopen($theme_dir . '/tmp_' . session_id() . '.php', 'w');
+				$fp = fopen($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', 'w');
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
 
-				$error = @file_get_contents($theme_url . '/tmp_' . session_id() . '.php');
+				$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
 				if (preg_match('~ <b>(\d+)</b><br( /)?' . '>$~i', $error) != 0)
-					$error_file = $theme_dir . '/tmp_' . session_id() . '.php';
+					$error_file = $currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php';
 				else
-					unlink($theme_dir . '/tmp_' . session_id() . '.php');
+					unlink($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php');
 			}
 
 			if (!isset($error_file))
 			{
-				$fp = fopen($theme_dir . '/' . $_REQUEST['filename'], 'w');
+				$fp = fopen($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], 'w');
 				fwrite($fp, $_POST['entire_file']);
 				fclose($fp);
 
@@ -1832,22 +1760,22 @@ function EditTheme()
 		}
 	}
 
-	$context['allow_save'] = is_writable($theme_dir . '/' . $_REQUEST['filename']);
-	$context['allow_save_filename'] = strtr($theme_dir . '/' . $_REQUEST['filename'], array($boarddir => '...'));
+	$context['allow_save'] = is_writable($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
+	$context['allow_save_filename'] = strtr($currentTheme['theme_dir'] . '/' . $_REQUEST['filename'], array($boarddir => '...'));
 	$context['edit_filename'] = $smcFunc['htmlspecialchars']($_REQUEST['filename']);
 
 	if (substr($_REQUEST['filename'], -4) == '.css')
 	{
 		$context['sub_template'] = 'edit_style';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 	elseif (substr($_REQUEST['filename'], -13) == '.template.php')
 	{
 		$context['sub_template'] = 'edit_template';
 
 		if (!isset($error_file))
-			$file_data = file($theme_dir . '/' . $_REQUEST['filename']);
+			$file_data = file($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 		else
 		{
 			if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0)
