@@ -44,6 +44,9 @@ function get_single_theme($id)
 		'based_on',
 	);
 
+	// Make changes if you really want it.
+	call_integration_hook('integrate_get_single_theme', array(&$themeValues, $id));
+
 	$single = array(
 		'id' => (int) $id,
 	);
@@ -104,6 +107,9 @@ function get_all_themes($enable_only = false)
 		'install_for',
 		'based_on',
 	);
+
+	// Make changes if you really want it.
+	call_integration_hook('integrate_get_all_themes', array(&$themeValues, $enable_only));
 
 	// So, what is it going to be?
 	$query_where = $enable_only ? $enableThemes : $knownThemes;
@@ -386,6 +392,9 @@ function theme_install($to_install = array())
 
 	// This will be theme number...
 	$id_theme++;
+
+	// Last minute changes? although, the actual array is a context value you might want to use the new ID.
+	call_integration_hook('integrate_theme_install', array(&$context['to_install'], $id_theme));
 
 	$inserts = array();
 	foreach ($context['to_install'] as $var => $val)
