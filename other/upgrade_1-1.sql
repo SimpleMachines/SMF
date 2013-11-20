@@ -255,7 +255,6 @@ VALUES ('edit_disable_time', '0'),
 	('attachmentThumbWidth', '150'),
 	('attachmentThumbHeight', '150'),
 	('max_pm_recipients', '10');
-	('enableThemes', '1');
 
 ---{
 if (@$modSettings['smfVersion'] < '1.1')

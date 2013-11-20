@@ -1825,7 +1825,6 @@ VALUES
 	('attachmentEncryptFilenames', '1'),
 	('censorIgnoreCase', '1'),
 	('mostOnline', '1');
-	('enableThemes', '1');
 INSERT IGNORE INTO {$db_prefix}settings
 	(variable, value)
 VALUES

@@ -532,7 +532,6 @@ VALUES
 	('last_mod_report_action', '0'),
 	('search_floodcontrol_time', '5'),
 	('next_task_time', UNIX_TIMESTAMP());
-	('enableThemes', '1'),
 ---#
 
 ---# Changing stats settings.
