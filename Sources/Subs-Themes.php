@@ -333,9 +333,8 @@ function theme_install($to_install = array())
 			$request = $smcFunc['db_query']('', '
 				SELECT id_theme
 				FROM {db_prefix}themes
-				WHERE th.id_member = {int:no_member}
-					AND (value LIKE {string:based_on} OR value LIKE {string:based_on_path})
-					AND variable = {string:theme_dir}
+				WHERE id_member = {int:no_member}
+					AND (value LIKE {string:based_on})
 				LIMIT 1',
 				array(
 					'no_member' => 0,
@@ -356,7 +355,7 @@ function theme_install($to_install = array())
 				array(
 					'no_member' => 0,
 					'theme__values' => array('theme_url', 'images_url', 'theme_dir',),
-					'based_on' => $based_on,
+					'based_on' => $based_on['id_theme'],
 				)
 			);
 			$temp = $smcFunc['db_fetch_assoc']($request);
