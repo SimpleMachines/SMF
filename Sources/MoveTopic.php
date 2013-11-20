@@ -59,13 +59,13 @@ function MoveTopic()
 		if ($id_member_started == $user_info['id'])
 		{
 			isAllowedTo('move_own');
-			//$boards = array_merge(boardsAllowedTo('move_own'), boardsAllowedTo('move_any'));
+			$boards = array_unique(array_merge(boardsAllowedTo('move_own'), boardsAllowedTo('move_any')));
 		}
 		else
 			isAllowedTo('move_any');
 	}
-	//else
-		//$boards = boardsAllowedTo('move_any');
+	else
+		$boards = boardsAllowedTo('move_any');
 
 	loadTemplate('MoveTopic');
 
@@ -75,10 +75,12 @@ function MoveTopic()
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}
-			AND b.redirect = {string:blank_redirect}',
+			AND b.redirect = {string:blank_redirect}
+			AND b.id_board IN ({array_int:boards})',
 		array(
 			'blank_redirect' => '',
 			'current_board' => $board,
+			'boards' => $boards,
 		)
 	);
 	$number_of_boards = $smcFunc['db_num_rows']($request);
