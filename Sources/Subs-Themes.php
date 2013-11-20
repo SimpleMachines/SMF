@@ -332,7 +332,8 @@ function theme_install($to_install = array())
 			// Found the based on theme info, add it to the current one being installed.
 			if (is_array($temp))
 			{
-				$context['to_install'] = $temp + $context['to_install'];
+				$context['to_install']['base_theme_url'] = $temp['theme_url'];
+				$context['to_install']['base_theme_dir'] = $temp['theme_dir'];
 
 				if (empty($explicit_images) && !empty($context['to_install']['base_theme_url']))
 					$context['to_install']['theme_url'] = $context['to_install']['base_theme_url'];
