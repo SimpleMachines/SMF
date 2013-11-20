@@ -629,6 +629,22 @@ function MessageIndex()
 		// Can we restore topics?
 		$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
 
+		if ($user_info['is_admin'])
+			$context['can_move_any'] = $context['can_move_own'] = true;
+		else
+		{
+			// We'll use this in a minute
+			$boards_allowed = boardsAllowedTo(array('move_any', 'move_own'));
+			
+			// Boards other than this one where you can move_any or move_own 
+			$other_boards_move_any = array_diff($boards_allowed['move_any'], array($board));
+			$other_boards_move_own = array_diff($boards_allowed['move_own'], array($board));
+			
+			// How many boards can you do this on besides this one?
+			$context['can_move_any'] = !empty($other_boards_move_any);
+			$context['can_move_own'] = !empty($other_boards_move_own);
+		}
+
 		// Set permissions for all the topics.
 		foreach ($context['topics'] as $t => $topic)
 		{
@@ -636,13 +652,13 @@ function MessageIndex()
 			$context['topics'][$t]['quick_mod'] = array(
 				'lock' => allowedTo('lock_any') || ($started && allowedTo('lock_own')),
 				'sticky' => allowedTo('make_sticky'),
-				'move' => allowedTo('move_any') || ($started && allowedTo('move_own')),
+				'move' => (allowedTo('move_any') && $context['can_move_any']) || ($started && allowedTo('move_own') && ($context['can_move_own'] || $context['can_move_any'])),
 				'modify' => allowedTo('modify_any') || ($started && allowedTo('modify_own')),
 				'remove' => allowedTo('remove_any') || ($started && allowedTo('remove_own')),
 				'approve' => $context['can_approve'] && $topic['unapproved_posts']
 			);
 			$context['can_lock'] |= ($started && allowedTo('lock_own'));
-			$context['can_move'] |= ($started && allowedTo('move_own'));
+			$context['can_move'] |= ($started && allowedTo('move_own') && ($context['can_move_own'] || $context['can_move_any']));
 			$context['can_remove'] |= ($started && allowedTo('remove_own'));
 		}
 
