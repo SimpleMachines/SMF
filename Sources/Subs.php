@@ -3803,10 +3803,10 @@ function setupMenuContext()
 	{
 		addInlineJavascript('
 	var user_menus = new smc_PopupMenu();
-	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");', true);
+	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup;xml");', true);
 		if ($context['allow_pm'])
 			addInlineJavascript('
-	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
+	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup;xml");', true);
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
