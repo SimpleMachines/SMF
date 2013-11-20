@@ -1089,6 +1089,25 @@ function Display()
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
 
+	if (!$user_info['is_admin'])
+	{
+		// We'll use this in a minute
+		$boards_allowed = boardsAllowedTo(array('move_any', 'move_own'));
+
+		// Boards other than this one where you can move_any or move_own 
+		$other_boards_move_any = array_diff($boards_allowed['move_any'], array($board));
+		$other_boards_move_own = array_diff($boards_allowed['move_own'], array($board));
+
+		// How many boards can you do this on besides this one?
+		$context['can_move_any'] = !empty($other_boards_move_any);
+		$context['can_move_own'] = !empty($other_boards_move_own);
+
+		/* You can't move this unless:
+			You have move_any on at least one other board OR
+			You started the topic and have move_own on at least one other board*/
+		$context['move'] &= $context['can_move_any'] || ($context['topic_starter_id'] == $user_info['id'] && $context['can_move_own']);
+	}
+
 	// Cleanup all the permissions with extra stuff...
 	$context['can_mark_notify'] &= !$context['user']['is_guest'];
 	$context['calendar_post'] &= !empty($modSettings['cal_enabled']);
