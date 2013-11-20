@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Helper file for handing themes.
+ * Helper file for handling themes.
  *
  * Simple Machines Forum (SMF)
  *
