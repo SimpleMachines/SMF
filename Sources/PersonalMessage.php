@@ -323,8 +323,8 @@ function messageIndexBar($area)
 	$pm_areas['folders']['areas']['inbox']['messages'] = &$context['labels'][-1]['messages'];
 	if (!empty($context['labels'][-1]['unread_messages']))
 	{
-		$pm_areas['folders']['areas']['inbox']['label'] .= ' (<strong>' . $context['labels'][-1]['unread_messages'] . '</strong>)';
-		$pm_areas['folders']['title'] .= ' (' . $context['labels'][-1]['unread_messages'] . ')';
+		$pm_areas['folders']['areas']['inbox']['label'] .= ' <span class="amt">' . $context['labels'][-1]['unread_messages'] . '</span>';
+		$pm_areas['folders']['title'] .= ' <span class="amt">' . $context['labels'][-1]['unread_messages'] . '</span>';
 	}
 
 	// Do we have a limit on the amount of messages we can keep?
