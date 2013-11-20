@@ -1089,9 +1089,6 @@ function Display()
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
 
-	// Move is a bit tricky now...
-	if ($user_info['is_admin'])
-		$context['can_move_any'] = $context['can_move_own'] = true;
 	if (!$user_info['is_admin'])
 	{
 		// We'll use this in a minute
