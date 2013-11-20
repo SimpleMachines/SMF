@@ -334,7 +334,7 @@ function theme_install($to_install = array())
 				SELECT id_theme
 				FROM {db_prefix}themes
 				WHERE id_member = {int:no_member}
-					AND (value LIKE {string:based_on})
+					AND (value LIKE {string:based_on} OR value LIKE {string:based_on_path})
 				LIMIT 1',
 				array(
 					'no_member' => 0,
