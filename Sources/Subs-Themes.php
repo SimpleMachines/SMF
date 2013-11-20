@@ -460,4 +460,72 @@ function remove_theme($themeID)
 	return true;
 }
 
+/**
+ * Generates a file listing for a given directory
+ *
+ * @param type $path
+ * @param type $relative
+ * @return type
+ */
+function get_file_listing($path, $relative)
+{
+	global $scripturl, $txt, $context;
+
+	// Is it even a directory?
+	if (!is_dir($path))
+		fatal_lang_error('error_invalid_dir', 'critical');
+
+	$dir = dir($path);
+	$entries = array();
+	while ($entry = $dir->read())
+		$entries[] = $entry;
+	$dir->close();
+
+	natcasesort($entries);
+
+	$listing1 = array();
+	$listing2 = array();
+
+	foreach ($entries as $entry)
+	{
+		// Skip all dot files, including .htaccess.
+		if (substr($entry, 0, 1) == '.' || $entry == 'CVS')
+			continue;
+
+		if (is_dir($path . '/' . $entry))
+			$listing1[] = array(
+				'filename' => $entry,
+				'is_writable' => is_writable($path . '/' . $entry),
+				'is_directory' => true,
+				'is_template' => false,
+				'is_image' => false,
+				'is_editable' => false,
+				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=' . $relative . $entry,
+				'size' => '',
+			);
+		else
+		{
+			$size = filesize($path . '/' . $entry);
+			if ($size > 2048 || $size == 1024)
+				$size = comma_format($size / 1024) . ' ' . $txt['themeadmin_edit_kilobytes'];
+			else
+				$size = comma_format($size) . ' ' . $txt['themeadmin_edit_bytes'];
+
+			$listing2[] = array(
+				'filename' => $entry,
+				'is_writable' => is_writable($path . '/' . $entry),
+				'is_directory' => false,
+				'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
+				'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
+				'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
+				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
+				'size' => $size,
+				'last_modified' => timeformat(filemtime($path . '/' . $entry)),
+			);
+		}
+	}
+
+	return array_merge($listing1, $listing2);
+}
+
 ?>
