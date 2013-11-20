@@ -631,6 +631,7 @@ function SetThemeSettings()
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
+
 	$_GET['th'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
 	// Select the best fitting tab.
@@ -828,7 +829,7 @@ function RemoveTheme()
 		remove_dir($theme_info['theme_dir']);
 
 	// Go back to the list page.
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
+	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing'));
 }
 
 function EnableTheme()
@@ -1045,7 +1046,8 @@ function PickTheme()
 			WHERE variable IN ({string:name}, {string:theme_url}, {string:theme_dir}, {string:images_url}, {string:disable_user_variant})' . (!allowedTo('admin_forum') ? '
 				AND id_theme IN ({array_string:known_themes})' : '') . '
 				AND id_theme != {int:default_theme}
-				AND id_member = {int:no_member}',
+				AND id_member = {int:no_member}
+				AND id_theme IN ({array_string:enable_themes})',
 			array(
 				'default_theme' => 0,
 				'name' => 'name',
@@ -1054,7 +1056,8 @@ function PickTheme()
 				'theme_dir' => 'theme_dir',
 				'images_url' => 'images_url',
 				'disable_user_variant' => 'disable_user_variant',
-				'known_themes' => explode(',', $modSettings['knownThemes']),
+				'known_themes' => explode(',', $modSettings['knownThemes'],
+				'enable_themes' => explode(',', $modSettings['enableThemes']),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
