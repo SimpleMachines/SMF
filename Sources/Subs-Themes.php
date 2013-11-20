@@ -405,16 +405,6 @@ function remove_theme($themeID)
 	$known = explode(',', $modSettings['knownThemes']);
 	$enable = explode(',', $modSettings['enableThemes']);
 
-	// Remove it from the list of known themes.
-	for ($i = 0, $n = count($known); $i < $n; $i++)
-		if ($known[$i] == $themeID)
-			unset($known[$i]);
-
-	// And the enable list too.
-	for ($i = 0, $n = count($enable); $i < $n; $i++)
-		if ($enable[$i] == $themeID)
-			unset($enable[$i]);
-
 	// Remove it from the themes table.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}themes
@@ -446,6 +436,13 @@ function remove_theme($themeID)
 		)
 	);
 
+	// Remove it from the list of known themes.
+	$known = array_diff($known, array($themeID));
+
+	// And the enable list too.
+	$enable = array_diff($enable, array($themeID));
+
+	// Back to good old comma separated string.
 	$known = strtr(implode(',', $known), array(',,' => ','));
 	$enable = strtr(implode(',', $enable), array(',,' => ','));
 

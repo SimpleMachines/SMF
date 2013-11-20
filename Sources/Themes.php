@@ -188,7 +188,7 @@ function ThemeList()
 		checkSession();
 		validateToken('admin-tl');
 
-		$themes = get_all_themes();
+		$themes = get_all_themes(false);
 
 		$setValues = array();
 		foreach ($themes as $id => $theme)
@@ -226,7 +226,7 @@ function ThemeList()
 	loadTemplate('Themes');
 
 	// Get all installed themes.
-	get_all_themes();
+	get_all_themes(false);
 
 	$context['reset_dir'] = realpath($boarddir . '/Themes');
 	$context['reset_url'] = $boardurl . '/Themes';
@@ -831,29 +831,30 @@ function RemoveTheme()
 
 function EnableTheme()
 {
+	global $modSettings, $context;
+
 	checkSession('get');
 
 	isAllowedTo('admin_forum');
 	validateToken('admin-tre', 'request');
 
-	// The theme's ID must be an integer.
-	$themeID = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
+	// The theme's ID must be an string.
+	$themeID = isset($_GET['th']) ? (string) trim($_GET['th']) : (string) trim($_GET['id']);
 
 	// Get the current list.
-	$enable = explode(',', $modSettings['enableThemes']);
+	$enableThemes = explode(',', $modSettings['enableThemes']);
 
 	// Are we disabling it?
 	if (isset($_GET['disabled']))
-	{
-		for ($i = 0, $n = count($enable); $i < $n; $i++)
-			if ($enable[$i] == $themeID)
-				unset($enable[$i]);
-
-		updateSettings(array('knownThemes' => $enable));
-	}
+		$enableThemes = array_diff($enableThemes, array($themeID));
 
 	// Nope? then enable it!
-	updateSettings(array('enableThemes' => strtr($modSettings['enableThemes'] . ',' . $themeID, array(',,' => ','))));
+	else
+		$enableThemes[] = (string) $themeID;
+
+	// Update the setting.
+	$enableThemes = strtr(implode(',', $enableThemes), array(',,' => ','));
+	updateSettings(array('enableThemes' => $enableThemes));
 
 	// Done!
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
@@ -898,7 +899,7 @@ function PickTheme()
 			$_GET['vrt'] = $_POST['vrt'][$k];
 	}
 
-	// Have we made a desicion, or are we just browsing?
+	// Have we made a decision, or are we just browsing?
 	if (isset($_GET['th']))
 	{
 		checkSession('get');
