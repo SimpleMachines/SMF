@@ -819,6 +819,15 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 			VALUES
 				" . implode(', ', $newSettings));
 
+		$enableThemes = array();
+		$enableThemes[] = "('enableThemes', '" . implode(',', $allThemes) . "')";
+
+		upgrade_query("
+			REPLACE INTO {$db_prefix}settings
+				(variable, value)
+			VALUES
+				" . implode(', ', $enableThemes));
+
 		// What about members?
 		upgrade_query("
 			UPDATE {$db_prefix}members

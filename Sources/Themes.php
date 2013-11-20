@@ -133,6 +133,7 @@ function ThemeAdmin()
 	$i = 1;
 	while (file_exists($theme_dir . $i))
 		$i++;
+
 	$context['new_theme_name'] = 'theme' . $i;
 
 	// A bunch of tokens for a bunch of forms.
@@ -150,6 +151,7 @@ function ThemeAdmin()
 		if (isset($_POST['options']['known_themes']))
 			foreach ($_POST['options']['known_themes'] as $key => $id)
 				$_POST['options']['known_themes'][$key] = (int) $id;
+
 		else
 			fatal_lang_error('themes_none_selectable', false);
 

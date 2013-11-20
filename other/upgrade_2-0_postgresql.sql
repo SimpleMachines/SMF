@@ -1038,6 +1038,17 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '2.0 RC
 				VALUES " . implode(', ', $a_new_setting));
 		}
 
+		$enableThemes = array();
+		$enableThemes = "('enableThemes', '" . implode(',', $allThemes) . "')";
+
+		foreach ($enableThemes AS $an_enable_theme)
+		{
+			upgrade_query("
+				INSERT INTO {$db_prefix}settings
+				(variable, value)
+				VALUES " . implode(', ', $an_enable_theme));
+		}
+
 		// What about members?
 		upgrade_query("
 			UPDATE {$db_prefix}members
