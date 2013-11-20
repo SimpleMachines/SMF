@@ -202,6 +202,13 @@ function template_list_themes()
 	global $context, $settings, $options, $scripturl, $txt;
 	global $modSettings;
 
+	// Show a nice confirmation message.
+	if (isset($_GET['done']))
+		echo '
+	<div class="infobox">
+		', $txt['theme_confirmed_'. $_GET['done']] ,'
+	</div>';
+
 	echo '
 	<div id="admincenter">';
 

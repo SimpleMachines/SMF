@@ -399,7 +399,8 @@ function remove_theme($themeID)
 {
 	global $smcFunc, $modSetting;
 
-	if (empty($themeID))
+	// Can't delete the default theme, sorry!
+	if (empty($themeID) || $themeID == 1)
 		return false;
 
 	$known = explode(',', $modSettings['knownThemes']);

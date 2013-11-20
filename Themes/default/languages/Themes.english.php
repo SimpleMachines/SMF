@@ -16,6 +16,9 @@ $txt['theme_disable'] = 'disable';
 $txt['theme_remove_confirm'] = 'Are you sure you want to permanently remove this theme?';
 $txt['theme_enable_confirm'] = 'Are you sure you want to enable this theme?';
 $txt['theme_disable_confirm'] = 'Are you sure you want to disable this theme?';
+$txt['theme_confirmed_disabling'] = 'The theme was successfully disabled.';
+$txt['theme_confirmed_enabling'] = 'The theme was successfully enabled.';
+$txt['theme_confirmed_removing'] = 'The theme was successfully removed.';
 
 $txt['theme_install'] = 'Install a New Theme';
 $txt['theme_install_file'] = 'From an archive (e.g. .zip, .tar.gz)';

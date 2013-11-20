@@ -857,7 +857,7 @@ function EnableTheme()
 	updateSettings(array('enableThemes' => $enableThemes));
 
 	// Done!
-	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id']);
+	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done='. (isset($_GET['disabled']) ? 'disabling' : 'enabling'));
 }
 
 /**
