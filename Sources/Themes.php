@@ -1209,7 +1209,7 @@ function PickTheme()
 }
 
 /**
- * Installs new themes, either from a gzip or copy of the default.
+ * Installs new themes, calls the respective function according to the install type.
  * - puts themes in $boardurl/Themes.
  * - assumes the gzip has a root directory in it. (ie default.)
  * Requires admin_forum.
@@ -1269,6 +1269,12 @@ function ThemeInstall()
 		fatal_lang_error('theme_install_no_action', false);
 }
 
+/**
+ * Installs a theme from a theme package.
+ *
+ * Stores the theme files on a temp dir, on success it renames the dir to the new theme's name. Ends execution with fatal_lang_error() on any error.
+ * @return array The newly created theme's info.
+ */
 function InstallFile()
 {
 	global $themedir, $themeurl, $context;
@@ -1326,6 +1332,12 @@ function InstallFile()
 		fatal_lang_error('theme_install_error_title', false);
 }
 
+/**
+ * Makes a copy form the default theme, assigns a name for it and installs it.
+ *
+ * Creates a new .xml file containing all the theme's info.
+ * @return array The newly created theme's info.
+ */
 function InstallCopy()
 {
 	global $themedir, $themeurl, $settings, $smcFunc, $context;
@@ -1450,6 +1462,12 @@ function InstallCopy()
 	return $context['to_install'];
 }
 
+/**
+ * Install a theme from a specific dir
+ *
+ * Assumes the dir is located on the main Themes dir. Ends execution with fatal_lang_error() on any error.
+ * @return array The newly created theme's info.
+ */
 function InstallDir()
 {
 	global $themedir, $themeurl, $context;
@@ -1474,6 +1492,7 @@ function InstallDir()
 	);
 
 	// Read its info form the XML file.
+	$theme_info = get_theme_info($context['to_install']['theme_dir']);
 	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
