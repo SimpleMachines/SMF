@@ -233,14 +233,12 @@ function theme_install($to_install = array())
 	{
 		$to_update = array();
 		$request = $smcFunc['db_query']('', '
-			SELECT th.value AS name, th.id_theme, th2.value AS version
-			FROM {db_prefix}themes AS th
-				INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
-					AND th2.id_member = {int:no_member}
-					AND th2.variable = {string:version})
-			WHERE th.id_member = {int:no_member}
-				AND th.variable = {string:name}
-				AND th.value LIKE {string:name_value}
+			SELECT id_theme, variable, value
+			FROM {db_prefix}themes
+			WHERE id_member = {int:no_member}
+				AND id_member = {int:no_member}
+				AND variable = {string:name}
+				AND value LIKE {string:name_value}
 			LIMIT 1',
 			array(
 				'no_member' => 0,
@@ -249,6 +247,7 @@ function theme_install($to_install = array())
 				'name_value' => '%'. $context['to_install']['name'] .'%',
 			)
 		);
+
 		$to_update = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
@@ -297,26 +296,34 @@ function theme_install($to_install = array())
 		{
 			$context['to_install']['based_on'] = preg_replace('~[^A-Za-z0-9\-_ ]~', '', $context['to_install']['based_on']);
 
+			// Get the theme info first.
 			$request = $smcFunc['db_query']('', '
-				SELECT th.value AS base_theme_dir, th2.value AS base_theme_url' . (!empty($explicit_images) ? '' : ', th3.value AS images_url') . '
-				FROM {db_prefix}themes AS th
-					INNER JOIN {db_prefix}themes AS th2 ON (th2.id_theme = th.id_theme
-						AND th2.id_member = {int:no_member}
-						AND th2.variable = {string:theme_url})' . (!empty($explicit_images) ? '' : '
-					INNER JOIN {db_prefix}themes AS th3 ON (th3.id_theme = th.id_theme
-						AND th3.id_member = {int:no_member}
-						AND th3.variable = {string:images_url})') . '
+				SELECT id_theme
+				FROM {db_prefix}themes
 				WHERE th.id_member = {int:no_member}
-					AND (th.value LIKE {string:based_on} OR th.value LIKE {string:based_on_path})
-					AND th.variable = {string:theme_dir}
+					AND (value LIKE {string:based_on} OR value LIKE {string:based_on_path})
+					AND variable = {string:theme_dir}
 				LIMIT 1',
 				array(
 					'no_member' => 0,
-					'theme_url' => 'theme_url',
-					'images_url' => 'images_url',
-					'theme_dir' => 'theme_dir',
 					'based_on' => '%/' . $context['to_install']['based_on'],
 					'based_on_path' => '%' . "\\" . $context['to_install']['based_on'],
+				)
+			);
+
+			$based_on = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
+
+			$request = $smcFunc['db_query']('', '
+				SELECT variable, value
+				FROM {db_prefix}themes
+					WHERE variable IN ({array_string:theme_values})
+						AND id_theme = ({int:based_on})
+				LIMIT 1',
+				array(
+					'no_member' => 0,
+					'theme__values' => array('theme_url', 'images_url', 'theme_dir',),
+					'based_on' => $based_on,
 				)
 			);
 			$temp = $smcFunc['db_fetch_assoc']($request);
