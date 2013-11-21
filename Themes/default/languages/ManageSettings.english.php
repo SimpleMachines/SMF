@@ -356,4 +356,6 @@ $txt['setting_frame_security_DISABLE'] = 'Disabled';
 
 $txt['select_boards_from_list'] = 'Select boards which apply';
 
+$txt['topic_move_any'] = 'Allow moving of topics to read-only boards';
+
 ?>

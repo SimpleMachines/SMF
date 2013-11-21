@@ -1900,7 +1900,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('drafts_pm_enabled', '1'),
 	('drafts_autosave_enabled', '1'),
 	('drafts_show_saved_enabled', '1'),
-	('drafts_keep_days', '7');
+	('drafts_keep_days', '7'),
+	('topic_move_any', '0');
 # --------------------------------------------------------
 
 #

@@ -638,4 +638,5 @@ $helptxt['custom_mask'] = 'The input mask is important for your forum\'s securit
 	</div><br /><br />
 	More information and advanced techniques may be found on the internet.';
 
+$helptxt['topic_move_any'] = 'If checked, users will be allowed to move topics to any board they can see. Otherwise, they will only be able to move them to boards where they can post new topics.';
 ?>

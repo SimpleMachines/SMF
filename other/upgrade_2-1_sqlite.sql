@@ -57,6 +57,10 @@ if (!isset($modSettings['allow_no_censored']))
 ---}
 ---#
 
+---# Adding new "topic_move_any" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
