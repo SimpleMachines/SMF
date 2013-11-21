@@ -730,7 +730,6 @@ function QuickModeration()
 		);
 
 		$redirect_url = 'board=' . $board . '.' . $_REQUEST['start'];
-		
 	}
 	else
 	{
@@ -755,7 +754,7 @@ function QuickModeration()
 		{
 			$boards_can['post_new'] = boardsAllowedTo('post_new');
 		}
-		
+
 		if (empty($boards_can['post_new']))
 		{
 			$boards_can['move_any'] = $boards_can['move_own'] = array();
