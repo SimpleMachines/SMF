@@ -629,20 +629,15 @@ function MessageIndex()
 		// Can we restore topics?
 		$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
 
-		if ($user_info['is_admin'])
-			$context['can_move_any'] = $context['can_move_own'] = true;
+		if ($user_info['is_admin'] || $modSettings['topic_move_any'])
+			$context['can_move_any'] = true;
 		else
 		{
 			// We'll use this in a minute
-			$boards_allowed = boardsAllowedTo(array('move_any', 'move_own'));
-			
-			// Boards other than this one where you can move_any or move_own 
-			$other_boards_move_any = array_diff($boards_allowed['move_any'], array($board));
-			$other_boards_move_own = array_diff($boards_allowed['move_own'], array($board));
+			$boards_allowed = boardsAllowedTo('post_new');
 			
 			// How many boards can you do this on besides this one?
-			$context['can_move_any'] = !empty($other_boards_move_any);
-			$context['can_move_own'] = !empty($other_boards_move_own);
+			$context['can_move_any'] = count($boards_allowed) > 1;
 		}
 
 		// Set permissions for all the topics.
@@ -652,13 +647,13 @@ function MessageIndex()
 			$context['topics'][$t]['quick_mod'] = array(
 				'lock' => allowedTo('lock_any') || ($started && allowedTo('lock_own')),
 				'sticky' => allowedTo('make_sticky'),
-				'move' => (allowedTo('move_any') && $context['can_move_any']) || ($started && allowedTo('move_own') && ($context['can_move_own'] || $context['can_move_any'])),
+				'move' => (allowedTo('move_any') || ($started && allowedTo('move_own')) && $context['can_move_any']),
 				'modify' => allowedTo('modify_any') || ($started && allowedTo('modify_own')),
 				'remove' => allowedTo('remove_any') || ($started && allowedTo('remove_own')),
 				'approve' => $context['can_approve'] && $topic['unapproved_posts']
 			);
 			$context['can_lock'] |= ($started && allowedTo('lock_own'));
-			$context['can_move'] |= ($started && allowedTo('move_own') && ($context['can_move_own'] || $context['can_move_any']));
+			$context['can_move'] |= ($started && allowedTo('move_own') && $context['can_move_any']);
 			$context['can_remove'] |= ($started && allowedTo('remove_own'));
 		}
 
@@ -724,6 +719,8 @@ function QuickModeration()
 	{
 		$boards_can = array(
 			'make_sticky' => allowedTo('make_sticky') ? array($board) : array(),
+			'move_any' => allowedTo('move_any') ? array($board) : array(),
+			'move_own' => allowedTo('move_own') ? array($board) : array(),
 			'remove_any' => allowedTo('remove_any') ? array($board) : array(),
 			'remove_own' => allowedTo('remove_own') ? array($board) : array(),
 			'lock_any' => allowedTo('lock_any') ? array($board) : array(),
@@ -732,10 +729,8 @@ function QuickModeration()
 			'approve_posts' => allowedTo('approve_posts') ? array($board) : array(),
 		);
 
-		$boards_can['move_any'] = boardsAllowedTo('move_any');
-		$boards_can['move_own'] = boardsAllowedTo('move_own');
-
 		$redirect_url = 'board=' . $board . '.' . $_REQUEST['start'];
+		
 	}
 	else
 	{
@@ -748,14 +743,30 @@ function QuickModeration()
 		$redirect_url = isset($_POST['redirect_url']) ? $_POST['redirect_url'] : (isset($_SESSION['old_url']) ? $_SESSION['old_url'] : '');
 	}
 
-	// Moving requires being able to move topics on at least two boards...
-	$num_boards_move = count(array_unique(array_merge($boards_can['move_any'], $boards_can['move_own'])));
+	// Are we enforcing the "no moving topics to boards where you can't post new ones" rule?
+	if (!$user_info['is_amdin'] && !$modSettings['topic_move_any'])
+	{
+		// Don't count this board, if it's specified
+		if (!empty($board))
+		{
+			$boards_can['post_new'] = array_diff(boardsAllowedTo('post_new'), array($board));
+		}
+		else
+		{
+			$boards_can['post_new'] = boardsAllowedTo('post_new');
+		}
+		
+		if (empty($boards_can['post_new']))
+		{
+			$boards_can['move_any'] = $boards_can['move_own'] = array();
+		}
+	}
 
 	if (!$user_info['is_guest'])
 		$possibleActions[] = 'markread';
 	if (!empty($boards_can['make_sticky']))
 		$possibleActions[] = 'sticky';
-	if ($num_boards_move > 1)
+	if (!empty($boards_can['move_any']) || !empty($boards_can['move_own']))
 		$possibleActions[] = 'move';
 	if (!empty($boards_can['remove_any']) || !empty($boards_can['remove_own']))
 		$possibleActions[] = 'remove';
@@ -816,19 +827,11 @@ function QuickModeration()
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			$where = (int) (isset($_REQUEST['move_tos'][$row['id_topic']]) ? $_REQUEST['move_tos'][$row['id_topic']] : $_REQUEST['move_to']);
-			$can_move_there = ($row['id_member_started'] == $user_info['id'] && in_array($where, $boards_can['move_own'])) || in_array($where, $boards_can['move_any']);
-			
+		{		
 			if (!empty($board))
 			{
 				if ($row['id_board'] != $board || ($modSettings['postmod_active'] && !$row['approved'] && !allowedTo('approve_posts')))
 					unset($_REQUEST['actions'][$row['id_topic']]);
-				elseif($_REQUEST['actions'][$row['id_topic']] == 'move')
-				{					
-					if (!$can_move_there)
-						unset($_REQUEST['actions'][$row['id_topic']]);
-				}
 			}
 			else
 			{
@@ -838,7 +841,7 @@ function QuickModeration()
 				// Goodness, this is fun.  We need to validate the action.
 				elseif ($_REQUEST['actions'][$row['id_topic']] == 'sticky' && !in_array(0, $boards_can['make_sticky']) && !in_array($row['id_board'], $boards_can['make_sticky']))
 					unset($_REQUEST['actions'][$row['id_topic']]);
-				elseif ($_REQUEST['actions'][$row['id_topic']] == 'move' && !in_array(0, $boards_can['move_any']) && !in_array($row['id_board'], $boards_can['move_any']) && ($row['id_member_started'] != $user_info['id'] || (!in_array(0, $boards_can['move_own']) && !in_array($row['id_board'], $boards_can['move_own']))) && !$can_move_there)
+				elseif ($_REQUEST['actions'][$row['id_topic']] == 'move' && !in_array(0, $boards_can['move_any']) && !in_array($row['id_board'], $boards_can['move_any']) && ($row['id_member_started'] != $user_info['id'] || (!in_array(0, $boards_can['move_own']) && !in_array($row['id_board'], $boards_can['move_own']))))
 					unset($_REQUEST['actions'][$row['id_topic']]);
 				elseif ($_REQUEST['actions'][$row['id_topic']] == 'remove' && !in_array(0, $boards_can['remove_any']) && !in_array($row['id_board'], $boards_can['remove_any']) && ($row['id_member_started'] != $user_info['id'] || (!in_array(0, $boards_can['remove_own']) && !in_array($row['id_board'], $boards_can['remove_own']))))
 					unset($_REQUEST['actions'][$row['id_topic']]);

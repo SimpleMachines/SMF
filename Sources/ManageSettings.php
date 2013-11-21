@@ -151,6 +151,7 @@ function ModifyBasicSettings($return_config = false)
 			array('check', 'allow_hideOnline'),
 			array('check', 'titlesEnable'),
 			array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note'], 'disabled' => !$can_personal_text),
+			array('check', 'topic_move_any'),
 		'',
 			// Jquery source
 			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'], 'custom' => $txt['jquery_custom']), 'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'),

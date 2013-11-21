@@ -59,13 +59,23 @@ function MoveTopic()
 		if ($id_member_started == $user_info['id'])
 		{
 			isAllowedTo('move_own');
-			$boards = array_unique(array_merge(boardsAllowedTo('move_own'), boardsAllowedTo('move_any')));
 		}
 		else
 			isAllowedTo('move_any');
 	}
-	else
-		$boards = boardsAllowedTo('move_any');
+	
+	$context['move_any'] = $user_info['is_admin'] || $modSettings['topic_move_any'];
+	$boards = array();
+	
+	if (!$context['move_any'])
+	{
+		$boards = array_diff(boardsAllowedTo('post_new'), array($board));
+		if (empty($boards))
+		{
+			// No boards? Too bad...
+			fatal_lang_error('moveto_no_boards');
+		}
+	}
 
 	loadTemplate('MoveTopic');
 
@@ -75,8 +85,8 @@ function MoveTopic()
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}
-			AND b.redirect = {string:blank_redirect}
-			AND b.id_board IN ({array_int:boards})',
+			AND b.redirect = {string:blank_redirect}' . ($context['move_any'] ? '' : '
+			AND b.id_board IN ({array_int:boards})'),
 		array(
 			'blank_redirect' => '',
 			'current_board' => $board,
