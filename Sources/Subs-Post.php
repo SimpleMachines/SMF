@@ -1445,7 +1445,7 @@ function server_parse($message, $socket, $response)
 
 /**
  * Spell checks the post for typos ;).
- * It uses the pspell library, which MUST be installed.
+ * It uses the pspell or enchant library, one of which MUST be installed.
  * It has problems with internationalization.
  * It is accessed via ?action=spellcheck.
  */
@@ -1459,24 +1459,10 @@ function SpellCheck()
 	loadLanguage('Post');
 	loadTemplate('Post');
 
-	// Okay, this looks funny, but it actually fixes a weird bug.
-	ob_start();
-	$old = error_reporting(0);
+	// Create a pspell or enchant dictionary resource
+	$dict = spell_init();
 
-	// See, first, some windows machines don't load pspell properly on the first try.  Dumb, but this is a workaround.
-	pspell_new('en');
-
-	// Next, the dictionary in question may not exist. So, we try it... but...
-	$pspell_link = pspell_new($txt['lang_dictionary'], $txt['lang_spelling'], '', strtr($context['character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-	// Most people don't have anything but English installed... So we use English as a last resort.
-	if (!$pspell_link)
-		$pspell_link = pspell_new('en', '', '', '', PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-	error_reporting($old);
-	ob_end_clean();
-
-	if (!isset($_POST['spellstring']) || !$pspell_link)
+	if (!isset($_POST['spellstring']) || !$dict)
 		die;
 
 	// Construct a bit of Javascript code.
@@ -1495,7 +1481,7 @@ function SpellCheck()
 		$check_word = explode('|', $alphas[$i]);
 
 		// If the word is a known word, or spelled right...
-		if (in_array($smcFunc['strtolower']($check_word[0]), $known_words) || pspell_check($pspell_link, $check_word[0]) || !isset($check_word[2]))
+		if (in_array($smcFunc['strtolower']($check_word[0]), $known_words) || spell_check($dict, $check_word[0]) || !isset($check_word[2]))
 			continue;
 
 		// Find the word, and move up the "last occurance" to here.
@@ -1506,7 +1492,7 @@ function SpellCheck()
 			new misp("' . strtr($check_word[0], array('\\' => '\\\\', '"' => '\\"', '<' => '', '&gt;' => '')) . '", ' . (int) $check_word[1] . ', ' . (int) $check_word[2] . ', [';
 
 		// If there are suggestions, add them in...
-		$suggestions = pspell_suggest($pspell_link, $check_word[0]);
+		$suggestions = spell_suggest($dict, $check_word[0]);
 		if (!empty($suggestions))
 		{
 			// But first check they aren't going to be censored - no naughty words!
@@ -1531,6 +1517,13 @@ function SpellCheck()
 	// And instruct the template system to just show the spellcheck sub template.
 	$context['template_layers'] = array();
 	$context['sub_template'] = 'spellcheck';
+
+	// Free resources for enchant...
+	if (isset($context['enchant_broker']))
+	{
+		enchant_broker_free_dict($dict);
+		enchant_broker_free($context['enchant_broker']);
+	}
 }
 
 /**
@@ -2971,4 +2964,123 @@ function user_info_callback($matches)
 	return $use_ref ? $ref : $matches[0];
 }
 
+
+/**
+ * spell_init()
+ * 
+ * Sets up a dictionary resource handle. Tries enchant first then falls through to pspell.
+ * 
+ * @return resource|bool An enchant or pspell dictionary resource handle or false if the dictionary couldn't be loaded
+ */
+function spell_init()
+{
+	global $context, $txt;
+
+	// Try enchant first since PSpell is (supposedly) deprecated as of PHP 5.3
+	if (function_exists('enchant_broker_init'))
+	{
+		// We'll need this to free resources later...
+		$context['enchant_broker'] = enchant_broker_init();
+
+		// Try locale first, then general...
+		if (!empty($txt['lang_locale']) && enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_locale']))
+		{
+			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $txt['lang_locale']);
+		}
+		elseif (enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_dictionary']))
+		{
+			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $txt['lang_dictionary']);
+		}
+
+		// Success
+		if ($enchant_link)
+		{
+			$context['provider'] = 'enchant';
+			return $enchant_link;
+		}
+		else
+		{
+			// Free up any resources used...
+			@enchant_broker_free($context['enchant_broker']);
+		}
+	}
+
+	// Fall through to pspell if enchant didn't work
+	if (function_exists('pspell_new'))
+	{
+		// Okay, this looks funny, but it actually fixes a weird bug.
+		ob_start();
+		$old = error_reporting(0);
+
+		// See, first, some windows machines don't load pspell properly on the first try.  Dumb, but this is a workaround.
+		pspell_new('en');
+
+		// Next, the dictionary in question may not exist. So, we try it... but...
+		$pspell_link = pspell_new($txt['lang_dictionary'], $txt['lang_spelling'], '', strtr($context['character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
+
+		// Most people don't have anything but English installed... So we use English as a last resort.
+		if (!$pspell_link)
+			$pspell_link = pspell_new('en', '', '', '', PSPELL_FAST | PSPELL_RUN_TOGETHER);
+
+		error_reporting($old);
+		ob_end_clean();
+
+		// If we have pspell, exit now...
+		if ($pspell_link)
+		{
+			$context['provider'] = 'pspell';
+			return $pspell_link;
+		}
+	}
+
+	// If we get this far, we're doomed
+	return false;
+}
+
+/**
+ * spell_check()
+ * 
+ * Determines whether or not the specified word is spelled correctly
+ * 
+ * @param resource $dict An enchant or pspell dictionary resource set up by {@link spell_init()}
+ * @param string $word A word to check the spelling of
+ * @return bool Whether or not the specified word is spelled properly
+ */
+function spell_check($dict, $word)
+{
+	global $context;
+
+	// Enchant or pspell?
+	if ($context['provider'] == 'enchant')
+	{
+		return enchant_dict_check($dict, $word);
+	}
+	elseif ($context['provider'] == 'pspell')
+	{
+		return pspell_check($dict, $word);
+	}
+}
+
+/**
+ * spell_suggest()
+ * 
+ * Returns an array of suggested replacements for the specified word
+ * 
+ * @param resource $dict An enchant or pspell dictioary resource
+ * @param string $word A misspelled word
+ * @return array An array of suggested replacements for the misspelled word
+ */
+function spell_suggest($dict, $word)
+{
+	global $context;
+
+	if ($context['provider'] == 'enchant')
+	{
+		return enchant_dict_suggest($dict, $word);
+	}
+	elseif ($context['provider'] == 'pspell')
+	{
+		return pspell_suggest($dict, $word);
+	}
+}
 ?>
