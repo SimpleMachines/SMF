@@ -40,7 +40,7 @@ if (!isset($modSettings['allow_no_censored']))
 	");
 	
 	// Is it set for either "default" or the one they've set as default?
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['value'] == 1)
 		{
@@ -279,10 +279,12 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 			AND value ='$core_dir'");
 
 	// Don't do anything if this theme is already uninstalled
-	if (smf_mysql_num_rows($theme_request) == 1)
+	if ($smcFunc['db_num_rows']($theme_request) == 1)
 	{
-		$id_theme = mysql_result($theme_request, 0);
-		mysql_free_result($theme_request);
+		// Only one row, so no loop needed
+		$row = $smcFunc['db_fetch_array']($theme_request);
+		$id_theme = $row[0];
+		$smcFunc['db_free_result']($theme_request);
 
 		$known_themes = explode(', ', $modSettings['knownThemes']);
 
@@ -360,12 +362,12 @@ if (@$modSettings['smfVersion'] < '2.1')
 		FROM {$db_prefix}board_permissions
 		WHERE permission = 'post_unapproved_topics'");
 	$inserts = array();
-	while ($row = smf_mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
 		$inserts[] = "($row[id_group], $row[id_board], 'post_autosave_draft', $row[add_deny])";
 	}
-	smf_mysql_free_result($request);
+	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -380,12 +382,12 @@ if (@$modSettings['smfVersion'] < '2.1')
 		FROM {$db_prefix}permissions
 		WHERE permission = 'pm_send'");
 	$inserts = array();
-	while ($row = smf_mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'pm_autosave_draft', $row[add_deny])";
 	}
-	smf_mysql_free_result($request);
+	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -816,7 +818,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL;
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms}',
+		AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
