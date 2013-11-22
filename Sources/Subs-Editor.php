@@ -1489,7 +1489,7 @@ function create_control_richedit($editorOptions)
 			loadJavascriptFile($scripturl . '?action=loadeditorlocale', array(), 'sceditor_language');
 
 		$context['shortcuts_text'] = $txt['shortcuts' . (!empty($context['drafts_save']) ? '_drafts' : '') . (isBrowser('is_firefox') ? '_firefox' : '')];
-		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
+		$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || function_exists('enchant_broker_init'));
 		if ($context['show_spellchecking'])
 		{
 			loadJavascriptFile('spellcheck.js', array('default_theme' => true));
