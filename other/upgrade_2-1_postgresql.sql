@@ -895,7 +895,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms}',
+		AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,
