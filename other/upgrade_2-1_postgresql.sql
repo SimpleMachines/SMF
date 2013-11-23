@@ -259,6 +259,24 @@ VALUES
 ---#
 
 /******************************************************************************/
+---- Adding background tasks support
+/******************************************************************************/
+---# Adding the sequence
+CREATE SEQUENCE {$db_prefix}background_tasks_seq;
+---#
+
+---# Adding the table
+CREATE TABLE {$db_prefix}background_tasks (
+  id_task int default nextval('{$db_prefix}background_tasks_seq'),
+  task_file varchar(255) NOT NULL default '',
+  task_class varchar(255) NOT NULL default '',
+  task_data text NOT NULL,
+  claimed_time int unsigned NOT NULL default '0',
+  PRIMARY KEY (id_task)
+);
+---#
+
+/******************************************************************************/
 ---- Replacing MSN with Skype
 /******************************************************************************/
 ---# Modifying the "msn" column...

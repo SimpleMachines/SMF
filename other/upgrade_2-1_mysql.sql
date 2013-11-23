@@ -205,6 +205,20 @@ VALUES
 ---#
 
 /******************************************************************************/
+---- Adding background tasks support
+/******************************************************************************/
+---# Adding the new table
+CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
+  id_task int(10) unsigned NOT NULL auto_increment,
+  task_file varchar(255) NOT NULL default '',
+  task_class varchar(255) NOT NULL default '',
+  task_data mediumtext NOT NULL,
+  claimed_time int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_task)
+) ENGINE=MyISAM;
+---#
+
+/******************************************************************************/
 ---- Replacing MSN with Skype
 /******************************************************************************/
 ---# Modifying the "msn" column...
