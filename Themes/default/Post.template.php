@@ -13,7 +13,7 @@
 // The main template for the post page.
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings, $counter;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings, $counter, $editortxt;
 
 	// Start the javascript... and boy is there a lot.
 	echo '
@@ -711,7 +711,7 @@ function template_main()
 
 	if ($context['can_quote'])
 		echo '
-						newPostsHTML += \'<ul class="reset smalltext quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>',$txt['bbc_quote'],'</span><\' + \'/a></li></ul>\';';
+						newPostsHTML += \'<ul class="reset smalltext quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>',$editortxt['bbc_quote'],'</span><\' + \'/a></li></ul>\';';
 
 	echo '
 						newPostsHTML += \'<br class="clear" />\';

@@ -1452,7 +1452,7 @@ function theme_postbox($msg)
  */
 function create_control_richedit($editorOptions)
 {
-	global $txt, $modSettings, $options, $smcFunc;
+	global $txt, $modSettings, $options, $smcFunc, $editortxt;
 	global $context, $settings, $user_info, $sourcedir, $scripturl;
 
 	// Load the Post language file... for the moment at least.
@@ -1550,110 +1550,110 @@ function create_control_richedit($editorOptions)
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'bold',
-				'description' => $txt['bold'],
+				'description' => $editortxt['bold'],
 			),
 			array(
 				'code' => 'italic',
-				'description' => $txt['italic'],
+				'description' => $editortxt['italic'],
 			),
 			array(
 				'code' => 'underline',
-				'description' => $txt['underline']
+				'description' => $editortxt['underline']
 			),
 			array(
 				'code' => 'strike',
-				'description' => $txt['strike']
+				'description' => $editortxt['strike']
 			),
 			array(),
 			array(
 				'code' => 'pre',
-				'description' => $txt['preformatted']
+				'description' => $editortxt['preformatted']
 			),
 			array(
 				'code' => 'left',
-				'description' => $txt['left_align']
+				'description' => $editortxt['left_align']
 			),
 			array(
 				'code' => 'center',
-				'description' => $txt['center']
+				'description' => $editortxt['center']
 			),
 			array(
 				'code' => 'right',
-				'description' => $txt['right_align']
+				'description' => $editortxt['right_align']
 			),
 		);
 		$context['bbc_tags'][] = array(
 			array(
 				'code' => 'flash',
-				'description' => $txt['flash']
+				'description' => $editortxt['flash']
 			),
 			array(
 				'code' => 'image',
-				'description' => $txt['image']
+				'description' => $editortxt['image']
 			),
 			array(
 				'code' => 'link',
-				'description' => $txt['hyperlink']
+				'description' => $editortxt['hyperlink']
 			),
 			array(
 				'code' => 'email',
-				'description' => $txt['insert_email']
+				'description' => $editortxt['insert_email']
 			),
 			array(
 				'code' => 'ftp',
-				'description' => $txt['ftp']
+				'description' => $editortxt['ftp']
 			),
 			array(),
 			array(
 				'code' => 'glow',
-				'description' => $txt['glow']
+				'description' => $editortxt['glow']
 			),
 			array(
 				'code' => 'shadow',
-				'description' => $txt['shadow']
+				'description' => $editortxt['shadow']
 			),
 			array(
 				'code' => 'move',
-				'description' => $txt['marquee']
+				'description' => $editortxt['marquee']
 			),
 			array(),
 			array(
 				'code' => 'superscript',
-				'description' => $txt['superscript']
+				'description' => $editortxt['superscript']
 			),
 			array(
 				'code' => 'subscript',
-				'description' => $txt['subscript']
+				'description' => $editortxt['subscript']
 			),
 			array(
 				'code' => 'tt',
-				'description' => $txt['teletype']
+				'description' => $editortxt['teletype']
 			),
 			array(),
 			array(
 				'code' => 'table',
-				'description' => $txt['table']
+				'description' => $editortxt['table']
 			),
 			array(
 				'code' => 'code',
-				'description' => $txt['bbc_code']
+				'description' => $editortxt['bbc_code']
 			),
 			array(
 				'code' => 'quote',
-				'description' => $txt['bbc_quote']
+				'description' => $editortxt['bbc_quote']
 			),
 			array(),
 			array(
 				'code' => 'bulletlist',
-				'description' => $txt['list_unordered']
+				'description' => $editortxt['list_unordered']
 			),
 			array(
 				'code' => 'orderedlist',
-				'description' => $txt['list_ordered']
+				'description' => $editortxt['list_ordered']
 			),
 			array(
 				'code' => 'horizontalrule',
-				'description' => $txt['horizontal_rule']
+				'description' => $editortxt['horizontal_rule']
 			),
 		);
 
@@ -1667,11 +1667,11 @@ function create_control_richedit($editorOptions)
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array();
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'unformat',
-				'description' => $txt['unformat_text'],
+				'description' => $editortxt['unformat_text'],
 			);
 			$context['bbc_tags'][count($context['bbc_tags']) - 1][] = array(
 				'code' => 'toggle',
-				'description' => $txt['toggle_view'],
+				'description' => $editortxt['toggle_view'],
 			);
 		}
 
