@@ -224,6 +224,25 @@ CREATE INDEX {$db_prefix}attachments_id_msg ON {$db_prefix}attachments (id_msg);
 CREATE INDEX {$db_prefix}attachments_attachment_type ON {$db_prefix}attachments (attachment_type);
 
 #
+# Sequence for table `background_tasks`
+#
+
+CREATE SEQUENCE {$db_prefix}background_tasks_seq;
+
+#
+# Table structure for table `background_tasks`
+#
+
+CREATE TABLE {$db_prefix}background_tasks (
+  id_task int default nextval('{$db_prefix}background_tasks_seq'),
+  task_file varchar(255) NOT NULL default '',
+  task_class varchar(255) NOT NULL default '',
+  task_data text NOT NULL,
+  claimed_time int unsigned NOT NULL default '0',
+  PRIMARY KEY (id_task)
+);
+
+#
 # Sequence for table `ban_groups`
 #
 
