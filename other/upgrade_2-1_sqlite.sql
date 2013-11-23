@@ -40,7 +40,7 @@ if (!isset($modSettings['allow_no_censored']))
 	");
 	
 	// Is it set for either "default" or the one they've set as default?
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['value'] == 1)
 		{
@@ -886,7 +886,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
-		AND permission IN ({array_string:illegal_perms}',
+		AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
 			'illegal_perms' => $illegal_permissions,

@@ -577,58 +577,61 @@ function ModifyAntispamSettings($return_config = false)
 						$changes['delete'][] = $q_id;
 
 			// Now let's see if there are new questions or ones that need updating.
-			foreach ($_POST['question'][$lang_id] as $q_id => $question)
+			if (isset($_POST['question'][$lang_id]))
 			{
-				// Ignore junky ids.
-				$q_id = (int) $q_id;
-				if ($q_id <= 0)
-					continue;
+				foreach ($_POST['question'][$lang_id] as $q_id => $question)
+				{
+					// Ignore junky ids.
+					$q_id = (int) $q_id;
+					if ($q_id <= 0)
+						continue;
 
-				// Check the question isn't empty (because they want to delete it?)
-				if (empty($question) || trim($question) == '')
-				{
-					if (isset($context['question_answers'][$q_id]))
-						$changes['delete'][] = $q_id;
-					continue;
-				}
-				$question = $smcFunc['htmlspecialchars'](trim($question));
+					// Check the question isn't empty (because they want to delete it?)
+					if (empty($question) || trim($question) == '')
+					{
+						if (isset($context['question_answers'][$q_id]))
+							$changes['delete'][] = $q_id;
+						continue;
+					}
+					$question = $smcFunc['htmlspecialchars'](trim($question));
 
-				// Get the answers. Firstly check there actually might be some.
-				if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id]))
-				{
-					if (isset($context['question_answers'][$q_id]))
-						$changes['delete'][] = $q_id;
-					continue;
-				}
-				// Now get them and check that they might be viable.
-				$answers = array();
-				foreach ($_POST['answer'][$lang_id][$q_id] as $answer)
-					if (!empty($answer) && trim($answer) !== '')
-						$answers[] = $smcFunc['htmlspecialchars'](trim($answer));
-				if (empty($answers))
-				{
-					if (isset($context['question_answers'][$q_id]))
-						$changes['delete'][] = $q_id;
-					continue;
-				}
-				$answers = serialize($answers);
+					// Get the answers. Firstly check there actually might be some.
+					if (!isset($_POST['answer'][$lang_id][$q_id]) || !is_array($_POST['answer'][$lang_id][$q_id]))
+					{
+						if (isset($context['question_answers'][$q_id]))
+							$changes['delete'][] = $q_id;
+						continue;
+					}
+					// Now get them and check that they might be viable.
+					$answers = array();
+					foreach ($_POST['answer'][$lang_id][$q_id] as $answer)
+						if (!empty($answer) && trim($answer) !== '')
+							$answers[] = $smcFunc['htmlspecialchars'](trim($answer));
+					if (empty($answers))
+					{
+						if (isset($context['question_answers'][$q_id]))
+							$changes['delete'][] = $q_id;
+						continue;
+					}
+					$answers = serialize($answers);
 
-				// At this point we know we have a question and some answers. What are we doing with it?
-				if (!isset($context['question_answers'][$q_id]))
-				{
-					// New question. Now, we don't want to randomly consume ids, so we'll set those, rather than trusting the browser's supplied ids.
-					$changes['insert'][] = array($lang_id, $question, $answers);
+					// At this point we know we have a question and some answers. What are we doing with it?
+					if (!isset($context['question_answers'][$q_id]))
+					{
+						// New question. Now, we don't want to randomly consume ids, so we'll set those, rather than trusting the browser's supplied ids.
+						$changes['insert'][] = array($lang_id, $question, $answers);
+					}
+					else
+					{
+						// It's an existing question. Let's see what's changed, if anything.
+						if ($lang_id != $context['question_answers'][$q_id]['lngfile'] || $question != $context['question_answers'][$q_id]['question'] || $answers != $context['question_answers'][$q_id]['answers'])
+							$changes['replace'][$q_id] = array('lngfile' => $lang_id, 'question' => $question, 'answers' => $answers);
+					}
+	
+					if (!isset($qs_per_lang[$lang_id]))
+						$qs_per_lang[$lang_id] = 0;
+					$qs_per_lang[$lang_id]++;
 				}
-				else
-				{
-					// It's an existing question. Let's see what's changed, if anything.
-					if ($lang_id != $context['question_answers'][$q_id]['lngfile'] || $question != $context['question_answers'][$q_id]['question'] || $answers != $context['question_answers'][$q_id]['answers'])
-						$changes['replace'][$q_id] = array('lngfile' => $lang_id, 'question' => $question, 'answers' => $answers);
-				}
-
-				if (!isset($qs_per_lang[$lang_id]))
-					$qs_per_lang[$lang_id] = 0;
-				$qs_per_lang[$lang_id]++;
 			}
 		}
 
