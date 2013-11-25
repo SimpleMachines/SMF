@@ -71,14 +71,7 @@ function loadSession()
 
 		// Use cache setting sessions?
 		if (empty($modSettings['databaseSession_enable']) && !empty($modSettings['cache_enable']) && php_sapi_name() != 'cli')
-		{
 			call_integration_hook('integrate_session_handlers');
-			// @todo move these to a plugin.
-			if (function_exists('mmcache_set_session_handlers'))
-				mmcache_set_session_handlers();
-			elseif (function_exists('eaccelerator_set_session_handlers'))
-				eaccelerator_set_session_handlers();
-		}
 
 		session_start();
 

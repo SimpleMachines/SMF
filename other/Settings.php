@@ -119,7 +119,7 @@ $db_error_send = 0;
 ########## Cache Info ##########
 /**
  * Select a cache system. You want to leave this up to the cache area of the admin panel for
- * proper detection of apc, eaccelerator, memcache, mmcache, output_cache, smf, or xcache
+ * proper detection of apc, memcache, output_cache, smf, or xcache
  * (you can add more with a mod).
  * @var string
  */

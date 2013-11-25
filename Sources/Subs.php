@@ -3686,24 +3686,6 @@ function clean_cache($type = '')
 					memcached_flush($memcached);
 			}
 			break;
-		case 'eaccelerator':
-			if (function_exists('eaccelerator_clear') && function_exists('eaccelerator_clean') )
-			{
-				// Clean out the already expired items
-				@eaccelerator_clean();
-
-				// Remove all unused scripts and data from shared memory and disk cache,
-				// e.g. all data that isn't used in the current requests.
-				@eaccelerator_clear();
-			}
-		case 'mmcache':
-			if (function_exists('mmcache_gc'))
-			{
-				// removes all expired keys from shared memory, this is not a complete cache flush :(
-				// @todo there is no clear function, should we try to find all of the keys and delete those? with mmcache_rm
-				mmcache_gc();
-			}
-			break;
 		case 'apc':
 			if (function_exists('apc_clear_cache'))
 			{

@@ -526,8 +526,6 @@ function AdminHome()
 		'gd',
 		'imagemagick',
 		'db_server',
-		'mmcache',
-		'eaccelerator',
 		'phpa',
 		'apc',
 		'memcache',
