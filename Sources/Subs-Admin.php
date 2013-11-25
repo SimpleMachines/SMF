@@ -74,10 +74,6 @@ function getServerVersions($checkFor)
 		get_memcached_server();
 
 	// Check to see if we have any accelerators installed...
-	if (in_array('mmcache', $checkFor) && defined('MMCACHE_VERSION'))
-		$versions['mmcache'] = array('title' => 'Turck MMCache', 'version' => MMCACHE_VERSION);
-	if (in_array('eaccelerator', $checkFor) && defined('EACCELERATOR_VERSION'))
-		$versions['eaccelerator'] = array('title' => 'eAccelerator', 'version' => EACCELERATOR_VERSION);
 	if (in_array('phpa', $checkFor) && isset($_PHPA))
 		$versions['phpa'] = array('title' => 'ionCube PHP-Accelerator', 'version' => $_PHPA['VERSION']);
 	if (in_array('apc', $checkFor) && extension_loaded('apc'))

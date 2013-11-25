@@ -105,8 +105,6 @@ $txt['karmaSmiteLabel'] = 'Karma smite label';
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
 	<li>APC</li>
-	<li>eAccelerator</li>
-	<li>Turck MMCache</li>
 	<li>Memcached</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
 	<li>XCache</li>
@@ -125,8 +123,6 @@ $txt['cache_memcached'] = 'Memcache settings';
 $txt['cache_accelerator'] = 'Caching Accelerator';
 $txt['default_cache'] = 'SMF file based caching';
 $txt['apc_cache'] = 'APC';
-$txt['eAccelerator_cache'] = 'eAccelerator';
-$txt['mmcache_cache'] = 'Turck MMCache';
 $txt['memcached_cache'] = 'Memcached';
 $txt['zend_cache'] = 'Zend Platform/Performance Suite';
 $txt['xcache_cache'] = 'XCache';

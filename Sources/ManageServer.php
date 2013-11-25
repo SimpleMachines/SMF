@@ -396,10 +396,6 @@ function ModifyCacheSettings($return_config = false)
 
 	// Detect all available optimizers
 	$detected = array();
-	if (function_exists('eaccelerator_put'))
-		$detected['eaccelerator'] = $txt['eAccelerator_cache'];
-	if (function_exists('mmcache_put'))
-		$detected['mmcache'] = $txt['mmcache_cache'];
 	if (function_exists('apc_store'))
 		$detected['apc'] = $txt['apc_cache'];
 	if (function_exists('output_cache_put') || function_exists('zend_shm_cache_store'))
