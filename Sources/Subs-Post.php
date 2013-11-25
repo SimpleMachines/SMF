@@ -2976,16 +2976,21 @@ function spell_init()
 {
 	global $context, $txt;
 
+	// Check for UTF-8 and strip ".utf8" off the lang_locale string for enchant
+	$context['spell_utf8'] = ($txt['lang_character_set'] == 'UTF-8');
+	$lang_locale = str_replace('.utf8', '', $txt['lang_locale']);
+
 	// Try enchant first since PSpell is (supposedly) deprecated as of PHP 5.3
-	if (function_exists('enchant_broker_init'))
+	// enchant only does UTF-8, so we need iconv if you aren't using UTF-8
+	if (function_exists('enchant_broker_init') && ($context['spell_utf8'] || function_exists('iconv')))
 	{
 		// We'll need this to free resources later...
 		$context['enchant_broker'] = enchant_broker_init();
 
 		// Try locale first, then general...
-		if (!empty($txt['lang_locale']) && enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_locale']))
-		{
-			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $txt['lang_locale']);
+		if (!empty($lang_locale) && enchant_broker_dict_exists($context['enchant_broker'], $lang_locale))
+		{			
+			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $lang_locale);
 		}
 		elseif (enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_dictionary']))
 		{
@@ -3048,11 +3053,17 @@ function spell_init()
  */
 function spell_check($dict, $word)
 {
-	global $context;
+	global $context, $txt;
 
 	// Enchant or pspell?
 	if ($context['provider'] == 'enchant')
 	{
+		// This is a bit tricky here...
+		if (!$context['spell_utf8'])
+		{
+			// Convert the word to UTF-8 with iconv
+			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
+		}
 		return enchant_dict_check($dict, $word);
 	}
 	elseif ($context['provider'] == 'pspell')
@@ -3072,11 +3083,30 @@ function spell_check($dict, $word)
  */
 function spell_suggest($dict, $word)
 {
-	global $context;
+	global $context, $txt;
 
 	if ($context['provider'] == 'enchant')
 	{
-		return enchant_dict_suggest($dict, $word);
+		// If we're not using UTF-8, we need iconv to handle some stuff...
+		if (!$context['spell_utf8'])
+		{
+			// Convert the word to UTF-8 before getting suggestions
+			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
+			$suggestions = enchant_dict_suggest($dict, $word);
+			
+			// Go through the suggestions and convert them back to the proper character set
+			foreach($suggestions as $index => $suggestion)
+			{
+				// //TRANSLIT makes it use similar-looking characters for incompatible ones...
+				$suggestions[$index] = iconv('UTF-8', $txt['lang_charset'] . '//TRANSLIT', $suggestion);
+			}
+
+			return $suggestions;
+		}
+		else
+		{
+			return enchant_dict_suggest($dict, $word);
+		}
 	}
 	elseif ($context['provider'] == 'pspell')
 	{
