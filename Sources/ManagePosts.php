@@ -188,13 +188,20 @@ function ModifyPostSettings($return_config = false)
 {
 	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc, $db_prefix, $db_type;
 
+	// Make an inline conditional a little shorter...
+	$can_spell_check = false;
+	if (function_exists('pspell_new'))
+		$can_spell_check = true;
+	elseif (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv')))
+		$can_spell_check = true;			
+
 	// All the settings...
 	$config_vars = array(
 			// Simple post options...
 			array('check', 'removeNestedQuotes'),
 			array('check', 'enableEmbeddedFlash', 'subtext' => $txt['enableEmbeddedFlash_warning']),
-			// Note show the warning as read if pspell not installed!
-			array('check', 'enableSpellChecking', 'subtext' => ((function_exists('pspell_new') || function_exists('enchant_broker_init')) ? $txt['enableSpellChecking_warning'] : ('<span class="alert">' . $txt['enableSpellChecking_warning'] . '</span>'))),
+			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed) 
+			array('check', 'enableSpellChecking', 'subtext' => ($can_spell_check ? $txt['enableSpellChecking_warning'] : ('<span class="alert">' . $txt['enableSpellChecking_warning'] . '</span>'))),
 			array('check', 'disable_wysiwyg'),
 		'',
 			// Posting limits...
