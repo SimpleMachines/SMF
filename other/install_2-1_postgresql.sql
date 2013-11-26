@@ -927,7 +927,7 @@ CREATE TABLE {$db_prefix}categories (
 #
 
 INSERT INTO {$db_prefix}categories
-VALUES (1, 0, '{$default_category_name}', 1);
+VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
 #
