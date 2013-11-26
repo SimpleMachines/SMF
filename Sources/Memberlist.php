@@ -573,6 +573,10 @@ function MLSearch()
 
 		$context['sub_template'] = 'search';
 		$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? $smcFunc['htmlspecialchars']($_POST['search']) : '');
+
+		// Since we're nice we also want to default focus on to the search field.
+		addInlineJavascript('
+	$(\'input[name="search"]\').focus();', true);
 	}
 
 	$context['linktree'][] = array(
