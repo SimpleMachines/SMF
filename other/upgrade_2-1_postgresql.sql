@@ -296,6 +296,17 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Adding support for category descriptions
+/******************************************************************************/
+---# Adding new columns to categories...
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}categories
+	ADD COLUMN description text NOT NULL;");
+---}
+---#
+
+/******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to log_topics...
