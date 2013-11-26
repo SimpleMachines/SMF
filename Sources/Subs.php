@@ -3374,6 +3374,12 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if ($new)
 		return sha1(md5($filename . time()) . mt_rand());
 
+	// Set the var to return.
+	$return_file = '';
+
+	// Give credit where credit is due...
+	$FileZilla_ext = '.dat';
+
 	// Grab the file hash if it wasn't added.
 	// @todo: Locate all places that don't call a hash and fix that.
 	if ($file_hash === '')
@@ -3407,7 +3413,21 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
-	return $path . '/' . $attachment_id . '_' . $file_hash;
+	// Add a generic extension to the full path
+	$return_file = $path . '/' . $attachment_id . '_' . $file_hash . $FileZilla_ext;
+
+	// Is this an old attachment?
+	if (!file_exists($return_file))
+	{
+		// Lets check if there is one without the extension
+		if(file_exists($path . '/' . $attachment_id . '_' . $file_hash))
+		{
+			// Do the rename and add the generic extension
+			rename($path . '/' . $attachment_id . '_' . $file_hash, $path . '/' . $attachment_id . '_' . $file_hash . $FileZilla_ext);
+		}
+	}
+
+	return $return_file;
 }
 
 /**

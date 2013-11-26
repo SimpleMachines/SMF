@@ -1251,8 +1251,8 @@ function Post2()
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
 	if ($context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
-		 require_once($sourcedir . '/Subs-Attachments.php');
-		 processAttachments();
+		require_once($sourcedir . '/Subs-Attachments.php');
+		processAttachments();
 	}
 
 	// If this isn't a new topic load the topic info that we need.

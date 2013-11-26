@@ -98,7 +98,7 @@ function showAvatar()
 		die('404 File Not Found');
 	}
 
-	// If it hasn't been modified since the last time this attachement was retrieved, there's no need to display it again.
+	// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);

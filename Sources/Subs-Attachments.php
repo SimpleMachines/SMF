@@ -325,7 +325,7 @@ function processAttachments()
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
-	// Is the attachments folder actualy there?
+	// Is the attachments folder actually there?
 	if (!empty($context['dir_creation_error']))
 		$initial_error = $context['dir_creation_error'];
 	elseif (!is_dir($context['attach_dir']))
@@ -400,7 +400,7 @@ function processAttachments()
 			'board' => !empty($board) ? $board : 0,
 		);
 
-	// If we have an itital error, lets just display it.
+	// If we have an initial error, lets just display it.
 	if (!empty($initial_error))
 	{
 		$_SESSION['temp_attachments']['initial_error'] = $initial_error;
@@ -468,7 +468,7 @@ function processAttachments()
 			if (file_exists($_FILES['attachment']['tmp_name'][$n]))
 				unlink($_FILES['attachment']['tmp_name'][$n]);
 		}
-		// If there's no errors to this pont. We still do need to apply some addtional checks before we are finished.
+		// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
 		if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
 			attachmentChecks($attachID);
 	}
@@ -665,7 +665,7 @@ function attachmentChecks($attachID)
 
 /**
  * Create an attachment, with the given array of parameters.
- * - Adds any addtional or missing parameters to $attachmentOptions.
+ * - Adds any additional or missing parameters to $attachmentOptions.
  * - Renames the temporary file.
  * - Creates a thumbnail if the file is an image and the option enabled.
  *
