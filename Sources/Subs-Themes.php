@@ -298,7 +298,6 @@ function theme_install($to_install = array())
 			{
 				case 0: // This is exactly the same theme.
 				case -1: // The one being installed is older than the one already installed.
-				default: // Any other possible result.
 					fatal_lang_error('package_get_error_theme_no_new_version', false, array($context['to_install']['version'], $to_update['version']));
 					break;
 				case 1: // Got a newer version, update the old entry.
@@ -320,6 +319,8 @@ function theme_install($to_install = array())
 
 					return $context['to_install'];
 					break; // Just for reference.
+				default: // Any other possible result.
+					fatal_lang_error('package_get_error_theme_no_new_version', false, array($context['to_install']['version'], $to_update['version']));
 			}
 	}
 
