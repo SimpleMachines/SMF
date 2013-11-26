@@ -378,7 +378,10 @@ function messageIndexBar($area)
  */
 function MessagePopup()
 {
-	global $context, $modSettings, $smcFunc, $memberContext, $scripturl, $user_settings;
+	global $context, $modSettings, $smcFunc, $memberContext, $scripturl, $user_settings, $db_show_debug;
+
+	// We do not want to output debug information here.
+	$db_show_debug = false;
 
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
