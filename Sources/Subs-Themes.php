@@ -69,14 +69,22 @@ function get_single_theme($id)
 	);
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
 		$single[$row['variable']] = $row['value'];
 
-	// Fix the path and tell if its a valid one.
-	$single['theme_dir'] = realpath($single['theme_dir']);
-	$single['valid_path'] = file_exists($single['theme_dir']) && is_dir($single['theme_dir']);
+		// Fix the path and tell if its a valid one.
+		if ($row['variable'] == 'theme_dir')
+		{
+			$single['theme_dir'] = realpath($row['value']);
+			$single['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+		}
+	}
+
+	// Is this theme installed and enabled?
 	$single['known'] = in_array($single['id'], $knownThemes);
 	$single['enable'] = in_array($single['id'], $enableThemes);
 
+	// It should at least return if the theme is a known one or if its enable.
 	return $single;
 }
 
