@@ -44,7 +44,7 @@ function getBoardIndex($boardIndexOptions)
 	// Find all boards and categories, as well as related information.  This will be sorted by the natural order of boards and categories, which we control.
 	$result_boards = $smcFunc['db_query']('boardindex_fetch_boards', '
 		SELECT' . ($boardIndexOptions['include_categories'] ? '
-			c.id_cat, c.name AS cat_name,' : '') . '
+			c.id_cat, c.name AS cat_name, c.description AS cat_desc,' : '') . '
 			b.id_board, b.name AS board_name, b.description,
 			CASE WHEN b.redirect != {string:blank_string} THEN 1 ELSE 0 END AS is_redirect,
 			b.num_posts, b.num_topics, b.unapproved_posts, b.unapproved_topics, b.id_parent,
@@ -99,6 +99,7 @@ function getBoardIndex($boardIndexOptions)
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
 					'name' => $row_board['cat_name'],
+					'description' => $row_board['cat_desc'],
 					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && $row_board['is_collapsed'] > 0,
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'collapse_href' => isset($row_board['can_collapse']) ? $scripturl . '?action=collapse;c=' . $row_board['id_cat'] . ';sa=' . ($row_board['is_collapsed'] > 0 ? 'expand;' : 'collapse;') . $context['session_var'] . '=' . $context['session_id'] . '#c' . $row_board['id_cat'] : '',

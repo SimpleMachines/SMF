@@ -235,6 +235,14 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Adding support for category descriptions
+/******************************************************************************/
+---# Adding new columns to categories...
+ALTER TABLE {$db_prefix}categories
+ADD COLUMN description text NOT NULL;
+---#
+
+/******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to boards...

@@ -833,6 +833,12 @@ h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
 	line-height: 1.5em;
 	padding: 8px;
 }
+h3.catbg .desc
+{
+	font-size: 10px;
+	line-height: 1.5em;
+	font-weight: normal;
+}
 h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
 	color: #fff;
 }
@@ -905,7 +911,6 @@ div.cat_bar {
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
-	height: 1.6em;
 }
 div.title_bar {
 	background: #557ea0;

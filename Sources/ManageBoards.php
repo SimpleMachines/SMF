@@ -243,6 +243,7 @@ function EditCategory()
 			'id' => 0,
 			'name' => $txt['mboards_new_cat_name'],
 			'editable_name' => $smcFunc['htmlspecialchars']($txt['mboards_new_cat_name']),
+			'description' => '',
 			'can_collapse' => true,
 			'is_new' => true,
 			'is_empty' => true
@@ -257,6 +258,7 @@ function EditCategory()
 			'id' => $_REQUEST['cat'],
 			'name' => $cat_tree[$_REQUEST['cat']]['node']['name'],
 			'editable_name' => $smcFunc['htmlspecialchars']($cat_tree[$_REQUEST['cat']]['node']['name']),
+			'description' => $smcFunc['htmlspecialchars']($cat_tree[$_REQUEST['cat']]['node']['description']),
 			'can_collapse' => !empty($cat_tree[$_REQUEST['cat']]['node']['can_collapse']),
 			'children' => array(),
 			'is_empty' => empty($cat_tree[$_REQUEST['cat']]['children'])
@@ -327,6 +329,7 @@ function EditCategory2()
 
 		// Change "This & That" to "This &amp; That" but don't change "&cent" to "&amp;cent;"...
 		$catOptions['cat_name'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['cat_name']);
+		$catOptions['cat_desc'] = preg_replace('~[&]([^;]{8}|[^;]{0,8}$)~', '&amp;$1', $_POST['cat_desc']);
 
 		$catOptions['is_collapsible'] = isset($_POST['collapse']);
 

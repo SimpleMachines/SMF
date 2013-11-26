@@ -268,6 +268,24 @@ $smcFunc['db_alter_table']('{db_prefix}boards', array(
 ---#
 
 /******************************************************************************/
+--- Adding support for category descriptions
+/******************************************************************************/
+---# Adding new columns to categories...
+---{
+$smcFunc['db_alter_table']('{db_prefix}log_topics', array(
+	'add' => array(
+		'description' => array(
+			'name' => 'description',
+			'null' => false,
+			'type' => 'text',
+			'auto' => false,
+		),
+	)
+));
+---}
+---#
+
+/******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to log_topics...

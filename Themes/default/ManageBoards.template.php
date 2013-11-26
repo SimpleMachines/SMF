@@ -153,6 +153,13 @@ function template_modify_category()
 							<input type="text" name="cat_name" value="', $context['category']['editable_name'], '" size="30" tabindex="', $context['tabindex']++, '" class="input_text" />
 						</dd>
 						<dt>
+							<strong>', $txt['mboards_description'], '</strong><br />
+							<span class="smalltext">', $txt['mboards_cat_description_desc'], '</span>
+						</dt>
+						<dd>
+							<textarea name="cat_desc" rows="3" cols="35" style="width: 99%;">', $context['category']['description'], '</textarea>
+						</dd>
+						<dt>
 							<strong>', $txt['collapse_enable'], '</strong><br />
 							<span class="smalltext">', $txt['collapse_desc'], '</span>
 						</dt>

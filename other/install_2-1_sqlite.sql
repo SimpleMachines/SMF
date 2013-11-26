@@ -727,6 +727,7 @@ CREATE TABLE {$db_prefix}categories (
   id_cat integer primary key,
   cat_order smallint NOT NULL default '0',
   name varchar(255) NOT NULL,
+  description text NOT NULL,
   can_collapse smallint NOT NULL default '1'
 );
 
@@ -735,7 +736,7 @@ CREATE TABLE {$db_prefix}categories (
 #
 
 INSERT INTO {$db_prefix}categories
-VALUES (1, 0, '{$default_category_name}', 1);
+VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
 #

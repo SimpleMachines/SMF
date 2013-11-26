@@ -120,7 +120,8 @@ function template_main()
 								<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
 
 		echo '
-								', $category['link'], '
+								', $category['link'], !empty($category['description']) ? '
+								<div class="desc">' . $category['description'] . '</div>' : '', '
 							</h3>
 						</div>
 					</td>
