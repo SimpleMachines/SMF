@@ -727,6 +727,7 @@ CREATE TABLE {$db_prefix}categories (
   id_cat integer primary key,
   cat_order smallint NOT NULL default '0',
   name varchar(255) NOT NULL,
+  description text NOT NULL,
   can_collapse smallint NOT NULL default '1'
 );
 
