@@ -852,10 +852,11 @@ h3.titlebg, h4.titlebg {
 	color: #fff;
 }
 h3.titlebg a, h4.titlebg a {
-	color: #444;
+	color: #fff;
+	text-decoration: underline;
 }
 h3.titlebg a:hover, h4.titlebg a:hover {
-	color: #000838;
+	color: #fff;
 	text-decoration: none;
 }
 h3.catbg img.icon {
