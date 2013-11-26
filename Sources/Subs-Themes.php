@@ -278,7 +278,6 @@ function theme_install($to_install = array())
 			SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_member = {int:no_member}
-				AND id_member = {int:no_member}
 				AND variable = {string:name}
 				AND value LIKE {string:name_value}
 			LIMIT 1',
