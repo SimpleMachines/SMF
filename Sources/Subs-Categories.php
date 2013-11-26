@@ -87,6 +87,12 @@ function modifyCategory($category_id, $catOptions)
 		$catParameters['cat_name'] = $catOptions['cat_name'];
 	}
 
+	if (isset($catOptions['cat_desc']))
+	{
+		$catUpdates[] = 'description = {string:cat_desc}';
+		$catParameters['cat_desc'] = $catOptions['cat_desc'];
+	}
+
 	// Can a user collapse this category or is it too important?
 	if (isset($catOptions['is_collapsible']))
 	{
@@ -133,6 +139,8 @@ function createCategory($catOptions)
 		trigger_error('createCategory(): A category name is required', E_USER_ERROR);
 
 	// Set default values.
+	if (!isset($catOptions['cat_desc']))
+		$catOptions['cat_desc'] = '';
 	if (!isset($catOptions['move_after']))
 		$catOptions['move_after'] = 0;
 	if (!isset($catOptions['is_collapsible']))
@@ -142,9 +150,11 @@ function createCategory($catOptions)
 
 	$cat_columns = array(
 		'name' => 'string-48',
+		'description' => 'string',
 	);
 	$cat_parameters = array(
 		$catOptions['cat_name'],
+		$catOptions['cat_desc'],
 	);
 
 	call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
