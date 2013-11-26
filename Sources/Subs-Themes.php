@@ -147,8 +147,6 @@ function get_all_themes($enable_only = false)
 	}
 
 	$smcFunc['db_free_result']($request);
-
-	return $context['themes'];
 }
 
 /**
