@@ -31,6 +31,9 @@ function get_single_theme($id)
 	if (empty($id))
 		return false;
 
+	// Make user its an int.
+	$id = (int) $id;
+
 	// List of all possible  values.
 	$themeValues = array(
 		'theme_dir',
@@ -48,7 +51,7 @@ function get_single_theme($id)
 	call_integration_hook('integrate_get_single_theme', array(&$themeValues, $id));
 
 	$single = array(
-		'id' => (int) $id,
+		'id' => $id,
 	);
 
 	// Make our known/enable themes a little easier to work with.
