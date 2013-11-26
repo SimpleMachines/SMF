@@ -816,7 +816,7 @@ function RemoveTheme()
 	$themeID = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
 
 	// You can't delete the default theme!
-	if ($_GET['th'] == 1)
+	if ($themeID == 1)
 		fatal_lang_error('no_access', false);
 
 	$theme_info = get_single_theme($themeID);
