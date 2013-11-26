@@ -1287,7 +1287,14 @@ function InstallFile()
 
 	// Hopefully the temp directory is writable, or we might have a problem.
 	if (!is_writable($dirtemp))
-		fatal_lang_error('theme_install_write_error', 'critical');
+	{
+		// Lets give it a try.
+		@chmod($dirtmp, '0755');
+
+		// How about now?
+		if (!is_writable($dirtemp))
+			fatal_lang_error('theme_install_write_error', 'critical');
+	}
 
 	// This happens when the admin session is gone and the user has to login again.
 	if (!isset($_FILES) || !isset($_FILES['theme_gz']) || empty($_FILES['theme_gz']))
