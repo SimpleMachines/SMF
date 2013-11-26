@@ -232,7 +232,7 @@ function template_list_themes()
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						<strong>', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="'. $scripturl .'?action=admin;area=theme;th='. $theme['id'] .';'. $context['session_var'] .'='. $context['session_id'] .';sa=list">'. $theme['name'] .'</a>' : $theme['name'] ),'</strong>', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
+						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="'. $scripturl .'?action=admin;area=theme;th='. $theme['id'] .';'. $context['session_var'] .'='. $context['session_id'] .';sa=list">'. $theme['name'] .'</a>' : $theme['name'] ),'', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
 					</span>';
 
 			// You *cannot* disable/enable/delete the default theme. It's important!
