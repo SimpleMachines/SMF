@@ -31,7 +31,7 @@ function get_single_theme($id)
 	if (empty($id))
 		return false;
 
-	// Make user its an int.
+	// Make sure $id is an int.
 	$id = (int) $id;
 
 	// List of all possible  values.
