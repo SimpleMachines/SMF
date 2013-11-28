@@ -1918,7 +1918,7 @@ function ApproveAttachments($attachments)
  */
 function ManageAttachmentPaths()
 {
-	global $modSettings, $scripturl, $context, $txt, $sourcedir, $boarddir, $smcFunc;
+	global $modSettings, $scripturl, $context, $txt, $sourcedir, $boarddir, $smcFunc, $settings;
 
 	// Since this needs to be done eventually.
 	if (!is_array($modSettings['attachmentUploadDir']))
@@ -1944,14 +1944,28 @@ function ManageAttachmentPaths()
 			if ($id < 1)
 				continue;
 
+			// Sorry, these dirs are NOT valid
+			$invalid_dirs = array($boarddir, $settings['default_theme_dir'], $sourcedir);
+			if (in_array($path, $invalid_dirs))
+			{
+				$errors[] = $path . ': ' . $txt['attach_dir_invalid'];
+				continue;
+			}
+
 			// Hmm, a new path maybe?
-			if (!array_key_exists($id, $modSettings['attachmentUploadDir']))
+			// Don't allow empty paths
+			if (!array_key_exists($id, $modSettings['attachmentUploadDir']) && !empty($path))
 			{
 				// or is it?
 				if (in_array($path, $modSettings['attachmentUploadDir']) || in_array($boarddir . DIRECTORY_SEPARATOR . $path, $modSettings['attachmentUploadDir']))
 				{
 						$errors[] = $path . ': ' . $txt['attach_dir_duplicate_msg'];
 						continue;
+				}
+				elseif (empty($path))
+				{
+					// Ignore this and set $id to one less
+					continue;
 				}
 
 				// OK, so let's try to create it then.
