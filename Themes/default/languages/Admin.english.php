@@ -386,6 +386,7 @@ $txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do s
 $txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and can not be deleted.';
 $txt['attach_dir_is_current'] = 'Unable to remove while it is selected as the current directory.';
 $txt['attach_dir_is_current_bd'] = 'Unable to remove while it is selected as the current base directory.';
+$txt['attach_dir_invalid'] = 'Invalid directory';
 $txt['attach_last_dir'] = 'Last active attachment directory';
 $txt['attach_current_dir'] = 'Current attachment directory';
 $txt['attach_current'] = 'Current';
