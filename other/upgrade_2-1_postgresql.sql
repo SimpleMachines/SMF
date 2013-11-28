@@ -310,7 +310,7 @@ upgrade_query("
 --- Adding support for alerts
 /******************************************************************************/
 ---# Adding the count to the members table...
-ALERT TABLE {$db_prefix}members
+ALTER TABLE {$db_prefix}members
 ADD COLUMN alerts int NOT NULL default '0';
 ---#
 
