@@ -1246,6 +1246,7 @@ CREATE TABLE {$db_prefix}members (
   instant_messages smallint(5) NOT NULL default 0,
   unread_messages smallint(5) NOT NULL default 0,
   new_pm tinyint(3) unsigned NOT NULL default '0',
+  alerts int(10) unsigned NOT NULL default '0',
   buddy_list text NOT NULL,
   pm_ignore_list varchar(255) NOT NULL default '',
   pm_prefs mediumint(8) NOT NULL default '0',
@@ -2125,6 +2126,26 @@ INSERT INTO {$db_prefix}topics
 	(id_topic, id_board, id_first_msg, id_last_msg, id_member_started, id_member_updated)
 VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
+
+#
+# Table structure for table `user_alerts`
+#
+
+CREATE TABLE {$db_prefix}user_alerts (
+  id_alert int(10) unsigned NOT NULL auto_increment,
+  alert_time int(10) unsigned NOT NULL default '0',
+  id_member mediumint(10) unsigned NOT NULL default '0',
+  id_member_started mediumint(10) unsigned NOT NULL default '0',
+  member_name varchar(255) NOT NULL default '',
+  content_type varchar(255) NOT NULL default '',
+  content_id int(10) unsigned NOT NULL default '0',
+  content_action varchar(255) NOT NULL default '',
+  is_read tinyint(3) unsigned NOT NULL default '0',
+  extra text NOT NULL,
+  PRIMARY KEY (id_alert),
+  KEY id_member (id_member),
+  KEY alert_time (alert_time)
+) ENGINE=MyISAM;
 
 #
 # Table structure for table `user_drafts`

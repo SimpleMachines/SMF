@@ -201,6 +201,14 @@ function template_body_above()
 				</li>';
 		}
 
+		// Thirdly, alerts
+		echo '
+				<li>
+					<a href="', $scripturl, '?action=alerts"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+					<div id="alerts_menu" class="top_menu"></div>
+				</li>';
+
+		// And now we're done.
 		echo '
 			</ul>';
 	}

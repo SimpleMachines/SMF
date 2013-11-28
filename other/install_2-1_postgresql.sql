@@ -1649,6 +1649,7 @@ CREATE TABLE {$db_prefix}members (
   instant_messages smallint NOT NULL default 0,
   unread_messages smallint NOT NULL default 0,
   new_pm smallint NOT NULL default '0',
+  alerts int NOT NULL default '0',
   buddy_list text NOT NULL,
   pm_ignore_list varchar(255) NOT NULL,
   pm_prefs int NOT NULL default '0',
@@ -2673,6 +2674,36 @@ INSERT INTO {$db_prefix}topics
 VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
 
+#
+# Sequence for table `user_alerts`
+#
+
+CREATE SEQUENCE {$db_prefix}user_alerts_seq;
+
+#
+# Table structure for table `user_alerts`
+#
+
+CREATE TABLE {$db_prefix}user_alerts (
+  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
+  alert_time int NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  id_member_started int NOT NULL default '0',
+  member_name varchar(255) NOT NULL default '',
+  content_type varchar(255) NOT NULL default '',
+  content_id int NOT NULL default '0',
+  content_action varchar(255) NOT NULL default '',
+  is_read smallint NOT NULL default '0',
+  extra text NOT NULL,
+  PRIMARY KEY (id_alert)
+);
+
+#
+# Indexes for table `user_alerts`
+#
+
+CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
+CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
 
 #
 # Sequence for table `user_drafts`
