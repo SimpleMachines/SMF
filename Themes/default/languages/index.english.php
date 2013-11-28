@@ -740,6 +740,8 @@ $txt['split_reset_selection'] = 'reset selection';
 $txt['modify_cancel'] = 'Cancel';
 $txt['mark_read_short'] = 'Mark Read';
 
+$txt['alerts'] = 'Alerts';
+
 $txt['pm_short'] = 'My Messages';
 $txt['pm_menu_read'] = 'Read your messages';
 $txt['pm_menu_send'] = 'Send a message';

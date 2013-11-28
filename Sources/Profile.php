@@ -106,6 +106,14 @@ function ModifyProfile($post_errors = array())
 					),
 					'select' => 'summary',
 				),
+				'alerts_popup' => array(
+					'function' => 'alerts_popup',
+					'permission' => array(
+						'own' => 'is_not_guest',
+						'any' => array(),
+					),
+					'select' => 'summary',
+				),
 				'statistics' => array(
 					'label' => $txt['statPanel'],
 					'file' => 'Profile-View.php',
@@ -773,6 +781,26 @@ function profile_popup($memID)
 			$context['profile_items'][] = $item;
 		}
 	}
+}
+
+/**
+ * Set up the requirements for the alerts popup - the area that shows all the alerts just quickly for the current user.
+ *
+ * @param int $memID
+ */
+function alerts_popup($memID)
+{
+	global $context, $scripturl, $txt, $sourcedir, $db_show_debug;
+
+	// We do not want to output debug information here.
+	$db_show_debug = false;
+
+	// We only want to output our little layer here.
+	$context['template_layers'] = array();
+
+	// Now fetch me my unread alerts, pronto!
+	require_once($sourcedir . '/Profile-View.php');
+	$context['unread_alerts'] = fetch_alerts($memID, false);
 }
 
 /**

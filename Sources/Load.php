@@ -432,6 +432,7 @@ function loadUserSettings()
 		'smiley_set' => isset($user_settings['smiley_set']) ? $user_settings['smiley_set'] : '',
 		'messages' => empty($user_settings['instant_messages']) ? 0 : $user_settings['instant_messages'],
 		'unread_messages' => empty($user_settings['unread_messages']) ? 0 : $user_settings['unread_messages'],
+		'alerts' => empty($user_settings['alerts']) ? 0 : $user_settings['alerts'],
 		'total_time_logged_in' => empty($user_settings['total_time_logged_in']) ? 0 : $user_settings['total_time_logged_in'],
 		'buddies' => !empty($modSettings['enable_buddylist']) && !empty($user_settings['buddy_list']) ? explode(',', $user_settings['buddy_list']) : array(),
 		'ignoreboards' => !empty($user_settings['ignore_boards']) && !empty($modSettings['allow_ignore_boards']) ? explode(',', $user_settings['ignore_boards']) : array(),

@@ -87,6 +87,48 @@ function template_profile_popup()
 		</div>';
 }
 
+function template_alerts_popup()
+{
+	global $context, $txt, $scripturl, $settings;
+
+	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
+	echo '
+		<div class="alert_bar">
+			<div class="alerts_opts floatright">
+				<a href="' . $scripturl . '?action=pm;sa=send">', $txt['mark_alerts_read'], '</a>
+				| <a href="', $scripturl, '?action=pm;sa=settings">', $txt['alert_settings'], '</a>
+			</div>
+			<div class="alerts_box floatleft">
+				', $txt['unread_alerts'], '
+				| <a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
+			</div>
+		</div>
+		<div class="alerts_unread">';
+
+	if (empty($context['unread_alerts']))
+	{
+		echo '
+			<div class="no_unread">', $txt['alerts_no_unread'], '</div>';
+	}
+	else
+	{
+		foreach ($context['unread_alerts'] as $id_alert => $details)
+		{
+			echo '
+			<div class="unread">
+				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
+				<div class="details floatleft">
+					', !empty($details['icon']) ? $details['icon'] : '', $details['text'], ' - ', $details['time'], '
+				</div>
+				<br class="clear" />
+			</div>';
+		}	
+	}
+
+	echo '
+		</div>';
+}
+
 // This template displays users details without any option to edit them.
 function template_summary()
 {
