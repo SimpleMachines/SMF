@@ -455,4 +455,14 @@ function template_email_members_send()
 	// ]]></script>';
 }
 
+function template_news_lists()
+{
+	global $context, $txt;
+
+	if (!empty($context['saved_successful']))
+		echo '
+					<div class="infobox">', $txt['settings_saved'], '</div>';
+
+	template_show_list('news_lists');
+}
 ?>

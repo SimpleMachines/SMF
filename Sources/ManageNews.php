@@ -106,6 +106,8 @@ function EditNews()
 		// Update the database.
 		updateSettings(array('news' => implode("\n", $temp_news)));
 
+		$context['saved_successful'] = true;
+
 		logAction('news');
 	}
 	// The 'Save' button was pressed.
@@ -126,6 +128,8 @@ function EditNews()
 
 		// Send the new news to the database.
 		updateSettings(array('news' => implode("\n", $_POST['news'])));
+
+		$context['saved_successful'] = true;
 
 		// Log this into the moderation log.
 		logAction('news');
@@ -261,8 +265,9 @@ function EditNews()
 	// Create the request list.
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'news_lists';
+	// And go!
+	loadTemplate('ManageNews');
+	$context['sub_template'] = 'news_lists';
 }
 
 /**
