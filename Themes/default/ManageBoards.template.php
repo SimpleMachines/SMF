@@ -457,6 +457,7 @@ function template_modify_board()
 					<hr class="hrcolor" />';
 
 	if (empty($context['board']['is_recycle']) && empty($context['board']['topics']))
+	{
 		echo '
 					<dl class="settings">
 						<dt>
@@ -464,24 +465,10 @@ function template_modify_board()
 							<span class="smalltext">', $txt['mboards_redirect_desc'], '</span><br />
 						</dt>
 						<dd>
-							<input type="checkbox" id="redirect_enable" name="redirect_enable"', $context['board']['topics'] ? ' disabled="disabled"' : '', $context['board']['redirect'] != '' ? ' checked="checked"' : '', ' onclick="refreshOptions();" class="input_check" />
+							<input type="checkbox" id="redirect_enable" name="redirect_enable"', $context['board']['redirect'] != '' ? ' checked="checked"' : '', ' onclick="refreshOptions();" class="input_check" />
 						</dd>
-					</dl>';
+					</dl>
 
-	if (!empty($context['board']['is_recycle']))
-		echo '
-					<div class="information">', $txt['mboards_redirect_disabled_recycle'], '</div>';
-
-	if (empty($context['board']['is_recycle']) && !empty($context['board']['topics']))
-		echo '
-					<div class="information">
-						<strong>', $txt['mboards_redirect'],'</strong><br />
-						', $txt['mboards_redirect_disabled'], '
-					</div>';
-
-	if (!$context['board']['topics'] && empty($context['board']['is_recycle']))
-	{
-		echo '
 					<div id="redirect_address_div">
 						<dl class="settings">
 							<dt>
@@ -557,7 +544,8 @@ function template_modify_board()
 					</div>';
 
 	if (!empty($context['board']['is_recycle']))
-		echo '<div class="information">', $txt['mboards_recycle_disabled_delete'], '</div>';
+		echo '
+					<div class="noticebox">', $txt['mboards_recycle_disabled_delete'], '</div>';
 
 	echo '
 					<input type="hidden" name="rid" value="', $context['redirect_location'], '" />
@@ -579,7 +567,7 @@ function template_modify_board()
 
 	if (!isset($context['board']['is_new']) && empty($context['board']['is_recycle']))
 		echo '
-					<span', $context['board']['is_recycle'] ? ' style="visibility:hidden">' : '>', '<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" onclick="return confirm(\'', $txt['boardConfirm'], '\');"', ' class="button_submit" /></span>';
+					<input type="submit" name="delete" value="', $txt['mboards_delete_board'], '" onclick="return confirm(\'', $txt['boardConfirm'], '\');"', ' class="button_submit" />';
 	echo '
 				</div>
 			</div>
