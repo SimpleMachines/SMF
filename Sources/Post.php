@@ -160,7 +160,7 @@ function Post($post_errors = array())
 	}
 
 	// @todo These won't work if you're posting an event!
-	$context['can_notify'] = allowedTo('mark_any_notify');
+	$context['can_notify'] = !$context['user']['is_guest'];
 	$context['can_move'] = allowedTo('move_any');
 	$context['move'] = !empty($_REQUEST['move']);
 	$context['announce'] = !empty($_REQUEST['announce']);
@@ -1941,7 +1941,7 @@ function Post2()
 	}
 
 	// Turn notification on or off.  (note this just blows smoke if it's already on or off.)
-	if (!empty($_POST['notify']) && allowedTo('mark_any_notify'))
+	if (!empty($_POST['notify']) && !$context['user']['is_guest'])
 	{
 		$smcFunc['db_insert']('ignore',
 			'{db_prefix}log_notify',

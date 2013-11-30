@@ -211,7 +211,7 @@ function MessageIndex()
 	$context['page_title'] = strip_tags($board_info['name']);
 
 	// Set the variables up for the template.
-	$context['can_mark_notify'] = allowedTo('mark_notify') && !$user_info['is_guest'];
+	$context['can_mark_notify'] = !$user_info['is_guest'];
 	$context['can_post_new'] = allowedTo('post_new') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_topics'));
 	$context['can_post_poll'] = $modSettings['pollMode'] == '1' && allowedTo('poll_post') && $context['can_post_new'];
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');

@@ -1110,8 +1110,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'post_reply_any',
 		'delete_own',
 		'modify_own',
-		'mark_any_notify',
-		'mark_notify',
 		'report_any',
 		'send_topic',
 	);
@@ -1200,7 +1198,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// Locked - just that, you can't post here.
 	$boardLevels['locked'] = array(
 		'poll_view',
-		'mark_notify',
 		'report_any',
 		'send_topic',
 		'view_attachments',
@@ -1213,7 +1210,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'post_reply_any',
 		'delete_own',
 		'modify_own',
-		'mark_any_notify',
 		'delete_replies',
 		'modify_replies',
 		'poll_vote',
@@ -1536,8 +1532,6 @@ function loadAllPermissions($loadType = 'classic')
 			'poll_edit' => array(true, 'poll', 'modify', 'moderate'),
 			'poll_lock' => array(true, 'poll', 'moderate', 'moderate'),
 			'poll_remove' => array(true, 'poll', 'modify', 'moderate'),
-			'mark_any_notify' => array(false, 'notification', 'notification'),
-			'mark_notify' => array(false, 'notification', 'notification'),
 			'view_attachments' => array(false, 'attachment', 'participate'),
 			'post_unapproved_attachments' => array(false, 'attachment', 'make_unapproved_posts'),
 			'post_attachment' => array(false, 'attachment', 'attach'),
@@ -2258,8 +2252,6 @@ function loadIllegalGuestPermissions()
 		'manage_membergroups',
 		'manage_permissions',
 		'manage_smileys',
-		'mark_any_notify',
-		'mark_notify',
 		'merge_any',
 		'moderate_board',
 		'moderate_forum',
