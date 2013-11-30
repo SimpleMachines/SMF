@@ -1727,7 +1727,7 @@ function PlushSearch2()
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify'), true, false);
+		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any'), true, false);
 
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
@@ -2005,7 +2005,7 @@ function prepareSearchContext($reset = false)
 		'replies' => $message['num_replies'],
 		'can_reply' => in_array($message['id_board'], $boards_can['post_reply_any']) || in_array(0, $boards_can['post_reply_any']),
 		'can_quote' => (in_array($message['id_board'], $boards_can['post_reply_any']) || in_array(0, $boards_can['post_reply_any'])) && $quote_enabled,
-		'can_mark_notify' => in_array($message['id_board'], $boards_can['mark_any_notify']) || in_array(0, $boards_can['mark_any_notify']) && !$context['user']['is_guest'],
+		'can_mark_notify' => !$context['user']['is_guest'],
 		'first_post' => array(
 			'id' => $message['first_msg'],
 			'time' => timeformat($message['first_poster_time']),
