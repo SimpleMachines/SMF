@@ -72,8 +72,6 @@ $txt['mboards_redirect_url_desc'] = 'For example: &quot;http://www.simplemachine
 $txt['mboards_redirect_reset'] = 'Reset redirect count';
 $txt['mboards_redirect_reset_desc'] = 'Selecting this will reset the redirection count for this board to zero.';
 $txt['mboards_current_redirects'] = 'Currently: %1$s';
-$txt['mboards_redirect_disabled'] = 'Note: Board must be empty of topics to enable this option.';
-$txt['mboards_redirect_disabled_recycle'] = 'Note: You cannot set the recycle bin board to be a redirection board.';
 
 $txt['mboards_order_before'] = 'Before';
 $txt['mboards_order_child_of'] = 'Sub-board of';
