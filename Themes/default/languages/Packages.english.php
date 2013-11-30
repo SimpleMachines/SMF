@@ -52,8 +52,8 @@ $txt['remove'] = 'Remove';
 $txt['package_type'] = 'Package Type';
 $txt['archiving'] = 'Archiving';
 $txt['extracting'] = 'Extracting';
-$txt['avatars_extracted'] = 'The avatars have been installed, you should now be able to use them.';
-$txt['language_extracted'] = 'The language pack has been installed, you can now enable its use in the language settings area of your admin control panel.';
+$txt['avatars_extracted'] = 'The avatars have been installed. You should now be able to use them.';
+$txt['language_extracted'] = 'The language pack has been installed. You can now enable its use in the language settings area of your admin control panel.';
 
 $txt['mod_name'] = 'Mod Name';
 $txt['mod_version'] = 'Version';
