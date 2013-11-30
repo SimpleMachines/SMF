@@ -582,6 +582,11 @@ SET permission = 'profile_view'
 WHERE permission = 'profile_view_any';
 ---#
 
+---# Removing the old notification permissions
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
+---#
+
 ---# Adding "profile_password_own"
 ---{
 $inserts = array();
