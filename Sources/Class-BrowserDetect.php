@@ -72,6 +72,9 @@ class browser_detector
 		// Just a few mobile checks
 		$this->isOperaMini();
 		$this->isOperaMobi();
+		
+		// IE11 seems to be fine by itself without being lumped into the "is_ie" category
+		$this->isIe11();
 
 		// Be you robot or human?
 		if ($user_info['possibly_robot'])
@@ -118,6 +121,19 @@ class browser_detector
 			$this->_browsers['is_ie'] = !$this->isOpera() && !$this->isGecko() && !$this->isWebTv() && preg_match('~MSIE \d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
 		return $this->_browsers['is_ie'];
 	}
+	
+	/**
+	* Determine if the browser is IE11 or not
+	* @return boolean true if the browser is IE11 otherwise false
+	*/
+	function isIe11()
+	{
+		// IE11 is a bit different than earlier versions
+		// The isGecko() part is to ensure we get this right...
+		if (!isset($this->_browsers['is_ie11']))
+			$this->_browsers['is_ie11'] = strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') !== false && $this->isGecko();
+		return $this->_browsers['is_ie11'];
+ 	}
 
 	/**
 	* Determine if the browser is a Webkit based one or not
@@ -257,7 +273,7 @@ class browser_detector
 			$this->_browsers['is_ie' . $msie_match[1]] = true;
 		}
 
-		// "modern" ie uses trident 4=ie8, 5=ie9, 6=ie10, even in compatability view
+		// "modern" ie uses trident 4=ie8, 5=ie9, 6=ie10, 7=ie11 even in compatability view
 		if (preg_match('~Trident/([0-9.])~i', $_SERVER['HTTP_USER_AGENT'], $trident_match) === 1)
 		{
 			$this->_browsers['is_ie' . ((int) $trident_match[1] + 4)] = true;
@@ -341,6 +357,7 @@ class browser_detector
 				'is_ie8' => 'ie8',
 				'is_ie9' => 'ie9',
 				'is_ie10' => 'ie10',
+				'is_ie11' => 'ie11',
 				'is_ie' => 'ie',
 				'is_firefox' => 'firefox',
 				'is_chrome' => 'chrome',

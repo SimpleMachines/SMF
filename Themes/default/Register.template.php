@@ -479,7 +479,7 @@ function template_verification_sound()
 	</head>
 	<body style="margin: 1ex;">
 		<div class="windowbg description" style="text-align: center;">';
-	if (isBrowser('is_ie'))
+	if (isBrowser('is_ie') || isBrowser('is_ie11'))
 		echo '
 			<object classid="clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95" type="audio/x-wav">
 				<param name="AutoStart" value="1" />
@@ -490,6 +490,7 @@ function template_verification_sound()
 			<object type="audio/x-wav" data="', $context['verification_sound_href'], '">
 				<a href="', $context['verification_sound_href'], '" rel="nofollow">', $context['verification_sound_href'], '</a>
 			</object>';
+
 	echo '
 		<br />
 		<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br />
