@@ -190,10 +190,11 @@ function ThemeList()
 		checkSession();
 		validateToken('admin-tl');
 
-		$themes = get_all_themes(false);
+		// Calling the almighty power of global vars!
+		get_all_themes(false);
 
 		$setValues = array();
-		foreach ($themes as $id => $theme)
+		foreach ($context['themes'] as $id => $theme)
 		{
 			if (file_exists($_POST['reset_dir'] . '/' . basename($theme['theme_dir'])))
 			{
