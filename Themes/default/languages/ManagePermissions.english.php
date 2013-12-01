@@ -288,12 +288,6 @@ $txt['permissionhelp_post_unapproved_topics'] = 'This permission allows a user t
 $txt['permissionname_post_unapproved_attachments'] = 'Post attachments, but hide until approved';
 $txt['permissionhelp_post_unapproved_attachments'] = 'This permission allows a user to attach files to their posts. The attached files will then require approval before being shown to other users.';
 
-$txt['permissiongroup_notification'] = 'Notifications';
-$txt['permissionname_mark_any_notify'] = 'Request notification on replies';
-$txt['permissionhelp_mark_any_notify'] = 'This feature allows users to receive a notification whenever someone replies to a topic they subscribed to.';
-$txt['permissionname_mark_notify'] = 'Request notification on new topics';
-$txt['permissionhelp_mark_notify'] = 'Notification on new topics is a feature that allows a user to receive an email every time a new topic is created on the board they subscribe to.';
-
 $txt['permissiongroup_attachment'] = 'Attachments';
 $txt['permissionname_view_attachments'] = 'View attachments';
 $txt['permissionhelp_view_attachments'] = 'Attachments are files that are attached to posted messages. This feature can be enabled and configured in \'Attachments and avatars\'. Since attachments are not directly accessed, you can protect them from being downloaded by users that don\'t have this permission.';

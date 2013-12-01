@@ -87,6 +87,48 @@ function template_profile_popup()
 		</div>';
 }
 
+function template_alerts_popup()
+{
+	global $context, $txt, $scripturl, $settings;
+
+	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
+	echo '
+		<div class="alert_bar">
+			<div class="alerts_opts floatright">
+				<a href="' . $scripturl . '?action=pm;sa=send">', $txt['mark_alerts_read'], '</a>
+				| <a href="', $scripturl, '?action=pm;sa=settings">', $txt['alert_settings'], '</a>
+			</div>
+			<div class="alerts_box floatleft">
+				', $txt['unread_alerts'], '
+				| <a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
+			</div>
+		</div>
+		<div class="alerts_unread">';
+
+	if (empty($context['unread_alerts']))
+	{
+		echo '
+			<div class="no_unread">', $txt['alerts_no_unread'], '</div>';
+	}
+	else
+	{
+		foreach ($context['unread_alerts'] as $id_alert => $details)
+		{
+			echo '
+			<div class="unread">
+				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
+				<div class="details floatleft">
+					', !empty($details['icon']) ? $details['icon'] : '', $details['text'], ' - ', $details['time'], '
+				</div>
+				<br class="clear" />
+			</div>';
+		}	
+	}
+
+	echo '
+		</div>';
+}
+
 // This template displays users details without any option to edit them.
 function template_summary()
 {
@@ -107,12 +149,12 @@ function template_summary()
 	// What about if we allow email only via the forum??
 	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
 		echo '
-					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" class="centericon" /></a></li>';
+					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" /></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
 		echo '
-					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www_sm.png" alt="' . $context['member']['website']['title'] . '" class="centericon" />' : $txt['www']), '</a></li>';
+					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www_sm.png" alt="' . $context['member']['website']['title'] . '" />' : $txt['www']), '</a></li>';
 
 	// Are there any custom profile fields for the summary?
 	if (!empty($context['custom_fields']))

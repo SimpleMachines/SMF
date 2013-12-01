@@ -358,7 +358,7 @@ function template_main()
 					', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 	// If we're editing and displaying edit details, show a box where they can say why
-	if (isset($context['editing']) && $settings['show_last_edit'])
+	if (isset($context['editing']) && $settings['show_modify'])
 		echo '
 					<dl>
 						<dt class="clear">

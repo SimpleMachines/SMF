@@ -307,6 +307,35 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Adding support for alerts
+/******************************************************************************/
+---# Adding the count to the members table...
+ALTER TABLE {$db_prefix}members
+ADD COLUMN alerts int NOT NULL default '0';
+---#
+
+---# Adding the new table for alerts.
+CREATE SEQUENCE {$db_prefix}user_alerts_seq;
+
+CREATE TABLE {$db_prefix}user_alerts (
+  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
+  alert_time int NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  id_member_started int NOT NULL default '0',
+  member_name varchar(255) NOT NULL default '',
+  content_type varchar(255) NOT NULL default '',
+  content_id int NOT NULL default '0',
+  content_action varchar(255) NOT NULL default '',
+  is_read smallint NOT NULL default '0',
+  extra text NOT NULL,
+  PRIMARY KEY (id_alert)
+);
+
+CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
+CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
+---#
+
+/******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to log_topics...
@@ -630,6 +659,11 @@ WHERE permission = 'profile_view_own';
 UPDATE {$db_prefix}permissions
 SET permission = 'profile_view'
 WHERE permission = 'profile_view_any';
+---#
+
+---# Removing the old notification permissions
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
 ---#
 
 ---# Adding "profile_password_own"

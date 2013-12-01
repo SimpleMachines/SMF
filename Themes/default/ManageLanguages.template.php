@@ -459,10 +459,10 @@ function template_add_language()
 		';
 
 	// Had some results?
-	if (!empty($context['smf_languages']))
+	if (!empty($context['smf_languages']['rows']))
 	{
 		echo '
-			<div class="information">', $txt['add_language_smf_found'], '</div>';
+			<div class="cat_bar"><h3 class="catbg">', $txt['add_language_found_title'], '</div><div class="information">', $txt['add_language_smf_found'], '</div>';
 
 		template_show_list('smf_languages');
 	}

@@ -2875,6 +2875,7 @@ function setupThemeContext($forceload = false)
 	{
 		$context['user']['messages'] = &$user_info['messages'];
 		$context['user']['unread_messages'] = &$user_info['unread_messages'];
+		$context['user']['alerts'] = &$user_info['alerts'];
 
 		// Personal message popup...
 		if ($user_info['unread_messages'] > (isset($_SESSION['unread_messages']) ? $_SESSION['unread_messages'] : 0))
@@ -3785,7 +3786,8 @@ function setupMenuContext()
 	{
 		addInlineJavascript('
 	var user_menus = new smc_PopupMenu();
-	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");', true);
+	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
+	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup");', true);
 		if ($context['allow_pm'])
 			addInlineJavascript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
@@ -4012,8 +4014,8 @@ function setupMenuContext()
 	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
 	if ($context['current_action'] == 'profile' && !empty($context['user']['is_owner']))
 	{
-		$current_action = 'self_profile';
-		$context['self_profile'] = true;
+		$current_action = !empty($_GET['area']) && $_GET['area'] == 'alerts_popup' ? 'self_alerts' : 'self_profile';
+		$context[$current_action] = true;
 	}
 	elseif ($context['current_action'] == 'pm')
 	{

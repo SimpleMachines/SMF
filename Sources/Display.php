@@ -1063,7 +1063,6 @@ function Display()
 		'can_merge' => 'merge_any',
 		'can_split' => 'split_any',
 		'calendar_post' => 'calendar_post',
-		'can_mark_notify' => 'mark_any_notify',
 		'can_send_topic' => 'send_topic',
 		'can_send_pm' => 'pm_send',
 		'can_send_email' => 'send_email_to_members',
@@ -1100,7 +1099,7 @@ function Display()
 	}
 
 	// Cleanup all the permissions with extra stuff...
-	$context['can_mark_notify'] &= !$context['user']['is_guest'];
+	$context['can_mark_notify'] = !$context['user']['is_guest'];
 	$context['calendar_post'] &= !empty($modSettings['cal_enabled']);
 	$context['can_add_poll'] &= $modSettings['pollMode'] == '1' && $topicinfo['id_poll'] <= 0;
 	$context['can_remove_poll'] &= $modSettings['pollMode'] == '1' && $topicinfo['id_poll'] > 0;

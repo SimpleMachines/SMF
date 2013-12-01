@@ -21,7 +21,6 @@ if (!defined('SMF'))
  * Turn off/on notification for a particular topic.
  * Must be called with a topic specified in the URL.
  * The sub-action can be 'on', 'off', or nothing for what to do.
- * Requires the mark_any_notify permission.
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=notify.
  *
@@ -33,7 +32,6 @@ function Notify()
 
 	// Make sure they aren't a guest or something - guests can't really receive notifications!
 	is_not_guest();
-	isAllowedTo('mark_any_notify');
 
 	// Make sure the topic has been specified.
 	if (empty($topic))
@@ -103,7 +101,6 @@ function Notify()
  * Turn off/on notification for a particular board.
  * Must be called with a board specified in the URL.
  * Only uses the template if no sub action is used. (on/off)
- * Requires the mark_notify permission.
  * Redirects the user back to the board after it is done.
  * Accessed via ?action=notifyboard.
  *
@@ -115,7 +112,6 @@ function BoardNotify()
 
 	// Permissions are an important part of anything ;).
 	is_not_guest();
-	isAllowedTo('mark_notify');
 
 	// You have to specify a board to turn notifications on!
 	if (empty($board))
@@ -188,7 +184,6 @@ function BoardNotify()
  * Turn off/on unread replies subscription for a topic
  * Must be called with a topic specified in the URL.
  * The sub-action can be 'on', 'off', or nothing for what to do.
- * Requires the mark_any_notify permission.
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=unwatchtopic.
  */
