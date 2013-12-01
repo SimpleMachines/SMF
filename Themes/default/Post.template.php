@@ -844,7 +844,7 @@ function template_main()
 			{
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">',$txt['bbc_quote'],'</a></li>
+						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">',$editortxt['bbc_quote'],'</a></li>
 					</ul>';
 			}
 
