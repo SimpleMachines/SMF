@@ -514,14 +514,11 @@ function remove_theme($themeID)
 	$enable = strtr(implode(',', $enable), array(',,' => ','));
 
 	// Update the enableThemes list.
-	updateSettings(array('enableThemes' => $enable));
+	updateSettings(array('enableThemes' => $enable, 'knownThemes' => $known));
 
 	// Fix it if the theme was the overall default theme.
 	if ($modSettings['theme_guests'] == $themeID)
-		updateSettings(array('theme_guests' => '1', 'knownThemes' => $known));
-
-	else
-		updateSettings(array('knownThemes' => $known));
+		updateSettings(array('theme_guests' => '1'));
 
 	return true;
 }
