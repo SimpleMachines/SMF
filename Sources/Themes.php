@@ -1326,7 +1326,7 @@ function InstallFile()
 		$theme_info = get_theme_info($dirtemp);
 		$context['to_install'] += $theme_info;
 
-		// Install the theme. theme_install() will take care of possible errors.
+		// Install the theme. theme_install() will return the new installed ID.
 		$context['to_install']['id'] = theme_install($context['to_install']);
 
 		// Rename the temp dir to the actual theme name.

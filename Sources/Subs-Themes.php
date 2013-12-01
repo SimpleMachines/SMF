@@ -311,9 +311,8 @@ function theme_install($to_install = array())
 
 					// Done with the update, tell the user about it.
 					$context['to_install']['updated'] = true;
-					$context['to_install']['id'] = $to_update['id_theme'];
 
-					return $context['to_install'];
+					return $to_update['id_theme'];
 					break; // Just for reference.
 				case 0: // This is exactly the same theme.
 				case -1: // The one being installed is older than the one already installed.
