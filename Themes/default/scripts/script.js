@@ -14,6 +14,8 @@ var is_safari = ua.indexOf('applewebkit') != -1 && !is_chrome;
 var is_webkit = ua.indexOf('applewebkit') != -1;
 
 var is_ie = ua.indexOf('msie') != -1 && !is_opera;
+// Stupid Microsoft...
+var is_ie11 = ua.indexOf('trident') != -1 && ua.indexOf('gecko') != -1;
 var is_iphone = ua.indexOf('iphone') != -1 || ua.indexOf('ipod') != -1;
 var is_android = ua.indexOf('android') != -1;
 
