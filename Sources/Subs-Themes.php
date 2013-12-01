@@ -417,8 +417,9 @@ function theme_install($to_install = array())
 		);
 
 	// Update the known and enable Theme's settings.
-	updateSettings(array('knownThemes' => strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','))));
-	updateSettings(array('enableThemes' => strtr($modSettings['enableThemes'] . ',' . $id_theme, array(',,' => ','))));
+	$known = strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','));
+	$enable = strtr($modSettings['enableThemes'] . ',' . $id_theme, array(',,' => ','));
+	updateSettings(array('knownThemes' => $enable, 'enableThemes' => $known));
 
 	return $id_theme;
 }
