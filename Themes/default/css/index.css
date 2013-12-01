@@ -4181,7 +4181,7 @@ div#editlang_desc {
 	margin: 0 -1px;
 }
 .table_grid tr.catbg th {
-	padding: 4px 3px 3px 3px;
+	padding: 4px 3px 3px 8px;
 }
 tr.catbg th:first-child, #show_attachments th:first-child {
 	border-left: 1px solid #ddd;
