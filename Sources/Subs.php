@@ -3408,7 +3408,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
-	return $path . '/' . $attachment_id . '_' . $file_hash;
+	return $path . '/' . $attachment_id . '_' . $file_hash .'.dat';
 }
 
 /**
