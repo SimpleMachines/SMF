@@ -3123,8 +3123,12 @@ function template_header()
 		if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !$user_info['is_guest'] && !$checked_securityFiles)
 		{
 			$checked_securityFiles = true;
-			// @todo add a hook here
+
 			$securityFiles = array('install.php', 'webinstall.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
+
+			// Add your own files.
+			call_integration_hook('integrate_security_files', array(&$securityFiles));
+
 			foreach ($securityFiles as $i => $securityFile)
 			{
 				if (!file_exists($boarddir . '/' . $securityFile))
