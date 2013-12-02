@@ -777,8 +777,7 @@ CREATE TABLE {$db_prefix}log_activity (
   posts smallint(5) unsigned NOT NULL default '0',
   registers smallint(5) unsigned NOT NULL default '0',
   most_on smallint(5) unsigned NOT NULL default '0',
-  PRIMARY KEY (date),
-  KEY most_on (most_on)
+  PRIMARY KEY (date)
 ) ENGINE=MyISAM;
 
 #

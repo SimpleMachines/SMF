@@ -1013,11 +1013,6 @@ CREATE TABLE {$db_prefix}log_activity (
 );
 
 #
-# Indexes for table `log_activity`
-#
-CREATE INDEX {$db_prefix}log_activity_most_on ON {$db_prefix}log_activity (most_on);
-
-#
 # Sequence for table `log_banned`
 #
 
