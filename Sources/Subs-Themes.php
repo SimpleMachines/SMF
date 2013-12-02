@@ -416,7 +416,7 @@ function theme_install($to_install = array())
 	// Update the known and enable Theme's settings.
 	$known = strtr($modSettings['knownThemes'] . ',' . $id_theme, array(',,' => ','));
 	$enable = strtr($modSettings['enableThemes'] . ',' . $id_theme, array(',,' => ','));
-	updateSettings(array('knownThemes' => $enable, 'enableThemes' => $known));
+	updateSettings(array('knownThemes' => $known, 'enableThemes' => $enable));
 
 	return $id_theme;
 }
