@@ -2485,8 +2485,6 @@ ul.quickbuttons li.inline_mod_check {
 	background: #f0f4f7;
 	margin: 8px 0 0 0;
 	padding: 8px 10% 12px 10%;
-	border: 1px solid #ccc;
-	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
