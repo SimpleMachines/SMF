@@ -34,7 +34,7 @@ function template_view_package()
 			<br />';
 
 	echo $txt['package_installed_warning3'], '
-		</div>';
+		</div><br />';
 
 	// Do errors exist in the install? If so light them up like a christmas tree.
 	if ($context['has_failure'])
@@ -134,7 +134,7 @@ function template_view_package()
 	{
 		echo '
 					', $txt['perform_actions'], '
-			</div>
+			</div><br />
 			<table class="table_grid" width="100%">
 			<thead>
 				<tr class="catbg">
