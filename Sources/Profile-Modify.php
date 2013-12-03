@@ -992,7 +992,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	{
 		makeThemeChanges($memID, isset($_POST['id_theme']) ? (int) $_POST['id_theme'] : $old_profile['id_theme']);
 		//makeAvatarChanges($memID, $post_errors);
-		makeNotificationChanges($memID);
+
 		if (!empty($_REQUEST['sa']))
 			makeCustomFieldChanges($memID, $_REQUEST['sa'], false);
 
@@ -1820,94 +1820,130 @@ function notification($memID)
 {
 	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
 
+	// Going to want this for consistency.
+	loadCSSFile('admin.css', array(), 'admin');
+
+	// This is just a bootstrap for everything else.
+	$sa = array(
+		'alerts' => 'alert_configuration',
+		'topics' => 'alert_notifications_topics',
+		'boards' => 'alert_notifications_boards',
+	);
+
+	$subAction = !empty($_GET['sa']) && isset($sa[$_GET['sa']]) ? $_GET['sa'] : 'alerts';
+
+	$context['sub_template'] = $sa[$subAction];
+	$context[$context['profile_menu_name']]['tab_data'] = array(
+		'title' => $txt['notification'],
+		'help' => '',
+		'description' => $txt['notification_info'],
+	);
+	$sa[$subAction]($memID);
+}
+
+function alert_configuration($memID)
+{
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+
+	// What options are set?
+	$context['member'] += array(
+		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
+		'notify_send_body' => $user_profile[$memID]['notify_send_body'],
+		'notify_types' => $user_profile[$memID]['notify_types'],
+		'notify_regularity' => $user_profile[$memID]['notify_regularity'],
+	);
+
+	loadThemeOptions($memID);
+
+	// Now for the exciting stuff.
+	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
+	// Valid values for these keys are 'always', 'yes', 'never'; if using always or never you should add a help string.
+	$alert_types = array(
+		'msg' => array(
+			'msg_mention' => array('alert' => 'yes', 'email' => 'yes'),
+			'msg_quote' => array('alert' => 'yes', 'email' => 'yes'),
+			'msg_like' => array('alert' => 'yes', 'email' => 'yes'),
+		),
+		'pm' => array(
+			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new'),
+			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new'),
+		),
+		'moderation' => array(
+			'msg_report' => array('alert' => 'yes', 'email' => 'yes'),
+			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes'),
+		),
+		'members' => array(
+			'register_new' => array('alert' => 'yes', 'email' => 'yes'),
+			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
+			'warn_any' => array('alert' => 'yes', 'email' => 'yes'),
+		),
+		'calendar' => array(
+			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
+		),
+	);
+	$group_options = array(
+		'msg' => array(
+			array('check', 'msg_auto_notify', 'label' => 'after'),
+			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
+				'nothing' => $txt['alert_opt_msg_notify_pref_nothing'],
+				'instant' => $txt['alert_opt_msg_notify_pref_instant'],
+				'first' => $txt['alert_opt_msg_notify_pref_first'],
+				'daily' => $txt['alert_opt_msg_notify_pref_daily'],
+				'weekly' => $txt['alert_opt_msg_notify_pref_weekly'],
+			)),
+		),
+	);
+	// Now, now, we could pass this through global but we should really get into the habit of
+	// passing content to hooks, not expecting hooks to splatter everything everywhere.
+	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options));
+	$context['alert_types'] = $alert_types;
+	$context['alert_group_options'] = $group_options;
+
+	if (isset($_POST['saving or something']))
+	{
+		is_not_guest();
+		if (!$context['member']['is_owner'])
+			isAllowedTo('profile_extra_any');
+		checkSession('post');
+		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
+
+		makeNotificationChanges($memID);
+		$context['profile_updated'] = $txt['profile_updated_own'];
+	}
+
+	$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
+	createToken($context['token_check'], 'post');
+}
+
+function alert_notifications_topics($memID)
+{
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+
+	// Because of the way this stuff works, we want to do this ourselves.
+	if (isset($_POST['edit_notify_topics']))
+	{
+		checkSession('post');
+		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
+
+		makeNotificationChanges($memID);
+		$context['profile_updated'] = $txt['profile_updated_own'];
+	}
+
+	// Now set up for the token check.
+	$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
+	createToken($context['token_check'], 'post');
+
 	// Gonna want this for the list.
 	require_once($sourcedir . '/Subs-List.php');
 
-	// Fine, start with the board list.
-	$listOptions = array(
-		'id' => 'board_notification_list',
-		'width' => '100%',
-		'no_items_label' => $txt['notifications_boards_none'] . '<br /><br />' . $txt['notifications_boards_howto'],
-		'no_items_align' => 'left',
-		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification',
-		'default_sort_col' => 'board_name',
-		'get_items' => array(
-			'function' => 'list_getBoardNotifications',
-			'params' => array(
-				$memID,
-			),
-		),
-		'columns' => array(
-			'board_name' => array(
-				'header' => array(
-					'value' => $txt['notifications_boards'],
-					'class' => 'lefttext first_th',
-				),
-				'data' => array(
-					'function' => create_function('$board', '
-						global $settings, $txt;
-
-						$link = $board[\'link\'];
-
-						if ($board[\'new\'])
-							$link .= \' <a href="\' . $board[\'href\'] . \'"><span class="new_posts">' . $txt['new'] . '</span></a>\';
-
-						return $link;
-					'),
-				),
-				'sort' => array(
-					'default' => 'name',
-					'reverse' => 'name DESC',
-				),
-			),
-			'delete' => array(
-				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
-					'style' => 'width: 4%;',
-					'class' => 'centercol',
-				),
-				'data' => array(
-					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d" class="input_check" />',
-						'params' => array(
-							'id' => false,
-						),
-					),
-					'class' => 'centercol',
-				),
-			),
-		),
-		'form' => array(
-			'href' => $scripturl . '?action=profile;area=notification;save',
-			'include_sort' => true,
-			'include_start' => true,
-			'hidden_fields' => array(
-				'u' => $memID,
-				'sa' => $context['menu_item_selected'],
-				$context['session_var'] => $context['session_id'],
-			),
-			'token' => $context['token_check'],
-		),
-		'additional_rows' => array(
-			array(
-				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit" />',
-				'align' => 'right',
-			),
-		),
-	);
-
-	// Create the board notification list.
-	createList($listOptions);
-
-	// Now do the topic notifications.
+	// Do the topic notifications.
 	$listOptions = array(
 		'id' => 'topic_notification_list',
 		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $txt['notifications_topics_none'] . '<br /><br />' . $txt['notifications_topics_howto'],
 		'no_items_align' => 'left',
-		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification',
+		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=topics',
 		'default_sort_col' => 'last_post',
 		'get_items' => array(
 			'function' => 'list_getTopicNotifications',
@@ -1996,7 +2032,7 @@ function notification($memID)
 			),
 		),
 		'form' => array(
-			'href' => $scripturl . '?action=profile;area=notification;save',
+			'href' => $scripturl . '?action=profile;area=notification;sa=topics',
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
@@ -2017,16 +2053,105 @@ function notification($memID)
 
 	// Create the notification list.
 	createList($listOptions);
+}
 
-	// What options are set?
-	$context['member'] += array(
-		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
-		'notify_send_body' => $user_profile[$memID]['notify_send_body'],
-		'notify_types' => $user_profile[$memID]['notify_types'],
-		'notify_regularity' => $user_profile[$memID]['notify_regularity'],
+function alert_notifications_boards($memID)
+{
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+
+	// Because of the way this stuff works, we want to do this ourselves.
+	if (isset($_POST['edit_notify_boards']))
+	{
+		checkSession('post');
+		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
+
+		makeNotificationChanges($memID);
+		$context['profile_updated'] = $txt['profile_updated_own'];
+	}
+
+	// Now set up for the token check.
+	$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
+	createToken($context['token_check'], 'post');
+
+	// Gonna want this for the list.
+	require_once($sourcedir . '/Subs-List.php');
+
+	// Fine, start with the board list.
+	$listOptions = array(
+		'id' => 'board_notification_list',
+		'width' => '100%',
+		'no_items_label' => $txt['notifications_boards_none'] . '<br /><br />' . $txt['notifications_boards_howto'],
+		'no_items_align' => 'left',
+		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=boards',
+		'default_sort_col' => 'board_name',
+		'get_items' => array(
+			'function' => 'list_getBoardNotifications',
+			'params' => array(
+				$memID,
+			),
+		),
+		'columns' => array(
+			'board_name' => array(
+				'header' => array(
+					'value' => $txt['notifications_boards'],
+					'class' => 'lefttext first_th',
+				),
+				'data' => array(
+					'function' => create_function('$board', '
+						global $settings, $txt;
+
+						$link = $board[\'link\'];
+
+						if ($board[\'new\'])
+							$link .= \' <a href="\' . $board[\'href\'] . \'"><span class="new_posts">' . $txt['new'] . '</span></a>\';
+
+						return $link;
+					'),
+				),
+				'sort' => array(
+					'default' => 'name',
+					'reverse' => 'name DESC',
+				),
+			),
+			'delete' => array(
+				'header' => array(
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
+					'style' => 'width: 4%;',
+					'class' => 'centercol',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d" class="input_check" />',
+						'params' => array(
+							'id' => false,
+						),
+					),
+					'class' => 'centercol',
+				),
+			),
+		),
+		'form' => array(
+			'href' => $scripturl . '?action=profile;area=notification;sa=boards',
+			'include_sort' => true,
+			'include_start' => true,
+			'hidden_fields' => array(
+				'u' => $memID,
+				'sa' => $context['menu_item_selected'],
+				$context['session_var'] => $context['session_id'],
+			),
+			'token' => $context['token_check'],
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'bottom_of_list',
+				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit" />',
+				'align' => 'right',
+			),
+		),
 	);
 
-	loadThemeOptions($memID);
+	// Create the board notification list.
+	createList($listOptions);
 }
 
 /**

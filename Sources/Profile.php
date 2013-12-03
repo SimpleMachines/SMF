@@ -252,10 +252,15 @@ function ModifyProfile($post_errors = array())
 					'function' => 'notification',
 					'icon' => 'mail.png',
 					'sc' => 'post',
-					'token' => 'profile-nt%u',
+					//'token' => 'profile-nt%u', This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
+					'subsections' => array(
+						'alerts' => array($txt['alert_prefs'], array('is_not_guest', 'profile_extra_any')),
+						'topics' => array($txt['watched_topics'], array('is_not_guest', 'profile_extra_any')),
+						'boards' => array($txt['watched_boards'], array('is_not_guest', 'profile_extra_any')),
+					),
 					'permission' => array(
-						'own' => array('profile_extra_any', 'profile_extra_own'),
-						'any' => array('profile_extra_any'),
+						'own' => array('is_not_guest'),
+						'any' => array('profile_extra_any'), // If you change this, update it in the functions themselves; we delegate all saving checks there.
 					),
 				),
 				'ignoreboards' => array(
@@ -278,7 +283,6 @@ function ModifyProfile($post_errors = array())
 					'icon' => 'frenemy.png',
 					'enabled' => !empty($modSettings['enable_buddylist']) && $context['user']['is_owner'],
 					'sc' => 'post',
-					'token' => 'profile-bl%u',
 					'subsections' => array(
 						'buddies' => array($txt['editBuddies']),
 						'ignore' => array($txt['editIgnoreList']),
@@ -428,6 +432,7 @@ function ModifyProfile($post_errors = array())
 
 	// Set the selected item - now it's been validated.
 	$current_area = $profile_include_data['current_area'];
+	$current_sa = $profile_include_data['current_subsection'];
 	$context['menu_item_selected'] = $current_area;
 
 	// Before we go any further, let's work on the area we've said is valid. Note this is done here just in case we ever compromise the menu function in error!
@@ -693,7 +698,7 @@ function ModifyProfile($post_errors = array())
 	}
 	// If it's you then we should redirect upon save.
 	elseif (!empty($profile_vars) && $context['user']['is_owner'] && !$context['do_preview'])
-		redirectexit('action=profile;area=' . $current_area . ';updated');
+		redirectexit('action=profile;area=' . $current_area . (!empty($current_sa) ? ';sa=' . $current_sa : '') . ';updated');
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
