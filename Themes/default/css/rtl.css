@@ -487,10 +487,6 @@ ul.post_options li {
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;
 }
-#postAttachment3 {
-	margin-left: 0;
-	margin-left: 1em;
-}
 .post_verification #verification_control {
 	margin: .3em 1em .3em 0;
 }

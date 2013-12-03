@@ -2553,9 +2553,6 @@ ul.post_options li {
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;
 }
-#postAttachment3  /* Can't see this called anywhere in Post.template.php */{
-	margin-left: 12px;
-}
 #postDraftOptions {
 	background: #fdfdfd;
 	border: 1px solid #aaa;
