@@ -96,7 +96,7 @@ function template_alerts_popup()
 		<div class="alert_bar">
 			<div class="alerts_opts floatright">
 				<a href="' . $scripturl . '?action=pm;sa=send">', $txt['mark_alerts_read'], '</a>
-				| <a href="', $scripturl, '?action=pm;sa=settings">', $txt['alert_settings'], '</a>
+				| <a href="', $scripturl, '?action=profile;area=notification;sa=alerts">', $txt['alert_settings'], '</a>
 			</div>
 			<div class="alerts_box floatleft">
 				', $txt['unread_alerts'], '
@@ -1767,19 +1767,23 @@ function template_profile_theme_settings()
 							</dd>';
 }
 
-function template_notification()
+function template_alert_configuration()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
-	// The main containing header.
 	echo '
-		<form action="', $scripturl, '?action=profile;area=notification;save" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['profile'], '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['alert_prefs'], '
+			</h3>
+		</div>
+		<p class="description">', $txt['alert_prefs_desc'], '</p>
+		<form action="', $scripturl, '?action=profile;area=notification;sa=alerts" id="admin_form_wrapper" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
+			<div class="title_bar">
+				<h3 class="titlebg">
+					', $txt['notification_general'], '
 				</h3>
 			</div>
-			<p class="description">', $txt['notification_info'], '</p>
 			<div class="windowbg2">
 				<div class="content">
 					<dl class="settings">';
@@ -1839,6 +1843,101 @@ function template_notification()
 							</select>
 						</dd>
 					</dl>
+				</div>
+			</div>
+			<div class="title_bar">
+				<h3 class="titlebg">
+					', $txt['notify_what_how'], '
+				</h3>
+			</div>
+			<div class="windowbg2">
+				<div class="content">
+					<table class="table_grid" style="width: 100%">
+						<tr class="titlebg">
+							<td></td>
+							<td>', $txt['receive_alert'], '</td>
+							<td>', $txt['receive_mail'], '</td>
+						</tr>';
+	foreach ($context['alert_types'] as $alert_group => $alerts)
+	{
+		echo '
+						<tr class="catbg">
+							<th colspan="3">
+								', $txt['alert_group_' . $alert_group];
+		if (isset($context['alert_group_options'][$alert_group]))
+		{
+			foreach ($context['alert_group_options'][$alert_group] as $opts)
+			{
+				echo '
+						<div class="smalltext">';
+				$label = $txt['alert_opt_' . $opts[1]];
+				$label_pos = isset($opts['label']) ? $opts['label'] : '';
+				if ($label_pos == 'before')
+					echo '
+							<label for="opt_', $opts[1], '">', $label, '</label>';
+
+				switch ($opts[0])
+				{
+					case 'check':
+						echo '
+								<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '" />';
+						break;
+					case 'select':
+						echo '
+								<select name="opt_', $opts[1], '" id="opt_', $opts[1], '">';
+						foreach ($opts['opts'] as $k => $v)
+							echo '
+									<option value="', $k, '">', $v, '</option>';
+						echo '
+								</select>';
+						break;
+				}
+
+				if ($label_pos == 'after')
+					echo '
+							<label for="opt_', $opts[1], '">', $label, '</label>';
+
+				echo '
+						</div>';
+			}
+		}
+
+		echo '
+							</th>
+						</tr>';
+		foreach ($alerts as $alert_id => $alert_details)
+		{
+			echo '
+						<tr>
+							<td>', $txt['alert_' . $alert_id], '</td>';
+
+			foreach (array('alert', 'email') as $type)
+			{
+				echo '
+							<td>';
+				switch ($alert_details[$type])
+				{
+					case 'always':
+						echo '
+								<input type="checkbox" checked="checked" disabled="disabled" />';
+						break;
+					case 'yes':
+						echo '
+								<input type="checkbox" />';
+						break;
+					case 'never':
+						echo '
+								<input type="checkbox" disabled="disabled" />';
+						break;
+				}
+				echo '
+							</td>';
+			}
+		}
+	}
+
+	echo '
+					</table>
 					<hr class="hrcolor" />
 					<div>
 						<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit" />
@@ -1851,10 +1950,36 @@ function template_notification()
 			</div>
 		</form>
 		<br />';
+}
+
+function template_alert_notifications_topics()
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+
+	// The main containing header.
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['watched_topics'], '
+			</h3>
+		</div>
+		<p class="description">', $txt['watched_topics_desc'], '</p>
+		<br />';
 
 	template_show_list('topic_notification_list');
+}
+
+function template_alert_notifications_boards()
+{
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['watched_boards'], '
+			</h3>
+		</div>
+		<p class="description">', $txt['watched_boards_desc'], '</p>
 		<br />';
 
 	template_show_list('board_notification_list');
