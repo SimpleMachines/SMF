@@ -16,8 +16,6 @@ $txt['lang_spelling'] = 'american';
 $txt['lang_character_set'] = 'ISO-8859-1';
 // Character set and right to left?
 $txt['lang_rtl'] = false;
-// Capitalize day and month names?
-$txt['lang_capitalize_dates'] = true;
 // Number format.
 $txt['number_format'] = '1,234.00';
 
