@@ -60,7 +60,7 @@ function template_profile_popup()
 	// Then a couple of bits and pieces that might be interesting
 	echo '
 			<ol>
-				<li class="profile_username"><a href="', $scripturl, '?action=profile">', $context['user']['name'], '</a></li>
+				<li class="profile_username"><a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['user']['name'], '</a></li>
 				<li class="profile_group">', $context['member']['group'], '</li>
 			</ol>
 			<br class="clear" />';
