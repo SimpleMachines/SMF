@@ -668,23 +668,16 @@ function ModifyLanguages()
 				'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" /><input type="submit" name="set_default" value="' . $txt['save'] . '"' . (is_writable($boarddir . '/Settings.php') ? '' : ' disabled="disabled"') . ' class="button_submit" />',
 			),
 		),
-		// For highlighting the default.
-		'javascript' => '
-					var prevClass = "";
-					var prevDiv = "";
-					function highlightSelected(box)
-					{
-						if (prevClass != "")
-							prevDiv.className = prevClass;
-
-						prevDiv = document.getElementById(box);
-						prevClass = prevDiv.className;
-
-						prevDiv.className = "highlight2";
-					}
-					highlightSelected("list_language_list_' . ($language == '' ? 'english' : $language). '");
-		',
 	);
+
+	// We want to highlight the selected language. Need some Javascript for this.
+	addInlineJavascript('
+	function highlightSelected(box)
+	{
+		$("tr.highlight2").removeClass("highlight2");
+		$("#" + box).addClass("highlight2");
+	}
+	highlightSelected("list_language_list_' . ($language == '' ? 'english' : $language). '");', true);
 
 	// Display a warning if we cannot edit the default setting.
 	if (!is_writable($boarddir . '/Settings.php'))

@@ -2485,8 +2485,6 @@ ul.quickbuttons li.inline_mod_check {
 	background: #f0f4f7;
 	margin: 8px 0 0 0;
 	padding: 8px 10% 12px 10%;
-	border: 1px solid #ccc;
-	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
@@ -2554,9 +2552,6 @@ ul.post_options li {
 }
 #postAttachment dt, #postAttachment2 dt {
 	font-weight: bold;
-}
-#postAttachment3  /* Can't see this called anywhere in Post.template.php */{
-	margin-left: 12px;
 }
 #postDraftOptions {
 	background: #fdfdfd;
@@ -4159,7 +4154,7 @@ div#editlang_desc {
 	margin: 12px 0 0 0;
 	padding: 16px 12px 6px 12px;
 }
-#info_center .cat_bar, .table_grid tr.catbg th, #show_attachments th, #searchform .roundframe .title_bar {
+#info_center .cat_bar, .table_grid tr.catbg th, #searchform .roundframe .title_bar {
 	border-top: 2px solid #ff9400;
 	border-bottom: 2px solid #bf6900;
 	background: #fff;
@@ -4173,9 +4168,6 @@ div#editlang_desc {
 .table_grid tr.catbg th.centercol, .table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
 	text-align: center;
 }
-#show_attachments th {
-	text-align: left;
-}
 #info_center .cat_bar, #searchform .roundframe .title_bar {
 	border-right: 1px solid #ddd;
 	border-left: 1px solid #ddd;
@@ -4184,10 +4176,10 @@ div#editlang_desc {
 .table_grid tr.catbg th {
 	padding: 4px 3px 3px 8px;
 }
-tr.catbg th:first-child, #show_attachments th:first-child {
+tr.catbg th:first-child {
 	border-left: 1px solid #ddd;
 }
-tr.catbg th:last-child, #show_attachments th:last-child {
+tr.catbg th:last-child {
 	border-right: 1px solid #ddd;
 }
 #info_center .catbg, #searchform .roundframe .titlebg {
