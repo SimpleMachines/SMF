@@ -97,6 +97,14 @@ $txt['custom_title'] = 'Custom Title';
 
 $txt['lastLoggedIn'] = 'Last Active';
 
+$txt['alert_prefs'] = 'Notification Preferences';
+$txt['alert_prefs_desc'] = 'This page will allow you to configure when and how you get notified about new content.';
+$txt['watched_topics'] = 'Watched Topics';
+$txt['watched_topics_desc'] = 'This page lets you review which topics you are watching; when topics that you are watching have been replied to, you can be notified.';
+$txt['watched_boards'] = 'Watched Boards';
+$txt['watched_boards_desc'] = 'This page lets you review which boards you are watching; when boards that you are watching have new topics, you can be notified.';
+
+$txt['notification_general'] = 'General Settings';
 $txt['notify_settings'] = 'Notification Settings:';
 $txt['notify_save'] = 'Save settings';
 $txt['notify_important_email'] = 'Receive forum newsletters, announcements and important notifications by email.';
@@ -112,6 +120,33 @@ $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topi
 $txt['notify_send_type_only_replies'] = 'Only replies';
 $txt['notify_send_type_nothing'] = 'Nothing at all';
 $txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don\'t reply to these emails.)';
+
+$txt['notify_what_how'] = 'Alert Preferences';
+$txt['receive_alert'] = 'Receive alert';
+$txt['receive_mail'] = 'Receive email';
+$txt['alert_group_msg'] = 'Posts and Topics';
+$txt['alert_opt_msg_auto_notify'] = 'Follow topics I reply to.';
+$txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
+$txt['alert_opt_msg_notify_pref_nothing'] = 'Nothing, just make a note of it';
+$txt['alert_opt_msg_notify_pref_instant'] = 'Straight away';
+$txt['alert_opt_msg_notify_pref_first'] = 'Straight away (but only for the first unread message)';
+$txt['alert_opt_msg_notify_pref_daily'] = 'Send me a daily email digest';
+$txt['alert_opt_msg_notify_pref_weekly'] = 'Send me a weekly email digest';
+$txt['alert_msg_mention'] = 'When my @name is mentioned in a message';
+$txt['alert_msg_quote'] = 'When a message of mine is quoted (when I\'m not already watching that topic)';
+$txt['alert_msg_like'] = 'When a message of mine is liked';
+$txt['alert_group_pm'] = 'Personal Messages';
+$txt['alert_pm_new'] = 'When I receive a new personal message';
+$txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
+$txt['alert_group_moderation'] = 'Moderation';
+$txt['alert_msg_report'] = 'When a message is reported';
+$txt['alert_msg_report_reply'] = 'When a report I\'ve replied to gets replied to';
+$txt['alert_group_members'] = 'Members';
+$txt['alert_register_new'] = 'When a new person registers';
+$txt['alert_warn_own'] = 'If I receive a warning';
+$txt['alert_warn_any'] = 'When other members receive a warning';
+$txt['alert_group_calendar'] = 'Calendar';
+$txt['alert_event_new'] = 'When a new event goes into the calendar';
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
 $txt['notifications_topics_list'] = 'You are being notified of replies to the following topics';
