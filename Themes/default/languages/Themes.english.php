@@ -11,7 +11,14 @@ $txt['theme_nochange'] = 'No change';
 $txt['theme_forum_default'] = 'Forum Default';
 
 $txt['theme_remove'] = 'remove';
+$txt['theme_enable'] = 'enable';
+$txt['theme_disable'] = 'disable';
 $txt['theme_remove_confirm'] = 'Are you sure you want to permanently remove this theme?';
+$txt['theme_enable_confirm'] = 'Are you sure you want to enable this theme?';
+$txt['theme_disable_confirm'] = 'Are you sure you want to disable this theme?';
+$txt['theme_confirmed_disabling'] = 'The theme was successfully disabled.';
+$txt['theme_confirmed_enabling'] = 'The theme was successfully enabled.';
+$txt['theme_confirmed_removing'] = 'The theme was successfully removed.';
 
 $txt['theme_install'] = 'Install a New Theme';
 $txt['theme_install_file'] = 'From an archive (e.g. .zip, .tar.gz)';
@@ -25,9 +32,17 @@ $txt['theme_install_writable'] = 'Warning - you cannot create or install a new t
 $txt['theme_installed'] = 'Installed Successfully';
 $txt['theme_installed_message'] = 'was installed successfully.';
 $txt['theme_updated_message'] = 'was updated successfully.';
-
-$txt['theme_latest'] = 'Latest and Greatest Themes';
-$txt['theme_latest_fetch'] = 'Fetching latest themes from www.simplemachines.org...';
+$txt['theme_install_no_action'] = 'This isn\'t a valid install action.';
+$txt['theme_install_error_title'] = 'An error occurred while installing the theme.';
+$txt['theme_install_error_file_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini.';
+$txt['theme_install_error_file_2'] = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.';
+$txt['theme_install_error_file_3'] = 'The uploaded file was only partially uploaded.';
+$txt['theme_install_error_file_4'] = 'No file was uploaded.';
+$txt['theme_install_error_file_6'] = 'Missing a temporary upload folder.';
+$txt['theme_install_error_file_7'] = 'Failed to write file to disk.';
+$txt['theme_install_invalid_dir'] = 'You did not add a path for your actual theme, you cannot re-add the default theme';
+$txt['theme_install_already_dir'] = 'The name you specified is already been used by another theme, please try a different name.';
+$txt['theme_install_invalid_id'] = 'This is not a valid ID theme.';
 
 $txt['theme_pick'] = 'Choose a theme...';
 $txt['theme_preview'] = 'Preview theme';
@@ -94,6 +109,9 @@ $txt['hide_post_group'] = 'Hide post group titles for grouped members';
 $txt['hide_post_group_desc'] = 'Enabling this will not display a member\'s post group title on the message view if they are assigned to a non-post based group.';
 
 $txt['subject_toggle'] = 'Show subjects in topics.';
+
+$txt['theme_adding_title'] = 'Obtaining Themes';
+$txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="http://custom.simplemachines.org/themes/" target="_blank">http://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br /><br />If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['theme_options_defaults'] = 'These are the default values for some member specific settings.  Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';

@@ -383,6 +383,13 @@ SET value = 'SMF Default Theme - Curve2'
 WHERE value LIKE 'SMF Default Theme%';
 ---#
 
+---# Adding the enableThemes setting.
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('enableThemes', '1');
+---#
+
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
