@@ -365,7 +365,7 @@ function template_main()
 							<span id="caption_edit_reason">', $txt['reason_for_edit'], ':</span>
 						</dt>
 						<dd>
-							<input type="text" name="modify_reason"', $context['last_modified_reason'] == '' ? '' : ' value="' . $context['modified_reason'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" />
+							<input type="text" name="modify_reason"', isset($context['last_modified_reason']) ? '' : ' value="' . $context['last_modified_reason'] . '"', ' tabindex="', $context['tabindex']++, '" size="80" maxlength="80" class="input_text" />
 						</dd>
 					</dl>';
 
