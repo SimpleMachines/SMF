@@ -251,7 +251,7 @@ ADD COLUMN alerts int(10) unsigned NOT NULL default '0';
 ---#
 
 ---# Adding the new table for alerts.
-CREATE TABLE {$db_prefix}user_alerts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   id_alert int(10) unsigned NOT NULL auto_increment,
   alert_time int(10) unsigned NOT NULL default '0',
   id_member mediumint(10) unsigned NOT NULL default '0',
