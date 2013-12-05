@@ -236,7 +236,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Modify.php',
 					'function' => 'authentication',
 					'icon' => 'openid.png',
-					'enabled' => !empty($modSettings['enableOpenID']) || !empty($cur_profile['openid_uri']),
+					'enabled' => !empty($modSettings['enableOpenID']) && ($modSettings['enableOpenID'] == 1 || !empty($cur_profile['openid_uri'])),
 					'sc' => 'post',
 					'token' => 'profile-au%u',
 					'hidden' => empty($modSettings['enableOpenID']) && empty($cur_profile['openid_uri']),
