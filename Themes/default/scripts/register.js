@@ -277,9 +277,9 @@ function updateAuthMethod()
 	if (!document.getElementById('auth_openid'))
 		return true;
 
-	document.forms.registration.openid_url.disabled = currentAuthMethod == 'openid' ? false : true;
-	document.forms.registration.smf_autov_pwmain.disabled = currentAuthMethod == 'passwd' ? false : true;
-	document.forms.registration.smf_autov_pwverify.disabled = currentAuthMethod == 'passwd' ? false : true;
+	document.getElementById('openid_url').disabled = currentAuthMethod == 'openid' ? false : true;
+	document.getElementById('smf_autov_pwmain_div').disabled = currentAuthMethod == 'passwd' ? false : true;
+	document.getElementById('smf_autov_pwverify_div').disabled = currentAuthMethod == 'passwd' ? false : true;
 	document.getElementById('smf_autov_pwmain_div').style.display = currentAuthMethod == 'passwd' ? '' : 'none';
 	document.getElementById('smf_autov_pwverify_div').style.display = currentAuthMethod == 'passwd' ? '' : 'none';
 
@@ -287,19 +287,17 @@ function updateAuthMethod()
 	{
 		verificationHandle.refreshMainPassword();
 		verificationHandle.refreshVerifyPassword();
-		document.forms.registration.openid_url.style.backgroundColor = '';
-		document.getElementById('password1_group').style.display = '';
-		document.getElementById('password2_group').style.display = '';
-		document.getElementById('openid_group').style.display = 'none';
+		document.getElementById('openid_url').style.backgroundColor = '';
+		document.getElementById('auth_pass_div').style.display = '';
+		document.getElementById('auth_openid_div').style.display = 'none';
 	}
 	else
 	{
-		document.forms.registration.smf_autov_pwmain.style.backgroundColor = '';
-		document.forms.registration.smf_autov_pwverify.style.backgroundColor = '';
-		document.forms.registration.openid_url.style.backgroundColor = '#FFF0F0';
-		document.getElementById('password1_group').style.display = 'none';
-		document.getElementById('password2_group').style.display = 'none';
-		document.getElementById('openid_group').style.display = '';
+		document.getElementById('smf_autov_pwmain').style.backgroundColor = '';
+		document.getElementById('smf_autov_pwverify').style.backgroundColor = '';
+		document.getElementById('openid_url').style.backgroundColor = '#FFF0F0';
+		document.getElementById('auth_pass_div').style.display = 'none';
+		document.getElementById('auth_openid_div').style.display = '';
 	}
 
 	return true;

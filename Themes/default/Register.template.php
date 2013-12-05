@@ -116,7 +116,7 @@ function template_registration_form()
 					</dl>';
 
 	// If OpenID is enabled, give the user a choice between password and OpenID.
-	if (!empty($modSettings['enableOpenID']))
+	if (!empty($modSettings['enableOpenID']) && $modSettings['enableOpenID'] != 2)
 	{
 		echo '
 					<dl class="register_form" id="authentication_group">
@@ -158,7 +158,7 @@ function template_registration_form()
 					</dl>';
 
 	// If OpenID is enabled, give the user a choice between password and OpenID.
-	if (!empty($modSettings['enableOpenID']))
+	if (!empty($modSettings['enableOpenID']) && $modSettings['enableOpenID'] != 2)
 	{
 		echo '
 
