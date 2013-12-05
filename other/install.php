@@ -69,7 +69,7 @@ $databases = array(
 		'supported' => function_exists('pg_connect'),
 		'always_has_db' => true,
 		'utf8_default' => true,
-		'utf8_required' => true,
+		'utf8_required' => false,
 		'utf8_support' => true,
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
@@ -94,8 +94,8 @@ $databases = array(
 		'version_check' => 'return 1;',
 		'supported' => function_exists('sqlite_open'),
 		'always_has_db' => true,
-		'utf8_default' => true,
-		'utf8_required' => true,
+		'utf8_default' => false,
+		'utf8_required' => false,
 		'utf8_support' => false,
 		'validate_prefix' => create_function('&$value', '
 			global $incontext, $txt;
@@ -121,8 +121,8 @@ $databases = array(
 		'supported' => is_callable(array('sqlite3', 'version')),
 		'always_has_db' => true,
 		'utf8_default' => true,
-		'utf8_required' => true,
-		'utf8_support' => false,
+		'utf8_required' => false,
+		'utf8_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			global $incontext, $txt;
 
