@@ -123,7 +123,7 @@ function template_main()
 	echo '
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
-				<h3 class="catbg2">
+				<h3 class="catbg">
 					', $txt['theme_install'], '
 				</h3>
 			</div>';
@@ -229,8 +229,8 @@ function template_list_themes()
 	foreach ($context['themes'] as $theme)
 	{
 		echo '
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					<span class="floatleft">
 						', (!empty($theme['enable']) || $theme['id'] == 1 ? '<a href="'. $scripturl .'?action=admin;area=theme;th='. $theme['id'] .';'. $context['session_var'] .'='. $context['session_id'] .';sa=list">'. $theme['name'] .'</a>' : $theme['name'] ),'', (!empty($theme['version']) ? ' <em>(' . $theme['version'] . ')</em>' : ''), '
 					</span>';
@@ -322,8 +322,8 @@ function template_reset_list()
 		$alternate = !$alternate;
 
 		echo '
-			<div class="title_bar">
-				<h3 class="titlebg">', $theme['name'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $theme['name'], '</h3>
 			</div>
 			<div class="windowbg', $alternate ? '' : '2','">
 				<div class="content">
@@ -818,8 +818,8 @@ function template_edit_list()
 		$alternate = !$alternate;
 
 		echo '
-		<div class="title_bar">
-			<h3 class="titlebg">
+		<div class="cat_bar">
+			<h3 class="catbg">
 				<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit">', $theme['name'], '</a>', !empty($theme['version']) ? '
 				<em>(' . $theme['version'] . ')</em>' : '', '
 			</h3>
