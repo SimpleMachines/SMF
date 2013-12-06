@@ -608,7 +608,7 @@ function template_browse()
 			<div id="advanced_box" >
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" alt="*" />
+						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/expand.png" alt="*" />
 						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
@@ -644,7 +644,7 @@ function template_browse()
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
+			bCurrentlyCollapsed: true,
 			aSwappableContainers: [
 				\'advanced_panel_div\'
 			],
@@ -663,14 +663,7 @@ function template_browse()
 					msgExpanded: ', JavaScriptEscape($txt['package_advanced_button']), ',
 					msgCollapsed: ', JavaScriptEscape($txt['package_advanced_button']), '
 				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: true,
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\'
-			}
+			]
 		});
 	// ]]></script>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>

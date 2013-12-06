@@ -791,21 +791,21 @@ function template_search()
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png"  alt="*" /><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
+						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png"  alt="*" /><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
 					</h4>
 				</div>
 				<div id="advanced_panel_div">
-				<ul id="searchLabelsExpand" class="reset" >';
+					<ul id="searchLabelsExpand" class="reset" >';
 
 			foreach ($context['search_labels'] as $label)
 				echo '
-					<li>
-						<label for="searchlabel_', $label['id'], '"><input type="checkbox" id="searchlabel_', $label['id'], '" name="searchlabel[', $label['id'], ']" value="', $label['id'], '" ', $label['checked'] ? 'checked="checked"' : '', ' class="input_check" />
-						', $label['name'], '</label>
-					</li>';
+						<li>
+							<label for="searchlabel_', $label['id'], '"><input type="checkbox" id="searchlabel_', $label['id'], '" name="searchlabel[', $label['id'], ']" value="', $label['id'], '" ', $label['checked'] ? 'checked="checked"' : '', ' class="input_check" />
+							', $label['name'], '</label>
+						</li>';
 
 			echo '
-				</ul>
+					</ul>
 				</div>
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
@@ -820,7 +820,7 @@ function template_search()
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
+				bCurrentlyCollapsed: true,
 				aSwappableContainers: [
 					\'advanced_panel_div\'
 				],
@@ -839,14 +839,7 @@ function template_search()
 						msgExpanded: ', JavaScriptEscape($txt['pm_search_choose_label']), ',
 						msgCollapsed: ', JavaScriptEscape($txt['pm_search_choose_label']), '
 					}
-				],
-				oThemeOptions: {
-					bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
-					sOptionName: \'admin_preferences\',
-					sSessionVar: smf_session_var,
-					sSessionId: smf_session_id,
-					sThemeId: \'1\'
-				}
+				]
 			});
 		// ]]></script>';
 		}
