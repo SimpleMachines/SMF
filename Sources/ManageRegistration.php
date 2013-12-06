@@ -205,11 +205,15 @@ function EditAgreement()
 		validateToken('admin-rega');
 
 		// Off it goes to the agreement file.
-		$fp = fopen($boarddir . '/agreement' . $context['current_agreement'] . '.txt', 'w');
-		fwrite($fp, str_replace("\r", '', $_POST['agreement']));
-		fclose($fp);
+		$to_write = str_replace("\r", '', $_POST['agreement']);
+		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
 
 		updateSettings(array('requireAgreement' => !empty($_POST['requireAgreement'])));
+
+		if ($bytes == strlen($to_write))
+			$context['saved_successful'] = true;
+		else
+			$context['could_not_save'] = true;
 	}
 
 	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? $smcFunc['htmlspecialchars'](file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';

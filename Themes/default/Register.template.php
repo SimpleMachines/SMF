@@ -597,6 +597,13 @@ function template_edit_agreement()
 {
 	global $context, $settings, $options, $scripturl, $txt;
 
+	if (!empty($context['saved_successful']))
+		echo '
+					<div class="infobox">', $txt['settings_saved'], '</div>';
+	elseif (!empty($context['could_not_save']))
+		echo '
+					<div class="errorbox">', $txt['admin_agreement_not_saved'], '</div>';
+
 	// Just a big box to edit the text file ;).
 	echo '
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
