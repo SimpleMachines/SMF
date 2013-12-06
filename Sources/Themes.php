@@ -117,6 +117,34 @@ function ThemeAdmin()
 {
 	global $context, $boarddir, $modSettings, $smcFunc;
 
+	// Are handling any settings?
+	if (isset($_POST['save']))
+	{
+		checkSession();
+		validateToken('admin-tm');
+
+		if (isset($_POST['options']['known_themes']))
+			foreach ($_POST['options']['known_themes'] as $key => $id)
+				$_POST['options']['known_themes'][$key] = (int) $id;
+
+		else
+			fatal_lang_error('themes_none_selectable', false);
+
+		if (!in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes']))
+			fatal_lang_error('themes_default_selectable', false);
+
+		// Commit the new settings.
+		updateSettings(array(
+			'theme_allow' => $_POST['options']['theme_allow'],
+			'theme_guests' => $_POST['options']['theme_guests'],
+			'knownThemes' => implode(',', $_POST['options']['known_themes']),
+		));
+		if ((int) $_POST['theme_reset'] == 0 || in_array($_POST['theme_reset'], $_POST['options']['known_themes']))
+			updateMemberData(null, array('id_theme' => (int) $_POST['theme_reset']));
+
+		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=admin');
+	}
+
 	loadLanguage('Admin');
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');
@@ -141,34 +169,6 @@ function ThemeAdmin()
 	createToken('admin-t-file');
 	createToken('admin-t-copy');
 	createToken('admin-t-dir');
-
-	// Are handling any settings?
-	if (isset($_POST['save']))
-	{
-		checkSession();
-		validateToken('admin-tm');
-
-		if (isset($_POST['options']['known_themes']))
-			foreach ($_POST['options']['known_themes'] as $key => $id)
-				$_POST['options']['known_themes'][$key] = (int) $id;
-
-		else
-			fatal_lang_error('themes_none_selectable', false);
-
-		if (!in_array($_POST['options']['theme_guests'], $_POST['options']['known_themes']))
-				fatal_lang_error('themes_default_selectable', false);
-
-		// Commit the new settings.
-		updateSettings(array(
-			'theme_allow' => $_POST['options']['theme_allow'],
-			'theme_guests' => $_POST['options']['theme_guests'],
-			'knownThemes' => implode(',', $_POST['options']['known_themes']),
-		));
-		if ((int) $_POST['theme_reset'] == 0 || in_array($_POST['theme_reset'], $_POST['options']['known_themes']))
-			updateMemberData(null, array('id_theme' => (int) $_POST['theme_reset']));
-
-		redirectexit('action=admin;area=theme;' . $context['session_var'] . '=' . $context['session_id'] . ';sa=admin');
-	}
 }
 
 /**
