@@ -268,6 +268,15 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 ) ENGINE=MyISAM;
 ---#
 
+---# Adding alert preferences.
+CREATE TABLE {$db_prefix}user_alerts_prefs (
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  alert_pref varchar(32) NOT NULL default '',
+  alert_value tinyint(3) NOT NULL default '0',
+  PRIMARY KEY (id_member, alert_pref)
+) ENGINE=MyISAM;
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
