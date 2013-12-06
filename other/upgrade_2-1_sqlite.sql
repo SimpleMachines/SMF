@@ -229,7 +229,7 @@ VALUES
 ---- Adding background tasks support
 /******************************************************************************/
 ---# Adding the new table
-CREATE TABLE {$db_prefix}background_tasks (
+CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
   id_task integer primary key,
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
@@ -305,7 +305,7 @@ $smcFunc['db_alter_table']('{db_prefix}members', array(
 ---#
 
 ---# Adding the new table for alerts.
-CREATE TABLE {$db_prefix}user_alerts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   id_alert int primary key,
   alert_time int unsigned NOT NULL default '0',
   id_member int unsigned NOT NULL default '0',
@@ -455,7 +455,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE TABLE {$db_prefix}user_drafts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft int unsigned NOT NULL auto_increment,
 	id_topic int unsigned NOT NULL default '0',
 	id_board smallint unsigned NOT NULL default '0',
