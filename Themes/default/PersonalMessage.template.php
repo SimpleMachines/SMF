@@ -795,17 +795,17 @@ function template_search()
 					</h4>
 				</div>
 				<div id="advanced_panel_div">
-				<ul id="searchLabelsExpand" class="reset" >';
+					<ul id="searchLabelsExpand" class="reset" >';
 
 			foreach ($context['search_labels'] as $label)
 				echo '
-					<li>
-						<label for="searchlabel_', $label['id'], '"><input type="checkbox" id="searchlabel_', $label['id'], '" name="searchlabel[', $label['id'], ']" value="', $label['id'], '" ', $label['checked'] ? 'checked="checked"' : '', ' class="input_check" />
-						', $label['name'], '</label>
-					</li>';
+						<li>
+							<label for="searchlabel_', $label['id'], '"><input type="checkbox" id="searchlabel_', $label['id'], '" name="searchlabel[', $label['id'], ']" value="', $label['id'], '" ', $label['checked'] ? 'checked="checked"' : '', ' class="input_check" />
+							', $label['name'], '</label>
+						</li>';
 
 			echo '
-				</ul>
+					</ul>
 				</div>
 				<p>
 					<span class="floatleft"><input type="checkbox" name="all" id="check_all" value="" ', $context['check_all'] ? 'checked="checked"' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');" class="input_check" /><em> <label for="check_all">', $txt['check_all'], '</label></em></span>
