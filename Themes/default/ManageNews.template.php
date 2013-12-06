@@ -50,7 +50,7 @@ function template_email_members()
 
 			<div id="advanced_panel_header" class="cat_bar">
 				<h3 class="catbg">
-					<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png" alt="*" />
+					<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/expand.png" alt="*" />
 					<a href="#" id="advanced_panel_link" >', $txt['advanced'], '</a>
 				</h3>
 			</div>
@@ -142,14 +142,7 @@ function template_email_members()
 					msgExpanded: ', JavaScriptEscape($txt['advanced']), ',
 					msgCollapsed: ', JavaScriptEscape($txt['advanced']), '
 				}
-			],
-			oThemeOptions: {
-				bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
-				sOptionName: \'admin_preferences\',
-				sSessionVar: smf_session_var,
-				sSessionId: smf_session_id,
-				sThemeId: \'1\'
-			}
+			]
 		});
 	// ]]></script>
 	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
