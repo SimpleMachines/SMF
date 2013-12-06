@@ -1858,6 +1858,8 @@ function template_alert_configuration()
 							<td>', $txt['receive_alert'], '</td>
 							<td>', $txt['receive_mail'], '</td>
 						</tr>';
+	$use_bg2 = true;
+
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
@@ -1908,7 +1910,7 @@ function template_alert_configuration()
 		foreach ($alerts as $alert_id => $alert_details)
 		{
 			echo '
-						<tr>
+						<tr class="windowbg', $use_bg2 ? '2' : '', '">
 							<td>', $txt['alert_' . $alert_id], '</td>';
 
 			foreach (array('alert', 'email') as $type)
@@ -1933,6 +1935,8 @@ function template_alert_configuration()
 				echo '
 							</td>';
 			}
+
+			$use_bg2 = !$use_bg2;
 		}
 	}
 
