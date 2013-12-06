@@ -403,7 +403,7 @@ $smcFunc['db_free_result']($request);
 
 if (!empty($inserts))
 	upgrade_query("
-		UPDATE {$db_prefix}themes
+		UPDATE {$db_prefix}settings
 		SET value = '" . implode(',', $inserts) . "
 		WHERE variable = 'knownThemes'");
 ---}

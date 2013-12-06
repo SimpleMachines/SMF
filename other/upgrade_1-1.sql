@@ -368,7 +368,7 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC
 ---}
 ---#
 
----# Updating the knownThemes setting.
+---# Insert the knownThemes setting.
 ---{
 $request = upgrade_query("
 	SELECT id_theme
@@ -384,6 +384,7 @@ if (!empty($inserts))
 		INSERT INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
+			('knownThemes', '" . implode(',', $inserts) . "')");
 			('enableThemes', '" . implode(',', $inserts) . "')");
 ---}
 ---#
