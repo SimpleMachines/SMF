@@ -123,7 +123,7 @@ function template_email_members()
 	<script type="text/javascript"><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
-			bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
+			bCurrentlyCollapsed: true,
 			aSwappableContainers: [
 				\'advanced_panel_div\'
 			],
