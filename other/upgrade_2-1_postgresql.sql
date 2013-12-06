@@ -40,7 +40,7 @@ if (!isset($modSettings['allow_no_censored']))
 		WHERE variable='allow_no_censored'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
-	
+
 	// Is it set for either "default" or the one they've set as default?
 	while ($row = mysql_fetch_assoc($request))
 	{
@@ -50,7 +50,7 @@ if (!isset($modSettings['allow_no_censored']))
 				INSERT INTO {$db_prefix}settings
 				VALUES ('allow_no_censored', 1)
 			");
-			
+
 			// Don't do this twice...
 			break;
 		}
@@ -383,7 +383,7 @@ WHERE value LIKE 'SMF Default Theme%';
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enableThemes', '1');
+	('enableThemes', '$modSettings[knownThemes]');
 ---#
 
 /******************************************************************************/
@@ -404,16 +404,16 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 	// Don't do anything if this theme is already uninstalled
 	if ($smcFunc['db_num_rows']($theme_request) == 1)
 	{
-		list($id_theme) = $smcFunc['db_fetch_row']($theme_request, 0);
+		list ($id_theme) = $smcFunc['db_fetch_row']($theme_request, 0);
 		$smcFunc['db_free_result']($theme_request);
 
-		$known_themes = explode(', ', $modSettings['knownThemes']);
+		$known_themes = explode(',', $modSettings['knownThemes']);
 
 		// Remove this value...
 		$known_themes = array_diff($known_themes, array($id_theme));
 
 		// Change back to a string...
-		$known_themes = implode(', ', $known_themes);
+		$known_themes = implode(',', $known_themes);
 
 		// Update the database
 		upgrade_query("
@@ -681,7 +681,7 @@ $request = upgrade_query("
 	SELECT id_group, add_deny
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_identity_own'");
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
@@ -711,7 +711,7 @@ $request = upgrade_query("
 	SELECT id_group, add_deny
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_extra_own'");
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
@@ -798,7 +798,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 				$inserts[] = array($row['id_member'], $label);
 			}
 		}
-		
+
 		$smcFunc['db_free_result']($get_labels);
 
 		if (!empty($inserts))
@@ -861,7 +861,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 					continue;
 
 				$new_label_info = $label_info_2[$row['id_member']][$a_label];
-				$inserts[] = array($row['id_pm'], $new_label_info); 
+				$inserts[] = array($row['id_pm'], $new_label_info);
 			}
 		}
 
@@ -907,7 +907,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 				array(
 					'actions' => $actions,
 					'id_rule' => $row['id_rule'],
-				)	
+				)
 			);
 		}
 

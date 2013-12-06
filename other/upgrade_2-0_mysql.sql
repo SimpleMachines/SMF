@@ -2749,6 +2749,13 @@ if (!isset($modSettings['attachment_thumb_png']))
 ---}
 ---#
 
+---# Adding the enableThemes setting.
+INSERT INTO {$db_prefix}settings
+	(variable, value)
+VALUES
+	('enableThemes', '$modSettings[knownThemes]');
+---#
+
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
