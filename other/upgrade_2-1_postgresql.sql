@@ -9,7 +9,7 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 ---#
 
 ---# Creating login history table.
-CREATE TABLE {$db_prefix}member_logins (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
 	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
 	id_member mediumint NOT NULL,
 	time int NOT NULL,
@@ -266,7 +266,7 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 ---#
 
 ---# Adding the table
-CREATE TABLE {$db_prefix}background_tasks (
+CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
   id_task int default nextval('{$db_prefix}background_tasks_seq'),
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
@@ -317,7 +317,7 @@ ADD COLUMN alerts int NOT NULL default '0';
 ---# Adding the new table for alerts.
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
-CREATE TABLE {$db_prefix}user_alerts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   id_alert int default nextval('{$db_prefix}user_alerts_seq'),
   alert_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -453,7 +453,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE TABLE {$db_prefix}user_drafts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	id_draft int NOT NULL auto_increment,
 	id_topic int NOT NULL default '0',
 	id_board smallint NOT NULL default '0',
@@ -597,7 +597,7 @@ WHERE filename = 'latest-packages.js'
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table
-CREATE TABLE {$db_prefix}qanda (
+CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
   id_question smallint(5) unsigned NOT NULL auto_increment,
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
