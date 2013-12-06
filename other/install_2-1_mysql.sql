@@ -2124,6 +2124,17 @@ CREATE TABLE {$db_prefix}user_alerts (
 ) ENGINE=MyISAM;
 
 #
+# Table structure for table `user_alerts_prefs`
+#
+
+CREATE TABLE {$db_prefix}user_alerts_prefs (
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  alert_pref varchar(32) NOT NULL default '',
+  alert_value tinyint(3) NOT NULL default '0',
+  PRIMARY KEY (id_member, alert_pref)
+) ENGINE=MyISAM;
+
+#
 # Table structure for table `user_drafts`
 #
 
