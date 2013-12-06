@@ -368,6 +368,26 @@ if ((!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] <= '1.1 RC
 ---}
 ---#
 
+---# Updating the knownThemes setting.
+---{
+$request = upgrade_query("
+	SELECT id_theme
+	FROM {$db_prefix}themes
+	WHERE variable = 'name'");
+$inserts = array();
+while ($row = $smcFunc['db_fetch_row']($request))
+	$inserts[] = $row[0];
+$smcFunc['db_free_result']($request);
+
+if (!empty($inserts))
+	upgrade_query("
+		INSERT INTO {$db_prefix}settings
+			(variable, value)
+		VALUES
+			('enableThemes', '" . implode(',', $inserts) . "')");
+---}
+---#
+
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/

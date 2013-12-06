@@ -2756,6 +2756,25 @@ VALUES
 	('enableThemes', '$modSettings[knownThemes]');
 ---#
 
+---# Updating the knownThemes setting.
+---{
+$request = upgrade_query("
+	SELECT id_theme
+	FROM {$db_prefix}themes
+	WHERE variable = 'name'");
+$inserts = array();
+while ($row = $smcFunc['db_fetch_row']($request))
+	$inserts[] = $row[0];
+$smcFunc['db_free_result']($request);
+
+if (!empty($inserts))
+	upgrade_query("
+		UPDATE {$db_prefix}themes
+		SET value = '" . implode(',', $inserts) . "
+		WHERE variable = 'knownThemes'");
+---}
+---#
+
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
