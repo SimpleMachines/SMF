@@ -323,6 +323,15 @@ CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_me
 CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
 ---#
 
+---# Adding alert preferences.
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
+  id_member int unsigned NOT NULL default '0',
+  alert_pref varchar(32) NOT NULL default '',
+  alert_value tinyint(3) NOT NULL default '0',
+  PRIMARY KEY (id_member, alert_pref)
+);
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
