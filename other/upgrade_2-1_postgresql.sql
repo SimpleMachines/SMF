@@ -11,7 +11,7 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 ---# Creating login history table.
 CREATE TABLE {$db_prefix}member_logins (
 	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
-	id_member mediumint NOT NULL,
+	id_member int NOT NULL,
 	time int NOT NULL,
 	ip varchar(255) NOT NULL default '',
 	ip2 varchar(255) NOT NULL default '',
@@ -281,7 +281,7 @@ CREATE TABLE {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Modifying the "msn" column...
 ALTER TABLE {$db_prefix}members
-CHANGE msn skype varchar(255) NOT NULL DEFAULT '';
+CHANGE COLUMN msn skype varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -378,7 +378,7 @@ upgrade_query("
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}membergroups
-	CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT ''");
+	CHANGE COLUMN stars icons varchar(255) NOT NULL DEFAULT ''");
 ---}
 ---#
 
