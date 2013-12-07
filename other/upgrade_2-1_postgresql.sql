@@ -300,9 +300,18 @@ upgrade_query("
 /******************************************************************************/
 ---# Adding new columns to categories...
 ---{
+// Sadly, PostgreSQL whines if we add a NOT NULL column without a default value to an existing table...
 upgrade_query("
 	ALTER TABLE {$db_prefix}categories
-	ADD COLUMN description text NOT NULL;");
+	ADD COLUMN description text");
+
+upgrade_query("
+	UPDATE {$db_prefix}categories
+	SET description = ''");
+
+upgrade_query("
+	ALTER TABLE {$db_prefix}categories
+	ALTER COLUMN description SET NOT NULL");
 ---}
 ---#
 
@@ -339,7 +348,7 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 CREATE TABLE {$db_prefix}user_alerts_prefs (
   id_member int NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
-  alert_value smallint(3) NOT NULL default '0',
+  alert_value smallint NOT NULL default '0',
   PRIMARY KEY (id_member, alert_pref)
 );
 ---#
@@ -604,7 +613,7 @@ WHERE filename = 'latest-packages.js'
 CREATE SEQUENCE {$db_prefix}qanda_seq;
 
 CREATE TABLE {$db_prefix}qanda (
-  id_question smallint(5) NOT NULL default nextval('{$db_prefix}qanda_seq'),
+  id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
   answers text NOT NULL,
