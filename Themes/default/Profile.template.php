@@ -1951,7 +1951,7 @@ function template_alert_configuration()
 
 	echo '
 					</table>
-					<hr class="hrcolor" />
+					<br />
 					<div>
 						<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit" />
 						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />', !empty($context['token_check']) ? '
