@@ -105,18 +105,14 @@ function Who()
 		$_REQUEST['show'] = $_REQUEST['show_top'];
 	// Does the user wish to apply a filter?
 	if (isset($_REQUEST['show']) && isset($show_methods[$_REQUEST['show']]))
-	{
 		$context['show_by'] = $_SESSION['who_online_filter'] = $_REQUEST['show'];
-		$conditions[] = $show_methods[$_REQUEST['show']];
-	}
 	// Perhaps we saved a filter earlier in the session?
 	elseif (isset($_SESSION['who_online_filter']))
-	{
 		$context['show_by'] = $_SESSION['who_online_filter'];
-		$conditions[] = $show_methods[$_SESSION['who_online_filter']];
-	}
 	else
-		$context['show_by'] = $_SESSION['who_online_filter'] = 'members';
+		$context['show_by'] = 'members';
+
+	$conditions[] = $show_methods[$context['show_by']];
 
 	// Get the total amount of members online.
 	$request = $smcFunc['db_query']('', '
