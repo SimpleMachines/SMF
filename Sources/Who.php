@@ -116,7 +116,7 @@ function Who()
 		$conditions[] = $show_methods[$_SESSION['who_online_filter']];
 	}
 	else
-		$context['show_by'] = $_SESSION['who_online_filter'] = 'all';
+		$context['show_by'] = $_SESSION['who_online_filter'] = 'members';
 
 	// Get the total amount of members online.
 	$request = $smcFunc['db_query']('', '
