@@ -399,6 +399,18 @@ VALUES
 	('enableThemes', '1');
 ---#
 
+---# Setting "default" as the default...
+UPDATE {$db_prefix}settings
+SET value = '1'
+WHERE variable = 'theme_guests';
+
+UPDATE {$db_prefix}boards
+SET id_theme = 0;
+
+UPDATE {$db_prefix}members
+SET id_theme = 0;
+---#
+
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
@@ -438,25 +450,6 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 		upgrade_query("
 			DELETE FROM {$db_prefix}themes
 			WHERE id_theme = $id_theme");
-
-		// Set any members or boards using this theme to the default
-		upgrade_query("
-			UPDATE {$db_prefix}members
-			SET id_theme = 0
-			WHERE id_theme = $id_theme");
-
-		upgrade_query("
-			UPDATE {$db_prefix}boards
-			SET id_theme = 0
-			WHERE id_theme = $id_theme");
-
-		if ($modSettings['theme_guests'] == $id_theme)
-		{
-			upgrade_query("
-				UPDATE {$db_prefix}settings
-				SET value = 0
-				WHERE variable = 'theme_guests'");
-		}
 	}
 }
 
