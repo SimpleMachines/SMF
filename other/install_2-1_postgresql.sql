@@ -238,7 +238,7 @@ CREATE TABLE {$db_prefix}background_tasks (
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
   task_data text NOT NULL,
-  claimed_time int unsigned NOT NULL default '0',
+  claimed_time int NOT NULL default '0',
   PRIMARY KEY (id_task)
 );
 

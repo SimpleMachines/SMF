@@ -1,4 +1,4 @@
-/* ATTENTION: You don't need to run or use this file!  The upgrade.php script does everything for you! */
+/* ATTENTION: You don't need to run or use this file! The upgrade.php script does everything for you! */
 
 /******************************************************************************/
 --- Adding new settings...
@@ -9,7 +9,7 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 ---#
 
 ---# Creating login history table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
+CREATE TABLE {$db_prefix}member_logins (
 	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
 	id_member mediumint NOT NULL,
 	time int NOT NULL,
@@ -213,7 +213,7 @@ upgrade_query("
 	ALTER COLUMN session SET DEFAULT '';
 
 	ALTER TABLE {$db_prefix}log_errors
-	ALTER COLUMN session SET default '                                                                ';");
+	ALTER COLUMN session SET default '                                ';");
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
 	ALTER COLUMN session SET NOT NULL;
@@ -266,13 +266,13 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 ---#
 
 ---# Adding the table
-CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
-  id_task int default nextval('{$db_prefix}background_tasks_seq'),
-  task_file varchar(255) NOT NULL default '',
-  task_class varchar(255) NOT NULL default '',
-  task_data text NOT NULL,
-  claimed_time int unsigned NOT NULL default '0',
-  PRIMARY KEY (id_task)
+CREATE TABLE {$db_prefix}background_tasks (
+ id_task int default nextval('{$db_prefix}background_tasks_seq'),
+ task_file varchar(255) NOT NULL default '',
+ task_class varchar(255) NOT NULL default '',
+ task_data text NOT NULL,
+ claimed_time int NOT NULL default '0',
+ PRIMARY KEY (id_task)
 );
 ---#
 
@@ -317,18 +317,18 @@ ADD COLUMN alerts int NOT NULL default '0';
 ---# Adding the new table for alerts.
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
-  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
-  alert_time int NOT NULL default '0',
-  id_member int NOT NULL default '0',
-  id_member_started int NOT NULL default '0',
-  member_name varchar(255) NOT NULL default '',
-  content_type varchar(255) NOT NULL default '',
-  content_id int NOT NULL default '0',
-  content_action varchar(255) NOT NULL default '',
-  is_read smallint NOT NULL default '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert)
+CREATE TABLE {$db_prefix}user_alerts (
+ id_alert int default nextval('{$db_prefix}user_alerts_seq'),
+ alert_time int NOT NULL default '0',
+ id_member int NOT NULL default '0',
+ id_member_started int NOT NULL default '0',
+ member_name varchar(255) NOT NULL default '',
+ content_type varchar(255) NOT NULL default '',
+ content_id int NOT NULL default '0',
+ content_action varchar(255) NOT NULL default '',
+ is_read smallint NOT NULL default '0',
+ extra text NOT NULL,
+ PRIMARY KEY (id_alert)
 );
 
 CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
@@ -336,11 +336,11 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 ---#
 
 ---# Adding alert preferences.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
-  id_member int NOT NULL default '0',
-  alert_pref varchar(32) NOT NULL default '',
-  alert_value smallint(3) NOT NULL default '0',
-  PRIMARY KEY (id_member, alert_pref)
+CREATE TABLE {$db_prefix}user_alerts_prefs (
+ id_member int NOT NULL default '0',
+ alert_pref varchar(32) NOT NULL default '',
+ alert_value smallint(3) NOT NULL default '0',
+ PRIMARY KEY (id_member, alert_pref)
 );
 ---#
 
@@ -392,7 +392,7 @@ WHERE value LIKE 'SMF Default Theme%';
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-	('enableThemes', '1');
+
 ---#
 
 ---# Setting "default" as the default...
@@ -455,8 +455,10 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-	id_draft int NOT NULL auto_increment,
+CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+
+CREATE TABLE {$db_prefix}user_drafts (
+	id_draft int NOT NULL default nextval('{$db_prefix}user_drafts_seq'),
 	id_topic int NOT NULL default '0',
 	id_board smallint NOT NULL default '0',
 	id_reply int NOT NULL default '0',
@@ -542,7 +544,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 --- Adding support for likes
 /******************************************************************************/
 ---# Creating likes table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}user_likes (
   id_member int NOT NULL default '0',
   content_type char(6) default '',
   content_id int NOT NULL default '0',
@@ -563,7 +565,7 @@ ADD COLUMN likes smallint NOT NULL default '0';
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table
-CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
+CREATE TABLE {$db_prefix}moderator_groups (
   id_board smallint NOT NULL default '0',
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
@@ -599,8 +601,10 @@ WHERE filename = 'latest-packages.js'
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table
-CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-  id_question smallint(5) unsigned NOT NULL auto_increment,
+CREATE SEQUENCE {$db_prefix}qanda_seq;
+
+CREATE TABLE {$db_prefix}qanda (
+  id_question smallint(5) NOT NULL default nextval('{$db_prefix}qanda_seq'),
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
   answers text NOT NULL,
@@ -748,7 +752,7 @@ CREATE SEQUENCE {$db_prefix}pm_labels_sequence;
 ---#
 
 ---# Adding pm_labels table...
-CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
+CREATE TABLE {$db_prefix}pm_labels (
   id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
   id_member int NOT NULL default '0',
   name varchar(30) NOT NULL default '',
@@ -757,7 +761,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 ---#
 
 ---# Adding pm_labeled_messages table...
-CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
+CREATE TABLE {$db_prefix}pm_labeled_messages (
   id_label int NOT NULL default '0',
   id_pm int NOT NULL default '0',
   PRIMARY KEY (id_label, id_pm)
