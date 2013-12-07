@@ -1860,6 +1860,13 @@ function template_alert_configuration()
 						</tr>';
 	$use_bg2 = true;
 
+	// Before we get into the loop, just quickly set this up.
+	// We store these prefs, generally, as a bitwise thing to save some space.
+	$alert_bits = array(
+		'alert' => 0x01,
+		'email' => 0x02,
+	);
+
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
@@ -1878,18 +1885,19 @@ function template_alert_configuration()
 					echo '
 							<label for="opt_', $opts[1], '">', $label, '</label>';
 
+				$this_value = isset($context['alert_prefs'][$opts[1]]) ? $context['alert_prefs'][$opts[1]] : 0;
 				switch ($opts[0])
 				{
 					case 'check':
 						echo '
-								<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '" />';
+								<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '"', $this_value ? ' checked="checked"' : '', ' />';
 						break;
 					case 'select':
 						echo '
 								<select name="opt_', $opts[1], '" id="opt_', $opts[1], '">';
 						foreach ($opts['opts'] as $k => $v)
 							echo '
-									<option value="', $k, '">', $v, '</option>';
+									<option value="', $k, '"', $this_value == $k ? ' selected="selected"' : '', '>', $v, '</option>';
 						echo '
 								</select>';
 						break;
@@ -1916,7 +1924,8 @@ function template_alert_configuration()
 			foreach (array('alert', 'email') as $type)
 			{
 				echo '
-							<td>';
+							<td class="centercol">';
+				$this_value = isset($context['alert_prefs'][$alert_id]) ? $context['alert_prefs'][$alert_id] : 0;
 				switch ($alert_details[$type])
 				{
 					case 'always':
@@ -1925,7 +1934,7 @@ function template_alert_configuration()
 						break;
 					case 'yes':
 						echo '
-								<input type="checkbox" />';
+								<input type="checkbox" name="', $type, '_', $alert_id, '"', $this_value & $alert_bits[$type] != 0 ? ' checked="checked"' : '', ' />';
 						break;
 					case 'never':
 						echo '

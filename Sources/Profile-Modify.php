@@ -1855,6 +1855,17 @@ function alert_configuration($memID)
 
 	loadThemeOptions($memID);
 
+	// Now load all the values for this user.
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs($memID);
+	// And we might as well now perform the splicing of default values.
+	if (!empty($prefs[0]))
+		foreach ($prefs[0] as $this_pref => $value)
+			if (!isset($prefs[$memID][$this_pref]))
+				$prefs[$memID][$this_pref] = $value;
+
+	$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
+
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
 	// Valid values for these keys are 'always', 'yes', 'never'; if using always or never you should add a help string.
@@ -1865,17 +1876,17 @@ function alert_configuration($memID)
 			'msg_like' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'pm' => array(
-			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new'),
-			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new'),
+			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
+			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
 		),
 		'moderation' => array(
-			'msg_report' => array('alert' => 'yes', 'email' => 'yes'),
-			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes'),
+			'msg_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
+			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 		),
 		'members' => array(
 			'register_new' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
-			'warn_any' => array('alert' => 'yes', 'email' => 'yes'),
+			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 		),
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
@@ -1885,19 +1896,58 @@ function alert_configuration($memID)
 		'msg' => array(
 			array('check', 'msg_auto_notify', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
-				'nothing' => $txt['alert_opt_msg_notify_pref_nothing'],
-				'instant' => $txt['alert_opt_msg_notify_pref_instant'],
-				'first' => $txt['alert_opt_msg_notify_pref_first'],
-				'daily' => $txt['alert_opt_msg_notify_pref_daily'],
-				'weekly' => $txt['alert_opt_msg_notify_pref_weekly'],
+				0 => $txt['alert_opt_msg_notify_pref_nothing'],
+				1 => $txt['alert_opt_msg_notify_pref_instant'],
+				2 => $txt['alert_opt_msg_notify_pref_first'],
+				3 => $txt['alert_opt_msg_notify_pref_daily'],
+				4 => $txt['alert_opt_msg_notify_pref_weekly'],
 			)),
 		),
 	);
+	$disabled_options = array();
+	// There are certain things that are disabled at the group level.
+	if (empty($modSettings['cal_enabled']))
+	{
+		foreach ($alert_types['calendar'] as $k => $v)
+			$disabled_options[] = $k;
+		unset ($alert_types['calendar']);
+	}
+
 	// Now, now, we could pass this through global but we should really get into the habit of
 	// passing content to hooks, not expecting hooks to splatter everything everywhere.
-	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options));
+	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options, &$disabled_options));
+
+	// Now we have to do some permissions testing.
+	require_once($sourcedir . '/Subs-Members.php');
+	$perms_cache = array();
+	foreach ($alert_types as $group => $items)
+	{
+		foreach ($items as $alert_key => $alert_value)
+		{
+			if (!isset($alert_value['permission']))
+				continue;
+			if (!isset($perms_cache[$alert_value['permission']['name']]))
+			{
+				$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
+				$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
+				$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
+			}
+
+			if (!$perms_cache[$alert_value['permission']['name']])
+			{
+				$disabled_options[] = $alert_key;
+				unset ($alert_types[$group][$alert_key]);
+			}
+		}
+
+		if (empty($alert_types[$group]))
+			unset ($alert_types[$group]);
+	}
+
+	// And finally, exporting it to be useful later.
 	$context['alert_types'] = $alert_types;
 	$context['alert_group_options'] = $group_options;
+	$context['disabled_alerts'] = $disabled_options;
 
 	if (isset($_POST['saving or something']))
 	{
