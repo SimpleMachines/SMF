@@ -2684,7 +2684,7 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 CREATE TABLE {$db_prefix}user_alerts_prefs (
   id_member int NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
-  alert_value smallint(3) NOT NULL default '0',
+  alert_value smallint NOT NULL default '0',
   PRIMARY KEY (id_member, alert_pref)
 );
 

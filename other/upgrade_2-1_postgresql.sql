@@ -42,7 +42,7 @@ if (!isset($modSettings['allow_no_censored']))
 	");
 	
 	// Is it set for either "default" or the one they've set as default?
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['value'] == 1)
 		{
@@ -213,7 +213,7 @@ upgrade_query("
 	ALTER COLUMN session SET DEFAULT '';
 
 	ALTER TABLE {$db_prefix}log_errors
-	ALTER COLUMN session SET default '                                ';");
+	ALTER COLUMN session SET default '                                                                ';");
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_online
 	ALTER COLUMN session SET NOT NULL;
@@ -267,12 +267,12 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 
 ---# Adding the table
 CREATE TABLE {$db_prefix}background_tasks (
- id_task int default nextval('{$db_prefix}background_tasks_seq'),
- task_file varchar(255) NOT NULL default '',
- task_class varchar(255) NOT NULL default '',
- task_data text NOT NULL,
- claimed_time int NOT NULL default '0',
- PRIMARY KEY (id_task)
+  id_task int default nextval('{$db_prefix}background_tasks_seq'),
+  task_file varchar(255) NOT NULL default '',
+  task_class varchar(255) NOT NULL default '',
+  task_data text NOT NULL,
+  claimed_time int NOT NULL default '0',
+  PRIMARY KEY (id_task)
 );
 ---#
 
@@ -281,7 +281,7 @@ CREATE TABLE {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Modifying the "msn" column...
 ALTER TABLE {$db_prefix}members
-CHANGE COLUMN msn skype varchar(255) NOT NULL DEFAULT '';
+RENAME msn TO skype;
 ---#
 
 /******************************************************************************/
@@ -300,9 +300,18 @@ upgrade_query("
 /******************************************************************************/
 ---# Adding new columns to categories...
 ---{
+// Sadly, PostgreSQL whines if we add a NOT NULL column without a default value to an existing table...
 upgrade_query("
 	ALTER TABLE {$db_prefix}categories
-	ADD COLUMN description text NOT NULL;");
+	ADD COLUMN description text");
+
+upgrade_query("
+	UPDATE {$db_prefix}categories
+	SET description = ''");
+
+upgrade_query("
+	ALTER TABLE {$db_prefix}categories
+	ALTER COLUMN description SET NOT NULL");
 ---}
 ---#
 
@@ -318,17 +327,17 @@ ADD COLUMN alerts int NOT NULL default '0';
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
 CREATE TABLE {$db_prefix}user_alerts (
- id_alert int default nextval('{$db_prefix}user_alerts_seq'),
- alert_time int NOT NULL default '0',
- id_member int NOT NULL default '0',
- id_member_started int NOT NULL default '0',
- member_name varchar(255) NOT NULL default '',
- content_type varchar(255) NOT NULL default '',
- content_id int NOT NULL default '0',
- content_action varchar(255) NOT NULL default '',
- is_read smallint NOT NULL default '0',
- extra text NOT NULL,
- PRIMARY KEY (id_alert)
+  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
+  alert_time int NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  id_member_started int NOT NULL default '0',
+  member_name varchar(255) NOT NULL default '',
+  content_type varchar(255) NOT NULL default '',
+  content_id int NOT NULL default '0',
+  content_action varchar(255) NOT NULL default '',
+  is_read smallint NOT NULL default '0',
+  extra text NOT NULL,
+  PRIMARY KEY (id_alert)
 );
 
 CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
@@ -337,10 +346,10 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 
 ---# Adding alert preferences.
 CREATE TABLE {$db_prefix}user_alerts_prefs (
- id_member int NOT NULL default '0',
- alert_pref varchar(32) NOT NULL default '',
- alert_value smallint(3) NOT NULL default '0',
- PRIMARY KEY (id_member, alert_pref)
+  id_member int NOT NULL default '0',
+  alert_pref varchar(32) NOT NULL default '',
+  alert_value smallint NOT NULL default '0',
+  PRIMARY KEY (id_member, alert_pref)
 );
 ---#
 
@@ -367,7 +376,7 @@ VALUES
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_topics
-	CHANGE COLUMN disregarded unwatched tinyint(3) NOT NULL DEFAULT '0';");
+	RENAME disregarded TO unwatched");
 ---}
 ---#
 
@@ -378,7 +387,7 @@ upgrade_query("
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}membergroups
-	CHANGE COLUMN stars icons varchar(255) NOT NULL DEFAULT ''");
+	RENAME stars TO icons");
 ---}
 ---#
 
@@ -392,7 +401,7 @@ WHERE value LIKE 'SMF Default Theme%';
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
-
+	('enableThemes', '1');
 ---#
 
 ---# Setting "default" as the default...
@@ -604,7 +613,7 @@ WHERE filename = 'latest-packages.js'
 CREATE SEQUENCE {$db_prefix}qanda_seq;
 
 CREATE TABLE {$db_prefix}qanda (
-  id_question smallint(5) NOT NULL default nextval('{$db_prefix}qanda_seq'),
+  id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
   answers text NOT NULL,
