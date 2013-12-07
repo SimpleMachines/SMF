@@ -1124,7 +1124,8 @@ function makeThemeChanges($memID, $id_theme)
 			);
 		}
 
-		$themes = explode(',', $modSettings['knownThemes']);
+		// Admins can choose any theme, even if it's not enabled...
+		$themes = allowedTo('admin_forum') ? explode(',', $modSettings['knownThemes']) : explode(',', $modSettings['enableThemes']);
 		foreach ($themes as $t)
 			cache_put_data('theme_settings-' . $t . ':' . $memID, null, 60);
 	}

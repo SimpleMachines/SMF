@@ -1446,9 +1446,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// If they have specified a particular theme to use with SSI allow it to be used.
 	elseif (!empty($ssi_theme) && $id_theme == $ssi_theme)
 		$id_theme = (int) $id_theme;
-	elseif (!empty($modSettings['knownThemes']) && !allowedTo('admin_forum'))
+	elseif (!empty($modSettings['enableThemes']) && !allowedTo('admin_forum'))
 	{
-		$themes = explode(',', $modSettings['knownThemes']);
+		$themes = explode(',', $modSettings['enableThemes']);
 		if (!in_array($id_theme, $themes))
 			$id_theme = $modSettings['theme_guests'];
 		else
