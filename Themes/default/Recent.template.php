@@ -213,7 +213,7 @@ function template_unread()
 			template_button_strip($context['recent_buttons'], 'right');
 
 		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#top"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
+				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#main_content_section"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
 			</div>';
 	}
 	else
@@ -377,7 +377,7 @@ function template_replies()
 			template_button_strip($context['recent_buttons'], 'right');
 
 		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#top"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
+				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#main_content_section"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
  			</div>';
 	}
 	else
