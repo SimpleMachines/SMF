@@ -1885,6 +1885,7 @@ function alert_configuration($memID)
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 		),
 		'members' => array(
+			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'register_new' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
@@ -3625,39 +3626,27 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 
 		if (!empty($moderators))
 		{
-			$request = $smcFunc['db_query']('', '
-				SELECT id_member, email_address, lngfile, member_name, mod_prefs
-				FROM {db_prefix}members
-				WHERE id_member IN ({array_int:moderator_list})
-					AND notify_types != {int:no_notifications}
-				ORDER BY lngfile',
-				array(
-					'moderator_list' => $moderators,
-					'no_notifications' => 4,
-				)
-			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			// Figure out who wants to be alerted/emailed about this
+			$data = array('alert' => array(), 'email' => array());
+
+			include_once($sourcedir . '/Subs-Notify.php');
+			$prefs = getNotifyPrefs($moderators, 'group_request');
+			
+			// Bitwise comparisons are fun...
+			foreach ($moderators as $mod)
 			{
-				// Check whether they are interested.
-				if (!empty($row['mod_prefs']))
+				if (!empty($prefs[$mod]))
 				{
-					list(,, $pref_binary) = explode('|', $row['mod_prefs']);
-					if (!($pref_binary & 4))
-						continue;
+					if ($prefs[$mod] & 0x01)
+						$data['alerts'][] = $mod;
+
+					if ($prefs[$mod] & 0x02)
+						$data['email'][] = $mod;
 				}
-
-				$replacements = array(
-					'RECPNAME' => $row['member_name'],
-					'APPYNAME' => $old_profile['member_name'],
-					'GROUPNAME' => $group_name,
-					'REASON' => $_POST['reason'],
-					'MODLINK' => $scripturl . '?action=moderate;area=groups;sa=requests',
-				);
-
-				$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-				sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
 			}
-			$smcFunc['db_free_result']($request);
+
+			// Now we pass this off to our background task to handle
+			$smcFunc['db_insert']('', '{db_prefix}background_tasks', array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'), array('GroupNotif-Task.php', 'GroupNotify', serialize($data), time()));
 		}
 
 		return $changeType;
