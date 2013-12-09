@@ -3630,7 +3630,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 			$data = array('alert' => array(), 'email' => array());
 
 			include_once($sourcedir . '/Subs-Notify.php');
-			$prefs = getNotifyPrefs($moderators, 'group_request');
+			$prefs = getNotifyPrefs($moderators, 'request_group');
 			
 			// Bitwise comparisons are fun...
 			foreach ($moderators as $mod)
