@@ -1874,7 +1874,7 @@ function alert_configuration($memID)
 		'msg' => array(
 			'msg_mention' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_quote' => array('alert' => 'yes', 'email' => 'yes'),
-			'msg_like' => array('alert' => 'yes', 'email' => 'yes'),
+			'msg_like' => array('alert' => 'yes', 'email' => 'never'),
 		),
 		'pm' => array(
 			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
@@ -1885,8 +1885,8 @@ function alert_configuration($memID)
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 		),
 		'members' => array(
+			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
-			'register_new' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 		),

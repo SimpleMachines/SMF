@@ -1919,7 +1919,7 @@ function template_alert_configuration()
 		{
 			echo '
 						<tr class="windowbg', $use_bg2 ? '2' : '', '">
-							<td>', $txt['alert_' . $alert_id], '</td>';
+							<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" title="' . $txt['help'] . '">' : '', '</td>';
 
 			foreach (array('alert', 'email') as $type)
 			{

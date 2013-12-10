@@ -1373,7 +1373,7 @@ function frameOptionsHeader($override = null)
 	header('X-Frame-Options: ' . $option);
 
 	// And some other useful ones.
-	header('X-XSS-Protection: 1; mode=block');
+	header('X-XSS-Protection: 1');
 	header('X-Content-Type-Options: nosniff');
 }
 
