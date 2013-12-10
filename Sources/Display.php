@@ -1098,7 +1098,7 @@ function Display()
 
 		/* You can't move this unless you have permission
 			to start new topics on at least one other board */
-		$context['move'] &= count($boards_allowed) > 1;
+		$context['can_move'] &= count($boards_allowed) > 1;
 	}
 
 	// Cleanup all the permissions with extra stuff...
