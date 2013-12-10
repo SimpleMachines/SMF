@@ -1945,6 +1945,27 @@ function alert_configuration($memID)
 		if (empty($alert_types[$group]))
 			unset ($alert_types[$group]);
 	}
+	
+	// Slightly different for group requests
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}group_moderators
+		WHERE id_member = {int:memID}',
+		array(
+			'memID' => $memID,
+		)
+	);
+	
+	list($can_mod) = $smcFunc['db_fetch_row']($request);
+	
+	if (!isset($perms_cache['manage_membergroups']))
+	{
+		$members = membersAllowedTo('manage_membergroups');
+		$perms_cache['manage_membergroups'] = in_array($memID, $members);
+	}
+
+	if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
+		unset($alert_types['members']['request_group']);
 
 	// And finally, exporting it to be useful later.
 	$context['alert_types'] = $alert_types;
