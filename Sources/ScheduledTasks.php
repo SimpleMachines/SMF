@@ -1189,7 +1189,7 @@ function next_time($regularity, $unit, $offset)
  */
 function loadEssentialThemeData()
 {
-	global $settings, $modSettings, $smcFunc, $mbname, $context, $sourcedir;
+	global $settings, $modSettings, $smcFunc, $mbname, $context, $sourcedir, $txt;
 
 	// Get all the default theme variables.
 	$result = $smcFunc['db_query']('', '
@@ -1237,6 +1237,11 @@ function loadEssentialThemeData()
 	}
 
 	loadLanguage('index+Modifications');
+
+	// Just in case it wasn't already set elsewhere.
+	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
+	$context['utf8'] = $context['character_set'] === 'UTF-8';
+	$context['right_to_left'] = !empty($txt['lang_rtl']);
 }
 
 /**
