@@ -748,7 +748,7 @@ function QuickModeration()
 	}
 
 	// Are we enforcing the "no moving topics to boards where you can't post new ones" rule?
-	if (!$user_info['is_amdin'] && !$modSettings['topic_move_any'])
+	if (!$user_info['is_admin'] && !$modSettings['topic_move_any'])
 	{
 		// Don't count this board, if it's specified
 		if (!empty($board))
