@@ -1124,7 +1124,8 @@ function makeThemeChanges($memID, $id_theme)
 			);
 		}
 
-		$themes = explode(',', $modSettings['knownThemes']);
+		// Admins can choose any theme, even if it's not enabled...
+		$themes = allowedTo('admin_forum') ? explode(',', $modSettings['knownThemes']) : explode(',', $modSettings['enableThemes']);
 		foreach ($themes as $t)
 			cache_put_data('theme_settings-' . $t . ':' . $memID, null, 60);
 	}
@@ -1885,6 +1886,7 @@ function alert_configuration($memID)
 		),
 		'members' => array(
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
+			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 		),
@@ -1943,6 +1945,27 @@ function alert_configuration($memID)
 		if (empty($alert_types[$group]))
 			unset ($alert_types[$group]);
 	}
+	
+	// Slightly different for group requests
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}group_moderators
+		WHERE id_member = {int:memID}',
+		array(
+			'memID' => $memID,
+		)
+	);
+	
+	list($can_mod) = $smcFunc['db_fetch_row']($request);
+	
+	if (!isset($perms_cache['manage_membergroups']))
+	{
+		$members = membersAllowedTo('manage_membergroups');
+		$perms_cache['manage_membergroups'] = in_array($memID, $members);
+	}
+
+	if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
+		unset($alert_types['members']['request_group']);
 
 	// And finally, exporting it to be useful later.
 	$context['alert_types'] = $alert_types;
@@ -3624,39 +3647,27 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 
 		if (!empty($moderators))
 		{
-			$request = $smcFunc['db_query']('', '
-				SELECT id_member, email_address, lngfile, member_name, mod_prefs
-				FROM {db_prefix}members
-				WHERE id_member IN ({array_int:moderator_list})
-					AND notify_types != {int:no_notifications}
-				ORDER BY lngfile',
-				array(
-					'moderator_list' => $moderators,
-					'no_notifications' => 4,
-				)
-			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
+			// Figure out who wants to be alerted/emailed about this
+			$data = array('alert' => array(), 'email' => array());
+
+			include_once($sourcedir . '/Subs-Notify.php');
+			$prefs = getNotifyPrefs($moderators, 'request_group');
+			
+			// Bitwise comparisons are fun...
+			foreach ($moderators as $mod)
 			{
-				// Check whether they are interested.
-				if (!empty($row['mod_prefs']))
+				if (!empty($prefs[$mod]))
 				{
-					list(,, $pref_binary) = explode('|', $row['mod_prefs']);
-					if (!($pref_binary & 4))
-						continue;
+					if ($prefs[$mod] & 0x01)
+						$data['alerts'][] = $mod;
+
+					if ($prefs[$mod] & 0x02)
+						$data['email'][] = $mod;
 				}
-
-				$replacements = array(
-					'RECPNAME' => $row['member_name'],
-					'APPYNAME' => $old_profile['member_name'],
-					'GROUPNAME' => $group_name,
-					'REASON' => $_POST['reason'],
-					'MODLINK' => $scripturl . '?action=moderate;area=groups;sa=requests',
-				);
-
-				$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-				sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
 			}
-			$smcFunc['db_free_result']($request);
+
+			// Now we pass this off to our background task to handle
+			$smcFunc['db_insert']('', '{db_prefix}background_tasks', array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'), array('GroupNotif-Task.php', 'GroupNotify', serialize($data), time()));
 		}
 
 		return $changeType;

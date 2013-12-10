@@ -147,6 +147,7 @@ $txt['alert_warn_own'] = 'If I receive a warning';
 $txt['alert_warn_any'] = 'When other members receive a warning';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
+$txt['alert_request_group'] = 'When someone requests to join a group I moderate';
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
 $txt['notifications_topics_list'] = 'You are being notified of replies to the following topics';

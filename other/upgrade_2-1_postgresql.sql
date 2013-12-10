@@ -1,4 +1,4 @@
-/* ATTENTION: You don't need to run or use this file!  The upgrade.php script does everything for you! */
+/* ATTENTION: You don't need to run or use this file! The upgrade.php script does everything for you! */
 
 /******************************************************************************/
 --- Adding new settings...
@@ -9,9 +9,9 @@ CREATE SEQUENCE {$db_prefix}member_logins_seq;
 ---#
 
 ---# Creating login history table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
+CREATE TABLE {$db_prefix}member_logins (
 	id_login int NOT NULL default nextval('{$db_prefix}member_logins_seq'),
-	id_member mediumint NOT NULL,
+	id_member int NOT NULL,
 	time int NOT NULL,
 	ip varchar(255) NOT NULL default '',
 	ip2 varchar(255) NOT NULL default '',
@@ -42,7 +42,7 @@ if (!isset($modSettings['allow_no_censored']))
 	");
 	
 	// Is it set for either "default" or the one they've set as default?
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['value'] == 1)
 		{
@@ -266,12 +266,12 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 ---#
 
 ---# Adding the table
-CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
+CREATE TABLE {$db_prefix}background_tasks (
   id_task int default nextval('{$db_prefix}background_tasks_seq'),
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
   task_data text NOT NULL,
-  claimed_time int unsigned NOT NULL default '0',
+  claimed_time int NOT NULL default '0',
   PRIMARY KEY (id_task)
 );
 ---#
@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Modifying the "msn" column...
 ALTER TABLE {$db_prefix}members
-CHANGE msn skype varchar(255) NOT NULL DEFAULT '';
+RENAME msn TO skype;
 ---#
 
 /******************************************************************************/
@@ -300,9 +300,18 @@ upgrade_query("
 /******************************************************************************/
 ---# Adding new columns to categories...
 ---{
+// Sadly, PostgreSQL whines if we add a NOT NULL column without a default value to an existing table...
 upgrade_query("
 	ALTER TABLE {$db_prefix}categories
-	ADD COLUMN description text NOT NULL;");
+	ADD COLUMN description text");
+
+upgrade_query("
+	UPDATE {$db_prefix}categories
+	SET description = ''");
+
+upgrade_query("
+	ALTER TABLE {$db_prefix}categories
+	ALTER COLUMN description SET NOT NULL");
 ---}
 ---#
 
@@ -317,7 +326,7 @@ ADD COLUMN alerts int NOT NULL default '0';
 ---# Adding the new table for alerts.
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
+CREATE TABLE {$db_prefix}user_alerts (
   id_alert int default nextval('{$db_prefix}user_alerts_seq'),
   alert_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -336,10 +345,10 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 ---#
 
 ---# Adding alert preferences.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
+CREATE TABLE {$db_prefix}user_alerts_prefs (
   id_member int NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
-  alert_value smallint(3) NOT NULL default '0',
+  alert_value smallint NOT NULL default '0',
   PRIMARY KEY (id_member, alert_pref)
 );
 ---#
@@ -367,7 +376,7 @@ VALUES
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}log_topics
-	CHANGE COLUMN disregarded unwatched tinyint(3) NOT NULL DEFAULT '0';");
+	RENAME disregarded TO unwatched");
 ---}
 ---#
 
@@ -378,7 +387,7 @@ upgrade_query("
 ---{
 upgrade_query("
 	ALTER TABLE {$db_prefix}membergroups
-	CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT ''");
+	RENAME stars TO icons");
 ---}
 ---#
 
@@ -393,6 +402,18 @@ INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
 	('enableThemes', '1');
+---#
+
+---# Setting "default" as the default...
+UPDATE {$db_prefix}settings
+SET value = '1'
+WHERE variable = 'theme_guests';
+
+UPDATE {$db_prefix}boards
+SET id_theme = 0;
+
+UPDATE {$db_prefix}members
+SET id_theme = 0;
 ---#
 
 /******************************************************************************/
@@ -434,25 +455,6 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 		upgrade_query("
 			DELETE FROM {$db_prefix}themes
 			WHERE id_theme = $id_theme");
-
-		// Set any members or boards using this theme to the default
-		upgrade_query("
-			UPDATE {$db_prefix}members
-			SET id_theme = 0
-			WHERE id_theme = $id_theme");
-
-		upgrade_query("
-			UPDATE {$db_prefix}boards
-			SET id_theme = 0
-			WHERE id_theme = $id_theme");
-
-		if ($modSettings['theme_guests'] == $id_theme)
-		{
-			upgrade_query("
-				UPDATE {$db_prefix}settings
-				SET value = 0
-				WHERE variable = 'theme_guests'");
-		}
 	}
 }
 ---}
@@ -462,8 +464,10 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-	id_draft int NOT NULL auto_increment,
+CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+
+CREATE TABLE {$db_prefix}user_drafts (
+	id_draft int NOT NULL default nextval('{$db_prefix}user_drafts_seq'),
 	id_topic int NOT NULL default '0',
 	id_board smallint NOT NULL default '0',
 	id_reply int NOT NULL default '0',
@@ -549,7 +553,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 --- Adding support for likes
 /******************************************************************************/
 ---# Creating likes table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}user_likes (
   id_member int NOT NULL default '0',
   content_type char(6) default '',
   content_id int NOT NULL default '0',
@@ -570,7 +574,7 @@ ADD COLUMN likes smallint NOT NULL default '0';
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table
-CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
+CREATE TABLE {$db_prefix}moderator_groups (
   id_board smallint NOT NULL default '0',
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
@@ -606,8 +610,10 @@ WHERE filename = 'latest-packages.js'
 --- Upgrading "verification questions" feature
 /******************************************************************************/
 ---# Creating qanda table
-CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-  id_question smallint(5) unsigned NOT NULL auto_increment,
+CREATE SEQUENCE {$db_prefix}qanda_seq;
+
+CREATE TABLE {$db_prefix}qanda (
+  id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
   answers text NOT NULL,
@@ -755,7 +761,7 @@ CREATE SEQUENCE {$db_prefix}pm_labels_sequence;
 ---#
 
 ---# Adding pm_labels table...
-CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
+CREATE TABLE {$db_prefix}pm_labels (
   id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
   id_member int NOT NULL default '0',
   name varchar(30) NOT NULL default '',
@@ -764,7 +770,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
 ---#
 
 ---# Adding pm_labeled_messages table...
-CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
+CREATE TABLE {$db_prefix}pm_labeled_messages (
   id_label int NOT NULL default '0',
   id_pm int NOT NULL default '0',
   PRIMARY KEY (id_label, id_pm)

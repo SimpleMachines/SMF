@@ -149,13 +149,16 @@ function template_html_above()
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty($context['links']['next']))
-		echo '<link rel="next" href="', $context['links']['next'], '" />';
-	else if (!empty($context['current_topic']))
-		echo '<link rel="next" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=next" />';
+	{
+		echo '
+	<link rel="next" href="', $context['links']['next'], '" />';
+	}
+
 	if (!empty($context['links']['prev']))
-		echo '<link rel="prev" href="', $context['links']['prev'], '" />';
-	else if (!empty($context['current_topic']))
-		echo '<link rel="prev" href="', $scripturl, '?topic=', $context['current_topic'], '.0;prev_next=prev" />';
+	{
+		echo '
+	<link rel="prev" href="', $context['links']['prev'], '" />';
+	}
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
 	if (!empty($context['current_board']))
