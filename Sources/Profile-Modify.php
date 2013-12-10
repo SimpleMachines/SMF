@@ -1884,7 +1884,7 @@ function alert_configuration($memID)
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 		),
 		'members' => array(
-			'register_new' => array('alert' => 'yes', 'email' => 'yes'),
+			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 		),
