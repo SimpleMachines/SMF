@@ -254,9 +254,8 @@ function template_main()
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
-								<br class="clear" />
+							', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" style="display: inline-block; margin: 7px 0 5px 3px;"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 							</div>
-							', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" class="floatleft" id="newicon' . $topic['first_post']['id'] . '" style="display: block; margin: 9px 0 0 3px;"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 							<br class="clear" />
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 								<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
@@ -348,7 +347,7 @@ function template_main()
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
-		', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#top" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+		', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#main_content_section" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
 		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
 	}
