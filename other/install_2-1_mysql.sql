@@ -2135,6 +2135,15 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 ) ENGINE=MyISAM;
 
 #
+# Dumping data for table `user_alerts_prefs`
+#
+
+INSERT INTO {$db_prefix}user_alerts_prefs
+	(id_member, alert_pref, alert_value)
+VALUES (0, 'member_register', 1);
+# --------------------------------------------------------
+
+#
 # Table structure for table `user_drafts`
 #
 

@@ -2717,6 +2717,15 @@ CREATE TABLE {$db_prefix}user_drafts (
 );
 
 #
+# Dumping data for table `user_alerts_prefs`
+#
+
+INSERT INTO {$db_prefix}user_alerts_prefs
+	(id_member, alert_pref, alert_value)
+VALUES (0, 'member_register', 1);
+# --------------------------------------------------------
+
+#
 # Indexes for table `user_drafts`
 #
 
