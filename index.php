@@ -61,10 +61,10 @@ $smcFunc = array();
 loadDatabase();
 
 // Load the settings from the settings table, and perform operations like optimizing.
+$context = array();
 reloadSettings();
 // Clean the request variables, add slashes, etc.
 cleanRequest();
-$context = array();
 
 // Seed the random generator.
 if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
