@@ -351,6 +351,10 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
   alert_value smallint NOT NULL default '0',
   PRIMARY KEY (id_member, alert_pref)
 );
+
+INSERT INTO {$db_prefix}user_alerts_prefs
+	(id_member, alert_pref, alert_value)
+VALUES (0, 'member_register', 1);
 ---#
 
 /******************************************************************************/
@@ -594,7 +598,7 @@ WHERE variable LIKE 'integrate_%';
 /******************************************************************************/
 ---# Showing contact details to guests should never happen.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration');
 ---#
 
 /******************************************************************************/

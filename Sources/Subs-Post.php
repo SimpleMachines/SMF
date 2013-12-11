@@ -2793,10 +2793,6 @@ function adminNotify($type, $memberID, $member_name = null)
 {
 	global $txt, $modSettings, $language, $scripturl, $user_info, $context, $smcFunc;
 
-	// If the setting isn't enabled then just exit.
-	if (empty($modSettings['notify_new_registration']))
-		return;
-
 	if ($member_name == null)
 	{
 		// Get the new user's name....
@@ -2813,69 +2809,18 @@ function adminNotify($type, $memberID, $member_name = null)
 		$smcFunc['db_free_result']($request);
 	}
 
-	$toNotify = array();
-	$groups = array();
-
-	// All membergroups who can approve members.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_group
-		FROM {db_prefix}permissions
-		WHERE permission = {string:moderate_forum}
-			AND add_deny = {int:add_deny}
-			AND id_group != {int:id_group}',
-		array(
-			'add_deny' => 1,
-			'id_group' => 0,
-			'moderate_forum' => 'moderate_forum',
-		)
+	// This is really just a wrapper for making a new background task to deal with all the fun.
+	$smcFunc['db_insert']('insert',
+		'{db_prefix}background_tasks',
+		array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+		array('$sourcedir/tasks/Register-Notify.php', 'Register_Notify_Background', serialize(array(
+			'new_member_id' => $memberID,
+			'new_member_name' => $member_name,
+			'notify_type' => $type,
+			'time' => time(),
+		)), 0),
+		array('id_task')
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$groups[] = $row['id_group'];
-	$smcFunc['db_free_result']($request);
-
-	// Add administrators too...
-	$groups[] = 1;
-	$groups = array_unique($groups);
-
-	// Get a list of all members who have ability to approve accounts - these are the people who we inform.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, lngfile, email_address
-		FROM {db_prefix}members
-		WHERE (id_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:group_array_implode}, additional_groups) != 0)
-			AND notify_types != {int:notify_types}
-		ORDER BY lngfile',
-		array(
-			'group_list' => $groups,
-			'notify_types' => 4,
-			'group_array_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
-		)
-	);
-
-	$current_language = $user_info['language'];
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$replacements = array(
-			'USERNAME' => $member_name,
-			'PROFILELINK' => $scripturl . '?action=profile;u=' . $memberID
-		);
-		$emailtype = 'admin_notify';
-
-		// If they need to be approved add more info...
-		if ($type == 'approval')
-		{
-			$replacements['APPROVALLINK'] = $scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve';
-			$emailtype .= '_approval';
-		}
-
-		$emaildata = loadEmailTemplate($emailtype, $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-
-		// And do the actual sending...
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
-	}
-	$smcFunc['db_free_result']($request);
-
-	if (isset($current_language) && $current_language != $user_info['language'])
-		loadLanguage('Login');
 }
 
 /**

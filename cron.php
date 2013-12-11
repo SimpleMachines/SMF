@@ -21,7 +21,7 @@
  */
 
 define('SMF', 'BACKGROUND');
-define('FROM_CLI', defined('STDIN'));
+define('FROM_CLI', !isset($_SERVER['REQUEST_METHOD']));
 define('WIRELESS', false);
 
 // This one setting is worth bearing in mind. If you are running this from proper cron, make sure you
@@ -78,12 +78,15 @@ if (version_compare(PHP_VERSION, '5.1', '<'))
 $smcFunc = array();
 
 // This is our general bootstrap, a la SSI.php but with a few differences.
+unset ($db_show_debug);
 loadDatabase();
 reloadSettings();
 
 // Just in case there's a problem...
 set_error_handler('error_handler_cron');
-$sc = 'n/a';
+$sc = '';
+$_SERVER['QUERY_STRING'] = '';
+$_SERVER['REQUEST_URL'] = FROM_CLI ? 'CLI cron.php' : $boardurl . '/cron.php';
 
 // Now 'clean the request' (or more accurately, ignore everything we're not going to use)
 cleanRequest_cron();
@@ -187,8 +190,8 @@ function perform_task($task_details)
 	// All background tasks need to be classes.
 	elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF_BackgroundTask'))
 	{
-		$bgtask = new $task_details['task_class'];
-		$bgtask->setDetails($details);
+		$details = empty($task_details['task_data']) ? array() : unserialize($task_details['task_data']);
+		$bgtask = new $task_details['task_class']($details);
 		return $bgtask->execute();
 	}
 	else
@@ -245,9 +248,15 @@ function obExit_cron()
 
 // We would like this to be defined, but we don't want to have to load more stuff than necessary.
 // Thus we declare it here, and any legitimate background task must implement this.
-interface SMF_BackgroundTask
+abstract class SMF_BackgroundTask
 {
-	public function setDetails($details);
-	public function execute();
+	protected $_details;
+
+	public function __construct($details)
+	{
+		$this->_details = $details;
+	}
+
+	abstract public function execute();
 }
 ?>
