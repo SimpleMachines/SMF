@@ -288,7 +288,7 @@ function updateMemberData($members, $data)
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
 		'new_pm', 'pm_prefs', 'gender', 'hide_email', 'show_online', 'pm_email_notify', 'pm_receive_from', 'karma_good', 'karma_bad',
-		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types',
+		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types', 'alerts',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
 	$knownFloats = array(
