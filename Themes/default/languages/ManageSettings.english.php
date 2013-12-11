@@ -109,7 +109,7 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
 	<li>XCache</li>
 </ul>
-Caching will work best if you have PHP compiled with one of the above optimizers, or have memcache available. If you do not have any optimizer installed SMF will do file based caching.';
+Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server.  File based caching can be used instead.</strong>';
 $txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
 
@@ -119,7 +119,7 @@ $txt['cache_off'] = 'No caching';
 $txt['cache_level1'] = 'Level 1 Caching (Recommended)';
 $txt['cache_level2'] = 'Level 2 Caching';
 $txt['cache_level3'] = 'Level 3 Caching (Not Recommended)';
-$txt['cache_memcached'] = 'Memcache settings';
+$txt['cache_memcached'] = 'Memcached settings';
 $txt['cache_accelerator'] = 'Caching Accelerator';
 $txt['default_cache'] = 'SMF file based caching';
 $txt['apc_cache'] = 'APC';
