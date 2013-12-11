@@ -81,7 +81,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 			);
 
 			// And update the count of alerts for those people.
-			updateMemberData($members, array('alerts' => '+'));
+			updateMemberData($notifies['alert'], array('alerts' => '+'));
 		}
 
 		// Secondly, anyone who wants emails.
