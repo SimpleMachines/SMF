@@ -35,6 +35,7 @@ $txt['delete_selected_confirm'] = 'Are you sure you want to delete all selected 
 $txt['sent_to'] = 'Sent to';
 $txt['reply_to_all'] = 'Reply to All';
 $txt['delete_conversation'] = 'Delete Conversation';
+$txt['remove_conversation'] = 'Remove all messages in this conversation?';
 
 $txt['pm_capacity'] = 'Capacity';
 $txt['pm_currently_using'] = '%1$s messages, %2$s%% full.';

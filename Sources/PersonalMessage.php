@@ -105,10 +105,12 @@ function MessageMain()
 			SELECT COUNT(*) AS total, SUM(is_read) AS num_read
 			FROM {db_prefix}pm_recipients
 			WHERE id_member = {int:current_member}
-				AND in_inbox = {int:in_inbox}',
+				AND in_inbox = {int:in_inbox}
+				AND deleted = {int:not_deleted}',
 			array(
 				'current_member' => $user_info['id'],
 				'in_inbox' => 1,
+				'not_deleted' => 0,
 			)
 		);
 		
@@ -180,6 +182,9 @@ function MessageMain()
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+
+	// Which message are we displaying for the delete confirm popup?
+	$context['delete_confirm'] = ($context['display_mode'] == 2) ? $txt['remove_conversation'] : $txt['delete_message'];
 
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
@@ -976,7 +981,7 @@ function MessageFolder()
 		if ($context['display_mode'] == 2)
 		{
 			$context['conversation_buttons'] = array(
-				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_message']) . '?\');"'),
+				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_conversation']) . '?\');"'),
 			);
 
 			// Allow mods to add additional buttons here
