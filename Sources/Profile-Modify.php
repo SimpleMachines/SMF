@@ -1846,6 +1846,8 @@ function alert_configuration($memID)
 {
 	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
 
+	$context['token_check'] = 'profile-nt' . $memID;
+
 	// What options are set?
 	$context['member'] += array(
 		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
@@ -1978,13 +1980,12 @@ function alert_configuration($memID)
 		if (!$context['member']['is_owner'])
 			isAllowedTo('profile_extra_any');
 		checkSession('post');
-		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
+		validateToken($context['token_check'], 'post');
 
 		makeNotificationChanges($memID);
 		$context['profile_updated'] = $txt['profile_updated_own'];
 	}
 
-	$context['token_check'] = str_replace('%u', $memID, 'profile-nt%u');
 	createToken($context['token_check'], 'post');
 }
 
