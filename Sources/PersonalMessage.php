@@ -183,9 +183,6 @@ function MessageMain()
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
 	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
 
-	// Which message are we displaying for the delete confirm popup?
-	$context['delete_confirm'] = ($context['display_mode'] == 2) ? $txt['remove_conversation'] : $txt['delete_message'];
-
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=pm',
