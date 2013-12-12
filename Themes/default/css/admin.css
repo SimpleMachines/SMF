@@ -183,6 +183,7 @@ div.quick_tasks {
 #admin_form_wrapper div.title_bar {
 	border-radius: 2px 2px 0 0;
 	margin: 0;
+	border-bottom: 0;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
