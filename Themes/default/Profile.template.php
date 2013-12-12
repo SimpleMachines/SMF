@@ -1850,14 +1850,12 @@ function template_alert_configuration()
 					', $txt['notify_what_how'], '
 				</h3>
 			</div>
-			<div class="windowbg2">
-				<div class="content">
-					<table class="table_grid" style="width: 100%">
-						<tr class="titlebg">
-							<td></td>
-							<td>', $txt['receive_alert'], '</td>
-							<td>', $txt['receive_mail'], '</td>
-						</tr>';
+			<table class="table_grid" style="width: 100%">
+				<tr class="titlebg">
+					<td></td>
+					<td>', $txt['receive_alert'], '</td>
+					<td>', $txt['receive_mail'], '</td>
+				</tr>';
 	$use_bg2 = true;
 
 	// Before we get into the loop, just quickly set this up.
@@ -1870,96 +1868,97 @@ function template_alert_configuration()
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
-						<tr class="catbg">
-							<th colspan="3">
-								', $txt['alert_group_' . $alert_group];
+				<tr class="catbg">
+					<th colspan="3">
+						', $txt['alert_group_' . $alert_group];
 		if (isset($context['alert_group_options'][$alert_group]))
 		{
 			foreach ($context['alert_group_options'][$alert_group] as $opts)
 			{
 				echo '
-						<div class="smalltext">';
+				<div class="smalltext">';
 				$label = $txt['alert_opt_' . $opts[1]];
 				$label_pos = isset($opts['label']) ? $opts['label'] : '';
 				if ($label_pos == 'before')
 					echo '
-							<label for="opt_', $opts[1], '">', $label, '</label>';
+					<label for="opt_', $opts[1], '">', $label, '</label>';
 
 				$this_value = isset($context['alert_prefs'][$opts[1]]) ? $context['alert_prefs'][$opts[1]] : 0;
 				switch ($opts[0])
 				{
 					case 'check':
 						echo '
-								<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '"', $this_value ? ' checked="checked"' : '', ' />';
+						<input type="checkbox" name="opt_', $opts[1], '" id="opt_', $opts[1], '"', $this_value ? ' checked="checked"' : '', ' />';
 						break;
 					case 'select':
 						echo '
-								<select name="opt_', $opts[1], '" id="opt_', $opts[1], '">';
+						<select name="opt_', $opts[1], '" id="opt_', $opts[1], '">';
 						foreach ($opts['opts'] as $k => $v)
 							echo '
-									<option value="', $k, '"', $this_value == $k ? ' selected="selected"' : '', '>', $v, '</option>';
+							<option value="', $k, '"', $this_value == $k ? ' selected="selected"' : '', '>', $v, '</option>';
 						echo '
-								</select>';
+						</select>';
 						break;
 				}
 
 				if ($label_pos == 'after')
 					echo '
-							<label for="opt_', $opts[1], '">', $label, '</label>';
+					<label for="opt_', $opts[1], '">', $label, '</label>';
 
 				echo '
-						</div>';
+				</div>';
 			}
 		}
 
 		echo '
-							</th>
-						</tr>';
+					</th>
+				</tr>';
 		foreach ($alerts as $alert_id => $alert_details)
 		{
 			echo '
-						<tr class="windowbg', $use_bg2 ? '2' : '', '">
-							<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" title="' . $txt['help'] . '">' : '', '</td>';
+				<tr class="windowbg', $use_bg2 ? '2' : '', '">
+					<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" title="' . $txt['help'] . '">' : '', '</td>';
 
 			foreach (array('alert', 'email') as $type)
 			{
 				echo '
-							<td class="centercol">';
+					<td class="centercol">';
 				$this_value = isset($context['alert_prefs'][$alert_id]) ? $context['alert_prefs'][$alert_id] : 0;
 				switch ($alert_details[$type])
 				{
 					case 'always':
 						echo '
-								<input type="checkbox" checked="checked" disabled="disabled" />';
+						<input type="checkbox" checked="checked" disabled="disabled" />';
 						break;
 					case 'yes':
 						echo '
-								<input type="checkbox" name="', $type, '_', $alert_id, '"', $this_value & $alert_bits[$type] != 0 ? ' checked="checked"' : '', ' />';
+						<input type="checkbox" name="', $type, '_', $alert_id, '"', $this_value & $alert_bits[$type] != 0 ? ' checked="checked"' : '', ' />';
 						break;
 					case 'never':
 						echo '
-								<input type="checkbox" disabled="disabled" />';
+						<input type="checkbox" disabled="disabled" />';
 						break;
 				}
 				echo '
-							</td>';
+					</td>';
 			}
+
+			echo '
+				</tr>';
 
 			$use_bg2 = !$use_bg2;
 		}
 	}
 
 	echo '
-					</table>
-					<br />
-					<div>
-						<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />', !empty($context['token_check']) ? '
-						<input type="hidden" name="' . $context[$context['token_check'] . '_token_var'] . '" value="' . $context[$context['token_check'] . '_token'] . '" />' : '', '
-						<input type="hidden" name="u" value="', $context['id_member'], '" />
-						<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
-					</div>
-				</div>
+			</table>
+			<br />
+			<div>
+				<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />', !empty($context['token_check']) ? '
+				<input type="hidden" name="' . $context[$context['token_check'] . '_token_var'] . '" value="' . $context[$context['token_check'] . '_token'] . '" />' : '', '
+				<input type="hidden" name="u" value="', $context['id_member'], '" />
+				<input type="hidden" name="sa" value="', $context['menu_item_selected'], '" />
 			</div>
 		</form>
 		<br />';
