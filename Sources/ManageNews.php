@@ -699,7 +699,7 @@ function SendMailing($clean_only = false)
 
 	// How many to send at once? Quantity depends on whether we are queueing or not.
 	// @todo Might need an interface? (used in Post.php too with different limits)
-	$num_at_once = empty($modSettings['mail_queue']) ? 60 : 1000;
+	$num_at_once = 1000;
 
 	// If by PM's I suggest we half the above number.
 	if (!empty($_POST['send_pm']))

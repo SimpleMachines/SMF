@@ -298,7 +298,6 @@ function ModifyMailSettings($return_config = false)
 
 	$config_vars = array(
 			// Mail queue stuff, this rocks ;)
-			array('check', 'mail_queue'),
 			array('int', 'mail_limit'),
 			array('int', 'mail_quantity'),
 		'',

@@ -1892,7 +1892,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('drafts_autosave_enabled', '1'),
 	('drafts_show_saved_enabled', '1'),
 	('drafts_keep_days', '7'),
-	('topic_move_any', '0');
+	('topic_move_any', '0'),
+	('mail_limit', '5'),
+	('mail_quantity', '5');
 # --------------------------------------------------------
 
 #

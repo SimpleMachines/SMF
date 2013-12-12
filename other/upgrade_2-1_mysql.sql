@@ -892,3 +892,16 @@ ADD COLUMN modified_reason varchar(255) NOT NULL;
 	);
 ---}
 ---#
+
+/******************************************************************************/
+--- Adding mail queue settings
+/******************************************************************************/
+---#
+---{
+	if (empty($modSettings['mail_limit']))
+	{
+		$data = array("('mail_limit', '5')", "('mail_quantity', '5')");
+		$smcFunc['db_insert']('', '{db_prefix}settings' array('variable' => 'string-255', 'value' => 'string'), array('mail_limit', '5'), $data, array());
+	}
+---}
+---#
