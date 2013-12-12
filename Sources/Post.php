@@ -2242,7 +2242,7 @@ function AnnouncementSend()
 			'start' => $context['start'],
 			'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
 			// @todo Might need an interface?
-			'chunk_size' => empty($modSettings['mail_queue']) ? 50 : 500,
+			'chunk_size' => 500,
 		)
 	);
 

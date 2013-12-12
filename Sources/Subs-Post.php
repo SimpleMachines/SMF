@@ -641,11 +641,11 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	}
 
 	// Are we using the mail queue, if so this is where we butt in...
-	if (!empty($modSettings['mail_queue']) && $priority != 0)
+	if ($priority != 0)
 		return AddMailQueue(false, $to_array, $subject, $message, $headers, $send_html, $priority, $is_private);
 
 	// If it's a priority mail, send it now - note though that this should NOT be used for sending many at once.
-	elseif (!empty($modSettings['mail_queue']) && !empty($modSettings['mail_limit']))
+	elseif (!empty($modSettings['mail_limit']))
 	{
 		list ($last_mail_time, $mails_this_minute) = @explode('|', $modSettings['mail_recent']);
 		if (empty($mails_this_minute) || time() > $last_mail_time + 60)
