@@ -14,4 +14,5 @@ $txt['alert_msg_like'] = '{member_link} liked your post {msg_msg}';
 $txt['alert_member_register_standard'] = '{member_link} just signed up';
 $txt['alert_member_register_approval'] = '{member_link} just signed up (account requires approval)';
 $txt['alert_member_register_activation'] = '{member_link} just signed up (account requires activation)';
+$txt['alert_member_group_request'] = '{member_link} has requested to join {group_name}';
 ?>

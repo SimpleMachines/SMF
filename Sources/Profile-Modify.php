@@ -3622,54 +3622,14 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 			array('id_request')
 		);
 
-		// Send an email to all group moderators etc.
-		require_once($sourcedir . '/Subs-Post.php');
+		// Set up some data for our background task...
+		$data = serialize(array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
 
-		// Do we have any group moderators?
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}group_moderators
-			WHERE id_group = {int:selected_group}',
-			array(
-				'selected_group' => $group_id,
-			)
+		// Add a background task to handle notifying people of this request
+		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+			array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/GroupReq-Notify.php', 'GroupReq_Notify_Background', $data, 0), array()
 		);
-		$moderators = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$moderators[] = $row['id_member'];
-		$smcFunc['db_free_result']($request);
-
-		// Otherwise this is the backup!
-		if (empty($moderators))
-		{
-			require_once($sourcedir . '/Subs-Members.php');
-			$moderators = membersAllowedTo('manage_membergroups');
-		}
-
-		if (!empty($moderators))
-		{
-			// Figure out who wants to be alerted/emailed about this
-			$data = array('alert' => array(), 'email' => array());
-
-			include_once($sourcedir . '/Subs-Notify.php');
-			$prefs = getNotifyPrefs($moderators, 'request_group');
-			
-			// Bitwise comparisons are fun...
-			foreach ($moderators as $mod)
-			{
-				if (!empty($prefs[$mod]))
-				{
-					if ($prefs[$mod] & 0x01)
-						$data['alerts'][] = $mod;
-
-					if ($prefs[$mod] & 0x02)
-						$data['email'][] = $mod;
-				}
-			}
-
-			// Now we pass this off to our background task to handle
-			$smcFunc['db_insert']('', '{db_prefix}background_tasks', array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'), array('GroupNotif-Task.php', 'GroupNotify', serialize($data), time()));
-		}
 
 		return $changeType;
 	}
