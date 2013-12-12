@@ -18,7 +18,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
- 		global $sourcedir, $smcFunc, $language;		
+ 		global $sourcedir, $smcFunc, $language, $modSettings;		
 
 		// Do we have any group moderators?
 		$request = $smcFunc['db_query']('', '
@@ -44,12 +44,16 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 			// Figure out who wants to be alerted/emailed about this
 			$data = array('alert' => array(), 'email' => array());
 
-			include_once($sourcedir . '/Subs-Notify.php');
+			require_once($sourcedir . '/Subs-Notify.php');
 			$prefs = getNotifyPrefs($moderators, 'request_group');
-			
+
 			// Bitwise comparisons are fun...
 			foreach ($moderators as $mod)
 			{
+				// Do we have any defaults?
+				if (isset($prefs[0]) && !isset($prefs[$mod]))
+					$prefs[$mod] = $prefs[0];
+
 				if (!empty($prefs[$mod]))
 				{
 					if ($prefs[$mod] & 0x01 == 0x01)
@@ -87,6 +91,10 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 
 			if (!empty($data['email']))
 			{
+				require_once($sourcedir . '/ScheduledTasks.php');
+				require_once($sourcedir . '/Subs-Post.php');
+				loadEssentialThemeData();
+
 				$request = $smcFunc['db_query']('', '
 					SELECT id_member, email_address, lngfile, member_name, mod_prefs
 					FROM {db_prefix}members
@@ -96,6 +104,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 						'moderator_list' => $moderators,
 					)
 				);
+
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
 					$replacements = array(
@@ -106,13 +115,13 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 						'MODLINK' => $scripturl . '?action=moderate;area=groups;sa=requests',
 					);
 
-					require_once($sourcedir . '/Subs-Post.php');
-
 					$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
 				}
 			}
 		}
+
+		return true;
 	}
 }
 ?>
