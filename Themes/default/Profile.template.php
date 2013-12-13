@@ -1141,7 +1141,7 @@ function template_statPanel()
 		<div id="activitytime" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-				<img src="', $settings['images_url'], '/stats_history.png" alt="" class="icon" />', $txt['statPanel_activityTime'], '
+					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
@@ -1188,7 +1188,7 @@ function template_statPanel()
 			<div id="popularposts">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoards'], '
+						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>
 				<div class="windowbg2">
@@ -1227,7 +1227,7 @@ function template_statPanel()
 			<div id="popularactivity">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoardsActivity'], '
+						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>
 				<div class="windowbg2">
