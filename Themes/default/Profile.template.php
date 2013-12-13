@@ -154,7 +154,7 @@ function template_summary()
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
 		echo '
-					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www_sm.png" alt="' . $context['member']['website']['title'] . '" />' : $txt['www']), '</a></li>';
+					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www.png" alt="' . $context['member']['website']['title'] . '" />' : $txt['www']), '</a></li>';
 
 	// Are there any custom profile fields for the summary?
 	if (!empty($context['custom_fields']))
@@ -1141,7 +1141,7 @@ function template_statPanel()
 		<div id="activitytime" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
-				<img src="', $settings['images_url'], '/stats_history.png" alt="" class="icon" />', $txt['statPanel_activityTime'], '
+					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
@@ -1188,7 +1188,7 @@ function template_statPanel()
 			<div id="popularposts">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoards'], '
+						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>
 				<div class="windowbg2">
@@ -1227,7 +1227,7 @@ function template_statPanel()
 			<div id="popularactivity">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img src="', $settings['images_url'], '/stats_replies.png" alt="" class="icon" />', $txt['statPanel_topBoardsActivity'], '
+						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>
 				<div class="windowbg2">

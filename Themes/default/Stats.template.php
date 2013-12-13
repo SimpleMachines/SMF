@@ -22,7 +22,7 @@ function template_main()
 		<div class="flow_hidden">
 			<div class="title_bar">
 				<h4 class="titlebg statstitle">
-					<img src="', $settings['images_url'], '/stats_info.png" class="icon" alt="" /> ', $txt['general_stats'], '
+					<span class="stats_icon general"></span>', $txt['general_stats'], '
 				</h4>
 			</div>
 			<div id="stats_left">
@@ -91,7 +91,7 @@ function template_main()
 			<div id="top_posters">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
-						<img src="', $settings['images_url'], '/stats_posters.png" class="icon" alt="" /> ', $txt['top_posters'], '
+						<span class="stats_icon posters"></span>', $txt['top_posters'], '
 					</h4>
 				</div>
 					<div class="windowbg2">
@@ -128,7 +128,7 @@ function template_main()
 			<div id="top_boards">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
-						<img src="', $settings['images_url'], '/stats_board.png" class="icon" alt="" /> ', $txt['top_boards'], '
+						<span class="stats_icon boards"></span>', $txt['top_boards'], '
 					</h4>
 				</div>
 					<div class="windowbg2">
@@ -167,7 +167,7 @@ function template_main()
 			<div id="top_topics_replies">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
-						<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_topics_replies'], '
+						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
 					</h4>
 				</div>
 					<div class="windowbg2">
@@ -203,7 +203,7 @@ function template_main()
 			<div id="top_topics_views">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
-						<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['top_topics_views'], '
+						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
 					</h4>
 				</div>
 				<div class="windowbg2">
@@ -240,7 +240,7 @@ function template_main()
 			<div id="top_topics_starter">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
-						<img src="', $settings['images_url'], '/stats_replies.png" class="icon" alt="" /> ', $txt['top_starters'], '
+						<span class="stats_icon starters"></span>', $txt['top_starters'], '
 					</h4>
 				</div>
 				<div class="windowbg2">
@@ -274,7 +274,7 @@ function template_main()
 			<div id="most_online">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
-						<img src="', $settings['images_url'], '/stats_views.png" class="icon" alt="" /> ', $txt['most_time_online'], '
+						<span class="stats_icon history"></span>', $txt['most_time_online'], '
 					</h4>
 				</div>
 				<div class="windowbg2">
@@ -312,7 +312,7 @@ function template_main()
 		<br class="clear" />
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/stats_history.png" class="icon" alt="" /> ', $txt['forum_history'], '
+				<span class="stats_icon history"></span>', $txt['forum_history'], '
 			</h3>
 		</div>
 		<div class="flow_hidden">';

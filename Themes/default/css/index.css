@@ -3393,6 +3393,28 @@ img.centericon {
 	border-left: 1px solid #fff;
 	margin-top: 8px;
 }
+.stats_icon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/stats_icons.png) no-repeat 0 0;
+	margin: 2px 6px -1px 3px;
+}
+.stats_icon.general, .stats_icon.boards {
+	background-position: 0 0;
+}
+.stats_icon.posters {
+	background-position: -16px 0;
+}
+.stats_icon.replies, .stats_icon.starters {
+	background-position: -32px 0;
+}
+.stats_icon.history {
+	background-position: -48px 0;
+}
+.stats_icon.views {
+	background-position: -64px 0;
+}
 dl.stats {
 	clear: both;
 	overflow: hidden;
