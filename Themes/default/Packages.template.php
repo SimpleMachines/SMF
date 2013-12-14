@@ -609,7 +609,7 @@ function template_browse()
 			<div id="advanced_box" >
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/expand.png" alt="*" />
+						<span id="advanced_panel_toggle" class="floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
@@ -652,9 +652,7 @@ function template_browse()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
 					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
@@ -876,7 +874,7 @@ function template_package_list()
 		{
 			echo '
 					<li>
-						<strong><img id="ps_img_', $i, '" src="', $settings['images_url'], '/collapse.png" alt="*" style="display: none;" /> ', $packageSection['title'], '</strong>';
+						<strong><span id="ps_img_', $i, '" class="toggle_up" alt="*" style="display: none;" /></span> ', $packageSection['title'], '</strong>';
 
 			if (!empty($packageSection['text']))
 				echo '
@@ -916,7 +914,7 @@ function template_package_list()
 				{
 					// 1. Some mod [ Download ].
 					echo '
-							<strong><img id="ps_img_', $i, '_pkg_', $id, '" src="', $settings['images_url'], '/collapse.png" alt="*" style="display: none;" /> ', $package['can_install'] ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . $txt['download'] . ' ]</a>': $package['name'];
+							<strong><span id="ps_img_', $i, '_pkg_', $id, '" class="toggle_up" alt="*" style="display: none;"></span> ', $package['can_install'] ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . $txt['download'] . ' ]</a>': $package['name'];
 
 					// Mark as installed and current?
 					if ($package['is_installed'] && !$package['is_newer'])
@@ -992,9 +990,7 @@ function template_package_list()
 					aSwapImages: [
 						{
 							sId: \'ps_img_', $section, '\',
-							srcExpanded: smf_images_url + \'/collapse.png\',
 							altExpanded: \'*\',
-							srcCollapsed: smf_images_url + \'/expand.png\',
 							altCollapsed: \'*\'
 						}
 					]
@@ -1013,9 +1009,7 @@ function template_package_list()
 					aSwapImages: [
 						{
 							sId: \'ps_img_', $section, '_pkg_', $id, '\',
-							srcExpanded: smf_images_url + \'/collapse.png\',
 							altExpanded: \'*\',
-							srcCollapsed: smf_images_url + \'/expand.png\',
 							altCollapsed: \'*\'
 						}
 					]
