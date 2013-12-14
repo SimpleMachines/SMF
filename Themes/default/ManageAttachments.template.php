@@ -175,7 +175,7 @@ function template_maintenance()
 						}
 
 						function show_msg() {
-							$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading.gif" alt="loading.gif" width="35" height="35" />&nbsp; ', $txt['attachment_transfer_progress'] , '<\/div>\');
+							$(\'#progress_msg\').html(\'<div><img src="', $settings['actual_images_url'], '/loading_sm.gif" alt="', $txt['ajax_in_progress'], '" width="35" height="35" />&nbsp; ', $txt['attachment_transfer_progress'] , '<\/div>\');
 							show_progress();
 						}
 
