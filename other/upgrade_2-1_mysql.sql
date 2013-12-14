@@ -524,7 +524,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 /******************************************************************************/
 ---# We no longer call on the latest packages list.
 DELETE FROM {$db_prefix}admin_info_files
-WHERE filename = 'latest-packages.js'
+WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
 ---#
 
