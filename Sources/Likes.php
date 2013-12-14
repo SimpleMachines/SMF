@@ -149,11 +149,26 @@ function issueLike($like_type, $like_content)
 	}
 	else
 	{
+		// Insert the like.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
 			array($like_content, $like_type, $context['user']['id'], time()),
 			array('content_id', 'content_type', 'id_member')
+		);
+
+		// Add a background task to process sending alerts.
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+				'content_id' => $like_content,
+				'content_type' => $like_type,
+				'sender_id' => $context['user']['id'],
+				'sender_name' => $context['user']['name'],
+				'time' => time(),
+			)), 0),
+			array('id_task')
 		);
 	}
 
