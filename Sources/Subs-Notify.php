@@ -57,4 +57,29 @@ function getNotifyPrefs($members, $prefs = '')
 	return $result;
 }
 
+/**
+ * Sets the list of preferences for a single user.
+ *
+ * @param int $memID The user whose preferences you are setting
+ * @param array $prefs An array key of pref -> value
+ */
+function setNotifyPrefs($memID, $prefs = array())
+{
+	global $smcFunc;
+
+	if (empty($prefs) || empty($memID))
+		return;
+
+	$update_rows = array();
+	foreach ($prefs as $k => $v)
+		$update_rows[] = array($memID, $k, $v);
+
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}user_alerts_prefs',
+		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
+		$update_rows,
+		array('id_member', 'alert_pref')
+	);
+}
+
 ?>
