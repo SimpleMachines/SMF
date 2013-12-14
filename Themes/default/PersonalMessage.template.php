@@ -791,7 +791,7 @@ function template_search()
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png"  alt="*" /><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
+						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
 					</h4>
 				</div>
 				<div id="advanced_panel_div">
@@ -827,9 +827,7 @@ function template_search()
 				aSwapImages: [
 					{
 						sId: \'advanced_panel_toggle\',
-						srcExpanded: smf_images_url + \'/collapse.png\',
 						altExpanded: ', JavaScriptEscape($txt['hide']), ',
-						srcCollapsed: smf_images_url + \'/expand.png\',
 						altCollapsed: ', JavaScriptEscape($txt['show']), '
 					}
 				],
@@ -1135,7 +1133,7 @@ function template_send()
 			<br />
 			<div id="postDraftOptionsHeader" class="title_bar">
 				<h4 class="titlebg">
-					<img id="postDraftExpand" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/collapse.png" alt="-" /> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
+					<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
 				</h4>
 			</div>
 			<div id="postDraftOptions" class="load_drafts padding">
@@ -1271,9 +1269,7 @@ function template_send()
 				aSwapImages: [
 					{
 						sId: \'postDraftExpand\',
-						srcExpanded: smf_images_url + \'/collapse.png\',
 						altExpanded: \'-\',
-						srcCollapsed: smf_images_url + \'/expand.png\',
 						altCollapsed: \'+\'
 					}
 				],

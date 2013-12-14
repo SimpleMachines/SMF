@@ -882,31 +882,36 @@ smc_Toggle.prototype.init = function ()
 			this.opt.bCurrentlyCollapsed = cookieValue == '1';
 	}
 
-	// If the init state is set to be collapsed, collapse it.
-	if (this.opt.bCurrentlyCollapsed)
-		this.changeState(true, true);
-
 	// Initialize the images to be clickable.
 	if ('aSwapImages' in this.opt)
 	{
 		for (var i = 0, n = this.opt.aSwapImages.length; i < n; i++)
 		{
+			this.opt.aSwapImages[i].isCSS = (typeof this.opt.aSwapImages[i].srcCollapsed == 'undefined');
+			if (this.opt.aSwapImages[i].isCSS)
+			{
+				if (!this.opt.aSwapImages[i].cssCollapsed)
+					this.opt.aSwapImages[i].cssCollapsed = 'toggle_down';
+				if (!this.opt.aSwapImages[i].cssExpanded)
+					this.opt.aSwapImages[i].cssExpanded = 'toggle_up';
+			}
+			else
+			{
+				// Preload the collapsed image.
+				smc_preCacheImage(this.opt.aSwapImages[i].srcCollapsed);
+			}
+
+			// Display the image in case it was hidden.
+			$('#' + this.opt.aSwapImages[i].sId).show();
 			var oImage = document.getElementById(this.opt.aSwapImages[i].sId);
 			if (typeof(oImage) == 'object' && oImage != null)
 			{
-				// Display the image in case it was hidden.
-				if (oImage.style.display == 'none')
-					oImage.style.display = '';
-
 				oImage.instanceRef = this;
 				oImage.onclick = function () {
 					this.instanceRef.toggle();
 					this.blur();
 				}
 				oImage.style.cursor = 'pointer';
-
-				// Preload the collapsed image.
-				smc_preCacheImage(this.opt.aSwapImages[i].srcCollapsed);
 			}
 		}
 	}
@@ -932,6 +937,10 @@ smc_Toggle.prototype.init = function ()
 			}
 		}
 	}
+
+	// If the init state is set to be collapsed, collapse it.
+	if (this.opt.bCurrentlyCollapsed)
+		this.changeState(true, true);
 }
 
 // Collapse or expand the section.
@@ -961,15 +970,22 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 	{
 		for (var i = 0, n = this.opt.aSwapImages.length; i < n; i++)
 		{
-			var oImage = document.getElementById(this.opt.aSwapImages[i].sId);
-			if (typeof(oImage) == 'object' && oImage != null)
+			if (this.opt.aSwapImages[i].isCSS)
 			{
-				// Only (re)load the image if it's changed.
-				var sTargetSource = bCollapse ? this.opt.aSwapImages[i].srcCollapsed : this.opt.aSwapImages[i].srcExpanded;
-				if (oImage.src != sTargetSource)
-					oImage.src = sTargetSource;
+				$('#' + this.opt.aSwapImages[i].sId).toggleClass(this.opt.aSwapImages[i].cssCollapsed, bCollapse).toggleClass(this.opt.aSwapImages[i].cssExpanded, !bCollapse).attr('title', bCollapse ? this.opt.aSwapImages[i].altCollapsed : this.opt.aSwapImages[i].altExpanded);
+			}
+			else
+			{
+				var oImage = document.getElementById(this.opt.aSwapImages[i].sId);
+				if (typeof(oImage) == 'object' && oImage != null)
+				{
+					// Only (re)load the image if it's changed.
+					var sTargetSource = bCollapse ? this.opt.aSwapImages[i].srcCollapsed : this.opt.aSwapImages[i].srcExpanded;
+					if (oImage.src != sTargetSource)
+						oImage.src = sTargetSource;
 
-				oImage.alt = oImage.title = bCollapse ? this.opt.aSwapImages[i].altCollapsed : this.opt.aSwapImages[i].altExpanded;
+					oImage.alt = oImage.title = bCollapse ? this.opt.aSwapImages[i].altCollapsed : this.opt.aSwapImages[i].altExpanded;
+				}
 			}
 		}
 	}
@@ -994,10 +1010,17 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 		var oContainer = document.getElementById(this.opt.aSwappableContainers[i]);
 		if (typeof(oContainer) == 'object' && oContainer != null)
 		{
-			if (bCollapse)
-				$(oContainer).slideUp();
+			if (!!this.opt.bNoAnimate)
+			{
+				$(oContainer).toggle(!bCollapse);
+			}
 			else
-				$(oContainer).slideDown();
+			{
+				if (bCollapse)
+					$(oContainer).slideUp();
+				else
+					$(oContainer).slideDown();
+			}
 		}
 	}
 

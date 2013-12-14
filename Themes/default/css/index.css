@@ -932,11 +932,6 @@ div.title_barIC h4.titlebg {
 	margin: 0;
 	padding: 6px;
 }
-img#upshrink_ic, img#newsupshrink, img.panel_toggle {
-	float: right;
-	margin: 0;
-	padding: 4px 4px 0 4px;
-}
 #quickReplyExpand {
 	float: right;
 	margin: 2px 2px 0 2px;
@@ -2562,7 +2557,7 @@ ul.post_options li {
 	padding: 5px 10px;
 	margin: 0;
 }
-#postDraftOptions .settings dd:first-child, #postDraftOptions .settings dt:first-child{
+#postDraftOptions .settings dd:first-of-type, #postDraftOptions .settings dt:first-child{
 	border-top: none; /* Some people are OCD, like me. :P */
 }
 #postDraftOptions .settings strong{

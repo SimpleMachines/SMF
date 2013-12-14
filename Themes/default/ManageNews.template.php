@@ -50,7 +50,7 @@ function template_email_members()
 
 			<div id="advanced_panel_header" class="cat_bar">
 				<h3 class="catbg">
-					<img id="advanced_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/expand.png" alt="*" />
+					<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 					<a href="#" id="advanced_panel_link" >', $txt['advanced'], '</a>
 				</h3>
 			</div>
@@ -130,9 +130,7 @@ function template_email_members()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
 					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
