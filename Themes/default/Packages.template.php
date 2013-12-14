@@ -346,6 +346,7 @@ function template_view_package()
 				echo '
 			aOperationElements[', $key, '] = new smc_Toggle({
 				bToggleEnabled: true,
+				bNoAnimate: true,
 				bCurrentlyCollapsed: ', $operation ? 'false' : 'true', ',
 				aSwappableContainers: [
 					\'operation_', $key, '\'
