@@ -161,11 +161,13 @@ function ManageBoardsMain()
 						'child_level' => $boards[$boardid]['level'],
 						'label' => $txt['mboards_order_after'] . '\'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
 						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
+						'class' => $boards[$boardid]['level'] > 0 ? 'above' : 'below',
 					),
 					array(
 						'child_level' => $boards[$boardid]['level'] + 1,
 						'label' => $txt['mboards_order_child_of'] . ' \'' . $smcFunc['htmlspecialchars']($boards[$boardid]['name']) . '\'',
 						'href' => $scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . $context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
+						'class' => 'here',
 					),
 				);
 
