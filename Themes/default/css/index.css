@@ -2562,7 +2562,7 @@ ul.post_options li {
 	padding: 5px 10px;
 	margin: 0;
 }
-#postDraftOptions .settings dd:first-child, #postDraftOptions .settings dt:first-child{
+#postDraftOptions .settings dd:first-of-type, #postDraftOptions .settings dt:first-child{
 	border-top: none; /* Some people are OCD, like me. :P */
 }
 #postDraftOptions .settings strong{
