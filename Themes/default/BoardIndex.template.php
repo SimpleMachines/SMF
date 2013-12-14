@@ -353,7 +353,7 @@ function template_info_center()
 		echo '
 			<div class="title_barIC">
 				<h4 class="titlebg">
-					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><img class="icon" src="', $settings['images_url'], '/icons/info.png" alt="" />', $txt['forum_stats'], '</a>
+					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="stats_icon boards"></span>', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
 			<p class="inline">
