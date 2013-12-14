@@ -36,12 +36,12 @@ function template_newsfader()
 			<div id="newsfader">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<img id="newsupshrink" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;" />
+						<span id="newsupshrink" class="toggle_up floatright" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>
 						', $txt['news'], '
 					</h3>
 				</div>
 				<div class="roundframe rfix" id="smfFadeScrollerCont">
-					<ul class="reset" id="smfFadeScroller"', empty($options['collapse_news_fader']) ? '' : ' style="display: none;"', '>
+					<ul class="reset" id="smfFadeScroller">
 						<li>
 							', implode('</li><li>', $context['news_lines']), '
 						</li>

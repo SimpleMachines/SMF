@@ -284,9 +284,6 @@ form#ic_login ul li {
 #index_common_stats {
 	text-align: left;
 }
-img#upshrink_ic, img#newsupshrink {
-	float: left;
-}
 
 /* Styles for the message (topic) index.
 ---------------------------------------------------- */
