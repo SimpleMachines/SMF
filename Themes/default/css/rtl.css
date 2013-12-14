@@ -792,12 +792,6 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 	text-align: right;
 }
 /* Boards picker */
-#searchform fieldset div#searchBoardsExpand ul {
-	margin: 0 1em 0 0;
-}
-#searchform fieldset div#searchBoardsExpand li {
-	float: right;
-}
 #searchform fieldset p {
 	text-align: right;
 }
