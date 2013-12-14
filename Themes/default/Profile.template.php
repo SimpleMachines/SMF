@@ -1848,13 +1848,6 @@ function template_alert_configuration()
 				</tr>';
 	$use_bg2 = true;
 
-	// Before we get into the loop, just quickly set this up.
-	// We store these prefs, generally, as a bitwise thing to save some space.
-	$alert_bits = array(
-		'alert' => 0x01,
-		'email' => 0x02,
-	);
-
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
@@ -1922,7 +1915,7 @@ function template_alert_configuration()
 						break;
 					case 'yes':
 						echo '
-						<input type="checkbox" name="', $type, '_', $alert_id, '"', $this_value & $alert_bits[$type] != 0 ? ' checked="checked"' : '', ' />';
+						<input type="checkbox" name="', $type, '_', $alert_id, '"', $this_value & $context['alert_bits'][$type] != 0 ? ' checked="checked"' : '', ' />';
 						break;
 					case 'never':
 						echo '
@@ -1944,7 +1937,7 @@ function template_alert_configuration()
 			</table>
 			<br />
 			<div>
-				<input id="notify_submit" type="submit" value="', $txt['notify_save'], '" class="button_submit" />
+				<input id="notify_submit" type="submit" name="notify_submit" value="', $txt['notify_save'], '" class="button_submit" />
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />', !empty($context['token_check']) ? '
 				<input type="hidden" name="' . $context[$context['token_check'] . '_token_var'] . '" value="' . $context[$context['token_check'] . '_token'] . '" />' : '', '
 				<input type="hidden" name="u" value="', $context['id_member'], '" />

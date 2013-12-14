@@ -1847,6 +1847,9 @@ function alert_configuration($memID)
 	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
 
 	$context['token_check'] = 'profile-nt' . $memID;
+	is_not_guest();
+	if (!$context['user']['is_owner'])
+		isAllowedTo('profile_extra_any');
 
 	// What options are set?
 	$context['member'] += array(
@@ -1874,6 +1877,8 @@ function alert_configuration($memID)
 	// Valid values for these keys are 'always', 'yes', 'never'; if using always or never you should add a help string.
 	$alert_types = array(
 		'msg' => array(
+			'topic_notify' => array('alert' => 'yes', 'email' => 'yes'),
+			'board_notify' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_mention' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_quote' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_like' => array('alert' => 'yes', 'email' => 'never'),
@@ -1974,13 +1979,62 @@ function alert_configuration($memID)
 	$context['alert_group_options'] = $group_options;
 	$context['disabled_alerts'] = $disabled_options;
 
-	if (isset($_POST['saving or something']))
+	$context['alert_bits'] = array(
+		'alert' => 0x01,
+		'email' => 0x02,
+	);
+
+	if (isset($_POST['notify_submit']))
 	{
-		is_not_guest();
-		if (!$context['member']['is_owner'])
-			isAllowedTo('profile_extra_any');
 		checkSession('post');
 		validateToken($context['token_check'], 'post');
+
+		// We need to step through the list of valid settings and figure out what the user has set.
+		$update_prefs = array();
+
+		// Now the group level options
+		foreach ($context['alert_group_options'] as $opt_group => $group)
+		{
+			foreach ($group as $this_option)
+			{
+				switch ($this_option[0])
+				{
+					case 'check':
+						$update_prefs[$this_option[1]] = !empty($_POST['opt_' . $this_option[1]]) ? 1 : 0;
+						break;
+					case 'select':
+						if (isset($_POST['opt_' . $this_option[1]], $this_option['opts'][$_POST['opt_' . $this_option[1]]]))
+							$update_prefs[$this_option[1]] = $_POST['opt_' . $this_option[1]];
+						else
+						{
+							// We didn't have a sane value. Let's grab the first item from the possibles.
+							$keys = array_keys($this_option['opts']);
+							$first = array_shift($keys);
+							$update_prefs[$this_option[1]] = $first;
+						}
+						break;
+				}
+			}
+		}
+
+		// Now the individual options
+		foreach ($context['alert_types'] as $alert_group => $items)
+		{
+			foreach ($items as $item_key => $this_options)
+			{
+				$this_value = 0;
+				foreach ($context['alert_bits'] as $type => $bitvalue)
+				{
+					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]))
+						$this_value |= $bitvalue;
+				}
+				$update_prefs[$item_key] = $this_value;
+			}
+		}
+
+		setNotifyPrefs($memID, $update_prefs);
+		foreach ($update_prefs as $pref => $value)
+			$context['alert_prefs'][$pref] = $value;
 
 		makeNotificationChanges($memID);
 		$context['profile_updated'] = $txt['profile_updated_own'];
