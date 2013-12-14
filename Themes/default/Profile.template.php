@@ -430,12 +430,6 @@ function template_showPosts()
 			<div class="pagelinks">' . $context['page_index'] . '</div>
 		</div>' : '';
 
-	// Button shortcuts
-	$quote_button = create_button('quote.png', 'reply_quote', 'quote', 'class="centericon"');
-	$reply_button = create_button('reply_sm.png', 'reply', 'reply', 'class="centericon"');
-	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
-	$notify_button = create_button('notify_sm.png', 'notify_replies', 'notify', 'class="centericon"');
-
 	// Are we displaying posts or attachments?
 	if (!isset($context['attachments']))
 	{
@@ -532,10 +526,6 @@ function template_showDrafts()
 		<div class="pagesection">
 			<div class="pagelinks">' . $context['page_index'] . '</div>
 		</div>' : '';
-
-	// Button shortcuts
-	$edit_button = create_button('modify_inline.png', 'draft_edit', 'draft_edit', 'class="centericon"');
-	$remove_button = create_button('delete.png', 'draft_delete', 'draft_delete', 'class="centericon"');
 
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
