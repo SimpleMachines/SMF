@@ -160,15 +160,11 @@ function template_main()
 			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="floatright">
-							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><img src="', $settings['images_url'], '/expand.png" id="expandBoardsIcon" alt=""  class="icon"/></a>
-						</span>
-						<span>
-							<a href="javascript:void(0);" onclick="expandCollapseBoards(); return false;"><strong>', $txt['choose_board'], '</strong></a>
-						</span>
+						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
+						<a href="#" id="advanced_panel_link">', $txt['choose_board'], '</a>
 					</h4>
 				</div>
-				<div class="flow_auto" id="searchBoardsExpand"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
+				<div class="flow_auto" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
 					<ul class="ignoreboards floatleft">';
 
 	$i = 0;
@@ -198,7 +194,7 @@ function template_main()
 									</label>
 								</li>';
 
-			$i ++;
+			$i++;
 		}
 
 		echo '
@@ -221,6 +217,29 @@ function template_main()
 		</fieldset>';
 		}
 	echo '
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var oAdvancedPanelToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', $context['boards_check_all'] ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'advanced_panel_div\'
+			],
+			aSwapImages: [
+				{
+					sId: \'advanced_panel_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'advanced_panel_link\',
+					msgExpanded: ', JavaScriptEscape($txt['choose_board']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['choose_board']), '
+				}
+			]
+		});
+	// ]]></script>
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 		<script type="text/javascript"><!-- // --><![CDATA[
 			var oAddMemberSuggest = new smc_AutoSuggest({

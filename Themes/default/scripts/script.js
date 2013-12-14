@@ -1626,14 +1626,6 @@ function selectBoards(ids, aFormID)
 		aForm["brd" + ids[i]].checked = !toggle;
 }
 
-function expandCollapseBoards()
-{
-	var current = document.getElementById("searchBoardsExpand").style.display != "none";
-
-	$("#searchBoardsExpand").slideToggle(300);
-	document.getElementById("expandBoardsIcon").src = smf_images_url + (current ? "/expand.png" : "/collapse.png");
-}
-
 function expandCollapseLabels()
 {
 	var current = document.getElementById("searchLabelsExpand").style.display != "none";
