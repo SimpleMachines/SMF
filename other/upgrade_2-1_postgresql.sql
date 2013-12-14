@@ -352,9 +352,8 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
   PRIMARY KEY (id_member, alert_pref)
 );
 
-INSERT INTO {$db_prefix}user_alerts_prefs
-	(id_member, alert_pref, alert_value)
-VALUES (0, 'member_register', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
 ---#
 
 /******************************************************************************/
