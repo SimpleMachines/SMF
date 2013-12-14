@@ -57,7 +57,7 @@ function template_main()
 
 		if (!empty($category['move_link']))
 			echo '
-						<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><img src="', $settings['images_url'], '/smiley_select_spot.png" alt="', $category['move_link']['label'], '" /></a></li>';
+						<li><a href="', $category['move_link']['href'], '" title="', $category['move_link']['label'], '"><span class="select_spot above"></span></a></li>';
 
 		$alternate = false;
 
@@ -85,7 +85,7 @@ function template_main()
 
 				foreach ($board['move_links'] as $link)
 					echo '
-							<a href="', $link['href'], '" class="move_links" title="', $link['label'], '"><img src="', $settings['images_url'], '/board_select_spot', $link['child_level'] > 0 ? '_child' : '', '.png" alt="', $link['label'], '" style="padding: 0px; margin: 0px;" /></a>';
+							<a href="', $link['href'], '" class="move_links" title="', $link['label'], '"><span class="select_spot ', $link['class'], '" title="', $link['label'], '" style="padding: 0px; margin: 0px;"></span></a>';
 
 				echo '
 						</li>';

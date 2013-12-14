@@ -697,6 +697,22 @@ pre.file_content {
 	background-color: #eee;
 }
 
+.select_spot {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/select_spot.png) no-repeat 0 0;
+}
+.select_spot.above {
+	background-position: 0 0;
+}
+.select_spot.here {
+	background-position: -16px 0;
+}
+.select_spot.below {
+	background-position: -32px 0;
+}
+
 /* Styles for the BBC permissions
 ------------------------------------------------- */
 .list_bbc {
@@ -767,6 +783,10 @@ pre.file_content {
 #manage_boards li img {
 	vertical-align: middle;
 	padding: 0 6px 3px 6px;
+}
+#manage_boards li .select_spot {
+	vertical-align: middle;
+	margin: 0 6px 3px 6px;
 }
 #manage_boards li .floatleft {
 	font-weight: bold;
