@@ -67,9 +67,7 @@ function template_newsfader()
 					aSwapImages: [
 						{
 							sId: \'newsupshrink\',
-							srcExpanded: smf_images_url + \'/collapse.png\',
 							altExpanded: ', JavaScriptEscape($txt['hide']), ',
-							srcCollapsed: smf_images_url + \'/expand.png\',
 							altCollapsed: ', JavaScriptEscape($txt['show']), '
 						}
 					],
@@ -243,7 +241,7 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img class="icon" id="upshrink_ic" src="', $settings['images_url'], '/collapse.png" alt="*" title="', $txt['hide'], '" style="display: none;" />
+				<span class="toggle_up floatright" id="upshrink_ic" title="', $txt['hide'], '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
@@ -437,9 +435,7 @@ function template_info_center()
 			aSwapImages: [
 				{
 					sId: \'upshrink_ic\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
 					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
