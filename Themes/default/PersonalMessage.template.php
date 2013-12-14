@@ -795,7 +795,7 @@ function template_search()
 					</h4>
 				</div>
 				<div id="advanced_panel_div">
-					<ul id="searchLabelsExpand" class="reset" >';
+					<ul id="searchLabelsExpand" class="reset">';
 
 			foreach ($context['search_labels'] as $label)
 				echo '
