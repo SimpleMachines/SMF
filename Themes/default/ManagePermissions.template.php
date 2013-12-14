@@ -104,7 +104,7 @@ function template_permission_index()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<img id="permissions_panel_toggle" class="panel_toggle" style="display: none;" src="', $settings['images_url'], '/', empty($context['show_advanced_options']) ? 'collapse' : 'expand', '.png"  alt="*" />
+					<span id="permissions_panel_toggle" class="', empty($context['show_advanced_options']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
 					<a href="#" id="permissions_panel_link">', $txt['permissions_advanced_options'], '</a>
 				</h3>
 			</div>
@@ -205,9 +205,7 @@ function template_permission_index()
 			aSwapImages: [
 				{
 					sId: \'permissions_panel_toggle\',
-					srcExpanded: smf_images_url + \'/collapse.png\',
 					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					srcCollapsed: smf_images_url + \'/expand.png\',
 					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
