@@ -91,7 +91,6 @@ $txt['who_enabled'] = 'Enable who\'s online list';
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'For search engines. Leave blank for default.';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
-$txt['core_settings_saved'] = 'The settings were successfully saved';
 
 $txt['karmaMode'] = 'Karma mode';
 $txt['karma_options'] = 'Disable karma|Enable karma total|Enable karma positive/negative';

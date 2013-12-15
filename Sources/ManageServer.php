@@ -109,9 +109,6 @@ function ModifySettings()
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 	$context['sub_action'] = $_REQUEST['sa'];
 
-	// Any messages to speak of?
-	$context['settings_message'] = (isset($_REQUEST['msg']) && isset($txt[$_REQUEST['msg']])) ? $txt[$_REQUEST['msg']] : '';
-
 	// Warn the user if there's any relevant information regarding Settings.php.
 	if ($_REQUEST['sa'] != 'cache')
 	{
@@ -181,7 +178,8 @@ function ModifyGeneralSettings($return_config = false)
 		call_integration_hook('integrate_save_general_settings');
 
 		saveSettings($config_vars);
-		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']. ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Fill the config array.
@@ -237,7 +235,8 @@ function ModifyDatabaseSettings($return_config = false)
 		call_integration_hook('integrate_save_database_settings');
 
 		saveSettings($config_vars);
-		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id'] . ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id'] );
 	}
 
 	// Fill the config array.
@@ -308,6 +307,7 @@ function ModifyCookieSettings($return_config = false)
 			fatal_lang_error('invalid_cookie_domain', false);
 
 		saveSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		// If the cookie name was changed, reset the cookie.
 		if ($cookiename != $_POST['cookiename'])
@@ -325,7 +325,7 @@ function ModifyCookieSettings($return_config = false)
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
 		}
 
-		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']. ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
+		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Fill the config array.
@@ -448,6 +448,7 @@ function ModifyCacheSettings($return_config = false)
 		call_integration_hook('integrate_save_cache_settings');
 
 		saveSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		// we need to save the $cache_enable to $modSettings as well
 		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
