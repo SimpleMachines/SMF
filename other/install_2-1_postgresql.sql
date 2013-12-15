@@ -2689,9 +2689,14 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
   PRIMARY KEY (id_member, alert_pref)
 );
 
+#
+# Dumping data for table `user_alerts_prefs`
+#
+
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
+# --------------------------------------------------------
 
 #
 # Sequence for table `user_drafts`
@@ -2720,14 +2725,6 @@ CREATE TABLE {$db_prefix}user_drafts (
   to_list varchar(255) NOT NULL default '',
   PRIMARY KEY (id_draft)
 );
-
-#
-# Dumping data for table `user_alerts_prefs`
-#
-
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
-# --------------------------------------------------------
 
 #
 # Indexes for table `user_drafts`
