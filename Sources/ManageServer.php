@@ -307,7 +307,6 @@ function ModifyCookieSettings($return_config = false)
 			fatal_lang_error('invalid_cookie_domain', false);
 
 		saveSettings($config_vars);
-		$_SESSION['adm-save'] = true;
 
 		// If the cookie name was changed, reset the cookie.
 		if ($cookiename != $_POST['cookiename'])
@@ -325,6 +324,7 @@ function ModifyCookieSettings($return_config = false)
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
 		}
 
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
