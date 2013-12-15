@@ -97,9 +97,6 @@ $txt['permissions_option_on'] = 'A';
 $txt['permissions_option_off'] = 'X';
 $txt['permissions_option_deny'] = 'D';
 $txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span style="color: red;">\'Deny\' (D)</span>.<br /><br />Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br />For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
-$txt['permissions_change_view'] = 'Change View';
-$txt['permissions_view_simple'] = 'Simple';
-$txt['permissions_view_classic'] = 'Classic';
 
 $txt['permissiongroup_general'] = 'General';
 $txt['permissionname_view_stats'] = 'View forum statistics';
@@ -260,21 +257,13 @@ $txt['permissionname_poll_remove_own'] = 'Own poll';
 $txt['permissionname_poll_remove_any'] = 'Any poll';
 
 $txt['permissionname_post_draft'] = 'Save drafts of new posts';
-$txt['permissionname_simple_post_draft'] = 'Save drafts of new posts';
 $txt['permissionhelp_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
-$txt['permissionhelp_simple_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
 $txt['permissionname_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
-$txt['permissionname_simple_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
 $txt['permissionhelp_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
-$txt['permissionhelp_simple_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
 $txt['permissionname_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
-$txt['permissionname_simple_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
 $txt['permissionhelp_pm_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
-$txt['permissionhelp_simple_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
 $txt['permissionname_pm_draft'] = 'Save drafts of personal messages';
-$txt['permissionname_simple_pm_draft'] = 'Save drafts of personal messages';
 $txt['permissionhelp_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
-$txt['permissionhelp_simple_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
 
 $txt['permissiongroup_approval'] = 'Post Moderation';
 $txt['permissionname_approve_posts'] = 'Approve items awaiting moderation';
@@ -293,60 +282,6 @@ $txt['permissionname_view_attachments'] = 'View attachments';
 $txt['permissionhelp_view_attachments'] = 'Attachments are files that are attached to posted messages. This feature can be enabled and configured in \'Attachments and avatars\'. Since attachments are not directly accessed, you can protect them from being downloaded by users that don\'t have this permission.';
 $txt['permissionname_post_attachment'] = 'Post attachments';
 $txt['permissionhelp_post_attachment'] = 'Attachments are files that are attached to posted messages. One message can contain multiple attachments.';
-
-$txt['permissiongroup_simple_disable_censor'] = 'Word Censor';
-$txt['permissiongroup_simple_view_basic_info'] = 'Use basic forum functionality';
-$txt['permissiongroup_simple_use_pm_system'] = 'Contact members using the personal messaging system';
-$txt['permissiongroup_simple_post_calendar'] = 'Post events onto the calendar';
-$txt['permissiongroup_simple_edit_profile'] = 'Personalize their profile';
-$txt['permissiongroup_simple_delete_account'] = 'Delete their account';
-$txt['permissiongroup_simple_use_avatar'] = 'Select or upload an avatar';
-$txt['permissiongroup_simple_moderate_general'] = 'Moderate the entire forum';
-$txt['permissiongroup_simple_administrate'] = 'Carry out administrative duties';
-
-$txt['permissionname_simple_calendar_edit_own'] = 'Edit their own calendar events';
-$txt['permissionname_simple_calendar_edit_any'] = 'Edit other people\'s calendar events';
-$txt['permissionname_simple_profile_view'] = 'View other people\'s profiles';
-$txt['permissionname_simple_profile_identity_own'] = 'Edit their account settings';
-$txt['permissionname_simple_profile_identity_any'] = 'Edit other people\'s account settings';
-$txt['permissionname_simple_profile_extra_own'] = 'Edit their additional profile options';
-$txt['permissionname_simple_profile_extra_any'] = 'Edit other people\'s profile options';
-$txt['permissionname_simple_profile_title_own'] = 'Choose a custom title for themselves';
-$txt['permissionname_simple_profile_title_any'] = 'Edit other people\'s custom titles';
-$txt['permissionname_simple_profile_remove_own'] = 'Delete their own account';
-$txt['permissionname_simple_profile_remove_any'] = 'Delete other user\'s accounts';
-
-$txt['permissiongroup_simple_make_unapproved_posts'] = 'Post topics and replies to the board <span style="text-decoration: underline">only</span> after they have been approved';
-$txt['permissiongroup_simple_make_posts'] = 'Post topics and replies to the board';
-$txt['permissiongroup_simple_post_polls'] = 'Make new polls';
-$txt['permissiongroup_simple_participate'] = 'View additional board content';
-$txt['permissiongroup_simple_modify'] = 'Modify their posts';
-$txt['permissiongroup_simple_notification'] = 'Request notifications';
-$txt['permissiongroup_simple_attach'] = 'Post attachments';
-$txt['permissiongroup_simple_moderate'] = 'Moderate the board';
-
-$txt['permissionname_simple_post_unapproved_replies_own'] = 'Post replies to their own topic - but require approval';
-$txt['permissionname_simple_post_unapproved_replies_any'] = 'Post replies to any topic - but require approval';
-$txt['permissionname_simple_post_reply_own'] = 'Post replies to a topic they started';
-$txt['permissionname_simple_post_reply_any'] = 'Post replies to any topic';
-$txt['permissionname_simple_move_own'] = 'Move their own topics';
-$txt['permissionname_simple_move_any'] = 'Move anyone\'s topic';
-$txt['permissionname_simple_lock_own'] = 'Lock their own topic';
-$txt['permissionname_simple_lock_any'] = 'Lock anyone\'s topic';
-$txt['permissionname_simple_remove_own'] = 'Remove their own topic';
-$txt['permissionname_simple_remove_any'] = 'Remove anyone\'s topic';
-$txt['permissionname_simple_delete_own'] = 'Delete a post that they made';
-$txt['permissionname_simple_delete_any'] = 'Delete a post made by anyone';
-$txt['permissionname_simple_modify_own'] = 'Modify their own post';
-$txt['permissionname_simple_modify_any'] = 'Modify someone else\'s post';
-$txt['permissionname_simple_poll_add_own'] = 'Add a poll to a topic they created';
-$txt['permissionname_simple_poll_add_any'] = 'Add a poll to any topic';
-$txt['permissionname_simple_poll_edit_own'] = 'Edit a poll they created';
-$txt['permissionname_simple_poll_edit_any'] = 'Edit anyone\'s poll';
-$txt['permissionname_simple_poll_lock_own'] = 'Lock their own poll';
-$txt['permissionname_simple_poll_lock_any'] = 'Lock anyone\'s poll';
-$txt['permissionname_simple_poll_remove_own'] = 'Remove a poll they created';
-$txt['permissionname_simple_poll_remove_any'] = 'Remove anyone\'s poll';
 
 $txt['permissionicon'] = '';
 
