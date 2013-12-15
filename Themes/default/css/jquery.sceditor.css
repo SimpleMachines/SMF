@@ -173,6 +173,12 @@ div.sceditor-row {
 	color: #222;
 	margin: 0;
 }
+.sceditor-button.active {
+    background: #eff5fa;
+    box-shadow: 1px 1px 1px rgba(0,0,0,0.07) inset;
+    border-top: 1px solid #555;
+    border-bottom: 1px solid #555;
+}
 .sceditor-button.disabled div {
 	filter: alpha(opacity=30);
 	opacity: 0.3;
