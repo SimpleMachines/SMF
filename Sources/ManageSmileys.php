@@ -392,8 +392,7 @@ function EditSmileySets()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						global $settings;
-						return $rowData[\'selected\'] ? \'<img src="\' . $settings[\'images_url\'] . \'/icons/field_valid.png" alt="*" class="icon" />\' : \'\';
+						return $rowData[\'selected\'] ? \'<span class="field_icons valid"></span>\' : \'\';
 					'),
 					'class' => 'centercol',
 				),
