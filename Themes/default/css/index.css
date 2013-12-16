@@ -1584,11 +1584,6 @@ ul li.greeting {
 	display: inline;
 	padding: 0 0 0 4px;
 }
-/* The upshrink image needs some tweaking */
-#upshrink, #upshrink:hover {
-	padding: 5px 4px 3px 4px;
-	background: none;
-}
 
 /* The navigation list (i.e. linktree) */
 .navigate_section {
