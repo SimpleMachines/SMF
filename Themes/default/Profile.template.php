@@ -3143,14 +3143,14 @@ function template_authentication_method()
 								</dt>
 								<dd>
 									<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
-									<span id="smf_autov_pwmain_div" style="display: none;"><img id="smf_autov_pwmain_img" class="centericon" src="', $settings['images_url'], '/icons/field_invalid.png" alt="*" /></span>
+									<span id="smf_autov_pwmain_div" style="display: none;"><span id="smf_autov_pwmain_img" class="field_icons invalid centericon"></span></span>
 								</dd>
 								<dt>
 									<em>', $txt['verify_pass'], ':</em>
 								</dt>
 								<dd>
 									<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '" class="input_password" />
-									<span id="smf_autov_pwverify_div" style="display: none;"><img id="smf_autov_pwverify_img" class="centericon" src="', $settings['images_url'], '/icons/field_valid.png" alt="*" /></span>
+									<span id="smf_autov_pwverify_div" style="display: none;"><span id="smf_autov_pwverify_img" class="field_icons valid"></span></span>
 								</dd>
 							</dl>
 						</dd>
