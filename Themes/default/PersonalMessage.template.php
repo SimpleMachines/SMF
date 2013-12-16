@@ -1932,8 +1932,7 @@ function template_showPMDrafts()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/message_sm.png" alt="" class="icon" />
-					', $txt['drafts_show'], '
+				<span class="pm_icons inbox icon"></span>', $txt['drafts_show'], '
 			</h3>
 		</div>
 		<div class="pagesection">
