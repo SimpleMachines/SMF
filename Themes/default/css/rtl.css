@@ -99,7 +99,7 @@ dl.settings img {
 /* Styles for rounded headers.
 ------------------------------------------------------- */
 
-h3.catbg img.icon, h4.titlebg img.icon {
+h3.catbg .icon, h4.titlebg .icon {
 	vertical-align: middle;
 	margin: -2px 0 0 5px;
 }
@@ -107,7 +107,7 @@ h4.titlebg, h3.titlebg {
 	padding-right: 9px;
 	padding-left: 0;
 }
-h4.titlebg img.icon {
+h4.titlebg .icon {
 	float: right;
 	margin: 5px 0 0 8px;
 }

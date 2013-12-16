@@ -864,7 +864,7 @@ h3.titlebg a:hover, h4.titlebg a:hover {
 	color: #fff;
 	text-decoration: none;
 }
-h3.catbg img.icon {
+h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -882,7 +882,7 @@ h4.titlebg, h3.titlebg {
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
 }
-h4.titlebg img.icon {
+h4.titlebg .icon {
 	float: left;
 	margin: 0 8px 0 0;
 }
@@ -1696,6 +1696,30 @@ ul li.greeting {
 }
 #bot img{
 	padding: 4px;
+}
+
+/* Some of the lovely icons we might need.
+------------------------------------------------------- */
+.pm_icons {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/pm_icons.png) no-repeat 0 0;
+}
+.pm_icons.inbox {
+	background-position: 0 0;
+}
+.pm_icons.switch {
+	background-position: -16px 0;
+}
+.pm_icons.replied {
+	background-position: -32px 0;
+}
+.pm_icons.im_on {
+	background-position: -48px 0;
+}
+.pm_icons.im_off {
+	background-position: -64px 0;
 }
 
 /* Styles for the board index and child boards tables.
