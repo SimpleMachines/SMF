@@ -172,9 +172,11 @@ function template_generic_menu_tabs(&$menu_context)
 		}
 
 		// Show an icon and/or a help item?
-		if (!empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help']))
+		if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']) || !empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help']))
 		{
-			if (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
+			if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']))
+				echo '<span class="', !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'], ' icon"></span>';
+			elseif (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
 				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon" />';
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))

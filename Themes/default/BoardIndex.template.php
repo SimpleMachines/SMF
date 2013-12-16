@@ -411,7 +411,7 @@ function template_info_center()
 		echo '
 			<div class="title_barIC">
 				<h4 class="titlebg">
-					', $context['allow_pm'] ? '<a href="' . $scripturl . '?action=pm">' : '', '<img class="icon" src="', $settings['images_url'], '/message_sm.png" alt="" />', $txt['personal_message'], '', $context['allow_pm'] ? '</a>' : '', '
+					', $context['allow_pm'] ? '<a href="' . $scripturl . '?action=pm">' : '', '<span class="pm_icons inbox icon"></span>', $txt['personal_message'], '', $context['allow_pm'] ? '</a>' : '', '
 				</h4>
 			</div>
 			<p class="pminfo">
