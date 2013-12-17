@@ -215,6 +215,10 @@ $txt['move_topics_from'] = 'Move topics from';
 $txt['move_topics_to'] = 'to';
 $txt['move_topics_now'] = 'Move now';
 $txt['move_topics_confirm'] = 'Are you sure you want to move ALL the topics from &quot;%board_from%&quot; to &quot;%board_to%&quot;?';
+$txt['move_topics_older_than'] = 'Move topics not posted in for ';
+$txt['move_type_sticky'] = 'Sticky topics';
+$txt['move_type_locked'] = 'Locked topics';
+$txt['move_zero_all'] = 'Enter 0 to move all topics';
 
 $txt['maintain_reattribute_posts'] = 'Reattribute User Posts';
 $txt['reattribute_guest_posts'] = 'Attribute guest posts made with';

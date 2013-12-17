@@ -1881,23 +1881,61 @@ function MaintainMassMoveTopics()
 	$context['start_time'] = time();
 
 	// First time we do this?
-	$id_board_from = isset($_POST['id_board_from']) ? (int) $_POST['id_board_from'] : (int) $_REQUEST['id_board_from'];
-	$id_board_to = isset($_POST['id_board_to']) ? (int) $_POST['id_board_to'] : (int) $_REQUEST['id_board_to'];
+	$id_board_from = isset($_REQUEST['id_board_from']) ? (int) $_REQUEST['id_board_from'] : 0;
+	$id_board_to = isset($_REQUEST['id_board_to']) ? (int) $_REQUEST['id_board_to'] : 0;
+	$max_days = isset($_REQUEST['maxdays']) ? (int) $_REQUEST['maxdays'] : 0;
+	$locked = isset($_POST['move_type_locked']) || isset($_GET['locked']);
+	$sticky = isset($_POST['move_type_sticky']) || isset($_GET['sticky']);
+	$join = '';
 
 	// No boards then this is your stop.
 	if (empty($id_board_from) || empty($id_board_to))
 		return;
+
+	// The big WHERE clause
+	$condition = 'WHERE t.id_board = {int:id_board_from}
+		AND t.id_redirect_topic = {int:not_redirect}';
+
+	// DB parameters
+	$params = array(
+		'id_board_from' => $id_board_from,
+		'not_redirect' => 0,
+	);
+
+	// Only moving topics not posted in for x days?
+	if (!empty($max_days))
+	{
+		$join = '	INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)';
+		$condition .= '
+			AND m.poster_time < {int:poster_time}';
+		$params['poster_time'] = time() - 3600 * 24 * $max_days;
+	}
+
+	// Moving locked topics?
+	if ($locked)
+	{
+		$condition .= '
+			AND t.locked = {int:locked}';
+		$params['locked'] = 1;	
+	}
+
+	// What about sticky topics?
+	if ($sticky)
+	{
+		$condition .= '
+			AND t.sticky = {int:sticky}';
+		$params['sticky'] = 1;
+	}
 
 	// How many topics are we converting?
 	if (!isset($_REQUEST['totaltopics']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
-			FROM {db_prefix}topics
-			WHERE id_board = {int:id_board_from}',
-			array(
-				'id_board_from' => $id_board_from,
-			)
+			FROM {db_prefix}topics AS t
+			' . $join .
+			$conditions,
+			$params
 		);
 		list ($total_topics) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
@@ -1906,7 +1944,15 @@ function MaintainMassMoveTopics()
 		$total_topics = (int) $_REQUEST['totaltopics'];
 
 	// Seems like we need this here.
-	$context['continue_get_data'] = '?action=admin;area=maintain;sa=topics;activity=massmove;id_board_from=' . $id_board_from . ';id_board_to=' . $id_board_to . ';totaltopics=' . $total_topics . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
+	$context['continue_get_data'] = '?action=admin;area=maintain;sa=topics;activity=massmove;id_board_from=' . $id_board_from . ';id_board_to=' . $id_board_to . ';totaltopics=' . $total_topics . ';max_days=' . $max_days;
+
+	if ($locked)
+		$context['continue_get_data'] .= ';locked';
+
+	if ($sticky)
+		$context['continue_get_data'] .= ';sticky';
+
+	$context['continue_get_data'] .= ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
 
 	// We have topics to move so start the process.
 	if (!empty($total_topics))
@@ -1915,13 +1961,12 @@ function MaintainMassMoveTopics()
 		{
 			// Lets get the topics.
 			$request = $smcFunc['db_query']('', '
-				SELECT id_topic
-				FROM {db_prefix}topics
-				WHERE id_board = {int:id_board_from}
+				SELECT t.id_topic
+				FROM {db_prefix}topics AS t
+				' . $join
+				. $conditions . '
 				LIMIT 10',
-				array(
-					'id_board_from' => $id_board_from,
-				)
+				$params
 			);
 
 			// Get the ids.
