@@ -1968,10 +1968,9 @@ p.whoisviewing {
 	font-size: 0.9em;
 	padding: 0 2px;
 }
-.lastpost img {
+.lastpost span.last_post {
 	float: right;
-	padding: 4px;
-	margin-top: 4px;
+	margin: 4px;
 }
 .titlebg td.qaction_cell {
 	font-size: 0.909em;

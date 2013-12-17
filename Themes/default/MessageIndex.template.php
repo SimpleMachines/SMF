@@ -269,7 +269,7 @@ function template_main()
 						', $topic['views'], ' ', $txt['views'], '
 					</td>
 					<td class="', $alternate_class, ' lastpost">
-						<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" /></a>
+						<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></span></a>
 						', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 					</td>';
 
