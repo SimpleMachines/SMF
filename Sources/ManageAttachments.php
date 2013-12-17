@@ -312,7 +312,6 @@ function ManageAvatarSettings($return_config = false)
 			array('warning', 'avatar_paranoid_warning'),
 			array('check', 'avatar_paranoid'),
 		'',
-			array('select', 'custom_avatar_enabled', array($txt['option_attachment_dir'], $txt['option_specified_dir']), 'onchange' => 'fUpdateStatus();'),
 			array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
 			array('text', 'custom_avatar_url', 40),
 	);
@@ -330,8 +329,8 @@ function ManageAvatarSettings($return_config = false)
 	{
 		checkSession();
 
-		// Just incase the admin forgot to set both custom avatar values, we disable it to prevent errors.
-		if (isset($_POST['custom_avatar_enabled']) && $_POST['custom_avatar_enabled'] == 1 && (empty($_POST['custom_avatar_dir']) || empty($_POST['custom_avatar_url'])))
+		// Just in case the admin forgot to set both custom avatar values, we disable it to prevent errors.
+		if (empty($_POST['custom_avatar_dir']) || empty($_POST['custom_avatar_url']))
 			$_POST['custom_avatar_enabled'] = 0;
 
 		call_integration_hook('integrate_save_avatar_settings');
@@ -342,7 +341,7 @@ function ManageAvatarSettings($return_config = false)
 	}
 
 	// Attempt to figure out if the admin is trying to break things.
-	$context['settings_save_onclick'] = 'return document.getElementById(\'custom_avatar_enabled\').value == 1 && (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
+	$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
 
 	// We need this for the in-line permissions
 	createToken('admin-mp');
