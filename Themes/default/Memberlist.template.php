@@ -78,7 +78,7 @@ function template_main()
 
 		if (!isset($context['disabled_fields']['website']))
 			echo '
-					<td class="centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><img src="' . $settings['images_url'] . '/www.png" alt="' . $member['website']['title'] . '" title="' . $member['website']['title'] . '" /></a>' : '', '</td>';
+					<td class="centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 		// ICQ?
 		if (!isset($context['disabled_fields']['icq']))
