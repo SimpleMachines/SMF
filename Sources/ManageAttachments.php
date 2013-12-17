@@ -272,6 +272,7 @@ function ManageAttachmentSettings($return_config = false)
 function ManageAvatarSettings($return_config = false)
 {
 	global $txt, $context, $modSettings, $sourcedir, $scripturl;
+	global $boarddir, $boardurl;
 
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
@@ -329,9 +330,12 @@ function ManageAvatarSettings($return_config = false)
 	{
 		checkSession();
 
-		// Just in case the admin forgot to set both custom avatar values, we disable it to prevent errors.
-		if (empty($_POST['custom_avatar_dir']) || empty($_POST['custom_avatar_url']))
-			$_POST['custom_avatar_enabled'] = 0;
+		// These settings cannot be left empty!
+		if (empty($_POST['custom_avatar_dir']))
+			$_POST['custom_avatar_dir'] = $boarddir .'/custom_avatar';
+
+		if (empty($_POST['custom_avatar_url']))
+			$_POST['custom_avatar_url'] = $boardurl .'/custom_avatar';
 
 		call_integration_hook('integrate_save_avatar_settings');
 
