@@ -2998,6 +2998,39 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	border-width: 1px 0 1px 1px;
 }
 
+/* Some lovely generic icons.
+------------------------------------------------- */
+.generic_icons {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/generic_icons.png) no-repeat 0 0;
+}
+.generic_icons.user_on {
+	background-position: 0 0;
+}
+.generic_icons.user_off {
+	background-position: 0 -16px;
+}
+.generic_icons.gender_female {
+	background-position: -16px 0;
+}
+.generic_icons.gender_male {
+	background-position: -16px -16px;
+}
+.generic_icons.last_post {
+	background-position: -32px 0;
+}
+.generic_icons.www {
+	background-position: -32px -16px;
+}
+.generic_icons.mail {
+	background-position: -48px 0;
+}
+.generic_icons.mail_new {
+	background-position: -48px -16px;
+}
+
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
