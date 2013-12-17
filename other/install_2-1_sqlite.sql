@@ -1945,6 +1945,8 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('autoLinkUrls', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('banLastUpdated', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smileys_dir', '{$boarddir}/Smileys');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smileys_url', '{$boardurl}/Smileys');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('custom_avatar_dir', '{$boarddir}/custom_avatar');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('custom_avatar_url', '{$boardurl}/custom_avatar');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_directory', '{$boarddir}/avatars');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_url', '{$boardurl}/avatars');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_max_height_external', '65');
