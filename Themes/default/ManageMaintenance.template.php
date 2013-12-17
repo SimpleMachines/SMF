@@ -516,6 +516,13 @@ function template_maintain_topics()
 	}
 	echo '
 					</select></p>
+					<p>
+						', $txt['move_topics_older_than'], '<input type="text" name="maxdays" value="30" size="3" />', $txt['manageposts_days'], '&nbsp;(', $txt['move_zero_all'], ')
+					</p>
+					<p>
+						<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" class="input_check" checked="checked" /> ', $txt['move_type_locked'], '</label><br />
+						<label for="move_type_sticky"><input type="checkbox" name="move_type_sticky" id="move_type_sticky" class="input_check" /> ', $txt['move_type_sticky'], '</label><br />
+					</p>
 					<input type="submit" value="', $txt['move_topics_now'], '" onclick="if (document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].disabled || document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_to\').selectedIndex].disabled) return false; var confirmText = \'', $txt['move_topics_confirm'] . '\'; return confirm(confirmText.replace(/%board_from%/, document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')).replace(/%board_to%/, document.getElementById(\'id_board_to\').options[document.getElementById(\'id_board_to\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')));" class="button_submit" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
