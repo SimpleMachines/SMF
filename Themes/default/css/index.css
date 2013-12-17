@@ -3435,7 +3435,7 @@ img.centericon {
 .stats_icon.posters {
 	background-position: -16px 0;
 }
-.stats_icon.replies, .stats_icon.starters {
+.stats_icon.replies {
 	background-position: -32px 0;
 }
 .stats_icon.history {
@@ -3443,6 +3443,9 @@ img.centericon {
 }
 .stats_icon.views {
 	background-position: -64px 0;
+}
+.stats_icon.starters, .stats_icon.people {
+	background-position: -80px 0;
 }
 dl.stats {
 	clear: both;
