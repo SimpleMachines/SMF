@@ -1886,27 +1886,25 @@ function MaintainMassMoveTopics()
 	$max_days = isset($_REQUEST['maxdays']) ? (int) $_REQUEST['maxdays'] : 0;
 	$locked = isset($_POST['move_type_locked']) || isset($_GET['locked']);
 	$sticky = isset($_POST['move_type_sticky']) || isset($_GET['sticky']);
-	$join = '';
 
 	// No boards then this is your stop.
 	if (empty($id_board_from) || empty($id_board_to))
 		return;
 
 	// The big WHERE clause
-	$condition = 'WHERE t.id_board = {int:id_board_from}
-		AND t.id_redirect_topic = {int:not_redirect}';
+	$conditions = 'WHERE t.id_board = {int:id_board_from}
+		AND m.icon != {string:moved}';
 
 	// DB parameters
 	$params = array(
 		'id_board_from' => $id_board_from,
-		'not_redirect' => 0,
+		'moved' => 'moved',
 	);
 
 	// Only moving topics not posted in for x days?
 	if (!empty($max_days))
 	{
-		$join = '	INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)';
-		$condition .= '
+		$conditions .= '
 			AND m.poster_time < {int:poster_time}';
 		$params['poster_time'] = time() - 3600 * 24 * $max_days;
 	}
@@ -1914,7 +1912,7 @@ function MaintainMassMoveTopics()
 	// Moving locked topics?
 	if ($locked)
 	{
-		$condition .= '
+		$conditions .= '
 			AND t.locked = {int:locked}';
 		$params['locked'] = 1;	
 	}
@@ -1922,7 +1920,7 @@ function MaintainMassMoveTopics()
 	// What about sticky topics?
 	if ($sticky)
 	{
-		$condition .= '
+		$conditions .= '
 			AND t.sticky = {int:sticky}';
 		$params['sticky'] = 1;
 	}
@@ -1933,7 +1931,7 @@ function MaintainMassMoveTopics()
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}topics AS t
-			' . $join .
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)' .
 			$conditions,
 			$params
 		);
@@ -1963,8 +1961,8 @@ function MaintainMassMoveTopics()
 			$request = $smcFunc['db_query']('', '
 				SELECT t.id_topic
 				FROM {db_prefix}topics AS t
-				' . $join
-				. $conditions . '
+					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)
+				' . $conditions . '
 				LIMIT 10',
 				$params
 			);
