@@ -1331,7 +1331,7 @@ img.sort, .sort {
 
 /* The extra menu rows for admin sections, etc. */
 #adm_submenus {
-	margin: 0;
+	margin: 0 0 6px 0;
 	padding: 10px 15px 0 15px;
 	overflow: hidden;
 }

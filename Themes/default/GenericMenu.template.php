@@ -232,8 +232,7 @@ function template_generic_menu_tabs(&$menu_context)
 		// the end of tabs
 		echo '
 						</ul>
-					</div>
-					<br class="clear" />';
+					</div>';
 
 	}
 }
