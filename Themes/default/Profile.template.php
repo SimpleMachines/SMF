@@ -590,7 +590,7 @@ function template_editBuddies()
 	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/online.png" alt="" class="icon" />', $txt['editBuddies'], '
+				<span class="stats_icon people icon"></span>', $txt['editBuddies'], '
 			</h3>
 		</div>
 		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
