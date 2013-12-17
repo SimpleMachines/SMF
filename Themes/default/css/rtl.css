@@ -615,6 +615,9 @@ div#admin_menu {
 #info_center .cat_bar, .table_grid tr.catbg th, #searchform .roundframe .title_bar {
 	text-align: right;
 }
+.message_index_title {
+	margin-left: 40px;
+}
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 .errorbox p.alert {

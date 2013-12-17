@@ -1171,7 +1171,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'blurb' => $profile['personal_text'],
 			'gender' => array(
 				'name' => $gendertxt,
-				'image' => !empty($profile['gender']) ? '<img class="gender" src="' . $settings['images_url'] . '/' . ($profile['gender'] == 1 ? 'Male' : 'Female') . '.png" alt="' . $gendertxt . '" />' : ''
+				'image' => !empty($profile['gender']) ? '<span class="generic_icons ' . ($profile['gender'] == 1 ? 'gender_male' : 'gender_female') . '" title="' . $gendertxt . '"></span>' : ''
 			),
 			'website' => array(
 				'title' => $profile['website_title'],

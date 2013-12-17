@@ -421,7 +421,10 @@ function smc_Popup(oOptions)
 smc_Popup.prototype.show = function ()
 {
 	popup_class = 'popup_window ' + (this.opt.custom_class ? this.opt.custom_class : 'description');
-	icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt="" /> ' : '';
+	if (this.opt.icon_class)
+		icon = '<span class="' + this.opt.icon_class + '"></span> ';
+	else
+		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt="" /> ' : '';
 
 	// Create the div that will be shown
 	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');

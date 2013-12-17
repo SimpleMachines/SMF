@@ -83,7 +83,7 @@ function template_pm_popup()
 				<div class="avatar floatleft">', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '</div>
 				<div class="details floatleft">
 					<div class="subject">', $pm_details['pm_link'], '</div>
-					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="pm_icons replied" style="margin-right: 4px;" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<img src="' . $settings['images_url'] . '/icons/pm_read.png" style="margin-right: 4px;" alt="' . $txt['pm_was_sent_to_you'] . '" title="' . $txt['pm_was_sent_to_you'] . '" />',
+					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="pm_icons replied" style="margin-right: 4px; vertical-align: middle" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="pm_icons im_off" style="margin-right: 4px; vertical-align: middle" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
 					!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '</div>
 				</div>
 				<br class="clear" />
@@ -367,7 +367,7 @@ function template_folder()
 					// Don't show an icon if they haven't specified a website.
 					if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
 						echo '
-						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/www.png" alt="' . $message['member']['website']['title'] . '" />' : $txt['www']), '</a></li>';
+						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $message['member']['website']['title'] . '" style="vertical-align:middle"></span>' : $txt['www']), '</a></li>';
 
 					// Don't show the email address if they want it hidden.
 					if (in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')) && $context['can_send_email'])
@@ -643,7 +643,7 @@ function template_subject_list()
 		echo '
 				};
 			// ]]></script>
-				', $message['is_replied_to'] ? '<span class="pm_icons replied" title="' . $txt['pm_replied'] . '" style="margin-right: 4px;"></span>' : '<img src="' . $settings['images_url'] . '/icons/pm_read.png" style="margin-right: 4px;" alt="' . $txt['pm_read'] . '" />', '</td>
+				', $message['is_replied_to'] ? '<span class="pm_icons replied" title="' . $txt['pm_replied'] . '"></span>' : '<span class="pm_icons im_off" title="' . $txt['pm_read'] . '"></span>', '</td>
 			<td>', $message['time'], '</td>
 			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*" />' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>

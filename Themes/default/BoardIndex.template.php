@@ -367,7 +367,7 @@ function template_info_center()
 	echo '
 			<div class="title_barIC">
 				<h4 class="titlebg">
-						', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<img class="icon" src="', $settings['images_url'], '/icons/online.png', '" alt="" />', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
+						', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="stats_icon people"></span>', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
 					</h4>
 			</div>
 			<p class="inline">

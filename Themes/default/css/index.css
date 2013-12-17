@@ -1968,10 +1968,9 @@ p.whoisviewing {
 	font-size: 0.9em;
 	padding: 0 2px;
 }
-.lastpost img {
+.lastpost span.last_post {
 	float: right;
-	padding: 4px;
-	margin-top: 4px;
+	margin: 4px;
 }
 .titlebg td.qaction_cell {
 	font-size: 0.909em;
@@ -2968,6 +2967,9 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .topic_table td.locked_sticky2, .topic_table td.stickybglockedbg2 {
 	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
 }
+.message_index_title {
+	margin-right: 40px;
+}
 
 /* Plain locked topics just get the icon. */
 /* Nobody wants them to stand out much. */
@@ -2993,6 +2995,39 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	font-weight: bold;
 	border: 1px solid black;
 	border-width: 1px 0 1px 1px;
+}
+
+/* Some lovely generic icons.
+------------------------------------------------- */
+.generic_icons {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background: url(../images/generic_icons.png) no-repeat 0 0;
+}
+.generic_icons.user_on {
+	background-position: 0 0;
+}
+.generic_icons.user_off {
+	background-position: 0 -16px;
+}
+.generic_icons.gender_female {
+	background-position: -16px 0;
+}
+.generic_icons.gender_male {
+	background-position: -16px -16px;
+}
+.generic_icons.last_post {
+	background-position: -32px 0;
+}
+.generic_icons.www {
+	background-position: -32px -16px;
+}
+.generic_icons.mail {
+	background-position: -48px 0;
+}
+.generic_icons.mail_new {
+	background-position: -48px -16px;
 }
 
 /* Styles for (fatal) errors.
@@ -3435,7 +3470,7 @@ img.centericon {
 .stats_icon.posters {
 	background-position: -16px 0;
 }
-.stats_icon.replies, .stats_icon.starters {
+.stats_icon.replies {
 	background-position: -32px 0;
 }
 .stats_icon.history {
@@ -3443,6 +3478,9 @@ img.centericon {
 }
 .stats_icon.views {
 	background-position: -64px 0;
+}
+.stats_icon.starters, .stats_icon.people {
+	background-position: -80px 0;
 }
 dl.stats {
 	clear: both;
