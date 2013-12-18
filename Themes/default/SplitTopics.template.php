@@ -276,7 +276,7 @@ function template_merge()
 							', $context['origin_subject'], '
 						</dd>';
 
-	if ($context['num_boards'] > 1)
+	if (isset($context['merge_categories']))
 	{
 			echo '
 						<dt>
@@ -294,7 +294,7 @@ function template_merge()
 				foreach ($cat['boards'] as $board)
 				{
 					echo '
-										<option value="', $board['id'], '"', $board['id'] == $context['target_board'] ? ' selected="selected"' : '', '>', $board['category'], ' - ', $board['name'], '</option>';
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 				}
 
 				echo '

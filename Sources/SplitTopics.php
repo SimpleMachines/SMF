@@ -830,7 +830,7 @@ function MergeTopics()
  */
 function MergeIndex()
 {
-	global $txt, $board, $context, $smcFunc;
+	global $txt, $board, $context, $smcFunc, $sourcedir;
 	global $scripturl, $topic, $user_info, $modSettings;
 
 	if (!isset($_GET['from']))
@@ -898,39 +898,23 @@ function MergeIndex()
 	if (empty($merge_boards))
 		fatal_lang_error('cannot_merge_any', 'user');
 
-	// Get a list of boards they can navigate to to merge.
-	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name AS board_name, c.id_cat, c.name AS cat_name
-		FROM {db_prefix}boards AS b
-			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-		WHERE {query_see_board}' . (!in_array(0, $merge_boards) ? '
-			AND b.id_board IN ({array_int:merge_boards})' : ''),
-		array(
-			'merge_boards' => $merge_boards,
-		)
-	);
-	$context['boards'] = array();
-	$context['num_boards'] = 0;
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	// No sense in loading this if you can only merge on this board
+	if (count($merge_boards) > 1 || in_array(0, $merge_boards))
 	{
-		if (!isset($context['merge_categories'][$row['id_cat']]))
-		{
-			$context['merge_categories'][$row['id_cat']] = array(
-				'id' => $row['id_cat'],
-				'name' => $row['cat_name'],
-				'boards' => array(),
-			);
-		}
+		require_once($sourcedir . '/Subs-MessageIndex.php');
 
-		$context['merge_categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
-			'id' => $row['id_board'],
-			'name' => $row['board_name'],
+		// Set up a couple of options for our board list
+		$options = array(
+			'not_redirection' => true,
+			'selected_board' => $context['target_board'],
 		);
+	
+		// Only include these boards in the list (0 means you're an admin')
+		if (!in_array(0, $merge_boards))
+			$options['included_boards'] = $merge_boards;
 
-		$context['num_boards']++;
+		$context['merge_categories'] = getBoardList($options);
 	}
-
-	$smcFunc['db_free_result']($request);
 
 	// Get some topics to merge it with.
 	$request = $smcFunc['db_query']('', '
