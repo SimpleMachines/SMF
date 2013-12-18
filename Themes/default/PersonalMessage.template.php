@@ -83,7 +83,7 @@ function template_pm_popup()
 				<div class="avatar floatleft">', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '</div>
 				<div class="details floatleft">
 					<div class="subject">', $pm_details['pm_link'], '</div>
-					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="pm_icons replied" style="margin-right: 4px; vertical-align: middle" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="pm_icons im_off" style="margin-right: 4px; vertical-align: middle" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
+					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="pm_icons replied centericon" style="margin-right: 4px" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="pm_icons im_off centericon" style="margin-right: 4px" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
 					!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '</div>
 				</div>
 				<br class="clear" />
@@ -367,17 +367,17 @@ function template_folder()
 					// Don't show an icon if they haven't specified a website.
 					if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
 						echo '
-						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $message['member']['website']['title'] . '" style="vertical-align:middle"></span>' : $txt['www']), '</a></li>';
+						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 					// Don't show the email address if they want it hidden.
 					if (in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')) && $context['can_send_email'])
 						echo '
-						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail icon" title="' . $txt['email'] . '" style="vertical-align:middle"></span>' : $txt['email']), '</a></li>';
+						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 					// Since we know this person isn't a guest, you *can* message them.
 					if ($context['can_send_pm'])
 						echo '
-						<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="pm_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . '" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '" style="vertical-align:middle"></span>' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+						<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="pm_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span>' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
 
 					echo '
 					</ol>
