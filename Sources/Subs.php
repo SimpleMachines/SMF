@@ -3123,8 +3123,12 @@ function template_header()
 		if (in_array($layer, array('body', 'main')) && allowedTo('admin_forum') && !$user_info['is_guest'] && !$checked_securityFiles)
 		{
 			$checked_securityFiles = true;
-			// @todo add a hook here
+
 			$securityFiles = array('install.php', 'webinstall.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
+
+			// Add your own files.
+			call_integration_hook('integrate_security_files', array(&$securityFiles));
+
 			foreach ($securityFiles as $i => $securityFile)
 			{
 				if (!file_exists($boarddir . '/' . $securityFile))
@@ -3394,9 +3398,9 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		$smcFunc['db_free_result']($request);
 	}
 
-	// In case of files from the old system, do a legacy call.
+	// Still no hash? mmm...
 	if (empty($file_hash))
-		return getLegacyAttachmentFilename($filename, $attachment_id, $dir, $new);
+		$file_hash = sha1(md5($filename . time()) . mt_rand());
 
 	// Are we using multiple directories?
 	if (!empty($modSettings['currentAttachmentUploadDir']))
@@ -3408,60 +3412,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	else
 		$path = $modSettings['attachmentUploadDir'];
 
-	return $path . '/' . $attachment_id . '_' . $file_hash;
-}
-
-/**
- * Older attachments may still use this function.
- *
- * @param $filename
- * @param $attachment_id
- * @param $dir
- * @param $new
- */
-function getLegacyAttachmentFilename($filename, $attachment_id, $dir = null, $new = false)
-{
-	global $modSettings, $db_character_set;
-
-	$clean_name = $filename;
-	// Remove international characters (windows-1252)
-	// These lines should never be needed again. Still, behave.
-	if (empty($db_character_set) || $db_character_set != 'utf8')
-	{
-		$clean_name = strtr($filename,
-			"\x8a\x8e\x9a\x9e\x9f\xc0\xc1\xc2\xc3\xc4\xc5\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd1\xd2\xd3\xd4\xd5\xd6\xd8\xd9\xda\xdb\xdc\xdd\xe0\xe1\xe2\xe3\xe4\xe5\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xff",
-			'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
-		$clean_name = strtr($clean_name, array("\xde" => 'TH', "\xfe" =>
-			'th', "\xd0" => 'DH', "\xf0" => 'dh', "\xdf" => 'ss', "\x8c" => 'OE',
-			"\x9c" => 'oe', "\xc6" => 'AE', "\xe6" => 'ae', "\xb5" => 'u'));
-	}
-	// Sorry, no spaces, dots, or anything else but letters allowed.
-	$clean_name = preg_replace(array('/\s/', '/[^\w_\.\-]/'), array('_', ''), $clean_name);
-
-	$enc_name = $attachment_id . '_' . strtr($clean_name, '.', '_') . md5($clean_name);
-	$clean_name = preg_replace('~\.[\.]+~', '.', $clean_name);
-
-	if ($attachment_id == false || ($new && empty($modSettings['attachmentEncryptFilenames'])))
-		return $clean_name;
-	elseif ($new)
-		return $enc_name;
-
-	// Are we using multiple directories?
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-		$path = $modSettings['attachmentUploadDir'][$dir];
-	}
-	else
-		$path = $modSettings['attachmentUploadDir'];
-
-	if (file_exists($path . '/' . $enc_name))
-		$filename = $path . '/' . $enc_name;
-	else
-		$filename = $path . '/' . $clean_name;
-
-	return $filename;
+	return $path . '/' . $attachment_id . '_' . $file_hash .'.dat';
 }
 
 /**

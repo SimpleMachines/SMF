@@ -1355,7 +1355,7 @@ function RepairAttachments()
 					if (!empty($modSettings['currentAttachmentUploadDir']))
 					{
 						// Get the attachment name with out the folder.
-						$attachment_name = !empty($row['file_hash']) ? $row['id_attach'] . '_' . $row['file_hash'] : getLegacyAttachmentFilename($row['filename'], $row['id_attach'], null, true);
+						$attachment_name = $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 
 						if (!is_array($modSettings['attachmentUploadDir']))
 							$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
