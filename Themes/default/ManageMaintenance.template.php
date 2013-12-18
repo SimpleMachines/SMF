@@ -493,7 +493,8 @@ function template_maintain_topics()
 			echo '
 							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
 
-		echo '			</optgroup>';
+		echo '
+						</optgroup>';
 	}
 
 	echo '
