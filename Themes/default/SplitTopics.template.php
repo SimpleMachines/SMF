@@ -276,7 +276,7 @@ function template_merge()
 							', $context['origin_subject'], '
 						</dd>';
 
-	if (!empty($context['boards']) && count($context['boards']) > 1)
+	if (count($context['num_boards']) > 1)
 	{
 			echo '
 						<dt>
@@ -286,9 +286,20 @@ function template_merge()
 							<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '">
 								<input type="hidden" name="from" value="' . $context['origin_topic'] . '" />
 								<select name="targetboard" onchange="this.form.submit();">';
-			foreach ($context['boards'] as $board)
+			foreach ($context['merge_categories'] as $cat)
+			{
 				echo '
-									<option value="', $board['id'], '"', $board['id'] == $context['target_board'] ? ' selected="selected"' : '', '>', $board['category'], ' - ', $board['name'], '</option>';
+									<optgroup label="', $cat['name'], '">';
+
+				foreach ($cat['boards'] as $board)
+				{
+					echo '
+										<option value="', $board['id'], '"', $board['id'] == $context['target_board'] ? ' selected="selected"' : '', '>', $board['category'], ' - ', $board['name'], '</option>';
+				}
+
+				echo '
+									</optgroup>';
+			}
 			echo '
 								</select>
 								<input type="submit" value="', $txt['go'], '" class="button_submit" />
