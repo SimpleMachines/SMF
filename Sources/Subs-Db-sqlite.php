@@ -317,9 +317,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'boardindex_fetch_boards' => array(
 			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
-		'messageindex_fetch_boards' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
 		'order_by_board_order' => array(
 			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
