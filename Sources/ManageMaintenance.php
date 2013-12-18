@@ -2324,12 +2324,12 @@ function list_integration_hooks()
 		),
 		'data' => array(
 			'function' => create_function('$data', '
-				global $txt, $settings, $scripturl, $context;
+				global $txt, $scripturl, $context;
 
 				if (!$data[\'hook_exists\'])
 					return \'
-					<a href="\' . $scripturl . \'?action=admin;area=maintain;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">
-						<img src="\' . $settings[\'images_url\'] . \'/icons/quick_remove.png" alt="\' . $txt[\'hooks_button_remove\'] . \'" title="\' . $txt[\'hooks_button_remove\'] . \'" />
+					<a href="\' . $scripturl . \'?action=admin;area=maintain;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . JavaScriptEscape($txt[\'quickmod_confirm\']) . \');">
+						<span class="generic_icons delete" title="\' . $txt[\'hooks_button_remove\'] . \'"></span>
 					</a>\';
 			'),
 			'class' => 'centertext',
