@@ -487,13 +487,13 @@ function template_maintain_topics()
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-						<option disabled="disabled">--------------------------------------</option>
-						<option disabled="disabled">', $category['name'], '</option>
-						<option disabled="disabled">--------------------------------------</option>';
+						<optgroup label="', $category['name'], '">';
 
 		foreach ($category['boards'] as $board)
 			echo '
-						<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+
+		echo '			</optgroup>';
 	}
 
 	echo '
@@ -506,13 +506,14 @@ function template_maintain_topics()
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-						<option disabled="disabled">--------------------------------------</option>
-						<option disabled="disabled">', $category['name'], '</option>
-						<option disabled="disabled">--------------------------------------</option>';
+						<optgroup label="', $category['name'], '">';
 
 		foreach ($category['boards'] as $board)
 			echo '
-						<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+
+		echo '
+						</optgroup>';
 	}
 	echo '
 					</select></p>

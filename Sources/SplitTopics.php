@@ -900,7 +900,7 @@ function MergeIndex()
 
 	// Get a list of boards they can navigate to to merge.
 	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name AS board_name, c.name AS cat_name
+		SELECT b.id_board, b.name AS board_name, c.id_cat, c.name AS cat_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 		WHERE {query_see_board}' . (!in_array(0, $merge_boards) ? '
@@ -910,12 +910,26 @@ function MergeIndex()
 		)
 	);
 	$context['boards'] = array();
+	$context['num_boards'] = 0;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['boards'][] = array(
+	{
+		if (!isset($context['merge_categories'][$row['id_cat']]))
+		{
+			$context['merge_categories'][$row['id_cat']] = array(
+				'id' => $row['id_cat'],
+				'name' => $row['cat_name'],
+				'boards' => array(),
+			);
+		}
+
+		$context['merge_categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
 			'id' => $row['id_board'],
 			'name' => $row['board_name'],
-			'category' => $row['cat_name']
 		);
+
+		$context['num_boards']++;
+	}
+
 	$smcFunc['db_free_result']($request);
 
 	// Get some topics to merge it with.
