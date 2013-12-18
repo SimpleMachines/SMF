@@ -966,8 +966,8 @@ function template_package_list()
 		</div>
 		<div class="padding smalltext floatleft">
 			', $txt['package_installed_key'], '
-			<img src="', $settings['images_url'], '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-			<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+			<span class="generic_icons current centericon" style="margin-left: 1ex;"></span> ', $txt['package_installed_current'], '
+			<span class="generic_icons old centericon" style="margin-left: 2ex;"></span> ', $txt['package_installed_old'], '
 		</div>
 	</div>
 

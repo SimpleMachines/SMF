@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 ---#
 
 ---# Adding alert preferences.
-CREATE TABLE {$db_prefix}user_alerts_prefs (
+CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
   id_member mediumint(8) unsigned NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
   alert_value tinyint(3) NOT NULL default '0',
@@ -935,8 +935,15 @@ ADD COLUMN modified_reason varchar(255) NOT NULL;
 ---{
 	if (empty($modSettings['mail_limit']))
 	{
-		$data = array("('mail_limit', '5')", "('mail_quantity', '5')");
-		$smcFunc['db_insert']('', '{db_prefix}settings' array('variable' => 'string-255', 'value' => 'string'), array('mail_limit', '5'), $data, array());
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string'),
+			array(
+				array('mail_limit', '5'),
+				array('mail_quantity', '5'),
+			),
+			array('variable')
+		);
 	}
 ---}
 ---#
