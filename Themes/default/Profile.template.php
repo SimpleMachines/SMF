@@ -149,7 +149,7 @@ function template_summary()
 	// What about if we allow email only via the forum??
 	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
 		echo '
-					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" /></a></li>';
+					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . '" style="vertical-align:middle"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
@@ -630,7 +630,7 @@ function template_editBuddies()
 				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '" /></a></td>';
 		if ($context['can_send_email'])
 			echo '
-				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $buddy['name'] . '" /></a>'), '</td>';
+				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>'), '</td>';
 
 		// If these are off, don't show them
 		foreach ($buddy_fields as $key => $column)
@@ -737,7 +737,7 @@ function template_editIgnoreList()
 				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['text'], '" title="', $member['online']['text'], '" /></a></td>';
 		if ($context['can_send_email'])
 			echo '
-				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>'), '</td>';
+				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>'), '</td>';
 		echo '
 				<td align="center">', $member['icq']['link'], '</td>
 				<td align="center">', $member['aim']['link'], '</td>
