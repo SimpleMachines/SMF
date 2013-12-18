@@ -186,7 +186,7 @@ function template_unread()
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
-								<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" class="floatright" /></a>
+								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></a>
 								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 							</td>';
 
@@ -354,7 +354,7 @@ function template_replies()
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
-								<a href="', $topic['last_post']['href'], '"><img src="', $settings['images_url'], '/icons/last_post.png" alt="', $txt['last_post'], '" title="', $txt['last_post'], '" class="floatright" /></a>
+								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></a>
 								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 							</td>';
 
