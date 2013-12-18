@@ -694,16 +694,16 @@ pre.file_content {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/select_spot.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat -48px -32px;
 }
 .select_spot.above {
-	background-position: 0 0;
+	background-position: -48px -32px;
 }
 .select_spot.here {
-	background-position: -16px 0;
+	background-position: -64px -32px;
 }
 .select_spot.below {
-	background-position: -32px 0;
+	background-position: -80px -32px;
 }
 
 /* Styles for the BBC permissions

@@ -2830,16 +2830,16 @@ fieldset.merge_options {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/field_icons.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat 0 -32px;
 }
 .field_icons.valid {
-	background-position: 0 0;
+	background-position: 0 -32px;
 }
 .field_icons.check {
-	background-position: -16px 0;
+	background-position: -16px -32px;
 }
 .field_icons.invalid {
-	background-position: -32px 0;
+	background-position: -32px -32px;
 }
 
 /* Additional register fields */
