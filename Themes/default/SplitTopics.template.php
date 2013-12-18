@@ -276,7 +276,7 @@ function template_merge()
 							', $context['origin_subject'], '
 						</dd>';
 
-	if (count($context['num_boards']) > 1)
+	if ($context['num_boards'] > 1)
 	{
 			echo '
 						<dt>
