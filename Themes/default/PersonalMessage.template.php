@@ -372,7 +372,7 @@ function template_folder()
 					// Don't show the email address if they want it hidden.
 					if (in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')) && $context['can_send_email'])
 						echo '
-						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
+						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail icon" title="' . $txt['email'] . '" style="vertical-align:middle"></span>' : $txt['email']), '</a></li>';
 
 					// Since we know this person isn't a guest, you *can* message them.
 					if ($context['can_send_pm'])
