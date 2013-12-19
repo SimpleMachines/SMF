@@ -58,6 +58,9 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 		// And now weed out the duplicates.
 		$members = array_flip(array_flip($members));
 
+		// And don't send it to them if they're the one who reported it.
+		$members = array_diff($members, array($this->_details['sender_id']));
+
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($members, 'msg_report', true);
