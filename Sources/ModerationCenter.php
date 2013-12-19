@@ -2144,7 +2144,7 @@ function ModerationSettings()
 	{
 		$mod_blocks = 'n' . ($context['can_moderate_boards'] ? 'wr' : '') . ($context['can_moderate_groups'] ? 'g' : '');
 		$pref_binary = 5;
-		$show_reports = 1;
+		$show_reports = 0;
 	}
 	else
 	{
@@ -2185,16 +2185,8 @@ function ModerationSettings()
 		if ($context['can_moderate_approvals'] && !empty($_POST['mod_notify_approval']))
 			$pref_binary |= 4;
 
-		if ($context['can_moderate_boards'])
-		{
-			if (!empty($_POST['mod_notify_report']))
-				$pref_binary |= ($_POST['mod_notify_report'] == 2 ? 1 : 2);
-
-			$show_reports = !empty($_POST['mod_show_reports']) ? 1 : 0;
-		}
-
 		// Put it all together.
-		$mod_prefs = $show_reports . '|' . $mod_blocks . '|' . $pref_binary;
+		$mod_prefs = '0|' . $mod_blocks . '|' . $pref_binary;
 		updateMemberData($user_info['id'], array('mod_prefs' => $mod_prefs));
 	}
 

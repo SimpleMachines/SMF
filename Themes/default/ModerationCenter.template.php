@@ -516,23 +516,6 @@ function template_moderation_settings()
 	echo '
 						</dd>';
 
-	// If they can moderate boards they have more options!
-	if ($context['can_moderate_boards'])
-	{
-		echo '
-						<dt>
-							<strong><label for="mod_notify_report">', $txt['mc_prefs_notify_report'], '</label>:</strong>
-						</dt>
-						<dd>
-							<select id="mod_notify_report" name="mod_notify_report">
-								<option value="0" ', $context['mod_settings']['notify_report'] == 0 ? 'selected="selected"' : '', '>', $txt['mc_prefs_notify_report_never'], '</option>
-								<option value="1" ', $context['mod_settings']['notify_report'] == 1 ? 'selected="selected"' : '', '>', $txt['mc_prefs_notify_report_moderator'], '</option>
-								<option value="2" ', $context['mod_settings']['notify_report'] == 2 ? 'selected="selected"' : '', '>', $txt['mc_prefs_notify_report_always'], '</option>
-							</select>
-						</dd>';
-
-	}
-
 	if ($context['can_moderate_approvals'])
 	{
 		echo '
