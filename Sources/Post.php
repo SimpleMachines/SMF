@@ -316,7 +316,7 @@ function Post($post_errors = array())
 	// only at preview
 	if (empty($_REQUEST['msg']) && !empty($topic))
 	{
-		if (empty($options['no_new_reply_warning']) && isset($_REQUEST['last_msg']) && $context['topic_last_message'] > $_REQUEST['last_msg'])
+		if (isset($_REQUEST['last_msg']) && $context['topic_last_message'] > $_REQUEST['last_msg'])
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT COUNT(*)
@@ -1341,7 +1341,7 @@ function Post2()
 		}
 
 		// If the number of replies has changed, if the setting is enabled, go back to Post() - which handles the error.
-		if (empty($options['no_new_reply_warning']) && isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
+		if (isset($_POST['last_msg']) && $topic_info['id_last_msg'] > $_POST['last_msg'])
 		{
 			$_REQUEST['preview'] = true;
 			return Post();

@@ -1620,13 +1620,6 @@ function template_profile_theme_settings()
 							<dd>
 								<input type="hidden" name="default_options[return_to_post]" value="0" />
 								<input type="checkbox" name="default_options[return_to_post]" id="return_to_post" value="1"', !empty($context['member']['options']['return_to_post']) ? ' checked="checked"' : '', ' class="input_check" />
-							</dd>
-							<dt>
-								<label for="no_new_reply_warning">', $txt['no_new_reply_warning'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[no_new_reply_warning]" value="0" />
-								<input type="checkbox" name="default_options[no_new_reply_warning]" id="no_new_reply_warning" value="1"', !empty($context['member']['options']['no_new_reply_warning']) ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>';
 
 	if (!empty($modSettings['enable_buddylist']))

@@ -303,7 +303,6 @@ $txt['ban_type_access'] = 'access forum';
 $txt['show_online'] = 'Show others my online status';
 
 $txt['return_to_post'] = 'Return to topics after posting by default.';
-$txt['no_new_reply_warning'] = 'Don\'t warn on new replies made while posting.';
 $txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
 $txt['recent_posts_at_top'] = 'Show most recent posts at the top.';
 $txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';

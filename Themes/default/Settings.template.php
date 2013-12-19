@@ -36,11 +36,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'no_new_reply_warning',
-			'label' => $txt['no_new_reply_warning'],
-			'default' => true,
-		),
-		array(
 			'id' => 'view_newest_first',
 			'label' => $txt['recent_posts_at_top'],
 			'default' => true,
