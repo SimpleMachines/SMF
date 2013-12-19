@@ -2183,7 +2183,6 @@ function ModerationSettings()
 
 	// What blocks does the user currently have selected?
 	$context['mod_settings'] = array(
-		'show_reports' => $show_reports,
 		'notify_report' => $pref_binary & 2 ? 1 : ($pref_binary & 1 ? 2 : 0),
 		'notify_approval' => $pref_binary & 4,
 		'user_blocks' => str_split($mod_blocks),
