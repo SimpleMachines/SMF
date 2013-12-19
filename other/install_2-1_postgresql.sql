@@ -2238,7 +2238,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentExtensions
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentCheckExtensions', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentShowImages', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentEnable', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentEncryptFilenames', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbnails', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbWidth', '150');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbHeight', '150');
