@@ -1582,13 +1582,6 @@ function template_profile_theme_settings()
 
 	echo '
 							<dt>
-								<label for="show_board_desc">', $txt['board_desc_inside'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[show_board_desc]" value="0" />
-								<input type="checkbox" name="default_options[show_board_desc]" id="show_board_desc" value="1"', !empty($context['member']['options']['show_board_desc']) ? ' checked="checked"' : '', ' class="input_check" />
-							</dd>
-							<dt>
 								<label for="show_children">', $txt['show_children'], '</label>
 							</dt>
 							<dd>

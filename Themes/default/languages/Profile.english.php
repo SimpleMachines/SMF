@@ -318,7 +318,6 @@ $txt['timeformat_easy5'] = 'DD-MM-YYYY, HH:MM:SS';
 
 $txt['poster'] = 'Poster';
 
-$txt['board_desc_inside'] = 'Show board descriptions inside boards.';
 $txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first.';
 $txt['show_no_avatars'] = 'Don\'t show users\' avatars.';
 $txt['show_no_signatures'] = 'Don\'t show users\' signatures.';

@@ -125,13 +125,13 @@ function template_main()
 		', template_button_strip($context['normal_buttons'], 'right'), '
 	</div>';
 
-	if ((!empty($options['show_board_desc']) && $context['description'] != '') || !empty($context['moderators']))
+	if ($context['description'] != '' || !empty($context['moderators']))
 		{
 		echo '
 	<div id="description_board" class="generic_list_wrapper">
 		<h3 class="floatleft">', $context['name'], '&nbsp;-&nbsp;</h3>
 		<p>';
-	if (!empty($options['show_board_desc']) && $context['description'] != '')
+	if ($context['description'] != '')
 	echo '
 		', $context['description'], '&nbsp;';
 
