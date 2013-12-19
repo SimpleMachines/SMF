@@ -266,7 +266,7 @@ function template_permission_index()
 
 function template_by_board()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -362,7 +362,7 @@ function template_by_board()
 // Edit permission profiles (predefined).
 function template_edit_profiles()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admin_form_wrapper">
@@ -461,7 +461,7 @@ function template_edit_profiles()
 
 function template_modify_group()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	// Cannot be edited?
 	if (!$context['profile']['can_modify'])
@@ -711,7 +711,7 @@ function template_modify_group_display($type)
 
 function template_inline_permissions()
 {
-	global $context, $settings, $options, $txt, $modSettings;
+	global $context, $options, $txt, $modSettings;
 
 	// This looks really weird, but it keeps things nested properly...
 	echo '

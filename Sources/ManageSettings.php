@@ -95,7 +95,7 @@ function ModifyFeatureSettings()
  */
 function ModifyModSettings()
 {
-	global $context, $txt, $scripturl, $modSettings, $settings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	$context['page_title'] = $txt['admin_modifications'];
 
@@ -132,7 +132,7 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
+	global $txt, $scripturl, $context, $sc, $modSettings;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -227,7 +227,7 @@ function ModifyBasicSettings($return_config = false)
  */
 function ModifyLayoutSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc;
+	global $txt, $scripturl, $context, $sc;
 
 	$config_vars = array(
 			// Pagination stuff.
@@ -278,7 +278,7 @@ function ModifyLayoutSettings($return_config = false)
  */
 function ModifyKarmaSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $modSettings;
+	global $txt, $scripturl, $context, $modSettings;
 
 	if (empty($modSettings['karmaMode']))
 		$config_vars = array(
@@ -330,7 +330,7 @@ function ModifyKarmaSettings($return_config = false)
  */
 function ModifyWarningSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $sourcedir;
+	global $txt, $scripturl, $context, $sc, $modSettings, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -1122,7 +1122,7 @@ function pauseSignatureApplySettings()
  */
 function ShowCustomProfiles()
 {
-	global $txt, $scripturl, $context, $settings, $sc, $smcFunc;
+	global $txt, $scripturl, $context, $sc, $smcFunc;
 	global $modSettings, $sourcedir;
 
 	$context['page_title'] = $txt['custom_profile_title'];
@@ -1432,7 +1432,7 @@ function list_getProfileFieldSize()
  */
 function EditCustomProfiles()
 {
-	global $txt, $scripturl, $context, $settings, $sc, $smcFunc;
+	global $txt, $scripturl, $context, $sc, $smcFunc;
 
 	// Sort out the context!
 	$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
@@ -1837,7 +1837,7 @@ function EditCustomProfiles()
  */
 function ModifyLogSettings($return_config = false)
 {
-	global $txt, $scripturl, $sourcedir, $context, $settings, $sc, $modSettings;
+	global $txt, $scripturl, $sourcedir, $context, $sc, $modSettings;
 
 	// Make sure we understand what's going on.
 	loadLanguage('ManageSettings');
@@ -1954,7 +1954,7 @@ function ModifyLogSettings($return_config = false)
  */
 function ModifyGeneralModSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
+	global $txt, $scripturl, $context, $sc, $modSettings;
 
 	$config_vars = array(
 		// Mod authors, add any settings UNDER this line. Include a comma at the end of the line and don't remove this statement!!
