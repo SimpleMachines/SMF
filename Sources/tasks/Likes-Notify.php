@@ -69,16 +69,12 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like');
+		$prefs = getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);
 
 		// The likes setup doesn't support email notifications because that would be too many emails.
 		// As a result, the value should really just be non empty.
 
-		// First, grab the default if there is one.
-		if (!isset($prefs[$author]) && isset($prefs[0]))
-			$prefs[$author] = $prefs[0];
-
-		// Second, check the value. If no value or it's empty, they didn't want alerts, oh well.
+		// Check the value. If no value or it's empty, they didn't want alerts, oh well.
 		if (empty($prefs[$author][$this->_details['content_type'] . '_like']))
 			return true;
 

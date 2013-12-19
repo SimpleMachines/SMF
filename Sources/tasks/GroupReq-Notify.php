@@ -45,21 +45,17 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 			$data = array('alert' => array(), 'email' => array());
 
 			require_once($sourcedir . '/Subs-Notify.php');
-			$prefs = getNotifyPrefs($moderators, 'request_group');
+			$prefs = getNotifyPrefs($moderators, 'request_group', true);
 
 			// Bitwise comparisons are fun...
 			foreach ($moderators as $mod)
 			{
-				// Do we have any defaults?
-				if (isset($prefs[0]) && !isset($prefs[$mod]))
-					$prefs[$mod] = $prefs[0];
-
 				if (!empty($prefs[$mod]))
 				{
-					if ($prefs[$mod] & 0x01 == 0x01)
+					if ($prefs[$mod] & 0x01)
 						$data['alert'][] = $mod;
 
-					if ($prefs[$mod] & 0x02 == 0x02)
+					if ($prefs[$mod] & 0x02)
 						$data['email'][] = $mod;
 				}
 			}
