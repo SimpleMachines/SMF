@@ -1894,7 +1894,6 @@ function alert_configuration($memID)
 		'members' => array(
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
-			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 		),
 		'calendar' => array(
