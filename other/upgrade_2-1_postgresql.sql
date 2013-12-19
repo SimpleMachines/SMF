@@ -636,6 +636,11 @@ DELETE FROM {$db_prefix}settings
 WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration');
 ---#
 
+---# Cleaning up old theme settings.
+DELETE FROM {$db_prefix}themes
+WHERE variable IN ('show_board_desc');
+---#
+
 /******************************************************************************/
 --- Removing old Simple Machines files we do not need to fetch any more
 /******************************************************************************/

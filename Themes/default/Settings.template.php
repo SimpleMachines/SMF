@@ -16,11 +16,6 @@ function template_options()
 
 	$context['theme_options'] = array(
 		array(
-			'id' => 'show_board_desc',
-			'label' => $txt['board_desc_inside'],
-			'default' => true,
-		),
-		array(
 			'id' => 'show_children',
 			'label' => $txt['show_children'],
 			'default' => true,
