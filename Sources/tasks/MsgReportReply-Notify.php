@@ -1,7 +1,8 @@
 <?php
 
 /**
- * This task handles notifying users when a message gets reported.
+ * This task handles notifying users when they've commented to a moderation report and
+ * someone else replies to them.
  *
  * Simple Machines Forum (SMF)
  *
@@ -13,11 +14,37 @@
  * @version 2.1 Alpha 1
  */
 
-class MsgReport_Notify_Background extends SMF_BackgroundTask
+class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
+
+		// Let's see. Let us, first of all, establish the list of possible people.
+		$possible_members = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member
+			FROM {db_prefix}log_comments
+			WHERE id_notice = {int:report}
+				AND comment_type = {literal:reportc}
+				AND id_comment < {int:last_comment}',
+			array(
+				'report' => $this->_details['report_id'],
+				'last_comment' => $this->_details['comment_id'],
+			)
+		);
+		while ($row = $smcFunc['db_fetch_row']($request))
+			$possible_members[] = $row[0];
+		$smcFunc['db_free_result']($request);
+
+		// Presumably, there are some people?
+		if (!empty($possible_members))
+		{
+			$possible_members = array_flip(array_flip($possible_members));
+			$possible_members = array_diff($possible_members, array($this->_details['sender_id']));
+		}
+		if (empty($possible_members))
+			return true;
 
 		// We need to know who can moderate this board - and therefore who can see this report.
 		// First up, people who have moderate_board in the board this topic was in.
@@ -55,15 +82,13 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 			$members[] = $row['id_member'];
 		$smcFunc['db_free_result']($request);
 
-		// And now weed out the duplicates.
-		$members = array_flip(array_flip($members));
-
-		// And don't send it to them if they're the one who reported it.
-		$members = array_diff($members, array($this->_details['sender_id']));
+		// So now we have two lists: the people who replied to a report in the past,
+		// and all the possible people who could see said report.
+		$members = array_intersect($possible_members, $members);
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($members, 'msg_report', true);
+		$prefs = getNotifyPrefs($members, 'msg_report_reply', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(
@@ -71,13 +96,18 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 			'email' => 0x02,
 		);
 		$notifies = array();
+		print_r($prefs);
 
 		foreach ($prefs as $member => $pref_option)
 		{
 			foreach ($alert_bits as $type => $bitvalue)
-				if ($pref_option['msg_report'] & $bitvalue)
+			{
+				if ($pref_option['msg_report_reply'] & $bitvalue)
 					$notifies[$type][] = $member;
+			}
 		}
+
+		print_r($notifies);
 
 		// Firstly, anyone who wants alerts.
 		if (!empty($notifies['alert']))
@@ -93,7 +123,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 					'member_name' => $this->_details['sender_name'],
 					'content_type' => 'msg',
 					'content_id' => $this->_details['msg_id'],
-					'content_action' => 'report',
+					'content_action' => 'report_reply',
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
@@ -158,20 +188,20 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 			// Third, iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
 			{
+				echo 'Emailing (' . $this_lang . ') to ' . print_r($recipients, true);
 				$replacements = array(
 					'TOPICSUBJECT' => $subject,
 					'POSTERNAME' => $poster_name,
-					'REPORTERNAME' => $this->_details['sender_name'],
+					'COMMENTERNAME' => $this->_details['sender_name'],
 					'TOPICLINK' => $scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
 					'REPORTLINK' => $scripturl . '?action=moderate;area=reports;report=' . $this->_details['report_id'],
-					'COMMENT' => $comment,
 				);
 
-				$emaildata = loadEmailTemplate('report_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('reply_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, null, false, 3);
 			}
 		}
 

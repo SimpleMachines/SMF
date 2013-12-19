@@ -889,6 +889,24 @@ function ModReport()
 				),
 				array('id_comment')
 			);
+			$last_comment = $smcFunc['db_insert_id']('{db_prefix}log_comments', 'id_comment');
+
+			// And get ready to notify people.
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/MsgReportReply-Notify.php', 'MsgReportReply_Notify_Background', serialize(array(
+					'report_id' => $_REQUEST['report'],
+					'comment_id' => $last_comment,
+					'msg_id' => $row['id_msg'],
+					'topic_id' => $row['id_topic'],
+					'board_id' => $row['id_board'],
+					'sender_id' => $user_info['id'],
+					'sender_name' => $user_info['name'],
+					'time' => time(),
+				)), 0),
+				array('id_task')
+			);
 
 			// Redirect to prevent double submittion.
 			redirectexit($scripturl . '?action=moderate;area=reports;report=' . $_REQUEST['report']);
@@ -955,10 +973,9 @@ function ModReport()
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 		WHERE lc.id_notice = {int:id_report}
-			AND lc.comment_type = {string:reportc}',
+			AND lc.comment_type = {literal:reportc}',
 		array(
 			'id_report' => $context['report']['id'],
-			'reportc' => 'reportc',
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
