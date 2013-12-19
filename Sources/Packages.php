@@ -1364,7 +1364,7 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir, $settings;
+	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 

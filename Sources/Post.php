@@ -2530,7 +2530,7 @@ function getTopic()
  */
 function QuoteFast()
 {
-	global $modSettings, $user_info, $txt, $settings, $context;
+	global $modSettings, $user_info, $txt, $context;
 	global $sourcedir, $smcFunc;
 
 	loadLanguage('Post');

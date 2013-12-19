@@ -14,7 +14,7 @@
 // This is for stuff above the menu in the personal messages section.
 function template_pm_above()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $options, $txt;
 
 	echo '
 	<div id="personal_messages">';
@@ -43,15 +43,13 @@ function template_pm_above()
 // Just the end of the index bar, nothing special.
 function template_pm_below()
 {
-	global $context, $settings, $options;
-
 	echo '
 	</div>';
 }
 
 function template_pm_popup()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
@@ -705,7 +703,7 @@ function template_subject_list()
 
 function template_search()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
@@ -849,7 +847,7 @@ function template_search()
 
 function template_search_results()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -1353,7 +1351,7 @@ function template_send()
 // This template asks the user whether they wish to empty out their folder/messages.
 function template_ask_delete()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -1370,7 +1368,7 @@ function template_ask_delete()
 // This template asks the user what messages they want to prune.
 function template_prune()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=prune" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
@@ -1390,7 +1388,7 @@ function template_prune()
 // Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
 function template_labels()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', $context['character_set'], '">
@@ -1480,7 +1478,7 @@ function template_labels()
 // Template for reporting a personal message.
 function template_report_message()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=report;l=', $context['current_label_id'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -1534,7 +1532,7 @@ function template_report_message()
 // Little template just to say "Yep, it's been submitted"
 function template_report_message_complete()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -1551,7 +1549,7 @@ function template_report_message_complete()
 // Manage rules.
 function template_rules()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=manrules" method="post" accept-charset="', $context['character_set'], '" name="manRules" id="manrules">
@@ -1626,7 +1624,7 @@ function template_rules()
 // Template for adding/editing a rule.
 function template_add_rule()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -1927,7 +1925,7 @@ function template_add_rule()
 // Template for showing all the PM drafts of the user.
 function template_showPMDrafts()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">

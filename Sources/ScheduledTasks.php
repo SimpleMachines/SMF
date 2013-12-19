@@ -1249,7 +1249,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc, $context;
+	global $sourcedir, $txt, $language, $forum_version, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '

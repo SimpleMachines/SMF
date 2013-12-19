@@ -39,7 +39,7 @@
 // This is where we get information about who they want to send the topic to, etc.
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="send_topic">
@@ -102,7 +102,7 @@ function template_main()
 // Send an email to a user!
 function template_custom_email()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="send_topic">
@@ -195,7 +195,7 @@ function template_custom_email()
 
 function template_report()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="report_topic">

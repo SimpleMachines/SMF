@@ -2443,7 +2443,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  */
 function censorText(&$text, $force = false)
 {
-	global $modSettings, $options, $settings, $txt;
+	global $modSettings, $options, $txt;
 	static $censor_vulgar = null, $censor_proper;
 
 	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || trim($text) === '')

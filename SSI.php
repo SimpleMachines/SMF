@@ -260,7 +260,7 @@ function ssi_logout($redirect_to = '', $output_method = 'echo')
 // Recent post list:   [board] Subject by Poster	Date
 function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo', $limit_body = true)
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc;
 
 	// Excluding certain boards...
@@ -328,7 +328,7 @@ function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $out
 // This removes code duplication in other queries - don't call it direct unless you really know what you're up to.
 function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc;
 
 	// Find all the posts. Newer ones will have higher IDs.
@@ -424,7 +424,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 // Recent topic list:   [board] Subject by Poster	Date
 function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $settings, $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc;
 
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
@@ -574,7 +574,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 // Show the top poster's name and profile link.
 function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 {
-	global $db_prefix, $scripturl, $smcFunc;
+	global $scripturl, $smcFunc;
 
 	// Find the latest poster.
 	$request = $smcFunc['db_query']('', '
@@ -611,7 +611,7 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 // Show boards by activity.
 function ssi_topBoards($num_top = 10, $output_method = 'echo')
 {
-	global $context, $settings, $db_prefix, $txt, $scripturl, $user_info, $modSettings, $smcFunc;
+	global $context, $txt, $scripturl, $user_info, $modSettings, $smcFunc;
 
 	// Find boards with lots of posts.
 	$request = $smcFunc['db_query']('', '
@@ -667,7 +667,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 // Shows the top topics.
 function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 {
-	global $db_prefix, $txt, $scripturl, $user_info, $modSettings, $smcFunc, $context;
+	global $txt, $scripturl, $user_info, $modSettings, $smcFunc, $context;
 
 	if ($modSettings['totalMessages'] > 100000)
 	{
@@ -764,7 +764,7 @@ function ssi_topTopicsViews($num_topics = 10, $output_method = 'echo')
 // Show a link to the latest member:  Please welcome, Someone, out latest member.
 function ssi_latestMember($output_method = 'echo')
 {
-	global $db_prefix, $txt, $scripturl, $context;
+	global $txt, $scripturl, $context;
 
 	if ($output_method == 'echo')
 		echo '
@@ -863,7 +863,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 // Fetch some member data!
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc, $memberContext;
 
 	if ($query_where === null)
@@ -929,7 +929,7 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 // Show some basic stats:  Total This: XXXX, etc.
 function ssi_boardStats($output_method = 'echo')
 {
-	global $db_prefix, $txt, $scripturl, $modSettings, $smcFunc;
+	global $txt, $scripturl, $modSettings, $smcFunc;
 
 	if (!allowedTo('view_stats'))
 		return;
@@ -1075,7 +1075,7 @@ function ssi_topPoll($output_method = 'echo')
 // Show the most recently posted poll.
 function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 {
-	global $db_prefix, $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+	global $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
 
 	$boardsAllowed = array_intersect(boardsAllowedTo('poll_view'), boardsAllowedTo('poll_vote'));
 
@@ -1207,7 +1207,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 
 function ssi_showPoll($topic = null, $output_method = 'echo')
 {
-	global $db_prefix, $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+	global $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
 
 	$boardsAllowed = boardsAllowedTo('poll_view');
 
@@ -1636,7 +1636,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 // Show the latest news, with a template... by board.
 function ssi_boardNews($board = null, $limit = null, $start = null, $length = null, $output_method = 'echo')
 {
-	global $scripturl, $db_prefix, $txt, $settings, $modSettings, $context;
+	global $scripturl, $txt, $settings, $modSettings, $context;
 	global $smcFunc;
 
 	loadLanguage('Stats');
@@ -1817,7 +1817,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 // Show the most recent events.
 function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 {
-	global $db_prefix, $user_info, $scripturl, $modSettings, $txt, $context, $smcFunc;
+	global $user_info, $scripturl, $modSettings, $txt, $context, $smcFunc;
 
 	if (empty($modSettings['cal_enabled']) || !allowedTo('calendar_view'))
 		return;
@@ -1901,7 +1901,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 // Check the passed id_member/password.  If $is_username is true, treats $id as a username.
 function ssi_checkPassword($id = null, $password = null, $is_username = false)
 {
-	global $db_prefix, $sourcedir, $smcFunc;
+	global $sourcedir, $smcFunc;
 
 	// If $id is null, this was most likely called from a query string and should do nothing.
 	if ($id === null)

@@ -200,7 +200,7 @@ function ModifyGeneralSettings($return_config = false)
  */
 function ModifyDatabaseSettings($return_config = false)
 {
-	global $scripturl, $context, $settings, $txt, $boarddir;
+	global $scripturl, $context, $txt, $boarddir;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
@@ -339,7 +339,7 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
+	global $txt, $scripturl, $context, $sc, $modSettings;
 
 	$config_vars = array(
 			array('int', 'failed_login_threshold'),
@@ -477,7 +477,7 @@ function ModifyCacheSettings($return_config = false)
  */
 function ModifyLoadBalancingSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $modSettings;
+	global $txt, $scripturl, $context, $modSettings;
 
 	// Setup a warning message, but disabled by default.
 	$disabled = true;

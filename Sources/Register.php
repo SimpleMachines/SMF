@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function Register($reg_errors = array())
 {
-	global $txt, $boarddir, $context, $settings, $modSettings, $user_info;
+	global $txt, $boarddir, $context, $modSettings, $user_info;
 	global $language, $scripturl, $smcFunc, $sourcedir, $smcFunc, $cur_profile;
 
 	// Is this an incoming AJAX check?
@@ -220,7 +220,7 @@ function Register($reg_errors = array())
 function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $user_info, $options, $settings, $smcFunc;
+	global $user_info, $options, $smcFunc;
 
 	checkSession();
 	validateToken('register');

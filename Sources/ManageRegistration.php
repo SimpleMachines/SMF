@@ -174,7 +174,7 @@ function AdminRegister()
 function EditAgreement()
 {
 	// I hereby agree not to be a lazy bum.
-	global $txt, $boarddir, $context, $modSettings, $smcFunc, $settings;
+	global $txt, $boarddir, $context, $modSettings, $smcFunc;
 
 	// By default we look at agreement.txt.
 	$context['current_agreement'] = '';
