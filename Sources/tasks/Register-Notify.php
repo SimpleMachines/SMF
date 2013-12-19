@@ -25,17 +25,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($members, 'member_register');
-
-		// Apply defaults if we got some.
-		if (isset($prefs[0]))
-		{
-			foreach ($members as $member)
-				if (!isset($prefs[$member]))
-					$prefs[$member] = $prefs[0];
-
-			unset ($prefs[0]); // Don't need this any more.
-		}
+		$prefs = getNotifyPrefs($members, 'member_register', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(
