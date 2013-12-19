@@ -409,9 +409,6 @@ $helptxt['emailmembers'] = 'In this message you can use a few &quot;variables&qu
 	{$latest_member.link} - The most recently registered member\'s link.<br />
 	{$latest_member.id} - The most recently registered member\'s id.<br />
 	{$latest_member.name} - The most recently registered member\'s name.';
-$helptxt['attachmentEncryptFilenames'] = 'Encrypting attachment filenames allows you to have more than one attachment of the
-	same name, to safely use .php files for attachments, and heightens security.  It, however, could make it more
-	difficult to rebuild your database if something drastic happened.';
 
 $helptxt['failed_login_threshold'] = 'Set the number of failed login attempts before directing the user to the password reminder screen.';
 $helptxt['loginHistoryDays'] = 'The number of days to keep login history under user profile tracking. Default is 30 days.';

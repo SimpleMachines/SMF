@@ -142,10 +142,7 @@ $txt['mc_prefs_title'] = 'Moderation Preferences';
 $txt['mc_prefs_desc'] = 'This section allows you to set some personal preferences for moderation related activities such as email notifications.';
 $txt['mc_prefs_homepage'] = 'Items to show on moderation homepage';
 $txt['mc_prefs_latest_news'] = 'SM News';
-$txt['mc_prefs_notify_report'] = 'Notify of topic reports';
-$txt['mc_prefs_notify_report_never'] = 'Never';
-$txt['mc_prefs_notify_report_moderator'] = 'Only if it\'s a board I moderate';
-$txt['mc_prefs_notify_report_always'] = 'Always';
+
 $txt['mc_prefs_notify_approval'] = 'Notify of items awaiting approval';
 $txt['mc_logoff'] = 'End Moderator Session';
 
