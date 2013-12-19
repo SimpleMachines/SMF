@@ -89,7 +89,7 @@ function template_profile_popup()
 
 function template_alerts_popup()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
@@ -418,7 +418,7 @@ function template_summary()
 // Template for showing all the posts of the user, in chronological order.
 function template_showPosts()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -798,7 +798,7 @@ function template_editIgnoreList()
 // This template shows an admin information on a users IP addresses used and errors attributed to them.
 function template_trackActivity()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	// The first table shows IP information about the user.
 	echo '
@@ -857,7 +857,7 @@ function template_trackActivity()
 // The template for trackIP, allowing the admin to see where/who a certain IP has been used.
 function template_trackIP()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	// This function always defaults to the last IP used by a member but can be set to track any IP.
 	// The first table in the template gives an input box to allow the admin to enter another IP to track.
@@ -1102,7 +1102,7 @@ function template_showPermissions()
 // Template for user statistics, showing graphs and the like.
 function template_statPanel()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
@@ -1501,7 +1501,7 @@ function template_edit_options()
 // Personal Message settings.
 function template_profile_pm_settings()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 								<dt>
@@ -1578,7 +1578,7 @@ function template_profile_pm_settings()
 // Template for showing theme settings. Note: template_options() actually adds the theme specific options.
 function template_profile_theme_settings()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 							<dt>
@@ -1935,7 +1935,7 @@ function template_alert_configuration()
 
 function template_alert_notifications_topics()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $options, $txt, $scripturl, $modSettings;
 
 	// The main containing header.
 	echo '
@@ -1952,7 +1952,7 @@ function template_alert_notifications_topics()
 
 function template_alert_notifications_boards()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $options, $txt, $scripturl, $modSettings;
 
 	echo '
 		<div class="cat_bar">
@@ -2703,7 +2703,7 @@ function template_deleteAccount()
 // Template for the password box/save button stuck at the bottom of every profile page.
 function template_profile_save()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $options, $txt;
 
 	echo '
 

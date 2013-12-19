@@ -45,7 +45,7 @@ function template_moderation_center()
 // Show all the group requests the user can see.
 function template_group_requests_block()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -79,7 +79,7 @@ function template_group_requests_block()
 // A block to show the current top reported posts.
 function template_reported_posts_block()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -112,7 +112,7 @@ function template_reported_posts_block()
 
 function template_watched_users()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -188,7 +188,7 @@ function template_notes()
 
 function template_reported_posts()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
@@ -285,7 +285,7 @@ function template_reported_posts()
 // Show a list of all the unapproved posts
 function template_unapproved_posts()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	// Just a big table of it all really...
 	echo '
@@ -496,7 +496,7 @@ function template_user_watch_post_callback($post)
 // Moderation settings
 function template_moderation_settings()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 	<div id="modcenter">
@@ -597,7 +597,7 @@ function template_show_notice()
 // Add or edit a warning template.
 function template_warn_template()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="modcenter">

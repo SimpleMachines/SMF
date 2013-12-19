@@ -12,7 +12,7 @@
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<br />
@@ -38,7 +38,7 @@ function template_main()
 
 function template_reminder_pick()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<br />
@@ -70,7 +70,7 @@ function template_reminder_pick()
 
 function template_sent()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context;
 
 	echo '
 		<br />

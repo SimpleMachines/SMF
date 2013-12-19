@@ -13,7 +13,7 @@
 // Choose which type of report to run?
 function template_report_type()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -52,7 +52,7 @@ function template_report_type()
 // This is the standard template for showing reports in.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -158,7 +158,7 @@ function template_print_above()
 
 function template_print()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	// Go through each table!
 	foreach ($context['tables'] as $table)
@@ -231,8 +231,6 @@ function template_print()
 // Footer of the print page.
 function template_print_below()
 {
-	global $context, $settings, $options;
-
 	echo '
 		<div class="copyright">', theme_copyright(), '</div>
 	</body>
