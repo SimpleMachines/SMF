@@ -354,7 +354,7 @@ function template_body_above()
 
 function template_body_below()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	echo '
 			</div>
@@ -387,7 +387,7 @@ function template_body_below()
 
 function template_html_below()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	// load in any javascipt that could be defered to the end of the page
 	template_javascript(true);
@@ -461,7 +461,7 @@ function theme_linktree($force_show = false)
  */
 function template_menu()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	echo '
 				<div id="main_menu">
@@ -528,7 +528,7 @@ function template_menu()
  */
 function template_button_strip($button_strip, $direction = '', $strip_options = array())
 {
-	global $settings, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	if (!is_array($strip_options))
 		$strip_options = array();

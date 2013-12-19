@@ -78,7 +78,7 @@ function ModifyMembergroups()
  */
 function MembergroupIndex()
 {
-	global $txt, $scripturl, $context, $settings, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $context, $smcFunc, $sourcedir;
 
 	$context['page_title'] = $txt['membergroups_title'];
 
