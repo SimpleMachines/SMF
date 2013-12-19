@@ -720,7 +720,7 @@ function ConvertUtf8()
 function ConvertMsgBody()
 {
 	global $scripturl, $context, $txt, $language, $db_character_set, $db_type;
-	global $modSettings, $user_info, $sourcedir, $smcFunc, $db_prefix, $time_start;
+	global $modSettings, $user_info, $sourcedir, $smcFunc, $time_start;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
