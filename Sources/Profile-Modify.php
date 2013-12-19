@@ -2877,12 +2877,7 @@ function profileSaveAvatarData(&$value)
 	require_once($sourcedir . '/ManageAttachments.php');
 
 	// We need to know where we're going to be putting it..
-	if (!empty($modSettings['custom_avatar_enabled']))
-	{
-		$uploadDir = $modSettings['custom_avatar_dir'];
-		$id_folder = 1;
-	}
-	elseif (!empty($modSettings['currentAttachmentUploadDir']))
+	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
@@ -2893,7 +2888,7 @@ function profileSaveAvatarData(&$value)
 	}
 	else
 	{
-		$uploadDir = $modSettings['attachmentUploadDir'];
+		$uploadDir = $modSettings['custom_avatar_dir'];
 		$id_folder = 1;
 	}
 

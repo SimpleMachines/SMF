@@ -466,7 +466,6 @@ $txt['avatar_upload_groups'] = 'Membergroups allowed to upload an avatar to the 
 $txt['avatar_external_url_groups'] = 'Membergroups allowed to select an external URL';
 $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
-$txt['custom_avatar_enabled'] = 'Upload avatars to...';
 $txt['option_attachment_dir'] = 'Attachment directory';
 $txt['option_specified_dir'] = 'Specific directory...';
 $txt['custom_avatar_dir'] = 'Upload directory';
