@@ -521,12 +521,6 @@ function template_moderation_settings()
 	{
 		echo '
 						<dt>
-							<strong><label for="mod_show_reports">', $txt['mc_prefs_show_reports'], '</label>:</strong>
-						</dt>
-						<dd>
-							<input type="checkbox" id="mod_show_reports" name="mod_show_reports" ', $context['mod_settings']['show_reports'] ? 'checked="checked"' : '', ' class="input_check" />
-						</dd>
-						<dt>
 							<strong><label for="mod_notify_report">', $txt['mc_prefs_notify_report'], '</label>:</strong>
 						</dt>
 						<dd>

@@ -17,7 +17,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $language, $scripturl;
+		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
 
 		// Get everyone who could be notified.
 		require_once($sourcedir . '/Subs-Members.php');
