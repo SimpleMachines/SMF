@@ -314,7 +314,8 @@ INSERT INTO {$db_prefix}user_alerts_prefs
 VALUES (0, 'member_group_request', 1),
 	(0, 'member_register', 1),
 	(0, 'msg_like', 1),
-	(0, 'msg_report', 1);
+	(0, 'msg_report', 1),
+	(0, 'msg_report_reply', 1);
 ---#
 
 /******************************************************************************/

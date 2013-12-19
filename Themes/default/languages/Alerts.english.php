@@ -12,6 +12,7 @@ $txt['alerts_no_unread'] = 'No unread alerts.';
 
 $txt['alert_msg_like'] = '{member_link} liked your post {msg_msg}';
 $txt['alert_msg_report'] = '{member_link} <a href="{report_link}">reported a post</a> - {msg_msg}';
+$txt['alert_msg_report_reply'] = '{member_link} replied to <a href="{report_link}">the report</a> about {msg_msg}';
 $txt['alert_member_register_standard'] = '{member_link} just signed up';
 $txt['alert_member_register_approval'] = '{member_link} just signed up (account requires approval)';
 $txt['alert_member_register_activation'] = '{member_link} just signed up (account requires activation)';
