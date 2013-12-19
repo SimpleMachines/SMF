@@ -56,10 +56,10 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 
 				if (!empty($prefs[$mod]))
 				{
-					if ($prefs[$mod] & 0x01 == 0x01)
+					if ($prefs[$mod] & 0x01)
 						$data['alert'][] = $mod;
 
-					if ($prefs[$mod] & 0x02 == 0x02)
+					if ($prefs[$mod] & 0x02)
 						$data['email'][] = $mod;
 				}
 			}
