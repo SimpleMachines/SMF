@@ -932,7 +932,7 @@ function saveProfileFields()
 function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 {
 	global $user_info, $txt, $modSettings, $user_profile;
-	global $context, $settings, $sourcedir;
+	global $context, $sourcedir;
 	global $smcFunc;
 
 	// These make life easier....
@@ -1709,7 +1709,7 @@ function getAvatars($directory, $level)
  */
 function theme($memID)
 {
-	global $txt, $context, $user_profile, $modSettings, $settings, $user_info, $smcFunc;
+	global $txt, $context, $user_profile, $modSettings, $user_info, $smcFunc;
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
@@ -1819,7 +1819,7 @@ function authentication($memID, $saving = false)
  */
 function notification($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Going to want this for consistency.
 	loadCSSFile('admin.css', array(), 'admin');
@@ -1844,7 +1844,7 @@ function notification($memID)
 
 function alert_configuration($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	$context['token_check'] = 'profile-nt' . $memID;
 	is_not_guest();
@@ -2044,7 +2044,7 @@ function alert_configuration($memID)
 
 function alert_notifications_topics($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_topics']))
@@ -2092,7 +2092,7 @@ function alert_notifications_topics($memID)
 				),
 				'data' => array(
 					'function' => create_function('$topic', '
-						global $settings, $txt;
+						global $txt;
 
 						$link = $topic[\'link\'];
 
@@ -2184,7 +2184,7 @@ function alert_notifications_topics($memID)
 
 function alert_notifications_boards($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_boards']))
@@ -2225,7 +2225,7 @@ function alert_notifications_boards($memID)
 				),
 				'data' => array(
 					'function' => create_function('$board', '
-						global $settings, $txt;
+						global $txt;
 
 						$link = $board[\'link\'];
 
@@ -2558,7 +2558,7 @@ function ignoreboards($memID)
  */
 function profileLoadLanguages()
 {
-	global $context, $modSettings, $settings, $cur_profile, $language, $smcFunc;
+	global $context, $modSettings, $cur_profile, $language, $smcFunc;
 
 	$context['profile_languages'] = array();
 

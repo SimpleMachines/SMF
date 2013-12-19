@@ -13,7 +13,7 @@
 // Generate a strip of buttons, out of buttons.
 function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
 {
-	global $settings, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Compatibility.
 	if (!is_array($strip_options))

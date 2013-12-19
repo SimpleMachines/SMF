@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function Memberlist()
 {
-	global $scripturl, $txt, $modSettings, $context, $settings, $modSettings;
+	global $scripturl, $txt, $modSettings, $context, $modSettings;
 
 	// Make sure they can view the memberlist.
 	isAllowedTo('view_mlist');
@@ -598,7 +598,7 @@ function MLSearch()
 function printMemberListRows($request)
 {
 	global $scripturl, $txt, $user_info, $modSettings;
-	global $context, $settings, $memberContext, $smcFunc;
+	global $context, $memberContext, $smcFunc;
 
 	// Get the most posts.
 	$result = $smcFunc['db_query']('', '

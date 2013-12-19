@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $txt, $context, $scripturl, $sc, $modSettings, $user_info, $settings, $sourcedir, $options, $smcFunc;
+	global $txt, $context, $scripturl, $sc, $modSettings, $user_info, $sourcedir, $options, $smcFunc;
 
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset($context['admin_area']))

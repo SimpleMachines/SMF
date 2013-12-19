@@ -1868,7 +1868,7 @@ function listtree($path, $sub_path = '')
  */
 function parseModification($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $settings, $txt, $modSettings, $package_ftp;
+	global $boarddir, $sourcedir, $txt, $modSettings, $package_ftp;
 
 	@set_time_limit(600);
 	require_once($sourcedir . '/Class-Package.php');

@@ -260,7 +260,7 @@ function ssi_logout($redirect_to = '', $output_method = 'echo')
 // Recent post list:   [board] Subject by Poster	Date
 function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo', $limit_body = true)
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc;
 
 	// Excluding certain boards...
@@ -328,7 +328,7 @@ function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $out
 // This removes code duplication in other queries - don't call it direct unless you really know what you're up to.
 function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc;
 
 	// Find all the posts. Newer ones will have higher IDs.
@@ -611,7 +611,7 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 // Show boards by activity.
 function ssi_topBoards($num_top = 10, $output_method = 'echo')
 {
-	global $context, $settings, $db_prefix, $txt, $scripturl, $user_info, $modSettings, $smcFunc;
+	global $context, $db_prefix, $txt, $scripturl, $user_info, $modSettings, $smcFunc;
 
 	// Find boards with lots of posts.
 	$request = $smcFunc['db_query']('', '
@@ -863,7 +863,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 // Fetch some member data!
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
-	global $context, $settings, $scripturl, $txt, $db_prefix, $user_info;
+	global $context, $scripturl, $txt, $db_prefix, $user_info;
 	global $modSettings, $smcFunc, $memberContext;
 
 	if ($query_where === null)

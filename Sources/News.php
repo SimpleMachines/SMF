@@ -594,7 +594,7 @@ function getXmlMembers($xml_format)
 function getXmlNews($xml_format)
 {
 	global $user_info, $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $settings, $context;
+	global $query_this_board, $smcFunc, $context;
 
 	/* Find the latest posts that:
 		- are the first post in their topic.
@@ -728,7 +728,7 @@ function getXmlNews($xml_format)
 function getXmlRecent($xml_format)
 {
 	global $user_info, $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $settings, $context;
+	global $query_this_board, $smcFunc, $context;
 
 	$done = false;
 	$loops = 0;

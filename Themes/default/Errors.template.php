@@ -19,7 +19,7 @@
 // Show an error message.....
 function template_fatal_error()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $options, $txt;
 
 	echo '
 	<div id="fatal_error">

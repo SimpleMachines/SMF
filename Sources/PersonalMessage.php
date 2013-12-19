@@ -230,7 +230,7 @@ function MessageMain()
  */
 function messageIndexBar($area)
 {
-	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $settings, $user_info, $options;
+	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $user_info, $options;
 
 	$pm_areas = array(
 		'folders' => array(

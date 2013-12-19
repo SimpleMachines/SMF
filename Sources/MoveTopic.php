@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $settings, $smcFunc, $modSettings, $sourcedir;
+	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $smcFunc, $modSettings, $sourcedir;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
