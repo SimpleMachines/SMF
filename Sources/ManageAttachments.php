@@ -337,6 +337,12 @@ function ManageAvatarSettings($return_config = false)
 		if (empty($_POST['custom_avatar_url']))
 			$_POST['custom_avatar_url'] = $boardurl .'/custom_avatar';
 
+		if (empty($_POST['avatar_directory']))
+			$_POST['avatar_directory'] = $boarddir .'/avatars';
+
+		if (empty($_POST['avatar_url']))
+			$_POST['avatar_url'] = $boardurl .'/avatars';
+
 		call_integration_hook('integrate_save_avatar_settings');
 
 		saveDBSettings($config_vars);
