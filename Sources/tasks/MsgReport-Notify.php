@@ -75,7 +75,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 		foreach ($prefs as $member => $pref_option)
 		{
 			foreach ($alert_bits as $type => $bitvalue)
-				if ($pref_option & $bitvalue)
+				if ($pref_option['msg_report'] & $bitvalue)
 					$notifies[$type][] = $member;
 		}
 

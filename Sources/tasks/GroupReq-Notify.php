@@ -50,12 +50,12 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 			// Bitwise comparisons are fun...
 			foreach ($moderators as $mod)
 			{
-				if (!empty($prefs[$mod]))
+				if (!empty($prefs[$mod]['request_group']))
 				{
-					if ($prefs[$mod] & 0x01)
+					if ($prefs[$mod]['request_group'] & 0x01)
 						$data['alert'][] = $mod;
 
-					if ($prefs[$mod] & 0x02)
+					if ($prefs[$mod]['request_group'] & 0x02)
 						$data['email'][] = $mod;
 				}
 			}

@@ -37,7 +37,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 		foreach ($prefs as $member => $pref_option)
 		{
 			foreach ($alert_bits as $type => $bitvalue)
-				if ($pref_option & $bitvalue)
+				if ($pref_option['member_register'] & $bitvalue)
 					$notifies[$type][] = $member;
 		}
 
