@@ -313,6 +313,7 @@ $txt['error_functionality_not_windows'] = 'Sorry, this functionality is currentl
 $txt['attachment_not_found'] = 'Attachment Not Found';
 
 $txt['error_no_boards_selected'] = 'No valid boards were selected.';
+$txt['error_no_boards_available'] = 'Sorry, there are no boards available to you at this time.';
 $txt['error_invalid_search_string'] = 'Did you forget to put something to search for?';
 $txt['error_invalid_search_string_blacklist'] = 'Your search query contained too trivial words. Please try again with a different query.';
 $txt['error_search_string_small_words'] = 'Each word must be at least two characters long.';
