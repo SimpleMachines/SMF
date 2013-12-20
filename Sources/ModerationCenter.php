@@ -227,7 +227,7 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $context, $scripturl, $modSettings, $user_info, $user_settings;
+	global $txt, $context, $scripturl, $modSettings, $user_info, $user_settings, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
@@ -249,23 +249,17 @@ function ModerationHome()
 		$valid_blocks['w'] = 'WatchedUsers';
 	}
 
-	if (empty($user_settings['mod_prefs']))
-		$user_blocks = 'n' . ($context['can_moderate_boards'] ? 'wr' : '') . ($context['can_moderate_groups'] ? 'g' : '');
-	else
-		list (, $user_blocks) = explode('|', $user_settings['mod_prefs']);
-
-	$user_blocks = str_split($user_blocks);
+	call_integration_hook('integrate_mod_centre_blocks', array(&$valid_blocks));
 
 	$context['mod_blocks'] = array();
 	foreach ($valid_blocks as $k => $block)
 	{
-		if (in_array($k, $user_blocks))
-		{
-			$block = 'ModBlock' . $block;
-			if (function_exists($block))
-				$context['mod_blocks'][] = $block();
-		}
+		$block = 'ModBlock' . $block;
+		if (function_exists($block))
+			$context['mod_blocks'][] = $block();
 	}
+
+	$context['admin_prefs'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
 }
 
 /**
@@ -2128,28 +2122,9 @@ function ModerationSettings()
 		'description' => $txt['mc_prefs_desc']
 	);
 
-	// What blocks can this user see?
-	$context['homepage_blocks'] = array();
-
-	if ($context['can_moderate_groups'])
-		$context['homepage_blocks']['g'] = $txt['mc_group_requests'];
-	if ($context['can_moderate_boards'])
-	{
-		$context['homepage_blocks']['r'] = $txt['mc_reported_posts'];
-		$context['homepage_blocks']['w'] = $txt['mc_watched_users'];
-	}
-
-	// Does the user have any settings yet?
-	if (empty($user_settings['mod_prefs']))
-	{
-		$mod_blocks = 'n' . ($context['can_moderate_boards'] ? 'wr' : '') . ($context['can_moderate_groups'] ? 'g' : '');
-		$pref_binary = 5;
-		$show_reports = 0;
-	}
-	else
-	{
-		list ($show_reports, $mod_blocks, $pref_binary) = explode('|', $user_settings['mod_prefs']);
-	}
+	$mod_blocks = '';
+	$pref_binary = 5;
+	$show_reports = 0;
 
 	// Are we saving?
 	if (isset($_POST['save']))
@@ -2164,20 +2139,8 @@ function ModerationSettings()
 				x = Show report count on forum header.
 				ABCD = Block indexes to show on moderation main page.
 				yyy = Integer with the following bit status:
-					- yyy & 1 = Always notify on reports.
-					- yyy & 2 = Notify on reports for moderators only.
 					- yyy & 4 = Notify about posts awaiting approval.
 		*/
-
-		// Do blocks first!
-		$mod_blocks = '';
-		if (!empty($_POST['mod_homepage']))
-			foreach ($_POST['mod_homepage'] as $k => $v)
-			{
-				// Make sure they can add this...
-				if (isset($context['homepage_blocks'][$k]))
-					$mod_blocks .= $k;
-			}
 
 		// Now check other options!
 		$pref_binary = 0;
@@ -2186,15 +2149,13 @@ function ModerationSettings()
 			$pref_binary |= 4;
 
 		// Put it all together.
-		$mod_prefs = '0|' . $mod_blocks . '|' . $pref_binary;
+		$mod_prefs = '0||' . $pref_binary;
 		updateMemberData($user_info['id'], array('mod_prefs' => $mod_prefs));
 	}
 
 	// What blocks does the user currently have selected?
 	$context['mod_settings'] = array(
-		'notify_report' => $pref_binary & 2 ? 1 : ($pref_binary & 1 ? 2 : 0),
 		'notify_approval' => $pref_binary & 4,
-		'user_blocks' => str_split($mod_blocks),
 	);
 
 	createToken('mod-set');
