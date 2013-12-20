@@ -784,6 +784,8 @@ class ftp_connection
 			$ftp_server = 'ssl://' . substr($ftp_server, 7);
 		if (strpos($ftp_server, 'http://') === 0)
 			$ftp_server = substr($ftp_server, 7);
+		elseif (strpos($ftp_server, 'https://') === 0)
+			$ftp_server = substr($ftp_server, 8);
 		$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
 
 		// Connect to the FTP server.

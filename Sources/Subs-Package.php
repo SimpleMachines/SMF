@@ -31,7 +31,7 @@ if (!defined('SMF'))
  */
 function read_tgz_file($gzfilename, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
-	if (substr($gzfilename, 0, 7) == 'http://')
+	if (substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://')
 	{
 		$data = fetch_web_data($gzfilename);
 
@@ -434,7 +434,7 @@ function getPackageInfo($gzfilename)
 	global $boarddir, $sourcedir, $packagesdir, $smcFunc;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
-	if (strpos($gzfilename, 'http://') !== false)
+	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
 		$packageInfo = read_tgz_data(fetch_web_data($gzfilename, '', true), '*/package-info.xml', true);
 	else
 	{
