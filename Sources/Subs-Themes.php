@@ -460,7 +460,7 @@ function remove_dir($path)
  */
 function remove_theme($themeID)
 {
-	global $smcFunc, $modSetting;
+	global $smcFunc, $modSettings;
 
 	// Can't delete the default theme, sorry!
 	if (empty($themeID) || $themeID == 1)
