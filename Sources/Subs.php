@@ -3220,14 +3220,14 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright, $context, $boardurl, $forum_version, $txt, $modSettings;
+	global $forum_copyright, $software_year, $context, $boardurl, $forum_version, $txt, $modSettings;
 
 	// Don't display copyright for things like SSI.
-	if (!isset($forum_version))
+	if (!isset($forum_version) || !isset($software_year))
 		return;
 
 	// Put in the version...
-	$forum_copyright = sprintf($forum_copyright, $forum_version);
+	$forum_copyright = sprintf($forum_copyright, $forum_version, $software_year);
 
 	echo '
 			<span class="smalltext" style="display: inline; visibility: visible; font-family: Verdana, Arial, sans-serif;">' . $forum_copyright . '
