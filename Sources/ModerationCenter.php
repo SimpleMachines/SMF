@@ -597,8 +597,26 @@ function ReportedPosts()
 			)
 		);
 
+		// Get the board, topic and message for this report
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board, id_topic, id_msg
+			FROM {db_prefix}log_reported
+			WHERE id_report = {int:id_report}',
+			array(
+				'id_report' => $_GET['rid'],
+			)
+		);
+
+		// Set up the data for the log...
+		$extra = array('report' => $_GET['rid']);
+		list ($extra['board'], $extra['topic'], $extra['message']) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+
 		// Tell the user about it.
 		$context['report_post_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
+
+		// Log this action
+		logAction($context['report_post_action'] . '_report', $extra);
 
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
@@ -615,6 +633,32 @@ function ReportedPosts()
 
 		if (!empty($toClose))
 		{
+			// Get the data for each of these reports
+			$request = $smcFunc['db_query']('', '
+				SELECT id_report, id_board, id_topic, id_msg
+				FROM {db_prefix}log_reported
+				WHERE id_report IN ({array_int:report_list})
+					AND ' . $user_inf['mod_cache']['bq'],
+				array(
+					'id_report' => $_GET['rid'],
+				)
+			);
+
+			while ($reports = $smcFunc['db_fetch_assoc']($request))
+			{
+				$report_data = array(
+					'report' => $row['id_report'],
+					'board' => $row['id_board'],
+					'topic' => $row['id_topic'],
+					'message' => $row['id_msg'],
+				);
+
+				// Log that this report was closed
+				logAction('close_report', $report_data);
+			}
+
+			$smcFunc['db_free_result']($request);
+
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_reported
 				SET closed = {int:is_closed}
