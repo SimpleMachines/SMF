@@ -133,6 +133,7 @@ function CalendarMain()
 	$context['show_all_birthdays'] = isset($_GET['showbd']);
 	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
 	$context['tpl_show_week_num'] = !empty($calendarOptions['tpl_show_week_num']) ? 1 : 0;
+	loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true));
 
 	// Set the page title to mention the month or week, too
 	$context['page_title'] .= ' - ' . ($context['view_week'] ? sprintf($txt['calendar_week_title'], $context['calendar_grid_main']['week_number'], ($context['calendar_grid_main']['week_number'] == 53 ? $context['current_year'] - 1 : $context['current_year'])) : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
