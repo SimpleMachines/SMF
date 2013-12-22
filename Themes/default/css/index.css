@@ -1069,10 +1069,11 @@ img.sort, .sort {
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
 .dropmenu li .amt, #top_info li .amt {
-	padding: 0 4px;
+	margin-left: 3px;
+	padding: 0 5px;
 	color: white;
 	background: #6d90ad;
-	border-radius: 4px;
+	border-radius: 8px;
 }
 .dropmenu li .active .amt, #top_info li .active .amt {
 	background: none;
