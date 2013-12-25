@@ -1951,7 +1951,7 @@ function alert_configuration($memID)
 		if (empty($alert_types[$group]))
 			unset ($alert_types[$group]);
 	}
-	
+
 	// Slightly different for group requests
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -1961,9 +1961,9 @@ function alert_configuration($memID)
 			'memID' => $memID,
 		)
 	);
-	
+
 	list($can_mod) = $smcFunc['db_fetch_row']($request);
-	
+
 	if (!isset($perms_cache['manage_membergroups']))
 	{
 		$members = membersAllowedTo('manage_membergroups');
@@ -2901,6 +2901,7 @@ function profileSaveAvatarData(&$value)
 		}
 	}
 
+	// Removes whatever attachment there was before updating
 	if ($value == 'none')
 	{
 		$profile_vars['avatar'] = '';
@@ -2912,6 +2913,8 @@ function profileSaveAvatarData(&$value)
 
 		removeAttachments(array('id_member' => $memID));
 	}
+
+	// An avatar from the server-stored galleries.
 	elseif ($value == 'server_stored' && allowedTo('profile_server_avatar'))
 	{
 		$profile_vars['avatar'] = strtr(empty($_POST['file']) ? (empty($_POST['cat']) ? '' : $_POST['cat']) : $_POST['file'], array('&amp;' => '&'));
@@ -3016,12 +3019,16 @@ function profileSaveAvatarData(&$value)
 					$cur_profile['filename'] = $modSettings['new_avatar_data']['filename'];
 					$cur_profile['attachment_type'] = $modSettings['new_avatar_data']['type'];
 				}
+
+				// Admin doesn't want to resize large avatars, can't do much about it but to tell you to use a different one :(
 				else
 				{
 					@unlink($_FILES['attachment']['tmp_name']);
-					return 'bad_avatar';
+					return 'bad_avatar_too_large';
 				}
 			}
+
+			// So far, so good, checks lies ahead!
 			elseif (is_array($sizes))
 			{
 				// Now try to find an infection.
