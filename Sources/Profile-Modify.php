@@ -2941,7 +2941,7 @@ function profileSaveAvatarData(&$value)
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
-			return 'bad_avatar';
+			return 'bad_avatar_invalid_url';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -2952,7 +2952,7 @@ function profileSaveAvatarData(&$value)
 			{
 				// Houston, we have a problem. The avatar is too large!!
 				if ($modSettings['avatar_action_too_large'] == 'option_refuse')
-					return 'bad_avatar';
+					return 'bad_avatar_too_large';
 				elseif ($modSettings['avatar_action_too_large'] == 'option_download_and_resize')
 				{
 					// @todo remove this if appropriate
@@ -3032,7 +3032,7 @@ function profileSaveAvatarData(&$value)
 					if (empty($modSettings['avatar_reencode']) || (!reencodeImage($_FILES['attachment']['tmp_name'], $sizes[2])))
 					{
 						@unlink($_FILES['attachment']['tmp_name']);
-						return 'bad_avatar';
+						return 'bad_avatar_fail_reencode';
 					}
 					// We were successful. However, at what price?
 					$sizes = @getimagesize($_FILES['attachment']['tmp_name']);
