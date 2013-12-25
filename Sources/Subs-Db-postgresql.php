@@ -321,9 +321,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
 		),
-		'messageindex_fetch_boards' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
 		'select_message_icons' => array(
 			'~(.)$~' => '$1 ORDER BY icon_order',
 		),

@@ -14,7 +14,7 @@
 // This is for stuff above the menu in the personal messages section.
 function template_pm_above()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $options, $txt;
 
 	echo '
 	<div id="personal_messages">';
@@ -43,15 +43,13 @@ function template_pm_above()
 // Just the end of the index bar, nothing special.
 function template_pm_below()
 {
-	global $context, $settings, $options;
-
 	echo '
 	</div>';
 }
 
 function template_pm_popup()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
@@ -83,7 +81,7 @@ function template_pm_popup()
 				<div class="avatar floatleft">', !empty($pm_details['member']) ? $pm_details['member']['avatar']['image'] : '', '</div>
 				<div class="details floatleft">
 					<div class="subject">', $pm_details['pm_link'], '</div>
-					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="pm_icons replied" style="margin-right: 4px; vertical-align: middle" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="pm_icons im_off" style="margin-right: 4px; vertical-align: middle" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
+					<div class="sender">', $pm_details['replied_to_you'] ? '<span class="pm_icons replied centericon" style="margin-right: 4px" title="' . $txt['pm_you_were_replied_to'] . '"></span>' : '<span class="pm_icons im_off centericon" style="margin-right: 4px" title="' . $txt['pm_was_sent_to_you'] . '"></span>',
 					!empty($pm_details['member']) ? $pm_details['member']['link'] : $pm_details['member_from'], ' - ', $pm_details['time'], '</div>
 				</div>
 				<br class="clear" />
@@ -367,17 +365,17 @@ function template_folder()
 					// Don't show an icon if they haven't specified a website.
 					if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
 						echo '
-						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $message['member']['website']['title'] . '" style="vertical-align:middle"></span>' : $txt['www']), '</a></li>';
+						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 					// Don't show the email address if they want it hidden.
 					if (in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')) && $context['can_send_email'])
 						echo '
-						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a></li>';
+						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 					// Since we know this person isn't a guest, you *can* message them.
 					if ($context['can_send_pm'])
 						echo '
-						<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="pm_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . '" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '" style="vertical-align:middle"></span>' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
+						<li><a href="', $scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline'], '">', $settings['use_image_buttons'] ? '<span class="pm_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']) . '"></span>' : ($message['member']['online']['is_online'] ? $txt['pm_online'] : $txt['pm_offline']), '</a></li>';
 
 					echo '
 					</ol>
@@ -705,7 +703,7 @@ function template_subject_list()
 
 function template_search()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
@@ -849,7 +847,7 @@ function template_search()
 
 function template_search_results()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -1353,7 +1351,7 @@ function template_send()
 // This template asks the user whether they wish to empty out their folder/messages.
 function template_ask_delete()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -1370,7 +1368,7 @@ function template_ask_delete()
 // This template asks the user what messages they want to prune.
 function template_prune()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=prune" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
@@ -1390,7 +1388,7 @@ function template_prune()
 // Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
 function template_labels()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', $context['character_set'], '">
@@ -1480,7 +1478,7 @@ function template_labels()
 // Template for reporting a personal message.
 function template_report_message()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=report;l=', $context['current_label_id'], '" method="post" accept-charset="', $context['character_set'], '">
@@ -1534,7 +1532,7 @@ function template_report_message()
 // Little template just to say "Yep, it's been submitted"
 function template_report_message_complete()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -1551,7 +1549,7 @@ function template_report_message_complete()
 // Manage rules.
 function template_rules()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=manrules" method="post" accept-charset="', $context['character_set'], '" name="manRules" id="manrules">
@@ -1626,7 +1624,7 @@ function template_rules()
 // Template for adding/editing a rule.
 function template_add_rule()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<script type="text/javascript"><!-- // --><![CDATA[
@@ -1927,7 +1925,7 @@ function template_add_rule()
 // Template for showing all the PM drafts of the user.
 function template_showPMDrafts()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">

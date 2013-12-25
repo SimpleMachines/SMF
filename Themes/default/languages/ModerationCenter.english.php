@@ -1,8 +1,6 @@
 <?php
 // Version: 2.1 Alpha 1; ModerationCenter
 
-global $scripturl;
-
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
 $txt['mc_logs'] = 'Logs';
@@ -11,7 +9,7 @@ $txt['mc_groups'] = 'Members and groups';
 
 $txt['mc_view_groups'] = 'View Membergroups';
 
-$txt['mc_description'] = 'This is your &quot;Moderation Center&quot;. From here you can perform all the moderation actions assigned to yourself by the Administrator. This home page contains a summary of all the latest happenings in your community. You can personalize the layout by clicking <a href="' . $scripturl . '?action=moderate;area=settings">here</a>.';
+$txt['mc_description'] = 'This is your &quot;Moderation Center&quot;. From here you can perform all the moderation actions assigned to yourself by the Administrator. This home page contains a summary of all the latest happenings in your community.';
 $txt['mc_group_requests'] = 'Membergroup Requests';
 $txt['mc_unapproved_posts'] = 'Unapproved Posts';
 $txt['mc_watched_users'] = 'Recent Watched Members';
@@ -140,13 +138,7 @@ $txt['mc_warning_template_error_no_body'] = 'You must set a notification body.';
 $txt['mc_settings'] = 'Change Settings';
 $txt['mc_prefs_title'] = 'Moderation Preferences';
 $txt['mc_prefs_desc'] = 'This section allows you to set some personal preferences for moderation related activities such as email notifications.';
-$txt['mc_prefs_homepage'] = 'Items to show on moderation homepage';
-$txt['mc_prefs_latest_news'] = 'SM News';
-$txt['mc_prefs_show_reports'] = 'Show open report count in forum header';
-$txt['mc_prefs_notify_report'] = 'Notify of topic reports';
-$txt['mc_prefs_notify_report_never'] = 'Never';
-$txt['mc_prefs_notify_report_moderator'] = 'Only if it\'s a board I moderate';
-$txt['mc_prefs_notify_report_always'] = 'Always';
+
 $txt['mc_prefs_notify_approval'] = 'Notify of items awaiting approval';
 $txt['mc_logoff'] = 'End Moderator Session';
 

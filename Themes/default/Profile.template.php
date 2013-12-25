@@ -89,7 +89,7 @@ function template_profile_popup()
 
 function template_alerts_popup()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 	echo '
@@ -149,7 +149,7 @@ function template_summary()
 	// What about if we allow email only via the forum??
 	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
 		echo '
-					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><img src="', $settings['images_url'], '/email_sm.png" alt="', $txt['email'], '" /></a></li>';
+					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
@@ -418,7 +418,7 @@ function template_summary()
 // Template for showing all the posts of the user, in chronological order.
 function template_showPosts()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -630,7 +630,7 @@ function template_editBuddies()
 				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '" /></a></td>';
 		if ($context['can_send_email'])
 			echo '
-				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $buddy['name'] . '" /></a>'), '</td>';
+				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>'), '</td>';
 
 		// If these are off, don't show them
 		foreach ($buddy_fields as $key => $column)
@@ -641,7 +641,7 @@ function template_editBuddies()
 		}
 
 		echo '
-				<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><img src="', $settings['images_url'], '/icons/delete.png" alt="', $txt['buddy_remove'], '" title="', $txt['buddy_remove'], '" /></a></td>
+				<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
 			</tr>';
 
 		$alternate = !$alternate;
@@ -737,13 +737,13 @@ function template_editIgnoreList()
 				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['text'], '" title="', $member['online']['text'], '" /></a></td>';
 		if ($context['can_send_email'])
 			echo '
-				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . ' ' . $member['name'] . '" /></a>'), '</td>';
+				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>'), '</td>';
 		echo '
 				<td align="center">', $member['icq']['link'], '</td>
 				<td align="center">', $member['aim']['link'], '</td>
 				<td align="center">', $member['yim']['link'], '</td>
 				<td align="center">', $member['skype']['link'], '</td>
-				<td align="center"><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><img src="', $settings['images_url'], '/icons/delete.png" alt="', $txt['ignore_remove'], '" title="', $txt['ignore_remove'], '" /></a></td>
+				<td align="center"><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
 			</tr>';
 
 		$alternate = !$alternate;
@@ -798,7 +798,7 @@ function template_editIgnoreList()
 // This template shows an admin information on a users IP addresses used and errors attributed to them.
 function template_trackActivity()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	// The first table shows IP information about the user.
 	echo '
@@ -857,7 +857,7 @@ function template_trackActivity()
 // The template for trackIP, allowing the admin to see where/who a certain IP has been used.
 function template_trackIP()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	// This function always defaults to the last IP used by a member but can be set to track any IP.
 	// The first table in the template gives an input box to allow the admin to enter another IP to track.
@@ -1102,7 +1102,7 @@ function template_showPermissions()
 // Template for user statistics, showing graphs and the like.
 function template_statPanel()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
@@ -1501,7 +1501,7 @@ function template_edit_options()
 // Personal Message settings.
 function template_profile_pm_settings()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
 								<dt>
@@ -1578,16 +1578,9 @@ function template_profile_pm_settings()
 // Template for showing theme settings. Note: template_options() actually adds the theme specific options.
 function template_profile_theme_settings()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	echo '
-							<dt>
-								<label for="show_board_desc">', $txt['board_desc_inside'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[show_board_desc]" value="0" />
-								<input type="checkbox" name="default_options[show_board_desc]" id="show_board_desc" value="1"', !empty($context['member']['options']['show_board_desc']) ? ' checked="checked"' : '', ' class="input_check" />
-							</dd>
 							<dt>
 								<label for="show_children">', $txt['show_children'], '</label>
 							</dt>
@@ -1627,13 +1620,6 @@ function template_profile_theme_settings()
 							<dd>
 								<input type="hidden" name="default_options[return_to_post]" value="0" />
 								<input type="checkbox" name="default_options[return_to_post]" id="return_to_post" value="1"', !empty($context['member']['options']['return_to_post']) ? ' checked="checked"' : '', ' class="input_check" />
-							</dd>
-							<dt>
-								<label for="no_new_reply_warning">', $txt['no_new_reply_warning'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[no_new_reply_warning]" value="0" />
-								<input type="checkbox" name="default_options[no_new_reply_warning]" id="no_new_reply_warning" value="1"', !empty($context['member']['options']['no_new_reply_warning']) ? ' checked="checked"' : '', ' class="input_check" />
 							</dd>';
 
 	if (!empty($modSettings['enable_buddylist']))
@@ -1902,7 +1888,7 @@ function template_alert_configuration()
 				<tr class="windowbg', $use_bg2 ? '2' : '', '">
 					<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '" title="' . $txt['help'] . '">' : '', '</td>';
 
-			foreach (array('alert', 'email') as $type)
+			foreach ($context['alert_bits'] as $type => $bitmask)
 			{
 				echo '
 					<td class="centercol">';
@@ -1915,7 +1901,7 @@ function template_alert_configuration()
 						break;
 					case 'yes':
 						echo '
-						<input type="checkbox" name="', $type, '_', $alert_id, '"', $this_value & $context['alert_bits'][$type] != 0 ? ' checked="checked"' : '', ' />';
+						<input type="checkbox" name="', $type, '_', $alert_id, '"', ($this_value & $bitmask) ? ' checked="checked"' : '', ' />';
 						break;
 					case 'never':
 						echo '
@@ -1949,7 +1935,7 @@ function template_alert_configuration()
 
 function template_alert_notifications_topics()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $options, $txt, $scripturl, $modSettings;
 
 	// The main containing header.
 	echo '
@@ -1966,7 +1952,7 @@ function template_alert_notifications_topics()
 
 function template_alert_notifications_boards()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $options, $txt, $scripturl, $modSettings;
 
 	echo '
 		<div class="cat_bar">
@@ -2717,7 +2703,7 @@ function template_deleteAccount()
 // Template for the password box/save button stuck at the bottom of every profile page.
 function template_profile_save()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $options, $txt;
 
 	echo '
 

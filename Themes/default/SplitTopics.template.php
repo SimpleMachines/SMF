@@ -12,7 +12,7 @@
 
 function template_ask()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -51,7 +51,7 @@ function template_ask()
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -229,7 +229,7 @@ function template_select()
 
 function template_merge_done()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<div id="merge_topics">
@@ -256,7 +256,7 @@ function template_merge_done()
 
 function template_merge()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<div id="merge_topics">
@@ -276,7 +276,7 @@ function template_merge()
 							', $context['origin_subject'], '
 						</dd>';
 
-	if (!empty($context['boards']) && count($context['boards']) > 1)
+	if (isset($context['merge_categories']))
 	{
 			echo '
 						<dt>
@@ -286,9 +286,20 @@ function template_merge()
 							<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '">
 								<input type="hidden" name="from" value="' . $context['origin_topic'] . '" />
 								<select name="targetboard" onchange="this.form.submit();">';
-			foreach ($context['boards'] as $board)
+			foreach ($context['merge_categories'] as $cat)
+			{
 				echo '
-									<option value="', $board['id'], '"', $board['id'] == $context['target_board'] ? ' selected="selected"' : '', '>', $board['category'], ' - ', $board['name'], '</option>';
+									<optgroup label="', $cat['name'], '">';
+
+				foreach ($cat['boards'] as $board)
+				{
+					echo '
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+				}
+
+				echo '
+									</optgroup>';
+			}
 			echo '
 								</select>
 								<input type="submit" value="', $txt['go'], '" class="button_submit" />
@@ -347,7 +358,7 @@ function template_merge()
 
 function template_merge_extra_options()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="merge_topics">

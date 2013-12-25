@@ -1208,9 +1208,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
 			'avatar' => array(
 				'name' => $profile['avatar'],
-				'image' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) . '" alt="" />' : '') : (stristr($profile['avatar'], 'http://') ? '<img class="avatar" src="' . $profile['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($profile['avatar']) . '" alt="" />'),
-				'href' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) : '') : (stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar']),
-				'url' => $profile['avatar'] == '' ? '' : (stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'])
+				'image' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) . '" alt="" />' : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? '<img class="avatar" src="' . $profile['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($profile['avatar']) . '" alt="" />'),
+				'href' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar']),
+				'url' => $profile['avatar'] == '' ? '' : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'])
 			),
 			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
 			'last_login_timestamp' => empty($profile['last_login']) ? 0 : forum_time(0, $profile['last_login']),
@@ -1429,7 +1429,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc;
+	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language;
 
 	// The theme was specified by parameter.
 	if (!empty($id_theme))
@@ -1631,27 +1631,44 @@ function loadTheme($id_theme = 0, $initialize = true)
 		}
 	}
 	// Set up the contextual user array.
-	$context['user'] = array(
-		'id' => $user_info['id'],
-		'is_logged' => !$user_info['is_guest'],
-		'is_guest' => &$user_info['is_guest'],
-		'is_admin' => &$user_info['is_admin'],
-		'is_mod' => &$user_info['is_mod'],
-		// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
-		'can_mod' => allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap'])))),
-		'username' => $user_info['username'],
-		'language' => $user_info['language'],
-		'email' => $user_info['email'],
-		'ignoreusers' => $user_info['ignoreusers'],
-	);
-	if (!$context['user']['is_guest'])
-		$context['user']['name'] = $user_info['name'];
-	elseif ($context['user']['is_guest'] && !empty($txt['guest_title']))
-		$context['user']['name'] = $txt['guest_title'];
+	if (!empty($user_info))
+	{
+		$context['user'] = array(
+			'id' => $user_info['id'],
+			'is_logged' => !$user_info['is_guest'],
+			'is_guest' => &$user_info['is_guest'],
+			'is_admin' => &$user_info['is_admin'],
+			'is_mod' => &$user_info['is_mod'],
+			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
+			'can_mod' => allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap'])))),
+			'username' => $user_info['username'],
+			'language' => $user_info['language'],
+			'email' => $user_info['email'],
+			'ignoreusers' => $user_info['ignoreusers'],
+		);
+		if (!$context['user']['is_guest'])
+			$context['user']['name'] = $user_info['name'];
+		elseif ($context['user']['is_guest'] && !empty($txt['guest_title']))
+			$context['user']['name'] = $txt['guest_title'];
 
-	// Determine the current smiley set.
-	$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], explode(',', $modSettings['smiley_sets_known'])) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
-	$context['user']['smiley_set'] = $user_info['smiley_set'];
+		// Determine the current smiley set.
+		$user_info['smiley_set'] = (!in_array($user_info['smiley_set'], explode(',', $modSettings['smiley_sets_known'])) && $user_info['smiley_set'] != 'none') || empty($modSettings['smiley_sets_enable']) ? (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default']) : $user_info['smiley_set'];
+		$context['user']['smiley_set'] = $user_info['smiley_set'];
+	}
+	else
+	{
+		$context['user'] = array(
+			'id' => -1,
+			'is_logged' => false,
+			'is_guest' => true,
+			'is_mod' => false,
+			'can_mod' => false,
+			'name' => $txt['guest_title'],
+			'language' => $language,
+			'email' => '',
+			'ignoreusers' => array(),
+		);
+	}
 
 	// Some basic information...
 	if (!isset($context['html_headers']))
@@ -1678,7 +1695,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$context['load_average'] = $modSettings['load_average'];
 
 	// Set some permission related settings.
-	$context['show_login_bar'] = $user_info['is_guest'] && !empty($modSettings['enableVBStyleLogin']);
+	$context['show_login_bar'] = !empty($user_info['is_guest']) && !empty($modSettings['enableVBStyleLogin']);
 
 	// Detect the browser. This is separated out because it's also used in attachment downloads
 	detectBrowser();
@@ -2426,7 +2443,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  */
 function censorText(&$text, $force = false)
 {
-	global $modSettings, $options, $settings, $txt;
+	global $modSettings, $options, $txt;
 	static $censor_vulgar = null, $censor_proper;
 
 	if ((!empty($options['show_no_censored']) && !empty($modSettings['allow_no_censored']) && !$force) || empty($modSettings['censor_vulgar']) || trim($text) === '')

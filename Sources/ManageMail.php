@@ -278,7 +278,7 @@ function list_getMailQueueSize()
  */
 function ModifyMailSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $modSettings, $txtBirthdayEmails;
+	global $txt, $scripturl, $context, $modSettings, $txtBirthdayEmails;
 
 	loadLanguage('EmailTemplates');
 

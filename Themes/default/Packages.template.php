@@ -12,7 +12,7 @@
 
 function template_main()
 {
-	global $context, $settings, $options;
+	global $context, $options;
 }
 
 function template_view_package()
@@ -394,7 +394,7 @@ function template_view_package()
 
 function template_extract_package()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	if (!empty($context['redirect_url']))
 	{
@@ -473,7 +473,7 @@ function template_extract_package()
 
 function template_list()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -502,7 +502,7 @@ function template_list()
 
 function template_examine()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -680,7 +680,7 @@ function template_browse()
 
 function template_servers()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	if (!empty($context['package_ftp']['error']))
 			echo '
@@ -831,7 +831,7 @@ function template_servers()
 
 function template_package_confirm()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -849,7 +849,7 @@ function template_package_confirm()
 
 function template_package_list()
 {
-	global $context, $settings, $options, $txt, $scripturl, $smcFunc;
+	global $context, $options, $txt, $scripturl, $smcFunc;
 
 	echo '
 	<div id="admincenter">
@@ -918,7 +918,7 @@ function template_package_list()
 
 					// Mark as installed and current?
 					if ($package['is_installed'] && !$package['is_newer'])
-						echo '<img src="', $settings['images_url'], '/icons/package_', $package['is_current'] ? 'installed' : 'old', '.png" width="12" height="11" class="centericon" style="margin-left: 2ex;" alt="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '" />';
+						echo '<span class="generic_icons ', $package['is_current'] ? 'current' : 'old', ' centericon" style="margin-left: 2ex;" title="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '"></span>';
 
 					echo '
 							</strong>
@@ -966,8 +966,8 @@ function template_package_list()
 		</div>
 		<div class="padding smalltext floatleft">
 			', $txt['package_installed_key'], '
-			<img src="', $settings['images_url'], '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ', $txt['package_installed_current'], '
-			<img src="', $settings['images_url'], '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ', $txt['package_installed_old'], '
+			<span class="generic_icons current centericon" style="margin-left: 1ex;"></span> ', $txt['package_installed_current'], '
+			<span class="generic_icons old centericon" style="margin-left: 2ex;"></span> ', $txt['package_installed_old'], '
 		</div>
 	</div>
 
@@ -1023,7 +1023,7 @@ function template_package_list()
 
 function template_downloaded()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -1048,7 +1048,7 @@ function template_downloaded()
 
 function template_install_options()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -1109,7 +1109,7 @@ function template_install_options()
 
 function template_control_chmod()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	// Nothing to do? Brilliant!
 	if (empty($context['package_ftp']))
@@ -1257,7 +1257,7 @@ function template_control_chmod()
 
 function template_ftp_required()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<fieldset>
@@ -1714,7 +1714,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 function template_action_permissions()
 {
-	global $txt, $scripturl, $context, $settings;
+	global $txt, $scripturl, $context;
 
 	$countDown = 3;
 

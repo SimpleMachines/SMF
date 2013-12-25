@@ -87,11 +87,12 @@ $is_done = false;
 while (!$is_done)
 {
 	nextSubStep($substep);
+	$fileHash = '';
 
 	$request = upgrade_query("
 		SELECT id_attach, id_folder, filename, file_hash
 		FROM {$db_prefix}attachments
-		WHERE file_hash = ''
+		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
 
 	// Finished?
@@ -101,22 +102,54 @@ while (!$is_done)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// The current folder.
-		$current_folder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
+		$currentFolder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
 
-		// The old location of the file.
-		$old_location = getLegacyAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder']);
+		// Old School?
+		if (empty($row['file_hash']))
+		{
+			// Remove international characters (windows-1252)
+			// These lines should never be needed again. Still, behave.
+			if (empty($db_character_set) || $db_character_set != 'utf8')
+			{
+				$row['filename'] = strtr($row['filename'],
+					"\x8a\x8e\x9a\x9e\x9f\xc0\xc1\xc2\xc3\xc4\xc5\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd1\xd2\xd3\xd4\xd5\xd6\xd8\xd9\xda\xdb\xdc\xdd\xe0\xe1\xe2\xe3\xe4\xe5\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xff",
+					'SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy');
+				$row['filename'] = strtr($row['filename'], array("\xde" => 'TH', "\xfe" =>
+					'th', "\xd0" => 'DH', "\xf0" => 'dh', "\xdf" => 'ss', "\x8c" => 'OE',
+					"\x9c" => 'oe', "\xc6" => 'AE', "\xe6" => 'ae', "\xb5" => 'u'));
+			}
+			// Sorry, no spaces, dots, or anything else but letters allowed.
+			$row['filename'] = preg_replace(array('/\s/', '/[^\w_\.\-]/'), array('_', ''), $row['filename']);
 
-		// The new file name.
-		$file_hash = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], true);
+			// Create a nice hash.
+			$fileHash = sha1(md5($row['filename'] . time()) . mt_rand());
+
+			// The old file, we need to know if the filename was encrypted or not.
+			if (file_exists($currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename'])))
+				$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
+
+			else if (file_exists($currentFolder . '/' . $row['filename']));
+				$oldFile = $currentFolder . '/' . $row['filename'];
+
+			// Build the new file.
+			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $fileHash .'.dat';
+		}
+
+		// Just rename the file.
+		else
+		{
+			$oldFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'];
+			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
+		}
 
 		// And we try to move it.
-		rename($old_location, $current_folder . '/' . $row['id_attach'] . '_' . $file_hash);
+		rename($oldFile, $newFile);
 
-		// Only update thif if it was successful.
-		if (file_exists($current_folder . '/' . $row['id_attach'] . '_' . $file_hash) && !file_exists($old_location))
+		// Only update this if it was successful and the file was using the old system.
+		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
 			upgrade_query("
 				UPDATE {$db_prefix}attachments
-				SET file_hash = '$file_hash'
+				SET file_hash = '$fileHash'
 				WHERE id_attach = $row[id_attach]");
 	}
 	$smcFunc['db_free_result']($request);
@@ -355,6 +388,8 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
 ---#
 
 /******************************************************************************/
@@ -598,7 +633,12 @@ WHERE variable LIKE 'integrate_%';
 /******************************************************************************/
 ---# Showing contact details to guests should never happen.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames');
+---#
+
+---# Cleaning up old theme settings.
+DELETE FROM {$db_prefix}themes
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning');
 ---#
 
 /******************************************************************************/
@@ -1000,8 +1040,15 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---{
 	if (empty($modSettings['mail_limit']))
 	{
-		$data = array("('mail_limit', '5')", "('mail_quantity', '5')");
-		$smcFunc['db_insert']('', '{db_prefix}settings' array('variable' => 'string-255', 'value' => 'string'), array('mail_limit', '5'), $data, array());
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string'),
+			array(
+				array('mail_limit', '5'),
+				array('mail_quantity', '5'),
+			),
+			array('variable')
+		);
 	}
 ---}
 ---#

@@ -440,7 +440,7 @@ function deleteMembers($users, $check_not_admin = false)
 function registerMember(&$regOptions, $return_errors = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $user_info, $options, $settings, $smcFunc;
+	global $user_info, $options, $smcFunc;
 
 	loadLanguage('Login');
 

@@ -306,7 +306,7 @@ function template_credits()
  */
 function template_view_versions()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	echo '
 					<div id="admincenter">
@@ -534,7 +534,7 @@ function template_view_versions()
 // Form for stopping people using naughty words, etc.
 function template_edit_censored()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -622,7 +622,7 @@ function template_edit_censored()
 // Maintenance is a lovely thing, isn't it?
 function template_not_done()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 					<div id="admincenter">
@@ -971,7 +971,7 @@ function template_show_settings()
 // Template for showing custom profile fields.
 function template_show_custom_profile()
 {
-	global $context, $txt, $settings, $scripturl;
+	global $context, $txt, $scripturl;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -1291,7 +1291,7 @@ function template_admin_search_results()
 // This little beauty shows questions and answer from the captcha type feature.
 function template_callback_question_answer_list()
 {
-	global $txt, $context, $settings;
+	global $txt, $context;
 
 	foreach ($context['languages'] as $lang_id => $lang)
 	{

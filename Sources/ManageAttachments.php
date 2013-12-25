@@ -123,7 +123,7 @@ function ManageAttachmentSettings($return_config = false)
 	$txt['basedirectory_for_attachments_warning'] = $txt['basedirectory_for_attachments_current'] . $txt['basedirectory_for_attachments_warning'];
 
 	// Perform a test to see if the GD module or ImageMagick are installed.
-	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
+	$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
 
 	// See if we can find if the server is set up to support the attacment limits
 	$post_max_size = ini_get('post_max_size');
@@ -1364,7 +1364,7 @@ function RepairAttachments()
 					if (!empty($modSettings['currentAttachmentUploadDir']))
 					{
 						// Get the attachment name with out the folder.
-						$attachment_name = !empty($row['file_hash']) ? $row['id_attach'] . '_' . $row['file_hash'] : getLegacyAttachmentFilename($row['filename'], $row['id_attach'], null, true);
+						$attachment_name = $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 
 						if (!is_array($modSettings['attachmentUploadDir']))
 							$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);

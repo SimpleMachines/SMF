@@ -1249,7 +1249,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc, $context;
+	global $sourcedir, $txt, $language, $forum_version, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '
@@ -1282,7 +1282,7 @@ function scheduled_fetchSMfiles()
 	foreach ($js_files as $ID_FILE => $file)
 	{
 		// Create the url
-		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'http://www.simplemachines.org' : '';
+		$server = empty($file['path']) || (substr($file['path'], 0, 7) != 'http://' && substr($file['path'], 0, 8) != 'https://') ? 'http://www.simplemachines.org' : '';
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file

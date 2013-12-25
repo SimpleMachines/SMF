@@ -190,7 +190,7 @@ function template_maintenance()
 
 function template_attachment_repair()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $scripturl;
 
 	// If we've completed just let them know!
 	if ($context['completed'])

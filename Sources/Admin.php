@@ -942,7 +942,7 @@ function AdminEndSession()
 		if (strpos($key, '-admin') !== false)
 			unset($_SESSION['token'][$key]);
 
-	redirectexit('action=admin');
+	redirectexit();
 }
 
 ?>

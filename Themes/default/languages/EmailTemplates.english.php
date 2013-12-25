@@ -461,7 +461,7 @@ $txt['send_email_body'] = '{EMAILBODY}';
 /**
 	@additional_params: report_to_moderator
 		TOPICSUBJECT: The subject of the reported post.
-		POSTERNAME: The report post's author's name.
+		POSTERNAME: The reported post's author's name.
 		REPORTERNAME: The name of the person reporting the post.
 		TOPICLINK: The url of the post that is being reported.
 		REPORTLINK: The url of the moderation center report.
@@ -476,6 +476,25 @@ Moderation center: {REPORTLINK}
 
 The reporter has made the following comment:
 {COMMENT}
+
+{REGARDS}';
+
+/**
+	@additional_params: report_to_moderator
+		TOPICSUBJECT: The subject of the reported post.
+		POSTERNAME: The reported post's author's name.
+		COMMENTERNAME: The name of the person who replied to the report.
+		TOPICLINK: The url of the post that is being reported.
+		REPORTLINK: The url of the moderation center report.
+	@description: When a moderator replies to a moderation report, this can be sent to the other moderators who previously replied.
+*/
+$txt['reply_to_moderator_subject'] = 'Follow-up to reported post: {TOPICSUBJECT} by {POSTERNAME}';
+$txt['reply_to_moderator_body'] = 'Previously, "{TOPICSUBJECT}" was reported to moderators.
+
+Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
+
+The topic: {TOPICLINK}
+Moderation center: {REPORTLINK}
 
 {REGARDS}';
 

@@ -1727,7 +1727,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('attachmentCheckExtensions', '0'),
 	('attachmentShowImages', '1'),
 	('attachmentEnable', '1'),
-	('attachmentEncryptFilenames', '1'),
 	('attachmentThumbnails', '1'),
 	('attachmentThumbWidth', '150'),
 	('attachmentThumbHeight', '150'),
@@ -2050,7 +2049,6 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_profile_buttons', '1'),
 	(1, 'show_mark_read', '1'),
 	(1, 'show_stats_index', '1'),
-	(1, 'show_board_desc', '1'),
 	(1, 'newsfader_time', '5000'),
 	(1, 'additional_options_collapsable', '1'),
 	(1, 'use_image_buttons', '1'),
@@ -2145,7 +2143,9 @@ INSERT INTO {$db_prefix}user_alerts_prefs
 	(id_member, alert_pref, alert_value)
 VALUES (0, 'member_group_request', 1),
 	(0, 'member_register', 1),
-	(0, 'msg_like', 1);
+	(0, 'msg_like', 1),
+	(0, 'msg_report', 1),
+	(0, 'msg_report_reply', 1);
 # --------------------------------------------------------
 
 #

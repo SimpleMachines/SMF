@@ -12,7 +12,7 @@
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -30,7 +30,7 @@ function template_main()
 
 function template_notify_board()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">

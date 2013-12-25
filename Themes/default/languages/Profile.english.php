@@ -145,7 +145,6 @@ $txt['alert_msg_report'] = 'When a message is reported';
 $txt['alert_msg_report_reply'] = 'When a report I\'ve replied to gets replied to';
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
-$txt['alert_warn_own'] = 'If I receive a warning';
 $txt['alert_warn_any'] = 'When other members receive a warning';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
@@ -304,7 +303,6 @@ $txt['ban_type_access'] = 'access forum';
 $txt['show_online'] = 'Show others my online status';
 
 $txt['return_to_post'] = 'Return to topics after posting by default.';
-$txt['no_new_reply_warning'] = 'Don\'t warn on new replies made while posting.';
 $txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
 $txt['recent_posts_at_top'] = 'Show most recent posts at the top.';
 $txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';
@@ -319,7 +317,6 @@ $txt['timeformat_easy5'] = 'DD-MM-YYYY, HH:MM:SS';
 
 $txt['poster'] = 'Poster';
 
-$txt['board_desc_inside'] = 'Show board descriptions inside boards.';
 $txt['show_children'] = 'Show sub-boards on every page inside boards, not just the first.';
 $txt['show_no_avatars'] = 'Don\'t show users\' avatars.';
 $txt['show_no_signatures'] = 'Don\'t show users\' signatures.';

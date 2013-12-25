@@ -45,15 +45,16 @@ function template_moderation_center()
 // Show all the group requests the user can see.
 function template_group_requests_block()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=groups;sa=requests">', $txt['mc_group_requests'], '</a>
+				<span id="group_requests_toggle" class="', !empty($context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=groups;sa=requests" id="group_requests_link">', $txt['mc_group_requests'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg" id="group_requests_panel">
 			<div class="content modbox">
 				<ul class="reset">';
 
@@ -73,21 +74,54 @@ function template_group_requests_block()
 		echo '
 				</ul>
 			</div>
-		</div>';
+		</div>
+		
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var oGroupRequestsPanelToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'group_requests_panel\'
+			],
+			aSwapImages: [
+				{
+					sId: \'group_requests_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'group_requests_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_group_requests']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_group_requests']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: true,
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\',
+				sAdditionalVars: \';admin_key=mcgr\'
+			}
+		});
+	// ]]></script>';
 }
 
 // A block to show the current top reported posts.
 function template_reported_posts_block()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=moderate;area=reports">', $txt['mc_recent_reports'], '</a>
+				<span id="reported_posts_toggle" class="', !empty($context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=moderate;area=reports" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg" id="reported_posts_panel">
 			<div class="content modbox">
 				<ul class="reset">';
 
@@ -107,20 +141,53 @@ function template_reported_posts_block()
 		echo '
 				</ul>
 			</div>
-		</div>';
+		</div>
+		
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var oReportedPostsPanelToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'reported_posts_panel\'
+			],
+			aSwapImages: [
+				{
+					sId: \'reported_posts_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'reported_posts_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: true,
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\',
+				sAdditionalVars: \';admin_key=mcrp\'
+			}
+		});
+	// ]]></script>';
 }
 
 function template_watched_users()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', $scripturl, '?action=moderate;area=userwatch">', $txt['mc_watched_users'], '</a>
+				<span id="watched_users_toggle" class="', !empty($context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg" id="watched_users_panel">
 			<div class="content modbox">
 				<ul class="reset">';
 
@@ -140,7 +207,39 @@ function template_watched_users()
 		echo '
 				</ul>
 			</div>
-		</div>';
+		</div>
+		
+	<script type="text/javascript"><!-- // --><![CDATA[
+		var oWatchedUsersToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'watched_users_panel\'
+			],
+			aSwapImages: [
+				{
+					sId: \'watched_users_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'watched_users_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_watched_users']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_watched_users']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: true,
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\',
+				sAdditionalVars: \';admin_key=mcwu\'
+			}
+		});
+	// ]]></script>';
 }
 
 // Little section for making... notes.
@@ -188,7 +287,7 @@ function template_notes()
 
 function template_reported_posts()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
@@ -285,7 +384,7 @@ function template_reported_posts()
 // Show a list of all the unapproved posts
 function template_unapproved_posts()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	// Just a big table of it all really...
 	echo '
@@ -496,48 +595,14 @@ function template_user_watch_post_callback($post)
 // Moderation settings
 function template_moderation_settings()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	echo '
 	<div id="modcenter">
 		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
 			<div class="windowbg2">
 				<div class="content">
-					<dl class="settings">
-						<dt>
-							<strong>', $txt['mc_prefs_homepage'], ':</strong>
-						</dt>
-						<dd>';
-
-	foreach ($context['homepage_blocks'] as $k => $v)
-		echo '
-							<label for="mod_homepage_', $k, '"><input type="checkbox" id="mod_homepage_', $k, '" name="mod_homepage[', $k, ']"', in_array($k, $context['mod_settings']['user_blocks']) ? ' checked="checked"' : '', ' class="input_check" /> ', $v, '</label><br />';
-
-	echo '
-						</dd>';
-
-	// If they can moderate boards they have more options!
-	if ($context['can_moderate_boards'])
-	{
-		echo '
-						<dt>
-							<strong><label for="mod_show_reports">', $txt['mc_prefs_show_reports'], '</label>:</strong>
-						</dt>
-						<dd>
-							<input type="checkbox" id="mod_show_reports" name="mod_show_reports" ', $context['mod_settings']['show_reports'] ? 'checked="checked"' : '', ' class="input_check" />
-						</dd>
-						<dt>
-							<strong><label for="mod_notify_report">', $txt['mc_prefs_notify_report'], '</label>:</strong>
-						</dt>
-						<dd>
-							<select id="mod_notify_report" name="mod_notify_report">
-								<option value="0" ', $context['mod_settings']['notify_report'] == 0 ? 'selected="selected"' : '', '>', $txt['mc_prefs_notify_report_never'], '</option>
-								<option value="1" ', $context['mod_settings']['notify_report'] == 1 ? 'selected="selected"' : '', '>', $txt['mc_prefs_notify_report_moderator'], '</option>
-								<option value="2" ', $context['mod_settings']['notify_report'] == 2 ? 'selected="selected"' : '', '>', $txt['mc_prefs_notify_report_always'], '</option>
-							</select>
-						</dd>';
-
-	}
+					<dl class="settings">';
 
 	if ($context['can_moderate_approvals'])
 	{
@@ -603,7 +668,7 @@ function template_show_notice()
 // Add or edit a warning template.
 function template_warn_template()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="modcenter">

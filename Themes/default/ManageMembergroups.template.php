@@ -12,7 +12,7 @@
 
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	template_show_list('regular_membergroups_list');
 	echo '<br /><br />';
@@ -22,7 +22,7 @@ function template_main()
 
 function template_new_group()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -601,7 +601,7 @@ function template_group_members()
 		if ($context['can_send_email'])
 		{
 			echo '
-						<td', $member['show_email'] == 'no_through_forum' && $settings['use_image_buttons'] ? ' align="center"' : '', '>';
+						<td', $member['show_email'] == 'no_through_forum' && $settings['use_image_buttons'] ? ' class="centertext"' : '', '>';
 
 			// Is it totally hidden?
 			if ($member['show_email'] == 'no')
@@ -614,7 +614,7 @@ function template_group_members()
 			// ... otherwise it's visible - but only via an image?
 			elseif ($member['show_email'] == 'no_through_forum')
 				echo '
-								<a href="', $scripturl, '?action=emailuser;sa=email;uid=', $member['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<img src="' . $settings['images_url'] . '/email_sm.png" alt="' . $txt['email'] . '" title="' . $txt['email'] . '" />' : $txt['email']), '</a>';
+								<a href="', $scripturl, '?action=emailuser;sa=email;uid=', $member['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a>';
 			// ... otherwise it must be a 'yes', show it and show it fully.
 			else
 				echo '
@@ -701,7 +701,7 @@ function template_group_members()
 // Allow the moderator to enter a reason to each user being rejected.
 function template_group_request_reason()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $options, $context, $txt, $scripturl;
 
 	// Show a welcome message to the user.
 	echo '

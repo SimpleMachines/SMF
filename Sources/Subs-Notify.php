@@ -20,9 +20,10 @@ if (!defined('SMF'))
  *
  * @param mixed $members A user id or an array of (integer) user ids to load preferences for
  * @param mixed $prefs An empty string to load all preferences, or a string (or array) of preference name(s) to load
+ * @param mixed $process_default Whether to apply the default values to the members' values or not.
  * @return array An array of user ids => array (pref name -> value), with user id 0 representing the defaults
  */
-function getNotifyPrefs($members, $prefs = '')
+function getNotifyPrefs($members, $prefs = '', $process_default = false)
 {
 	global $smcFunc;
 
@@ -52,8 +53,16 @@ function getNotifyPrefs($members, $prefs = '')
 		$result[$row['id_member']][$row['alert_pref']] = $row['alert_value'];
 	}
 
-	// Let's not bother to reduplicate the default value for all the other values,
-	// no point splurging on potentially a lot of memory unnecessarily.
+	// We may want to keep the default values separate from a given user's. Or we might not.
+	if ($process_default && isset($result[0]))
+	{
+		foreach ($members as $member)
+			if (!isset($result[$member]))
+				$result[$member] = $result[0];
+
+		unset ($result[0]);
+	}
+
 	return $result;
 }
 

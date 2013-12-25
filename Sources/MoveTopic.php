@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $settings, $smcFunc, $modSettings;
+	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $smcFunc, $modSettings, $sourcedir;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -79,41 +79,18 @@ function MoveTopic()
 
 	loadTemplate('MoveTopic');
 
-	// Get a list of boards this moderator can move to.
-	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
-		FROM {db_prefix}boards AS b
-			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-		WHERE {query_see_board}
-			AND b.redirect = {string:blank_redirect}' . ($context['move_any'] ? '' : '
-			AND b.id_board IN ({array_int:boards})'),
-		array(
-			'blank_redirect' => '',
-			'current_board' => $board,
-			'boards' => $boards,
-		)
+	$options = array(
+		'not_redirection' => true,
 	);
-	$number_of_boards = $smcFunc['db_num_rows']($request);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (!isset($context['categories'][$row['id_cat']]))
-			$context['categories'][$row['id_cat']] = array (
-				'name' => strip_tags($row['cat_name']),
-				'boards' => array(),
-			);
 
-		$context['categories'][$row['id_cat']]['boards'][] = array(
-			'id' => $row['id_board'],
-			'name' => strip_tags($row['name']),
-			'category' => strip_tags($row['cat_name']),
-			'child_level' => $row['child_level'],
-			'selected' => !empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] == $row['id_board'] && $row['id_board'] != $board,
-		);
-	}
-	$smcFunc['db_free_result']($request);
+	if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != $board)
+		$options['selected_board'] = $_SESSION['move_to_topic'];
 
-	if (empty($context['categories']) || (!empty($number_of_boards) && $number_of_boards == 1))
-		fatal_lang_error('moveto_noboards', false);
+	if (!$context['move_any'])
+		$options['included_boards'] = $boards;
+
+	require_once($sourcedir . '/Subs-MessageIndex.php');
+	$context['categories'] = getBoardList($options);
 
 	$context['page_title'] = $txt['move_topic'];
 

@@ -425,7 +425,7 @@ function template_modify_language_entries()
  */
 function template_add_language()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $options, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">

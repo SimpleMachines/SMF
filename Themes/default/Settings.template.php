@@ -12,14 +12,9 @@
 
 function template_options()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	$context['theme_options'] = array(
-		array(
-			'id' => 'show_board_desc',
-			'label' => $txt['board_desc_inside'],
-			'default' => true,
-		),
 		array(
 			'id' => 'show_children',
 			'label' => $txt['show_children'],
@@ -38,11 +33,6 @@ function template_options()
 		array(
 			'id' => 'return_to_post',
 			'label' => $txt['return_to_post'],
-			'default' => true,
-		),
-		array(
-			'id' => 'no_new_reply_warning',
-			'label' => $txt['no_new_reply_warning'],
 			'default' => true,
 		),
 		array(
@@ -154,7 +144,7 @@ function template_options()
 
 function template_settings()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $options, $scripturl, $txt;
 
 	$context['theme_settings'] = array(
 		array(

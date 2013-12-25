@@ -2238,7 +2238,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentExtensions
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentCheckExtensions', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentShowImages', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentEnable', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentEncryptFilenames', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbnails', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbWidth', '150');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbHeight', '150');
@@ -2583,7 +2582,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'linktree_
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_profile_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_mark_read', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_board_desc', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
@@ -2698,6 +2696,8 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
 # --------------------------------------------------------
 
 #

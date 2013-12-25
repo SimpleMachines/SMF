@@ -932,7 +932,7 @@ function saveProfileFields()
 function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 {
 	global $user_info, $txt, $modSettings, $user_profile;
-	global $context, $settings, $sourcedir;
+	global $context, $sourcedir;
 	global $smcFunc;
 
 	// These make life easier....
@@ -1709,7 +1709,7 @@ function getAvatars($directory, $level)
  */
 function theme($memID)
 {
-	global $txt, $context, $user_profile, $modSettings, $settings, $user_info, $smcFunc;
+	global $txt, $context, $user_profile, $modSettings, $user_info, $smcFunc;
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
@@ -1819,7 +1819,7 @@ function authentication($memID, $saving = false)
  */
 function notification($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Going to want this for consistency.
 	loadCSSFile('admin.css', array(), 'admin');
@@ -1844,7 +1844,7 @@ function notification($memID)
 
 function alert_configuration($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	$context['token_check'] = 'profile-nt' . $memID;
 	is_not_guest();
@@ -1894,7 +1894,6 @@ function alert_configuration($memID)
 		'members' => array(
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
-			'warn_own' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 		),
 		'calendar' => array(
@@ -2045,7 +2044,7 @@ function alert_configuration($memID)
 
 function alert_notifications_topics($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_topics']))
@@ -2093,7 +2092,7 @@ function alert_notifications_topics($memID)
 				),
 				'data' => array(
 					'function' => create_function('$topic', '
-						global $settings, $txt;
+						global $txt;
 
 						$link = $topic[\'link\'];
 
@@ -2185,7 +2184,7 @@ function alert_notifications_topics($memID)
 
 function alert_notifications_boards($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir, $settings;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_boards']))
@@ -2226,7 +2225,7 @@ function alert_notifications_boards($memID)
 				),
 				'data' => array(
 					'function' => create_function('$board', '
-						global $settings, $txt;
+						global $txt;
 
 						$link = $board[\'link\'];
 
@@ -2559,7 +2558,7 @@ function ignoreboards($memID)
  */
 function profileLoadLanguages()
 {
-	global $context, $modSettings, $settings, $cur_profile, $language, $smcFunc;
+	global $context, $modSettings, $cur_profile, $language, $smcFunc;
 
 	$context['profile_languages'] = array();
 
@@ -2707,8 +2706,8 @@ function profileLoadAvatarData()
 
 	// Default context.
 	$context['member']['avatar'] += array(
-		'custom' => stristr($cur_profile['avatar'], 'http://') ? $cur_profile['avatar'] : 'http://',
-		'selection' => $cur_profile['avatar'] == '' || stristr($cur_profile['avatar'], 'http://') ? '' : $cur_profile['avatar'],
+		'custom' => stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://') ? $cur_profile['avatar'] : 'http://',
+		'selection' => $cur_profile['avatar'] == '' || (stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) ? '' : $cur_profile['avatar'],
 		'id_attach' => $cur_profile['id_attach'],
 		'filename' => $cur_profile['filename'],
 		'allow_server_stored' => allowedTo('profile_server_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
@@ -2725,7 +2724,7 @@ function profileLoadAvatarData()
 		);
 		$context['member']['avatar']['href'] = empty($cur_profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $cur_profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $cur_profile['filename'];
 	}
-	elseif (stristr($cur_profile['avatar'], 'http://') && $context['member']['avatar']['allow_external'])
+	elseif ((stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) && $context['member']['avatar']['allow_external'])
 		$context['member']['avatar'] += array(
 			'choice' => 'external',
 			'server_pic' => 'blank.png',
@@ -2881,7 +2880,7 @@ function profileSaveAvatarData(&$value)
 	$id_folder = 1;
 
 	$downloadedExternalAvatar = false;
-	if ($value == 'external' && allowedTo('profile_remote_avatar') && stripos($_POST['userpicpersonal'], 'http://') === 0 && strlen($_POST['userpicpersonal']) > 7 && !empty($modSettings['avatar_download_external']))
+	if ($value == 'external' && allowedTo('profile_remote_avatar') && (stripos($_POST['userpicpersonal'], 'http://') === 0 || stripos($_POST['userpicpersonal'], 'https://') === 0) && strlen($_POST['userpicpersonal']) > 7 && !empty($modSettings['avatar_download_external']))
 	{
 		if (!is_writable($uploadDir))
 			fatal_lang_error('attachments_no_write', 'critical');
@@ -2889,7 +2888,7 @@ function profileSaveAvatarData(&$value)
 		require_once($sourcedir . '/Subs-Package.php');
 
 		$url = parse_url($_POST['userpicpersonal']);
-		$contents = fetch_web_data('http://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
+		$contents = fetch_web_data($url['scheme'] . '://' . $url['host'] . (empty($url['port']) ? '' : ':' . $url['port']) . str_replace(' ', '%20', trim($url['path'])));
 
 		$new_filename = $uploadDir . '/' . getAttachmentFilename('avatar_tmp_' . $memID, false, null, true);
 		if ($contents != false && $tmpAvatar = fopen($new_filename, 'wb'))
@@ -2926,7 +2925,7 @@ function profileSaveAvatarData(&$value)
 		// Get rid of their old avatar. (if uploaded.)
 		removeAttachments(array('id_member' => $memID));
 	}
-	elseif ($value == 'external' && allowedTo('profile_remote_avatar') && stripos($_POST['userpicpersonal'], 'http://') === 0 && empty($modSettings['avatar_download_external']))
+	elseif ($value == 'external' && allowedTo('profile_remote_avatar') && (stripos($_POST['userpicpersonal'], 'http://') === 0 || stripos($_POST['userpicpersonal'], 'https://') === 0) && empty($modSettings['avatar_download_external']))
 	{
 		// We need these clean...
 		$cur_profile['id_attach'] = 0;
@@ -2941,7 +2940,7 @@ function profileSaveAvatarData(&$value)
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
-		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://')
+		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
 			return 'bad_avatar';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))

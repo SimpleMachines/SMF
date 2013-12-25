@@ -1364,7 +1364,7 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir, $settings;
+	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
@@ -1502,7 +1502,7 @@ function PackageBrowse()
 			'additional_rows' => array(
 				array(
 					'position' => 'bottom_of_list',
-					'value' => ($context['sub_action'] == 'browse' ? '<div class="padding smalltext">' . $txt['package_installed_key'] . '<img src="' . $settings['images_url'] . '/icons/package_installed.png" alt="" class="centericon" style="margin-left: 1ex;" /> ' . $txt['package_installed_current'] . '<img src="' . $settings['images_url'] . '/icons/package_old.png" alt="" class="centericon" style="margin-left: 2ex;" /> ' . $txt['package_installed_old'] . '</div>' :
+					'value' => ($context['sub_action'] == 'browse' ? '<div class="padding smalltext">' . $txt['package_installed_key'] . '<span class="generic_icons current centericon" style="margin-left: 1ex;"></span> ' . $txt['package_installed_current'] . '<span class="generic_icons old centericon" style="margin-left: 2ex;"></span> ' . $txt['package_installed_old'] . '</div>' :
 					'<a class="button_link" href="' . $scripturl . '?action=admin;area=packages;sa=flush;' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['package_delete_list_warning'] . '\');">' . $txt['delete_list'] . '</a>'),
 				),
 			),

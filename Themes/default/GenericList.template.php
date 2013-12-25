@@ -12,7 +12,7 @@
 
 function template_show_list($list_id = null)
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $options, $scripturl, $txt, $modSettings;
 
 	// Get a shortcut to the current list.
 	$list_id = $list_id === null ? $context['default_list'] : $list_id;
@@ -185,7 +185,7 @@ function template_show_list($list_id = null)
 
 function template_additional_rows($row_position, $cur_list)
 {
-	global $context, $settings, $options;
+	global $context, $options;
 
 	foreach ($cur_list['additional_rows'][$row_position] as $row)
 		echo '
@@ -194,7 +194,7 @@ function template_additional_rows($row_position, $cur_list)
 
 function template_create_list_menu($list_menu, $direction = 'top')
 {
-	global $context, $settings;
+	global $context;
 
 	/**
 		// This is use if you want your generic lists to have tabs.
