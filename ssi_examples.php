@@ -518,21 +518,22 @@ function template_ssi_above()
 		// ]]></script>
 	</head>
 	<body>
-		<div id="wrapper">
-			<div id="header"><div class="frame">
-				<div id="top_section">
-					<h1 class="forumtitle">SMF 2.1 Alpha 1 SSI.php Examples</h1>
-					<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+		<div id="top_section">
+			<div class="frame">
+				<div id="header">
+					<div class="frame">
+						<h1 class="forumtitle">SMF 2.1 Alpha 1 SSI.php Examples</h1>
+						<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+					</div>
 				</div>
 				<div id="upper_section" class="middletext" style="overflow: hidden;">
 					<div class="user"></div>
 					<div class="news normaltext">
 					</div>
 				</div>
-			</div></div>
-			<div id="content_section"><div class="frame">
-				<div id="main_content_section">
-					<div id="liftup" class="flow_auto">';
+				<div id="content_section"><div class="frame">
+					<div id="main_content_section">
+						<div id="liftup" class="flow_auto">';
 }
 
 function template_ssi_below()
@@ -540,15 +541,23 @@ function template_ssi_below()
 	global $time_start;
 
 	echo '
-						<script type="text/javascript"><!-- // --><![CDATA[
-							showSSIBlock("ssi_recentTopics");
-						// ]]></script>
+							<script type="text/javascript"><!-- // --><![CDATA[
+								showSSIBlock("ssi_recentTopics");
+							// ]]></script>
+						</div>
 					</div>
 				</div>
-			</div></div>
-			<div id="footer_section"><div class="frame">
-				<div class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></div>
-			</div></div>
+				<div id="footer_section">
+					<div class="frame">
+						<a href="#top_section" id="bot" class="go_up"></a>
+						<ul class="reset">
+							<li class="copyright">
+								<span class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>';
