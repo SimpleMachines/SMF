@@ -3378,7 +3378,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 		return sha1(md5($filename . time()) . mt_rand());
 
 	// Grab the file hash if it wasn't added.
-	// @todo: Locate all places that don't call a hash and fix that.
+	// Left this for legacy.
 	if ($file_hash === '')
 	{
 		$request = $smcFunc['db_query']('', '
