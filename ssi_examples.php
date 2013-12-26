@@ -32,7 +32,6 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 // Load the main template.
 template_ssi_above();
 ?>
-
 			<h2>SMF SSI.php Functions</h2>
 			<p><strong>Current Version:</strong> 2.1 Alpha 1</p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
@@ -436,7 +435,6 @@ function template_ssi_above()
 			#content_section
 			{
 				position: relative;
-				top: -20px;
 			}
 			#main_content_section h2
 			{
@@ -448,7 +446,6 @@ function template_ssi_above()
 			}
 			#liftup
 			{
-				position: relative;
 				top: -70px;
 				padding: 1em 2em 1em 1em;
 				line-height: 1.6em;
@@ -456,7 +453,6 @@ function template_ssi_above()
 			#footer_section
 			{
 				position: relative;
-				top: -20px;
 			}
 			#sidenav
 			{
@@ -518,19 +514,15 @@ function template_ssi_above()
 		// ]]></script>
 	</head>
 	<body>
+		<div id="header">
+			<div class="frame">
+				<h1 class="forumtitle">SMF 2.1 Alpha 1 SSI.php Examples</h1>
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+			</div>
+		</div>
 		<div id="wrapper">
-			<div id="header"><div class="frame">
-				<div id="top_section">
-					<h1 class="forumtitle">SMF 2.1 Alpha 1 SSI.php Examples</h1>
-					<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
-				</div>
-				<div id="upper_section" class="middletext" style="overflow: hidden;">
-					<div class="user"></div>
-					<div class="news normaltext">
-					</div>
-				</div>
-			</div></div>
-			<div id="content_section"><div class="frame">
+			<div id="upper_section"><p><br /></p></div>
+			<div id="content_section">
 				<div id="main_content_section">
 					<div id="liftup" class="flow_auto">';
 }
@@ -545,11 +537,18 @@ function template_ssi_below()
 						// ]]></script>
 					</div>
 				</div>
-			</div></div>
-			<div id="footer_section"><div class="frame">
-				<div class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></div>
-			</div></div>
+			</div>
 		</div>
+			<div id="footer_section">
+				<div class="frame">
+					<a href="#top_section" id="bot" class="go_up"></a>
+					<ul class="reset">
+						<li class="copyright">
+							<span class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></span>
+						</li>
+					</ul>
+				</div>
+			</div>
 	</body>
 </html>';
 }
