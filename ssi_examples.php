@@ -541,7 +541,7 @@ function template_ssi_below()
 		</div>
 			<div id="footer_section">
 				<div class="frame">
-					<a href="#top_section" id="bot" class="go_up"></a>
+					<a href="#header" id="bot" class="go_up"></a>
 					<ul class="reset">
 						<li class="copyright">
 							<span class="smalltext"><a href="http://www.simplemachines.org">Simple Machines Forum</a></span>
