@@ -708,7 +708,7 @@ function createAttachment(&$attachmentOptions)
 
 	// It is possible we might have a MIME type that isn't actually an image but still have a size.
 	// For example, Shockwave files will be able to return size but be 'application/shockwave' or similar.
-	if (!empty($attachmentOptions['mime_type']) && strpos($attachmentOptions['mime_time'], 'image/') !== 0)
+	if (!empty($attachmentOptions['mime_type']) && strpos($attachmentOptions['mime_type'], 'image/') !== 0)
 	{
 		$attachmentOptions['width'] = 0;
 		$attachmentOptions['height'] = 0;
