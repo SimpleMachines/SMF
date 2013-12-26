@@ -1355,10 +1355,15 @@ function editBuddies($memID)
 
 		call_integration_hook('integrate_remove_buddy', array($memID));
 
+		$_SESSION['prf-save'] = $txt['could_not_remove_person'];
+
 		// Heh, I'm lazy, do it the easy way...
 		foreach ($buddiesArray as $key => $buddy)
 			if ($buddy == (int) $_GET['remove'])
+			{
 				unset($buddiesArray[$key]);
+				$_SESSION['prf-save'] = true;
+			}
 
 		// Make the changes.
 		$user_profile[$memID]['buddy_list'] = implode(',', $buddiesArray);
@@ -1386,6 +1391,7 @@ function editBuddies($memID)
 
 		call_integration_hook('integrate_add_buddies', array($memID, &$new_buddies));
 
+		$_SESSION['prf-save'] = $txt['could_not_add_person'];
 		if (!empty($new_buddies))
 		{
 			// Now find out the id_member of the buddy.
@@ -1399,6 +1405,9 @@ function editBuddies($memID)
 					'count_new_buddies' => count($new_buddies),
 				)
 			);
+
+			if ($smcFunc['db_num_rows']($request) != 0)
+				$_SESSION['prf-save'] = true;
 
 			// Add the new member to the buddies array.
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1448,6 +1457,16 @@ function editBuddies($memID)
 		$context['buddies'][$buddy] = $memberContext[$buddy];
 	}
 
+	if (isset($_SESSION['prf-save']))
+	{
+		if ($_SESSION['prf-save'] === true)
+			$context['saved_successful'] = true;
+		else
+			$context['saved_failed'] = $_SESSION['prf-save'];
+
+		unset($_SESSION['prf-save']);
+	}
+
 	call_integration_hook('integrate_view_buddies', array($memID));
 }
 
@@ -1472,10 +1491,15 @@ function editIgnoreList($memID)
 	{
 		checkSession('get');
 
+		$_SESSION['prf-save'] = $txt['could_not_remove_person'];
+
 		// Heh, I'm lazy, do it the easy way...
 		foreach ($ignoreArray as $key => $id_remove)
 			if ($id_remove == (int) $_GET['remove'])
+			{
 				unset($ignoreArray[$key]);
+				$_SESSION['prf-save'] = true;
+			}
 
 		// Make the changes.
 		$user_profile[$memID]['pm_ignore_list'] = implode(',', $ignoreArray);
@@ -1500,6 +1524,7 @@ function editIgnoreList($memID)
 				unset($new_entries[$k]);
 		}
 
+		$_SESSION['prf-save'] = $txt['could_not_add_person'];
 		if (!empty($new_entries))
 		{
 			// Now find out the id_member for the members in question.
@@ -1513,6 +1538,9 @@ function editIgnoreList($memID)
 					'count_new_entries' => count($new_entries),
 				)
 			);
+
+			if ($smcFunc['db_num_rows']($request) != 0)
+				$_SESSION['prf-save'] = true;
 
 			// Add the new member to the buddies array.
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1560,6 +1588,16 @@ function editIgnoreList($memID)
 	{
 		loadMemberContext($ignore_member);
 		$context['ignore_list'][$ignore_member] = $memberContext[$ignore_member];
+	}
+
+	if (isset($_SESSION['prf-save']))
+	{
+		if ($_SESSION['prf-save'] === true)
+			$context['saved_successful'] = true;
+		else
+			$context['saved_failed'] = $_SESSION['prf-save'];
+
+		unset($_SESSION['prf-save']);
 	}
 }
 
