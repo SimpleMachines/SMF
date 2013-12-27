@@ -12,16 +12,6 @@
 
 function template_boardindex_outer_above()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
-
-	// Show some statistics if stat info is off.
-	if (!$settings['show_stats_index'])
-		echo '
-	<div id="index_common_stats">
-		', $txt['members'], ': ', $context['common_stats']['total_members'], ' &nbsp;&#8226;&nbsp; ', $txt['posts_made'], ': ', $context['common_stats']['total_posts'], ' &nbsp;&#8226;&nbsp; ', $txt['topics_made'], ': ', $context['common_stats']['total_topics'], '<br />
-		', $settings['show_latest_member'] ? ' ' . sprintf($txt['welcome_newest_member'], ' <strong>' . $context['common_stats']['latest_member']['link'] . '</strong>') : '' , '
-	</div>';
-
 	template_newsfader();
 }
 
