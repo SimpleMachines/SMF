@@ -25,6 +25,7 @@ $txt['mailqueue_recipient'] = 'Recipient';
 $txt['mailqueue_subject'] = 'Subject';
 $txt['mailqueue_clear_list'] = 'Send mail queue now';
 $txt['mailqueue_no_items'] = 'The mail queue is currently empty';
+$txt['personal_message'] = 'Personal Message';
 // Do not use numeric entities in below string.
 $txt['mailqueue_clear_list_warning'] = 'Are you sure you wish to send the whole mail queue now? This will override any limits you have set.';
 

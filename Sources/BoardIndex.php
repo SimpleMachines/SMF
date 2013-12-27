@@ -55,39 +55,23 @@ function BoardIndex()
 	);
 	$context['categories'] = getBoardIndex($boardIndexOptions);
 
-	// Get the user online list.
-	require_once($sourcedir . '/Subs-MembersOnline.php');
-	$membersOnlineOptions = array(
-		'show_hidden' => allowedTo('moderate_forum'),
-		'sort' => 'log_time',
-		'reverse_sort' => true,
-	);
-	$context += getMembersOnlineStats($membersOnlineOptions);
-
-	$context['show_buddies'] = !empty($user_info['buddies']);
-
-	// Are we showing all membergroups on the board index?
-	if (!empty($settings['show_group_key']))
-		$context['membergroups'] = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
-
-	// Track most online statistics? (Subs-MembersOnline.php)
-	if (!empty($modSettings['trackStats']))
-		trackStatsUsersOnline($context['num_guests'] + $context['num_spiders'] + $context['num_users_online']);
+	// Now set up for the info center.
+	$context['info_center'] = array();
 
 	// Retrieve the latest posts if the theme settings require it.
-	if (isset($settings['number_recent_posts']) && $settings['number_recent_posts'] > 1)
+	if (!empty($settings['number_recent_posts']))
 	{
-		$latestPostOptions = array(
-			'number_posts' => $settings['number_recent_posts'],
-		);
-		$context['latest_posts'] = cache_quick_get('boardindex-latest_posts:' . md5($user_info['query_wanna_see_board'] . $user_info['language']), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
-	}
+		if ($settings['number_recent_posts'] > 1)
+		{
+			$latestPostOptions = array(
+				'number_posts' => $settings['number_recent_posts'],
+			);
+			$context['latest_posts'] = cache_quick_get('boardindex-latest_posts:' . md5($user_info['query_wanna_see_board'] . $user_info['language']), 'Subs-Recent.php', 'cache_getLastPosts', array($latestPostOptions));
+		}
 
-	$settings['display_recent_bar'] = !empty($settings['number_recent_posts']) ? $settings['number_recent_posts'] : 0;
-	$settings['show_member_bar'] &= allowedTo('view_mlist');
-	$context['show_stats'] = allowedTo('view_stats') && !empty($modSettings['trackStats']);
-	$context['show_member_list'] = allowedTo('view_mlist');
-	$context['show_who'] = allowedTo('who_view') && !empty($modSettings['who_enabled']);
+		if (!empty($context['latest_posts']) || !empty($context['latest_post']))
+			$context['info_center'][] = 'recent';
+	}
 
 	// Load the calendar?
 	if (!empty($modSettings['cal_enabled']) && allowedTo('calendar_view'))
@@ -106,10 +90,37 @@ function BoardIndex()
 
 		// This is used to show the "how-do-I-edit" help.
 		$context['calendar_can_edit'] = allowedTo('calendar_edit_any');
-	}
-	else
-		$context['show_calendar'] = false;
 
+		if ($context['show_calendar'])
+			$context['info_center'][] = 'calendar';
+	}
+
+	// And stats.
+	$context['show_stats'] = allowedTo('view_stats') && !empty($modSettings['trackStats']);
+	if ($settings['show_stats_index'])
+		$context['info_center'][] = 'stats';
+
+	// Now the online stuff
+	require_once($sourcedir . '/Subs-MembersOnline.php');
+	$membersOnlineOptions = array(
+		'show_hidden' => allowedTo('moderate_forum'),
+		'sort' => 'log_time',
+		'reverse_sort' => true,
+	);
+	$context += getMembersOnlineStats($membersOnlineOptions);
+	$context['show_buddies'] = !empty($user_info['buddies']);
+	$context['show_who'] = allowedTo('who_view') && !empty($modSettings['who_enabled']);
+	$context['info_center'][] = 'online';
+
+	// Track most online statistics? (Subs-MembersOnline.php)
+	if (!empty($modSettings['trackStats']))
+		trackStatsUsersOnline($context['num_guests'] + $context['num_spiders'] + $context['num_users_online']);
+
+	// Are we showing all membergroups on the board index?
+	if (!empty($settings['show_group_key']))
+		$context['membergroups'] = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
+
+	// And back to normality.
 	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);
 
 	// Mark read button

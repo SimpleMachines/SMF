@@ -706,6 +706,14 @@ function createAttachment(&$attachmentOptions)
 			$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
 	}
 
+	// It is possible we might have a MIME type that isn't actually an image but still have a size.
+	// For example, Shockwave files will be able to return size but be 'application/shockwave' or similar.
+	if (!empty($attachmentOptions['mime_type']) && strpos($attachmentOptions['mime_type'], 'image/') !== 0)
+	{
+		$attachmentOptions['width'] = 0;
+		$attachmentOptions['height'] = 0;
+	}
+
 	// Get the hash if no hash has been given yet.
 	if (empty($attachmentOptions['file_hash']))
 		$attachmentOptions['file_hash'] = getAttachmentFilename($attachmentOptions['name'], false, null, true);

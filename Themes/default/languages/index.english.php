@@ -82,8 +82,6 @@ $txt['position'] = 'Position';
 
 $txt['profile_of'] = 'View the profile of';
 $txt['total'] = 'Total';
-$txt['posts_made'] = 'Posts';
-$txt['topics_made'] = 'Topics';
 $txt['website'] = 'Website';
 $txt['register'] = 'Register';
 $txt['warning_status'] = 'Warning Status';
@@ -160,7 +158,6 @@ $txt['topic_alert_none'] = 'No messages...';
 $txt['pm_alert_none'] = 'No messages...';
 
 $txt['online_users'] = 'Users Online';
-$txt['personal_message'] = 'Personal Message';
 $txt['jump_to'] = 'Jump to';
 $txt['go'] = 'Go';
 $txt['are_sure_remove_topic'] = 'Are you sure you want to remove this topic?';
@@ -352,10 +349,6 @@ $txt['forum_stats'] = 'Forum Stats';
 $txt['latest_member'] = 'Latest Member';
 $txt['total_cats'] = 'Total Categories';
 $txt['latest_post'] = 'Latest Post';
-
-$txt['you_have_no_msg'] = 'You don\'t have any message...';
-$txt['you_have_one_msg'] = 'You\'ve got 1 message... Click <a href="%1$s">here</a> to view it';
-$txt['you_have_many_msgs'] = 'You\'ve got %2$d messages... Click <a href="%1$s">here</a> to view them';
 
 $txt['total_boards'] = 'Total Boards';
 
