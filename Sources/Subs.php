@@ -4021,10 +4021,13 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug, $context;
+	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug;
+	global $context, $txt;
 
 	if ($db_show_debug === true)
 		$context['debug']['hooks'][] = $hook;
+
+	 loadLanguage('Errors');
 
 	$results = array();
 	if (empty($modSettings[$hook]))
@@ -4060,11 +4063,15 @@ function call_integration_hook($hook, $parameters = array())
 				if (file_exists($absPath))
 					require_once($absPath);
 
+				// No? tell the admin about it.
+				else
+					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+
 				// Check if a new object will be created.
 				if (strpos($call[1], '#') !== false)
 					$call = array(new $call[0], $func);
 
-				// No? then this is a call to a static method.
+				// Right then, this is a call to a static method.
 				else
 					$call = array($call[0], $func);
 			}
@@ -4088,6 +4095,10 @@ function call_integration_hook($hook, $parameters = array())
 		// Is it valid?
 		if (is_callable($call))
 			$results[$function] = call_user_func_array($call, $parameters);
+
+		// Whatever it was suppose to call, it failed :(
+		elseif (!empty($func) && !empty($absPath))
+			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
 	}
 
 	return $results;
@@ -4097,7 +4108,7 @@ function call_integration_hook($hook, $parameters = array())
  * Add a function for integration hook.
  * does nothing if the function is already added.
  *
- * @param string $hook The complete hook name
+ * @param string $hook The complete hook name.
  * @param string $function Function name, can be a call to a method via Class::method.
  * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
  * @param bool $object Boolean Indicates if your class will be instantiated when its respective hook is called, your function must be a method.
