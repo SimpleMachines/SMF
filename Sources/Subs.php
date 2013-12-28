@@ -4168,11 +4168,11 @@ function add_integration_function($hook, $function, $file = '', $object = false,
  * @param string $function
  * @param string $file
  */
-function remove_integration_function($hook, $function, $file = '')
+function remove_integration_function($hook, $function, $file = '', $object = false)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file)) ? $function . ':' . $file : $function;
+	$integration_call = (!empty($file)) ? $function . ':' . $file .($object ? '#' : '') : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
