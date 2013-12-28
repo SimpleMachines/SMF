@@ -4035,19 +4035,38 @@ function call_integration_hook($hook, $parameters = array())
 	foreach ($functions as $function)
 	{
 		$function = trim($function);
+
+		// Found a call to a method.
 		if (strpos($function, '::') !== false)
 		{
 			$call = explode('::', $function);
+
+			// Get the file and the class::method.
 			if (strpos($call[1], ':') !== false)
 			{
 				list($func, $file) = explode(':', $call[1]);
+
+				// Need to temp delete the #
+				if (strpos($file, '#') !== false)
+					$file = str_replace('#', '', $file);
+
+				// Match the wildcards to their regular vars.
 				if (empty($settings['theme_dir']))
 					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
 				else
 					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+
+				// Load the file if it can be loaded.
 				if (file_exists($absPath))
 					require_once($absPath);
-				$call = array($call[0], $func);
+
+				// Check if a new object will be created.
+				if (strpos($call[1], '#') !== false)
+					$call = array(new $call[0], $func);
+
+				// No? then this is a call to a static method.
+				else
+					$call = array($call[0], $func);
 			}
 		}
 		else
