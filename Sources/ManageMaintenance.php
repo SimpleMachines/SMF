@@ -2254,7 +2254,7 @@ function list_integration_hooks()
 						global $txt;
 
 						if (!empty($data[\'included_file\']))
-							return $txt[\'hooks_field_function\'] . \': \' . $data[\'real_function\'] . \'<br />\' . $txt[\'hooks_field_included_file\'] . \': \' . $data[\'included_file\'];
+							return $txt[\'hooks_field_function\'] . \': \' . $data[\'real_function\'] . \'<br />\' . $txt[\'hooks_field_included_file\'] . \': \' . $data[\'included_file\'] . (!empty($data[\'instance\']) ? \'<br>\'. $txt[\'hooks_field_function_method\'] : \'\');
 						else
 							return $data[\'real_function\'];
 					'),
@@ -2409,8 +2409,13 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				{
 					foreach ($functions as $function_o)
 					{
+						$object = false;
+
 						if (strpos($function_o, '#') !== false)
+						{
 							$function_o = str_replace('#', '', $function_o);
+							$object = true;
+						}
 
 						$hook_name = str_replace(']', '', $function_o);
 						if (strpos($hook_name, '::') !== false)
@@ -2435,6 +2440,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 						{
 							$hook_status[$hook][$function]['exists'] = true;
 							$hook_status[$hook][$function]['in_file'] = $file['name'];
+							$hook_status[$hook][$function]['instance'] = $object;
 
 							// I want to remember all the functions called within this file (to check later if they are enabled or disabled and decide if the integrare_*_include of that file can be disabled too)
 							$temp_data['function'][$file['name']][] = $function_o;
@@ -2508,9 +2514,6 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 				$enabled = strstr($function, ']') === false;
 				$function = str_replace(']', '', $function);
-				$hook_exists = !empty($hook_status[$hook][$function]['exists']);
-				$file_name = isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ((substr($hook, -8) === '_include') ? 'zzzzzzzzz' : 'zzzzzzzza');
-				$sort[] = $$sort_options[0];
 
 				if (strpos($function, '::') !== false)
 				{
@@ -2519,6 +2522,10 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				}
 				$exploded = explode(':', $function);
 
+				$hook_exists = !empty($hook_status[$hook][$exploded[0]]['exists']);
+				$file_name = isset($hook_status[$hook][$exploded[0]]['in_file']) ? $hook_status[$hook][$exploded[0]]['in_file'] : ((substr($hook, -8) === '_include') ? 'zzzzzzzzz' : 'zzzzzzzza');
+				$sort[] = $$sort_options[0];
+
 				$temp_data[] = array(
 					'id' => 'hookid_' . $id++,
 					'hook_name' => $hook,
@@ -2526,6 +2533,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'real_function' => $exploded[0],
 					'included_file' => isset($exploded[1]) ? strtr(trim($exploded[1]), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])) : '',
 					'file_name' => (isset($hook_status[$hook][$exploded[0]]['in_file']) ? $hook_status[$hook][$exploded[0]]['in_file'] : ''),
+					'instance' => (isset($hook_status[$hook][$exploded[0]]['instance']) ? $hook_status[$hook][$exploded[0]]['instance'] : ''),
 					'hook_exists' => $hook_exists,
 					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
 					'img_text' => $txt['hooks_' . ($hook_exists ? ($enabled ? 'active' : 'disabled') : 'missing')],
