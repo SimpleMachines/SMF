@@ -4027,6 +4027,10 @@ function call_integration_hook($hook, $parameters = array())
 	if ($db_show_debug === true)
 		$context['debug']['hooks'][] = $hook;
 
+	// Need to have some control.
+	if (!isset($context['instances']))
+		$context['instances'] = array();
+
 	 loadLanguage('Errors');
 
 	$results = array();
@@ -4069,7 +4073,13 @@ function call_integration_hook($hook, $parameters = array())
 
 				// Check if a new object will be created.
 				if (strpos($call[1], '#') !== false)
-					$call = array(new $call[0], $func);
+				{
+					// Don't need to create a new instance for every method.
+					if (empty($context['instances'][$call[0]]) || !($context['instances'][$call[0]] instanceof $call[0]))
+						$context['instances'][$call[0]] = new $call[0];
+
+					$call = array($context['instances'][$call[0]], $func);
+				}
 
 				// Right then, this is a call to a static method.
 				else
