@@ -4078,16 +4078,17 @@ function call_integration_hook($hook, $parameters = array())
  * Add a function for integration hook.
  * does nothing if the function is already added.
  *
- * @param string $hook
- * @param string $function
- * @param string $file
- * @param bool $permanent = true if true, updates the value in settings table
+ * @param string $hook The complete hook name
+ * @param string $function Function name, can be a call to a method via Class::method.
+ * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+ * @param bool $object Boolean Indicates if your class will be instantiated when its respective hook is called, your function must be a method.
+ * @param bool $permanent = true if true, updates the value in settings table.
  */
-function add_integration_function($hook, $function, $file = '', $permanent = true)
+function add_integration_function($hook, $function, $file = '', $object = false, $permanent = true)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file) && $file !== true) ? $function . ':' . $file : $function;
+	$integration_call = (!empty($file) && $file !== true) ? ($function . ':' . $file . ($object ? '#' : '')) : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
