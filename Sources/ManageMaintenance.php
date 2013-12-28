@@ -1914,7 +1914,7 @@ function MaintainMassMoveTopics()
 	{
 		$conditions .= '
 			AND t.locked = {int:locked}';
-		$params['locked'] = 1;	
+		$params['locked'] = 1;
 	}
 
 	// What about sticky topics?
@@ -2175,7 +2175,7 @@ function MaintainRecountPosts()
 /**
  * Generates a list of integration hooks for display
  * Accessed through ?action=admin;area=maintain;sa=hooks;
- * Allows for removal or disabing of selected hooks
+ * Allows for removal or disabling of selected hooks
  */
 function list_integration_hooks()
 {
@@ -2350,7 +2350,7 @@ function list_integration_hooks()
 }
 
 /**
- * Gets all of the files in a directory and its chidren directories
+ * Gets all of the files in a directory and its children directories
  *
  * @param type $dir_path
  * @return array
@@ -2409,6 +2409,9 @@ function get_integration_hooks_data($start, $per_page, $sort)
 				{
 					foreach ($functions as $function_o)
 					{
+						if (strpos($function_o, '#') !== false)
+							$function_o = str_replace('#', '', $function_o);
+
 						$hook_name = str_replace(']', '', $function_o);
 						if (strpos($hook_name, '::') !== false)
 						{
@@ -2417,6 +2420,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 						}
 						else
 							$function = $hook_name;
+
 						$function = explode(':', $function);
 						$function = $function[0];
 
@@ -2429,8 +2433,9 @@ function get_integration_hooks_data($start, $per_page, $sort)
 						}
 						elseif (strpos(str_replace(' (', '(', $fc), 'function ' . trim($function) . '(') !== false)
 						{
-							$hook_status[$hook][$hook_name]['exists'] = true;
-							$hook_status[$hook][$hook_name]['in_file'] = $file['name'];
+							$hook_status[$hook][$function]['exists'] = true;
+							$hook_status[$hook][$function]['in_file'] = $file['name'];
+
 							// I want to remember all the functions called within this file (to check later if they are enabled or disabled and decide if the integrare_*_include of that file can be disabled too)
 							$temp_data['function'][$file['name']][] = $function_o;
 							unset($temp_hooks[$hook][$function_o]);
@@ -2497,6 +2502,10 @@ function get_integration_hooks_data($start, $per_page, $sort)
 		{
 			foreach ($functions as $function)
 			{
+				// Gotta remove the # bit.
+				if (strpos($function, '#') !== false)
+					$function = str_replace('#', '', $function);
+
 				$enabled = strstr($function, ']') === false;
 				$function = str_replace(']', '', $function);
 				$hook_exists = !empty($hook_status[$hook][$function]['exists']);
@@ -2516,7 +2525,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'function_name' => $function,
 					'real_function' => $exploded[0],
 					'included_file' => isset($exploded[1]) ? strtr(trim($exploded[1]), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])) : '',
-					'file_name' => (isset($hook_status[$hook][$function]['in_file']) ? $hook_status[$hook][$function]['in_file'] : ''),
+					'file_name' => (isset($hook_status[$hook][$exploded[0]]['in_file']) ? $hook_status[$hook][$exploded[0]]['in_file'] : ''),
 					'hook_exists' => $hook_exists,
 					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
 					'img_text' => $txt['hooks_' . ($hook_exists ? ($enabled ? 'active' : 'disabled') : 'missing')],
@@ -2546,8 +2555,8 @@ function get_integration_hooks_data($start, $per_page, $sort)
 }
 
 /**
- * Simply returns the total count of integraion hooks
- * Used but the intergation hooks list function (list_integration_hooks)
+ * Simply returns the total count of integration hooks
+ * Used by the integration hooks list function (list_integration_hooks)
  *
  * @global type $context
  * @return int
