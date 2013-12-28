@@ -4076,7 +4076,13 @@ function call_integration_hook($hook, $parameters = array())
 				{
 					// Don't need to create a new instance for every method.
 					if (empty($context['instances'][$call[0]]) || !($context['instances'][$call[0]] instanceof $call[0]))
+					{
 						$context['instances'][$call[0]] = new $call[0];
+
+						// Add another one to the list.
+						if ($db_show_debug === true)
+							$context['debug']['instances'][$call[0]] = $hook;
+					}
 
 					$call = array($context['instances'][$call[0]], $func);
 				}
