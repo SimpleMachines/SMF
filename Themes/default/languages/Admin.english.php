@@ -696,6 +696,7 @@ $txt['paid_subs_view'] = 'View Subscriptions';
 $txt['hooks_title_list'] = 'Integration Hooks';
 $txt['hooks_field_hook_name'] = 'Hook Name';
 $txt['hooks_field_function_name'] = 'Function Name';
+$txt['hooks_field_function_method'] = 'Function is a method and its class is instantiated';
 $txt['hooks_field_function'] = 'Function';
 $txt['hooks_field_included_file'] = 'Included file';
 $txt['hooks_field_file_name'] = 'File Name';

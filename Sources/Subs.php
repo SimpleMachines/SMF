@@ -4021,10 +4021,17 @@ function smf_seed_generator()
  */
 function call_integration_hook($hook, $parameters = array())
 {
-	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug, $context;
+	global $modSettings, $settings, $boarddir, $sourcedir, $db_show_debug;
+	global $context, $txt;
 
 	if ($db_show_debug === true)
 		$context['debug']['hooks'][] = $hook;
+
+	// Need to have some control.
+	if (!isset($context['instances']))
+		$context['instances'] = array();
+
+	 loadLanguage('Errors');
 
 	$results = array();
 	if (empty($modSettings[$hook]))
@@ -4035,19 +4042,54 @@ function call_integration_hook($hook, $parameters = array())
 	foreach ($functions as $function)
 	{
 		$function = trim($function);
+
+		// Found a call to a method.
 		if (strpos($function, '::') !== false)
 		{
 			$call = explode('::', $function);
+
+			// Get the file and the class::method.
 			if (strpos($call[1], ':') !== false)
 			{
 				list($func, $file) = explode(':', $call[1]);
+
+				// Need to temp delete the #
+				if (strpos($file, '#') !== false)
+					$file = str_replace('#', '', $file);
+
+				// Match the wildcards to their regular vars.
 				if (empty($settings['theme_dir']))
 					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
 				else
 					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+
+				// Load the file if it can be loaded.
 				if (file_exists($absPath))
 					require_once($absPath);
-				$call = array($call[0], $func);
+
+				// No? tell the admin about it.
+				else
+					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+
+				// Check if a new object will be created.
+				if (strpos($call[1], '#') !== false)
+				{
+					// Don't need to create a new instance for every method.
+					if (empty($context['instances'][$call[0]]) || !($context['instances'][$call[0]] instanceof $call[0]))
+					{
+						$context['instances'][$call[0]] = new $call[0];
+
+						// Add another one to the list.
+						if ($db_show_debug === true)
+							$context['debug']['instances'][$call[0]] = $hook;
+					}
+
+					$call = array($context['instances'][$call[0]], $func);
+				}
+
+				// Right then, this is a call to a static method.
+				else
+					$call = array($call[0], $func);
 			}
 		}
 		else
@@ -4069,6 +4111,10 @@ function call_integration_hook($hook, $parameters = array())
 		// Is it valid?
 		if (is_callable($call))
 			$results[$function] = call_user_func_array($call, $parameters);
+
+		// Whatever it was suppose to call, it failed :(
+		elseif (!empty($func) && !empty($absPath))
+			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
 	}
 
 	return $results;
@@ -4078,16 +4124,17 @@ function call_integration_hook($hook, $parameters = array())
  * Add a function for integration hook.
  * does nothing if the function is already added.
  *
- * @param string $hook
- * @param string $function
- * @param string $file
- * @param bool $permanent = true if true, updates the value in settings table
+ * @param string $hook The complete hook name.
+ * @param string $function Function name, can be a call to a method via Class::method.
+ * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+ * @param bool $object Boolean Indicates if your class will be instantiated when its respective hook is called, your function must be a method.
+ * @param bool $permanent = true if true, updates the value in settings table.
  */
-function add_integration_function($hook, $function, $file = '', $permanent = true)
+function add_integration_function($hook, $function, $file = '', $object = false, $permanent = true)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file) && $file !== true) ? $function . ':' . $file : $function;
+	$integration_call = (!empty($file) && $file !== true) ? ($function . ':' . $file . ($object ? '#' : '')) : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
@@ -4137,11 +4184,11 @@ function add_integration_function($hook, $function, $file = '', $permanent = tru
  * @param string $function
  * @param string $file
  */
-function remove_integration_function($hook, $function, $file = '')
+function remove_integration_function($hook, $function, $file = '', $object = false)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file)) ? $function . ':' . $file : $function;
+	$integration_call = (!empty($file)) ? $function . ':' . $file .($object ? '#' : '') : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
