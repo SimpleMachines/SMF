@@ -1310,17 +1310,18 @@ function tracking($memID)
 	global $sourcedir, $context, $txt, $scripturl, $modSettings, $user_profile;
 
 	$subActions = array(
-		'activity' => array('trackActivity', $txt['trackActivity']),
-		'ip' => array('TrackIP', $txt['trackIP']),
-		'edits' => array('trackEdits', $txt['trackEdits']),
-		'logins' => array('TrackLogins', $txt['trackLogins']),
+		'activity' => array('trackActivity', $txt['trackActivity'], 'moderate_forum'),
+		'ip' => array('TrackIP', $txt['trackIP'], 'moderate_forum'),
+		'edits' => array('trackEdits', $txt['trackEdits'], 'moderate_forum'),
+		'groupreq' => array('trackGroupReq', $txt['trackGroupRequests'], 'approve_group_requests'),
+		'logins' => array('TrackLogins', $txt['trackLogins'], 'moderate_forum'),
 	);
 
-	$context['tracking_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : 'activity';
-
-	// @todo what is $types? it is never set so this will never be true
-	if (isset($types[$context['tracking_area']][1]))
-		require_once($sourcedir . '/' . $types[$context['tracking_area']][1]);
+	foreach ($subActions as $sa => $action)
+	{
+		if (!allowedTo($action[2]))
+			unset($subActions[$sa]);
+	}
 
 	// Create the tabs for the template.
 	$context[$context['profile_menu_name']]['tab_data'] = array(
@@ -1331,12 +1332,25 @@ function tracking($memID)
 			'activity' => array(),
 			'ip' => array(),
 			'edits' => array(),
+			'groupreq' => array(),
+			'logins' => array(),
 		),
 	);
 
 	// Moderation must be on to track edits.
-	if (empty($modSettings['modlog_enabled']))
-		unset($context[$context['profile_menu_name']]['tab_data']['edits']);
+	if (empty($modSettings['userlog_enabled']))
+		unset($context[$context['profile_menu_name']]['tab_data']['edits'], $subActions['edits']);
+
+	// Group requests must be active to show it...
+	if (empty($modSettings['show_group_membership']))
+		unset($context[$context['profile_menu_name']]['tab_data']['groupreq'], $subActions['groupreq']);
+
+	if (empty($subActions))
+		fatal_lang_error('no_access', false);
+
+	$keys = array_keys($subActions);
+	$default = array_shift($keys);
+	$context['tracking_area'] = isset($_GET['sa']) && isset($subActions[$_GET['sa']]) ? $_GET['sa'] : $default;
 
 	// Set a page title.
 	$context['page_title'] = $txt['trackUser'] . ' - ' . $subActions[$context['tracking_area']][1] . ' - ' . $user_profile[$memID]['real_name'];
@@ -2345,6 +2359,169 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 	}
 
 	return $edits;
+}
+
+/**
+ * Display the history of group requests made by the user whose profile we are viewing.
+ *
+ * @param int $memID id_member
+ */
+function trackGroupReq($memID)
+{
+	global $scripturl, $txt, $modSettings, $sourcedir, $context;
+
+	require_once($sourcedir . '/Subs-List.php');
+
+	// Set the options for the error lists.
+	$listOptions = array(
+		'id' => 'request_list',
+		'title' => sprintf($txt['trackGroupRequests_title'], $context['member']['name']),
+		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'no_items_label' => $txt['requested_none'],
+		'base_href' => $scripturl . '?action=profile;area=tracking;sa=groupreq;u=' . $memID,
+		'default_sort_col' => 'time_applied',
+		'get_items' => array(
+			'function' => 'list_getGroupRequests',
+			'params' => array(
+				$memID,
+			),
+		),
+		'get_count' => array(
+			'function' => 'list_getGroupRequestsCount',
+			'params' => array(
+				$memID,
+			),
+		),
+		'columns' => array(
+			'group' => array(
+				'header' => array(
+					'value' => $txt['requested_group'],
+				),
+				'data' => array(
+					'db' => 'group_name',
+				),
+			),
+			'group_reason' => array(
+				'header' => array(
+					'value' => $txt['requested_group_reason'],
+				),
+				'data' => array(
+					'db' => 'group_reason',
+				),
+			),
+			'time_applied' => array(
+				'header' => array(
+					'value' => $txt['requested_group_time'],
+				),
+				'data' => array(
+					'db' => 'time_applied',
+					'timeformat' => true,
+				),
+				'sort' => array(
+					'default' => 'time_applied DESC',
+					'reverse' => 'time_applied',
+				),
+			),
+			'outcome' => array(
+				'header' => array(
+					'value' => $txt['requested_group_outcome'],
+				),
+				'data' => array(
+					'db' => 'outcome',
+				),
+			),
+		),
+	);
+
+	// Create the error list.
+	createList($listOptions);
+
+	$context['sub_template'] = 'show_list';
+	$context['default_list'] = 'request_list';
+}
+
+/**
+ * How many edits?
+ *
+ * @param int $memID id_member
+ * @return string number of profile edits
+ */
+function list_getGroupRequestsCount($memID)
+{
+	global $smcFunc, $user_info;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*) AS req_count
+		FROM {db_prefix}log_group_requests AS lgr
+		WHERE id_member = {int:memID}
+			AND ' . ($user_info['mod_cache']['gq'] == '1=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']),
+		array(
+			'memID' => $memID,
+		)
+	);
+	list ($report_count) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	return (int) $report_count;
+}
+
+/**
+ * @todo needs a description
+ *
+ * @param int $start
+ * @param int $items_per_page
+ * @param string $sort
+ * @param int $memID
+ * @return array
+ */
+function list_getGroupRequests($start, $items_per_page, $sort, $memID)
+{
+	global $smcFunc, $txt, $scripturl, $user_info;
+
+	$groupreq = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT
+			lgr.id_group, mg.group_name, mg.online_color, lgr.time_applied, lgr.reason, lgr.status,
+			ma.id_member AS id_member_acted, IFNULL(ma.member_name, lgr.member_name_acted) AS act_name, lgr.time_acted, lgr.act_reason
+		FROM {db_prefix}log_group_requests AS lgr
+			LEFT JOIN {db_prefix}members AS ma ON (lgr.id_member_acted = ma.id_member)
+			INNER JOIN {db_prefix}membergroups AS mg ON (lgr.id_group = mg.id_group)
+		WHERE lgr.id_member = {int:memID}
+			AND ' . ($user_info['mod_cache']['gq'] == '1=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . '
+		ORDER BY ' . $sort . '
+		LIMIT ' . $start . ', ' . $items_per_page,
+		array(
+			'memID' => $memID,
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$this_req = array(
+			'group_name' => empty($row['online_color']) ? $row['group_name'] : '<span style="color:' . $row['online_color'] . '">' . $row['group_name'] . '</span>',
+			'group_reason' => $row['reason'],
+			'time_applied' => $row['time_applied'],
+		);
+		switch ($row['status'])
+		{
+			case 0:
+				$this_req['outcome'] = $txt['outcome_pending'];
+				break;
+			case 1:
+				$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
+				$this_req['outcome'] = sprintf($txt['outcome_approved'], $member_link, timeformat($row['time_acted']));
+				break;
+			case 2:
+				$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
+				$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? $txt['outcome_refused_reason'] : $txt['outcome_refused'], $member_link, timeformat($row['time_acted']), $row['act_reason']);
+				break;
+		}
+
+		$groupreq[] = $this_req;
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $groupreq;
 }
 
 /**

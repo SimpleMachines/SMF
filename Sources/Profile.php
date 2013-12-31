@@ -65,6 +65,11 @@ function ModifyProfile($post_errors = array())
 	// Is this the profile of the user himself or herself?
 	$context['user']['is_owner'] = $memID == $user_info['id'];
 
+	// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
+	// And we care about what the current user can do, not what the user whose profile it is.
+	if ($user_info['mod_cache']['gq'] != '0=1')
+		$user_info['permissions'][] = 'approve_group_requests';
+
 	/* Define all the sections within the profile area!
 		We start by defining the permission required - then SMF takes this and turns it into the relevant context ;)
 		Possible fields:
@@ -170,11 +175,12 @@ function ModifyProfile($post_errors = array())
 						'activity' => array($txt['trackActivity'], 'moderate_forum'),
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
 						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
-						'logins' => array($txt['trackLogins'], array('is_not_guest', 'moderate_forum')),
+						'groupreq' => array($txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty($modSettings['show_group_membership'])),
+						'logins' => array($txt['trackLogins'], 'moderate_forum'),
 					),
 					'permission' => array(
-						'own' => 'moderate_forum',
-						'any' => 'moderate_forum',
+						'own' => array('moderate_forum', 'approve_group_requests'),
+						'any' => array('moderate_forum', 'approve_group_requests'),
 					),
 				),
 				'viewwarning' => array(
