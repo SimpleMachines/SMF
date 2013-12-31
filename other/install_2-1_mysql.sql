@@ -879,8 +879,13 @@ CREATE TABLE {$db_prefix}log_group_requests (
   id_group smallint(5) unsigned NOT NULL default '0',
   time_applied int(10) unsigned NOT NULL default '0',
   reason text NOT NULL,
+  status tinyint(3) unsigned NOT NULL default '0',
+  id_member_acted mediumint(8) unsigned NOT NULL default '0',
+  member_name_acted varchar(255) NOT NULL default '',
+  time_acted int(10) unsigned NOT NULL default '0',
+  act_reason text NOT NULL,
   PRIMARY KEY (id_request),
-  UNIQUE id_member (id_member, id_group)
+  KEY id_member (id_member, id_group)
 ) ENGINE=MyISAM;
 
 #
