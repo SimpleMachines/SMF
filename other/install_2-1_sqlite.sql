@@ -1894,6 +1894,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_image_width', '0
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_image_height', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('onlineEnable', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_enabled', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_showInTopic', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_maxyear', '2020');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_minyear', '2008');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_daysaslink', '0');
