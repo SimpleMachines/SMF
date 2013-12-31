@@ -26,7 +26,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 			FROM {db_prefix}group_moderators
 			WHERE id_group = {int:selected_group}',
 			array(
-				'selected_group' => $group_id,
+				'selected_group' => $this->_details['id_group'],
 			)
 		);
 		$moderators = array();
@@ -74,6 +74,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 						'content_type' => 'member',
 						'content_id' => 0,
 						'content_action' => 'group_request',
+						'is_read' => 0,
 						'extra' => serialize(array('group_name' => $this->_details['group_name'])),
 					);
 				}
