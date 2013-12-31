@@ -160,11 +160,11 @@ function reloadSettings()
 			else
 				unset($modSettings['load_average']);
 
-			if (!empty($modSettings['load_average']))
+			if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
 				cache_put_data('loadavg', $modSettings['load_average'], 90);
 		}
 
-		if (!empty($modSettings['load_average']))
+		if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
 			call_integration_hook('integrate_load_average', array($modSettings['load_average']));
 
 		if (!empty($modSettings['loadavg_forum']) && !empty($modSettings['load_average']) && $modSettings['load_average'] >= $modSettings['loadavg_forum'])

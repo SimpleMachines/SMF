@@ -499,7 +499,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		else
 			unset($modSettings['load_average']);
 
-		if (!empty($modSettings['load_average']))
+		if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
 		{
 			$context['settings_message'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
 			$disabled = false;
