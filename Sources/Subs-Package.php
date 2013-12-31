@@ -2981,10 +2981,15 @@ function package_create_backup($id = 'backup')
 		if ($stat['size'] == 0)
 			continue;
 
-		$fp = fopen($real_file, 'rb');
-		while (!feof($fp))
-			$fwrite($output, fread($fp, 16384));
-		fclose($fp);
+		$fp = @fopen($real_file, 'rb');
+		while ($fp && !feof($fp))
+		{
+			$buffer = fread($fp, 16384);
+			if (strlen($buffer) == 0)
+				break;
+			$fwrite($output, $buffer);
+		}
+		@fclose($fp);
 
 		$fwrite($output, pack('a' . (512 - $stat['size'] % 512), ''));
 	}
