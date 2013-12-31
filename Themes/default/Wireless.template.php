@@ -256,6 +256,11 @@ function template_imode_boardindex()
 	echo '
 		<table border="0" cellspacing="0" cellpadding="0">
 			<tr bgcolor="#6d92aa"><td><font color="#ffffff">', $context['forum_name_html_safe'], '</font></td></tr>';
+	if (!$context['user']['is_guest'])
+		echo '
+			<tr><td><a href="', $scripturl, '?action=unread;imode">', $txt['wireless_recent_unread_posts'], '</a></td></tr>
+			<tr><td><a href="', $scripturl, '?action=unreadreplies;imode">', $txt['wireless_recent_unread_replies'], '</a></td></tr>';
+
 	$count = 0;
 	foreach ($context['categories'] as $category)
 	{
@@ -281,8 +286,6 @@ function template_imode_boardindex()
 			echo '
 			<tr><td><a href="', $scripturl, '?action=pm;imode">', empty($context['user']['unread_messages']) ? $txt['wireless_pm_inbox'] : sprintf($txt['wireless_pm_inbox_new'], $context['user']['unread_messages']), '</a></td></tr>';
 		echo '
-			<tr><td><a href="', $scripturl, '?action=unread;imode">', $txt['wireless_recent_unread_posts'], '</a></td></tr>
-			<tr><td><a href="', $scripturl, '?action=unreadreplies;imode">', $txt['wireless_recent_unread_replies'], '</a></td></tr>
 			<tr><td><a href="', $scripturl, '?action=logout;', $context['session_var'], '=', $context['session_id'], ';imode">', $txt['wireless_options_logout'], '</a></td></tr>';
 	}
 	echo '
@@ -911,6 +914,10 @@ function template_wap2_boardindex()
 
 	echo '
 		<p class="catbg">', $context['forum_name_html_safe'], '</p>';
+	if (!$context['user']['is_guest'])
+		echo '
+		<p class="windowbg"><a href="', $scripturl, '?action=unread;wap2">', $txt['wireless_recent_unread_posts'], '</a></p>
+		<p class="windowbg"><a href="', $scripturl, '?action=unreadreplies;wap2">', $txt['wireless_recent_unread_replies'], '</a></p>';
 
 	$count = 0;
 	foreach ($context['categories'] as $category)
@@ -938,8 +945,6 @@ function template_wap2_boardindex()
 			echo '
 			<p class="windowbg"><a href="', $scripturl, '?action=pm;wap2">', empty($context['user']['unread_messages']) ? $txt['wireless_pm_inbox'] : sprintf($txt['wireless_pm_inbox_new'], $context['user']['unread_messages']), '</a></p>';
 		echo '
-		<p class="windowbg"><a href="', $scripturl, '?action=unread;wap2">', $txt['wireless_recent_unread_posts'], '</a></p>
-		<p class="windowbg"><a href="', $scripturl, '?action=unreadreplies;wap2">', $txt['wireless_recent_unread_replies'], '</a></p>
 		<p class="windowbg"><a href="', $scripturl, '?action=logout;', $context['session_var'], '=', $context['session_id'], ';wap2">', $txt['wireless_options_logout'], '</a></p>';
 	}
 }
