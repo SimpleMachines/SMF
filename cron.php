@@ -223,7 +223,7 @@ function error_handler_cron($error_level, $error_string, $file, $line)
 	global $modSettings, $db_show_debug;
 
 	// Ignore errors if we're ignoring them or they are strict notices from PHP 5 (which cannot be solved without breaking PHP 4.)
-	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && (empty($modSettings['enableErrorLogging']) || $modSettings['enableErrorLogging'] != 2)))
+	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && !empty($modSettings['enableErrorLogging'])))
 		return;
 
 	$error_type = 'cron';

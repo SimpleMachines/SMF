@@ -128,7 +128,7 @@ function fatal_error($error, $log = 'general')
 	if (empty($txt))
 		die($error);
 
-	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error, $error);
+	setup_fatal_error_context($log ? log_error($error, $log) : $error, $error);
 }
 
 /**
@@ -163,7 +163,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 
 	$reload_lang_file = true;
 	// Log the error in the forum's language, but don't waste the time if we aren't logging
-	if ($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2))
+	if ($log)
 	{
 		loadLanguage('Errors', $language);
 		$reload_lang_file = $language != $user_info['language'];
@@ -194,7 +194,7 @@ function error_handler($error_level, $error_string, $file, $line)
 	global $settings, $modSettings, $db_show_debug;
 
 	// Ignore errors if we're ignoring them or they are strict notices from PHP 5 (which cannot be solved without breaking PHP 4.)
-	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && (empty($modSettings['enableErrorLogging']) || $modSettings['enableErrorLogging'] != 2)))
+	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && !empty($modSettings['enableErrorLogging'])))
 		return;
 
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
