@@ -276,7 +276,7 @@ function setup_fatal_error_context($error_message, $error_code)
 		return false;
 
 	// Maybe they came from dlattach or similar?
-	if (SMF != 'SSI' && empty($context['theme_loaded']))
+	if (SMF != 'SSI' && SMF != 'BACKGROUND' && empty($context['theme_loaded']))
 		loadTheme();
 
 	// Don't bother indexing errors mate...
@@ -312,6 +312,16 @@ function setup_fatal_error_context($error_message, $error_code)
 		// No layers?
 		if (empty($ssi_on_error_method) || $ssi_on_error_method !== true)
 			exit;
+	}
+	// Alternatively from the cron call?
+	elseif (SMF == 'BACKGROUND')
+	{
+		// We can't rely on even having language files available.
+		if (defined('FROM_CLI') && FROM_CLI)
+			echo 'cron error: ', $context['error_message'];
+		else
+			echo 'An error occurred. More information may be available in your logs.';
+		exit;
 	}
 
 	// We want whatever for the header, and a footer. (footer includes sub template!)
