@@ -635,7 +635,6 @@ function EditMembergroup()
 	if (!empty($modSettings['deny_boards_access']))
 		loadLanguage('ManagePermissions');
 
-
 	// Make sure this group is editable.
 	if (!empty($_REQUEST['group']))
 	{
@@ -858,7 +857,10 @@ function EditMembergroup()
 				$smcFunc['db_free_result']($request);
 
 				foreach ($updates as $additional_groups => $memberArray)
-					updateMemberData($memberArray, array('additional_groups' => implode(',', array_merge(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
+				{
+					$new_groups = (!empty($additional_groups) ? $additional_groups . ',' : '') . $_REQUEST['group']; // We already validated this a while ago.
+					updateMemberData($memberArray, array('additional_groups' => $new_groups));
+				}
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}members
