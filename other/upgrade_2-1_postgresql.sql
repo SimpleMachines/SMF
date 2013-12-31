@@ -219,6 +219,24 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Adding support for logging who fulfils a group request.
+/******************************************************************************/
+
+---# Adding new columns to log_group_requests
+ALTER TABLE {$db_prefix}log_group_requests
+ADD COLUMN status smallint NOT NULL default '0',
+ADD COLUMN id_member_acted int NOT NULL default '0',
+ADD COLUMN member_name_acted varchar(255) NOT NULL default '',
+ADD COLUMN time_acted int NOT NULL default '0',
+ADD COLUMN act_reason text NOT NULL;
+---#
+
+---# Adjusting the indexes for log_group_requests
+DROP INDEX {$db_prefix}log_group_requests_id_member;
+CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
+---#
+
+/******************************************************************************/
 --- Adding support for <credits> tag in package manager
 /******************************************************************************/
 ---# Adding new columns to log_packages ..

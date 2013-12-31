@@ -1150,6 +1150,11 @@ CREATE TABLE {$db_prefix}log_group_requests (
   id_group smallint NOT NULL default '0',
   time_applied int NOT NULL default '0',
   reason text NOT NULL,
+  status smallint NOT NULL default '0',
+  id_member_acted int NOT NULL default '0',
+  member_name_acted varchar(255) NOT NULL,
+  time_acted int NOT NULL default '0',
+  act_reason text NOT NULL,
   PRIMARY KEY (id_request)
 );
 
@@ -1157,7 +1162,7 @@ CREATE TABLE {$db_prefix}log_group_requests (
 # Indexes for table `log_group_requests`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
+CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
 
 #
 # Table structure for table `log_karma`

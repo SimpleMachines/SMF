@@ -514,4 +514,15 @@ $txt['trackEdit_action_email_address'] = 'Email Address';
 $txt['trackEdit_action_id_group'] = 'Primary Membergroup';
 $txt['trackEdit_action_additional_groups'] = 'Additional Membergroups';
 
+$txt['trackGroupRequests'] = 'Group Requests';
+$txt['trackGroupRequests_title'] = 'Group Requests for %1$s';
+$txt['requested_group'] = 'Requested Group';
+$txt['requested_group_reason'] = 'Reason Given';
+$txt['requested_group_time'] = 'Date';
+$txt['requested_group_outcome'] = 'Outcome';
+$txt['requested_none'] = 'There are no requests made by this user.';
+$txt['outcome_pending'] = 'Open';
+$txt['outcome_approved'] = 'Approved by %1$s on %2$s';
+$txt['outcome_refused'] = 'Refused by %1$s on %2$s';
+$txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
 ?>

@@ -730,6 +730,7 @@ function template_group_request_reason()
 					<input type="submit" name="go" value="', $txt['mc_groupr_submit'], '" class="button_submit" />
 					<input type="hidden" name="req_action" value="got_reason" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['mod-gr_token_var'], '" value="', $context['mod-gr_token'], '" />
 				</div>
 			</div>
 		</form>

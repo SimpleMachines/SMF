@@ -514,9 +514,11 @@ function ModBlockGroupRequests()
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
 			INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = lgr.id_group)
 		WHERE ' . ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . '
+			AND lgr.status = {int:status_open}
 		ORDER BY lgr.id_request DESC
 		LIMIT 10',
 		array(
+			'status_open' => 0,
 		)
 	);
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i ++)
