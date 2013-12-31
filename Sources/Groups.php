@@ -452,8 +452,10 @@ function GroupRequests()
 		isAllowedTo('manage_membergroups');
 
 	// Normally, we act normally...
-	$where = $user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq'];
-	$where_parameters = array();
+	$where = ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . ' AND lgr.status = {int:status_open}';
+	$where_parameters = array(
+		'status_open' => 0,
+	);
 
 	// We've submitted?
 	if (isset($_POST[$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
@@ -465,6 +467,8 @@ function GroupRequests()
 		foreach ($_POST['groupr'] as $k => $request)
 			$_POST['groupr'][$k] = (int) $request;
 
+		$log_changes = array();
+
 		// If we are giving a reason (And why shouldn't we?), then we don't actually do much.
 		if ($_POST['req_action'] == 'reason')
 		{
@@ -475,6 +479,9 @@ function GroupRequests()
 			$where_parameters['request_ids'] = $_POST['groupr'];
 
 			$context['group_requests'] = list_getGroupRequests(0, $modSettings['defaultMaxMessages'], 'lgr.id_request', $where, $where_parameters);
+
+			// Need to make another token for this.
+			createToken('mod-gr');
 
 			// Let obExit etc sort things out.
 			obExit();
@@ -495,6 +502,7 @@ function GroupRequests()
 				ORDER BY mem.lngfile',
 				array(
 					'request_list' => $_POST['groupr'],
+					'status_open' => 0,
 				)
 			);
 			$email_details = array();
@@ -502,6 +510,16 @@ function GroupRequests()
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
 				$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
+
+				if (!isset($log_changes[$row['id_request']]))
+					$log_changes[$row['id_request']] = array(
+						'id_request' => $row['id_request'],
+						'status' => $_POST['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
+						'id_member_acted' => $user_info['id'],
+						'member_name_acted' => $user_info['name'],
+						'time_acted' => time(),
+						'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
+					);
 
 				// If we are approving work out what their new group is.
 				if ($_POST['req_action'] == 'approve')
@@ -545,15 +563,6 @@ function GroupRequests()
 					);
 			}
 			$smcFunc['db_free_result']($request);
-
-			// Remove the evidence...
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}log_group_requests
-				WHERE id_request IN ({array_int:request_list})',
-				array(
-					'request_list' => $_POST['groupr'],
-				)
-			);
 
 			// Ensure everyone who is online gets their changes right away.
 			updateSettings(array('settings_updated' => time()));
@@ -619,6 +628,24 @@ function GroupRequests()
 
 						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
 					}
+				}
+			}
+
+			// Some changes to log?
+			if (!empty($log_changes))
+			{
+				foreach ($log_changes as $id_request => $details)
+				{
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}log_group_requests
+						SET status = {int:status},
+							id_member_acted = {int:id_member_acted},
+							member_name_acted = {string:member_name_acted},
+							time_acted = {int:time_acted},
+							act_reason = {string:act_reason}
+						WHERE id_request = {int:id_request}',
+						$details
+					);
 				}
 			}
 
