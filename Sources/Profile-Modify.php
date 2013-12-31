@@ -3491,7 +3491,7 @@ function groupMembership($memID)
 		SELECT mg.id_group, mg.group_name, mg.description, mg.group_type, mg.online_color, mg.hidden,
 			IFNULL(lgr.id_member, 0) AS pending
 		FROM {db_prefix}membergroups AS mg
-			LEFT JOIN {db_prefix}log_group_requests AS lgr ON (lgr.id_member = {int:selected_member} AND lgr.id_group = mg.id_group)
+			LEFT JOIN {db_prefix}log_group_requests AS lgr ON (lgr.id_member = {int:selected_member} AND lgr.id_group = mg.id_group AND lgr.status = {int:status_open})
 		WHERE (mg.id_group IN ({array_int:group_list})
 			OR mg.group_type > {int:nonjoin_group_id})
 			AND mg.min_posts = {int:min_posts}
@@ -3500,6 +3500,7 @@ function groupMembership($memID)
 		array(
 			'group_list' => $groups,
 			'selected_member' => $memID,
+			'status_open' => 0,
 			'nonjoin_group_id' => 1,
 			'min_posts' => -1,
 			'moderator_group' => 3,
@@ -3691,10 +3692,12 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 			SELECT id_member
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
-				AND id_group = {int:selected_group}',
+				AND id_group = {int:selected_group}
+				AND status = {int:status_open}',
 			array(
 				'selected_member' => $memID,
 				'selected_group' => $group_id,
+				'status_open' => 0,
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) != 0)
@@ -3706,9 +3709,11 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 			'{db_prefix}log_group_requests',
 			array(
 				'id_member' => 'int', 'id_group' => 'int', 'time_applied' => 'int', 'reason' => 'string-65534',
+				'status' => 'int', 'id_member_acted' => 'int', 'member_name_acted' => 'string', 'time_acted' => 'int', 'act_reason' => 'string',
 			),
 			array(
 				$memID, $group_id, time(), $_POST['reason'],
+				0, 0, '', 0, '',
 			),
 			array('id_request')
 		);
