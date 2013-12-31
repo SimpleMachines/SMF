@@ -2415,7 +2415,8 @@ function parsesmileys(&$message)
 			{
 				$result = $smcFunc['db_query']('', '
 					SELECT code, filename, description
-					FROM {db_prefix}smileys',
+					FROM {db_prefix}smileys
+					ORDER BY LENGTH(code) DESC',
 					array(
 					)
 				);

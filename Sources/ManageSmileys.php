@@ -164,10 +164,6 @@ function EditSmileySettings($return_config = false)
 		// Validate the smiley set name.
 		$_POST['smiley_sets_default'] = empty($smiley_context[$_POST['smiley_sets_default']]) ? 'default' : $_POST['smiley_sets_default'];
 
-		// Make sure that the smileys are in the right order after enabling them.
-		if (isset($_POST['smiley_enable']))
-			sortSmileyTable();
-
 		call_integration_hook('integrate_save_smiley_settings');
 
 		saveDBSettings($config_vars);
@@ -894,9 +890,6 @@ function EditSmileys()
 					)
 				);
 			}
-
-			// Sort all smiley codes for more accurate parsing (longest code first).
-			sortSmileyTable();
 		}
 
 		cache_put_data('parsing_smileys', null, 480);
@@ -1696,9 +1689,6 @@ function ImportSmileys($smileyPath)
 			array('id_smiley')
 		);
 
-		// Make sure the smiley codes are still in the right order.
-		sortSmileyTable();
-
 		cache_put_data('parsing_smileys', null, 480);
 		cache_put_data('posting_smileys', null, 480);
 	}
@@ -2001,41 +1991,6 @@ function list_getMessageIcons($start, $items_per_page, $sort)
 	$smcFunc['db_free_result']($request);
 
 	return $message_icons;
-}
-
-/**
- * This function sorts the smiley table by code length,
- * it is needed as MySQL withdrew support for functions in order by.
- * @todo is this ordering itself needed?
- */
-function sortSmileyTable()
-{
-	global $smcFunc;
-
-	db_extend('packages');
-
-	// Add a sorting column.
-	$smcFunc['db_add_column']('{db_prefix}smileys', array('name' => 'temp_order', 'size' => 8, 'type' => 'mediumint', 'null' => false));
-
-	// Set the contents of this column.
-	$smcFunc['db_query']('set_smiley_order', '
-		UPDATE {db_prefix}smileys
-		SET temp_order = LENGTH(code)',
-		array(
-		)
-	);
-
-	// Order the table by this column.
-	$smcFunc['db_query']('alter_table_smileys', '
-		ALTER TABLE {db_prefix}smileys
-		ORDER BY temp_order DESC',
-		array(
-			'db_error_skip' => true,
-		)
-	);
-
-	// Remove the sorting column.
-	$smcFunc['db_remove_column']('{db_prefix}smileys', 'temp_order');
 }
 
 ?>

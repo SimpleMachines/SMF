@@ -279,9 +279,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'alter_table_icons' => array(
 			'~(.+)~' => '',
 		),
-		'alter_table_smileys' => array(
-			'~(.+)~' => '',
-		),
 		'alter_table_spiders' => array(
 			'~(.+)~' => '',
 		),
@@ -344,9 +341,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
-		),
-		'set_smiley_order' => array(
-			'~(.+)~' => '',
 		),
 	);
 
