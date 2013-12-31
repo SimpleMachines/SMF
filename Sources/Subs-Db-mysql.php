@@ -375,19 +375,13 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$clean .= substr($db_string, $old_pos);
 		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
-		// We don't use UNION in SMF, at least so far.  But it's useful for injections.
-		if (strpos($clean, 'union') !== false && preg_match('~(^|[^a-z])union($|[^[a-z])~s', $clean) != 0)
-			$fail = true;
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
-		elseif (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
+		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
 			$fail = true;
 		// Trying to change passwords, slow us down, or something?
 		elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0)
 			$fail = true;
 		elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0)
-			$fail = true;
-		// Sub selects?  We don't use those either.
-		elseif (preg_match('~\([^)]*?select~s', $clean) != 0)
 			$fail = true;
 
 		if (!empty($fail) && function_exists('log_error'))
