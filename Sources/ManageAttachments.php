@@ -47,7 +47,6 @@ function ManageAttachments()
 		'byAge' => 'RemoveAttachmentByAge',
 		'bySize' => 'RemoveAttachmentBySize',
 		'maintenance' => 'MaintainFiles',
-		'moveAvatars' => 'MoveAvatars',
 		'repair' => 'RepairAttachments',
 		'remove' => 'RemoveAttachment',
 		'removeall' => 'RemoveAllAttachments',
@@ -773,59 +772,6 @@ function MaintainFiles()
 		$context['results'] = implode('<br />', $_SESSION['results']);
 		unset($_SESSION['results']);
 	}
-}
-
-/**
- * Move avatars from their current location, to the custom_avatar_dir folder.
- * Called from the maintenance screen by ?action=admin;area=manageattachments;sa=moveAvatars.
- */
-function MoveAvatars()
-{
-	global $modSettings, $smcFunc;
-
-	// First make sure the custom avatar dir is writable.
-	if (!is_writable($modSettings['custom_avatar_dir']))
-	{
-		// Try to fix it.
-		@chmod($modSettings['custom_avatar_dir'], 0777);
-
-		// Guess that didn't work?
-		if (!is_writable($modSettings['custom_avatar_dir']))
-			fatal_lang_error('attachments_no_write', 'critical');
-	}
-
-	$request = $smcFunc['db_query']('', '
-		SELECT id_attach, id_folder, id_member, filename, file_hash
-		FROM {db_prefix}attachments
-		WHERE attachment_type = {int:attachment_type}
-			AND id_member > {int:guest_id_member}',
-		array(
-			'attachment_type' => 0,
-			'guest_id_member' => 0,
-		)
-	);
-	$updatedAvatars = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
-
-		if (rename($filename, $modSettings['custom_avatar_dir'] . '/' . $row['filename']))
-			$updatedAvatars[] = $row['id_attach'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($updatedAvatars))
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}attachments
-			SET attachment_type = {int:attachment_type}
-			WHERE id_attach IN ({array_int:updated_avatars})',
-			array(
-				'updated_avatars' => $updatedAvatars,
-				'attachment_type' => 1,
-			)
-		);
-
-	redirectexit('action=admin;area=manageattachments;sa=maintenance');
 }
 
 /**
