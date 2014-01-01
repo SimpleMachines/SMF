@@ -1708,7 +1708,8 @@ function EditMessageIcons()
 		SELECT m.id_icon, m.title, m.filename, m.icon_order, m.id_board, b.name AS board_name
 		FROM {db_prefix}message_icons AS m
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
-		WHERE ({query_see_board} OR b.id_board IS NULL)',
+		WHERE ({query_see_board} OR b.id_board IS NULL)
+		ORDER BY m.icon_order',
 		array(
 		)
 	);
@@ -1828,15 +1829,6 @@ function EditMessageIcons()
 				);
 			}
 		}
-
-		// Sort by order, so it is quicker :)
-		$smcFunc['db_query']('alter_table_icons', '
-			ALTER TABLE {db_prefix}message_icons
-			ORDER BY icon_order',
-			array(
-				'db_error_skip' => true,
-			)
-		);
 
 		// Unless we're adding a new thing, we'll escape
 		if (!isset($_POST['add']))

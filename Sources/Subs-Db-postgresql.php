@@ -276,9 +276,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'alter_table_boards' => array(
 			'~(.+)~' => '',
 		),
-		'alter_table_icons' => array(
-			'~(.+)~' => '',
-		),
 		'ban_suggest_error_ips' => array(
 			'~RLIKE~' => '~',
 			'~\\.~' => '\.',

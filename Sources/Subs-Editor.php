@@ -1403,7 +1403,8 @@ function getMessageIcons($board_id)
 			$request = $smcFunc['db_query']('select_message_icons', '
 				SELECT title, filename
 				FROM {db_prefix}message_icons
-				WHERE id_board IN (0, {int:board_id})',
+				WHERE id_board IN (0, {int:board_id})
+				ORDER BY icon_order',
 				array(
 					'board_id' => $board_id,
 				)
