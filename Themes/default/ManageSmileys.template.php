@@ -470,7 +470,7 @@ function template_editicon()
 							<strong><label for="icon_filename">', $txt['smileys_filename'], '</label>: </strong><br /><span class="smalltext">', $txt['icons_filename_all_png'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="icon_filename" id="icon_filename" value="', !empty($context['icon']['filename']) ? $context['icon']['filename'] . '.gif' : '', '" class="input_text" />
+							<input type="text" name="icon_filename" id="icon_filename" value="', !empty($context['icon']['filename']) ? $context['icon']['filename'] . '.png' : '', '" class="input_text" />
 						</dd>
 						<dt>
 							<strong><label for="icon_description">', $txt['smileys_description'], '</label>: </strong>
