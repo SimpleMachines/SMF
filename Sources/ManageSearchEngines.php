@@ -428,10 +428,8 @@ function EditSpider()
 				array('id_spider')
 			);
 
-		// Order by user agent length.
-		sortSpiderTable();
 
-		cache_put_data('spider_search', null, 300);
+		cache_put_data('spider_search', null);
 		recacheSpiderNames();
 
 		redirectexit('action=admin;area=sengines;sa=spiders');
@@ -483,12 +481,13 @@ function SpiderCheck()
 		unset($_SESSION['id_robot']);
 	$_SESSION['robot_check'] = time();
 
-	// We cache the spider data for five minutes if we can.
-	if (($spider_data = cache_get_data('spider_search', 300)) === null)
+	// We cache the spider data for ten minutes if we can.
+	if (($spider_data = cache_get_data('spider_search', 600)) === null)
 	{
-		$request = $smcFunc['db_query']('spider_check', '
+		$request = $smcFunc['db_query']('', '
 			SELECT id_spider, user_agent, ip_info
-			FROM {db_prefix}spiders',
+			FROM {db_prefix}spiders
+			ORDER BY LENGTH(user_agent) DESC',
 			array(
 			)
 		);
@@ -497,7 +496,7 @@ function SpiderCheck()
 			$spider_data[] = $row;
 		$smcFunc['db_free_result']($request);
 
-		cache_put_data('spider_search', $spider_data, 300);
+		cache_put_data('spider_search', $spider_data, 600);
 	}
 
 	if (empty($spider_data))
@@ -1101,39 +1100,6 @@ function recacheSpiderNames()
 	$smcFunc['db_free_result']($request);
 
 	updateSettings(array('spider_name_cache' => serialize($spiders)));
-}
-
-/**
- * Sort the search engine table by user agent name to avoid misidentification of engine.
- */
-function sortSpiderTable()
-{
-	global $smcFunc;
-
-	db_extend('packages');
-
-	// Add a sorting column.
-	$smcFunc['db_add_column']('{db_prefix}spiders', array('name' => 'temp_order', 'size' => 8, 'type' => 'mediumint', 'null' => false));
-
-	// Set the contents of this column.
-	$smcFunc['db_query']('set_spider_order', '
-		UPDATE {db_prefix}spiders
-		SET temp_order = LENGTH(user_agent)',
-		array(
-		)
-	);
-
-	// Order the table by this column.
-	$smcFunc['db_query']('alter_table_spiders', '
-		ALTER TABLE {db_prefix}spiders
-		ORDER BY temp_order DESC',
-		array(
-			'db_error_skip' => true,
-		)
-	);
-
-	// Remove the sorting column.
-	$smcFunc['db_remove_column']('{db_prefix}spiders', 'temp_order');
 }
 
 ?>

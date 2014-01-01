@@ -279,9 +279,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'alter_table_icons' => array(
 			'~(.+)~' => '',
 		),
-		'alter_table_spiders' => array(
-			'~(.+)~' => '',
-		),
 		'ban_suggest_error_ips' => array(
 			'~RLIKE~' => '~',
 			'~\\.~' => '\.',
@@ -332,9 +329,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'order_by_board_order' => array(
 			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
-		'spider_check' => array(
-			'~(.)$~' => '$1 ORDER BY LENGTH(user_agent) DESC',
 		),
 		'unread_replies' => array(
 			'~SELECT\\s+DISTINCT\\s+t.id_topic~' => 'SELECT t.id_topic, {raw:sort}',
