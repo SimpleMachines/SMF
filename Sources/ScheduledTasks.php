@@ -1199,7 +1199,7 @@ function loadEssentialThemeData()
 			AND id_theme IN (1, {int:theme_guests})',
 		array(
 			'no_member' => 0,
-			'theme_guests' => $modSettings['theme_guests'],
+			'theme_guests' => !empty($modSettings['theme_guests']) ? $modSettings['theme_guests'] : 1,
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($result))
