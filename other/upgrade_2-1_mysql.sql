@@ -67,6 +67,14 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 
 ---# Converting legacy attachments.
 ---{
+
+// Need to know a few things first.
+$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+
+// This little fellow has to cooperate...
+if (!is_writable($custom_av_dir))
+	@chmod($custom_av_dir, 0777);
+
 $request = upgrade_query("
 	SELECT MAX(id_attach)
 	FROM {$db_prefix}attachments");
@@ -140,8 +148,17 @@ while (!$is_done)
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 		}
 
-		// And we try to move it.
-		rename($oldFile, $newFile);
+		// Check if the av is an attachment
+		if ($row['id_member'] != 0)
+			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+				upgrade_query("
+					UPDATE {$db_prefix}attachments
+					SET file_hash = '', attachment_type = 1
+					WHERE id_attach = $row[id_attach]");
+
+		// Just a regular attachment.
+		else
+			rename($oldFile, $newFile);
 
 		// Only update this if it was successful and the file was using the old system.
 		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
