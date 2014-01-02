@@ -2642,7 +2642,7 @@ function template_deleteAccount()
 	// If deleting another account give them a lovely info box.
 	if (!$context['user']['is_owner'])
 		echo '
-			<p class="windowbg2 description">', $txt['deleteAccount_desc'], '</p>';
+			<p class="information">', $txt['deleteAccount_desc'], '</p>';
 	echo '
 			<div class="windowbg2">
 				<div class="content">';
@@ -2682,9 +2682,8 @@ function template_deleteAccount()
 		if ($context['can_delete_posts'])
 			echo '
 					<div>
-						', $txt['deleteAccount_posts'], ':
+						<label for="deletePosts"><input type="checkbox" name="deletePosts" id="deletePosts" value="1" class="input_check" /> ', $txt['deleteAccount_posts'], ':</label>
 						<select name="remove_type">
-							<option value="none">', $txt['deleteAccount_none'], '</option>
 							<option value="posts">', $txt['deleteAccount_all_posts'], '</option>
 							<option value="topics">', $txt['deleteAccount_topics'], '</option>
 						</select>

@@ -592,7 +592,7 @@ function deleteAccount2($memID)
 
 		// Now, have you been naughty and need your posts deleting?
 		// @todo Should this check board permissions?
-		if ($_POST['remove_type'] != 'none' && allowedTo('moderate_forum'))
+		if (!empty($_POST['deletePosts']) && in_array($_POST['remove_type'], array('posts', 'topics')) && allowedTo('moderate_forum'))
 		{
 			// Include RemoveTopics - essential for this type of work!
 			require_once($sourcedir . '/RemoveTopic.php');
