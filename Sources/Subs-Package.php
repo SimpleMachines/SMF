@@ -1554,7 +1554,7 @@ function compareVersions($version1, $version2)
 
 		// Build an array of parts.
 		$versions[$id] = array(
-			'major' => (int) $parts[1],
+			'major' => !empty($parts[1]) ? (int) $parts[1] : 0,
 			'minor' => !empty($parts[2]) ? (int) $parts[2] : 0,
 			'patch' => !empty($parts[3]) ? (int) $parts[3] : 0,
 			'type' => empty($parts[4]) ? 'stable' : $parts[4],
