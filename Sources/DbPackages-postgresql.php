@@ -189,6 +189,8 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 	// Go, go power rangers!
 	$smcFunc['db_transaction']('commit');
+
+	return true;
 }
 
 /**
