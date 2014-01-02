@@ -417,7 +417,7 @@ function template_add_edit_group_boards_list($collapse = true)
 	echo '
 							<fieldset id="visible_boards">
 								<legend>', $txt['membergroups_new_board_desc'], '</legend>
-								<ul class="ignoreboards floatleft">';
+								<ul class="padding floatleft">';
 
 	foreach ($context['categories'] as $category)
 	{
