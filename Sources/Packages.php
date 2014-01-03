@@ -2015,9 +2015,15 @@ function PackagePermissions()
 					'writable_on' => 'standard',
 				),
 				'Sources' => array(
-					'type' => 'dir',
+					'type' => 'dir_recursive',
 					'list_contents' => true,
 					'writable_on' => 'standard',
+					'contents' => array(
+						'tasks' => array(
+							'type' => 'dir',
+							'list_contents' => true,
+						),
+					),
 				),
 				'Themes' => array(
 					'type' => 'dir_recursive',
