@@ -997,6 +997,16 @@ function WelcomeLogin()
 		$boarddir . '/Settings_bak.php',
 	);
 
+	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+
+	// This little fellow has to cooperate...
+	if (!is_writable($custom_av_dir))
+		@chmod($custom_av_dir, 0777);
+
+	// Are we good now?
+	if(!is_writable($custom_av_dir))
+		return throw_error(sprintf('The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.', $custom_av_dir));
+
 	require_once($sourcedir . '/Security.php');
 
 	// Check the cache directory.
@@ -1391,7 +1401,7 @@ function BackupDatabase()
 
 	// Some useful stuff here.
 	db_extend();
-	
+
 	// Might need this as well
 	db_extend('packages');
 
