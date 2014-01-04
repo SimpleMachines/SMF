@@ -155,6 +155,8 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 			'security_override' => true,
 		)
 	);
+
+	return true;
 }
 
 /**

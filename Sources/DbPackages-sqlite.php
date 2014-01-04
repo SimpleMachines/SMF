@@ -193,6 +193,8 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 	if (empty($parameters['skip_transaction']))
 		$smcFunc['db_transaction']('commit');
+
+	return true;
 }
 
 /**
