@@ -530,7 +530,7 @@ tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:v
 /* Alternating backgrounds for posts, and several other sections of the forum. */
 .windowbg, #preview_body {
 	color: #222;
-	background: #e7eaef;
+	background: #f0f4f7;
 }
 .windowbg2 {
 	color: #222;
@@ -2044,7 +2044,7 @@ h4#pollquestion {
 #poll_options div.submitbutton {
 	border-bottom: 1px solid #9999aa;
 	clear: both;
-	padding: 0 0 12px 25px;
+	padding: 0 0 12px 0;
 	margin: 0 0 12px 0;
 }
 
@@ -2668,7 +2668,7 @@ ul.post_options li {
 	overflow: hidden;
 }
 #edit_poll fieldset input {
-	margin-left: 8.1em;
+	margin-left: 7.5em;
 }
 #edit_poll ul.poll_main li {
 	padding-left: 12px;
