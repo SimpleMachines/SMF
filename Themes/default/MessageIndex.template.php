@@ -410,7 +410,8 @@ function template_topic_legend()
 				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />
 			</p>';
 
-	echo '
+	if (!empty($context['jump_to']))
+		echo '
 			<script type="text/javascript"><!-- // --><![CDATA[
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
@@ -425,7 +426,9 @@ function template_topic_legend()
 						sCatPrefix: "",
 						sGoButtonLabel: "', $txt['quick_mod_go'], '"
 					});
-			// ]]></script>
+			// ]]></script>';
+
+	echo '
 			<br class="clear" />
 		</div>
 	</div>';
