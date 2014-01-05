@@ -95,13 +95,10 @@ function template_unread()
 	if (!empty($context['topics']))
 	{
 		echo '
-			<div class="pagesection">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
+			<div class="pagesection">
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+				<div class="pagelinks floatleft">', $context['page_index'], '</div>
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
 
 		// [WIP] There is trial code here to hide the topic icon column. Colspan can be cleaned up later.
@@ -207,13 +204,10 @@ function template_unread()
 					</tbody>
 				</table>
 			</div>
-			<div class="pagesection" id="readbuttons">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#main_content_section"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
+			<div class="pagesection">
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#recent" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
 	}
 	else
@@ -263,13 +257,10 @@ function template_replies()
 	if (!empty($context['topics']))
 	{
 		echo '
-			<div class="pagesection">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
+			<div class="pagesection">
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+				<div class="pagelinks floatleft">', $context['page_index'], '</div>
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
 
 		// [WIP] There is trial code here to hide the topic icon column. Colspan can be cleaned up later.
@@ -371,14 +362,11 @@ function template_replies()
 					</tbody>
 				</table>
 			</div>
-			<div class="pagesection">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#main_content_section"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
- 			</div>';
+			<div class="pagesection">
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#recent" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+				<div class="pagelinks">', $context['page_index'], '</div>
+			</div>';
 	}
 	else
 		echo '
