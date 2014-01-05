@@ -10,7 +10,7 @@
  * @version 2.1 Alpha 1
  */
 
-function template_main()
+function template_recent()
 {
 	global $context, $settings, $options, $txt, $scripturl;
 
@@ -95,13 +95,10 @@ function template_unread()
 	if (!empty($context['topics']))
 	{
 		echo '
-			<div class="pagesection">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
+			<div class="pagesection">
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+				<div class="pagelinks floatleft">', $context['page_index'], '</div>
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
 
 		// [WIP] There is trial code here to hide the topic icon column. Colspan can be cleaned up later.
@@ -186,7 +183,7 @@ function template_unread()
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
-								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></a>
+								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></span></a>
 								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 							</td>';
 
@@ -207,13 +204,10 @@ function template_unread()
 					</tbody>
 				</table>
 			</div>
-			<div class="pagesection" id="readbuttons">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#main_content_section"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
+			<div class="pagesection">
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#recent" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
 	}
 	else
@@ -229,21 +223,10 @@ function template_unread()
 		</form>';
 
 	echo '
-		<div class="description " id="topic_icons">
-			<p class="smalltext floatleft">
-				', !empty($modSettings['enableParticipation']) ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				<img src="', $settings['images_url'], '/topic/normal_post.png" alt="" class="centericon" /> ', $txt['normal_topic'], '<br />
-				<img src="', $settings['images_url'], '/topic/hot_post.png" alt="" class="centericon" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
-				<img src="', $settings['images_url'], '/topic/veryhot_post.png" alt="" class="centericon" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
-			</p>
-			<p class="smalltext para2">
-				<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="" class="centericon" /> ', $txt['locked_topic'], '<br />
-				<img src="', $settings['images_url'], '/icons/quick_sticky.png" alt="" class="centericon" /> ', $txt['sticky_topic'], '<br />', ($modSettings['pollMode'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : ''), '
-			</p>
-		</div>
 	</div>';
+
+	if (empty($context['no_topic_listing']))
+		template_topic_legend();
 }
 
 function template_replies()
@@ -263,13 +246,10 @@ function template_replies()
 	if (!empty($context['topics']))
 	{
 		echo '
-			<div class="pagesection">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#bot"><strong>' . $txt['go_down'] . '</strong></a>' : '', '</div>
+			<div class="pagesection">
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+				<div class="pagelinks floatleft">', $context['page_index'], '</div>
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
 
 		// [WIP] There is trial code here to hide the topic icon column. Colspan can be cleaned up later.
@@ -354,7 +334,7 @@ function template_replies()
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
-								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></a>
+								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></span></a>
 								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
 							</td>';
 
@@ -371,14 +351,11 @@ function template_replies()
 					</tbody>
 				</table>
 			</div>
-			<div class="pagesection">';
-
-		if (!empty($context['recent_buttons']))
-			template_button_strip($context['recent_buttons'], 'right');
-
-		echo '
-				<div class="pagelinks floatleft">', $context['page_index'], !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . ' &nbsp;&nbsp;<a href="#main_content_section"><strong>' . $txt['go_up'] . '</strong></a>' : '', '</div>
- 			</div>';
+			<div class="pagesection">
+				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
+				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#recent" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+				<div class="pagelinks">', $context['page_index'], '</div>
+			</div>';
 	}
 	else
 		echo '
@@ -393,21 +370,10 @@ function template_replies()
 		</form>';
 
 	echo '
-		<div class="description flow_auto" id="topic_icons">
-			<p class="smalltext floatleft">
-				', !empty($modSettings['enableParticipation']) ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				<img src="', $settings['images_url'], '/topic/normal_post.png" alt="" class="centericon" /> ', $txt['normal_topic'], '<br />
-				<img src="', $settings['images_url'], '/topic/hot_post.png" alt="" class="centericon" /> ', sprintf($txt['hot_topics'], $modSettings['hotTopicPosts']), '<br />
-				<img src="', $settings['images_url'], '/topic/veryhot_post.png" alt="" class="centericon" /> ', sprintf($txt['very_hot_topics'], $modSettings['hotTopicVeryPosts']), '
-			</p>
-			<p class="smalltext para2">
-				<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="" class="centericon" /> ', $txt['locked_topic'], '<br />
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />' . ($modSettings['pollMode'] == '1' ? '
-				<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '
-			</p>
-		</div>
 	</div>';
+
+	if (empty($context['no_topic_listing']))
+		template_topic_legend();
 }
 
 ?>

@@ -355,28 +355,9 @@ function template_main()
 	// Show breadcrumbs at the bottom too.
 	theme_linktree();
 
-	echo '
-	<div class="tborder" id="topic_icons">
-		<div class="description">
-			<p class="floatright" id="message_index_jump_to">&nbsp;</p>';
-
-	if (!$context['no_topic_listing'])
-		echo '
-			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				'. ($modSettings['pollMode'] == '1' ? '<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '<br />
-				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix" /> ' . $txt['moved_topic'] . '<br />
-			</p>
-			<p>
-				<img src="' . $settings['images_url'] . '/icons/quick_lock.png" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />
-			</p>';
-
-	echo '
-			<script type="text/javascript"><!-- // --><![CDATA[';
-
 	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
 		echo '
+			<script type="text/javascript"><!-- // --><![CDATA[
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "quick_mod_jump_to",
@@ -392,9 +373,45 @@ function template_main()
 						bNoRedirect: true,
 						bDisabled: true,
 						sCustomName: "move_to"
-					});';
+					});
+			// ]]></script>';
+
+	// Javascript for inline editing.
+	echo '
+<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
+<script type="text/javascript"><!-- // --><![CDATA[
+	var oQuickModifyTopic = new QuickModifyTopic({
+		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
+		bMouseOnDiv: false,
+	});
+// ]]></script>';
+
+	template_topic_legend();
+}
+
+function template_topic_legend()
+{
+	global $context, $settings, $txt, $options, $modSettings;
 
 	echo '
+	<div class="tborder" id="topic_icons">
+		<div class="description">
+			<p class="floatright" id="message_index_jump_to">&nbsp;</p>';
+
+	if (empty($context['no_topic_listing']))
+		echo '
+			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
+				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
+				'. ($modSettings['pollMode'] == '1' ? '<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '<br />
+				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix" /> ' . $txt['moved_topic'] . '<br />
+			</p>
+			<p>
+				<img src="' . $settings['images_url'] . '/icons/quick_lock.png" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />
+				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />
+			</p>';
+
+	echo '
+			<script type="text/javascript"><!-- // --><![CDATA[
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "message_index_jump_to",
@@ -412,16 +429,6 @@ function template_main()
 			<br class="clear" />
 		</div>
 	</div>';
-
-	// Javascript for inline editing.
-	echo '
-<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
-<script type="text/javascript"><!-- // --><![CDATA[
-	var oQuickModifyTopic = new QuickModifyTopic({
-		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
-		bMouseOnDiv: false,
-	});
-// ]]></script>';
 }
 
 ?>

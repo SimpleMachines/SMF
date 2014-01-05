@@ -79,6 +79,7 @@ function RecentPosts()
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];
+	$context['sub_template'] = 'recent';
 
 	if (isset($_REQUEST['start']) && $_REQUEST['start'] > 95)
 		$_REQUEST['start'] = 95;
@@ -650,6 +651,7 @@ function UnreadTopics()
 	else
 	{
 		loadTemplate('Recent');
+		loadTemplate('MessageIndex');
 		$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
 	}
 
@@ -814,6 +816,7 @@ function UnreadTopics()
 			markBoardsRead(empty($boards) ? $board : $boards);
 
 			$context['topics'] = array();
+			$context['no_topic_listing'] = true;
 			if ($context['querystring_board_limits'] == ';start=%1$d')
 				$context['querystring_board_limits'] = '';
 			else
@@ -901,6 +904,7 @@ function UnreadTopics()
 			}
 
 			$context['topics'] = array();
+			$context['no_topic_listing'] = true;
 			if ($context['querystring_board_limits'] == ';start=%d')
 				$context['querystring_board_limits'] = '';
 			else
@@ -1061,6 +1065,7 @@ function UnreadTopics()
 		if ($num_topics == 0)
 		{
 			$context['topics'] = array();
+			$context['no_topic_listing'] = true;
 			if ($context['querystring_board_limits'] == ';start=%d')
 				$context['querystring_board_limits'] = '';
 			else
@@ -1119,6 +1124,7 @@ function UnreadTopics()
 		if (empty($topics))
 		{
 			$context['topics'] = array();
+			$context['no_topic_listing'] = true;
 			if ($context['querystring_board_limits'] == ';start=%d')
 				$context['querystring_board_limits'] = '';
 			else
@@ -1364,6 +1370,8 @@ function UnreadTopics()
 		// Allow mods to add additional buttons here
 		call_integration_hook('integrate_recent_buttons');
 	}
+
+	$context['no_topic_listing'] = empty($context['topics']);
 
 	// Allow helpdesks and bug trackers and what not to add their own unread data (just add a template_layer to show custom stuff in the template!)
  	call_integration_hook('integrate_unread_list');
