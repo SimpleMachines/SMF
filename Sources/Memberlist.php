@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function Memberlist()
 {
-	global $scripturl, $txt, $modSettings, $context, $modSettings;
+	global $scripturl, $txt, $modSettings, $context;
 
 	// Make sure they can view the memberlist.
 	isAllowedTo('view_mlist');

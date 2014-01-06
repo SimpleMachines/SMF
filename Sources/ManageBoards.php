@@ -81,7 +81,7 @@ function ManageBoards()
  */
 function ManageBoardsMain()
 {
-	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $txt, $smcFunc;
+	global $txt, $context, $cat_tree, $boards, $boardList, $scripturl, $sourcedir, $smcFunc;
 
 	loadTemplate('ManageBoards');
 
