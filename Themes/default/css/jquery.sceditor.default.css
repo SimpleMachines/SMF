@@ -4,7 +4,7 @@ html, body, p, code:before, table {
 	color: #111;
 }
 html>body>p, html>body>div {
-	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Liberation Sans", "Nimbus Sans L", Arial, sans-serif;
+	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 }
 ul, ol {
 	margin-top: 0;
@@ -45,7 +45,7 @@ blockquote {
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
 	padding: 4px 8px;
-	font: 75%/150% "Segoe UI", "Helvetica Neue", "Liberation Sans", "Nimbus Sans L", Arial, sans-serif;
+	font: 75%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 }
 blockquote blockquote {
 	font-size: 1em;
