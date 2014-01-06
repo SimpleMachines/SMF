@@ -322,17 +322,21 @@ function template_modify_language_entries()
 			</div>
 			<div id="taskpad" class="floatright">
 				', $txt['edit_language_entries_file'], ':
-					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">';
+					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
+						<option value="-1">&nbsp;</option>';
 	foreach ($context['possible_files'] as $id_theme => $theme)
 	{
 		echo '
-						<option value="-1">', $theme['name'], '</option>';
+						<optgroup label="', $theme['name'], '">';
 
 		foreach ($theme['files'] as $file)
 		{
 			echo '
-						<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected="selected"' : '', '> =&gt; ', $file['name'], '</option>';
+							<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected="selected"' : '', '> =&gt; ', $file['name'], '</option>';
 		}
+
+		echo '
+						</optgroup>';
 	}
 
 	echo '
