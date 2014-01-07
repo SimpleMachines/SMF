@@ -108,9 +108,9 @@ function template_main()
 								<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
 
 		echo '
-								', $category['link'], !empty($category['description']) ? '
-								<div class="desc">' . $category['description'] . '</div>' : '', '
-							</h3>
+								', $category['link'], '
+							</h3>', !empty($category['description']) ? '
+							<div class="desc">' . $category['description'] . '</div>' : '', '
 						</div>
 					</td>
 				</tr>
@@ -136,7 +136,7 @@ function template_main()
 						</a>
 					</td>
 					<td class="info">
-						<a class="subject" href="', $board['href'], '" name="b', $board['id'], '">', $board['name'], '</a>';
+						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 				// Has it outstanding posts for approval?
 				if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))

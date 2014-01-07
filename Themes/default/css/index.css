@@ -831,11 +831,12 @@ h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
 	line-height: 1.5em;
 	padding: 8px;
 }
-h3.catbg .desc
+.cat_bar .desc
 {
 	font-size: 10px;
 	line-height: 1.5em;
 	font-weight: normal;
+	margin: -8px 0 4px 12px;
 }
 h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
 	color: #fff;
@@ -2012,6 +2013,21 @@ td#quick_actions {
 }
 #message_index_jump_to .button_submit {
 	padding: 4px 6px 2px 6px;
+}
+#messageindex th.post_icon {
+	width: 4%;
+}
+#messageindex th.stats {
+	width: 14%;
+}
+#messageindex th.last_post {
+	width: 22%;
+}
+#messageindex th.moderation {
+	width: 24px;
+}
+#messageindex td.moderation {
+	text-align: center;
 }
 
 /* Styles for the display template (topic view).
