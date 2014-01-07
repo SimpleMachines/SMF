@@ -200,7 +200,7 @@ function Memberlist()
  */
 function MLAll()
 {
-	global $txt, $scripturl, $user_info;
+	global $txt, $scripturl;
 	global $modSettings, $context, $smcFunc;
 
 	// The chunk size for the cached index.
@@ -597,7 +597,6 @@ function MLSearch()
  */
 function printMemberListRows($request)
 {
-	global $scripturl, $txt, $user_info, $modSettings;
 	global $context, $memberContext, $smcFunc;
 
 	// Get the most posts.

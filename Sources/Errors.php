@@ -122,7 +122,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  */
 function fatal_error($error, $log = 'general')
 {
-	global $txt, $modSettings;
+	global $txt;
 
 	// We don't have $txt yet, but that's okay...
 	if (empty($txt))
@@ -147,7 +147,7 @@ function fatal_error($error, $log = 'general')
  */
 function fatal_lang_error($error, $log = 'general', $sprintf = array())
 {
-	global $txt, $language, $modSettings, $user_info, $context;
+	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
 
 	// Try to load a theme if we don't have one.
