@@ -40,7 +40,7 @@ function template_main()
 						</a>
 					</td>
 					<td class="info">
-						<a class="subject" href="', $board['href'], '" name="b', $board['id'], '">', $board['name'], '</a>';
+						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 			// Has it outstanding posts for approval?
 			if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
@@ -166,7 +166,7 @@ function template_main()
 		}
 	echo '
 
-		<table class="table_grid" cellspacing="0">
+		<table class="table_grid">
 			<thead>
 				<tr class="catbg">';
 
@@ -174,21 +174,21 @@ function template_main()
 		if (!empty($context['topics']))
 		{
 			echo '
-					<th scope="col" class="first_th" width="4%">&nbsp;</th>
-					<th scope="col" class="lefttext">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</th>
-					<th scope="col" class="stats" width="14%">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
+					<th scope="col" class="post_icon first_th">&nbsp;</th>
+					<th scope="col" class="subject lefttext">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</th>
+					<th scope="col" class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
 			// Show a "select all" box for quick moderation?
 			if (empty($context['can_quick_mod']))
 				echo '
-					<th scope="col" class="lefttext last_th" width="22%">', $context['topics_headers']['last_post'], '</th>';
+					<th scope="col" class="last_post lefttext last_th">', $context['topics_headers']['last_post'], '</th>';
 			else
 				echo '
-					<th scope="col" class="lefttext" width="22%">', $context['topics_headers']['last_post'], '</th>';
+					<th scope="col" class="last_post lefttext">', $context['topics_headers']['last_post'], '</th>';
 
 			// Show a "select all" box for quick moderation?
 			if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-					<th scope="col" class="last_th" width="24"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" /></th>';
+					<th scope="col" class="moderation last_th"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" /></th>';
 
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
@@ -212,7 +212,7 @@ function template_main()
 		{
 			echo '
 				<tr class="windowbg2">
-					<td colspan="', !empty($context['can_quick_mod']) ? '6' : '5', '">
+					<td colspan="', !empty($context['can_quick_mod']) ? '5' : '4', '">
 						<span class="alert">!</span> ', $context['unapproved_posts_message'], '
 					</td>
 				</tr>';
@@ -277,7 +277,7 @@ function template_main()
 			if (!empty($context['can_quick_mod']))
 			{
 				echo '
-					<td class="', $color_class, ' moderation" align="center">';
+					<td class="', $color_class, ' moderation">';
 				if ($options['display_quick_mod'] == 1)
 					echo '
 						<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />';
@@ -310,7 +310,7 @@ function template_main()
 		{
 			echo '
 				<tr class="titlebg">
-					<td colspan="6" align="right" id="quick_actions">
+					<td colspan="5" class="righttext" id="quick_actions">
 						<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 							<option value="">--------</option>';
 
