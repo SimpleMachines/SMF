@@ -778,8 +778,6 @@ function createToken($action, $type = 'post')
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
-	global $modSettings, $db_show_debug;
-
 	$type = $type == 'get' || $type == 'request' ? $type : 'post';
 
 	// Logins are special: the token is used to has the password with javascript before POST it
@@ -912,7 +910,7 @@ function checkSubmitOnce($action, $is_fatal = true)
  */
 function allowedTo($permission, $boards = null)
 {
-	global $user_info, $modSettings, $smcFunc;
+	global $user_info, $smcFunc;
 
 	// You're always allowed to do nothing. (unless you're a working man, MR. LAZY :P!)
 	if (empty($permission))
@@ -1048,7 +1046,7 @@ function isAllowedTo($permission, $boards = null)
  */
 function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
-	global $user_info, $modSettings, $smcFunc;
+	global $user_info, $smcFunc;
 
 	// Arrays are nice, most of the time.
 	if (!is_array($permissions))
@@ -1154,7 +1152,7 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  */
 function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 {
-	global $modSettings, $user_info;
+	global $user_info;
 
 	// Should this user's email address be shown?
 	// If you're guest and the forum is set to hide email for guests: no.
@@ -1162,7 +1160,6 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
 	// If it's your own profile and you've set your address hidden: yes_permission_override.
 	// If you're a moderator with sufficient permissions: yes_permission_override.
 	// If the user has set their email address to be hidden: no.
-	// If the forum is set to show full email addresses: yes.
 	// Otherwise: no_through_forum.
 
 	if ($user_info['is_guest'] || isset($_SESSION['ban']['cannot_post']))
@@ -1184,7 +1181,7 @@ function showEmailAddress($userProfile_hideEmail, $userProfile_id)
  */
 function spamProtection($error_type)
 {
-	global $modSettings, $txt, $user_info, $smcFunc;
+	global $modSettings, $user_info, $smcFunc;
 
 	// Certain types take less/more time.
 	$timeOverrides = array(
