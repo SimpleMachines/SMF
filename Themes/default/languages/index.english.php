@@ -1,7 +1,7 @@
 <?php
 // Version: 2.1 Alpha 1; index
 
-global $forum_copyright, $forum_version, $webmaster_email, $scripturl, $context, $boardurl;
+global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 
 // Locale (strftime, pspell_new) and spelling. (pspell_new, can be left as '' normally.)
 // For more information see:

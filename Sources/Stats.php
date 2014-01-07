@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function DisplayStats()
 {
-	global $txt, $scripturl, $modSettings, $user_info, $context, $smcFunc;
+	global $txt, $scripturl, $modSettings, $context, $smcFunc;
 
 	isAllowedTo('view_stats');
 	// Page disabled - redirect them out

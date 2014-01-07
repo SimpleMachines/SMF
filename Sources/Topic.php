@@ -106,7 +106,7 @@ function LockTopic()
  */
 function Sticky()
 {
-	global $modSettings, $topic, $board, $sourcedir, $smcFunc;
+	global $topic, $board, $sourcedir, $smcFunc;
 
 	// Make sure the user can sticky it, and they are stickying *something*.
 	isAllowedTo('make_sticky');

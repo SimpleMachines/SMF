@@ -24,7 +24,7 @@ if (!defined('SMF'))
  */
 function createMenu($menuData, $menuOptions = array())
 {
-	global $context, $settings, $options, $txt, $modSettings, $scripturl, $smcFunc, $user_info, $sourcedir, $options;
+	global $context, $settings, $txt, $scripturl, $user_info;
 
 	/* Note menuData is array of form:
 

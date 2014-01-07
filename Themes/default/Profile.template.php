@@ -2628,7 +2628,7 @@ function template_issueWarning()
 // Template to show for deleting a users account - now with added delete post capability!
 function template_deleteAccount()
 {
-	global $context, $settings, $options, $scripturl, $txt, $scripturl;
+	global $context, $settings, $options, $scripturl, $txt;
 
 	// The main containing header.
 	echo '

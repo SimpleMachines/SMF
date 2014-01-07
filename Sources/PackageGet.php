@@ -177,7 +177,7 @@ function PackageServers()
  */
 function PackageGBrowse()
 {
-	global $txt, $boardurl, $context, $scripturl, $boarddir, $sourcedir, $forum_version, $context, $smcFunc;
+	global $txt, $boardurl, $context, $scripturl, $boarddir, $sourcedir, $forum_version, $smcFunc;
 
 	if (isset($_GET['server']))
 	{

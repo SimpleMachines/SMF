@@ -12,7 +12,7 @@
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div id="statistics" class="main_section">

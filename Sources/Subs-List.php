@@ -22,7 +22,7 @@ if (!defined('SMF'))
 
 function createList($listOptions)
 {
-	global $context, $options, $txt, $modSettings, $scripturl, $smcFunc;
+	global $context, $smcFunc;
 
 	assert(isset($listOptions['id']));
 	assert(isset($listOptions['columns']));

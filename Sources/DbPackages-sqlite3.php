@@ -247,7 +247,7 @@ function smf_db_drop_table($table_name, $parameters = array(), $error = 'fatal')
  */
 function smf_db_add_column($table_name, $column_info, $parameters = array(), $if_exists = 'update', $error = 'fatal')
 {
-	global $smcFunc, $db_package_log, $txt, $db_prefix;
+	global $smcFunc, $db_package_log, $db_prefix;
 
 	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 

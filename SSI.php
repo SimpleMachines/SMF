@@ -260,8 +260,7 @@ function ssi_logout($redirect_to = '', $output_method = 'echo')
 // Recent post list:   [board] Subject by Poster	Date
 function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo', $limit_body = true)
 {
-	global $context, $scripturl, $txt, $user_info;
-	global $modSettings, $smcFunc;
+	global $modSettings;
 
 	// Excluding certain boards...
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
@@ -303,7 +302,7 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 // Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overriden.
 function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 {
-	global $user_info, $modSettings;
+	global $modSettings;
 
 	if (empty($post_ids))
 		return;
@@ -328,7 +327,7 @@ function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $out
 // This removes code duplication in other queries - don't call it direct unless you really know what you're up to.
 function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
-	global $context, $scripturl, $txt, $user_info;
+	global $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc;
 
 	// Find all the posts. Newer ones will have higher IDs.
@@ -424,7 +423,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 // Recent topic list:   [board] Subject by Poster	Date
 function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 {
-	global $context, $settings, $scripturl, $txt, $user_info;
+	global $settings, $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc;
 
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)

@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function Register($reg_errors = array())
 {
 	global $txt, $boarddir, $context, $modSettings, $user_info;
-	global $language, $scripturl, $smcFunc, $sourcedir, $smcFunc, $cur_profile;
+	global $language, $scripturl, $smcFunc, $sourcedir, $cur_profile;
 
 	// Is this an incoming AJAX check?
 	if (isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck')

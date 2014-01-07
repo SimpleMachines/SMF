@@ -490,7 +490,7 @@ function smf_db_transaction($type = 'commit', $connection = null)
 function smf_db_error($db_string, $connection = null)
 {
 	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
-	global $forum_version, $db_connection, $db_last_error, $db_persist;
+	global $db_connection, $db_last_error, $db_persist;
 	global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
 	global $smcFunc;
 

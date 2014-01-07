@@ -645,7 +645,7 @@ function comma_format($number, $override_decimal_count = false)
  */
 function timeformat($log_time, $show_today = true, $offset_type = false)
 {
-	global $context, $user_info, $txt, $modSettings, $smcFunc;
+	global $context, $user_info, $txt, $modSettings;
 	static $non_twelve_hour;
 
 	// Offset the time.
@@ -836,7 +836,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $txt, $scripturl, $context, $modSettings, $user_info, $smcFunc;
+	global $txt, $scripturl, $context, $modSettings, $user_info;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
@@ -3221,7 +3221,7 @@ function template_header()
  */
 function theme_copyright()
 {
-	global $forum_copyright, $software_year, $context, $boardurl, $forum_version, $txt, $modSettings;
+	global $forum_copyright, $software_year, $forum_version;
 
 	// Don't display copyright for things like SSI.
 	if (!isset($forum_version) || !isset($software_year))

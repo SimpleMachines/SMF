@@ -182,7 +182,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_password',
 			'input_validate' => create_function('&$value', '
-				global $context, $old_profile, $context, $profile_vars, $sourcedir, $modSettings;
+				global $context, $old_profile, $profile_vars, $sourcedir, $modSettings;
 
 				if (strtolower($value) == strtolower($old_profile[\'email_address\']))
 					return false;

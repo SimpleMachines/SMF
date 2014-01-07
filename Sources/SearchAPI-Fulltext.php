@@ -62,7 +62,7 @@ class fulltext_search
 	 */
 	public function __construct()
 	{
-		global $smcFunc, $db_connection, $modSettings, $db_type;
+		global $smcFunc, $modSettings, $db_type;
 
 		// Is this database supported?
 		if (!in_array($db_type, $this->supported_databases))
