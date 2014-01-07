@@ -247,7 +247,7 @@ function PlushSearch1()
  */
 function PlushSearch2()
 {
-	global $scripturl, $modSettings, $sourcedir, $txt, $db_connection;
+	global $scripturl, $modSettings, $sourcedir, $txt;
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc;
 
