@@ -47,7 +47,7 @@ function XMLhttpMain()
  */
 function GetJumpTo()
 {
-	global $user_info, $context, $smcFunc, $sourcedir;
+	global $context, $sourcedir;
 
 	// Find the boards/cateogories they can see.
 	require_once($sourcedir . '/Subs-MessageIndex.php');
@@ -127,7 +127,7 @@ function newspreview()
 }
 function newsletterpreview()
 {
-	global $context, $sourcedir, $smcFunc, $txt;
+	global $context, $sourcedir, $txt;
 
 	require_once($sourcedir . '/Subs-Post.php');
 	require_once($sourcedir . '/ManageNews.php');

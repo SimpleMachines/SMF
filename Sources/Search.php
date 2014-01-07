@@ -1865,7 +1865,7 @@ function PlushSearch2()
  */
 function prepareSearchContext($reset = false)
 {
-	global $txt, $modSettings, $scripturl, $user_info, $sourcedir;
+	global $txt, $modSettings, $scripturl, $user_info;
 	global $memberContext, $context, $settings, $options, $messages_request;
 	global $boards_can, $participants, $smcFunc;
 
