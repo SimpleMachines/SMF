@@ -134,7 +134,7 @@ $txt['themeadmin_list_reset_dir'] = 'Base path to Themes directory';
 $txt['themeadmin_list_reset_url'] = 'Base URL to the same directory';
 $txt['themeadmin_list_reset_go'] = 'Attempt to reset all themes';
 
-$txt['themeadmin_reset_tip'] = 'Each theme may have its own custom options for selection by your members.  These include things like &quot;quick reply&quot;, avatars and signatures, layout options, and other similar options.  Here you can change the defaults or reset everyone\'s options.<br /><br />Please note that some themes may use the default options, in which case they will not have their own options.';
+$txt['themeadmin_reset_tip'] = 'Each theme may have its own custom options for selection by your members.  These include things like avatars, signatures, layout options and other similar options.  Here you can change the defaults or reset everyone\'s options.<br /><br />Please note that some themes may use the default options, in which case they will not have their own options.';
 $txt['themeadmin_reset_defaults'] = 'Configure guest and new user options for this theme';
 $txt['themeadmin_reset_defaults_current'] = 'options currently set.';
 $txt['themeadmin_reset_members'] = 'Change current options for all members using this theme';

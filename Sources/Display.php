@@ -1140,43 +1140,40 @@ function Display()
 	}
 
 	// Load up the "double post" sequencing magic.
-	if (!empty($options['display_quick_reply']))
+	checkSubmitOnce('register');
+	$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
+	$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
+	if (!empty($options['use_editor_quick_reply']) && $context['can_reply'])
 	{
-		checkSubmitOnce('register');
-		$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
-		$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
-		if (!empty($options['use_editor_quick_reply']) && $context['can_reply'])
-		{
-			// Needed for the editor and message icons.
-			require_once($sourcedir . '/Subs-Editor.php');
+		// Needed for the editor and message icons.
+		require_once($sourcedir . '/Subs-Editor.php');
 
-			// Now create the editor.
-			$editorOptions = array(
-				'id' => 'message',
-				'value' => '',
-				'labels' => array(
-					'post_button' => $txt['post'],
-				),
-				// add height and width for the editor
-				'height' => '250px',
-				'width' => '100%',
-				// We do XML preview here.
-				'preview_type' => 0,
-			);
-			create_control_richedit($editorOptions);
+		// Now create the editor.
+		$editorOptions = array(
+			'id' => 'message',
+			'value' => '',
+			'labels' => array(
+				'post_button' => $txt['post'],
+			),
+			// add height and width for the editor
+			'height' => '250px',
+			'width' => '100%',
+			// We do XML preview here.
+			'preview_type' => 0,
+		);
+		create_control_richedit($editorOptions);
 
-			// Store the ID.
-			$context['post_box_name'] = $editorOptions['id'];
+		// Store the ID.
+		$context['post_box_name'] = $editorOptions['id'];
 
-			$context['attached'] = '';
-			$context['make_poll'] = isset($_REQUEST['poll']);
+		$context['attached'] = '';
+		$context['make_poll'] = isset($_REQUEST['poll']);
 
-			// Message icons - customized icons are off?
-			$context['icons'] = getMessageIcons($board);
+		// Message icons - customized icons are off?
+		$context['icons'] = getMessageIcons($board);
 
-			if (!empty($context['icons']))
-				$context['icons'][count($context['icons']) - 1]['is_last'] = true;
-		}
+		if (!empty($context['icons']))
+			$context['icons'][count($context['icons']) - 1]['is_last'] = true;
 	}
 
 	// Build the normal button array.

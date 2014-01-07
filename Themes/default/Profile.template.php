@@ -1729,16 +1729,6 @@ function template_profile_theme_settings()
 
 	echo '
 							<dt>
-								<label for="display_quick_reply">', $txt['display_quick_reply'], '</label>
-							</dt>
-							<dd>
-								<select name="default_options[display_quick_reply]" id="display_quick_reply">
-									<option value="0"', empty($context['member']['options']['display_quick_reply']) ? ' selected="selected"' : '', '>', $txt['display_quick_reply1'], '</option>
-									<option value="1"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 1 ? ' selected="selected"' : '', '>', $txt['display_quick_reply2'], '</option>
-									<option value="2"', !empty($context['member']['options']['display_quick_reply']) && $context['member']['options']['display_quick_reply'] == 2 ? ' selected="selected"' : '', '>', $txt['display_quick_reply3'], '</option>
-								</select>
-							</dd>
-							<dt>
 								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '</label>
 							</dt>
 							<dd>
