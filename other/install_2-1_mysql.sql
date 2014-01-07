@@ -2061,7 +2061,6 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'drafts_autosave_enabled', '1'),
 	(1, 'drafts_show_saved_enabled', '1');
 
-INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'display_quick_reply', '2');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'return_to_post', '1');
 # --------------------------------------------------------
