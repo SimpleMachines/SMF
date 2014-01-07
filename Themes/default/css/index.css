@@ -2945,8 +2945,19 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .topic_table table {
 	width: 100%;
 }
-.topic_table .icon1, .topic_table .icon2, .topic_table .stats {
+.topic_table .icon1, .topic_table .icon2 {
 	text-align: center;
+}
+.topic_table .icon2 div {
+	position: relative;
+	width: 40px;
+	margin: auto;
+}
+.topic_table .icon2 img.posted {
+	position: absolute;
+	z-index: 5;
+	right: 4px;
+	bottom: -3px;
 }
 .topic_table table thead {
 	border-bottom: 1px solid #fff;

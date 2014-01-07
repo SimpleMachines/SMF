@@ -165,7 +165,6 @@ function template_main()
 			</p>';
 		}
 	echo '
-
 		<table class="table_grid">
 			<thead>
 				<tr class="catbg">';
@@ -243,9 +242,9 @@ function template_main()
 			echo '
 				<tr>
 					<td class="', $color_class, ' icon2">
-						<div style="position: relative; width: 40px; margin: auto;">
+						<div>
 							<img src="', $topic['first_post']['icon_url'], '" alt="" />
-							', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
+							', $topic['is_posted_in'] ? '<img class="posted" src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" />' : '','
 						</div>
 					</td>
 					<td class="', $alternate_class, ' subject">
