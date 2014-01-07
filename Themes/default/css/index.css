@@ -1931,10 +1931,6 @@ ul#smfFadeScroller li {
 	border-top: 1px solid #ccc;
 }
 
-img.new_posts {
-	padding: 0 1px;
-}
-
 .fix_rtl_names {
 	display:inline-block;
 }
