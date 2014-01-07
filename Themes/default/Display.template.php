@@ -222,18 +222,15 @@ function template_main()
 	echo '
 			<div class="plainbox" id="display_jump_to">&nbsp;</div>';
 
-	if ($context['can_reply'] && !empty($options['display_quick_reply']))
-	{
-		echo '
+	echo '
 			<a id="quickreply"></a>
 			<div class="tborder" id="quickreplybox">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<a href="javascript:oQuickReply.swap();" class="', $options['display_quick_reply'] > 1 ? 'toggle_up' : 'toggle_down', '" id="quickReplyExpand"></a>
-						<a href="javascript:oQuickReply.swap();">', $txt['quick_reply'], '</a>
+						', $txt['quick_reply'], '
 					</h3>
 				</div>
-				<div id="quickReplyOptions"', $options['display_quick_reply'] > 1 ? '' : ' style="display: none"', '>
+				<div id="quickReplyOptions">
 					<div class="roundframe">
 						<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>
 						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
@@ -332,10 +329,6 @@ function template_main()
 					</div>
 				</div>
 			</div>';
-	}
-	else
-		echo '
-		<br class="clear" />';
 
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
@@ -347,7 +340,7 @@ function template_main()
 					sLastNote: \'draft_lastautosave\',
 					sLastID: \'id_draft\',', !empty($context['post_box_name']) ? '
 					sSceditorID: \'' . $context['post_box_name'] . '\',' : '', '
-					sType: \'', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 2 ? 'quick' : 'quick', '\',
+					sType: \'', 'quick', '\',
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
 				});
@@ -366,10 +359,9 @@ function template_main()
 		echo '
 					add_like_popup();';
 
-	if (!empty($options['display_quick_reply']))
-		echo '
+	echo '
 					var oQuickReply = new QuickReply({
-						bDefaultCollapsed: ', !empty($options['display_quick_reply']) && $options['display_quick_reply'] > 1 ? 'false' : 'true', ',
+						bDefaultCollapsed: false,
 						iTopicId: ', $context['current_topic'], ',
 						iStart: ', $context['start'], ',
 						sScriptUrl: smf_scripturl,
@@ -433,7 +425,7 @@ function template_main()
 							sTemplateTopSubject: ', JavaScriptEscape($txt['topic'] . ': %subject% &nbsp;(' . $context['num_views_text'] . ')'), ',
 							sTemplateReasonEdit: ', JavaScriptEscape('<input type="text" style="width: 90%;" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text" />)'), ',
 							sTemplateReasonNormal: ', JavaScriptEscape('%modify_text'), ',
-							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply'] && !empty($options['display_quick_reply'])) ? ',
+							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply']) ? ',
 							sFormRemoveAccessKeys: \'postmodify\'' : '', '
 						});
 
@@ -865,15 +857,10 @@ function template_single_post($message, $force_alternate = null)
 		echo '
 								<ul class="quickbuttons">';
 
-		// Can they reply? Have they turned on quick reply?
-		if ($context['can_quote'] && !empty($options['display_quick_reply']))
+		// Can they reply?
+		if ($context['can_quote'])
 			echo '
 									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');" class="quote_button">', $txt['quote_action'], '</a></li>';
-
-		// So... quick reply is off, but they *can* reply?
-		elseif ($context['can_quote'])
-			echo '
-									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" class="quote_button">', $txt['quote_action'], '</a></li>';
 
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
