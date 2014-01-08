@@ -12,17 +12,14 @@
 
 function template_main()
 {
-	global $context, $options, $scripturl, $txt;
-
 	template_show_list('regular_membergroups_list');
 	echo '<br /><br />';
 	template_show_list('post_count_membergroups_list');
-
 }
 
 function template_new_group()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -151,7 +148,7 @@ function template_new_group()
 
 function template_edit_group()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -503,7 +500,7 @@ function template_add_edit_group_boards_list($collapse = true)
 // Templating for viewing the members of a group.
 function template_group_members()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -701,7 +698,7 @@ function template_group_members()
 // Allow the moderator to enter a reason to each user being rejected.
 function template_group_request_reason()
 {
-	global $options, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Show a welcome message to the user.
 	echo '

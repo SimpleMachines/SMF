@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function RegCenter()
 {
-	global $modSettings, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Old templates might still request this.
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'browse')

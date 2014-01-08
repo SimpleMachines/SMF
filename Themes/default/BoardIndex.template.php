@@ -79,7 +79,7 @@ function template_newsfader()
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div id="boardindex_table" class="boardindex_table">

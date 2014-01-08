@@ -97,8 +97,8 @@ function Ban()
  */
 function BanList()
 {
-	global $txt, $context, $ban_request, $ban_counts, $scripturl;
-	global $user_info, $smcFunc, $sourcedir;
+	global $txt, $context, $scripturl;
+	global $user_info, $sourcedir;
 
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
@@ -348,7 +348,7 @@ function list_getNumBans()
  */
 function BanEdit()
 {
-	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc, $sourcedir;
+	global $txt, $modSettings, $context, $scripturl, $smcFunc, $sourcedir;
 
 	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty($context['ban_errors']))
 		BanEdit2();
@@ -1998,8 +1998,7 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $scripturl, $context, $smcFunc, $sourcedir, $txt;
-	global $context;
+	global $scripturl, $context, $sourcedir, $txt;
 
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))

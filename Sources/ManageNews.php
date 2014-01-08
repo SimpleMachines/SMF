@@ -490,7 +490,7 @@ function prepareMailingForPreview ()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc, $scripturl, $modSettings;
+	global $txt, $sourcedir, $context, $smcFunc, $scripturl;
 
 	// Setup the template!
 	$context['page_title'] = $txt['admin_newsletters'];
@@ -1040,7 +1040,7 @@ function SendMailing($clean_only = false)
  */
 function ModifyNewsSettings($return_config = false)
 {
-	global $context, $sourcedir, $modSettings, $txt, $scripturl;
+	global $context, $sourcedir, $txt, $scripturl;
 
 	$config_vars = array(
 		array('title', 'settings'),

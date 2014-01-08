@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function ManageAttachments()
 {
-	global $txt, $modSettings, $scripturl, $context, $options;
+	global $txt, $context;
 
 	// You have to be able to moderate the forum to do this.
 	isAllowedTo('manage_attachments');
@@ -87,7 +87,7 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	global $txt, $modSettings, $scripturl, $context, $options, $sourcedir, $boarddir;
+	global $txt, $modSettings, $scripturl, $context, $sourcedir, $boarddir;
 
 	require_once($sourcedir . '/Subs-Attachments.php');
 
@@ -365,7 +365,7 @@ function ManageAvatarSettings($return_config = false)
  */
 function BrowseFiles()
 {
-	global $context, $txt, $scripturl, $options, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 	global $smcFunc, $sourcedir, $settings;
 
 	// Attachments or avatars?
@@ -679,7 +679,7 @@ function list_getNumFiles($browse_type)
  */
 function MaintainFiles()
 {
-	global $context, $modSettings, $txt, $smcFunc;
+	global $context, $modSettings, $smcFunc;
 
 	$context['sub_template'] = 'maintenance';
 
@@ -829,7 +829,7 @@ function MoveAvatars()
  */
 function RemoveAttachmentByAge()
 {
-	global $modSettings, $smcFunc;
+	global $smcFunc;
 
 	checkSession('post', 'admin');
 
@@ -870,7 +870,7 @@ function RemoveAttachmentByAge()
  */
 function RemoveAttachmentBySize()
 {
-	global $modSettings, $smcFunc;
+	global $smcFunc;
 
 	checkSession('post', 'admin');
 
@@ -2527,7 +2527,7 @@ function list_getAttachDirs()
  */
 function list_getBaseDirs()
 {
-	global $modSettings, $context, $txt;
+	global $modSettings, $txt;
 
 	if (empty($modSettings['attachment_basedirectories']))
 		return;
@@ -2580,8 +2580,6 @@ function list_getBaseDirs()
  */
 function attachDirStatus($dir, $expected_files)
 {
-	global $sourcedir, $context;
-
 	if (!is_dir($dir))
 		return array('does_not_exist', true, '');
 	elseif (!is_writable($dir))
@@ -2615,7 +2613,7 @@ function attachDirStatus($dir, $expected_files)
  */
 function TransferAttachments()
 {
-	global $modSettings, $context, $smcFunc, $sourcedir, $txt, $boarddir;
+	global $modSettings, $smcFunc, $sourcedir, $txt, $boarddir;
 
 	checkSession();
 

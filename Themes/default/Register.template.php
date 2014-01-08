@@ -15,7 +15,7 @@
  */
 function template_registration_agreement()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 		<form action="', $scripturl, '?action=register" method="post" accept-charset="', $context['character_set'], '" id="registration">
@@ -48,7 +48,7 @@ function template_registration_agreement()
 // Before registering - get their information.
 function template_registration_form()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 		<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
@@ -365,7 +365,7 @@ function template_registration_form()
 // After registration... all done ;).
 function template_after()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Not much to see here, just a quick... "you're now registered!" or what have you.
 	echo '
@@ -382,7 +382,7 @@ function template_after()
 // Template for giving instructions about COPPA activation.
 function template_coppa()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Formulate a nice complicated message!
 	echo '
@@ -431,7 +431,7 @@ function template_coppa()
 // An easily printable form for giving permission to access the forum for a minor.
 function template_coppa_form()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Show the form (As best we can)
 	echo '
@@ -462,7 +462,7 @@ function template_coppa_form()
 // Show a window containing the spoken verification code.
 function template_verification_sound()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -503,7 +503,7 @@ function template_verification_sound()
 
 function template_admin_register()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
@@ -595,7 +595,7 @@ function template_admin_register()
 // Form for editing the agreement shown for people registering to the forum.
 function template_edit_agreement()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -671,7 +671,7 @@ function template_edit_agreement()
 
 function template_edit_reserved_words()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if (!empty($context['saved_successful']))
 		echo '

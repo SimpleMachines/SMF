@@ -13,7 +13,7 @@
 // Editing the smiley sets.
 function template_editsets()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">';
@@ -69,7 +69,7 @@ function template_editsets()
 // Modifying a smiley set.
 function template_modifyset()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -155,7 +155,7 @@ function template_modifyset()
 // Editing an individual smiley
 function template_modifysmiley()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -248,7 +248,7 @@ function template_modifysmiley()
 // Adding a new smiley.
 function template_addsmiley()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -384,7 +384,7 @@ function template_addsmiley()
 // Ordering smileys.
 function template_setorder()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">';
@@ -436,15 +436,13 @@ function template_setorder()
 // Editing Message Icons
 function template_editicons()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
-
 	template_show_list('message_icon_list');
 }
 
 // Editing an individual message icon
 function template_editicon()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">

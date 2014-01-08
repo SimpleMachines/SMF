@@ -1937,7 +1937,7 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $txt, $modSettings, $options, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 	global $context, $user_info, $sourcedir, $scripturl, $language;
 
 	// First verification means we need to set up some bits...

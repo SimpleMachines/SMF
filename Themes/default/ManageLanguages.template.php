@@ -16,7 +16,7 @@
  */
 function template_download_language()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	// Actually finished?
 	if (!empty($context['install_complete']))
@@ -234,7 +234,7 @@ function template_download_language()
  */
 function template_modify_language_entries()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -429,7 +429,7 @@ function template_modify_language_entries()
  */
 function template_add_language()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">

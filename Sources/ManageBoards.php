@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageBoards()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Everything's gonna need this.
 	loadLanguage('ManageBoards');
@@ -614,7 +614,7 @@ function EditBoard()
  */
 function EditBoard2()
 {
-	global $txt, $sourcedir, $modSettings, $smcFunc, $context;
+	global $sourcedir, $smcFunc, $context;
 
 	$_POST['boardid'] = (int) $_POST['boardid'];
 	checkSession();
@@ -716,7 +716,6 @@ function EditBoard2()
 			// Resetting the count?
 			elseif ($boardOptions['redirect'] && !empty($_POST['reset_redirect']))
 				$boardOptions['num_posts'] = 0;
-
 		}
 
 		// Create a new board...
@@ -765,7 +764,7 @@ function EditBoard2()
  */
 function ModifyCat()
 {
-	global $cat_tree, $boardList, $boards, $sourcedir, $smcFunc;
+	global $boards, $sourcedir, $smcFunc;
 
 	// Get some information about the boards and the cats.
 	require_once($sourcedir . '/Subs-Boards.php');
@@ -809,7 +808,7 @@ function ModifyCat()
  */
 function EditBoardSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $modSettings, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	// Load the boards list - for the recycle bin!
 	$recycle_boards = array('');

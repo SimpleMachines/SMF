@@ -339,7 +339,7 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc, $modSettings;
+	global $txt, $scripturl, $context, $sc;
 
 	$config_vars = array(
 			array('int', 'failed_login_threshold'),
@@ -881,7 +881,7 @@ function prepareDBSettingContext(&$config_vars)
  */
 function saveSettings(&$config_vars)
 {
-	global $boarddir, $sc, $cookiename, $modSettings, $user_settings;
+	global $boarddir, $sc, $cookiename, $user_settings;
 	global $sourcedir, $context, $cachedir;
 
 	validateToken('admin-ssc');

@@ -22,7 +22,7 @@ if (!defined('SMF'))
  */
 function ManageMaintenance()
 {
-	global $txt, $modSettings, $scripturl, $context, $options;
+	global $txt, $scripturl, $context;
 
 	// You absolutely must be an admin by here!
 	isAllowedTo('admin_forum');
@@ -2179,7 +2179,7 @@ function MaintainRecountPosts()
  */
 function list_integration_hooks()
 {
-	global $sourcedir, $scripturl, $context, $txt, $modSettings, $settings;
+	global $sourcedir, $scripturl, $context, $txt, $settings;
 
 	$context['filter_url'] = '';
 	$context['current_filter'] = '';
@@ -2389,7 +2389,7 @@ function get_files_recursive($dir_path)
  */
 function get_integration_hooks_data($start, $per_page, $sort)
 {
-	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl, $modSettings;
+	global $boarddir, $sourcedir, $settings, $txt, $context, $scripturl;
 
 	$hooks = $temp_hooks = get_integration_hooks();
 	$hooks_data = $temp_data = $hook_status = array();

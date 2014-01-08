@@ -389,7 +389,7 @@ function ViewSubscriptions()
  */
 function ModifySubscription()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $context, $txt, $smcFunc;
 
 	$context['sub_id'] = isset($_REQUEST['sid']) ? (int) $_REQUEST['sid'] : 0;
 	$context['action_type'] = $context['sub_id'] ? (isset($_REQUEST['delete']) ? 'delete' : 'edit') : 'add';
@@ -650,7 +650,7 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc, $sourcedir;
+	global $context, $txt, $scripturl, $smcFunc, $sourcedir;
 
 	// Setup the template.
 	$context['page_title'] = $txt['viewing_users_subscribed'];

@@ -12,7 +12,7 @@
 
 function template_ask()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -51,7 +51,7 @@ function template_ask()
 
 function template_main()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -79,7 +79,7 @@ function template_main()
 
 function template_select()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -229,7 +229,7 @@ function template_select()
 
 function template_merge_done()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div id="merge_topics">
@@ -256,7 +256,7 @@ function template_merge_done()
 
 function template_merge()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div id="merge_topics">
@@ -358,7 +358,7 @@ function template_merge()
 
 function template_merge_extra_options()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="merge_topics">

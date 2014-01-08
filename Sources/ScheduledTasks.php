@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $modSettings, $smcFunc;
+	global $time_start, $smcFunc;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -144,7 +144,7 @@ function AutoTask()
  */
 function scheduled_approval_notification()
 {
-	global $scripturl, $modSettings, $mbname, $txt, $sourcedir, $smcFunc;
+	global $scripturl, $txt, $sourcedir, $smcFunc;
 
 	// Grab all the items awaiting approval and sort type then board - clear up any things that are no longer relevant.
 	$request = $smcFunc['db_query']('', '
@@ -1315,7 +1315,7 @@ function scheduled_fetchSMfiles()
  */
 function scheduled_birthdayemails()
 {
-	global $modSettings, $sourcedir, $mbname, $txt, $smcFunc, $birthdayEmails;
+	global $modSettings, $sourcedir, $txt, $smcFunc, $txtBirthdayEmails;
 
 	// Need this in order to load the language files.
 	loadEssentialThemeData();
@@ -1586,7 +1586,7 @@ function scheduled_weekly_maintenance()
  */
 function scheduled_paid_subscriptions()
 {
-	global $txt, $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
+	global $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
 
 	// Start off by checking for removed subscriptions.
 	$request = $smcFunc['db_query']('', '

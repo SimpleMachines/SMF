@@ -33,7 +33,7 @@ function Post($post_errors = array())
 {
 	global $txt, $scripturl, $topic, $modSettings, $board;
 	global $user_info, $sc, $board_info, $context, $settings;
-	global $sourcedir, $options, $smcFunc, $language;
+	global $sourcedir, $smcFunc, $language;
 
 	loadLanguage('Post');
 
@@ -1165,7 +1165,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $options, $smcFunc;
+	global $user_info, $board_info, $smcFunc;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))

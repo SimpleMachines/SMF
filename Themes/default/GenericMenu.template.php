@@ -13,7 +13,7 @@
 // This contains the html for the side bar of the admin center, which is used for all admin pages.
 function template_generic_menu_dropdown_above()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Which menu are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
@@ -97,8 +97,6 @@ function template_generic_menu_dropdown_above()
 // Part of the admin layer - used with admin_above to close the table started in it.
 function template_generic_menu_dropdown_below()
 {
-	global $context, $options;
-
 	echo '
 				</div>';
 }
@@ -106,7 +104,7 @@ function template_generic_menu_dropdown_below()
 // Some code for showing a tabbed view.
 function template_generic_menu_tabs(&$menu_context)
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Handy shortcut.
 	$tab_context = &$menu_context['tab_data'];
