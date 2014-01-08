@@ -1997,8 +1997,6 @@ function prepareSearchContext($reset = false)
 		'is_sticky' => !empty($message['is_sticky']),
 		'is_locked' => !empty($message['locked']),
 		'is_poll' => $modSettings['pollMode'] == '1' && $message['id_poll'] > 0,
-		'is_hot' => $message['num_replies'] >= $modSettings['hotTopicPosts'],
-		'is_very_hot' => $message['num_replies'] >= $modSettings['hotTopicVeryPosts'],
 		'posted_in' => !empty($participants[$message['id_topic']]),
 		'views' => $message['num_views'],
 		'replies' => $message['num_replies'],
