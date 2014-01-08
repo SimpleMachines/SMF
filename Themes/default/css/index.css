@@ -3062,6 +3062,16 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .generic_icons.old {
 	background-position: -96px -32px;
 }
+/* space reserved for 7 over, 4 down in the image */
+.generic_icons.sticky {
+	background-position: -112px 0;
+}
+.generic_icons.lock {
+	background-position: -112px -16px;
+}
+.generic_icons.move {
+	background-position: -112px -32px;
+}
 
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
@@ -3494,26 +3504,26 @@ dl {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/stats_icons.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat 0 0;
 	margin: 2px 6px -1px 3px;
 }
 .stats_icon.general, .stats_icon.boards {
-	background-position: 0 0;
+	background-position: 0 -48px;
 }
 .stats_icon.posters {
-	background-position: -16px 0;
+	background-position: -16px -48px;
 }
 .stats_icon.replies {
-	background-position: -32px 0;
+	background-position: -32px -48px;
 }
 .stats_icon.history {
-	background-position: -48px 0;
+	background-position: -48px -48px;
 }
 .stats_icon.views {
-	background-position: -64px 0;
+	background-position: -64px -48px;
 }
 .stats_icon.starters, .stats_icon.people {
-	background-position: -80px 0;
+	background-position: -80px -48px;
 }
 dl.stats {
 	clear: both;
