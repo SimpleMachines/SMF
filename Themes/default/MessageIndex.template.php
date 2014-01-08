@@ -165,7 +165,6 @@ function template_main()
 			</p>';
 		}
 	echo '
-
 		<table class="table_grid">
 			<thead>
 				<tr class="catbg">';
@@ -243,9 +242,9 @@ function template_main()
 			echo '
 				<tr>
 					<td class="', $color_class, ' icon2">
-						<div style="position: relative; width: 40px; margin: auto;">
+						<div>
 							<img src="', $topic['first_post']['icon_url'], '" alt="" />
-							', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
+							', $topic['is_posted_in'] ? '<img class="posted" src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" />' : '','
 						</div>
 					</td>
 					<td class="', $alternate_class, ' subject">
@@ -357,7 +356,7 @@ function template_main()
 
 	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
 		echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "quick_mod_jump_to",
@@ -378,8 +377,8 @@ function template_main()
 
 	// Javascript for inline editing.
 	echo '
-<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
-<script type="text/javascript"><!-- // --><![CDATA[
+<script src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
+<script><!-- // --><![CDATA[
 	var oQuickModifyTopic = new QuickModifyTopic({
 		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
 		bMouseOnDiv: false,
@@ -412,7 +411,7 @@ function template_topic_legend()
 
 	if (!empty($context['jump_to']))
 		echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "message_index_jump_to",

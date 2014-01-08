@@ -59,9 +59,6 @@ function template_init()
 	// Show sticky and lock status separate from topic icons?
 	$settings['separate_sticky_lock'] = true;
 
-	// Does this theme use the strict doctype?
-	$settings['strict_doctype'] = false;
-
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
@@ -290,7 +287,7 @@ function template_body_above()
 	if (!empty($context['show_login_bar']))
 	{
 		echo '
-						<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
+						<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 						<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
 							<input type="text" name="user" size="10" class="input_text" />
 							<input type="password" name="passwrd" size="10" class="input_password" />

@@ -125,38 +125,36 @@ function ModifySubscriptionSettings($return_config = false)
 		$context['settings_title'] = $txt['settings'];
 
 		// We want javascript for our currency options.
-		$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			function toggleOther()
+		addInlineJavascript('
+		function toggleOther()
+		{
+			var otherOn = document.getElementById("paid_currency").value == \'other\';
+			var currencydd = document.getElementById("custom_currency_code_div_dd");
+
+			if (otherOn)
 			{
-				var otherOn = document.getElementById("paid_currency").value == \'other\';
-				var currencydd = document.getElementById("custom_currency_code_div_dd");
+				document.getElementById("custom_currency_code_div").style.display = "";
+				document.getElementById("custom_currency_symbol_div").style.display = "";
 
-				if (otherOn)
+				if (currencydd)
 				{
-					document.getElementById("custom_currency_code_div").style.display = "";
-					document.getElementById("custom_currency_symbol_div").style.display = "";
-
-					if (currencydd)
-					{
-						document.getElementById("custom_currency_code_div_dd").style.display = "";
-						document.getElementById("custom_currency_symbol_div_dd").style.display = "";
-					}
-				}
-				else
-				{
-					document.getElementById("custom_currency_code_div").style.display = "none";
-					document.getElementById("custom_currency_symbol_div").style.display = "none";
-
-					if (currencydd)
-					{
-						document.getElementById("custom_currency_symbol_div_dd").style.display = "none";
-						document.getElementById("custom_currency_code_div_dd").style.display = "none";
-					}
+					document.getElementById("custom_currency_code_div_dd").style.display = "";
+					document.getElementById("custom_currency_symbol_div_dd").style.display = "";
 				}
 			}
-			toggleOther();
-		// ]]></script>';
+			else
+			{
+				document.getElementById("custom_currency_code_div").style.display = "none";
+				document.getElementById("custom_currency_symbol_div").style.display = "none";
+
+				if (currencydd)
+				{
+					document.getElementById("custom_currency_symbol_div_dd").style.display = "none";
+					document.getElementById("custom_currency_code_div_dd").style.display = "none";
+				}
+			}
+		}
+		toggleOther();', true);
 	}
 	else
 	{

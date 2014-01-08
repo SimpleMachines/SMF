@@ -447,7 +447,7 @@ function template_modify_board()
 							<div id="moderator_group_container"></div>
 						</dd>
 					</dl>
-					<script type="text/javascript"><!-- // --><![CDATA[
+					<script><!-- // --><![CDATA[
 						$(document).ready(function () {
 							$(".select_all_box").each(function () {
 								$(this).removeClass(\'select_all_box\');
@@ -574,8 +574,8 @@ function template_modify_board()
 		</form>
 	</div>
 
-<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-<script type="text/javascript"><!-- // --><![CDATA[
+<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
+<script><!-- // --><![CDATA[
 	var oModeratorSuggest = new smc_AutoSuggest({
 		sSelf: \'oModeratorSuggest\',
 		sSessionId: smf_session_id,
@@ -629,7 +629,7 @@ function template_modify_board()
 
 	// Javascript for deciding what to show.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		function refreshOptions()
 		{
 			var redirect = document.getElementById("redirect_enable");

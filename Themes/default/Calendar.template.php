@@ -724,7 +724,7 @@ function template_bcd()
 			</tr>
 		</table>
 
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 		var icons = new Object();';
 
 		foreach ($context['clockicons'] as $t => $v)
@@ -822,7 +822,7 @@ function template_hms()
 	';
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	var icons = new Object();';
 
 	foreach ($context['clockicons'] as $t => $v)
@@ -907,7 +907,7 @@ function template_omfg()
 	';
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	var icons = new Object();';
 
 	foreach ($context['clockicons'] as $t => $v)
