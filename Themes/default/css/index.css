@@ -959,6 +959,7 @@ table.table_list a.collapse {
 table.table_grid {
 	border-collapse: collapse;
 	margin-top: 1px;
+	width: 100%;
 }
 table.table_grid td {
 	padding: 3px;
@@ -3061,6 +3062,16 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .generic_icons.old {
 	background-position: -96px -32px;
 }
+/* space reserved for 7 over, 4 down in the image */
+.generic_icons.sticky {
+	background-position: -112px 0;
+}
+.generic_icons.lock {
+	background-position: -112px -16px;
+}
+.generic_icons.move {
+	background-position: -112px -32px;
+}
 
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
@@ -3493,26 +3504,26 @@ dl {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/stats_icons.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat 0 0;
 	margin: 2px 6px -1px 3px;
 }
 .stats_icon.general, .stats_icon.boards {
-	background-position: 0 0;
+	background-position: 0 -48px;
 }
 .stats_icon.posters {
-	background-position: -16px 0;
+	background-position: -16px -48px;
 }
 .stats_icon.replies {
-	background-position: -32px 0;
+	background-position: -32px -48px;
 }
 .stats_icon.history {
-	background-position: -48px 0;
+	background-position: -48px -48px;
 }
 .stats_icon.views {
-	background-position: -64px 0;
+	background-position: -64px -48px;
 }
 .stats_icon.starters, .stats_icon.people {
-	background-position: -80px 0;
+	background-position: -80px -48px;
 }
 dl.stats {
 	clear: both;
@@ -3589,23 +3600,29 @@ dl.stats dd span {
 #stats {
 	margin: 4px 0;
 }
+#stats td, #stats th {
+	width: 15%;
+	padding: 4px;
+	text-align: center;
+}
 #stats th.first_th {
 	padding-left: 8px;
 }
-#stats tr.windowbg2 th.lefttext {
+#stats tr.windowbg2 th.lefttext, #stats tr.titlebg th.lefttext {
 	border-left: 1px solid #fff;
+	text-align: left;
 }
 #stats tr.windowbg2 th {
 	border-right: 1px solid #fff;
 	border-bottom: 1px solid #fff;
 }
-tr.windowbg2 th.stats_month {
+#stats tr.windowbg2 th.stats_month {
 	width: 25%;
 	padding: 0 2em;
 	text-align: left;
 	border-left: 1px solid #fff;
 }
-tr.windowbg2 td.stats_day {
+#stats tr.windowbg2 td.stats_day {
 	padding: 0 3.5em;
 	text-align: left;
 	border-left: 1px solid #fff;
@@ -4368,7 +4385,6 @@ tr.catbg th:last-child {
 
 /* Subtle zebra striping to make tables easier to follow. Will make a solution for IE8. */
 /* CSS for locked, sticky, etc has not been applied yet. Don't panic. She'll be right, mate. :P */
-.table_grid td.statsbar div{display: none;}
 .table_grid tr td:first-child, .table_grid td.icon2 {
 	border-left: 1px solid #ccc;
 }

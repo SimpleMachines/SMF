@@ -371,7 +371,7 @@ function template_edit_profiles()
 				<h3 class="catbg">', $txt['permissions_profile_edit'], '</h3>
 			</div>
 
-			<table width="100%" class="table_grid">
+			<table class="table_grid">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th">', $txt['permissions_profile_name'], '</th>
@@ -834,7 +834,7 @@ function template_postmod_permissions()
 									<input type="submit" value="', $txt['go'], '" class="button_submit" />
 								</span>
 							</div>
-							<table width="100%" class="table_grid">
+							<table class="table_grid">
 								<thead>
 									<tr class="catbg">
 										<th class="first_th"></th>

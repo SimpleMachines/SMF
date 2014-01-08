@@ -316,7 +316,7 @@ function template_view_versions()
 							</h3>
 						</div>
 						<div class="information">', $txt['version_check_desc'], '</div>
-							<table width="100%" class="table_grid">
+							<table class="table_grid">
 								<thead>
 									<tr class="catbg" align="left">
 										<th class="first_th" scope="col" width="50%">
@@ -362,7 +362,7 @@ function template_view_versions()
 								</tbody>
 							</table>
 
-							<table id="Sources" width="100%" class="table_grid">
+							<table id="Sources" class="table_grid">
 							<tbody>';
 
 	// Loop through every source file displaying its version - using javascript.
@@ -385,7 +385,7 @@ function template_view_versions()
 							</tbody>
 							</table>
 
-							<table width="100%" class="table_grid">
+							<table class="table_grid">
 								<tbody>
 									<tr>
 										<td class="windowbg" width="50%">
@@ -401,7 +401,7 @@ function template_view_versions()
 								</tbody>
 							</table>
 
-							<table id="Default" width="100%" class="table_grid">
+							<table id="Default" class="table_grid">
 								<tbody>';
 
 	foreach ($context['default_template_versions'] as $filename => $version)
@@ -423,7 +423,7 @@ function template_view_versions()
 								</tbody>
 							</table>
 
-							<table width="100%" class="table_grid">
+							<table class="table_grid">
 								<tbody>
 									<tr>
 										<td class="windowbg" width="50%">
@@ -439,7 +439,7 @@ function template_view_versions()
 								</tbody>
 							</table>
 
-							<table id="Languages" width="100%" class="table_grid">
+							<table id="Languages" class="table_grid">
 								<tbody>';
 
 	foreach ($context['default_language_versions'] as $language => $files)
@@ -467,7 +467,7 @@ function template_view_versions()
 	if (!empty($context['template_versions']))
 	{
 		echo '
-							<table width="100%" class="table_grid">
+							<table class="table_grid">
 								<tbody>
 									<tr>
 										<td class="windowbg" width="50%">
@@ -483,7 +483,7 @@ function template_view_versions()
 								</tbody>
 							</table>
 
-							<table id="Templates" width="100%" class="table_grid">
+							<table id="Templates" class="table_grid">
 								<tbody>';
 
 		foreach ($context['template_versions'] as $filename => $version)
@@ -1453,7 +1453,7 @@ function template_php_info()
 	foreach ($context['pinfo'] as $area => $php_area)
 	{
 		echo '
-						<table id="', str_replace(' ', '_', $area), '" width="100%" class="table_grid">
+						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
 							<thead>
 								<tr class="catbg">
 									<th class="first_th" scope="col" width="33%"></th>

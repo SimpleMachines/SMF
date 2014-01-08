@@ -366,7 +366,7 @@ function template_merge_extra_options()
 			<div class="title_bar">
 				<h3 class="titlebg">', $txt['merge_topic_list'], '</h3>
 			</div>
-			<table width="100%" class="bordercolor table_grid">
+			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="catbg">
 						<th scope="col" class="first_th" align="center" width="10px">', $txt['merge_check'], '</th>

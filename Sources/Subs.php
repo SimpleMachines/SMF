@@ -1036,7 +1036,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'center',
-				'before' => '<div align="center">',
+				'before' => '<div class="centertext">',
 				'after' => '</div>',
 				'block_level' => true,
 			),

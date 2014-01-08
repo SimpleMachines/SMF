@@ -591,7 +591,7 @@ function template_subject_list()
 	global $context, $options, $settings, $modSettings, $txt, $scripturl;
 
 	echo '
-	<table width="100%" class="table_grid">
+	<table class="table_grid">
 	<thead>
 		<tr class="catbg">
 			<th align="center" width="4%" class="centercol first_th">
@@ -860,7 +860,7 @@ function template_search_results()
 	// complete results ?
 	if (empty($context['search_params']['show_complete']) && !empty($context['personal_messages']))
 		echo '
-	<table width="100%" class="table_grid">
+	<table class="table_grid">
 	<thead>
 		<tr class="catbg">
 			<th class="lefttext first_th" width="30%">', $txt['date'], '</th>
@@ -1398,7 +1398,7 @@ function template_labels()
 		<div class="description">
 			', $txt['pm_labels_desc'], '
 		</div>
-		<table width="100%" class="table_grid">
+		<table class="table_grid">
 		<thead>
 			<tr class="catbg">
 				<th class="lefttext first_th">
@@ -1559,7 +1559,7 @@ function template_rules()
 		<div class="description">
 			', $txt['pm_manage_rules_desc'], '
 		</div>
-		<table width="100%" class="table_grid">
+		<table class="table_grid">
 		<thead>
 			<tr class="catbg">
 				<th class="lefttext first_th">

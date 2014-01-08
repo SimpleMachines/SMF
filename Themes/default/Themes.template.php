@@ -888,7 +888,7 @@ function template_edit_browse()
 
 	echo '
 	<div id="admincenter">
-		<table width="100%" class="table_grid tborder">
+		<table class="table_grid tborder">
 		<thead>
 			<tr class="catbg">
 				<th class="lefttext first_th" scope="col" width="50%">', $txt['themeadmin_edit_filename'], '</th>

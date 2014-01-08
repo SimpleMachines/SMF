@@ -217,9 +217,7 @@ smf_StatsCenter.prototype.onDocReceived = function (oXMLDoc)
 				var oCurCell = oCurRow.insertCell(-1);
 
 				if (this.opt.aDataCells[iCellIndex] == 'date')
-					oCurCell.style.paddingLeft = '6ex';
-				else
-					oCurCell.style.textAlign = 'center';
+					oCurCell.className = 'stats_day';
 
 				var sCurData = aDayNodes[iDayIndex].getAttribute(this.opt.aDataCells[iCellIndex]);
 				oCurCell.appendChild(document.createTextNode(sCurData));

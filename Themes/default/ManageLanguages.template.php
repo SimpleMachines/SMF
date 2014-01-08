@@ -75,7 +75,7 @@ function template_download_language()
 					', $txt['languages_download_theme_files'], '
 				</h3>
 			</div>
-			<table class="table_grid" cellspacing="0" width="100%">
+			<table class="table_grid" cellspacing="0">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th" scope="col">
