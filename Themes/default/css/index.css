@@ -3590,23 +3590,29 @@ dl.stats dd span {
 #stats {
 	margin: 4px 0;
 }
+#stats td, #stats th {
+	width: 15%;
+	padding: 4px;
+	text-align: center;
+}
 #stats th.first_th {
 	padding-left: 8px;
 }
-#stats tr.windowbg2 th.lefttext {
+#stats tr.windowbg2 th.lefttext, #stats tr.titlebg th.lefttext {
 	border-left: 1px solid #fff;
+	text-align: left;
 }
 #stats tr.windowbg2 th {
 	border-right: 1px solid #fff;
 	border-bottom: 1px solid #fff;
 }
-tr.windowbg2 th.stats_month {
+#stats tr.windowbg2 th.stats_month {
 	width: 25%;
 	padding: 0 2em;
 	text-align: left;
 	border-left: 1px solid #fff;
 }
-tr.windowbg2 td.stats_day {
+#stats tr.windowbg2 td.stats_day {
 	padding: 0 3.5em;
 	text-align: left;
 	border-left: 1px solid #fff;

@@ -967,11 +967,11 @@ function template_spellcheck()
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
 			<div id="spellview">&nbsp;</div>
 			<table border="0" cellpadding="4" cellspacing="0" width="100%"><tr class="windowbg">
-				<td width="50%" valign="top">
+				<td style="width: 50%; vertical-align: top">
 					', $txt['spellcheck_change_to'], '<br />
 					<input type="text" name="changeto" style="width: 98%;" class="input_text" />
 				</td>
-				<td width="50%">
+				<td style="width: 50%">
 					', $txt['spellcheck_suggest'], '<br />
 					<select name="suggestions" style="width: 98%;" size="5" onclick="if (this.selectedIndex != -1) this.form.changeto.value = this.options[this.selectedIndex].text;" ondblclick="replaceWord();">
 					</select>
