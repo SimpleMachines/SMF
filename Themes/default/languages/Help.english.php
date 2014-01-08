@@ -386,8 +386,6 @@ $helptxt['enableEmbeddedFlash'] = 'This option will allow your users to use Flas
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="%1$s?action=.xml;sa=news" target="_blank" class="new_win">Recent news</a>
 	and similar data.  It is also recommended that you limit the size of recent posts/news because, when rss data
 	is displayed in some clients, it is expected to be truncated.';
-$helptxt['hotTopicPosts'] = 'Change the number of posts for a topic to reach the state of a &quot;hot&quot; or
-	&quot;very hot&quot; topic.';
 $helptxt['globalCookies'] = 'Makes log in cookies available across subdomains.  For example, if...<br />
 	your site is http://www.example.com/,<br />
 	and your forum is http://forum.example.com/,<br />
