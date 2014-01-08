@@ -4375,7 +4375,6 @@ tr.catbg th:last-child {
 
 /* Subtle zebra striping to make tables easier to follow. Will make a solution for IE8. */
 /* CSS for locked, sticky, etc has not been applied yet. Don't panic. She'll be right, mate. :P */
-.table_grid td.statsbar div{display: none;}
 .table_grid tr td:first-child, .table_grid td.icon2 {
 	border-left: 1px solid #ccc;
 }
