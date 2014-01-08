@@ -230,7 +230,7 @@ function MessageMain()
  */
 function messageIndexBar($area)
 {
-	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $user_info, $options;
+	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $user_info;
 
 	$pm_areas = array(
 		'folders' => array(
@@ -1744,7 +1744,7 @@ function MessageSearch2()
 function MessagePost()
 {
 	global $txt, $sourcedir, $scripturl, $modSettings;
-	global $context, $options, $smcFunc, $language, $user_info;
+	global $context, $smcFunc, $language, $user_info;
 
 	isAllowedTo('pm_send');
 

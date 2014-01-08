@@ -13,7 +13,7 @@
 // The template for adding or editing a subscription.
 function template_modify_subscription()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -197,7 +197,7 @@ function template_modify_subscription()
 
 function template_delete_subscription()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -222,7 +222,7 @@ function template_delete_subscription()
 // Add or edit an existing subscriber.
 function template_modify_user_subscription()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Some quickly stolen javascript from Post, could do with being more efficient :)
 	echo '

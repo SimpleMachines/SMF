@@ -13,7 +13,7 @@
 // The main sub template - for theme administration.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">';
@@ -199,7 +199,7 @@ function template_main()
 
 function template_list_themes()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 	global $modSettings;
 
 	// Show a nice confirmation message.
@@ -302,7 +302,7 @@ function template_list_themes()
 
 function template_reset_list()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -349,7 +349,7 @@ function template_reset_list()
 
 function template_set_options()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -449,7 +449,7 @@ function template_set_options()
 
 function template_set_settings()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	echo '
 	<div id="admin_form_wrapper">
@@ -672,7 +672,7 @@ function template_set_settings()
 // This template allows for the selection of different themes ;).
 function template_pick()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="pick_theme">
@@ -766,7 +766,7 @@ function template_pick()
 // Okay, that theme was installed/updated successfully!
 function template_installed()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	// The aftermath.
 	echo '
@@ -802,7 +802,7 @@ function template_installed()
 
 function template_edit_list()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admin_form_wrapper">
@@ -841,7 +841,7 @@ function template_edit_list()
 
 function template_copy_template()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -884,7 +884,7 @@ function template_copy_template()
 
 function template_edit_browse()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -933,7 +933,7 @@ function template_edit_browse()
 // Wanna edit the stylesheet?
 function template_edit_style()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	if ($context['session_error'])
 		echo '
@@ -1086,7 +1086,7 @@ function template_edit_style()
 // This edits the template...
 function template_edit_template()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if ($context['session_error'])
 		echo '
@@ -1143,7 +1143,7 @@ function template_edit_template()
 
 function template_edit_file()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if ($context['session_error'])
 		echo '

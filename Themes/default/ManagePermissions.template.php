@@ -13,7 +13,7 @@
 
 function template_permission_index()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Not allowed to edit?
 	if (!$context['can_modify'])
@@ -266,7 +266,7 @@ function template_permission_index()
 
 function template_by_board()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -362,7 +362,7 @@ function template_by_board()
 // Edit permission profiles (predefined).
 function template_edit_profiles()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admin_form_wrapper">
@@ -461,7 +461,7 @@ function template_edit_profiles()
 
 function template_modify_group()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Cannot be edited?
 	if (!$context['profile']['can_modify'])
@@ -550,7 +550,7 @@ function template_modify_group()
 // The way of looking at permissions.
 function template_modify_group_display($type)
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	$permission_type = &$context['permissions'][$type];
 	$disable_field = $context['profile']['can_modify'] ? '' : 'disabled="disabled" ';
@@ -711,7 +711,7 @@ function template_modify_group_display($type)
 
 function template_inline_permissions()
 {
-	global $context, $options, $txt, $modSettings;
+	global $context, $txt, $modSettings;
 
 	// This looks really weird, but it keeps things nested properly...
 	echo '
@@ -782,7 +782,7 @@ function template_inline_permissions()
 // Edit post moderation permissions.
 function template_postmod_permissions()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 					<div id="admin_form_wrapper">

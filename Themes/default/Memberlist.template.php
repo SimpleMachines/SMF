@@ -13,7 +13,7 @@
 // Displays a sortable listing of all members registered on the forum.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	echo '
 	<div class="main_section" id="memberlist">
@@ -157,7 +157,7 @@ function template_main()
 // A page allowing people to search the member list.
 function template_search()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	// Start the submission form for the search!
 	echo '

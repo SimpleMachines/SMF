@@ -12,7 +12,7 @@
 
 function template_ban_edit()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="manage_bans">
@@ -238,7 +238,7 @@ function template_ban_edit()
 
 function template_ban_edit_trigger()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="manage_bans">

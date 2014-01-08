@@ -220,7 +220,7 @@ function Register($reg_errors = array())
 function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $user_info, $options, $smcFunc;
+	global $user_info, $smcFunc;
 
 	checkSession();
 	validateToken('register');

@@ -19,7 +19,7 @@
 // Show an error message.....
 function template_fatal_error()
 {
-	global $context, $options, $txt;
+	global $context, $txt;
 
 	echo '
 	<div id="fatal_error">
@@ -43,7 +43,7 @@ function template_fatal_error()
 
 function template_error_log()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 		<form class="generic_list_wrapper" action="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';start=', $context['start'], $context['has_filter'] ? $context['filter']['href'] : '', '" method="post" accept-charset="', $context['character_set'], '">';

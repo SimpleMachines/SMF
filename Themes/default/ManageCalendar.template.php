@@ -13,7 +13,7 @@
 // Editing or adding holidays.
 function template_edit_holiday()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Start with javascript for getting the calendar dates right.
 	echo '

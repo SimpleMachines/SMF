@@ -12,7 +12,7 @@
 
 function template_browse()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="manage_mail">

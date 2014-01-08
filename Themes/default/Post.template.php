@@ -916,7 +916,7 @@ function template_main()
 // The template for the spellchecker.
 function template_spellcheck()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings, $txt;
 
 	// The style information that makes the spellchecker look... like the forum hopefully!
 	echo '<!DOCTYPE html>
@@ -990,7 +990,7 @@ function template_spellcheck()
 
 function template_quotefast()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings, $txt;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -1041,7 +1041,7 @@ function template_quotefast()
 
 function template_announce()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="announcement">
@@ -1088,7 +1088,7 @@ function template_announce()
 
 function template_announcement_send()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="announcement">

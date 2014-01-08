@@ -22,7 +22,7 @@ if (!defined('SMF'))
  */
 function ManageMaintenance()
 {
-	global $txt, $modSettings, $scripturl, $context, $options;
+	global $txt, $modSettings, $scripturl, $context;
 
 	// You absolutely must be an admin by here!
 	isAllowedTo('admin_forum');
