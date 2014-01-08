@@ -1022,7 +1022,7 @@ function showUnwatched($memID)
  */
 function list_getUnwatched($start, $items_per_page, $sort, $memID)
 {
-	global $smcFunc, $board, $modSettings, $context;
+	global $smcFunc;
 
 	// Get the list of topics we can see
 	$request = $smcFunc['db_query']('', '
@@ -2012,8 +2012,7 @@ function TrackIP($memID = 0)
  */
 function TrackLogins($memID = 0)
 {
-	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $scripturl, $txt, $sourcedir, $context;
 
 	// Gonna want this for the list.
 	require_once($sourcedir . '/Subs-List.php');

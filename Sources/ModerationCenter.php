@@ -227,7 +227,7 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $context, $scripturl, $modSettings, $user_info, $user_settings, $options;
+	global $txt, $context, $scripturl, $user_info, $user_settings, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
@@ -551,7 +551,7 @@ function ModBlockGroupRequests()
  */
 function ReportedPosts()
 {
-	global $txt, $context, $scripturl, $modSettings, $user_info, $smcFunc;
+	global $txt, $context, $scripturl, $user_info, $smcFunc;
 
 	loadTemplate('ModerationCenter');
 
@@ -816,7 +816,7 @@ function ReportedPosts()
  */
 function ModerateGroups()
 {
-	global $txt, $context, $scripturl, $modSettings, $user_info;
+	global $txt, $context, $scripturl, $user_info;
 
 	// You need to be allowed to moderate groups...
 	if ($user_info['mod_cache']['gq'] == '0=1')
@@ -1727,7 +1727,7 @@ function ViewWarningLog()
  */
 function list_getWarningCount()
 {
-	global $smcFunc, $modSettings;
+	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -1752,7 +1752,7 @@ function list_getWarningCount()
  */
 function list_getWarnings($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl, $modSettings, $user_info;
+	global $smcFunc, $txt, $scripturl, $user_info;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name_col,
@@ -1942,7 +1942,7 @@ function ViewWarningTemplates()
   */
 function list_getWarningTemplateCount()
 {
-	global $smcFunc, $modSettings, $user_info;
+	global $smcFunc, $user_info;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -1970,7 +1970,7 @@ function list_getWarningTemplateCount()
  */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl, $modSettings, $user_info;
+	global $smcFunc, $txt, $scripturl, $user_info;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT lc.id_comment, IFNULL(mem.id_member, 0) AS id_member,

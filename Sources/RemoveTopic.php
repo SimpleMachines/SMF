@@ -154,7 +154,7 @@ function DeleteMessage()
  */
 function RemoveOldTopics2()
 {
-	global $modSettings, $smcFunc;
+	global $smcFunc;
 
 	isAllowedTo('admin_forum');
 	checkSession('post', 'admin');

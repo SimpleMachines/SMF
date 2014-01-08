@@ -328,7 +328,7 @@ function construct_query_string($get)
  */
 function findMembers($names, $use_wildcards = false, $buddies_only = false, $max = 500)
 {
-	global $scripturl, $user_info, $modSettings, $smcFunc;
+	global $scripturl, $user_info, $smcFunc;
 
 	// If it's not already an array, make it one.
 	if (!is_array($names))

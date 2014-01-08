@@ -130,7 +130,7 @@ function SplitIndex()
  */
 function SplitExecute()
 {
-	global $txt, $board, $topic, $context, $user_info, $smcFunc, $modSettings;
+	global $txt, $board, $topic, $context, $user_info, $smcFunc;
 
 	// Check the session to make sure they meant to do this.
 	checkSession();
@@ -499,7 +499,7 @@ function SplitSelectionExecute()
  */
 function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 {
-	global $user_info, $topic, $board, $modSettings, $smcFunc, $txt, $sourcedir;
+	global $user_info, $topic, $board, $smcFunc, $txt, $sourcedir;
 
 	// Nothing to split?
 	if (empty($splitMessages))

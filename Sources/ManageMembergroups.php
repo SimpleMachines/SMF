@@ -1188,7 +1188,7 @@ function EditMembergroup()
  */
 function ModifyMembergroupsettings()
 {
-	global $context, $sourcedir, $scripturl, $modSettings, $txt;
+	global $context, $sourcedir, $scripturl, $txt;
 
 	$context['sub_template'] = 'show_settings';
 	$context['page_title'] = $txt['membergroups_settings'];

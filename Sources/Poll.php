@@ -591,7 +591,7 @@ function EditPoll()
 function EditPoll2()
 {
 	global $txt, $topic, $board, $context;
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $user_info, $smcFunc, $sourcedir;
 
 	// Sneaking off, are we?
 	if (empty($_POST))

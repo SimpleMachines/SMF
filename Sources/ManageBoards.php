@@ -614,7 +614,7 @@ function EditBoard()
  */
 function EditBoard2()
 {
-	global $txt, $sourcedir, $modSettings, $smcFunc, $context;
+	global $txt, $sourcedir, $smcFunc, $context;
 
 	$_POST['boardid'] = (int) $_POST['boardid'];
 	checkSession();
@@ -809,7 +809,7 @@ function ModifyCat()
  */
 function EditBoardSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $modSettings, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	// Load the boards list - for the recycle bin!
 	$recycle_boards = array('');

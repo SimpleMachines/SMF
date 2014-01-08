@@ -194,7 +194,7 @@ function setPassword()
 
 function setPassword2()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir;
+	global $context, $txt, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sp');
@@ -320,7 +320,7 @@ function SecretAnswerInput()
 
 function SecretAnswer2()
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sai');

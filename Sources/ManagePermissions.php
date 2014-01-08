@@ -347,7 +347,7 @@ function PermissionIndex()
  */
 function PermissionByBoard()
 {
-	global $context, $modSettings, $txt, $smcFunc, $sourcedir, $cat_tree, $boardList, $boards;
+	global $context, $txt, $smcFunc, $sourcedir, $cat_tree, $boardList, $boards;
 
 	$context['page_title'] = $txt['permissions_boards'];
 	$context['edit_all'] = isset($_GET['edit']);
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir;
+	global $context, $txt, $smcFunc, $sourcedir;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);
@@ -820,7 +820,7 @@ function ModifyMembergroup()
  */
 function ModifyMembergroup2()
 {
-	global $modSettings, $smcFunc, $context;
+	global $smcFunc, $context;
 
 	checkSession();
 	validateToken('admin-mp');

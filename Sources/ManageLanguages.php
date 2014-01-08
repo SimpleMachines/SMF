@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageLanguages()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl;
 
 	loadTemplate('ManageLanguages');
 	loadLanguage('ManageSettings');
