@@ -1062,7 +1062,7 @@ img.sort, .sort {
 }
 /* Level 1 button background. */
 .dropmenu li, #top_info > li {
-	margin: 0 2px 0 2px;
+	margin: 0 2px 0 1px;
 	padding: 0 0 0.3em 0;
 	float: left;
 	font-size: 0.9em;
@@ -1479,7 +1479,7 @@ img.sort, .sort {
 	padding: 1px;
 }
 #search_form .button_submit {
-	margin: 2px 5px;
+	margin: 2px 10px 2px 5px;
 	padding: 1px 2px;
 	border-radius: 3px;
 	color: #333;
@@ -1512,7 +1512,7 @@ h1.forumtitle {
 	font-size: 1.8em;
 	font-family: "Tahoma", sans-serif;
 	margin: 0;
-	padding: 22px 12px 6px 12px;
+	padding: 22px 12px 6px 10px;
 	float: left;
 	font-weight: normal;
 }
@@ -1523,7 +1523,7 @@ h1.forumtitle a {
 /* Float these items to the right */
 #siteslogan, img#smflogo {
 	margin: 0;
-	padding: 0;
+	padding-right: 2px;
 	float: right;
 	line-height: 50px;
 	font-size: 1.8em;
@@ -1531,6 +1531,11 @@ h1.forumtitle a {
 /* Tweak the SMF logo */
 img#smflogo {
 	margin: 16px 0 0 0;
+}
+/* Even guests need to be aligned */
+.welcome
+{
+	padding-left: 10px;
 }
 /*
 /* The user info, news, etc.*/
@@ -1573,6 +1578,7 @@ ul li.greeting {
 #guest_form {
 	overflow: hidden;
 	font-size: 0.9em;
+	margin-left: -2px;
 }
 /* News section. */
 #inner_wrap .news {
@@ -3131,7 +3137,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .descbox  {
 	text-align: left;
-	padding: 7px 10px 7px 35px;
+	padding: 7px 10px 7px 10px;
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
 	margin: 6px 0;
