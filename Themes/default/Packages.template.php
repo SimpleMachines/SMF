@@ -135,7 +135,7 @@ function template_view_package()
 		echo '
 					', $txt['perform_actions'], '
 			</div><br />
-			<table class="table_grid" width="100%">
+			<table class="table_grid">
 			<thead>
 				<tr class="catbg">
 					<th class="first_th" scope="col" width="20"></th>
@@ -224,7 +224,7 @@ function template_view_package()
 				<div class="information">
 					', $txt['package_other_themes_desc'], '
 				</div>
-				<table class="table_grid" width="100%">';
+				<table class="table_grid">';
 
 			// Loop through each theme and display it's name, and then it's details.
 			foreach ($context['theme_actions'] as $id => $theme)
@@ -1524,7 +1524,7 @@ function template_file_permissions()
 				<span class="floatleft">', $txt['package_file_perms'], '</span><span class="fperm floatright">', $txt['package_file_perms_new_status'], '</span>
 			</h3>
 		</div>
-		<table width="100%" class="table_grid">
+		<table class="table_grid">
 			<thead>
 				<tr class="catbg">
 					<th class="first_th lefttext" width="30%">&nbsp;', $txt['package_file_perms_name'], '&nbsp;</th>
@@ -1642,7 +1642,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 				echo '
 			</tbody>
 			</table>
-			<table border="0" width="100%" class="table_grid" id="', $js_ident, '">
+			<table border="0" class="table_grid" id="', $js_ident, '">
 			<tbody>';
 			}
 
@@ -1705,7 +1705,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 		</table><script><!-- // --><![CDATA[
 			expandFolder(\'', $js_ident, '\', \'\');
 		// ]]></script>
-		<table border="0" width="100%" class="table_grid">
+		<table border="0" class="table_grid">
 			<tbody>
 			<tr style="display: none;"><td></td></tr>';
 	}

@@ -959,6 +959,7 @@ table.table_list a.collapse {
 table.table_grid {
 	border-collapse: collapse;
 	margin-top: 1px;
+	width: 100%;
 }
 table.table_grid td {
 	padding: 3px;

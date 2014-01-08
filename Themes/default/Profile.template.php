@@ -600,7 +600,7 @@ function template_editBuddies()
 				<span class="stats_icon people icon"></span>', $txt['editBuddies'], '
 			</h3>
 		</div>
-		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
+		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
@@ -719,7 +719,7 @@ function template_editIgnoreList()
 				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon" />', $txt['editIgnoreList'], '
 			</h3>
 		</div>
-		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" align="center">
+		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
@@ -925,7 +925,7 @@ function template_trackIP()
 	else
 	{
 		echo '
-		<table class="table_grid" cellspacing="0" width="100%">
+		<table class="table_grid" cellspacing="0">
 			<thead>
 				<tr class="catbg">
 					<th class="first_th" scope="col">', $txt['ip_address'], '</th>
@@ -1005,7 +1005,7 @@ function template_showPermissions()
 		if (!empty($context['member']['permissions']['general']))
 		{
 			echo '
-					<table class="table_grid" width="100%" cellspacing="0">
+					<table class="table_grid" cellspacing="0">
 						<thead>
 							<tr class="titlebg">
 								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
@@ -1069,7 +1069,7 @@ function template_showPermissions()
 		if (!empty($context['member']['permissions']['board']))
 		{
 			echo '
-				<table class="table_grid" width="100%" cellspacing="0">
+				<table class="table_grid" cellspacing="0">
 					<thead>
 						<tr class="titlebg">
 							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
@@ -2013,7 +2013,7 @@ function template_groupMembership()
 	else
 	{
 		echo '
-			<table border="0" width="100%" cellspacing="0" cellpadding="4" class="table_grid">
+			<table border="0" cellspacing="0" cellpadding="4" class="table_grid">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th" scope="col" ', $context['can_edit_primary'] ? ' colspan="2"' : '', '>', $txt['current_membergroups'], '</th>
@@ -2065,7 +2065,7 @@ function template_groupMembership()
 		{
 			echo '
 			<br />
-			<table border="0" width="100%" cellspacing="0" cellpadding="4" class="table_grid">
+			<table border="0" cellspacing="0" cellpadding="4" class="table_grid">
 				<thead>
 					<tr class="catbg">
 						<th class="first_th" scope="col">

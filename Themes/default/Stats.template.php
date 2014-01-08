@@ -320,7 +320,7 @@ function template_main()
 	if (!empty($context['yearly']))
 	{
 		echo '
-		<table border="0" width="100%" cellspacing="1" cellpadding="4" class="table_grid" id="stats">
+		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" id="stats">
 			<thead>
 				<tr class="titlebg" valign="middle" align="center">
 					<th class="first_th lefttext" width="25%">', $txt['yearly_summary'], '</th>

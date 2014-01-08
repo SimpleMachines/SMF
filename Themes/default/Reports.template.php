@@ -72,7 +72,7 @@ function template_main()
 	foreach ($context['tables'] as $table)
 	{
 		echo '
-		<table class="table_grid report_results" width="100%">';
+		<table class="table_grid report_results">';
 
 		if (!empty($table['title']))
 			echo '

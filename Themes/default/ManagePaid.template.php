@@ -487,7 +487,7 @@ function template_user_subscription()
 		<div class="information">
 			', $txt['paid_current_desc'], '
 		</div>
-		<table width="100%" class="table_grid">
+		<table class="table_grid">
 			<thead>
 				<tr class="catbg">
 					<th class="first_th" width="30%">', $txt['paid_name'], '</th>
