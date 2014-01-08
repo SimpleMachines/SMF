@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function getLastPost()
 {
-	global $user_info, $scripturl, $modSettings, $smcFunc;
+	global $scripturl, $modSettings, $smcFunc;
 
 	// Find it by the board - better to order by board than sort the entire messages table.
 	$request = $smcFunc['db_query']('substring', '
@@ -75,7 +75,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $scripturl, $user_info, $context, $modSettings, $sourcedir, $board, $smcFunc;
+	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc;
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];

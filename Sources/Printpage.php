@@ -29,7 +29,7 @@ if (!defined('SMF'))
 function PrintTopic()
 {
 	global $topic, $txt, $scripturl, $context, $user_info;
-	global $board_info, $smcFunc, $modSettings, $settings;
+	global $board_info, $smcFunc, $modSettings;
 
 	// Redirect to the boardindex if no valid topic id is provided.
 	if (empty($topic))

@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function ManageSearch()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 

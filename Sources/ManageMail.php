@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ManageMail()
 {
-	global $context, $txt, $scripturl, $sourcedir;
+	global $context, $txt, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');

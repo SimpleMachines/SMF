@@ -276,7 +276,7 @@ function setPassword2()
 // Get the secret answer.
 function SecretAnswerInput()
 {
-	global $txt, $context, $smcFunc;
+	global $context, $smcFunc;
 
 	checkSession();
 

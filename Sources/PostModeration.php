@@ -315,7 +315,7 @@ function UnapprovedPosts()
  */
 function UnapprovedAttachments()
 {
-	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $scripturl, $context, $sourcedir, $smcFunc, $modSettings;
 
 	$context['page_title'] = $txt['mc_unapproved_attachments'];
 

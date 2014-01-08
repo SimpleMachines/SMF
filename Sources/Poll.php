@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function Vote()
 {
-	global $topic, $txt, $user_info, $smcFunc, $sourcedir, $modSettings;
+	global $topic, $user_info, $smcFunc, $sourcedir, $modSettings;
 
 	// Make sure you can vote.
 	isAllowedTo('poll_vote');
