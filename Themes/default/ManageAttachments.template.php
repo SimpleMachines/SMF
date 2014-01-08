@@ -18,7 +18,7 @@ function template_avatar_settings_above()
 function template_avatar_settings_below()
 {
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	var fUpdateStatus = function ()
 	{
 		document.getElementById("avatar_max_width_external").disabled = document.getElementById("avatar_download_external").checked;
@@ -169,7 +169,7 @@ function template_maintenance()
 						<div id="show_progress" class="padding"></div>
 						<br class="clear_right" />
 					</form>
-					<script type="text/javascript"><!-- // --><![CDATA[
+					<script><!-- // --><![CDATA[
 						function start_progress() {
 							setTimeout(\'show_msg()\', 1000);
 						}

@@ -140,7 +140,7 @@ function ModifyKarma()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>...</title>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			history.go(-1);
 		// ]]></script>
 	</head>

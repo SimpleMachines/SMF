@@ -59,7 +59,7 @@ function template_main()
 		echo '
 							</div>
 							<a href="javascript:void(0);" onclick="document.getElementById(\'known_themes_list\').style.display=\'block\'; document.getElementById(\'known_themes_link\').style.display = \'none\'; return false; " id="known_themes_link" style="display: none;">[ ', $txt['themeadmin_themelist_link'], ' ]</a>
-							<script type="text/javascript"><!-- // --><![CDATA[
+							<script><!-- // --><![CDATA[
 								document.getElementById("known_themes_list").style.display = "none";
 								document.getElementById("known_themes_link").style.display = "";
 							// ]]></script>
@@ -189,7 +189,7 @@ function template_main()
 	</div>';
 
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		window.smfForum_scripturl = smf_scripturl;
 		window.smfForum_sessionid = smf_session_id;
 		window.smfForum_sessionvar = smf_session_var;
@@ -651,7 +651,7 @@ function template_set_settings()
 	if (!empty($context['theme_variants']))
 	{
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 		var oThumbnails = {';
 
 		// All the variant thumbnails.
@@ -730,7 +730,7 @@ function template_pick()
 		if (!empty($theme['variants']))
 		{
 			echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 			var sBaseUseUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
 			var sBasePreviewUrl', $theme['id'], ' = smf_prepareScriptUrl(smf_scripturl) + \'action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '\';
 			var oThumbnails', $theme['id'], ' = {';
@@ -944,7 +944,7 @@ function template_edit_style()
 	// From now on no one can complain that editing css is difficult. If you disagree, go to www.w3schools.com.
 	echo '
 	<div id="admincenter">
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var previewData = "";
 			var previewTimeout;
 			var editFilename = ', JavaScriptEscape($context['edit_filename']), ';

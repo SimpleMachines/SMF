@@ -335,7 +335,7 @@ function template_view_package()
 
 	// Toggle options.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var aOperationElements = new Array();';
 
 		// Operations.
@@ -369,7 +369,7 @@ function template_view_package()
 
 	// Get the currently selected item from a select list
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 	function get_selected(id)
 	{
 		var aSelected = document.getElementById(id);
@@ -385,7 +385,7 @@ function template_view_package()
 	// And a bit more for database changes.
 	if (!empty($context['database_changes']))
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var database_changes_area = document.getElementById(\'db_changes_div\');
 		var db_vis = false;
 		database_changes_area.style.display = "none";
@@ -399,7 +399,7 @@ function template_extract_package()
 	if (!empty($context['redirect_url']))
 	{
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		setTimeout("doRedirect();", ', empty($context['redirect_timeout']) ? '5000' : $context['redirect_timeout'], ');
 
 		function doRedirect()
@@ -542,7 +542,7 @@ function template_browse()
 				', $txt['packages_adding'], '
 			</div>
 
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				window.smfForum_scripturl = smf_scripturl;
 				window.smfForum_sessionid = smf_session_id;
 				window.smfForum_sessionvar = smf_session_var;';
@@ -556,11 +556,11 @@ function template_browse()
 
 		if (empty($modSettings['disable_smf_js']))
 			echo '
-			<script type="text/javascript" src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
+			<script src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
 		// This sets the announcements and current versions themselves ;).
 		echo '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				var oAdminIndex = new smf_AdminIndex({
 					sSelf: \'oAdminCenter\',
 					bLoadAnnouncements: false,
@@ -642,7 +642,7 @@ function template_browse()
 
 	echo '
 	</div>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: true,
@@ -665,8 +665,8 @@ function template_browse()
 			]
 		});
 	// ]]></script>
-	<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
+	<script><!-- // --><![CDATA[
 			var oAddVersionSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddVersionSuggest\',
 			sSessionId: smf_session_id,
@@ -977,7 +977,7 @@ function template_package_list()
 		{
 			$section_count = count($context['package_list']);
 			echo '
-			<script type="text/javascript"><!-- // --><![CDATA[';
+			<script><!-- // --><![CDATA[';
 			foreach ($context['package_list'] as $section => $ps)
 			{
 				echo '
@@ -1188,13 +1188,13 @@ function template_control_chmod()
 	// Hide the details of the list.
 	if (empty($context['package_ftp']['form_elements_only']))
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			document.getElementById(\'need_writable_list\').style.display = \'none\';
 		// ]]></script>';
 
 	// Quick generate the test button.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		// Generate a "test ftp" button.
 		var generatedButton = false;
 		function generateFTPTest()
@@ -1250,7 +1250,7 @@ function template_control_chmod()
 
 	// Make sure the button gets generated last.
 	$context['insert_after_template'] .= '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		generateFTPTest();
 	// ]]></script>';
 }
@@ -1281,8 +1281,8 @@ function template_view_operations()
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css?alp21" />
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js?alp21"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/theme.js?alp21"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js?alp21"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/theme.js?alp21"></script>
 	</head>
 	<body>
 		<div class="padding windowbg">
@@ -1303,7 +1303,7 @@ function template_file_permissions()
 
 	// This will handle expanding the selection.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var oRadioColors = {
 			0: "#D1F7BF",
 			1: "#FFBBBB",
@@ -1702,7 +1702,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 		if ($level > 1 && !$isFound)
 			echo '
 		</tbody>
-		</table><script type="text/javascript"><!-- // --><![CDATA[
+		</table><script><!-- // --><![CDATA[
 			expandFolder(\'', $js_ident, '\', \'\');
 		// ]]></script>
 		<table border="0" width="100%" class="table_grid">
@@ -1803,7 +1803,7 @@ function template_action_permissions()
 
 	// Just the countdown stuff
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var countdown = ', $countDown, ';
 		doAutoSubmit();
 

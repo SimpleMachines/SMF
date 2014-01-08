@@ -38,8 +38,8 @@ function template_newsfader()
 					</ul>
 				</div>
 			</div>
-			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
+			<script><!-- // --><![CDATA[
 				// Create a news fader object.
 				var oNewsFader = new smc_NewsFader({
 					sFaderControlId: \'smfFadeScroller\',
@@ -252,7 +252,7 @@ function template_info_center()
 
 	// Info center collapse object.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var oInfoCenterToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($options['collapse_header_ic']) ? 'false' : 'true', ',
