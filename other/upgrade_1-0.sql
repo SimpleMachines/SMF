@@ -1285,6 +1285,7 @@ if ($result === false)
 		'profile_extra_own',
 		'profile_remote_avatar',
 		'profile_remove_own',
+		'profile_gravatar_avatar',
 	);
 
 	foreach ($permissions as $perm)

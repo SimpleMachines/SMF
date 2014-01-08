@@ -51,6 +51,7 @@ $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
 $txt['current_time'] = 'Current forum time';
+$txt['choice_gravatar'] = "Gravatar avatar";
 
 $txt['skype_username'] = 'Your Skype Username.';
 

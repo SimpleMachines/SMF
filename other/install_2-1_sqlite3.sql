@@ -1623,6 +1623,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
+INSERT INTO {$db_prefix)permissions (id_group, permission) VALUES (0, 'profile_gravatar_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
@@ -1647,6 +1648,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_r
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_gravatar_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_email_to_members');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
@@ -2045,6 +2047,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatar_url', 'http://www.gravatar.com/avatar/');
 COMMIT;
 
 # --------------------------------------------------------

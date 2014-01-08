@@ -119,6 +119,7 @@ $txt['cannot_profile_title_own'] = 'You are not allowed to change your custom ti
 $txt['cannot_profile_server_avatar'] = 'You are not permitted to use a server stored avatar.';
 $txt['cannot_profile_upload_avatar'] = 'You do not have permission to upload an avatar.';
 $txt['cannot_profile_remote_avatar'] = 'You don\'t have the privilege of using a remote avatar.';
+$txt['cannot_profile_gravatar_avatar'] = 'You don\'t have the privilege of using a Gravatar avatar.';
 $txt['cannot_profile_view'] = 'Many apologies, but you can\'t view just any profile.';
 $txt['cannot_delete_own'] = 'You are not, on this board, allowed to delete your own posts.';
 $txt['cannot_delete_replies'] = 'Sorry, but you cannot remove these posts, even though they are replies to your topic.';

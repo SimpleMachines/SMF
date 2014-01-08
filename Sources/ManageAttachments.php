@@ -264,7 +264,8 @@ function ManageAttachmentSettings($return_config = false)
  * This allows to show/change avatar settings.
  * Called by index.php?action=admin;area=manageattachments;sa=avatars.
  * Show/set permissions for permissions: 'profile_server_avatar',
- * 	'profile_upload_avatar' and 'profile_remote_avatar'.
+ * 	'profile_upload_avatar', 'profile_remote_avatar' and
+ *  'profile_gravatar_avatar'.
  *
  * @param bool $return_config = false
  * @uses 'avatars' sub template.
