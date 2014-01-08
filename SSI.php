@@ -1172,7 +1172,6 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'id' => 'options-' . ($topPollInstead ? 'top-' : 'recent-') . $i,
 			'percent' => $bar,
 			'votes' => $option[1],
-			'bar' => '<span style="white-space: nowrap;"><img src="' . $settings['images_url'] . '/poll_' . ($context['right_to_left'] ? 'right' : 'left') . '.png" alt="" /><img src="' . $settings['images_url'] . '/poll_middle.png" width="' . $barWide . '" height="12" alt="-" /><img src="' . $settings['images_url'] . '/poll_' . ($context['right_to_left'] ? 'left' : 'right') . '.png" alt="" /></span>',
 			'option' => parse_bbc($option[0]),
 			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '" />'
 		);
@@ -1324,7 +1323,6 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'id' => 'options-' . $i,
 			'percent' => $bar,
 			'votes' => $option[1],
-			'bar' => '<span style="white-space: nowrap;"><img src="' . $settings['images_url'] . '/poll_' . ($context['right_to_left'] ? 'right' : 'left') . '.png" alt="" /><img src="' . $settings['images_url'] . '/poll_middle.png" width="' . $barWide . '" height="12" alt="-" /><img src="' . $settings['images_url'] . '/poll_' . ($context['right_to_left'] ? 'left' : 'right') . '.png" alt="" /></span>',
 			'option' => parse_bbc($option[0]),
 			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '" />'
 		);
