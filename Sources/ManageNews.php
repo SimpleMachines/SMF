@@ -1069,10 +1069,8 @@ function ModifyNewsSettings($return_config = false)
 	$context['permissions_excluded'] = array(-1);
 
 	// Add some javascript at the bottom...
-	$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;
-		// ]]></script>';
+	addInlineJavascript('
+	document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;', true);
 
 	// Saving the settings?
 	if (isset($_GET['save']))

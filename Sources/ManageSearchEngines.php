@@ -145,10 +145,7 @@ function ManageSearchEngineSettings($return_config = false)
 	// Final settings...
 	$context['post_url'] = $scripturl . '?action=admin;area=sengines;save;sa=settings';
 	$context['settings_title'] = $txt['settings'];
-	$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			' . $javascript_function . '
-		// ]]></script>';
+	addInlineJavascript($javascript_function, true);
 
 	// Prepare the settings...
 	prepareDBSettingContext($config_vars);
