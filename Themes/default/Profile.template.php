@@ -547,10 +547,10 @@ function template_showDrafts()
 							<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
 
 			if (!empty($draft['sticky']))
-				echo '<img src="', $settings['images_url'], '/icons/quick_sticky.png" alt="', $txt['sticky_topic'], '" title="', $txt['sticky_topic'], '" />';
+				echo '<span class="generic_icons sticky" title="', $txt['sticky_topic'], '"></span>';
 
 			if (!empty($draft['locked']))
-				echo '<img src="', $settings['images_url'], '/icons/quick_lock.png" alt="', $txt['locked_topic'], '" title="', $txt['locked_topic'], '" />';
+				echo '<span class="generic_icons lock" title="', $txt['locked_topic'], '"></span>';
 
 			echo '
 							</h5>
