@@ -155,9 +155,6 @@ function template_unread()
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 						<tr>
-							<td class="', $color_class, ' icon1" style="display: none;">
-								<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
-							</td>
 							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
 									<img src="', $topic['first_post']['icon_url'], '" alt="" />
@@ -306,9 +303,6 @@ function template_replies()
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 						<tr>
-							<td class="', $color_class, ' icon1" style="display: none;">
-								<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
-							</td>
 							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
 									<img src="', $topic['first_post']['icon_url'], '" alt="" />
