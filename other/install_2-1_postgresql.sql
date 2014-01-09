@@ -2412,7 +2412,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatar_url', 'http://www.gravatar.com/avatar/');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatar_url', 'gravatar://www.gravatar.com/avatar/');
 # --------------------------------------------------------
 
 #

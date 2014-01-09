@@ -2753,47 +2753,42 @@ function profileLoadAvatarData()
 		'allow_external' => allowedTo('profile_remote_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
 		'allow_gravatar' => allowedTo('profile_gravatar_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
 	);
-
+	
 	if ($cur_profile['avatar'] == '' && $cur_profile['id_attach'] > 0 && $context['member']['avatar']['allow_upload'])
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'upload',
 			'server_pic' => 'blank.png',
-			'external' => 'http://',
-			'gravatar' => ''
+			'external' => 'http://'
 		);
 		$context['member']['avatar']['href'] = empty($cur_profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $cur_profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $cur_profile['filename'];
 	}
-	elseif ((stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) && !stristr($cur_profile['avatar'], $modSettings['gravatar_url']) && $context['member']['avatar']['allow_external'])
+	elseif ((stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) && $context['member']['avatar']['allow_external'])
 		$context['member']['avatar'] += array(
 			'choice' => 'external',
 			'server_pic' => 'blank.png',
-			'external' => $cur_profile['avatar'],
-			'gravatar' => ''
+			'external' => $cur_profile['avatar']
 		);
 	elseif ($cur_profile['avatar'] != '' && file_exists($modSettings['avatar_directory'] . '/' . $cur_profile['avatar']) && $context['member']['avatar']['allow_server_stored'])
 		$context['member']['avatar'] += array(
 			'choice' => 'server_stored',
 			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
-			'external' => 'http://',
-			'gravatar' => ''
+			'external' => 'http://'
 		);
-	elseif ((stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) && stristr($cur_profile['avatar'], $modSettings['gravatar_url']) && $context['member']['avatar']['allow_gravatar'])
+	elseif (stristr($cur_profile['avatar'], 'gravatar://')  && $context['member']['avatar']['allow_gravatar'])
 	{		
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
 			'server_pic' => 'blank.png',
-			'external' => 'http://',
-			'gravatar' => $cur_profile['avatar']
+			'external' => $cur_profile['avatar']
 		);
-		$context['member']['avatar']['href'] = $context['member']['avatar']['gravatar'];
+		$context['member']['avatar']['href'] = str_replace('gravatar://', 'http://', $context['member']['avatar']['external']);
 	}
 	else
 		$context['member']['avatar'] += array(
 			'choice' => 'none',
 			'server_pic' => 'blank.png',
-			'external' => 'http://',
-			'gravatar' => ''
+			'external' => 'http://'
 		);
 
 	// Get a list of all the avatars.

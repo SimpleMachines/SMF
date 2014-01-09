@@ -1901,7 +1901,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('topic_move_any', '0'),
 	('mail_limit', '5'),
 	('mail_quantity', '5'),
-	('gravatar_url', 'http://www.gravatar.com/avatar/');
+	('gravatar_url', 'gravatar://www.gravatar.com/avatar/');
 # --------------------------------------------------------
 
 #
