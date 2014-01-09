@@ -345,11 +345,6 @@ function template_results()
 		// while we have results to show ...
 		while ($topic = $context['get_topics']())
 		{
-			$color_class = '';
-			if ($topic['is_sticky'])
-				$color_class = 'stickybg';
-			if ($topic['is_locked'])
-				$color_class .= 'lockedbg';
 
 			echo '
 			<div class="search_results_posts">
