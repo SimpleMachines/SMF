@@ -584,8 +584,6 @@ function MessageIndex()
 					'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar']),
 					'url' => $row['avatar'] == '' ? '' : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'])
 				);
-
-			determineTopicClass($context['topics'][$row['id_topic']]);
 		}
 		$smcFunc['db_free_result']($result);
 
@@ -608,10 +606,7 @@ function MessageIndex()
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
-			{
 				$context['topics'][$row['id_topic']]['is_posted_in'] = true;
-				$context['topics'][$row['id_topic']]['class'] = 'my_' . $context['topics'][$row['id_topic']]['class'];
-			}
 			$smcFunc['db_free_result']($result);
 		}
 	}
