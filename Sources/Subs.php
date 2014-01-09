@@ -2800,19 +2800,14 @@ function url_image_size($url)
 }
 
 /**
- * Sets the class of the current topic based on is_very_hot, veryhot, hot, etc
+ * Sets the class of the current topic based on, normal, sticky, locked, etc
  *
  * @param array &$topic_context
  */
 function determineTopicClass(&$topic_context)
 {
 	// Set topic class depending on locked status and number of replies.
-	if ($topic_context['is_very_hot'])
-		$topic_context['class'] = 'veryhot';
-	elseif ($topic_context['is_hot'])
-		$topic_context['class'] = 'hot';
-	else
-		$topic_context['class'] = 'normal';
+	$topic_context['class'] = 'normal';
 
 	$topic_context['class'] .= $topic_context['is_poll'] ? '_poll' : '_post';
 

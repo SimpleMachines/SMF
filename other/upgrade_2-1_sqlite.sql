@@ -640,9 +640,32 @@ WHERE variable LIKE 'integrate_%';
 /******************************************************************************/
 --- Cleaning up old settings
 /******************************************************************************/
+---# Updating the default time format
+---{
+if (!empty($modSettings['time_format']))
+{
+	// First, use the shortened form of the month in the date.
+	$time_format = str_replace('%B', '%b', $modSettings['time_format']);
+
+	// Second, shorten the time to stop including seconds.
+	$time_format = str_replace(':%S', '', $time_format);
+
+	// Then, update the database.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}settings
+		SET value = {string:new_format}
+		WHERE variable = {literal:time_format}',
+		array(
+			'new_format' => $time_format,
+		)
+	);
+}
+---}
+---#
+
 ---# Showing contact details to guests should never happen.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts');
 ---#
 
 ---# Cleaning up old theme settings.

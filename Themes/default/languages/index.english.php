@@ -287,8 +287,6 @@ $txt['ban_continue_browse'] = 'You may continue to browse the forum as a guest.'
 
 $txt['mark_as_read'] = 'Mark ALL messages as read';
 
-$txt['hot_topics'] = 'Hot Topic (More than %1$d replies)';
-$txt['very_hot_topics'] = 'Very Hot Topic (More than %1$d replies)';
 $txt['locked_topic'] = 'Locked Topic';
 $txt['normal_topic'] = 'Normal Topic';
 $txt['participation_caption'] = 'Topic you have posted in';
