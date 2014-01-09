@@ -564,7 +564,7 @@ $helptxt['posts_and_topics'] = '
 			In order to keep the language on your forum under control, you can censor certain words. This function allows you to convert forbidden words into innocent versions.
 		</li><li>
 			<strong>Topic Settings</strong>
-			Modify the settings related to topics. The number of topics per page, whether sticky topics are enabled or not, the number of messages needed for a topic to be hot, etc.
+			Modify the settings related to topics. The number of topics per page, whether the print-page view is enabled, etc.
 		</li>
 	</ul>';
 
