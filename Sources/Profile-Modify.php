@@ -2775,7 +2775,7 @@ function profileLoadAvatarData()
 			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
 			'external' => 'http://'
 		);
-	elseif (stristr($cur_profile['avatar'], 'gravatar://')  && $context['member']['avatar']['allow_gravatar'])
+	elseif (stristr($cur_profile['avatar'], $modSettings['gravatar_url'])  && $context['member']['avatar']['allow_gravatar'])
 	{		
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
