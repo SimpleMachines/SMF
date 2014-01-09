@@ -2969,7 +2969,7 @@ function template_profile_avatar_select()
 		echo '
 								<div id="avatar_external">
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>
-									<input type="text" name="userpicpersonal" size="45" value="', (strpos($context['member']['avatar']['external'], 'gravatar://') !== 0 ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);" class="input_text" />
+									<input type="text" name="userpicpersonal" size="45" value="', (!stristr($context['member']['avatar']['external'], $modSettings['gravatar_url']) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);" class="input_text" />
 								</div>';
 	}
 
@@ -2987,7 +2987,7 @@ function template_profile_avatar_select()
 	if (!empty($context['member']['avatar']['allow_gravatar']))
 	{
 		echo '					<div id="avatar_gravatar">
-									<img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" />
+									<img src="' . (!empty($context['member']['avatar']['href']) ? $context['member']['avatar']['href'] : str_replace('gravatar://', 'http://', $modSettings['gravatar_url']) . md5(strtolower(trim($context['member']['email'])))) . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" />
 								</div>';
 	}
 

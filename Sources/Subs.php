@@ -2883,9 +2883,9 @@ function setupThemeContext($forceload = false)
 		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
-		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0 || strpos($user_info['avatar']['url'], 'gravatar://') === 0)
+		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0 || stristr($user_info['avatar']['url'], $modSettings['gravatar_url']))
 		{
-			$context['user']['avatar']['href'] = strpos($user_info['avatar']['url'], 'gravatar://') === 0 ? str_replace('gravatar://', 'http://', $user_info['avatar']['url']) : $user_info['avatar']['url'];
+			$context['user']['avatar']['href'] = stristr($user_info['avatar']['url'], $modSettings['gravatar_url']) ? str_replace('gravatar://', 'http://', $user_info['avatar']['url']) : $user_info['avatar']['url'];
 
 			if (($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize') && strpos($user_info['avatar']['url'], 'gravatar://') !== 0)
 			{
