@@ -3897,6 +3897,24 @@ span.hidelink {
 	margin: auto;
 	width: 500px;
 }
+#mlist .selected {
+	white-space: nowrap;
+}
+#mlist .is_online {
+	width: 60px;
+}
+#mlist .email_address {
+	width: 25px;
+}
+#mlist .website_url {
+	width: 70px;
+}
+#mlist .icq, #mlist .aim, #mlist .yim, #mlist .skype {
+	width: 30px;
+}
+#mlist .posts {
+	width: 115px;
+}
 
 /* Styles for the basic search section.
 ------------------------------------------------- */

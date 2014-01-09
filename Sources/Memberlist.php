@@ -62,7 +62,6 @@ function Memberlist()
 	$context['columns'] = array(
 		'is_online' => array(
 			'label' => $txt['status'],
-			'width' => 60,
 			'class' => 'first_th',
 			'sort' => array(
 				'down' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
@@ -78,7 +77,6 @@ function Memberlist()
 		),
 		'email_address' => array(
 			'label' => $txt['email'],
-			'width' => 25,
 			'sort' => array(
 				'down' => allowedTo('moderate_forum') ? 'mem.email_address DESC' : 'mem.hide_email DESC, mem.email_address DESC',
 				'up' => allowedTo('moderate_forum') ? 'mem.email_address ASC' : 'mem.hide_email ASC, mem.email_address ASC'
@@ -86,7 +84,6 @@ function Memberlist()
 		),
 		'website_url' => array(
 			'label' => $txt['website'],
-			'width' => 70,
 			'link_with' => 'website',
 			'sort' => array(
 				'down' => 'LENGTH(mem.website_url) > 0 ASC, IFNULL(mem.website_url, 1=1) DESC, mem.website_url DESC',
@@ -95,7 +92,6 @@ function Memberlist()
 		),
 		'icq' => array(
 			'label' => $txt['icq'],
-			'width' => 30,
 			'sort' => array(
 				'down' => 'LENGTH(mem.icq) > 0 ASC, mem.icq = 0 DESC, mem.icq DESC',
 				'up' => 'LENGTH(mem.icq) > 0 DESC, mem.icq = 0 ASC, mem.icq ASC'
@@ -103,7 +99,6 @@ function Memberlist()
 		),
 		'aim' => array(
 			'label' => $txt['aim'],
-			'width' => 30,
 			'sort' => array(
 				'down' => 'LENGTH(mem.aim) > 0 ASC, IFNULL(mem.aim, 1=1) DESC, mem.aim DESC',
 				'up' => 'LENGTH(mem.aim) > 0 DESC, IFNULL(mem.aim, 1=1) ASC, mem.aim ASC'
@@ -111,7 +106,6 @@ function Memberlist()
 		),
 		'yim' => array(
 			'label' => $txt['yim'],
-			'width' => 30,
 			'sort' => array(
 				'down' => 'LENGTH(mem.yim) > 0 ASC, IFNULL(mem.yim, 1=1) DESC, mem.yim DESC',
 				'up' => 'LENGTH(mem.yim) > 0 DESC, IFNULL(mem.yim, 1=1) ASC, mem.yim ASC'
@@ -119,7 +113,6 @@ function Memberlist()
 		),
 		'skype' => array(
 			'label' => $txt['skype'],
-			'width' => 30,
 			'sort' => array(
 				'down' => 'LENGTH(mem.skype) > 0 ASC, IFNULL(mem.skype, 1=1) DESC, mem.skype DESC',
 				'up' => 'LENGTH(mem.skype) > 0 DESC, IFNULL(mem.skype, 1=1) ASC, mem.skype ASC',
@@ -141,7 +134,6 @@ function Memberlist()
 		),
 		'posts' => array(
 			'label' => $txt['posts'],
-			'width' => 115,
 			'colspan' => 2,
 			'default_sort_rev' => true,
 			'sort' => array(
