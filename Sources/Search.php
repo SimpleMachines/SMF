@@ -2048,10 +2048,6 @@ function prepareSearchContext($reset = false)
 			'link' => '<a href="' . $scripturl . '#c' . $message['id_cat'] . '">' . $message['cat_name'] . '</a>'
 		)
 	));
-	determineTopicClass($output);
-
-	if ($output['posted_in'])
-		$output['class'] = 'my_' . $output['class'];
 
 	$body_highlighted = $message['body'];
 	$subject_highlighted = $message['subject'];
