@@ -806,6 +806,12 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 	padding: 5px 0 0 1em;
 }
 
+/* Some icons need slight tweaks
+------------------------------------------------- */
+.generic_icons.move {
+	background-position: -112px -48px;
+}
+
 /* Styles for the help section.
 ------------------------------------------------- */
 #helpmain h3.section {
