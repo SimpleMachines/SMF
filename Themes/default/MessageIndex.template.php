@@ -219,21 +219,18 @@ function template_main()
 
 		foreach ($context['topics'] as $topic)
 		{
+			$color_class = 'windowbg';
+
 			// Is this topic pending approval, or does it have any posts pending approval?
 			if ($context['can_approve_posts'] && $topic['unapproved_posts'])
-				$color_class = !$topic['approved'] ? 'approvetbg' : 'approvebg';
-			// We start with locked and sticky topics.
-			elseif ($topic['is_sticky'] && $topic['is_locked'])
-				$color_class = 'stickybg locked_sticky';
+				$color_class = (!$topic['approved'] ? 'approvetopic ' : 'approvepost ') . $color_class;
+
 			// Sticky topics should get a different color, too.
-			elseif ($topic['is_sticky'])
-				$color_class = 'stickybg';
+			if ($topic['is_sticky'])
+				$color_class = 'sticky ' . $color_class;
 			// Locked topics get special treatment as well.
-			elseif ($topic['is_locked'])
-				$color_class = 'lockedbg';
-			// Last, but not least: regular topics.
-			else
-				$color_class = 'windowbg';
+			if ($topic['is_locked'])
+				$color_class = 'locked ' . $color_class;
 
 			// Some columns require a different shade of the color class.
 			$alternate_class = $color_class . '2';
@@ -244,18 +241,37 @@ function template_main()
 					<td class="', $color_class, ' icon2">
 						<div>
 							<img src="', $topic['first_post']['icon_url'], '" alt="" />
-							', $topic['is_posted_in'] ? '<img class="posted" src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" />' : '','
+							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" />' : '', '
 						</div>
 					</td>
 					<td class="', $alternate_class, ' subject">
-						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>
-							<div class="message_index_title floatleft">
-								', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" style="display: inline-block; margin: 7px 0 5px 3px;"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
+						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
+
+			// Now we handle the icons
+			echo '
+							<div class="icons">';
+			if ($topic['is_locked'])
+				echo '
+								<span class="generic_icons lock floatright"></span>';
+			if ($topic['is_sticky'])
+				echo '
+								<span class="generic_icons sticky floatright"></span>';
+			if ($topic['is_redirect'])
+				echo '
+								<span class="generic_icons move floatright"></span>';
+			if ($topic['is_poll'])
+				echo '
+								<span class="generic_icons poll floatright"></span>';
+			echo '
+							</div>';
+			
+			echo '
+							<div class="message_index_title">
+								', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 							</div>
-							<br class="clear" />
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 								<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 							</p>
@@ -396,12 +412,12 @@ function template_topic_legend()
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
 				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				'. ($modSettings['pollMode'] == '1' ? '<img src="' . $settings['images_url'] . '/topic/normal_poll.png" alt="" class="centericon" /> ' . $txt['poll'] : '') . '<br />
+				'. ($modSettings['pollMode'] == '1' ? '<span class="generic_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br />
 				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix" /> ' . $txt['moved_topic'] . '<br />
 			</p>
 			<p>
-				<img src="' . $settings['images_url'] . '/icons/quick_lock.png" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />
+				<span class="generic_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br />
+				<span class="generic_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br />
 			</p>';
 
 	if (!empty($context['jump_to']))

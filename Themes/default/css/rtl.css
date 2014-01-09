@@ -600,15 +600,6 @@ div#admin_menu {
 }
 /* Styles for generic tables.
 ------------------------------------------------------- */
-.topic_table td.stickybg2 {
-	background: url(../images/icons/quick_sticky.png) no-repeat 2% 4px;
-}
-.topic_table td.lockedbg2 {
-	background: url(../images/icons/quick_lock.png) no-repeat 2% 4px;
-}
-.topic_table td.locked_sticky2 {
-	background: url(../images/icons/quick_sticky_lock.png) no-repeat 2% 4px;
-}
 .topic_table td.lastpost {
 	background: none;
 }
@@ -804,6 +795,12 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 
 .search_results_posts .buttons {
 	padding: 5px 0 0 1em;
+}
+
+/* Some icons need slight tweaks
+------------------------------------------------- */
+.generic_icons.move {
+	background-position: -112px -48px;
 }
 
 /* Styles for the help section.

@@ -620,21 +620,40 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	background: linear-gradient(to top, #FFFFFF 1%, #E2E9F3 70%);
 }
 
-/* Sticky topics get a different background */
-.stickybg {
-	background: #cfdce8;
-}
-.stickybg2 {
-	background: #d9e7f2;
-}
-
-/* Plain locked topics just get the icon. */
-/* Nobody wants them to stand out much. */
-.lockedbg {
+/* Nobody wants locked topics to stand out much. */
+.windowbg.locked {
 	background: #e7eaef;
 }
-.lockedbg2 {
-	background: #f0f4f7;
+.windowbg2.locked {
+	background: #e7eaef;
+}
+/* Sticky topics get a different background */
+.windowbg.sticky {
+	background: #cfdce8;
+}
+.windowbg2.sticky {
+	background: #cfdce8;
+}
+/* Locked AND sticky are a bit more technical */
+.windowbg.sticky.locked {
+	background: #e8d8cf;
+}
+.windowbg2.sticky.locked {
+	background: #e8d8cf;
+}
+/* Awaiting approval is a bit special, topics first */
+.windowbg.approvetopic {
+	background: #e4a17c;
+}
+.windowbg2.approvetopic {
+	background: #e4a17c;
+}
+/* Unapproved posts in approved topics */
+.windowbg.approvepost {
+	background: #ffeaea;
+}
+.windowbg2.approvepost {
+	background: #ffeaea;
 }
 
 /* Posts and personal messages displayed throughout the forum. */
@@ -2932,7 +2951,7 @@ tr.titlebg td {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
+tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2946,7 +2965,7 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .topic_table table {
 	width: 100%;
 }
-.topic_table .icon1, .topic_table .icon2 {
+.topic_table .icon2 {
 	text-align: center;
 }
 .topic_table .icon2 div {
@@ -2979,39 +2998,19 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .topic_table td.lastpost {
 	font-size: 0.9em;
 	line-height: 1.5em;
-	padding: 4px 4px 4px 24px;
+	padding: 4px;
 }
 
-/* Sticky topics get a different background */
-.topic_table td.stickybg {
-	background: #cfdce8 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
+/* Space those icons out a bit */
+.topic_table .icons span {
+	margin: 2px 0 0 5px;
 }
-.topic_table td.stickybg2 {
-	background: #cfdce8 url(../images/icons/quick_sticky.png) no-repeat 98% 4px;
-}
-.topic_table td.locked_sticky, .topic_table td.stickybglockedbg {
-	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
-}
-.topic_table td.locked_sticky2, .topic_table td.stickybglockedbg2 {
-	background: #e8d8cf url(../images/icons/quick_sticky_lock.png) no-repeat 98% 4px;
-}
-.message_index_title {
-	margin-right: 40px;
-}
-
-/* Plain locked topics just get the icon. */
 /* Nobody wants them to stand out much. */
 .topic_table td.lockedbg {
-	background: #e7eaef url(../images/icons/quick_lock.png) no-repeat 98% 4px;
+	background: #e7eaef no-repeat 98% 4px;
 }
 .topic_table td.lockedbg2 {
-	background: #e7eaef url(../images/icons/quick_lock.png) no-repeat 98% 4px;
-}
-
-/* Stop those damned icons popping up in every table cell! */
-.topic_table td.icon1, .topic_table td.icon2, .topic_table td.stats,
-.topic_table td.lastpost, .topic_table td.moderation {
-	background-image: none;
+	background: #e7eaef no-repeat 98% 4px;
 }
 
 .errorfile_table {
@@ -3066,7 +3065,9 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .generic_icons.old {
 	background-position: -96px -32px;
 }
-/* space reserved for 7 over, 4 down in the image */
+.generic_icons.poll {
+	background-position: -96px -48px;
+}
 .generic_icons.sticky {
 	background-position: -112px 0;
 }
@@ -3897,6 +3898,24 @@ span.hidelink {
 	margin: auto;
 	width: 500px;
 }
+#mlist .selected {
+	white-space: nowrap;
+}
+#mlist .is_online {
+	width: 60px;
+}
+#mlist .email_address {
+	width: 25px;
+}
+#mlist .website_url {
+	width: 70px;
+}
+#mlist .icq, #mlist .aim, #mlist .yim, #mlist .skype {
+	width: 30px;
+}
+#mlist .posts {
+	width: 115px;
+}
 
 /* Styles for the basic search section.
 ------------------------------------------------- */
@@ -4277,12 +4296,6 @@ div#editlang_desc {
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
-#recent .windowbg2, .windowbg2 {
-	background: /*#eaf1f4;*/#f0f4f7;
-}
-#recent .windowbg, .windowbg {
-	background: /*#e8eff5;*/#f0f4f7;
-}
 #recent .pagesection {
 	padding: 3px 4px;
 	margin: 0 0 -10px 0;
@@ -4395,8 +4408,7 @@ tr.catbg th:last-child {
 .table_grid tr td:last-child, .table_grid td.lastpost, .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell {
 	border-right: 1px solid #ccc;
 }
-.table_grid td.windowbg, .table_grid td.windowbg2, .table_grid td.lockedbg, .table_grid td.lockedbg2,
-.table_grid td.stickybg, .table_grid td.stickybg2, .table_grid td.locked_sticky, .table_grid td.locked_sticky2,
+.table_grid td.windowbg, .table_grid td.windowbg2,
 .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
 	border-bottom: 1px solid #ccc;
 }
@@ -4411,16 +4423,6 @@ tr.catbg th:last-child {
 #forumposts .approvebg2 {
 	color: #222;
 	background: #fff2f2;
-}
-/* Color for background of *topics* requiring approval */
-
-.approvetbg {
-	color: #222;
-	background: #e4a17c;
-}
-.approvetbg2 {
-	color: #222;
-	background: #f3bd9f;
 }
 
 div#manage_boards dl dd textarea[name=desc] {

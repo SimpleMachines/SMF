@@ -136,28 +136,21 @@ function template_unread()
 
 		foreach ($context['topics'] as $topic)
 		{
-			// We start with locked and sticky topics.
-			if ($topic['is_sticky'] && $topic['is_locked'])
-				$color_class = 'stickybg locked_sticky';
-			// Sticky topics should get a different color, too.
-			elseif ($topic['is_sticky'])
-				$color_class = 'stickybg';
-			// Locked topics get special treatment as well.
-			elseif ($topic['is_locked'])
-				$color_class = 'lockedbg';
-			// Last, but not least: regular topics.
-			else
-				$color_class = 'windowbg';
+			$color_class = 'windowbg';
 
-			$color_class2 = !empty($color_class) ? $color_class . '2' : 'windowbg2';
+			// Sticky topics should get a different color, too.
+			if ($topic['is_sticky'])
+				$color_class = 'sticky ' . $color_class;
+			// Locked topics get special treatment as well.
+			if ($topic['is_locked'])
+				$color_class = 'locked ' . $color_class;
+
+			$color_class2 = $color_class . '2';
 
 			// [WIP] There is trial code here to hide the topic icon column. Hardly anyone will miss it.
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 						<tr>
-							<td class="', $color_class, ' icon1" style="display: none;">
-								<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
-							</td>
 							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
 									<img src="', $topic['first_post']['icon_url'], '" alt="" />
@@ -166,6 +159,21 @@ function template_unread()
 							</td>
 							<td class="subject ', $color_class2, '">
 								<div>';
+
+			// Now we handle the icons
+			echo '
+							<div class="icons">';
+			if ($topic['is_locked'])
+				echo '
+								<span class="generic_icons lock floatright"></span>';
+			if ($topic['is_sticky'])
+				echo '
+								<span class="generic_icons sticky floatright"></span>';
+			if ($topic['is_poll'])
+				echo '
+								<span class="generic_icons poll floatright"></span>';
+			echo '
+							</div>';
 
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
 			echo '
@@ -287,36 +295,44 @@ function template_replies()
 
 		foreach ($context['topics'] as $topic)
 		{
-			// We start with locked and sticky topics.
-			if ($topic['is_sticky'] && $topic['is_locked'])
-				$color_class = 'stickybg locked_sticky';
-			// Sticky topics should get a different color, too.
-			elseif ($topic['is_sticky'])
-				$color_class = 'stickybg';
-			// Locked topics get special treatment as well.
-			elseif ($topic['is_locked'])
-				$color_class = 'lockedbg';
-			// Last, but not least: regular topics.
-			else
-				$color_class = 'windowbg';
+			$color_class = 'windowbg';
 
-			$color_class2 = !empty($color_class) ? $color_class . '2' : '';
+			// Sticky topics should get a different color, too.
+			if ($topic['is_sticky'])
+				$color_class = 'sticky ' . $color_class;
+			// Locked topics get special treatment as well.
+			if ($topic['is_locked'])
+				$color_class = 'locked ' . $color_class;
+
+			$color_class2 = $color_class . '2';
 
 			// [WIP] There is trial code here to hide the topic icon column. Hardly anyone will miss it.
 			// [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
 						<tr>
-							<td class="', $color_class, ' icon1" style="display: none;">
-								<img src="', $settings['images_url'], '/topic/', $topic['class'], '.png" alt="" />
-							</td>
 							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
 									<img src="', $topic['first_post']['icon_url'], '" alt="" />
-									', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
+									', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" />' : '','
 								</div>
 							</td>
 							<td class="subject ', $color_class2, '">
 								<div>';
+
+			// Now we handle the icons
+			echo '
+							<div class="icons">';
+			if ($topic['is_locked'])
+				echo '
+								<span class="generic_icons lock floatright"></span>';
+			if ($topic['is_sticky'])
+				echo '
+								<span class="generic_icons sticky floatright"></span>';
+			if ($topic['is_poll'])
+				echo '
+								<span class="generic_icons poll floatright"></span>';
+			echo '
+							</div>';
 
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
 			echo '
