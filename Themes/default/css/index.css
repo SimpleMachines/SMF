@@ -2998,7 +2998,7 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 .topic_table td.lastpost {
 	font-size: 0.9em;
 	line-height: 1.5em;
-	padding: 4px 4px 4px 24px;
+	padding: 4px;
 }
 
 /* Space those icons out a bit */
