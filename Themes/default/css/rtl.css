@@ -600,15 +600,6 @@ div#admin_menu {
 }
 /* Styles for generic tables.
 ------------------------------------------------------- */
-.topic_table td.stickybg2 {
-	background: url(../images/icons/quick_sticky.png) no-repeat 2% 4px;
-}
-.topic_table td.lockedbg2 {
-	background: url(../images/icons/quick_lock.png) no-repeat 2% 4px;
-}
-.topic_table td.locked_sticky2 {
-	background: url(../images/icons/quick_sticky_lock.png) no-repeat 2% 4px;
-}
 .topic_table td.lastpost {
 	background: none;
 }
