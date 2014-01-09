@@ -3066,7 +3066,9 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 .generic_icons.old {
 	background-position: -96px -32px;
 }
-/* space reserved for 7 over, 4 down in the image */
+.generic_icons.poll {
+	background-position: -96px -48px;
+}
 .generic_icons.sticky {
 	background-position: -112px 0;
 }
