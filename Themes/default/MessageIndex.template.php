@@ -262,14 +262,9 @@ function template_main()
 							<br class="clear" />
 						</div>
 					</td>
-					<td class="', $color_class, ' stats">
-						', $topic['replies'], ' ', $txt['replies'], '
-						<br />
-						', $topic['views'], ' ', $txt['views'], '
-					</td>
+					<td class="', $color_class, ' stats">', $topic['replies'], ' ', $txt['replies'], '<br />', $topic['views'], ' ', $txt['views'], '</td>
 					<td class="', $alternate_class, ' lastpost">
-						<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></span></a>
-						', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
+						', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
 					</td>';
 
 			// Show the quick moderation options?
@@ -390,7 +385,7 @@ function template_main()
 
 function template_topic_legend()
 {
-	global $context, $settings, $txt, $options, $modSettings;
+	global $context, $settings, $txt, $modSettings;
 
 	echo '
 	<div class="tborder" id="topic_icons">

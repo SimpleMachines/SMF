@@ -1933,7 +1933,7 @@ ul#smfFadeScroller li {
 }
 
 .fix_rtl_names {
-	display:inline-block;
+	display: inline-block;
 }
 
 /* Styles for the message (topic) index.
@@ -2960,6 +2960,10 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 	right: 4px;
 	bottom: -3px;
 }
+.topic_table .stats {
+	text-align: center;
+	line-height: 1.5em;
+}
 .topic_table table thead {
 	border-bottom: 1px solid #fff;
 }
@@ -2974,8 +2978,8 @@ tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td {
 }
 .topic_table td.lastpost {
 	font-size: 0.9em;
-	line-height: 1.3em;
-	padding: 4px;
+	line-height: 1.5em;
+	padding: 4px 4px 4px 24px;
 }
 
 /* Sticky topics get a different background */
