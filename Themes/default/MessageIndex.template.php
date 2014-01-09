@@ -400,8 +400,8 @@ function template_topic_legend()
 				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix" /> ' . $txt['moved_topic'] . '<br />
 			</p>
 			<p>
-				<img src="' . $settings['images_url'] . '/icons/quick_lock.png" alt="" class="centericon" /> ' . $txt['locked_topic'] . '<br />
-				<img src="' . $settings['images_url'] . '/icons/quick_sticky.png" alt="" class="centericon" /> ' . $txt['sticky_topic'] . '<br />
+				<span class="generic_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br />
+				<span class="generic_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br />
 			</p>';
 
 	if (!empty($context['jump_to']))
