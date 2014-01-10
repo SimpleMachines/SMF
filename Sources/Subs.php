@@ -3339,6 +3339,10 @@ function template_css()
 	foreach ($context['css_files'] as $id => $file)
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
+
+	if (!empty($context['css_header']))
+		echo '
+	<style>', $context['css_header'], '</style>';
 }
 
 /**
