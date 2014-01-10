@@ -371,6 +371,19 @@ function BoardPermissionsReport()
 	// Make sure that every group is represented - plus in rows!
 	setKeys('rows', $member_groups);
 
+	// Certain permissions should not really be shown.
+	$disabled_permissions = array();
+	if (!$modSettings['postmod_active'])
+	{
+		$disabled_permissions[] = 'approve_posts';
+		$disabled_permissions[] = 'post_unapproved_topics';
+		$disabled_permissions[] = 'post_unapproved_replies_own';
+		$disabled_permissions[] = 'post_unapproved_replies_any';
+		$disabled_permissions[] = 'post_unapproved_attachments';
+	}
+
+	call_integration_hook('integrate_reports_boardperm', array(&$disabled_permissions));
+
 	// Cache every permission setting, to make sure we don't miss any allows.
 	$permissions = array();
 	$board_permissions = array();
@@ -389,6 +402,9 @@ function BoardPermissionsReport()
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (in_array($row['permission'], $disabled_permissions))
+			continue;
+
 		foreach ($boards as $id => $board)
 			if ($board['profile'] == $row['id_profile'])
 				$board_permissions[$id][$row['id_group']][$row['permission']] = $row['add_deny'];
@@ -654,6 +670,21 @@ function GroupPermissionsReport()
 	// Add a separator
 	addSeparator($txt['board_perms_permission']);
 
+	// Certain permissions should not really be shown.
+	$disabled_permissions = array();
+	if (empty($modSettings['cal_enabled']))
+	{
+		$disabled_permissions[] = 'calendar_view';
+		$disabled_permissions[] = 'calendar_post';
+		$disabled_permissions[] = 'calendar_edit_own';
+		$disabled_permissions[] = 'calendar_edit_any';
+	}
+	if (empty($modSettings['warning_settings']) || $modSettings['warning_settings'][0] == 0)
+		$disabled_permissions[] = 'issue_warning';
+	if (empty($modSettings['karmaMode']))
+		$disabled_permissions[] = 'karma_edit';
+	call_integration_hook('integrate_reports_groupperm', array(&$disabled_permissions));
+
 	// Now the big permission fetch!
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, add_deny, permission
@@ -671,6 +702,9 @@ function GroupPermissionsReport()
 	$curData = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (in_array($row['permission'], $disabled_permissions))
+			continue;
+
 		// If this is a new permission flush the last row.
 		if ($row['permission'] != $lastPermission)
 		{
