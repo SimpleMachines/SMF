@@ -2837,18 +2837,18 @@ function template_profile_signature_modify()
 	global $txt, $context, $settings, $scripturl;
 
 	echo '
-							<dt id="current_signature"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
+							<dt id="current_signature" style="display:none">
 								<strong>', $txt['current_signature'], ':</strong>
 							</dt>
-							<dd id="current_signature_display"', !isset($context['member']['current_signature']) ? ' style="display:none"' : '', '>
-								', isset($context['member']['current_signature']) ? $context['member']['current_signature'] : '', '<hr />
+							<dd id="current_signature_display" style="display:none">
+								<hr />
 							</dd>';
 	echo '
-							<dt id="preview_signature"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
+							<dt id="preview_signature" style="display:none">
 								<strong>', $txt['signature_preview'], ':</strong>
 							</dt>
-							<dd id="preview_signature_display"', !isset($context['member']['signature_preview']) ? ' style="display:none"' : '', '>
-								', isset($context['member']['signature_preview']) ? $context['member']['signature_preview'] : '', '<hr />
+							<dd id="preview_signature_display" style="display:none">
+								<hr />
 							</dd>';
 
 	echo '
