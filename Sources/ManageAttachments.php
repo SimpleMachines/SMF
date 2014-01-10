@@ -295,8 +295,7 @@ function ManageAvatarSettings($return_config = false)
 			array('select', 'avatar_action_too_large',
 				array(
 					'option_refuse' => $txt['option_refuse'],
-					'option_html_resize' => $txt['option_html_resize'],
-					'option_js_resize' => $txt['option_js_resize'],
+					'option_css_resize' => $txt['option_css_resize'],
 					'option_download_and_resize' => $txt['option_download_and_resize'],
 				),
 			),

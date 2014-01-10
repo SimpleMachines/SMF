@@ -2879,23 +2879,13 @@ function setupThemeContext($forceload = false)
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
 		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
-		{
 			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
-
-			if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
-			{
-				if (!empty($modSettings['avatar_max_width_external']))
-					$context['user']['avatar']['width'] = $modSettings['avatar_max_width_external'];
-				if (!empty($modSettings['avatar_max_height_external']))
-					$context['user']['avatar']['height'] = $modSettings['avatar_max_height_external'];
-			}
-		}
 		// Otherwise we assume it's server stored?
 		elseif ($user_info['avatar']['url'] != '')
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
 
 		if (!empty($context['user']['avatar']))
-			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '"' . (isset($context['user']['avatar']['width']) ? ' width="' . $context['user']['avatar']['width'] . '"' : '') . (isset($context['user']['avatar']['height']) ? ' height="' . $context['user']['avatar']['height'] . '"' : '') . ' alt="" class="avatar" />';
+			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '" alt="" class="avatar" />';
 
 		// Figure out how long they've been logged in.
 		$context['user']['total_time_logged_in'] = array(
@@ -2943,20 +2933,13 @@ function setupThemeContext($forceload = false)
 			});
 		});');
 
-	// Resize avatars the fancy, but non-GD requiring way.
-	if ($modSettings['avatar_action_too_large'] == 'option_js_resize' && (!empty($modSettings['avatar_max_width_external']) || !empty($modSettings['avatar_max_height_external'])))
+	// Now add the capping code for avatars.
+	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 	{
-		// @todo Move this over to script.js?
-		addJavascriptVar('smf_avatarMaxWidth', (int) $modSettings['avatar_max_width_external']);
-		addJavascriptVar('smf_avatarMaxHeight', (int) $modSettings['avatar_max_height_external']);
-
-		if (!isBrowser('ie'))
-			addInlineJavascript('window.addEventListener("load", smf_avatarResize, false);');
-		else
-		{
-			addJavascriptVar('window_oldAvatarOnload', 'window.onload');
-			addInlineJavascript('window.onload = smf_avatarResize;');
-		}
+		if (!isset($context['css_header']))
+			$context['css_header'] = '';
+		$context['css_header'] .= '
+img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }';
 	}
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
@@ -3339,6 +3322,10 @@ function template_css()
 	foreach ($context['css_files'] as $id => $file)
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
+
+	if (!empty($context['css_header']))
+		echo '
+	<style>', $context['css_header'], '</style>';
 }
 
 /**

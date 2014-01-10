@@ -191,8 +191,7 @@ function template_unread()
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
-								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></span></a>
-								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
+								', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
 							</td>';
 
 			if ($context['showCheckboxes'])
@@ -350,8 +349,7 @@ function template_replies()
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
-								<a href="', $topic['last_post']['href'], '"><span class="generic_icons last_post" title="', $txt['last_post'], '"></span></a>
-								', sprintf($txt['last_post_topic'], $topic['last_post']['time'], $topic['last_post']['member']['link']), '
+								', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
 							</td>';
 
 			if ($context['showCheckboxes'])

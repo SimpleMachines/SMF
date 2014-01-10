@@ -663,7 +663,14 @@ if (!empty($modSettings['time_format']))
 ---}
 ---#
 
----# Showing contact details to guests should never happen.
+---# Fixing a deprecated option.
+UPDATE {$db_prefix}settings
+SET value = 'option_css_resize'
+WHERE variable = 'avatar_action_too_large'
+	AND (value = 'option_html_resize' OR value = 'option_js_resize');
+---#
+
+---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
 WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts');
 ---#

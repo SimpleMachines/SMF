@@ -279,24 +279,6 @@ function getBoardIndex($boardIndexOptions)
 		else
 			continue;
 
-		if (!empty($settings['avatars_on_indexes']))
-		{
-			// Allow themers to show the latest poster's avatar along with the board
-			if (!empty($row_board['avatar']))
-			{
-				if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
-				{
-					$avatar_width = !empty($modSettings['avatar_max_width_external']) ? ' width="' . $modSettings['avatar_max_width_external'] . '"' : '';
-					$avatar_height = !empty($modSettings['avatar_max_height_external']) ? ' height="' . $modSettings['avatar_max_height_external'] . '"' : '';
-				}
-				else
-				{
-					$avatar_width = '';
-					$avatar_height = '';
-				}
-			}
-		}
-
 		// Prepare the subject, and make sure it's not too long.
 		censorText($row_board['subject']);
 		$row_board['short_subject'] = shorten_subject($row_board['subject'], 24);
@@ -319,7 +301,7 @@ function getBoardIndex($boardIndexOptions)
 		if (!empty($settings['avatars_on_indexes']))
 			$this_last_post['member']['avatar'] = array(
 				'name' => $row_board['avatar'],
-				'image' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) . '" alt="" />' : '') : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? '<img class="avatar" src="' . $row_board['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row_board['avatar']) . '" alt="" />'),
+				'image' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) . '" alt="" />' : '') : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? '<img class="avatar" src="' . $row_board['avatar'] . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row_board['avatar']) . '" alt="" />'),
 				'href' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) : '') : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar']),
 				'url' => $row_board['avatar'] == '' ? '' : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'])
 			);
