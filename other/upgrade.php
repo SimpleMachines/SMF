@@ -910,6 +910,24 @@ function initialize_inputs()
 		}
 		closedir($dh);
 
+		// Legacy files while we're at it. NOTE: We only touch files we KNOW shouldn't be there.
+		// 1.1 Sources files not in 2.0+
+		@unlink(dirname(__FILE__) . '/Sources/ModSettings.php');
+		// 1.1 Templates that don't exist any more (e.g. renamed)
+		@unlink(dirname(__FILE__) . '/Themes/default/Combat.template.php');
+		@unlink(dirname(__FILE__) . '/Themes/default/Modlog.template.php');
+		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
+		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/sha1.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
+		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
+
+		// 2.0 Sources files not in 2.1+
+		@unlink(dirname(__FILE__) . '/Sources/DumpDatabase.php');
+		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
+
 		header('Location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 		exit;
 	}
