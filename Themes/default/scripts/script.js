@@ -701,47 +701,6 @@ function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_va
 	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + option + ';val=' + value + ';' + cur_session_var + '=' + cur_session_id + additional_vars + (theme == null ? '' : '&th=' + theme) + ';time=' + (new Date().getTime());
 }
 
-function smf_avatarResize()
-{
-	var possibleAvatars = document.getElementsByTagName('img');
-
-	for (var i = 0; i < possibleAvatars.length; i++)
-	{
-		var tempAvatars = []; j = 0;
-		if (possibleAvatars[i].className != 'avatar')
-			continue;
-
-		// Image.prototype.avatar = possibleAvatars[i];
-		tempAvatars[j] = new Image();
-		tempAvatars[j].avatar = possibleAvatars[i];
-
-		tempAvatars[j].onload = function()
-		{
-			this.avatar.width = this.width;
-			this.avatar.height = this.height;
-			if (smf_avatarMaxWidth != 0 && this.width > smf_avatarMaxWidth)
-			{
-				this.avatar.height = (smf_avatarMaxWidth * this.height) / this.width;
-				this.avatar.width = smf_avatarMaxWidth;
-			}
-			if (smf_avatarMaxHeight != 0 && this.avatar.height > smf_avatarMaxHeight)
-			{
-				this.avatar.width = (smf_avatarMaxHeight * this.avatar.width) / this.avatar.height;
-				this.avatar.height = smf_avatarMaxHeight;
-			}
-		}
-		tempAvatars[j].src = possibleAvatars[i].src;
-		j++;
-	}
-
-	if (typeof(window_oldAvatarOnload) != 'undefined' && window_oldAvatarOnload)
-	{
-		window_oldAvatarOnload();
-		window_oldAvatarOnload = null;
-	}
-}
-
-
 function hashLoginPassword(doForm, cur_session_id, token)
 {
 	// Compatibility.
