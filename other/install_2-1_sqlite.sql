@@ -1382,6 +1382,7 @@ CREATE TABLE {$db_prefix}members (
 
 CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name);
 CREATE INDEX {$db_prefix}members_real_name ON {$db_prefix}members (real_name);
+CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_address);
 CREATE INDEX {$db_prefix}members_date_registered ON {$db_prefix}members (date_registered);
 CREATE INDEX {$db_prefix}members_id_group ON {$db_prefix}members (id_group);
 CREATE INDEX {$db_prefix}members_birthdate ON {$db_prefix}members (birthdate);

@@ -1277,6 +1277,7 @@ CREATE TABLE {$db_prefix}members (
   PRIMARY KEY (id_member),
   KEY member_name (member_name),
   KEY real_name (real_name),
+  KEY email_address (email_address),
   KEY date_registered (date_registered),
   KEY id_group (id_group),
   KEY birthdate (birthdate),
