@@ -222,7 +222,9 @@ function template_main()
 	echo '
 			<div class="plainbox" id="display_jump_to">&nbsp;</div>';
 
-	echo '
+	if ($context['can_reply'])
+	{
+		echo '
 			<a id="quickreply"></a>
 			<div class="tborder" id="quickreplybox">
 				<div class="cat_bar">
@@ -329,6 +331,10 @@ function template_main()
 					</div>
 				</div>
 			</div>';
+	}
+	else
+		echo '
+			<br class="clear" />';
 
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
