@@ -2952,14 +2952,19 @@ function package_create_backup($id = 'backup')
 	{
 		$fwrite = 'gzwrite';
 		$fclose = 'gzclose';
-		$output = gzopen($output_file, 'wb');
+		$output = @gzopen($output_file, 'wb');
 	}
 	else
 	{
 		$fwrite = 'fwrite';
 		$fclose = 'fclose';
-		$output = fopen($output_file, 'wb');
+		$output = @fopen($output_file, 'wb');
 	}
+
+	// If we don't have a file handle, that means for whatever reason the file could not be opened.
+	// Could be permissions, could be a file already exists that shouldn't, etc.
+	if (!$output)
+		return false;
 
 	foreach ($files as $real_file => $file)
 	{
@@ -2996,6 +3001,8 @@ function package_create_backup($id = 'backup')
 
 	$fwrite($output, pack('a1024', ''));
 	$fclose($output);
+
+	return true;
 }
 
 /**

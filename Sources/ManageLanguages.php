@@ -940,7 +940,9 @@ function ModifyLanguage()
 		if (!empty($modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $context['lang_id'] . '$$$'))
 		{
 			$_SESSION['last_backup_for'] = $context['lang_id'] . '$$$';
-			package_create_backup('backup_lang_' . $context['lang_id']);
+			$result = package_create_backup('backup_lang_' . $context['lang_id']);
+			if (!$result)
+				fatal_lang_error('could_not_language_backup', false);
 		}
 
 		// Second, loop through the array to remove the files.

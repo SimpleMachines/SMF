@@ -891,7 +891,9 @@ function PackageInstall()
 	{
 		$_SESSION['last_backup_for'] = $context['filename'] . ($context['uninstalling'] ? '$$' : '$');
 		// @todo Internationalize this?
-		package_create_backup(($context['uninstalling'] ? 'backup_' : 'before_') . strtok($context['filename'], '.'));
+		$result = package_create_backup(($context['uninstalling'] ? 'backup_' : 'before_') . strtok($context['filename'], '.'));
+		if (!$result)
+			fatal_lang_error('could_not_language_backup', false);
 	}
 
 	// The mod isn't installed.... unless proven otherwise.
