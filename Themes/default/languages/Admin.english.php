@@ -603,6 +603,7 @@ $txt['language_description'] = 'This section allows you to edit languages instal
 $txt['language_edit'] = 'Edit Languages';
 $txt['language_add'] = 'Add Language';
 $txt['language_settings'] = 'Settings';
+$txt['could_not_language_backup'] = 'A backup could not be made before removing this language pack. No changes have been made at this time as a result (either change the permissions so Packages/backup can be written to, or turn off backups - not recommended)';
 
 $txt['advanced'] = 'Advanced';
 $txt['simple'] = 'Simple';
