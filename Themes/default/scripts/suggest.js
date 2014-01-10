@@ -39,8 +39,6 @@ function smc_AutoSuggest(oOptions)
 	this.oHideTimer = null;
 	this.bPositionComplete = false;
 
-	this.oXmlRequestHandle = null;
-
 	// Just make sure the page is loaded before calling the init.
 	addLoadEvent(this.opt.sSelf + '.init();');
 }
@@ -613,10 +611,6 @@ smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 			return true;
 		}
 	}
-
-	// In progress means destroy!
-	if (typeof(this.oXmlRequestHandle) == 'object' && this.oXmlRequestHandle != null)
-		this.oXmlRequestHandle.abort();
 
 	// Clean the text handle.
 	sSearchString = sSearchString.php_to8bit().php_urlencode();
