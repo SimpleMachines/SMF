@@ -893,7 +893,7 @@ function PackageInstall()
 		// @todo Internationalize this?
 		$result = package_create_backup(($context['uninstalling'] ? 'backup_' : 'before_') . strtok($context['filename'], '.'));
 		if (!$result)
-			fatal_lang_error('could_not_language_backup', false);
+			fatal_lang_error('could_not_package_backup', false);
 	}
 
 	// The mod isn't installed.... unless proven otherwise.
