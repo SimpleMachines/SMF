@@ -989,8 +989,9 @@ ul.pending_payments li {
 .perm_groups {
 	background-color: #fff;
 }
-.perm_classic {
+table.table_grid.perm_grid {
 	margin: 0.2em;
+	width: 49%;
 }
 .permission_groups {
 	padding: 0;

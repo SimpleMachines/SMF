@@ -562,7 +562,7 @@ function template_modify_group_display($type)
 	foreach ($permission_type['columns'] as $column)
 	{
 		echo '
-						<table width="49%" class="table_grid perm_classic floatleft">';
+						<table class="table_grid perm_grid floatleft">';
 
 		foreach ($column as $permissionGroup)
 		{
