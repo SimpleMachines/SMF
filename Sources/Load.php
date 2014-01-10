@@ -1133,18 +1133,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 	$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
 	$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
 
-	// If we're always html resizing, assume it's too large.
-	if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
-	{
-		$avatar_width = !empty($modSettings['avatar_max_width_external']) ? ' width="' . $modSettings['avatar_max_width_external'] . '"' : '';
-		$avatar_height = !empty($modSettings['avatar_max_height_external']) ? ' height="' . $modSettings['avatar_max_height_external'] . '"' : '';
-	}
-	else
-	{
-		$avatar_width = '';
-		$avatar_height = '';
-	}
-
 	// These minimal values are always loaded
 	$memberContext[$user] = array(
 		'username' => $profile['member_name'],
@@ -1208,7 +1196,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
 			'avatar' => array(
 				'name' => $profile['avatar'],
-				'image' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) . '" alt="" />' : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? '<img class="avatar" src="' . $profile['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($profile['avatar']) . '" alt="" />'),
+				'image' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) . '" alt="" />' : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? '<img class="avatar" src="' . $profile['avatar'] . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($profile['avatar']) . '" alt="" />'),
 				'href' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar']),
 				'url' => $profile['avatar'] == '' ? '' : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'])
 			),
@@ -1677,6 +1665,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$context['javascript_files'] = array();
 	if (!isset($context['css_files']))
 		$context['css_files'] = array();
+	if (!isset($context['css_header']))
+		$context['css_header'] = '';
 	if (!isset($context['javascript_inline']))
 		$context['javascript_inline'] = array('standard' => array(), 'defer' => array());
 	if (!isset($context['javascript_vars']))
