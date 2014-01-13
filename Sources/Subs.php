@@ -3664,24 +3664,6 @@ function clean_cache($type = '')
 }
 
 /**
- * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
- * - removed php4 support
- * - left shell in place for mod compatablily
- *
- * @param string $filename
- * @todo remove this function since we are no longer supporting PHP < 5
- */
-function loadClassFile($filename)
-{
-	global $sourcedir;
-
-	if (!file_exists($sourcedir . '/' . $filename))
-		fatal_lang_error('error_bad_file', 'general', array($sourcedir . '/' . $filename));
-
-	require_once($sourcedir . '/' . $filename);
-}
-
-/**
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context
