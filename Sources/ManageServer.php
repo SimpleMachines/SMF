@@ -929,37 +929,37 @@ function saveSettings(&$config_vars)
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
 	// Figure out which config vars we're saving here...
-	foreach ($config_vars as $var_array)
+	foreach ($config_vars as $var)
 	{
-		foreach($var_array[0] as $config_var)
+		if (!is_array($var) || $var[2] != 'file')
+			continue;
+		
+		$config_var = $var[0];
+		
+		if (in_array($config_var, $config_passwords))
 		{
-			if (!is_array($config_var) || $config_var[2] != 'file')
-				continue;
-			elseif (in_array($config_var, $config_passwords))
-			{
-				if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-					$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
-			}
-			elseif (in_array($config_var, $config_strs))
-			{
-				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
-			}
-			elseif (in_array($config_var, $config_ints))
-			{
-				$new_settings[$config_var] = (int) $_POST[$config_var];
-			}
-			elseif (in_array($config_var, $config_bools))
-			{
-				if (!empty($_POST[$config_var]))
-					$new_settings[$config_var] = '1';
-				else
-					$new_settings[$config_var] = '0';
-			}
+			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
+				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
+		}
+		elseif (in_array($config_var, $config_strs))
+		{
+			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
+		}
+		elseif (in_array($config_var, $config_ints))
+		{
+			$new_settings[$config_var] = (int) $_POST[$config_var];
+		}
+		elseif (in_array($config_var, $config_bools))
+		{
+			if (!empty($_POST[$config_var]))
+				$new_settings[$config_var] = '1';
 			else
-			{
-				// This shouldn't happen, but it might...
-				fatal_error('Unknown config_var \'' . $config_var . '\'');
-			}
+				$new_settings[$config_var] = '0';
+		}
+		else
+		{
+			// This shouldn't happen, but it might...
+			fatal_error('Unknown config_var \'' . $config_var . '\'');
 		}
 	}
 
