@@ -3702,6 +3702,16 @@ function setupMenuContext()
 
 	$cacheTime = $modSettings['lastActive'] * 60;
 
+	// Initial "can you post an event in the calendar" option
+	$context['allow_calendar_event'] = allowedTo('calendar_post');
+	
+	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
+	if (empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	{
+		$boards_can_post = boardsAllowedTo('post_new');
+		$context['allow_calendar_event'] &= !empty($boards_can_post);
+	}
+
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
 	if (!$context['user']['is_guest'])
 	{
@@ -3809,12 +3819,12 @@ function setupMenuContext()
 					'view' => array(
 						'title' => $txt['calendar_menu'],
 						'href' => $scripturl . '?action=calendar',
-						'show' => allowedTo('calendar_post'),
+						'show' => $context['allow_calendar_event'],
 					),
 					'post' => array(
 						'title' => $txt['calendar_post_event'],
 						'href' => $scripturl . '?action=calendar;sa=post',
-						'show' => allowedTo('calendar_post'),
+						'show' => $context['allow_calendar_event'],
 						'is_last' => true,
 					),
 				),
