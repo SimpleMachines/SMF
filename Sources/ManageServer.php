@@ -177,9 +177,6 @@ function ModifyGeneralSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_general_settings');
 
-		// Don't overwrite the two boolean DB-related settings
-		$context['area'] = 'server';
-
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
@@ -236,9 +233,6 @@ function ModifyDatabaseSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_database_settings');
-
-		// Don't accidentally disable maintenance mode..
-		$context['area'] = 'db';
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
@@ -929,35 +923,44 @@ function saveSettings(&$config_vars)
 		'cache_enable',
 	);
 
-	// All the checkboxes - this varies depending on where we're coming from
-	if ($context['area'] == 'db')
-		$config_bools = array('db_persist', 'db_error_send');
-	elseif ($context['area'] == 'server')
-		$config_bools = array('maintenance');
+	// All the checkboxes
+	$config_bools = array('db_persist', 'db_error_send', 'maintenance');
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
-	foreach ($config_passwords as $config_var)
+	// Figure out which config vars we're saving here...
+	foreach ($config_vars as $var)
 	{
-		if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
-	}
-	foreach ($config_strs as $config_var)
-	{
-		if (isset($_POST[$config_var]))
+		if (!is_array($var) || $var[2] != 'file')
+			continue;
+		
+		$config_var = $var[0];
+		
+		if (in_array($config_var, $config_passwords))
+		{
+			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
+				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
+		}
+		elseif (in_array($config_var, $config_strs))
+		{
 			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
-	}
-	foreach ($config_ints as $config_var)
-	{
-		if (isset($_POST[$config_var]))
+		}
+		elseif (in_array($config_var, $config_ints))
+		{
 			$new_settings[$config_var] = (int) $_POST[$config_var];
-	}
-	foreach ($config_bools as $key)
-	{
-		if (!empty($_POST[$key]))
-			$new_settings[$key] = '1';
+		}
+		elseif (in_array($config_var, $config_bools))
+		{
+			if (!empty($_POST[$config_var]))
+				$new_settings[$config_var] = '1';
+			else
+				$new_settings[$config_var] = '0';
+		}
 		else
-			$new_settings[$key] = '0';
+		{
+			// This shouldn't happen, but it might...
+			fatal_error('Unknown config_var \'' . $config_var . '\'');
+		}
 	}
 
 	// Save the relevant settings in the Settings.php file.
