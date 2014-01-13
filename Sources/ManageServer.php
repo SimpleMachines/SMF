@@ -200,7 +200,7 @@ function ModifyGeneralSettings($return_config = false)
  */
 function ModifyDatabaseSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $boarddir;
+	global $scripturl, $context, $txt, $boarddir, $maintenance;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
@@ -233,6 +233,10 @@ function ModifyDatabaseSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_database_settings');
+
+        // Don't overwrite the maintenance value!
+        if ($maintenance === 1)
+            $context['maintenance'] = true;
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
@@ -950,7 +954,7 @@ function saveSettings(&$config_vars)
 	{
 		if (!empty($_POST[$key]))
 			$new_settings[$key] = '1';
-		else
+		elseif ($key != 'maintenance' || !isset($context['maintenance']))
 			$new_settings[$key] = '0';
 	}
 
