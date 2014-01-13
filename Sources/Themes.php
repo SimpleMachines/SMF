@@ -1724,7 +1724,7 @@ function EditTheme()
 			$_REQUEST['filename'] = preg_replace(array('~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'), array('', '/', '/'), $_REQUEST['filename']);
 
 			$temp = realpath($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
-			if (empty($temp) || substr($temp, 0, strlen(realpath($theme_dir))) != realpath($currentTheme['theme_dir']))
+			if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir']))
 				$_REQUEST['filename'] = '';
 		}
 
