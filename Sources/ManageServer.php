@@ -923,16 +923,8 @@ function saveSettings(&$config_vars)
 		'cache_enable',
 	);
 
-	$config_bools = array();
-
-	// All the checkboxes - this varies depending on where we're coming from
-	if (isset($context['area']))
-	{
-		if ($context['area'] == 'db')
-			$config_bools = array('db_persist', 'db_error_send');
-		elseif ($context['area'] == 'server')
-			$config_bools = array('maintenance');
-	}
+	// All the checkboxes
+	$config_bools = array('db_persist', 'db_error_send', 'maintenance');
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
