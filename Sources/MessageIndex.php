@@ -502,6 +502,9 @@ function MessageIndex()
 					$context['icon_sources'][$row['last_icon']] = 'images_url';
 			}
 
+			if (!empty($board_info['recycle']))
+				$row['first_icon'] = 'recycled';
+
 			// 'Print' the topic info.
 			$context['topics'][$row['id_topic']] = array(
 				'id' => $row['id_topic'],
@@ -611,7 +614,7 @@ function MessageIndex()
 		// Ignore approving own topics as it's unlikely to come up...
 		$context['can_approve'] = $modSettings['postmod_active'] && allowedTo('approve_posts') && !empty($board_info['unapproved_topics']);
 		// Can we restore topics?
-		$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
+		$context['can_restore'] = allowedTo('move_any') && !empty($board_info['recycle']);
 
 		if ($user_info['is_admin'] || $modSettings['topic_move_any'])
 			$context['can_move_any'] = true;

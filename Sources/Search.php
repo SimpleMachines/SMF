@@ -1868,6 +1868,10 @@ function prepareSearchContext($reset = false)
 	global $txt, $modSettings, $scripturl, $user_info;
 	global $memberContext, $context, $settings, $options, $messages_request;
 	global $boards_can, $participants, $smcFunc;
+	static $recycle_board = null;
+
+	if ($recycle_board === null)
+		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 
 	// Remember which message this is.  (ie. reply #83)
 	static $counter = null;
@@ -1968,6 +1972,13 @@ function prepareSearchContext($reset = false)
 
 	// Make sure we don't end up with a practically empty message body.
 	$message['body'] = preg_replace('~^(?:&nbsp;)+$~', '', $message['body']);
+
+	if (!empty($recycle_board) && $message['id_board'] == $recycle_board)
+	{
+		$message['first_icon'] = 'recycled';
+		$message['last_icon'] = 'recycled';
+		$message['icon'] = 'recycled';
+	}
 
 	// Sadly, we need to check the icon ain't broke.
 	if (!empty($modSettings['messageIconChecks_enable']))
