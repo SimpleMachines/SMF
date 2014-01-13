@@ -934,6 +934,8 @@ function saveSettings(&$config_vars)
 		$config_bools = array('db_persist', 'db_error_send');
 	elseif ($context['area'] == 'server')
 		$config_bools = array('maintenance');
+	else
+		$config_bools = array();
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
