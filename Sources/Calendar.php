@@ -126,7 +126,7 @@ function CalendarMain()
 		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
 
 	// Basic template stuff.
-	$context['can_post'] = allowedTo('calendar_post');
+	$context['can_post'] = $context['allow_calendar_event'];
 	$context['current_day'] = $curPage['day'];
 	$context['current_month'] = $curPage['month'];
 	$context['current_year'] = $curPage['year'];
