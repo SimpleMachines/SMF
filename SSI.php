@@ -478,6 +478,8 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 	if (empty($topics))
 		return array();
 
+	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
+
 	// Find all the posts in distinct topics.  Newer ones will have higher IDs.
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
@@ -508,6 +510,10 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		// Censor the subject.
 		censorText($row['subject']);
 		censorText($row['body']);
+
+		// Recycled icon
+		if (!empty($recycle_board) && $topics[$row['id_topic']]['id_board'])
+			$row['icon'] = 'recycled';
 
 		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))
 			$icon_sources[$row['icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['icon'] . '.png') ? 'images_url' : 'default_images_url';
@@ -1716,7 +1722,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			m.icon, m.subject, m.body, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
-			t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg
+			t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -1728,6 +1734,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		)
 	);
 	$return = array();
+	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If we want to limit the length of the post.
@@ -1750,6 +1757,9 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		}
 
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
+
+		if (!empty($recycle_board) && $row['id_board'] == $recycle_board)
+			$row['icon'] = 'recycled';
 
 		// Check that this message icon is there...
 		if (!empty($modSettings['messageIconChecks_enable']) && !isset($icon_sources[$row['icon']]))

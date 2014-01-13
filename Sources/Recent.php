@@ -1154,6 +1154,7 @@ function UnreadTopics()
 
 	$context['topics'] = array();
 	$topic_ids = array();
+	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0;
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -1235,6 +1236,13 @@ function UnreadTopics()
 			// Last icon... last... duh.
 			if (!isset($context['icon_sources'][$row['last_icon']]))
 				$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
+		}
+
+		// Force the recycling icon if appropriate
+		if ($recycle_board == $row['id_board'])
+		{
+			$row['first_icon'] = 'recycled';
+			$row['last_icon'] = 'recycled';
 		}
 
 		// And build the array.

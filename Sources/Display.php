@@ -159,7 +159,7 @@ function Display()
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
-			' . (!empty($modSettings['recycle_board']) && $modSettings['recycle_board'] == $board ? ', id_previous_board, id_previous_topic' : '') . '
+			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? implode(',', $topic_selects) : '') . '
 			' . (!$user_info['is_guest'] ? ', IFNULL(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
@@ -1120,8 +1120,8 @@ function Display()
 	$context['can_remove_post'] = allowedTo('delete_any') || (allowedTo('delete_replies') && $context['user']['started']);
 
 	// Can restore topic?  That's if the topic is in the recycle board and has a previous restore state.
-	$context['can_restore_topic'] &= !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board && !empty($topicinfo['id_previous_board']);
-	$context['can_restore_msg'] &= !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board && !empty($topicinfo['id_previous_topic']);
+	$context['can_restore_topic'] &= !empty($board_info['recycle']) && !empty($topicinfo['id_previous_board']);
+	$context['can_restore_msg'] &= !empty($board_info['recycle']) && !empty($topicinfo['id_previous_topic']);
 
 	// Check if the draft functions are enabled and that they have permission to use them (for quick reply.)
 	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $context['can_reply'];
@@ -1217,7 +1217,7 @@ function Display()
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $txt, $modSettings, $scripturl, $options, $user_info, $smcFunc;
-	global $memberContext, $context, $messages_request, $topic;
+	global $memberContext, $context, $messages_request, $topic, $board_info;
 
 	static $counter = null;
 
@@ -1294,6 +1294,10 @@ function prepareDisplayContext($reset = false)
 
 	// Run BBC interpreter on the message.
 	$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
+
+	// If it's in the recycle bin we need to override whatever icon we did have.
+	if (!empty($board_info['recycle']))
+		$message['icon'] = 'recycled';
 
 	// Compose the memory eat- I mean message array.
 	$output = array(
