@@ -177,6 +177,9 @@ function ModifyGeneralSettings($return_config = false)
 	{
 		call_integration_hook('integrate_save_general_settings');
 
+		// Don't overwrite the two boolean DB-related settings
+		$context['area'] = 'server';
+
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
@@ -233,6 +236,9 @@ function ModifyDatabaseSettings($return_config = false)
 	if (isset($_REQUEST['save']))
 	{
 		call_integration_hook('integrate_save_database_settings');
+
+		// Don't accidentally disable maintenance mode..
+		$context['area'] = 'db';
 
 		saveSettings($config_vars);
 		$_SESSION['adm-save'] = true;
@@ -923,11 +929,11 @@ function saveSettings(&$config_vars)
 		'cache_enable',
 	);
 
-	// All the checkboxes.
-	$config_bools = array(
-		'db_persist', 'db_error_send',
-		'maintenance',
-	);
+	// All the checkboxes - this varies depending on where we're coming from
+	if ($context['area'] == 'db')
+		$config_bools = array('db_persist', 'db_error_send');
+	elseif ($context['area'] == 'server')
+		$config_bools = array('maintenance');
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
