@@ -212,7 +212,7 @@ function template_body_above()
 	// Otherwise they're a guest. Ask them to either register or login.
 	else
 		echo '
-			<ul class="floatleft">
+			<ul class="floatleft welcome">
 				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</li>
 			</ul>';
 
