@@ -1136,6 +1136,9 @@ function Display()
 		$context['wireless_moderate'] = isset($_GET['moderate']) ? ';moderate' : '';
 	}
 
+	// You can't link an existing topoic to the calendar unless you can modify the first post...
+	$context['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && $context['user']['started']);
+
 	// Load up the "double post" sequencing magic.
 	checkSubmitOnce('register');
 	$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
