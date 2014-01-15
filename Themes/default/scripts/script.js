@@ -593,7 +593,8 @@ function submitThisOnce(oControl)
 // Deprecated, as innerHTML is supported everywhere.
 function setInnerHTML(oElement, sToValue)
 {
-	oElement.innerHTML = sToValue;
+	if ('innerHTML' in oElement)
+		oElement.innerHTML = sToValue;
 }
 
 function getInnerHTML(oElement)
