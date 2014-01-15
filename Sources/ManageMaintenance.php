@@ -1070,7 +1070,7 @@ function OptimizeTables()
 
 	isAllowedTo('admin_forum');
 
-	checkSession('post');
+	checkSession();
 	validateToken('admin-maint');
 
 	ignore_user_abort(true);

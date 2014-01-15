@@ -1812,7 +1812,7 @@ function PackageOptions()
 
 	if (isset($_POST['save']))
 	{
-		checkSession('post');
+		checkSession();
 
 		updateSettings(array(
 			'package_server' => trim($smcFunc['htmlspecialchars']($_POST['pack_server'])),

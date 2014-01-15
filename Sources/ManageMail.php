@@ -71,7 +71,7 @@ function BrowseMailQueue()
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
 	{
-		checkSession('post');
+		checkSession();
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}mail_queue

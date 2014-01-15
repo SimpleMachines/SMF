@@ -626,7 +626,7 @@ function ReportedPosts()
 	}
 	elseif (isset($_POST['close']) && isset($_POST['close_selected']))
 	{
-		checkSession('post');
+		checkSession();
 
 		// All the ones to update...
 		$toClose = array();
@@ -1797,7 +1797,7 @@ function ViewWarningTemplates()
 		return ModifyWarningTemplate();
 	elseif (isset($_POST['delete']) && !empty($_POST['deltpl']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('mod-wt');
 
 		// Log the actions.
@@ -2058,7 +2058,7 @@ function ModifyWarningTemplate()
 	// Wait, we are saving?
 	if (isset($_POST['save']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('mod-wt');
 
 		// To check the BBC is pretty good...
@@ -2175,7 +2175,7 @@ function ModerationSettings()
 	// Are we saving?
 	if (isset($_POST['save']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('mod-set');
 
 		/* Current format of mod_prefs is:
