@@ -460,7 +460,7 @@ function GroupRequests()
 	// We've submitted?
 	if (isset($_POST[$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('mod-gr');
 
 		// Clean the values.

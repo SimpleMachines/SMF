@@ -2023,7 +2023,7 @@ function alert_configuration($memID)
 
 	if (isset($_POST['notify_submit']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken($context['token_check'], 'post');
 
 		// We need to step through the list of valid settings and figure out what the user has set.
@@ -2087,7 +2087,7 @@ function alert_notifications_topics($memID)
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_topics']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
 
 		makeNotificationChanges($memID);
@@ -2227,7 +2227,7 @@ function alert_notifications_boards($memID)
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_boards']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
 
 		makeNotificationChanges($memID);

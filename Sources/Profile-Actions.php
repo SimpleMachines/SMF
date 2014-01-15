@@ -131,7 +131,7 @@ function issueWarning($memID)
 	if (isset($_POST['save']))
 	{
 		// Security is good here.
-		checkSession('post');
+		checkSession();
 
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';

@@ -978,7 +978,7 @@ function GeneralPermissionSettings($return_config = false)
 	// Saving the settings?
 	if (isset($_GET['save']))
 	{
-		checkSession('post');
+		checkSession();
 		call_integration_hook('integrate_save_permission_settings');
 		saveDBSettings($config_vars);
 
@@ -1939,7 +1939,7 @@ function EditPermissionProfiles()
 	// Deleting?
 	elseif (isset($_POST['delete']) && !empty($_POST['delete_profile']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('admin-mpp');
 
 		$profiles = array();

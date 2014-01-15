@@ -900,7 +900,7 @@ function RemoveAttachment()
 {
 	global $txt, $smcFunc, $language;
 
-	checkSession('post');
+	checkSession();
 
 	if (!empty($_POST['remove']))
 	{
