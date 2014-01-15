@@ -378,6 +378,7 @@ function ModifyProfile($post_errors = array())
 					'icon' => 'regcenter.png',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
+					'token_type' => 'get',
 					'permission' => array(
 						'own' => array(),
 						'any' => array('moderate_forum'),
