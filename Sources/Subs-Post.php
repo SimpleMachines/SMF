@@ -823,9 +823,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			'name' => $user_info['name'],
 			'username' => $user_info['username']
 		);
-	// Probably not needed.  /me something should be of the typer.
-	else
-		$user_info['name'] = $from['name'];
 
 	// This is the one that will go in their inbox.
 	$htmlmessage = $smcFunc['htmlspecialchars']($message, ENT_QUOTES);
