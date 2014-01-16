@@ -1756,6 +1756,15 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Initialize the theme.
 	loadSubTemplate('init', 'ignore');
 
+	// Allow overriding the board wide time/number formats.
+	if (empty($user_settings['time_format']) && !empty($txt['time_format']))
+		$user_info['time_format'] = $txt['time_format'];
+
+	// Set the character set from the template.
+	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
+	$context['utf8'] = $context['character_set'] === 'UTF-8';
+	$context['right_to_left'] = !empty($txt['lang_rtl']);
+
 	// Guests may still need a name.
 	if ($context['user']['is_guest'] && empty($context['user']['name']))
 		$context['user']['name'] = $txt['guest_title'];
@@ -1763,6 +1772,22 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Any theme-related strings that need to be loaded?
 	if (!empty($settings['require_theme_strings']))
 		loadLanguage('ThemeStrings', '', false);
+
+	// Sort out some themes.
+	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'always')
+	{
+		$settings['theme_url'] = $settings['default_theme_url'];
+		$settings['images_url'] = $settings['default_images_url'];
+		$settings['theme_dir'] = $settings['default_theme_dir'];
+	}
+	// Make a special URL for the language.
+	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
+
+	// And of course, let's load the default CSS file.
+	loadCSSFile('index.css');
+
+	if ($context['right_to_left'])
+		loadCSSFile('rtl.css');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -1782,29 +1807,18 @@ function loadTheme($id_theme = 0, $initialize = true)
 		// Do this to keep things easier in the templates.
 		$context['theme_variant'] = '_' . $context['theme_variant'];
 		$context['theme_variant_url'] = $context['theme_variant'] . '/';
+
+		if (!empty($context['theme_variant']))
+		{
+			loadCSSFile('index' . $context['theme_variant'] . '.css');
+			if ($context['right_to_left'])
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css');
+		}
 	}
 
 	// Let's be compatible with old themes!
 	if (!function_exists('template_html_above') && in_array('html', $context['template_layers']))
 		$context['template_layers'] = array('main');
-
-	// Allow overriding the board wide time/number formats.
-	if (empty($user_settings['time_format']) && !empty($txt['time_format']))
-		$user_info['time_format'] = $txt['time_format'];
-
-	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'always')
-	{
-		$settings['theme_url'] = $settings['default_theme_url'];
-		$settings['images_url'] = $settings['default_images_url'];
-		$settings['theme_dir'] = $settings['default_theme_dir'];
-	}
-	// Make a special URL for the language.
-	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
-
-	// Set the character set from the template.
-	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
-	$context['utf8'] = $context['character_set'] === 'UTF-8';
-	$context['right_to_left'] = !empty($txt['lang_rtl']);
 
 	$context['tabindex'] = 1;
 

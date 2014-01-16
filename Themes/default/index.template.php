@@ -78,40 +78,22 @@ function template_html_above()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 <head>';
 
-	// The ?alp21 part of this link is just here to make sure browsers don't cache it wrongly.
-	echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index.css?alp21" />';
+	// You don't need to manually load index.css, this will be set up for you. You can, of course, add
+	// any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
 
 	// The most efficient way of writing multi themes is to use a master index.css plus variant.css files.
-	if (!empty($context['theme_variant']))
-		echo '
-	<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />';
+	// If you've set them up properly (through $settings['theme_variants'], loadCSSFile will load the variant files for you.
+
+	// load in any css from mods or themes so they can overwrite if wanted
+	template_css();
 
 	// Save some database hits, if a width for multiple wrappers is set in admin.
 	if (!empty($settings['forum_width']))
 		echo '
 	<style type="text/css">#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
 
-	// Quick and dirty testing of RTL horrors. Remove before production build.
-	//echo '
-	//<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
-
-	// load in any css from mods or themes so they can overwrite if wanted
-	template_css();
-
 	// load in any javascript files from mods and themes
 	template_javascript();
-
-	// RTL languages require an additional stylesheet.
-	if ($context['right_to_left'])
-	{
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl.css?alp21" />';
-
-	if (!empty($context['theme_variant']))
-		echo '
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/rtl', $context['theme_variant'], '.css?alp21" />';
-	}
 
 	echo '
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
