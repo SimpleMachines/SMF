@@ -315,7 +315,11 @@ function template_edit_group()
 							<span class="smalltext">' . $txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 						</dt>
 						<dd>';
-		template_add_edit_group_boards_list();
+		if (!empty($context['can_manage_boards']))
+			echo $txt['membergroups_can_manage_access'];
+		else
+			template_add_edit_group_boards_list();
+
 		echo '
 						</dd>';
 	}
