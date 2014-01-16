@@ -4003,8 +4003,6 @@ function call_integration_hook($hook, $parameters = array())
 	if (!isset($context['instances']))
 		$context['instances'] = array();
 
-	 loadLanguage('Errors');
-
 	$results = array();
 	if (empty($modSettings[$hook]))
 		return $results;
@@ -4041,7 +4039,10 @@ function call_integration_hook($hook, $parameters = array())
 
 				// No? tell the admin about it.
 				else
+				{
+					loadLanguage('Errors');
 					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+				}
 
 				// Check if a new object will be created.
 				if (strpos($call[1], '#') !== false)
@@ -4086,7 +4087,10 @@ function call_integration_hook($hook, $parameters = array())
 
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($func) && !empty($absPath))
+		{
+			loadLanguage('Errors');
 			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
+		}
 	}
 
 	return $results;
