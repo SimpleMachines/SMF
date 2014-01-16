@@ -792,7 +792,7 @@ function setupProfileContext($fields)
  */
 function saveProfileFields()
 {
-	global $profile_fields, $profile_vars, $context, $old_profile, $post_errors, $sourcedir, $modSettings, $cur_profile, $smcFunc;
+	global $profile_fields, $profile_vars, $context, $old_profile, $post_errors, $sourcedir, $cur_profile, $smcFunc;
 
 	// Load them up.
 	loadProfileFields();
@@ -931,7 +931,7 @@ function saveProfileFields()
  */
 function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 {
-	global $user_info, $txt, $modSettings, $user_profile;
+	global $user_info, $txt, $user_profile;
 	global $context, $sourcedir;
 	global $smcFunc;
 
@@ -1339,7 +1339,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl, $modSettings;
+	global $txt, $scripturl;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -1477,7 +1477,7 @@ function editBuddies($memID)
  */
 function editIgnoreList($memID)
 {
-	global $txt, $scripturl, $modSettings;
+	global $txt, $scripturl;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -1747,7 +1747,7 @@ function getAvatars($directory, $level)
  */
 function theme($memID)
 {
-	global $txt, $context, $user_profile, $modSettings, $user_info, $smcFunc;
+	global $txt, $context, $user_profile, $user_info, $smcFunc;
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
@@ -1857,7 +1857,7 @@ function authentication($memID, $saving = false)
  */
 function notification($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $smcFunc, $sourcedir;
 
 	// Going to want this for consistency.
 	loadCSSFile('admin.css', array(), 'admin');
@@ -2023,7 +2023,7 @@ function alert_configuration($memID)
 
 	if (isset($_POST['notify_submit']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken($context['token_check'], 'post');
 
 		// We need to step through the list of valid settings and figure out what the user has set.
@@ -2087,7 +2087,7 @@ function alert_notifications_topics($memID)
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_topics']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
 
 		makeNotificationChanges($memID);
@@ -2222,12 +2222,12 @@ function alert_notifications_topics($memID)
 
 function alert_notifications_boards($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_boards']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
 
 		makeNotificationChanges($memID);
@@ -2596,7 +2596,7 @@ function ignoreboards($memID)
  */
 function profileLoadLanguages()
 {
-	global $context, $modSettings, $cur_profile, $language, $smcFunc;
+	global $context, $cur_profile, $language, $smcFunc;
 
 	$context['profile_languages'] = array();
 
@@ -3133,7 +3133,7 @@ function profileSaveAvatarData(&$value)
 				$cur_profile['filename'] = $destName;
 				$cur_profile['attachment_type'] = empty($modSettings['custom_avatar_enabled']) ? 0 : 1;
 
-				$destinationPath = $uploadDir . '/' . (empty($file_hash) ? $destName : $cur_profile['id_attach'] . '_' . $file_hash);
+				$destinationPath = $uploadDir . '/' . (empty($file_hash) ? $destName : $cur_profile['id_attach'] . '_' . $file_hash . '.dat');
 				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
 				{
 					// I guess a man can try.
@@ -3464,7 +3464,7 @@ function profileSendActivation()
  */
 function groupMembership($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc;
+	global $txt, $scripturl, $user_profile, $user_info, $context, $smcFunc;
 
 	$curMember = $user_profile[$memID];
 	$context['primary_group'] = $curMember['id_group'];

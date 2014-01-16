@@ -34,6 +34,8 @@ $txt['package_delete_list_warning'] = 'Are you sure you wish to clear the instal
 $txt['php_safe_mode'] = 'Sorry, your server currently has PHP set to run in SAFE MODE.  This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
 
+$txt['could_not_package_backup'] = 'A backup could not be made before making changes. No changes have been made at this time as a result (either change the permissions so Packages/backup can be written to, or turn off backups - not recommended)';
+
 $txt['package_manager_desc'] = 'From this easy to use interface, you can download and install modifications for use on your forum.';
 $txt['installed_packages_desc'] = 'You can use the interface below to view those packages currently installed on the forum, and remove the ones you no longer require.';
 $txt['download_packages_desc'] = 'From this section you can choose to either download new packages from package servers, or upload a package file directly to the forum.';

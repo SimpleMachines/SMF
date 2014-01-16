@@ -139,7 +139,7 @@ function Login2()
 		redirectexit();
 
 	// Are you guessing with a script?
-	checkSession('post');
+	checkSession();
 	$tk = validateToken('login');
 	spamProtection('login');
 

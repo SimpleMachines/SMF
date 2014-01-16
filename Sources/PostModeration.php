@@ -315,7 +315,7 @@ function UnapprovedPosts()
  */
 function UnapprovedAttachments()
 {
-	global $txt, $scripturl, $context, $user_info, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $scripturl, $context, $sourcedir, $smcFunc, $modSettings;
 
 	$context['page_title'] = $txt['mc_unapproved_attachments'];
 
@@ -478,13 +478,13 @@ function UnapprovedAttachments()
 			),
 			'action' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" checked="checked" />',
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" checked />',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="item[]" value="%1$d" checked="checked" class="input_check" />',
+						'format' => '<input type="checkbox" name="item[]" value="%1$d" checked class="input_check" />',
 						'params' => array(
 							'id' => false,
 						),

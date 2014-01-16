@@ -48,7 +48,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $scripturl, $modSettings, $settings;
+	global $context, $txt, $scripturl, $settings;
 
 	$context['page_title'] = $txt['modSettings_title'];
 
@@ -95,7 +95,7 @@ function ModifyFeatureSettings()
  */
 function ModifyModSettings()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl;
 
 	$context['page_title'] = $txt['admin_modifications'];
 
@@ -1123,7 +1123,7 @@ function pauseSignatureApplySettings()
 function ShowCustomProfiles()
 {
 	global $txt, $scripturl, $context, $sc, $smcFunc;
-	global $modSettings, $sourcedir;
+	global $sourcedir;
 
 	$context['page_title'] = $txt['custom_profile_title'];
 	$context['sub_template'] = 'show_custom_profile';
@@ -1197,7 +1197,7 @@ function ShowCustomProfiles()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						$isChecked = $rowData[\'disabled\'] ? \'\' : \' checked="checked"\';
+						$isChecked = $rowData[\'disabled\'] ? \'\' : \' checked\';
 						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\'onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
 						return sprintf(\'<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $onClickHandler);
 					'),
@@ -1212,7 +1212,7 @@ function ShowCustomProfiles()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						$isChecked = $rowData[\'on_register\'] && !$rowData[\'disabled\'] ? \' checked="checked"\' : \'\';
+						$isChecked = $rowData[\'on_register\'] && !$rowData[\'disabled\'] ? \' checked\' : \'\';
 						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled="disabled"\';
 						return sprintf(\'<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $isDisabled);
 					'),
@@ -1954,7 +1954,7 @@ function ModifyLogSettings($return_config = false)
  */
 function ModifyGeneralModSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc, $modSettings;
+	global $txt, $scripturl, $context, $sc;
 
 	$config_vars = array(
 		// Mod authors, add any settings UNDER this line. Include a comma at the end of the line and don't remove this statement!!

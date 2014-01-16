@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function ViewErrorLog()
 {
-	global $scripturl, $txt, $context, $modSettings, $user_profile, $filter, $boarddir, $sourcedir, $themedir, $smcFunc;
+	global $scripturl, $txt, $context, $modSettings, $user_profile, $filter, $smcFunc;
 
 	// Viewing contents of a file?
 	if (isset($_GET['file']))
@@ -332,7 +332,7 @@ function deleteErrors()
  */
 function ViewFile()
 {
-	global $context, $txt, $boarddir, $sourcedir, $cachedir, $smcFunc;
+	global $context, $boarddir, $sourcedir, $cachedir, $smcFunc;
 
 	// Check for the administrative permission to do this.
 	isAllowedTo('admin_forum');

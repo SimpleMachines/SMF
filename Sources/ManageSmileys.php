@@ -1240,7 +1240,7 @@ function list_getNumSmileys()
  */
 function EditSmileyOrder()
 {
-	global $modSettings, $context, $txt, $boarddir, $smcFunc;
+	global $context, $txt, $boarddir, $smcFunc;
 
 	// Move smileys to another position.
 	if (isset($_REQUEST['reorder']))
@@ -1699,7 +1699,7 @@ function ImportSmileys($smileyPath)
  */
 function EditMessageIcons()
 {
-	global $user_info, $modSettings, $context, $settings, $txt;
+	global $user_info, $context, $settings, $txt;
 	global $boarddir, $smcFunc, $scripturl, $sourcedir;
 
 	// Get a list of icons.

@@ -1382,6 +1382,7 @@ CREATE TABLE {$db_prefix}members (
 
 CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name);
 CREATE INDEX {$db_prefix}members_real_name ON {$db_prefix}members (real_name);
+CREATE INDEX {$db_prefix}members_email_address ON {$db_prefix}members (email_address);
 CREATE INDEX {$db_prefix}members_date_registered ON {$db_prefix}members (date_registered);
 CREATE INDEX {$db_prefix}members_id_group ON {$db_prefix}members (id_group);
 CREATE INDEX {$db_prefix}members_birthdate ON {$db_prefix}members (birthdate);
@@ -1932,8 +1933,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('theme_guests', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableEmbeddedFlash', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_enable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('xmlnews_maxlen', '255');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicPosts', '15');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('hotTopicVeryPosts', '25');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('registration_method', '{$registration_method}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_validation_onChange', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('send_welcomeEmail', '1');
@@ -1954,7 +1953,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_directory', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_url', '{$boardurl}/avatars');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_max_height_external', '65');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_max_width_external', '65');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_action_too_large', 'option_html_resize');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_action_too_large', 'option_css_resize');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_max_height_upload', '65');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_max_width_upload', '65');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_resize_upload', '1');
@@ -1979,7 +1978,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('recycle_enable', '0'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('recycle_board', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('maxMsgID', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableAllMessages', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('fixLongWords', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('knownThemes', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableThemes', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('who_enabled', '1');

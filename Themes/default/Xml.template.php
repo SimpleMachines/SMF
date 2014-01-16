@@ -44,7 +44,7 @@ function template_modifyfast()
 
 function template_modifydone()
 {
-	global $context, $options, $txt;
+	global $context, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
@@ -70,7 +70,7 @@ function template_modifydone()
 
 function template_modifytopicdone()
 {
-	global $context, $options, $txt;
+	global $context, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
@@ -97,7 +97,7 @@ function template_modifytopicdone()
 
 function template_post()
 {
-	global $context, $options, $txt;
+	global $context, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
@@ -142,7 +142,7 @@ function template_post()
 
 function template_pm()
 {
-	global $context, $options, $txt;
+	global $context, $txt;
 
 	// @todo something could be removed...otherwise it can be merged again with template_post
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
@@ -171,7 +171,7 @@ function template_pm()
 
 function template_stats()
 {
-	global $context, $options, $txt, $modSettings;
+	global $context, $txt, $modSettings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';
@@ -192,7 +192,7 @@ function template_stats()
 
 function template_split()
 {
-	global $context, $options;
+	global $context;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
@@ -232,7 +232,7 @@ if (!function_exists('template_button_strip'))
 
 function template_results()
 {
-	global $context, $options, $txt;
+	global $context, $txt;
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';
 

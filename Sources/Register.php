@@ -220,7 +220,7 @@ function Register($reg_errors = array())
 function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $user_info, $options, $smcFunc;
+	global $user_info, $smcFunc;
 
 	checkSession();
 	validateToken('register');
@@ -797,7 +797,7 @@ function CoppaForm()
  */
 function VerificationCode()
 {
-	global $sourcedir, $modSettings, $context, $scripturl;
+	global $sourcedir, $context, $scripturl;
 
 	$verification_id = isset($_GET['vid']) ? $_GET['vid'] : '';
 	$code = $verification_id && isset($_SESSION[$verification_id . '_vv']) ? $_SESSION[$verification_id . '_vv']['code'] : (isset($_SESSION['visual_verification_code']) ? $_SESSION['visual_verification_code'] : '');

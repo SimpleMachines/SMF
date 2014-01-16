@@ -113,6 +113,12 @@ function summary($memID)
 
 		// Should we show a custom message?
 		$context['activate_message'] = isset($txt['account_activate_method_' . $context['member']['is_activated'] % 10]) ? $txt['account_activate_method_' . $context['member']['is_activated'] % 10] : $txt['account_not_activated'];
+
+		// If they can be approved, we need to set up a token for them.
+		$context['token_check'] = 'profile-aa' . $memID;
+		createToken($context['token_check'], 'get');
+
+		$context['activate_link'] = $scripturl . '?action=profile;save;area=activateaccount;u=' . $context['id_member'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
 	// Is the signature even enabled on this forum?
@@ -1022,7 +1028,7 @@ function showUnwatched($memID)
  */
 function list_getUnwatched($start, $items_per_page, $sort, $memID)
 {
-	global $smcFunc, $board, $modSettings, $context;
+	global $smcFunc;
 
 	// Get the list of topics we can see
 	$request = $smcFunc['db_query']('', '
@@ -2012,8 +2018,7 @@ function TrackIP($memID = 0)
  */
 function TrackLogins($memID = 0)
 {
-	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $scripturl, $txt, $sourcedir, $context;
 
 	// Gonna want this for the list.
 	require_once($sourcedir . '/Subs-List.php');

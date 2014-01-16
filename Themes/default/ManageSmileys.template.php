@@ -13,7 +13,7 @@
 // Editing the smiley sets.
 function template_editsets()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">';
@@ -69,7 +69,7 @@ function template_editsets()
 // Modifying a smiley set.
 function template_modifyset()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -126,7 +126,7 @@ function template_modifyset()
 							<strong><label for="smiley_sets_default">', $txt['smiley_set_select_default'], '</label>: </strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', $context['current_set']['selected'] ? ' checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" name="smiley_sets_default" id="smiley_sets_default" value="1"', $context['current_set']['selected'] ? ' checked' : '', ' class="input_check" />
 						</dd>';
 
 		// If this is a new smiley set they have the option to import smileys already in the directory.
@@ -155,7 +155,7 @@ function template_modifyset()
 // Editing an individual smiley
 function template_modifysmiley()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -248,7 +248,7 @@ function template_modifysmiley()
 // Adding a new smiley.
 function template_addsmiley()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -260,7 +260,7 @@ function template_addsmiley()
 				<div class="content">
 					<ul class="reset">
 						<li>
-							<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked="checked" class="input_radio" /> ', $txt['smileys_add_existing'], '</label>
+							<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked class="input_radio" /> ', $txt['smileys_add_existing'], '</label>
 						</li>
 						<li>
 							<label for="method-upload"><input type="radio" onclick="switchType();" name="method" id="method-upload" value="upload" class="input_radio" /> ', $txt['smileys_add_upload'], '</label>
@@ -319,7 +319,7 @@ function template_addsmiley()
 								<strong><label for="sameall">', $txt['smileys_add_upload_all'], ':</label></strong>
 							</dt>
 							<dd>
-								<input type="checkbox" name="sameall" id="sameall" checked="checked" class="input_check" onclick="swapUploads(); selectMethod(\'upload\');" />
+								<input type="checkbox" name="sameall" id="sameall" checked class="input_check" onclick="swapUploads(); selectMethod(\'upload\');" />
 							</dd>
 						</dl>
 					</fieldset>
@@ -384,7 +384,7 @@ function template_addsmiley()
 // Ordering smileys.
 function template_setorder()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">';
@@ -436,15 +436,13 @@ function template_setorder()
 // Editing Message Icons
 function template_editicons()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
-
 	template_show_list('message_icon_list');
 }
 
 // Editing an individual message icon
 function template_editicon()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">

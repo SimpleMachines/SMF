@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function getLastPost()
 {
-	global $user_info, $scripturl, $modSettings, $smcFunc;
+	global $scripturl, $modSettings, $smcFunc;
 
 	// Find it by the board - better to order by board than sort the entire messages table.
 	$request = $smcFunc['db_query']('substring', '
@@ -75,7 +75,7 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $scripturl, $user_info, $context, $modSettings, $sourcedir, $board, $smcFunc;
+	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc;
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];
@@ -1154,6 +1154,7 @@ function UnreadTopics()
 
 	$context['topics'] = array();
 	$topic_ids = array();
+	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0;
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -1237,6 +1238,13 @@ function UnreadTopics()
 				$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
 		}
 
+		// Force the recycling icon if appropriate
+		if ($recycle_board == $row['id_board'])
+		{
+			$row['first_icon'] = 'recycled';
+			$row['last_icon'] = 'recycled';
+		}
+
 		// And build the array.
 		$context['topics'][$row['id_topic']] = array(
 			'id' => $row['id_topic'],
@@ -1281,8 +1289,6 @@ function UnreadTopics()
 			'is_sticky' => !empty($row['is_sticky']),
 			'is_locked' => !empty($row['locked']),
 			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
-			'is_hot' => $row['num_replies'] >= $modSettings['hotTopicPosts'],
-			'is_very_hot' => $row['num_replies'] >= $modSettings['hotTopicVeryPosts'],
 			'is_posted_in' => false,
 			'icon' => $row['first_icon'],
 			'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
@@ -1299,7 +1305,6 @@ function UnreadTopics()
 		);
 
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
-		determineTopicClass($context['topics'][$row['id_topic']]);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1321,10 +1326,7 @@ function UnreadTopics()
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			if (empty($context['topics'][$row['id_topic']]['is_posted_in']))
-			{
 				$context['topics'][$row['id_topic']]['is_posted_in'] = true;
-				$context['topics'][$row['id_topic']]['class'] = 'my_' . $context['topics'][$row['id_topic']]['class'];
-			}
 		}
 		$smcFunc['db_free_result']($result);
 	}

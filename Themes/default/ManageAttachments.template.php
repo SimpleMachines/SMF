@@ -35,7 +35,7 @@ function template_avatar_settings_below()
 
 function template_maintenance()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="manage_attachments">
@@ -159,7 +159,7 @@ function template_maintenance()
 	if (!empty($modSettings['attachmentDirFileLimit']))
 		echo '
 							<dt>', $txt['attachment_transfer_empty'], '</dt>
-							<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked="checked"' : '', ' /></dd>';
+							<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked' : '', ' /></dd>';
 	echo '
 						</dl>
 						<hr class="hrcolor"/>

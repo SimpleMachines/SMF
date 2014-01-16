@@ -13,7 +13,7 @@
 // The main sub template - for theme administration.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">';
@@ -44,7 +44,7 @@ function template_main()
 							<label for="options-theme_allow"> ', $txt['theme_allow'], '</label>
 						</dt>
 						<dd>
-							<input type="checkbox" name="options[theme_allow]" id="options-theme_allow" value="1"', !empty($modSettings['theme_allow']) ? ' checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" name="options[theme_allow]" id="options-theme_allow" value="1"', !empty($modSettings['theme_allow']) ? ' checked' : '', ' class="input_check" />
 						</dd>
 						<dt>
 							<label for="known_themes_list">', $txt['themeadmin_selectable'], '</label>:
@@ -54,7 +54,7 @@ function template_main()
 
 	foreach ($context['themes'] as $theme)
 		echo '
-								<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked="checked"' : '', ' class="input_check" /> ', $theme['name'], '</label><br />';
+								<label for="options-known_themes_', $theme['id'], '"><input type="checkbox" name="options[known_themes][]" id="options-known_themes_', $theme['id'], '" value="', $theme['id'], '"', $theme['known'] ? ' checked' : '', ' class="input_check" /> ', $theme['name'], '</label><br />';
 
 		echo '
 							</div>
@@ -199,7 +199,7 @@ function template_main()
 
 function template_list_themes()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 	global $modSettings;
 
 	// Show a nice confirmation message.
@@ -302,7 +302,7 @@ function template_list_themes()
 
 function template_reset_list()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -349,7 +349,7 @@ function template_reset_list()
 
 function template_set_options()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -392,7 +392,7 @@ function template_set_options()
 						</dt>
 						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
 							<input type="hidden" name="' . (!empty($setting['default']) ? 'default_' : '') . 'options[' . $setting['id'] . ']" value="0" />
-							<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked="checked"' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' value="1" class="input_check floatleft" />';
+							<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', $context['theme_options_reset'] ? ' disabled="disabled"' : '', ' value="1" class="input_check floatleft" />';
 		}
 		// how about selection lists, we all love them
 		elseif ($setting['type'] == 'list')
@@ -449,7 +449,7 @@ function template_set_options()
 
 function template_set_settings()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	echo '
 	<div id="admin_form_wrapper">
@@ -549,7 +549,7 @@ function template_set_settings()
 						</dt>
 						<dd>
 							<input type="hidden" name="options[disable_user_variant]" value="0" />
-							<input type="checkbox" name="options[disable_user_variant]" id="disable_user_variant"', !empty($context['theme_settings']['disable_user_variant']) ? ' checked="checked"' : '', ' value="1" class="input_check" />
+							<input type="checkbox" name="options[disable_user_variant]" id="disable_user_variant"', !empty($context['theme_settings']['disable_user_variant']) ? ' checked' : '', ' value="1" class="input_check" />
 						</dd>
 					</dl>
 					<img src="', $context['theme_variants'][$context['default_variant']]['thumbnail'], '" id="variant_preview" alt="" />
@@ -592,7 +592,7 @@ function template_set_settings()
 						</dt>
 						<dd>
 							<input type="hidden" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" value="0" />
-							<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked="checked"' : '', ' value="1" class="input_check" />
+							<input type="checkbox" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="', $setting['id'], '"', !empty($setting['value']) ? ' checked' : '', ' value="1" class="input_check" />
 						</dd>';
 		}
 		// A list with options?
@@ -672,7 +672,7 @@ function template_set_settings()
 // This template allows for the selection of different themes ;).
 function template_pick()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="pick_theme">
@@ -766,7 +766,7 @@ function template_pick()
 // Okay, that theme was installed/updated successfully!
 function template_installed()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	// The aftermath.
 	echo '
@@ -802,7 +802,7 @@ function template_installed()
 
 function template_edit_list()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admin_form_wrapper">
@@ -841,7 +841,7 @@ function template_edit_list()
 
 function template_copy_template()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -884,7 +884,7 @@ function template_copy_template()
 
 function template_edit_browse()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -933,7 +933,7 @@ function template_edit_browse()
 // Wanna edit the stylesheet?
 function template_edit_style()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	if ($context['session_error'])
 		echo '
@@ -1086,7 +1086,7 @@ function template_edit_style()
 // This edits the template...
 function template_edit_template()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if ($context['session_error'])
 		echo '
@@ -1143,7 +1143,7 @@ function template_edit_template()
 
 function template_edit_file()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if ($context['session_error'])
 		echo '

@@ -12,7 +12,7 @@
 
 function template_ban_edit()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="manage_bans">
@@ -80,19 +80,19 @@ function template_ban_edit()
 					<legend>
 						', $txt['ban_expiration'], '
 					</legend>
-					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'never' ? ' checked="checked"' : '', ' class="input_radio" /> <label for="never_expires">', $txt['never'], '</label><br />
-					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'one_day' ? ' checked="checked"' : '', ' class="input_radio" /> <label for="expires_one_day">', $txt['ban_will_expire_within'], '</label>: <input type="text" name="expire_date" id="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" class="input_text" /> ', $txt['ban_days'], '<br />
-					<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'expired' ? ' checked="checked"' : '', ' class="input_radio" /> <label for="already_expired">', $txt['ban_expired'], '</label>
+					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'never' ? ' checked' : '', ' class="input_radio" /> <label for="never_expires">', $txt['never'], '</label><br />
+					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', ' class="input_radio" /> <label for="expires_one_day">', $txt['ban_will_expire_within'], '</label>: <input type="text" name="expire_date" id="expire_date" size="3" value="', $context['ban']['expiration']['days'], '" class="input_text" /> ', $txt['ban_days'], '<br />
+					<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', $context['ban']['expiration']['status'] == 'expired' ? ' checked' : '', ' class="input_radio" /> <label for="already_expired">', $txt['ban_expired'], '</label>
 				</fieldset>
 				<fieldset class="ban_settings floatright">
 					<legend>
 						', $txt['ban_restriction'], '
 					</legend>
-					<input type="radio" name="full_ban" id="full_ban" value="1" onclick="fUpdateStatus();"', $context['ban']['cannot']['access'] ? ' checked="checked"' : '', ' class="input_radio" /> <label for="full_ban">', $txt['ban_full_ban'], '</label><br />
-					<input type="radio" name="full_ban" id="partial_ban" value="0" onclick="fUpdateStatus();"', !$context['ban']['cannot']['access'] ? ' checked="checked"' : '', ' class="input_radio" /> <label for="partial_ban">', $txt['ban_partial_ban'], '</label><br />
-					<input type="checkbox" name="cannot_post" id="cannot_post" value="1"', $context['ban']['cannot']['post'] ? ' checked="checked"' : '', ' class="ban_restriction input_radio" /> <label for="cannot_post">', $txt['ban_cannot_post'], '</label> (<a href="', $scripturl, '?action=helpadmin;help=ban_cannot_post" onclick="return reqOverlayDiv(this.href);">?</a>)<br />
-					<input type="checkbox" name="cannot_register" id="cannot_register" value="1"', $context['ban']['cannot']['register'] ? ' checked="checked"' : '', ' class="ban_restriction input_radio" /> <label for="cannot_register">', $txt['ban_cannot_register'], '</label><br />
-					<input type="checkbox" name="cannot_login" id="cannot_login" value="1"', $context['ban']['cannot']['login'] ? ' checked="checked"' : '', ' class="ban_restriction input_radio" /> <label for="cannot_login">', $txt['ban_cannot_login'], '</label><br />
+					<input type="radio" name="full_ban" id="full_ban" value="1" onclick="fUpdateStatus();"', $context['ban']['cannot']['access'] ? ' checked' : '', ' class="input_radio" /> <label for="full_ban">', $txt['ban_full_ban'], '</label><br />
+					<input type="radio" name="full_ban" id="partial_ban" value="0" onclick="fUpdateStatus();"', !$context['ban']['cannot']['access'] ? ' checked' : '', ' class="input_radio" /> <label for="partial_ban">', $txt['ban_partial_ban'], '</label><br />
+					<input type="checkbox" name="cannot_post" id="cannot_post" value="1"', $context['ban']['cannot']['post'] ? ' checked' : '', ' class="ban_restriction input_radio" /> <label for="cannot_post">', $txt['ban_cannot_post'], '</label> (<a href="', $scripturl, '?action=helpadmin;help=ban_cannot_post" onclick="return reqOverlayDiv(this.href);">?</a>)<br />
+					<input type="checkbox" name="cannot_register" id="cannot_register" value="1"', $context['ban']['cannot']['register'] ? ' checked' : '', ' class="ban_restriction input_radio" /> <label for="cannot_register">', $txt['ban_cannot_register'], '</label><br />
+					<input type="checkbox" name="cannot_login" id="cannot_login" value="1"', $context['ban']['cannot']['login'] ? ' checked' : '', ' class="ban_restriction input_radio" /> <label for="cannot_login">', $txt['ban_cannot_login'], '</label><br />
 				</fieldset>
 				<br class="clear_right" />';
 
@@ -105,7 +105,7 @@ function template_ban_edit()
 					</legend>
 					<dl class="settings">
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check" ', !empty($context['ban_suggestions']['main_ip']) ? 'checked="checked" ' : '', '/>
+							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check"', !empty($context['ban_suggestions']['main_ip']) ? ' checked' : '', ' />
 							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 						</dt>
 						<dd>
@@ -115,7 +115,7 @@ function template_ban_edit()
 		if (empty($modSettings['disableHostnameLookup']))
 			echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check" ', !empty($context['ban_suggestions']['hostname']) ? 'checked="checked" ' : '', '/>
+							<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check"', !empty($context['ban_suggestions']['hostname']) ? ' checked' : '', ' />
 							<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 						</dt>
 						<dd>
@@ -124,14 +124,14 @@ function template_ban_edit()
 
 		echo '
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check" ', !empty($context['ban_suggestions']['email']) ? 'checked="checked" ' : '', '/>
+							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check"', !empty($context['ban_suggestions']['email']) ? ' checked' : '', ' />
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
 							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
 						</dd>
 						<dt>
-							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check" ', !empty($context['ban_suggestions']['user']) ||  isset($context['ban']['from_user']) ? 'checked="checked" ' : '', '/>
+							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check"', !empty($context['ban_suggestions']['user']) ||  isset($context['ban']['from_user']) ? ' checked' : '', ' />
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
@@ -153,7 +153,7 @@ function template_ban_edit()
 					foreach ($ban_ips as $ip)
 						echo '
 						<dt>
-							<input type="checkbox" id="suggestions_', $key ,'_', $count, '" name="ban_suggestions[', $key ,'][]" ', !empty($context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, $context['ban_suggestions']['saved_triggers'][$key]) ? 'checked="checked" ' : '', 'value="', $ip, '" class="input_check" />
+							<input type="checkbox" id="suggestions_', $key ,'_', $count, '" name="ban_suggestions[', $key ,'][]"', !empty($context['ban_suggestions']['saved_triggers'][$key]) && in_array($ip, $context['ban_suggestions']['saved_triggers'][$key]) ? ' checked' : '', ' value="', $ip, '" class="input_check" />
 						</dt>
 						<dd>
 							<label for="suggestions_', $key ,'_', $count++, '">', $ip, '</label>
@@ -238,7 +238,7 @@ function template_ban_edit()
 
 function template_ban_edit_trigger()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="manage_bans">
@@ -256,7 +256,7 @@ function template_ban_edit_trigger()
 						</legend>
 						<dl class="settings">
 							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check" ', $context['ban_trigger']['ip']['selected'] ? 'checked="checked" ' : '', '/>
+								<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check"', $context['ban_trigger']['ip']['selected'] ? ' checked' : '', ' />
 								<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
 							</dt>
 							<dd>
@@ -266,7 +266,7 @@ function template_ban_edit_trigger()
 				if (empty($modSettings['disableHostnameLookup']))
 					echo '
 								<dt>
-									<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check" ', $context['ban_trigger']['hostname']['selected'] ? 'checked="checked" ' : '', '/>
+									<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', ' />
 									<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
 								</dt>
 								<dd>
@@ -275,14 +275,14 @@ function template_ban_edit_trigger()
 
 				echo '
 							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check" ', $context['ban_trigger']['email']['selected'] ? 'checked="checked" ' : '', '/>
+								<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', ' />
 								<label for="email_check">', $txt['ban_on_email'], '</label>
 							</dt>
 							<dd>
 								<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text" />
 							</dd>
 							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check" ', $context['ban_trigger']['banneduser']['selected'] ? 'checked="checked" ' : '', '/>
+								<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', ' />
 								<label for="user_check">', $txt['ban_on_username'], '</label>:
 							</dt>
 							<dd>

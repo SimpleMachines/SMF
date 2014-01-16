@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function ManageAttachments()
 {
-	global $txt, $modSettings, $scripturl, $context, $options;
+	global $txt, $context;
 
 	// You have to be able to moderate the forum to do this.
 	isAllowedTo('manage_attachments');
@@ -87,7 +87,7 @@ function ManageAttachments()
 
 function ManageAttachmentSettings($return_config = false)
 {
-	global $txt, $modSettings, $scripturl, $context, $options, $sourcedir, $boarddir;
+	global $txt, $modSettings, $scripturl, $context, $sourcedir, $boarddir;
 
 	require_once($sourcedir . '/Subs-Attachments.php');
 
@@ -295,8 +295,7 @@ function ManageAvatarSettings($return_config = false)
 			array('select', 'avatar_action_too_large',
 				array(
 					'option_refuse' => $txt['option_refuse'],
-					'option_html_resize' => $txt['option_html_resize'],
-					'option_js_resize' => $txt['option_js_resize'],
+					'option_css_resize' => $txt['option_css_resize'],
 					'option_download_and_resize' => $txt['option_download_and_resize'],
 				),
 			),
@@ -365,7 +364,7 @@ function ManageAvatarSettings($return_config = false)
  */
 function BrowseFiles()
 {
-	global $context, $txt, $scripturl, $options, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 	global $smcFunc, $sourcedir, $settings;
 
 	// Attachments or avatars?
@@ -679,7 +678,7 @@ function list_getNumFiles($browse_type)
  */
 function MaintainFiles()
 {
-	global $context, $modSettings, $txt, $smcFunc;
+	global $context, $modSettings, $smcFunc;
 
 	$context['sub_template'] = 'maintenance';
 
@@ -829,7 +828,7 @@ function MoveAvatars()
  */
 function RemoveAttachmentByAge()
 {
-	global $modSettings, $smcFunc;
+	global $smcFunc;
 
 	checkSession('post', 'admin');
 
@@ -870,7 +869,7 @@ function RemoveAttachmentByAge()
  */
 function RemoveAttachmentBySize()
 {
-	global $modSettings, $smcFunc;
+	global $smcFunc;
 
 	checkSession('post', 'admin');
 
@@ -901,7 +900,7 @@ function RemoveAttachment()
 {
 	global $txt, $smcFunc, $language;
 
-	checkSession('post');
+	checkSession();
 
 	if (!empty($_POST['remove']))
 	{
@@ -2287,7 +2286,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled="disabled"\' : \'\') . \' class="input_radio" />\';
+						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled\' : \'\') . \' class="input_radio" />\';
 					'),
 					'style' => 'width: 10%;',
 					'class' => 'centercol',
@@ -2378,7 +2377,7 @@ function ManageAttachmentPaths()
 					),
 					'data' => array(
 						'function' => create_function('$rowData', '
-							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . \' class="input_radio" />\';
+							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . \' class="input_radio" />\';
 						'),
 						'style' => 'width: 10%;',
 						'class' => 'centercol',
@@ -2527,7 +2526,7 @@ function list_getAttachDirs()
  */
 function list_getBaseDirs()
 {
-	global $modSettings, $context, $txt;
+	global $modSettings, $txt;
 
 	if (empty($modSettings['attachment_basedirectories']))
 		return;
@@ -2580,8 +2579,6 @@ function list_getBaseDirs()
  */
 function attachDirStatus($dir, $expected_files)
 {
-	global $sourcedir, $context;
-
 	if (!is_dir($dir))
 		return array('does_not_exist', true, '');
 	elseif (!is_writable($dir))
@@ -2615,7 +2612,7 @@ function attachDirStatus($dir, $expected_files)
  */
 function TransferAttachments()
 {
-	global $modSettings, $context, $smcFunc, $sourcedir, $txt, $boarddir;
+	global $modSettings, $smcFunc, $sourcedir, $txt, $boarddir;
 
 	checkSession();
 

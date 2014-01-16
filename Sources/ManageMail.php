@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ManageMail()
 {
-	global $context, $txt, $scripturl, $modSettings, $sourcedir;
+	global $context, $txt, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -65,13 +65,13 @@ function ManageMail()
  */
 function BrowseMailQueue()
 {
-	global $scripturl, $context, $modSettings, $txt, $smcFunc;
+	global $scripturl, $context, $txt, $smcFunc;
 	global $sourcedir;
 
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
 	{
-		checkSession('post');
+		checkSession();
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}mail_queue

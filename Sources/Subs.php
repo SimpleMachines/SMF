@@ -1117,7 +1117,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'color',
 				'type' => 'unparsed_equals',
-				'test' => '(#[\da-fA-F]{3}|#[\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\(\d{1,3}, ?\d{1,3}, ?\d{1,3}\))\]',
+				'test' => '(#[\da-fA-F]{3}|#[\da-fA-F]{6}|[A-Za-z]{1,20}|rgb\((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\s?,\s?){2}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\))\]',
 				'before' => '<span style="color: $1;" class="bbc_color">',
 				'after' => '</span>',
 			),
@@ -2800,19 +2800,14 @@ function url_image_size($url)
 }
 
 /**
- * Sets the class of the current topic based on is_very_hot, veryhot, hot, etc
+ * Sets the class of the current topic based on, normal, sticky, locked, etc
  *
  * @param array &$topic_context
  */
 function determineTopicClass(&$topic_context)
 {
 	// Set topic class depending on locked status and number of replies.
-	if ($topic_context['is_very_hot'])
-		$topic_context['class'] = 'veryhot';
-	elseif ($topic_context['is_hot'])
-		$topic_context['class'] = 'hot';
-	else
-		$topic_context['class'] = 'normal';
+	$topic_context['class'] = 'normal';
 
 	$topic_context['class'] .= $topic_context['is_poll'] ? '_poll' : '_post';
 
@@ -2884,23 +2879,13 @@ function setupThemeContext($forceload = false)
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
 		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
-		{
 			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
-
-			if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
-			{
-				if (!empty($modSettings['avatar_max_width_external']))
-					$context['user']['avatar']['width'] = $modSettings['avatar_max_width_external'];
-				if (!empty($modSettings['avatar_max_height_external']))
-					$context['user']['avatar']['height'] = $modSettings['avatar_max_height_external'];
-			}
-		}
 		// Otherwise we assume it's server stored?
 		elseif ($user_info['avatar']['url'] != '')
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
 
 		if (!empty($context['user']['avatar']))
-			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '"' . (isset($context['user']['avatar']['width']) ? ' width="' . $context['user']['avatar']['width'] . '"' : '') . (isset($context['user']['avatar']['height']) ? ' height="' . $context['user']['avatar']['height'] . '"' : '') . ' alt="" class="avatar" />';
+			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '" alt="" class="avatar" />';
 
 		// Figure out how long they've been logged in.
 		$context['user']['total_time_logged_in'] = array(
@@ -2948,20 +2933,13 @@ function setupThemeContext($forceload = false)
 			});
 		});');
 
-	// Resize avatars the fancy, but non-GD requiring way.
-	if ($modSettings['avatar_action_too_large'] == 'option_js_resize' && (!empty($modSettings['avatar_max_width_external']) || !empty($modSettings['avatar_max_height_external'])))
+	// Now add the capping code for avatars.
+	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 	{
-		// @todo Move this over to script.js?
-		addJavascriptVar('smf_avatarMaxWidth', (int) $modSettings['avatar_max_width_external']);
-		addJavascriptVar('smf_avatarMaxHeight', (int) $modSettings['avatar_max_height_external']);
-
-		if (!isBrowser('ie'))
-			addInlineJavascript('window.addEventListener("load", smf_avatarResize, false);');
-		else
-		{
-			addJavascriptVar('window_oldAvatarOnload', 'window.onload');
-			addInlineJavascript('window.onload = smf_avatarResize;');
-		}
+		if (!isset($context['css_header']))
+			$context['css_header'] = '';
+		$context['css_header'] .= '
+img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }';
 	}
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
@@ -3336,7 +3314,7 @@ function template_javascript($do_defered = false)
  */
 function template_css()
 {
-	global $context;
+	global $context, $db_show_debug, $boardurl;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
@@ -3344,6 +3322,18 @@ function template_css()
 	foreach ($context['css_files'] as $id => $file)
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
+
+	if ($db_show_debug === true)
+	{
+		// Try to keep only what's useful.
+		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
+		foreach ($context['css_files'] as $file)
+			$context['debug']['sheets'][] = strtr($file['filename'], $repl); 
+	}
+
+	if (!empty($context['css_header']))
+		echo '
+	<style>', $context['css_header'], '</style>';
 }
 
 /**
@@ -3682,24 +3672,6 @@ function clean_cache($type = '')
 }
 
 /**
- * Load classes that are both (E_STRICT) PHP 4 and PHP 5 compatible.
- * - removed php4 support
- * - left shell in place for mod compatablily
- *
- * @param string $filename
- * @todo remove this function since we are no longer supporting PHP < 5
- */
-function loadClassFile($filename)
-{
-	global $sourcedir;
-
-	if (!file_exists($sourcedir . '/' . $filename))
-		fatal_lang_error('error_bad_file', 'general', array($sourcedir . '/' . $filename));
-
-	require_once($sourcedir . '/' . $filename);
-}
-
-/**
  * Sets up all of the top menu buttons
  * Saves them in the cache if it is available and on
  * Places the results in $context
@@ -3719,6 +3691,16 @@ function setupMenuContext()
 	$context['allow_pm'] = allowedTo('pm_read');
 
 	$cacheTime = $modSettings['lastActive'] * 60;
+
+	// Initial "can you post an event in the calendar" option
+	$context['allow_calendar_event'] = allowedTo('calendar_post');
+	
+	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
+	if (empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	{
+		$boards_can_post = boardsAllowedTo('post_new');
+		$context['allow_calendar_event'] &= !empty($boards_can_post);
+	}
 
 	// There is some menu stuff we need to do if we're coming at this from a non-guest perspective.
 	if (!$context['user']['is_guest'])
@@ -3827,12 +3809,12 @@ function setupMenuContext()
 					'view' => array(
 						'title' => $txt['calendar_menu'],
 						'href' => $scripturl . '?action=calendar',
-						'show' => allowedTo('calendar_post'),
+						'show' => $context['allow_calendar_event'],
 					),
 					'post' => array(
 						'title' => $txt['calendar_post_event'],
 						'href' => $scripturl . '?action=calendar;sa=post',
-						'show' => allowedTo('calendar_post'),
+						'show' => $context['allow_calendar_event'],
 						'is_last' => true,
 					),
 				),
@@ -4021,8 +4003,6 @@ function call_integration_hook($hook, $parameters = array())
 	if (!isset($context['instances']))
 		$context['instances'] = array();
 
-	 loadLanguage('Errors');
-
 	$results = array();
 	if (empty($modSettings[$hook]))
 		return $results;
@@ -4059,7 +4039,10 @@ function call_integration_hook($hook, $parameters = array())
 
 				// No? tell the admin about it.
 				else
+				{
+					loadLanguage('Errors');
 					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+				}
 
 				// Check if a new object will be created.
 				if (strpos($call[1], '#') !== false)
@@ -4104,7 +4087,10 @@ function call_integration_hook($hook, $parameters = array())
 
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($func) && !empty($absPath))
+		{
+			loadLanguage('Errors');
 			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
+		}
 	}
 
 	return $results;

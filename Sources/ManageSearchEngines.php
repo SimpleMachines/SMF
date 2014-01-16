@@ -71,7 +71,7 @@ function SearchEngines()
  */
 function ManageSearchEngineSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir, $smcFunc;
+	global $context, $txt, $scripturl, $sourcedir, $smcFunc;
 
 	$config_vars = array(
 		// How much detail?

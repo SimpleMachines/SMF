@@ -349,7 +349,7 @@ function ModifyBBCSettings($return_config = false)
  */
 function ModifyTopicSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sourcedir, $scripturl;
+	global $context, $txt, $sourcedir, $scripturl;
 
 	// Here are all the topic settings.
 	$config_vars = array(
@@ -361,10 +361,6 @@ function ModifyTopicSettings($return_config = false)
 			array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
 			array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
 			array('check', 'disable_print_topic'),
-		'',
-			// Hot topics (etc)...
-			array('int', 'hotTopicPosts', 'postinput' => $txt['manageposts_posts']),
-			array('int', 'hotTopicVeryPosts', 'postinput' => $txt['manageposts_posts']),
 		'',
 			// All, next/prev...
 			array('int', 'enableAllMessages', 'postinput' => $txt['manageposts_posts'], 'subtext' => $txt['enableAllMessages_zero']),

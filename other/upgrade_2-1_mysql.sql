@@ -287,6 +287,66 @@ ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Updating board access rules
+/******************************************************************************/
+---# Updating board access rules
+---{
+$member_groups = array(
+	'allowed' => array(),
+	'denied' => array(),
+);
+
+$request = $smcFunc['db_query']('', '
+	SELECT id_group, add_deny
+	FROM {db_prefix}permissions
+	WHERE permission = {string:permission}',
+	array(
+		'permission' => 'manage_boards',
+	)
+);
+while ($row = $smcFunc['db_fetch_assoc']($request))
+	$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+$smcFunc['db_free_result']($request);
+
+$member_groups = array_diff($member_groups['allowed'], $member_groups['denied']);
+
+if (!empty($member_groups))
+{
+	$count = count($member_groups);
+	$changes = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board, member_groups
+		FROM {db_prefix}boards');
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$current_groups = explode(',', $row['member_groups']);
+		if (count(array_intersect($current_groups, $member_groups)) != $count)
+		{
+			$new_groups = array_unique(array_merge($current_groups, $member_groups));
+			$changes[$row['id_board']] = implode(',', $new_groups);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($changes))
+	{
+		foreach ($changes as $id_board => $member_groups)
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}boards
+				SET member_groups = {string:member_groups}
+					WHERE id_board = {int:id_board}',
+				array(
+					'member_groups' => $member_groups,
+					'id_board' => $id_board,
+				)
+			);
+	}
+}
+---}
+---#
+
+/******************************************************************************/
 --- Adding support for category descriptions
 /******************************************************************************/
 ---# Adding new columns to categories...
@@ -570,9 +630,39 @@ WHERE variable LIKE 'integrate_%';
 /******************************************************************************/
 --- Cleaning up old settings
 /******************************************************************************/
----# Showing contact details to guests should never happen.
+---# Updating the default time format
+---{
+if (!empty($modSettings['time_format']))
+{
+	// First, use the shortened form of the month in the date.
+	$time_format = str_replace('%B', '%b', $modSettings['time_format']);
+
+	// Second, shorten the time to stop including seconds.
+	$time_format = str_replace(':%S', '', $time_format);
+
+	// Then, update the database.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}settings
+		SET value = {string:new_format}
+		WHERE variable = {literal:time_format}',
+		array(
+			'new_format' => $time_format,
+		)
+	);
+}
+---}
+---#
+
+---# Fixing a deprecated option.
+UPDATE {$db_prefix}settings
+SET value = 'option_css_resize'
+WHERE variable = 'avatar_action_too_large'
+	AND (value = 'option_html_resize' OR value = 'option_js_resize');
+---#
+
+---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords');
 ---#
 
 ---# Cleaning up old theme settings.

@@ -387,7 +387,7 @@ function MessageIndex()
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
 				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
-				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time,
+				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
 				ml.poster_name AS last_member_name, ml.id_member AS last_id_member, ' . (!empty($settings['avatars_on_indexes']) ? 'meml.avatar,' : '') . '
 				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
@@ -502,23 +502,8 @@ function MessageIndex()
 					$context['icon_sources'][$row['last_icon']] = 'images_url';
 			}
 
-			if (!empty($settings['avatars_on_indexes']))
-			{
-				// Allow themers to show the latest poster's avatar along with the topic
-				if (!empty($row['avatar']))
-				{
-					if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
-					{
-						$avatar_width = !empty($modSettings['avatar_max_width_external']) ? ' width="' . $modSettings['avatar_max_width_external'] . '"' : '';
-						$avatar_height = !empty($modSettings['avatar_max_height_external']) ? ' height="' . $modSettings['avatar_max_height_external'] . '"' : '';
-					}
-					else
-					{
-						$avatar_width = '';
-						$avatar_height = '';
-					}
-				}
-			}
+			if (!empty($board_info['recycle']))
+				$row['first_icon'] = 'recycled';
 
 			// 'Print' the topic info.
 			$context['topics'][$row['id_topic']] = array(
@@ -561,9 +546,8 @@ function MessageIndex()
 				),
 				'is_sticky' => !empty($row['is_sticky']),
 				'is_locked' => !empty($row['locked']),
+				'is_redirect' => !empty($row['id_redirect_topic']),
 				'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
-				'is_hot' => $row['num_replies'] >= $modSettings['hotTopicPosts'],
-				'is_very_hot' => $row['num_replies'] >= $modSettings['hotTopicVeryPosts'],
 				'is_posted_in' => false,
 				'icon' => $row['first_icon'],
 				'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
@@ -581,12 +565,10 @@ function MessageIndex()
 			if (!empty($settings['avatars_on_indexes']))
 				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
 					'name' => $row['avatar'],
-					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? '<img class="avatar" src="' . $row['avatar'] . '"' . $avatar_width . $avatar_height . ' alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row['avatar']) . '" alt="" />'),
+					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? '<img class="avatar" src="' . $row['avatar'] . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row['avatar']) . '" alt="" />'),
 					'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar']),
 					'url' => $row['avatar'] == '' ? '' : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'])
 				);
-
-			determineTopicClass($context['topics'][$row['id_topic']]);
 		}
 		$smcFunc['db_free_result']($result);
 
@@ -609,10 +591,7 @@ function MessageIndex()
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
-			{
 				$context['topics'][$row['id_topic']]['is_posted_in'] = true;
-				$context['topics'][$row['id_topic']]['class'] = 'my_' . $context['topics'][$row['id_topic']]['class'];
-			}
 			$smcFunc['db_free_result']($result);
 		}
 	}
@@ -635,7 +614,7 @@ function MessageIndex()
 		// Ignore approving own topics as it's unlikely to come up...
 		$context['can_approve'] = $modSettings['postmod_active'] && allowedTo('approve_posts') && !empty($board_info['unapproved_topics']);
 		// Can we restore topics?
-		$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
+		$context['can_restore'] = allowedTo('move_any') && !empty($board_info['recycle']);
 
 		if ($user_info['is_admin'] || $modSettings['topic_move_any'])
 			$context['can_move_any'] = true;

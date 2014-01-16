@@ -610,7 +610,10 @@ function DeleteMembergroup()
 	checkSession('get');
 
 	require_once($sourcedir . '/Subs-Membergroups.php');
-	deleteMembergroups((int) $_REQUEST['group']);
+	$result = deleteMembergroups((int) $_REQUEST['group']);
+	// Need to throw a warning if it went wrong, but this is the only one we have a message for...
+	if ($result === 'group_cannot_delete_sub')
+		fatal_lang_error('membergroups_cannot_delete_paid', false);
 
 	// Go back to the membergroup index.
 	redirectexit('action=admin;area=membergroups;');
@@ -658,6 +661,11 @@ function EditMembergroup()
 	if (empty($_REQUEST['group']))
 		fatal_lang_error('membergroup_does_not_exist', false);
 
+	// People who can manage boards are a bit special.
+	require_once($sourcedir . '/Subs-Members.php');
+	$board_managers = groupsAllowedTo('manage_boards', null);
+	$context['can_manage_boards'] = in_array($_REQUEST['group'], $board_managers['allowed']);
+
 	// Can this group moderate any boards?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_board)
@@ -680,7 +688,10 @@ function EditMembergroup()
 		validateToken('admin-mmg');
 
 		require_once($sourcedir . '/Subs-Membergroups.php');
-		deleteMembergroups($_REQUEST['group']);
+		$result = deleteMembergroups($_REQUEST['group']);
+		// Need to throw a warning if it went wrong, but this is the only one we have a message for...
+		if ($result === 'group_cannot_delete_sub')
+			fatal_lang_error('membergroups_cannot_delete_paid', false);
 
 		redirectexit('action=admin;area=membergroups;');
 	}
@@ -692,7 +703,7 @@ function EditMembergroup()
 		validateToken('admin-mmg');
 
 		// Can they really inherit from this group?
-		if (isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
+		if ($_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT group_type
@@ -747,6 +758,19 @@ function EditMembergroup()
 		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 		{
 			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
+
+			// If they can manage boards, the rules are a bit different. They can see everything.
+			if ($context['can_manage_boards'])
+			{
+				$accesses = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board
+					FROM {db_prefix}boards');
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$accesses[(int) $row['id_board']] = 'allow';
+				$smcFunc['db_free_result']($request);
+			}
+
 			$changed_boards['allow'] = array();
 			$changed_boards['deny'] = array();
 			$changed_boards['ignore'] = array();
@@ -1188,7 +1212,7 @@ function EditMembergroup()
  */
 function ModifyMembergroupsettings()
 {
-	global $context, $sourcedir, $scripturl, $modSettings, $txt;
+	global $context, $sourcedir, $scripturl, $txt;
 
 	$context['sub_template'] = 'show_settings';
 	$context['page_title'] = $txt['membergroups_settings'];

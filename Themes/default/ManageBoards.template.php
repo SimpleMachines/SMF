@@ -13,7 +13,7 @@
 // Template for listing all the current categories and boards.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Table header.
 	echo '
@@ -110,7 +110,7 @@ function template_main()
 // Template for editing/adding a category on the forum.
 function template_modify_category()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	// Print table header.
 	echo '
@@ -164,7 +164,7 @@ function template_modify_category()
 							<span class="smalltext">', $txt['collapse_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" class="input_check" />
+							<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" class="input_check" />
 						</dd>';
 
 	// Table footer.
@@ -199,7 +199,7 @@ function template_modify_category()
 // A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
 function template_confirm_category_delete()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	// Print table header.
 	echo '
@@ -228,7 +228,7 @@ function template_confirm_category_delete()
 			<div class="windowbg">
 				<div class="content">
 					<p>
-						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_option1'], '</label><br />
+						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked />', $txt['mboards_delete_option1'], '</label><br />
 						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_option2'], '</label>:
 						<select name="cat_to"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', '>';
 
@@ -253,7 +253,7 @@ function template_confirm_category_delete()
 // Below is the template for adding/editing an board on the forum.
 function template_modify_board()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// The main table header.
 	echo '
@@ -372,7 +372,7 @@ function template_modify_board()
 		if (empty($modSettings['deny_boards_access']))
 			echo '
 							<label for="groups_', $group['id'], '">
-								<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', $group['allow'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '"', in_array($group['id'], $context['board_managers']) ? ' checked disabled' : ($group['allow'] ? ' checked' : ''), ' class="input_check" />
 								<span', $group['is_post_group'] ? ' class="post_group" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' class="regular_members" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>
 									', $group['name'], '
 								</span>
@@ -388,13 +388,13 @@ function template_modify_board()
 										</label>
 									</td>
 									<td>
-										<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '_a"', $group['allow'] ? ' checked="checked"' : '', ' class="input_radio" />
+										<input type="radio" name="groups[', $group['id'], ']" value="allow" id="groups_', $group['id'], '_a"', in_array($group['id'], $context['board_managers']) ? ' checked disabled' : ($group['allow'] ? ' checked' : ''), ' class="input_radio" />
 									</td>
 									<td>
-										<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '_x"', !$group['allow'] && !$group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
+										<input type="radio" name="groups[', $group['id'], ']" value="ignore" id="groups_', $group['id'], '_x"', in_array($group['id'], $context['board_managers']) ? ' disabled' : (!$group['allow'] && !$group['deny'] ? ' checked' : ''), ' class="input_radio" />
 									</td>
 									<td>
-										<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '_d"', $group['deny'] ? ' checked="checked"' : '', ' class="input_radio" />
+										<input type="radio" name="groups[', $group['id'], ']" value="deny" id="groups_', $group['id'], '_d"', in_array($group['id'], $context['board_managers']) ? ' disabled' : ($group['deny'] ? ' checked' : ''), ' class="input_radio" />
 									</td>
 									<td></td>
 								</tr>';
@@ -465,7 +465,7 @@ function template_modify_board()
 							<span class="smalltext">', $txt['mboards_redirect_desc'], '</span><br />
 						</dt>
 						<dd>
-							<input type="checkbox" id="redirect_enable" name="redirect_enable"', $context['board']['redirect'] != '' ? ' checked="checked"' : '', ' onclick="refreshOptions();" class="input_check" />
+							<input type="checkbox" id="redirect_enable" name="redirect_enable"', $context['board']['redirect'] != '' ? ' checked' : '', ' onclick="refreshOptions();" class="input_check" />
 						</dd>
 					</dl>
 
@@ -505,7 +505,7 @@ function template_modify_board()
 								<span class="smalltext">', $txt['mboards_count_posts_desc'], '</span><br />
 							</dt>
 							<dd>
-								<input type="checkbox" name="count"', $context['board']['count_posts'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="count"', $context['board']['count_posts'] ? ' checked' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</div>';
@@ -538,7 +538,7 @@ function template_modify_board()
 								<span class="smalltext">', $txt['mboards_override_theme_desc'], '</span><br />
 							</dt>
 							<dd>
-								<input type="checkbox" name="override_theme"', $context['board']['override_theme'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="override_theme"', $context['board']['override_theme'] ? ' checked' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</div>';
@@ -660,7 +660,7 @@ function template_modify_board()
 // A template used when a user is deleting a board with child boards in it - to see what they want to do with them.
 function template_confirm_board_delete()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	// Print table header.
 	echo '
@@ -690,7 +690,7 @@ function template_confirm_board_delete()
 			<div class="windowbg">
 				<div class="content">
 					<p>
-						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_board_option1'], '</label><br />
+						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked />', $txt['mboards_delete_board_option1'], '</label><br />
 						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', empty($context['can_move_children']) ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_board_option2'], '</label>:
 						<select name="board_to" ', empty($context['can_move_children']) ? 'disabled="disabled"' : '', '>';
 

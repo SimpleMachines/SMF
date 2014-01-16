@@ -12,7 +12,7 @@
 
 function template_moderation_center()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $settings, $context, $txt, $scripturl;
 
 	// Show moderators notes.
 	template_notes();
@@ -45,7 +45,7 @@ function template_moderation_center()
 // Show all the group requests the user can see.
 function template_group_requests_block()
 {
-	global $options, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -178,7 +178,7 @@ function template_reported_posts_block()
 
 function template_watched_users()
 {
-	global $options, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
@@ -245,7 +245,7 @@ function template_watched_users()
 // Little section for making... notes.
 function template_notes()
 {
-	global $settings, $options, $context, $txt, $scripturl;
+	global $settings, $context, $txt, $scripturl;
 
 	echo '
 		<div class="modnotes">
@@ -287,7 +287,7 @@ function template_notes()
 
 function template_reported_posts()
 {
-	global $options, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Let them know the action was a success.
 	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
@@ -436,7 +436,7 @@ function template_unapproved_posts()
 
 			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-						<input type="checkbox" name="item[]" value="', $item['id'], '" checked="checked" class="input_check" /> ';
+						<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check" /> ';
 
 			echo '
 					</span>
@@ -595,7 +595,7 @@ function template_user_watch_post_callback($post)
 // Moderation settings
 function template_moderation_settings()
 {
-	global $options, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="modcenter">
@@ -612,7 +612,7 @@ function template_moderation_settings()
 							<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
 						</dt>
 						<dd>
-							<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval" ', $context['mod_settings']['notify_approval'] ? 'checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check" />
 						</dd>';
 	}
 
@@ -631,7 +631,7 @@ function template_moderation_settings()
 // Show a notice sent to a user.
 function template_show_notice()
 {
-	global $txt, $settings, $options, $context;
+	global $txt, $settings, $context;
 
 	// We do all the HTML for this one!
 	echo '<!DOCTYPE html>
@@ -668,7 +668,7 @@ function template_show_notice()
 // Add or edit a warning template.
 function template_warn_template()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="modcenter">
@@ -719,7 +719,7 @@ function template_warn_template()
 
 	if ($context['template_data']['can_edit_personal'])
 		echo '
-					<input type="checkbox" name="make_personal" id="make_personal" ', $context['template_data']['personal'] ? 'checked="checked"' : '', ' class="input_check" />
+					<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', ' class="input_check" />
 						<label for="make_personal">
 							<strong>', $txt['mc_warning_template_personal'], '</strong>
 						</label>

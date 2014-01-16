@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function PackageGet()
 {
-	global $txt, $scripturl, $context, $boarddir, $sourcedir, $modSettings;
+	global $txt, $scripturl, $context, $boarddir, $sourcedir;
 
 	isAllowedTo('admin_forum');
 	require_once($sourcedir . '/Subs-Package.php');

@@ -389,7 +389,7 @@ function ViewSubscriptions()
  */
 function ModifySubscription()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $context, $txt, $smcFunc;
 
 	$context['sub_id'] = isset($_REQUEST['sid']) ? (int) $_REQUEST['sid'] : 0;
 	$context['action_type'] = $context['sub_id'] ? (isset($_REQUEST['delete']) ? 'delete' : 'edit') : 'add';
@@ -404,8 +404,89 @@ function ModifySubscription()
 		checkSession();
 		validateToken('admin-pmsd');
 
+		// Before we delete the subscription we need to find out if anyone currently has said subscription.
+		$request = $smcFunc['db_query']('', '
+			SELECT ls.id_member, ls.old_id_group, mem.id_group, mem.additional_groups
+			FROM {db_prefix}log_subscribed AS ls
+				INNER JOIN {db_prefix}members AS mem ON (ls.id_member = mem.id_member)
+			WHERE id_subscribe = {int:current_subscription}
+				AND status = {int:is_active}',
+			array(
+				'current_subscription' => $context['sub_id'],
+				'is_active' => 1,
+			)
+		);
+		$members = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$id_member = array_shift($row);
+			$members[$id_member] = $row;
+		}
+		$smcFunc['db_free_result']($request);
+
+		// If there are any members with this subscription, we have to do some more work before we go any further.
+		if (!empty($members))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_group, add_groups
+				FROM {db_prefix}subscriptions
+				WHERE id_subscribe = {int:current_subscription}',
+				array(
+					'current_subscription' => $context['sub_id'],
+				)
+			);
+			$id_group = 0;
+			$add_groups = '';
+			if ($smcFunc['db_num_rows']($request))
+				list ($id_group, $add_groups) = $smcFunc['db_fetch_row']($request);
+			$smcFunc['db_free_result']($request);
+
+			$changes = array();
+
+			// Is their group changing? This subscription may not have changed primary group.
+			if (!empty($id_group))
+			{
+				foreach ($members as $id_member => $member_data)
+				{
+					// If their current primary group isn't what they had before the subscription, and their current group was
+					// granted by the sub, remove it.
+					if ($member_data['old_id_group'] != $member_data['id_group'] && $member_data['id_group'] == $id_group)
+						$changes[$id_member]['id_group'] = $member_data['old_id_group'];
+				}
+			}
+
+			// Did this subscription add secondary groups?
+			if (!empty($add_groups))
+			{
+				$add_groups = explode(',', $add_groups);
+				foreach ($members as $id_member => $member_data)
+				{
+					// First let's get their groups sorted.
+					$current_groups = explode(',', $member_data['additional_groups']);
+					$new_groups = implode(',', array_diff($current_groups, $add_groups));
+					if ($new_groups != $member_data['additional_groups'])
+						$changes[$id_member]['additional_groups'] = $new_groups;
+				}
+			}
+
+			// We're going through changes...
+			if (!empty($changes))
+				foreach ($changes as $id_member => $new_values)
+					updateMemberData($id_member, $new_values);
+		}
+
+		// Delete the subscription
 		$smcFunc['db_query']('delete_subscription', '
 			DELETE FROM {db_prefix}subscriptions
+			WHERE id_subscribe = {int:current_subscription}',
+			array(
+				'current_subscription' => $context['sub_id'],
+			)
+		);
+
+		// And delete any subscriptions to it to clear the phantom data too.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}log_subscribed
 			WHERE id_subscribe = {int:current_subscription}',
 			array(
 				'current_subscription' => $context['sub_id'],
@@ -650,7 +731,7 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $context, $txt, $modSettings, $scripturl, $options, $smcFunc, $sourcedir;
+	global $context, $txt, $scripturl, $smcFunc, $sourcedir;
 
 	// Setup the template.
 	$context['page_title'] = $txt['viewing_users_subscribed'];

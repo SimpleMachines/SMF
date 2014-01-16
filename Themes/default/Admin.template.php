@@ -15,7 +15,7 @@
  */
 function template_admin()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Welcome message for the admin.
 	echo '
@@ -161,7 +161,7 @@ function template_admin()
  */
 function template_credits()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	// Show the user version information from their server.
 	echo '
@@ -306,7 +306,7 @@ function template_credits()
  */
 function template_view_versions()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 					<div id="admincenter">
@@ -534,7 +534,7 @@ function template_view_versions()
 // Form for stopping people using naughty words, etc.
 function template_edit_censored()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -577,19 +577,19 @@ function template_edit_censored()
 											<strong><label for="allow_no_censored">', $txt['allow_no_censored'], ':</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty($modSettings['allow_no_censored']) ? '' : ' checked="checked"', ' class="input_check" />
+											<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty($modSettings['allow_no_censored']) ? '' : ' checked', ' class="input_check" />
 										</dd>
 										<dt>
 											<strong><label for="censorWholeWord_check">', $txt['censor_whole_words'], ':</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty($modSettings['censorWholeWord']) ? '' : ' checked="checked"', ' class="input_check" />
+											<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty($modSettings['censorWholeWord']) ? '' : ' checked', ' class="input_check" />
 										</dd>
 										<dt>
 											<strong><label for="censorIgnoreCase_check">', $txt['censor_case'], ':</label></strong>
 										</dt>
 										<dd>
-											<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked="checked"', ' class="input_check" />
+											<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked', ' class="input_check" />
 										</dd>
 									</dl>
 									<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit" />
@@ -622,7 +622,7 @@ function template_edit_censored()
 // Maintenance is a lovely thing, isn't it?
 function template_not_done()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 					<div id="admincenter">
@@ -810,7 +810,7 @@ function template_show_settings()
 				// Show a check box.
 				if ($config_var['type'] == 'check')
 					echo '
-											<input type="checkbox"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '"', ($config_var['value'] ? ' checked="checked"' : ''), ' value="1" class="input_check" />';
+											<input type="checkbox"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '"', ($config_var['value'] ? ' checked' : ''), ' value="1" class="input_check" />';
 				// Escape (via htmlspecialchars.) the text box.
 				elseif ($config_var['type'] == 'password')
 					echo '
@@ -846,7 +846,7 @@ function template_show_settings()
 												<ul>';
 						foreach ($cat['boards'] as $id_board => $brd)
 							echo '
-													<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1" class="input_check"', in_array($brd['id'], $config_var['value']) ? ' checked="checked"' : '', ' /> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
+													<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1" class="input_check"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', ' /> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
 
 						echo '
 												</ul>';
@@ -875,11 +875,11 @@ function template_show_settings()
 						foreach ($bbcColumn as $bbcTag)
 							echo '
 														<li class="list_bbc floatleft">
-															<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], $context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked="checked"' : '', ' class="input_check" /> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' (<a href="' . $scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqOverlayDiv(this.href);">?</a>)' : '', '
+															<input type="checkbox" name="', $config_var['name'], '_enabledTags[]" id="tag_', $config_var['name'], '_', $bbcTag['tag'], '" value="', $bbcTag['tag'], '"', !in_array($bbcTag['tag'], $context['bbc_sections'][$config_var['name']]['disabled']) ? ' checked' : '', ' class="input_check" /> <label for="tag_', $config_var['name'], '_', $bbcTag['tag'], '">', $bbcTag['tag'], '</label>', $bbcTag['show_help'] ? ' (<a href="' . $scripturl . '?action=helpadmin;help=tag_' . $bbcTag['tag'] . '" onclick="return reqOverlayDiv(this.href);">?</a>)' : '', '
 														</li>';
 					}
 					echo '							</ul>
-												<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked="checked"' : '', ' class="input_check" /> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
+												<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', $context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', ' class="input_check" /> <label for="bbc_', $config_var['name'], '_select_all"><em>', $txt['bbcTagsToUse_select_all'], '</em></label>
 											</fieldset>';
 				}
 				// A simple message?
@@ -1066,7 +1066,7 @@ function template_edit_profile_field()
 												<strong><label for="display">', $txt['custom_edit_display'], ':</label></strong>
 											</dt>
 											<dd>
-												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked="checked"' : '', ' class="input_check" />
+												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', ' class="input_check" />
 											</dd>
 
 											<dt>
@@ -1122,7 +1122,7 @@ function template_edit_profile_field()
 												<strong><label for="bbc_dd">', $txt['custom_edit_bbc'], '</label></strong>
 											</dt>
 											<dd >
-												<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked="checked"' : '', ' class="input_check" />
+												<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', ' class="input_check" />
 											</dd>
 											<dt id="options_dt">
 												<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a>
@@ -1135,7 +1135,7 @@ function template_edit_profile_field()
 	foreach ($context['field']['options'] as $k => $option)
 	{
 		echo '
-												', $k == 0 ? '' : '<br />', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked="checked"' : '', ' class="input_radio" /><input type="text" name="select_option[', $k, ']" value="', $option, '" class="input_text" />';
+												', $k == 0 ? '' : '<br />', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', ' class="input_radio" /><input type="text" name="select_option[', $k, ']" value="', $option, '" class="input_text" />';
 	}
 	echo '
 												<span id="addopt"></span>
@@ -1146,7 +1146,7 @@ function template_edit_profile_field()
 												<strong><label for="default_dd">', $txt['custom_edit_default'], ':</label></strong>
 											</dt>
 											<dd>
-												<input type="checkbox" name="default_check" id="default_dd"', $context['field']['default_check'] ? ' checked="checked"' : '', ' class="input_check" />
+												<input type="checkbox" name="default_check" id="default_dd"', $context['field']['default_check'] ? ' checked' : '', ' class="input_check" />
 											</dd>
 										</dl>
 									</fieldset>
@@ -1187,14 +1187,14 @@ function template_edit_profile_field()
 												<span class="smalltext">', $txt['custom_edit_can_search_desc'], '</span>
 											</dt>
 											<dd>
-												<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked="checked"' : '', ' class="input_check" />
+												<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked' : '', ' class="input_check" />
 											</dd>
 											<dt>
 												<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br />
 												<span class="smalltext">', $txt['custom_edit_active_desc'], '</span>
 											</dt>
 											<dd>
-												<input type="checkbox" name="active" id="can_search_check"', $context['field']['active'] ? ' checked="checked"' : '', ' class="input_check" />
+												<input type="checkbox" name="active" id="can_search_check"', $context['field']['active'] ? ' checked' : '', ' class="input_check" />
 											</dd>
 										</dl>
 									</fieldset>
@@ -1222,7 +1222,7 @@ function template_edit_profile_field()
 // Results page for an admin search.
 function template_admin_search_results()
 {
-	global $context, $txt, $settings, $options, $scripturl;
+	global $context, $txt, $settings, $scripturl;
 
 	echo '
 						<div id="section_header" class="cat_bar">

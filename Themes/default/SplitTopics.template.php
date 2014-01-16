@@ -12,7 +12,7 @@
 
 function template_ask()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -29,7 +29,7 @@ function template_ask()
 					</p>
 					<ul class="reset split_topics">
 						<li>
-							<input type="radio" id="onlythis" name="step2" value="onlythis" checked="checked" class="input_radio" /> <label for="onlythis">', $txt['split_this_post'], '</label>
+							<input type="radio" id="onlythis" name="step2" value="onlythis" checked class="input_radio" /> <label for="onlythis">', $txt['split_this_post'], '</label>
 						</li>
 						<li>
 							<input type="radio" id="afterthis" name="step2" value="afterthis" class="input_radio" /> <label for="afterthis">', $txt['split_after_and_this_post'], '</label>
@@ -51,7 +51,7 @@ function template_ask()
 
 function template_main()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -79,7 +79,7 @@ function template_main()
 
 function template_select()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">
@@ -229,7 +229,7 @@ function template_select()
 
 function template_merge_done()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div id="merge_topics">
@@ -256,7 +256,7 @@ function template_merge_done()
 
 function template_merge()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 		<div id="merge_topics">
@@ -358,7 +358,7 @@ function template_merge()
 
 function template_merge_extra_options()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="merge_topics">
@@ -381,7 +381,7 @@ function template_merge_extra_options()
 			echo '
 					<tr class="windowbg2">
 						<td align="center">
-							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked="checked" />
+							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked />
 						</td>
 						<td>
 							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" class="new_win">' . $topic['subject'] . '</a>
@@ -395,7 +395,7 @@ function template_merge_extra_options()
 							<span class="smalltext">', $topic['updated']['time'], '</span>
 						</td>
 						<td align="center">
-							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked="checked" />
+							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked />
 						</td>
 					</tr>';
 		echo '
@@ -429,7 +429,7 @@ function template_merge_extra_options()
 		foreach ($context['boards'] as $board)
 			echo '
 							<li>
-								<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked="checked"' : '') . ' class="input_radio" /> ' . $board['name'] . '
+								<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . ' class="input_radio" /> ' . $board['name'] . '
 							</li>';
 		echo '
 						</ul>
@@ -444,7 +444,7 @@ function template_merge_extra_options()
 		foreach ($context['polls'] as $poll)
 			echo '
 							<li>
-								<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked="checked"' : '') . ' class="input_radio" /> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" class="new_win">' . $poll['topic']['subject'] . '</a>)
+								<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . ' class="input_radio" /> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" class="new_win">' . $poll['topic']['subject'] . '</a>)
 							</li>';
 		echo '
 							<li>

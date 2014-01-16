@@ -13,7 +13,7 @@
 // The only template in the file.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	// Display the table header and linktree.
 	echo '

@@ -12,7 +12,7 @@
 
 function template_main()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<br />
@@ -38,7 +38,7 @@ function template_main()
 
 function template_reminder_pick()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<br />
@@ -50,7 +50,7 @@ function template_reminder_pick()
 			<div class="roundframe">
 				<p><strong>', $txt['authentication_options'], ':</strong></p>
 				<p>
-					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked="checked" class="input_radio" /></dt>
+					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked class="input_radio" /></dt>
 					<label for="reminder_type_email">', $txt['authentication_' . $context['account_type'] . '_email'], '</label></dd>
 				</p>
 				<p>
@@ -84,7 +84,7 @@ function template_sent()
 
 function template_set_password()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
 	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
@@ -133,7 +133,7 @@ function template_set_password()
 
 function template_ask()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
 	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>

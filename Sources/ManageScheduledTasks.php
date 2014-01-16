@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageScheduledTasks()
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -73,7 +73,7 @@ function ManageScheduledTasks()
  */
 function ScheduledTasks()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $user_info, $modSettings, $scripturl;
+	global $context, $txt, $sourcedir, $smcFunc, $user_info, $scripturl;
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
@@ -307,7 +307,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? $txt['scheduled_task_desc_' . $row['task']] : '',
 			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
 			'disabled' => $row['disabled'],
-			'checked_state' => $row['disabled'] ? '' : 'checked="checked"',
+			'checked_state' => $row['disabled'] ? '' : 'checked',
 			'regularity' => $offset . ', ' . $repeating,
 		);
 	}
@@ -323,7 +323,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
  */
 function EditTask()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $user_info, $modSettings;
+	global $context, $txt, $sourcedir, $smcFunc, $user_info;
 
 	// Just set up some lovely context stuff.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'tasks';

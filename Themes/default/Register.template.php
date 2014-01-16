@@ -15,7 +15,7 @@
  */
 function template_registration_agreement()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 		<form action="', $scripturl, '?action=register" method="post" accept-charset="', $context['character_set'], '" id="registration">
@@ -48,7 +48,7 @@ function template_registration_agreement()
 // Before registering - get their information.
 function template_registration_form()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 		<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
@@ -126,11 +126,11 @@ function template_registration_form()
 						</dt>
 						<dd>
 							<label for="auth_pass" id="option_auth_pass">
-								<input type="radio" name="authenticate" value="passwd" id="auth_pass" tabindex="', $context['tabindex']++, '" ', empty($context['openid']) ? 'checked="checked" ' : '', ' onclick="updateAuthMethod();" class="input_radio" />
+								<input type="radio" name="authenticate" value="passwd" id="auth_pass" tabindex="', $context['tabindex']++, '"', empty($context['openid']) ? ' checked' : '', ' onclick="updateAuthMethod();" class="input_radio" />
 								', $txt['authenticate_password'], '
 							</label>
 							<label for="auth_openid" id="option_auth_openid">
-								<input type="radio" name="authenticate" value="openid" id="auth_openid" tabindex="', $context['tabindex']++, '" ', !empty($context['openid']) ? 'checked="checked" ' : '', ' onclick="updateAuthMethod();" class="input_radio" />
+								<input type="radio" name="authenticate" value="openid" id="auth_openid" tabindex="', $context['tabindex']++, '"', !empty($context['openid']) ? ' checked' : '', ' onclick="updateAuthMethod();" class="input_radio" />
 								', $txt['authenticate_openid'], '
 							</label>
 						</dd>
@@ -256,7 +256,7 @@ function template_registration_form()
 				// You "checking" me out? ;)
 				elseif ($field['type'] == 'check')
 					echo '
-							<input type="hidden" name="', $key, '" value="0" /><input type="checkbox" name="', $key, '" id="', $key, '" ', !empty($field['value']) ? ' checked="checked"' : '', ' value="1" tabindex="', $context['tabindex']++, '" class="input_check" ', $field['input_attr'], ' />';
+							<input type="hidden" name="', $key, '" value="0" /><input type="checkbox" name="', $key, '" id="', $key, '"', !empty($field['value']) ? ' checked' : '', ' value="1" tabindex="', $context['tabindex']++, '" class="input_check" ', $field['input_attr'], ' />';
 
 				// Always fun - select boxes!
 				elseif ($field['type'] == 'select')
@@ -365,7 +365,7 @@ function template_registration_form()
 // After registration... all done ;).
 function template_after()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Not much to see here, just a quick... "you're now registered!" or what have you.
 	echo '
@@ -382,7 +382,7 @@ function template_after()
 // Template for giving instructions about COPPA activation.
 function template_coppa()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Formulate a nice complicated message!
 	echo '
@@ -431,7 +431,7 @@ function template_coppa()
 // An easily printable form for giving permission to access the forum for a minor.
 function template_coppa_form()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Show the form (As best we can)
 	echo '
@@ -462,7 +462,7 @@ function template_coppa_form()
 // Show a window containing the spoken verification code.
 function template_verification_sound()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -503,7 +503,7 @@ function template_verification_sound()
 
 function template_admin_register()
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
 	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
@@ -570,13 +570,13 @@ function template_admin_register()
 							<span class="smalltext">', $txt['admin_register_email_detail_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="checkbox" name="emailPassword" id="emailPassword_check" tabindex="', $context['tabindex']++, '" checked="checked" disabled="disabled" class="input_check" />
+							<input type="checkbox" name="emailPassword" id="emailPassword_check" tabindex="', $context['tabindex']++, '" checked disabled class="input_check" />
 						</dd>
 						<dt>
 							<strong><label for="emailActivate_check">', $txt['admin_register_email_activate'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', $context['tabindex']++, '"', !empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? ' checked="checked"' : '', ' onclick="onCheckChange();" class="input_check" />
+							<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', $context['tabindex']++, '"', !empty($modSettings['registration_method']) && $modSettings['registration_method'] == 1 ? ' checked' : '', ' onclick="onCheckChange();" class="input_check" />
 						</dd>
 					</dl>
 					<div class="flow_auto">
@@ -595,7 +595,7 @@ function template_admin_register()
 // Form for editing the agreement shown for people registering to the forum.
 function template_edit_agreement()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -655,7 +655,7 @@ function template_edit_agreement()
 						<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
 					</p>
 					<p>
-						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check" /> ', $txt['admin_agreement'], '.</label>
+						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check" /> ', $txt['admin_agreement'], '.</label>
 					</p>
 					<div class="flow_auto" >
 						<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit" />
@@ -671,7 +671,7 @@ function template_edit_agreement()
 
 function template_edit_reserved_words()
 {
-	global $context, $options, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -692,25 +692,25 @@ function template_edit_reserved_words()
 						<label for="matchword">', $txt['admin_match_whole'], '</label>
 					</dt>
 					<dd>
-						<input type="checkbox" name="matchword" id="matchword" tabindex="', $context['tabindex']++, '" ', $context['reserved_word_options']['match_word'] ? 'checked="checked"' : '', ' class="input_check" />
+						<input type="checkbox" name="matchword" id="matchword" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_word'] ? ' checked' : '', ' class="input_check" />
 					</dd>
 					<dt>
 						<label for="matchcase">', $txt['admin_match_case'], '</label>
 					</dt>
 					<dd>
-						<input type="checkbox" name="matchcase" id="matchcase" tabindex="', $context['tabindex']++, '" ', $context['reserved_word_options']['match_case'] ? 'checked="checked"' : '', ' class="input_check" />
+						<input type="checkbox" name="matchcase" id="matchcase" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_case'] ? ' checked' : '', ' class="input_check" />
 					</dd>
 					<dt>
 						<label for="matchuser">', $txt['admin_check_user'], '</label>
 					</dt>
 					<dd>
-						<input type="checkbox" name="matchuser" id="matchuser" tabindex="', $context['tabindex']++, '" ', $context['reserved_word_options']['match_user'] ? 'checked="checked"' : '', ' class="input_check" />
+						<input type="checkbox" name="matchuser" id="matchuser" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_user'] ? ' checked' : '', ' class="input_check" />
 					</dd>
 					<dt>
 						<label for="matchname">', $txt['admin_check_display'], '</label>
 					</dt>
 					<dd>
-						<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '" ', $context['reserved_word_options']['match_name'] ? 'checked="checked"' : '', ' class="input_check" />
+						<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_name'] ? ' checked' : '', ' class="input_check" />
 					</dd>
 				</dl>
 				<div class="flow_auto" >

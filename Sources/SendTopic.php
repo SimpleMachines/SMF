@@ -20,7 +20,7 @@ if (!defined('SMF'))
  */
 function EmailUser()
 {
-	global $topic, $txt, $context, $scripturl, $sourcedir, $smcFunc;
+	global $context;
 
 	// Don't index anything here.
 	$context['robot_no_index'] = true;
@@ -150,7 +150,7 @@ function SendTopic()
  */
 function CustomEmail()
 {
-	global $context, $modSettings, $user_info, $smcFunc, $txt, $scripturl, $sourcedir;
+	global $context, $user_info, $smcFunc, $txt, $scripturl, $sourcedir;
 
 	// Can the user even see this information?
 	if ($user_info['is_guest'])
@@ -283,7 +283,7 @@ function CustomEmail()
  */
 function ReportToModerator()
 {
-	global $txt, $topic, $sourcedir, $modSettings, $user_info, $context, $smcFunc;
+	global $txt, $topic, $context, $smcFunc;
 
 	$context['robot_no_index'] = true;
 
@@ -368,7 +368,7 @@ function ReportToModerator()
  */
 function ReportToModerator2()
 {
-	global $txt, $scripturl, $topic, $board, $user_info, $modSettings, $sourcedir, $language, $context, $smcFunc;
+	global $txt, $topic, $user_info, $modSettings, $sourcedir, $context, $smcFunc;
 
 	// Sorry, no guests allowed... Probably just trying to spam us anyway
 	is_not_guest();
@@ -457,10 +457,6 @@ function ReportToModerator2()
 	$poster_name = un_htmlspecialchars($message['real_name']) . ($message['real_name'] != $message['poster_name'] ? ' (' . $message['poster_name'] . ')' : '');
 	$reporterName = un_htmlspecialchars($user_info['name']) . ($user_info['name'] != $user_info['username'] && $user_info['username'] != '' ? ' (' . $user_info['username'] . ')' : '');
 	$subject = un_htmlspecialchars($message['subject']);
-
-	// Get a list of members with the moderate_board permission.
-	require_once($sourcedir . '/Subs-Members.php');
-	$moderators = membersAllowedTo('moderate_board', $board);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_report, ignore_all

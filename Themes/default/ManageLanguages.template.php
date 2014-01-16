@@ -16,7 +16,7 @@
  */
 function template_download_language()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	// Actually finished?
 	if (!empty($context['install_complete']))
@@ -120,7 +120,7 @@ function template_download_language()
 						', $file['exists'] ? ($file['exists'] == 'same' ? $txt['languages_download_exists_same'] : $txt['languages_download_exists_different']) : $txt['no'], '
 					</td>
 					<td class="centercol">
-						<input type="checkbox" name="copy_file[]" value="', $file['generaldest'], '"', ($file['default_copy'] ? ' checked="checked"' : ''), ' class="input_check" />
+						<input type="checkbox" name="copy_file[]" value="', $file['generaldest'], '"', ($file['default_copy'] ? ' checked' : ''), ' class="input_check" />
 					</td>
 				</tr>';
 			$alternate = !$alternate;
@@ -234,7 +234,7 @@ function template_download_language()
  */
 function template_modify_language_entries()
 {
-	global $context, $settings, $options, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -293,7 +293,7 @@ function template_modify_language_entries()
 								<label for="rtl">', $txt['languages_rtl'], ':</label>
 							</dt>
 							<dd>
-								<input type="checkbox" name="rtl" id="rtl" ', $context['primary_settings']['rtl'] ? ' checked="checked"' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' />
+								<input type="checkbox" name="rtl" id="rtl"', $context['primary_settings']['rtl'] ? ' checked' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled="disabled"'), ' />
 							</dd>
 						</dl>
 					</fieldset>
@@ -429,7 +429,7 @@ function template_modify_language_entries()
  */
 function template_add_language()
 {
-	global $context, $options, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">

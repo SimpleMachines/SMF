@@ -135,7 +135,7 @@ class custom_search
 	 */
 	public function searchSort($a, $b)
 	{
-		global $modSettings, $excludedWords;
+		global $excludedWords;
 
 		$x = strlen($a) - (in_array($a, $excludedWords) ? 1000 : 0);
 		$y = strlen($b) - (in_array($b, $excludedWords) ? 1000 : 0);
