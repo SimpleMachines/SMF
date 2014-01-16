@@ -661,6 +661,11 @@ function EditMembergroup()
 	if (empty($_REQUEST['group']))
 		fatal_lang_error('membergroup_does_not_exist', false);
 
+	// People who can manage boards are a bit special.
+	require_once($sourcedir . '/Subs-Members.php');
+	$board_managers = groupsAllowedTo('manage_boards', null);
+	$context['can_manage_boards'] = in_array($_REQUEST['group'], $board_managers['allowed']);
+
 	// Can this group moderate any boards?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_board)
@@ -753,6 +758,19 @@ function EditMembergroup()
 		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 		{
 			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
+
+			// If they can manage boards, the rules are a bit different. They can see everything.
+			if ($context['can_manage_boards'])
+			{
+				$accesses = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board
+					FROM {db_prefix}boards');
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$accesses[(int) $row['id_board']] = 'allow';
+				$smcFunc['db_free_result']($request);
+			}
+
 			$changed_boards['allow'] = array();
 			$changed_boards['deny'] = array();
 			$changed_boards['ignore'] = array();
