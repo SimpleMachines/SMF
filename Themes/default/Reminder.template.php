@@ -50,7 +50,7 @@ function template_reminder_pick()
 			<div class="roundframe">
 				<p><strong>', $txt['authentication_options'], ':</strong></p>
 				<p>
-					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked="checked" class="input_radio" /></dt>
+					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked class="input_radio" /></dt>
 					<label for="reminder_type_email">', $txt['authentication_' . $context['account_type'] . '_email'], '</label></dd>
 				</p>
 				<p>

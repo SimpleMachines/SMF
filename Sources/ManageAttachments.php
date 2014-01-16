@@ -2286,7 +2286,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled="disabled"\' : \'\') . \' class="input_radio" />\';
+						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled\' : \'\') . \' class="input_radio" />\';
 					'),
 					'style' => 'width: 10%;',
 					'class' => 'centercol',
@@ -2377,7 +2377,7 @@ function ManageAttachmentPaths()
 					),
 					'data' => array(
 						'function' => create_function('$rowData', '
-							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'current\'] ? \' checked="checked"\' : \'\') . \' class="input_radio" />\';
+							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . \' class="input_radio" />\';
 						'),
 						'style' => 'width: 10%;',
 						'class' => 'centercol',

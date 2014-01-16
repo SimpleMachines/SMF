@@ -266,7 +266,7 @@ function template_maintain_members()
 					<p><strong>', $txt['reattribute_guest_posts'], '</strong></p>
 					<dl class="settings">
 						<dt>
-							<label for="type_email"><input type="radio" name="type" id="type_email" value="email" checked="checked" class="input_radio" />', $txt['reattribute_email'], '</label>
+							<label for="type_email"><input type="radio" name="type" id="type_email" value="email" checked class="input_radio" />', $txt['reattribute_email'], '</label>
 						</dt>
 						<dd>
 							<input type="text" name="from_email" id="from_email" value="" onclick="document.getElementById(\'type_email\').checked = \'checked\'; document.getElementById(\'from_name\').value = \'\';" />
@@ -287,7 +287,7 @@ function template_maintain_members()
 						</dd>
 					</dl>
 					<p class="maintain_members">
-						<input type="checkbox" name="posts" id="posts" checked="checked" class="input_check" />
+						<input type="checkbox" name="posts" id="posts" checked class="input_check" />
 						<label for="posts">', $txt['reattribute_increase_posts'], '</label>
 					</p>
 					<input type="submit" id="do_attribute" value="', $txt['reattribute'], '" onclick="if (!checkAttributeValidity()) return false;
@@ -317,7 +317,7 @@ function template_maintain_members()
 
 	foreach ($context['membergroups'] as $group)
 		echo '
-						<label for="groups', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups', $group['id'], '" checked="checked" class="input_check" /> ', $group['name'], '</label><br />';
+						<label for="groups', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups', $group['id'], '" checked class="input_check" /> ', $group['name'], '</label><br />';
 
 	echo '
 					</div>
@@ -411,11 +411,11 @@ function template_maintain_topics()
 					</p>
 					<p>
 						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing" class="input_radio" /> ', $txt['maintain_old_nothing_else'], '</label><br />
-						<label for="delete_type_moved"><input type="radio" name="delete_type" id="delete_type_moved" value="moved" class="input_radio" checked="checked" /> ', $txt['maintain_old_are_moved'], '</label><br />
+						<label for="delete_type_moved"><input type="radio" name="delete_type" id="delete_type_moved" value="moved" class="input_radio" checked /> ', $txt['maintain_old_are_moved'], '</label><br />
 						<label for="delete_type_locked"><input type="radio" name="delete_type" id="delete_type_locked" value="locked" class="input_radio" /> ', $txt['maintain_old_are_locked'], '</label><br />
 					</p>
 					<p>
-						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" class="input_check" checked="checked" /> ', $txt['maintain_old_are_not_stickied'], '</label><br />
+						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" class="input_check" checked /> ', $txt['maintain_old_are_not_stickied'], '</label><br />
 					</p>
 					<p>
 						<a href="#rotLink" onclick="swapRot();"><img src="', $settings['images_url'], '/selected.png" alt="+" id="rotIcon" /></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', $txt['maintain_old_all'], '</a>
@@ -437,7 +437,7 @@ function template_maintain_topics()
 		// Display a checkbox with every board.
 		foreach ($category['boards'] as $board)
 			echo '
-									<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;"><label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked="checked" class="input_check" />', $board['name'], '</label></li>';
+									<li style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;"><label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked class="input_check" />', $board['name'], '</label></li>';
 
 		echo '
 								</ul>
@@ -522,7 +522,7 @@ function template_maintain_topics()
 						', $txt['move_topics_older_than'], '<input type="text" name="maxdays" value="30" size="3" />', $txt['manageposts_days'], '&nbsp;(', $txt['move_zero_all'], ')
 					</p>
 					<p>
-						<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" class="input_check" checked="checked" /> ', $txt['move_type_locked'], '</label><br />
+						<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" class="input_check" checked /> ', $txt['move_type_locked'], '</label><br />
 						<label for="move_type_sticky"><input type="checkbox" name="move_type_sticky" id="move_type_sticky" class="input_check" /> ', $txt['move_type_sticky'], '</label><br />
 					</p>
 					<input type="submit" value="', $txt['move_topics_now'], '" onclick="if (document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].disabled || document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_to\').selectedIndex].disabled) return false; var confirmText = \'', $txt['move_topics_confirm'] . '\'; return confirm(confirmText.replace(/%board_from%/, document.getElementById(\'id_board_from\').options[document.getElementById(\'id_board_from\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')).replace(/%board_to%/, document.getElementById(\'id_board_to\').options[document.getElementById(\'id_board_to\').selectedIndex].text.replace(/^=+&gt;&nbsp;/, \'\')));" class="button_submit" />

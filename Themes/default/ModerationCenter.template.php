@@ -436,7 +436,7 @@ function template_unapproved_posts()
 
 			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-						<input type="checkbox" name="item[]" value="', $item['id'], '" checked="checked" class="input_check" /> ';
+						<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check" /> ';
 
 			echo '
 					</span>
@@ -612,7 +612,7 @@ function template_moderation_settings()
 							<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
 						</dt>
 						<dd>
-							<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval" ', $context['mod_settings']['notify_approval'] ? 'checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check" />
 						</dd>';
 	}
 
@@ -719,7 +719,7 @@ function template_warn_template()
 
 	if ($context['template_data']['can_edit_personal'])
 		echo '
-					<input type="checkbox" name="make_personal" id="make_personal" ', $context['template_data']['personal'] ? 'checked="checked"' : '', ' class="input_check" />
+					<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', ' class="input_check" />
 						<label for="make_personal">
 							<strong>', $txt['mc_warning_template_personal'], '</strong>
 						</label>

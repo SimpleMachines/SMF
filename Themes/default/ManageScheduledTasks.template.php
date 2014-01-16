@@ -101,7 +101,7 @@ function template_edit_scheduled_tasks()
 							<strong><label for="enabled">', $txt['scheduled_tasks_enabled'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="enabled" id="enabled" ', !$context['task']['disabled'] ? 'checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" name="enabled" id="enabled"', !$context['task']['disabled'] ? ' checked' : '', ' class="input_check" />
 						</dd>
 					</dl>
 					<div class="righttext">

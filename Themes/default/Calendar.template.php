@@ -654,7 +654,7 @@ function template_event_post()
 		echo '
 							<li>
 								', $txt['calendar_link_event'], '
-								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked="checked" onclick="toggleLinked(this.form);" />
+								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked onclick="toggleLinked(this.form);" />
 							</li>
 							<li>
 								', $txt['calendar_post_in'], '

@@ -3466,13 +3466,13 @@ function template_chmod()
 		<div class="panel">
 			<h2>Your FTP connection information</h2>
 			<h3>The upgrader can fix any issues with file permissions to make upgrading as simple as possible. Simply enter your connection information below or alternatively click <a href="#" onclick="warning_popup();">here</a> for a list of files which need to be changed.</h3>
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				function warning_popup()
 				{
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
-					content.write(\'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n\');
-					content.write(\'<html xmlns="http://www.w3.org/1999/xhtml"', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex" />\n\t\t\');
+					content.write(\'<!DOCTYPE html>\n\');
+					content.write(\'<html', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex" />\n\t\t\');
 					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css" />\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br />\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');
@@ -3538,16 +3538,16 @@ function template_upgrade_above()
 {
 	global $modSettings, $txt, $smfsite, $settings, $upcontext, $upgradeurl;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '" />
 		<meta name="robots" content="noindex" />
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21" />
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?alp21" />
-				<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+				<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script><!-- // --><![CDATA[
 			var smf_scripturl = \'', $upgradeurl, '\';
 			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
 			var startPercent = ', $upcontext['overall_percent'], ';
@@ -3684,7 +3684,7 @@ function template_upgrade_below()
 	if (!empty($upcontext['pause']))
 	{
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			window.onload = doAutoSubmit;
 			var countdown = 3;
 			var dontSubmit = false;
@@ -3745,8 +3745,8 @@ function template_welcome_message()
 	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $txt;
 
 	echo '
-		<script type="text/javascript" src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
+		<script src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
 	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform" ', empty($upcontext['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $upcontext['rid'] . '\', \'' . (!empty($upcontext['login_token']) ? $upcontext['login_token'] : '') . '\');"' : '', '>
 		<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '" />
@@ -3871,7 +3871,7 @@ function template_welcome_message()
 		echo '
 				<tr>
 					<td colspan="2">
-						<label for="cont"><input type="checkbox" id="cont" name="cont" checked="checked" class="input_check" />Continue from step reached during last execution of upgrade script.</label>
+						<label for="cont"><input type="checkbox" id="cont" name="cont" checked class="input_check" />Continue from step reached during last execution of upgrade script.</label>
 					</td>
 				</tr>';
 	}
@@ -3889,7 +3889,7 @@ function template_welcome_message()
 
 	// This defines whether javascript is going to work elsewhere :D
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			if (\'XMLHttpRequest\' in window && document.getElementById(\'js_works\'))
 				document.getElementById(\'js_works\').value = 1;
 
@@ -3952,7 +3952,7 @@ function template_upgrade_options()
 					</tr>
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="maint" id="maint" value="1" checked="checked" class="input_check" />
+							<input type="checkbox" name="maint" id="maint" value="1" checked class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="maint">Put the forum into maintenance mode during upgrade.</label> <span class="smalltext">(<a href="#" onclick="document.getElementById(\'mainmess\').style.display = document.getElementById(\'mainmess\').style.display == \'\' ? \'none\' : \'\'">Customize</a>)</span>
@@ -3970,7 +3970,7 @@ function template_upgrade_options()
 		echo '
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="convertMysql" id="convertMysql" value="1" checked="checked" class="input_check" />
+							<input type="checkbox" name="convertMysql" id="convertMysql" value="1" checked class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="convertMysql">Use MySQLi functionality (MySQL compatible).</span>
@@ -3997,7 +3997,7 @@ function template_upgrade_options()
 					</tr>
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked="checked"', ' class="input_check" />
+							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked', ' class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="stat">
@@ -4044,7 +4044,7 @@ function template_backup_database()
 	if ($support_js)
 	{
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var lastTable = ', $upcontext['cur_table_num'], ';
 			function getNextTables()
 			{
@@ -4157,7 +4157,7 @@ function template_database_changes()
 	if ($support_js)
 	{
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			var lastItem = ', $upcontext['current_debug_item_num'], ';
 			var sLastString = "', strtr($upcontext['current_debug_item_name'], array('"' => '&quot;')), '";
 			var iLastSubStepProgress = -1;
@@ -4623,7 +4623,7 @@ function template_upgrade_complete()
 	if (!empty($upcontext['can_delete_script']))
 		echo '
 			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check" /> Delete this upgrade.php and its data files now.</label> <em>(doesn\'t work on all servers.)</em>
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				function doTheDelete(theCheck)
 				{
 					var theImage = document.getElementById ? document.getElementById("delete_upgrader") : document.all.delete_upgrader;
