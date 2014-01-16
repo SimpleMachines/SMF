@@ -647,10 +647,10 @@ function selectRadioByName(oRadioGroup, sName)
 	return false;
 }
 
-function selectAllRadio(oInvertCheckbox, oForm, sMask, sValue)
+function selectAllRadio(oInvertCheckbox, oForm, sMask, sValue, bIgnoreDisabled)
 {
 	for (var i = 0; i < oForm.length; i++)
-		if (oForm[i].name != undefined && oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue)
+		if (oForm[i].name != undefined && oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue && (!oForm[i].disabled || (typeof(bIgnoreDisabled) == 'boolean' && bIgnoreDisabled)))
 			oForm[i].checked = true;
 }
 
