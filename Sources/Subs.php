@@ -3314,7 +3314,7 @@ function template_javascript($do_defered = false)
  */
 function template_css()
 {
-	global $context;
+	global $context, $db_show_debug, $boardurl;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
@@ -3322,6 +3322,14 @@ function template_css()
 	foreach ($context['css_files'] as $id => $file)
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
+
+	if ($db_show_debug === true)
+	{
+		// Try to keep only what's useful.
+		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
+		foreach ($context['css_files'] as $file)
+			$context['debug']['sheets'][] = strtr($file['filename'], $repl); 
+	}
 
 	if (!empty($context['css_header']))
 		echo '
