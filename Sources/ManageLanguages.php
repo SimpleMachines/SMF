@@ -536,7 +536,7 @@ function DownloadLanguage()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="checkbox" name="copy_file[]" value="\' . $rowData[\'generaldest\'] . \'" \' . ($rowData[\'default_copy\'] ? \'checked="checked"\' : \'\') . \' class="input_check" />\';
+						return \'<input type="checkbox" name="copy_file[]" value="\' . $rowData[\'generaldest\'] . \'"\' . ($rowData[\'default_copy\'] ? \' checked\' : \'\') . \' class="input_check" />\';
 					'),
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
@@ -614,7 +614,7 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="def_language" value="\' . $rowData[\'id\'] . \'" \' . ($rowData[\'default\'] ? \'checked="checked"\' : \'\') . \' onclick="highlightSelected(\\\'list_language_list_\' . $rowData[\'id\'] . \'\\\');" class="input_radio" />\';
+						return \'<input type="radio" name="def_language" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'default\'] ? \' checked\' : \'\') . \' onclick="highlightSelected(\\\'list_language_list_\' . $rowData[\'id\'] . \'\\\');" class="input_radio" />\';
 					'),
 					'style' => 'width: 8%;',
 					'class' => 'centercol',
