@@ -801,6 +801,7 @@ $txt['debug_subtemplates'] = 'Sub templates: ';
 $txt['debug_language_files'] = 'Language files: ';
 $txt['debug_stylesheets'] = 'Style sheets: ';
 $txt['debug_files_included'] = 'Files included: ';
+$txt['debug_memory_use'] = 'Memory used: ';
 $txt['debug_kb'] = 'KB.';
 $txt['debug_show'] = 'show';
 $txt['debug_cache_hits'] = 'Cache hits: ';

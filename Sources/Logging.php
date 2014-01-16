@@ -251,6 +251,9 @@ function displayDebug()
 	',(isset($context['debug']['instances']) ? ($txt['debug_instances'] . (empty($context['debug']['instances']) ? 0 : count($context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">'. $txt['debug_show'] .'</a><span id="debug_instances" style="display: none;"><em>'. implode('</em>, <em>', array_keys($context['debug']['instances'])) .'</em></span>)'. '<br />') : ''),'
 	', $txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), $txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', $txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br />';
 
+	if (function_exists('memory_get_peak_usage'))
+		echo $txt['debug_memory_use'], ceil(memory_get_peak_usage() / 1024), $txt['debug_kb'], '<br />';
+
 	// What tokens are active?
 	if (isset($_SESSION['token']))
 	{

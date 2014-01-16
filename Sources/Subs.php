@@ -3314,7 +3314,7 @@ function template_javascript($do_defered = false)
  */
 function template_css()
 {
-	global $context;
+	global $context, $db_show_debug, $boardurl;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
@@ -3322,6 +3322,14 @@ function template_css()
 	foreach ($context['css_files'] as $id => $file)
 		echo '
 	<link rel="stylesheet" type="text/css" href="', $file['filename'], '" />';
+
+	if ($db_show_debug === true)
+	{
+		// Try to keep only what's useful.
+		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
+		foreach ($context['css_files'] as $file)
+			$context['debug']['sheets'][] = strtr($file['filename'], $repl); 
+	}
 
 	if (!empty($context['css_header']))
 		echo '
@@ -3995,8 +4003,6 @@ function call_integration_hook($hook, $parameters = array())
 	if (!isset($context['instances']))
 		$context['instances'] = array();
 
-	 loadLanguage('Errors');
-
 	$results = array();
 	if (empty($modSettings[$hook]))
 		return $results;
@@ -4033,7 +4039,10 @@ function call_integration_hook($hook, $parameters = array())
 
 				// No? tell the admin about it.
 				else
+				{
+					loadLanguage('Errors');
 					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+				}
 
 				// Check if a new object will be created.
 				if (strpos($call[1], '#') !== false)
@@ -4078,7 +4087,10 @@ function call_integration_hook($hook, $parameters = array())
 
 		// Whatever it was suppose to call, it failed :(
 		elseif (!empty($func) && !empty($absPath))
+		{
+			loadLanguage('Errors');
 			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
+		}
 	}
 
 	return $results;
