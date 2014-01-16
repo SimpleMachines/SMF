@@ -130,7 +130,7 @@ function template_select_search_method()
 					<fieldset class="search_settings floatleft">
 						<legend>', $txt['search_index'], '</legend>
 						<dl>
-							<dt><input type="radio" name="search_index" value=""', empty($modSettings['search_index']) ? ' checked="checked"' : '', ' class="input_radio" />
+							<dt><input type="radio" name="search_index" value=""', empty($modSettings['search_index']) ? ' checked' : '', ' class="input_radio" />
 							', $txt['search_index_none'], '
 							</dt>';
 
@@ -138,7 +138,7 @@ function template_select_search_method()
 	{
 		echo '
 							<dt>
-								<input type="radio" name="search_index" value="fulltext"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? ' checked="checked"' : '', empty($context['fulltext_index']) ? ' onclick="alert(\'' . $txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"': '', ' class="input_radio" />
+								<input type="radio" name="search_index" value="fulltext"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? ' checked' : '', empty($context['fulltext_index']) ? ' onclick="alert(\'' . $txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"': '', ' class="input_radio" />
 								', $txt['search_method_fulltext_index'], '
 							</dt>
 							<dd>
@@ -161,7 +161,7 @@ function template_select_search_method()
 
 	echo '
 							<dt>
-								<input type="radio" name="search_index" value="custom"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'custom' ? ' checked="checked"' : '', $context['custom_index'] ? '' : ' onclick="alert(\'' . $txt['search_index_custom_warning'] . '\'); selectRadioByName(this.form.search_method, \'1\');"', ' class="input_radio" />
+								<input type="radio" name="search_index" value="custom"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'custom' ? ' checked' : '', $context['custom_index'] ? '' : ' onclick="alert(\'' . $txt['search_index_custom_warning'] . '\'); selectRadioByName(this.form.search_method, \'1\');"', ' class="input_radio" />
 								', $txt['search_index_custom'], '
 							</dt>
 							<dd>
@@ -188,7 +188,7 @@ function template_select_search_method()
 
 		echo '
 							<dt>
-								<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty($modSettings['search_index']) && $modSettings['search_index'] == $api['setting_index'] ? ' checked="checked"' : '', ' class="input_radio" />
+								<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty($modSettings['search_index']) && $modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', ' class="input_radio" />
 								', $api['label'] ,'
 							</dt>';
 
@@ -204,8 +204,8 @@ function template_select_search_method()
 					</fieldset>
 					<fieldset class="search_settings floatright">
 					<legend>', $txt['search_method'], '</legend>
-						<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked="checked"', ' class="input_check" /><label for="search_force_index_check">', $txt['search_force_index'], '</label><br />
-						<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked="checked"', ' class="input_check" /><label for="search_match_words_check">', $txt['search_match_words'], '</label>
+						<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked', ' class="input_check" /><label for="search_force_index_check">', $txt['search_force_index'], '</label><br />
+						<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked', ' class="input_check" /><label for="search_match_words_check">', $txt['search_match_words'], '</label>
 					</fieldset>
 					<br class="clear"/>
 					<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit" />

@@ -164,7 +164,7 @@ function template_modify_category()
 							<span class="smalltext">', $txt['collapse_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked="checked"' : '', ' tabindex="', $context['tabindex']++, '" class="input_check" />
+							<input type="checkbox" name="collapse"', $context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" class="input_check" />
 						</dd>';
 
 	// Table footer.
@@ -228,7 +228,7 @@ function template_confirm_category_delete()
 			<div class="windowbg">
 				<div class="content">
 					<p>
-						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_option1'], '</label><br />
+						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked />', $txt['mboards_delete_option1'], '</label><br />
 						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_option2'], '</label>:
 						<select name="cat_to"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', '>';
 
@@ -465,7 +465,7 @@ function template_modify_board()
 							<span class="smalltext">', $txt['mboards_redirect_desc'], '</span><br />
 						</dt>
 						<dd>
-							<input type="checkbox" id="redirect_enable" name="redirect_enable"', $context['board']['redirect'] != '' ? ' checked="checked"' : '', ' onclick="refreshOptions();" class="input_check" />
+							<input type="checkbox" id="redirect_enable" name="redirect_enable"', $context['board']['redirect'] != '' ? ' checked' : '', ' onclick="refreshOptions();" class="input_check" />
 						</dd>
 					</dl>
 
@@ -505,7 +505,7 @@ function template_modify_board()
 								<span class="smalltext">', $txt['mboards_count_posts_desc'], '</span><br />
 							</dt>
 							<dd>
-								<input type="checkbox" name="count"', $context['board']['count_posts'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="count"', $context['board']['count_posts'] ? ' checked' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</div>';
@@ -538,7 +538,7 @@ function template_modify_board()
 								<span class="smalltext">', $txt['mboards_override_theme_desc'], '</span><br />
 							</dt>
 							<dd>
-								<input type="checkbox" name="override_theme"', $context['board']['override_theme'] ? ' checked="checked"' : '', ' class="input_check" />
+								<input type="checkbox" name="override_theme"', $context['board']['override_theme'] ? ' checked' : '', ' class="input_check" />
 							</dd>
 						</dl>
 					</div>';
@@ -690,7 +690,7 @@ function template_confirm_board_delete()
 			<div class="windowbg">
 				<div class="content">
 					<p>
-						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked="checked" />', $txt['mboards_delete_board_option1'], '</label><br />
+						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked />', $txt['mboards_delete_board_option1'], '</label><br />
 						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', empty($context['can_move_children']) ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_board_option2'], '</label>:
 						<select name="board_to" ', empty($context['can_move_children']) ? 'disabled="disabled"' : '', '>';
 

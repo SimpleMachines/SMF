@@ -159,7 +159,7 @@ function template_maintenance()
 	if (!empty($modSettings['attachmentDirFileLimit']))
 		echo '
 							<dt>', $txt['attachment_transfer_empty'], '</dt>
-							<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked="checked"' : '', ' /></dd>';
+							<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked' : '', ' /></dd>';
 	echo '
 						</dl>
 						<hr class="hrcolor"/>

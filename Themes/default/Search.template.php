@@ -113,10 +113,10 @@ function template_main()
 					</dt>
 					<dd class="options">
 						<label for="show_complete">', $txt['search_show_complete_messages'], '
-							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" name="show_complete" id="show_complete" value="1"', !empty($context['search_params']['show_complete']) ? ' checked' : '', ' class="input_check" />
 						</label><br />
 						<label for="subject_only">', $txt['search_subject_only'], '
-							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked="checked"' : '', ' class="input_check" />
+							<input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', ' class="input_check" />
 						</label>
 					</dd>
 					<dt class="righttext between">',
@@ -190,7 +190,7 @@ function template_main()
 			echo '
 								<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 									<label for="brd', $board['id'], '">
-										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked="checked"' : '', ' class="input_check" /> ', $board['name'], '
+										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', ' class="input_check" /> ', $board['name'], '
 									</label>
 								</li>';
 
@@ -209,7 +209,7 @@ function template_main()
 
 			echo '
 				<div class="padding flow_auto">
-					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked="checked"' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="input_check floatleft" />
+					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="input_check floatleft" />
 					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
 					<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit" />
 				</div>
