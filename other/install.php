@@ -232,8 +232,8 @@ function initialize_inputs()
 		session_start();
 
 		if (!headers_sent())
-			echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+			echo '<!DOCTYPE html>
+<html>
 	<head>
 		<title>', htmlspecialchars($_GET['pass_string']), '</title>
 	</head>
@@ -345,8 +345,8 @@ function load_lang_file()
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 		header('Cache-Control: no-cache');
 
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+		echo '<!DOCTYPE html>
+<html>
 	<head>
 		<title>SMF Installer: Error!</title>
 	</head>
@@ -2083,8 +2083,8 @@ function template_install_above()
 {
 	global $incontext, $txt, $smfsite, $installurl;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '" />
 		<meta name="robots" content="noindex" />
@@ -2510,7 +2510,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_compress'], ':</td>
 				<td>
-					<input type="checkbox" name="compress" id="compress_check" checked="checked" class="input_check" />&nbsp;
+					<input type="checkbox" name="compress" id="compress_check" checked class="input_check" />&nbsp;
 					<label for="compress_check">', $txt['install_settings_compress_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_compress_info'], '</div>
@@ -2519,7 +2519,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_dbsession'], ':</td>
 				<td>
-					<input type="checkbox" name="dbsession" id="dbsession_check" checked="checked" class="input_check" />&nbsp;
+					<input type="checkbox" name="dbsession" id="dbsession_check" checked class="input_check" />&nbsp;
 					<label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
@@ -2528,7 +2528,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_utf8'], ':</td>
 				<td>
-					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked="checked"' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled="disabled"' : '', ' />&nbsp;
+					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled="disabled"' : '', ' />&nbsp;
 					<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_utf8_info'], '</div>
