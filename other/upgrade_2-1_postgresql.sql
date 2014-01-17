@@ -750,12 +750,23 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 ---#
 
 /******************************************************************************/
---- Removing old Simple Machines files we do not need to fetch any more
+--- Updating files that fetched from simplemachines.org
 /******************************************************************************/
----# We no longer call on the latest packages list.
+---# We no longer call on several files.
 DELETE FROM {$db_prefix}admin_info_files
 WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
+---#
+
+---# But we do need new files.
+---{
+$smcFunc['db_insert']('',
+	'{db_prefix}admin_info_files',
+	array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
+	array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
+	array('id_file')
+);
+---}
 ---#
 
 /******************************************************************************/
