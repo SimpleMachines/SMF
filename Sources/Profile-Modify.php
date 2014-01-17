@@ -2106,7 +2106,7 @@ function alert_notifications_topics($memID)
 		'id' => 'topic_notification_list',
 		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxMessages'],
-		'no_items_label' => $txt['notifications_topics_none'] . '<br /><br />' . $txt['notifications_topics_howto'],
+		'no_items_label' => $txt['notifications_topics_none'] . '<br><br>' . $txt['notifications_topics_howto'],
 		'no_items_align' => 'left',
 		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=topics',
 		'default_sort_col' => 'last_post',
@@ -2137,7 +2137,7 @@ function alert_notifications_topics($memID)
 						if ($topic[\'new\'])
 							$link .= \' <a href="\' . $topic[\'new_href\'] . \'"><span class="new_posts">\' . $txt[\'new\'] . \'</span></a>\';
 
-						$link .= \'<br /><span class="smalltext"><em>\' . $txt[\'in\'] . \' \' . $topic[\'board_link\'] . \'</em></span>\';
+						$link .= \'<br><span class="smalltext"><em>\' . $txt[\'in\'] . \' \' . $topic[\'board_link\'] . \'</em></span>\';
 
 						return $link;
 					'),
@@ -2167,7 +2167,7 @@ function alert_notifications_topics($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<span class="smalltext">%1$s<br />' . $txt['by'] . ' %2$s</span>',
+						'format' => '<span class="smalltext">%1$s<br>' . $txt['by'] . ' %2$s</span>',
 						'params' => array(
 							'updated' => false,
 							'poster_updated_link' => false,
@@ -2181,13 +2181,13 @@ function alert_notifications_topics($memID)
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id' => false,
 						),
@@ -2210,7 +2210,7 @@ function alert_notifications_topics($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button_submit">',
 				'align' => 'right',
 			),
 		),
@@ -2245,7 +2245,7 @@ function alert_notifications_boards($memID)
 	$listOptions = array(
 		'id' => 'board_notification_list',
 		'width' => '100%',
-		'no_items_label' => $txt['notifications_boards_none'] . '<br /><br />' . $txt['notifications_boards_howto'],
+		'no_items_label' => $txt['notifications_boards_none'] . '<br><br>' . $txt['notifications_boards_howto'],
 		'no_items_align' => 'left',
 		'base_href' => $scripturl . '?action=profile;u=' . $memID . ';area=notification;sa=boards',
 		'default_sort_col' => 'board_name',
@@ -2280,13 +2280,13 @@ function alert_notifications_boards($memID)
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id' => false,
 						),
@@ -2309,7 +2309,7 @@ function alert_notifications_boards($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit">',
 				'align' => 'right',
 			),
 		),
@@ -2707,7 +2707,7 @@ function profileLoadSignatureData()
 	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
 
 	if (empty($context['do_preview']))
-		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br />', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
+		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
 	else
 	{
 		$signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
@@ -3239,7 +3239,7 @@ function profileValidateSignature(&$value)
 		if ((!empty($sig_limits[5]) || !empty($sig_limits[6])))
 		{
 			// Get all BBC tags...
-			preg_match_all('~\[img(\s+width=([\d]+))?(\s+height=([\d]+))?(\s+width=([\d]+))?\s*\](?:<br />)*([^<">]+?)(?:<br />)*\[/img\]~i', $unparsed_signature, $matches);
+			preg_match_all('~\[img(\s+width=([\d]+))?(\s+height=([\d]+))?(\s+width=([\d]+))?\s*\](?:<br>)*([^<">]+?)(?:<br>)*\[/img\]~i', $unparsed_signature, $matches);
 			// ... and all HTML ones.
 			preg_match_all('~<img\s+src=(?:")?((?:http://|ftp://|https://|ftps://).+?)(?:")?(?:\s+alt=(?:")?(.*?)(?:")?)?(?:\s?/)?>~i', $unparsed_signature, $matches2, PREG_PATTERN_ORDER);
 			// And stick the HTML in the BBC.
@@ -3336,9 +3336,9 @@ function profileValidateSignature(&$value)
 	preparsecode($value);
 
 	// Too long?
-	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && $smcFunc['strlen'](str_replace('<br />', "\n", $value)) > $sig_limits[1])
+	if (!allowedTo('admin_forum') && !empty($sig_limits[1]) && $smcFunc['strlen'](str_replace('<br>', "\n", $value)) > $sig_limits[1])
 	{
-		$_POST['signature'] = trim($smcFunc['htmlspecialchars'](str_replace('<br />', "\n", $value), ENT_QUOTES));
+		$_POST['signature'] = trim($smcFunc['htmlspecialchars'](str_replace('<br>', "\n", $value), ENT_QUOTES));
 		$txt['profile_error_signature_max_length'] = sprintf($txt['profile_error_signature_max_length'], $sig_limits[1]);
 		return 'signature_max_length';
 	}

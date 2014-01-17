@@ -308,7 +308,7 @@ function generateSubscriptionError($text)
 	if (!empty($_POST))
 	{
 		foreach ($_POST as $key => $val)
-			$text .= '<br />' . $smcFunc['htmlspecialchars']($key) . ': ' . $smcFunc['htmlspecialchars']($val);
+			$text .= '<br>' . $smcFunc['htmlspecialchars']($key) . ': ' . $smcFunc['htmlspecialchars']($val);
 	}
 
 	// Then just log and die.

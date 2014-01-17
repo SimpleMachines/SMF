@@ -288,12 +288,12 @@ function ViewSpiders()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id_spider' => false,
 						),
@@ -310,8 +310,8 @@ function ViewSpiders()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" onclick="return confirm(\'' . $txt['spider_remove_selected_confirm'] . '\');" class="button_submit" />
-					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit" />
+					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" onclick="return confirm(\'' . $txt['spider_remove_selected_confirm'] . '\');" class="button_submit">
+					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit">
 				',
 			),
 		),
@@ -765,7 +765,7 @@ function SpiderLogs()
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" onclick="return confirm(\'' . $txt['spider_log_empty_log_confirm'] . '\');" class="button_submit" />',
+				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" onclick="return confirm(\'' . $txt['spider_log_empty_log_confirm'] . '\');" class="button_submit">',
 			),
 		),
 	);
@@ -933,7 +933,7 @@ function SpiderStats()
 	$date_select .= '
 		</select>
 		<noscript>
-			<input type="submit" name="go" value="' . $txt['go'] . '" class="button_submit" />
+			<input type="submit" name="go" value="' . $txt['go'] . '" class="button_submit">
 		</noscript>';
 
 	// If we manually jumped to a date work out the offset.

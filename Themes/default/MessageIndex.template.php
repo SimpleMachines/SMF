@@ -59,7 +59,7 @@ function template_main()
 			echo '
 					</td>
 					<td class="windowbg stats">
-						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br />
+						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br>
 						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</td>
@@ -187,7 +187,7 @@ function template_main()
 			// Show a "select all" box for quick moderation?
 			if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-					<th scope="col" class="moderation last_th"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" /></th>';
+					<th scope="col" class="moderation last_th"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check"></th>';
 
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
@@ -240,8 +240,8 @@ function template_main()
 				<tr>
 					<td class="', $color_class, ' icon2">
 						<div>
-							<img src="', $topic['first_post']['icon_url'], '" alt="" />
-							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" />' : '', '
+							<img src="', $topic['first_post']['icon_url'], '" alt="">
+							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
 						</div>
 					</td>
 					<td class="', $alternate_class, ' subject">
@@ -275,10 +275,10 @@ function template_main()
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
 								<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 							</p>
-							<br class="clear" />
+							<br class="clear">
 						</div>
 					</td>
-					<td class="', $color_class, ' stats">', $topic['replies'], ' ', $txt['replies'], '<br />', $topic['views'], ' ', $txt['views'], '</td>
+					<td class="', $color_class, ' stats">', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</td>
 					<td class="', $alternate_class, ' lastpost">
 						', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
 					</td>';
@@ -290,7 +290,7 @@ function template_main()
 					<td class="', $color_class, ' moderation">';
 				if ($options['display_quick_mod'] == 1)
 					echo '
-						<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />';
+						<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">';
 				else
 				{
 					// Check permissions on each and show only the ones they are allowed to use.
@@ -301,7 +301,7 @@ function template_main()
 						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons lock" title="', $txt['set_lock'], '"></span></a>';
 
 					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
-						echo '<br />';
+						echo '<br>';
 
 					if ($topic['quick_mod']['sticky'])
 						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions[', $topic['id'], ']=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons sticky" title="', $txt['set_sticky'], '"></span></a>';
@@ -338,7 +338,7 @@ function template_main()
 			<span id="quick_mod_jump_to">&nbsp;</span>';
 
 			echo '
-						<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit qaction" />
+						<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit qaction">
 					</td>
 				</tr>';
 		}
@@ -351,7 +351,7 @@ function template_main()
 		// Finish off the form - again.
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] > 0 && !empty($context['topics']))
 			echo '
-	<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
+	<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 	</form>';
 
 		echo '
@@ -411,13 +411,13 @@ function template_topic_legend()
 	if (empty($context['no_topic_listing']))
 		echo '
 			<p class="floatleft">', !empty($modSettings['enableParticipation']) && $context['user']['is_logged'] ? '
-				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon" /> ' . $txt['participation_caption'] . '<br />' : '', '
-				'. ($modSettings['pollMode'] == '1' ? '<span class="generic_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br />
-				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix" /> ' . $txt['moved_topic'] . '<br />
+				<img src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" class="centericon"> ' . $txt['participation_caption'] . '<br>' : '', '
+				'. ($modSettings['pollMode'] == '1' ? '<span class="generic_icons poll centericon"></span> ' . $txt['poll'] : '') . '<br>
+				<img src="' . $settings['images_url'] . '/post/moved.png" alt="" class="centericon sizefix"> ' . $txt['moved_topic'] . '<br>
 			</p>
 			<p>
-				<span class="generic_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br />
-				<span class="generic_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br />
+				<span class="generic_icons lock centericon"></span> ' . $txt['locked_topic'] . '<br>
+				<span class="generic_icons sticky centericon"></span> ' . $txt['sticky_topic'] . '<br>
 			</p>';
 
 	if (!empty($context['jump_to']))
@@ -439,7 +439,7 @@ function template_topic_legend()
 			// ]]></script>';
 
 	echo '
-			<br class="clear" />
+			<br class="clear">
 		</div>
 	</div>';
 }

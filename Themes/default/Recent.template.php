@@ -18,7 +18,7 @@ function template_recent()
 	<div id="recent" class="main_section">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/post/xx.png" alt="" class="icon" />',$txt['recent_posts'],'
+				<img src="', $settings['images_url'], '/post/xx.png" alt="" class="icon">',$txt['recent_posts'],'
 			</h3>
 		</div>
 		<div class="pagesection">
@@ -88,9 +88,9 @@ function template_unread()
 	if ($context['showCheckboxes'])
 		echo '
 		<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" style="margin: 0;">
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="qaction" value="markread" />
-			<input type="hidden" name="redirect_url" value="action=unread', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '" />';
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="qaction" value="markread">
+			<input type="hidden" name="redirect_url" value="action=unread', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '">';
 
 	if (!empty($context['topics']))
 	{
@@ -122,7 +122,7 @@ function template_unread()
 								<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] == 'last_post' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] == 'last_post' ? ' <span class="sort sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 							</th>
 							<th class="last_th">
-								<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" />
+								<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">
 							</th>';
 		else
 			echo '
@@ -153,8 +153,8 @@ function template_unread()
 						<tr>
 							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
-									<img src="', $topic['first_post']['icon_url'], '" alt="" />
-									', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;" />' : '','
+									<img src="', $topic['first_post']['icon_url'], '" alt="">
+									', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;">' : '','
 								</div>
 							</td>
 							<td class="subject ', $color_class2, '">
@@ -187,7 +187,7 @@ function template_unread()
 							</td>
 							<td class="', $color_class, ' stats">
 								', $topic['replies'], ' ', $txt['replies'], '
-								<br />
+								<br>
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
@@ -197,7 +197,7 @@ function template_unread()
 			if ($context['showCheckboxes'])
 				echo '
 							<td class="', $color_class2, ' moderation" valign="middle" align="center">
-								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
+								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
 							</td>';
 			echo '
 						</tr>';
@@ -246,9 +246,9 @@ function template_replies()
 	if ($context['showCheckboxes'])
 		echo '
 		<form action="', $scripturl, '?action=quickmod" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" style="margin: 0;">
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="qaction" value="markread" />
-			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '" />';
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="qaction" value="markread">
+			<input type="hidden" name="redirect_url" value="action=unreadreplies', (!empty($context['showing_all_topics']) ? ';all' : ''), $context['querystring_board_limits'], '">';
 
 	if (!empty($context['topics']))
 	{
@@ -280,7 +280,7 @@ function template_replies()
 								<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=last_post', $context['sort_by'] === 'last_post' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['last_post'], $context['sort_by'] === 'last_post' ? ' <span class="sort sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 							</th>
 							<th class="last_th">
-								<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check" />
+								<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">
 							</th>';
 		else
 			echo '
@@ -311,8 +311,8 @@ function template_replies()
 						<tr>
 							<td class="', $color_class, ' icon2">
 								<div style="position: relative; width: 40px; margin: auto;">
-									<img src="', $topic['first_post']['icon_url'], '" alt="" />
-									', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="" />' : '','
+									<img src="', $topic['first_post']['icon_url'], '" alt="">
+									', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '','
 								</div>
 							</td>
 							<td class="subject ', $color_class2, '">
@@ -345,7 +345,7 @@ function template_replies()
 							</td>
 							<td class="', $color_class, ' stats">
 								', $topic['replies'], ' ', $txt['replies'], '
-								<br />
+								<br>
 								', $topic['views'], ' ', $txt['views'], '
 							</td>
 							<td class="', $color_class2, ' lastpost">
@@ -355,7 +355,7 @@ function template_replies()
 			if ($context['showCheckboxes'])
 				echo '
 							<td class="', $color_class2, ' moderation" valign="middle" align="center">
-								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check" />
+								<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
 							</td>';
 			echo '
 						</tr>';

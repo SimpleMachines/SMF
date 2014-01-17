@@ -769,7 +769,7 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br />\', "$m[1]") . \'[/html]\';'), $parts[$i]);
+						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br>\', "$m[1]") . \'[/html]\';'), $parts[$i]);
 				}
 				$form_message = implode('', $parts);
 			}
@@ -874,7 +874,7 @@ function Post($post_errors = array())
 							$file_list[] =  $attachment['name'];
 
 					$_SESSION['temp_attachments']['post']['files'] = $file_list;
-					$file_list = '<div class="attachments">' . implode('<br />', $file_list) . '</div>';
+					$file_list = '<div class="attachments">' . implode('<br>', $file_list) . '</div>';
 
 					if (!empty($_SESSION['temp_attachments']['post']['msg']))
 					{
@@ -914,10 +914,10 @@ function Post($post_errors = array())
 				// Show any errors which might of occured.
 				if (!empty($attachment['errors']))
 				{
-					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br />' : '';
+					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br>' : '';
 					$txt['error_attach_errors'] .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
 					foreach ($attachment['errors'] as $error)
-						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br  />';
+						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br >';
 					$txt['error_attach_errors'] .= '</div>';
 					$post_errors[] = 'attach_errors';
 
@@ -1679,7 +1679,7 @@ function Post2()
 		$attachIDs = array();
 		$attach_errors = array();
 		if (!empty($context['we_are_history']))
-			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br /><br /></dd>';
+			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
 		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
 		{
@@ -2220,7 +2220,7 @@ function AnnouncementSend()
 	censorText($context['topic_subject']);
 	censorText($message);
 
-	$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($message, false, $id_msg), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+	$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 	// We need this in order to be able send emails.
 	require_once($sourcedir . '/Subs-Post.php');
@@ -2339,7 +2339,7 @@ function notifyMembersBoard(&$topicData)
 		censorText($topicData[$key]['body']);
 
 		$topicData[$key]['subject'] = un_htmlspecialchars($topicData[$key]['subject']);
-		$topicData[$key]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$key]['body'], false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+		$topicData[$key]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$key]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 	}
 
 	// Just the board numbers.

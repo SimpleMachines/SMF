@@ -72,7 +72,7 @@ function template_edit_scheduled_tasks()
 							<strong>', $txt['scheduled_tasks_name'], ':</strong>
 						</dt>
 						<dd>
-							', $context['task']['name'], '<br />
+							', $context['task']['name'], '<br>
 							<span class="smalltext">', $context['task']['desc'], '</span>
 						</dd>
 						<dt>
@@ -80,7 +80,7 @@ function template_edit_scheduled_tasks()
 						</dt>
 						<dd>
 							', $txt['scheduled_task_edit_repeat'], '
-							<input type="text" name="regularity" id="regularity" value="', empty($context['task']['regularity']) ? 1 : $context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" maxlength="2" class="input_text" />
+							<input type="text" name="regularity" id="regularity" value="', empty($context['task']['regularity']) ? 1 : $context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" maxlength="2" class="input_text">
 							<select name="unit">
 								<option value="m"', empty($context['task']['unit']) || $context['task']['unit'] == 'm' ? ' selected' : '', '>', $txt['scheduled_task_reg_unit_m'], '</option>
 								<option value="h"', $context['task']['unit'] == 'h' ? ' selected' : '', '>', $txt['scheduled_task_reg_unit_h'], '</option>
@@ -89,23 +89,23 @@ function template_edit_scheduled_tasks()
 							</select>
 						</dd>
 						<dt>
-							<strong><label for="start_time">', $txt['scheduled_task_edit_start_time'], ':</label></strong><br />
+							<strong><label for="start_time">', $txt['scheduled_task_edit_start_time'], ':</label></strong><br>
 							<span class="smalltext">', $txt['scheduled_task_edit_start_time_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="offset" id="start_time" value="', $context['task']['offset_formatted'], '" size="6" maxlength="5" class="input_text" />
+							<input type="text" name="offset" id="start_time" value="', $context['task']['offset_formatted'], '" size="6" maxlength="5" class="input_text">
 						</dd>
 						<dt>
 							<strong><label for="enabled">', $txt['scheduled_tasks_enabled'], ':</label></strong>
 						</dt>
 						<dd>
-							<input type="checkbox" name="enabled" id="enabled"', !$context['task']['disabled'] ? ' checked' : '', ' class="input_check" />
+							<input type="checkbox" name="enabled" id="enabled"', !$context['task']['disabled'] ? ' checked' : '', ' class="input_check">
 						</dd>
 					</dl>
 					<div class="righttext">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="', $context['admin-st_token_var'], '" value="', $context['admin-st_token'], '" />
-						<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						<input type="hidden" name="', $context['admin-st_token_var'], '" value="', $context['admin-st_token'], '">
+						<input type="submit" name="save" value="', $txt['scheduled_tasks_save_changes'], '" class="button_submit">
 					</div>
 				</div>
 			</div>

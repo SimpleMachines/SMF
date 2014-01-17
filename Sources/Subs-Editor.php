@@ -34,7 +34,7 @@ function bbc_to_html($text, $compat_mode = false)
 		return $text;
 
 	// Turn line breaks back into br's.
-	$text = strtr($text, array("\r" => '', "\n" => '<br />'));
+	$text = strtr($text, array("\r" => '', "\n" => '<br>'));
 
 	// Prevent conversion of all bbcode inside these bbcodes.
 	// @todo Tie in with bbc permissions ?
@@ -62,7 +62,7 @@ function bbc_to_html($text, $compat_mode = false)
 	$text = parse_bbc($text, true, '', $allowed_tags);
 
 	// Fix for having a line break then a thingy.
-	$text = strtr($text, array('<br /><div' => '<div', "\n" => '', "\r" => ''));
+	$text = strtr($text, array('<br><div' => '<div', "\n" => '', "\r" => ''));
 
 	// Note that IE doesn't understand spans really - make them something "legacy"
 	$working_html = array(
@@ -76,7 +76,7 @@ function bbc_to_html($text, $compat_mode = false)
 
 	// Parse unique ID's and disable javascript into the smileys - using the double space.
 	$i = 1;
-	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley" />~', create_function('$m', 'return \'<\' . ' . 'stripslashes(\'$1\') . \'alt="" title="" onresizestart="return false;" id="smiley_\' . ' . "\$" . 'i++ . \'_$2" style="padding: 0 3px 0 3px;" />\';'), $text);
+	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley">~', create_function('$m', 'return \'<\' . ' . 'stripslashes(\'$1\') . \'alt="" title="" onresizestart="return false;" id="smiley_\' . ' . "\$" . 'i++ . \'_$2" style="padding: 0 3px 0 3px;">\';'), $text);
 
 	return $text;
 }
@@ -99,12 +99,12 @@ function html_to_bbc($text)
 	$text = preg_replace("~\s*[\r\n]+\s*~", ' ', $text);
 
 	// Though some of us love paragraphs, the parser will do better with breaks.
-	$text = preg_replace('~</p>\s*?<p~i', '</p><br /><p', $text);
-	$text = preg_replace('~</p>\s*(?!<)~i', '</p><br />', $text);
+	$text = preg_replace('~</p>\s*?<p~i', '</p><br><p', $text);
+	$text = preg_replace('~</p>\s*(?!<)~i', '</p><br>', $text);
 
 	// Safari/webkit wraps lines in Wysiwyg in <div>'s.
 	if (isBrowser('webkit'))
-		$text = preg_replace(array('~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'), array('<br />', ''), $text);
+		$text = preg_replace(array('~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'), array('<br>', ''), $text);
 
 	// If there's a trailing break get rid of it - Firefox tends to add one.
 	$text = preg_replace('~<br\s?/?' . '>$~i', '', $text);
@@ -123,7 +123,7 @@ function html_to_bbc($text)
 				$parts[$i] = strip_tags($parts[$i]);
 		}
 
-		$text = strtr(implode('', $parts), array('#smf_br_spec_grudge_cool!#' => '<br />'));
+		$text = strtr(implode('', $parts), array('#smf_br_spec_grudge_cool!#' => '<br>'));
 	}
 
 	// Remove scripts, style and comment blocks.
@@ -1499,7 +1499,7 @@ function create_control_richedit($editorOptions)
 			if (!isset($_REQUEST['xml']))
 				$context['insert_after_template'] .= '
 		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
-			<input type="hidden" name="spellstring" value="" />
+			<input type="hidden" name="spellstring" value="">
 		</form>';
 		}
 	}

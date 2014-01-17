@@ -60,7 +60,7 @@ $txt['invalid_activation_submit'] = 'Activate';
 $txt['coppa_no_concent'] = 'The administrator has still not received parent/guardian consent for your account.';
 $txt['coppa_need_more_details'] = 'Need more details?';
 
-$txt['awaiting_delete_account'] = 'Your account has been marked for deletion!<br />If you wish to restore your account, please check the &quot;Reactivate my account&quot; box, and login again.';
+$txt['awaiting_delete_account'] = 'Your account has been marked for deletion!<br>If you wish to restore your account, please check the &quot;Reactivate my account&quot; box, and login again.';
 $txt['undelete_account'] = 'Reactivate my account';
 
 // Use numeric entities in the below three strings.
@@ -117,7 +117,7 @@ $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
 
 $txt['coppa_title'] = 'Age Restricted Forum';
-$txt['coppa_after_registration'] = 'Thank you for registering with ' . $context['forum_name_html_safe'] . '.<br /><br />Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
+$txt['coppa_after_registration'] = 'Thank you for registering with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
 	to obtain your parent or guardian\'s permission before you may begin to use your account.  To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form In New Window';
 $txt['coppa_form_link_download'] = 'Download Form as Text File';
@@ -130,7 +130,7 @@ $txt['coppa_send_by_phone'] = 'Alternatively, arrange for them to phone the admi
 $txt['coppa_form_title'] = 'Permission form for registration at ' . $context['forum_name_html_safe'];
 $txt['coppa_form_address'] = 'Address';
 $txt['coppa_form_date'] = 'Date';
-$txt['coppa_form_body'] = 'I {PARENT_NAME},<br /><br />Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: ' . $context['forum_name_html_safe'] . ', with the username: {USER_NAME}.<br /><br />I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br /><br />Signed:<br />{PARENT_NAME} (Parent/Guardian).';
+$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: ' . $context['forum_name_html_safe'] . ', with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
 
 $txt['visual_verification_sound_again'] = 'Play again';
 $txt['visual_verification_sound_close'] = 'Close window';

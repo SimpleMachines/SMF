@@ -49,7 +49,7 @@ function template_main()
 	}
 
 	// Close our wrapper.
-	echo '<br class="clear" />
+	echo '<br class="clear">
 	</div>';
 }
 
@@ -232,7 +232,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							// 9...10! Let's stop there.
 							if ($birthday_count == 10 && $use_js_hide)
 								// !!TODO - Inline CSS and JavaScript should be moved.
-								echo '<span class="hidelink" id="bdhidelink_', $day['day'], '">...<br /><a href="', $scripturl, '?action=calendar;month=', $calendar_data['current_month'], ';year=', $calendar_data['current_year'], ';showbd" onclick="document.getElementById(\'bdhide_', $day['day'], '\').style.display = \'\'; document.getElementById(\'bdhidelink_', $day['day'], '\').style.display = \'none\'; return false;">(', sprintf($txt['calendar_click_all'], count($day['birthdays'])), ')</a></span><span id="bdhide_', $day['day'], '" style="display: none;">, ';
+								echo '<span class="hidelink" id="bdhidelink_', $day['day'], '">...<br><a href="', $scripturl, '?action=calendar;month=', $calendar_data['current_month'], ';year=', $calendar_data['current_year'], ';showbd" onclick="document.getElementById(\'bdhide_', $day['day'], '\').style.display = \'\'; document.getElementById(\'bdhidelink_', $day['day'], '\').style.display = \'none\'; return false;">(', sprintf($txt['calendar_click_all'], count($day['birthdays'])), ')</a></span><span id="bdhide_', $day['day'], '" style="display: none;">, ';
 
 							++$birthday_count;
 						}
@@ -247,7 +247,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 					{
 						echo '
 							<div class="smalltext lefttext">
-								<span class="event">', $txt['events'], '</span><br />';
+								<span class="event">', $txt['events'], '</span><br>';
 
 						/* The events are made up of:
 							title, href, is_last, can_edit (are they allowed to?), and modify_href. */
@@ -258,7 +258,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							{
 								echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
-										<img src="', $settings['images_url'], '/icons/calendar_modify.png" alt="*" title="', $txt['calendar_edit'], '" class="calendar_icon" />
+										<img src="', $settings['images_url'], '/icons/calendar_modify.png" alt="*" title="', $txt['calendar_edit'], '" class="calendar_icon">
 									</a>
 								';
 							}
@@ -267,11 +267,11 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							{
 								echo '
 									<a class="modify_event" href="', $event['export_href'], '">
-										<img src="', $settings['images_url'], '/icons/calendar_export.png" alt=">" title="', $txt['calendar_export'], '" class="calendar_icon" />
+										<img src="', $settings['images_url'], '/icons/calendar_export.png" alt=">" title="', $txt['calendar_export'], '" class="calendar_icon">
 									</a>
 								';
 							}
-							echo $event['link'], $event['is_last'] ? '' : '<br />';
+							echo $event['link'], $event['is_last'] ? '' : '<br>';
 						}
 
 						echo '</div>';
@@ -405,7 +405,7 @@ function template_show_week_grid($grid_name)
 									{
 										echo '
 											<a href="', $event['modify_href'], '">
-												<img src="', $settings['images_url'], '/icons/calendar_modify.png" alt="*" title="', $txt['calendar_edit'], '" class="calendar_icon" />
+												<img src="', $settings['images_url'], '/icons/calendar_modify.png" alt="*" title="', $txt['calendar_edit'], '" class="calendar_icon">
 											</a>
 										';
 									}
@@ -414,20 +414,20 @@ function template_show_week_grid($grid_name)
 									{
 										echo '
 											<a class="modify_event" href="', $event['export_href'], '">
-												<img src="', $settings['images_url'], '/icons/calendar_export.png" alt=">" title="', $txt['calendar_export'], '" class="calendar_icon" />
+												<img src="', $settings['images_url'], '/icons/calendar_export.png" alt=">" title="', $txt['calendar_export'], '" class="calendar_icon">
 											</a>
 										';
 									}
-									echo $event['link'], $event['is_last'] ? '' : '<br />';
+									echo $event['link'], $event['is_last'] ? '' : '<br>';
 								}
 								echo '
 									</div>
 									<div class="active_post_event floatright">
 										<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">
-											<img src="', $settings['images_url'], '/icons/plus.png" alt="*" title="', $txt['calendar_post_event'], '" />
+											<img src="', $settings['images_url'], '/icons/plus.png" alt="*" title="', $txt['calendar_post_event'], '">
 										</a>
 									</div>
-									<br class="clear" />
+									<br class="clear">
 								';
 							}
 							else
@@ -445,7 +445,7 @@ function template_show_week_grid($grid_name)
 							<td class="', implode(' ', $classes), !empty($day['holidays']) ? ' holidays' : ' disabled', '">';
 							// Show any holidays!
 							if (!empty($day['holidays']))
-								echo implode('<br />', $day['holidays']);
+								echo implode('<br>', $day['holidays']);
 
 							echo '</td>
 							<td class="', implode(' ', $classes), '', !empty($day['birthdays']) ? ' birthdays' : ' disabled', '">';
@@ -457,7 +457,7 @@ function template_show_week_grid($grid_name)
 									echo '
 										<a href="', $scripturl, '?action=profile;u=', $member['id'], '">', $member['name'], '</a>
 										', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '
-									', $member['is_last'] ? '' : '<br />';
+									', $member['is_last'] ? '' : '<br>';
 								}
 							}
 							echo '</td>
@@ -508,9 +508,9 @@ function template_calendar_base($col_span = 1)
 						echo '<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
 					}
 					echo '</select>
-					<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '" />
+					<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '">
 				</form>
-				<br class="clear" />
+				<br class="clear">
 			</td>
 		</tr>
 	';
@@ -559,7 +559,7 @@ function template_event_post()
 		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);smc_saveEntities(\'postevent\', [\'evtitle\']);" style="margin: 0;">';
 
 	if (!empty($context['event']['new']))
-		echo '<input type="hidden" name="eventid" value="', $context['event']['eventid'], '" />';
+		echo '<input type="hidden" name="eventid" value="', $context['event']['eventid'], '">';
 
 	// Start the main table.
 	echo '
@@ -579,7 +579,7 @@ function template_event_post()
 						', $context['error_type'] == 'serious' ? '<strong>' . $txt['error_while_submitting'] . '</strong>' : '', '
 					</dt>
 					<dt class="error">
-						', implode('<br />', $context['post_error']['messages']), '
+						', implode('<br>', $context['post_error']['messages']), '
 					</dt>
 				</dl>
 			</div>';
@@ -589,9 +589,9 @@ function template_event_post()
 			<div class="roundframe">
 				<fieldset id="event_main">
 					<legend><span', isset($context['post_error']['no_event']) ? ' class="error"' : '', '>', $txt['calendar_event_title'], '</span></legend>
-					<input type="text" name="evtitle" maxlength="255" size="70" value="', $context['event']['title'], '" class="input_text" />
+					<input type="text" name="evtitle" maxlength="255" size="70" value="', $context['event']['title'], '" class="input_text">
 					<div class="smalltext" style="white-space: nowrap;">
-						<input type="hidden" name="calendar" value="1" />', $txt['calendar_year'], '
+						<input type="hidden" name="calendar" value="1">', $txt['calendar_year'], '
 						<select name="year" id="year" onchange="generateDays();">';
 
 	// Show a list of all the years we allow...
@@ -654,7 +654,7 @@ function template_event_post()
 		echo '
 							<li>
 								', $txt['calendar_link_event'], '
-								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked onclick="toggleLinked(this.form);" />
+								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked onclick="toggleLinked(this.form);">
 							</li>
 							<li>
 								', $txt['calendar_post_in'], '
@@ -681,15 +681,15 @@ function template_event_post()
 				</fieldset>';
 
 	echo '
-				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit" />';
+				<input type="submit" value="', empty($context['event']['new']) ? $txt['save'] : $txt['post'], '" class="button_submit">';
 	// Delete button?
 	if (empty($context['event']['new']))
 		echo '
-				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['calendar_confirm_delete'], '\');" class="button_submit" />';
+				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['calendar_confirm_delete'], '\');" class="button_submit">';
 
 	echo '
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				<input type="hidden" name="eventid" value="', $context['event']['eventid'], '" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="eventid" value="', $context['event']['eventid'], '">
 
 			</div>
 		</div>
@@ -711,7 +711,7 @@ function template_bcd()
 				echo '<td style="padding-', $alt ? 'right' : 'left', ': 1.5em;">';
 				foreach ($v as $i)
 				{
-					echo '<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" /><br />';
+					echo '<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '"><br>';
 				}
 				echo '</td>';
 				$alt = !$alt;
@@ -805,7 +805,7 @@ function template_hms()
 						<td>';
 						foreach ($v as $i)
 						{
-							echo '<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;" />';
+							echo '<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
 						}
 						echo '</td>
 					</tr>
@@ -895,7 +895,7 @@ function template_omfg()
 						<td>';
 						foreach ($v as $i)
 						{
-							echo '<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;" />';
+							echo '<img src="', $context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
 						}
 						echo '</td>
 					</tr>
@@ -984,7 +984,7 @@ function template_thetime()
 						<td>';
 						foreach ($v as $i)
 						{
-							echo '<img src="', $i ? $context['onimg'] : $context['offimg'], '" alt="" style="padding: 2px;" />';
+							echo '<img src="', $i ? $context['onimg'] : $context['offimg'], '" alt="" style="padding: 2px;">';
 						}
 						echo '</td>
 					</tr>

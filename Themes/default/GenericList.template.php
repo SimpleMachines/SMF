@@ -161,7 +161,7 @@ function template_show_list($list_id = null)
 	{
 		foreach ($cur_list['form']['hidden_fields'] as $name => $value)
 			echo '
-			<input type="hidden" name="', $name, '" value="', $value, '" />';
+			<input type="hidden" name="', $name, '" value="', $value, '">';
 
 		echo '
 		</div>
