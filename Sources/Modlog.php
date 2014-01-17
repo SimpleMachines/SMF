@@ -257,7 +257,7 @@ function ViewModlog()
 				),
 				'data' => array(
 					'function' => create_function('$entry', '
-						return \'<input type="checkbox" class="input_check" name="delete[]" value="\' . $entry[\'id\'] . \'"\' . ($entry[\'editable\'] ? \'\' : \' disabled="disabled"\') . \' />\';
+						return \'<input type="checkbox" class="input_check" name="delete[]" value="\' . $entry[\'id\'] . \'"\' . ($entry[\'editable\'] ? \'\' : \' disabled\') . \' />\';
 					'),
 					'class' => 'centercol',
 				),

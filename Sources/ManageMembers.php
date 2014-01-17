@@ -585,7 +585,7 @@ function ViewMemberlist()
 					'function' => create_function('$rowData', '
 						global $user_info;
 
-						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_member\'] . \'" class="input_check" \' . ($rowData[\'id_member\'] == $user_info[\'id\'] || $rowData[\'id_group\'] == 1 || in_array(1, explode(\',\', $rowData[\'additional_groups\'])) ? \'disabled="disabled"\' : \'\') . \' />\';
+						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_member\'] . \'" class="input_check"\' . ($rowData[\'id_member\'] == $user_info[\'id\'] || $rowData[\'id_group\'] == 1 || in_array(1, explode(\',\', $rowData[\'additional_groups\'])) ? \' disabled\' : \'\') . \' />\';
 					'),
 					'class' => 'centercol',
 				),
@@ -758,7 +758,7 @@ function MembersAwaitingActivation()
 	// Create an option list for actions allowed to be done with selected members.
 	$allowed_actions = '
 			<option selected="selected" value="">' . $txt['admin_browse_with_selected'] . ':</option>
-			<option value="" disabled="disabled">-----------------------------</option>';
+			<option value="" disabled>-----------------------------</option>';
 	foreach ($context['allowed_actions'] as $key => $desc)
 		$allowed_actions .= '
 			<option value="' . $key . '">' . $desc . '</option>';
