@@ -1698,7 +1698,7 @@ ul li.greeting {
 }
 /* min-width should be equal to #wrapper min-width. */
 #footer_section div.frame {
-	padding: 10px 5px;
+	padding: 10px 5px 10px 13px;
 	overflow: auto;
 }
 #footer_section ul li, #footer_section p,
