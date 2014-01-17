@@ -3084,7 +3084,7 @@ function profileSaveAvatarData(&$value)
 				$cur_profile['filename'] = $destName;
 				$cur_profile['attachment_type'] = 1;
 
-				$destinationPath = $uploadDir . '/' . $destName;
+				$destinationPath = $uploadDir . '/' . (empty($file_hash) ? $destName : $cur_profile['id_attach'] . '_' . $file_hash . '.dat');
 				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
 				{
 					// I guess a man can try.
