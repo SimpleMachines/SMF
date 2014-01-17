@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir;
+	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir, $user_info;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
@@ -126,6 +126,15 @@ function CalendarMain()
 		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
 
 	// Basic template stuff.
+	$context['allow_calendar_event'] = allowedTo('calendar_post');
+	
+	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
+	if ($context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	{
+		$boards_can_post = boardsAllowedTo('post_new');
+		$context['allow_calendar_event'] &= !empty($boards_can_post);
+	}
+
 	$context['can_post'] = $context['allow_calendar_event'];
 	$context['current_day'] = $curPage['day'];
 	$context['current_month'] = $curPage['month'];
