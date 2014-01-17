@@ -287,7 +287,7 @@ function warning_preview()
 	else
 		$context['post_error']['messages'][] = array('value' => $txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
 
-	$context['sub_template'] = 'pm';
+	$context['sub_template'] = 'warning';
 }
 
 ?>
