@@ -115,7 +115,7 @@ function template_modifyset()
 							<select name="smiley_sets_path" id="smiley_sets_path">';
 			foreach ($context['smiley_set_dirs'] as $smiley_set_dir)
 				echo '
-								<option value="', $smiley_set_dir['id'], '"', $smiley_set_dir['current'] ? ' selected="selected"' : '', $smiley_set_dir['selectable'] ? '' : ' disabled="disabled"', '>', $smiley_set_dir['id'], '</option>';
+								<option value="', $smiley_set_dir['id'], '"', $smiley_set_dir['current'] ? ' selected="selected"' : '', $smiley_set_dir['selectable'] ? '' : ' disabled', '>', $smiley_set_dir['id'], '</option>';
 			echo '
 							</select> ';
 		}

@@ -509,13 +509,13 @@ function template_folder()
 					echo '
 					<select name="pm_actions[', $message['id'], ']" onchange="if (this.options[this.selectedIndex].value) form.submit();">
 						<option value="">', $txt['pm_msg_label_title'], ':</option>
-						<option value="" disabled="disabled">---------------</option>';
+						<option value="" disabled>---------------</option>';
 
 					// Are there any labels which can be added to this?
 					if (!$message['fully_labeled'])
 					{
 						echo '
-						<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
+						<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
 						foreach ($context['labels'] as $label)
 							if (!isset($message['labels'][$label['id']]))
 								echo '
@@ -525,7 +525,7 @@ function template_folder()
 					if (!empty($message['labels']) && (count($message['labels']) > 1 || !isset($message['labels'][-1])))
 					{
 						echo '
-						<option value="" disabled="disabled">', $txt['pm_msg_label_remove'], ':</option>';
+						<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
 						foreach ($message['labels'] as $label)
 							echo '
 							<option value="', $label['id'], '">&nbsp;', $label['name'], '</option>';
@@ -664,10 +664,10 @@ function template_subject_list()
 			echo '
 				<select name="pm_action" onchange="if (this.options[this.selectedIndex].value) this.form.submit();" onfocus="loadLabelChoices();">
 					<option value="">', $txt['pm_sel_label_title'], ':</option>
-					<option value="" disabled="disabled">---------------</option>';
+					<option value="" disabled>---------------</option>';
 
 			echo '
-					<option value="" disabled="disabled">', $txt['pm_msg_label_apply'], ':</option>';
+					<option value="" disabled>', $txt['pm_msg_label_apply'], ':</option>';
 
 			foreach ($context['labels'] as $label)
 			{
@@ -677,7 +677,7 @@ function template_subject_list()
 			}
 
 			echo '
-					<option value="" disabled="disabled">', $txt['pm_msg_label_remove'], ':</option>';
+					<option value="" disabled>', $txt['pm_msg_label_remove'], ':</option>';
 
 			foreach ($context['labels'] as $label)
 			{

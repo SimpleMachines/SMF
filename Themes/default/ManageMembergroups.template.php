@@ -305,7 +305,7 @@ function template_edit_group()
 							<span class="smalltext">', $txt['membergroups_max_messages_note'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="max_messages" id="max_messages_input" value="', $context['group']['id'] == 1 ? 0 : $context['group']['max_messages'], '" size="6"', $context['group']['id'] == 1 ? ' disabled="disabled"' : '', ' class="input_text" />
+							<input type="text" name="max_messages" id="max_messages_input" value="', $context['group']['id'] == 1 ? 0 : $context['group']['max_messages'], '" size="6"', $context['group']['id'] == 1 ? ' disabled' : '', ' class="input_text" />
 						</dd>';
 	if (!empty($context['categories']))
 	{
