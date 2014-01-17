@@ -79,7 +79,7 @@ $txt['package_installed_redirect_go_now'] = 'Redirect Now';
 $txt['package_installed_redirect_cancel'] = 'Return to Package Manager';
 
 $txt['packages_adding_title'] = 'Obtaining Packages';
-$txt['packages_adding'] = 'You can always find new packages for your forum from the SMF modifications area - <strong><a href="http://custom.simplemachines.org/mods/" target="_blank">http://custom.simplemachines.org/mods/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br /><br />If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
+$txt['packages_adding'] = 'You can always find new packages for your forum from the SMF modifications area - <strong><a href="http://custom.simplemachines.org/mods/" target="_blank">http://custom.simplemachines.org/mods/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with modifications, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
 $txt['package_upgrade'] = 'Upgrade';
 $txt['package_uninstall_readme'] = 'Uninstallation Readme';
@@ -111,7 +111,7 @@ $txt['execute_credits_action'] = 'Credits: %1$s';
 
 $txt['package_install_actions'] = 'Installations actions for';
 $txt['package_will_fail_title'] = 'Error in package %1$s';
-$txt['package_will_fail_warning'] = 'At least one error was encountered during a test %1$s of this package.<br />It is <strong>strongly</strong> recommended that you do not continue with %1$s unless you know what you are doing, and have made a backup very recently.<br /><br />This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
+$txt['package_will_fail_warning'] = 'At least one error was encountered during a test %1$s of this package.<br>It is <strong>strongly</strong> recommended that you do not continue with %1$s unless you know what you are doing, and have made a backup very recently.<br><br>This error may be caused by a conflict between the package you\'re trying to install and another package you have already installed, an error in the package, a package which requires another package that you have not installed yet, or a package designed for another version of SMF.';
 $txt['package_will_fail_unknown_action'] = 'The package is trying to perform an unknown action: %1$s';
 // Don't use entities in the below string.
 $txt['package_will_fail_popup'] = 'Are you sure you wish to continue installing this modification, even though it will not install successfully?';
@@ -136,11 +136,11 @@ $txt['package_action_skipping'] = '<strong>Skipping file</strong>';
 
 $txt['package_uninstall_actions'] = 'Uninstall Actions';
 $txt['package_uninstall_done'] = 'The package has been successfully uninstalled.';
-$txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller.<br /><br />Please contact the mod author for more information.';
+$txt['package_uninstall_cannot'] = 'This package cannot be uninstalled, because there is no uninstaller.<br><br>Please contact the mod author for more information.';
 
 $txt['package_install_options'] = 'Installation Options';
 $txt['package_install_options_desc'] = 'Set various options for how the package manager installs modifications, including backups and ftp access';
-$txt['package_install_options_ftp_why'] = 'Using the package manager\'s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br />Here you can set the default values for some fields.';
+$txt['package_install_options_ftp_why'] = 'Using the package manager\'s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work.<br>Here you can set the default values for some fields.';
 $txt['package_install_options_ftp_server'] = 'FTP Server';
 $txt['package_install_options_ftp_port'] = 'Port';
 $txt['package_install_options_ftp_user'] = 'Username';
@@ -161,7 +161,7 @@ $txt['package_ftp_test_connection'] = 'Test Connection';
 $txt['package_ftp_test_success'] = 'FTP connection established.';
 $txt['package_ftp_test_failed'] = 'Could not contact server.';
 
-// For a break, use \\n instead of <br />... and don't use entities.
+// For a break, use \\n instead of <br>... and don't use entities.
 $txt['package_delete_bad'] = 'The package you are about to delete is currently installed!  If you delete it, you may not be able to uninstall it later.\\n\\nAre you sure?';
 
 $txt['package_examine_file'] = 'View file in package';
@@ -271,7 +271,7 @@ $txt['package_file_perms_warning_desc'] = '
 	<li>This functionality is mainly applicable on non-Windows based servers - it will not work as expected on Windows in regards to permission flags.</li>
 	<li>Before proceeding make sure you have an FTP client installed in case you do make an error and need to FTP into the server to remedy it.</li>';
 
-$txt['package_confirm_view_package_content'] = 'Are you sure you want to view the package contents from this location:<br /><br />%1$s';
+$txt['package_confirm_view_package_content'] = 'Are you sure you want to view the package contents from this location:<br><br>%1$s';
 $txt['package_confirm_proceed'] = 'Proceed';
 $txt['package_confirm_go_back'] = 'Go back';
 

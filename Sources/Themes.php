@@ -1440,7 +1440,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="'. $context['to_install']['install_for'] .'" />
+<install for="'. $context['to_install']['install_for'] .'">
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->

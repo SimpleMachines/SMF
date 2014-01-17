@@ -190,7 +190,7 @@ function ModerationMain($dont_call = false)
 		'help' => '',
 		'description' => '
 			<strong>' . $txt['hello_guest'] . ' ' . $context['user']['name'] . '!</strong>
-			<br /><br />
+			<br><br>
 			' . $txt['mc_description']);
 
 	// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
@@ -993,7 +993,7 @@ function ModReport()
 	{
 		$context['report']['comments'][] = array(
 			'id' => $row['id_comment'],
-			'message' => strtr($row['comment'], array("\n" => '<br />')),
+			'message' => strtr($row['comment'], array("\n" => '<br>')),
 			'time' => timeformat($row['time_sent']),
 			'member' => array(
 				'id' => $row['id_member'],
@@ -1362,7 +1362,7 @@ function ViewWatchedUsers()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />',
+					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">',
 				'align' => 'right',
 			) : array(),
 		),
@@ -1699,7 +1699,7 @@ function ViewWarningLog()
 
 						if (!empty($warning[\'id_notice\']))
 							$output .= \'
-								<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'default_images_url\'] . \'/filter.png" alt="\' . $txt[\'profile_warning_previous_notice\'] . \'" /></a>\';
+								<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'default_images_url\'] . \'/filter.png" alt="\' . $txt[\'profile_warning_previous_notice\'] . \'"></a>\';
 						return $output;
 					'),
 				),
@@ -1899,7 +1899,7 @@ function ViewWarningTemplates()
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
@@ -1907,7 +1907,7 @@ function ViewWarningTemplates()
 					'function' => create_function('$rowData', '
 						global $context, $txt, $scripturl;
 
-						return \'<input type="checkbox" name="deltpl[]" value="\' . $rowData[\'id_comment\'] . \'" class="input_check" />\';
+						return \'<input type="checkbox" name="deltpl[]" value="\' . $rowData[\'id_comment\'] . \'" class="input_check">\';
 					'),
 					'class' => 'centercol',
 				),
@@ -1920,11 +1920,11 @@ function ViewWarningTemplates()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit" />',
+				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit">',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="add" value="' . $txt['mc_warning_template_add'] . '" class="button_submit">',
 			),
 		),
 	);
@@ -2077,7 +2077,7 @@ function ModifyWarningTemplate()
 			// Clean up BBC.
 			preparsecode($_POST['template_body']);
 			// But put line breaks back!
-			$_POST['template_body'] = strtr($_POST['template_body'], array('<br />' => "\n"));
+			$_POST['template_body'] = strtr($_POST['template_body'], array('<br>' => "\n"));
 
 			// Is this personal?
 			$recipient_id = !empty($_POST['make_personal']) ? $user_info['id'] : 0;

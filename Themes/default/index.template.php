@@ -96,50 +96,50 @@ function template_html_above()
 	template_javascript();
 
 	echo '
-	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '" />', !empty($context['meta_keywords']) ? '
-	<meta name="keywords" content="' . $context['meta_keywords'] . '" />' : '', '
+	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
+	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>';
 
 	// Please don't index these Mr Robot.
 	if (!empty($context['robot_no_index']))
 		echo '
-	<meta name="robots" content="noindex" />';
+	<meta name="robots" content="noindex">';
 
 	// Present a canonical url for search engines to prevent duplicate content in their indices.
 	if (!empty($context['canonical_url']))
 		echo '
-	<link rel="canonical" href="', $context['canonical_url'], '" />';
+	<link rel="canonical" href="', $context['canonical_url'], '">';
 
 	// Show all the relative links, such as help, search, contents, and the like.
 	echo '
-	<link rel="help" href="', $scripturl, '?action=help" />
-	<link rel="contents" href="', $scripturl, '" />', ($context['allow_search'] ? '
-	<link rel="search" href="' . $scripturl . '?action=search" />' : '');
+	<link rel="help" href="', $scripturl, '?action=help">
+	<link rel="contents" href="', $scripturl, '">', ($context['allow_search'] ? '
+	<link rel="search" href="' . $scripturl . '?action=search">' : '');
 
 	// If RSS feeds are enabled, advertise the presence of one.
 	if (!empty($modSettings['xmlnews_enable']) && (!empty($modSettings['allow_guestAccess']) || $context['user']['is_logged']))
 		echo '
-	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['rss'], '" href="', $scripturl, '?type=rss2;action=.xml" />
-	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['atom'], '" href="', $scripturl, '?type=atom;action=.xml" />';
+	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['rss'], '" href="', $scripturl, '?type=rss2;action=.xml">
+	<link rel="alternate" type="application/rss+xml" title="', $context['forum_name_html_safe'], ' - ', $txt['atom'], '" href="', $scripturl, '?type=atom;action=.xml">';
 
 	// If we're viewing a topic, these should be the previous and next topics, respectively.
 	if (!empty($context['links']['next']))
 	{
 		echo '
-	<link rel="next" href="', $context['links']['next'], '" />';
+	<link rel="next" href="', $context['links']['next'], '">';
 	}
 
 	if (!empty($context['links']['prev']))
 	{
 		echo '
-	<link rel="prev" href="', $context['links']['prev'], '" />';
+	<link rel="prev" href="', $context['links']['prev'], '">';
 	}
 
 	// If we're in a board, or a topic for that matter, the index will be the board's index.
 	if (!empty($context['current_board']))
 		echo '
-	<link rel="index" href="', $scripturl, '?board=', $context['current_board'], '.0" />';
+	<link rel="index" href="', $scripturl, '?board=', $context['current_board'], '.0">';
 
 	// Output any remaining HTML headers. (from mods, maybe?)
 	echo $context['html_headers'];
@@ -202,7 +202,7 @@ function template_body_above()
 	{
 		echo '
 			<form id="search_form" class="floatright" action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-				<input type="text" name="search" value="" class="input_text" />&nbsp;';
+				<input type="text" name="search" value="" class="input_text">&nbsp;';
 
 		// Using the quick search dropdown?
 		if (!empty($modSettings['search_dropdown']))
@@ -230,15 +230,15 @@ function template_body_above()
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '" />';
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '">';
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '" />';
+				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '">';
 
 		echo '
-				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit" />
-				<input type="hidden" name="advanced" value="0" />
+				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit">
+				<input type="hidden" name="advanced" value="0">
 			</form>';
 	}
 
@@ -250,11 +250,11 @@ function template_body_above()
 	<div id="header">
 		<div class="frame">
 			<h1 class="forumtitle">
-				<a id="top" href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '" />', '</a>
+				<a id="top" href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '">', '</a>
 			</h1>';
 
 	echo '
-			', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '';
+			', empty($settings['site_slogan']) ? '<img id="smflogo" src="' . $settings['images_url'] . '/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan" class="floatright">' . $settings['site_slogan'] . '</div>', '';
 
 	echo'
 		</div>
@@ -271,8 +271,8 @@ function template_body_above()
 		echo '
 						<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 						<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
-							<input type="text" name="user" size="10" class="input_text" />
-							<input type="password" name="passwrd" size="10" class="input_password" />
+							<input type="text" name="user" size="10" class="input_text">
+							<input type="password" name="passwrd" size="10" class="input_password">
 							<select name="cookielength">
 								<option value="60">', $txt['one_hour'], '</option>
 								<option value="1440">', $txt['one_day'], '</option>
@@ -280,17 +280,17 @@ function template_body_above()
 								<option value="43200">', $txt['one_month'], '</option>
 								<option value="-1" selected>', $txt['forever'], '</option>
 							</select>
-							<input type="submit" value="', $txt['login'], '" class="button_submit" />
+							<input type="submit" value="', $txt['login'], '" class="button_submit">
 							<div>', $txt['quick_login_dec'], '</div>';
 
 		if (!empty($modSettings['enableOpenID']))
 			echo '
-							<br /><input type="text" name="openid_identifier" size="25" class="input_text openid_login" />';
+							<br><input type="text" name="openid_identifier" size="25" class="input_text openid_login">';
 
 		echo '
-							<input type="hidden" name="hash_passwrd" value="" />
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-							<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '" />
+							<input type="hidden" name="hash_passwrd" value="">
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
 						</form>';
 	}
 	else
@@ -310,7 +310,7 @@ function template_body_above()
 					</div>';
 
 	echo '
-					<hr class="clear" />
+					<hr class="clear">
 				</div>';
 
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.

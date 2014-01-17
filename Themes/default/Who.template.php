@@ -35,7 +35,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button_submit" />
+							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button_submit">
 						</noscript>
 					</div>
 				</div>
@@ -64,7 +64,7 @@ function template_main()
 		{
 			echo '
 								<span class="contact_info floatright">
-									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" align="bottom" />' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
+									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" align="bottom">' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 									', isset($context['disabled_fields']['icq']) ? '' : $member['icq']['link'] , ' ', isset($context['disabled_fields']['skype']) ? '' : $member['skype']['link'], ' ', isset($context['disabled_fields']['yim']) ? '' : $member['yim']['link'], ' ', isset($context['disabled_fields']['aim']) ? '' : $member['aim']['link'], '
 								</span>';
 		}
@@ -115,7 +115,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" value="', $txt['go'], '" class="button_submit" />
+							<input type="submit" value="', $txt['go'], '" class="button_submit">
 						</noscript>
 					</div>
 				</div>

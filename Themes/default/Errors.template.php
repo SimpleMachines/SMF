@@ -32,7 +32,7 @@ function template_fatal_error()
 			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
 		</div>
 	</div>
-	<br class="clear" />';
+	<br class="clear">';
 
 	// Show a back button (using javascript.)
 	echo '
@@ -51,7 +51,7 @@ function template_error_log()
 	echo '
 			<div class="cat_bar clear_right">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '" /></a> ', $txt['errlog'], '
+					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a> ', $txt['errlog'], '
 				</h3>
 			</div>
 			<div class="pagesection">
@@ -59,8 +59,8 @@ function template_error_log()
 					', $context['page_index'], '
 				</div>
 				<div class="floatright" style="margin-top: 1ex">
-					<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit" />
-					<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit" />
+					<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit">
+					<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit">
 				</div>
 			</div>
 			<table border="0" cellspacing="1" class="table_grid" id="error_log">
@@ -70,7 +70,7 @@ function template_error_log()
 
 	$error_types = array();
 	foreach ($context['error_types'] as $type => $details)
-		$error_types[] = ($details['is_selected'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="" /> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . $details['label'] . '</a>';
+		$error_types[] = ($details['is_selected'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt=""> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : '') . ' title="' . $details['description'] . '">' . $details['label'] . '</a>';
 
 	echo '
 						', implode('&nbsp;|&nbsp;', $error_types), '
@@ -89,7 +89,7 @@ function template_error_log()
 				<tr class="titlebg">
 					<td colspan="3" class="righttext" style="padding: 4px 8px;">
 						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>&nbsp;
-						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;" class="input_check" />
+						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;" class="input_check">
 					</td>
 				</tr>';
 
@@ -108,15 +108,15 @@ function template_error_log()
 					<td>
 
 						<div style="float: left; width: 50%; line-height: 1.8em; padding: 0 4px 4px 4px; vertical-align: bottom;">
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '" /></a>
-							<strong>', $error['member']['link'], '</strong><br />
+							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_member'], '"></a>
+							<strong>', $error['member']['link'], '</strong><br>
 							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? '' : ';desc', $context['has_filter'] ? $context['filter']['href'] : '', '" title="', $txt['reverse_direction'], '"><span class="sort sort_' . $context['sort_direction'] . '">', $txt['reverse_direction'], '</span></a>
-							', $error['time'], '<br />';
+							', $error['time'], '<br>';
 
 		if (!empty($error['member']['ip']))
 			echo '
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '" /></a>
-							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>&nbsp;&nbsp;<br />';
+							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_ip'], '"></a>
+							<strong><a href="', $scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>&nbsp;&nbsp;<br>';
 
 		echo '
 						</div>
@@ -125,27 +125,27 @@ function template_error_log()
 
 		if ($error['member']['session'] != '')
 			echo '
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '" /></a>
-							', $error['member']['session'], '<br />';
+							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_session'], '"></a>
+							', $error['member']['session'], '<br>';
 
 		echo '
-							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '" /></a>
-							', $txt['error_type'], ': ', $error['error_type']['name'], '<br />
-							<a style="display: table-cell; padding: 4px 0; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '" /></a>
+							<a href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_type'], '"></a>
+							', $txt['error_type'], ': ', $error['error_type']['name'], '<br>
+							<a style="display: table-cell; padding: 4px 0; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_message'], '"></a>
 							<span style="display: table-cell;">', $error['message']['html'], '</span>
 						</div>
 
 						<div style="float: left; width: 100%; padding: 4px 0; line-height: 1.6em; border-top: 1px solid #e3e3e3;">
-							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '" /></a>
+							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_url'], '"></a>
 							<a style="display: table-cell;" href="', $error['url']['html'], '">', $error['url']['html'], '</a>
 						</div>';
 
 		if (!empty($error['file']))
 			echo '
 						<div style="float: left; width: 100%; padding: 4px 0; line-height: 1.6em; border-top: 1px solid #e3e3e3;">
-							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '" /></a>
+							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"><img src="', $settings['images_url'], '/filter.png" alt="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"></a>
 							<div style="display: table-cell;">
-								', $txt['file'], ': ', $error['file']['link'], '<br />
+								', $txt['file'], ': ', $error['file']['link'], '<br>
 								', $txt['line'], ': ', $error['file']['line'], '
 							</div>
 						</div>';
@@ -153,7 +153,7 @@ function template_error_log()
 		echo '
 					</td>
 					<td class="checkbox_column">
-						<input type="checkbox" name="delete[]" value="', $error['id'], '" class="input_check" />
+						<input type="checkbox" name="delete[]" value="', $error['id'], '" class="input_check">
 					</td>
 				</tr>';
 	}
@@ -162,7 +162,7 @@ function template_error_log()
 				<tr class="titlebg">
 					<td colspan="3" class="righttext" style="padding-right: 1.2ex">
 						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>&nbsp;
-						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;" class="input_check" />
+						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;" class="input_check">
 					</td>
 				</tr>
 			</table>
@@ -172,21 +172,21 @@ function template_error_log()
 
 	echo '
 			<div class="floatright" style="margin-top: 1ex">
-				<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit" />
-				<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit" />
+				<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit">
+				<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit">
 			</div>
-			<br />';
+			<br>';
 
 	if ($context['sort_direction'] == 'down')
 		echo '
-			<input type="hidden" name="desc" value="1" />';
+			<input type="hidden" name="desc" value="1">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />';
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-			<input type="hidden" name="', $context['admin-el_token_var'], '" value="', $context['admin-el_token'], '" />
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="', $context['admin-el_token_var'], '" value="', $context['admin-el_token'], '">
 		</form>';
 }
 
@@ -198,8 +198,8 @@ function template_show_file()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $context['file_data']['file'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
 	</head>
 	<body>
 		<table class="errorfile_table">';

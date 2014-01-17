@@ -742,8 +742,8 @@ function CoppaForm()
 	if (isset($_GET['form']))
 	{
 		// Some simple contact stuff for the forum.
-		$context['forum_contacts'] = (!empty($modSettings['coppaPost']) ? $modSettings['coppaPost'] . '<br /><br />' : '') . (!empty($modSettings['coppaFax']) ? $modSettings['coppaFax'] . '<br />' : '');
-		$context['forum_contacts'] = !empty($context['forum_contacts']) ? $context['forum_name_html_safe'] . '<br />' . $context['forum_contacts'] : '';
+		$context['forum_contacts'] = (!empty($modSettings['coppaPost']) ? $modSettings['coppaPost'] . '<br><br>' : '') . (!empty($modSettings['coppaFax']) ? $modSettings['coppaFax'] . '<br>' : '');
+		$context['forum_contacts'] = !empty($context['forum_contacts']) ? $context['forum_name_html_safe'] . '<br>' . $context['forum_contacts'] : '';
 
 		// Showing template?
 		if (!isset($_GET['dl']))
@@ -762,7 +762,7 @@ function CoppaForm()
 			$ul = '                ';
 			$crlf = "\r\n";
 			$data = $context['forum_contacts'] . $crlf . $txt['coppa_form_address'] . ':' . $crlf . $txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf . $txt['coppa_form_body'];
-			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br />'), array($ul, $ul, $username, $crlf, $crlf), $data);
+			$data = str_replace(array('{PARENT_NAME}', '{CHILD_NAME}', '{USER_NAME}', '<br>', '<br>'), array($ul, $ul, $username, $crlf, $crlf), $data);
 
 			// Send the headers.
 			header('Connection: close');

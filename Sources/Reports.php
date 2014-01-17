@@ -598,7 +598,7 @@ function MemberGroupsReport()
 			'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
 			'min_posts' => $row['min_posts'] == -1 ? 'N/A' : $row['min_posts'],
 			'max_messages' => $row['max_messages'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		// Board permissions.

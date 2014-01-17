@@ -18,16 +18,16 @@ function template_popup()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
-			', $context['help_text'], '<br />
-			<br />
+			', $context['help_text'], '<br>
+			<br>
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
 	</body>
@@ -42,9 +42,9 @@ function template_find_members()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $txt['find_members'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta name="robots" content="noindex">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script><!-- // --><![CDATA[
 			var membersAdded = [];
@@ -75,23 +75,23 @@ function template_find_members()
 					<h3 class="catbg">', $txt['find_members'], '</h3>
 				</div>
 				<div class="padding">
-					<strong>', $txt['find_username'], ':</strong><br />
-					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text" /><br />
-					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br />';
+					<strong>', $txt['find_username'], ':</strong><br>
+					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text"><br>
+					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br>';
 
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
-					<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', ' /> ', $txt['find_buddies'], '</label></span><br />';
+					<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label></span><br>';
 
 	echo '
 					<div class="padding righttext">
-						<input type="submit" value="', $txt['search'], '" class="button_submit" />
-						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit" />
+						<input type="submit" value="', $txt['search'], '" class="button_submit">
+						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit">
 					</div>
 				</div>
 			</div>
-			<br />
+			<br>
 			<div class="roundframe">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['find_results'], '</h3>
@@ -110,7 +110,7 @@ function template_find_members()
 		{
 			echo '
 					<li class="', $alternate ? 'windowbg2' : 'windowbg', '">
-						<a href="', $result['href'], '" target="_blank" class="new_win"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="', $txt['view_profile'], '" title="', $txt['view_profile'], '" /></a>
+						<a href="', $result['href'], '" target="_blank" class="new_win"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="', $txt['view_profile'], '" title="', $txt['view_profile'], '"></a>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
 
@@ -127,9 +127,9 @@ function template_find_members()
 	echo '
 
 			</div>
-			<input type="hidden" name="input" value="', $context['input_box_name'], '" />
-			<input type="hidden" name="delim" value="', $context['delimiter'], '" />
-			<input type="hidden" name="quote" value="', $context['quote_results'] ? '1' : '0', '" />
+			<input type="hidden" name="input" value="', $context['input_box_name'], '">
+			<input type="hidden" name="delim" value="', $context['delimiter'], '">
+			<input type="hidden" name="quote" value="', $context['quote_results'] ? '1' : '0', '">
 		</form>';
 
 	if (empty($context['results']))

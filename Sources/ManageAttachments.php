@@ -383,7 +383,7 @@ function BrowseFiles()
 			$list_title .= ' | ';
 
 		if ($context['browse_type'] == $browse_type)
-			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ';
+			$list_title .= '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ';
 
 		$list_title .= '<a href="' . $scripturl . $details[0] . '">' . $details[1] . '</a>';
 	}
@@ -502,7 +502,7 @@ function BrowseFiles()
 
 						// Add a link to the topic in case of an attachment.
 						if ($context[\'browse_type\'] !== \'avatars\')
-							$date .= sprintf(\'<br />%1$s <a href="%2$s?topic=%3$d.0.msg%4$d#msg%4$d">%5$s</a>\', $txt[\'in\'], $scripturl, $rowData[\'id_topic\'], $rowData[\'id_msg\'], $rowData[\'subject\']);
+							$date .= sprintf(\'<br>%1$s <a href="%2$s?topic=%3$d.0.msg%4$d#msg%4$d">%5$s</a>\', $txt[\'in\'], $scripturl, $rowData[\'id_topic\'], $rowData[\'id_msg\'], $rowData[\'subject\']);
 
 						return $date;
 						'),
@@ -527,12 +527,12 @@ function BrowseFiles()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[%1$d]" class="input_check" />',
+						'format' => '<input type="checkbox" name="remove[%1$d]" class="input_check">',
 						'params' => array(
 							'id_attach' => false,
 						),
@@ -552,7 +552,7 @@ function BrowseFiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="remove_submit" class="button_submit" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['confirm_delete_attachments'] . '\');" />',
+				'value' => '<input type="submit" name="remove_submit" class="button_submit" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['confirm_delete_attachments'] . '\');">',
 			),
 		),
 	);
@@ -760,7 +760,7 @@ function MaintainFiles()
 	$context['checked'] = isset($_SESSION['checked']) ? $_SESSION['checked'] : true;
 	if (!empty($_SESSION['results']))
 	{
-		$context['results'] = implode('<br />', $_SESSION['results']);
+		$context['results'] = implode('<br>', $_SESSION['results']);
 		unset($_SESSION['results']);
 	}
 }
@@ -848,7 +848,7 @@ function RemoveAttachmentByAge()
 				WHERE id_msg IN ({array_int:messages})',
 				array(
 					'messages' => $messages,
-					'notice' => '<br /><br />' . $_POST['notice'],
+					'notice' => '<br><br>' . $_POST['notice'],
 				)
 			);
 	}
@@ -884,7 +884,7 @@ function RemoveAttachmentBySize()
 			WHERE id_msg IN ({array_int:messages})',
 			array(
 				'messages' => $messages,
-				'notice' => '<br /><br />' . $_POST['notice'],
+				'notice' => '<br><br>' . $_POST['notice'],
 			)
 		);
 
@@ -925,7 +925,7 @@ function RemoveAttachment()
 					WHERE id_msg IN ({array_int:messages_affected})',
 					array(
 						'messages_affected' => $messages,
-						'deleted_message' => '<br /><br />' . $txt['attachment_delete_admin'],
+						'deleted_message' => '<br><br>' . $txt['attachment_delete_admin'],
 					)
 				);
 				loadLanguage('index', $user_info['language'], true);
@@ -961,7 +961,7 @@ function RemoveAllAttachments()
 			WHERE id_msg IN ({array_int:messages})',
 			array(
 				'messages' => $messages,
-				'deleted_message' => '<br /><br />' . $_POST['notice'],
+				'deleted_message' => '<br><br>' . $_POST['notice'],
 			)
 		);
 
@@ -2286,7 +2286,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled\' : \'\') . \' class="input_radio" />\';
+						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled\' : \'\') . \' class="input_radio">\';
 					'),
 					'style' => 'width: 10%;',
 					'class' => 'centercol',
@@ -2298,7 +2298,7 @@ function ManageAttachmentPaths()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="hidden" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'" /><input type="text" size="40" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'"\' . (!empty($rowData[\'disable_base_dir\']) ? \' disabled\' : \'\') . \' class="input_text" style="width: 100%" />\';
+						return \'<input type="hidden" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'"><input type="text" size="40" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'"\' . (!empty($rowData[\'disable_base_dir\']) ? \' disabled\' : \'\') . \' class="input_text" style="width: 100%">\';
 					'),
 					'style' => 'width: 40%;',
 				),
@@ -2340,9 +2340,9 @@ function ManageAttachmentPaths()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
-				<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit" />
-				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button_submit" />',
+				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+				<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit">
+				<input type="submit" name="new_path" value="' . $txt['attach_add_path'] . '" class="button_submit">',
 			),
 			empty($errors['dir']) ? array(
 				'position' => 'top_of_list',
@@ -2351,7 +2351,7 @@ function ManageAttachmentPaths()
 				'class' => 'windowbg2 smalltext'
 			) : array(
 				'position' => 'top_of_list',
-				'value' => $txt['attach_dir_save_problem'] . '<br />' . implode('<br />', $errors['dir']),
+				'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['dir']),
 				'style' => 'padding-left: 35px;',
 				'class' => 'noticebox',
 			),
@@ -2377,7 +2377,7 @@ function ManageAttachmentPaths()
 					),
 					'data' => array(
 						'function' => create_function('$rowData', '
-							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . \' class="input_radio" />\';
+							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . \' class="input_radio">\';
 						'),
 						'style' => 'width: 10%;',
 						'class' => 'centercol',
@@ -2418,8 +2418,8 @@ function ManageAttachmentPaths()
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" /><input type="submit" name="save2" value="' . $txt['save'] . '" class="button_submit" />
-					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button_submit" />',
+					'value' => '<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '"><input type="submit" name="save2" value="' . $txt['save'] . '" class="button_submit">
+					<input type="submit" name="new_base_path" value="' . $txt['attach_add_path'] . '" class="button_submit">',
 				),
 				empty($errors['base']) ? array(
 					'position' => 'top_of_list',
@@ -2428,7 +2428,7 @@ function ManageAttachmentPaths()
 					'class' => 'windowbg2 smalltext'
 				) : array(
 					'position' => 'top_of_list',
-					'value' => $txt['attach_dir_save_problem'] . '<br />' . implode('<br />', $errors['base']),
+					'value' => $txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['base']),
 					'style' => 'padding-left: 35px',
 					'class' => 'noticebox',
 				),
@@ -2503,7 +2503,7 @@ function list_getAttachDirs()
 			'path' => $dir,
 			'current_size' => !empty($expected_size[$id]) ? comma_format($expected_size[$id] / 1024, 0) : 0,
 			'num_files' => comma_format($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br />' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</div>' : ''),
+			'status' => ($is_base_dir ? $txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf($txt['attach_dir_' . $status], $context['session_id'], $context['session_var']) . ($error ? '</div>' : ''),
 		);
 	}
 
@@ -2551,7 +2551,7 @@ function list_getBaseDirs()
 		$basedirs[] = array(
 			'id' => $id,
 			'current' => $dir == $modSettings['basedirectory_for_attachments'],
-			'path' => $expected_dirs > 0 ? $dir : ('<input type="text" name="base_dir[' . $id . ']" value="' . $dir . '" size="40" />'),
+			'path' => $expected_dirs > 0 ? $dir : ('<input type="text" name="base_dir[' . $id . ']" value="' . $dir . '" size="40">'),
 			'num_dirs' => $expected_dirs,
 			'status' => $status == 'ok' ? $txt['attach_dir_ok'] : ('<span class="error">' . $txt['attach_dir_' . $status] . '</span>'),
 		);
@@ -2561,7 +2561,7 @@ function list_getBaseDirs()
 		$basedirs[] = array(
 			'id' => '',
 			'current' => false,
-			'path' => '<input type="text" name="new_base_dir" value="" size="40" />',
+			'path' => '<input type="text" name="new_base_dir" value="" size="40">',
 			'num_dirs' => '',
 			'status' => '',
 		);

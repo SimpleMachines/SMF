@@ -38,9 +38,9 @@
 		},
 		appendEmoticon: function (code, emoticon) {
 			if (emoticon == '')
-				line.append($('<br />'));
+				line.append($('<br>'));
 			else
-				line.append($('<img />')
+				line.append($('<img>')
 					.attr({
 						src: emoticon,
 						alt: code,
@@ -57,7 +57,7 @@
 						if (base.inSourceMode())
 							base.sourceEditorInsertText(' ' + $(this).attr('alt') + ' ');
 						else
-							base.wysiwygEditorInsertHtml(start + '<img src="' + $(this).attr("src") + '" data-sceditor-emoticon="' + $(this).attr('alt') + '" />' + end);
+							base.wysiwygEditorInsertHtml(start + '<img src="' + $(this).attr("src") + '" data-sceditor-emoticon="' + $(this).attr('alt') + '">' + end);
 
 						e.preventDefault();
 					})
@@ -78,8 +78,8 @@
 		createPermanentDropDown: function() {
 			var	emoticons	= $.extend({}, this.opts.emoticons.dropdown);
 			var popup_exists = false;
-			content = $('<div class="sceditor-insertemoticon" />');
-			line = $('<div />');
+			content = $('<div class="sceditor-insertemoticon">');
+			line = $('<div>');
 			base = this;
 
 			for (smiley_popup in this.opts.emoticons.popup)
@@ -90,7 +90,7 @@
 			if (popup_exists)
 			{
 				this.opts.emoticons.more = this.opts.emoticons.popup;
-				moreButton = $('<div class="sceditor-more-button sceditor-more" />').text('[' + this._('More') + ']').click(function () {
+				moreButton = $('<div class="sceditor-more-button sceditor-more">').text('[' + this._('More') + ']').click(function () {
 					if ($(".sceditor-smileyPopup").length > 0)
 					{
 						$(".sceditor-smileyPopup").fadeIn('fast');
@@ -106,7 +106,7 @@
 						adjheight = 0;
 
 						popupContent.append(titlebar);
-						closeButton = $('<span />').text('[' + base._('Close') + ']').click(function () {
+						closeButton = $('<span>').text('[' + base._('Close') + ']').click(function () {
 							$(".sceditor-smileyPopup").fadeOut('fast');
 						});
 
@@ -124,7 +124,7 @@
 							content.find(':not(input,textarea)').filter(function() { return this.nodeType===1; }).attr('unselectable', 'on');
 						}
 
-						$dropdown = $('<div class="sceditor-dropdown sceditor-smileyPopup" />').append(popupContent);
+						$dropdown = $('<div class="sceditor-dropdown sceditor-smileyPopup">').append(popupContent);
 
 						$dropdown.appendTo($('body'));
 						dropdownIgnoreLastClick = true;
@@ -175,15 +175,15 @@ $.sceditor.command.set(
 		txtExec: ["[ftp]", "[/ftp]"],
 		exec: function (caller) {
 			var	editor  = this,
-				content = $(this._('<form><div><label for="link">{0}</label> <input type="text" id="link" value="ftp://" /></div>' +
-						'<div><label for="des">{1}</label> <input type="text" id="des" value="" /></div></form>',
+				content = $(this._('<form><div><label for="link">{0}</label> <input type="text" id="link" value="ftp://"></div>' +
+						'<div><label for="des">{1}</label> <input type="text" id="des" value=""></div></form>',
 					this._("URL:"),
 					this._("Description (optional):")
 				))
 				.submit(function () {return false;});
 
 			content.append($(
-				this._('<div><input type="button" class="button" value="{0}" /></div>',
+				this._('<div><input type="button" class="button" value="{0}"></div>',
 					this._("Insert")
 				)).click(function (e) {
 				var val = $(this).parent("form").find("#link").val(),
@@ -479,7 +479,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 			if(typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
-			return '<img' + attribs + ' src="' + content + '" />';
+			return '<img' + attribs + ' src="' + content + '">';
 		}
 	}
 );

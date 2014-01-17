@@ -20,9 +20,9 @@ function template_print_above()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
-		<link rel="canonical" href="', $context['canonical_url'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta name="robots" content="noindex">
+		<link rel="canonical" href="', $context['canonical_url'], '">
 		<title>', $txt['print_page'], ' - ', $context['topic_subject'], '</title>
 		<style type="text/css">
 			body, a {
@@ -144,7 +144,7 @@ function template_main()
 	{
 		echo '
 			<div class="postheader">
-				', $txt['title'], ': <strong>', $post['subject'], '</strong><br />
+				', $txt['title'], ': <strong>', $post['subject'], '</strong><br>
 				', $txt['post_by'], ': <strong>', $post['member'], '</strong> ', $txt['search_on'], ' <strong>', $post['time'], '</strong>
 			</div>
 			<div class="postbody">
@@ -154,11 +154,11 @@ function template_main()
 		if (isset($_GET['images']) && !empty($context['printattach'][$post['id_msg']]))
 		{
 			echo '
-				<hr />';
+				<hr>';
 
 			foreach ($context['printattach'][$post['id_msg']] as $attach)
 				echo '
-					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="" />';
+					<img width="' . $attach['width'] . '" height="' . $attach['height'] . '" src="', $scripturl . '?action=dlattach;topic=' . $topic . '.0;attach=' . $attach['id_attach'] . '" alt="">';
 		}
 
 		echo '

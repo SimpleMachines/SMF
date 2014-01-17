@@ -525,7 +525,7 @@ function Welcome()
 
 	// Mod_security blocks everything that smells funny. Let SMF handle security.
 	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
-		$incontext['error'] = $txt['error_mod_security'] . '<br /><br /><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
+		$incontext['error'] = $txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
 
 	return false;
 }
@@ -1450,7 +1450,7 @@ function AdminAccount()
 			// Awww, crud!
 			if ($request === false)
 			{
-				$incontext['error'] = $txt['error_user_settings_query'] . '<br />
+				$incontext['error'] = $txt['error_user_settings_query'] . '<br>
 				<div style="margin: 2ex;">' . nl2br(htmlspecialchars($smcFunc['db_error']($db_connection))) . '</div>';
 				return false;
 			}
@@ -2086,20 +2086,20 @@ function template_install_above()
 	echo '<!DOCTYPE html>
 <html', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '" />
-		<meta name="robots" content="noindex" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
+		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21" />
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
 		<div id="header">
 			<div class="frame">
 				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
-		</div>
+
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">

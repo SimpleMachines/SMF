@@ -31,7 +31,7 @@ function template_report_type()
 	{
 		echo '
 							<dt>
-								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio" />
+								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
 								<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
 							</dt>';
 		if (isset($type['description']))
@@ -40,8 +40,8 @@ function template_report_type()
 	}
 		echo '
 						</dl>
-						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					</div>
 				</div>
 			</div>
@@ -134,7 +134,7 @@ function template_main()
 		echo '
 			</tbody>
 		</table>
-		<br />';
+		<br>';
 	}
 	echo '
 		</div>
@@ -149,9 +149,9 @@ function template_print_above()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css">
 	</head>
 	<body>';
 }
@@ -224,7 +224,7 @@ function template_print()
 		}
 		echo '
 			</table>
-		</div><br />';
+		</div><br>';
 	}
 }
 

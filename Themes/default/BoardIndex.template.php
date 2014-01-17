@@ -157,7 +157,7 @@ function template_main()
 					</td>
 					<td class="windowbg stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
-						', $board['is_redirect'] ? '' : '<br /> '.comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+						', $board['is_redirect'] ? '' : '<br> '.comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</td>
 					<td class="lastpost">';
@@ -295,7 +295,7 @@ function template_ic_block_recent()
 	echo '
 			<div class="title_barIC">
 				<h4 class="titlebg">
-					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="" />', $txt['recent_posts'], '</a>
+					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="">', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
 			<div class="hslice" id="recent_posts_content">
@@ -310,7 +310,7 @@ function template_ic_block_recent()
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br />
+					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br>
 				</p>';
 	}
 	// Show lots of posts.
@@ -351,7 +351,7 @@ function template_ic_block_calendar()
 	echo '
 			<div class="title_barIC">
 				<h4 class="titlebg">
-					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="" />', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
+					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="">', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
 				</h4>
 			</div>';
 
@@ -385,7 +385,7 @@ function template_ic_block_calendar()
 		//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 		foreach ($context['calendar_events'] as $event)
 			echo '
-					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" class="centericon" /></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br />' : ', ';
+					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" class="centericon"></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
 		echo '
 				</p>';
 	}
@@ -403,8 +403,8 @@ function template_ic_block_stats()
 				</h4>
 			</div>
 			<p class="inline">
-				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - '. $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br />
-				', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  (' . $context['latest_post']['time'] . ')<br />' : ''), '
+				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - '. $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  (' . $context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>
 			</p>';
 }
@@ -437,7 +437,7 @@ function template_ic_block_online()
 	echo $context['show_who'] ? '</a>' : '', '
 
 				&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
-				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br />';
+				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br>';
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
 	if (!empty($context['users_online']))

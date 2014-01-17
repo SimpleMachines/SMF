@@ -17,7 +17,7 @@ function template_ask()
 	echo '
 	<div id="split_topics">
 		<form action="', $scripturl, '?action=splittopics;sa=execute;topic=', $context['current_topic'], '.0" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="at" value="', $context['message']['id'], '" />
+			<input type="hidden" name="at" value="', $context['message']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['split'], '</h3>
 			</div>
@@ -25,23 +25,23 @@ function template_ask()
 				<div class="content">
 					<p class="split_topics">
 						<strong><label for="subname">', $txt['subject_new_topic'], '</label>:</strong>
-						<input type="text" name="subname" id="subname" value="', $context['message']['subject'], '" size="25" class="input_text" />
+						<input type="text" name="subname" id="subname" value="', $context['message']['subject'], '" size="25" class="input_text">
 					</p>
 					<ul class="reset split_topics">
 						<li>
-							<input type="radio" id="onlythis" name="step2" value="onlythis" checked class="input_radio" /> <label for="onlythis">', $txt['split_this_post'], '</label>
+							<input type="radio" id="onlythis" name="step2" value="onlythis" checked class="input_radio"> <label for="onlythis">', $txt['split_this_post'], '</label>
 						</li>
 						<li>
-							<input type="radio" id="afterthis" name="step2" value="afterthis" class="input_radio" /> <label for="afterthis">', $txt['split_after_and_this_post'], '</label>
+							<input type="radio" id="afterthis" name="step2" value="afterthis" class="input_radio"> <label for="afterthis">', $txt['split_after_and_this_post'], '</label>
 						</li>
 						<li>
-							<input type="radio" id="selective" name="step2" value="selective" class="input_radio" /> <label for="selective">', $txt['select_split_posts'], '</label>
+							<input type="radio" id="selective" name="step2" value="selective" class="input_radio"> <label for="selective">', $txt['select_split_posts'], '</label>
 						</li>
 					</ul>
-					<hr class="hrcolor" />
+					<hr class="hrcolor">
 					<div class="auto_flow">
-						<input type="submit" value="', $txt['split'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="submit" value="', $txt['split'], '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					</div>
 				</div>
 			</div>
@@ -101,8 +101,8 @@ function template_select()
 					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="not_selected_', $message['id'], '">
 						<div class="content">
 							<div class="message_header">
-								<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_select.png" alt="-&gt;" /></a>
-								', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br />
+								<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_select.png" alt="-&gt;"></a>
+								', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
 								<em>', $message['time'], '</em>
 							</div>
 							<div class="post">', $message['body'], '</div>
@@ -110,7 +110,7 @@ function template_select()
 					</li>';
 
 	echo '
-					<li class="dummy" />
+					<li class="dummy">
 				</ul>
 			</div>
 			<div id="selected" class="floatright">
@@ -133,8 +133,8 @@ function template_select()
 					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="selected_', $message['id'], '">
 						<div class="content">
 							<div class="message_header">
-								<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_deselect.png" alt="&lt;-" /></a>
-								', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br />
+								<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><img src="', $settings['images_url'], '/split_deselect.png" alt="&lt;-"></a>
+								', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
 								<em>', $message['time'], '</em>
 							</div>
 							<div class="post">', $message['body'], '</div>
@@ -142,15 +142,15 @@ function template_select()
 					</li>';
 
 	echo '
-					<li class="dummy" />
+					<li class="dummy">
 				</ul>
 			</div>
-			<br class="clear" />
+			<br class="clear">
 			<div class="flow_auto">
-				<input type="hidden" name="topic" value="', $context['current_topic'], '" />
-				<input type="hidden" name="subname" value="', $context['new_subject'], '" />
-				<input type="submit" value="', $txt['split'], '" class="button_submit" />
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="hidden" name="topic" value="', $context['current_topic'], '">
+				<input type="hidden" name="subname" value="', $context['new_subject'], '">
+				<input type="submit" value="', $txt['split'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>
 	</div>
@@ -211,7 +211,7 @@ function template_select()
 					newItem = document.createElement("LI");
 					newItem.className = "windowbg2";
 					newItem.id = curSection + "_" + curId;
-					newItem.innerHTML = "<div class=\\"content\\"><div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><img src=\\"', $settings['images_url'], '/split_" + (curSection == "selected" ? "de" : "") + "select.png\\" alt=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\" /></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br /><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div>";
+					newItem.innerHTML = "<div class=\\"content\\"><div class=\\"message_header\\"><a class=\\"split_icon float" + (curSection == "selected" ? "left" : "right") + "\\" href=\\"" + smf_prepareScriptUrl(smf_scripturl) + "action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=" + (curSection == "selected" ? "up" : "down") + ";msg=" + curId + "\\" onclick=\\"return select(\'" + (curSection == "selected" ? "up" : "down") + "\', " + curId + ");\\"><img src=\\"', $settings['images_url'], '/split_" + (curSection == "selected" ? "de" : "") + "select.png\\" alt=\\"" + (curSection == "selected" ? "&lt;-" : "-&gt;") + "\\"></a><strong>" + curChange.getElementsByTagName("subject")[0].firstChild.nodeValue + "</strong> ', $txt['by'], ' <strong>" + curChange.getElementsByTagName("poster")[0].firstChild.nodeValue + "</strong><br><em>" + curChange.getElementsByTagName("time")[0].firstChild.nodeValue + "</em></div><div class=\\"post\\">" + curChange.getElementsByTagName("body")[0].firstChild.nodeValue + "</div></div>";
 
 					// So, where do we insert it?
 					if (typeof sInsertBeforeId == "string")
@@ -239,7 +239,7 @@ function template_merge_done()
 			<div class="windowbg">
 				<div class="content">
 					<p>', $txt['merge_successful'], '</p>
-					<br />
+					<br>
 					<ul class="reset">
 						<li>
 							<a href="', $scripturl, '?board=', $context['target_board'], '.0">', $txt['message_index'], '</a>
@@ -251,7 +251,7 @@ function template_merge_done()
 				</div>
 			</div>
 		</div>
-	<br class="clear" />';
+	<br class="clear">';
 }
 
 function template_merge()
@@ -284,7 +284,7 @@ function template_merge()
 						</dt>
 						<dd>
 							<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '">
-								<input type="hidden" name="from" value="' . $context['origin_topic'] . '" />
+								<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
 								<select name="targetboard" onchange="this.form.submit();">';
 			foreach ($context['merge_categories'] as $cat)
 			{
@@ -302,31 +302,31 @@ function template_merge()
 			}
 			echo '
 								</select>
-								<input type="submit" value="', $txt['go'], '" class="button_submit" />
+								<input type="submit" value="', $txt['go'], '" class="button_submit">
 							</form>
 						</dd>';
 	}
 
 	echo '
 					</dl>
-					<hr class="hrcolor" />
+					<hr class="hrcolor">
 					<dl class="settings merge_topic">
 						<dt>
 							<strong>', $txt['merge_to_topic_id'], ': </strong>
 						</dt>
 						<dd>
 							<form action="', $scripturl , '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
-								<input type="hidden" name="topics[]" value="', $context['origin_topic'], '" />
-								<input type="text" name="topics[]" class="input_text" />
-								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-								<input type="submit" value="', $txt['merge'], '" class="button_submit" />
+								<input type="hidden" name="topics[]" value="', $context['origin_topic'], '">
+								<input type="text" name="topics[]" class="input_text">
+								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+								<input type="submit" value="', $txt['merge'], '" class="button_submit">
 							</form>
 						</dd>';
 
 		echo '
 					</dl>
 				</div>
-			</div><br />
+			</div><br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
@@ -381,27 +381,27 @@ function template_merge_extra_options()
 			echo '
 					<tr class="windowbg2">
 						<td align="center">
-							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked />
+							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
 							<a href="' . $scripturl . '?topic=' . $topic['id'] . '.0" target="_blank" class="new_win">' . $topic['subject'] . '</a>
 						</td>
 						<td>
-							', $topic['started']['link'], '<br />
+							', $topic['started']['link'], '<br>
 							<span class="smalltext">', $topic['started']['time'], '</span>
 						</td>
 						<td>
-							' . $topic['updated']['link'] . '<br />
+							' . $topic['updated']['link'] . '<br>
 							<span class="smalltext">', $topic['updated']['time'], '</span>
 						</td>
 						<td align="center">
-							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked />
+							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked>
 						</td>
 					</tr>';
 		echo '
 				</tbody>
 			</table>
-			<br />
+			<br>
 			<div class="windowbg">
 				<div class="content">';
 
@@ -415,9 +415,9 @@ function template_merge_extra_options()
 	echo '
 							<option value="0">', $txt['merge_custom_subject'], ':</option>
 						</select>
-						<br /><input type="text" name="custom_subject" size="60" id="custom_subject" class="input_text custom_subject" style="display: none;" />
-						<br />
-						<label for="enforce_subject"><input type="checkbox" class="input_check" name="enforce_subject" id="enforce_subject" value="1" /> ', $txt['merge_enforce_subject'], '</label>
+						<br><input type="text" name="custom_subject" size="60" id="custom_subject" class="input_text custom_subject" style="display: none;">
+						<br>
+						<label for="enforce_subject"><input type="checkbox" class="input_check" name="enforce_subject" id="enforce_subject" value="1"> ', $txt['merge_enforce_subject'], '</label>
 					</fieldset>';
 
 	if (!empty($context['boards']) && count($context['boards']) > 1)
@@ -429,7 +429,7 @@ function template_merge_extra_options()
 		foreach ($context['boards'] as $board)
 			echo '
 							<li>
-								<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . ' class="input_radio" /> ' . $board['name'] . '
+								<input type="radio" name="board" value="' . $board['id'] . '"' . ($board['selected'] ? ' checked' : '') . ' class="input_radio"> ' . $board['name'] . '
 							</li>';
 		echo '
 						</ul>
@@ -444,20 +444,20 @@ function template_merge_extra_options()
 		foreach ($context['polls'] as $poll)
 			echo '
 							<li>
-								<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . ' class="input_radio" /> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" class="new_win">' . $poll['topic']['subject'] . '</a>)
+								<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . ' class="input_radio"> ' . $poll['question'] . ' (' . $txt['topic'] . ': <a href="' . $scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" class="new_win">' . $poll['topic']['subject'] . '</a>)
 							</li>';
 		echo '
 							<li>
-								<input type="radio" name="poll" value="-1" class="input_radio" /> (' . $txt['merge_no_poll'] . ')
+								<input type="radio" name="poll" value="-1" class="input_radio"> (' . $txt['merge_no_poll'] . ')
 							</li>
 						</ul>
 					</fieldset>';
 	}
 	echo '
 					<div class="auto_flow">
-						<input type="submit" value="' . $txt['merge'] . '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-						<input type="hidden" name="sa" value="execute" />
+						<input type="submit" value="' . $txt['merge'] . '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						<input type="hidden" name="sa" value="execute">
 					</div>
 				</div>
 			</div>

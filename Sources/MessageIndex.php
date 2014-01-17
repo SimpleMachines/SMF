@@ -433,11 +433,11 @@ function MessageIndex()
 			if (!empty($settings['message_index_preview']) && !empty($modSettings['preview_characters']))
 			{
 				// Limit them to $modSettings['preview_characters'] characters
-				$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br />' => '&#10;')));
+				$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
 				if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
 					$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
 
-				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br />' => '&#10;')));
+				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
 				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
 					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
 
@@ -565,7 +565,7 @@ function MessageIndex()
 			if (!empty($settings['avatars_on_indexes']))
 				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
 					'name' => $row['avatar'],
-					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? '<img class="avatar" src="' . $row['avatar'] . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row['avatar']) . '" alt="" />'),
+					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="">' : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? '<img class="avatar" src="' . $row['avatar'] . '" alt="">' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row['avatar']) . '" alt="">'),
 					'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar']),
 					'url' => $row['avatar'] == '' ? '' : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'])
 				);

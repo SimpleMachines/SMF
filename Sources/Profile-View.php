@@ -175,7 +175,7 @@ function summary($memID)
 			$ban_explanation = sprintf($txt['user_cannot_due_to'], implode(', ', $ban_restrictions), '<a href="' . $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>');
 
 			$context['member']['bans'][$row['id_ban_group']] = array(
-				'reason' => empty($row['reason']) ? '' : '<br /><br /><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
+				'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
 				'cannot' => array(
 					'access' => !empty($row['cannot_access']),
 					'register' => !empty($row['cannot_register']),
@@ -1430,7 +1430,7 @@ function trackActivity($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '%1$s<br /><a href="%2$s">%2$s</a>',
+						'format' => '%1$s<br><a href="%2$s">%2$s</a>',
 						'params' => array(
 							'message' => false,
 							'url' => false,
@@ -1932,7 +1932,7 @@ function TrackIP($memID = 0)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '%1$s<br /><a href="%2$s">%2$s</a>',
+						'format' => '%1$s<br><a href="%2$s">%2$s</a>',
 						'params' => array(
 							'message' => false,
 							'url' => false,

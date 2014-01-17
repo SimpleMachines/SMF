@@ -47,7 +47,7 @@ $txt['allowed_types'] = 'Allowed file types';
 $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';
 $txt['restricted_filename'] = 'That is a restricted filename. Please try a different filename.';
-$txt['topic_locked_no_reply'] = 'Warning! This topic is currently/will be locked<br />Only admins and moderators can reply.';
+$txt['topic_locked_no_reply'] = 'Warning! This topic is currently/will be locked<br>Only admins and moderators can reply.';
 $txt['awaiting_approval'] = 'Awaiting approval';
 $txt['attachment_requires_approval'] = 'Note that any files attached will not be displayed until approved by a moderator.';
 $txt['error_temp_attachments'] = 'There are attachments found, which you have attached before but not posted. These attachments are now attached to this post. If you do not want to include them in this post, you can remove them <a href="#postAttachment">here</a>.';
@@ -166,15 +166,15 @@ $txt['php_upload_error_6'] = 'Unable to save. Missing a temporary directory. Ple
 $txt['php_upload_error_7'] = 'Failed to write file to disk. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_8'] = 'A PHP extension stopped the file upload. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['error_temp_attachments_new'] = 'There are attachments which you had previously attached but not posted. These attachments are still attached to this post. This post does need to be submitted before these attachments are either saved or removed. You can do that <a href="#postAttachment">here</a>';
-$txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submited.<br />Click <a href="%1$s">here</a> to remove those attachments. Or <a href="%2$s">here</a> to return to that post.%3$s';
-$txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitted.<br />Click <a href="%1$s">here</a> to remove these attachments.%2$s';
+$txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submited.<br>Click <a href="%1$s">here</a> to remove those attachments. Or <a href="%2$s">here</a> to return to that post.%3$s';
+$txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitted.<br>Click <a href="%1$s">here</a> to remove these attachments.%2$s';
 $txt['error_temp_attachments_gone'] = 'Those attachments have now been removed and you have been returned to the page you were previously on';
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted have now been removed.';
 $txt['error_topic_already_announced'] = 'Please note that this topic has already been announced.';
 
 $txt['cant_access_upload_path'] = 'Cannot access attachments upload path!';
 $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allowed is %1$d KB.';
-$txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br /><br />Please consult your server administrator for more information.';
+$txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
 $txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';

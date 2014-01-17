@@ -355,7 +355,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 			$context['locked'] = !empty($draft_info['locked']) ? $draft_info['locked'] : '';
 			$context['use_smileys'] = !empty($draft_info['smileys_enabled']) ? true : false;
 			$context['icon'] = !empty($draft_info['icon']) ? $draft_info['icon'] : 'xx';
-			$context['message'] = !empty($draft_info['body']) ? str_replace('<br />', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
+			$context['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$context['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
 			$context['board'] = !empty($draft_info['board_id']) ? $draft_info['id_board'] : '';
 			$context['id_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
@@ -364,7 +364,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 		{
 			// one of those pm drafts? then set it up like we have an error
 			$_REQUEST['subject'] = !empty($draft_info['subject']) ? stripslashes($draft_info['subject']) : '';
-			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br />', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
+			$_REQUEST['message'] = !empty($draft_info['body']) ? str_replace('<br>', "\n", un_htmlspecialchars(stripslashes($draft_info['body']))) : '';
 			$_REQUEST['replied_to'] = !empty($draft_info['id_reply']) ? $draft_info['id_reply'] : 0;
 			$context['id_pm_draft'] = !empty($draft_info['id_draft']) ? $draft_info['id_draft'] : 0;
 			$recipients = unserialize($draft_info['to_list']);

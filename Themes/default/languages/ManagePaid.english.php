@@ -56,10 +56,10 @@ $txt['nochex_email'] = 'Nochex email address';
 $txt['nochex_email_desc'] = 'Email of a merchant account at Nochex. Leave blank if you are not using Nochex';
 $txt['paid_settings_save'] = 'Save';
 
-$txt['paid_note'] = '<strong class="alert">Note:</strong><br />For subscriptions to be automatically updated for your users, you
-	will need to setup a return URL for each of your payment methods. For all payment types, this return URL should be set as:<br /><br />
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br /><br />
-	You can edit the link for paypal directly, by clicking <a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify" target="_blank">here</a>.<br />
+$txt['paid_note'] = '<strong class="alert">Note:</strong><br>For subscriptions to be automatically updated for your users, you
+	will need to setup a return URL for each of your payment methods. For all payment types, this return URL should be set as:<br><br>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br><br>
+	You can edit the link for paypal directly, by clicking <a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify" target="_blank">here</a>.<br>
 	For the other gateways (If installed) you can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.';
 
 // View subscription strings.
@@ -107,7 +107,7 @@ $txt['paid_mod_add_groups'] = 'Additional Groups upon Subscription';
 $txt['paid_mod_add_groups_desc'] = 'Additional groups to add the user to after subscription.';
 $txt['paid_mod_no_group'] = 'Don\'t Change';
 $txt['paid_mod_edit_note'] = 'Note that as this group has existing subscribers the group settings cannot be changed!';
-$txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br /><br />If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br />';
+$txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br><br>If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br>';
 $txt['paid_mod_repeatable'] = 'Allow user to auto-renew this subscription';
 $txt['paid_mod_allow_partial'] = 'Allow partial subscription';
 $txt['paid_mod_allow_partial_desc'] = 'If this option is enabled, in the case where the user pays less than required they will be granted a subscription for the percentage of the duration they have paid for.';

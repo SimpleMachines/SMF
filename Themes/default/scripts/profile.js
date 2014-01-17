@@ -87,7 +87,7 @@ function ajax_getSignaturePreview (showPreview)
 				for (var i = 0; i < signatures.length; i++)
 				{
 					$("#" + signatures[i] + "_signature").css({display:""});
-					$("#" + signatures[i] + "_signature_display").css({display:""}).html($(request).find('[type="' + signatures[i] + '"]').text() + '<hr />');
+					$("#" + signatures[i] + "_signature_display").css({display:""}).html($(request).find('[type="' + signatures[i] + '"]').text() + '<hr>');
 				}
 			}
 

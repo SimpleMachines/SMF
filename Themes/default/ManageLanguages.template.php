@@ -69,7 +69,7 @@ function template_download_language()
 
 	// Now, all the images and the likes, hidden via javascript 'cause there are so fecking many.
 	echo '
-			<br />
+			<br>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					', $txt['languages_download_theme_files'], '
@@ -100,7 +100,7 @@ function template_download_language()
 		echo '
 				<tr class="titlebg">
 					<td colspan="4">
-						<img class="sort" src="', $settings['images_url'], '/selected_open.png" id="toggle_image_', $theme, '" alt="*" />&nbsp;', isset($context['theme_names'][$theme]) ? $context['theme_names'][$theme] : $theme, '
+						<img class="sort" src="', $settings['images_url'], '/selected_open.png" id="toggle_image_', $theme, '" alt="*">&nbsp;', isset($context['theme_names'][$theme]) ? $context['theme_names'][$theme] : $theme, '
 					</td>
 				</tr>';
 
@@ -110,7 +110,7 @@ function template_download_language()
 			echo '
 				<tr class="windowbg', $alternate ? '2' : '', '" id="', $theme, '-', $count++, '">
 					<td>
-						<strong>', $file['name'], '</strong><br />
+						<strong>', $file['name'], '</strong><br>
 						<span class="smalltext">', $txt['languages_download_dest'], ': ', $file['destination'], '</span>
 					</td>
 					<td>
@@ -120,7 +120,7 @@ function template_download_language()
 						', $file['exists'] ? ($file['exists'] == 'same' ? $txt['languages_download_exists_same'] : $txt['languages_download_exists_different']) : $txt['no'], '
 					</td>
 					<td class="centercol">
-						<input type="checkbox" name="copy_file[]" value="', $file['generaldest'], '"', ($file['default_copy'] ? ' checked' : ''), ' class="input_check" />
+						<input type="checkbox" name="copy_file[]" value="', $file['generaldest'], '"', ($file['default_copy'] ? ' checked' : ''), ' class="input_check">
 					</td>
 				</tr>';
 			$alternate = !$alternate;
@@ -155,29 +155,29 @@ function template_download_language()
 							<label for="ftp_server">', $txt['package_ftp_server'], ':</label>
 						</dt>
 						<dd>
-							<div class="floatright" style="margin-right: 1px;"><label for="ftp_port" style="padding-top: 2px; padding-right: 2ex;">', $txt['package_ftp_port'], ':&nbsp;</label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($context['package_ftp']['port']) ? $context['package_ftp']['port'] : (isset($modSettings['package_port']) ? $modSettings['package_port'] : '21'), '" class="input_text" /></div>
-							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($context['package_ftp']['server']) ? $context['package_ftp']['server'] : (isset($modSettings['package_server']) ? $modSettings['package_server'] : 'localhost'), '" style="width: 70%;" class="input_text" />
+							<div class="floatright" style="margin-right: 1px;"><label for="ftp_port" style="padding-top: 2px; padding-right: 2ex;">', $txt['package_ftp_port'], ':&nbsp;</label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($context['package_ftp']['port']) ? $context['package_ftp']['port'] : (isset($modSettings['package_port']) ? $modSettings['package_port'] : '21'), '" class="input_text"></div>
+							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($context['package_ftp']['server']) ? $context['package_ftp']['server'] : (isset($modSettings['package_server']) ? $modSettings['package_server'] : 'localhost'), '" style="width: 70%;" class="input_text">
 						</dd>
 
 						<dt>
 							<label for="ftp_username">', $txt['package_ftp_username'], ':</label>
 						</dt>
 						<dd>
-							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset($context['package_ftp']['username']) ? $context['package_ftp']['username'] : (isset($modSettings['package_username']) ? $modSettings['package_username'] : ''), '" style="width: 99%;" class="input_text" />
+							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset($context['package_ftp']['username']) ? $context['package_ftp']['username'] : (isset($modSettings['package_username']) ? $modSettings['package_username'] : ''), '" style="width: 99%;" class="input_text">
 						</dd>
 
 						<dt>
 							<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
 						</dt>
 						<dd>
-							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_text" />
+							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_text">
 						</dd>
 
 						<dt>
 							<label for="ftp_path">', $txt['package_ftp_path'], ':</label>
 						</dt>
 						<dd>
-							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', $context['package_ftp']['path'], '" style="width: 99%;" class="input_text" />
+							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', $context['package_ftp']['path'], '" style="width: 99%;" class="input_text">
 						</dd>
 					</dl>
 				</div>
@@ -187,9 +187,9 @@ function template_download_language()
 	// Install?
 	echo '
 			<div class="righttext padding">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				<input type="hidden" name="', $context['admin-dlang_token_var'], '" value="', $context['admin-dlang_token'], '" />
-				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button_submit" />
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-dlang_token_var'], '" value="', $context['admin-dlang_token'], '">
+				<input type="submit" name="do_install" value="', $txt['add_language_smf_install'], '" class="button_submit">
 			</div>
 		</form>
 	</div>';
@@ -269,44 +269,44 @@ function template_modify_language_entries()
 								<label for="character_set">', $txt['languages_character_set'], ':</label>
 							</dt>
 							<dd>
-								<input type="text" name="character_set" id="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text" />
+								<input type="text" name="character_set" id="character_set" size="20" value="', $context['primary_settings']['character_set'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text">
 							</dd>
 							<dt>
 								<label for="locale>', $txt['languages_locale'], ':</label>
 							</dt>
 							<dd>
-								<input type="text" name="locale" id="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text" />
+								<input type="text" name="locale" id="locale" size="20" value="', $context['primary_settings']['locale'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text">
 							</dd>
 							<dt>
 								<label for="dictionary">', $txt['languages_dictionary'], ':</label>
 							</dt>
 							<dd>
-								<input type="text" name="dictionary" id="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text" />
+								<input type="text" name="dictionary" id="dictionary" size="20" value="', $context['primary_settings']['dictionary'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text">
 							</dd>
 							<dt>
 								<label for="spelling">', $txt['languages_spelling'], ':</label>
 							</dt>
 							<dd>
-								<input type="text" name="spelling" id="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text" />
+								<input type="text" name="spelling" id="spelling" size="20" value="', $context['primary_settings']['spelling'], '"', (empty($context['file_entries']) ? '' : ' disabled'), ' class="input_text">
 							</dd>
 							<dt>
 								<label for="rtl">', $txt['languages_rtl'], ':</label>
 							</dt>
 							<dd>
-								<input type="checkbox" name="rtl" id="rtl"', $context['primary_settings']['rtl'] ? ' checked' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled'), ' />
+								<input type="checkbox" name="rtl" id="rtl"', $context['primary_settings']['rtl'] ? ' checked' : '', ' class="input_check"', (empty($context['file_entries']) ? '' : ' disabled'), '>
 							</dd>
 						</dl>
 					</fieldset>
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
-					<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' class="button_submit" />';
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
+					<input type="submit" name="save_main" value="', $txt['save'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' class="button_submit">';
 
 	// Allow deleting entries.
 	if ($context['lang_id'] != 'english')
 	{
 		// English can't be deleted though.
 		echo '
-						<input type="submit" name="delete_main" value="', $txt['delete'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button_submit" />';
+						<input type="submit" name="delete_main" value="', $txt['delete'], '"', $context['lang_file_not_writable_message'] || !empty($context['file_entries']) ? ' disabled' : '', ' onclick="confirm(\'', $txt['languages_delete_confirm'], '\');" class="button_submit">';
 	}
 
 	echo '
@@ -341,11 +341,11 @@ function template_modify_language_entries()
 
 	echo '
 					</select>
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-mlang_token_var'], '" value="', $context['admin-mlang_token'], '">
 					<input type="submit" value="', $txt['go'], '" class="button_submit" style="float: none"/>
 			</div>
-			<br class="clear" />';
+			<br class="clear">';
 
 	// Is it not writable?
 	// Show an error.
@@ -381,11 +381,11 @@ function template_modify_language_entries()
 							<span class="smalltext">', $entry['key'], '</span>
 						</dd>
 						<dt>
-							<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '" />
+							<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
 							<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
 						</dt>
 						<dd>
-							<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '" />
+							<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
 							<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $entry['value'], '</textarea>
 						</dd>';
 			$cached = array();
@@ -403,7 +403,7 @@ function template_modify_language_entries()
 						<dd>
 						</dd>
 						<dt>
-							<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '" />
+							<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
 							<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
 						</dt>
 						<dd>
@@ -412,7 +412,7 @@ function template_modify_language_entries()
 
 		echo '
 					</dl>
-					<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button_submit" />';
+					<input type="submit" name="save_entries" value="', $txt['save'], '"', !empty($context['entries_not_writable_message']) ? ' disabled' : '', ' class="button_submit">';
 
 		echo '
 				</div>
@@ -444,20 +444,20 @@ function template_add_language()
 					<fieldset>
 						<legend>', $txt['add_language_smf'], '</legend>
 						<label class="smalltext">', $txt['add_language_smf_browse'], '</label>
-						<input type="text" name="smf_add" size="40" value="', !empty($context['smf_search_term']) ? $context['smf_search_term'] : '', '" class="input_text" />';
+						<input type="text" name="smf_add" size="40" value="', !empty($context['smf_search_term']) ? $context['smf_search_term'] : '', '" class="input_text">';
 
 	// Do we have some errors? Too bad.
 	if (!empty($context['smf_error']))
 	{
 		// Display a little error box.
 		echo '
-						<div><br /><p class="errorbox">', $txt['add_language_error_' . $context['smf_error']], '</p></div>';
+						<div><br><p class="errorbox">', $txt['add_language_error_' . $context['smf_error']], '</p></div>';
 	}
 
 	echo '
-					</fieldset>', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;" class="input_text" /> ' : '', '
-					<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button_submit" />
-					<br />
+					</fieldset>', isBrowser('is_ie') ? '<input type="text" name="ie_fix" style="display: none;" class="input_text"> ' : '', '
+					<input type="submit" name="smf_add_sub" value="', $txt['search'], '" class="button_submit">
+					<br>
 				</div>
 			</div>
 		';

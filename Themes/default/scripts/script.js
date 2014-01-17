@@ -313,7 +313,7 @@ function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
-	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif" /></div>';
+	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
 	var sIcon = smf_images_url + '/' + (typeof(sIcon) == 'string' ? sIcon : 'helptopics.png');
 	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
 
@@ -424,7 +424,7 @@ smc_Popup.prototype.show = function ()
 	if (this.opt.icon_class)
 		icon = '<span class="' + this.opt.icon_class + '"></span> ';
 	else
-		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt="" /> ' : '';
+		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
 	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
@@ -1117,7 +1117,7 @@ JumpTo.prototype.showSelect = function ()
 	var sChildLevelPrefix = '';
 	for (var i = this.opt.iCurBoardChildLevel; i > 0; i--)
 		sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select" ' + ('implementation' in document ? '' : 'onmouseover="grabJumpToContent(this);" ') + ('onbeforeactivate' in document ? 'onbeforeactivate' : 'onfocus') + '="grabJumpToContent(this);"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button_submit" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';" />' : '')));
+	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select" ' + ('implementation' in document ? '' : 'onmouseover="grabJumpToContent(this);" ') + ('onbeforeactivate' in document ? 'onbeforeactivate' : 'onfocus') + '="grabJumpToContent(this);"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button_submit" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
 	this.dropdownList = document.getElementById(this.opt.sContainerId + '_select');
 }
 
@@ -1219,7 +1219,7 @@ IconList.prototype.initIcons = function ()
 {
 	for (var i = document.images.length - 1, iPrefixLength = this.opt.sIconIdPrefix.length; i >= 0; i--)
 		if (document.images[i].id.substr(0, iPrefixLength) == this.opt.sIconIdPrefix)
-			setOuterHTML(document.images[i], '<div title="' + this.opt.sLabelIconList + '" onclick="' + this.opt.sBackReference + '.openPopup(this, ' + document.images[i].id.substr(iPrefixLength) + ')" onmouseover="' + this.opt.sBackReference + '.onBoxHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onBoxHover(this, false)" style="background: ' + this.opt.sBoxBackground + '; cursor: pointer; padding: 3px; text-align: center;"><img src="' + document.images[i].src + '" alt="' + document.images[i].alt + '" id="' + document.images[i].id + '" style="margin: 0px; padding: ' + (is_ie ? '3px' : '3px 0px 3px 0px') + ';" /></div>');
+			setOuterHTML(document.images[i], '<div title="' + this.opt.sLabelIconList + '" onclick="' + this.opt.sBackReference + '.openPopup(this, ' + document.images[i].id.substr(iPrefixLength) + ')" onmouseover="' + this.opt.sBackReference + '.onBoxHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onBoxHover(this, false)" style="background: ' + this.opt.sBoxBackground + '; cursor: pointer; padding: 3px; text-align: center;"><img src="' + document.images[i].src + '" alt="' + document.images[i].alt + '" id="' + document.images[i].id + '" style="margin: 0px; padding: ' + (is_ie ? '3px' : '3px 0px 3px 0px') + ';"></div>');
 }
 
 // Event for the mouse hovering over the original icon.
@@ -1275,7 +1275,7 @@ IconList.prototype.onIconsReceived = function (oXMLDoc)
 	var sItems = '';
 
 	for (var i = 0, n = icons.length; i < n; i++)
-		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle" /></span>';
+		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle"></span>';
 
 	setInnerHTML(this.oContainerDiv, sItems);
 	this.oContainerDiv.style.display = 'block';

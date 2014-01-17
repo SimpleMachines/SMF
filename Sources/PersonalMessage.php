@@ -1858,7 +1858,7 @@ function MessagePost()
 
 		if (isset($_REQUEST['quote']))
 		{
-			// Remove any nested quotes and <br />...
+			// Remove any nested quotes and <br>...
 			$form_message = preg_replace('~<br ?/?' . '>~i', "\n", $row_quoted['body']);
 			if (!empty($modSettings['removeNestedQuotes']))
 				$form_message = preg_replace(array('~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'), '', $form_message);
