@@ -46,7 +46,6 @@ $txt['scheduled_task_reg_unit_w'] = 'week(s)';
 
 $txt['scheduled_task_edit'] = 'Edit Scheduled Task';
 $txt['scheduled_task_edit_repeat'] = 'Repeat task every';
-$txt['scheduled_task_edit_pick_unit'] = 'Pick Unit';
 $txt['scheduled_task_edit_interval'] = 'Interval';
 $txt['scheduled_task_edit_start_time'] = 'Start Time';
 $txt['scheduled_task_edit_start_time_desc'] = 'Time the first instance of the day should start (hours:minutes)';
