@@ -169,6 +169,30 @@ function template_pm()
 </smf>';
 }
 
+function template_warning()
+{
+	global $context, $txt;
+
+	// @todo something could be removed...otherwise it can be merged again with template_post
+	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<smf>
+	<preview>
+		<subject><![CDATA[', $context['preview_subject'], ']]></subject>
+		<body><![CDATA[', $context['preview_message'], ']]></body>
+	</preview>
+	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';
+	if (!empty($context['post_error']['messages']))
+		foreach ($context['post_error']['messages'] as $message)
+			echo '
+		<error><![CDATA[', cleanXml($message), ']]></error>';
+
+	echo '
+	</errors>';
+
+	echo '
+</smf>';
+}
+
 function template_stats()
 {
 	global $context, $txt, $modSettings;

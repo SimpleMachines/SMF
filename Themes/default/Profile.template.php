@@ -2553,7 +2553,7 @@ function template_issueWarning()
 
 	echo '
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
+					<input type="button" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit" />
 					<input type="submit" name="save" value="', $context['user']['is_owner'] ? $txt['change_profile'] : $txt['profile_warning_issue'], '" class="button_submit" />
 				</div>
 			</div>
@@ -2592,7 +2592,7 @@ function template_issueWarning()
 					if ($(request).find("error").text() != \'\')
 					{
 						$("#profile_error").css({display:""});
-						var errors_html = \'<span>\' + $("#profile_error").find("span").html() + \'</span>\' + \'<ul class="list_errors" class="reset">\';
+						var errors_html = \'<ul class="list_errors" class="reset">\';
 						var errors = $(request).find(\'error\').each(function() {
 							errors_html += \'<li>\' + $(this).text() + \'</li>\';
 						});
