@@ -786,7 +786,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 			$emaildata = loadEmailTemplate($email_message, $replacements);
 
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, $email_message . $memberID, false, 0);
 		}
 
 		// All admins are finished here.
@@ -806,7 +806,7 @@ function registerMember(&$regOptions, $return_errors = false)
 				'OPENID' => !empty($regOptions['openid']) ? $regOptions['openid'] : '',
 			);
 			$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . 'immediate', $replacements);
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', false, 0);
 		}
 
 		// Send admin their notification.
@@ -836,7 +836,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, false, 0);
 	}
 	// Must be awaiting approval.
 	else
@@ -851,7 +851,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . 'pending', $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', false, 0);
 
 		// Admin gets informed here...
 		adminNotify('approval', $memberID, $regOptions['username']);

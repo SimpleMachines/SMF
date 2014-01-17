@@ -655,7 +655,7 @@ function Activate()
 
 		$emaildata = loadEmailTemplate('resend_activate_message', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'resendact', false, 0);
 
 		$context['page_title'] = $txt['invalid_activation_resend'];
 

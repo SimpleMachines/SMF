@@ -113,7 +113,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 					);
 
 					$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'groupreq' . $this->_details['id_group'], false, 2);
 				}
 			}
 		}

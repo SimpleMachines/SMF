@@ -605,7 +605,7 @@ function smf_db_error($db_string, $connection = null)
 					REPAIR TABLE $table", false, false);
 
 			// And send off an email!
-			sendmail($webmaster_email, $txt['database_error'], $txt['tried_to_repair']);
+			sendmail($webmaster_email, $txt['database_error'], $txt['tried_to_repair'], null, 'dberror');
 
 			$modSettings['cache_enable'] = $old_cache;
 

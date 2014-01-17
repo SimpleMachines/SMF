@@ -587,7 +587,7 @@ function resetPassword($memID, $username = null)
 	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty($modSettings['userLanguage']) ? $language : $lngfile);
 
 	// Send them the email informing them of the change - then we're done!
-	sendmail($email, $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+	sendmail($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, false, 0);
 }
 
 /**
