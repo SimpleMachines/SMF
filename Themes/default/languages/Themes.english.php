@@ -100,7 +100,6 @@ $txt['news_fader'] = 'Show news fader on board index';
 $txt['member_list_bar'] = 'Show members list bar on board index';
 $txt['current_pos_text_img'] = 'Show current position in forum as link instead of text';
 $txt['show_view_profile_button'] = 'Show view profile button under post';
-$txt['enable_mark_as_read'] = 'Enable and show \'Mark as Read\' buttons';
 $txt['header_logo_url'] = 'Logo image URL';
 $txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.)';
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';

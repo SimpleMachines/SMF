@@ -113,7 +113,7 @@ function template_main()
 	}
 
 	// They can only mark read if they are logged in and it's enabled!
-	if (!$context['user']['is_logged'] || !$settings['show_mark_read'])
+	if (!$context['user']['is_logged'])
 		unset($context['normal_buttons']['markread']);
 
 	if (!$context['no_topic_listing'])
