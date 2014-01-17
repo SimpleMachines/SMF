@@ -1989,7 +1989,7 @@ function alert_configuration($memID)
 		if (empty($alert_types[$group]))
 			unset ($alert_types[$group]);
 	}
-	
+
 	// Slightly different for group requests
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -1999,9 +1999,9 @@ function alert_configuration($memID)
 			'memID' => $memID,
 		)
 	);
-	
+
 	list($can_mod) = $smcFunc['db_fetch_row']($request);
-	
+
 	if (!isset($perms_cache['manage_membergroups']))
 	{
 		$members = membersAllowedTo('manage_membergroups');
@@ -2913,26 +2913,9 @@ function profileSaveAvatarData(&$value)
 
 	require_once($sourcedir . '/ManageAttachments.php');
 
-	// We need to know where we're going to be putting it..
-	if (!empty($modSettings['custom_avatar_enabled']))
-	{
-		$uploadDir = $modSettings['custom_avatar_dir'];
-		$id_folder = 1;
-	}
-	elseif (!empty($modSettings['currentAttachmentUploadDir']))
-	{
-		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-
-		// Just use the current path for temp files.
-		$uploadDir = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		$id_folder = $modSettings['currentAttachmentUploadDir'];
-	}
-	else
-	{
-		$uploadDir = $modSettings['attachmentUploadDir'];
-		$id_folder = 1;
-	}
+	// We're going to put this on a nice custom dir.
+	$uploadDir = $modSettings['custom_avatar_dir'];
+	$id_folder = 1;
 
 	$downloadedExternalAvatar = false;
 	if ($value == 'external' && allowedTo('profile_remote_avatar') && (stripos($_POST['userpicpersonal'], 'http://') === 0 || stripos($_POST['userpicpersonal'], 'https://') === 0) && strlen($_POST['userpicpersonal']) > 7 && !empty($modSettings['avatar_download_external']))
@@ -2956,6 +2939,7 @@ function profileSaveAvatarData(&$value)
 		}
 	}
 
+	// Removes whatever attachment there was before updating
 	if ($value == 'none')
 	{
 		$profile_vars['avatar'] = '';
@@ -2967,6 +2951,8 @@ function profileSaveAvatarData(&$value)
 
 		removeAttachments(array('id_member' => $memID));
 	}
+
+	// An avatar from the server-stored galleries.
 	elseif ($value == 'server_stored' && allowedTo('profile_server_avatar'))
 	{
 		$profile_vars['avatar'] = strtr(empty($_POST['file']) ? (empty($_POST['cat']) ? '' : $_POST['cat']) : $_POST['file'], array('&amp;' => '&'));
@@ -2990,14 +2976,13 @@ function profileSaveAvatarData(&$value)
 		// Remove any attached avatar...
 		removeAttachments(array('id_member' => $memID));
 
-		// @todo http://www.simplemachines.org/community/index.php?topic=462089.msg3226650#msg3226650
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
 		// Trying to make us do something we'll regret?
 		elseif (substr($profile_vars['avatar'], 0, 7) != 'http://' && substr($profile_vars['avatar'], 0, 8) != 'https://')
-			return 'bad_avatar';
+			return 'bad_avatar_invalid_url';
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -3008,7 +2993,7 @@ function profileSaveAvatarData(&$value)
 			{
 				// Houston, we have a problem. The avatar is too large!!
 				if ($modSettings['avatar_action_too_large'] == 'option_refuse')
-					return 'bad_avatar';
+					return 'bad_avatar_too_large';
 				elseif ($modSettings['avatar_action_too_large'] == 'option_download_and_resize')
 				{
 					// @todo remove this if appropriate
@@ -3072,12 +3057,16 @@ function profileSaveAvatarData(&$value)
 					$cur_profile['filename'] = $modSettings['new_avatar_data']['filename'];
 					$cur_profile['attachment_type'] = $modSettings['new_avatar_data']['type'];
 				}
+
+				// Admin doesn't want to resize large avatars, can't do much about it but to tell you to use a different one :(
 				else
 				{
 					@unlink($_FILES['attachment']['tmp_name']);
-					return 'bad_avatar';
+					return 'bad_avatar_too_large';
 				}
 			}
+
+			// So far, so good, checks lies ahead!
 			elseif (is_array($sizes))
 			{
 				// Now try to find an infection.
@@ -3088,7 +3077,7 @@ function profileSaveAvatarData(&$value)
 					if (empty($modSettings['avatar_reencode']) || (!reencodeImage($_FILES['attachment']['tmp_name'], $sizes[2])))
 					{
 						@unlink($_FILES['attachment']['tmp_name']);
-						return 'bad_avatar';
+						return 'bad_avatar_fail_reencode';
 					}
 					// We were successful. However, at what price?
 					$sizes = @getimagesize($_FILES['attachment']['tmp_name']);
@@ -3111,7 +3100,7 @@ function profileSaveAvatarData(&$value)
 				$mime_type = 'image/' . ($extension === 'jpg' ? 'jpeg' : ($extension === 'bmp' ? 'x-ms-bmp' : $extension));
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
 				list ($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
-				$file_hash = empty($modSettings['custom_avatar_enabled']) ? getAttachmentFilename($destName, false, null, true) : '';
+				$file_hash = '';
 
 				// Remove previous attachments this member might have had.
 				removeAttachments(array('id_member' => $memID));
@@ -3123,7 +3112,7 @@ function profileSaveAvatarData(&$value)
 						'width' => 'int', 'height' => 'int', 'mime_type' => 'string', 'id_folder' => 'int',
 					),
 					array(
-						$memID, (empty($modSettings['custom_avatar_enabled']) ? 0 : 1), $destName, $file_hash, $extension, filesize($_FILES['attachment']['tmp_name']),
+						$memID, 1, $destName, $file_hash, $extension, filesize($_FILES['attachment']['tmp_name']),
 						(int) $width, (int) $height, $mime_type, $id_folder,
 					),
 					array('id_attach')
@@ -3131,9 +3120,9 @@ function profileSaveAvatarData(&$value)
 
 				$cur_profile['id_attach'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 				$cur_profile['filename'] = $destName;
-				$cur_profile['attachment_type'] = empty($modSettings['custom_avatar_enabled']) ? 0 : 1;
+				$cur_profile['attachment_type'] = 1;
 
-				$destinationPath = $uploadDir . '/' . (empty($file_hash) ? $destName : $cur_profile['id_attach'] . '_' . $file_hash);
+				$destinationPath = $uploadDir . '/' . (empty($file_hash) ? $destName : $cur_profile['id_attach'] . '_' . $file_hash . '.dat');
 				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
 				{
 					// I guess a man can try.

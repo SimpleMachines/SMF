@@ -77,7 +77,8 @@ if (isset($_GET['scheduled']))
 	require_once($sourcedir . '/ScheduledTasks.php');
 	AutoTask();
 }
-// Displaying attached avatars
+
+// Displaying attached avatars, legacy.
 elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && $_GET['type'] == 'avatar')
 {
 	require_once($sourcedir. '/Avatar.php');

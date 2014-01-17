@@ -50,8 +50,8 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	require_once($sourcedir . '/ManageAttachments.php');
 	removeAttachments(array('id_member' => $memID));
 
-	$id_folder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : 1;
-	$avatar_hash = empty($modSettings['custom_avatar_enabled']) ? getAttachmentFilename($destName, false, null, true) : '';
+	$id_folder = 1;
+	$avatar_hash = '';
 	$smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
@@ -59,7 +59,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 			'id_folder' => 'int',
 		),
 		array(
-			$memID, empty($modSettings['custom_avatar_enabled']) ? 0 : 1, $destName, $avatar_hash, $ext, 1,
+			$memID, 1, $destName, $avatar_hash, $ext, 1,
 			$id_folder,
 		),
 		array('id_attach')
@@ -70,10 +70,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	$modSettings['new_avatar_data'] = array(
 		'id' => $attachID,
 		'filename' => $destName,
-		'type' => empty($modSettings['custom_avatar_enabled']) ? 0 : 1,
+		'type' => 1,
 	);
 
-	$destName = (empty($modSettings['custom_avatar_enabled']) ? (is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] : $modSettings['attachmentUploadDir']) : $modSettings['custom_avatar_dir']) . '/' . $destName . '.tmp';
+	$destName = $modSettings['custom_avatar_dir'] . '/' . $destName . '.tmp';
 
 	// Resize it.
 	if (!empty($modSettings['avatar_download_png']))
@@ -86,20 +86,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 
 	if ($success)
 	{
-		// Walk the right path.
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-			$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$path = $modSettings['attachmentUploadDir'];
-
 		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash))
+		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat'))
 		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash;
+			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat';
 			list ($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 

@@ -47,7 +47,6 @@ function ManageAttachments()
 		'byAge' => 'RemoveAttachmentByAge',
 		'bySize' => 'RemoveAttachmentBySize',
 		'maintenance' => 'MaintainFiles',
-		'moveAvatars' => 'MoveAvatars',
 		'repair' => 'RepairAttachments',
 		'remove' => 'RemoveAttachment',
 		'removeall' => 'RemoveAllAttachments',
@@ -272,12 +271,13 @@ function ManageAttachmentSettings($return_config = false)
 function ManageAvatarSettings($return_config = false)
 {
 	global $txt, $context, $modSettings, $sourcedir, $scripturl;
+	global $boarddir, $boardurl;
 
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
 	$context['valid_avatar_dir'] = is_dir($modSettings['avatar_directory']);
-	$context['valid_custom_avatar_dir'] = empty($modSettings['custom_avatar_enabled']) || (!empty($modSettings['custom_avatar_dir']) && is_dir($modSettings['custom_avatar_dir']) && is_writable($modSettings['custom_avatar_dir']));
+	$context['valid_custom_avatar_dir'] = !empty($modSettings['custom_avatar_dir']) && is_dir($modSettings['custom_avatar_dir']) && is_writable($modSettings['custom_avatar_dir']);
 
 	$config_vars = array(
 		// Server stored avatars!
@@ -305,13 +305,12 @@ function ManageAvatarSettings($return_config = false)
 			array('text', 'avatar_max_width_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('text', 'avatar_max_height_upload', 'subtext' => $txt['zero_for_no_limit'], 6),
 			array('check', 'avatar_resize_upload', 'subtext' => $txt['avatar_resize_upload_note']),
+			array('check', 'avatar_download_png'),
 			array('check', 'avatar_reencode'),
 		'',
 			array('warning', 'avatar_paranoid_warning'),
 			array('check', 'avatar_paranoid'),
 		'',
-			array('check', 'avatar_download_png'),
-			array('select', 'custom_avatar_enabled', array($txt['option_attachment_dir'], $txt['option_specified_dir']), 'onchange' => 'fUpdateStatus();'),
 			array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
 			array('text', 'custom_avatar_url', 40),
 	);
@@ -329,9 +328,18 @@ function ManageAvatarSettings($return_config = false)
 	{
 		checkSession();
 
-		// Just incase the admin forgot to set both custom avatar values, we disable it to prevent errors.
-		if (isset($_POST['custom_avatar_enabled']) && $_POST['custom_avatar_enabled'] == 1 && (empty($_POST['custom_avatar_dir']) || empty($_POST['custom_avatar_url'])))
-			$_POST['custom_avatar_enabled'] = 0;
+		// These settings cannot be left empty!
+		if (empty($_POST['custom_avatar_dir']))
+			$_POST['custom_avatar_dir'] = $boarddir .'/custom_avatar';
+
+		if (empty($_POST['custom_avatar_url']))
+			$_POST['custom_avatar_url'] = $boardurl .'/custom_avatar';
+
+		if (empty($_POST['avatar_directory']))
+			$_POST['avatar_directory'] = $boarddir .'/avatars';
+
+		if (empty($_POST['avatar_url']))
+			$_POST['avatar_url'] = $boardurl .'/avatars';
 
 		call_integration_hook('integrate_save_avatar_settings');
 
@@ -341,7 +349,7 @@ function ManageAvatarSettings($return_config = false)
 	}
 
 	// Attempt to figure out if the admin is trying to break things.
-	$context['settings_save_onclick'] = 'return document.getElementById(\'custom_avatar_enabled\').value == 1 && (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
+	$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . $txt['custom_avatar_check_empty'] . '\') : true;';
 
 	// We need this for the in-line permissions
 	createToken('admin-mp');
@@ -763,59 +771,6 @@ function MaintainFiles()
 		$context['results'] = implode('<br />', $_SESSION['results']);
 		unset($_SESSION['results']);
 	}
-}
-
-/**
- * Move avatars from their current location, to the custom_avatar_dir folder.
- * Called from the maintenance screen by ?action=admin;area=manageattachments;sa=moveAvatars.
- */
-function MoveAvatars()
-{
-	global $modSettings, $smcFunc;
-
-	// First make sure the custom avatar dir is writable.
-	if (!is_writable($modSettings['custom_avatar_dir']))
-	{
-		// Try to fix it.
-		@chmod($modSettings['custom_avatar_dir'], 0777);
-
-		// Guess that didn't work?
-		if (!is_writable($modSettings['custom_avatar_dir']))
-			fatal_lang_error('attachments_no_write', 'critical');
-	}
-
-	$request = $smcFunc['db_query']('', '
-		SELECT id_attach, id_folder, id_member, filename, file_hash
-		FROM {db_prefix}attachments
-		WHERE attachment_type = {int:attachment_type}
-			AND id_member > {int:guest_id_member}',
-		array(
-			'attachment_type' => 0,
-			'guest_id_member' => 0,
-		)
-	);
-	$updatedAvatars = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$filename = getAttachmentFilename($row['filename'], $row['id_attach'], $row['id_folder'], false, $row['file_hash']);
-
-		if (rename($filename, $modSettings['custom_avatar_dir'] . '/' . $row['filename']))
-			$updatedAvatars[] = $row['id_attach'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	if (!empty($updatedAvatars))
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}attachments
-			SET attachment_type = {int:attachment_type}
-			WHERE id_attach IN ({array_int:updated_avatars})',
-			array(
-				'updated_avatars' => $updatedAvatars,
-				'attachment_type' => 1,
-			)
-		);
-
-	redirectexit('action=admin;area=manageattachments;sa=maintenance');
 }
 
 /**

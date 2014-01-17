@@ -38,7 +38,7 @@ if (!isset($modSettings['allow_no_censored']))
 		WHERE variable='allow_no_censored'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
-	
+
 	// Is it set for either "default" or the one they've set as default?
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -48,7 +48,7 @@ if (!isset($modSettings['allow_no_censored']))
 				INSERT INTO {$db_prefix}settings
 				VALUES ('allow_no_censored', 1)
 			");
-			
+
 			// Don't do this twice...
 			break;
 		}
@@ -67,6 +67,14 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 
 ---# Converting legacy attachments.
 ---{
+
+// Need to know a few things first.
+$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+
+// This little fellow has to cooperate...
+if (!is_writable($custom_av_dir))
+	@chmod($custom_av_dir, 0777);
+
 $request = upgrade_query("
 	SELECT MAX(id_attach)
 	FROM {$db_prefix}attachments");
@@ -140,8 +148,17 @@ while (!$is_done)
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 		}
 
-		// And we try to move it.
-		rename($oldFile, $newFile);
+		// Check if the av is an attachment
+		if ($row['id_member'] != 0)
+			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+				upgrade_query("
+					UPDATE {$db_prefix}attachments
+					SET file_hash = '', attachment_type = 1
+					WHERE id_attach = $row[id_attach]");
+
+		// Just a regular attachment.
+		else
+			rename($oldFile, $newFile);
 
 		// Only update this if it was successful and the file was using the old system.
 		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
@@ -770,7 +787,7 @@ $request = upgrade_query("
 	SELECT id_group, add_deny
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_identity_own'");
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
@@ -800,7 +817,7 @@ $request = upgrade_query("
 	SELECT id_group, add_deny
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_extra_own'");
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
@@ -944,7 +961,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 					continue;
 
 				$new_label_info = $label_info_2[$row['id_member']][$a_label];
-				$inserts[] = array($row['id_pm'], $new_label_info); 
+				$inserts[] = array($row['id_pm'], $new_label_info);
 			}
 		}
 
@@ -990,7 +1007,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 				array(
 					'actions' => $actions,
 					'id_rule' => $row['id_rule'],
-				)	
+				)
 			);
 		}
 
