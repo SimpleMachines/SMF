@@ -2341,6 +2341,7 @@ function AutoSuggest_Search_MemberGroups()
  */
 function AutoSuggest_Search_SMFVersions()
 {
+	global $smcFunc;
 
 	$xml_data = array(
 		'items' => array(
@@ -2349,46 +2350,35 @@ function AutoSuggest_Search_SMFVersions()
 		),
 	);
 
-	$versions = array(
-		'SMF 1.1',
-		'SMF 1.1.1',
-		'SMF 1.1.2',
-		'SMF 1.1.3',
-		'SMF 1.1.4',
-		'SMF 1.1.5',
-		'SMF 1.1.6',
-		'SMF 1.1.7',
-		'SMF 1.1.8',
-		'SMF 1.1.9',
-		'SMF 1.1.10',
-		'SMF 1.1.11',
-		'SMF 1.1.12',
-		'SMF 1.1.13',
-		'SMF 1.1.14',
-		'SMF 1.1.15',
-		'SMF 1.1.16',
-		'SMF 1.1.17',
-		'SMF 1.1.18',
-		'SMF 1.1.19',
-		'SMF 2.0 beta 1',
-		'SMF 2.0 beta 1.2',
-		'SMF 2.0 beta 2',
-		'SMF 2.0 beta 3',
-		'SMF 2.0 beta 4',
-		'SMF 2.0 RC1',
-		'SMF 2.0 RC1.2',
-		'SMF 2.0 RC2',
-		'SMF 2.0 RC3',
-		'SMF 2.0 RC4',
-		'SMF 2.0 RC5',
-		'SMF 2.0',
-		'SMF 2.0.1',
-		'SMF 2.0.2',
-		'SMF 2.0.3',
-		'SMF 2.0.4',
-		'SMF 2.0.5',
-		'SMF 2.0.6',
+	// First try and get it from the database.
+	$versions = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT data
+		FROM {db_prefix}admin_info_files
+		WHERE filename = {string:latest_versions}
+			AND path = {string:path}',
+		array(
+			'latest_versions' => 'latest-versions.txt',
+			'path' => '/smf/',
+		)
 	);
+	if (($smcFunc['db_num_rows']($request) > 0) && ($row = $smcFunc['db_fetch_assoc']($request)) && !empty($row['data']))
+	{
+		// The file can be either Windows or Linux line endings, but let's ensure we clean it as best we can.
+		$possible_versions = explode("\n", $row['data']);
+		foreach ($possible_versions as $ver)
+		{
+			$ver = trim($ver);
+			if (strpos($ver, 'SMF') === 0)
+				$versions[] = $ver;
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Just in case we don't have ANYthing.
+	if (empty($versions))
+		$versions = array('SMF 2.0');
+	
 
 	foreach ($versions as $id => $version)
 		if (strpos($version, strtoupper($_REQUEST['search'])) !== false)

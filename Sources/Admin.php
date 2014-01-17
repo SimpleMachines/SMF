@@ -593,7 +593,7 @@ function DisplayAdminFile()
 
 	// @todo Temp
 	// Figure out if sesc is still being used.
-	if (strpos($file_data, ';sesc=') !== false)
+	if (strpos($file_data, ';sesc=') !== false && $filetype == 'text/javascript')
 		$file_data = '
 if (!(\'smfForum_sessionvar\' in window))
 	window.smfForum_sessionvar = \'sesc\';
