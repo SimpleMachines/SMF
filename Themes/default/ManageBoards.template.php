@@ -137,7 +137,7 @@ function template_modify_category()
 		// Print every existing category into a select box.
 		foreach ($context['category_order'] as $order)
 			echo '
-								<option', $order['selected'] ? ' selected="selected"' : '', ' value="', $order['id'], '">', $order['name'], '</option>';
+								<option', $order['selected'] ? ' selected' : '', ' value="', $order['id'], '">', $order['name'], '</option>';
 		echo '
 							</select>
 						</dd>';
@@ -280,7 +280,7 @@ function template_modify_board()
 							<select name="new_cat" onchange="if (this.form.order) {this.form.order.disabled = this.options[this.selectedIndex].value != 0; this.form.board_order.disabled = this.options[this.selectedIndex].value != 0 || this.form.order.options[this.form.order.selectedIndex].value == \'\';}">';
 		foreach ($context['categories'] as $category)
 			echo '
-								<option', $category['selected'] ? ' selected="selected"' : '', ' value="', $category['id'], '">', $category['name'], '</option>';
+								<option', $category['selected'] ? ' selected' : '', ' value="', $category['id'], '">', $category['name'], '</option>';
 		echo '
 							</select>
 						</dd>';
@@ -309,7 +309,7 @@ function template_modify_board()
 								', !isset($context['board']['is_new']) ? '<option value="">(' . $txt['mboards_unchanged'] . ')</option>' : '';
 	foreach ($context['board_order'] as $order)
 		echo '
-								<option', $order['selected'] ? ' selected="selected"' : '', ' value="', $order['id'], '">', $order['name'], '</option>';
+								<option', $order['selected'] ? ' selected' : '', ' value="', $order['id'], '">', $order['name'], '</option>';
 	echo '
 							</select>
 						</dd>';
@@ -344,7 +344,7 @@ function template_modify_board()
 
 	foreach ($context['profiles'] as $id => $profile)
 		echo '
-								<option value="', $id, '"', $id == $context['board']['profile'] ? ' selected="selected"' : '', '>', $profile['name'], '</option>';
+								<option value="', $id, '"', $id == $context['board']['profile'] ? ' selected' : '', '>', $profile['name'], '</option>';
 
 	echo '
 							</select>
@@ -520,11 +520,11 @@ function template_modify_board()
 							</dt>
 							<dd>
 								<select name="boardtheme" id="boardtheme" onchange="refreshOptions();">
-									<option value="0"', $context['board']['theme'] == 0 ? ' selected="selected"' : '', '>', $txt['mboards_theme_default'], '</option>';
+									<option value="0"', $context['board']['theme'] == 0 ? ' selected' : '', '>', $txt['mboards_theme_default'], '</option>';
 
 	foreach ($context['themes'] as $theme)
 		echo '
-									<option value="', $theme['id'], '"', $context['board']['theme'] == $theme['id'] ? ' selected="selected"' : '', '>', $theme['name'], '</option>';
+									<option value="', $theme['id'], '"', $context['board']['theme'] == $theme['id'] ? ' selected' : '', '>', $theme['name'], '</option>';
 
 	echo '
 								</select>

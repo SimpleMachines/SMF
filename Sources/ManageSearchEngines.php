@@ -928,7 +928,7 @@ function SpiderStats()
 	else
 		foreach ($date_choices as $id => $text)
 			$date_select .= '
-			<option value="' . $id . '"' . ($current_date == $id ? ' selected="selected"' : '') . '>' . $text . '</option>';
+			<option value="' . $id . '"' . ($current_date == $id ? ' selected' : '') . '>' . $text . '</option>';
 
 	$date_select .= '
 		</select>

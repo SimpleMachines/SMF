@@ -64,12 +64,12 @@ function template_modify_subscription()
 						</dt>
 						<dd>
 							<select name="prim_group"', !empty($context['disable_groups']) ? ' disabled' : '', '>
-								<option value="0" ', $context['sub']['prim_group'] == 0 ? 'selected="selected"' : '', '>', $txt['paid_mod_no_group'], '</option>';
+								<option value="0"', $context['sub']['prim_group'] == 0 ? ' selected' : '', '>', $txt['paid_mod_no_group'], '</option>';
 
 	// Put each group into the box.
 	foreach ($context['groups'] as $id => $name)
 		echo '
-								<option value="', $id, '" ', $context['sub']['prim_group'] == $id ? 'selected="selected"' : '', '>', $name, '</option>';
+								<option value="', $id, '"', $context['sub']['prim_group'] == $id ? ' selected' : '', '>', $name, '</option>';
 
 	echo '
 							</select>
@@ -118,10 +118,10 @@ function template_modify_subscription()
 								<dd>
 									<input type="text" name="span_value" value="', $context['sub']['span']['value'], '" size="4" class="input_text" />
 									<select name="span_unit">
-										<option value="D" ', $context['sub']['span']['unit'] == 'D' ? 'selected="selected"' : '', '>', $txt['paid_mod_span_days'], '</option>
-										<option value="W" ', $context['sub']['span']['unit'] == 'W' ? 'selected="selected"' : '', '>', $txt['paid_mod_span_weeks'], '</option>
-										<option value="M" ', $context['sub']['span']['unit'] == 'M' ? 'selected="selected"' : '', '>', $txt['paid_mod_span_months'], '</option>
-										<option value="Y" ', $context['sub']['span']['unit'] == 'Y' ? 'selected="selected"' : '', '>', $txt['paid_mod_span_years'], '</option>
+										<option value="D"', $context['sub']['span']['unit'] == 'D' ? ' selected' : '', '>', $txt['paid_mod_span_days'], '</option>
+										<option value="W"', $context['sub']['span']['unit'] == 'W' ? ' selected' : '', '>', $txt['paid_mod_span_weeks'], '</option>
+										<option value="M"', $context['sub']['span']['unit'] == 'M' ? ' selected' : '', '>', $txt['paid_mod_span_months'], '</option>
+										<option value="Y"', $context['sub']['span']['unit'] == 'Y' ? ' selected' : '', '>', $txt['paid_mod_span_years'], '</option>
 									</select>
 								</dd>
 							</dl>
@@ -261,8 +261,8 @@ function template_modify_user_subscription()
 						</dt>
 						<dd>
 							<select name="status">
-								<option value="0" ', $context['sub']['status'] == 0 ? 'selected="selected"' : '', '>', $txt['paid_finished'], '</option>
-								<option value="1" ', $context['sub']['status'] == 1 ? 'selected="selected"' : '', '>', $txt['paid_active'], '</option>
+								<option value="0"', $context['sub']['status'] == 0 ? ' selected' : '', '>', $txt['paid_finished'], '</option>
+								<option value="1"', $context['sub']['status'] == 1 ? ' selected' : '', '>', $txt['paid_active'], '</option>
 							</select>
 						</dd>
 					</dl>
@@ -273,7 +273,7 @@ function template_modify_user_subscription()
 	// Show a list of all the years we allow...
 	for ($year = 2005; $year <= 2030; $year++)
 		echo '
-							<option value="', $year, '"', $year == $context['sub']['start']['year'] ? ' selected="selected"' : '', '>', $year, '</option>';
+							<option value="', $year, '"', $year == $context['sub']['start']['year'] ? ' selected' : '', '>', $year, '</option>';
 
 	echo '
 						</select>&nbsp;
@@ -283,7 +283,7 @@ function template_modify_user_subscription()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-							<option value="', $month, '"', $month == $context['sub']['start']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '</option>';
+							<option value="', $month, '"', $month == $context['sub']['start']['month'] ? ' selected' : '', '>', $txt['months'][$month], '</option>';
 
 	echo '
 						</select>&nbsp;
@@ -293,7 +293,7 @@ function template_modify_user_subscription()
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
 	for ($day = 1; $day <= $context['sub']['start']['last_day']; $day++)
 		echo '
-							<option value="', $day, '"', $day == $context['sub']['start']['day'] ? ' selected="selected"' : '', '>', $day, '</option>';
+							<option value="', $day, '"', $day == $context['sub']['start']['day'] ? ' selected' : '', '>', $day, '</option>';
 
 	echo '
 						</select>
@@ -307,7 +307,7 @@ function template_modify_user_subscription()
 	// Show a list of all the years we allow...
 	for ($year = 2005; $year <= 2030; $year++)
 		echo '
-							<option value="', $year, '"', $year == $context['sub']['end']['year'] ? ' selected="selected"' : '', '>', $year, '</option>';
+							<option value="', $year, '"', $year == $context['sub']['end']['year'] ? ' selected' : '', '>', $year, '</option>';
 
 	echo '
 						</select>&nbsp;
@@ -317,7 +317,7 @@ function template_modify_user_subscription()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-							<option value="', $month, '"', $month == $context['sub']['end']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '</option>';
+							<option value="', $month, '"', $month == $context['sub']['end']['month'] ? ' selected' : '', '>', $txt['months'][$month], '</option>';
 
 	echo '
 						</select>&nbsp;
@@ -327,7 +327,7 @@ function template_modify_user_subscription()
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
 	for ($day = 1; $day <= $context['sub']['end']['last_day']; $day++)
 		echo '
-							<option value="', $day, '"', $day == $context['sub']['end']['day'] ? ' selected="selected"' : '', '>', $day, '</option>';
+							<option value="', $day, '"', $day == $context['sub']['end']['day'] ? ' selected' : '', '>', $day, '</option>';
 
 	echo '
 						</select>

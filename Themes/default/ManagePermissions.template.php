@@ -320,7 +320,7 @@ function template_by_board()
 
 				foreach ($context['profiles'] as $id => $profile)
 					echo '
-									<option value="', $id, '" ', $id == $board['profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
+									<option value="', $id, '"', $id == $board['profile'] ? ' selected' : '', '>', $profile['name'], '</option>';
 
 				echo '
 								</select>';
@@ -827,7 +827,7 @@ function template_postmod_permissions()
 		foreach ($context['profiles'] as $profile)
 			if ($profile['can_modify'])
 				echo '
-										<option value="', $profile['id'], '" ', $profile['id'] == $context['current_profile'] ? 'selected="selected"' : '', '>', $profile['name'], '</option>';
+										<option value="', $profile['id'], '"', $profile['id'] == $context['current_profile'] ? ' selected' : '', '>', $profile['name'], '</option>';
 
 		echo '
 									</select>

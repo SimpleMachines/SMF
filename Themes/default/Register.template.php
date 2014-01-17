@@ -273,7 +273,7 @@ function template_registration_form()
 						if (is_array($field['options']))
 							foreach ($field['options'] as $value => $name)
 								echo '
-								<option value="', $value, '" ', $value == $field['value'] ? 'selected="selected"' : '', '>', $name, '</option>';
+								<option value="', $value, '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
 					}
 
 					echo '
@@ -634,7 +634,7 @@ function template_edit_agreement()
 
 		foreach ($context['editable_agreements'] as $file => $name)
 			echo '
-								<option value="', $file, '" ', $context['current_agreement'] == $file ? 'selected="selected"' : '', '>', $name, '</option>';
+								<option value="', $file, '"', $context['current_agreement'] == $file ? ' selected' : '', '>', $name, '</option>';
 
 		echo '
 							</select>

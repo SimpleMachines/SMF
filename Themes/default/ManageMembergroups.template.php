@@ -81,7 +81,7 @@ function template_new_group()
 								<label for="perm_type_inherit">', $txt['membergroups_new_as_inherit'], ':</label>
 								<select name="inheritperm" id="inheritperm_select" onclick="document.getElementById(\'perm_type_inherit\').checked = true;">
 									<option value="-1">', $txt['membergroups_guests'], '</option>
-									<option value="0" selected="selected">', $txt['membergroups_members'], '</option>';
+									<option value="0" selected>', $txt['membergroups_members'], '</option>';
 		foreach ($context['groups'] as $group)
 			echo '
 									<option value="', $group['id'], '">', $group['name'], '</option>';
@@ -92,7 +92,7 @@ function template_new_group()
 								<label for="perm_type_copy">', $txt['membergroups_new_as_copy'], ':</label>
 								<select name="copyperm" id="copyperm_select" onclick="document.getElementById(\'perm_type_copy\').checked = true;">
 									<option value="-1">', $txt['membergroups_guests'], '</option>
-									<option value="0" selected="selected">', $txt['membergroups_members'], '</option>';
+									<option value="0" selected>', $txt['membergroups_members'], '</option>';
 		foreach ($context['groups'] as $group)
 			echo '
 									<option value="', $group['id'], '">', $group['name'], '</option>';
@@ -103,7 +103,7 @@ function template_new_group()
 								<label for="perm_type_predefined">', $txt['membergroups_new_as_type'], ':</label>
 								<select name="level" id="level_select" onclick="document.getElementById(\'perm_type_predefined\').checked = true;">
 									<option value="restrict">', $txt['permitgroups_restrict'], '</option>
-									<option value="standard" selected="selected">', $txt['permitgroups_standard'], '</option>
+									<option value="standard" selected>', $txt['permitgroups_standard'], '</option>
 									<option value="moderator">', $txt['permitgroups_moderator'], '</option>
 									<option value="maintenance">', $txt['permitgroups_maintenance'], '</option>
 								</select>
@@ -215,9 +215,9 @@ function template_edit_group()
 						</dt>
 						<dd>
 							<select name="group_hidden" id="group_hidden_input" onchange="if (this.value == 2 &amp;&amp; !confirm(\'', $txt['membergroups_edit_hidden_warning'], '\')) this.value = 0;">
-								<option value="0" ', $context['group']['hidden'] ? '' : 'selected="selected"', '>', $txt['membergroups_edit_hidden_no'], '</option>
-								<option value="1" ', $context['group']['hidden'] == 1 ? 'selected="selected"' : '', '>', $txt['membergroups_edit_hidden_boardindex'], '</option>
-								<option value="2" ', $context['group']['hidden'] == 2 ? 'selected="selected"' : '', '>', $txt['membergroups_edit_hidden_all'], '</option>
+								<option value="0"', $context['group']['hidden'] ? '' : ' selected', '>', $txt['membergroups_edit_hidden_no'], '</option>
+								<option value="1"', $context['group']['hidden'] == 1 ? ' selected' : '', '>', $txt['membergroups_edit_hidden_boardindex'], '</option>
+								<option value="2"', $context['group']['hidden'] == 2 ? ' selected' : '', '>', $txt['membergroups_edit_hidden_all'], '</option>
 							</select>
 						</dd>';
 
@@ -232,13 +232,13 @@ function template_edit_group()
 						<dd>
 							<select name="group_inherit" id="group_inherit_input">
 								<option value="-2">', $txt['membergroups_edit_inherit_permissions_no'], '</option>
-								<option value="-1" ', $context['group']['inherited_from'] == -1 ? 'selected="selected"' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $txt['membergroups_guests'], '</option>
-								<option value="0" ', $context['group']['inherited_from'] == 0 ? 'selected="selected"' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $txt['membergroups_members'], '</option>';
+								<option value="-1"', $context['group']['inherited_from'] == -1 ? ' selected' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $txt['membergroups_guests'], '</option>
+								<option value="0"', $context['group']['inherited_from'] == 0 ? ' selected' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $txt['membergroups_members'], '</option>';
 
 		// For all the inheritable groups show an option.
 		foreach ($context['inheritable_groups'] as $id => $group)
 			echo '
-								<option value="', $id, '" ', $context['group']['inherited_from'] == $id ? 'selected="selected"' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $group, '</option>';
+								<option value="', $id, '"', $context['group']['inherited_from'] == $id ? ' selected' : '', '>', $txt['membergroups_edit_inherit_permissions_from'], ': ', $group, '</option>';
 
 		echo '
 							</select>
@@ -285,7 +285,7 @@ function template_edit_group()
 		foreach ($context['possible_icons'] as $icon)
 		{
 			echo '
-								<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected="selected"' : '', '>', $icon, '</option>';
+								<option value="', $icon, '"', $context['group']['icon_image'] == $icon ? ' selected' : '', '>', $icon, '</option>';
 		}
 
 		echo '

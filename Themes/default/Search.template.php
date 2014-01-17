@@ -86,8 +86,8 @@ function template_main()
 					</dt>
 					<dd>
 						<select name="searchtype" id="searchtype">
-							<option value="1"', empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['all_words'], '</option>
-							<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['any_words'], '</option>
+							<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['all_words'], '</option>
+							<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['any_words'], '</option>
 						</select>
 					</dd>
 					<dt class="righttext"><label for="userspec">',

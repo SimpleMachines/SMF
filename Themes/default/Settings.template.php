@@ -168,10 +168,6 @@ function template_settings()
 			'label' => $txt['current_pos_text_img'],
 		),
 		array(
-			'id' => 'show_mark_read',
-			'label' => $txt['enable_mark_as_read'],
-		),
-		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),

@@ -332,7 +332,7 @@ function template_modify_language_entries()
 		foreach ($theme['files'] as $file)
 		{
 			echo '
-							<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected="selected"' : '', '> =&gt; ', $file['name'], '</option>';
+							<option value="', $id_theme, '+', $file['id'], '"', $file['selected'] ? ' selected' : '', '> =&gt; ', $file['name'], '</option>';
 		}
 
 		echo '

@@ -211,19 +211,19 @@ function template_body_above()
 
 			echo '
 				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected="selected"' : ''), '>', $txt['search_entireforum'], ' </option>';
+					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
 
 			// Can't limit it to a specific topic if we are not in one
 			if (!empty($context['current_topic']))
 				echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected="selected"' : ''), '>', $txt['search_thistopic'], '</option>';
+					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
 
 		// Can't limit it to a specific board if we are not in one
 		if (!empty($context['current_board']))
 			echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected="selected"' : ''), '>', $txt['search_thisbrd'], '</option>';
+					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisbrd'], '</option>';
 			echo '
-					<option value="members"', ($selected == 'members' ? ' selected="selected"' : ''), '>', $txt['search_members'], ' </option>
+					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>
 				</select>';
 		}
 
@@ -278,7 +278,7 @@ function template_body_above()
 								<option value="1440">', $txt['one_day'], '</option>
 								<option value="10080">', $txt['one_week'], '</option>
 								<option value="43200">', $txt['one_month'], '</option>
-								<option value="-1" selected="selected">', $txt['forever'], '</option>
+								<option value="-1" selected>', $txt['forever'], '</option>
 							</select>
 							<input type="submit" value="', $txt['login'], '" class="button_submit" />
 							<div>', $txt['quick_login_dec'], '</div>';

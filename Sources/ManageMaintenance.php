@@ -2469,7 +2469,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 	foreach ($hooks as $hook => $functions)
 	{
-		$hooks_filters[] = '<option ' . ($context['current_filter'] == $hook ? 'selected="selected" ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
+		$hooks_filters[] = '<option' . ($context['current_filter'] == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 		foreach ($functions as $function)
 		{
 			$enabled = strstr($function, ']') === false;

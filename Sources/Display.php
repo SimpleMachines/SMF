@@ -1110,7 +1110,7 @@ function Display()
 	$context['can_reply_approved'] = $context['can_reply'];
 	$context['can_reply'] |= $context['can_reply_unapproved'];
 	$context['can_quote'] = $context['can_reply'] && (empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC'])));
-	$context['can_mark_unread'] = !$user_info['is_guest'] && $settings['show_mark_read'];
+	$context['can_mark_unread'] = !$user_info['is_guest'];
 	$context['can_unwatch'] = !$user_info['is_guest'] && $modSettings['enable_unwatch'];
 
 	$context['can_send_topic'] = (!$modSettings['postmod_active'] || $topicinfo['approved']) && allowedTo('send_topic');

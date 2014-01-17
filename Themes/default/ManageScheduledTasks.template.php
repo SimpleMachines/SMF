@@ -82,12 +82,10 @@ function template_edit_scheduled_tasks()
 							', $txt['scheduled_task_edit_repeat'], '
 							<input type="text" name="regularity" id="regularity" value="', empty($context['task']['regularity']) ? 1 : $context['task']['regularity'], '" onchange="if (this.value < 1) this.value = 1;" size="2" maxlength="2" class="input_text" />
 							<select name="unit">
-								<option value="0">', $txt['scheduled_task_edit_pick_unit'], '</option>
-								<option value="0">---------------------</option>
-								<option value="m" ', empty($context['task']['unit']) || $context['task']['unit'] == 'm' ? 'selected="selected"' : '', '>', $txt['scheduled_task_reg_unit_m'], '</option>
-								<option value="h" ', $context['task']['unit'] == 'h' ? 'selected="selected"' : '', '>', $txt['scheduled_task_reg_unit_h'], '</option>
-								<option value="d" ', $context['task']['unit'] == 'd' ? 'selected="selected"' : '', '>', $txt['scheduled_task_reg_unit_d'], '</option>
-								<option value="w" ', $context['task']['unit'] == 'w' ? 'selected="selected"' : '', '>', $txt['scheduled_task_reg_unit_w'], '</option>
+								<option value="m"', empty($context['task']['unit']) || $context['task']['unit'] == 'm' ? ' selected' : '', '>', $txt['scheduled_task_reg_unit_m'], '</option>
+								<option value="h"', $context['task']['unit'] == 'h' ? ' selected' : '', '>', $txt['scheduled_task_reg_unit_h'], '</option>
+								<option value="d"', $context['task']['unit'] == 'd' ? ' selected' : '', '>', $txt['scheduled_task_reg_unit_d'], '</option>
+								<option value="w"', $context['task']['unit'] == 'w' ? ' selected' : '', '>', $txt['scheduled_task_reg_unit_w'], '</option>
 							</select>
 						</dd>
 						<dt>

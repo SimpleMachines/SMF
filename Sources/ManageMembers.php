@@ -757,7 +757,7 @@ function MembersAwaitingActivation()
 
 	// Create an option list for actions allowed to be done with selected members.
 	$allowed_actions = '
-			<option selected="selected" value="">' . $txt['admin_browse_with_selected'] . ':</option>
+			<option selected value="">' . $txt['admin_browse_with_selected'] . ':</option>
 			<option value="" disabled>-----------------------------</option>';
 	foreach ($context['allowed_actions'] as $key => $desc)
 		$allowed_actions .= '
@@ -992,7 +992,7 @@ function MembersAwaitingActivation()
 			<select name="filter" onchange="this.form.submit();">';
 		foreach ($context['available_filters'] as $filter)
 			$filterOptions .= '
-				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected="selected"' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? $txt['user'] : $txt['users']) . '</option>';
+				<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? $txt['user'] : $txt['users']) . '</option>';
 		$filterOptions .= '
 			</select>
 			<noscript><input type="submit" value="' . $txt['go'] . '" name="filter" class="button_submit" /></noscript>';
