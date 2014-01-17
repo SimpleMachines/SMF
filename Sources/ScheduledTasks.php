@@ -348,7 +348,7 @@ function scheduled_approval_notification()
 		$emaildata = loadEmailTemplate('scheduled_approval', $replacements, $current_language);
 
 		// Send the actual email.
-		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', false, 2);
 	}
 
 	// All went well!
@@ -769,7 +769,7 @@ function scheduled_daily_digest()
 		$email['body'] .= "\n\n" . $txt['regards_team'];
 
 		// Send it - low priority!
-		sendmail($email['email'], $email['subject'], $email['body'], null, null, false, 4);
+		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
 	}
 
 	// Clean up...
@@ -1375,7 +1375,7 @@ function scheduled_birthdayemails()
 
 			$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 
-			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 4);
+			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', false, 4);
 
 			// Try to stop a timeout, this would be bad...
 			@set_time_limit(300);
@@ -1646,7 +1646,7 @@ function scheduled_paid_subscriptions()
 		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
 	}
 	$smcFunc['db_free_result']($request);
 

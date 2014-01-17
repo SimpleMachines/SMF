@@ -898,7 +898,7 @@ function SendMailing($clean_only = false)
 			$email
 		);
 
-		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, null, !empty($_POST['send_html']), 5);
+		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, 'news', !empty($_POST['send_html']), 5);
 
 		// Done another...
 		$i++;
@@ -1005,7 +1005,7 @@ function SendMailing($clean_only = false)
 
 			// Send the actual email - or a PM!
 			if (!$context['send_pm'])
-				sendmail($row['email_address'], $subject, $message, null, null, !empty($_POST['send_html']), 5);
+				sendmail($row['email_address'], $subject, $message, null, 'news', !empty($_POST['send_html']), 5);
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
