@@ -2116,7 +2116,7 @@ function template_install_above()
 
 		foreach ($incontext['detected_languages'] as $lang => $name)
 			echo '
-									<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected="selected"' : '', ' value="', $lang, '">', $name, '</option>';
+									<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
 
 		echo '
 								</select>
@@ -2365,7 +2365,7 @@ function template_database_settings()
 
 	foreach ($incontext['supported_databases'] as $key => $db)
 			echo '
-						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected="selected"' : '', '>', $db['name'], '</option>';
+						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
 
 	echo '
 					</select><div id="db_sqlite_warning" style="color: blue; display: none;" class="smalltext">', $txt['db_sqlite_warning'], '</div>
@@ -2497,7 +2497,7 @@ function template_forum_settings()
 				<td>
 					<select name="reg_mode" id="reg_mode">
 						<optgroup label="', $txt['install_settings_reg_modes'], ':">
-							<option value="0" selected="selected">', $txt['install_settings_reg_immediate'], '</option>
+							<option value="0" selected>', $txt['install_settings_reg_immediate'], '</option>
 							<option value="1">', $txt['install_settings_reg_email'], '</option>
 							<option value="2">', $txt['install_settings_reg_admin'], '</option>
 							<option value="3">', $txt['install_settings_reg_disabled'], '</option>

@@ -750,8 +750,8 @@ function template_search()
 						window.addEventListener("load", initSearch, false);
 					// ]]></script>
 					<select name="searchtype">
-						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['pm_search_match_all'], '</option>
-						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected="selected"' : '', '>', $txt['pm_search_match_any'], '</option>
+						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_all'], '</option>
+						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_any'], '</option>
 					</select>
 				</span>
 				<dl id="search_options">
@@ -1797,12 +1797,13 @@ function template_add_rule()
 
 		echo '
 					<select name="ruletype[', $k, ']" id="ruletype', $k, '" onchange="updateRuleDef(', $k, '); rebuildRuleDesc();">
-						<option value="">', $txt['pm_rule_criteria_pick'], ':</option>
-						<option value="mid" ', $criteria['t'] == 'mid' ? 'selected="selected"' : '', '>', $txt['pm_rule_mid'], '</option>
-						<option value="gid" ', $criteria['t'] == 'gid' ? 'selected="selected"' : '', '>', $txt['pm_rule_gid'], '</option>
-						<option value="sub" ', $criteria['t'] == 'sub' ? 'selected="selected"' : '', '>', $txt['pm_rule_sub'], '</option>
-						<option value="msg" ', $criteria['t'] == 'msg' ? 'selected="selected"' : '', '>', $txt['pm_rule_msg'], '</option>
-						<option value="bud" ', $criteria['t'] == 'bud' ? 'selected="selected"' : '', '>', $txt['pm_rule_bud'], '</option>
+						<option value="">', $txt['pm_rule_criteria_pick'], ':</option>';
+
+		foreach (array('mid', 'gid', 'sub', 'msg', 'bud') as $cr)
+			echo '
+						<option value="', $cr, '"', $criteria['t'] == $cr ? ' selected' : '', '>', $txt['pm_rule_' . $cr], '</option>';
+
+		echo '
 					</select>
 					<span id="defdiv', $k, '" ', !in_array($criteria['t'], array('gid', 'bud')) ? '' : 'style="display: none;"', '>
 						<input type="text" name="ruledef[', $k, ']" id="ruledef', $k, '" onkeyup="rebuildRuleDesc();" value="', in_array($criteria['t'], array('mid', 'sub', 'msg')) ? $criteria['v'] : '', '" class="input_text" />
@@ -1813,7 +1814,7 @@ function template_add_rule()
 
 		foreach ($context['groups'] as $id => $group)
 			echo '
-							<option value="', $id, '" ', $criteria['t'] == 'gid' && $criteria['v'] == $id ? 'selected="selected"' : '', '>', $group, '</option>';
+							<option value="', $id, '"', $criteria['t'] == 'gid' && $criteria['v'] == $id ? ' selected' : '', '>', $group, '</option>';
 		echo '
 						</select>
 					</span>';
@@ -1831,8 +1832,8 @@ function template_add_rule()
 					<br /><br />
 					', $txt['pm_rule_logic'], ':
 					<select name="rule_logic" id="logic" onchange="rebuildRuleDesc();">
-						<option value="and" ', $context['rule']['logic'] == 'and' ? 'selected="selected"' : '', '>', $txt['pm_rule_logic_and'], '</option>
-						<option value="or" ', $context['rule']['logic'] == 'or' ? 'selected="selected"' : '', '>', $txt['pm_rule_logic_or'], '</option>
+						<option value="and"', $context['rule']['logic'] == 'and' ? ' selected' : '', '>', $txt['pm_rule_logic_and'], '</option>
+						<option value="or"', $context['rule']['logic'] == 'or' ? ' selected' : '', '>', $txt['pm_rule_logic_or'], '</option>
 					</select>
 				</fieldset>
 				<fieldset>
@@ -1853,8 +1854,8 @@ function template_add_rule()
 		echo '
 					<select name="acttype[', $k, ']" id="acttype', $k, '" onchange="updateActionDef(', $k, '); rebuildRuleDesc();">
 						<option value="">', $txt['pm_rule_sel_action'] , ':</option>
-						<option value="lab" ', $action['t'] == 'lab' ? 'selected="selected"' : '', '>', $txt['pm_rule_label'] , '</option>
-						<option value="del" ', $action['t'] == 'del' ? 'selected="selected"' : '', '>', $txt['pm_rule_delete'] , '</option>
+						<option value="lab"', $action['t'] == 'lab' ? ' selected' : '', '>', $txt['pm_rule_label'] , '</option>
+						<option value="del"', $action['t'] == 'del' ? ' selected' : '', '>', $txt['pm_rule_delete'] , '</option>
 					</select>
 					<span id="labdiv', $k, '">
 						<select name="labdef[', $k, ']" id="labdef', $k, '" onchange="rebuildRuleDesc();">
@@ -1862,7 +1863,7 @@ function template_add_rule()
 		foreach ($context['labels'] as $label)
 			if ($label['id'] != -1)
 				echo '
-							<option value="', ($label['id']), '" ', $action['t'] == 'lab' && $action['v'] == $label['id'] ? 'selected="selected"' : '', '>', $label['name'], '</option>';
+							<option value="', ($label['id']), '"', $action['t'] == 'lab' && $action['v'] == $label['id'] ? ' selected' : '', '>', $label['name'], '</option>';
 
 		echo '
 						</select>

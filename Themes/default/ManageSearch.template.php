@@ -236,7 +236,7 @@ function template_create_index()
 						<dd>
 							<select name="bytes_per_word" id="predefine_select">
 								<option value="2">', $txt['search_predefined_small'], '</option>
-								<option value="4" selected="selected">', $txt['search_predefined_moderate'], '</option>
+								<option value="4" selected>', $txt['search_predefined_moderate'], '</option>
 								<option value="5">', $txt['search_predefined_large'], '</option>
 							</select>
 						</dd>

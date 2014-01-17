@@ -173,7 +173,7 @@ function template_main()
 	// Loop through each message icon allowed, adding it to the drop down list.
 	foreach ($context['icons'] as $icon)
 		echo '
-								<option value="', $icon['value'], '"', $icon['value'] == $context['icon'] ? ' selected="selected"' : '', '>', $icon['name'], '</option>';
+								<option value="', $icon['value'], '"', $icon['value'] == $context['icon'] ? ' selected' : '', '>', $icon['name'], '</option>';
 
 	echo '
 							</select>
@@ -197,7 +197,7 @@ function template_main()
 		// Show a list of all the years we allow...
 		for ($year = $modSettings['cal_minyear']; $year <= $modSettings['cal_maxyear']; $year++)
 			echo '
-									<option value="', $year, '"', $year == $context['event']['year'] ? ' selected="selected"' : '', '>', $year, '&nbsp;</option>';
+									<option value="', $year, '"', $year == $context['event']['year'] ? ' selected' : '', '>', $year, '&nbsp;</option>';
 
 		echo '
 								</select>
@@ -207,7 +207,7 @@ function template_main()
 		// There are 12 months per year - ensure that they all get listed.
 		for ($month = 1; $month <= 12; $month++)
 			echo '
-									<option value="', $month, '"', $month == $context['event']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '&nbsp;</option>';
+									<option value="', $month, '"', $month == $context['event']['month'] ? ' selected' : '', '>', $txt['months'][$month], '&nbsp;</option>';
 
 		echo '
 								</select>
@@ -217,7 +217,7 @@ function template_main()
 		// This prints out all the days in the current month - this changes dynamically as we switch months.
 		for ($day = 1; $day <= $context['event']['last_day']; $day++)
 			echo '
-									<option value="', $day, '"', $day == $context['event']['day'] ? ' selected="selected"' : '', '>', $day, '&nbsp;</option>';
+									<option value="', $day, '"', $day == $context['event']['day'] ? ' selected' : '', '>', $day, '&nbsp;</option>';
 
 		echo '
 								</select>
@@ -242,7 +242,7 @@ function template_main()
 
 				for ($days = 1; $days <= $modSettings['cal_maxspan']; $days++)
 					echo '
-											<option value="', $days, '"', $days == $context['event']['span'] ? ' selected="selected"' : '', '>', $days, '&nbsp;</option>';
+											<option value="', $days, '"', $days == $context['event']['span'] ? ' selected' : '', '>', $days, '&nbsp;</option>';
 
 				echo '
 										</select>
@@ -262,7 +262,7 @@ function template_main()
 											<optgroup label="', $category['name'], '">';
 					foreach ($category['boards'] as $board)
 						echo '
-												<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+												<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 					echo '
 											</optgroup>';
 				}

@@ -115,7 +115,7 @@ function template_modifyset()
 							<select name="smiley_sets_path" id="smiley_sets_path">';
 			foreach ($context['smiley_set_dirs'] as $smiley_set_dir)
 				echo '
-								<option value="', $smiley_set_dir['id'], '"', $smiley_set_dir['current'] ? ' selected="selected"' : '', $smiley_set_dir['selectable'] ? '' : ' disabled', '>', $smiley_set_dir['id'], '</option>';
+								<option value="', $smiley_set_dir['id'], '"', $smiley_set_dir['current'] ? ' selected' : '', $smiley_set_dir['selectable'] ? '' : ' disabled', '>', $smiley_set_dir['id'], '</option>';
 			echo '
 							</select> ';
 		}
@@ -174,7 +174,7 @@ function template_modifysmiley()
 
 		foreach ($context['smiley_sets'] as $smiley_set)
 			echo '
-							<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected="selected"' : '', '>', $smiley_set['name'], '</option>';
+							<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
 
 		echo '
 							</select>)
@@ -198,7 +198,7 @@ function template_modifysmiley()
 							<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();">';
 				foreach ($context['filenames'] as $filename)
 					echo '
-								<option value="', $filename['id'], '"', $filename['selected'] ? ' selected="selected"' : '', '>', $filename['id'], '</option>';
+								<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
 				echo '
 							</select>';
 			}
@@ -215,13 +215,13 @@ function template_modifysmiley()
 						</dt>
 						<dd>
 							<select name="smiley_location" id="smiley_location">
-								<option value="0"', $context['current_smiley']['location'] == 0 ? ' selected="selected"' : '', '>
+								<option value="0"', $context['current_smiley']['location'] == 0 ? ' selected' : '', '>
 									', $txt['smileys_location_form'], '
 								</option>
-								<option value="1"', $context['current_smiley']['location'] == 1 ? ' selected="selected"' : '', '>
+								<option value="1"', $context['current_smiley']['location'] == 1 ? ' selected' : '', '>
 									', $txt['smileys_location_hidden'], '
 								</option>
-								<option value="2"', $context['current_smiley']['location'] == 2 ? ' selected="selected"' : '', '>
+								<option value="2"', $context['current_smiley']['location'] == 2 ? ' selected' : '', '>
 									', $txt['smileys_location_popup'], '
 								</option>
 							</select>
@@ -279,7 +279,7 @@ function template_addsmiley()
 
 		foreach ($context['smiley_sets'] as $smiley_set)
 			echo '
-								<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected="selected"' : '', '>', $smiley_set['name'], '</option>';
+								<option value="', $smiley_set['path'], '"', $context['selected_set'] == $smiley_set['path'] ? ' selected' : '', '>', $smiley_set['name'], '</option>';
 
 		echo '
 								</select>
@@ -297,7 +297,7 @@ function template_addsmiley()
 									<select name="smiley_filename" id="smiley_filename" onchange="updatePreview();selectMethod(\'existing\');">';
 		foreach ($context['filenames'] as $filename)
 			echo '
-									<option value="', $filename['id'], '"', $filename['selected'] ? ' selected="selected"' : '', '>', $filename['id'], '</option>';
+									<option value="', $filename['id'], '"', $filename['selected'] ? ' selected' : '', '>', $filename['id'], '</option>';
 		echo '
 								</select>';
 	}
@@ -360,7 +360,7 @@ function template_addsmiley()
 						</dt>
 						<dd>
 							<select name="smiley_location" id="smiley_location">
-								<option value="0" selected="selected">
+								<option value="0" selected>
 									', $txt['smileys_location_form'], '
 								</option>
 								<option value="1">
@@ -481,7 +481,7 @@ function template_editicon()
 						</dt>
 						<dd>
 							<select name="icon_board" id="icon_board_select">
-								<option value="0"', empty($context['icon']['board_id']) ? ' selected="selected"' : '', '>', $txt['icons_edit_icons_all_boards'], '</option>';
+								<option value="0"', empty($context['icon']['board_id']) ? ' selected' : '', '>', $txt['icons_edit_icons_all_boards'], '</option>';
 
 	foreach ($context['categories'] as $category)
 	{
@@ -489,7 +489,7 @@ function template_editicon()
 								<optgroup label="', $category['name'], '">';
 		foreach ($category['boards'] as $board)
 			echo '
-									<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
+									<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '</option>';
 		echo '
 								</optgroup>';
 	}
@@ -501,13 +501,13 @@ function template_editicon()
 						</dt>
 						<dd>
 							<select name="icon_location" id="icon_location">
-								<option value="0"', empty($context['icon']['after']) ? ' selected="selected"' : '', '>', $txt['icons_location_first_icon'], '</option>';
+								<option value="0"', empty($context['icon']['after']) ? ' selected' : '', '>', $txt['icons_location_first_icon'], '</option>';
 
 	// Print the list of all the icons it can be put after...
 	foreach ($context['icons'] as $id => $data)
 		if (empty($context['icon']['id']) || $id != $context['icon']['id'])
 			echo '
-								<option value="', $id, '"', !empty($context['icon']['after']) && $id == $context['icon']['after'] ? ' selected="selected"' : '', '>', $txt['icons_location_after'], ': ', $data['title'], '</option>';
+								<option value="', $id, '"', !empty($context['icon']['after']) && $id == $context['icon']['after'] ? ' selected' : '', '>', $txt['icons_location_after'], ': ', $data['title'], '</option>';
 
 	echo '
 							</select>

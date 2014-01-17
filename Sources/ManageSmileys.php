@@ -923,7 +923,7 @@ function EditSmileys()
 			<select name="set" onchange="changeSet(this.options[this.selectedIndex].value);">';
 		foreach ($context['smiley_sets'] as $smiley_set)
 			$smileyset_option_list .= '
-				<option value="' . $smiley_set['path'] . '"' . ($modSettings['smiley_sets_default'] == $smiley_set['path'] ? ' selected="selected"' : '') . '>' . $smiley_set['name'] . '</option>';
+				<option value="' . $smiley_set['path'] . '"' . ($modSettings['smiley_sets_default'] == $smiley_set['path'] ? ' selected' : '') . '>' . $smiley_set['name'] . '</option>';
 		$smileyset_option_list .= '
 			</select>';
 

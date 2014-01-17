@@ -498,14 +498,14 @@ function template_calendar_base($col_span = 1)
 					// Show a select box with all the months.
 					foreach ($txt['months'] as $number => $month)
 					{
-						echo '<option value="', $number, '"', $number == $context['current_month'] ? ' selected="selected"' : '', '>', $month, '</option>';
+						echo '<option value="', $number, '"', $number == $context['current_month'] ? ' selected' : '', '>', $month, '</option>';
 					}
 					echo '</select>
 											<select name="year">';
 					// Show a link for every year.....
 					for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
 					{
-						echo '<option value="', $year, '"', $year == $context['current_year'] ? ' selected="selected"' : '', '>', $year, '</option>';
+						echo '<option value="', $year, '"', $year == $context['current_year'] ? ' selected' : '', '>', $year, '</option>';
 					}
 					echo '</select>
 					<input type="submit" class="button_submit" id="view_button" value="', $txt['view'], '" />
@@ -597,7 +597,7 @@ function template_event_post()
 	// Show a list of all the years we allow...
 	for ($year = $context['calendar_resources']['min_year']; $year <= $context['calendar_resources']['max_year']; $year++)
 		echo '
-							<option value="', $year, '"', $year == $context['event']['year'] ? ' selected="selected"' : '', '>', $year, '&nbsp;</option>';
+							<option value="', $year, '"', $year == $context['event']['year'] ? ' selected' : '', '>', $year, '&nbsp;</option>';
 
 	echo '
 						</select>
@@ -607,7 +607,7 @@ function template_event_post()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-							<option value="', $month, '"', $month == $context['event']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '&nbsp;</option>';
+							<option value="', $month, '"', $month == $context['event']['month'] ? ' selected' : '', '>', $txt['months'][$month], '&nbsp;</option>';
 
 	echo '
 						</select>
@@ -617,7 +617,7 @@ function template_event_post()
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
 	for ($day = 1; $day <= $context['event']['last_day']; $day++)
 		echo '
-							<option value="', $day, '"', $day == $context['event']['day'] ? ' selected="selected"' : '', '>', $day, '&nbsp;</option>';
+							<option value="', $day, '"', $day == $context['event']['day'] ? ' selected' : '', '>', $day, '&nbsp;</option>';
 
 	echo '
 						</select>
@@ -641,7 +641,7 @@ function template_event_post()
 
 		for ($days = 1; $days <= $modSettings['cal_maxspan']; $days++)
 			echo '
-									<option value="', $days, '"', $context['event']['span'] == $days ? ' selected="selected"' : '', '>', $days, '&nbsp;</option>';
+									<option value="', $days, '"', $context['event']['span'] == $days ? ' selected' : '', '>', $days, '&nbsp;</option>';
 
 		echo '
 								</select>
@@ -665,7 +665,7 @@ function template_event_post()
 									<optgroup label="', $category['name'], '">';
 			foreach ($category['boards'] as $board)
 				echo '
-										<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 			echo '
 									</optgroup>';
 		}

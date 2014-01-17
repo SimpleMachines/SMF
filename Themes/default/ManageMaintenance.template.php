@@ -307,7 +307,7 @@ function template_maintain_members()
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="', $context['character_set'], '" id="membersForm">
 					<p><a id="membersLink"></a>', $txt['maintain_members_since1'], '
 					<select name="del_type">
-						<option value="activated" selected="selected">', $txt['maintain_members_activated'], '</option>
+						<option value="activated" selected>', $txt['maintain_members_activated'], '</option>
 						<option value="logged">', $txt['maintain_members_logged_in'], '</option>
 					</select> ', $txt['maintain_members_since2'], ' <input type="text" name="maxdays" value="30" size="3" class="input_text" />', $txt['maintain_members_since3'], '</p>';
 
@@ -587,7 +587,7 @@ function template_convert_utf8()
 						<dd><select name="src_charset">';
 	foreach ($context['charset_list'] as $charset)
 		echo '
-							<option value="', $charset, '"', $charset === $context['charset_detected'] ? ' selected="selected"' : '', '>', $charset, '</option>';
+							<option value="', $charset, '"', $charset === $context['charset_detected'] ? ' selected' : '', '>', $charset, '</option>';
 	echo '
 							</select></dd>
 						<dt><strong>', $txt['utf8_database_charset'], ':</strong></dt>

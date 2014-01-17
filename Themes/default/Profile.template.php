@@ -1051,7 +1051,7 @@ function template_showPermissions()
 						<h3 class="catbg">
 							<a id="board_permissions"></a>', $txt['showPermissions_select'], ':
 							<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
-								<option value="0"', $context['board'] == 0 ? ' selected="selected"' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
+								<option value="0"', $context['board'] == 0 ? ' selected' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
 				if (!empty($context['boards']))
 					echo '
 								<option value="" disabled>---------------------------</option>';
@@ -1059,7 +1059,7 @@ function template_showPermissions()
 				// Fill the box with any local permission boards.
 				foreach ($context['boards'] as $board)
 					echo '
-								<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
+								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['name'], ' (', $board['profile_name'], ')</option>';
 
 				echo '
 							</select>
@@ -1388,7 +1388,7 @@ function template_edit_options()
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
 							echo '
-								<option value="', $value, '" ', $value == $field['value'] ? 'selected="selected"' : '', '>', $name, '</option>';
+								<option value="', $value, '"', $value == $field['value'] ? ' selected' : '', '>', $name, '</option>';
 				}
 
 				echo '
@@ -1523,9 +1523,9 @@ function template_profile_pm_settings()
 								</dt>
 								<dd>
 									<select name="pm_prefs" id="pm_prefs">
-										<option value="0"', $context['display_mode'] == 0 ? ' selected="selected"' : '', '>', $txt['pm_display_mode_all'], '</option>
-										<option value="1"', $context['display_mode'] == 1 ? ' selected="selected"' : '', '>', $txt['pm_display_mode_one'], '</option>
-										<option value="2"', $context['display_mode'] == 2 ? ' selected="selected"' : '', '>', $txt['pm_display_mode_linked'], '</option>
+										<option value="0"', $context['display_mode'] == 0 ? ' selected' : '', '>', $txt['pm_display_mode_all'], '</option>
+										<option value="1"', $context['display_mode'] == 1 ? ' selected' : '', '>', $txt['pm_display_mode_one'], '</option>
+										<option value="2"', $context['display_mode'] == 2 ? ' selected' : '', '>', $txt['pm_display_mode_linked'], '</option>
 									</select>
 								</dd>
 								<dt>
@@ -1543,15 +1543,15 @@ function template_profile_pm_settings()
 								</dt>
 								<dd>
 										<select name="pm_receive_from" id="pm_receive_from">
-												<option value="0"', empty($context['receive_from']) || (empty($modSettings['enable_buddylist']) && $context['receive_from'] < 3) ? ' selected="selected"' : '', '>', $txt['pm_receive_from_everyone'], '</option>';
+												<option value="0"', empty($context['receive_from']) || (empty($modSettings['enable_buddylist']) && $context['receive_from'] < 3) ? ' selected' : '', '>', $txt['pm_receive_from_everyone'], '</option>';
 
 	if (!empty($modSettings['enable_buddylist']))
 		echo '
-												<option value="1"', !empty($context['receive_from']) && $context['receive_from'] == 1 ? ' selected="selected"' : '', '>', $txt['pm_receive_from_ignore'], '</option>
-												<option value="2"', !empty($context['receive_from']) && $context['receive_from'] == 2 ? ' selected="selected"' : '', '>', $txt['pm_receive_from_buddies'], '</option>';
+												<option value="1"', !empty($context['receive_from']) && $context['receive_from'] == 1 ? ' selected' : '', '>', $txt['pm_receive_from_ignore'], '</option>
+												<option value="2"', !empty($context['receive_from']) && $context['receive_from'] == 2 ? ' selected' : '', '>', $txt['pm_receive_from_buddies'], '</option>';
 
 	echo '
-												<option value="3"', !empty($context['receive_from']) && $context['receive_from'] > 2 ? ' selected="selected"' : '', '>', $txt['pm_receive_from_admins'], '</option>
+												<option value="3"', !empty($context['receive_from']) && $context['receive_from'] > 2 ? ' selected' : '', '>', $txt['pm_receive_from_admins'], '</option>
 										</select>
 								</dd>
 								<dt>
@@ -1559,12 +1559,12 @@ function template_profile_pm_settings()
 								</dt>
 								<dd>
 										<select name="pm_email_notify" id="pm_email_notify">
-												<option value="0"', empty($context['send_email']) ? ' selected="selected"' : '', '>', $txt['email_notify_never'], '</option>
-												<option value="1"', !empty($context['send_email']) && ($context['send_email'] == 1 || (empty($modSettings['enable_buddylist']) && $context['send_email'] > 1)) ? ' selected="selected"' : '', '>', $txt['email_notify_always'], '</option>';
+												<option value="0"', empty($context['send_email']) ? ' selected' : '', '>', $txt['email_notify_never'], '</option>
+												<option value="1"', !empty($context['send_email']) && ($context['send_email'] == 1 || (empty($modSettings['enable_buddylist']) && $context['send_email'] > 1)) ? ' selected' : '', '>', $txt['email_notify_always'], '</option>';
 
 	if (!empty($modSettings['enable_buddylist']))
 		echo '
-												<option value="2"', !empty($context['send_email']) && $context['send_email'] > 1 ? ' selected="selected"' : '', '>', $txt['email_notify_buddies'], '</option>';
+												<option value="2"', !empty($context['send_email']) && $context['send_email'] > 1 ? ' selected' : '', '>', $txt['email_notify_buddies'], '</option>';
 
 	echo '
 										</select>
@@ -1674,11 +1674,11 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<select name="default_options[topics_per_page]" id="topics_per_page">
-									<option value="0"', empty($context['member']['options']['topics_per_page']) ? ' selected="selected"' : '', '>', $txt['per_page_default'], ' (', $modSettings['defaultMaxTopics'], ')</option>
-									<option value="5"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 5 ? ' selected="selected"' : '', '>5</option>
-									<option value="10"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 10 ? ' selected="selected"' : '', '>10</option>
-									<option value="25"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 25 ? ' selected="selected"' : '', '>25</option>
-									<option value="50"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 50 ? ' selected="selected"' : '', '>50</option>
+									<option value="0"', empty($context['member']['options']['topics_per_page']) ? ' selected' : '', '>', $txt['per_page_default'], ' (', $modSettings['defaultMaxTopics'], ')</option>
+									<option value="5"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 5 ? ' selected' : '', '>5</option>
+									<option value="10"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 10 ? ' selected' : '', '>10</option>
+									<option value="25"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 25 ? ' selected' : '', '>25</option>
+									<option value="50"', !empty($context['member']['options']['topics_per_page']) && $context['member']['options']['topics_per_page'] == 50 ? ' selected' : '', '>50</option>
 								</select>
 							</dd>
 							<dt>
@@ -1686,11 +1686,11 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<select name="default_options[messages_per_page]" id="messages_per_page">
-									<option value="0"', empty($context['member']['options']['messages_per_page']) ? ' selected="selected"' : '', '>', $txt['per_page_default'], ' (', $modSettings['defaultMaxMessages'], ')</option>
-									<option value="5"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 5 ? ' selected="selected"' : '', '>5</option>
-									<option value="10"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 10 ? ' selected="selected"' : '', '>10</option>
-									<option value="25"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 25 ? ' selected="selected"' : '', '>25</option>
-									<option value="50"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 50 ? ' selected="selected"' : '', '>50</option>
+									<option value="0"', empty($context['member']['options']['messages_per_page']) ? ' selected' : '', '>', $txt['per_page_default'], ' (', $modSettings['defaultMaxMessages'], ')</option>
+									<option value="5"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 5 ? ' selected' : '', '>5</option>
+									<option value="10"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 10 ? ' selected' : '', '>10</option>
+									<option value="25"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 25 ? ' selected' : '', '>25</option>
+									<option value="50"', !empty($context['member']['options']['messages_per_page']) && $context['member']['options']['messages_per_page'] == 50 ? ' selected' : '', '>50</option>
 								</select>
 							</dd>';
 	}
@@ -1702,9 +1702,9 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<select name="default_options[calendar_start_day]" id="calendar_start_day">
-									<option value="0"', empty($context['member']['options']['calendar_start_day']) ? ' selected="selected"' : '', '>', $txt['days'][0], '</option>
-									<option value="1"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 1 ? ' selected="selected"' : '', '>', $txt['days'][1], '</option>
-									<option value="6"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 6 ? ' selected="selected"' : '', '>', $txt['days'][6], '</option>
+									<option value="0"', empty($context['member']['options']['calendar_start_day']) ? ' selected' : '', '>', $txt['days'][0], '</option>
+									<option value="1"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 1 ? ' selected' : '', '>', $txt['days'][1], '</option>
+									<option value="6"', !empty($context['member']['options']['calendar_start_day']) && $context['member']['options']['calendar_start_day'] == 6 ? ' selected' : '', '>', $txt['days'][6], '</option>
 								</select>
 							</dd>';
 
@@ -1740,9 +1740,9 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<select name="default_options[display_quick_mod]" id="display_quick_mod">
-									<option value="0"', empty($context['member']['options']['display_quick_mod']) ? ' selected="selected"' : '', '>', $txt['display_quick_mod_none'], '</option>
-									<option value="1"', !empty($context['member']['options']['display_quick_mod']) && $context['member']['options']['display_quick_mod'] == 1 ? ' selected="selected"' : '', '>', $txt['display_quick_mod_check'], '</option>
-									<option value="2"', !empty($context['member']['options']['display_quick_mod']) && $context['member']['options']['display_quick_mod'] != 1 ? ' selected="selected"' : '', '>', $txt['display_quick_mod_image'], '</option>
+									<option value="0"', empty($context['member']['options']['display_quick_mod']) ? ' selected' : '', '>', $txt['display_quick_mod_none'], '</option>
+									<option value="1"', !empty($context['member']['options']['display_quick_mod']) && $context['member']['options']['display_quick_mod'] == 1 ? ' selected' : '', '>', $txt['display_quick_mod_check'], '</option>
+									<option value="2"', !empty($context['member']['options']['display_quick_mod']) && $context['member']['options']['display_quick_mod'] != 1 ? ' selected' : '', '>', $txt['display_quick_mod_image'], '</option>
 								</select>
 							</dd>';
 }
@@ -1805,10 +1805,10 @@ function template_alert_configuration()
 						</dt>
 						<dd>
 							<select name="notify_regularity" id="notify_regularity">
-								<option value="0"', $context['member']['notify_regularity'] == 0 ? ' selected="selected"' : '', '>', $txt['notify_regularity_instant'], '</option>
-								<option value="1"', $context['member']['notify_regularity'] == 1 ? ' selected="selected"' : '', '>', $txt['notify_regularity_first_only'], '</option>
-								<option value="2"', $context['member']['notify_regularity'] == 2 ? ' selected="selected"' : '', '>', $txt['notify_regularity_daily'], '</option>
-								<option value="3"', $context['member']['notify_regularity'] == 3 ? ' selected="selected"' : '', '>', $txt['notify_regularity_weekly'], '</option>
+								<option value="0"', $context['member']['notify_regularity'] == 0 ? ' selected' : '', '>', $txt['notify_regularity_instant'], '</option>
+								<option value="1"', $context['member']['notify_regularity'] == 1 ? ' selected' : '', '>', $txt['notify_regularity_first_only'], '</option>
+								<option value="2"', $context['member']['notify_regularity'] == 2 ? ' selected' : '', '>', $txt['notify_regularity_daily'], '</option>
+								<option value="3"', $context['member']['notify_regularity'] == 3 ? ' selected' : '', '>', $txt['notify_regularity_weekly'], '</option>
 							</select>
 						</dd>
 						<dt>
@@ -1816,10 +1816,10 @@ function template_alert_configuration()
 						</dt>
 						<dd>
 							<select name="notify_types" id="notify_types">
-								<option value="1"', $context['member']['notify_types'] == 1 ? ' selected="selected"' : '', '>', $txt['notify_send_type_everything'], '</option>
-								<option value="2"', $context['member']['notify_types'] == 2 ? ' selected="selected"' : '', '>', $txt['notify_send_type_everything_own'], '</option>
-								<option value="3"', $context['member']['notify_types'] == 3 ? ' selected="selected"' : '', '>', $txt['notify_send_type_only_replies'], '</option>
-								<option value="4"', $context['member']['notify_types'] == 4 ? ' selected="selected"' : '', '>', $txt['notify_send_type_nothing'], '</option>
+								<option value="1"', $context['member']['notify_types'] == 1 ? ' selected' : '', '>', $txt['notify_send_type_everything'], '</option>
+								<option value="2"', $context['member']['notify_types'] == 2 ? ' selected' : '', '>', $txt['notify_send_type_everything_own'], '</option>
+								<option value="3"', $context['member']['notify_types'] == 3 ? ' selected' : '', '>', $txt['notify_send_type_only_replies'], '</option>
+								<option value="4"', $context['member']['notify_types'] == 4 ? ' selected' : '', '>', $txt['notify_send_type_nothing'], '</option>
 							</select>
 						</dd>
 					</dl>
@@ -1868,7 +1868,7 @@ function template_alert_configuration()
 						<select name="opt_', $opts[1], '" id="opt_', $opts[1], '">';
 						foreach ($opts['opts'] as $k => $v)
 							echo '
-							<option value="', $k, '"', $this_value == $k ? ' selected="selected"' : '', '>', $v, '</option>';
+							<option value="', $k, '"', $this_value == $k ? ' selected' : '', '>', $v, '</option>';
 						echo '
 						</select>';
 						break;
@@ -2784,7 +2784,7 @@ function template_profile_group_manage()
 		foreach ($context['member_groups'] as $member_group)
 			if (!empty($member_group['can_be_primary']))
 				echo '
-									<option value="', $member_group['id'], '"', $member_group['is_primary'] ? ' selected="selected"' : '', '>
+									<option value="', $member_group['id'], '"', $member_group['is_primary'] ? ' selected' : '', '>
 										', $member_group['name'], '
 									</option>';
 		echo '
@@ -2924,7 +2924,7 @@ function template_profile_avatar_select()
 		// This lists all the file catergories.
 		foreach ($context['avatars'] as $avatar)
 			echo '
-											<option value="', $avatar['filename'] . ($avatar['is_dir'] ? '/' : ''), '"', ($avatar['checked'] ? ' selected="selected"' : ''), '>', $avatar['name'], '</option>';
+											<option value="', $avatar['filename'] . ($avatar['is_dir'] ? '/' : ''), '"', ($avatar['checked'] ? ' selected' : ''), '>', $avatar['name'], '</option>';
 		echo '
 										</select>
 									</div>
@@ -3040,7 +3040,7 @@ function template_profile_timeformat_modify()
 	// Help the user by showing a list of common time formats.
 	foreach ($context['easy_timeformats'] as $time_format)
 		echo '
-									<option value="', $time_format['format'], '"', $time_format['format'] == $context['member']['time_format'] ? ' selected="selected"' : '', '>', $time_format['title'], '</option>';
+									<option value="', $time_format['format'], '"', $time_format['format'] == $context['member']['time_format'] ? ' selected' : '', '>', $time_format['title'], '</option>';
 	echo '
 								</select><br />
 								<input type="text" name="time_format" id="time_format" value="', $context['member']['time_format'], '" size="30" class="input_text" />
@@ -3089,7 +3089,7 @@ function template_profile_smiley_pick()
 								<select name="smiley_set" id="smiley_set" onchange="document.getElementById(\'smileypr\').src = this.selectedIndex == 0 ? \'', $settings['images_url'], '/blank.png\' : \'', $modSettings['smileys_url'], '/\' + (this.selectedIndex != 1 ? this.options[this.selectedIndex].value : \'', !empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'], '\') + \'/smiley.gif\';">';
 	foreach ($context['smiley_sets'] as $set)
 		echo '
-									<option value="', $set['id'], '"', $set['selected'] ? ' selected="selected"' : '', '>', $set['name'], '</option>';
+									<option value="', $set['id'], '"', $set['selected'] ? ' selected' : '', '>', $set['name'], '</option>';
 	echo '
 								</select> <img id="smileypr" class="centericon" src="', $context['member']['smiley_set']['id'] != 'none' ? $modSettings['smileys_url'] . '/' . ($context['member']['smiley_set']['id'] != '' ? $context['member']['smiley_set']['id'] : (!empty($settings['smiley_sets_default']) ? $settings['smiley_sets_default'] : $modSettings['smiley_sets_default'])) . '/smiley.gif' : $settings['images_url'] . '/blank.png', '" alt=":)"  style="padding-left: 20px;" />
 							</dd>';

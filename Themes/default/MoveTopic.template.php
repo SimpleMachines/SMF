@@ -40,7 +40,7 @@ function template_main()
 
 		foreach ($category['boards'] as $board)
 			echo '
-										<option value="', $board['id'], '"', $board['selected'] ? ' selected="selected"' : '', $board['id'] == $context['current_board'] ? ' disabled' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level']-1) . '=&gt; ' : '', $board['name'], '</option>';
+										<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', $board['id'] == $context['current_board'] ? ' disabled' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level']-1) . '=&gt; ' : '', $board['name'], '</option>';
 		echo '
 									</optgroup>';
 	}
@@ -80,7 +80,7 @@ function template_main()
 								</dt>
 								<dd>
 									<select name="redirect_expires">
-										<option value="0" selected="selected">', $txt['never'], '</option>
+										<option value="0" selected>', $txt['never'], '</option>
 										<option value="1440">', $txt['one_day'], '</option>
 										<option value="10080">', $txt['one_week'], '</option>
 										<option value="20160">', $txt['two_weeks'], '</option>

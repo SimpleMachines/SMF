@@ -73,7 +73,7 @@ function template_main()
 	// Put an option for each theme in the select box.
 	foreach ($context['themes'] as $theme)
 		echo '
-								<option value="', $theme['id'], '"', $modSettings['theme_guests'] == $theme['id'] ? ' selected="selected"' : '', '>', $theme['name'], '</option>';
+								<option value="', $theme['id'], '"', $modSettings['theme_guests'] == $theme['id'] ? ' selected' : '', '>', $theme['name'], '</option>';
 
 	echo '
 							</select>
@@ -84,7 +84,7 @@ function template_main()
 						</dt>
 						<dd>
 							<select name="theme_reset" id="theme_reset">
-								<option value="-1" selected="selected">', $txt['theme_nochange'], '</option>
+								<option value="-1" selected>', $txt['theme_nochange'], '</option>
 								<option value="0">', $txt['theme_forum_default'], '</option>';
 
 	// Same thing, this time for changing the theme of everyone.
@@ -375,7 +375,7 @@ function template_set_options()
 		if ($context['theme_options_reset'])
 			echo '
 							<span class="floatleft"><select name="', !empty($setting['default']) ? 'default_' : '', 'options_master[', $setting['id'], ']" onchange="this.form.options_', $setting['id'], '.disabled = this.selectedIndex != 1;">
-								<option value="0" selected="selected">', $txt['themeadmin_reset_options_none'], '</option>
+								<option value="0" selected>', $txt['themeadmin_reset_options_none'], '</option>
 								<option value="1">', $txt['themeadmin_reset_options_change'], '</option>
 								<option value="2">', $txt['themeadmin_reset_options_default'], '</option>
 							</select>&nbsp;</span>';
@@ -410,7 +410,7 @@ function template_set_options()
 			foreach ($setting['options'] as $value => $label)
 			{
 				echo '
-								<option value="', $value, '"', $value == $setting['value'] ? ' selected="selected"' : '', '>', $label, '</option>';
+								<option value="', $value, '"', $value == $setting['value'] ? ' selected' : '', '>', $label, '</option>';
 			}
 
 			echo '
@@ -539,7 +539,7 @@ function template_set_settings()
 
 		foreach ($context['theme_variants'] as $key => $variant)
 			echo '
-								<option value="', $key, '" ', $context['default_variant'] == $key ? 'selected="selected"' : '', '>', $variant['label'], '</option>';
+								<option value="', $key, '"', $context['default_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
 
 		echo '
 							</select>
@@ -613,7 +613,7 @@ function template_set_settings()
 
 			foreach ($setting['options'] as $value => $label)
 				echo '
-							<option value="', $value, '"', $value == $setting['value'] ? ' selected="selected"' : '', '>', $label, '</option>';
+							<option value="', $value, '"', $value == $setting['value'] ? ' selected' : '', '>', $label, '</option>';
 
 			echo '
 							</select>
@@ -701,7 +701,7 @@ function template_pick()
 			foreach ($theme['variants'] as $key => $variant)
 			{
 				echo '
-						<option value="', $key, '" ', $theme['selected_variant'] == $key ? 'selected="selected"' : '', '>', $variant['label'], '</option>';
+						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
 			}
 			echo '
 					</select>

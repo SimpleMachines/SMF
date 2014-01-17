@@ -34,7 +34,7 @@ function template_search_members()
 									<select name="types[mem_id]">
 										<option value="--">&lt;</option>
 										<option value="-">&lt;=</option>
-										<option value="=" selected="selected">=</option>
+										<option value="=" selected>=</option>
 										<option value="+">&gt;=</option>
 										<option value="++">&gt;</option>
 									</select>
@@ -47,7 +47,7 @@ function template_search_members()
 									<select name="types[age]">
 										<option value="--">&lt;</option>
 										<option value="-">&lt;=</option>
-										<option value="=" selected="selected">=</option>
+										<option value="=" selected>=</option>
 										<option value="+">&gt;=</option>
 										<option value="++">&gt;</option>
 									</select>
@@ -60,7 +60,7 @@ function template_search_members()
 									<select name="types[posts]">
 										<option value="--">&lt;</option>
 										<option value="-">&lt;=</option>
-										<option value="=" selected="selected">=</option>
+										<option value="=" selected>=</option>
 										<option value="+">&gt;=</option>
 										<option value="++">&gt;</option>
 									</select>
@@ -73,7 +73,7 @@ function template_search_members()
 									<select name="types[reg_date]">
 										<option value="--">&lt;</option>
 										<option value="-">&lt;=</option>
-										<option value="=" selected="selected">=</option>
+										<option value="=" selected>=</option>
 										<option value="+">&gt;=</option>
 										<option value="++">&gt;</option>
 									</select>
@@ -86,7 +86,7 @@ function template_search_members()
 									<select name="types[last_online]">
 										<option value="--">&lt;</option>
 										<option value="-">&lt;=</option>
-										<option value="=" selected="selected">=</option>
+										<option value="=" selected>=</option>
 										<option value="+">&gt;=</option>
 										<option value="++">&gt;</option>
 									</select>
