@@ -3659,7 +3659,7 @@ function template_upgrade_below()
 
 	if (!empty($upcontext['continue']))
 		echo '
-									<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '"', $upcontext['continue'] == 2 ? ' disabled="disabled"' : '', ' class="button_submit" />';
+									<input type="submit" id="contbutt" name="contbutt" value="', $txt['upgrade_continue'], '"', $upcontext['continue'] == 2 ? ' disabled' : '', ' class="button_submit" />';
 	if (!empty($upcontext['skip']))
 		echo '
 									<input type="submit" id="skip" name="skip" value="', $txt['upgrade_skip'], '" onclick="dontSubmit = true; document.getElementById(\'contbutt\').disabled = \'disabled\'; return true;" class="button_submit" />';
@@ -3842,7 +3842,7 @@ function template_welcome_message()
 				<tr valign="top">
 					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>Username:</strong></td>
 					<td>
-						<input type="text" name="user" value="', !empty($upcontext['username']) ? $upcontext['username'] : '', '" ', $disable_security ? 'disabled="disabled"' : '', ' class="input_text" />';
+						<input type="text" name="user" value="', !empty($upcontext['username']) ? $upcontext['username'] : '', '"', $disable_security ? ' disabled' : '', ' class="input_text" />';
 
 	if (!empty($upcontext['username_incorrect']))
 		echo '
@@ -3854,7 +3854,7 @@ function template_welcome_message()
 				<tr valign="top">
 					<td><strong ', $disable_security ? 'style="color: gray;"' : '', '>Password:</strong></td>
 					<td>
-						<input type="password" name="passwrd" value=""', $disable_security ? ' disabled="disabled"' : '', ' class="input_password" />
+						<input type="password" name="passwrd" value=""', $disable_security ? ' disabled' : '', ' class="input_password" />
 						<input type="hidden" name="hash_passwrd" value="" />';
 
 	if (!empty($upcontext['password_failed']))
@@ -3944,7 +3944,7 @@ function template_upgrade_options()
 				<table cellpadding="1" cellspacing="0">
 					<tr valign="top">
 						<td width="2%">
-							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled="disabled"' : '', ' class="input_check" />
+							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check" />
 						</td>
 						<td width="100%">
 							<label for="backup">Backup tables in your database with the prefix &quot;backup_' . $db_prefix . '&quot;.</label>', isset($modSettings['smfVersion']) ? '' : ' (recommended!)', '
@@ -4462,7 +4462,7 @@ function template_clean_mods()
 				<td width="20%"><span style="font-weight: bold; color: ', $package['color'], '">', $package['status'], '</span></td>
 				<td width="5%" align="center">
 					<input type="hidden" name="remove[', $package['id'], ']" value="0" />
-					<input type="checkbox" name="remove[', $package['id'], ']"', $package['color'] == 'green' ? ' disabled="disabled"' : '', ' class="input_check" />
+					<input type="checkbox" name="remove[', $package['id'], ']"', $package['color'] == 'green' ? ' disabled' : '', ' class="input_check" />
 				</td>
 			</tr>';
 	}
