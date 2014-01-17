@@ -135,7 +135,7 @@ function template_ban_edit()
 							<label for="user_check">', $txt['ban_on_username'], '</label>:
 						</dt>
 						<dd>
-							<input type="text" ', isset($context['ban']['from_user']) ? 'readonly="readonly" value="' . $context['ban_suggestions']['member']['name'] . '"' : ' value=""', ' name="user" id="user" size="44" class="input_text" />
+							<input type="text" ', isset($context['ban']['from_user']) ? 'readonly value="' . $context['ban_suggestions']['member']['name'] . '"' : ' value=""', ' name="user" id="user" size="44" class="input_text" />
 						</dd>
 					</dl>';
 
