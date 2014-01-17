@@ -229,8 +229,8 @@ function template_confirm_category_delete()
 				<div class="content">
 					<p>
 						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked />', $txt['mboards_delete_option1'], '</label><br />
-						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_option2'], '</label>:
-						<select name="cat_to"', count($context['category_order']) == 1 ? ' disabled="disabled"' : '', '>';
+						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', count($context['category_order']) == 1 ? ' disabled' : '', ' />', $txt['mboards_delete_option2'], '</label>:
+						<select name="cat_to"', count($context['category_order']) == 1 ? ' disabled' : '', '>';
 
 	foreach ($context['category_order'] as $cat)
 		if ($cat['id'] != 0)
@@ -305,7 +305,7 @@ function template_modify_board()
 
 	// The second select box lists all the boards in the category.
 	echo '
-							<select id="board_order" name="board_order"', !isset($context['board']['is_new']) ? ' disabled="disabled"' : '', '>
+							<select id="board_order" name="board_order"', !isset($context['board']['is_new']) ? ' disabled' : '', '>
 								', !isset($context['board']['is_new']) ? '<option value="">(' . $txt['mboards_unchanged'] . ')</option>' : '';
 	foreach ($context['board_order'] as $order)
 		echo '
@@ -691,8 +691,8 @@ function template_confirm_board_delete()
 				<div class="content">
 					<p>
 						<label for="delete_action0"><input type="radio" id="delete_action0" name="delete_action" value="0" class="input_radio" checked />', $txt['mboards_delete_board_option1'], '</label><br />
-						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', empty($context['can_move_children']) ? ' disabled="disabled"' : '', ' />', $txt['mboards_delete_board_option2'], '</label>:
-						<select name="board_to" ', empty($context['can_move_children']) ? 'disabled="disabled"' : '', '>';
+						<label for="delete_action1"><input type="radio" id="delete_action1" name="delete_action" value="1" class="input_radio"', empty($context['can_move_children']) ? ' disabled' : '', ' />', $txt['mboards_delete_board_option2'], '</label>:
+						<select name="board_to"', empty($context['can_move_children']) ? ' disabled' : '', '>';
 
 	foreach ($context['board_order'] as $board)
 		if ($board['id'] != $context['board']['id'] && empty($board['is_child']))

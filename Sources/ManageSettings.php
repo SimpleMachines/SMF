@@ -1213,7 +1213,7 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => create_function('$rowData', '
 						$isChecked = $rowData[\'on_register\'] && !$rowData[\'disabled\'] ? \' checked\' : \'\';
-						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled="disabled"\';
+						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled\';
 						return sprintf(\'<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s />\', $rowData[\'id\'], $isChecked, $isDisabled);
 					'),
 					'style' => 'width: 20%;',

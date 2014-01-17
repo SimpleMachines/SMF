@@ -167,7 +167,7 @@ function template_permission_index()
 						continue;
 
 					echo '
-									<option value="" disabled="disabled">[', $permissionGroup['name'], ']</option>';
+									<option value="" disabled>[', $permissionGroup['name'], ']</option>';
 					foreach ($permissionGroup['permissions'] as $perm)
 					{
 						if ($perm['hidden'])
@@ -400,7 +400,7 @@ function template_edit_profiles()
 							', !empty($profile['boards_text']) ? $profile['boards_text'] : $txt['permissions_profile_used_by_none'], '
 						</td>
 						<td align="center"', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', '>
-							<input type="checkbox" name="delete_profile[]" value="', $profile['id'], '" ', $profile['can_delete'] ? '' : 'disabled="disabled"', ' class="input_check" />
+							<input type="checkbox" name="delete_profile[]" value="', $profile['id'], '" ', $profile['can_delete'] ? '' : 'disabled', ' class="input_check" />
 						</td>
 					</tr>';
 		$alternate = !$alternate;
@@ -553,7 +553,7 @@ function template_modify_group_display($type)
 	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	$permission_type = &$context['permissions'][$type];
-	$disable_field = $context['profile']['can_modify'] ? '' : 'disabled="disabled" ';
+	$disable_field = $context['profile']['can_modify'] ? '' : 'disabled ';
 
 	echo '
 				<div class="windowbg2">

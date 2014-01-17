@@ -70,7 +70,7 @@ function template_maintain_database()
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=database;activity=convertutf8" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['utf8_introduction'], '</p>
 					', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? '<div class="errorbox">' . $txt['utf8_cannot_convert_fulltext'] . '</div>' : '', '
-					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled="disabled"' : '', '/><br class="clear_right" />
+					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit" ', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? 'disabled' : '', '/><br class="clear_right" />
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '" />
 				</form>
@@ -481,7 +481,7 @@ function template_maintain_topics()
 				<form action="', $scripturl, '?action=admin;area=maintain;sa=topics;activity=massmove" method="post" accept-charset="', $context['character_set'], '">
 					<p><label for="id_board_from">', $txt['move_topics_from'], ' </label>
 					<select name="id_board_from" id="id_board_from">
-						<option disabled="disabled">(', $txt['move_topics_select_board'], ')</option>';
+						<option disabled>(', $txt['move_topics_select_board'], ')</option>';
 
 	// From board
 	foreach ($context['categories'] as $category)
@@ -501,7 +501,7 @@ function template_maintain_topics()
 					</select>
 					<label for="id_board_to">', $txt['move_topics_to'], '</label>
 					<select name="id_board_to" id="id_board_to">
-						<option disabled="disabled">(', $txt['move_topics_select_board'], ')</option>';
+						<option disabled>(', $txt['move_topics_select_board'], ')</option>';
 
 	// To board
 	foreach ($context['categories'] as $category)

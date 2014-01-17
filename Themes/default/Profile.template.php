@@ -1054,7 +1054,7 @@ function template_showPermissions()
 								<option value="0"', $context['board'] == 0 ? ' selected="selected"' : '', '>', $txt['showPermissions_global'], '&nbsp;</option>';
 				if (!empty($context['boards']))
 					echo '
-								<option value="" disabled="disabled">---------------------------</option>';
+								<option value="" disabled>---------------------------</option>';
 
 				// Fill the box with any local permission boards.
 				foreach ($context['boards'] as $board)
@@ -1901,7 +1901,7 @@ function template_alert_configuration()
 				{
 					case 'always':
 						echo '
-						<input type="checkbox" checked disabled="disabled" />';
+						<input type="checkbox" checked disabled />';
 						break;
 					case 'yes':
 						echo '
@@ -1909,7 +1909,7 @@ function template_alert_configuration()
 						break;
 					case 'never':
 						echo '
-						<input type="checkbox" disabled="disabled" />';
+						<input type="checkbox" disabled />';
 						break;
 				}
 				echo '
@@ -2031,7 +2031,7 @@ function template_groupMembership()
 				if ($context['can_edit_primary'])
 					echo '
 						<td width="4%">
-							<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');" ', $group['can_be_primary'] ? '' : 'disabled="disabled"', ' class="input_radio" />
+							<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', ' class="input_radio" />
 						</td>';
 
 				echo '
@@ -2529,7 +2529,7 @@ function template_issueWarning()
 						<strong><label for="warn_temp">', $txt['profile_warning_notify_body'], ':</label></strong>
 					</dt>
 					<dd>
-						<select name="warn_temp" id="warn_temp" disabled="disabled" onchange="populateNotifyTemplate();" style="font-size: x-small;">
+						<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();" style="font-size: x-small;">
 							<option value="-1">', $txt['profile_warning_notify_template'], '</option>
 							<option value="-1">------------------------------</option>';
 
@@ -2929,7 +2929,7 @@ function template_profile_avatar_select()
 										</select>
 									</div>
 									<div>
-										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled="disabled"><option></option></select>
+										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
 									</div>
 									<div><img name="avatar" id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing" /></div>
 									<script><!-- // --><![CDATA[
