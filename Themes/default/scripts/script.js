@@ -358,7 +358,7 @@ smc_PopupMenu.prototype.add = function (sItem, sUrl)
 		e.preventDefault();
 		if (e.target != this)
 			return;
-			
+
 		e.data.obj.toggle(sItem);
 	});
 }
@@ -388,7 +388,7 @@ smc_PopupMenu.prototype.open = function (sItem)
 
 	// Now set up closing the menu if we click off.
 	$(document).on('click.menu', {obj: this}, function(e) {
-		if ($(e.target).closest('#top_info').length)
+		if ($(e.target).closest(e.data.obj.opt.menus[sItem].menuObj.parent()).length)
 			return;
 		e.data.obj.closeAll();
 		$(document).off('click.menu');
