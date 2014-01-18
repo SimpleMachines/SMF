@@ -271,7 +271,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 									</a>
 								';
 							}
-							echo $event['link'], $event['is_last'] ? '' : '<br>';
+							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'], $event['is_last'] ? '' : '<br>';
 						}
 
 						echo '</div>';

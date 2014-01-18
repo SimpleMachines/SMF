@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir, $user_info;
+	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir, $user_info, $smcFunc;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
@@ -55,6 +55,38 @@ function CalendarMain()
 	// You can't do anything if the calendar is off.
 	if (empty($modSettings['cal_enabled']))
 		fatal_lang_error('calendar_off', false);
+
+	// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
+	if (isset($_GET['event']))
+	{
+		$evid = (int) $_GET['event'];
+		if ($evid > 0)
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT start_date
+				FROM {db_prefix}calendar
+				WHERE id_event = {int:event_id}',
+				array(
+					'event_id' => $evid,
+				)
+			);
+			if ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				// We know the format is going to be in yyyy-mm-dd from the database, so let's run with that.
+				list($_REQUEST['year'], $_REQUEST['month']) = explode('-', $row['start_date']);
+				$_REQUEST['year'] = (int) $_REQUEST['year'];
+				$_REQUEST['month'] = (int) $_REQUEST['month'];
+
+				// And we definitely don't want weekly view.
+				unset ($_GET['viewweek']);
+
+				// We might use this later.
+				$context['selected_event'] = $evid;
+			}
+			$smcFunc['db_free_result']($request);
+		}
+		unset ($_GET['event']);
+	}
 
 	// Set the page title to mention the calendar ;).
 	$context['page_title'] = $txt['calendar'];

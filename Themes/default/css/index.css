@@ -719,6 +719,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .holiday > span {
 	color: rgb(0, 92, 255);
 }
+/* Events that are currently selected on the calendar. Won't see it much, probably. */
+.sel_event {
+	font-weight: bold;
+}
 
 /* Colors for warnings */
 .warn_mute {

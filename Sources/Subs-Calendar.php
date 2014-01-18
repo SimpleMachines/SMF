@@ -154,6 +154,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'end_date' => $row['end_date'],
 					'is_last' => false,
 					'id_board' => $row['id_board'],
+					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
 					'href' => $row['id_board'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => allowedTo('calendar_edit_any') || ($row['id_member'] == $user_info['id'] && allowedTo('calendar_edit_own')),
@@ -170,6 +171,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 					'end_date' => $row['end_date'],
 					'is_last' => false,
 					'id_board' => $row['id_board'],
+					'is_selected' => !empty($context['selected_event']) && $context['selected_event'] == $row['id_event'],
 					'href' => $row['id_topic'] == 0 ? '' : $scripturl . '?topic=' . $row['id_topic'] . '.0',
 					'link' => $row['id_topic'] == 0 ? $row['title'] : '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
 					'can_edit' => false,
@@ -887,6 +889,23 @@ function insertEvent(&$eventOptions)
 
 	// Store the just inserted id_event for future reference.
 	$eventOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}calendar', 'id_event');
+
+	// If this isn't tied to a topic, we need to notify people about it.
+	if (empty($eventOptions['topic']))
+	{
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/EventNew-Notify.php', 'EventNew_Notify_Background', serialize(array(
+				'event_title' => $eventOptions['title'],
+				'event_id' => $eventOptions['id'],
+				'sender_id' => $eventOptions['member'],
+				'sender_name' => $eventOptions['member'] == $context['user']['id'] ? $context['user']['name'] : '',
+				'time' => time(),
+			)), 0),
+			array('id_task')
+		);
+	}
 
 	// Update the settings to show something calendar-ish was updated.
 	updateSettings(array(
