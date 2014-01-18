@@ -763,7 +763,8 @@ CREATE TABLE {$db_prefix}log_actions (
   KEY log_time (log_time),
   KEY id_member (id_member),
   KEY id_board (id_board),
-  KEY id_msg (id_msg)
+  KEY id_msg (id_msg),
+  KEY id_topic_id_log {$db_prefix}log_actions (id_topic, id_log)
 ) ENGINE=MyISAM;
 
 #
