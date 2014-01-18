@@ -318,7 +318,10 @@ class paypal_payment
 	 */
 	public function isCancellation()
 	{
-		if (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel')
+		// subscr_cancel is sent when the user cancels, subscr_eot is sent when the subscription reaches final payment
+		// Neither require us to *do* anything as per performCancel().
+		// subscr_eot, if sent, indicates an end of payments term.
+		if (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel' || substr($_POST['txn_type'], 0, 10) === 'subscr_eot')
 			return true;
 		else
 			return false;

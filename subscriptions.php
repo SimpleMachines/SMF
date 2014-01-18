@@ -275,9 +275,6 @@ else
 {
 	// Some other "valid" transaction such as:
 	//
-	// subscr_eot: End of term - sent when a subscription ends at a given term date. Normally should not occur because either
-	// a paid sub is a one-off payment, or it's recurring without a fixed term.
-	//
 	// subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
 	// It then does not fire in any event later. This response is received somewhere before or after the first payment of
 	// subscription is received (txn_type=subscr_payment) which is what we do process
