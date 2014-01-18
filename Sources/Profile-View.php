@@ -322,8 +322,8 @@ function fetch_alerts($memID, $all = false)
 		if (isset($txt[$string]))
 		{
 			$extra = $alerts[$id_alert]['extra'];
-			$search = array('{member_link}');
-			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name']);
+			$search = array('{member_link}', '{scripturl}');
+			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
 			foreach ($extra as $k => $v)
 			{
 				$search[] = '{' . $k . '}';
