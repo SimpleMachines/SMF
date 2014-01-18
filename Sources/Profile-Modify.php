@@ -181,6 +181,12 @@ function loadProfileFields($force_reload = false)
 			'subtext' => $txt['valid_email'],
 			'log_change' => true,
 			'permission' => 'profile_password',
+			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
+				if (document.forms.creator.email_address.value != "'. $cur_profile['email_address'] .'")
+				{
+					alert("'. $txt['email_change_logout'] .'");
+					return true;
+				}' : '',
 			'input_validate' => create_function('&$value', '
 				global $context, $old_profile, $profile_vars, $sourcedir, $modSettings;
 

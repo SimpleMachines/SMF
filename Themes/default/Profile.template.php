@@ -1493,7 +1493,7 @@ function template_edit_options()
 	// Any onsubmit javascript?
 	if (!empty($context['profile_onsubmit_javascript']))
 		echo '
-				', $context['profile_javascript'];
+				', $context['profile_onsubmit_javascript'];
 
 	echo '
 			}';
