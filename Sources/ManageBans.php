@@ -918,7 +918,7 @@ function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id =
  */
 function removeBanTriggers($items_ids = array(), $group_id = false)
 {
-	global $smcFunc;
+	global $smcFunc, $scripturl;
 
 	if ($group_id !== false)
 		$group_id = (int) $group_id;
