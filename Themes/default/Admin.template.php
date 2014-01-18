@@ -1175,7 +1175,7 @@ function template_edit_profile_field()
 												<span class="smalltext">', $txt['custom_edit_privacy_desc'], '</span>
 											</dt>
 											<dd>
-												<select name="private" id="private" onchange="updateInputBoxes();" style="width: 100%">
+												<select name="private" id="private" onchange="updateInputBoxes();">
 													<option value="0"', $context['field']['private'] == 0 ? ' selected' : '', '>', $txt['custom_edit_privacy_all'], '</option>
 													<option value="1"', $context['field']['private'] == 1 ? ' selected' : '', '>', $txt['custom_edit_privacy_see'], '</option>
 													<option value="2"', $context['field']['private'] == 2 ? ' selected' : '', '>', $txt['custom_edit_privacy_owner'], '</option>

@@ -369,6 +369,14 @@ function smf_main()
 			return 'WrapAction';
 		}
 
+		$fallbackActions = call_integration_hook('integrate_fallback_action');
+		foreach ($fallbackActions as $fallbackAction)
+		{
+			$call = strpos($defaultAction, '::') !== false ? explode('::', $fallbackAction) : $fallbackAction;
+			if (!empty($call) && is_callable($call))
+				return $call;
+		}
+
 		// Fall through to the board index then...
 		require_once($sourcedir . '/BoardIndex.php');
 		return 'BoardIndex';
