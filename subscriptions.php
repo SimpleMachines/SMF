@@ -265,15 +265,18 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription())
 		emailAdmins('paid_subscription_new', $replacements, $notify_users);
 	}
 }
+// Maybe they're cancelling. Some subscriptions may require actively doing something, but PayPal doesn't, for example.
+elseif ($gatewayClass->isCancellation())
+{
+	if (method_exists($gatewayClass, 'performCancel'))
+		$gatewayClass->performCancel($subscription_id, $member_id, $subscription_info);
+}
 else
 {
 	// Some other "valid" transaction such as:
 	//
-	// subscr_cancel: This IPN response (txn_type) is sent only when the subscriber cancels his/her
-	// current subscription or the merchant cancels the subscribers subscription. In this event according
-	// to Paypal rules the subscr_eot (End of Term) IPN response is NEVER sent, and it is up to you to
-	// keep the subscription of the subscriber active for remaining days of subscription should they cancel
-	// their subscription in the middle of the subscription period.
+	// subscr_eot: End of term - sent when a subscription ends at a given term date. Normally should not occur because either
+	// a paid sub is a one-off payment, or it's recurring without a fixed term.
 	//
 	// subscr_signup: This IPN response (txn_type) is sent only the first time the user signs up for a subscription.
 	// It then does not fire in any event later. This response is received somewhere before or after the first payment of
