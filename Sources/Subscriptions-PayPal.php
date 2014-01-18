@@ -312,6 +312,35 @@ class paypal_payment
 	}
 
 	/**
+	 * Is this a cancellation?
+	 *
+	 * @return boolean
+	 */
+	public function isCancellation()
+	{
+		// subscr_cancel is sent when the user cancels, subscr_eot is sent when the subscription reaches final payment
+		// Neither require us to *do* anything as per performCancel().
+		// subscr_eot, if sent, indicates an end of payments term.
+		if (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel' || substr($_POST['txn_type'], 0, 10) === 'subscr_eot')
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * Things to do in the event of a cancellation
+	 *
+	 * @return void
+	 */
+	public function performCancel($subscription_id, $member_id, $subscription_info)
+	{
+		// PayPal doesn't require SMF to notify it every time the subscription is up for renewal.
+		// A cancellation should not cause the user to be immediately dropped from their subscription, but
+		// let it expire normally. Some systems require taking action in the database to deal with this, but
+		// PayPal does not, so we actually just do nothing. But this is a nice prototype/example just in case.
+	}
+
+	/**
 	 * How much was paid?
 	 *
 	 * @return float
