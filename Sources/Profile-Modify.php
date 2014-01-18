@@ -3451,16 +3451,7 @@ function profileSendActivation()
 	$context['user']['is_logged'] = false;
 	$context['user']['is_guest'] = true;
 
-	// Send them to the done-with-registration-login screen.
-	loadTemplate('Register');
-
-	$context['page_title'] = $txt['profile'];
-	$context['sub_template'] = 'after';
-	$context['title'] = $txt['activate_changed_email_title'];
-	$context['description'] = $txt['activate_changed_email_desc'];
-
-	// We're gone!
-	obExit();
+	redirectexit('action=sendactivation');
 }
 
 /**

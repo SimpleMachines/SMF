@@ -259,9 +259,6 @@ $txt['view_ips_by'] = 'View IPs used by';
 
 $txt['avatar_will_upload'] = 'Upload an avatar';
 
-$txt['activate_changed_email_title'] = 'Email Address Changed';
-$txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
-
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
 $txt['send_email'] = 'Send an email to';
