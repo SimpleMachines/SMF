@@ -939,10 +939,14 @@ function modifyEvent($event_id, &$eventOptions)
 	$real_event_id = $event_id;
 	call_integration_hook('integrate_modify_event', array($event_id, &$eventOptions, &$event_columns, &$event_parameters));
 
+	$column_clauses = array();
+	foreach ($event_columns as $col => $crit)
+		$column_clauses[] = $col . ' = ' . $crit;
+
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}calendar
 		SET
-			' . implode(', ', $event_columns) . '
+			' . implode(', ', $column_clauses) . '
 		WHERE id_event = {int:id_event}',
 		array_merge(
 			$event_parameters,
