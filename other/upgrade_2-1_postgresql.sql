@@ -739,9 +739,60 @@ WHERE variable = 'avatar_action_too_large'
 	AND (value = 'option_html_resize' OR value = 'option_js_resize');
 ---#
 
+---# Cleaning up the old Core Features page.
+---{
+	// First get the original value
+	$request = $smcFunc['db_query']('', '
+		SELECT value
+		FROM {db_prefix}settings
+		WHERE variable = {literal:admin_features}');
+	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// Some of these *should* already be set but you never know.
+		$new_settings = array();
+		$admin_features = explode(',', $row['value']);
+
+		// Now, let's just recap something.
+		// cd = calendar, should also have set cal_enabled already
+		// cp = custom profile fields, which already has several fields that cover tracking
+		// k = karma, should also have set karmaMode already
+		// ps = paid subs, should also have set paid_enabled already
+		// rg = reports generation, which is now permanently on
+		// sp = spider tracking, should also have set spider_mode already
+		// w = warning system, which will be covered with warning_settings
+
+		// The rest we have to deal with manually.
+		// Moderation log - modlog_enabled itself should be set but we have others now
+		if (in_array('ml', $admin_features))
+		{
+			$new_settings[] = array('adminlog_enabled', '1');
+			$new_settings[] = array('userlog_enabled', '1');
+		}
+
+		// Post moderation
+		if (in_array('pm', $admin_features))
+		{
+			$new_settings[] = array('postmod_active', '1');
+		}
+
+		// And now actually apply it.
+		if (!empty($new_settings))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				$new_settings,
+				array('variable')
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+---}
+---#
+
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features');
 ---#
 
 ---# Cleaning up old theme settings.
