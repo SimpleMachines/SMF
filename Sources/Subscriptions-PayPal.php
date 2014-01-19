@@ -256,6 +256,9 @@ class paypal_payment
 			exit;
 
 		// Is this a subscription - and if so is it a secondary payment that we need to process?
+		// If so, make sure we get it in the expected format. Seems PayPal sometimes sends it without urlencoding.
+		if (!empty($_POST['item_number']) && strpos($_POST['item_number'], ' ') !== false)
+			$_POST['item_number'] = str_replace(' ', '+', $_POST['item_number']);
 		if ($this->isSubscription() && (empty($_POST['item_number']) || strpos($_POST['item_number'], '+') === false))
 			// Calculate the subscription it relates to!
 			$this->_findSubscription();
