@@ -185,6 +185,7 @@ function BoardReport()
 	$boardSettings = array(
 		'category' => $txt['board_category'],
 		'parent' => $txt['board_parent'],
+		'redirect' => $txt['board_redirect'],
 		'num_topics' => $txt['board_num_topics'],
 		'num_posts' => $txt['board_num_posts'],
 		'count_posts' => $txt['board_count_posts'],
@@ -204,7 +205,7 @@ function BoardReport()
 	// Go through each board!
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
-			c.name AS cat_name, IFNULL(par.name, {string:text_none}) AS parent_name, IFNULL(th.value, {string:text_none}) AS theme_name
+			b.redirect, c.name AS cat_name, IFNULL(par.name, {string:text_none}) AS parent_name, IFNULL(th.value, {string:text_none}) AS theme_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			LEFT JOIN {db_prefix}boards AS par ON (par.id_board = b.id_parent)
@@ -220,8 +221,12 @@ function BoardReport()
 		// Each board has it's own table.
 		newTable($row['name'], '', 'left', 'auto', 'left', 200, 'left');
 
+		$this_boardSettings = $boardSettings;
+		if (empty($row['redirect']))
+			unset($this_boardSettings['redirect']);
+
 		// First off, add in the side key.
-		addData($boardSettings);
+		addData($this_boardSettings);
 
 		// Format the profile name.
 		$profile_name = $context['profiles'][$row['id_profile']]['name'];
@@ -230,6 +235,7 @@ function BoardReport()
 		$boardData = array(
 			'category' => $row['cat_name'],
 			'parent' => $row['parent_name'],
+			'redirect' => $row['redirect'],
 			'num_posts' => $row['num_posts'],
 			'num_topics' => $row['num_topics'],
 			'count_posts' => empty($row['count_posts']) ? $txt['yes'] : $txt['no'],
@@ -262,6 +268,9 @@ function BoardReport()
 			}
 			$boardData['disallowed_groups'] = implode(', ', $disallowedGroups);
 		}
+
+		if (empty($row['redirect']))
+			unset ($boardData['redirect']);
 
 		// Next add the main data.
 		addData($boardData);
