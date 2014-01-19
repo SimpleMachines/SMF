@@ -126,6 +126,8 @@ $txt['errortype_user'] = 'User';
 $txt['errortype_user_desc'] = 'Errors resulting from user errors.  Includes failed passwords, trying to login when banned, and trying to do an action for which they do not have permission.';
 $txt['errortype_cron'] = 'Cron';
 $txt['errortype_cron_desc'] = 'Errors resulting from background tasks.';
+$txt['errortype_paidsubs'] = 'Paid Subs';
+$txt['errortype_paidsubs'] = 'Errors resulting from paid subscriptions, which can include notification of payment failures.';
 
 $txt['maintain_recount'] = 'Recount all forum totals and statistics';
 $txt['maintain_recount_info'] = 'Should the total replies of a topic or the number of PMs in your inbox be incorrect: this function will recount all saved counts and statistics for you.';

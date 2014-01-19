@@ -312,7 +312,7 @@ function generateSubscriptionError($text)
 	}
 
 	// Then just log and die.
-	log_error($text);
+	log_error($text, 'paidsubs');
 
 	exit;
 }
