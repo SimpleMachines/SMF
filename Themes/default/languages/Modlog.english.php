@@ -97,7 +97,7 @@ $txt['modlog_ac_remove_attach'] = 'Removed unapproved &quot;{filename}&quot; in 
 // Handling reports on posts
 $txt['modlog_report'] = 'report';
 $txt['modlog_ac_close_report'] = 'Closed {report} on &quot;{message}&quot;';
-$txt['modlog_ac_ignore_report'] = 'Ignored {report} on &quot;{message}&quot;';
+$txt['modlog_ac_ignore_report'] = 'Disregarded {report} on &quot;{message}&quot;';
 $txt['modlog_ac_open_report'] = 'Reopened {report} on &quot;{message}&quot;';
-$txt['modlog_ac_unignore_report'] = 'Un-ignored {report} on &quot;{message}&quot;';
+$txt['modlog_ac_unignore_report'] = 'Undone disregard of {report} on &quot;{message}&quot;';
 ?>
