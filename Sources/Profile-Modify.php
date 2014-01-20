@@ -184,7 +184,7 @@ function loadProfileFields($force_reload = false)
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
 				if (document.forms.creator.email_address.value != "'. $cur_profile['email_address'] .'")
 				{
-					alert("'. $txt['email_change_logout'] .'");
+					alert("'. JavaScriptEscape($txt['email_change_logout']) .'");
 					return true;
 				}' : '',
 			'input_validate' => create_function('&$value', '
