@@ -1543,7 +1543,7 @@ function WrapAction()
 		$settings['catch_action']['function']();
 	}
 	// And finally, the main sub template ;).
-	elseif (isset($settings['catch_action']['sub_template']))
+	if (isset($settings['catch_action']['sub_template']))
 		$context['sub_template'] = $settings['catch_action']['sub_template'];
 }
 
