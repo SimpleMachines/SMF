@@ -61,7 +61,7 @@ $txt['invalid_registration'] = 'Invalid Date Registered value, valid example:';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
 $txt['required_security_reasons'] = 'For security reasons, your current password is required to make changes to your account.';
-$txt['email_change_logout'] = 'You decided to change your email. You will be logged out. Please reactivate your account.';
+$txt['email_change_logout'] = 'Since you decided to change your email, you will need to reactivate your account. You will now be logged out.';
 
 $txt['timeoffset_autodetect'] = 'auto detect';
 
