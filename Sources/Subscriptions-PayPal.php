@@ -99,6 +99,9 @@ class paypal_display
 		$return_data['hidden']['src'] = 1;
 		$return_data['hidden']['notify_url'] = $boardurl . '/subscriptions.php';
 
+		// If possible let's use the language we know we need.
+		$return_data['hidden']['lc'] = !empty($txt['lang_paypal']) ? $txt['lang_paypal'] : 'US';
+
 		// Now stuff dependant on what we're doing.
 		if ($sub_data['flexible'])
 		{

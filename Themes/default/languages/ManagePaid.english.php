@@ -3,6 +3,9 @@
 
 global $boardurl;
 
+// Some payment gateways need language specific information.
+$txt['lang_paypal'] = 'US';
+
 // Symbols.
 $txt['usd_symbol'] = '$%1.2f';
 $txt['eur_symbol'] = '&euro;%1.2f';
