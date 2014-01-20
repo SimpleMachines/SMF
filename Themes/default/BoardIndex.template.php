@@ -293,8 +293,8 @@ function template_ic_block_recent()
 
 	// This is the "Recent Posts" bar.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="cat_bar">
+				<h4 class="catbg">
 					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="">', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
@@ -349,8 +349,8 @@ function template_ic_block_calendar()
 
 	// Show information about events, birthdays, and holidays on the calendar.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="cat_bar">
+				<h4 class="catbg">
 					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="">', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
 				</h4>
 			</div>';
@@ -397,8 +397,8 @@ function template_ic_block_stats()
 
 	// Show statistical style information...
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="cat_bar">
+				<h4 class="catbg">
 					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="stats_icon boards"></span>', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
@@ -414,8 +414,8 @@ function template_ic_block_online()
 	global $context, $scripturl, $txt, $modSettings;
 	// "Users online" - in order of activity.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="cat_bar">
+				<h4 class="catbg">
 					', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="stats_icon people"></span>', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
 				</h4>
 			</div>
