@@ -98,7 +98,6 @@ $txt['user_text'] = 'Show personal text in message view';
 $txt['gender_images'] = 'Show gender images in message view';
 $txt['news_fader'] = 'Show news fader on board index';
 $txt['member_list_bar'] = 'Show members list bar on board index';
-$txt['current_pos_text_img'] = 'Show current position in forum as link instead of text';
 $txt['show_view_profile_button'] = 'Show view profile button under post';
 $txt['header_logo_url'] = 'Logo image URL';
 $txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.)';

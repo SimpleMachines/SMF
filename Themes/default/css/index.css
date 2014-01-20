@@ -1735,22 +1735,22 @@ ul li.greeting {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/pm_icons.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat 0 -64px;
 }
 .pm_icons.inbox {
-	background-position: 0 0;
+	background-position: 0 -64px;
 }
 .pm_icons.switch {
-	background-position: -16px 0;
+	background-position: -16px -64px;
 }
 .pm_icons.replied {
-	background-position: -32px 0;
+	background-position: -32px -64px;
 }
 .pm_icons.im_on {
-	background-position: -48px 0;
+	background-position: -48px -64px;
 }
 .pm_icons.im_off {
-	background-position: -64px 0;
+	background-position: -64px -64px;
 }
 
 /* Styles for the board index and child boards tables.
@@ -3086,6 +3086,19 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 }
 .generic_icons.move {
 	background-position: -112px -32px;
+}
+/* Most of the bottom row is already declared via .pm_icons */
+
+.generic_icons.del_small {
+	background-position: -80px -64px;
+	width: 9px;
+	height: 9px;
+}
+.generic_icons.split_desel {
+	background-position: -96px -64px;
+}
+.generic_icons.split_sel {
+	background-position: -112px -64px;
 }
 
 /* Styles for (fatal) errors.

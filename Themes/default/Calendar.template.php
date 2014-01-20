@@ -521,41 +521,7 @@ function template_event_post()
 {
 	global $context, $txt, $scripturl;
 
-	// Start the javascript for drop down boxes...
 	echo '
-		<script><!-- // --><![CDATA[
-			var monthLength;
-			monthLength = [
-				31, 28, 31, 30,
-				31, 30, 31, 31,
-				30, 31, 30, 31
-			];
-			function generateDays()
-			{
-				var days, selected, dayElement, monthElement, yearElement;
-				dayElement = document.getElementById("day"), yearElement = document.getElementById("year"), monthElement = document.getElementById("month");
-
-				monthLength[1] = 28;
-				if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-					monthLength[1] = 29;
-
-				selected = dayElement.selectedIndex;
-				while (dayElement.options.length)
-				{
-					dayElement.options[0] = null;
-				}
-				days = monthLength[monthElement.value - 1];
-
-				for (i = 0; i <= days; ++i)
-				{
-					dayElement.options[dayElement.length] = new Option(i, i);
-				}
-
-				if (selected < days)
-					dayElement.selectedIndex = selected;
-			}
-		// ]]></script>
-
 		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);smc_saveEntities(\'postevent\', [\'evtitle\']);" style="margin: 0;">';
 
 	if (!empty($context['event']['new']))
