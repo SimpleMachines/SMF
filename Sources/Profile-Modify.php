@@ -800,7 +800,7 @@ function setupProfileContext($fields)
 	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.oldpasswrd.value == "")
-		{console.log(event);
+		{
 			event.preventDefault();
 			alert('. (JavaScriptEscape($txt['required_security_reasons'])) .');
 			return false;
