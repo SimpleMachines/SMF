@@ -1687,7 +1687,7 @@ function EditTheme()
 				$_GET['directory'] = preg_replace(array('~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'), array('', '/', '/'), $_GET['directory']);
 
 				$temp = realpath($currentTheme['theme_dir'] . '/' . $_GET['directory']);
-				if (empty($temp) || substr($temp, 0, strlen(realpath($theme_dir))) != realpath($theme_dir))
+				if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir']))
 					$_GET['directory'] = '';
 			}
 		}
