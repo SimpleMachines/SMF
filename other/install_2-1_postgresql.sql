@@ -2581,7 +2581,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_blur
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_gender', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_newsfader', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'number_recent_posts', '0');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'linktree_link', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_profile_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');

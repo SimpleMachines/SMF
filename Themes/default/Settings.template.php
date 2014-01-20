@@ -164,10 +164,6 @@ function template_settings()
 		),
 	'',
 		array(
-			'id' => 'linktree_link',
-			'label' => $txt['current_pos_text_img'],
-		),
-		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],
 		),
