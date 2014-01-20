@@ -155,6 +155,7 @@ $txt['themeadmin_edit_copy_warning'] = 'When SMF needs a template or language fi
 $txt['themeadmin_edit_copy_confirm'] = 'Are you sure you want to copy this template?';
 $txt['themeadmin_edit_overwrite_confirm'] = 'Are you sure you want to copy this template over the one that already exists?\nThis will OVERWRITE any changes you\\\'ve made';
 $txt['themeadmin_edit_no_copy'] = '<em>(can\'t copy)</em>';
+$txt['themeadmin_browsing_theme'] = 'Browsing files in theme: %1$s';
 $txt['themeadmin_edit_filename'] = 'Filename';
 $txt['themeadmin_edit_modified'] = 'Last Modified';
 $txt['themeadmin_edit_size'] = 'Size';

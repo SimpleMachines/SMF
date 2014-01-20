@@ -1637,7 +1637,7 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $context, $settings, $scripturl, $boarddir, $smcFunc;
+	global $context, $settings, $scripturl, $boarddir, $smcFunc, $txt;
 
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
@@ -1672,6 +1672,7 @@ function EditTheme()
 	// Get the directory of the theme we are editing.
 	$currentTheme = get_single_theme($_GET['th']);
 	$context['theme_id'] = $currentTheme['id'];
+	$context['browse_title'] = sprintf($txt['themeadmin_browsing_theme'], $currentTheme['name']);
 
 	if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css'))
 		fatal_lang_error('theme_edit_missing', false);
