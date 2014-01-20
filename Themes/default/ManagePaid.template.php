@@ -268,7 +268,7 @@ function template_modify_user_subscription()
 					</dl>
 					<fieldset>
 						<legend>', $txt['start_date_and_time'], '</legend>
-						<select name="year" id="year" onchange="generateDays(\'\');">';
+						<select name="year" id="year" onchange="generateDays();">';
 
 	// Show a list of all the years we allow...
 	for ($year = 2005; $year <= 2030; $year++)
@@ -278,7 +278,7 @@ function template_modify_user_subscription()
 	echo '
 						</select>&nbsp;
 						', (isset($txt['calendar_month']) ? $txt['calendar_month'] : $txt['calendar_month']), '&nbsp;
-						<select name="month" id="month" onchange="generateDays(\'\');">';
+						<select name="month" id="month" onchange="generateDays();">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
