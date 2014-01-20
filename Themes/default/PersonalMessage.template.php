@@ -60,8 +60,7 @@ function template_pm_popup()
 				<a href="', $scripturl, '?action=pm;sa=settings">', $txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox floatleft">
-				', $txt['pm_unread'], '
-				| <a href="', $scripturl, '?action=pm">', $txt['inbox'], '</a>
+				<a href="', $scripturl, '?action=pm">', $txt['inbox'], '</a>
 				| <a href="', $scripturl, '?action=pm;f=sent">', $txt['pm_sent_short'], '</a>
 			</div>
 		</div>
