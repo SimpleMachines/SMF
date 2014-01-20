@@ -182,7 +182,7 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_password',
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
-	formHandle.addEventListener(\'submit\', function(event)
+	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.email_address.value != "'. $cur_profile['email_address'] .'")
 		{
@@ -794,10 +794,10 @@ function setupProfileContext($fields)
 
 	// Some spicy JS.
 	addInlineJavascript('
-	var formHandle = document.forms.creator;
-	createEventListener(formHandle);
+	var form_handle = document.forms.creator;
+	createEventListener(form_handle);
 	'. (!empty($context['require_password']) ? '
-	formHandle.addEventListener(\'submit\', function(event)
+	form_handle.addEventListener(\'submit\', function(event)
 	{
 		if (this.oldpasswrd.value == "")
 		{console.log(event);
