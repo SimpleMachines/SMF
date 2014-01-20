@@ -182,11 +182,14 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_password',
 			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
-				if (document.forms.creator.email_address.value != "'. $cur_profile['email_address'] .'")
-				{
-					alert("'. JavaScriptEscape($txt['email_change_logout']) .'");
-					return true;
-				}' : '',
+	formHandle.addEventListener(\'submit\', function(event)
+	{
+		if (this.email_address.value != "'. $cur_profile['email_address'] .'")
+		{
+			alert('. JavaScriptEscape($txt['email_change_logout']) .');
+			return true;
+		}
+	}, false);' : '',
 			'input_validate' => create_function('&$value', '
 				global $context, $old_profile, $profile_vars, $sourcedir, $modSettings;
 
@@ -788,6 +791,29 @@ function setupProfileContext($fields)
 			$context['profile_fields'][$i++]['type'] = 'hr';
 		}
 	}
+
+	// Some spicy JS.
+	addInlineJavascript('
+	var formHandle = document.forms.creator;
+	createEventListener(formHandle);
+	'. (!empty($context['require_password']) ? '
+	formHandle.addEventListener(\'submit\', function(event)
+	{
+		if (this.oldpasswrd.value == "")
+		{console.log(event);
+			event.preventDefault();
+			alert('. (JavaScriptEscape($txt['required_security_reasons'])) .');
+			return false;
+		}
+	}, false);' : ''), true);
+
+	// Any onsubmit javascript?
+	if (!empty($context['profile_onsubmit_javascript']))
+		addInlineJavascript($context['profile_onsubmit_javascript'], true);
+
+	// Any totally custom stuff?
+	if (!empty($context['profile_javascript']))
+		addInlineJavascript($context['profile_javascript'], true);
 
 	// Free up some memory.
 	unset($profile_fields);
@@ -1995,7 +2021,7 @@ function alert_configuration($memID)
 		if (empty($alert_types[$group]))
 			unset ($alert_types[$group]);
 	}
-	
+
 	// Slightly different for group requests
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -2005,9 +2031,9 @@ function alert_configuration($memID)
 			'memID' => $memID,
 		)
 	);
-	
+
 	list($can_mod) = $smcFunc['db_fetch_row']($request);
-	
+
 	if (!isset($perms_cache['manage_membergroups']))
 	{
 		$members = membersAllowedTo('manage_membergroups');
