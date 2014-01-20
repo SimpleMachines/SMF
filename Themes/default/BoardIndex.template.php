@@ -157,7 +157,7 @@ function template_main()
 					</td>
 					<td class="windowbg stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
-						', $board['is_redirect'] ? '' : '<br> '.comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</td>
 					<td class="lastpost">';

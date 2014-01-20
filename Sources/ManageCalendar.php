@@ -127,8 +127,8 @@ function ModifyHolidays()
 					),
 				),
 				'sort' => array(
-					'default' => 'title',
-					'reverse' => 'title DESC',
+					'default' => 'title ASC, event_date ASC',
+					'reverse' => 'title DESC, event_date ASC',
 				)
 			),
 			'date' => array(
