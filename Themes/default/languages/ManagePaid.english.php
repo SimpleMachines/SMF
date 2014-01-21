@@ -10,10 +10,14 @@ $txt['lang_paypal'] = 'US';
 $txt['usd_symbol'] = '$%1.2f';
 $txt['eur_symbol'] = '&euro;%1.2f';
 $txt['gbp_symbol'] = '&pound;%1.2f';
+$txt['cad_symbol'] = 'C$%1.2f';
+$txt['aud_symbol'] = 'A$%1.2f';
 
 $txt['usd'] = 'USD ($)';
 $txt['eur'] = 'EURO (&euro;)';
 $txt['gbp'] = 'GBP (&pound;)';
+$txt['cad'] = 'CAD (C$)';
+$txt['aud'] = 'AUD (A$)';
 $txt['other'] = 'Other';
 
 $txt['paid_username'] = 'Username';
@@ -96,6 +100,8 @@ $txt['paid_mod_email_desc'] = 'Where {NAME} is members name; {FORUM} is communit
 $txt['paid_mod_cost_usd'] = 'Cost (USD)';
 $txt['paid_mod_cost_eur'] = 'Cost (EUR)';
 $txt['paid_mod_cost_gbp'] = 'Cost (GBP)';
+$txt['paid_mod_cost_cad'] = 'Cost (CAD)';
+$txt['paid_mod_cost_aud'] = 'Cost (AUD)';
 $txt['paid_mod_cost_blank'] = 'Leave this blank to not offer this currency.';
 $txt['paid_mod_span'] = 'Length of Subscription';
 $txt['paid_mod_span_days'] = 'Days';
